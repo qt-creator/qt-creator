@@ -359,7 +359,6 @@ private slots:
 
 private:
     void stage(const QString &patch, bool revert);
-    QByteArray readConfigBytes(const QString &workingDirectory, const QString &configVar) const;
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const;

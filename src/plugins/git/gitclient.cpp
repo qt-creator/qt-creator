@@ -2506,12 +2506,12 @@ FileName GitClient::gitExecutable(bool *ok, QString *errorMessage) const
 
 QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
 {
-    QByteArray codecName = readConfigBytes(workingDirectory, QLatin1String(configVar)).trimmed();
+    QString codecName = readConfigValue(workingDirectory, QLatin1String(configVar)).trimmed();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
     if (codecName.isEmpty())
-        codecName = "UTF-8";
-    return QTextCodec::codecForName(codecName);
+        return QTextCodec::codecForName("UTF-8");
+    return QTextCodec::codecForName(codecName.toUtf8());
 }
 
 // returns first line from log and removes it
@@ -3263,21 +3263,6 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     return true;
 }
 
-QByteArray GitClient::readConfigBytes(const QString &workingDirectory, const QString &configVar) const
-{
-    QStringList arguments;
-    arguments << QLatin1String("config") << configVar;
-
-    QByteArray outputText;
-    QByteArray errorText;
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                             VcsBasePlugin::SuppressCommandLogging))
-        return QByteArray();
-    if (HostOsInfo::isWindowsHost())
-        outputText.replace("\r\n", "\n");
-    return outputText;
-}
-
 // Read a single-line config value, return trimmed
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
@@ -3286,8 +3271,18 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
     static QTextCodec *codec = HostOsInfo::isWindowsHost()
             ? QTextCodec::codecForName("UTF-8")
             : QTextCodec::codecForLocale();
-    const QByteArray value = readConfigBytes(workingDirectory, configVar).trimmed();
-    return SynchronousProcess::normalizeNewlines(codec->toUnicode(value));
+    QStringList arguments;
+    arguments << QLatin1String("config") << configVar;
+
+    QByteArray outputText;
+    QByteArray errorText;
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                             VcsBasePlugin::SuppressCommandLogging))
+        return QString();
+    if (HostOsInfo::isWindowsHost())
+        outputText.replace("\r\n", "\n");
+
+    return SynchronousProcess::normalizeNewlines(codec->toUnicode(outputText));
 }
 
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
