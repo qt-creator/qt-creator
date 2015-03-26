@@ -1200,7 +1200,6 @@ void WatchModel::reexpandItems()
 void WatchHandler::removeAllData(bool includeInspectData)
 {
     m_model->reinitialize(includeInspectData);
-    updateWatchersWindow();
 }
 
 void WatchHandler::resetValueCache()
