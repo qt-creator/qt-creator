@@ -246,7 +246,7 @@ class Dumper(DumperBase):
         # dumpers causing loading of shared objects etc).
         self.currentQtNamespaceGuess = None
 
-        self.varList = args.get("vars", [])
+        self.partialVariable = args.get("vars", "")
         self.resultVarName = args.get("resultvarname", "")
         self.expandedINames = set(args.get("expanded", []))
         self.stringCutOff = int(args.get("stringcutoff", 10000))
@@ -368,9 +368,9 @@ class Dumper(DumperBase):
         if self.qmlcontext:
             locals = self.extractQmlVariables(self.qmlcontext)
 
-        elif self.partialUpdate and len(self.varList) == 1:
+        elif self.partialUpdate:
             #warn("PARTIAL: %s" % self.varList)
-            parts = self.varList[0].split('.')
+            parts = self.partialVariable.split('.')
             #warn("PARTIAL PARTS: %s" % parts)
             name = parts[1]
             #warn("PARTIAL VAR: %s" % name)
