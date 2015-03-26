@@ -178,7 +178,8 @@ Item {
         height: 18
         y: 2
         verticalAlignment: Text.AlignVCenter
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: editIcon.left
         color: "white"
         renderType: Text.NativeRendering
         elide: Text.ElideRight
