@@ -131,6 +131,10 @@ def qdump__CPlusPlus__TemplateNameId(d, value):
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__QualifiedNameId(d, value):
+    dumpLiteral(d, value)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__Literal(d, value):
     dumpLiteral(d, value)
     d.putPlainChildren(value)
