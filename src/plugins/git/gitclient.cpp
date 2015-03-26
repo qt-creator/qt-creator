@@ -3280,7 +3280,7 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
     if (HostOsInfo::isWindowsHost())
         outputText.replace("\r\n", "\n");
 
-    return SynchronousProcess::normalizeNewlines(codec->toUnicode(outputText));
+    return SynchronousProcess::normalizeNewlines(codec->toUnicode(outputText.trimmed()));
 }
 
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
