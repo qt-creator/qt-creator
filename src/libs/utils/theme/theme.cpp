@@ -285,7 +285,11 @@ void Theme::readSettings(QSettings &settings)
         QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QTC_ASSERT(settings.contains(key), return);;
+            if (!settings.contains(key)) {
+                qWarning("Theme \"%s\" misses color setting for key \"%s\".",
+                         qPrintable(d->fileName), qPrintable(key));
+                continue;
+            }
             d->colors[i] = readNamedColor(settings.value(key).toString());
         }
         settings.endGroup();
