@@ -30,6 +30,7 @@
 
 #include "spotlightlocatorfilter.h"
 
+#include <utils/autoreleasepool.h>
 #include <utils/qtcassert.h>
 
 #include <QMutex>
@@ -82,7 +83,7 @@ SpotlightIterator::SpotlightIterator(const QString &expression)
       m_queueIndex(-1),
       m_finished(false)
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    Utils::AutoreleasePool pool; Q_UNUSED(pool)
     NSPredicate *predicate = [NSPredicate predicateWithFormat:expression.toNSString()];
     m_query = [[NSMetadataQuery alloc] init];
     m_query.predicate = predicate;
@@ -109,7 +110,6 @@ SpotlightIterator::SpotlightIterator(const QString &expression)
                         m_waitForItems.wakeAll();
                     }] retain];
     [m_query startQuery];
-    [pool release];
 }
 
 SpotlightIterator::~SpotlightIterator()
@@ -161,7 +161,7 @@ void SpotlightIterator::ensureNext()
         return;
     if (m_index >= 10000) // limit the amount of data that is passed on
         return;
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    Utils::AutoreleasePool pool; Q_UNUSED(pool)
     // check if there are items in the queue, otherwise wait for some
     m_mutex.lock();
     bool itemAvailable = (m_queueIndex + 1 < m_queue.count);
@@ -177,7 +177,6 @@ void SpotlightIterator::ensureNext()
 
     }
     m_mutex.unlock();
-    [pool release];
 }
 
 // #pragma mark -- SpotlightLocatorFilter

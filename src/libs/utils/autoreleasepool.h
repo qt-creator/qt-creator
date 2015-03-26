@@ -28,24 +28,24 @@
 **
 ****************************************************************************/
 
-#include "autoreleasepool.h"
 
-#include <QUrl>
+#ifndef AUTORELEASEPOOL_H
+#define AUTORELEASEPOOL_H
 
-#include <Foundation/NSURL.h>
+#import <Foundation/NSAutoreleasePool.h>
 
 namespace Utils {
-namespace Internal {
 
-QUrl filePathUrl(const QUrl &url)
+class AutoreleasePool
 {
-    Utils::AutoreleasePool pool; Q_UNUSED(pool)
-    QUrl ret = url;
-    NSURL *nsurl = url.toNSURL();
-    if ([nsurl isFileReferenceURL])
-        ret = QUrl::fromNSURL([nsurl filePathURL]);
-    return ret;
-}
+public:
+    AutoreleasePool() { pool = [[NSAutoreleasePool alloc] init]; }
+    ~AutoreleasePool() { [pool release]; }
+private:
+    NSAutoreleasePool *pool;
+};
 
-} // Internal
 } // Utils
+
+#endif // AUTORELEASEPOOL_H
+

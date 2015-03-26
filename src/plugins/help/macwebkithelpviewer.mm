@@ -34,6 +34,7 @@
 #include "openpagesmanager.h"
 
 #include <coreplugin/icore.h>
+#include <utils/autoreleasepool.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -68,26 +69,7 @@
 #import <WebKit/WebUIDelegate.h>
 #import <WebKit/WebView.h>
 
-// #pragma mark -- AutoreleasePool
-
-class AutoreleasePool
-{
-public:
-    AutoreleasePool();
-    ~AutoreleasePool();
-private:
-    NSAutoreleasePool *pool;
-};
-
-AutoreleasePool::AutoreleasePool()
-{
-    pool = [[NSAutoreleasePool alloc] init];
-}
-
-AutoreleasePool::~AutoreleasePool()
-{
-    [pool release];
-}
+using namespace Utils;
 
 // #pragma mark -- mac helpers
 

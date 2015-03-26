@@ -198,6 +198,7 @@ FORMS += $$PWD/filewizardpage.ui \
 RESOURCES += $$PWD/utils.qrc
 
 osx {
+    HEADERS += $$PWD/autoreleasepool.h
     OBJECTIVE_SOURCES += \
         $$PWD/fileutils_mac.mm
     LIBS += -framework Foundation
