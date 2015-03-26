@@ -877,7 +877,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             } else {
                 m_expandedINames.remove(item->iname);
             }
-            emit columnAdjustmentRequested();
+            if (item->iname.contains('.'))
+                emit columnAdjustmentRequested();
             break;
 
         case LocalsTypeFormatRole:
