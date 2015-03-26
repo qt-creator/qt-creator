@@ -509,13 +509,16 @@ class Dumper(DumperBase):
         return int(value.GetLoadAddress())
 
     def extractInt(self, address):
-        return int(self.createValue(address, self.intType()))
+        error = SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 4, error))
 
     def extractInt64(self, address):
-        return int(self.createValue(address, self.int64Type()))
+        error = SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 8, error))
 
     def extractByte(self, address):
-        return int(self.createValue(address, self.charType())) & 0xFF
+        error = SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 1, error) & 0xFF)
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
