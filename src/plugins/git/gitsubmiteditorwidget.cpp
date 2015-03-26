@@ -59,6 +59,7 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
     new GitSubmitHighlighter(descriptionEdit());
 
     m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
+    m_gitSubmitPanelUi.invalidEmailLabel->setToolTip(tr("Provide a valid email to commit."));
 
     connect(m_gitSubmitPanelUi.authorLineEdit, &QLineEdit::textChanged,
             this, &GitSubmitEditorWidget::authorInformationChanged);
