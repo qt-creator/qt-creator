@@ -75,10 +75,9 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
-    SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
+    SubversionClient *client() const;
 
-    SubversionSettings settings() const;
-    void setSettings(const SubversionSettings &s);
+    SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
@@ -150,7 +149,6 @@ private:
 
     const QStringList m_svnDirectories;
 
-    SubversionSettings m_settings;
     SubversionClient *m_client;
     QString m_commitMessageFileName;
     QString m_commitRepository;

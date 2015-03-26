@@ -42,18 +42,20 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace VcsBase {
+class VcsBaseClientSettings;
+} // namespace VcsBase
+
 namespace Git {
 namespace Internal {
-
-class GitSettings;
 
 class SettingsPageWidget : public QWidget {
     Q_OBJECT
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
-    GitSettings settings() const;
-    void setSettings(const GitSettings &);
+    VcsBase::VcsBaseClientSettings settings() const;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s);
 
 private:
     Ui::SettingsPage m_ui;
@@ -69,6 +71,9 @@ public:
     QWidget *widget();
     void apply();
     void finish();
+
+signals:
+    void settingsChanged();
 
 private:
     QPointer<SettingsPageWidget> m_widget;

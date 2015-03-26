@@ -29,8 +29,10 @@
 ****************************************************************************/
 
 #include "settingspage.h"
-#include "subversionsettings.h"
+
+#include "subversionclient.h"
 #include "subversionplugin.h"
+#include "subversionsettings.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -43,6 +45,7 @@
 
 using namespace Subversion::Internal;
 using namespace Utils;
+using namespace VcsBase;
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
@@ -53,7 +56,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
 }
 
-SubversionSettings SettingsPageWidget::settings() const
+VcsBase::VcsBaseClientSettings SettingsPageWidget::settings() const
 {
     SubversionSettings rc;
     rc.setValue(SubversionSettings::binaryPathKey, m_ui.pathChooser->rawPath());
@@ -70,7 +73,7 @@ SubversionSettings SettingsPageWidget::settings() const
     return rc;
 }
 
-void SettingsPageWidget::setSettings(const SubversionSettings &s)
+void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
     m_ui.pathChooser->setFileName(s.binaryPath());
     m_ui.usernameLineEdit->setText(s.stringValue(SubversionSettings::userKey));
@@ -94,14 +97,20 @@ QWidget *SettingsPage::widget()
 {
     if (!m_widget) {
         m_widget = new SettingsPageWidget;
-        m_widget->setSettings(SubversionPlugin::instance()->settings());
+        m_widget->setSettings(SubversionPlugin::instance()->client()->settings());
     }
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    SubversionPlugin::instance()->setSettings(m_widget->settings());
+    const VcsBaseClientSettings newSettings = m_widget->settings();
+    VcsBaseClientSettings &s = SubversionPlugin::instance()->client()->settings();
+    if (s != newSettings) {
+        s = newSettings;
+        s.writeSettings(Core::ICore::settings());
+        emit settingsChanged();
+    }
 }
 
 void SettingsPage::finish()

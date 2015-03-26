@@ -211,6 +211,12 @@ CvsPlugin::~CvsPlugin()
     cleanCommitMessageFile();
 }
 
+CvsClient *CvsPlugin::client() const
+{
+    QTC_CHECK(m_client);
+    return m_client;
+}
+
 void CvsPlugin::cleanCommitMessageFile()
 {
     if (!m_commitMessageFileName.isEmpty()) {
@@ -246,9 +252,11 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"));
 
-    m_settings.readSettings(ICore::settings());
-    m_client = new CvsClient(&m_settings);
+    m_client = new CvsClient;
 
+    auto options = new SettingsPage;
+    connect(options, &SettingsPage::settingsChanged,
+            versionControl(), &IVersionControl::configurationChanged);
     addAutoReleasedObject(new SettingsPage);
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
@@ -503,12 +511,11 @@ bool CvsPlugin::submitEditorAboutToClose()
 
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    CvsSettings newSettings = m_settings;
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing CVS Editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
-                                 newSettings.boolPointer(CvsSettings::promptOnSubmitKey),
+                                 client()->settings().boolPointer(CvsSettings::promptOnSubmitKey),
                                  !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
@@ -520,7 +527,6 @@ bool CvsPlugin::submitEditorAboutToClose()
     default:
         break;
     }
-    setSettings(newSettings); // in case someone turned prompting off
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
     if (!fileList.empty()) {
@@ -617,7 +623,7 @@ void CvsPlugin::revertAll()
     QStringList args;
     args << QLatin1String("update") << QLatin1String("-C") << state.topLevel();
     const CvsResponse revertResponse =
-            runCvs(state.topLevel(), args, m_settings.timeOutMs(),
+            runCvs(state.topLevel(), args, client()->vcsTimeout(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     if (revertResponse.result == CvsResponse::Ok)
         cvsVersionControl()->emitRepositoryChanged(state.topLevel());
@@ -633,7 +639,7 @@ void CvsPlugin::revertCurrentFile()
     QStringList args;
     args << QLatin1String("diff") << state.relativeCurrentFile();
     const CvsResponse diffResponse =
-            runCvs(state.currentFileTopLevel(), args, m_settings.timeOutMs(), 0);
+            runCvs(state.currentFileTopLevel(), args, client()->vcsTimeout(), 0);
     switch (diffResponse.result) {
     case CvsResponse::Ok:
         return; // Not modified, diff exit code 0
@@ -655,7 +661,7 @@ void CvsPlugin::revertCurrentFile()
     args.clear();
     args << QLatin1String("update") << QLatin1String("-C") << state.relativeCurrentFile();
     const CvsResponse revertResponse =
-            runCvs(state.currentFileTopLevel(), args, m_settings.timeOutMs(),
+            runCvs(state.currentFileTopLevel(), args, client()->vcsTimeout(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     if (revertResponse.result == CvsResponse::Ok)
         cvsVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
@@ -717,7 +723,7 @@ void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
     // where we are, so, have stdout/stderr channels merged.
     QStringList args = QStringList(QLatin1String("status"));
     const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeOutMs(), MergeOutputChannels);
+            runCvs(workingDir, args, client()->vcsTimeout(), MergeOutputChannels);
     if (response.result != CvsResponse::Ok)
         return;
     // Get list of added/modified/deleted files and purge out undesired ones
@@ -765,7 +771,7 @@ bool CvsPlugin::commit(const QString &messageFile,
     args << QLatin1String("-F") << messageFile;
     args.append(fileList);
     const CvsResponse response =
-            runCvs(m_commitRepository, args, 10 * m_settings.timeOutMs(),
+            runCvs(m_commitRepository, args, 10 * client()->vcsTimeout(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     return response.result == CvsResponse::Ok ;
 }
@@ -803,7 +809,7 @@ void CvsPlugin::filelog(const QString &workingDir,
     args << QLatin1String("log");
     args.append(file);
     const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeOutMs(),
+            runCvs(workingDir, args, client()->vcsTimeout(),
                    SshPasswordPrompt, codec);
     if (response.result != CvsResponse::Ok)
         return;
@@ -844,7 +850,7 @@ bool CvsPlugin::update(const QString &topLevel, const QString &file)
     if (!file.isEmpty())
         args.append(file);
     const CvsResponse response =
-            runCvs(topLevel, args, 10 * m_settings.timeOutMs(),
+            runCvs(topLevel, args, 10 * client()->vcsTimeout(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
@@ -891,7 +897,7 @@ bool CvsPlugin::edit(const QString &topLevel, const QStringList &files)
     QStringList args(QLatin1String("edit"));
     args.append(files);
     const CvsResponse response =
-            runCvs(topLevel, args, m_settings.timeOutMs(),
+            runCvs(topLevel, args, client()->vcsTimeout(),
                    ShowStdOutInLogWindow|SshPasswordPrompt);
     return response.result == CvsResponse::Ok;
 }
@@ -903,7 +909,7 @@ bool CvsPlugin::diffCheckModified(const QString &topLevel, const QStringList &fi
     QStringList args(QLatin1String("-q"));
     args << QLatin1String("diff");
     args.append(files);
-    const CvsResponse response = runCvs(topLevel, args, m_settings.timeOutMs(), 0);
+    const CvsResponse response = runCvs(topLevel, args, client()->vcsTimeout(), 0);
     if (response.result == CvsResponse::OtherError)
         return false;
     *modified = response.result == CvsResponse::NonNullExitCode;
@@ -931,7 +937,7 @@ bool CvsPlugin::unedit(const QString &topLevel, const QStringList &files)
         args.append(QLatin1String("-y"));
     args.append(files);
     const CvsResponse response =
-            runCvs(topLevel, args, m_settings.timeOutMs(),
+            runCvs(topLevel, args, client()->vcsTimeout(),
                    ShowStdOutInLogWindow|SshPasswordPrompt);
     return response.result == CvsResponse::Ok;
 }
@@ -950,7 +956,7 @@ void CvsPlugin::annotate(const QString &workingDir, const QString &file,
         args << QLatin1String("-r") << revision;
     args << file;
     const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeOutMs(),
+            runCvs(workingDir, args, client()->vcsTimeout(),
                    SshPasswordPrompt, codec);
     if (response.result != CvsResponse::Ok)
         return;
@@ -979,7 +985,7 @@ bool CvsPlugin::status(const QString &topLevel, const QString &file, const QStri
     if (!file.isEmpty())
         args.append(file);
     const CvsResponse response =
-            runCvs(topLevel, args, m_settings.timeOutMs(), 0);
+            runCvs(topLevel, args, client()->vcsTimeout(), 0);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
         showOutputInEditor(title, response.stdOut, OtherContent, topLevel, 0);
@@ -1062,7 +1068,7 @@ bool CvsPlugin::describe(const QString &toplevel, const QString &file, const
     QStringList args;
     args << QLatin1String("log") << (QLatin1String("-r") + changeNr) << file;
     const CvsResponse logResponse =
-            runCvs(toplevel, args, m_settings.timeOutMs(), SshPasswordPrompt);
+            runCvs(toplevel, args, client()->vcsTimeout(), SshPasswordPrompt);
     if (logResponse.result != CvsResponse::Ok) {
         *errorMessage = logResponse.message;
         return false;
@@ -1072,7 +1078,7 @@ bool CvsPlugin::describe(const QString &toplevel, const QString &file, const
         *errorMessage = msgLogParsingFailed();
         return false;
     }
-    if (m_settings.boolValue(CvsSettings::describeByCommitIdKey)) {
+    if (client()->settings().boolValue(CvsSettings::describeByCommitIdKey)) {
         // Run a log command over the repo, filtering by the commit date
         // and commit id, collecting all files touched by the commit.
         const QString commitId = fileLog.front().revisions.front().commitId;
@@ -1084,7 +1090,7 @@ bool CvsPlugin::describe(const QString &toplevel, const QString &file, const
         args << QLatin1String("log") << QLatin1String("-d") << (dateS  + QLatin1Char('<') + nextDayS);
 
         const CvsResponse repoLogResponse =
-                runCvs(toplevel, args, 10 * m_settings.timeOutMs(), SshPasswordPrompt);
+                runCvs(toplevel, args, 10 * client()->vcsTimeout(), SshPasswordPrompt);
         if (repoLogResponse.result != CvsResponse::Ok) {
             *errorMessage = repoLogResponse.message;
             return false;
@@ -1121,7 +1127,7 @@ bool CvsPlugin::describe(const QString &repositoryPath,
         QStringList args(QLatin1String("log"));
         args << (QLatin1String("-r") + it->revisions.front().revision) << it->file;
         const CvsResponse logResponse =
-                runCvs(repositoryPath, args, m_settings.timeOutMs(), SshPasswordPrompt);
+                runCvs(repositoryPath, args, client()->vcsTimeout(), SshPasswordPrompt);
         if (logResponse.result != CvsResponse::Ok) {
             *errorMessage =  logResponse.message;
             return false;
@@ -1134,11 +1140,11 @@ bool CvsPlugin::describe(const QString &repositoryPath,
         if (!isFirstRevision(revision)) {
             const QString previousRev = previousRevision(revision);
             QStringList args(QLatin1String("diff"));
-            args << m_settings.stringValue(CvsSettings::diffOptionsKey) << QLatin1String("-r") << previousRev
-                    << QLatin1String("-r") << it->revisions.front().revision
-                    << it->file;
+            args << client()->settings().stringValue(CvsSettings::diffOptionsKey)
+                 << QLatin1String("-r") << previousRev << QLatin1String("-r")
+                 << it->revisions.front().revision << it->file;
             const CvsResponse diffResponse =
-                    runCvs(repositoryPath, args, m_settings.timeOutMs(), 0, codec);
+                    runCvs(repositoryPath, args, client()->vcsTimeout(), 0, codec);
             switch (diffResponse.result) {
             case CvsResponse::Ok:
             case CvsResponse::NonNullExitCode: // Diff exit code != 0
@@ -1186,7 +1192,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               unsigned flags,
                               QTextCodec *outputCodec) const
 {
-    const FileName executable = m_settings.binaryPath();
+    const FileName executable = client()->vcsBinary();
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;
@@ -1195,7 +1201,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     }
     // Run, connect stderr to the output window
     const SynchronousProcessResponse sp_resp =
-            runVcs(workingDirectory, executable, m_settings.addOptions(arguments),
+            runVcs(workingDirectory, executable, client()->settings().addOptions(arguments),
                    timeOut, flags, outputCodec);
 
     response.result = CvsResponse::OtherError;
@@ -1247,20 +1253,6 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     return editor;
 }
 
-CvsSettings CvsPlugin::settings() const
-{
-    return m_settings;
-}
-
-void CvsPlugin::setSettings(const CvsSettings &s)
-{
-    if (s != m_settings) {
-        m_settings = s;
-        m_settings.writeSettings(ICore::settings());
-        cvsVersionControl()->emitConfigurationChanged();
-    }
-}
-
 CvsPlugin *CvsPlugin::instance()
 {
     QTC_ASSERT(m_cvsPluginInstance, return m_cvsPluginInstance);
@@ -1272,7 +1264,7 @@ bool CvsPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
     QStringList args;
     args << QLatin1String("add") << rawFileName;
     const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeOutMs(),
+            runCvs(workingDir, args, client()->vcsTimeout(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     return response.result == CvsResponse::Ok;
 }
@@ -1282,7 +1274,7 @@ bool CvsPlugin::vcsDelete(const QString &workingDir, const QString &rawFileName)
     QStringList args;
     args << QLatin1String("remove") << QLatin1String("-f") << rawFileName;
     const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeOutMs(),
+            runCvs(workingDir, args, client()->vcsTimeout(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     return response.result == CvsResponse::Ok;
 }
@@ -1328,7 +1320,7 @@ bool CvsPlugin::managesFile(const QString &workingDirectory, const QString &file
     QStringList args;
     args << QLatin1String("status") << fileName;
     const CvsResponse response =
-            runCvs(workingDirectory, args, m_settings.timeOutMs(), SshPasswordPrompt);
+            runCvs(workingDirectory, args, client()->vcsTimeout(), SshPasswordPrompt);
     if (response.result != CvsResponse::Ok)
         return false;
     return !response.stdOut.contains(QLatin1String("Status: Unknown"));

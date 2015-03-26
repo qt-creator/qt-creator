@@ -42,9 +42,7 @@ class MercurialClient : public VcsBase::VcsBaseClient
 {
     Q_OBJECT
 public:
-    MercurialClient(MercurialSettings *settings);
-
-    MercurialSettings *settings() const;
+    MercurialClient();
 
     bool synchronousClone(const QString &workingDir,
                           const QString &srcLocation,

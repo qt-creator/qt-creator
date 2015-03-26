@@ -37,10 +37,12 @@
 #include <QWidget>
 #include <QPointer>
 
+namespace VcsBase {
+class VcsBaseClientSettings;
+} // namespace VcsBase
+
 namespace Bazaar {
 namespace Internal {
-
-class BazaarSettings;
 
 class OptionsPageWidget : public QWidget
 {
@@ -49,8 +51,8 @@ class OptionsPageWidget : public QWidget
 public:
     explicit OptionsPageWidget(QWidget *parent = 0);
 
-    BazaarSettings settings() const;
-    void setSettings(const BazaarSettings &s);
+    VcsBase::VcsBaseClientSettings settings() const;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s);
 
 private:
     Ui::OptionsPage m_ui;

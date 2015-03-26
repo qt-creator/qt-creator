@@ -165,12 +165,14 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     Context context(Constants::BAZAAR_CONTEXT);
 
-    m_client = new BazaarClient(&m_bazaarSettings);
+    m_client = new BazaarClient;
     auto vcsCtrl = new BazaarControl(m_client);
     initializeVcs(vcsCtrl, context);
 
-    addAutoReleasedObject(new OptionsPage);
-    m_bazaarSettings.readSettings(ICore::settings());
+    auto options = new OptionsPage;
+    connect(options, &OptionsPage::settingsChanged,
+            vcsCtrl, &Core::IVersionControl::configurationChanged);
+    addAutoReleasedObject(options);
 
     connect(m_client, &VcsBaseClient::changed, vcsCtrl, &BazaarControl::changed);
 
@@ -212,22 +214,6 @@ BazaarPlugin *BazaarPlugin::instance()
 BazaarClient *BazaarPlugin::client() const
 {
     return m_client;
-}
-
-const BazaarSettings &BazaarPlugin::settings() const
-{
-    return m_bazaarSettings;
-}
-
-void BazaarPlugin::setSettings(const BazaarSettings &settings)
-{
-    if (settings != m_bazaarSettings) {
-        const bool userIdChanged = !m_bazaarSettings.sameUserId(settings);
-        m_bazaarSettings = settings;
-        if (userIdChanged)
-            client()->synchronousSetUserId();
-        static_cast<BazaarControl *>(versionControl())->emitConfigurationChanged();
-    }
 }
 
 void BazaarPlugin::createMenu(const Context &context)
@@ -402,7 +388,7 @@ void BazaarPlugin::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += QLatin1String("--limit=") + QString::number(settings().intValue(BazaarSettings::logCountKey));
+    extraOptions += QLatin1String("--limit=") + QString::number(m_client->settings().intValue(BazaarSettings::logCountKey));
     m_client->log(state.topLevel(), QStringList(), extraOptions);
 }
 
@@ -606,9 +592,10 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client->synchronousBranchQuery(m_submitRepository);
+    const VcsBaseClientSettings &s = m_client->settings();
     commitEditor->setFields(m_submitRepository, branch,
-                            m_bazaarSettings.stringValue(BazaarSettings::userNameKey),
-                            m_bazaarSettings.stringValue(BazaarSettings::userEmailKey), status);
+                            s.stringValue(BazaarSettings::userNameKey),
+                            s.stringValue(BazaarSettings::userEmailKey), status);
 }
 
 void BazaarPlugin::diffFromEditorSelected(const QStringList &files)

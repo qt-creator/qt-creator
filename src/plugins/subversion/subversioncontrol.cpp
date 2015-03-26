@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "subversioncontrol.h"
+
+#include "subversionclient.h"
 #include "subversionplugin.h"
 #include "subversionsettings.h"
 
@@ -80,7 +82,7 @@ Core::Id SubversionControl::id() const
 
 bool SubversionControl::isConfigured() const
 {
-    const Utils::FileName binary = m_plugin->settings().binaryPath();
+    const Utils::FileName binary = m_plugin->client()->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -159,11 +161,6 @@ void SubversionControl::emitRepositoryChanged(const QString &s)
 void SubversionControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
-}
-
-void SubversionControl::emitConfigurationChanged()
-{
-    emit configurationChanged();
 }
 
 } // namespace Internal

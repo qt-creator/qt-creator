@@ -98,7 +98,7 @@ bool MercurialControl::managesFile(const QString &workingDirectory, const QStrin
 
 bool MercurialControl::isConfigured() const
 {
-    const Utils::FileName binary = mercurialClient->settings()->binaryPath();
+    const Utils::FileName binary = mercurialClient->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -184,11 +184,6 @@ void MercurialControl::changed(const QVariant &v)
     default:
         break;
     }
-}
-
-void MercurialControl::emitConfigurationChanged()
-{
-    emit configurationChanged();
 }
 
 } // namespace Internal

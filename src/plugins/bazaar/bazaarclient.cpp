@@ -68,13 +68,13 @@ class BazaarDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    BazaarDiffParameterWidget(BazaarSettings *settings, QWidget *parent = 0) :
+    BazaarDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
         VcsBaseEditorParameterWidget(parent)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-                   settings->boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
+                   settings.boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
         mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-                   settings->boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
+                   settings.boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
     }
 
     QStringList arguments() const
@@ -95,18 +95,18 @@ class BazaarLogParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    BazaarLogParameterWidget(BazaarSettings *settings, QWidget *parent = 0) :
+    BazaarLogParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
         VcsBaseEditorParameterWidget(parent)
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision.")),
-                   settings->boolPointer(BazaarSettings::logVerboseKey));
+                   settings.boolPointer(BazaarSettings::logVerboseKey));
         mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
                                    tr("Show from oldest to newest.")),
-                   settings->boolPointer(BazaarSettings::logForwardKey));
+                   settings.boolPointer(BazaarSettings::logForwardKey));
         mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include Merges"),
                                    tr("Show merged revisions.")),
-                   settings->boolPointer(BazaarSettings::logIncludeMergesKey));
+                   settings.boolPointer(BazaarSettings::logIncludeMergesKey));
 
         QList<ComboBoxItem> logChoices;
         logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
@@ -114,28 +114,23 @@ public:
                    << ComboBoxItem(tr("One Line"), QLatin1String("line"))
                    << ComboBoxItem(tr("GNU Change Log"), QLatin1String("gnu-changelog"));
         mapSetting(addComboBox(QStringList(QLatin1String("--log-format=%1")), logChoices),
-                   settings->stringPointer(BazaarSettings::logFormatKey));
+                   settings.stringPointer(BazaarSettings::logFormatKey));
     }
 };
 
-BazaarClient::BazaarClient(BazaarSettings *settings) :
-    VcsBaseClient(settings)
+BazaarClient::BazaarClient() :
+    VcsBaseClient(new BazaarSettings)
 {
-    setDiffParameterWidgetCreator([=] { return new BazaarDiffParameterWidget(settings); });
-    setLogParameterWidgetCreator([=] { return new BazaarLogParameterWidget(settings); });
-}
-
-BazaarSettings *BazaarClient::settings() const
-{
-    return dynamic_cast<BazaarSettings *>(VcsBaseClient::settings());
+    setDiffParameterWidgetCreator([this] { return new BazaarDiffParameterWidget(settings()); });
+    setLogParameterWidgetCreator([this] { return new BazaarLogParameterWidget(settings()); });
 }
 
 bool BazaarClient::synchronousSetUserId()
 {
     QStringList args;
     args << QLatin1String("whoami")
-         << (settings()->stringValue(BazaarSettings::userNameKey) + QLatin1String(" <")
-             + settings()->stringValue(BazaarSettings::userEmailKey) + QLatin1Char('>'));
+         << (settings().stringValue(BazaarSettings::userNameKey) + QLatin1String(" <")
+             + settings().stringValue(BazaarSettings::userEmailKey) + QLatin1Char('>'));
     QByteArray stdOut;
     return vcsFullySynchronousExec(QDir::currentPath(), args, &stdOut);
 }

@@ -138,7 +138,7 @@ public:
 
     static const char *stashNamePrefix;
 
-    explicit GitClient(GitSettings *settings);
+    explicit GitClient();
 
     Utils::FileName vcsBinary(bool *ok = 0, QString *errorMessage = 0) const;
     int vcsTimeout() const;
@@ -331,8 +331,6 @@ public:
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
                                               const QString &workingDirectory = QString()) const;
 
-    GitSettings *settings() const;
-
     QProcessEnvironment processEnvironment() const;
 
     bool beginStashScope(const QString &workingDirectory, const QString &command,
@@ -350,7 +348,6 @@ public slots:
     void show(const QString &source,
               const QString &id,
               const QString &name = QString());
-    void saveSettings();
 
 private slots:
     void slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
@@ -441,7 +438,6 @@ private:
     mutable Utils::FileName m_gitVersionForBinary;
     mutable unsigned m_cachedGitVersion;
 
-    GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
     QStringList m_updatedSubmodules;

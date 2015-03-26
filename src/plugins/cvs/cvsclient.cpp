@@ -70,40 +70,41 @@ class CvsDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    explicit CvsDiffParameterWidget(CvsSettings *settings, QWidget *parent = 0);
+    explicit CvsDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0);
     QStringList arguments() const;
 
 private:
-    const CvsSettings *m_settings;
+    VcsBaseClientSettings &m_settings;
 };
 
-CvsDiffParameterWidget::CvsDiffParameterWidget(CvsSettings *settings, QWidget *parent)
-    : VcsBaseEditorParameterWidget(parent),
-      m_settings(settings)
+CvsDiffParameterWidget::CvsDiffParameterWidget(VcsBaseClientSettings &settings,
+                                               QWidget *parent) :
+    VcsBaseEditorParameterWidget(parent),
+    m_settings(settings)
 {
     mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-               settings->boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
+               settings.boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
     mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-               settings->boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
+               settings.boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
 }
 
 QStringList CvsDiffParameterWidget::arguments() const
 {
     QStringList args;
-    args = m_settings->stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    args = m_settings.stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '),
+                                                                     QString::SkipEmptyParts);
     args += VcsBaseEditorParameterWidget::arguments();
     return args;
 }
 
-CvsClient::CvsClient(CvsSettings *settings) :
-    VcsBaseClient(settings)
+CvsClient::CvsClient() : VcsBaseClient(new CvsSettings)
 {
-    setDiffParameterWidgetCreator([=] { return new CvsDiffParameterWidget(settings); });
+    setDiffParameterWidgetCreator([this] { return new CvsDiffParameterWidget(settings()); });
 }
 
-CvsSettings *CvsClient::settings() const
+CvsSettings &CvsClient::settings() const
 {
-    return dynamic_cast<CvsSettings *>(VcsBaseClient::settings());
+    return static_cast<CvsSettings &>(VcsBaseClient::settings());
 }
 
 Core::Id CvsClient::vcsEditorKind(VcsCommandTag cmd) const

@@ -38,10 +38,12 @@
 #include <QWidget>
 #include <QPointer>
 
+namespace VcsBase {
+class VcsBaseClientSettings;
+} // namespace VcsBase
+
 namespace Mercurial {
 namespace Internal {
-
-class MercurialSettings;
 
 class OptionsPageWidget : public QWidget
 {
@@ -50,8 +52,8 @@ class OptionsPageWidget : public QWidget
 public:
     explicit OptionsPageWidget(QWidget *parent = 0);
 
-    MercurialSettings settings() const;
-    void setSettings(const MercurialSettings &s);
+    VcsBase::VcsBaseClientSettings settings() const;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s);
 
 private:
     Ui::OptionsPage m_ui;

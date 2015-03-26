@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "settingspage.h"
+
+#include "cvsclient.h"
 #include "cvssettings.h"
 #include "cvsplugin.h"
 
@@ -43,6 +45,7 @@
 
 using namespace Cvs::Internal;
 using namespace Utils;
+using namespace VcsBase;
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
@@ -53,7 +56,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.commandPathChooser->setPromptDialogTitle(tr("CVS Command"));
 }
 
-CvsSettings SettingsPageWidget::settings() const
+VcsBaseClientSettings SettingsPageWidget::settings() const
 {
     CvsSettings rc;
     rc.setValue(CvsSettings::binaryPathKey, m_ui.commandPathChooser->rawPath());
@@ -65,7 +68,7 @@ CvsSettings SettingsPageWidget::settings() const
     return rc;
 }
 
-void SettingsPageWidget::setSettings(const CvsSettings &s)
+void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
     m_ui.commandPathChooser->setFileName(s.binaryPath());
     m_ui.rootLineEdit->setText(s.stringValue(CvsSettings::cvsRootKey));
@@ -85,14 +88,20 @@ QWidget *SettingsPage::widget()
 {
     if (!m_widget) {
         m_widget = new SettingsPageWidget;
-        m_widget->setSettings(CvsPlugin::instance()->settings());
+        m_widget->setSettings(CvsPlugin::instance()->client()->settings());
     }
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    CvsPlugin::instance()->setSettings(m_widget->settings());
+    VcsBaseClientSettings &s = CvsPlugin::instance()->client()->settings();
+    const VcsBaseClientSettings newSettings = m_widget->settings();
+    if (s != newSettings) {
+        s = newSettings;
+        s.writeSettings(Core::ICore::settings());
+        emit settingsChanged();
+    }
 }
 
 void SettingsPage::finish()

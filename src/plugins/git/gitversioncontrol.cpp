@@ -143,7 +143,7 @@ QString GitVersionControl::vcsTopic(const QString &directory)
 
 QStringList GitVersionControl::additionalToolsPath() const
 {
-    QStringList res = m_client->settings()->searchPathList();
+    QStringList res = m_client->settings().searchPathList();
     const QString binaryPath = m_client->gitBinDirectory().toString();
     if (!binaryPath.isEmpty() && !res.contains(binaryPath))
         res << binaryPath;
@@ -178,11 +178,6 @@ void GitVersionControl::emitFilesChanged(const QStringList &l)
 void GitVersionControl::emitRepositoryChanged(const QString &r)
 {
     emit repositoryChanged(r);
-}
-
-void GitVersionControl::emitConfigurationChanged()
-{
-    emit configurationChanged();
 }
 
 } // Internal

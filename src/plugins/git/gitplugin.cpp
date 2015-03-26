@@ -274,14 +274,15 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Context context(Constants::GIT_CONTEXT);
 
-    m_settings.readSettings(ICore::settings());
-
-    m_gitClient = new GitClient(&m_settings);
+    m_gitClient = new GitClient;
 
     initializeVcs(new GitVersionControl(m_gitClient), context);
 
     // Create the settings Page
-    addAutoReleasedObject(new SettingsPage());
+    SettingsPage *options = new SettingsPage;
+    connect(options, &SettingsPage::settingsChanged,
+            versionControl(), &IVersionControl::configurationChanged);
+    addAutoReleasedObject(options);
 
     static const char *describeSlot = SLOT(show(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
@@ -1109,7 +1110,7 @@ void GitPlugin::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
-    bool rebase = m_settings.boolValue(GitSettings::pullRebaseKey);
+    bool rebase = gitClient()->settings().boolValue(GitSettings::pullRebaseKey);
 
     if (!rebase) {
         QString currentBranch = m_gitClient->synchronousCurrentLocalBranch(topLevel);
@@ -1415,24 +1416,9 @@ void GitPlugin::updateBranches(const QString &repository)
 void GitPlugin::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
-    const bool hasRepositoryBrowserCmd = !m_settings.stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
+    const bool hasRepositoryBrowserCmd
+            = !gitClient()->settings().stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
-}
-
-const GitSettings &GitPlugin::settings() const
-{
-    return m_settings;
-}
-
-void GitPlugin::setSettings(const GitSettings &s)
-{
-    if (s == m_settings)
-        return;
-
-    m_settings = s;
-    m_gitClient->saveSettings();
-    static_cast<GitVersionControl *>(versionControl())->emitConfigurationChanged();
-    updateRepositoryBrowserAction();
 }
 
 GitClient *GitPlugin::gitClient() const

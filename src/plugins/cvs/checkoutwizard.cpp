@@ -30,6 +30,7 @@
 
 #include "checkoutwizard.h"
 #include "checkoutwizardpage.h"
+#include "cvsclient.h"
 #include "cvsplugin.h"
 
 #include <coreplugin/iversioncontrol.h>
@@ -72,7 +73,7 @@ VcsCommand *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
     }
 
     QTC_ASSERT(cwp, return 0);
-    const CvsSettings settings = CvsPlugin::instance()->settings();
+    const CvsSettings settings = CvsPlugin::instance()->client()->settings();
     const Utils::FileName binary = settings.binaryPath();
     QStringList args;
 

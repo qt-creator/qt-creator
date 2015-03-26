@@ -30,6 +30,7 @@
 
 #include "clonewizard.h"
 #include "clonewizardpage.h"
+#include "mercurialclient.h"
 #include "mercurialplugin.h"
 #include "mercurialsettings.h"
 
@@ -74,7 +75,7 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     if (!cwp)
         return 0;
 
-    const MercurialSettings &settings = MercurialPlugin::settings();
+    const VcsBaseClientSettings &settings = MercurialPlugin::client()->settings();
 
     QString path = cwp->path();
     QString directory = cwp->directory();

@@ -43,10 +43,12 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace VcsBase {
+class VcsBaseClientSettings;
+} // namespace VcsBa
+
 namespace Subversion {
 namespace Internal {
-
-class SubversionSettings;
 
 class SettingsPageWidget : public QWidget
 {
@@ -55,8 +57,8 @@ class SettingsPageWidget : public QWidget
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
-    SubversionSettings settings() const;
-    void setSettings(const SubversionSettings &);
+    VcsBase::VcsBaseClientSettings settings() const;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s);
 
 private:
     Ui::SettingsPage m_ui;
@@ -73,6 +75,9 @@ public:
     QWidget *widget();
     void apply();
     void finish();
+
+signals:
+    void settingsChanged();
 
 private:
     QPointer<SettingsPageWidget> m_widget;

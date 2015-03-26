@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "cvscontrol.h"
+
+#include "cvsclient.h"
 #include "cvsplugin.h"
 #include "cvssettings.h"
 
@@ -58,7 +60,7 @@ Core::Id CvsControl::id() const
 
 bool CvsControl::isConfigured() const
 {
-    const Utils::FileName binary = m_plugin->settings().binaryPath();
+    const Utils::FileName binary = m_plugin->client()->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -148,9 +150,4 @@ void CvsControl::emitRepositoryChanged(const QString &s)
 void CvsControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
-}
-
-void CvsControl::emitConfigurationChanged()
-{
-    emit configurationChanged();
 }

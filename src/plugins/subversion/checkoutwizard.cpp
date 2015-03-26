@@ -74,8 +74,9 @@ VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
     }
     QTC_ASSERT(cwp, return 0);
 
-    const SubversionSettings settings = SubversionPlugin::instance()->settings();
-    const FileName binary = settings.binaryPath();
+    SubversionClient *client = SubversionPlugin::instance()->client();
+    const VcsBaseClientSettings &settings = client->settings();
+    const FileName binary = client->vcsBinary();
     const QString directory = cwp->directory();
     QStringList args;
     args << QLatin1String("checkout");

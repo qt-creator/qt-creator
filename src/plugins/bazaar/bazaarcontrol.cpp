@@ -71,7 +71,7 @@ bool BazaarControl::managesFile(const QString &workingDirectory, const QString &
 
 bool BazaarControl::isConfigured() const
 {
-    const Utils::FileName binary = m_bazaarClient->settings()->binaryPath();
+    const Utils::FileName binary = m_bazaarClient->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -147,9 +147,4 @@ void BazaarControl::changed(const QVariant &v)
     default:
         break;
     }
-}
-
-void BazaarControl::emitConfigurationChanged()
-{
-    emit configurationChanged();
 }

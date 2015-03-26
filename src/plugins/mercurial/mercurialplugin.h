@@ -75,9 +75,6 @@ public:
     static MercurialPlugin *instance() { return m_instance; }
     static MercurialClient *client() { return m_instance->m_client; }
 
-    static const MercurialSettings &settings();
-    static void setSettings(const MercurialSettings &settings);
-
 private slots:
     // File menu action slots
     void addCurrentFile();

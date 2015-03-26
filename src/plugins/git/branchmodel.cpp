@@ -646,7 +646,7 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString fullName = lineParts.at(1);
 
     bool current = (sha == m_currentSha);
-    bool showTags = m_client->settings()->boolValue(GitSettings::showTagsKey);
+    bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
 
     // insert node into tree:
     QStringList nameParts = fullName.split(QLatin1Char('/'));

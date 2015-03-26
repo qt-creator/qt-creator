@@ -44,9 +44,9 @@ class CvsClient : public VcsBase::VcsBaseClient
     Q_OBJECT
 
 public:
-    CvsClient(CvsSettings *settings);
+    CvsClient();
 
-    CvsSettings *settings() const;
+    CvsSettings &settings() const;
     void diff(const QString &workingDir, const QStringList &files,
               const QStringList &extraOptions = QStringList());
     QString findTopLevelForFile(const QFileInfo &file) const;

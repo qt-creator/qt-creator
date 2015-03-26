@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 #include "optionspage.h"
+#include "bazaarclient.h"
 #include "bazaarsettings.h"
 #include "bazaarplugin.h"
 
@@ -38,6 +39,7 @@
 
 using namespace Bazaar::Internal;
 using namespace Bazaar;
+using namespace VcsBase;
 
 OptionsPageWidget::OptionsPageWidget(QWidget *parent)
     : QWidget(parent)
@@ -48,9 +50,9 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent)
     m_ui.commandChooser->setHistoryCompleter(QLatin1String("Bazaar.Command.History"));
 }
 
-BazaarSettings OptionsPageWidget::settings() const
+VcsBaseClientSettings OptionsPageWidget::settings() const
 {
-    BazaarSettings s = BazaarPlugin::instance()->settings();
+    VcsBaseClientSettings s = BazaarPlugin::instance()->client()->settings();
     s.setValue(BazaarSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(BazaarSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(BazaarSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
@@ -59,7 +61,7 @@ BazaarSettings OptionsPageWidget::settings() const
     return s;
 }
 
-void OptionsPageWidget::setSettings(const BazaarSettings &s)
+void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
     m_ui.commandChooser->setPath(s.stringValue(BazaarSettings::binaryPathKey));
     m_ui.defaultUsernameLineEdit->setText(s.stringValue(BazaarSettings::userNameKey));
@@ -78,7 +80,7 @@ QWidget *OptionsPage::widget()
 {
     if (!m_optionsPageWidget)
         m_optionsPageWidget = new OptionsPageWidget;
-    m_optionsPageWidget->setSettings(BazaarPlugin::instance()->settings());
+    m_optionsPageWidget->setSettings(BazaarPlugin::instance()->client()->settings());
     return m_optionsPageWidget;
 }
 
@@ -87,11 +89,10 @@ void OptionsPage::apply()
     if (!m_optionsPageWidget)
         return;
     BazaarPlugin *plugin = BazaarPlugin::instance();
-    const BazaarSettings newSettings = m_optionsPageWidget->settings();
-    if (newSettings != plugin->settings()) {
-        //assume success and emit signal that settings are changed;
-        plugin->setSettings(newSettings);
-        newSettings.writeSettings(Core::ICore::settings());
+    const VcsBaseClientSettings newSettings = m_optionsPageWidget->settings();
+    VcsBaseClientSettings &s = plugin->client()->settings();
+    if (newSettings != s) {
+        s = newSettings;
         emit settingsChanged();
     }
 }

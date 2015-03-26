@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "optionspage.h"
+
+#include "mercurialclient.h"
 #include "mercurialsettings.h"
 #include "mercurialplugin.h"
 
@@ -37,6 +39,8 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QTextStream>
+
+using namespace VcsBase;
 
 namespace Mercurial {
 namespace Internal  {
@@ -50,9 +54,9 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 }
 
-MercurialSettings OptionsPageWidget::settings() const
+VcsBaseClientSettings OptionsPageWidget::settings() const
 {
-    MercurialSettings s = MercurialPlugin::settings();
+    MercurialSettings s;
     s.setValue(MercurialSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(MercurialSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(MercurialSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
@@ -61,7 +65,7 @@ MercurialSettings OptionsPageWidget::settings() const
     return s;
 }
 
-void OptionsPageWidget::setSettings(const MercurialSettings &s)
+void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
     m_ui.commandChooser->setPath(s.stringValue(MercurialSettings::binaryPathKey));
     m_ui.defaultUsernameLineEdit->setText(s.stringValue(MercurialSettings::userNameKey));
@@ -80,7 +84,7 @@ QWidget *OptionsPage::widget()
 {
     if (!optionsPageWidget)
         optionsPageWidget = new OptionsPageWidget;
-    optionsPageWidget->setSettings(MercurialPlugin::settings());
+    optionsPageWidget->setSettings(MercurialPlugin::client()->settings());
     return optionsPageWidget;
 }
 
@@ -88,13 +92,15 @@ void OptionsPage::apply()
 {
     if (!optionsPageWidget)
         return;
-    const MercurialSettings newSettings = optionsPageWidget->settings();
-    if (newSettings != MercurialPlugin::settings()) {
-        //assume success and emit signal that settings are changed;
-        MercurialPlugin::setSettings(newSettings);
-        newSettings.writeSettings(Core::ICore::settings());
+
+    const VcsBaseClientSettings newSettings = optionsPageWidget->settings();
+    VcsBaseClientSettings &s = MercurialPlugin::instance()->client()->settings();
+    if (s != newSettings) {
+        s = newSettings;
+        s.writeSettings(Core::ICore::settings());
         emit settingsChanged();
     }
+
 }
 
 void OptionsPage::finish()

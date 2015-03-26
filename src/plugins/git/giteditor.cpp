@@ -184,7 +184,8 @@ void GitEditorWidget::setPlainTextFiltered(const QString &text)
     switch (contentType())
     {
     case AnnotateOutput: {
-        const bool omitAnnotationDate = plugin->settings().boolValue(GitSettings::omitAnnotationDateKey);
+        const bool omitAnnotationDate
+                = plugin->gitClient()->settings().boolValue(GitSettings::omitAnnotationDateKey);
         if (omitAnnotationDate)
             modText = removeAnnotationDate(text);
         break;

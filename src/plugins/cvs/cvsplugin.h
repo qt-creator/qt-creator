@@ -78,12 +78,11 @@ public:
     CvsPlugin();
     ~CvsPlugin();
 
+    CvsClient *client() const;
+
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
-
-    CvsSettings settings() const;
-    void setSettings(const CvsSettings &s);
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);

@@ -79,7 +79,7 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     if (!cwp)
         return 0;
 
-    const BazaarSettings &settings = BazaarPlugin::instance()->settings();
+    const VcsBaseClientSettings &settings = BazaarPlugin::instance()->client()->settings();
     *checkoutDir = Utils::FileName::fromString(cwp->path() + QLatin1Char('/') + cwp->directory());
 
     const CloneOptionsPanel *panel = cwp->cloneOptionsPanel();

@@ -70,9 +70,6 @@ public:
     static BazaarPlugin *instance();
     BazaarClient *client() const;
 
-    const BazaarSettings &settings() const;
-    void setSettings(const BazaarSettings &settings);
-
 private slots:
     // File menu action slots
     void addCurrentFile();

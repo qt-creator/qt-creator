@@ -247,8 +247,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"));
 
-    m_settings.readSettings(ICore::settings());
-    m_client = new SubversionClient(&m_settings);
+    m_client = new SubversionClient;
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -451,6 +450,12 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     return true;
 }
 
+SubversionClient *SubversionPlugin::client() const
+{
+    QTC_CHECK(m_client);
+    return m_client;
+}
+
 bool SubversionPlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
@@ -470,7 +475,7 @@ bool SubversionPlugin::submitEditorAboutToClose()
 
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    SubversionSettings newSettings = m_settings;
+    VcsBaseClientSettings &newSettings = client()->settings();
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing Subversion Editor"),
                                  tr("Do you want to commit the change?"),
@@ -487,7 +492,6 @@ bool SubversionPlugin::submitEditorAboutToClose()
     default:
         break;
     }
-    setSettings(newSettings); // in case someone turned prompting off
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
     if (!fileList.empty()) {
@@ -578,7 +582,7 @@ void SubversionPlugin::revertAll()
     // NoteL: Svn "revert ." doesn not work.
     QStringList args;
     args << QLatin1String("revert");
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args << QLatin1String("--recursive") << state.topLevel();
     const SubversionResponse revertResponse
             = runSvn(state.topLevel(), args, m_client->vcsTimeout() * 1000,
@@ -596,7 +600,7 @@ void SubversionPlugin::revertCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
 
     QStringList args(QLatin1String("diff"));
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args.push_back(state.relativeCurrentFile());
 
     const SubversionResponse diffResponse
@@ -617,7 +621,7 @@ void SubversionPlugin::revertCurrentFile()
     // revert
     args.clear();
     args << QLatin1String("revert");
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args << state.relativeCurrentFile();
 
     const SubversionResponse revertResponse
@@ -680,7 +684,7 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     }
 
     QStringList args(QLatin1String("status"));
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args += files;
 
     const SubversionResponse response
@@ -760,7 +764,7 @@ void SubversionPlugin::svnStatus(const QString &workingDir, const QString &relat
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList args(QLatin1String("status"));
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     if (!relativePath.isEmpty())
         args.append(relativePath);
     VcsOutputWindow::setRepository(workingDir);
@@ -786,7 +790,7 @@ void SubversionPlugin::updateProject()
 void SubversionPlugin::svnUpdate(const QString &workingDir, const QString &relativePath)
 {
     QStringList args(QLatin1String("update"));
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args.push_back(QLatin1String(Constants::NON_INTERACTIVE_OPTION));
     if (!relativePath.isEmpty())
         args.append(relativePath);
@@ -820,8 +824,9 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
 
     QStringList args(QLatin1String("annotate"));
-    args << SubversionClient::addAuthenticationOptions(settings());
-    if (m_settings.boolValue(SubversionSettings::spaceIgnorantAnnotationKey))
+    const VcsBaseClientSettings &s = client()->settings();
+    args << SubversionClient::addAuthenticationOptions(s);
+    if (s.boolValue(SubversionSettings::spaceIgnorantAnnotationKey))
         args << QLatin1String("-x") << QLatin1String("-uw");
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
@@ -913,7 +918,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QStringList &arguments, int timeOut,
                           unsigned flags, QTextCodec *outputCodec) const
 {
-    const FileName executable = m_settings.binaryPath();
+    const FileName executable = client()->vcsBinary();
     SubversionResponse response;
     if (executable.isEmpty()) {
         response.error = true;
@@ -960,20 +965,6 @@ IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const QStrin
     return editor;
 }
 
-SubversionSettings SubversionPlugin::settings() const
-{
-    return m_settings;
-}
-
-void SubversionPlugin::setSettings(const SubversionSettings &s)
-{
-    if (s != m_settings) {
-        m_settings = s;
-        m_settings.writeSettings(ICore::settings());
-        subVersionControl()->emitConfigurationChanged();
-    }
-}
-
 SubversionPlugin *SubversionPlugin::instance()
 {
     QTC_ASSERT(m_subversionPluginInstance, return m_subversionPluginInstance);
@@ -1004,7 +995,7 @@ bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileN
     const QString file = QDir::toNativeSeparators(rawFileName);
     QStringList args;
     args << QLatin1String("add")
-         << SubversionClient::addAuthenticationOptions(settings())
+         << SubversionClient::addAuthenticationOptions(client()->settings())
          << QLatin1String("--parents") << file;
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeout() * 1000,
@@ -1018,7 +1009,8 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
 
     QStringList args;
     args << QLatin1String("delete");
-    args << SubversionClient::addAuthenticationOptions(settings()) << QLatin1String("--force") << file;
+    args << SubversionClient::addAuthenticationOptions(client()->settings())
+         << QLatin1String("--force") << file;
 
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeout() * 1000,
@@ -1029,7 +1021,7 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
 bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
 {
     QStringList args(QLatin1String("move"));
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args << QDir::toNativeSeparators(from) << QDir::toNativeSeparators(to);
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeout() * 1000,
@@ -1093,7 +1085,7 @@ bool SubversionPlugin::managesFile(const QString &workingDirectory, const QStrin
 {
     QStringList args;
     args << QLatin1String("status");
-    args << SubversionClient::addAuthenticationOptions(settings()) << fileName;
+    args << SubversionClient::addAuthenticationOptions(client()->settings()) << fileName;
     SubversionResponse response
             = runSvn(workingDirectory, args, m_client->vcsTimeout() * 1000, 0);
     return response.stdOut.isEmpty() || response.stdOut.at(0) != QLatin1Char('?');

@@ -79,25 +79,66 @@ static Core::IEditor *locateEditor(const char *property, const QString &entry)
 
 namespace VcsBase {
 
+class VcsBaseClientImplPrivate
+{
+public:
+    VcsBaseClientImplPrivate(VcsBaseClientSettings *settings);
+    ~VcsBaseClientImplPrivate();
+
+    VcsBaseClientSettings *m_clientSettings;
+};
+
+
+VcsBaseClientImplPrivate::VcsBaseClientImplPrivate(VcsBaseClientSettings *settings) :
+    m_clientSettings(settings)
+{
+    m_clientSettings->readSettings(Core::ICore::settings());
+}
+
+VcsBaseClientImplPrivate::~VcsBaseClientImplPrivate()
+{
+    delete m_clientSettings;
+}
+
+VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
+    d(new VcsBaseClientImplPrivate(settings))
+{
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &VcsBaseClientImpl::saveSettings);
+}
+
+VcsBaseClientImpl::~VcsBaseClientImpl()
+{
+    delete d;
+}
+
+VcsBaseClientSettings &VcsBaseClientImpl::settings() const
+{
+    return *d->m_clientSettings;
+}
+
+void VcsBaseClientImpl::saveSettings()
+{
+    settings().writeSettings(Core::ICore::settings());
+}
+
 class VcsBaseClientPrivate
 {
 public:
-    VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings);
+    VcsBaseClientPrivate(VcsBaseClient *client);
 
     void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
 
     VcsBaseEditorParameterWidget *createDiffEditor();
     VcsBaseEditorParameterWidget *createLogEditor();
 
-    VcsBaseClientSettings *m_clientSettings;
     QSignalMapper *m_cmdFinishedMapper;
 
     VcsBaseClient::ParameterWidgetCreator m_diffParamWidgetCreator;
     VcsBaseClient::ParameterWidgetCreator m_logParamWidgetCreator;
 };
 
-VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings) :
-    m_clientSettings(settings),
+VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client) :
     m_cmdFinishedMapper(new QSignalMapper(client))
 { }
 
@@ -124,11 +165,10 @@ VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
 { }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
-    d(new VcsBaseClientPrivate(this, settings))
+    VcsBaseClientImpl(settings),
+    d(new VcsBaseClientPrivate(this))
 {
     qRegisterMetaType<QVariant>();
-    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, &VcsBaseClient::saveSettings);
     connect(d->m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)(QWidget*)>(&QSignalMapper::mapped),
             this, &VcsBaseClient::commandFinishedGotoLine);
 }
@@ -495,11 +535,6 @@ void VcsBaseClient::commit(const QString &repositoryRoot,
     enqueueJob(cmd, args);
 }
 
-VcsBaseClientSettings *VcsBaseClient::settings() const
-{
-    return d->m_clientSettings;
-}
-
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
     return vcsBinary().toFileInfo().baseName() +
@@ -577,12 +612,12 @@ void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 
 Utils::FileName VcsBaseClient::vcsBinary() const
 {
-    return d->m_clientSettings->binaryPath();
+    return settings().binaryPath();
 }
 
 int VcsBaseClient::vcsTimeout() const
 {
-    return d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey);
+    return settings().intValue(VcsBaseClientSettings::timeoutKey);
 }
 
 void VcsBaseClient::statusParser(const QString &text)
@@ -610,11 +645,6 @@ void VcsBaseClient::annotateRevision(const QString &workingDirectory,  const QSt
     if (blankPos != -1)
         changeCopy.truncate(blankPos);
     annotate(workingDirectory, file, changeCopy, lineNumber);
-}
-
-void VcsBaseClient::saveSettings()
-{
-    settings()->writeSettings(Core::ICore::settings());
 }
 
 void VcsBaseClient::commandFinishedGotoLine(QWidget *editorObject)

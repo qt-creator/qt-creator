@@ -59,6 +59,7 @@ class VcsCommand;
 class VcsBaseEditorWidget;
 class VcsBaseClientSettings;
 class VcsJob;
+class VcsBaseClientImplPrivate;
 class VcsBaseClientPrivate;
 class VcsBaseEditorParameterWidget;
 
@@ -67,6 +68,15 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
     Q_OBJECT
 
 public:
+    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
+    ~VcsBaseClientImpl();
+
+    VcsBaseClientSettings &settings() const;
+
+private:
+    void saveSettings();
+
+    VcsBaseClientImplPrivate *d;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl
@@ -131,7 +141,6 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
-    virtual VcsBaseClientSettings *settings() const;
     virtual QProcessEnvironment processEnvironment() const;
 
     Utils::FileName vcsBinary() const;
@@ -207,7 +216,6 @@ protected:
 private:
     void statusParser(const QString&);
     void annotateRevision(const QString&, const QString&, const QString&, int);
-    void saveSettings();
     void commandFinishedGotoLine(QWidget*);
 
     friend class VcsBaseClientPrivate;

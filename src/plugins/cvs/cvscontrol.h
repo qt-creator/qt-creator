@@ -65,7 +65,6 @@ public:
 
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
-    void emitConfigurationChanged();
 
 private:
     CvsPlugin *m_plugin;

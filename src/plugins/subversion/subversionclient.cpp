@@ -62,24 +62,18 @@ class SubversionLogParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    SubversionLogParameterWidget(SubversionSettings *settings, QWidget *parent = 0) :
+    SubversionLogParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
         VcsBaseEditorParameterWidget(parent)
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision")),
-                   settings->boolPointer(SubversionSettings::logVerboseKey));
+                   settings.boolPointer(SubversionSettings::logVerboseKey));
     }
 };
 
-SubversionClient::SubversionClient(SubversionSettings *settings) :
-    VcsBaseClient(settings)
+SubversionClient::SubversionClient() : VcsBaseClient(new SubversionSettings)
 {
-    setLogParameterWidgetCreator([=] { return new SubversionLogParameterWidget(settings); });
-}
-
-SubversionSettings *SubversionClient::settings() const
-{
-    return dynamic_cast<SubversionSettings *>(VcsBaseClient::settings());
+    setLogParameterWidgetCreator([this] { return new SubversionLogParameterWidget(settings()); });
 }
 
 VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
@@ -89,7 +83,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
 {
     const QStringList svnExtraOptions =
             QStringList(extraOptions)
-            << SubversionClient::addAuthenticationOptions(*settings())
+            << SubversionClient::addAuthenticationOptions(settings())
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
             << QLatin1String("--encoding") << QLatin1String("utf8")
             << QLatin1String("--file") << commitMessageFile;
@@ -124,9 +118,9 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 }
 
 // Add authorization options to the command line arguments.
-QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings &settings)
+QStringList SubversionClient::addAuthenticationOptions(const VcsBaseClientSettings &settings)
 {
-    if (!settings.hasAuthentication())
+    if (!static_cast<const SubversionSettings &>(settings).hasAuthentication())
         return QStringList();
 
     const QString userName = settings.stringValue(SubversionSettings::userKey);
@@ -223,7 +217,7 @@ void DiffController::setChangeNumber(int changeNumber)
 QString DiffController::getDescription() const
 {
     QStringList args(QLatin1String("log"));
-    args << SubversionClient::addAuthenticationOptions(*m_client->settings());
+    args << SubversionClient::addAuthenticationOptions(m_client->settings());
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
     const SubversionResponse logResponse =
@@ -247,7 +241,7 @@ void DiffController::postCollectTextualDiffOutput()
 
     QStringList args;
     args << QLatin1String("diff");
-    args << m_client->addAuthenticationOptions(*m_client->settings());
+    args << m_client->addAuthenticationOptions(m_client->settings());
     args << QLatin1String("--internal-diff");
     if (ignoreWhitespace())
         args << QLatin1String("-x") << QLatin1String("-uw");
@@ -312,10 +306,10 @@ void SubversionClient::log(const QString &workingDir,
                            const QStringList &extraOptions,
                            bool enableAnnotationContextMenu)
 {
-    const auto logCount = settings()->intValue(SubversionSettings::logCountKey);
+    const auto logCount = settings().intValue(SubversionSettings::logCountKey);
     QStringList svnExtraOptions =
             QStringList(extraOptions)
-            << SubversionClient::addAuthenticationOptions(*settings());
+            << SubversionClient::addAuthenticationOptions(settings());
     if (logCount > 0)
         svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
 

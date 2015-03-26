@@ -33,6 +33,7 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
+#include <coreplugin/icore.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <utils/hostosinfo.h>
 #include <coreplugin/messagebox.h>
@@ -40,6 +41,8 @@
 #include <QDir>
 #include <QDebug>
 #include <QTextStream>
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -66,7 +69,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.repBrowserCommandPathChooser->setPromptDialogTitle(tr("Git Repository Browser Command"));
 }
 
-GitSettings SettingsPageWidget::settings() const
+VcsBaseClientSettings SettingsPageWidget::settings() const
 {
     GitSettings rc;
     rc.setValue(GitSettings::pathKey, m_ui.pathLineEdit->text());
@@ -80,7 +83,7 @@ GitSettings SettingsPageWidget::settings() const
     return rc;
 }
 
-void SettingsPageWidget::setSettings(const GitSettings &s)
+void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
     m_ui.pathLineEdit->setText(s.stringValue(GitSettings::pathKey));
     m_ui.logCountSpinBox->setValue(s.intValue(GitSettings::logCountKey));
@@ -104,24 +107,29 @@ QWidget *SettingsPage::widget()
 {
     if (!m_widget) {
         m_widget = new SettingsPageWidget;
-        m_widget->setSettings(GitPlugin::instance()->settings());
+        m_widget->setSettings(GitPlugin::instance()->gitClient()->settings());
     }
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    const GitSettings newSettings = m_widget->settings();
     // Warn if git cannot be found in path if the widget is on top
+    const VcsBaseClientSettings newSettings = m_widget->settings();
     if (m_widget->isVisible()) {
         bool gitFoundOk;
         QString errorMessage;
-        newSettings.gitExecutable(&gitFoundOk, &errorMessage);
+        static_cast<const GitSettings &>(newSettings).gitExecutable(&gitFoundOk, &errorMessage);
         if (!gitFoundOk)
             Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
     }
 
-    GitPlugin::instance()->setSettings(newSettings);
+    VcsBaseClientSettings &s = GitPlugin::instance()->gitClient()->settings();
+    if (s != newSettings) {
+        s = newSettings;
+        s.writeSettings(Core::ICore::settings());
+        emit settingsChanged();
+    }
 }
 
 void SettingsPage::finish()

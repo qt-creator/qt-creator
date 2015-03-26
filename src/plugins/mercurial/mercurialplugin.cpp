@@ -136,12 +136,11 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 {
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
-    m_client = new MercurialClient(&mercurialSettings);
+    m_client = new MercurialClient;
     initializeVcs(new MercurialControl(m_client), context);
 
     optionsPage = new OptionsPage();
     addAutoReleasedObject(optionsPage);
-    mercurialSettings.readSettings(core->settings());
 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
     connect(m_client, SIGNAL(needUpdate()), this, SLOT(update()));
@@ -174,19 +173,6 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     createSubmitEditorActions();
 
     return true;
-}
-
-const MercurialSettings &MercurialPlugin::settings()
-{
-    return m_instance->mercurialSettings;
-}
-
-void MercurialPlugin::setSettings(const MercurialSettings &settings)
-{
-    if (settings != m_instance->mercurialSettings) {
-        m_instance->mercurialSettings = settings;
-        static_cast<MercurialControl *>(m_instance->versionControl())->emitConfigurationChanged();
-    }
 }
 
 void MercurialPlugin::createMenu(const Core::Context &context)

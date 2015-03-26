@@ -85,9 +85,6 @@ public:
 
     GitVersionControl *gitVersionControl() const;
 
-    const GitSettings &settings() const;
-    void setSettings(const GitSettings &s);
-
     GitClient *gitClient() const;
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
 
