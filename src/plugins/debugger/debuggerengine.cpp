@@ -40,8 +40,10 @@
 
 #include "breakhandler.h"
 #include "disassembleragent.h"
+#include "logwindow.h"
 #include "memoryagent.h"
 #include "moduleshandler.h"
+#include "gdb/gdbengine.h" // REMOVE
 #include "registerhandler.h"
 #include "sourcefileshandler.h"
 #include "stackhandler.h"
@@ -152,6 +154,12 @@ Location::Location(const StackFrame &frame, bool marker)
 enum RemoteSetupState { RemoteSetupNone, RemoteSetupRequested,
                         RemoteSetupSucceeded, RemoteSetupFailed,
                         RemoteSetupCancelled };
+
+struct TypeInfo
+{
+    TypeInfo(uint s = 0) : size(s) {}
+    uint size;
+};
 
 class DebuggerEnginePrivate : public QObject
 {
@@ -323,6 +331,8 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
+    QHash<QByteArray, TypeInfo> m_typeInfoCache;
+    QByteArray m_qtNamespace;
 };
 
 
@@ -1514,7 +1524,12 @@ bool DebuggerEngine::isSynchronous() const
 
 QByteArray DebuggerEngine::qtNamespace() const
 {
-    return QByteArray();
+    return d->m_qtNamespace;
+}
+
+void DebuggerEngine::setQtNamespace(const QByteArray &ns)
+{
+    d->m_qtNamespace = ns;
 }
 
 void DebuggerEngine::createSnapshot()
@@ -1906,6 +1921,59 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
                           "Setting breakpoints by file name and line number may fail.")
                        + QLatin1Char('\n') + detailedWarning);
     }
+}
+
+void DebuggerEngine::updateLocalsView(const GdbMi &all)
+{
+    WatchHandler *handler = watchHandler();
+
+    const bool partial = all["partial"].toInt();
+
+    const GdbMi typeInfo = all["typeinfo"];
+    if (typeInfo.type() == GdbMi::List) {
+        foreach (const GdbMi &s, typeInfo.children()) {
+            const GdbMi name = s["name"];
+            const GdbMi size = s["size"];
+            if (name.isValid() && size.isValid())
+                d->m_typeInfoCache.insert(QByteArray::fromHex(name.data()),
+                                       TypeInfo(size.data().toUInt()));
+        }
+    }
+
+    QSet<QByteArray> toDelete;
+    if (!partial) {
+        foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+            toDelete.insert(item->iname);
+    }
+
+    GdbMi data = all["data"];
+    foreach (const GdbMi &child, data.children()) {
+        WatchItem *item = new WatchItem(child);
+        const TypeInfo ti = d->m_typeInfoCache.value(item->type);
+        if (ti.size)
+            item->size = ti.size;
+
+        handler->insertItem(item);
+        toDelete.remove(item->iname);
+    }
+
+    GdbMi ns = all["qtnamespace"];
+    if (ns.isValid()) {
+        setQtNamespace(ns.data());
+        showMessage(_("FOUND NAMESPACED QT: " + ns.data()));
+    }
+
+    handler->purgeOutdatedItems(toDelete);
+
+    static int count = 0;
+    showMessage(_("<Rebuild Watchmodel %1 @ %2 >")
+                .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
+    showStatusMessage(GdbEngine::tr("Finished retrieving data"), 400); // FIXME: String
+
+    DebuggerToolTipManager::updateEngine(this);
+
+    if (!partial)
+        emit stackFrameCompleted();
 }
 
 } // namespace Internal

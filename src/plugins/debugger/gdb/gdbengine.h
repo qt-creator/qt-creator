@@ -87,8 +87,6 @@ private: ////////// General Interface //////////
 
     virtual bool acceptsDebuggerCommands() const;
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    virtual QByteArray qtNamespace() const { return m_qtNamespace; }
-    virtual void setQtNamespace(const QByteArray &ns) { m_qtNamespace = ns; }
 
 private: ////////// General State //////////
 
@@ -409,26 +407,16 @@ protected:
     void handleCreateFullBacktrace(const DebuggerResponse &response);
 
     void updateLocals();
-        void updateLocalsPython(const UpdateParameters &parameters);
-        void handleStackFramePython(const DebuggerResponse &response, bool partial);
+        void doUpdateLocals(const UpdateParameters &parameters);
+        void handleStackFramePython(const DebuggerResponse &response);
 
     void setLocals(const QList<GdbMi> &locals);
-
-    struct TypeInfo
-    {
-        TypeInfo(uint s = 0) : size(s) {}
-
-        uint size;
-    };
-
-    QHash<QByteArray, TypeInfo> m_typeInfoCache;
 
     //
     // Dumper Management
     //
     void reloadDebuggingHelpers();
 
-    QByteArray m_qtNamespace;
     QString m_gdb;
 
     //

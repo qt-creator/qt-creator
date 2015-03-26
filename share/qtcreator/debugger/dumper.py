@@ -1650,6 +1650,16 @@ class DumperBase:
                 pass
         return False, 0, 1, 1, exp
 
+    def putNumChild(self, numchild):
+        if numchild != self.currentChildNumChild:
+            self.put('numchild="%s",' % numchild)
+
+    def handleWatches(self, args):
+        for watcher in args.get("watchers", []):
+            iname = watcher['iname']
+            exp = self.hexdecode(watcher['exp'])
+            self.handleWatch(exp, exp, iname)
+
     def handleWatch(self, origexp, exp, iname):
         exp = str(exp).strip()
         escapedExp = self.hexencode(exp)

@@ -3705,9 +3705,8 @@ bool GdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
         return false;
 
     UpdateParameters params;
-    params.tryPartial = true;
-    params.varList = context.iname;
-    updateLocalsPython(params);
+    params.partialVariable = context.iname;
+    doUpdateLocals(params);
     return true;
 }
 
@@ -3727,9 +3726,8 @@ void GdbEngine::reloadLocals()
 void GdbEngine::updateWatchItem(WatchItem *item)
 {
     UpdateParameters params;
-    params.tryPartial = m_pendingBreakpointRequests == 0;
-    params.varList = item->iname;
-    updateLocalsPython(params);
+    params.partialVariable = item->iname;
+    doUpdateLocals(params);
 }
 
 void GdbEngine::handleVarAssign(const DebuggerResponse &)
@@ -3743,7 +3741,7 @@ void GdbEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
     watchHandler()->notifyUpdateStarted();
-    updateLocalsPython(UpdateParameters());
+    doUpdateLocals(UpdateParameters());
 }
 
 void GdbEngine::assignValueInDebugger(WatchItem *item,
@@ -4696,7 +4694,7 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
     opts->push_back(new GdbOptionsPage2());
 }
 
-void GdbEngine::updateLocalsPython(const UpdateParameters &params)
+void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     m_pendingBreakpointRequests = 0;
 
@@ -4734,7 +4732,6 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("nativemixed", isNativeMixedActive());
-    cmd.arg("partial", params.tryPartial);
 
     if (isNativeMixedActive()) {
         StackFrame frame = stackHandler()->currentFrame();
@@ -4743,16 +4740,16 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     }
 
     cmd.arg("resultvarname", m_resultVarName);
-    cmd.arg("vars", params.varList);
+    cmd.arg("partialVariable", params.partialVariable);
     cmd.flags = Discardable;
-    cmd.callback = [this, params](const DebuggerResponse &r) { handleStackFramePython(r, params.tryPartial); };
+    cmd.callback = [this, params](const DebuggerResponse &r) { handleStackFramePython(r); };
     runCommand(cmd);
 
     cmd.arg("passExceptions", true);
     m_lastDebuggableCommand = cmd;
 }
 
-void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool partial)
+void GdbEngine::handleStackFramePython(const DebuggerResponse &response)
 {
     watchHandler()->notifyUpdateFinished();
     if (response.resultClass == ResultDone) {
@@ -4767,54 +4764,8 @@ void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool pa
         }
         GdbMi all;
         all.fromStringMultiple(out);
-        GdbMi data = all["data"];
 
-        GdbMi ns = all["qtnamespace"];
-        if (ns.isValid()) {
-            setQtNamespace(ns.data());
-            showMessage(_("FOUND NAMESPACED QT: " + ns.data()));
-        }
-
-        WatchHandler *handler = watchHandler();
-
-        const GdbMi typeInfo = all["typeinfo"];
-        if (typeInfo.type() == GdbMi::List) {
-            foreach (const GdbMi &s, typeInfo.children()) {
-                const GdbMi name = s["name"];
-                const GdbMi size = s["size"];
-                if (name.isValid() && size.isValid())
-                    m_typeInfoCache.insert(QByteArray::fromHex(name.data()),
-                                           TypeInfo(size.data().toUInt()));
-            }
-        }
-
-        QSet<QByteArray> toDelete;
-        if (!partial) {
-            foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-                toDelete.insert(item->iname);
-        }
-
-        foreach (const GdbMi &child, data.children()) {
-            WatchItem *item = new WatchItem(child);
-            const TypeInfo ti = m_typeInfoCache.value(item->type);
-            if (ti.size)
-                item->size = ti.size;
-
-            handler->insertItem(item);
-            toDelete.remove(item->iname);
-        }
-
-        handler->purgeOutdatedItems(toDelete);
-
-        static int count = 0;
-        showMessage(_("<Rebuild Watchmodel %1 @ %2 >")
-            .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
-        showStatusMessage(tr("Finished retrieving data"), 400);
-
-        DebuggerToolTipManager::updateEngine(this);
-
-        if (!partial)
-            emit stackFrameCompleted();
+        updateLocalsView(all);
 
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));

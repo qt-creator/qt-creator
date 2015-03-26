@@ -151,7 +151,6 @@ private:
     void refreshCurrentThread(const GdbMi &data);
     void refreshStack(const GdbMi &stack);
     void refreshRegisters(const GdbMi &registers);
-    void refreshLocals(const GdbMi &vars);
     void refreshTypeInfo(const GdbMi &typeInfo);
     void refreshState(const GdbMi &state);
     void refreshLocation(const GdbMi &location);

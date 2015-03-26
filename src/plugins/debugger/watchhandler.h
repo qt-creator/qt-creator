@@ -128,10 +128,9 @@ private:
 class UpdateParameters
 {
 public:
-    UpdateParameters() { tryPartial = false; }
+    UpdateParameters() {}
 
-    bool tryPartial;
-    QByteArray varList;
+    QByteArray partialVariable;
 };
 
 class WatchModelBase : public Utils::TreeModel

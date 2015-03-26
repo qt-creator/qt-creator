@@ -445,9 +445,10 @@ void LldbEngine::handleResponse(const QByteArray &response)
 
     foreach (const GdbMi &item, all.children()) {
         const QByteArray name = item.name();
-        if (name == "data")
-            refreshLocals(item);
-        else if (name == "dumpers") {
+        if (name == "all") {
+            watchHandler()->notifyUpdateFinished();
+            updateLocalsView(item);
+        } else if (name == "dumpers") {
             watchHandler()->addDumpers(item);
             setupInferiorStage2();
         } else if (name == "stack")
@@ -821,8 +822,7 @@ bool LldbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
     }
 
     UpdateParameters params;
-    params.tryPartial = true;
-    params.varList = context.iname;
+    params.partialVariable = context.iname;
     doUpdateLocals(params);
 
     return true;
@@ -893,7 +893,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
-    cmd.arg("partial", params.tryPartial);
+    cmd.arg("partialVariable", params.partialVariable);
 
     cmd.beginList("watchers");
 
@@ -1003,28 +1003,6 @@ void LldbEngine::readLldbStandardOutput()
             emit outputReady(response);
     }
 }
-
-void LldbEngine::refreshLocals(const GdbMi &vars)
-{
-    //const bool partial = response.cookie.toBool();
-    WatchHandler *handler = watchHandler();
-    handler->resetValueCache();
-
-    QSet<QByteArray> toDelete;
-    foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-        toDelete.insert(item->iname);
-
-    foreach (const GdbMi &child, vars.children()) {
-        WatchItem *item = new WatchItem(child);
-        handler->insertItem(item);
-        toDelete.remove(item->iname);
-    }
-
-    handler->purgeOutdatedItems(toDelete);
-    handler->notifyUpdateFinished();
-
-    DebuggerToolTipManager::updateEngine(this);
- }
 
 void LldbEngine::refreshStack(const GdbMi &stack)
 {
