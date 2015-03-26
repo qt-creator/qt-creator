@@ -1205,7 +1205,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         oo.showReturnTypes = true;
                         oo.showTemplateParameters = true;
                         qDebug() << "cloned" << oo(clone->type());
-                        if (Class *klass = s->asClass()) {
+                        if (Class *klass = clone->asClass()) {
                             const unsigned klassMemberCount = klass->memberCount();
                             for (unsigned i = 0; i < klassMemberCount; ++i){
                                 Symbol *klassMemberAsSymbol = klass->memberAt(i);
