@@ -311,7 +311,10 @@ MimeMagicRule::MimeMagicRule(MimeMagicRule::Type theType,
     case RegExp:
         d->regexp.setPatternOptions(QRegularExpression::MultilineOption
                                     | QRegularExpression::DotMatchesEverythingOption
-                                    | QRegularExpression::OptimizeOnFirstUsageOption);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+                                    | QRegularExpression::OptimizeOnFirstUsageOption
+#endif
+                                    );
         d->regexp.setPattern(QString::fromUtf8(d->value));
         if (!d->regexp.isValid()) {
             d->type = Invalid;
