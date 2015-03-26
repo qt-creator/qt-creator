@@ -32,3 +32,19 @@ Various utilities are provided in the QML code. CategoryLabels can be used to pr
 data rendered using a TimelineRenderer. TimeMarks provides colored bars that can be layered behind
 a TimelineRenderer to make the rows easier to distinguish. TimeDisplay provides a legend for the
 time spanned by a timeline.
+
+Render Passes
+-------------
+
+Render passes for TimelineRenderer and TimelineOverviewRenderer are used to create the scene graph
+nodes to display data from TimelineModels. You can add your own RenderPasses. For an example, see
+QmlProfilerBindingLoopsRenderPass in the qmlprofiler plugin. In general, a render pass is stateless
+and will update only the render pass state specific to itself and the model being rendered. A render
+pass state can contain scene graph subtrees for each row in both the expanded and collapsed states
+of the view, as well as scene graph subtrees to be overlayed on top of the whole category. The
+renderer will layer the subtrees according to the order in which the render passes are given.
+
+Each render pass has to provide an update() method which is called to update data in the given
+render state or create a new render state. The rows in expanded state can be vertically resized. To
+deal with this, keep the nodes in rows with a QSGTransformNode as parent for each of them. The
+overlay mode should only be used for things that span multiple rows.

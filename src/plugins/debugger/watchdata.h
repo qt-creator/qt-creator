@@ -31,6 +31,8 @@
 #ifndef DEBUGGER_WATCHDATA_H
 #define DEBUGGER_WATCHDATA_H
 
+#include "debuggerprotocol.h"
+
 #include <QCoreApplication>
 #include <QMetaType>
 
@@ -80,7 +82,6 @@ public:
     bool isValid()   const { return !iname.isEmpty(); }
     bool isVTablePointer() const;
 
-    bool isEqual(const WatchData &other) const;
     bool isAncestorOf(const QByteArray &childIName) const;
 
     void setError(const QString &);
@@ -100,40 +101,32 @@ public:
     // Protocol interaction.
     void updateValue(const GdbMi &item);
     void updateChildCount(const GdbMi &mi);
-    void updateAddress(const GdbMi &addressMi);
     void updateType(const GdbMi &item);
     void updateDisplayedType(const GdbMi &item);
 
 public:
-    quint64    id;           // Token for the engine for internal mapping
-    qint32     state;        // 'needed' flags;
-    QByteArray iname;        // Internal name sth like 'local.baz.public.a'
-    QByteArray exp;          // The expression
-    QString    name;         // Displayed name
-    QString    value;        // Displayed value
-    QByteArray editvalue;    // Displayed value
-    qint32     editformat;   // Format of displayed value
-    QByteArray type;         // Type for further processing
-    QString    displayedType;// Displayed type (optional)
-    quint64    address;      // Displayed address of the actual object
-    quint64    origaddr;     // Address of the pointer referencing this item (gdb auto-deref)
-    uint       size;         // Size
-    uint       bitpos;       // Position within bit fields
-    uint       bitsize;      // Size in case of bit fields
-    int        elided;       // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
-    bool wantsChildren;
-    bool valueEnabled;       // Value will be enabled or not
-    bool valueEditable;      // Value will be editable
-    bool error;
-    qint32 sortId;
-    QByteArray dumperFlags;
+    quint64         id;            // Token for the engine for internal mapping
+    qint32          state;         // 'needed' flags;
+    QByteArray      iname;         // Internal name sth like 'local.baz.public.a'
+    QByteArray      exp;           // The expression
+    QString         name;          // Displayed name
+    QString         value;         // Displayed value
+    QByteArray      editvalue;     // Displayed value
+    DebuggerDisplay editformat;    // Format of displayed value
+    QByteArray      type;          // Type for further processing
+    QString         displayedType; // Displayed type (optional)
+    quint64         address;       // Displayed address of the actual object
+    quint64         origaddr;      // Address of the pointer referencing this item (gdb auto-deref)
+    uint            size;          // Size
+    uint            bitpos;        // Position within bit fields
+    uint            bitsize;       // Size in case of bit fields
+    int             elided;        // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
+    bool            wantsChildren;
+    bool            valueEnabled;  // Value will be enabled or not
+    bool            valueEditable; // Value will be editable
+    qint32          sortId;
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
-
-public:
-    // FIXME: this is engine specific data that should be mapped internally
-    QByteArray variable;  // Name of internal Gdb variable if created
-    qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
 
 void decodeArrayData(std::function<void(const WatchData &)> itemHandler,

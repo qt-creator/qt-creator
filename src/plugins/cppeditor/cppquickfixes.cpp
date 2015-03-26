@@ -2730,6 +2730,25 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
 namespace {
 
+bool hasClassMemberWithGetPrefix(const Class *klass)
+{
+    if (!klass)
+        return false;
+
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        const Symbol *symbol = klass->memberAt(i);
+        if (symbol->isFunction() || symbol->isDeclaration()) {
+            if (const Name *symbolName = symbol->name()) {
+                if (const Identifier *id = symbolName->identifier()) {
+                    if (!strncmp(id->chars(), "get", 3))
+                        return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 class GenerateGetterSetterOperation : public CppQuickFixOperation
 {
 public:
@@ -2811,23 +2830,27 @@ public:
         if (m_baseName.isEmpty())
             m_baseName = QLatin1String("value");
 
-        m_getterName = m_baseName != m_variableString
+        m_getterName = !(m_baseName == m_variableString
+                         || hasClassMemberWithGetPrefix(m_classSpecifier->symbol))
             ? m_baseName
             : QString::fromLatin1("get%1%2")
                 .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));
         m_setterName = QString::fromLatin1("set%1%2")
             .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));
 
-        // Check if the class has already both a getter and setter.
+        // Check if the class has already a getter and/or a setter.
         // This is only a simple check which should suffice not triggering the
         // same quick fix again. Limitations:
         //   1) It only checks in the current class, but not in base classes.
         //   2) It compares only names instead of types/signatures.
+        //   3) Symbols in Qt property declarations are ignored.
         bool hasGetter = false;
         bool hasSetter = false;
         if (Class *klass = m_classSpecifier->symbol) {
             for (unsigned i = 0; i < klass->memberCount(); ++i) {
                 Symbol *symbol = klass->memberAt(i);
+                if (symbol->isQtPropertyDeclaration())
+                    continue;
                 if (const Name *symbolName = symbol->name()) {
                     if (const Identifier *id = symbolName->identifier()) {
                         const QString memberName = QString::fromUtf8(id->chars(), id->size());

@@ -37,6 +37,7 @@
 #include <QList>
 #include <QObject>
 #include <QString>
+#include <QCoreApplication>
 
 namespace Utils { class FileName; }
 
@@ -49,6 +50,7 @@ class DebuggerItem;
 
 class DEBUGGER_EXPORT DebuggerItemManager : public QObject
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerItemManager)
 public:
     DebuggerItemManager();
     ~DebuggerItemManager();

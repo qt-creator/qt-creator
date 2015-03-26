@@ -171,18 +171,12 @@ bool QmlProfilerTraceView::hasValidSelection() const
 
 qint64 QmlProfilerTraceView::selectionStart() const
 {
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        return rootObject->property("selectionRangeStart").toLongLong();
-    return 0;
+    return d->m_zoomControl->selectionStart();
 }
 
 qint64 QmlProfilerTraceView::selectionEnd() const
 {
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        return rootObject->property("selectionRangeEnd").toLongLong();
-    return 0;
+    return d->m_zoomControl->selectionEnd();
 }
 
 void QmlProfilerTraceView::clear()

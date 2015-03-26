@@ -121,7 +121,7 @@ bool isIntOrFloatType(const QByteArray &type)
 WatchData::WatchData() :
     id(0),
     state(InitialState),
-    editformat(0),
+    editformat(StopDisplay),
     address(0),
     origaddr(0),
     size(0),
@@ -131,29 +131,8 @@ WatchData::WatchData() :
     wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
-    error(false),
-    sortId(0),
-    source(0)
+    sortId(0)
 {
-}
-
-bool WatchData::isEqual(const WatchData &other) const
-{
-    return iname == other.iname
-      && exp == other.exp
-      && name == other.name
-      && value == other.value
-      && editvalue == other.editvalue
-      && type == other.type
-      && displayedType == other.displayedType
-      && variable == other.variable
-      && address == other.address
-      && size == other.size
-      && elided == other.elided
-      && wantsChildren == other.wantsChildren
-      && valueEnabled == other.valueEnabled
-      && valueEditable == other.valueEditable
-      && error == other.error;
 }
 
 bool WatchData::isAncestorOf(const QByteArray &childIName) const
@@ -180,7 +159,6 @@ void WatchData::setError(const QString &msg)
     wantsChildren = false;
     valueEnabled = false;
     valueEditable = false;
-    error = true;
 }
 
 void WatchData::setValue(const QString &value0)
@@ -299,8 +277,6 @@ QString WatchData::toString() const
     str << "sortId=\"" << sortId << doubleQuoteComma;
     if (!name.isEmpty() && name != QLatin1String(iname))
         str << "name=\"" << name << doubleQuoteComma;
-    if (error)
-        str << "error,";
     if (address) {
         str.setIntegerBase(16);
         str << "addr=\"0x" << address << doubleQuoteComma;
@@ -314,9 +290,6 @@ QString WatchData::toString() const
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
 
-    if (!variable.isEmpty())
-        str << "variable=\"" << variable << doubleQuoteComma;
-
     if (isValueNeeded())
         str << "value=<needed>,";
     if (!value.isEmpty())
@@ -327,10 +300,6 @@ QString WatchData::toString() const
 
     if (!editvalue.isEmpty())
         str << "editvalue=\"<...>\",";
-    //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
-
-    if (!dumperFlags.isEmpty())
-        str << "dumperFlags=\"" << dumperFlags << doubleQuoteComma;
 
     str << "type=\"" << type << doubleQuoteComma;
 
@@ -466,7 +435,7 @@ static void setWatchDataAddress(WatchData &data, quint64 address)
 {
     data.address = address;
 
-    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$')) {
+    if (data.exp.isEmpty()) {
         if (data.iname.startsWith("local.") && data.iname.count('.') == 1)
             // Solve one common case of adding 'class' in
             // *(class X*)0xdeadbeef for gdb.
@@ -474,19 +443,6 @@ static void setWatchDataAddress(WatchData &data, quint64 address)
         else
             data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
     }
-}
-
-void WatchData::updateAddress(const GdbMi &mi)
-{
-    if (!mi.isValid())
-        return;
-    const QByteArray addressBA = mi.data();
-    if (!addressBA.startsWith("0x")) { // Item model dumpers pull tricks.
-        dumperFlags = addressBA;
-        return;
-    }
-    const quint64 address = mi.toAddress();
-    setWatchDataAddress(*this, address);
 }
 
 static void setWatchDataSize(WatchData &data, const GdbMi &mi)
@@ -590,7 +546,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
                        std::function<void(const WatchData &, const GdbMi &)> childHandler,
                        std::function<void(const WatchData &childTemplate, const QByteArray &encodedData, int encoding)> arrayDecoder)
 {
-    //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
     data.setChildrenUnneeded();
 
@@ -602,7 +557,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
         data.editvalue = mi.data();
 
     mi = item["editformat"];
-    data.editformat = mi.toInt();
+    data.editformat = DebuggerDisplay(mi.toInt());
 
     mi = item["valueelided"];
     if (mi.isValid())
@@ -620,7 +575,10 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     if (mi.isValid())
         data.origaddr = mi.toAddress();
 
-    data.updateAddress(item["addr"]);
+    mi = item["addr"];
+    if (mi.isValid())
+        setWatchDataAddress(data, mi.toAddress());
+
     data.updateValue(item);
 
     setWatchDataSize(data, item["size"]);
@@ -632,7 +590,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     setWatchDataValueEnabled(data, item["valueenabled"]);
     setWatchDataValueEditable(data, item["valueeditable"]);
     data.updateChildCount(item["numchild"]);
-    //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
     itemHandler(data);
 
     bool ok = false;
@@ -643,7 +600,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     WatchData childtemplate;
     childtemplate.updateType(item["childtype"]);
     childtemplate.updateChildCount(item["childnumchild"]);
-    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     mi = item["arraydata"];
     if (mi.isValid()) {

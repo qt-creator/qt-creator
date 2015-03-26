@@ -54,6 +54,7 @@
 #include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
+#include <utils/theme/theme.h>
 
 namespace Debugger {
 namespace Internal {
@@ -74,26 +75,28 @@ public:
 private:
     void highlightBlock(const QString &text)
     {
+        using Utils::Theme;
         QTextCharFormat format;
+        Theme *theme = Utils::creatorTheme();
         switch (LogWindow::channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
             case LogInput:
-                format.setForeground(Qt::blue);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogInput));
                 setFormat(1, text.size(), format);
                 break;
             case LogStatus:
-                format.setForeground(Qt::darkGreen);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogStatus));
                 setFormat(1, text.size(), format);
                 break;
             case LogWarning:
-                format.setForeground(Qt::darkYellow);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogWarning));
                 setFormat(1, text.size(), format);
                 break;
             case LogError:
-                format.setForeground(Qt::red);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogError));
                 setFormat(1, text.size(), format);
                 break;
             case LogTime:
-                format.setForeground(Qt::darkRed);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
                 setFormat(1, text.size(), format);
                 break;
             default:
@@ -125,9 +128,11 @@ public:
 private:
     void highlightBlock(const QString &text)
     {
+        using Utils::Theme;
+        Theme *theme = Utils::creatorTheme();
         if (text.size() > 3 && text.at(2) == QLatin1Char(':')) {
             QTextCharFormat format;
-            format.setForeground(Qt::darkRed);
+            format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
             setFormat(1, text.size(), format);
         }
     }

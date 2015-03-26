@@ -79,7 +79,7 @@ QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent), m_widget(0)
 {
     setId("AA.QbsProfiles");
-    setDisplayName(tr("Profiles"));
+    setDisplayName(QCoreApplication::translate("QbsProjectManager", "Profiles"));
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("QbsProjectManager",
                                                    Constants::QBS_SETTINGS_TR_CATEGORY));

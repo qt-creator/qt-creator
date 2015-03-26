@@ -37,6 +37,10 @@
     Windows
     operating systems. For more information, see \l{Supported Platforms}.
 
+    This manual also describes features that are only available if you have the
+    appropriate \l{http://qt.io/licensing/}{Qt license}. For more information,
+    see \l{Qt Creator Commercial Features}.
+
     \table
         \row
             \li \inlineimage creator_gettingstarted.png

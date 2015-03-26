@@ -91,6 +91,16 @@ CompileOutput_ErrorOutput=ffff6c6c
 CompileOutput_MessageOutput=ff008787
 CompileOutput_ErrorMessageOutput=ffff6c6c
 
+Debugger_LogWindow_LogInput=ff00acac
+Debugger_LogWindow_LogStatus=ff00875a
+Debugger_LogWindow_LogWarning=fff3c300
+Debugger_LogWindow_LogError=ffff6c6c
+Debugger_LogWindow_LogTime=ffbf0303
+
+Debugger_WatchItem_ValueNormal=text
+Debugger_WatchItem_ValueInvalid=textDisabled
+Debugger_WatchItem_ValueChanged=ffbf0303
+
 Welcome_BackgroundColorNormal=normalBackground
 Welcome_Button_BorderColorNormal=0
 Welcome_Button_BorderColorPressed=0

@@ -10,3 +10,5 @@ QTC_PLUGIN_DEPENDS += \
     qtsupport \
     texteditor \
     coreplugin
+QTC_TEST_DEPENDS += \
+    cppeditor

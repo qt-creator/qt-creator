@@ -963,6 +963,12 @@ void FakeVimPlugin::test_vim_delete()
     KEYS("dd", "");
     INTEGRITY(false);
 
+    // delete character / word / line in insert mode
+    data.setText("123" N "456 789");
+    KEYS("A<C-h>", "12" N "456 789");
+    KEYS("<C-u>", "" N "456 789");
+    KEYS("<Esc>jA<C-w>", "" N "456 ");
+
     data.setText("void main()");
     KEYS("dt(", "()");
     INTEGRITY(false);
@@ -2510,6 +2516,16 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("j\"yyy", "abc" N "abc" N X "def" N "ghi");
     KEYS("gg\"yP", X "def" N "abc" N "abc" N "def" N "ghi");
     KEYS("\"xP", X "abc" N "def" N "abc" N "abc" N "def" N "ghi");
+
+    // delete to black hole register
+    data.setText("aaa bbb ccc");
+    KEYS("yiww\"_diwP", "aaa aaa ccc");
+    data.setText("aaa bbb ccc");
+    KEYS("yiwwdiwP", "aaa bbb ccc");
+
+    // yank register is only used for y{motion} commands
+    data.setText("aaa bbb ccc");
+    KEYS("yiwwdiw\"0P", "aaa aaa ccc");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()

@@ -47,8 +47,6 @@ Rectangle {
 
     property bool selectionRangeMode: false
     property bool selectionRangeReady: selectionRange.ready
-    property real selectionRangeStart: selectionRange.startTime
-    property real selectionRangeEnd: selectionRange.startTime + selectionRange.duration
     property int typeId: content.typeId
 
     onTypeIdChanged: updateCursorPosition()
@@ -313,7 +311,12 @@ Rectangle {
             visible: parent.visible
 
             onRangeDoubleClicked: {
-                zoomControl.setRange(startTime, endTime);
+                var diff = 500 - zoomer.selectionDuration;
+                if (diff > 0)
+                    zoomControl.setRange(zoomer.selectionStart - diff / 2,
+                                         zoomer.selectionEnd + diff / 2);
+                else
+                    zoomControl.setRange(zoomer.selectionStart, zoomer.selectionEnd);
                 root.selectionRangeMode = false;
             }
 
@@ -327,16 +330,17 @@ Rectangle {
 
         id: selectionRangeDetails
         visible: selectionRange.visible
-        startTime: selectionRange.startTime
-        duration: selectionRange.duration
-        endTime: selectionRange.endTime
+        startTime: zoomControl.selectionStart
+        duration: zoomControl.selectionDuration
+        endTime: zoomControl.selectionEnd
         showDuration: selectionRange.rangeWidth > 1
 
         onRecenter: {
-            if ((selectionRange.startTime < zoomControl.rangeStart) ^
-                    (selectionRange.endTime > zoomControl.rangeEnd)) {
-                var center = selectionRange.startTime + selectionRange.duration / 2;
-                var halfDuration = Math.max(selectionRange.duration, zoomControl.rangeDuration / 2);
+            if ((zoomControl.selectionStart < zoomControl.rangeStart) ^
+                    (zoomControl.selectionEnd > zoomControl.rangeEnd)) {
+                var center = (zoomControl.selectionStart + zoomControl.selectionEnd) / 2;
+                var halfDuration = Math.max(zoomControl.selectionDuration,
+                                            zoomControl.rangeDuration) / 2;
                 zoomControl.setRange(center - halfDuration, center + halfDuration);
             }
         }

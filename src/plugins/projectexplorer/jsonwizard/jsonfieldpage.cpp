@@ -93,9 +93,9 @@ public:
     LineEditValidator(MacroExpander *expander, const QRegularExpression &pattern, QObject *parent) :
         QRegularExpressionValidator(pattern, parent)
     {
-        m_expander.setDisplayName(tr("Line Edit Validator Expander"));
+        m_expander.setDisplayName(JsonFieldPage::tr("Line Edit Validator Expander"));
         m_expander.setAccumulating(true);
-        m_expander.registerVariable("INPUT", tr("The text edit input to fix up."),
+        m_expander.registerVariable("INPUT", JsonFieldPage::tr("The text edit input to fix up."),
                                     [this]() { return m_currentInput; });
         m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
     }

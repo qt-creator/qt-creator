@@ -42,6 +42,7 @@ TimelineAbstractRenderer::TimelineAbstractRenderer(TimelineAbstractRendererPriva
                                                    QQuickItem *parent) :
     QQuickItem(parent), d_ptr(&dd)
 {
+    setFlag(ItemHasContents);
 }
 
 int TimelineAbstractRenderer::selectedItem() const
@@ -63,6 +64,7 @@ void TimelineAbstractRenderer::setSelectedItem(int itemIndex)
 TimelineAbstractRenderer::TimelineAbstractRenderer(QQuickItem *parent) : QQuickItem(parent),
     d_ptr(new TimelineAbstractRendererPrivate)
 {
+    setFlag(ItemHasContents);
 }
 
 bool TimelineAbstractRenderer::selectionLocked() const

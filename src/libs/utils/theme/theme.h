@@ -139,6 +139,20 @@ public:
         CompileOutput_MessageOutput,
         CompileOutput_ErrorMessageOutput,
 
+        /* Debugger Log Window */
+
+        Debugger_LogWindow_LogInput,
+        Debugger_LogWindow_LogStatus,
+        Debugger_LogWindow_LogWarning,
+        Debugger_LogWindow_LogError,
+        Debugger_LogWindow_LogTime,
+
+        /* Debugger Watch Item */
+
+        Debugger_WatchItem_ValueNormal,
+        Debugger_WatchItem_ValueInvalid,
+        Debugger_WatchItem_ValueChanged,
+
         /* Welcome Plugin */
 
         Welcome_TextColorNormal,

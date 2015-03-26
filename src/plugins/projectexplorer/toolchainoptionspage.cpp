@@ -117,9 +117,9 @@ public:
         m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>(
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
-        m_model.setHeader(QStringList() << tr("Name") << tr("Type"));
-        m_autoRoot = new TreeItem(QStringList() << tr("Auto-detected") << QString());
-        m_manualRoot = new TreeItem(QStringList() << tr("Manual") << QString());
+        m_model.setHeader(QStringList() << ToolChainOptionsPage::tr("Name") << ToolChainOptionsPage::tr("Type"));
+        m_autoRoot = new TreeItem(QStringList() << ToolChainOptionsPage::tr("Auto-detected") << QString());
+        m_manualRoot = new TreeItem(QStringList() << ToolChainOptionsPage::tr("Manual") << QString());
         m_model.rootItem()->appendChild(m_autoRoot);
         m_model.rootItem()->appendChild(m_manualRoot);
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {
@@ -137,7 +137,7 @@ public:
         m_toolChainView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
         m_toolChainView->expandAll();
 
-        m_addButton = new QPushButton(tr("Add"), this);
+        m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
         auto addMenu = new QMenu;
         foreach (ToolChainFactory *factory, m_factories) {
             QAction *action = new QAction(addMenu);
@@ -147,10 +147,10 @@ public:
         }
         m_addButton->setMenu(addMenu);
 
-        m_cloneButton = new QPushButton(tr("Clone"), this);
+        m_cloneButton = new QPushButton(ToolChainOptionsPage::tr("Clone"), this);
         connect(m_cloneButton, &QAbstractButton::clicked, [this] { createToolChain(0); });
 
-        m_delButton = new QPushButton(tr("Remove"), this);
+        m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
 
         m_container = new DetailsWidget(this);
         m_container->setState(DetailsWidget::NoSummary);
@@ -317,19 +317,19 @@ void ToolChainOptionsWidget::apply()
 
     if (removedTcs.count() == 1) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("Duplicate Compilers Detected"),
-                             tr("The following compiler was already configured:<br>"
-                                "&nbsp;%1<br>"
-                                "It was not configured again.")
-                             .arg(removedTcs.at(0)));
+                             ToolChainOptionsPage::tr("Duplicate Compilers Detected"),
+                             ToolChainOptionsPage::tr("The following compiler was already configured:<br>"
+                                                      "&nbsp;%1<br>"
+                                                      "It was not configured again.")
+                                                      .arg(removedTcs.at(0)));
 
     } else if (!removedTcs.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("Duplicate Compilers Detected"),
-                             tr("The following compilers were already configured:<br>"
-                                "&nbsp;%1<br>"
-                                "They were not configured again.")
-                             .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
+                             ToolChainOptionsPage::tr("Duplicate Compilers Detected"),
+                             ToolChainOptionsPage::tr("The following compilers were already configured:<br>"
+                                                      "&nbsp;%1<br>"
+                                                      "They were not configured again.")
+                                                      .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
     }
 }
 

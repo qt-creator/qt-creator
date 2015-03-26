@@ -221,7 +221,7 @@ QString DefaultDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
         //: Display name of the default deploy configuration
-        return tr("Deploy Configuration");
+        return DeployConfigurationFactory::tr("Deploy Configuration");
     return QString();
 }
 

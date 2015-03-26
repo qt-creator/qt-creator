@@ -89,12 +89,6 @@ def main():
                     clickButton(waitForObject(":Close Debugging Session.Yes_QPushButton", 2000))
                 except:
                     pass
-                if platform.system() == 'Darwin' and JIRA.isBugStillOpen(11595):
-                    try:
-                        expectedBreakpointsOrder.remove({os.path.join(workingDir, projectName, "main.cpp"):10})
-                        test.warning("Removed cpp file after first run. (QTCREATORBUG-11595)")
-                    except:
-                        pass
         else:
             test.fatal("Setting breakpoints failed - leaving without testing.")
     invokeMenuItem("File", "Exit")

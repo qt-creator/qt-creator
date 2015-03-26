@@ -657,7 +657,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 //     (void) new QShortcut(tr("F11"), this, SLOT(slotToggleBlockVisible()));
 
 #ifdef DO_FOO
-    (void) new QShortcut(tr("CTRL+D"), this, SLOT(doFoo()));
+    (void) new QShortcut(TextEditorWidget::tr("CTRL+D"), this, SLOT(doFoo()));
 #endif
 
     // parentheses matcher
@@ -6779,10 +6779,10 @@ void TextEditorWidgetPrivate::updateCursorPosition()
     const int line = block.blockNumber() + 1;
     const int column = cursor.position() - block.position();
     m_cursorPositionLabel->show();
-    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line)
+    m_cursorPositionLabel->setText(TextEditorWidget::tr("Line: %1, Col: %2").arg(line)
                                    .arg(q->textDocument()->tabSettings().columnAt(block.text(),
                                                                                    column)+1),
-                                   tr("Line: 9999, Col: 999"));
+                                   TextEditorWidget::tr("Line: 9999, Col: 999"));
     m_contextHelpId.clear();
 
     if (!block.isVisible())

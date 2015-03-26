@@ -57,7 +57,6 @@ TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate(TimelineRende
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
     TimelineAbstractRenderer(*(new TimelineRendererPrivate(this)), parent)
 {
-    setFlag(QQuickItem::ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
 }

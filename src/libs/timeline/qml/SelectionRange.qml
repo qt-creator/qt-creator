@@ -41,10 +41,6 @@ RangeMover {
 
     property bool ready: visible && creationState === creationFinished
 
-    property double startTime: rangeLeft * viewTimePerPixel + zoomer.windowStart
-    property double duration: Math.max(rangeWidth * viewTimePerPixel, 500)
-    property double endTime: startTime + duration
-
     property double viewTimePerPixel: 1
     property double creationReference : 0
     property int creationState : creationInactive
@@ -53,6 +49,31 @@ RangeMover {
         rangeRight = rangeLeft + 1;
         creationState = creationInactive;
         creationReference = 0;
+    }
+
+    function updateZoomer() {
+        zoomer.setSelection(rangeLeft * viewTimePerPixel + zoomer.windowStart,
+                            rangeRight * viewTimePerPixel + zoomer.windowStart)
+    }
+
+    function updateRange() {
+        var left = (zoomer.selectionStart - zoomer.windowStart) / viewTimePerPixel;
+        var right = (zoomer.selectionEnd - zoomer.windowStart) / viewTimePerPixel;
+        if (left < rangeLeft) {
+            rangeLeft = left;
+            rangeRight = right;
+        } else {
+            rangeRight = right;
+            rangeLeft = left;
+        }
+    }
+
+    onRangeWidthChanged: updateZoomer()
+    onRangeLeftChanged: updateZoomer()
+
+    Connections {
+        target: zoomer
+        onWindowChanged: updateRange()
     }
 
     function setPos(pos) {

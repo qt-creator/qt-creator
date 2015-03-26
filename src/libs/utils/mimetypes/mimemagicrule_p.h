@@ -63,7 +63,7 @@ class MimeMagicRulePrivate;
 class QTCREATOR_UTILS_EXPORT MimeMagicRule
 {
 public:
-    enum Type { Invalid = 0, String, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
+    enum Type { Invalid = 0, String, RegExp, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
 
     MimeMagicRule(Type type, const QByteArray &value, int startPos, int endPos,
                   const QByteArray &mask = QByteArray(), QString *errorString = 0);
@@ -90,8 +90,6 @@ public:
     static QByteArray typeName(Type type);
 
     static bool matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength, int valueLength, const char *valueData, const char *mask);
-    // Qt Creator additions
-    static QByteArray makePattern(const QByteArray &value); // necessary to be able to verify magic because otherwise MimMagicRule constructor asserts...
 
 private:
     const QScopedPointer<MimeMagicRulePrivate> d;

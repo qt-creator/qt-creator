@@ -64,6 +64,7 @@ public:
 
 class MimeTypeMagicDialog : public QDialog
 {
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::MimeTypeMagicDialog)
 public:
     explicit MimeTypeMagicDialog(QWidget *parent = 0);
 
@@ -71,6 +72,7 @@ public:
     MagicData magicData() const;
 
 private:
+    void setToRecommendedValues();
     void applyRecommended(bool checked);
     void validateAccept();
     Utils::Internal::MimeMagicRule createRule(QString *errorMessage = 0) const;

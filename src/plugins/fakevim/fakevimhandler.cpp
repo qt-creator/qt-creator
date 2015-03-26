@@ -2416,6 +2416,9 @@ void FakeVimHandler::Private::enterFakeVim()
 {
     QTC_ASSERT(!m_inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
 
+    if (!m_buffer->currentHandler)
+        m_buffer->currentHandler = this;
+
     pullOrCreateBufferData();
 
     m_inFakeVim = true;
@@ -4953,7 +4956,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             endEditBlock();
         }
     } else if (input.isBackspace()) {
-        if (!handleInsertInEditor(input)) {
+        // pass C-h as backspace, too
+        if (!handleInsertInEditor(Input(Qt::Key_Backspace, Qt::NoModifier))) {
             joinPreviousEditBlock();
             if (!m_buffer->lastInsertion.isEmpty()
                     || hasConfig(ConfigBackspace, "start")

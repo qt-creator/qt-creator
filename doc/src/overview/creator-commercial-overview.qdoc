@@ -1,0 +1,55 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \page creator-commercial-overview.html
+
+    \title Qt Creator Commercial Features
+
+    You can use the following \QC features if you have the appropriate
+    \l{http://qt.io/licensing/}{Qt license}:
+
+    \list
+        \li \l{Using Clang Static Analyzer}{Clang Static Analyzer} integration.
+        \li Additional \l{Understanding the Data}{QML Profiler} event
+            categories:
+            \list
+                \li Pixmap cache
+                \li \l{Analyzing Scene Graph Events}{Scene graph}
+                \li Memory usage
+                \li Input events
+            \endlist
+        \li \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}
+            integration
+        \li \l{Using Qt Quick Designer Extensions}
+            {Qt Quick Designer extensions}:
+            \list
+                \li \l{Adding Connections}{Connections view}
+                \li \l{Editing PathView Properties}{PathView property editor}
+                \li \l{Using Qt Quick UI Forms}{Export button} for exporting
+                    items as alias properties
+            \endlist
+    \endlist
+*/

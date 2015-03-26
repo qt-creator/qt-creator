@@ -32,12 +32,14 @@
 #define DEBUGGER_STACKWINDOW_H
 
 #include <utils/basetreeview.h>
+#include <QCoreApplication>
 
 namespace Debugger {
 namespace Internal {
 
 class StackTreeView : public Utils::BaseTreeView
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackTreeView)
 public:
     StackTreeView();
 

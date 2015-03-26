@@ -15,6 +15,10 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
 
+    pluginTestDepends: [
+        "CppEditor",
+    ]
+
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
         sharedSources.prefix

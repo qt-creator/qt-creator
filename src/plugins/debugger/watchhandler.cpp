@@ -49,6 +49,7 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 #include <QFile>
@@ -199,6 +200,7 @@ public:
 
 class WatchModel : public WatchModelBase
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchModel)
 public:
     WatchModel(WatchHandler *handler, DebuggerEngine *engine);
 
@@ -711,19 +713,19 @@ QString WatchItem::displayType() const
 
 QColor WatchItem::valueColor() const
 {
-    static const QColor red(200, 0, 0);
-    static const QColor gray(140, 140, 140);
+    using Utils::Theme;
+    Theme *theme = Utils::creatorTheme();
     if (watchModel()) {
         if (!valueEnabled)
-            return gray;
+            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
         if (!watchModel()->m_contentsValid && !isInspect())
-            return gray;
+            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
         if (value.isEmpty()) // This might still show 0x...
-            return gray;
+            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
         if (value != watchModel()->m_valueCache.value(iname))
-            return red;
+            return theme->color(Theme::Debugger_WatchItem_ValueChanged);
     }
-    return QColor();
+    return theme->color(Theme::Debugger_WatchItem_ValueNormal);
 }
 
 QVariant WatchItem::data(int column, int role) const
@@ -1175,6 +1177,8 @@ void WatchModel::insertItem(WatchItem *item)
     QTC_ASSERT(parent, return);
     const int row = findInsertPosition(parent->children(), item);
     parent->insertChild(row, item);
+
+    item->walkTree([this](TreeItem *sub) { showEditValue(*static_cast<WatchItem *>(sub)); });
 }
 
 void WatchModel::reexpandItems()

@@ -39,8 +39,8 @@ namespace Timeline {
 class TIMELINE_EXPORT TimelineZoomControl : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(qint64 traceStart READ traceStart WRITE setTraceStart NOTIFY traceChanged)
-    Q_PROPERTY(qint64 traceEnd READ traceEnd WRITE setTraceEnd NOTIFY traceChanged)
+    Q_PROPERTY(qint64 traceStart READ traceStart NOTIFY traceChanged)
+    Q_PROPERTY(qint64 traceEnd READ traceEnd NOTIFY traceChanged)
     Q_PROPERTY(qint64 traceDuration READ traceDuration NOTIFY traceChanged)
 
     Q_PROPERTY(qint64 windowStart READ windowStart NOTIFY windowChanged)
@@ -50,6 +50,10 @@ class TIMELINE_EXPORT TimelineZoomControl : public QObject {
     Q_PROPERTY(qint64 rangeStart READ rangeStart NOTIFY rangeChanged)
     Q_PROPERTY(qint64 rangeEnd READ rangeEnd NOTIFY rangeChanged)
     Q_PROPERTY(qint64 rangeDuration READ rangeDuration NOTIFY rangeChanged)
+
+    Q_PROPERTY(qint64 selectionStart READ selectionStart NOTIFY selectionChanged)
+    Q_PROPERTY(qint64 selectionEnd READ selectionEnd NOTIFY selectionChanged)
+    Q_PROPERTY(qint64 selectionDuration READ selectionDuration NOTIFY selectionChanged)
 
     Q_PROPERTY(bool windowLocked READ windowLocked WRITE setWindowLocked NOTIFY windowLockedChanged)
 
@@ -69,6 +73,10 @@ public:
     qint64 rangeEnd() const { return m_rangeEnd; }
     qint64 rangeDuration() const { return m_rangeEnd - m_rangeStart; }
 
+    qint64 selectionStart() const { return m_selectionStart; }
+    qint64 selectionEnd() const { return m_selectionEnd; }
+    qint64 selectionDuration() const { return m_selectionEnd - m_selectionStart; }
+
     bool windowLocked() const { return m_windowLocked; }
     virtual void clear();
 
@@ -76,13 +84,13 @@ signals:
     void traceChanged(qint64 start, qint64 end);
     void windowChanged(qint64 start, qint64 end);
     void rangeChanged(qint64 start, qint64 end);
+    void selectionChanged(qint64 start, qint64 end);
     void windowLockedChanged(bool windowLocked);
 
 public slots:
-    void setTraceStart(qint64 start);
-    void setTraceEnd(qint64 end);
     void setTrace(qint64 start, qint64 end);
     void setRange(qint64 start, qint64 end);
+    void setSelection(qint64 start, qint64 end);
     void setWindowLocked(bool windowLocked);
 
 protected slots:
@@ -95,6 +103,8 @@ protected:
     qint64 m_windowEnd;
     qint64 m_rangeStart;
     qint64 m_rangeEnd;
+    qint64 m_selectionStart;
+    qint64 m_selectionEnd;
 
     QTimer m_timer;
     bool m_windowLocked;

@@ -105,6 +105,8 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
         case QXmlStreamReader::StartElement: {
             const QStringRef name = r.name();
             if (name == ctx.shortCutElement) {
+                if (!currentId.isEmpty()) // shortcut element without key element == empty shortcut
+                    result.insert(currentId, QKeySequence());
                 currentId = r.attributes().value(ctx.idAttribute).toString();
             } else if (name == ctx.keyElement) {
                 QTC_ASSERT(!currentId.isEmpty(), return result);

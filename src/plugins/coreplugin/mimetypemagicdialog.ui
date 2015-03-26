@@ -54,6 +54,11 @@
          </item>
          <item>
           <property name="text">
+           <string>RegExp</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>Host16</string>
           </property>
          </item>

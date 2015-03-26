@@ -47,6 +47,8 @@
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
             \uicontrol Debuggers > \uicontrol Add.
 
+            \image qtcreator-options-build-run-debuggers.png
+
         \li In the \uicontrol Name field, give a descriptive name for the debugger.
 
         \li In the \uicontrol Path field, specify the path to the debugger binary:
@@ -64,6 +66,9 @@
                 executable.
 
             \endlist
+
+            \QC attempts to identify the type and version of the debugger and
+            shows them in the \uicontrol Type and \uicontrol Version fields.
 
         \li In the \uicontrol ABIs field, specify the ABI versions to use on embedded
             devices.
