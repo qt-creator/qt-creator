@@ -62,7 +62,14 @@ class VcsJob;
 class VcsBaseClientPrivate;
 class VcsBaseEditorParameterWidget;
 
-class VCSBASE_EXPORT VcsBaseClient : public QObject
+class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
+{
+    Q_OBJECT
+
+public:
+};
+
+class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl
 {
     Q_OBJECT
 

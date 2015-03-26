@@ -35,6 +35,7 @@
 #include "commitdata.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <vcsbase/vcsbaseclient.h>
 
 #include <utils/fileutils.h>
 
@@ -101,7 +102,7 @@ public:
 
 typedef QMap<QString, SubmoduleData> SubmoduleDataMap;
 
-class GitClient : public QObject
+class GitClient : public VcsBase::VcsBaseClientImpl
 {
     Q_OBJECT
 
