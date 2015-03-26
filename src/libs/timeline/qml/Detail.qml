@@ -32,12 +32,11 @@ import QtQuick 2.1
 
 Text {
     property bool isLabel: false
-    property int labelWidth: 85
     property int valueWidth: 170
     font.pixelSize: 12
     font.bold: isLabel
     textFormat: Text.PlainText
     renderType: Text.NativeRendering
     elide: Text.ElideRight
-    width: text === "" ? 0 : (isLabel ? labelWidth : valueWidth)
+    width: text === "" ? 0 : (isLabel ? implicitWidth : valueWidth)
 }
