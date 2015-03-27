@@ -90,13 +90,13 @@ namespace Internal {
 
 static inline QString msgCannotFindTopLevel(const QString &f)
 {
-    return CvsPlugin::tr("Cannot find repository for \"%1\"").
+    return CvsPlugin::tr("Cannot find repository for \"%1\".").
             arg(QDir::toNativeSeparators(f));
 }
 
 static inline QString msgLogParsingFailed()
 {
-    return CvsPlugin::tr("Parsing of the log output failed");
+    return CvsPlugin::tr("Parsing of the log output failed.");
 }
 
 const char CVS_CONTEXT[]               = "CVS Context";
@@ -611,7 +611,7 @@ void CvsPlugin::revertAll()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    const QString title = tr("Revert repository");
+    const QString title = tr("Revert Repository");
     if (!messageBoxQuestion(title, tr("Revert all pending changes to the repository?")))
         return;
     QStringList args;
@@ -1190,7 +1190,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;
-        response.message =tr("No cvs executable specified.");
+        response.message =tr("No CVS executable specified.");
         return response;
     }
     // Run, connect stderr to the output window
