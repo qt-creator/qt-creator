@@ -419,10 +419,19 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
     }
 
     emit addOutput(tr("Pulling files necessary for debugging."), MessageOutput);
+
+    QString localAppProcessFile = QString::fromLatin1("%1/app_process").arg(m_buildDirectory);
     runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber)
                << QLatin1String("pull") << QLatin1String("/system/bin/app_process")
-               << QString::fromLatin1("%1/app_process").arg(m_buildDirectory));
+               << localAppProcessFile);
+    // Workaround for QTCREATORBUG-14201: /system/bin/app_process might be a link to asan/app_process
+    if (!QFileInfo::exists(localAppProcessFile)) {
+        runCommand(m_adbPath,
+                   AndroidDeviceInfo::adbSelector(m_serialNumber)
+                   << QLatin1String("pull") << QLatin1String("/system/bin/asan/app_process")
+                   << localAppProcessFile);
+    }
     runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("pull")
                << QLatin1String("/system/lib/libc.so")
