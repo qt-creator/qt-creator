@@ -118,8 +118,7 @@ public:
     }
 };
 
-BazaarClient::BazaarClient() :
-    VcsBaseClient(new BazaarSettings)
+BazaarClient::BazaarClient() : VcsBaseClient(new BazaarSettings)
 {
     setDiffParameterWidgetCreator([this] { return new BazaarDiffParameterWidget(settings()); });
     setLogParameterWidgetCreator([this] { return new BazaarLogParameterWidget(settings()); });

@@ -197,16 +197,6 @@ void GitEditorWidget::setPlainTextFiltered(const QString &text)
     textDocument()->setPlainText(modText);
 }
 
-void GitEditorWidget::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)
-{
-    reportCommandFinished(ok, exitCode, v);
-    if (ok && v.type() == QVariant::Int) {
-        const int line = v.toInt();
-        if (line >= 0)
-            gotoLine(line);
-    }
-}
-
 void GitEditorWidget::checkoutChange()
 {
     GitPlugin::instance()->client()->stashAndCheckout(

@@ -376,17 +376,6 @@ private:
     void requestReload(const QString &documentId, const QString &source, const QString &title,
                        std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
 
-    enum JobOutputBindMode {
-        NoOutputBind,
-        VcsWindowOutputBind
-    };
-
-    VcsBase::VcsCommand *createCommand(const QString &workingDirectory,
-                                       VcsBase::VcsBaseEditorWidget *editor = 0,
-                                       JobOutputBindMode mode = NoOutputBind);
-    void enqueueJob(VcsBase::VcsCommand *cmd, const QStringList &args,
-                    Utils::ExitCodeInterpreter *interpreter = 0);
-
     VcsBase::VcsCommand *executeGit(const QString &workingDirectory,
                                  const QStringList &arguments,
                                  VcsBase::VcsBaseEditorWidget* editor = 0,

@@ -68,7 +68,7 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
     Q_OBJECT
 
 public:
-    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
+    explicit VcsBaseClientImpl(VcsBaseClientImpl *client, VcsBaseClientSettings *settings);
     ~VcsBaseClientImpl();
 
     VcsBaseClientSettings &settings() const;
@@ -76,8 +76,23 @@ public:
     virtual Utils::FileName vcsBinary() const;
     int vcsTimeout() const;
 
+    enum JobOutputBindMode {
+        NoOutputBind,
+        VcsWindowOutputBind
+    };
+
+    VcsCommand *createCommand(const QString &workingDirectory,
+                              VcsBaseEditorWidget *editor = 0,
+                              JobOutputBindMode mode = NoOutputBind) const;
+
+    void enqueueJob(VcsCommand *cmd, const QStringList &args,
+                    Utils::ExitCodeInterpreter *interpreter = 0);
+
+    virtual QProcessEnvironment processEnvironment() const;
+
 private:
     void saveSettings();
+    void commandFinishedGotoLine(QWidget*);
 
     VcsBaseClientImplPrivate *d;
 };
@@ -144,8 +159,6 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
-    virtual QProcessEnvironment processEnvironment() const;
-
 signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
     // Passes on changed signals from VcsJob to Control
@@ -201,22 +214,11 @@ protected:
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
-    enum JobOutputBindMode {
-        NoOutputBind,
-        VcsWindowOutputBind
-    };
-
-    VcsCommand *createCommand(const QString &workingDirectory,
-                              VcsBaseEditorWidget *editor = 0,
-                              JobOutputBindMode mode = NoOutputBind) const;
-    void enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
-
     void resetCachedVcsInfo(const QString &workingDir);
 
 private:
     void statusParser(const QString&);
     void annotateRevision(const QString&, const QString&, const QString&, int);
-    void commandFinishedGotoLine(QWidget*);
 
     friend class VcsBaseClientPrivate;
     VcsBaseClientPrivate *d;

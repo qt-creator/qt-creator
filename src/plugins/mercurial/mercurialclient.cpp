@@ -68,8 +68,7 @@ public:
     }
 };
 
-MercurialClient::MercurialClient() :
-    VcsBaseClient(new MercurialSettings)
+MercurialClient::MercurialClient() : VcsBaseClient(new MercurialSettings)
 {
     setDiffParameterWidgetCreator([this] { return new MercurialDiffParameterWidget(settings()); });
 }

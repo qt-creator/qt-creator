@@ -603,7 +603,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 
 const char *GitClient::stashNamePrefix = "stash@{";
 
-GitClient::GitClient() : VcsBase::VcsBaseClientImpl(new GitSettings),
+GitClient::GitClient() : VcsBase::VcsBaseClientImpl(this, new GitSettings),
     m_cachedGitVersion(0),
     m_disableEditor(false)
 {
@@ -1967,36 +1967,6 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
     return true;
 }
 
-// Factory function to create an asynchronous command
-VcsCommand *GitClient::createCommand(const QString &workingDirectory, VcsBaseEditorWidget *editor,
-                                     JobOutputBindMode mode)
-{
-    GitEditorWidget *gitEditor = qobject_cast<GitEditorWidget *>(editor);
-    auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
-    command->setCodec(getSourceCodec(currentDocumentPath()));
-    if (gitEditor) {
-        gitEditor->setCommand(command);
-        connect(command, &VcsCommand::finished,
-                gitEditor, &GitEditorWidget::commandFinishedGotoLine);
-    }
-    if (mode & VcsWindowOutputBind) {
-        command->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
-        command->addFlags(VcsBasePlugin::ShowSuccessMessage);
-        if (editor) // assume that the commands output is the important thing
-            command->addFlags(VcsBasePlugin::SilentOutput);
-    } else if (gitEditor) {
-        connect(command, &VcsCommand::output, gitEditor, &GitEditorWidget::setPlainTextFiltered);
-    }
-
-    return command;
-}
-
-void GitClient::enqueueJob(VcsCommand *cmd, const QStringList &args, ExitCodeInterpreter *interpreter)
-{
-    cmd->addJob(args, vcsTimeout(), interpreter);
-    cmd->execute();
-}
-
 // Execute a single command
 VcsCommand *GitClient::executeGit(const QString &workingDirectory,
                                   const QStringList &arguments,
@@ -2016,7 +1986,7 @@ VcsCommand *GitClient::executeGit(const QString &workingDirectory,
 
 QProcessEnvironment GitClient::processEnvironment() const
 {
-    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    QProcessEnvironment environment = VcsBaseClientImpl::processEnvironment();
     QString gitPath = settings().stringValue(GitSettings::pathKey);
     if (!gitPath.isEmpty()) {
         gitPath += HostOsInfo::pathListSeparator();
@@ -2028,8 +1998,6 @@ QProcessEnvironment GitClient::processEnvironment() const
         environment.insert(QLatin1String("HOME"), QDir::toNativeSeparators(QDir::homePath()));
     }
     environment.insert(QLatin1String("GIT_EDITOR"), m_disableEditor ? QLatin1String("true") : m_gitQtcEditor);
-    // Set up SSH and C locale (required by git using perl).
-    VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
 }
 

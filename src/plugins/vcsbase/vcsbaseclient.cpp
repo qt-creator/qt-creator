@@ -82,15 +82,27 @@ namespace VcsBase {
 class VcsBaseClientImplPrivate
 {
 public:
-    VcsBaseClientImplPrivate(VcsBaseClientSettings *settings);
+    VcsBaseClientImplPrivate(VcsBaseClientImpl *client, VcsBaseClientSettings *settings);
     ~VcsBaseClientImplPrivate();
 
+    void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
+
     VcsBaseClientSettings *m_clientSettings;
+    QSignalMapper *m_cmdFinishedMapper;
 };
 
+void VcsBaseClientImplPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
+{
+    editor->setCommand(cmd);
+    QObject::connect(cmd, &VcsCommand::finished,
+                     m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+    m_cmdFinishedMapper->setMapping(cmd, editor);
+}
 
-VcsBaseClientImplPrivate::VcsBaseClientImplPrivate(VcsBaseClientSettings *settings) :
-    m_clientSettings(settings)
+VcsBaseClientImplPrivate::VcsBaseClientImplPrivate(VcsBaseClientImpl *client,
+                                                   VcsBaseClientSettings *settings) :
+    m_clientSettings(settings),
+    m_cmdFinishedMapper(new QSignalMapper(client))
 {
     m_clientSettings->readSettings(Core::ICore::settings());
 }
@@ -100,11 +112,14 @@ VcsBaseClientImplPrivate::~VcsBaseClientImplPrivate()
     delete m_clientSettings;
 }
 
-VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
-    d(new VcsBaseClientImplPrivate(settings))
+VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientImpl *client, VcsBaseClientSettings *settings) :
+    d(new VcsBaseClientImplPrivate(client, settings))
 {
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
+
+    connect(d->m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)(QWidget*)>(&QSignalMapper::mapped),
+            this, &VcsBaseClientImpl::commandFinishedGotoLine);
 }
 
 VcsBaseClientImpl::~VcsBaseClientImpl()
@@ -122,6 +137,40 @@ Utils::FileName VcsBaseClientImpl::vcsBinary() const
     return settings().binaryPath();
 }
 
+VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
+                                         VcsBaseEditorWidget *editor,
+                                         JobOutputBindMode mode) const
+{
+    auto cmd = new VcsCommand(vcsBinary(), workingDirectory,
+                              processEnvironment());
+    cmd->setDefaultTimeout(vcsTimeout());
+    if (editor)
+        d->bindCommandToEditor(cmd, editor);
+    if (mode == VcsWindowOutputBind) {
+        cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
+        if (editor) // assume that the commands output is the important thing
+            cmd->addFlags(VcsBasePlugin::SilentOutput);
+    } else if (editor) {
+        connect(cmd, &VcsCommand::output, editor, &VcsBaseEditorWidget::setPlainText);
+    }
+
+    return cmd;
+}
+
+void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
+                                   Utils::ExitCodeInterpreter *interpreter)
+{
+    cmd->addJob(args, vcsTimeout(), interpreter);
+    cmd->execute();
+}
+
+QProcessEnvironment VcsBaseClientImpl::processEnvironment() const
+{
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    VcsBasePlugin::setProcessEnvironment(&environment, false);
+    return environment;
+}
+
 int VcsBaseClientImpl::vcsTimeout() const
 {
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
@@ -132,33 +181,31 @@ void VcsBaseClientImpl::saveSettings()
     settings().writeSettings(Core::ICore::settings());
 }
 
+void VcsBaseClientImpl::commandFinishedGotoLine(QWidget *editorObject)
+{
+    VcsBaseEditorWidget *editor = qobject_cast<VcsBaseEditorWidget *>(editorObject);
+    VcsCommand *cmd = qobject_cast<VcsCommand *>(d->m_cmdFinishedMapper->mapping(editor));
+    if (editor && cmd) {
+        if (!cmd->lastExecutionSuccess()) {
+            editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
+        } else if (cmd->cookie().type() == QVariant::Int) {
+            const int line = cmd->cookie().toInt();
+            if (line >= 0)
+                editor->gotoLine(line);
+        }
+        d->m_cmdFinishedMapper->removeMappings(cmd);
+    }
+}
+
 class VcsBaseClientPrivate
 {
 public:
-    VcsBaseClientPrivate(VcsBaseClient *client);
-
-    void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
-
     VcsBaseEditorParameterWidget *createDiffEditor();
     VcsBaseEditorParameterWidget *createLogEditor();
-
-    QSignalMapper *m_cmdFinishedMapper;
 
     VcsBaseClient::ParameterWidgetCreator m_diffParamWidgetCreator;
     VcsBaseClient::ParameterWidgetCreator m_logParamWidgetCreator;
 };
-
-VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client) :
-    m_cmdFinishedMapper(new QSignalMapper(client))
-{ }
-
-void VcsBaseClientPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
-{
-    editor->setCommand(cmd);
-    QObject::connect(cmd, &VcsCommand::finished,
-                     m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
-    m_cmdFinishedMapper->setMapping(cmd, editor);
-}
 
 VcsBaseEditorParameterWidget *VcsBaseClientPrivate::createDiffEditor()
 {
@@ -175,12 +222,10 @@ VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
 { }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
-    VcsBaseClientImpl(settings),
-    d(new VcsBaseClientPrivate(this))
+    VcsBaseClientImpl(this, settings),
+    d(new VcsBaseClientPrivate)
 {
     qRegisterMetaType<QVariant>();
-    connect(d->m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)(QWidget*)>(&QSignalMapper::mapped),
-            this, &VcsBaseClient::commandFinishedGotoLine);
 }
 
 VcsBaseClient::~VcsBaseClient()
@@ -582,39 +627,6 @@ VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title
     return baseEditor;
 }
 
-QProcessEnvironment VcsBaseClient::processEnvironment() const
-{
-    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
-    VcsBasePlugin::setProcessEnvironment(&environment, false);
-    return environment;
-}
-
-VcsCommand *VcsBaseClient::createCommand(const QString &workingDirectory,
-                                         VcsBaseEditorWidget *editor,
-                                         JobOutputBindMode mode) const
-{
-    auto cmd = new VcsCommand(vcsBinary(), workingDirectory,
-                              processEnvironment());
-    cmd->setDefaultTimeout(vcsTimeout());
-    if (editor)
-        d->bindCommandToEditor(cmd, editor);
-    if (mode == VcsWindowOutputBind) {
-        cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
-        if (editor) // assume that the commands output is the important thing
-            cmd->addFlags(VcsBasePlugin::SilentOutput);
-    } else if (editor) {
-        connect(cmd, &VcsCommand::output, editor, &VcsBaseEditorWidget::setPlainText);
-    }
-
-    return cmd;
-}
-
-void VcsBaseClient::enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter)
-{
-    cmd->addJob(args, vcsTimeout(), interpreter);
-    cmd->execute();
-}
-
 void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
@@ -645,22 +657,6 @@ void VcsBaseClient::annotateRevision(const QString &workingDirectory,  const QSt
     if (blankPos != -1)
         changeCopy.truncate(blankPos);
     annotate(workingDirectory, file, changeCopy, lineNumber);
-}
-
-void VcsBaseClient::commandFinishedGotoLine(QWidget *editorObject)
-{
-    VcsBaseEditorWidget *editor = qobject_cast<VcsBaseEditorWidget *>(editorObject);
-    VcsCommand *cmd = qobject_cast<VcsCommand *>(d->m_cmdFinishedMapper->mapping(editor));
-    if (editor && cmd) {
-        if (!cmd->lastExecutionSuccess()) {
-            editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
-        } else if (cmd->cookie().type() == QVariant::Int) {
-            const int line = cmd->cookie().toInt();
-            if (line >= 0)
-                editor->gotoLine(line);
-        }
-        d->m_cmdFinishedMapper->removeMappings(cmd);
-    }
 }
 
 } // namespace VcsBase
