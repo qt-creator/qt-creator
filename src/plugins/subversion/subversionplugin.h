@@ -112,7 +112,8 @@ private slots:
     void revertAll();
     void filelogCurrentFile();
     void annotateCurrentFile();
-    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
+    void annotateVersion(const QString &workingDirectory, const QString &file,
+                         const QString &revision, int lineNumber);
     void projectStatus();
     void describe(const QString &source, const QString &changeNr);
     void slotDescribe();
@@ -134,9 +135,9 @@ protected:
 
 private:
     inline bool isCommitEditorOpen() const;
-    Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
-                                       int editorType, const QString &source,
-                                       QTextCodec *codec);
+    Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
+                                      int editorType, const QString &source,
+                                      QTextCodec *codec);
 
     void filelog(const QString &workingDir,
                  const QString &file = QString(),
@@ -180,7 +181,7 @@ private:
     QAction *m_submitUndoAction;
     QAction *m_submitRedoAction;
     QAction *m_menuAction;
-    bool    m_submitActionTriggered;
+    bool m_submitActionTriggered;
 
     static SubversionPlugin *m_subversionPluginInstance;
 };

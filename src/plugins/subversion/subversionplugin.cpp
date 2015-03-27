@@ -813,8 +813,8 @@ void SubversionPlugin::annotateVersion(const QString &workingDirectory,
 }
 
 void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &file,
-                                const QString &revision /* = QString() */,
-                                int lineNumber /* = -1 */)
+                                   const QString &revision /* = QString() */,
+                                   int lineNumber /* = -1 */)
 {
     const QString source = VcsBaseEditor::getSource(workingDir, file);
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
