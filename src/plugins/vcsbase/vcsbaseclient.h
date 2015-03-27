@@ -81,6 +81,11 @@ public:
         VcsWindowOutputBind
     };
 
+    VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
+                                         const QString &source, QTextCodec *codec,
+                                         const char *registerDynamicProperty,
+                                         const QString &dynamicPropertyValue) const;
+
     VcsCommand *createCommand(const QString &workingDirectory,
                               VcsBaseEditorWidget *editor = 0,
                               JobOutputBindMode mode = NoOutputBind) const;
@@ -92,6 +97,8 @@ public:
 
 protected:
     void resetCachedVcsInfo(const QString &workingDir);
+    virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                           const QString &change, int line) = 0;
 
 private:
     void saveSettings();
@@ -172,6 +179,9 @@ public slots:
                       const QStringList &extraOptions = QStringList());
 
 protected:
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int line);
+
     enum VcsCommandTag
     {
         CreateRepositoryCommand,
@@ -212,14 +222,9 @@ protected:
                                                          const QStringList &args,
                                                          unsigned flags = 0,
                                                          QTextCodec *outputCodec = 0) const;
-    VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
-                                         const QString &source, bool setSourceCodec,
-                                         const char *registerDynamicProperty,
-                                         const QString &dynamicPropertyValue) const;
 
 private:
     void statusParser(const QString&);
-    void annotateRevision(const QString&, const QString&, const QString&, int);
 
     friend class VcsBaseClientPrivate;
     VcsBaseClientPrivate *d;

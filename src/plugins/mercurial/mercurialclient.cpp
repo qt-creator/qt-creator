@@ -282,7 +282,8 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
     const QString title = tr("Hg incoming %1").arg(id);
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
-                                                  true, "incoming", id);
+                                                  VcsBaseEditor::getCodec(repositoryRoot),
+                                                  "incoming", id);
     VcsCommand *cmd = createCommand(repository, editor);
     enqueueJob(cmd, args);
 }
@@ -295,7 +296,8 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     const QString title = tr("Hg outgoing %1").
             arg(QDir::toNativeSeparators(repositoryRoot));
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot, true,
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
+                                                  VcsBaseEditor::getCodec(repositoryRoot),
                                                   "outgoing", repositoryRoot);
 
     VcsCommand *cmd = createCommand(repositoryRoot, editor);

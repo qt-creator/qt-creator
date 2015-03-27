@@ -349,8 +349,6 @@ public slots:
               const QString &name = QString());
 
 private slots:
-    void slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
-                                    QString change, int lineNumber);
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
     void slotChunkActionsRequested(QMenu *menu, bool isValid);
@@ -359,19 +357,15 @@ private slots:
     void branchesForCommit(const QString &revision);
 
 private:
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int lineNumber) override;
+
     void stage(const QString &patch, bool revert);
-    QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-
-    VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind,
-                                                  QString title,
-                                                  const QString &source,
-                                                  CodecType codecType,
-                                                  const char *registerDynamicProperty,
-                                                  const QString &dynamicPropertyValue) const;
+    QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
 
     void requestReload(const QString &documentId, const QString &source, const QString &title,
                        std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;

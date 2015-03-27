@@ -180,6 +180,36 @@ int VcsBaseClientImpl::vcsTimeout() const
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
 }
 
+VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Core::Id kind, QString title,
+                                                        const QString &source, QTextCodec *codec,
+                                                        const char *registerDynamicProperty,
+                                                        const QString &dynamicPropertyValue) const
+{
+    VcsBaseEditorWidget *baseEditor = 0;
+    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
+    const QString progressMsg = tr("Working...");
+    if (outputEditor) {
+        // Exists already
+        outputEditor->document()->setContents(progressMsg.toUtf8());
+        baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
+        QTC_ASSERT(baseEditor, return 0);
+        Core::EditorManager::activateEditor(outputEditor);
+    } else {
+        outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
+        outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
+        baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
+        connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
+                this, &VcsBaseClientImpl::annotateRevisionRequested);
+        QTC_ASSERT(baseEditor, return 0);
+        baseEditor->setSource(source);
+        if (codec)
+            baseEditor->setCodec(codec);
+    }
+
+    baseEditor->setForceReadOnly(true);
+    return baseEditor;
+}
+
 void VcsBaseClientImpl::saveSettings()
 {
     settings().writeSettings(Core::ICore::settings());
@@ -386,7 +416,8 @@ void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, file);
 
-    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
+                                                  VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
     VcsCommand *cmd = createCommand(workingDir, editor);
@@ -402,7 +433,8 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, files);
-    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
+                                                  VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
     editor->setWorkingDirectory(workingDir);
 
@@ -434,7 +466,8 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, files);
-    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
+                                                  VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
@@ -555,7 +588,8 @@ void VcsBaseClient::view(const QString &source, const QString &id,
     const Core::Id kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(LogCommand), id);
 
-    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true, "view", id);
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
+                                                  VcsBaseEditor::getCodec(source), "view", id);
 
     const QFileInfo fi(source);
     const QString workingDirPath = fi.isFile() ? fi.absolutePath() : source;
@@ -601,36 +635,6 @@ QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sour
             Utils::FileName::fromString(sourceId).fileName();
 }
 
-VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title,
-                                                    const QString &source, bool setSourceCodec,
-                                                    const char *registerDynamicProperty,
-                                                    const QString &dynamicPropertyValue) const
-{
-    VcsBaseEditorWidget *baseEditor = 0;
-    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
-    const QString progressMsg = tr("Working...");
-    if (outputEditor) {
-        // Exists already
-        outputEditor->document()->setContents(progressMsg.toUtf8());
-        baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-        QTC_ASSERT(baseEditor, return 0);
-        Core::EditorManager::activateEditor(outputEditor);
-    } else {
-        outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
-        outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-        baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-        connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
-                this, &VcsBaseClient::annotateRevision);
-        QTC_ASSERT(baseEditor, return 0);
-        baseEditor->setSource(source);
-        if (setSourceCodec)
-            baseEditor->setCodec(VcsBaseEditor::getCodec(source));
-    }
-
-    baseEditor->setForceReadOnly(true);
-    return baseEditor;
-}
-
 void VcsBaseClient::statusParser(const QString &text)
 {
     QList<VcsBaseClient::StatusItem> lineInfoList;
@@ -646,8 +650,9 @@ void VcsBaseClient::statusParser(const QString &text)
     emit parsedStatus(lineInfoList);
 }
 
-void VcsBaseClient::annotateRevision(const QString &workingDirectory,  const QString &file,
-                                     const QString& change, int lineNumber)
+void VcsBaseClient::annotateRevisionRequested(const QString &workingDirectory,
+                                              const QString &file, const QString &change,
+                                              int line)
 {
     QString changeCopy = change;
     // This might be invoked with a verbose revision description
@@ -655,7 +660,7 @@ void VcsBaseClient::annotateRevision(const QString &workingDirectory,  const QSt
     const int blankPos = changeCopy.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         changeCopy.truncate(blankPos);
-    annotate(workingDirectory, file, changeCopy, lineNumber);
+    annotate(workingDirectory, file, changeCopy, line);
 }
 
 } // namespace VcsBase
