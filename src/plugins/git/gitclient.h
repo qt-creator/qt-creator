@@ -140,8 +140,7 @@ public:
 
     explicit GitClient();
 
-    Utils::FileName vcsBinary(bool *ok = 0, QString *errorMessage = 0) const;
-    int vcsTimeout() const;
+    Utils::FileName vcsBinary() const;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir) const;

@@ -81,9 +81,7 @@ Core::Id GitVersionControl::id() const
 
 bool GitVersionControl::isConfigured() const
 {
-    bool ok = false;
-    m_client->vcsBinary(&ok);
-    return ok;
+    return !m_client->vcsBinary().isEmpty();
 }
 
 bool GitVersionControl::supportsOperation(Operation operation) const

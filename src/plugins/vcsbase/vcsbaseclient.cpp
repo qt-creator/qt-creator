@@ -117,6 +117,16 @@ VcsBaseClientSettings &VcsBaseClientImpl::settings() const
     return *d->m_clientSettings;
 }
 
+Utils::FileName VcsBaseClientImpl::vcsBinary() const
+{
+    return settings().binaryPath();
+}
+
+int VcsBaseClientImpl::vcsTimeout() const
+{
+    return settings().intValue(VcsBaseClientSettings::timeoutKey);
+}
+
 void VcsBaseClientImpl::saveSettings()
 {
     settings().writeSettings(Core::ICore::settings());
@@ -608,16 +618,6 @@ void VcsBaseClient::enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::
 void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
-}
-
-Utils::FileName VcsBaseClient::vcsBinary() const
-{
-    return settings().binaryPath();
-}
-
-int VcsBaseClient::vcsTimeout() const
-{
-    return settings().intValue(VcsBaseClientSettings::timeoutKey);
 }
 
 void VcsBaseClient::statusParser(const QString &text)

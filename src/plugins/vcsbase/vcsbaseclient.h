@@ -73,6 +73,9 @@ public:
 
     VcsBaseClientSettings &settings() const;
 
+    virtual Utils::FileName vcsBinary() const;
+    int vcsTimeout() const;
+
 private:
     void saveSettings();
 
@@ -142,9 +145,6 @@ public:
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
     virtual QProcessEnvironment processEnvironment() const;
-
-    Utils::FileName vcsBinary() const;
-    int vcsTimeout() const;
 
 signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);

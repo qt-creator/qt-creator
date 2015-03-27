@@ -2452,9 +2452,11 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
 }
 
 bool GitClient::launchGitGui(const QString &workingDirectory) {
-    bool success;
-    FileName gitBinary = vcsBinary(&success);
-    if (success) {
+    bool success = true;
+    FileName gitBinary = vcsBinary();
+    if (gitBinary.isEmpty()) {
+        success = false;
+    } else {
         success = QProcess::startDetached(gitBinary.toString(), QStringList(QLatin1String("gui")),
                                           workingDirectory);
     }
@@ -2483,14 +2485,13 @@ FileName GitClient::gitBinDirectory()
     return FileName::fromString(path);
 }
 
-FileName GitClient::vcsBinary(bool *ok, QString *errorMessage) const
+FileName GitClient::vcsBinary() const
 {
-    return static_cast<GitSettings &>(settings()).gitExecutable(ok, errorMessage);
-}
-
-int GitClient::vcsTimeout() const
-{
-    return settings().intValue(GitSettings::timeoutKey);
+    bool ok;
+    Utils::FileName binary = static_cast<GitSettings &>(settings()).gitExecutable(&ok);
+    if (!ok)
+        return Utils::FileName();
+    return binary;
 }
 
 QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
