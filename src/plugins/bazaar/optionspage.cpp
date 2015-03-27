@@ -41,8 +41,7 @@ using namespace Bazaar::Internal;
 using namespace Bazaar;
 using namespace VcsBase;
 
-OptionsPageWidget::OptionsPageWidget(QWidget *parent)
-    : QWidget(parent)
+OptionsPageWidget::OptionsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -70,29 +69,10 @@ void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.timeout->setValue(s.intValue(BazaarSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage()
+OptionsPage::OptionsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, BazaarPlugin::instance()->client())
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(tr("Bazaar"));
-}
-
-QWidget *OptionsPage::widget()
-{
-    if (!m_optionsPageWidget)
-        m_optionsPageWidget = new OptionsPageWidget;
-    m_optionsPageWidget->setSettings(BazaarPlugin::instance()->client()->settings());
-    return m_optionsPageWidget;
-}
-
-void OptionsPage::apply()
-{
-    if (!m_optionsPageWidget)
-        return;
-    BazaarPlugin *plugin = BazaarPlugin::instance();
-    const VcsBaseClientSettings newSettings = m_optionsPageWidget->settings();
-    VcsBaseClientSettings &s = plugin->client()->settings();
-    if (newSettings != s) {
-        s = newSettings;
-        emit settingsChanged();
-    }
+    setWidgetFactory([]() { return new OptionsPageWidget; });
 }

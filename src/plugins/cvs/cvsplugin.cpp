@@ -254,10 +254,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_client = new CvsClient;
 
-    auto options = new SettingsPage;
-    connect(options, &SettingsPage::settingsChanged,
-            versionControl(), &IVersionControl::configurationChanged);
-    addAutoReleasedObject(new SettingsPage);
+    addAutoReleasedObject(new SettingsPage(versionControl()));
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new CvsSubmitEditor(&submitParameters); }));

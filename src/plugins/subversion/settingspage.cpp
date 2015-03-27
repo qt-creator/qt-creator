@@ -47,8 +47,7 @@ using namespace Subversion::Internal;
 using namespace Utils;
 using namespace VcsBase;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -86,34 +85,10 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.logCountSpinBox->setValue(s.intValue(SubversionSettings::logCountKey));
 }
 
-SettingsPage::SettingsPage() :
-    m_widget(0)
+SettingsPage::SettingsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, SubversionPlugin::instance()->client())
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(tr("Subversion"));
-}
-
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new SettingsPageWidget;
-        m_widget->setSettings(SubversionPlugin::instance()->client()->settings());
-    }
-    return m_widget;
-}
-
-void SettingsPage::apply()
-{
-    const VcsBaseClientSettings newSettings = m_widget->settings();
-    VcsBaseClientSettings &s = SubversionPlugin::instance()->client()->settings();
-    if (s != newSettings) {
-        s = newSettings;
-        s.writeSettings(Core::ICore::settings());
-        emit settingsChanged();
-    }
-}
-
-void SettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetFactory([]() { return new SettingsPageWidget; });
 }

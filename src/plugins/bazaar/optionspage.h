@@ -44,7 +44,7 @@ class VcsBaseClientSettings;
 namespace Bazaar {
 namespace Internal {
 
-class OptionsPageWidget : public QWidget
+class OptionsPageWidget : public VcsBase::VcsClientOptionsPageWidget
 {
     Q_OBJECT
 
@@ -59,22 +59,12 @@ private:
 };
 
 
-class OptionsPage : public VcsBase::VcsBaseOptionsPage
+class OptionsPage : public VcsBase::VcsClientOptionsPage
 {
     Q_OBJECT
 
 public:
-    OptionsPage();
-
-    QWidget *widget();
-    void apply();
-    void finish() { }
-
-signals:
-    void settingsChanged();
-
-private:
-    QPointer<OptionsPageWidget> m_optionsPageWidget;
+    OptionsPage(Core::IVersionControl *control);
 };
 
 } // namespace Internal

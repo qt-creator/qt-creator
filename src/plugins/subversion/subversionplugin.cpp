@@ -249,7 +249,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     m_client = new SubversionClient;
 
-    addAutoReleasedObject(new SettingsPage);
+    addAutoReleasedObject(new SettingsPage(versionControl()));
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new SubversionSubmitEditor(&submitParameters); }));

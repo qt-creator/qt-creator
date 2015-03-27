@@ -47,8 +47,7 @@ using namespace Cvs::Internal;
 using namespace Utils;
 using namespace VcsBase;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -78,33 +77,10 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.describeByCommitIdCheckBox->setChecked(s.boolValue(CvsSettings::describeByCommitIdKey));
 }
 
-SettingsPage::SettingsPage()
+SettingsPage::SettingsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, CvsPlugin::instance()->client())
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(tr("CVS"));
-}
-
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new SettingsPageWidget;
-        m_widget->setSettings(CvsPlugin::instance()->client()->settings());
-    }
-    return m_widget;
-}
-
-void SettingsPage::apply()
-{
-    VcsBaseClientSettings &s = CvsPlugin::instance()->client()->settings();
-    const VcsBaseClientSettings newSettings = m_widget->settings();
-    if (s != newSettings) {
-        s = newSettings;
-        s.writeSettings(Core::ICore::settings());
-        emit settingsChanged();
-    }
-}
-
-void SettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetFactory([]() { return new SettingsPageWidget; });
 }

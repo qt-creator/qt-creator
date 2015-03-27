@@ -45,8 +45,7 @@ using namespace VcsBase;
 namespace Mercurial {
 namespace Internal  {
 
-OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
-        QWidget(parent)
+OptionsPageWidget::OptionsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -74,38 +73,12 @@ void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.timeout->setValue(s.intValue(MercurialSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage()
+OptionsPage::OptionsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, MercurialPlugin::client())
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(tr("Mercurial"));
-}
-
-QWidget *OptionsPage::widget()
-{
-    if (!optionsPageWidget)
-        optionsPageWidget = new OptionsPageWidget;
-    optionsPageWidget->setSettings(MercurialPlugin::client()->settings());
-    return optionsPageWidget;
-}
-
-void OptionsPage::apply()
-{
-    if (!optionsPageWidget)
-        return;
-
-    const VcsBaseClientSettings newSettings = optionsPageWidget->settings();
-    VcsBaseClientSettings &s = MercurialPlugin::instance()->client()->settings();
-    if (s != newSettings) {
-        s = newSettings;
-        s.writeSettings(Core::ICore::settings());
-        emit settingsChanged();
-    }
-
-}
-
-void OptionsPage::finish()
-{
-    delete optionsPageWidget;
+    setWidgetFactory([]() { return new OptionsPageWidget; });
 }
 
 } // namespace Internal

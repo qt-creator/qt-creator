@@ -33,7 +33,15 @@
 
 #include "vcsbase_global.h"
 
+#include "vcsbaseclientsettings.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QWidget>
+
+#include <functional>
+
+namespace Core { class IVersionControl; }
 
 namespace VcsBase {
 
@@ -41,6 +49,44 @@ class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
 {
 public:
     explicit VcsBaseOptionsPage(QObject *parent = 0);
+};
+
+class VcsBaseClientImpl;
+
+class VCSBASE_EXPORT VcsClientOptionsPageWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    VcsClientOptionsPageWidget(QWidget *parent = 0);
+
+    virtual void setSettings(const VcsBaseClientSettings &s) = 0;
+    virtual VcsBaseClientSettings settings() const = 0;
+};
+
+class VCSBASE_EXPORT VcsClientOptionsPage : public VcsBaseOptionsPage
+{
+    Q_OBJECT
+
+public:
+    using WidgetFactory = std::function<VcsClientOptionsPageWidget *()>;
+
+    explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client, QObject *parent = 0);
+
+    VcsClientOptionsPageWidget *widget();
+    virtual void apply();
+    virtual void finish();
+
+signals:
+    void settingsChanged();
+
+protected:
+    void setWidgetFactory(WidgetFactory factory);
+
+private:
+    WidgetFactory m_factory;
+    VcsClientOptionsPageWidget *m_widget;
+    VcsBaseClientImpl *const m_client;
 };
 
 } // namespace VcsBase

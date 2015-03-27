@@ -43,14 +43,10 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace VcsBase {
-class VcsBaseClientSettings;
-} // namespace VcsBa
-
 namespace Subversion {
 namespace Internal {
 
-class SettingsPageWidget : public QWidget
+class SettingsPageWidget : public VcsBase::VcsClientOptionsPageWidget
 {
     Q_OBJECT
 
@@ -65,22 +61,12 @@ private:
 };
 
 
-class SettingsPage : public VcsBase::VcsBaseOptionsPage
+class SettingsPage : public VcsBase::VcsClientOptionsPage
 {
     Q_OBJECT
 
 public:
-    SettingsPage();
-
-    QWidget *widget();
-    void apply();
-    void finish();
-
-signals:
-    void settingsChanged();
-
-private:
-    QPointer<SettingsPageWidget> m_widget;
+    SettingsPage(Core::IVersionControl *control);
 };
 
 } // namespace Subversion

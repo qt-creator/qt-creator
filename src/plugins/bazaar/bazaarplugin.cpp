@@ -168,13 +168,9 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     m_client = new BazaarClient;
     auto vcsCtrl = new BazaarControl(m_client);
     initializeVcs(vcsCtrl, context);
-
-    auto options = new OptionsPage;
-    connect(options, &OptionsPage::settingsChanged,
-            vcsCtrl, &Core::IVersionControl::configurationChanged);
-    addAutoReleasedObject(options);
-
     connect(m_client, &VcsBaseClient::changed, vcsCtrl, &BazaarControl::changed);
+
+    addAutoReleasedObject(new OptionsPage(vcsCtrl));
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(VcsBaseEditorParameters);

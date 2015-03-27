@@ -47,8 +47,7 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     if (Utils::HostOsInfo::isWindowsHost()) {
@@ -80,6 +79,7 @@ VcsBaseClientSettings SettingsPageWidget::settings() const
     rc.setValue(GitSettings::winSetHomeEnvironmentKey, m_ui.winHomeCheckBox->isChecked());
     rc.setValue(GitSettings::gitkOptionsKey, m_ui.gitkOptionsLineEdit->text().trimmed());
     rc.setValue(GitSettings::repositoryBrowserCmd, m_ui.repBrowserCommandPathChooser->path().trimmed());
+
     return rc;
 }
 
@@ -96,46 +96,28 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 }
 
 // -------- SettingsPage
-SettingsPage::SettingsPage() :
-    m_widget(0)
+SettingsPage::SettingsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, GitPlugin::instance()->client())
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(tr("Git"));
-}
-
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new SettingsPageWidget;
-        m_widget->setSettings(GitPlugin::instance()->client()->settings());
-    }
-    return m_widget;
+    setWidgetFactory([]() { return new SettingsPageWidget; });
 }
 
 void SettingsPage::apply()
 {
-    // Warn if git cannot be found in path if the widget is on top
-    const VcsBaseClientSettings newSettings = m_widget->settings();
-    if (m_widget->isVisible()) {
+    VcsClientOptionsPage::apply();
+
+    if (widget()->isVisible()) {
+        const VcsBaseClientSettings settings = widget()->settings();
+        const GitSettings *rc = static_cast<const GitSettings *>(&settings);
         bool gitFoundOk;
         QString errorMessage;
-        static_cast<const GitSettings &>(newSettings).gitExecutable(&gitFoundOk, &errorMessage);
+        rc->gitExecutable(&gitFoundOk, &errorMessage);
         if (!gitFoundOk)
             Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
     }
-
-    VcsBaseClientSettings &s = GitPlugin::instance()->client()->settings();
-    if (s != newSettings) {
-        s = newSettings;
-        s.writeSettings(Core::ICore::settings());
-        emit settingsChanged();
-    }
 }
 
-void SettingsPage::finish()
-{
-    delete m_widget;
-}
-
-}
-}
+} // namespace Internal
+} // namespace Git

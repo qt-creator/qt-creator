@@ -49,34 +49,25 @@ class VcsBaseClientSettings;
 namespace Git {
 namespace Internal {
 
-class SettingsPageWidget : public QWidget {
+class SettingsPageWidget : public VcsBase::VcsClientOptionsPageWidget {
     Q_OBJECT
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
-    VcsBase::VcsBaseClientSettings settings() const;
-    void setSettings(const VcsBase::VcsBaseClientSettings &s);
+    VcsBase::VcsBaseClientSettings settings() const override;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s) override;
 
 private:
     Ui::SettingsPage m_ui;
 };
 
-class SettingsPage : public VcsBase::VcsBaseOptionsPage
+class SettingsPage : public VcsBase::VcsClientOptionsPage
 {
     Q_OBJECT
 
 public:
-    SettingsPage();
-
-    QWidget *widget();
-    void apply();
-    void finish();
-
-signals:
-    void settingsChanged();
-
-private:
-    QPointer<SettingsPageWidget> m_widget;
+    SettingsPage(Core::IVersionControl *control);
+    void apply() override;
 };
 
 } // namespace Internal

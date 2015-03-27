@@ -279,10 +279,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     initializeVcs(new GitVersionControl(m_gitClient), context);
 
     // Create the settings Page
-    SettingsPage *options = new SettingsPage;
-    connect(options, &SettingsPage::settingsChanged,
-            versionControl(), &IVersionControl::configurationChanged);
-    addAutoReleasedObject(options);
+    addAutoReleasedObject(new SettingsPage(versionControl()));
 
     static const char *describeSlot = SLOT(show(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);

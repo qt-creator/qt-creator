@@ -139,8 +139,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     m_client = new MercurialClient;
     initializeVcs(new MercurialControl(m_client), context);
 
-    optionsPage = new OptionsPage();
-    addAutoReleasedObject(optionsPage);
+    addAutoReleasedObject(new OptionsPage(versionControl()));
 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
     connect(m_client, SIGNAL(needUpdate()), this, SLOT(update()));
