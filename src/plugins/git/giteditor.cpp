@@ -185,7 +185,7 @@ void GitEditorWidget::setPlainTextFiltered(const QString &text)
     {
     case AnnotateOutput: {
         const bool omitAnnotationDate
-                = plugin->gitClient()->settings().boolValue(GitSettings::omitAnnotationDateKey);
+                = plugin->client()->settings().boolValue(GitSettings::omitAnnotationDateKey);
         if (omitAnnotationDate)
             modText = removeAnnotationDate(text);
         break;
@@ -209,7 +209,7 @@ void GitEditorWidget::commandFinishedGotoLine(bool ok, int exitCode, const QVari
 
 void GitEditorWidget::checkoutChange()
 {
-    GitPlugin::instance()->gitClient()->stashAndCheckout(
+    GitPlugin::instance()->client()->stashAndCheckout(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
@@ -217,7 +217,7 @@ void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
     const QString workingDir = sourceWorkingDirectory();
 
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     if (resetType == "hard"
             && client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
             != GitClient::StatusUnchanged) {
@@ -234,19 +234,19 @@ void GitEditorWidget::resetChange(const QByteArray &resetType)
 
 void GitEditorWidget::cherryPickChange()
 {
-    GitPlugin::instance()->gitClient()->synchronousCherryPick(
+    GitPlugin::instance()->client()->synchronousCherryPick(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::revertChange()
 {
-    GitPlugin::instance()->gitClient()->synchronousRevert(
+    GitPlugin::instance()->client()->synchronousRevert(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::logChange()
 {
-    GitPlugin::instance()->gitClient()->log(
+    GitPlugin::instance()->client()->log(
                 sourceWorkingDirectory(), QString(), false, QStringList(m_currentChange));
 }
 
@@ -261,7 +261,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     patchFile.write(chunk.chunk);
     patchFile.close();
 
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     QStringList args = QStringList() << QLatin1String("--cached");
     if (revert)
         args << QLatin1String("--reverse");
@@ -314,7 +314,7 @@ bool GitEditorWidget::open(QString *errorString, const QString &fileName, const 
         const QString gitPath = fi.absolutePath();
         setSource(gitPath);
         textDocument()->setCodec(
-                    GitPlugin::instance()->gitClient()->encoding(gitPath, "i18n.commitEncoding"));
+                    GitPlugin::instance()->client()->encoding(gitPath, "i18n.commitEncoding"));
     }
     return VcsBaseEditorWidget::open(errorString, fileName, realFileName);
 }
@@ -325,14 +325,14 @@ QString GitEditorWidget::decorateVersion(const QString &revision) const
     const QString workingDirectory = fi.absolutePath();
 
     // Format verbose, SHA1 being first token
-    return GitPlugin::instance()->gitClient()->synchronousShortDescription(workingDirectory, revision);
+    return GitPlugin::instance()->client()->synchronousShortDescription(workingDirectory, revision);
 }
 
 QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     QStringList revisions;
     QString errorMessage;
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Get the SHA1's of the file.
@@ -346,7 +346,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
 
 bool GitEditorWidget::isValidRevision(const QString &revision) const
 {
-    return GitPlugin::instance()->gitClient()->isValidRevision(revision);
+    return GitPlugin::instance()->client()->isValidRevision(revision);
 }
 
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)

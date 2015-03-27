@@ -138,7 +138,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui(new Ui::GerritPushDialog),
     m_isValid(false)
 {
-    m_client = GitPlugin::instance()->gitClient();
+    m_client = GitPlugin::instance()->client();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->repositoryLabel->setText(QDir::toNativeSeparators(workingDir));

@@ -85,7 +85,7 @@ public:
 
     GitVersionControl *gitVersionControl() const;
 
-    GitClient *gitClient() const;
+    GitClient *client() const;
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
 
 public slots:

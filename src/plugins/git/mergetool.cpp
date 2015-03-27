@@ -78,7 +78,7 @@ MergeTool::MergeTool(QObject *parent) :
     m_mergeType(NormalMerge),
     m_localState(UnknownState),
     m_remoteState(UnknownState),
-    m_gitClient(GitPlugin::instance()->gitClient()),
+    m_client(GitPlugin::instance()->client()),
     m_merging(false)
 {
 }
@@ -93,7 +93,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     QStringList arguments;
     arguments << QLatin1String("mergetool") << QLatin1String("-y");
     if (!files.isEmpty()) {
-        if (m_gitClient->gitVersion() < 0x010708) {
+        if (m_client->gitVersion() < 0x010708) {
             Core::AsynchronousMessageBox::warning(tr("Error"),
                                                    tr("File input for the merge tool requires Git 1.7.8, or later."));
             return false;
@@ -102,7 +102,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     }
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
-    const Utils::FileName binary = m_gitClient->vcsBinary();
+    const Utils::FileName binary = m_client->vcsBinary();
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
     if (m_process->waitForStarted()) {
@@ -274,7 +274,7 @@ void MergeTool::done()
         VcsOutputWindow::appendError(tr("Merge tool process terminated with exit code %1")
                                   .arg(exitCode));
     }
-    m_gitClient->continueCommandIfNeeded(workingDirectory, exitCode == 0);
+    m_client->continueCommandIfNeeded(workingDirectory, exitCode == 0);
     GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     deleteLater();
 }

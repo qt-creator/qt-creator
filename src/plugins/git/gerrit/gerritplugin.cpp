@@ -91,7 +91,7 @@ enum FetchMode
 
 static inline GitClient *gitClient()
 {
-    return GitPlugin::instance()->gitClient();
+    return GitPlugin::instance()->client();
 }
 
 /* FetchContext: Retrieves the patch and displays

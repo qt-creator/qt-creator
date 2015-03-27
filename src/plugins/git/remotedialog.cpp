@@ -86,7 +86,7 @@ void RemoteAdditionDialog::clear()
 RemoteDialog::RemoteDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::RemoteDialog),
-    m_remoteModel(new RemoteModel(GitPlugin::instance()->gitClient(), this)),
+    m_remoteModel(new RemoteModel(GitPlugin::instance()->client(), this)),
     m_addDialog(0)
 {
     setModal(false);

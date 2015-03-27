@@ -196,7 +196,7 @@ void BaseController::processOutput(const QString &output)
 
 GitClient *BaseController::gitClient() const
 {
-    return GitPlugin::instance()->gitClient();
+    return GitPlugin::instance()->client();
 }
 
 QStringList BaseController::addHeadWhenCommandInProgress() const
@@ -477,7 +477,7 @@ public:
         // If interactive rebase editor window is closed, plugin is terminated
         // but referenced here when the command ends
         if (GitPlugin *plugin = GitPlugin::instance()) {
-            GitClient *client = plugin->gitClient();
+            GitClient *client = plugin->client();
             if (m_commit.isEmpty() && m_files.isEmpty()) {
                 if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
                     client->endStashScope(m_workingDirectory);
@@ -3367,7 +3367,7 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
 }
 
 GitClient::StashInfo::StashInfo() :
-    m_client(GitPlugin::instance()->gitClient()),
+    m_client(GitPlugin::instance()->client()),
     m_pushAction(NoPush)
 {
 }

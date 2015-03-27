@@ -110,7 +110,7 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
 
 VcsCommand *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPath) const
 {
-     const Internal::GitClient *client = Internal::GitPlugin::instance()->gitClient();
+     const Internal::GitClient *client = Internal::GitPlugin::instance()->client();
      const QString workingDirectory = path();
      const QString checkoutDir = directory();
      *checkoutPath = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + checkoutDir);
@@ -137,7 +137,7 @@ QStringList CloneWizardPage::branches(const QString &repository, int *current)
 
     if (repository.isEmpty())
         return QStringList();
-     const QStringList branches = Internal::GitPlugin::instance()->gitClient()->synchronousRepositoryBranches(repository);
+     const QStringList branches = Internal::GitPlugin::instance()->client()->synchronousRepositoryBranches(repository);
      if (!branches.isEmpty())
          *current = 0; // default branch is always returned first!
      return branches;

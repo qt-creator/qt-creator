@@ -59,7 +59,7 @@ namespace Internal {
 BranchDialog::BranchDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::BranchDialog),
-    m_model(new BranchModel(GitPlugin::instance()->gitClient(), this))
+    m_model(new BranchModel(GitPlugin::instance()->client(), this))
 {
     setModal(false);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -197,7 +197,7 @@ void BranchDialog::checkout()
             QLatin1Char(' ') + nextBranch + QLatin1String("-AutoStash ");
 
     BranchCheckoutDialog branchCheckoutDialog(this, currentBranch, nextBranch);
-    GitClient *gitClient = GitPlugin::instance()->gitClient();
+    GitClient *gitClient = GitPlugin::instance()->client();
 
     if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) != GitClient::StatusChanged)
         branchCheckoutDialog.foundNoLocalChanges();
@@ -317,7 +317,7 @@ void BranchDialog::diff()
     if (fullName.isEmpty())
         return;
     // Do not pass working dir by reference since it might change
-    GitPlugin::instance()->gitClient()->diffBranch(QString(m_repository), fullName);
+    GitPlugin::instance()->client()->diffBranch(QString(m_repository), fullName);
 }
 
 void BranchDialog::log()
@@ -326,7 +326,7 @@ void BranchDialog::log()
     if (branchName.isEmpty())
         return;
     // Do not pass working dir by reference since it might change
-    GitPlugin::instance()->gitClient()->log(QString(m_repository), QString(), false, QStringList(branchName));
+    GitPlugin::instance()->client()->log(QString(m_repository), QString(), false, QStringList(branchName));
 }
 
 void BranchDialog::reset()
@@ -339,7 +339,7 @@ void BranchDialog::reset()
     if (QMessageBox::question(this, tr("Git Reset"), tr("Hard reset branch \"%1\" to \"%2\"?")
                               .arg(currentName).arg(branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-        GitPlugin::instance()->gitClient()->reset(QString(m_repository), QLatin1String("--hard"),
+        GitPlugin::instance()->client()->reset(QString(m_repository), QLatin1String("--hard"),
                                                   branchName);
 
     }
@@ -353,7 +353,7 @@ void BranchDialog::merge()
     QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
     const QString branch = m_model->fullName(idx, true);
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     bool allowFastForward = true;
     if (client->isFastForwardMerge(m_repository, branch)) {
         QMenu popup;
@@ -376,7 +376,7 @@ void BranchDialog::rebase()
     QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
     const QString baseBranch = m_model->fullName(idx, true);
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     if (client->beginStashScope(m_repository, QLatin1String("rebase")))
         client->rebase(m_repository, baseBranch);
 }
@@ -389,7 +389,7 @@ void BranchDialog::cherryPick()
     QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
     const QString branch = m_model->fullName(idx, true);
-    GitPlugin::instance()->gitClient()->synchronousCherryPick(m_repository, branch);
+    GitPlugin::instance()->client()->synchronousCherryPick(m_repository, branch);
 }
 
 void BranchDialog::setRemoteTracking()

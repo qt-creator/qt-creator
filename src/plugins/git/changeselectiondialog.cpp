@@ -59,10 +59,10 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     , m_command(NoCommand)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_gitExecutable = GitPlugin::instance()->gitClient()->vcsBinary();
+    m_gitExecutable = GitPlugin::instance()->client()->vcsBinary();
     m_ui->setupUi(this);
     m_ui->workingDirectoryEdit->setText(workingDirectory);
-    m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
+    m_gitEnvironment = GitPlugin::instance()->client()->processEnvironment();
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
 
@@ -225,7 +225,7 @@ void ChangeSelectionDialog::recalculateCompletion()
     m_oldWorkingDir = workingDir;
 
     if (!workingDir.isEmpty()) {
-        GitClient *client = GitPlugin::instance()->gitClient();
+        GitClient *client = GitPlugin::instance()->client();
         QStringList args;
         args << QLatin1String("--format=%(refname:short)");
         QString output;

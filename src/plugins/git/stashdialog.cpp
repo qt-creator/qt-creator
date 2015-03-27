@@ -53,7 +53,7 @@ namespace Internal {
 
 static inline GitClient *gitClient()
 {
-    return GitPlugin::instance()->gitClient();
+    return GitPlugin::instance()->client();
 }
 
 static inline QList<QStandardItem*> stashModelRowItems(const Stash &s)

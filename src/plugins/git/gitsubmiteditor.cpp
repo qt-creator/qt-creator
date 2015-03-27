@@ -100,7 +100,7 @@ public:
 
     void start()
     {
-        GitClient *client = GitPlugin::instance()->gitClient();
+        GitClient *client = GitPlugin::instance()->client();
         QString commitTemplate;
         bool success = client->getCommitData(m_workingDirectory, &commitTemplate,
                                              m_commitData, &m_errorMessage);
@@ -259,7 +259,7 @@ void GitSubmitEditor::updateFileModel()
     QFuture<void> future = QtConcurrent::run(m_commitDataFetcher, &CommitDataFetcher::start);
     Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
 
-    GitPlugin::instance()->gitClient()->addFuture(future);
+    GitPlugin::instance()->client()->addFuture(future);
 }
 
 void GitSubmitEditor::commitDataRetrieved(bool success)

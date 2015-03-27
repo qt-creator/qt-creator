@@ -1110,7 +1110,7 @@ void GitPlugin::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
-    bool rebase = gitClient()->settings().boolValue(GitSettings::pullRebaseKey);
+    bool rebase = client()->settings().boolValue(GitSettings::pullRebaseKey);
 
     if (!rebase) {
         QString currentBranch = m_gitClient->synchronousCurrentLocalBranch(topLevel);
@@ -1417,11 +1417,11 @@ void GitPlugin::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
     const bool hasRepositoryBrowserCmd
-            = !gitClient()->settings().stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
+            = !client()->settings().stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
 }
 
-GitClient *GitPlugin::gitClient() const
+GitClient *GitPlugin::client() const
 {
     return m_gitClient;
 }

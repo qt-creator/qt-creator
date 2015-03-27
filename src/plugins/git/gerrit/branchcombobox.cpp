@@ -39,7 +39,7 @@ BranchComboBox::BranchComboBox(QWidget *parent) :
     QComboBox(parent),
     m_detached(false)
 {
-    m_client = GitPlugin::instance()->gitClient();
+    m_client = GitPlugin::instance()->client();
 }
 
 void BranchComboBox::init(const QString &repository)

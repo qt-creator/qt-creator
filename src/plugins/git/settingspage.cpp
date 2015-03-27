@@ -107,7 +107,7 @@ QWidget *SettingsPage::widget()
 {
     if (!m_widget) {
         m_widget = new SettingsPageWidget;
-        m_widget->setSettings(GitPlugin::instance()->gitClient()->settings());
+        m_widget->setSettings(GitPlugin::instance()->client()->settings());
     }
     return m_widget;
 }
@@ -124,7 +124,7 @@ void SettingsPage::apply()
             Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
     }
 
-    VcsBaseClientSettings &s = GitPlugin::instance()->gitClient()->settings();
+    VcsBaseClientSettings &s = GitPlugin::instance()->client()->settings();
     if (s != newSettings) {
         s = newSettings;
         s.writeSettings(Core::ICore::settings());

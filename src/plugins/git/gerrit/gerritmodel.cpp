@@ -280,7 +280,7 @@ QueryContext::QueryContext(const QStringList &queries,
             this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::instance()->
-                                    gitClient()->processEnvironment());
+                                    client()->processEnvironment());
     m_progress.setProgressRange(0, m_queries.size());
 
     // Determine binary and common command line arguments.

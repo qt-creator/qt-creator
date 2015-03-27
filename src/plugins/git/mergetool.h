@@ -87,7 +87,7 @@ private:
     QString m_localInfo;
     FileState m_remoteState;
     QString m_remoteInfo;
-    GitClient *m_gitClient;
+    GitClient *m_client;
     bool m_merging;
 };
 

@@ -84,7 +84,7 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, Log
         return true;
     if (!(flags & Silent)) {
         VcsOutputWindow::appendError(
-                    GitPlugin::instance()->gitClient()->msgNoCommits(flags & IncludeRemotes));
+                    GitPlugin::instance()->client()->msgNoCommits(flags & IncludeRemotes));
     }
     return false;
 }
@@ -157,7 +157,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
         m_model->removeRows(0, rowCount);
 
     // Retrieve log using a custom format "Sha1:Subject [(refs)]"
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     QStringList arguments;
     arguments << QLatin1String("--max-count=1000") << QLatin1String("--format=%h:%s %d");
     arguments << (commit.isEmpty() ? QLatin1String("HEAD") : commit);
@@ -216,7 +216,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
         m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
         m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
-        GitClient *client = GitPlugin::instance()->gitClient();
+        GitClient *client = GitPlugin::instance()->client();
         m_resetTypeComboBox->setCurrentIndex(client->settings().intValue(
                                                  GitSettings::lastResetIndexKey));
         popUpLayout->addWidget(m_resetTypeComboBox);
@@ -246,7 +246,7 @@ bool LogChangeDialog::runDialog(const QString &repository,
 
     if (QDialog::exec() == QDialog::Accepted) {
         if (m_resetTypeComboBox) {
-            GitClient *client = GitPlugin::instance()->gitClient();
+            GitClient *client = GitPlugin::instance()->client();
             client->settings().setValue(GitSettings::lastResetIndexKey,
                                         m_resetTypeComboBox->currentIndex());
         }
