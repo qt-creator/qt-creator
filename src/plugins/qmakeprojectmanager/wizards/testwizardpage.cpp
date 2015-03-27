@@ -55,11 +55,11 @@ TestWizardPage::TestWizardPage(QWidget *parent) :
             this, SLOT(slotClassNameEdited(QString)));
     connect(ui->fileLineEdit, SIGNAL(textEdited(QString)), \
                 this, SLOT(slotFileNameEdited()));
-    connect(ui->testClassLineEdit, SIGNAL(validChanged()),
+    connect(ui->testClassLineEdit, SIGNAL(validChanged(bool)),
             this, SLOT(slotUpdateValid()));
-    connect(ui->testSlotLineEdit, SIGNAL(validChanged()),
+    connect(ui->testSlotLineEdit, SIGNAL(validChanged(bool)),
             this, SLOT(slotUpdateValid()));
-    connect(ui->fileLineEdit, SIGNAL(validChanged()),
+    connect(ui->fileLineEdit, SIGNAL(validChanged(bool)),
             this, SLOT(slotUpdateValid()));
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));

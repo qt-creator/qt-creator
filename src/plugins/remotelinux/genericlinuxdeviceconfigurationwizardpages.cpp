@@ -65,7 +65,7 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     connect(d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
     connect(d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
     connect(d->ui.userNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.privateKeyPathChooser, SIGNAL(validChanged()), SIGNAL(completeChanged()));
+    connect(d->ui.privateKeyPathChooser, SIGNAL(validChanged(bool)), SIGNAL(completeChanged()));
     connect(d->ui.passwordButton, SIGNAL(toggled(bool)), SLOT(handleAuthTypeChanged()));
 }
 
