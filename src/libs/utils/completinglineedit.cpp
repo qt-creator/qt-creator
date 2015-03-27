@@ -63,10 +63,8 @@ void CompletingLineEdit::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Down && !e->modifiers()) {
         if (QCompleter *comp = completer()) {
-            if (text().isEmpty() && !comp->popup()->isVisible()) {
-                comp->setCompletionPrefix(QString());
+            if (!comp->popup()->isVisible())
                 comp->complete();
-            }
         }
     }
     return QLineEdit::keyPressEvent(e);
