@@ -90,6 +90,9 @@ public:
 
     virtual QProcessEnvironment processEnvironment() const;
 
+protected:
+    void resetCachedVcsInfo(const QString &workingDir);
+
 private:
     void saveSettings();
     void commandFinishedGotoLine(QWidget*);
@@ -213,8 +216,6 @@ protected:
                                          const QString &source, bool setSourceCodec,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
-
-    void resetCachedVcsInfo(const QString &workingDir);
 
 private:
     void statusParser(const QString&);

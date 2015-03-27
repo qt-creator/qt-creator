@@ -171,6 +171,11 @@ QProcessEnvironment VcsBaseClientImpl::processEnvironment() const
     return environment;
 }
 
+void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
+{
+    Core::VcsManager::resetVersionControlForDirectory(workingDir);
+}
+
 int VcsBaseClientImpl::vcsTimeout() const
 {
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
@@ -625,11 +630,6 @@ VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title
 
     baseEditor->setForceReadOnly(true);
     return baseEditor;
-}
-
-void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
-{
-    Core::VcsManager::resetVersionControlForDirectory(workingDir);
 }
 
 void VcsBaseClient::statusParser(const QString &text)

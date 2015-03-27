@@ -3286,8 +3286,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         workingDirectory.cdUp();
         const SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
-        // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        VcsManager::resetVersionControlForDirectory(workingDirectory.absolutePath());
+        resetCachedVcsInfo(workingDirectory.absolutePath());
         return (resp.result == SynchronousProcessResponse::Finished);
     }
 }
