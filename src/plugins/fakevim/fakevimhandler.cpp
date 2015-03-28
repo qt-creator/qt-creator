@@ -193,7 +193,8 @@ enum SubMode
     ReplaceSubMode,      // Used for r
     MacroRecordSubMode,  // Used for q
     MacroExecuteSubMode, // Used for @
-    CtrlVSubMode         // Used for Ctrl-v in insert mode
+    CtrlVSubMode,        // Used for Ctrl-v in insert mode
+    CtrlRSubMode         // Used for Ctrl-r in insert mode
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -3629,6 +3630,10 @@ void FakeVimHandler::Private::updateMiniBuffer()
             msg = _("VISUAL BLOCK");
     } else if (g.mode == InsertMode) {
         msg = _("-- INSERT --");
+        if (g.submode == CtrlRSubMode)
+            msg += _(" ^R");
+        else if (g.submode == CtrlVSubMode)
+            msg += _(" ^V");
     } else if (g.mode == ReplaceMode) {
         msg = _("-- REPLACE --");
     } else {
@@ -4848,7 +4853,16 @@ void FakeVimHandler::Private::finishInsertMode()
 void FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
     if (input.isEscape()) {
-        finishInsertMode();
+        if (g.submode == CtrlRSubMode || g.submode == CtrlVSubMode) {
+            g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
+            updateMiniBuffer();
+        } else {
+            finishInsertMode();
+        }
+    } else if (g.submode == CtrlRSubMode) {
+        m_cursor.insertText(registerContents(input.asChar().unicode()));
+        g.submode = NoSubMode;
     } else if (g.submode == CtrlVSubMode) {
         if (g.subsubmode == NoSubSubMode) {
             g.subsubmode = CtrlVUnicodeSubSubMode;
@@ -4908,6 +4922,11 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isControl('v')) {
         g.submode = CtrlVSubMode;
         g.subsubmode = NoSubSubMode;
+        updateMiniBuffer();
+    } else if (input.isControl('r')) {
+        g.submode = CtrlRSubMode;
+        g.subsubmode = NoSubSubMode;
+        updateMiniBuffer();
     } else if (input.isControl('w')) {
         const int blockNumber = m_cursor.blockNumber();
         const int endPos = position();

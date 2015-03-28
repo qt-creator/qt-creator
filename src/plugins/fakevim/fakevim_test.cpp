@@ -2526,6 +2526,14 @@ void FakeVimPlugin::test_vim_copy_paste()
     // yank register is only used for y{motion} commands
     data.setText("aaa bbb ccc");
     KEYS("yiwwdiw\"0P", "aaa aaa ccc");
+
+    // paste register in insert mode
+    data.setText("aaa bbb ccc ");
+    KEYS("yiwA<C-r>0", "aaa bbb ccc aaa");
+    KEYS("<C-r><Esc>x", "aaa bbb ccc aaax");
+    KEYS("<Esc>dd", "");
+    data.setText("aaa bbb");
+    KEYS("\"ayawA<C-r>a", "aaa bbbaaa ");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()
