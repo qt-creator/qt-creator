@@ -1683,6 +1683,7 @@ public:
 
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
+    bool handleCommandBufferPaste(const Input &input);
     EventResult handleCurrentMapAsDefault();
     void prependInputs(const QVector<Input> &inputs); // Handle inputs.
     void prependMapping(const Inputs &inputs); // Handle inputs as mapping.
@@ -2246,6 +2247,7 @@ public:
         SubSubMode subsubmode;
         Input subsubdata;
         VisualMode visualMode;
+        Input minibufferData;
 
         // [count] for current command, 0 if no [count] available
         int mvcount;
@@ -2709,7 +2711,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
-    KEY_DEBUG("HANDLE INPUT: " << input << " MODE: " << mode);
+    KEY_DEBUG("HANDLE INPUT: " << input);
 
     bool hasInput = input.isValid();
 
@@ -2756,6 +2758,34 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
         clearPendingInput();
 
     return r;
+}
+
+bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
+{
+    if (input.isControl('r')
+        && (g.subsubmode == SearchSubSubMode || g.mode == ExMode)) {
+        g.minibufferData = input;
+        return true;
+    }
+    if (g.minibufferData.isControl('r')) {
+        g.minibufferData = Input();
+        if (input.isEscape())
+            return true;
+        CommandBuffer &buffer = (g.subsubmode == SearchSubSubMode)
+            ? g.searchBuffer : g.commandBuffer;
+        if (input.isControl('w')) {
+            QTextCursor tc = m_cursor;
+            tc.select(QTextCursor::WordUnderCursor);
+            QString word = tc.selectedText();
+            buffer.insertText(word);
+        } else {
+            QString r = registerContents(input.asChar().unicode());
+            buffer.insertText(r);
+        }
+        updateMiniBuffer();
+        return true;
+    }
+    return false;
 }
 
 EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
@@ -5147,6 +5177,10 @@ bool FakeVimHandler::Private::executeRegister(int reg)
 
 EventResult FakeVimHandler::Private::handleExMode(const Input &input)
 {
+    // handle C-R, C-R C-W, C-R {register}
+    if (handleCommandBufferPaste(input))
+        return EventHandled;
+
     if (input.isEscape()) {
         g.commandBuffer.clear();
         leaveCurrentMode();
@@ -5185,6 +5219,10 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
 EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 {
     EventResult handled = EventHandled;
+
+    // handle C-R, C-R C-W, C-R {register}
+    if (handleCommandBufferPaste(input))
+        return handled;
 
     if (input.isEscape()) {
         g.currentMessage.clear();
@@ -8562,7 +8600,8 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return res == EventHandled || res == EventCancelled;
     }
 
-    if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
+    if (ev->type() == QEvent::ShortcutOverride && (ob == d->editor()
+         || (Private::g.mode == ExMode || Private::g.subsubmode == SearchSubSubMode))) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         if (d->wantsOverride(kev)) {
             KEY_DEBUG("OVERRIDING SHORTCUT" << kev->key());

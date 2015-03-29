@@ -105,6 +105,7 @@ private slots:
     void test_vim_code_folding();
     void test_vim_code_completion();
     void test_vim_substitute();
+    void test_vim_ex_commandbuffer_paste();
     void test_vim_ex_yank();
     void test_vim_ex_delete();
     void test_vim_ex_change();

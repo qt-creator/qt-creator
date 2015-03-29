@@ -2184,6 +2184,20 @@ void FakeVimPlugin::test_vim_search()
     data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
     KEYS("vj" "/abc<ESC>" "x", X "ef" N "abc" N "ghi abc jkl" N "xyz");
     KEYS("vj" "/xxx<CR>" "x", X "bc" N "ghi abc jkl" N "xyz");
+
+    // insert word under cursor (C-R C-W)
+    data.setText("abc def ghi def.");
+    KEYS("fe/<C-R><C-W><CR>", "abc def ghi " X "def.");
+    // insert register (C-R{register})
+    data.setText("abc def ghi def.");
+    KEYS("feyiw/<C-R>0<CR>", "abc def ghi " X "def.");
+    // insert non-existing register
+    data.setText("abc def ghi def.");
+    KEYS("feyiw/<C-R>adef<CR>", "abc def ghi " X "def.");
+    // abort C-R via Esc
+    data.doCommand("set noincsearch");
+    data.setText("abc def ghi def.");
+    KEYS("fe/d<C-R><ESC>ef<CR>", "abc def ghi " X "def.");
 }
 
 void FakeVimPlugin::test_vim_indent()
@@ -2997,6 +3011,15 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("undo | s/[bcef]//g", "a d");
     COMMAND("undo | s/\\w//g", " ");
     COMMAND("undo | s/f\\|$/-/g", "abc de-");
+}
+
+void FakeVimPlugin::test_vim_ex_commandbuffer_paste()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc def abc def xyz");
+    KEYS("fyyiw0:s/<C-R><C-W>/<C-R>0/g<CR>", "xyz def xyz def xyz");
 }
 
 void FakeVimPlugin::test_vim_ex_yank()
