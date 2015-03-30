@@ -1,5 +1,4 @@
 include(../../qtcreatorplugin.pri)
-QT += script
 
 DEFINES += \
     QMLJSEDITOR_LIBRARY

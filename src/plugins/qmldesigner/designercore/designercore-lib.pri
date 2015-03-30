@@ -1,8 +1,7 @@
 include($$PWD/filemanager/filemanager.pri)
 include (../config.pri)
 
-QT += script \
-    network
+QT += network
 
 DEFINES += TEST_EXPORTS
 DEFINES += DESIGNER_CORE_LIBRARY

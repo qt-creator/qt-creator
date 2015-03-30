@@ -1,4 +1,5 @@
 TARGET = qmlpuppet
+QT += script-private
 
 TEMPLATE = app
 
