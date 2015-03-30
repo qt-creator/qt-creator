@@ -118,6 +118,8 @@ public:
         TextColorDisabled,
         TextColorError,
         TextColorHighlight,
+        TextColorLink,
+        TextColorLinkVisited,
         TextColorNormal,
         TodoItemTextColor,
         ToggleButtonBackgroundColor,
@@ -134,7 +136,6 @@ public:
         OutputPanes_StdErrTextColor,
         OutputPanes_StdOutTextColor,
         OutputPanes_WarningMessageTextColor,
-        QtOutputFormatter_LinkTextColor,
 
         /* Debugger Log Window */
 

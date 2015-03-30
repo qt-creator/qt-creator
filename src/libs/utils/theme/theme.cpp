@@ -362,6 +362,8 @@ QPalette Theme::palette() const
     pal.setColor(QPalette::Dark,            color(Theme::BackgroundColorDark));
     pal.setColor(QPalette::HighlightedText, Qt::white);
     pal.setColor(QPalette::ToolTipText,     color(Theme::TextColorNormal));
+    pal.setColor(QPalette::Link,            color(Theme::TextColorLink));
+    pal.setColor(QPalette::LinkVisited,     color(Theme::TextColorLinkVisited));
     return pal;
 }
 

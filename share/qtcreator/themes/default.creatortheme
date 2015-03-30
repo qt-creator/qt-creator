@@ -64,6 +64,8 @@ SplitterColor=ff151515
 TextColorDisabled=ff000000
 TextColorError=ffff0000
 TextColorHighlight=ffa0a0a4
+TextColorLink=ff0057ae
+TextColorLinkVisited=ff644a9b
 TextColorNormal=ff000000
 TodoItemTextColor=ff000000
 ToggleButtonBackgroundColor=ffff0000
@@ -81,7 +83,6 @@ OutputPanes_WarningMessageTextColor=ff808000
 OutputPaneButtonFlashColor=ffff0000
 OutputPaneToggleButtonTextColorChecked=ffffffff
 OutputPaneToggleButtonTextColorUnchecked=ff000000
-QtOutputFormatter_LinkTextColor=ff0000aa
 
 Debugger_LogWindow_LogInput=ff0000ff
 Debugger_LogWindow_LogStatus=ff008000

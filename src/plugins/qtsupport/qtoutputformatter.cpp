@@ -192,7 +192,7 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
 static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
 {
     QTextCharFormat result = inputFormat;
-    result.setForeground(creatorTheme()->color(Theme::QtOutputFormatter_LinkTextColor));
+    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
     result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     result.setAnchor(true);
     result.setAnchorHref(href);
