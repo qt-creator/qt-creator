@@ -34,6 +34,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
+#include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
 #include <QTextCharFormat>
@@ -115,13 +116,14 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_commandFormat(m_defaultFormat),
     m_messageFormat(m_defaultFormat)
 {
+    using Utils::Theme;
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
-    m_errorFormat.setForeground(Qt::red);
-    m_warningFormat.setForeground(Qt::darkYellow);
+    m_errorFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_ErrorMessageTextColor));
+    m_warningFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_WarningMessageTextColor));
     m_commandFormat.setFontWeight(QFont::Bold);
-    m_messageFormat.setForeground(Qt::blue);
+    m_messageFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_MessageOutput));
     m_formatter = new Utils::OutputFormatter;
     m_formatter->setPlainTextEdit(this);
 }
