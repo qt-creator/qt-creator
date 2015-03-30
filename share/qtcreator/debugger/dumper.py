@@ -158,7 +158,7 @@ if hasSubprocess and hasPlot:
             s("pyplot.figure(%s)" % matplotFigure[iname])
             s("pyplot.suptitle('%s')" % iname)
             s("data = %s" % data)
-            s("pyplot.plot([i for i in range(len(data))], data, 'b.')")
+            s("pyplot.plot([i for i in range(len(data))], data, 'b.-')")
             time.sleep(0.2)
             s("pyplot.draw()")
             matplotProc.stdin.flush()
