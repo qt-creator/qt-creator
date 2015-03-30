@@ -6,5 +6,6 @@ CONFIG -= app_bundle
 @endif
 
 TEMPLATE = app
+TARGET = %ProjectName%
 
 SOURCES += main.%CppSourceSuffix%
