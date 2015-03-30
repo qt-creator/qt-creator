@@ -699,8 +699,16 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     formatOption(str, QLatin1String(OptionsParser::LOAD_OPTION),
                  QLatin1String("plugin"), QLatin1String("Load <plugin> and all plugins that it requires"),
                  optionIndentation, descriptionIndentation);
+    formatOption(str, QLatin1String(OptionsParser::LOAD_OPTION) + QLatin1String(" all"),
+                 QString(), QLatin1String("Load all available plugins"),
+                 optionIndentation, descriptionIndentation);
     formatOption(str, QLatin1String(OptionsParser::NO_LOAD_OPTION),
                  QLatin1String("plugin"), QLatin1String("Do not load <plugin> and all plugins that require it"),
+                 optionIndentation, descriptionIndentation);
+    formatOption(str, QLatin1String(OptionsParser::NO_LOAD_OPTION) + QLatin1String(" all"),
+                 QString(), QString::fromLatin1("Do not load any plugin (useful when "
+                                                "followed by one or more \"%1\" arguments)")
+                 .arg(QLatin1String(OptionsParser::LOAD_OPTION)),
                  optionIndentation, descriptionIndentation);
     formatOption(str, QLatin1String(OptionsParser::PROFILE_OPTION),
                  QString(), QLatin1String("Profile plugin loading"),
