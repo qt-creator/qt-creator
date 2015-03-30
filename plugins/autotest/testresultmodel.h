@@ -52,7 +52,6 @@ public:
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
-    bool hasResultType(Result::Type type) { return m_availableResultTypes.contains(type); }
     int resultTypeCount(Result::Type type);
 
 signals:
@@ -66,7 +65,6 @@ private:
     int m_maxWidthOfFileName;
     int m_lastMaxWidthIndex;
     QFont m_measurementFont;
-    QSet<Result::Type> m_availableResultTypes;
 };
 
 class TestResultFilterModel : public QSortFilterProxyModel

@@ -114,12 +114,13 @@ QVariant TestResultModel::data(const QModelIndex &index, int role) const
 void TestResultModel::addTestResult(const TestResult &testResult)
 {
     const bool isCurrentTestMssg = testResult.result() == Result::MESSAGE_CURRENT_TEST;
-    const bool hasCurrentTestMssg = m_availableResultTypes.contains(Result::MESSAGE_CURRENT_TEST);
+    TestResult lastMssg = m_testResults.empty() ? TestResult() : m_testResults.last();
 
     int position = m_testResults.size();
 
-    if (hasCurrentTestMssg && isCurrentTestMssg) {
-        m_testResults.last().setDescription(testResult.description());
+    if (isCurrentTestMssg && lastMssg.result() == Result::MESSAGE_CURRENT_TEST) {
+        lastMssg.setDescription(testResult.description());
+        m_testResults.replace(m_testResults.size() - 1, lastMssg);
         const QModelIndex changed = index(m_testResults.size() - 1, 0, QModelIndex());
         emit dataChanged(changed, changed);
     } else {
@@ -134,17 +135,15 @@ void TestResultModel::addTestResult(const TestResult &testResult)
         int count = m_testResultCount.value(testResult.result(), 0);
         m_testResultCount.insert(testResult.result(), ++count);
     }
-
-    m_availableResultTypes.insert(testResult.result());
 }
 
 void TestResultModel::removeCurrentTestMessage()
 {
-    if (m_availableResultTypes.contains(Result::MESSAGE_CURRENT_TEST)) {
+    TestResult lastMssg = m_testResults.empty() ? TestResult() : m_testResults.last();
+    if (lastMssg.result() == Result::MESSAGE_CURRENT_TEST) {
         beginRemoveRows(QModelIndex(), m_testResults.size() - 1, m_testResults.size() - 1);
         m_testResults.removeLast();
         endRemoveRows();
-        m_availableResultTypes.remove(Result::MESSAGE_CURRENT_TEST);
     }
 }
 
@@ -159,7 +158,6 @@ void TestResultModel::clearTestResults()
     m_maxWidthOfFileName = 0;
     m_widthOfLineNumber = 0;
     endRemoveRows();
-    m_availableResultTypes.clear();
 }
 
 TestResult TestResultModel::testResult(const QModelIndex &index) const

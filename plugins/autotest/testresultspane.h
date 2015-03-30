@@ -78,7 +78,6 @@ private slots:
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
     void onRunSelectedTriggered();
-    void updateFilterMenu();
     void enableAllFilter();
     void filterMenuTriggered(QAction *action);
 

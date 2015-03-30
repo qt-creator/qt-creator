@@ -120,7 +120,6 @@ void TestResultsPane::createToolButtons()
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     initializeFilterMenu();
-    connect(m_filterMenu, &QMenu::aboutToShow, this, &TestResultsPane::updateFilterMenu);
     connect(m_filterMenu, &QMenu::triggered, this, &TestResultsPane::filterMenuTriggered);
     m_filterButton->setMenu(m_filterMenu);
 }
@@ -347,15 +346,6 @@ void TestResultsPane::updateSummaryLabel()
 
     labelText.append(QLatin1String(".</p>"));
     m_summaryLabel->setText(labelText);
-}
-
-void TestResultsPane::updateFilterMenu()
-{
-    foreach (QAction *action, m_filterMenu->actions()) {
-        if (action->isCheckable())
-            action->setEnabled(m_model->hasResultType(
-                                   TestResult::toResultType(action->data().value<int>())));
-    }
 }
 
 void TestResultsPane::enableAllFilter()
