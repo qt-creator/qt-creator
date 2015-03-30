@@ -142,6 +142,10 @@ def main():
         rootIndex = getQModelIndexStr("text='Rectangle'",
                                       ":Locals and Expressions_Debugger::Internal::WatchTreeView")
         # make sure the items inside the root item are visible
+        if JIRA.isBugStillOpen(14210):
+            doubleClick(waitForObject(rootIndex))
+        else:
+            test.warning("QTCREATORBUG-14210 is not open anymore. Can the workaround be removed?")
         doubleClick(waitForObject(rootIndex))
         if not object.exists(":DebugModeWidget_QmlJSTools::Internal::QmlConsoleView"):
             invokeMenuItem("Window", "Output Panes", "QML/JS Console")
