@@ -197,14 +197,14 @@ void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputForma
         textFormat.setFontWeight(QFont::Normal);
         break;
     case BuildStep::ErrorOutput:
-        textFormat.setForeground(theme->color(Theme::CompileOutput_ErrorOutput));
+        textFormat.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
         textFormat.setFontWeight(QFont::Normal);
         break;
     case BuildStep::MessageOutput:
-        textFormat.setForeground(theme->color(Theme::CompileOutput_MessageOutput));
+        textFormat.setForeground(theme->color(Theme::OutputPanes_MessageOutput));
         break;
     case BuildStep::ErrorMessageOutput:
-        textFormat.setForeground(theme->color(Theme::CompileOutput_ErrorMessageOutput));
+        textFormat.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
         textFormat.setFontWeight(QFont::Bold);
         break;
 

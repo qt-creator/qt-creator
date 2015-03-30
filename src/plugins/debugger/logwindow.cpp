@@ -88,11 +88,11 @@ private:
                 setFormat(1, text.size(), format);
                 break;
             case LogWarning:
-                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogWarning));
+                format.setForeground(theme->color(Theme::OutputPanes_WarningMessageTextColor));
                 setFormat(1, text.size(), format);
                 break;
             case LogError:
-                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogError));
+                format.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
                 setFormat(1, text.size(), format);
                 break;
             case LogTime:
