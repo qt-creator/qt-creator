@@ -131,6 +131,15 @@ def qdump__CPlusPlus__IntegerType(d, value):
     d.putValue(value["_kind"])
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__FullySpecifiedType(d, value):
+    type = d.downcast(value["_type"])
+    typeName = stripTypeName(type)
+    if typeName == "CPlusPlus::NamedType":
+        dumpLiteral(d, type["_name"])
+    elif typeName == "CPlusPlus::PointerType":
+        d.putValue(d.hexencode(extractPointerType(d, type)), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__NamedType(d, value):
     dumpLiteral(d, value["_name"])
     d.putBetterType(value.type)
