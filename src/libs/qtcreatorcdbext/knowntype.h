@@ -145,6 +145,7 @@ enum KnownType
     KT_QHostAddress = KT_Qt_Type + KT_HasSimpleDumper + 92,
     KT_QProcess = KT_Qt_Type + KT_HasSimpleDumper + 93,
     KT_QTimeZone = KT_Qt_Type + KT_HasSimpleDumper + 94,
+    KT_QIPv6Address = KT_Qt_Type + KT_HasSimpleDumper + 95,
     // Types: Qt primitive types
     KT_QFixed = KT_Qt_Type + KT_Qt_PrimitiveType + 90,
     KT_QTextItem = KT_Qt_Type + KT_Qt_PrimitiveType + 91,

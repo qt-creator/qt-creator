@@ -1324,6 +1324,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QKeySequence;
         if (!type.compare(qPos, 12, "QHostAddress"))
             return KT_QHostAddress;
+        if (!type.compare(qPos, 12, "QIPv6Address"))
+            return KT_QIPv6Address;
         if (!type.compare(qPos, 12, "QScriptValue"))
             return KT_QScriptValue;
         break;
@@ -1928,9 +1930,27 @@ static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
     return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qFileBasePrivateSize,  str);
 }
 
+static inline bool dumpQIPv6Address(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+{
+    unsigned char *p = SymbolGroupValue::readMemory( v.context().dataspaces, v["c"].address(), 16);
+    if (!p || !encoding)
+        return false;
+
+    const wchar_t oldFill = str.fill('0');
+    str << std::hex;
+    for (unsigned char *it = p; it < p + 16; ++it) {
+        if ((p - it) % 2 == 0 && it != p)
+            str << ':';
+        str << std::setw(2) << *it;
+    }
+    str << std::dec;
+    str.fill(oldFill);
+    *encoding = DumpEncodingIPv6AddressAndHexScopeId;
+    return true;
+}
 /* Dump QHostAddress, for whose private class no debugging information is available.
  * Dump string 'ipString' past of its private class. Does not currently work? */
-static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str)
+static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     // Determine offset in private struct: qIPv6AddressType (array, unaligned) +  uint32 + enum.
     const QtInfo info = QtInfo::get(v.context());
@@ -1953,6 +1973,8 @@ static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &st
             return true;
         }
         if (protocol == 1) {
+            if (dumpQIPv6Address(qHostAddressPrivateValue["a6"], str, encoding))
+                return true;
             str << L"IPv6 protocol";
             return true;
         }
@@ -2875,7 +2897,10 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QHostAddress:
-            rc = dumpQHostAddress(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQHostAddress(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QIPv6Address:
+            rc = dumpQIPv6Address(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QProcess:
             rc = dumpQProcess(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
