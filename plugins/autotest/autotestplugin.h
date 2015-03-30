@@ -49,6 +49,9 @@ public:
 private:
     bool checkLicense();
     void initializeMenuEntries();
+    void onRunAllTriggered();
+    void onRunSelectedTriggered();
+    void updateMenuItemsEnabledState();
     QList<QObject *> createTestObjects() const;
     const QSharedPointer<TestSettings> m_settings;
 };

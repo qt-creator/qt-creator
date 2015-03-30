@@ -62,8 +62,6 @@ public slots:
 
 private slots:
     void onItemActivated(const QModelIndex &index);
-    void onRunAllTriggered();
-    void onRunSelectedTriggered();
     void onSortClicked();
     void onFilterMenuTriggered(QAction *action);
     void onParsingStarted();

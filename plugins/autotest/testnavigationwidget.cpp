@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <texteditor/texteditor.h>
 #include <utils/progressindicator.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QAction>
 #include <QMenu>
@@ -88,19 +89,15 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     const bool enabled = !TestRunner::instance()->isTestRunning();
     const bool hasTests = m_model->hasTests();
     QMenu menu;
-    QAction *runAll = new QAction(tr("Run All Tests"), &menu);
-    QAction *runSelected = new QAction(tr("Run Selected Tests"), &menu);
+    QAction *runAll = Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action();
+    QAction *runSelected = Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action();
     QAction *selectAll = new QAction(tr("Select All"), &menu);
     QAction *deselectAll = new QAction(tr("Deselect All"), &menu);
     // TODO remove?
-    QAction *rescan = new QAction(tr("Rescan"), &menu);
+    QAction *rescan = Core::ActionManager::command(Constants::ACTION_SCAN_ID)->action();
 
-    connect(runAll, &QAction::triggered, this, &TestNavigationWidget::onRunAllTriggered);
-    connect(runSelected, &QAction::triggered, this, &TestNavigationWidget::onRunSelectedTriggered);
     connect(selectAll, &QAction::triggered, m_view, &TestTreeView::selectAll);
     connect(deselectAll, &QAction::triggered, m_view, &TestTreeView::deselectAll);
-    connect(rescan, &QAction::triggered, TestTreeModel::instance()->parser(),
-        &TestCodeParser::updateTestTree);
 
     runAll->setEnabled(enabled && hasTests);
     runSelected->setEnabled(enabled && hasTests);
@@ -163,20 +160,6 @@ void TestNavigationWidget::onItemActivated(const QModelIndex &index)
         Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine,
             link.targetColumn);
     }
-}
-
-void TestNavigationWidget::onRunAllTriggered()
-{
-    TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(m_model->getAllTestCases());
-    runner->runTests();
-}
-
-void TestNavigationWidget::onRunSelectedTriggered()
-{
-    TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(m_model->getSelectedTests());
-    runner->runTests();
 }
 
 void TestNavigationWidget::onSortClicked()

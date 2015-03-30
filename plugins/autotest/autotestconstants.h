@@ -25,7 +25,9 @@
 namespace Autotest {
 namespace Constants {
 
-const char ACTION_ID[]                  = "AutoTest.Action";
+const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
+const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
+const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
 const char MENU_ID[]                    = "AutoTest.Menu";
 const char AUTOTEST_ID[]                = "AutoTest.ATP";
 const char AUTOTEST_CONTEXT[]           = "Auto Tests";
