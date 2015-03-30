@@ -213,9 +213,8 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
     switch(role) {
     case Qt::ToolTipRole:
         if (item->type() == TestTreeItem::TEST_CLASS && item->name().isEmpty())
-            return tr("<p>Unnamed test cases can't be (un)checked - avoid this by assigning a name."
-                      "<br/>Having unnamed test cases invalidates the check state of named test "
-                      "cases with the same main.cpp when executing selected tests.</p>");
+            return tr("<p>Give all test cases a name to ensure correct behavior "
+                      "when running test cases and to be able to select them.</p>");
         return item->filePath();
     case Qt::DecorationRole:
         return testTreeIcon(item->type());

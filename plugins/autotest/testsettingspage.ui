@@ -32,7 +32,7 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="toolTip">
-             <string>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project.</string>
+             <string>Timeout used when executing each test case.</string>
             </property>
             <property name="text">
              <string>Timeout:</string>
@@ -83,10 +83,10 @@
         <item>
          <widget class="QCheckBox" name="omitInternalMsgCB">
           <property name="toolTip">
-           <string>If checked Internal Messages won't be shown by default. (You can still enable them on the test results filter)</string>
+           <string>Hides internal messages by default. You can still enable them by using the test results filter.</string>
           </property>
           <property name="text">
-           <string>Omit Internal Messages</string>
+           <string>Omit internal messages</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -96,10 +96,10 @@
         <item>
          <widget class="QCheckBox" name="omitRunConfigWarnCB">
           <property name="toolTip">
-           <string>If checked Warnings regarding a guessed Run Configuration won't be shown.</string>
+           <string>Hides warnings related to a guessed run configuration.</string>
           </property>
           <property name="text">
-           <string>Omit Run Configuration Warnings</string>
+           <string>Omit run configuration warnings</string>
           </property>
          </widget>
         </item>
@@ -161,7 +161,7 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Use Walltime metrics for executing benchmarks. (default)</string>
+              <string>Uses walltime metrics for executing benchmarks (default).</string>
              </property>
              <property name="text">
               <string>Walltime</string>
@@ -180,10 +180,10 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Use tick counter for executing benchmarks.</string>
+              <string>Uses tick counter when executing benchmarks.</string>
              </property>
              <property name="text">
-              <string>Tickcounter</string>
+              <string>Tick counter</string>
              </property>
             </widget>
            </item>
@@ -196,10 +196,10 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Use event counter when executing benchmarks.</string>
+              <string>Uses event counter when executing benchmarks.</string>
              </property>
              <property name="text">
-              <string>Eventcounter</string>
+              <string>Event counter</string>
              </property>
             </widget>
            </item>
@@ -215,7 +215,7 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Use callgrind when executing benchmark. (valgrind must be installed)</string>
+              <string>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</string>
              </property>
              <property name="text">
               <string>Callgrind</string>
@@ -234,7 +234,7 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Use perf when executing benchmarks. (perf must be installed)</string>
+              <string>Uses Perf when executing benchmarks (it must be installed).</string>
              </property>
              <property name="text">
               <string>Perf</string>

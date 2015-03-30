@@ -139,7 +139,7 @@ void performTestRun(QFutureInterface<void> &futureInterface,
         QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
         if (commandFilePath.isEmpty()) {
             emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                QObject::tr("*** Could not find command '%1' ***").arg(testConfiguration->targetFile())));
+                QObject::tr("Could not find command \"%1\".").arg(testConfiguration->targetFile())));
             continue;
         }
 
@@ -166,7 +166,7 @@ void performTestRun(QFutureInterface<void> &futureInterface,
                     testProcess.kill();
                     testProcess.waitForFinished();
                     emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                                                           QObject::tr("*** Test Run canceled by user ***")));
+                                                           QObject::tr("Test run canceled by user.")));
                 }
                 qApp->processEvents();
             }
@@ -177,7 +177,7 @@ void performTestRun(QFutureInterface<void> &futureInterface,
                 testProcess.kill();
                 testProcess.waitForFinished();
                 emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL, QObject::tr(
-                    "*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
+                    "Test case canceled due to timeout. \nMaybe raise the timeout?")));
             }
         }
     }
@@ -200,13 +200,13 @@ void TestRunner::runTests()
         if (!config->project()) {
             toBeRemoved.append(config);
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
-                tr("*** Project is null for '%1' - removing from Test Run ***\n"
-                "This might be the case for a faulty environment or similar."
+                tr("Project is null for \"%1\". Removing from test run.\n"
+                "Check the test environment."
                 ).arg(config->displayName())));
         }
         if (displayRunConfigWarnings && config->guessedConfiguration()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
-                tr("*** Project's run configuration was guessed for '%1' ***\n"
+                tr("Project's run configuration was guessed for \"%1\".\n"
                 "This might cause trouble during execution.").arg(config->displayName())));
         }
     }
@@ -217,16 +217,16 @@ void TestRunner::runTests()
 
     if (m_selectedTests.empty()) {
         TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
-            tr("*** No tests selected - canceling Test Run ***")));
+            tr("No tests selected. Canceling test run.")));
         return;
     }
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
     if (!project) {
         TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
-            tr("*** Project is null - canceling Test Run ***\n"
-            "Actually only Desktop kits are supported - make sure the "
-            "current active kit is a Desktop kit.")));
+            tr("Project is null. Canceling test run.\n"
+            "Only desktop kits are supported. Make sure the "
+            "currently active kit is a desktop kit.")));
         return;
     }
 
@@ -235,7 +235,7 @@ void TestRunner::runTests()
     if (projectExplorerSettings.buildBeforeDeploy) {
         if (!project->hasActiveBuildSettings()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
-                tr("*** Project is not configured - canceling Test Run ***")));
+                tr("Project is not configured. Canceling test run.")));
             return;
         }
         buildProject(project);
@@ -245,7 +245,7 @@ void TestRunner::runTests()
 
         if (!m_buildSucceeded) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
-                tr("*** Build failed - canceling Test Run ***")));
+                tr("Build failed. Canceling test run.")));
             return;
         }
     }

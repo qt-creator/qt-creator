@@ -191,7 +191,7 @@ void TestXmlOutputReader::processOutput()
             lineNumber = 0;
             readingDescription = false;
             testResultCreated(TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,
-                QObject::tr("Entering Test Function %1::%2").arg(className).arg(testCase)));
+                QObject::tr("Entering test function %1::%2").arg(className).arg(testCase)));
             continue;
         }
         if (xmlStartsWith(line, QLatin1String("<Duration msecs=\""), duration)) {
@@ -232,12 +232,12 @@ void TestXmlOutputReader::processOutput()
             description = QString();
         } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
             TestResult testResult(className, testCase, QString(), Result::MESSAGE_INTERNAL,
-                                  QObject::tr("execution took %1ms").arg(duration));
+                                  QObject::tr("Execution took %1 ms.").arg(duration));
             testResultCreated(testResult);
             emit increaseProgress();
         } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
             TestResult testResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
-                                  QObject::tr("Test execution took %1ms").arg(duration));
+                                  QObject::tr("Test execution took %1 ms.").arg(duration));
             testResultCreated(testResult);
         } else if (readingDescription) {
             if (line.endsWith(QLatin1String("]]></Description>"))) {
@@ -250,10 +250,10 @@ void TestXmlOutputReader::processOutput()
             }
         } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
             testResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
-                QObject::tr("Qt Version: %1").arg(qtVersion)));
+                QObject::tr("Qt version: %1").arg(qtVersion)));
         } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
             testResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
-                QObject::tr("QTest Version: %1").arg(qtestVersion)));
+                QObject::tr("QTest version: %1").arg(qtestVersion)));
         } else {
 //            qDebug() << "Unhandled line:" << line; // TODO remove
         }

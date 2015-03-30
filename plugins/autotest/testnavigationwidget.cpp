@@ -196,13 +196,13 @@ void TestNavigationWidget::onParsingFinished()
 void TestNavigationWidget::initializeFilterMenu()
 {
     QAction *action = new QAction(m_filterMenu);
-    action->setText(tr("Show init and cleanup functions"));
+    action->setText(tr("Show Init and Cleanup Functions"));
     action->setCheckable(true);
     action->setChecked(false);
     action->setData(TestTreeSortFilterModel::ShowInitAndCleanup);
     m_filterMenu->addAction(action);
     action = new QAction(m_filterMenu);
-    action->setText(tr("Show data functions"));
+    action->setText(tr("Show Data Functions"));
     action->setCheckable(true);
     action->setChecked(false);
     action->setData(TestTreeSortFilterModel::ShowTestData);
