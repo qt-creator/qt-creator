@@ -437,6 +437,11 @@ int main(int argc, char **argv)
         displayError(msgCoreLoadFailure(reason));
         return 1;
     }
+    if (!coreplugin->isEffectivelyEnabled()) {
+        const QString reason = QCoreApplication::translate("Application", "Core plugin is disabled.");
+        displayError(msgCoreLoadFailure(reason));
+        return 1;
+    }
     if (coreplugin->hasError()) {
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
         return 1;
