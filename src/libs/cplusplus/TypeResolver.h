@@ -38,7 +38,7 @@ namespace CPlusPlus {
 class TypeResolver
 {
 public:
-    TypeResolver(const LookupContext &context) : _context(context) {}
+    TypeResolver(CreateBindings &factory) : _factory(factory) {}
     void resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding);
 
 private:
@@ -54,7 +54,7 @@ private:
     bool findTypedef(const QList<LookupItem>& namedTypeItems, FullySpecifiedType *type,
                      Scope **scope, QSet<Symbol *>& visited);
 
-    const LookupContext &_context;
+    CreateBindings &_factory;
     // binding has to be remembered in case of resolving typedefs for templates
     LookupScope *_binding;
 };

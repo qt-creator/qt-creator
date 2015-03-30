@@ -787,7 +787,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
         FullySpecifiedType ty = result.type().simplified();
         Scope *scope = result.scope();
 
-        TypeResolver typeResolver(_context);
+        TypeResolver typeResolver(*_context.bindings());
         typeResolver.resolve(&ty, &scope, result.binding());
 
         if (PointerType *ptrTy = ty->asPointerType()) {
@@ -916,7 +916,7 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
     if (Q_UNLIKELY(debug))
         qDebug() << "In ResolveExpression::baseExpression with" << baseResults.size() << "results...";
     int i = 0;
-    TypeResolver typeResolver(_context);
+    TypeResolver typeResolver(*_context.bindings());
 
     foreach (const LookupItem &r, baseResults) {
         if (!r.type().type() || !r.scope())

@@ -79,7 +79,7 @@ QList<LookupItem> TypeResolver::getNamedTypeItems(const Name *name, Scope *scope
     if (namedTypeItems.isEmpty()) {
         if (binding)
             namedTypeItems = binding->lookup(name);
-        if (LookupScope *scopeCon = _context.lookupType(scope)) {
+        if (LookupScope *scopeCon = _factory.lookupType(scope)) {
             if (scopeCon != binding)
                 namedTypeItems += scopeCon->lookup(name);
         }
@@ -140,10 +140,10 @@ bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpe
         // continue working with the typedefed type and scope
         if (type->type()->isPointerType()) {
             *type = FullySpecifiedType(
-                        _context.bindings()->control()->pointerType(declaration->type()));
+                        _factory.control()->pointerType(declaration->type()));
         } else if (type->type()->isReferenceType()) {
             *type = FullySpecifiedType(
-                        _context.bindings()->control()->referenceType(
+                        _factory.control()->referenceType(
                             declaration->type(),
                             declaration->type()->asReferenceType()->isRvalueReference()));
         } else {

@@ -33,6 +33,7 @@
 #include "ResolveExpression.h"
 #include "Overview.h"
 #include "CppRewriter.h"
+#include "TypeResolver.h"
 
 #include <cplusplus/CoreTypes.h>
 #include <cplusplus/Symbols.h>
@@ -525,6 +526,7 @@ public:
     ~LookupScopePrivate();
 
     typedef std::map<const Name *, LookupScopePrivate *, Name::Compare> Table;
+    typedef std::map<const Name *, Declaration *, Name::Compare> TypedefTable;
     typedef std::map<const TemplateNameId *,
                      LookupScopePrivate *,
                      TemplateNameId::Compare> TemplateNameIdTable;
@@ -546,6 +548,7 @@ public:
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);
     void addUnscopedEnum(Enum *e);
+    void addTypedef(const Name *identifier, Declaration *d);
     void addUsing(LookupScope *u);
     void addNestedType(const Name *alias, LookupScope *e);
 
@@ -561,11 +564,16 @@ public:
     LookupScope *findBlock_helper(Block *block, ProcessedSet *processed,
                                   bool searchInEnclosingScope);
 
+private:
+    LookupScopePrivate *findNestedType(const Name *name, LookupScopePrivate *origin);
+
     LookupScopePrivate *nestedType(const Name *name, LookupScopePrivate *origin);
 
     LookupScopePrivate *findSpecialization(const TemplateNameId *templId,
-                                           const TemplateNameIdTable &specializations);
+                                           const TemplateNameIdTable &specializations,
+                                           LookupScopePrivate *origin);
 
+public:
     LookupScope *q;
 
     CreateBindings *_factory;
@@ -573,6 +581,7 @@ public:
     QList<Symbol *> _symbols;
     QList<LookupScope *> _usings;
     Table _nestedScopes;
+    TypedefTable _typedefs;
     QHash<Block *, LookupScope *> _blocks;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
@@ -589,9 +598,11 @@ public:
 
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
     AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
+    QSet<const Declaration *> _alreadyConsideredTypedefs;
 
     Class *_rootClass;
     const Name *_name; // For debug
+    bool _hasTypedefs;
 };
 
 class Instantiator
@@ -702,6 +713,7 @@ LookupScopePrivate::LookupScopePrivate(LookupScope *q, CreateBindings *factory, 
     , _instantiationOrigin(0)
     , _rootClass(0)
     , _name(0)
+    , _hasTypedefs(false)
 {
     Q_ASSERT(factory);
 }
@@ -1136,7 +1148,7 @@ static LookupScopePrivate *findSpecializationWithMatchingTemplateArgument(
 }
 
 LookupScopePrivate *LookupScopePrivate::findSpecialization(
-        const TemplateNameId *templId, const TemplateNameIdTable &specializations)
+        const TemplateNameId *templId, const TemplateNameIdTable &specializations, LookupScopePrivate *origin)
 {
     // we go through all specialization and try to find that one with template argument as pointer
     for (TemplateNameIdTable::const_iterator cit = specializations.begin();
@@ -1152,8 +1164,11 @@ LookupScopePrivate *LookupScopePrivate::findSpecialization(
             for (unsigned i = 0; i < initializationTemplateArgumentCount; ++i) {
                 const FullySpecifiedType &specializationTemplateArgument
                         = specializationNameId->templateArgumentAt(i);
-                const FullySpecifiedType &initializationTemplateArgument
+                FullySpecifiedType initializationTemplateArgument
                         = templId->templateArgumentAt(i);
+                TypeResolver typeResolver(*_factory);
+                Scope *scope = 0;
+                typeResolver.resolve(&initializationTemplateArgument, &scope, origin ? origin->q : 0);
                 PointerType *specPointer
                         = specializationTemplateArgument.type()->asPointerType();
                 // specialization and initialization argument have to be a pointer
@@ -1197,8 +1212,33 @@ LookupScopePrivate *LookupScopePrivate::findOrCreateNestedAnonymousType(
     }
 }
 
-LookupScopePrivate *LookupScopePrivate::nestedType(
-        const Name *name, LookupScopePrivate *origin)
+LookupScopePrivate *LookupScopePrivate::findNestedType(const Name *name, LookupScopePrivate *origin)
+{
+    TypedefTable::const_iterator typedefit = _typedefs.find(name);
+    if (typedefit != _typedefs.end()) {
+        Declaration *decl = typedefit->second;
+        if (_alreadyConsideredTypedefs.contains(decl))
+            return 0;
+        _alreadyConsideredTypedefs.insert(decl);
+        if (const NamedType *namedTy = decl->type()->asNamedType()) {
+            if (LookupScope *e = q->lookupType(namedTy->name()))
+                return e->d;
+            if (origin) {
+                if (LookupScope *e = origin->q->lookupType(namedTy->name()))
+                    return e->d;
+            }
+        }
+        _alreadyConsideredTypedefs.remove(decl);
+    }
+
+    auto it = _nestedScopes.find(name);
+    if (it != _nestedScopes.end())
+        return it->second;
+
+    return 0;
+}
+
+LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScopePrivate *origin)
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId());
@@ -1208,13 +1248,11 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
     if (const AnonymousNameId *anonymousNameId = name->asAnonymousNameId())
         return findOrCreateNestedAnonymousType(anonymousNameId);
 
-    Table::const_iterator it = _nestedScopes.find(name);
-    if (it == _nestedScopes.end())
+    LookupScopePrivate *reference = findNestedType(name, origin);
+    if (!reference)
         return 0;
-
-    LookupScopePrivate *reference = it->second;
-    LookupScopePrivate *baseTemplateClassReference = reference;
     reference->flush();
+    LookupScopePrivate *baseTemplateClassReference = reference;
 
     const TemplateNameId *templId = name->asTemplateNameId();
     if (templId) {
@@ -1254,10 +1292,9 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
                 reference = cit->second;
             } else {
                 LookupScopePrivate *specializationWithPointer
-                        = findSpecialization(templId, specializations);
+                        = findSpecialization(templId, specializations, origin);
                 if (specializationWithPointer)
                     reference = specializationWithPointer;
-                // TODO: find the best specialization(probably partial) for this instantiation
             }
             // let's instantiation be instantiation
             nonConstTemplId->setIsSpecialization(false);
@@ -1340,6 +1377,9 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
                                 templId->templateArgumentAt(i):
                                 cloner.type(tParam->type(), &subst);
 
+                    TypeResolver typeResolver(*_factory);
+                    Scope *scope = 0;
+                    typeResolver.resolve(&ty, &scope, origin ? origin->q : 0);
                     if (i < templSpecArgumentCount
                             && templSpecId->templateArgumentAt(i)->isPointerType()) {
                         if (PointerType *pointerType = ty->asPointerType())
@@ -1353,6 +1393,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
                 instantiator.instantiate(reference, instantiation);
             } else {
                 instantiation->_symbols.append(reference->_symbols);
+                instantiation->_typedefs = reference->_typedefs;
             }
 
             QHash<const Name*, unsigned> templParams;
@@ -1427,6 +1468,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
         } else {
             instantiation->_nestedScopes = reference->_nestedScopes;
             instantiation->_symbols.append(reference->_symbols);
+            instantiation->_typedefs = reference->_typedefs;
         }
 
         _alreadyConsideredTemplates.clear(templId);
@@ -1472,6 +1514,13 @@ void Instantiator::instantiate(LookupScopePrivate *lookupScope,
         return;
     _alreadyConsideredInstantiations.insert(lookupScope);
     if (instantiation != lookupScope) {
+        auto typedefend = lookupScope->_typedefs.end();
+        for (auto typedefit = lookupScope->_typedefs.begin();
+             typedefit != typedefend;
+             ++typedefit) {
+            instantiation->_typedefs[typedefit->first] =
+                    _cloner.symbol(typedefit->second, &_subst)->asDeclaration();
+        }
         foreach (Symbol *s, lookupScope->_symbols) {
             Symbol *clone = _cloner.symbol(s, &_subst);
             if (!clone->enclosingScope()) // Not from the cache but just cloned.
@@ -1558,6 +1607,11 @@ void LookupScopePrivate::addTodo(Symbol *symbol)
 void LookupScopePrivate::addUnscopedEnum(Enum *e)
 {
     _enums.append(e);
+}
+
+void LookupScopePrivate::addTypedef(const Name *identifier, Declaration *d)
+{
+    _typedefs[identifier] = d;
 }
 
 void LookupScopePrivate::addUsing(LookupScope *u)
@@ -1783,17 +1837,13 @@ bool CreateBindings::visit(Enum *e)
 bool CreateBindings::visit(Declaration *decl)
 {
     if (decl->isTypedef()) {
+        _currentLookupScope->d->_hasTypedefs = true;
         FullySpecifiedType ty = decl->type();
         const Identifier *typedefId = decl->identifier();
 
         if (typedefId && ! (ty.isConst() || ty.isVolatile())) {
-            if (const NamedType *namedTy = ty->asNamedType()) {
-                if (LookupScope *e = _currentLookupScope->lookupType(namedTy->name())) {
-                    _currentLookupScope->d->addNestedType(decl->name(), e);
-                } else if (false) {
-                    Overview oo;
-                    qDebug() << "found entity not found for" << oo.prettyName(namedTy->name());
-                }
+            if (ty->isNamedType()) {
+                _currentLookupScope->d->addTypedef(typedefId, decl);
             } else if (Class *klass = ty->asClassType()) {
                 if (const Identifier *nameId = decl->name()->asNameId()) {
                     LookupScope *binding
@@ -1849,6 +1899,7 @@ bool CreateBindings::visit(Block *block)
     if (! _currentLookupScope->d->_blocks.empty()
             || ! _currentLookupScope->d->_nestedScopes.empty()
             || ! _currentLookupScope->d->_enums.empty()
+            || _currentLookupScope->d->_hasTypedefs
             || ! _currentLookupScope->d->_anonymouses.empty()) {
         previous->d->_blocks[block] = binding;
         _entities.append(binding);
