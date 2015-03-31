@@ -113,6 +113,8 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
 {
     if (d->palette.contains(color))
         return qMakePair(d->palette[color], color);
+    if (color == QLatin1String("style"))
+        return qMakePair(QColor(), QString());
 
     bool ok = true;
     const QRgb rgba = color.toLongLong(&ok, 16);
@@ -362,6 +364,8 @@ QPalette Theme::palette() const
     pal.setColor(QPalette::Dark,            color(Theme::BackgroundColorDark));
     pal.setColor(QPalette::HighlightedText, Qt::white);
     pal.setColor(QPalette::ToolTipText,     color(Theme::TextColorNormal));
+    pal.setColor(QPalette::Link,            color(Theme::TextColorLink));
+    pal.setColor(QPalette::LinkVisited,     color(Theme::TextColorLinkVisited));
     return pal;
 }
 

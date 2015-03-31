@@ -211,7 +211,7 @@ class Dumper(DumperBase):
         self.currentMaxNumChild = None
         self.currentPrintsAddress = None
         self.currentChildType = None
-        self.currentChildNumChild = None
+        self.currentChildNumChild = -1
         self.currentWatchers = {}
 
         self.executable_ = None
@@ -509,13 +509,16 @@ class Dumper(DumperBase):
         return int(value.GetLoadAddress())
 
     def extractInt(self, address):
-        return int(self.createValue(address, self.intType()))
+        error = SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 4, error))
 
     def extractInt64(self, address):
-        return int(self.createValue(address, self.int64Type()))
+        error = SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 8, error))
 
     def extractByte(self, address):
-        return int(self.createValue(address, self.charType())) & 0xFF
+        error = SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 1, error) & 0xFF)
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -534,11 +537,6 @@ class Dumper(DumperBase):
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
             return True
         return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
-
-    def putNumChild(self, numchild):
-        #self.warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
-        #if numchild != self.currentChildNumChild:
-        self.put('numchild="%s",' % numchild)
 
     def putPointerValue(self, value):
         # Use a lower priority
@@ -1138,18 +1136,26 @@ class Dumper(DumperBase):
             self.reportVariablesHelper(args)
             sys.stdout.write("@\n")
 
-    def reportVariablesHelper(self, _ = None):
+    def reportVariablesHelper(self, args = None):
         frame = self.currentFrame()
         if frame is None:
             return
+
+        partialVariable = args.get("partialVariable", "")
+        isPartial = len(partialVariable) > 0
+
         self.currentIName = 'local'
-        self.put('data=[')
+        self.put('all={data=[')
         self.anonNumber = 0
         shadowed = {}
         ids = {} # Filter out duplicates entries at the same address.
-        values = list(frame.GetVariables(True, True, False, False))
 
-        values.reverse() # To get shadowed vars numbered backwards.
+        if isPartial:
+            values = [frame.FindVariable(partialVariable)]
+        else:
+            values = list(frame.GetVariables(True, True, False, False))
+            values.reverse() # To get shadowed vars numbered backwards.
+
         for value in values:
             if not value.IsValid():
                 continue
@@ -1198,16 +1204,9 @@ class Dumper(DumperBase):
                             self.putEmptyValue()
                             self.putNumChild(0)
 
-        # 'watchers':[{'id':'watch.0','exp':'23'},...]
-        #if not self.dummyValue is None:
-        for watcher in self.currentWatchers:
-            iname = watcher['iname']
-            # could be 'watch.0' or 'tooltip.deadbead'
-            (base, component) = iname.split('.')
-            exp = self.hexdecode(watcher['exp'])
-            self.handleWatch(exp, exp, iname)
+        self.handleWatches(args)
 
-        self.put(']')
+        self.put('],partial="%d"}' % isPartial)
 
     def reportData(self, _ = None):
         if self.process is None:

@@ -32,33 +32,35 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    DESKTOP_474_GCC = 1
-    DESKTOP_480_GCC = 2
-    SIMULATOR = 4
-    MAEMO5 = 8
-    HARMATTAN = 16
-    EMBEDDED_LINUX = 32
-    DESKTOP_480_MSVC2010 = 64
-    DESKTOP_521_DEFAULT = 128
-    DESKTOP_531_DEFAULT = 256
-    DESKTOP_541_GCC = 512
+    ALL_TARGETS = map(lambda x: 2 ** x , range(9))
+
+    (DESKTOP_474_GCC,
+     DESKTOP_480_DEFAULT,
+     SIMULATOR,
+     MAEMO5,
+     HARMATTAN,
+     EMBEDDED_LINUX,
+     DESKTOP_521_DEFAULT,
+     DESKTOP_531_DEFAULT,
+     DESKTOP_541_GCC) = ALL_TARGETS
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_GCC
-                          | Targets.DESKTOP_521_DEFAULT | Targets.DESKTOP_531_DEFAULT)
-        if platform.system() in ('Windows', 'Microsoft'):
-            desktopTargets |= Targets.DESKTOP_480_MSVC2010
-        if platform.system() != 'Darwin':
-            desktopTargets |= Targets.DESKTOP_541_GCC
+        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.MAEMO5
+                          & ~Targets.HARMATTAN & ~Targets.EMBEDDED_LINUX)
+        if platform.system() == 'Darwin':
+            desktopTargets &= ~Targets.DESKTOP_541_GCC
         return desktopTargets
 
     @staticmethod
     def getStringForTarget(target):
         if target == Targets.DESKTOP_474_GCC:
             return "Desktop 474 GCC"
-        if target == Targets.DESKTOP_480_GCC:
-            return "Desktop 480 GCC"
+        elif target == Targets.DESKTOP_480_DEFAULT:
+            if platform.system() in ('Windows', 'Microsoft'):
+                return "Desktop 480 MSVC2010"
+            else:
+                return "Desktop 480 GCC"
         elif target == Targets.MAEMO5:
             return "Fremantle"
         elif target == Targets.SIMULATOR:
@@ -67,8 +69,6 @@ class Targets:
             return "Harmattan"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
-        elif target == Targets.DESKTOP_480_MSVC2010:
-            return "Desktop 480 MSVC2010"
         elif target == Targets.DESKTOP_521_DEFAULT:
             return "Desktop 521 default"
         elif target == Targets.DESKTOP_531_DEFAULT:
@@ -90,10 +90,7 @@ class Targets:
 
     @staticmethod
     def intToArray(targets):
-        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.SIMULATOR, Targets.MAEMO5,
-                     Targets.HARMATTAN, Targets.EMBEDDED_LINUX, Targets.DESKTOP_480_MSVC2010,
-                     Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_541_GCC]
-        return filter(lambda x: x & targets == x, available)
+        return filter(lambda x: x & targets, Targets.ALL_TARGETS)
 
     @staticmethod
     def arrayToInt(targetArr):

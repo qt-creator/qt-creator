@@ -87,7 +87,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_count(0),
     m_preserveCaseSupported(true),
     m_isShowingReplaceUI(false),
-    m_searchAgainSupported(false)
+    m_searchAgainSupported(false),
+    m_replaceSupported(false)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -206,7 +207,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     topReplaceLayout->addWidget(m_replaceButton);
     topReplaceLayout->addWidget(m_preserveCaseCheck);
     topReplaceLayout->addStretch(2);
-    setShowReplaceUI(false);
+    setShowReplaceUI(m_replaceSupported);
     setSupportPreserveCase(true);
 
     connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(SearchResultItem)),
@@ -262,7 +263,8 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
 
         m_replaceTextEdit->setEnabled(true);
         // We didn't have an item before, set the focus to the search widget or replace text edit
-        if (m_isShowingReplaceUI) {
+        setShowReplaceUI(m_replaceSupported);
+        if (m_replaceSupported) {
             m_replaceTextEdit->setFocus();
             m_replaceTextEdit->selectAll();
         } else {
@@ -294,13 +296,10 @@ int SearchResultWidget::count() const
     return m_count;
 }
 
-QString SearchResultWidget::dontAskAgainGroup() const
+void SearchResultWidget::setSupportsReplace(bool replaceSupported, const QString &group)
 {
-    return m_dontAskAgainGroup;
-}
-
-void SearchResultWidget::setDontAskAgainGroup(const QString &group)
-{
+    m_replaceSupported = replaceSupported;
+    setShowReplaceUI(replaceSupported);
     m_dontAskAgainGroup = group;
 }
 
@@ -475,6 +474,7 @@ void SearchResultWidget::handleReplaceButton()
     // by pressing return in replace line edit
     if (m_replaceButton->isEnabled()) {
         m_infoBar.clear();
+        setShowReplaceUI(false);
         emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
                                   m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
     }

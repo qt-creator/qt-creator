@@ -29,6 +29,10 @@
     For more information about Qbs, see
     the \l{http://doc.qt.io/qbs/index.html}{Qbs Manual}.
 
+    The application is built using the default Qbs profile that is associated
+    with the build and run kit. \QC automatically creates a Qbs profile for each
+    kit. You can edit the build profiles by adding new keys and values.
+
     \section1 Building Qbs
 
     If you build \QC yourself from the \QC Git repository, you also need to
@@ -147,4 +151,28 @@
             (\uicontrol Run) button to deploy and run the application.
         \endlist
 
+    \section1 Editing Build Profiles
+
+    \image qtcreator-options-qbs.png
+
+    To add keys and values to a build profile that is associated with a build
+    and run kit:
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Qbs.
+
+        \li In the \uicontrol Kit field, select a build and run kit.
+
+        \li Select \uicontrol Edit to edit the profile associated with the kit.
+
+        \li Select \uicontrol Add to add keys and values to the profile.
+            Spefify keys as: \c <module_name>.<property_name>. Specify the
+            values as JSON literals.
+
+    \endlist
+
+    For a list of available keys and values, see the
+    \l{http://doc.qt.io/qbs/list-of-modules.html}{List of Modules} in the
+    Qbs Manual.
 */

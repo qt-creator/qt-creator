@@ -144,6 +144,9 @@ private:
 
     static bool ensureWriteableQbsFile(const QString &file);
 
+    qbs::GroupData reRetrieveGroupData(const qbs::ProductData &oldProduct,
+                                       const qbs::GroupData &oldGroup);
+
     QbsManager *const m_manager;
     const QString m_projectName;
     const QString m_fileName;

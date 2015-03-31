@@ -57,7 +57,9 @@ SearchResultTreeModel::~SearchResultTreeModel()
 
 void SearchResultTreeModel::setShowReplaceUI(bool show)
 {
+    beginResetModel();
     m_showReplaceUI = show;
+    endResetModel();
 }
 
 void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor &color)
@@ -73,10 +75,8 @@ Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &idx) const
     Qt::ItemFlags flags = QAbstractItemModel::flags(idx);
 
     if (idx.isValid()) {
-        if (const SearchResultTreeItem *item = treeItemAtIndex(idx)) {
-            if (item->isUserCheckable())
-                flags |= Qt::ItemIsUserCheckable;
-        }
+        if (m_showReplaceUI)
+            flags |= Qt::ItemIsUserCheckable;
     }
 
     return flags;
@@ -189,28 +189,24 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
         SearchResultTreeItem *currentItem = item;
         QModelIndex currentIndex = idx;
         while (SearchResultTreeItem *parent = currentItem->parent()) {
-            if (parent->isUserCheckable()) {
-                bool hasChecked = false;
-                bool hasUnchecked = false;
-                for (int i = 0; i < parent->childrenCount(); ++i) {
-                    SearchResultTreeItem *child = parent->childAt(i);
-                    if (!child->isUserCheckable())
-                        continue;
-                    if (child->checkState() == Qt::Checked)
-                        hasChecked = true;
-                    else if (child->checkState() == Qt::Unchecked)
-                        hasUnchecked = true;
-                    else if (child->checkState() == Qt::PartiallyChecked)
-                        hasChecked = hasUnchecked = true;
-                }
-                if (hasChecked && hasUnchecked)
-                    parent->setCheckState(Qt::PartiallyChecked);
-                else if (hasChecked)
-                    parent->setCheckState(Qt::Checked);
-                else
-                    parent->setCheckState(Qt::Unchecked);
-                emit dataChanged(idx.parent(), idx.parent());
+            bool hasChecked = false;
+            bool hasUnchecked = false;
+            for (int i = 0; i < parent->childrenCount(); ++i) {
+                SearchResultTreeItem *child = parent->childAt(i);
+                if (child->checkState() == Qt::Checked)
+                    hasChecked = true;
+                else if (child->checkState() == Qt::Unchecked)
+                    hasUnchecked = true;
+                else if (child->checkState() == Qt::PartiallyChecked)
+                    hasChecked = hasUnchecked = true;
             }
+            if (hasChecked && hasUnchecked)
+                parent->setCheckState(Qt::PartiallyChecked);
+            else if (hasChecked)
+                parent->setCheckState(Qt::Checked);
+            else
+                parent->setCheckState(Qt::Unchecked);
+            emit dataChanged(idx.parent(), idx.parent());
             currentItem = parent;
             currentIndex = idx.parent();
         }
@@ -234,8 +230,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     switch (role)
     {
     case Qt::CheckStateRole:
-        if (row->isUserCheckable())
-            result = row->checkState();
+        result = row->checkState();
         break;
     case Qt::ToolTipRole:
         result = row->item.text.trimmed();
@@ -315,10 +310,8 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
             item.path = currentPath;
             item.text = part;
             partItem = new SearchResultTreeItem(item, currentItem);
-            if (m_showReplaceUI) {
-                partItem->setIsUserCheckable(true);
+            if (m_showReplaceUI)
                 partItem->setCheckState(Qt::Checked);
-            }
             partItem->setGenerated(true);
             beginInsertRows(currentItemIndex, insertionIndex, insertionIndex);
             currentItem->insertChild(insertionIndex, partItem);

@@ -877,7 +877,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             } else {
                 m_expandedINames.remove(item->iname);
             }
-            emit columnAdjustmentRequested();
+            if (item->iname.contains('.'))
+                emit columnAdjustmentRequested();
             break;
 
         case LocalsTypeFormatRole:
@@ -1199,7 +1200,6 @@ void WatchModel::reexpandItems()
 void WatchHandler::removeAllData(bool includeInspectData)
 {
     m_model->reinitialize(includeInspectData);
-    updateWatchersWindow();
 }
 
 void WatchHandler::resetValueCache()

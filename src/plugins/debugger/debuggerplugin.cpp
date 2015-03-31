@@ -1947,7 +1947,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     QTC_ASSERT(!engine->isSlaveEngine(), return);
 
     m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThreadIndex());
-    engine->watchHandler()->updateWatchersWindow();
 
     const DebuggerState state = engine->state();
     //showMessage(QString::fromLatin1("PLUGIN SET STATE: ")

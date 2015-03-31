@@ -98,6 +98,8 @@ public:
         MenuBarItemBackgroundColor,
         MenuBarItemTextColorDisabled,
         MenuBarItemTextColorNormal,
+        MenuItemTextColorDisabled,
+        MenuItemTextColorNormal,
         MiniProjectTargetSelectorBackgroundColor,
         MiniProjectTargetSelectorBorderColor,
         MiniProjectTargetSelectorSummaryBackgroundColor,
@@ -118,6 +120,8 @@ public:
         TextColorDisabled,
         TextColorError,
         TextColorHighlight,
+        TextColorLink,
+        TextColorLinkVisited,
         TextColorNormal,
         TodoItemTextColor,
         ToggleButtonBackgroundColor,
@@ -125,26 +129,20 @@ public:
         TreeViewArrowColorNormal,
         TreeViewArrowColorSelected,
 
-        OutputFormatter_NormalMessageTextColor,
-        OutputFormatter_ErrorMessageTextColor,
-        OutputFormatter_StdOutTextColor,
-        OutputFormatter_StdErrTextColor,
-        OutputFormatter_DebugTextColor,
+        /* Output panes */
 
-        QtOutputFormatter_LinkTextColor,
-
-        /* Compile Output Pane */
-
-        CompileOutput_ErrorOutput,
-        CompileOutput_MessageOutput,
-        CompileOutput_ErrorMessageOutput,
+        OutputPanes_DebugTextColor,
+        OutputPanes_ErrorMessageTextColor,
+        OutputPanes_MessageOutput,
+        OutputPanes_NormalMessageTextColor,
+        OutputPanes_StdErrTextColor,
+        OutputPanes_StdOutTextColor,
+        OutputPanes_WarningMessageTextColor,
 
         /* Debugger Log Window */
 
         Debugger_LogWindow_LogInput,
         Debugger_LogWindow_LogStatus,
-        Debugger_LogWindow_LogWarning,
-        Debugger_LogWindow_LogError,
         Debugger_LogWindow_LogTime,
 
         /* Debugger Watch Item */

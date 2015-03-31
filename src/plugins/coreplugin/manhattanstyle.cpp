@@ -359,7 +359,7 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
             ret = true;
         break;
     case QStyle::SH_EtchDisabledText:
-        if (panelWidget(widget))
+        if (panelWidget(widget) || qobject_cast<const QMenu *> (widget) )
             ret = false;
         break;
     case QStyle::SH_ItemView_ArrowKeysNavigateIntoChildren:
@@ -614,7 +614,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *option,
                                  QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget))
+    if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget))
         return QProxyStyle::drawControl(element, option, painter, widget);
 
     switch (element) {
@@ -643,6 +643,25 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             QProxyStyle::drawControl(element, &adjustedTab, painter, widget);
             return;
         }
+        break;
+
+    case CE_MenuItem:
+        painter->save();
+        if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            const bool enabled = mbi->state & State_Enabled;
+            QStyleOptionMenuItem item = *mbi;
+            item.rect = mbi->rect;
+            const QColor color = creatorTheme()->color(enabled
+                                                       ? Theme::MenuItemTextColorNormal
+                                                       : Theme::MenuItemTextColorDisabled);
+            if (color.isValid()) {
+                QPalette pal = mbi->palette;
+                pal.setBrush(QPalette::Text, color);
+                item.palette = pal;
+            }
+            QProxyStyle::drawControl(element, &item, painter, widget);
+        }
+        painter->restore();
         break;
 
     case CE_MenuBarItem:

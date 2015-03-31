@@ -978,6 +978,12 @@ void MainWindow::writeSettings()
     if (!(m_overrideColor.isValid() && StyleHelper::baseColor() == m_overrideColor))
         settings->setValue(QLatin1String(colorKey), StyleHelper::requestedBaseColor());
 
+    // On OS X applications usually do not restore their full screen state.
+    // To be able to restore the correct non-full screen geometry, we have to put
+    // the window out of full screen before saving the geometry.
+    // Works around QTBUG-45241
+    if (Utils::HostOsInfo::isMacHost() && isFullScreen())
+        setWindowState(windowState() & ~Qt::WindowFullScreen);
     settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
     settings->setValue(QLatin1String(windowStateKey), saveState());
     settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());

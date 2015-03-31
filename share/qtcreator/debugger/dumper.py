@@ -158,7 +158,7 @@ if hasSubprocess and hasPlot:
             s("pyplot.figure(%s)" % matplotFigure[iname])
             s("pyplot.suptitle('%s')" % iname)
             s("data = %s" % data)
-            s("pyplot.plot([i for i in range(len(data))], data, 'b.')")
+            s("pyplot.plot([i for i in range(len(data))], data, 'b.-')")
             time.sleep(0.2)
             s("pyplot.draw()")
             matplotProc.stdin.flush()
@@ -1649,6 +1649,16 @@ class DumperBase:
             except:
                 pass
         return False, 0, 1, 1, exp
+
+    def putNumChild(self, numchild):
+        if numchild != self.currentChildNumChild:
+            self.put('numchild="%s",' % numchild)
+
+    def handleWatches(self, args):
+        for watcher in args.get("watchers", []):
+            iname = watcher['iname']
+            exp = self.hexdecode(watcher['exp'])
+            self.handleWatch(exp, exp, iname)
 
     def handleWatch(self, origexp, exp, iname):
         exp = str(exp).strip()

@@ -647,7 +647,7 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
         libraryDetailsWidget()->libraryPathChooser->setExpectedKind(Utils::PathChooser::File);
     }
 
-    connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(validChanged()),
+    connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(validChanged(bool)),
             this, SIGNAL(completeChanged()));
     connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(changed(QString)),
             this, SLOT(slotLibraryPathChanged()));

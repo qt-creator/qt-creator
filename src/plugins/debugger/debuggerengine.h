@@ -60,6 +60,7 @@ namespace Internal {
 class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
+class GdbMi;
 class MemoryAgent;
 class WatchData;
 class WatchItem;
@@ -185,6 +186,7 @@ public:
 
     virtual bool isSynchronous() const;
     virtual QByteArray qtNamespace() const;
+    void setQtNamespace(const QByteArray &ns);
 
     virtual void createSnapshot();
     virtual void updateAll();
@@ -373,6 +375,8 @@ protected:
 
     virtual void slaveEngineStateChanged(DebuggerEngine *engine,
         DebuggerState state);
+
+    void updateLocalsView(const GdbMi &all);
 
 private:
     // Wrapper engine needs access to state of its subengines.

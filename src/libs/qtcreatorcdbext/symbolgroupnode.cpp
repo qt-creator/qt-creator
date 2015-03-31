@@ -1155,9 +1155,16 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
         encoding = DumpEncodingMillisecondsSinceMidnight;
         break;
     case KT_QDateTime:
+        if (!value.compare(L"(invalid)"))
+            break;
         encoding = QtInfo::get(ctx).version < 5
                 ? DumpEncodingJulianDateAndMillisecondsSinceMidnight
                 : DumpEncodingMillisecondsSinceEpoch;
+        break;
+    case KT_QTimeZone: // Based on a QByteArray dumper
+    case KT_QByteArray:
+        if (QtInfo::get(ctx).version > 4)
+            encoding = DumpEncodingHex_Latin1_WithQuotes;
         break;
     }
     if (encoding) {

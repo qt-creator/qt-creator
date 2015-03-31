@@ -142,24 +142,24 @@ void OutputFormatter::initFormats()
 
     // NormalMessageFormat
     d->formats[NormalMessageFormat].setFont(boldFont);
-    d->formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputFormatter_NormalMessageTextColor));
+    d->formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputPanes_NormalMessageTextColor));
 
     // ErrorMessageFormat
     d->formats[ErrorMessageFormat].setFont(boldFont);
-    d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputFormatter_ErrorMessageTextColor));
+    d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
 
     // StdOutFormat
     d->formats[StdOutFormat].setFont(d->font);
-    d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputFormatter_StdOutTextColor));
+    d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputPanes_StdOutTextColor));
     d->formats[StdOutFormatSameLine] = d->formats[StdOutFormat];
 
     // StdErrFormat
     d->formats[StdErrFormat].setFont(d->font);
-    d->formats[StdErrFormat].setForeground(theme->color(Theme::OutputFormatter_StdErrTextColor));
+    d->formats[StdErrFormat].setForeground(theme->color(Theme::OutputPanes_StdErrTextColor));
     d->formats[StdErrFormatSameLine] = d->formats[StdErrFormat];
 
     d->formats[DebugFormat].setFont(d->font);
-    d->formats[DebugFormat].setForeground(theme->color(Theme::OutputFormatter_DebugTextColor));
+    d->formats[DebugFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
 }
 
 void OutputFormatter::handleLink(const QString &href)

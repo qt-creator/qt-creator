@@ -439,7 +439,7 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
 {
     m_pathChooser->setHistoryCompleter(QLatin1String("PE.ProjectDir.History"));
     addRow(tr("Path:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(validChanged()), this, SIGNAL(completeChanged()));
+    connect(m_pathChooser, SIGNAL(validChanged(bool)), this, SIGNAL(completeChanged()));
 }
 
 QString CustomWizardPage::path() const

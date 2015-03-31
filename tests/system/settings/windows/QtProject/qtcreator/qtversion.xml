@@ -15,16 +15,6 @@
  <data>
   <variable>QtVersion.1</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">3</value>
-   <value type="QString" key="Name">Qt 4.8 for Desktop - MinGW (Qt SDK)</value>
-   <value type="QString" key="QMakePath">C:/QtSDK/Desktop/Qt/4.8.0/mingw/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
-   <value type="bool" key="isAutodetected">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.2</variable>
-  <valuemap type="QVariantMap">
    <value type="int" key="Id">8</value>
    <value type="QString" key="Name">Qt 4.7.4 for Desktop - MinGW 4.4 (Qt SDK)</value>
    <value type="QString" key="QMakePath">c:/qtsdk/desktop/qt/4.7.4/mingw/bin/qmake.exe</value>
@@ -33,7 +23,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.3</variable>
+  <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">9</value>
    <value type="QString" key="Name">Simulator Qt for MinGW 4.4 (Qt SDK)</value>
@@ -43,7 +33,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.4</variable>
+  <variable>QtVersion.3</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">15</value>
    <value type="QString" key="Name">Harmattan Target (Qt SDK)</value>
@@ -53,7 +43,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.5</variable>
+  <variable>QtVersion.4</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">16</value>
    <value type="QString" key="Name">Qt for Fremantle PR1.3 Devices (Qt SDK)</value>
@@ -63,7 +53,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.6</variable>
+  <variable>QtVersion.5</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">4</value>
    <value type="QString" key="Name">Desktop Qt 5.2.1 (msvc2010)</value>
@@ -73,7 +63,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.7</variable>
+  <variable>QtVersion.6</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">20</value>
    <value type="QString" key="Name">Qt 5.3.1 (msvc2010_opengl)</value>
@@ -83,7 +73,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.8</variable>
+  <variable>QtVersion.7</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">22</value>
    <value type="QString" key="Name">Qt %{Qt:Version} (mingw491_32)</value>

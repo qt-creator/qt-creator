@@ -58,9 +58,6 @@ public:
     int rowOfItem() const;
     void clearChildren();
 
-    bool isUserCheckable() const;
-    void setIsUserCheckable(bool isUserCheckable);
-
     Qt::CheckState checkState() const;
     void setCheckState(Qt::CheckState checkState);
 
@@ -72,7 +69,6 @@ public:
 private:
     SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
-    bool m_isUserCheckable;
     bool m_isGenerated;
     Qt::CheckState m_checkState;
 };

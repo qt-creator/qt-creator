@@ -246,7 +246,6 @@ class Dumper(DumperBase):
         # dumpers causing loading of shared objects etc).
         self.currentQtNamespaceGuess = None
 
-        self.varList = args.get("vars", [])
         self.resultVarName = args.get("resultvarname", "")
         self.expandedINames = set(args.get("expanded", []))
         self.stringCutOff = int(args.get("stringcutoff", 10000))
@@ -264,17 +263,8 @@ class Dumper(DumperBase):
         self.partialUpdate = int(args.get("partial", "0"))
         self.fallbackQtVersion = 0x50200
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
-        #warn("VARIABLES: %s" % self.varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         #warn("WATCHERS: %s" % self.watchers)
-        #warn("PARTIAL: %s" % self.partialUpdate)
-
-    def handleWatches(self):
-        with OutputSafer(self):
-            for watcher in self.watchers:
-                iname = watcher['iname']
-                exp = self.hexdecode(watcher['exp'])
-                self.handleWatch(exp, exp, iname)
 
     def listOfLocals(self):
         frame = gdb.selected_frame()
@@ -360,6 +350,9 @@ class Dumper(DumperBase):
     def showData(self, args):
         self.prepare(args)
 
+        partialVariable = args.get("partialVariable", "")
+        isPartial = len(partialVariable) > 0
+
         #
         # Locals
         #
@@ -368,12 +361,9 @@ class Dumper(DumperBase):
         if self.qmlcontext:
             locals = self.extractQmlVariables(self.qmlcontext)
 
-        elif self.partialUpdate and len(self.varList) == 1:
-            #warn("PARTIAL: %s" % self.varList)
-            parts = self.varList[0].split('.')
-            #warn("PARTIAL PARTS: %s" % parts)
+        elif isPartial:
+            parts = partialVariable.split('.')
             name = parts[1]
-            #warn("PARTIAL VAR: %s" % name)
             item = self.LocalItem()
             item.iname = parts[0] + '.' + name
             item.name = name
@@ -389,7 +379,6 @@ class Dumper(DumperBase):
             except:
                 item.value = "<no value>"
             locals = [item]
-            #warn("PARTIAL LOCALS: %s" % locals)
         else:
             locals = self.listOfLocals()
 
@@ -419,9 +408,8 @@ class Dumper(DumperBase):
                         self.put('name="%s",' % item.name)
                         self.putItem(value)
 
-        self.handleWatches()
-
-        #print('data=[' + locals + sep + self.watchers + ']\n')
+        with OutputSafer(self):
+            self.handleWatches(args)
 
         self.output.append('],typeinfo=[')
         for name in self.typesToReport.keys():
@@ -439,6 +427,9 @@ class Dumper(DumperBase):
         if self.qtNamespaceToReport:
             self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
             self.qtNamespaceToReport = None
+
+        self.output.append(',partial="%d"' % isPartial)
+
         print(''.join(self.output))
 
     def enterSubItem(self, item):
@@ -822,11 +813,6 @@ class Dumper(DumperBase):
                 self.currentAddress = 'addr="0x%x",' % toInteger(addr)
             except:
                 pass
-
-    def putNumChild(self, numchild):
-        #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
-        if numchild != self.currentChildNumChild:
-            self.put('numchild="%s",' % numchild)
 
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value, encoding, priority)

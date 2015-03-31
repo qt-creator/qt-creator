@@ -11,6 +11,7 @@ General
    * Added option to change environment for running external tools (QTCREATORBUG-4995)
    * Improved performance of output panes
    * Fixed that wizard windows were missing in Window menu (QTCREATORBUG-13766)
+   * Fixed that editing external tools was removing their shortcut (QTCREATORBUG-8108)
 
 Editing
    * Switched to a QMimeDatabase based MIME database implementation
@@ -90,6 +91,7 @@ Analyzer
 
 QML Profiler
    * Made it possible to search through event notes (QTCREATORBUG-13417)
+   * Made it possible to horizontally resize details windows (QTCREATORBUG-14054)
 
 C++ Support
    * Added support for binary literals (n3472)
@@ -107,6 +109,8 @@ C++ Support
    * Fixed that Assign to Local Variable refactoring action was not working with chained
      function calls (QTCREATORBUG-10355)
    * Fixed several issues with completion and iterators (QTCREATORBUG-13799)
+   * Fixed resolution of nested types in member functions (QTCREATORBUG-13978)
+   * Fixed parsing of function-like macros with comments (QTCREATORBUG-9535)
 
 QML Support
    * Fixed crash on closing one of multiple outline views (QTCREATORBUG-13614)
@@ -148,6 +152,7 @@ Platform Specific
 Windows
 
 OS X
+   * Fixed that importing builds of qmake projects was duplicating kits (QTCREATORBUG-13947)
 
 Linux
    * Added support to retrieve application output from journald.
