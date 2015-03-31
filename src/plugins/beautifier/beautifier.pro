@@ -1,7 +1,5 @@
 include(../../qtcreatorplugin.pri)
 
-QT += xml
-
 HEADERS += \
     abstractsettings.h \
     beautifierabstracttool.h \

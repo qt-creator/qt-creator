@@ -1,4 +1,4 @@
-QT += quick script xml
+QT += quick script
 
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)

@@ -4,7 +4,7 @@ include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)
 include(cpp/cpp.pri)
 
-QT += printsupport designer designercomponents-private xml
+QT += printsupport designer designercomponents-private
 
 HEADERS += formeditorplugin.h \
         formeditorfactory.h \
