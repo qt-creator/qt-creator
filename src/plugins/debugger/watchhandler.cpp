@@ -950,11 +950,11 @@ static inline QString msgArrayFormat(int n)
 QString WatchModel::nameForFormat(int format)
 {
     switch (format) {
-        case AutomaticFormat: return QLatin1String("");
+        case AutomaticFormat: return tr("Automatic");
 
         case RawFormat: return tr("Raw Data");
         case SimpleFormat: return CdbEngine::tr("Normal");  // FIXME: String
-        case EnhancedFormat: return QLatin1String("Enhanced");  // FIXME: String
+        case EnhancedFormat: return tr("Enhanced");
         case SeparateFormat: return CdbEngine::tr("Separate Window");  // FIXME: String
 
         case Latin1StringFormat: return tr("Latin1 String");
@@ -969,6 +969,14 @@ QString WatchModel::nameForFormat(int format)
         case Array100Format: return msgArrayFormat(100);
         case Array1000Format: return msgArrayFormat(1000);
         case Array10000Format: return msgArrayFormat(10000);
+        case ArrayPlotFormat: return tr("Plot in Separate Window");
+
+        case CompactMapFormat: return tr("Display Keys and Values Side by Side");
+        case DirectQListStorageFormat: return tr("Force Display as Direct Storage Form");
+        case IndirectQListStorageFormat: return tr("Force Display as Indirect Storage Form");
+
+        case BoolTextFormat: return tr("Display Boolean Values as True or False");
+        case BoolIntegerFormat: return tr("Display Boolean Values as 1 or 0");
 
         case DecimalIntegerFormat: return tr("Decimal Integer");
         case HexadecimalIntegerFormat: return tr("Hexadecimal Integer");
