@@ -314,6 +314,7 @@ void CppToolsPlugin::test_completion()
     actualCompletions.sort();
     expectedCompletions.sort();
 
+    QEXPECT_FAIL("template_as_base: explicit typedef from base", "QTCREATORBUG-14218", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
@@ -709,6 +710,34 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("finalMember")
             << QLatin1String("Other")
             << QLatin1String("otherMember"));
+
+    QTest::newRow("template_as_base: typedef not available in derived") << _(
+            "class Data { int dataMember; };\n"
+            "template <class T> struct Base { typedef T F; };\n"
+            "template <class T> struct Derived : Base<T> { F f; };\n"
+            "\n"
+            "void func() {\n"
+            "    Derived<Data> d;\n"
+            "    @\n"
+            "}\n"
+        ) << _("d.f.") << QStringList();
+
+    QTest::newRow("template_as_base: explicit typedef from base") << _(
+            "class Data { int dataMember; };\n"
+            "template <class T> struct Base { typedef T F; };\n"
+            "template <class T> struct Derived : Base<T>\n"
+            "{\n"
+            "   typedef typename Base<T>::F F;\n"
+            "   F f;\n"
+            "};\n"
+            "\n"
+            "void func() {\n"
+            "    Derived<Data> d;\n"
+            "    @\n"
+            "}\n"
+        ) << _("d.f.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember"));
 
     QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
