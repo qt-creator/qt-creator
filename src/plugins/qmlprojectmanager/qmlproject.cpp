@@ -400,9 +400,10 @@ bool QmlProject::fromMap(const QVariantMap &map)
     foreach (Target *t, targets())
         addedTarget(t);
 
-    connect(this, &QmlProject::addedTarget, this, &QmlProject::addedTarget);
+    connect(this, &ProjectExplorer::Project::addedTarget, this, &QmlProject::addedTarget);
 
-    connect(this, &QmlProject::activeTargetChanged, this, &QmlProject::onActiveTargetChanged);
+    connect(this, &ProjectExplorer::Project::activeTargetChanged,
+            this, &QmlProject::onActiveTargetChanged);
 
     onActiveTargetChanged(activeTarget());
 
