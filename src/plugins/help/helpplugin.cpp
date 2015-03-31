@@ -665,7 +665,6 @@ void HelpPlugin::doSetupIfNeeded()
 {
     LocalHelpManager::setupGuiHelpEngine();
     if (m_setupNeeded) {
-        qApp->processEvents();
         resetFilter();
         m_setupNeeded = false;
         OpenPagesManager::instance().setupInitialPages();
