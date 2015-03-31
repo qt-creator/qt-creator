@@ -2,7 +2,7 @@ DEFINES += CORE_LIBRARY
 QT += help \
     network \
     printsupport \
-    script \
+    qml \
     sql
 
 # embedding build time information prevents repeatedly binary exact versions from same source code

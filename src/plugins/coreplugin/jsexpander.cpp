@@ -37,7 +37,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QScriptEngine>
+#include <QJSEngine>
 
 namespace Core {
 
@@ -45,10 +45,7 @@ namespace Internal {
 
 class JsExpanderPrivate {
 public:
-    ~JsExpanderPrivate() { qDeleteAll(m_registeredObjects); }
-
-    QScriptEngine m_engine;
-    QList<QObject *> m_registeredObjects;
+    QJSEngine m_engine;
 };
 
 } // namespace Internal
@@ -57,26 +54,23 @@ static Internal::JsExpanderPrivate *d;
 
 void JsExpander::registerQObjectForJs(const QString &name, QObject *obj)
 {
-    obj->setParent(0); // take ownership!
-    d->m_registeredObjects.append(obj);
-    QScriptValue jsObj = d->m_engine.newQObject(obj, QScriptEngine::QtOwnership);
+    QJSValue jsObj = d->m_engine.newQObject(obj);
     d->m_engine.globalObject().setProperty(name, jsObj);
 }
 
 QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
 {
-    d->m_engine.clearExceptions();
-    QScriptValue value = d->m_engine.evaluate(expression);
-    if (d->m_engine.hasUncaughtException()) {
+    QJSValue value = d->m_engine.evaluate(expression);
+    if (value.isError()) {
         const QString msg = QCoreApplication::translate("Core::JsExpander", "Error in \"%1\": %2")
-                .arg(expression, d->m_engine.uncaughtException().toString());
+                .arg(expression, value.toString());
         if (errorMessage)
             *errorMessage = msg;
         return QString();
     }
     // Try to convert to bool, be that an int or whatever.
     if (value.isBool())
-        return value.toBool() ? QStringLiteral("true") : QStringLiteral("false");
+        return value.toString();
     if (value.isNumber())
         return QString::number(value.toNumber());
     if (value.isString())
