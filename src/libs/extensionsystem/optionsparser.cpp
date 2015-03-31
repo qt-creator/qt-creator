@@ -30,6 +30,8 @@
 
 #include "optionsparser.h"
 
+#include "pluginspec_p.h"
+
 #include <QCoreApplication>
 
 using namespace ExtensionSystem;
@@ -151,7 +153,7 @@ bool OptionsParser::checkForLoadOption()
                     .arg(m_currentArg);
             m_hasError = true;
         } else {
-            spec->setForceEnabled(true);
+            spec->d->setForceEnabled(true);
             m_isDependencyRefreshNeeded = true;
         }
     }
@@ -170,7 +172,7 @@ bool OptionsParser::checkForNoLoadOption()
                                                              "The plugin \"%1\" does not exist.").arg(m_currentArg);
             m_hasError = true;
         } else {
-            spec->setForceDisabled(true);
+            spec->d->setForceDisabled(true);
             m_isDependencyRefreshNeeded = true;
         }
     }

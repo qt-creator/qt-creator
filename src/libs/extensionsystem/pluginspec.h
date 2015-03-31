@@ -45,11 +45,15 @@ QT_END_NAMESPACE
 namespace ExtensionSystem {
 
 namespace Internal {
-    class PluginSpecPrivate;
-    class PluginManagerPrivate;
-}
+
+class OptionsParser;
+class PluginSpecPrivate;
+class PluginManagerPrivate;
+
+} // Internal
 
 class IPlugin;
+class PluginItem;
 
 struct EXTENSIONSYSTEM_EXPORT PluginDependency
 {
@@ -97,8 +101,8 @@ public:
     bool isAvailableForHostPlatform() const;
     bool isRequired() const;
     bool isExperimental() const;
-    bool isDisabledByDefault() const;
-    bool isEnabledInSettings() const;
+    bool isEnabledByDefault() const;
+    bool isEnabledBySettings() const;
     bool isEffectivelyEnabled() const;
     bool isDisabledIndirectly() const;
     bool isForceEnabled() const;
@@ -111,11 +115,6 @@ public:
     // other information, valid after 'Read' state is reached
     QString location() const;
     QString filePath() const;
-
-    void setEnabled(bool value);
-    void setDisabledByDefault(bool value);
-    void setForceEnabled(bool value);
-    void setForceDisabled(bool value);
 
     QStringList arguments() const;
     void setArguments(const QStringList &arguments);
@@ -138,6 +137,8 @@ private:
     PluginSpec();
 
     Internal::PluginSpecPrivate *d;
+    friend class PluginItem;
+    friend class Internal::OptionsParser;
     friend class Internal::PluginManagerPrivate;
     friend class Internal::PluginSpecPrivate;
 };

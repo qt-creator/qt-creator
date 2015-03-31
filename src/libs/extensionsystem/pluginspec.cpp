@@ -271,26 +271,25 @@ bool PluginSpec::isExperimental() const
 }
 
 /*!
-    Returns whether the plugin is disabled by default.
-    This might be because the plugin is experimental, or because
-    the plugin manager's settings define it as disabled by default.
+    Returns whether the plugin is enabled by default.
+    A plugin might be disabled because the plugin is experimental, or because
+    the install settings define it as disabled by default.
 */
-bool PluginSpec::isDisabledByDefault() const
+bool PluginSpec::isEnabledByDefault() const
 {
-    return d->disabledByDefault;
+    return d->enabledByDefault;
 }
 
 /*!
-    Returns whether the plugin should be loaded at startup. True by default.
-
-    The user can change it from the Plugin settings.
+    Returns whether the plugin should be loaded at startup,
+    taking into account the default enabled state, and the user's settings.
 
     \note This function returns true even if a plugin is disabled because its
     dependencies were not loaded, or an error occurred during loading it.
 */
-bool PluginSpec::isEnabledInSettings() const
+bool PluginSpec::isEnabledBySettings() const
 {
-    return d->enabledInSettings;
+    return d->enabledBySettings;
 }
 
 /*!
@@ -300,7 +299,7 @@ bool PluginSpec::isEnabledInSettings() const
 bool PluginSpec::isEffectivelyEnabled() const
 {
     if (d->disabledIndirectly
-        || (!d->enabledInSettings && !d->forceEnabled)
+        || (!d->enabledBySettings && !d->forceEnabled)
         || d->forceDisabled) {
         return false;
     }
@@ -485,8 +484,8 @@ namespace {
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     : required(false),
       experimental(false),
-      disabledByDefault(false),
-      enabledInSettings(true),
+      enabledByDefault(true),
+      enabledBySettings(true),
       disabledIndirectly(false),
       forceEnabled(false),
       forceDisabled(false),
@@ -535,28 +534,28 @@ bool PluginSpecPrivate::read(const QString &fileName)
     return true;
 }
 
-void PluginSpec::setEnabled(bool value)
+void PluginSpecPrivate::setEnabledBySettings(bool value)
 {
-    d->enabledInSettings = value;
+    enabledBySettings = value;
 }
 
-void PluginSpec::setDisabledByDefault(bool value)
+void PluginSpecPrivate::setEnabledByDefault(bool value)
 {
-    d->disabledByDefault = value;
+    enabledByDefault = value;
 }
 
-void PluginSpec::setForceEnabled(bool value)
+void PluginSpecPrivate::setForceEnabled(bool value)
 {
-    d->forceEnabled = value;
+    forceEnabled = value;
     if (value)
-        d->forceDisabled = false;
+        forceDisabled = false;
 }
 
-void PluginSpec::setForceDisabled(bool value)
+void PluginSpecPrivate::setForceDisabled(bool value)
 {
     if (value)
-        d->forceEnabled = false;
-    d->forceDisabled = value;
+        forceEnabled = false;
+    forceDisabled = value;
 }
 
 /*!
@@ -687,12 +686,12 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
     value = pluginInfo.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
-    disabledByDefault = value.toBool(false);
-    qCDebug(pluginLog) << "disabledByDefault =" << disabledByDefault;
+    enabledByDefault = !value.toBool(false);
+    qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
 
     if (experimental)
-        disabledByDefault = true;
-    enabledInSettings = !disabledByDefault;
+        enabledByDefault = false;
+    enabledBySettings = enabledByDefault;
 
     value = pluginInfo.value(QLatin1String(VENDOR));
     if (!value.isUndefined() && !value.isString())
@@ -913,7 +912,7 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 
 void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
 {
-    if (!enabledInSettings)
+    if (!enabledBySettings)
         return;
 
     if (disabledIndirectly)

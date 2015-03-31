@@ -376,7 +376,7 @@ bool PluginManager::hasError()
 {
     foreach (PluginSpec *spec, plugins()) {
         // only show errors on startup if plugin is enabled.
-        if (spec->hasError() && spec->isEnabledInSettings() && !spec->isDisabledIndirectly())
+        if (spec->hasError() && spec->isEnabledBySettings() && !spec->isDisabledIndirectly())
             return true;
     }
     return false;
@@ -820,9 +820,9 @@ void PluginManagerPrivate::writeSettings()
     QStringList tempDisabledPlugins;
     QStringList tempForceEnabledPlugins;
     foreach (PluginSpec *spec, pluginSpecs) {
-        if (!spec->isDisabledByDefault() && !spec->isEnabledInSettings())
+        if (spec->isEnabledByDefault() && !spec->isEnabledBySettings())
             tempDisabledPlugins.append(spec->name());
-        if (spec->isDisabledByDefault() && spec->isEnabledInSettings())
+        if (!spec->isEnabledByDefault() && spec->isEnabledBySettings())
             tempForceEnabledPlugins.append(spec->name());
     }
 
@@ -1398,17 +1398,17 @@ void PluginManagerPrivate::readPluginPaths()
         }
         // defaultDisabledPlugins and defaultEnabledPlugins from install settings
         // is used to override the defaults read from the plugin spec
-        if (!spec->isDisabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
-            spec->setDisabledByDefault(true);
-            spec->setEnabled(false);
-        } else if (spec->isDisabledByDefault() && defaultEnabledPlugins.contains(spec->name())) {
-            spec->setDisabledByDefault(false);
-            spec->setEnabled(true);
+        if (spec->isEnabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
+            spec->d->setEnabledByDefault(false);
+            spec->d->setEnabledBySettings(false);
+        } else if (!spec->isEnabledByDefault() && defaultEnabledPlugins.contains(spec->name())) {
+            spec->d->setEnabledByDefault(true);
+            spec->d->setEnabledBySettings(true);
         }
-        if (spec->isDisabledByDefault() && forceEnabledPlugins.contains(spec->name()))
-            spec->setEnabled(true);
-        if (!spec->isDisabledByDefault() && disabledPlugins.contains(spec->name()))
-            spec->setEnabled(false);
+        if (!spec->isEnabledByDefault() && forceEnabledPlugins.contains(spec->name()))
+            spec->d->setEnabledBySettings(true);
+        if (spec->isEnabledByDefault() && disabledPlugins.contains(spec->name()))
+            spec->d->setEnabledBySettings(false);
 
         collection->addPlugin(spec);
         pluginSpecs.append(spec);
@@ -1452,10 +1452,10 @@ void PluginManagerPrivate::enableOnlyTestedSpecs()
         }
     }
     foreach (PluginSpec *spec, pluginSpecs)
-        spec->setForceDisabled(true);
+        spec->d->setForceDisabled(true);
     foreach (PluginSpec *spec, specsForTests) {
-        spec->setForceDisabled(false);
-        spec->setForceEnabled(true);
+        spec->d->setForceDisabled(false);
+        spec->d->setForceEnabled(true);
     }
 }
 

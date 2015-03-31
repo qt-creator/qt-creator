@@ -31,6 +31,7 @@
 #include "pluginview.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
+#include "pluginspec_p.h"
 #include "plugincollection.h"
 
 #include <utils/algorithm.h>
@@ -130,7 +131,7 @@ public:
                     return PluginView::tr("Plugin is required.");
             } else {
                 if (role == Qt::CheckStateRole)
-                    return m_spec->isEnabledInSettings() ? Qt::Checked : Qt::Unchecked;
+                    return m_spec->isEnabledBySettings() ? Qt::Checked : Qt::Unchecked;
                 if (role == Qt::ToolTipRole)
                     return PluginView::tr("Load on startup");
             }
@@ -153,7 +154,7 @@ public:
     bool setData(int column, const QVariant &data, int role)
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
-            m_spec->setEnabled(data.toBool());
+            m_spec->d->setEnabledBySettings(data.toBool());
             updateColumn(column);
             parent()->updateColumn(column);
             emit m_view->pluginSettingsChanged(m_spec);
@@ -167,7 +168,7 @@ public:
         if (m_spec->isRequired() || !m_spec->isAvailableForHostPlatform())
             return false;
         foreach (PluginSpec *spec, m_view->m_pluginDependencies.value(m_spec))
-            if (!spec->isEnabledInSettings())
+            if (!spec->isEnabledBySettings())
                 return false;
         return true;
     }
@@ -213,7 +214,7 @@ public:
                 foreach (PluginSpec *spec, m_plugins) {
                     if (spec->hasError())
                         return icon(ErrorIcon);
-                    if (!spec->isEnabledInSettings())
+                    if (!spec->isEnabledBySettings())
                         return icon(NotLoadedIcon);
                 }
                 return icon(OkIcon);
@@ -226,7 +227,7 @@ public:
             if (role == Qt::CheckStateRole) {
                 int checkedCount = 0;
                 foreach (PluginSpec *spec, m_plugins) {
-                    if (spec->isEnabledInSettings())
+                    if (spec->isEnabledBySettings())
                         ++checkedCount;
                 }
 
