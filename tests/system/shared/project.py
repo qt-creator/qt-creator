@@ -389,7 +389,7 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = Targets.ALL_TARGETS
+        available = list(Targets.ALL_TARGETS)
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
         elif platform.system() == 'Darwin':
@@ -632,7 +632,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
-        result = Targets.ALL_TARGETS
+        result = list(Targets.ALL_TARGETS)
         result.remove(Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':
             result.remove(Targets.DESKTOP_541_GCC)
