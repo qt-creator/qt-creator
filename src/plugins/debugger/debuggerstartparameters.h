@@ -90,6 +90,7 @@ public:
         startMode(NoStartMode),
         closeMode(KillAtClose),
         useCtrlCStub(false),
+        skipExecutableValidation(false),
         testCase(0)
     {}
 
@@ -156,6 +157,9 @@ public:
     // For QNX debugging
     QString remoteExecutable;
     bool useCtrlCStub;
+
+    // Used by Android to avoid false positives on warnOnRelease
+    bool skipExecutableValidation;
 
     // For Debugger testing.
     int testCase;

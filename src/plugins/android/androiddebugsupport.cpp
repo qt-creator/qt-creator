@@ -101,6 +101,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
             params.toolChainAbi = tc->targetAbi();
         params.executable = target->activeBuildConfiguration()->buildDirectory().toString() + QLatin1String("/app_process");
+        params.skipExecutableValidation = true;
         params.remoteChannel = runConfig->remoteChannel();
         params.solibSearchPath = AndroidManager::androidQtSupport(target)->soLibSearchPath(target);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
