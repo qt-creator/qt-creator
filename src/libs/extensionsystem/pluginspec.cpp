@@ -284,8 +284,9 @@ bool PluginSpec::isEnabledByDefault() const
     Returns whether the plugin should be loaded at startup,
     taking into account the default enabled state, and the user's settings.
 
-    \note This function returns true even if a plugin is disabled because its
-    dependencies were not loaded, or an error occurred during loading it.
+    \note This function might return false even if the plugin is loaded as a requirement of another
+    enabled plugin.
+    \sa PluginSpec::isEffectivelyEnabled
 */
 bool PluginSpec::isEnabledBySettings() const
 {
@@ -294,24 +295,25 @@ bool PluginSpec::isEnabledBySettings() const
 
 /*!
     Returns whether the plugin is loaded at startup.
-    \see PluginSpec::isEnabled
+    \see PluginSpec::isEnabledBySettings
 */
 bool PluginSpec::isEffectivelyEnabled() const
 {
-    if (d->disabledIndirectly
-        || (!d->enabledBySettings && !d->forceEnabled)
-        || d->forceDisabled) {
+    if (!isAvailableForHostPlatform())
         return false;
-    }
-    return isAvailableForHostPlatform();
+    if (isForceEnabled() || isEnabledIndirectly())
+        return true;
+    if (isForceDisabled())
+        return false;
+    return isEnabledBySettings();
 }
 
 /*!
     Returns true if loading was not done due to user unselecting this plugin or its dependencies.
 */
-bool PluginSpec::isDisabledIndirectly() const
+bool PluginSpec::isEnabledIndirectly() const
 {
-    return d->disabledIndirectly;
+    return d->enabledIndirectly;
 }
 
 /*!
@@ -486,7 +488,7 @@ PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
       experimental(false),
       enabledByDefault(true),
       enabledBySettings(true),
-      disabledIndirectly(false),
+      enabledIndirectly(false),
       forceEnabled(false),
       forceDisabled(false),
       plugin(0),
@@ -910,24 +912,18 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     return true;
 }
 
-void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
+void PluginSpecPrivate::enableDependenciesIndirectly()
 {
-    if (!enabledBySettings)
+    if (!q->isEffectivelyEnabled()) // plugin not enabled, nothing to do
         return;
-
-    if (disabledIndirectly)
-        return;
-
     QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
     while (it.hasNext()) {
         it.next();
         if (it.key().type != PluginDependency::Required)
             continue;
         PluginSpec *dependencySpec = it.value();
-        if (!dependencySpec->isEffectivelyEnabled()) {
-            disabledIndirectly = true;
-            break;
-        }
+        if (!dependencySpec->isEffectivelyEnabled())
+            dependencySpec->d->enabledIndirectly = true;
     }
 }
 

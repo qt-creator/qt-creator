@@ -30,6 +30,8 @@
 
 #include "optionsparser.h"
 
+#include "pluginmanager.h"
+#include "pluginmanager_p.h"
 #include "pluginspec_p.h"
 
 #include <QCoreApplication>
@@ -173,6 +175,9 @@ bool OptionsParser::checkForNoLoadOption()
             m_hasError = true;
         } else {
             spec->d->setForceDisabled(true);
+            // recursively disable all plugins that require this plugin
+            foreach (PluginSpec *dependantSpec, PluginManager::pluginsRequiringPlugin(spec))
+                dependantSpec->d->setForceDisabled(true);
             m_isDependencyRefreshNeeded = true;
         }
     }

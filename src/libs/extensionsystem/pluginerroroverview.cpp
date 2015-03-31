@@ -48,7 +48,7 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
 
     foreach (PluginSpec *spec, PluginManager::plugins()) {
         // only show errors on startup if plugin is enabled.
-        if (spec->hasError() && spec->isEnabledBySettings() && !spec->isDisabledIndirectly()) {
+        if (spec->hasError() && spec->isEffectivelyEnabled()) {
             QListWidgetItem *item = new QListWidgetItem(spec->name());
             item->setData(Qt::UserRole, qVariantFromValue(spec));
             m_ui->pluginList->addItem(item);

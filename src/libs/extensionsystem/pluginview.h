@@ -72,6 +72,7 @@ signals:
 private:
     PluginSpec *pluginForIndex(const QModelIndex &index) const;
     void updatePlugins();
+    bool setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable);
 
     Utils::TreeView *m_categoryView;
     Utils::TreeModel *m_model;
@@ -79,7 +80,6 @@ private:
 
     friend class CollectionItem;
     friend class PluginItem;
-    QHash<PluginSpec *, QSet<PluginSpec *>> m_pluginDependencies;
 };
 
 } // namespae ExtensionSystem

@@ -124,6 +124,8 @@ public:
     static QList<PluginSpec *> plugins();
     static QHash<QString, PluginCollection *> pluginCollections();
     static bool hasError();
+    static QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
+    static QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
 
     // Settings
     static void setSettings(QSettings *settings);

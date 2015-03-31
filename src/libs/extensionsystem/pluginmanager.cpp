@@ -376,10 +376,60 @@ bool PluginManager::hasError()
 {
     foreach (PluginSpec *spec, plugins()) {
         // only show errors on startup if plugin is enabled.
-        if (spec->hasError() && spec->isEnabledBySettings() && !spec->isDisabledIndirectly())
+        if (spec->hasError() && spec->isEffectivelyEnabled())
             return true;
     }
     return false;
+}
+
+/*!
+    Returns all plugins that require \a spec to be loaded. Recurses into dependencies.
+ */
+QSet<PluginSpec *> PluginManager::pluginsRequiringPlugin(PluginSpec *spec)
+{
+    QSet<PluginSpec *> dependingPlugins;
+    dependingPlugins.insert(spec);
+    foreach (PluginSpec *checkSpec, d->loadQueue()) {
+        QHashIterator<PluginDependency, PluginSpec *> depIt(checkSpec->dependencySpecs());
+        while (depIt.hasNext()) {
+            depIt.next();
+            if (depIt.key().type != PluginDependency::Required)
+                continue;
+            if (dependingPlugins.contains(depIt.value())) {
+                dependingPlugins.insert(checkSpec);
+                break; // no use to check other dependencies, continue with load queue
+            }
+        }
+    }
+    dependingPlugins.remove(spec);
+    return dependingPlugins;
+}
+
+/*!
+    Returns all plugins that \a spec requires to be loaded. Recurses into dependencies.
+ */
+QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec)
+{
+    QSet<PluginSpec *> recursiveDependencies;
+    recursiveDependencies.insert(spec);
+    QList<PluginSpec *> queue;
+    queue.append(spec);
+    while (!queue.isEmpty()) {
+        PluginSpec *checkSpec = queue.takeFirst();
+        QHashIterator<PluginDependency, PluginSpec *> depIt(checkSpec->dependencySpecs());
+        while (depIt.hasNext()) {
+            depIt.next();
+            if (depIt.key().type != PluginDependency::Required)
+                continue;
+            PluginSpec *depSpec = depIt.value();
+            if (!recursiveDependencies.contains(depSpec)) {
+                recursiveDependencies.insert(depSpec);
+                queue.append(depSpec);
+            }
+        }
+    }
+    recursiveDependencies.remove(spec);
+    return recursiveDependencies;
 }
 
 /*!
@@ -647,10 +697,10 @@ static inline void formatOption(QTextStream &str,
 void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
 {
     formatOption(str, QLatin1String(OptionsParser::LOAD_OPTION),
-                 QLatin1String("plugin"), QLatin1String("Load <plugin>"),
+                 QLatin1String("plugin"), QLatin1String("Load <plugin> and all plugins that it requires"),
                  optionIndentation, descriptionIndentation);
     formatOption(str, QLatin1String(OptionsParser::NO_LOAD_OPTION),
-                 QLatin1String("plugin"), QLatin1String("Do not load <plugin>"),
+                 QLatin1String("plugin"), QLatin1String("Do not load <plugin> and all plugins that require it"),
                  optionIndentation, descriptionIndentation);
     formatOption(str, QLatin1String(OptionsParser::PROFILE_OPTION),
                  QString(), QLatin1String("Profile plugin loading"),
@@ -1422,11 +1472,15 @@ void PluginManagerPrivate::readPluginPaths()
 void PluginManagerPrivate::resolveDependencies()
 {
     foreach (PluginSpec *spec, pluginSpecs) {
+        spec->d->enabledIndirectly = false; // reset, is recalculated below
         spec->d->resolveDependencies(pluginSpecs);
     }
 
-    foreach (PluginSpec *spec, loadQueue()) {
-        spec->d->disableIndirectlyIfDependencyDisabled();
+    QListIterator<PluginSpec *> it(loadQueue());
+    it.toBack();
+    while (it.hasPrevious()) {
+        PluginSpec *spec = it.previous();
+        spec->d->enableDependenciesIndirectly();
     }
 }
 

@@ -88,7 +88,7 @@ public:
     QRegExp platformSpecification;
     QVector<PluginDependency> dependencies;
     bool enabledBySettings;
-    bool disabledIndirectly;
+    bool enabledIndirectly;
     bool forceEnabled;
     bool forceDisabled;
 
@@ -107,7 +107,7 @@ public:
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);
 
-    void disableIndirectlyIfDependencyDisabled();
+    void enableDependenciesIndirectly();
 
     bool readMetaData(const QJsonObject &metaData);
 

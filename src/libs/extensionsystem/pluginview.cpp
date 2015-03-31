@@ -43,6 +43,7 @@
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QMessageBox>
 #include <QSet>
 #include <QSortFilterProxyModel>
 
@@ -107,8 +108,20 @@ public:
         case NameColumn:
             if (role == Qt::DisplayRole)
                 return m_spec->name();
-            if (role == Qt::ToolTipRole)
-                return QDir::toNativeSeparators(m_spec->filePath());
+            if (role == Qt::ToolTipRole) {
+                QString toolTip;
+                if (!m_spec->isAvailableForHostPlatform())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is not available on this platform.");
+                else if (m_spec->isEnabledIndirectly())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is enabled as dependency of an enabled plugin.");
+                else if (m_spec->isForceEnabled())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is enabled by command line argument.");
+                else if (m_spec->isForceDisabled())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is disabled by command line argument.");
+                else
+                    toolTip = PluginView::tr("Path: %1");
+                return toolTip.arg(QDir::toNativeSeparators(m_spec->filePath()));
+            }
             if (role == Qt::DecorationRole) {
                 bool ok = !m_spec->hasError();
                 QIcon i = icon(ok ? OkIcon : ErrorIcon);
@@ -153,24 +166,14 @@ public:
 
     bool setData(int column, const QVariant &data, int role)
     {
-        if (column == LoadedColumn && role == Qt::CheckStateRole) {
-            m_spec->d->setEnabledBySettings(data.toBool());
-            updateColumn(column);
-            parent()->updateColumn(column);
-            emit m_view->pluginSettingsChanged(m_spec);
-            return true;
-        }
+        if (column == LoadedColumn && role == Qt::CheckStateRole)
+            return m_view->setPluginsEnabled(QSet<PluginSpec *>() << m_spec, data.toBool());
         return false;
     }
 
     bool isEnabled() const
     {
-        if (m_spec->isRequired() || !m_spec->isAvailableForHostPlatform())
-            return false;
-        foreach (PluginSpec *spec, m_view->m_pluginDependencies.value(m_spec))
-            if (!spec->isEnabledBySettings())
-                return false;
-        return true;
+        return m_spec->isAvailableForHostPlatform() && !m_spec->isRequired();
     }
 
     Qt::ItemFlags flags(int column) const
@@ -245,10 +248,13 @@ public:
     bool setData(int column, const QVariant &data, int role)
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
+            QSet<PluginSpec *> affectedPlugins;
             foreach (TreeItem *item, children())
-                static_cast<PluginItem *>(item)->setData(column, data, role);
-            update();
-            return true;
+                affectedPlugins.insert(static_cast<PluginItem *>(item)->m_spec);
+            if (m_view->setPluginsEnabled(affectedPlugins, data.toBool())) {
+                update();
+                return true;
+            }
         }
         return false;
     }
@@ -336,29 +342,8 @@ PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
     return item ? item->m_spec: 0;
 }
 
-static void queryDependendPlugins(PluginSpec *spec, QSet<PluginSpec *> *dependencies)
-{
-    QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
-    while (it.hasNext()) {
-        it.next();
-        PluginSpec *dep = it.value();
-        if (!dependencies->contains(dep)) {
-            dependencies->insert(dep);
-            queryDependendPlugins(dep, dependencies);
-        }
-    }
-}
-
 void PluginView::updatePlugins()
 {
-    // Dependencies.
-    m_pluginDependencies.clear();
-    foreach (PluginSpec *spec, PluginManager::loadQueue()) {
-        QSet<PluginSpec *> deps;
-        queryDependendPlugins(spec, &deps);
-        m_pluginDependencies[spec] = deps;
-    }
-
     // Model.
     m_model->removeItems();
 
@@ -390,6 +375,66 @@ void PluginView::updatePlugins()
 
     m_model->layoutChanged();
     m_categoryView->expandAll();
+}
+
+static QString pluginListString(const QSet<PluginSpec *> &plugins)
+{
+    QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);
+    names.sort();
+    return names.join(QLatin1Char('\n'));
+}
+
+bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable)
+{
+    QSet<PluginSpec *> additionalPlugins;
+    if (enable) {
+        foreach (PluginSpec *spec, plugins) {
+            foreach (PluginSpec *other, PluginManager::pluginsRequiredByPlugin(spec)) {
+                if (!other->isEnabledBySettings())
+                    additionalPlugins.insert(other);
+            }
+        }
+        additionalPlugins.subtract(plugins);
+        if (!additionalPlugins.isEmpty()) {
+            if (QMessageBox::question(this, tr("Enabling Plugins"),
+                                      tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
+                                      .arg(pluginListString(plugins))
+                                      .arg(pluginListString(additionalPlugins)),
+                                      QMessageBox::Ok | QMessageBox::Cancel,
+                                      QMessageBox::Ok) != QMessageBox::Ok)
+                return false;
+        }
+    } else {
+        foreach (PluginSpec *spec, plugins) {
+            foreach (PluginSpec *other, PluginManager::pluginsRequiringPlugin(spec)) {
+                if (other->isEnabledBySettings())
+                    additionalPlugins.insert(other);
+            }
+        }
+        additionalPlugins.subtract(plugins);
+        if (!additionalPlugins.isEmpty()) {
+            if (QMessageBox::question(this, tr("Disabling Plugins"),
+                                      tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
+                                      .arg(pluginListString(plugins))
+                                      .arg(pluginListString(additionalPlugins)),
+                                      QMessageBox::Ok | QMessageBox::Cancel,
+                                      QMessageBox::Ok) != QMessageBox::Ok)
+                return false;
+        }
+    }
+
+    QSet<PluginSpec *> affectedPlugins = plugins + additionalPlugins;
+    foreach (PluginSpec *spec, affectedPlugins) {
+        PluginItem *item = m_model->findItemAtLevel<PluginItem *>(2, [spec](PluginItem *item) {
+                return item->m_spec == spec;
+        });
+        QTC_ASSERT(item, continue);
+        spec->d->setEnabledBySettings(enable);
+        item->updateColumn(LoadedColumn);
+        item->parent()->updateColumn(LoadedColumn);
+        emit pluginSettingsChanged(spec);
+    }
+    return true;
 }
 
 } // namespace ExtensionSystem

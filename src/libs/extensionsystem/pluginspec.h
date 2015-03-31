@@ -53,7 +53,7 @@ class PluginManagerPrivate;
 } // Internal
 
 class IPlugin;
-class PluginItem;
+class PluginView;
 
 struct EXTENSIONSYSTEM_EXPORT PluginDependency
 {
@@ -104,7 +104,7 @@ public:
     bool isEnabledByDefault() const;
     bool isEnabledBySettings() const;
     bool isEffectivelyEnabled() const;
-    bool isDisabledIndirectly() const;
+    bool isEnabledIndirectly() const;
     bool isForceEnabled() const;
     bool isForceDisabled() const;
     QVector<PluginDependency> dependencies() const;
@@ -137,7 +137,7 @@ private:
     PluginSpec();
 
     Internal::PluginSpecPrivate *d;
-    friend class PluginItem;
+    friend class PluginView;
     friend class Internal::OptionsParser;
     friend class Internal::PluginManagerPrivate;
     friend class Internal::PluginSpecPrivate;

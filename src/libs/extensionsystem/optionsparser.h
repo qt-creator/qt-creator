@@ -31,13 +31,13 @@
 #ifndef OPTIONSPARSER_H
 #define OPTIONSPARSER_H
 
-#include "pluginmanager_p.h"
-
 #include <QStringList>
 #include <QMap>
 
 namespace ExtensionSystem {
 namespace Internal {
+
+class PluginManagerPrivate;
 
 class OptionsParser
 {
