@@ -66,11 +66,20 @@ public:
         const QModelIndex &index) const
     {
         IntegerWatchLineEdit *lineEdit = new IntegerWatchLineEdit(parent);
-        const int base = index.data(RegisterNumberBaseRole).toInt();
+        const RegisterFormat format = RegisterFormat(index.data(RegisterFormatRole).toInt());
         const bool big = index.data(RegisterIsBigRole).toBool();
         // Big integers are assumed to be hexadecimal.
+        int base = 16;
+        if (!big) {
+            if (format == DecimalFormat)
+                base = 10;
+            else if (format == OctalFormat)
+                base = 8;
+            else if (format == BinaryFormat)
+                base = 2;
+        }
         lineEdit->setBigInt(big);
-        lineEdit->setBase(big ? 16 : base);
+        lineEdit->setBase(base);
         lineEdit->setSigned(false);
         lineEdit->setAlignment(Qt::AlignRight);
         lineEdit->setFrame(false);
@@ -91,9 +100,9 @@ public:
             return;
         IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
-        const int base = index.data(RegisterNumberBaseRole).toInt();
+        const RegisterFormat format = RegisterFormat(index.data(RegisterFormatRole).toInt());
         QString value = lineEdit->text();
-        if (base == 16 && !value.startsWith(QLatin1String("0x")))
+        if (format == HexadecimalFormat && !value.startsWith(QLatin1String("0x")))
             value.insert(0, QLatin1String("0x"));
         currentEngine()->setRegisterValue(index.data(RegisterNameRole).toByteArray(), value);
     }
@@ -206,19 +215,19 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     }
     menu.addSeparator();
 
-    const int base = idx.data(RegisterNumberBaseRole).toInt();
+    const RegisterFormat format = RegisterFormat(idx.data(RegisterFormatRole).toInt());
     QAction *act16 = menu.addAction(tr("Hexadecimal"));
     act16->setCheckable(true);
-    act16->setChecked(base == 16);
+    act16->setChecked(format == HexadecimalFormat);
     QAction *act10 = menu.addAction(tr("Decimal"));
     act10->setCheckable(true);
-    act10->setChecked(base == 10);
+    act10->setChecked(format == DecimalFormat);
     QAction *act8 = menu.addAction(tr("Octal"));
     act8->setCheckable(true);
-    act8->setChecked(base == 8);
+    act8->setChecked(format == OctalFormat);
     QAction *act2 = menu.addAction(tr("Binary"));
     act2->setCheckable(true);
-    act2->setChecked(base == 2);
+    act2->setChecked(format == BinaryFormat);
 
     menu.addSeparator();
     menu.addAction(action(SettingsDialog));
@@ -252,13 +261,13 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actShowDisassemblerAt) {
         engine->openDisassemblerView(Location(address));
     } else if (act == act16)
-        handler->setNumberBase(registerName, 16);
+        handler->setNumberFormat(registerName, HexadecimalFormat);
     else if (act == act10)
-        handler->setNumberBase(registerName, 10);
+        handler->setNumberFormat(registerName, DecimalFormat);
     else if (act == act8)
-        handler->setNumberBase(registerName, 8);
+        handler->setNumberFormat(registerName, OctalFormat);
     else if (act == act2)
-        handler->setNumberBase(registerName, 2);
+        handler->setNumberFormat(registerName, BinaryFormat);
 }
 
 void RegisterTreeView::reloadRegisters()
