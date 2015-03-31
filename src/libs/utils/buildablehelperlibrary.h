@@ -50,6 +50,7 @@ public:
     static QString qtVersionForQMake(const QString &qmakePath);
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
+    static QString filterForQmakeFileDialog();
 
     static QString byInstallDataHelper(const QString &sourcePath,
                                        const QStringList &sourceFileNames,

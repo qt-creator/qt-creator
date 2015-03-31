@@ -141,6 +141,27 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
     return QString();
 }
 
+QString BuildableHelperLibrary::filterForQmakeFileDialog()
+{
+    QString filter = QLatin1String("qmake (");
+    const QStringList commands = possibleQMakeCommands();
+    for (int i = 0; i < commands.size(); ++i) {
+        if (i)
+            filter += QLatin1Char(' ');
+        if (HostOsInfo::isMacHost())
+            // work around QTBUG-7739 that prohibits filters that don't start with *
+            filter += QLatin1Char('*');
+        filter += commands.at(i);
+        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
+            // kde bug, we need at least one wildcard character
+            // see QTCREATORBUG-7771
+            filter += QLatin1Char('*');
+    }
+    filter += QLatin1Char(')');
+    return filter;
+}
+
+
 QStringList BuildableHelperLibrary::possibleQMakeCommands()
 {
     // On Windows it is always "qmake.exe"

@@ -581,33 +581,13 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
     qDeleteAll(m_versions);
 }
 
-static QString filterForQmakeFileDialog()
-{
-    QString filter = QLatin1String("qmake (");
-    const QStringList commands = BuildableHelperLibrary::possibleQMakeCommands();
-    for (int i = 0; i < commands.size(); ++i) {
-        if (i)
-            filter += QLatin1Char(' ');
-        if (HostOsInfo::isMacHost())
-            // work around QTBUG-7739 that prohibits filters that don't start with *
-            filter += QLatin1Char('*');
-        filter += commands.at(i);
-        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-            // kde bug, we need at least one wildcard character
-            // see QTCREATORBUG-7771
-            filter += QLatin1Char('*');
-    }
-    filter += QLatin1Char(')');
-    return filter;
-}
-
 void QtOptionsPageWidget::addQtDir()
 {
     FileName qtVersion = FileName::fromString(
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake Executable"),
                                              QString(),
-                                             filterForQmakeFileDialog(),
+                                             BuildableHelperLibrary::filterForQmakeFileDialog(),
                                              0,
                                              QFileDialog::DontResolveSymlinks));
     if (qtVersion.isNull())
@@ -673,7 +653,7 @@ void QtOptionsPageWidget::editPath()
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake Executable"),
                                              dir,
-                                             filterForQmakeFileDialog(),
+                                             BuildableHelperLibrary::filterForQmakeFileDialog(),
                                              0,
                                              QFileDialog::DontResolveSymlinks));
     if (qtVersion.isNull())
