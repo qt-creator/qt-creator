@@ -53,11 +53,13 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QPainter>
 #include <QProcess>
 #include <QTabWidget>
 #include <QTextEdit>
 
 #include <QTimer>
+#include <algorithm>
 #include <cstring>
 #include <ctype.h>
 
@@ -109,6 +111,52 @@ static void saveWatchers()
     setSessionValue("Watchers", WatchHandler::watchedExpressions());
 }
 
+static void loadFormats()
+{
+    QVariant value = sessionValue("DefaultFormats");
+    QMapIterator<QString, QVariant> it(value.toMap());
+    while (it.hasNext()) {
+        it.next();
+        if (!it.key().isEmpty())
+            theTypeFormats.insert(it.key().toUtf8(), it.value().toInt());
+    }
+
+    value = sessionValue("IndividualFormats");
+    it = QMapIterator<QString, QVariant>(value.toMap());
+    while (it.hasNext()) {
+        it.next();
+        if (!it.key().isEmpty())
+            theIndividualFormats.insert(it.key().toUtf8(), it.value().toInt());
+    }
+}
+
+static void saveFormats()
+{
+    QMap<QString, QVariant> formats;
+    QHashIterator<QByteArray, int> it(theTypeFormats);
+    while (it.hasNext()) {
+        it.next();
+        const int format = it.value();
+        if (format != AutomaticFormat) {
+            const QByteArray key = it.key().trimmed();
+            if (!key.isEmpty())
+                formats.insert(QString::fromLatin1(key), format);
+        }
+    }
+    setSessionValue("DefaultFormats", formats);
+
+    formats.clear();
+    it = QHashIterator<QByteArray, int>(theIndividualFormats);
+    while (it.hasNext()) {
+        it.next();
+        const int format = it.value();
+        const QByteArray key = it.key().trimmed();
+        if (!key.isEmpty())
+            formats.insert(QString::fromLatin1(key), format);
+    }
+    setSessionValue("IndividualFormats", formats);
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // SeparatedView
@@ -126,17 +174,29 @@ public:
         setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
 
         QVariant geometry = sessionValue("DebuggerSeparateWidgetGeometry");
-        if (geometry.isValid())
-            setGeometry(geometry.toRect());
+        if (geometry.isValid()) {
+            QRect rc = geometry.toRect();
+            if (rc.width() < 200)
+                rc.setWidth(200);
+            if (rc.height() < 200)
+                rc.setHeight(200);
+            setGeometry(rc);
+        }
     }
 
-    ~SeparatedView()
+    void saveGeometry()
     {
         setSessionValue("DebuggerSeparateWidgetGeometry", geometry());
     }
 
+    ~SeparatedView()
+    {
+        saveGeometry();
+    }
+
     void removeObject(const QByteArray &key)
     {
+        saveGeometry();
         if (QWidget *w = findWidget(key)) {
             removeTab(indexOf(w));
             sanitize();
@@ -145,9 +205,11 @@ public:
 
     void closeTab(int index)
     {
+        saveGeometry();
         if (QObject *o = widget(index)) {
             QByteArray iname = o->property(INameProperty).toByteArray();
             theIndividualFormats.remove(iname);
+            saveFormats();
         }
         removeTab(index);
         sanitize();
@@ -170,7 +232,7 @@ public:
         return 0;
     }
 
-    template <class T> T *prepareObject(const QByteArray &key, const QString &title)
+    template <class T> T *prepareObject(const QByteArray &key, const QString &tabName)
     {
         T *t = 0;
         if (QWidget *w = findWidget(key)) {
@@ -181,7 +243,7 @@ public:
         if (!t) {
             t = new T;
             t->setProperty(KeyProperty, key);
-            addTab(t, title);
+            addTab(t, tabName);
         }
 
         setCurrentWidget(t);
@@ -218,8 +280,9 @@ public:
     void insertItem(WatchItem *item);
     void reexpandItems();
 
-    void showEditValue(const WatchData &data);
-    void setFormat(const QByteArray &type, int format);
+    void showEditValue(const WatchItem *item);
+    void setTypeFormat(const QByteArray &type, int format);
+    void setIndividualFormat(const QByteArray &iname, int format);
 
     QString removeNamespaces(QString str) const;
 
@@ -884,16 +947,12 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             break;
 
         case LocalsTypeFormatRole:
-            setFormat(item->type, value.toInt());
+            setTypeFormat(item->type, value.toInt());
             m_engine->updateWatchItem(item);
             break;
 
         case LocalsIndividualFormatRole: {
-            const int format = value.toInt();
-            if (format == AutomaticFormat)
-                theIndividualFormats.remove(item->iname);
-            else
-                theIndividualFormats[item->iname] = format;
+            setIndividualFormat(item->iname, value.toInt());
             m_engine->updateWatchItem(item);
             break;
         }
@@ -1010,7 +1069,7 @@ DisplayFormats WatchItem::typeFormatList() const
     formats << watchModel()->m_reportedTypeFormats.value(t);
 
     if (t.contains(QLatin1Char(']')))
-        formats << watchModel()->m_reportedTypeFormats.value(QLatin1String("[]"));
+        formats.append(ArrayPlotFormat);
 
     // Fixed artificial string and pointer types.
     if (origaddr || isPointerType(type)) {
@@ -1132,7 +1191,7 @@ void WatchModel::reinsertAllData()
             emit inameIsExpanded(parent->iname);
             emit itemIsExpanded(indexFromItem(parent));
         }
-        showEditValue(data);
+        showEditValue(newItem); // FIXME: Needed?
     }
 }
 
@@ -1192,7 +1251,7 @@ void WatchModel::insertItem(WatchItem *item)
     const int row = findInsertPosition(parent->children(), item);
     parent->insertChild(row, item);
 
-    item->walkTree([this](TreeItem *sub) { showEditValue(*static_cast<WatchItem *>(sub)); });
+    item->walkTree([this](TreeItem *sub) { showEditValue(static_cast<WatchItem *>(sub)); });
 }
 
 void WatchModel::reexpandItems()
@@ -1326,20 +1385,20 @@ static void swapEndian(char *d, int nchar)
     }
 }
 
-void WatchModel::showEditValue(const WatchData &data)
+void WatchModel::showEditValue(const WatchItem *item)
 {
-    const QByteArray key  = data.address ? data.hexAddress() : data.iname;
-    switch (data.editformat) {
+    const QByteArray key = item->address ? item->hexAddress() : item->iname;
+    switch (item->editformat) {
     case StopDisplay:
-        m_separatedView->removeObject(data.iname);
+        m_separatedView->removeObject(key);
         break;
     case DisplayImageData:
     case DisplayImageFile: {  // QImage
         int width = 0, height = 0, nbytes = 0, format = 0;
         QByteArray ba;
         uchar *bits = 0;
-        if (data.editformat == DisplayImageData) {
-            ba = QByteArray::fromHex(data.editvalue);
+        if (item->editformat == DisplayImageData) {
+            ba = QByteArray::fromHex(item->editvalue);
             QTC_ASSERT(ba.size() > 16, return);
             const int *header = (int *)(ba.data());
             if (!ba.at(0) && !ba.at(1)) // Check on 'width' for Python dumpers returning 4-byte swapped-data.
@@ -1349,8 +1408,8 @@ void WatchModel::showEditValue(const WatchData &data)
             height = header[1];
             nbytes = header[2];
             format = header[3];
-        } else if (data.editformat == DisplayImageFile) {
-            QTextStream ts(data.editvalue);
+        } else if (item->editformat == DisplayImageFile) {
+            QTextStream ts(item->editvalue);
             QString fileName;
             ts >> width >> height >> nbytes >> format >> fileName;
             QFile f(fileName);
@@ -1365,33 +1424,45 @@ void WatchModel::showEditValue(const WatchData &data)
         QTC_ASSERT(0 < format && format < 32, return);
         QImage im(width, height, QImage::Format(format));
         std::memcpy(im.bits(), bits, nbytes);
-        const QString title = data.address ?
-            tr("%1 Object at %2").arg(QLatin1String(data.type),
-                QLatin1String(data.hexAddress())) :
-            tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
-        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(key, title);
-        v->setProperty(INameProperty, data.iname);
+        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(key, item->name);
+        v->setProperty(INameProperty, item->iname);
+        v->setInfo(item->address ?
+            tr("%1 Object at %2").arg(QLatin1String(item->type),
+                QLatin1String(item->hexAddress())) :
+            tr("%1 Object at Unknown Address").arg(QLatin1String(item->type))
+            + QLatin1String("    ") +
+            ImageViewer::tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
+                .arg(width).arg(height).arg(nbytes).arg(im.format()).arg(im.depth())
+        );
         v->setImage(im);
         break;
     }
     case DisplayUtf16String:
     case DisplayLatin1String:
     case DisplayUtf8String: { // String data.
-        QByteArray ba = QByteArray::fromHex(data.editvalue);
+        QByteArray ba = QByteArray::fromHex(item->editvalue);
         QString str;
-        if (data.editformat == DisplayUtf16String)
+        if (item->editformat == DisplayUtf16String)
             str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
-        else if (data.editformat == DisplayLatin1String)
+        else if (item->editformat == DisplayLatin1String)
             str = QString::fromLatin1(ba.constData(), ba.size());
-        else if (data.editformat == DisplayUtf8String)
+        else if (item->editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
-        QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, data.name);
-        t->setProperty(INameProperty, data.iname);
+        QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, item->name);
+        t->setProperty(INameProperty, item->iname);
         t->setText(str);
         break;
     }
+    case DisplayPlotData: { // Plots
+        std::vector<double> data;
+        readNumericVector(&data, QByteArray::fromHex(item->editvalue), item->editencoding);
+        PlotViewer *v = m_separatedView->prepareObject<PlotViewer>(key, item->name);
+        v->setProperty(INameProperty, item->iname);
+        v->setData(data);
+        break;
+    }
     default:
-        QTC_ASSERT(false, qDebug() << "Display format: " << data.editformat);
+        QTC_ASSERT(false, qDebug() << "Display format: " << item->editformat);
         break;
     }
 }
@@ -1437,52 +1508,6 @@ QStringList WatchHandler::watchedExpressions()
             watcherNames.push_back(QLatin1String(watcherName));
     }
     return watcherNames;
-}
-
-static void loadFormats()
-{
-    QVariant value = sessionValue("DefaultFormats");
-    QMapIterator<QString, QVariant> it(value.toMap());
-    while (it.hasNext()) {
-        it.next();
-        if (!it.key().isEmpty())
-            theTypeFormats.insert(it.key().toUtf8(), it.value().toInt());
-    }
-
-    value = sessionValue("IndividualFormats");
-    it = QMapIterator<QString, QVariant>(value.toMap());
-    while (it.hasNext()) {
-        it.next();
-        if (!it.key().isEmpty())
-            theIndividualFormats.insert(it.key().toUtf8(), it.value().toInt());
-    }
-}
-
-static void saveFormats()
-{
-    QMap<QString, QVariant> formats;
-    QHashIterator<QByteArray, int> it(theTypeFormats);
-    while (it.hasNext()) {
-        it.next();
-        const int format = it.value();
-        if (format != AutomaticFormat) {
-            const QByteArray key = it.key().trimmed();
-            if (!key.isEmpty())
-                formats.insert(QString::fromLatin1(key), format);
-        }
-    }
-    setSessionValue("DefaultFormats", formats);
-
-    formats.clear();
-    it = QHashIterator<QByteArray, int>(theIndividualFormats);
-    while (it.hasNext()) {
-        it.next();
-        const int format = it.value();
-        const QByteArray key = it.key().trimmed();
-        if (!key.isEmpty())
-            formats.insert(QString::fromLatin1(key), format);
-    }
-    setSessionValue("IndividualFormats", formats);
 }
 
 void WatchHandler::saveSessionData()
@@ -1537,7 +1562,7 @@ const WatchItem *WatchHandler::findCppLocalVariable(const QString &name) const
     return 0;
 }
 
-void WatchModel::setFormat(const QByteArray &type0, int format)
+void WatchModel::setTypeFormat(const QByteArray &type0, int format)
 {
     const QByteArray type = stripForFormat(type0);
     if (format == AutomaticFormat)
@@ -1546,6 +1571,15 @@ void WatchModel::setFormat(const QByteArray &type0, int format)
         theTypeFormats[type] = format;
     saveFormats();
     reinsertAllData();
+}
+
+void WatchModel::setIndividualFormat(const QByteArray &iname, int format)
+{
+    if (format == AutomaticFormat)
+        theIndividualFormats.remove(iname);
+    else
+        theIndividualFormats[iname] = format;
+    saveFormats();
 }
 
 int WatchHandler::format(const QByteArray &iname) const

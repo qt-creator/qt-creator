@@ -246,7 +246,8 @@ enum DebuggerDisplay {
     DisplayUtf16String                     = 2,
     DisplayImageFile                       = 3,
     DisplayLatin1String                    = 4,
-    DisplayUtf8String                      = 5
+    DisplayUtf8String                      = 5,
+    DisplayPlotData                        = 6
 };
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);

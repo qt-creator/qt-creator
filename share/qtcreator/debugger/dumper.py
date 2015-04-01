@@ -36,13 +36,6 @@ import re
 import time
 import importlib
 
-try:
-    import subprocess
-    hasSubprocess = True
-except:
-    hasSubprocess = False
-    hasPlot = False
-
 if sys.version_info[0] >= 3:
     xrange = range
     toInteger = int
@@ -105,81 +98,53 @@ WatchpointAtExpression, \
 BreakpointOnQmlSignalEmit, \
 BreakpointAtJavaScriptThrow, \
     = range(0, 14)
-#
-# matplot based display for array-like structures.
-#
-try:
-    import matplotlib
-    hasPlot = True
-except:
-    hasPlot = False
 
-if hasSubprocess and hasPlot:
-    matplotFigure = {}
-    matplotCount = 0
-    matplotProc = None
-    devNull = None
+# Encodings. Keep that synchronized with DebuggerEncoding in debuggerprotocol.h
+Unencoded8Bit, \
+Base64Encoded8BitWithQuotes, \
+Base64Encoded16BitWithQuotes, \
+Base64Encoded32BitWithQuotes, \
+Base64Encoded16Bit, \
+Base64Encoded8Bit, \
+Hex2EncodedLatin1, \
+Hex4EncodedLittleEndian, \
+Hex8EncodedLittleEndian, \
+Hex2EncodedUtf8, \
+Hex8EncodedBigEndian, \
+Hex4EncodedBigEndian, \
+Hex4EncodedLittleEndianWithoutQuotes, \
+Hex2EncodedLocal8Bit, \
+JulianDate, \
+MillisecondsSinceMidnight, \
+JulianDateAndMillisecondsSinceMidnight, \
+Hex2EncodedInt1, \
+Hex2EncodedInt2, \
+Hex2EncodedInt4, \
+Hex2EncodedInt8, \
+Hex2EncodedUInt1, \
+Hex2EncodedUInt2, \
+Hex2EncodedUInt4, \
+Hex2EncodedUInt8, \
+Hex2EncodedFloat4, \
+Hex2EncodedFloat8, \
+IPv6AddressAndHexScopeId, \
+Hex2EncodedUtf8WithoutQuotes, \
+DateTimeInternal \
+    = range(30)
 
-    def matplotInit():
-        global matplotProc
-        global devNull
+# Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
+StopDisplay, \
+DisplayImageData, \
+DisplayUtf16String, \
+DisplayImageFile, \
+DisplayLatin1String, \
+DisplayUtf8String, \
+DisplayPlotData \
+    = range(7)
 
-        if matplotProc is None:
-            devNull = open(os.devnull)
-            # FIXME: That might not be the one we want.
-            pythonExecutable = sys.executable
-            matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
-                        bufsize=0, stdin=subprocess.PIPE, stdout=devNull, stderr=devNull)
-
-            matplotProc.stdin.write(b"import sys\n")
-            matplotProc.stdin.write(b"sys.ps1=''\n")
-            matplotProc.stdin.write(b"from matplotlib import pyplot\n")
-            matplotProc.stdin.write(b"import time\n")
-            matplotProc.stdin.write(b"pyplot.ion()\n")
-            matplotProc.stdin.flush()
-
-    def matplotSend(iname, show, data):
-        global matplotFigure
-        global matplotCount
-
-        matplotInit()
-
-        def s(line):
-            matplotProc.stdin.write(line.encode("latin1"))
-            matplotProc.stdin.write(b"\n")
-            sys.stdout.flush()
-            matplotProc.stdin.flush()
-
-        if show:
-            s("pyplot.ion()")
-            if not iname in matplotFigure:
-                matplotCount += 1
-                matplotFigure[iname] = matplotCount
-            s("pyplot.figure(%s)" % matplotFigure[iname])
-            s("pyplot.suptitle('%s')" % iname)
-            s("data = %s" % data)
-            s("pyplot.plot([i for i in range(len(data))], data, 'b.-')")
-            time.sleep(0.2)
-            s("pyplot.draw()")
-            matplotProc.stdin.flush()
-        else:
-            if iname in matplotFigure:
-                s("pyplot.figure(%s)" % matplotFigure[iname])
-                s("pyplot.close()")
-                del matplotFigure[iname]
-
-        matplotProc.stdin.flush()
-
-    def matplotQuit():
-        global matplotProc
-        if not matplotProc is None:
-            matplotProc.stdin.write(b"exit")
-            matplotProc.kill()
-            devNull.close()
 
 def arrayForms():
-    global hasPlot
-    return [ArrayPlotFormat] if hasPlot else []
+    return [ArrayPlotFormat]
 
 def mapForms():
     return [CompactMapFormat]
@@ -612,10 +577,7 @@ class DumperBase:
         self.putNumChild(0)
         self.putValue(mem, encodingType, elided=elided)
 
-        if displayFormat == Latin1StringFormat \
-                or displayFormat == Utf8StringFormat:
-            self.putDisplay(StopDisplay)
-        elif displayFormat == SeparateLatin1StringFormat \
+        if displayFormat == SeparateLatin1StringFormat \
                 or displayFormat == SeparateUtf8StringFormat:
             self.putField("editformat", displayType)
             elided, shown = self.computeLimit(bytelen, 100000)
@@ -916,14 +878,14 @@ class DumperBase:
     def putCStyleArray(self, value):
         arrayType = value.type.unqualified()
         innerType = value[0].type
+        innerTypeName = str(innerType.unqualified())
         ts = innerType.sizeof
-        #self.putAddress(value.address)
+
         try:
             self.putValue("@0x%x" % self.addressOf(value), priority = -1)
         except:
             self.putEmptyValue()
         self.putType(arrayType)
-        self.putNumChild(1)
 
         try:
             p = self.addressOf(value)
@@ -933,20 +895,20 @@ class DumperBase:
         displayFormat = self.currentItemFormat()
         n = int(arrayType.sizeof / ts)
 
-        if p and self.tryPutSimpleFormattedPointer(p, str(arrayType), displayFormat, arrayType.sizeof):
-            self.putNumChild(n)
-            pass
-        elif displayFormat is None:
-            innerTypeName = str(innerType.unqualified())
-            blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
+        if displayFormat != RawFormat:
             if innerTypeName == "char":
                 # Use Latin1 as default for char [].
+                blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
                 self.putValue(blob, Hex2EncodedLatin1)
             elif innerTypeName == "wchar_t":
+                blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
                 if innerType.sizeof == 2:
                     self.putValue(blob, Hex4EncodedLittleEndian)
                 else:
                     self.putValue(blob, Hex8EncodedLittleEndian)
+            elif p:
+                self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName, displayFormat, arrayType.sizeof)
+        self.putNumChild(n)
 
         if self.isExpanded():
             try:
@@ -958,17 +920,7 @@ class DumperBase:
                 with Children(self, childType=innerType):
                     self.putFields(value)
 
-        if hasPlot and self.isSimpleType(innerType):
-            show = displayFormat == ArrayPlotFormat
-            iname = self.currentIName
-            data = []
-            if show:
-                base = self.createPointerValue(p, innerType)
-                data = [str(base[i]) for i in range(0, n)]
-            matplotSend(iname, show, data)
-        else:
-            #self.putValue(self.currentValue.value + " (not plottable)")
-            self.putField("plottable", "0")
+        self.putPlotDataHelper(p, n, innerType)
 
     def cleanAddress(self, addr):
         if addr is None:
@@ -1038,29 +990,23 @@ class DumperBase:
             data = self.readMemory(base, shown)
         self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
-    def putDisplay(self, editFormat, value = None, cmd = None):
+    def putDisplay(self, editFormat, value):
         self.put('editformat="%s",' % editFormat)
-        if cmd is None:
-            if not value is None:
-                self.put('editvalue="%s",' % value)
-        else:
-            self.put('editvalue="%s|%s",' % (cmd, value))
+        self.put('editvalue="%s",' % value)
 
     # This is shared by pointer and array formatting.
-    def tryPutSimpleFormattedPointer(self, value, typeName, displayFormat, limit):
-        if displayFormat == AutomaticFormat and typeName == "char":
+    def tryPutSimpleFormattedPointer(self, value, typeName, innerTypeName, displayFormat, limit):
+        if displayFormat == AutomaticFormat and innerTypeName == "char":
             # Use Latin1 as default for char *.
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
-            self.putDisplay(StopDisplay)
             return True
 
         if displayFormat == Latin1StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
-            self.putDisplay(StopDisplay)
             return True
 
         if displayFormat == SeparateLatin1StringFormat:
@@ -1074,7 +1020,6 @@ class DumperBase:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedUtf8, elided=elided)
-            self.putDisplay(StopDisplay)
             return True
 
         if displayFormat == SeparateUtf8StringFormat:
@@ -1088,21 +1033,18 @@ class DumperBase:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
-            self.putDisplay(StopDisplay)
             return True
 
         if displayFormat == Utf16StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 2, limit)
             self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
-            self.putDisplay(StopDisplay)
             return True
 
         if displayFormat == Ucs4StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 4, limit)
             self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
-            self.putDisplay(StopDisplay)
             return True
 
         return False
@@ -1155,7 +1097,7 @@ class DumperBase:
         if displayFormat == SeparateLatin1StringFormat \
                 or displayFormat == SeparateUtf8StringFormat:
             limit = 1000000
-        if self.tryPutSimpleFormattedPointer(value, typeName, displayFormat, limit):
+        if self.tryPutSimpleFormattedPointer(value, typeName, innerTypeName, displayFormat, limit):
             self.putNumChild(0)
             return
 
@@ -1555,22 +1497,18 @@ class DumperBase:
             self.putArrayData(addr, n, self.lookupType(typeName))
             self.putAddress(addr)
 
-    def putPlotData(self, base, n, typeobj):
+    def putPlotDataHelper(self, base, n, innerType):
+        if self.currentItemFormat() == ArrayPlotFormat and self.isSimpleType(innerType):
+            enc = self.simpleEncoding(innerType)
+            if enc:
+                self.putField("editencoding", enc)
+                self.putField("editvalue", self.readMemory(base, n * innerType.sizeof))
+                self.putField("editformat", DisplayPlotData)
+
+    def putPlotData(self, base, n, innerType):
+        self.putPlotDataHelper(base, n, innerType)
         if self.isExpanded():
-            self.putArrayData(base, n, typeobj)
-        if hasPlot:
-            if self.isSimpleType(typeobj):
-                show = self.currentItemFormat() == ArrayPlotFormat
-                iname = self.currentIName
-                data = []
-                if show:
-                    base = self.createPointerValue(base, typeobj)
-                    data = [str(base[i]) for i in range(0, toInteger(n))]
-                matplotSend(iname, show, data)
-            else:
-                #self.putValue(self.currentValue.value + " (not plottable)")
-                self.putValue(self.currentValue.value)
-                self.putField("plottable", "0")
+            self.putArrayData(base, n, innerType)
 
     def putSpecialArgv(self, value):
         """
@@ -1756,10 +1694,6 @@ class DumperBase:
         self.qqFormats = {}
         self.qqEditable = {}
         self.typeCache = {}
-
-        if hasPlot: # Hack for generic array type. [] is used as "type" name.
-            self.qqDumpers['[]'] = ""
-            self.qqFormats['[]'] = arrayForms()
 
         for mod in self.dumpermodules:
             m = importlib.import_module(mod)
@@ -1979,50 +1913,5 @@ class DumperBase:
             break
 
         return items
-
-
-# Some "Enums"
-
-# Encodings. Keep that synchronized with DebuggerEncoding in debuggerprotocol.h
-Unencoded8Bit, \
-Base64Encoded8BitWithQuotes, \
-Base64Encoded16BitWithQuotes, \
-Base64Encoded32BitWithQuotes, \
-Base64Encoded16Bit, \
-Base64Encoded8Bit, \
-Hex2EncodedLatin1, \
-Hex4EncodedLittleEndian, \
-Hex8EncodedLittleEndian, \
-Hex2EncodedUtf8, \
-Hex8EncodedBigEndian, \
-Hex4EncodedBigEndian, \
-Hex4EncodedLittleEndianWithoutQuotes, \
-Hex2EncodedLocal8Bit, \
-JulianDate, \
-MillisecondsSinceMidnight, \
-JulianDateAndMillisecondsSinceMidnight, \
-Hex2EncodedInt1, \
-Hex2EncodedInt2, \
-Hex2EncodedInt4, \
-Hex2EncodedInt8, \
-Hex2EncodedUInt1, \
-Hex2EncodedUInt2, \
-Hex2EncodedUInt4, \
-Hex2EncodedUInt8, \
-Hex2EncodedFloat4, \
-Hex2EncodedFloat8, \
-IPv6AddressAndHexScopeId, \
-Hex2EncodedUtf8WithoutQuotes, \
-DateTimeInternal \
-    = range(30)
-
-# Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
-StopDisplay, \
-DisplayImageData, \
-DisplayUtf16String, \
-DisplayImageFile, \
-DisplayLatin1String, \
-DisplayUtf8String \
-    = range(6)
 
 

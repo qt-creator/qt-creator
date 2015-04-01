@@ -62,14 +62,12 @@ def qdump__QByteArray(d, value):
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     displayFormat = d.currentItemFormat()
     if displayFormat == AutomaticFormat or displayFormat == Latin1StringFormat:
-        d.putDisplay(StopDisplay)
         d.putValue(p, Hex2EncodedLatin1, elided=elided)
     elif displayFormat == SeparateLatin1StringFormat:
         d.putValue(p, Hex2EncodedLatin1, elided=elided)
         d.putField("editformat", DisplayLatin1String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
     elif displayFormat == Utf8StringFormat:
-        d.putDisplay(StopDisplay)
         d.putValue(p, Hex2EncodedUtf8, elided=elided)
     elif displayFormat == SeparateUtf8StringFormat:
         d.putValue(p, Hex2EncodedUtf8, elided=elided)
@@ -546,8 +544,7 @@ def qdump__QFiniteStack(d, value):
     size = int(value["_size"])
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    if d.isExpanded():
-        d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
+    d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
 
 
 def qdump__QFlags(d, value):
@@ -847,9 +844,7 @@ def qdump__QImage(d, value):
                 d.putType("void *")
 
     displayFormat = d.currentItemFormat()
-    if displayFormat == SimpleFormat:
-        d.putDisplay(StopDisplay)
-    elif displayFormat == SeparateFormat:
+    if displayFormat == SeparateFormat:
         # This is critical for performance. Writing to an external
         # file using the following is faster when using GDB.
         #   file = tempfile.mkstemp(prefix="gdbpy_")
@@ -1743,9 +1738,7 @@ def qdump__QString(d, value):
     data, size, alloc = d.stringData(value)
     d.putNumChild(size)
     displayFormat = d.currentItemFormat()
-    if displayFormat == SimpleFormat:
-        d.putDisplay(StopDisplay)
-    elif displayFormat == SeparateFormat:
+    if displayFormat == SeparateFormat:
         d.putField("editformat", DisplayUtf16String)
         d.putField("editvalue", d.encodeString(value, limit=100000))
     if d.isExpanded():
@@ -1897,9 +1890,7 @@ def qdump__QUrl(d, value):
         d.putValue(url, Hex4EncodedLittleEndian)
 
         displayFormat = d.currentItemFormat()
-        if displayFormat == SimpleFormat:
-            d.putDisplay(StopDisplay)
-        elif displayFormat == SeparateFormat:
+        if displayFormat == SeparateFormat:
             d.putField("editformat", DisplayUtf16String)
             d.putField("editvalue", url)
 
