@@ -1177,6 +1177,10 @@ static KnownType knownClassTypeHelper(const std::string &type,
             if (!type.compare(qPos, 11, "QLinkedList"))
                 return KT_QLinkedList;
             break;
+        case 12:
+            if (!type.compare(qPos, 12, "QWeakPointer"))
+                return KT_QWeakPointer;
+            break;
         case 14:
             if (!type.compare(qPos, 14, "QSharedPointer"))
                 return KT_QSharedPointer;
@@ -2817,28 +2821,47 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *enc
     return true;
 }
 
-// Dump a qsharedpointer (just list reference counts)
-static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
+static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &str, int *encoding, void **specialInfoIn = 0)
 {
     const SymbolGroupValue externalRefCountV = v[unsigned(0)];
-    if (!externalRefCountV)
-        return false;
-    const SymbolGroupValue dV = externalRefCountV["d"];
-    if (!dV)
-        return false;
-    // Get value element from base and store in special info.
-    const SymbolGroupValue valueV = externalRefCountV[unsigned(0)]["value"];
-    if (!valueV)
-        return false;
-    // Format references.
-    const int strongRef = dV["strongref"]["_q_value"].intValue();
-    const int weakRef = dV["weakref"]["_q_value"].intValue();
-    if (strongRef < 0 || weakRef < 0)
-        return false;
-    str << L"References: " << strongRef << '/' << weakRef;
-    if (specialInfoIn)
-        *specialInfoIn = valueV.node();
-    return true;
+    const QtInfo qtInfo = QtInfo::get(v.context());
+    if (qtInfo.version < 5) {
+        if (!externalRefCountV)
+            return false;
+        const SymbolGroupValue dV = externalRefCountV["d"];
+        if (!dV)
+            return false;
+        // Get value element from base and store in special info.
+        const SymbolGroupValue valueV = externalRefCountV[unsigned(0)]["value"];
+        if (!valueV)
+            return false;
+        // Format references.
+        const int strongRef = dV["strongref"]["_q_value"].intValue();
+        const int weakRef = dV["weakref"]["_q_value"].intValue();
+        if (strongRef < 0 || weakRef < 0)
+            return false;
+        str << L"References: " << strongRef << '/' << weakRef;
+        if (specialInfoIn)
+            *specialInfoIn = valueV.node();
+        return true;
+    } else { // Qt 5
+        SymbolGroupValue value = v["value"];
+        if (value.pointerValue(0) == 0) {
+            str << L"(null)";
+            return true;
+        }
+        std::ostringstream namestr;
+        namestr << "*(" << SymbolGroupValue::stripClassPrefixes(value.type()) << ")("
+                << std::showbase << std::hex << value.pointerValue() << ')';
+        DebugPrint() << namestr.str().c_str();
+        SymbolGroupNode *valueNode
+                = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
+        if (!valueNode)
+            return false;
+
+        str << valueNode->simpleDumpValue(v.context(), encoding);
+        return true;
+    }
 }
 
 // Dump builtin simple types using SymbolGroupValue expressions.
@@ -2992,7 +3015,8 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQWindow(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QSharedPointer:
-            rc = dumpQSharedPointer(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        case KT_QWeakPointer:
+            rc = dumpQSharedPointer(v, str, encoding, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_StdString:
         case KT_StdWString:
@@ -3416,6 +3440,7 @@ std::vector<AbstractSymbolGroupNode *>
             SymbolGroupNode *containerNode = reinterpret_cast<SymbolGroupNode *>(specialInfo);
             rc.push_back(new ReferenceSymbolGroupNode("children", "children", containerNode));
         }
+    case KT_QWeakPointer:
     case KT_QSharedPointer: // Special info by simple dumper is the value
         if (specialInfo) {
             SymbolGroupNode *valueNode = reinterpret_cast<SymbolGroupNode *>(specialInfo);

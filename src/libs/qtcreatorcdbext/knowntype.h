@@ -79,6 +79,7 @@ enum KnownType
     KT_QWidget = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 22,
     KT_QSharedPointer = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 23,
     KT_QRegion = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 24,
+    KT_QWeakPointer = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 25,
     // Types: Various QT movable types
     KT_QPen = KT_Qt_Type + KT_Qt_MovableType + 30,
     KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31 + KT_HasSimpleDumper,

@@ -264,6 +264,7 @@ public:
     std::wstring symbolGroupFixedValue() const;
 
     bool assign(const std::string &value, std::string *errorMessage = 0);
+    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx, int *encoding);
 
     // A quick check if symbol is valid by checking for inaccessible value
     bool isMemoryAccessible() const;
@@ -306,7 +307,6 @@ private:
     // Notify about expansion/collapsing of a node, shift indexes
     bool notifyIndexesMoved(ULONG index, bool inserted, ULONG offset);
     bool runSimpleDumpers(const SymbolGroupValueContext &ctx);
-    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx, int *encoding);
     ULONG nextSymbolIndex() const;
 
     SymbolGroup *const m_symbolGroup;
