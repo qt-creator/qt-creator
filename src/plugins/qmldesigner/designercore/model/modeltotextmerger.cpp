@@ -241,6 +241,8 @@ void ModelToTextMerger::applyChanges()
     TextModifier *textModifier = m_rewriterView->textModifier();
 
     try {
+        bool reindentAllFlag = false;
+
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
         positionRecalculator.connectTo(textModifier);
 
@@ -253,6 +255,13 @@ void ModelToTextMerger::applyChanges()
             RewriteAction* action = m_rewriteActions.at(i);
             if (DebugRewriteActions)
                 qDebug() << "Next rewrite action:" << qPrintable(action->info());
+
+            if (action->asReparentNodeRewriteAction())
+                reindentAllFlag = true; /*If a node is reparented we indent all,
+                                          because reparenting can have side effects
+                                          regarding indentation
+                                          to otherwise untouched nodes.
+                                          */
 
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
             bool success = action->execute(refactoring, *positionStore);
@@ -279,7 +288,10 @@ void ModelToTextMerger::applyChanges()
         qDeleteAll(m_rewriteActions);
         m_rewriteActions.clear();
 
-        reindent(positionRecalculator.dirtyAreas());
+        if (reindentAllFlag)
+            reindentAll();
+        else
+            reindent(positionRecalculator.dirtyAreas());
 
         textModifier->commitGroup();
 
@@ -304,6 +316,12 @@ void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
         const int length = dirtyAreas[offset];
         textModifier->indent(offset, length);
     }
+}
+
+void ModelToTextMerger::reindentAll() const
+{
+    TextModifier *textModifier = m_rewriterView->textModifier();
+    textModifier->indent(0, textModifier->text().length() - 1);
 }
 
 void ModelToTextMerger::schedule(RewriteAction *action)
