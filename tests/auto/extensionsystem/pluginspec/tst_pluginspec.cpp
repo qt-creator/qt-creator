@@ -123,7 +123,7 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.compatVersion, QString("1.0.0"));
     QCOMPARE(spec.required, false);
     QCOMPARE(spec.experimental, false);
-    QCOMPARE(spec.enabledInSettings, true);
+    QCOMPARE(spec.enabledBySettings, true);
     QCOMPARE(spec.vendor, QString("The Qt Company Ltd"));
     QCOMPARE(spec.copyright, QString("(C) 2015 The Qt Company Ltd"));
     QCOMPARE(spec.license, QString("This is a default license bla\nblubbblubb\nend of terms"));
@@ -238,7 +238,7 @@ void tst_PluginSpec::experimental()
     Internal::PluginSpecPrivate spec(0);
     QVERIFY(spec.readMetaData(metaData("testspecs/simplespec_experimental.json")));
     QCOMPARE(spec.experimental, true);
-    QCOMPARE(spec.enabledInSettings, false);
+    QCOMPARE(spec.enabledBySettings, false);
 }
 
 void tst_PluginSpec::locationAndPath()
