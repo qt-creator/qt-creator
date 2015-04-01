@@ -890,6 +890,35 @@
     const QVector<int> values = {1, 2, 3, 4, 5};
     \endcode
 
+    \section3 Non-Static Data Member Initialization
+
+    Use non-static data member initialization for trivial initializations, except in public
+    exported classes.
+
+    \section3 Defaulted and Deleted Functions
+
+    Consider using \c{=default} and \c{=delete} to control the special functions.
+
+    \section3 Override
+
+    It is recommended to use the \c{override} keyword when overriding virtual functions. Do not
+    use virtual on overridden functions.
+
+    Make sure that a class uses \c{override} consistently, either for all overridden functions or
+    for none.
+
+    \section3 Nullptr
+
+    All compilers support \c{nullptr}, but there is no consensus on using it. If in doubt, ask
+    the maintainer of the module whether they prefer using \c{nullptr}.
+
+    \section3 Range-Based for-Loop
+
+    You may use range-based for-loops, but beware of the spurious detachment problem.
+    If the for-loop only reads the container and it is not obvious whether the
+    container is const or unshared, use \c{std::cref()} to ensure that the container
+    is not unnecessarily detached.
+
     \section2 Using QObject
 
     \list
