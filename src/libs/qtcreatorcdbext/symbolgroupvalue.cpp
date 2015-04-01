@@ -2853,7 +2853,6 @@ static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &
         std::ostringstream namestr;
         namestr << "*(" << SymbolGroupValue::stripClassPrefixes(value.type()) << ")("
                 << std::showbase << std::hex << value.pointerValue() << ')';
-        DebugPrint() << namestr.str().c_str();
         SymbolGroupNode *valueNode
                 = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
         if (!valueNode)
