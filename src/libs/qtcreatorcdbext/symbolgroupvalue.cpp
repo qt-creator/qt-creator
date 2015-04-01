@@ -1708,7 +1708,7 @@ static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 }
 
 // Dump a QByteArray
-static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
+static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str, int *encoding,
                                   MemoryHandle **memoryHandle = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
@@ -1732,6 +1732,8 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     }
 
     // Qt 5: Data start at offset past the 'd' of type QByteArrayData.
+    if (encoding)
+        *encoding = DumpEncodingHex_Latin1_WithQuotes;
     wchar_t oldFill = str.fill(wchar_t('0'));
     str << std::hex;
     char *memory;
@@ -1834,7 +1836,8 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
 static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
                                             QPrivateDumpMode mode,
                                             unsigned additionalOffset,
-                                            std::wostream &str)
+                                            std::wostream &str,
+                                            int *encoding)
 {
     std::string errorMessage;
     const ULONG64 byteArrayAddress = addressOfQPrivateMember(v, mode, additionalOffset);
@@ -1859,7 +1862,7 @@ static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
         if (!byteArrayNode)
             return false;
     }
-    return dumpQByteArray(SymbolGroupValue(byteArrayNode, v.context()), str);
+    return dumpQByteArray(SymbolGroupValue(byteArrayNode, v.context()), str, encoding);
 }
 
 /* Dump QFileInfo, for whose private class no debugging information is available.
@@ -2050,7 +2053,7 @@ static inline bool dumpQUrl(const SymbolGroupValue &v, std::wostream &str)
     if (QtInfo::get(v.context()).version < 5) {
         const ULONG offset = padOffset(qAtomicIntSize(v.context()))
                          + 6 * qStringSize(v.context()) + qByteArraySize(v.context());
-        return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str);
+        return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str, 0);
     }
     ULONG offset = qAtomicIntSize(v.context()) +
                    SymbolGroupValue::intSize();
@@ -2176,36 +2179,44 @@ static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
-static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     if (const SymbolGroupValue julianDayV = v["jd"]) {
-        if (julianDayV.intValue() > 0)
+        if (julianDayV.intValue() > 0) {
             str << julianDayV.intValue();
+            if (encoding)
+                *encoding = DumpEncodingJulianDate;
+        } else {
+            str << L"(invalid)";
+        }
         return true;
     }
     return false;
 }
 
-static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     if (const SymbolGroupValue milliSecsV = v["mds"]) {
         const int milliSecs = milliSecsV.intValue();
         str << milliSecs;
+        if (encoding)
+            *encoding = DumpEncodingMillisecondsSinceMidnight;
         return true;
     }
     return false;
 }
 
-static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
-    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str);
+    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str, encoding);
 }
 
 // Convenience to dump a QTimeZone from the unexported private class of a Qt class.
 static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
                                            QPrivateDumpMode mode,
                                            unsigned additionalOffset,
-                                           std::wostream &str)
+                                           std::wostream &str,
+                                           int *encoding)
 {
     std::string errorMessage;
     const ULONG64 timeZoneAddress = addressOfQPrivateMember(v, mode, additionalOffset);
@@ -2230,12 +2241,12 @@ static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
         if (!timeZoneNode)
             return false;
     }
-    return dumpQTimeZone(SymbolGroupValue(timeZoneNode, v.context()), str);
+    return dumpQTimeZone(SymbolGroupValue(timeZoneNode, v.context()), str, encoding);
 }
 
 // QDateTime has an unexported private class. Obtain date and time
 // from memory.
-static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
     if (QtInfo::get(v.context()).version == 5) {
@@ -2259,7 +2270,7 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
 
         addrOffset += SymbolGroupValue::intSize();
         std::wostringstream timeZoneStream;
-        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream);
+        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream, 0);
         const std::wstring &timeZoneString = timeZoneStream.str();
 
         addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
@@ -2282,6 +2293,9 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
             << timeZoneString << separator
             << status;
 
+        if (encoding)
+            *encoding = DumpEncodingMillisecondsSinceEpoch;
+
         return  true;
     }
 
@@ -2300,6 +2314,8 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
         SymbolGroupValue::readIntValue(v.context().dataspaces,
                                        timeAddr, SymbolGroupValue::intSize(), 0);
     str << date << '/' << time;
+    if (encoding)
+        *encoding = DumpEncodingJulianDateAndMillisecondsSinceMidnight;
     return true;
 }
 
@@ -2631,7 +2647,8 @@ static inline std::string
     return rc;
 }
 
-static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
+static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *encoding,
+                         void **specialInfoIn = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue dV = v["d"];
@@ -2723,7 +2740,7 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     case 12: //ByteArray
         str << L"(QByteArray) ";
         if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QByteArray *").c_str()))
-            dumpQByteArray(sv, str);
+            dumpQByteArray(sv, str, encoding);
         break;
     case 13: // BitArray
         str << L"(QBitArray)";
@@ -2731,12 +2748,12 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     case 14: // Date: Do not qualify - fails non-deterministically with QtCored4!QDate
         str << L"(QDate) ";
         if (const SymbolGroupValue sv = dataV.typeCast("QDate *"))
-            dumpQDate(sv, str);
+            dumpQDate(sv, str, encoding);
         break;
     case 15: // Time: Do not qualify - fails non-deterministically with QtCored4!QTime
         str << L"(QTime) ";
         if (const SymbolGroupValue sv = dataV.typeCast("QTime *"))
-            dumpQTime(sv, str);
+            dumpQTime(sv, str, encoding);
         break;
     case 16: // DateTime
         str << L"(QDateTime)";
@@ -2826,7 +2843,7 @@ static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &
 
 // Dump builtin simple types using SymbolGroupValue expressions.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
-                        std::wstring *s, int *knownTypeIn /* = 0 */,
+                        std::wstring *s, int *encoding /* = 0 */, int *knownTypeIn /* = 0 */,
                         int *containerSizeIn /* = 0 */,
                         void **specialInfoIn /* = 0 */,
                         MemoryHandle **memoryHandleIn /* = 0 */)
@@ -2876,7 +2893,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQChar(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QByteArray:
-            rc = dumpQByteArray(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQByteArray(v, str, encoding, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QFileInfo:
             rc = dumpQFileInfo(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
@@ -2921,16 +2938,16 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQFlags(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QDate:
-            rc = dumpQDate(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQDate(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QTime:
-            rc = dumpQTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQTime(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QDateTime:
-            rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQDateTime(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QTimeZone:
-            rc = dumpQTimeZone(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQTimeZone(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QPoint:
         case KT_QPointF:
@@ -2957,7 +2974,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQRectF(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QVariant:
-            rc = dumpQVariant(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQVariant(v, str, encoding, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QAtomicInt:
             rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;

@@ -255,6 +255,7 @@ void formatKnownTypeFlags(std::ostream &os, KnownType kt);
 // complex dumpers
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         std::wstring *s,
+                        int *encoding = 0,
                         int *knownType = 0,
                         int *containerSizeIn = 0,
                         void **specialInfoIn = 0,
