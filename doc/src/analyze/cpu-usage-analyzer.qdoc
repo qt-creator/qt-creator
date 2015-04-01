@@ -1,0 +1,249 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-clang-static-analyzer.html
+    \page creator-cpu-usage-analyzer.html
+    \nextpage creator-advanced.html
+
+    \title Analyzing CPU Usage
+
+    \QC is integrated with the Linux Perf tool (commercial only) that can be
+    used to analyze the CPU usage of an application on embedded devices and, to
+    a limited extent, on Linux desktop platforms. The CPU Usage Analyzer uses
+    the Perf tool bundled with the Linux kernel to take periodic snapshots of
+    the call chain of an application and visualizes them in a timeline view.
+
+    \section1 Using the CPU Usage Analyzer
+
+    The CPU Usage Analyzer needs to be able to locate debug symbols for the
+    binaries involved. For debug builds, debug symbols are always generated.
+    Edit the project build settings to generate debug symbols also for release
+    builds.
+
+    To use the CPU Usage Analyzer:
+
+    \list 1
+        \li To generate debug symbols also for applications compiled in release
+            mode, select \uicontrol {Projects}, and then select
+            \uicontrol Details next to \uicontrol {Build Steps} to view the
+            build steps.
+
+        \li Select the \uicontrol {Generate separate debug info} check box, and
+            then select \uicontrol Yes to recompile the project.
+
+        \li Select \uicontrol {Analyze > CPU Usage Analyzer} to profile the
+            current application.
+
+        \li Select the
+            \inlineimage qtcreator-analyze-start-button.png
+            (\uicontrol Start) button to start the application from the
+            CPU Usage Analyzer.
+
+            \note If data collection does not start automatically, select the
+            \inlineimage qtcreator-analyzer-button.png
+            (\uicontrol {Collect profile data}) button.
+
+    \endlist
+
+    When you start analyzing an application, the application is launched, and
+    the CPU Usage Analyzer immediately begins to collect data. This is indicated
+    by the time running in the \uicontrol Recorded field. However, as the data
+    is passed through the Perf tool and an extra helper program bundled with
+    \QC, and both buffer and process it on the fly, data may arrive in \QC
+    several seconds after it was generated. An estimate for this delay is given
+    in the \uicontrol {Processing delay} field.
+
+    Data is collected until you select the
+    \uicontrol {Stop collecting profile data} button or terminate the
+    application.
+
+    Select the \uicontrol {Stop collecting profile data} button to disable the
+    automatic start of the data collection when an application is launched.
+    Profile data will still be generated, but \QC will discard it until you
+    select the button again.
+
+    \section1 Specifying CPU Usage Analyzer Settings
+
+    To specify global settings for the CPU Usage Analyzer, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
+    \uicontrol {CPU Usage Analyzer}. For each run configuration, you can also
+    use specialized settings. Select \uicontrol Projects > \uicontrol Run, and
+    then select \uicontrol Details next to
+    \uicontrol {CPU Usage Analyzer Settings}.
+
+    \section2 Selecting Call Graph Mode
+
+    Select the command to invoke Perf in the \uicontrol {Call graph mode} field.
+    The \uicontrol {Frame Pointer}, or \c fp, mode relies on frame pointers
+    being available in the profiled application.
+
+    The \uicontrol {Dwarf} mode  works also without frame pointers, but
+    generates significantly more data.  Qt and most system libraries are
+    compiled without frame pointers by default, so the frame pointer mode is
+    only useful with customized systems.
+
+    \section2 Setting Stack Snapshot Size
+
+    In the dwarf mode, Perf takes periodic snapshots of the application stack,
+    which are then analyzed and \e unwound by the CPU Usage Analyzer. Set the
+    size of the stack snapshots in the \uicontrol {Stack snapshot size} field.
+    Large stack snapshots result in a larger volume of data to be transferred
+    and processed. Small stack snapshots may fail to capture call chains of
+    highly recursive applications or other intense stack usage.
+
+    \section2 Setting Sampling Frequency
+
+    Set the sampling frequency for Perf in the \uicontrol {Sampling frequency}
+    field. High sampling frequencies result in more accurate data, at the
+    expense of a higher overhead and a larger volume of profiling data being
+    generated. The actual sampling frequency is determined by the Linux kernel
+    on the target device, which takes the frequency set for Perf merely as
+    advice. There may be a significant difference between the sampling frequency
+    you request and the actual result.
+
+    In general, if you configure the CPU Usage Analyzer to collect more data
+    than it can transmit over the connection between the target and the host
+    device, the application may get blocked while Perf is trying to send the
+    data, and the processing delay may grow excessively. You should then lower
+    the \uicontrol {Sampling frequency} or the \uicontrol {Stack snapshot size}.
+
+    \section1 Analyzing Collected Data
+
+    The \uicontrol Timeline view displays a graphical representation of CPU
+    usage per thread and a condensed view of all recorded events.
+
+    \image cpu-usage-analyzer.png "CPU Usage Analyzer"
+
+    Each category in the timeline describes a thread in the application. Move
+    the cursor on an event (6) on a row to see how long it takes and which
+    function in the source it represents. To display the information only when
+    an event is selected, disable the
+    \uicontrol {View Event Information on Mouseover} button (5).
+
+    The outline (10) summarizes the period for which data was collected. Drag
+    the zoom range (8) or click the outline to move on the outline. You can
+    also move between events by selecting the
+    \uicontrol {Jump to Previous Event} (1) and \uicontrol {Jump to Next Event}
+    (2) buttons.
+
+    Select the \uicontrol {Show Zoom Slider} button (3) to open a slider that
+    you can use to set the zoom level. You can also drag the zoom handles (9).
+    To reset the default zoom level, right-click the timeline to open the
+    context menu, and select \uicontrol {Reset Zoom}.
+
+    \section2 Selecting Event Ranges
+
+    You can select an event range (7) to view the time it represents or to zoom
+    into a specific region of the trace. Select the \uicontrol {Select Range}
+    button (4) to activate the selection tool. Then click in the timeline to
+    specify the beginning of the event range. Drag the selection handle to
+    define the end of the range.
+
+    You can use event ranges also to measure delays between two subsequent
+    events. Place a range between the end of the first event and the beginning
+    of the second event. The \uicontrol Duration field displays the delay
+    between the events in milliseconds.
+
+    To zoom into an event range, double-click it.
+
+    To remove an event range, close the \uicontrol Selection dialog.
+
+    \section2 Understanding the Data
+
+    Generally, events in the timeline view indicate how long a function call
+    took. Move the mouse over them to see details. The details always include
+    the address of the function, the approximate duration of the call, the ELF
+    file the function resides in, the number of samples collected with this
+    function call active, the total number of times this function was
+    encountered in the thread, and the number of samples this function was
+    encountered in at least once.
+
+    For functions with debug information available, the details include the
+    location in source code and the name of the function. You can click on such
+    events to move the cursor in the code editor to the part of the code the
+    event is associated with.
+
+    As the Perf tool only provides periodic samples, the CPU Usage Analyzer
+    cannot determine the exact time when a function was called or when it
+    returned. You can, however, see exactly when a sample was taken on the
+    second row of each thread. The CPU Usage Analyzer assumes that if the same
+    function is present in the same place in the call chain in multiple samples
+    on a row, then this represents a single call to the respective function.
+    This is, of course, a simplification. Also, there may be other functions
+    being called between the samples taken, which do not show up in the profile
+    data. However, statistically, the data is likely to show the functions that
+    spend the most CPU time most prominently.
+
+    If a function without debug information is encountered, further unwinding
+    of the stack may fail. Unwinding will also fail if a QML or JavaScript
+    function is encountered, and for some symbols implemented in assembler. If
+    unwinding fails, only part of the call chain is displayed, and the
+    surrounding functions may seem to be interrupted. This does not necessarily
+    mean they were actually interrupted during the execution of the
+    application, but only that they could not be found in the stacks where the
+    unwinding failed.
+
+    Kernel functions included in call chains are shown on the third row of each
+    thread. All kernel functions are summarized and not differentiated any
+    further, because most of the time kernel symbols cannot be resolved when the
+    data is analyzed.
+
+    The coloring of the events represents the actual sample rate for the
+    specific thread they belong to, across their duration. The Linux kernel
+    will only take a sample of a thread if the thread is active. At the same
+    time, the kernel tries to maintain a constant overall sampling frequency.
+    Thus, differences in the sampling frequency between different threads
+    indicate that the thread with more samples taken is more likely to be the
+    overall bottleneck, and the thread with less samples taken has likely spent
+    time waiting for external events such as I/O or a mutex.
+
+    \section1 Loading Perf Data Files
+
+    You can load any \c perf.data files generated by recent versions of the
+    Linux Perf tool and view them in \QC. Select \uicontrol Analyze >
+    \uicontrol {Load Trace} to load a file. The CPU Usage Analyzer needs to know
+    the context in which the data was recorded to find the debug symbols.
+    Therefore, you have to specify the kit that the application was built with
+    and the folder where the application executable is located.
+
+    The Perf data files are generated by calling \c {perf record}. Make sure to
+    generate call graphs when recording data by starting Perf with the
+    \c {--call-graph} option. Also check that the necessary debug symbols are
+    available to the CPU Usage Analyzer, either at a standard location
+    (\c /usr/lib/debug or next to the binaries), or as part of the Qt package
+    you are using.
+
+    The CPU Usage Analyzer can read Perf data files generated in either frame
+    pointer or dwarf mode. However, to generate the files correctly, numerous
+    preconditions have to be met. All system images for the
+    \l{http://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html}
+    {Qt for Device Creation reference devices}, except for Freescale iMX53 Quick
+    Start Board and SILICA Architect Tibidabo, are correctly set up for
+    profiling in the dwarf mode. For other devices, check whether Perf can read
+    back its own data in a sensible way by checking the output of
+    \c {perf report} or \c {perf script} in the recorded Perf data files.
+
+*/

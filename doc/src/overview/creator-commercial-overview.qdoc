@@ -41,6 +41,7 @@
                 \li Memory usage
                 \li Input events
             \endlist
+        \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
         \li \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}
             integration
         \li \l{Using Qt Quick Designer Extensions}
