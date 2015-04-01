@@ -681,7 +681,8 @@ static bool mergeGradleProperties(const QString &path, GradleProperties properti
 
     }
 
-    for (GradleProperties::const_iterator it = properties.begin(); it != properties.end(); ++it)
+    for (GradleProperties::const_iterator it = properties.constBegin(); it != properties.constEnd();
+         ++it)
         file.write(it.key() + '=' + it.value() + '\n');
 
     file.close();

@@ -1850,8 +1850,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     cleanFilePath.clear();
     const QString base = FileName::fromString(fileName).fileName();
 
-    QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.find(base);
-    while (jt != m_baseNameToFullName.end() && jt.key() == base) {
+    QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
+    while (jt != m_baseNameToFullName.constEnd() && jt.key() == base) {
         // FIXME: Use some heuristics to find the "best" match.
         return jt.value();
         //++jt;
@@ -4018,7 +4018,7 @@ bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, Disassembl
     currentFunction = -1;
     DisassemblerLines result;
     result.setBytesLength(dlines.bytesLength());
-    for (LineMap::const_iterator it = lineMap.begin(), et = lineMap.end(); it != et; ++it) {
+    for (LineMap::const_iterator it = lineMap.constBegin(), et = lineMap.constEnd(); it != et; ++it) {
         LineData d = *it;
         if (d.function != currentFunction) {
             if (d.function != -1) {

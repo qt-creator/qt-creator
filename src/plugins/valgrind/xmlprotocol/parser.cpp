@@ -294,7 +294,7 @@ void Parser::Private::checkProtocolVersion(const QString &versionStr)
 
 void Parser::Private::checkTool(const QString &reportedStr)
 {
-    const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.find(reportedStr);
+    const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.constFind(reportedStr);
 
     if (reported == toolsByName.constEnd())
         throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
@@ -353,7 +353,7 @@ XauxWhat Parser::Private::parseXauxWhat()
 
 MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
 {
-    const QHash<QString,MemcheckErrorKind>::ConstIterator it = errorKindsByName_memcheck.find(kind);
+    const QHash<QString,MemcheckErrorKind>::ConstIterator it = errorKindsByName_memcheck.constFind(kind);
     if (it != errorKindsByName_memcheck.constEnd())
         return *it;
     else
@@ -363,7 +363,7 @@ MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
 
 HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
 {
-    const QHash<QString,HelgrindErrorKind>::ConstIterator it = errorKindsByName_helgrind.find(kind);
+    const QHash<QString,HelgrindErrorKind>::ConstIterator it = errorKindsByName_helgrind.constFind(kind);
     if (it != errorKindsByName_helgrind.constEnd())
         return *it;
     else
@@ -373,7 +373,7 @@ HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
 
 PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
 {
-    const QHash<QString,PtrcheckErrorKind>::ConstIterator it = errorKindsByName_ptrcheck.find(kind);
+    const QHash<QString,PtrcheckErrorKind>::ConstIterator it = errorKindsByName_ptrcheck.constFind(kind);
     if (it != errorKindsByName_ptrcheck.constEnd())
         return *it;
     else

@@ -1527,8 +1527,8 @@ void PluginManagerPrivate::profilingSummary() const
             total += it1.value();
         }
 
-        Sorter::ConstIterator it2 = sorter.begin();
-        Sorter::ConstIterator et2 = sorter.end();
+        Sorter::ConstIterator it2 = sorter.constBegin();
+        Sorter::ConstIterator et2 = sorter.constEnd();
         for (; it2 != et2; ++it2)
             qDebug("%-22s %8dms   ( %5.2f%% )", qPrintable(it2.value()->name()),
                 it2.key(), 100.0 * it2.key() / total);

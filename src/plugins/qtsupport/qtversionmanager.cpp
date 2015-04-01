@@ -495,7 +495,7 @@ bool QtVersionManager::isValidId(int id)
 BaseQtVersion *QtVersionManager::version(int id)
 {
     QTC_ASSERT(isLoaded(), return 0);
-    QMap<int, BaseQtVersion *>::const_iterator it = m_versions.find(id);
+    QMap<int, BaseQtVersion *>::const_iterator it = m_versions.constFind(id);
     if (it == m_versions.constEnd())
         return 0;
     return it.value();

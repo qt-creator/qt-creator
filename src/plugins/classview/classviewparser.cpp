@@ -521,9 +521,9 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
     const QString &fileName = doc->fileName();
     d->docLocker.lockForRead();
     ParserTreeItem::ConstPtr item = d->cachedDocTrees.value(fileName);
-    CitCachedDocTreeRevision citCachedDocTreeRevision = d->cachedDocTreesRevision.find(fileName);
+    CitCachedDocTreeRevision citCachedDocTreeRevision = d->cachedDocTreesRevision.constFind(fileName);
     if (!item.isNull()
-        && citCachedDocTreeRevision != d->cachedDocTreesRevision.end()
+        && citCachedDocTreeRevision != d->cachedDocTreesRevision.constEnd()
             && citCachedDocTreeRevision.value() == doc->revision()) {
         d->docLocker.unlock();
         return item;
@@ -759,9 +759,9 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
     // our own files
     QStringList fileList;
 
-    CitCachedPrjFileLists cit = d->cachedPrjFileLists.find(nodePath);
+    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
     // try to improve parsing speed by internal cache
-    if (cit != d->cachedPrjFileLists.end()) {
+    if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
         fileList = projectNodeFileList(node);
@@ -800,9 +800,9 @@ QStringList Parser::getAllFiles(const ProjectNode *node)
 
     const QString nodePath = node->path().toString();
 
-    CitCachedPrjFileLists cit = d->cachedPrjFileLists.find(nodePath);
+    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
     // try to improve parsing speed by internal cache
-    if (cit != d->cachedPrjFileLists.end()) {
+    if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
         fileList = projectNodeFileList(node);

@@ -80,8 +80,8 @@ void ClearCaseSync::invalidateStatus(const QDir &viewRootDir,
 
 void ClearCaseSync::invalidateStatusAllFiles()
 {
-    const StatusMap::ConstIterator send = m_statusMap->end();
-    for (StatusMap::ConstIterator it = m_statusMap->begin(); it != send; ++it)
+    const StatusMap::ConstIterator send = m_statusMap->constEnd();
+    for (StatusMap::ConstIterator it = m_statusMap->constBegin(); it != send; ++it)
         m_plugin->setStatus(it.key(), FileStatus::Unknown, false);
 }
 

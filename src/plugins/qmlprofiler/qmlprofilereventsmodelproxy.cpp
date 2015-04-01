@@ -154,7 +154,7 @@ void QmlProfilerEventsModelProxy::notesChanged(int typeIndex)
         }
     } else {
         d->notes.remove(typeIndex);
-        QVariantList changedNotes = notesModel->byTypeId(typeIndex);
+        const QVariantList changedNotes = notesModel->byTypeId(typeIndex);
         if (!changedNotes.isEmpty()) {
             QStringList newNotes;
             for (QVariantList::ConstIterator it = changedNotes.begin(); it !=  changedNotes.end();

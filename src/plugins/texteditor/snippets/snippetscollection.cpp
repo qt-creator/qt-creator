@@ -207,7 +207,7 @@ int SnippetsCollection::totalActiveSnippets(const QString &groupId) const
 {
     const int group = groupIndex(groupId);
     return std::distance<QList<Snippet>::const_iterator>(m_snippets.at(group).begin(),
-                                                         m_activeSnippetsEnd.at(group));
+                                                         QList<Snippet>::const_iterator(m_activeSnippetsEnd.at(group)));
 }
 
 int SnippetsCollection::totalSnippets(const QString &groupId) const

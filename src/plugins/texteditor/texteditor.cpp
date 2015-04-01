@@ -3271,7 +3271,7 @@ void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
     const QStringList::const_iterator endLine = textLines.constEnd();
     for (QStringList::const_iterator textLine = textLines.constBegin(); textLine != endLine; ++textLine)
         textLength += qMax(0, ts.columnCountForText(*textLine, column) - textLength);
-    for (QStringList::iterator textLine = textLines.begin(); textLine != endLine; ++textLine)
+    for (QStringList::iterator textLine = textLines.begin(); textLine != textLines.end(); ++textLine)
         textLine->append(QString(qMax(0, textLength - ts.columnCountForText(*textLine, column)), QLatin1Char(' ')));
 
     // insert Text

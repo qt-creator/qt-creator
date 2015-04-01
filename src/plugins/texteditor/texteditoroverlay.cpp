@@ -499,8 +499,9 @@ void TextEditorOverlay::mapEquivalentSelections()
     const QList<QString> &uniqueKeys = all.uniqueKeys();
     foreach (const QString &key, uniqueKeys) {
         QList<int> indexes;
-        QMap<QString, int>::const_iterator lbit = all.lowerBound(key);
-        QMap<QString, int>::const_iterator ubit = all.upperBound(key);
+        const auto cAll = all;
+        QMap<QString, int>::const_iterator lbit = cAll.lowerBound(key);
+        QMap<QString, int>::const_iterator ubit = cAll.upperBound(key);
         while (lbit != ubit) {
             indexes.append(lbit.value());
             ++lbit;
