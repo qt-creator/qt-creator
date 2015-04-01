@@ -48,6 +48,21 @@ struct SymbolGroupValueContext;
 class SymbolGroupNode;
 class MemoryHandle;
 
+enum DumpEncoding // WatchData encoding of GDBMI values
+{
+    DumpEncodingAscii = 0,
+    DumpEncodingBase64_Utf16_WithQuotes = 2,
+    DumpEncodingHex_Ucs4_LittleEndian_WithQuotes = 3,
+    DumpEncodingBase64_Utf16 = 4,
+    DumpEncodingHex_Latin1_WithQuotes = 6,
+    DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9,
+    DumpEncodingJulianDate = 14,
+    DumpEncodingMillisecondsSinceMidnight = 15,
+    DumpEncodingJulianDateAndMillisecondsSinceMidnight = 16,
+    DumpEncodingIPv6AddressAndHexScopeId = 27,
+    DumpEncodingMillisecondsSinceEpoch = 29
+};
+
 // Helper struct used for check results when recoding CDB char pointer output.
 struct DumpParameterRecodeResult
 {
@@ -249,6 +264,7 @@ public:
     std::wstring symbolGroupFixedValue() const;
 
     bool assign(const std::string &value, std::string *errorMessage = 0);
+    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx, int *encoding);
 
     // A quick check if symbol is valid by checking for inaccessible value
     bool isMemoryAccessible() const;
@@ -291,7 +307,6 @@ private:
     // Notify about expansion/collapsing of a node, shift indexes
     bool notifyIndexesMoved(ULONG index, bool inserted, ULONG offset);
     bool runSimpleDumpers(const SymbolGroupValueContext &ctx);
-    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx);
     ULONG nextSymbolIndex() const;
 
     SymbolGroup *const m_symbolGroup;
@@ -299,6 +314,7 @@ private:
     ULONG m_index;
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     std::wstring m_dumperValue;
+    int m_dumperValueEncoding;
     int m_dumperType;
     int m_dumperContainerSize;
     void *m_dumperSpecialInfo; // Opaque information passed from simple to complex dumpers

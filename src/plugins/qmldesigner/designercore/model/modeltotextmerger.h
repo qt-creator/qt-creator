@@ -81,6 +81,7 @@ protected:
     RewriterView *view();
 
     void reindent(const QMap<int,int> &dirtyAreas) const;
+    void reindentAll() const;
 
     void schedule(RewriteAction *action);
     QList<RewriteAction *> scheduledRewriteActions() const

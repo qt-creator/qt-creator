@@ -14,11 +14,7 @@ QT += core-private qml-private quick-private gui-private
     QT += v8-private
 }
 
-!osx {
-    CONFIG += c++11
-}
-
-
+CONFIG += c++11
 
 DEFINES -= QT_CREATOR
 

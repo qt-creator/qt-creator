@@ -400,9 +400,9 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
 }
 
 // Format printable (char-type) characters
-static QString reformatCharacter(int code, int format)
+static QString reformatCharacter(int code, int format, bool isSigned)
 {
-    const QString codeS = reformatInteger(code, format, 1, true);
+    const QString codeS = reformatInteger(code, format, 1, isSigned);
     if (code < 0) // Append unsigned value.
         return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format, 1, false);
     const QChar c = QChar(uint(code));
@@ -500,10 +500,12 @@ QString WatchItem::formattedValue() const
     const int format = itemFormat();
 
     // Append quoted, printable character also for decimal.
+    // FIXME: This is unreliable.
     if (type.endsWith("char") || type.endsWith("QChar")) {
         bool ok;
         const int code = value.toInt(&ok);
-        return ok ? reformatCharacter(code, format) : value;
+        bool isUnsigned = type == "unsigned char" || type == "uchar";
+        return ok ? reformatCharacter(code, format, !isUnsigned) : value;
     }
 
     if (format == HexadecimalIntegerFormat
@@ -950,11 +952,11 @@ static inline QString msgArrayFormat(int n)
 QString WatchModel::nameForFormat(int format)
 {
     switch (format) {
-        case AutomaticFormat: return QLatin1String("");
+        case AutomaticFormat: return tr("Automatic");
 
         case RawFormat: return tr("Raw Data");
         case SimpleFormat: return CdbEngine::tr("Normal");  // FIXME: String
-        case EnhancedFormat: return QLatin1String("Enhanced");  // FIXME: String
+        case EnhancedFormat: return tr("Enhanced");
         case SeparateFormat: return CdbEngine::tr("Separate Window");  // FIXME: String
 
         case Latin1StringFormat: return tr("Latin1 String");
@@ -969,6 +971,14 @@ QString WatchModel::nameForFormat(int format)
         case Array100Format: return msgArrayFormat(100);
         case Array1000Format: return msgArrayFormat(1000);
         case Array10000Format: return msgArrayFormat(10000);
+        case ArrayPlotFormat: return tr("Plot in Separate Window");
+
+        case CompactMapFormat: return tr("Display Keys and Values Side by Side");
+        case DirectQListStorageFormat: return tr("Force Display as Direct Storage Form");
+        case IndirectQListStorageFormat: return tr("Force Display as Indirect Storage Form");
+
+        case BoolTextFormat: return tr("Display Boolean Values as True or False");
+        case BoolIntegerFormat: return tr("Display Boolean Values as 1 or 0");
 
         case DecimalIntegerFormat: return tr("Decimal Integer");
         case HexadecimalIntegerFormat: return tr("Hexadecimal Integer");
@@ -998,6 +1008,9 @@ DisplayFormats WatchItem::typeFormatList() const
         t.truncate(pos);
     t.replace(QLatin1Char(':'), QLatin1Char('_'));
     formats << watchModel()->m_reportedTypeFormats.value(t);
+
+    if (t.contains(QLatin1Char(']')))
+        formats << watchModel()->m_reportedTypeFormats.value(QLatin1String("[]"));
 
     // Fixed artificial string and pointer types.
     if (origaddr || isPointerType(type)) {

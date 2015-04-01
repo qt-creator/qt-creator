@@ -30,6 +30,21 @@
 
 from dumper import *
 
+def stripTypeName(value):
+    type = value.type
+    try:
+        type = type.target()
+    except:
+        pass
+    return str(type.unqualified())
+
+def extractPointerType(d, value):
+    postfix = ""
+    while stripTypeName(value) == "CPlusPlus::PointerType":
+        postfix += "*"
+        value = d.downcast(value["_elementType"]["_type"])
+    return readLiteral(d, value["_name"]) + postfix
+
 def readTemplateName(d, value):
     name = readLiteral(d, value["_identifier"]) + "<"
     args = value["_templateArguments"]
@@ -39,12 +54,7 @@ def readTemplateName(d, value):
     for i in range(size):
         if i > 0:
             name += ", "
-        typeVal = d.downcast(start[i]["_type"])
-        postfix = ""
-        while str(typeVal.type.target().unqualified()) == "CPlusPlus::PointerType":
-            postfix += "*"
-            typeVal = d.downcast(typeVal["_elementType"]["_type"])
-        name += readLiteral(d, typeVal["_name"]) + postfix
+        name += extractPointerType(d, d.downcast(start[i]["_type"]))
     name += ">"
     return name
 
@@ -121,9 +131,22 @@ def qdump__CPlusPlus__IntegerType(d, value):
     d.putValue(value["_kind"])
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__FullySpecifiedType(d, value):
+    type = d.downcast(value["_type"])
+    typeName = stripTypeName(type)
+    if typeName == "CPlusPlus::NamedType":
+        dumpLiteral(d, type["_name"])
+    elif typeName == "CPlusPlus::PointerType":
+        d.putValue(d.hexencode(extractPointerType(d, type)), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__NamedType(d, value):
     dumpLiteral(d, value["_name"])
     d.putBetterType(value.type)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__PointerType(d, value):
+    d.putValue(d.hexencode(extractPointerType(d, value)), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):

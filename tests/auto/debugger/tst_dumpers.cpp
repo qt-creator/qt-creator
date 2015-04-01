@@ -1838,7 +1838,8 @@ void tst_Dumpers::dumper_data()
                + Check("ha1", "129.0.0.130", "@QHostAddress")
                + Check("ha2", "\"127.0.0.1\"", "@QHostAddress") % NoCdbEngine
                + Check("ha2", "127.0.0.1", "@QHostAddress") % CdbEngine
-               + Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
+               + Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address") % NoCdbEngine
+               + Check("addr", "1:203:506:0:809:a0b::", "@QIPv6Address") % CdbEngine;
 
 
     QTest::newRow("QImage")
@@ -2104,8 +2105,10 @@ void tst_Dumpers::dumper_data()
 
                + Check("l0", "<0 items>", "@QList<Foo>")
                + Check("l1", "<100 items>", "@QList<Foo>")
-               + Check("l1.0", "[0]", "", "Foo")
-               + Check("l1.99", "[99]", "", "Foo")
+               + Check("l1.0", "[0]", "", "Foo") % NoCdbEngine
+               + Check("l1.0", "[0]", "class Foo", "Foo") % CdbEngine
+               + Check("l1.99", "[99]", "", "Foo") % NoCdbEngine
+               + Check("l1.99", "[99]", "class Foo", "Foo") % CdbEngine
 
                + Check("l", "<3 items>", "@QList<int>")
                + Check("l.0", "[0]", "1", "int")
@@ -2115,8 +2118,12 @@ void tst_Dumpers::dumper_data()
                + Check("r.0", "[0]", "3", "int")
                + Check("r.1", "[1]", "2", "int")
                + Check("r.2", "[2]", "1", "int")
-               + Check("rend", "", "Reverse")
-               + Check("rit", "", "Reverse");
+               + Check("rend", "", "Reverse") % NoCdbEngine
+               + Check("rit", "", "Reverse") % NoCdbEngine
+               + Check("rend", "class std::reverse_iterator<>",
+                       "std::reverse_iterator<QList<int>::iterator>") % CdbEngine
+               + Check("rit", "class std::reverse_iterator<>",
+                       "std::reverse_iterator<QList<int>::iterator>") % CdbEngine;
 
 
    QTest::newRow("QLocale")
@@ -2608,17 +2615,20 @@ void tst_Dumpers::dumper_data()
 
                + Check("rect0", "0x0+0+0", "@QRect")
                + Check("rect", "200x200+100+100", "@QRect")
-               + Check("rectf0", "0.0x0.0+0.0+0.0", "@QRectF")
+               + Check("rectf0", "0.0x0.0+0.0+0.0", "@QRectF") % NoCdbEngine
+               + Check("rectf0", "0x0+0+0", "@QRectF") % CdbEngine
                + Check("rectf", "200.5x200.5+100.25+100.25", "@QRectF")
 
                + Check("p0", "(0, 0)", "@QPoint")
                + Check("p", "(100, 200)", "@QPoint")
-               + Check("pf0", "(0.0, 0.0)", "@QPointF")
+               + Check("pf0", "(0.0, 0.0)", "@QPointF") % NoCdbEngine
+               + Check("pf0", "(0, 0)", "@QPointF") % CdbEngine
                + Check("pf", "(100.5, 200.5)", "@QPointF")
 
                + Check("s0", "(-1, -1)", "@QSize")
                + Check("s", "(100, 200)", "@QSize")
-               + Check("sf0", "(-1.0, -1.0)", "@QSizeF")
+               + Check("sf0", "(-1.0, -1.0)", "@QSizeF") % NoCdbEngine
+               + Check("sf0", "(-1, -1)", "@QSizeF") % CdbEngine
                + Check("sf", "(100.5, 200.5)", "@QSizeF");
 
 
@@ -2660,9 +2670,11 @@ void tst_Dumpers::dumper_data()
                     "QSettings settings(\"/tmp/test.ini\", QSettings::IniFormat);\n"
                     "QVariant value = settings.value(\"item1\", \"\").toString();\n")
                + CoreProfile()
-               + Check("settings", "", "@QSettings")
-               + Check("settings.@1", "[@QObject]", "", "@QObject")
-               + Check("value", "\"\"", "@QVariant (QString)");
+               + Check("settings", "", "@QSettings") % NoCdbEngine
+               + Check("settings.@1", "[@QObject]", "", "@QObject") % NoCdbEngine
+               + Check("value", "\"\"", "@QVariant (QString)") % NoCdbEngine
+               + Check("settings", "class QSettings", "@QSettings") % CdbEngine
+               + Check("value", "(QString) \"\"", "QVariant") % CdbEngine;
 
 
     QTest::newRow("QSet")
@@ -2703,8 +2715,8 @@ void tst_Dumpers::dumper_data()
                + Check("s2.1", "[1]", Value5("\"11.0\""), "@QString")
 
                + Check("s3", "<1 items>", "@QSet<@QPointer<@QObject>>")
-               + Check("s3.0", "[0]", "", "@QPointer<@QObject>");
-
+               + Check("s3.0", "[0]", "", "@QPointer<@QObject>") % NoCdbEngine
+               + Check("s3.0", "[0]", "class QPointer<>", "@QPointer<@QObject>") % CdbEngine;
 
     QByteArray sharedData =
             "    class EmployeeData : public QSharedData\n"
@@ -2781,18 +2793,21 @@ void tst_Dumpers::dumper_data()
                + Check("ptr11", "(null)", "@QSharedPointer<int>")
                + Check("ptr12", "(null)", "@QSharedPointer<int>")
 
-               + Check("ptr20", "", "@QSharedPointer<@QString>")
+               + Check("ptr20", "", "@QSharedPointer<@QString>") % NoCdbEngine
+               + Check("ptr20", "class QSharedPointer<>", "@QSharedPointer<@QString>") % CdbEngine
                + Check("ptr20.data", "\"hallo\"", "@QString")
                + Check("ptr20.weakref", "3", "int")
                + Check("ptr20.strongref", "3", "int")
                + Check("ptr21.data", "\"hallo\"", "@QString")
                + Check("ptr22.data", "\"hallo\"", "@QString")
 
-               + Check("ptr30", "43", "@QSharedPointer<int>")
+               + Check("ptr30", "43", "@QSharedPointer<int>") % NoCdbEngine
+               + Check("ptr30", "class QSharedPointer<>", "@QSharedPointer<int>") % CdbEngine
                + Check("ptr30.data", "43", "int")
                + Check("ptr30.weakref", "4", "int")
                + Check("ptr30.strongref", "1", "int")
-               + Check("ptr33", "43", "@QWeakPointer<int>")
+               + Check("ptr33", "43", "@QWeakPointer<int>")  % NoCdbEngine
+               + Check("ptr33", "class QWeakPointer<>", "@QWeakPointer<int>")  % CdbEngine
                + Check("ptr33.data", "43", "int")
 
                + Check("ptr40", "", "@QSharedPointer<@QString>")

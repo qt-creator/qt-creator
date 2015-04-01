@@ -904,7 +904,7 @@ class Dumper(DumperBase):
             self.report('token(\"%s\")' % args["token"])
 
     def reportContinuation(self, args):
-        if "continuation" in args:
+        if not self.isShuttingDown_ and "continuation" in args:
             self.report('continuation=\"%s\"' % args["continuation"])
 
     def extractBlob(self, base, size):

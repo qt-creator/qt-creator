@@ -1177,6 +1177,10 @@ static KnownType knownClassTypeHelper(const std::string &type,
             if (!type.compare(qPos, 11, "QLinkedList"))
                 return KT_QLinkedList;
             break;
+        case 12:
+            if (!type.compare(qPos, 12, "QWeakPointer"))
+                return KT_QWeakPointer;
+            break;
         case 14:
             if (!type.compare(qPos, 14, "QSharedPointer"))
                 return KT_QSharedPointer;
@@ -1246,6 +1250,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QMatrix;
         if (!type.compare(qPos, 7, "QRegExp"))
             return KT_QRegExp;
+        if (!type.compare(qPos, 7, "QRegion"))
+            return KT_QRegion;
         if (!type.compare(qPos, 7, "QPixmap"))
             return KT_QPixmap;
         break;
@@ -1322,6 +1328,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QKeySequence;
         if (!type.compare(qPos, 12, "QHostAddress"))
             return KT_QHostAddress;
+        if (!type.compare(qPos, 12, "QIPv6Address"))
+            return KT_QIPv6Address;
         if (!type.compare(qPos, 12, "QScriptValue"))
             return KT_QScriptValue;
         break;
@@ -1704,7 +1712,7 @@ static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 }
 
 // Dump a QByteArray
-static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
+static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str, int *encoding,
                                   MemoryHandle **memoryHandle = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
@@ -1728,6 +1736,8 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     }
 
     // Qt 5: Data start at offset past the 'd' of type QByteArrayData.
+    if (encoding)
+        *encoding = DumpEncodingHex_Latin1_WithQuotes;
     wchar_t oldFill = str.fill(wchar_t('0'));
     str << std::hex;
     char *memory;
@@ -1830,7 +1840,8 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
 static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
                                             QPrivateDumpMode mode,
                                             unsigned additionalOffset,
-                                            std::wostream &str)
+                                            std::wostream &str,
+                                            int *encoding)
 {
     std::string errorMessage;
     const ULONG64 byteArrayAddress = addressOfQPrivateMember(v, mode, additionalOffset);
@@ -1855,7 +1866,7 @@ static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
         if (!byteArrayNode)
             return false;
     }
-    return dumpQByteArray(SymbolGroupValue(byteArrayNode, v.context()), str);
+    return dumpQByteArray(SymbolGroupValue(byteArrayNode, v.context()), str, encoding);
 }
 
 /* Dump QFileInfo, for whose private class no debugging information is available.
@@ -1882,6 +1893,33 @@ static inline bool dumpQRegExp(const SymbolGroupValue &v, std::wostream &str)
     return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, 0,  str);
 }
 
+static inline bool dumpQRegion(const SymbolGroupValue &v, std::wostream &str, void **specialInfo)
+{
+    const QtInfo info = QtInfo::get(v.context());
+    SymbolGroupValue d = v["d"]["qt_rgn"];
+    std::ostringstream namestr;
+    namestr << "(" << info.prependQtGuiModule("QRegionPrivate *") << ")("
+            << std::showbase << std::hex << d.pointerValue() << ')';
+
+    SymbolGroupNode *qRegionPrivateNode
+            = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
+    if (!qRegionPrivateNode)
+        return false;
+
+    const SymbolGroupValue qRegionPrivateValue = SymbolGroupValue(qRegionPrivateNode, v.context());
+    if (!qRegionPrivateValue)
+        return false;
+
+    const int size = containerSize(KT_QVector, qRegionPrivateValue["rects"]);
+    if (size == -1)
+        return false;
+
+    str << L'<' << size << L" items>";
+    if (specialInfo)
+        *specialInfo = qRegionPrivateNode;
+    return true;
+}
+
 /* Dump QFile, for whose private class no debugging information is available.
  * Dump the 1st string first past its QIODevicePrivate base class. */
 static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
@@ -1899,9 +1937,27 @@ static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
     return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qFileBasePrivateSize,  str);
 }
 
+static inline bool dumpQIPv6Address(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+{
+    unsigned char *p = SymbolGroupValue::readMemory( v.context().dataspaces, v["c"].address(), 16);
+    if (!p || !encoding)
+        return false;
+
+    const wchar_t oldFill = str.fill('0');
+    str << std::hex;
+    for (unsigned char *it = p; it < p + 16; ++it) {
+        if ((p - it) % 2 == 0 && it != p)
+            str << ':';
+        str << std::setw(2) << *it;
+    }
+    str << std::dec;
+    str.fill(oldFill);
+    *encoding = DumpEncodingIPv6AddressAndHexScopeId;
+    return true;
+}
 /* Dump QHostAddress, for whose private class no debugging information is available.
  * Dump string 'ipString' past of its private class. Does not currently work? */
-static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str)
+static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     // Determine offset in private struct: qIPv6AddressType (array, unaligned) +  uint32 + enum.
     const QtInfo info = QtInfo::get(v.context());
@@ -1924,6 +1980,8 @@ static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &st
             return true;
         }
         if (protocol == 1) {
+            if (dumpQIPv6Address(qHostAddressPrivateValue["a6"], str, encoding))
+                return true;
             str << L"IPv6 protocol";
             return true;
         }
@@ -1999,7 +2057,7 @@ static inline bool dumpQUrl(const SymbolGroupValue &v, std::wostream &str)
     if (QtInfo::get(v.context()).version < 5) {
         const ULONG offset = padOffset(qAtomicIntSize(v.context()))
                          + 6 * qStringSize(v.context()) + qByteArraySize(v.context());
-        return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str);
+        return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str, 0);
     }
     ULONG offset = qAtomicIntSize(v.context()) +
                    SymbolGroupValue::intSize();
@@ -2125,36 +2183,44 @@ static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
-static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     if (const SymbolGroupValue julianDayV = v["jd"]) {
-        if (julianDayV.intValue() > 0)
+        if (julianDayV.intValue() > 0) {
             str << julianDayV.intValue();
+            if (encoding)
+                *encoding = DumpEncodingJulianDate;
+        } else {
+            str << L"(invalid)";
+        }
         return true;
     }
     return false;
 }
 
-static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     if (const SymbolGroupValue milliSecsV = v["mds"]) {
         const int milliSecs = milliSecsV.intValue();
         str << milliSecs;
+        if (encoding)
+            *encoding = DumpEncodingMillisecondsSinceMidnight;
         return true;
     }
     return false;
 }
 
-static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
-    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str);
+    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str, encoding);
 }
 
 // Convenience to dump a QTimeZone from the unexported private class of a Qt class.
 static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
                                            QPrivateDumpMode mode,
                                            unsigned additionalOffset,
-                                           std::wostream &str)
+                                           std::wostream &str,
+                                           int *encoding)
 {
     std::string errorMessage;
     const ULONG64 timeZoneAddress = addressOfQPrivateMember(v, mode, additionalOffset);
@@ -2179,12 +2245,12 @@ static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
         if (!timeZoneNode)
             return false;
     }
-    return dumpQTimeZone(SymbolGroupValue(timeZoneNode, v.context()), str);
+    return dumpQTimeZone(SymbolGroupValue(timeZoneNode, v.context()), str, encoding);
 }
 
 // QDateTime has an unexported private class. Obtain date and time
 // from memory.
-static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
     if (QtInfo::get(v.context()).version == 5) {
@@ -2208,7 +2274,7 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
 
         addrOffset += SymbolGroupValue::intSize();
         std::wostringstream timeZoneStream;
-        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream);
+        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream, 0);
         const std::wstring &timeZoneString = timeZoneStream.str();
 
         addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
@@ -2231,6 +2297,9 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
             << timeZoneString << separator
             << status;
 
+        if (encoding)
+            *encoding = DumpEncodingMillisecondsSinceEpoch;
+
         return  true;
     }
 
@@ -2249,6 +2318,8 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
         SymbolGroupValue::readIntValue(v.context().dataspaces,
                                        timeAddr, SymbolGroupValue::intSize(), 0);
     str << date << '/' << time;
+    if (encoding)
+        *encoding = DumpEncodingJulianDateAndMillisecondsSinceMidnight;
     return true;
 }
 
@@ -2580,7 +2651,8 @@ static inline std::string
     return rc;
 }
 
-static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
+static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *encoding,
+                         void **specialInfoIn = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue dV = v["d"];
@@ -2672,7 +2744,7 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     case 12: //ByteArray
         str << L"(QByteArray) ";
         if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QByteArray *").c_str()))
-            dumpQByteArray(sv, str);
+            dumpQByteArray(sv, str, encoding);
         break;
     case 13: // BitArray
         str << L"(QBitArray)";
@@ -2680,12 +2752,12 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     case 14: // Date: Do not qualify - fails non-deterministically with QtCored4!QDate
         str << L"(QDate) ";
         if (const SymbolGroupValue sv = dataV.typeCast("QDate *"))
-            dumpQDate(sv, str);
+            dumpQDate(sv, str, encoding);
         break;
     case 15: // Time: Do not qualify - fails non-deterministically with QtCored4!QTime
         str << L"(QTime) ";
         if (const SymbolGroupValue sv = dataV.typeCast("QTime *"))
-            dumpQTime(sv, str);
+            dumpQTime(sv, str, encoding);
         break;
     case 16: // DateTime
         str << L"(QDateTime)";
@@ -2749,33 +2821,51 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     return true;
 }
 
-// Dump a qsharedpointer (just list reference counts)
-static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
+static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &str, int *encoding, void **specialInfoIn = 0)
 {
     const SymbolGroupValue externalRefCountV = v[unsigned(0)];
-    if (!externalRefCountV)
-        return false;
-    const SymbolGroupValue dV = externalRefCountV["d"];
-    if (!dV)
-        return false;
-    // Get value element from base and store in special info.
-    const SymbolGroupValue valueV = externalRefCountV[unsigned(0)]["value"];
-    if (!valueV)
-        return false;
-    // Format references.
-    const int strongRef = dV["strongref"]["_q_value"].intValue();
-    const int weakRef = dV["weakref"]["_q_value"].intValue();
-    if (strongRef < 0 || weakRef < 0)
-        return false;
-    str << L"References: " << strongRef << '/' << weakRef;
-    if (specialInfoIn)
-        *specialInfoIn = valueV.node();
-    return true;
+    const QtInfo qtInfo = QtInfo::get(v.context());
+    if (qtInfo.version < 5) {
+        if (!externalRefCountV)
+            return false;
+        const SymbolGroupValue dV = externalRefCountV["d"];
+        if (!dV)
+            return false;
+        // Get value element from base and store in special info.
+        const SymbolGroupValue valueV = externalRefCountV[unsigned(0)]["value"];
+        if (!valueV)
+            return false;
+        // Format references.
+        const int strongRef = dV["strongref"]["_q_value"].intValue();
+        const int weakRef = dV["weakref"]["_q_value"].intValue();
+        if (strongRef < 0 || weakRef < 0)
+            return false;
+        str << L"References: " << strongRef << '/' << weakRef;
+        if (specialInfoIn)
+            *specialInfoIn = valueV.node();
+        return true;
+    } else { // Qt 5
+        SymbolGroupValue value = v["value"];
+        if (value.pointerValue(0) == 0) {
+            str << L"(null)";
+            return true;
+        }
+        std::ostringstream namestr;
+        namestr << "*(" << SymbolGroupValue::stripClassPrefixes(value.type()) << ")("
+                << std::showbase << std::hex << value.pointerValue() << ')';
+        SymbolGroupNode *valueNode
+                = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
+        if (!valueNode)
+            return false;
+
+        str << valueNode->simpleDumpValue(v.context(), encoding);
+        return true;
+    }
 }
 
 // Dump builtin simple types using SymbolGroupValue expressions.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
-                        std::wstring *s, int *knownTypeIn /* = 0 */,
+                        std::wstring *s, int *encoding /* = 0 */, int *knownTypeIn /* = 0 */,
                         int *containerSizeIn /* = 0 */,
                         void **specialInfoIn /* = 0 */,
                         MemoryHandle **memoryHandleIn /* = 0 */)
@@ -2825,7 +2915,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQChar(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QByteArray:
-            rc = dumpQByteArray(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQByteArray(v, str, encoding, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QFileInfo:
             rc = dumpQFileInfo(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
@@ -2839,11 +2929,17 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         case KT_QRegExp:
             rc = dumpQRegExp(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
+        case KT_QRegion:
+            rc = dumpQRegion(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
         case KT_QUrl:
             rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QHostAddress:
-            rc = dumpQHostAddress(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQHostAddress(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QIPv6Address:
+            rc = dumpQIPv6Address(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QProcess:
             rc = dumpQProcess(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
@@ -2864,16 +2960,16 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQFlags(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QDate:
-            rc = dumpQDate(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQDate(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QTime:
-            rc = dumpQTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQTime(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QDateTime:
-            rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQDateTime(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QTimeZone:
-            rc = dumpQTimeZone(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQTimeZone(v, str, encoding) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QPoint:
         case KT_QPointF:
@@ -2900,7 +2996,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQRectF(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QVariant:
-            rc = dumpQVariant(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            rc = dumpQVariant(v, str, encoding, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QAtomicInt:
             rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
@@ -2918,7 +3014,8 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             rc = dumpQWindow(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QSharedPointer:
-            rc = dumpQSharedPointer(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        case KT_QWeakPointer:
+            rc = dumpQSharedPointer(v, str, encoding, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_StdString:
         case KT_StdWString:
@@ -3318,6 +3415,17 @@ std::vector<AbstractSymbolGroupNode *>
     case KT_QByteArray:
         rc = complexDumpQByteArray(n, ctx);
         break;
+    case KT_QRegion:
+        if (specialInfo) {
+            typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector NodeVector;
+            NodeVector children =
+                    reinterpret_cast<SymbolGroupNode *>(specialInfo)->children();
+            for (NodeVector::iterator it = children.begin(); it != children.end(); ++it) {
+                if (SymbolGroupNode *node = (*it)->asSymbolGroupNode())
+                    rc.push_back(new ReferenceSymbolGroupNode(node->name(), node->iName(), node));
+            }
+        }
+        break;
     case KT_QWidget: // Special info by simple dumper is the QWidgetPrivate node
     case KT_QWindow: // Special info by simple dumper is the QWindowPrivate node
     case KT_QObject: // Special info by simple dumper is the QObjectPrivate node
@@ -3331,6 +3439,7 @@ std::vector<AbstractSymbolGroupNode *>
             SymbolGroupNode *containerNode = reinterpret_cast<SymbolGroupNode *>(specialInfo);
             rc.push_back(new ReferenceSymbolGroupNode("children", "children", containerNode));
         }
+    case KT_QWeakPointer:
     case KT_QSharedPointer: // Special info by simple dumper is the value
         if (specialInfo) {
             SymbolGroupNode *valueNode = reinterpret_cast<SymbolGroupNode *>(specialInfo);
@@ -3342,7 +3451,7 @@ std::vector<AbstractSymbolGroupNode *>
     }
     if (SymbolGroupValue::verbose) {
         DebugPrint dp;
-        dp << "<dumpComplexType" << rc.size() << ' ';
+        dp << "<dumpComplexType" << rc.size() << ' ' << specialInfo << ' ';
         for (VectorIndexType i = 0; i < rc.size() ; ++i)
             dp << i << ' ' << rc.at(i)->name();
     }

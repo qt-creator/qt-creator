@@ -314,6 +314,7 @@ void CppToolsPlugin::test_completion()
     actualCompletions.sort();
     expectedCompletions.sort();
 
+    QEXPECT_FAIL("template_as_base: explicit typedef from base", "QTCREATORBUG-14218", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
@@ -321,6 +322,8 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization_typedef", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -707,6 +710,34 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("finalMember")
             << QLatin1String("Other")
             << QLatin1String("otherMember"));
+
+    QTest::newRow("template_as_base: typedef not available in derived") << _(
+            "class Data { int dataMember; };\n"
+            "template <class T> struct Base { typedef T F; };\n"
+            "template <class T> struct Derived : Base<T> { F f; };\n"
+            "\n"
+            "void func() {\n"
+            "    Derived<Data> d;\n"
+            "    @\n"
+            "}\n"
+        ) << _("d.f.") << QStringList();
+
+    QTest::newRow("template_as_base: explicit typedef from base") << _(
+            "class Data { int dataMember; };\n"
+            "template <class T> struct Base { typedef T F; };\n"
+            "template <class T> struct Derived : Base<T>\n"
+            "{\n"
+            "   typedef typename Base<T>::F F;\n"
+            "   F f;\n"
+            "};\n"
+            "\n"
+            "void func() {\n"
+            "    Derived<Data> d;\n"
+            "    @\n"
+            "}\n"
+        ) << _("d.f.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember"));
 
     QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
@@ -2709,6 +2740,76 @@ void CppToolsPlugin::test_completion_data()
             "void func()\n"
             "{\n"
             "   Temp t;\n"
+            "   @\n"
+            "}\n"
+    ) << _("t.p->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("pointer_indirect_specialization_double_indirection") << _(
+            "template<typename _Tp>\n"
+            "struct Traits { };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct IndirectT\n"
+            "{\n"
+            "   typedef Traits<_Tp> TraitsT;\n"
+            "   typedef typename TraitsT::pointer pointer;\n"
+            "   pointer p;\n"
+            "};\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct Temp\n"
+            "{\n"
+            "   typedef _Tp *pointer;\n"
+            "   typedef IndirectT<pointer> indirect;\n"
+            "};\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "   Temp<Foo>::indirect t;\n"
+            "   @\n"
+            "}\n"
+    ) << _("t.p->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("pointer_indirect_specialization_double_indirection_with_base") << _(
+            "template<typename _Tp>\n"
+            "struct Traits { };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct IndirectT\n"
+            "{\n"
+            "   typedef Traits<_Tp> TraitsT;\n"
+            "   typedef typename TraitsT::pointer pointer;\n"
+            "   pointer p;\n"
+            "};\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct TempBase { typedef _Tp *pointer; };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct Temp : public TempBase<_Tp>\n"
+            "{\n"
+            "   typedef TempBase<_Tp> _Base;\n"
+            "   typedef typename _Base::pointer pointer;\n"
+            "   typedef IndirectT<pointer> indirect;\n"
+            "};\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "   Temp<Foo>::indirect t;\n"
             "   @\n"
             "}\n"
     ) << _("t.p->") << (QStringList()

@@ -52,7 +52,7 @@ enum RegisterDataRole
     RegisterNameRole = Qt::UserRole,
     RegisterIsBigRole,
     RegisterChangedRole,
-    RegisterNumberBaseRole,
+    RegisterFormatRole,
     RegisterAsAddressRole
 };
 
@@ -66,6 +66,15 @@ enum RegisterKind
     OtherRegister
 };
 
+enum RegisterFormat
+{
+    CharacterFormat,
+    HexadecimalFormat,
+    DecimalFormat,
+    OctalFormat,
+    BinaryFormat
+};
+
 class RegisterValue
 {
 public:
@@ -73,7 +82,7 @@ public:
     void operator=(const QByteArray &ba);
     bool operator==(const RegisterValue &other);
     bool operator!=(const RegisterValue &other) { return !operator==(other); }
-    QByteArray toByteArray(int base, RegisterKind kind, int size) const;
+    QByteArray toByteArray(RegisterKind kind, int size, RegisterFormat format) const;
     RegisterValue subValue(int size, int index) const;
 
     union {
@@ -116,7 +125,7 @@ public:
 
     void updateRegister(const Register &reg);
 
-    void setNumberBase(const QByteArray &name, int base);
+    void setNumberFormat(const QByteArray &name, RegisterFormat format);
     void commitUpdates() { emit layoutChanged(); }
     RegisterMap registerMap() const;
 

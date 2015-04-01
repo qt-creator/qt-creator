@@ -1793,6 +1793,8 @@ void DebuggerEngine::setStateDebugging(bool on)
 
 void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
 {
+    if (sp->skipExecutableValidation)
+        return;
     if (sp->languages == QmlLanguage)
         return;
     QString binary = sp->executable;

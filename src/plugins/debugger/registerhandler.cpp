@@ -252,14 +252,29 @@ void Register::guessMissingData()
         fixup(this, IntegerRegister, 0);
 }
 
-static QString subTypeName(RegisterKind kind, int size)
+static QString subTypeName(RegisterKind kind, int size, RegisterFormat format)
 {
-    if (kind == IntegerRegister)
-        return QString::fromLatin1("[i%1]").arg(size * 8);
-    if (kind == FloatRegister)
-        return QString::fromLatin1("[f%1]").arg(size * 8);
-    QTC_ASSERT(false, /**/);
-    return QString();
+    QString name(QLatin1Char('['));
+
+    switch (kind) {
+        case IntegerRegister: name += QLatin1Char('i'); break;
+        case FloatRegister: name += QLatin1Char('f'); break;
+        default: break;
+    }
+
+    name += QString::number(size);
+
+    switch (format) {
+        case BinaryFormat: name += QLatin1Char('b'); break;
+        case OctalFormat: name += QLatin1Char('o'); break;
+        case DecimalFormat: name += QLatin1Char('d'); break;
+        case HexadecimalFormat: name += QLatin1Char('x'); break;
+        case CharacterFormat: name += QLatin1Char('c'); break;
+    }
+
+    name += QLatin1Char(']');
+
+    return name;
 }
 
 static uint decodeHexChar(unsigned char c)
@@ -305,15 +320,29 @@ bool RegisterValue::operator==(const RegisterValue &other)
     return v.u64[0] == other.v.u64[0] && v.u64[1] == other.v.u64[1];
 }
 
-static QByteArray format(quint64 v, int base, int size)
+static QByteArray formatRegister(quint64 v, int size, RegisterFormat format)
 {
-    QByteArray result = QByteArray::number(v, base);
-    if (base == 16)
+    QByteArray result;
+    if (format == HexadecimalFormat) {
+        result = QByteArray::number(v, 16);
         result.prepend(QByteArray(2*size - result.size(), '0'));
+    } else if (format == DecimalFormat) {
+        result = QByteArray::number(v, 10);
+        result.prepend(QByteArray(2*size - result.size(), ' '));
+    } else if (format == CharacterFormat) {
+        if (v >= 32 && v < 127) {
+            result += '\'';
+            result += char(v);
+            result += '\'';
+        } else {
+            result += "   ";
+        }
+        result.prepend(QByteArray(2*size - result.size(), ' '));
+    }
     return result;
 }
 
-QByteArray RegisterValue::toByteArray(int base, RegisterKind kind, int size) const
+QByteArray RegisterValue::toByteArray(RegisterKind kind, int size, RegisterFormat format) const
 {
     if (!known)
         return "[inaccessible]";
@@ -326,15 +355,12 @@ QByteArray RegisterValue::toByteArray(int base, RegisterKind kind, int size) con
 
     QByteArray result;
     if (size > 8) {
-        result += format(v.u64[1], base, size - 8);
+        result += formatRegister(v.u64[1], size - 8, format);
         size = 8;
-        if (base != 16)
+        if (format != HexadecimalFormat)
             result += ',';
     }
-    result += format(v.u64[0], base, size);
-    if (base == 16)
-        result.prepend("0x");
-    return result;
+    return result + formatRegister(v.u64[0], size, format);
 }
 
 RegisterValue RegisterValue::subValue(int size, int index) const
@@ -367,8 +393,8 @@ RegisterValue RegisterValue::subValue(int size, int index) const
 class RegisterSubItem : public Utils::TreeItem
 {
 public:
-    RegisterSubItem(RegisterKind subKind, int subSize, int count)
-        : m_subKind(subKind), m_subSize(subSize), m_count(count), m_changed(false)
+    RegisterSubItem(RegisterKind subKind, int subSize, int count, RegisterFormat format)
+        : m_subKind(subKind), m_subFormat(format), m_subSize(subSize), m_count(count), m_changed(false)
     {}
 
     QVariant data(int column, int role) const;
@@ -382,6 +408,7 @@ public:
     }
 
     RegisterKind m_subKind;
+    RegisterFormat m_subFormat;
     int m_subSize;
     int m_count;
     bool m_changed;
@@ -398,23 +425,27 @@ public:
     quint64 addressValue() const;
 
     Register m_reg;
-    int m_base;
+    RegisterFormat m_format;
     bool m_changed;
 };
 
 RegisterItem::RegisterItem(const Register &reg) :
-    m_reg(reg), m_base(16), m_changed(true)
+    m_reg(reg), m_format(HexadecimalFormat), m_changed(true)
 {
     if (m_reg.kind == UnknownRegister)
         m_reg.guessMissingData();
 
     if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
-        for (int s = m_reg.size / 2; s; s = s / 2)
-            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s));
+        for (int s = m_reg.size / 2; s; s = s / 2) {
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, HexadecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, DecimalFormat));
+            if (s == 1)
+                appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, CharacterFormat));
+        }
     }
     if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
         for (int s = m_reg.size; s >= 4; s = s / 2)
-            appendChild(new RegisterSubItem(FloatRegister, s, m_reg.size / s));
+            appendChild(new RegisterSubItem(FloatRegister, s, m_reg.size / s, DecimalFormat));
     }
 }
 
@@ -444,11 +475,11 @@ QVariant RegisterItem::data(int column, int role) const
         case RegisterChangedRole:
             return m_changed;
 
-        case RegisterNumberBaseRole:
-            return m_base;
-
         case RegisterAsAddressRole:
             return addressValue();
+
+        case RegisterFormatRole:
+            return m_format;
 
         case Qt::DisplayRole:
             switch (column) {
@@ -459,17 +490,17 @@ QVariant RegisterItem::data(int column, int role) const
                     return res;
                 }
                 case RegisterValueColumn: {
-                    return m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size);
+                    return m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format);
                 }
             }
 
         case Qt::ToolTipRole:
             return QString::fromLatin1("Current Value: %1\nPreviousValue: %2")
-                    .arg(QString::fromLatin1(m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size)))
-                    .arg(QString::fromLatin1(m_reg.previousValue.toByteArray(m_base, m_reg.kind, m_reg.size)));
+                    .arg(QString::fromLatin1(m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format)))
+                    .arg(QString::fromLatin1(m_reg.previousValue.toByteArray(m_reg.kind, m_reg.size, m_format)));
 
         case Qt::EditRole: // Edit: Unpadded for editing
-            return m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size);
+            return m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format);
 
         case Qt::TextAlignmentRole:
             return column == RegisterValueColumn ? QVariant(Qt::AlignRight) : QVariant();
@@ -486,8 +517,10 @@ QVariant RegisterSubItem::data(int column, int role) const
         case RegisterChangedRole:
             return m_changed;
 
-        case RegisterNumberBaseRole:
-            return 16;
+        case RegisterFormatRole: {
+            RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
+            return int(registerItem->m_format);
+        }
 
         case RegisterAsAddressRole:
             return 0;
@@ -495,20 +528,32 @@ QVariant RegisterSubItem::data(int column, int role) const
         case Qt::DisplayRole:
             switch (column) {
                 case RegisterNameColumn:
-                    return subTypeName(m_subKind, m_subSize);
+                    return subTypeName(m_subKind, m_subSize, m_subFormat);
                 case RegisterValueColumn: {
                     QTC_ASSERT(parent(), return QVariant());
                     RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
                     RegisterValue value = registerItem->m_reg.value;
                     QByteArray ba;
                     for (int i = 0; i != m_count; ++i) {
-                        ba += value.subValue(m_subSize, i).toByteArray(16, m_subKind, m_subSize);
                         int tab = 5 * (i + 1) * m_subSize;
-                        ba += QByteArray(tab - ba.size(), ' ');
+                        QByteArray b = value.subValue(m_subSize, i).toByteArray(m_subKind, m_subSize, m_subFormat);
+                        ba += QByteArray(tab - ba.size() - b.size(), ' ');
+                        ba += b;
                     }
                     return ba;
                 }
             }
+
+        case Qt::ToolTipRole:
+            if (m_subKind == IntegerRegister) {
+                if (m_subFormat == CharacterFormat)
+                    return RegisterHandler::tr("Content as ASCII Characters");
+                else
+                    return RegisterHandler::tr("Content as %1-bit Integer Values").arg(8 * m_subSize);
+            }
+            if (m_subKind == FloatRegister)
+                return RegisterHandler::tr("Contents as %1-bit Floating Point Values").arg(8 * m_subSize);
+
         default:
             break;
     }
@@ -553,11 +598,11 @@ void RegisterHandler::updateRegister(const Register &r)
     }
 }
 
-void RegisterHandler::setNumberBase(const QByteArray &name, int base)
+void RegisterHandler::setNumberFormat(const QByteArray &name, RegisterFormat format)
 {
     RegisterItem *reg = m_registerByName.value(name, 0);
     QTC_ASSERT(reg, return);
-    reg->m_base = base;
+    reg->m_format = format;
     QModelIndex index = indexFromItem(reg);
     emit dataChanged(index, index);
 }
