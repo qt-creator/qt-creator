@@ -1007,6 +1007,9 @@ DisplayFormats WatchItem::typeFormatList() const
     t.replace(QLatin1Char(':'), QLatin1Char('_'));
     formats << watchModel()->m_reportedTypeFormats.value(t);
 
+    if (t.contains(QLatin1Char(']')))
+        formats << watchModel()->m_reportedTypeFormats.value(QLatin1String("[]"));
+
     // Fixed artificial string and pointer types.
     if (origaddr || isPointerType(type)) {
         formats.append(RawFormat);

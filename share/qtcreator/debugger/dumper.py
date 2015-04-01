@@ -948,15 +948,27 @@ class DumperBase:
                 else:
                     self.putValue(blob, Hex8EncodedLittleEndian)
 
-        if self.currentIName in self.expandedINames:
+        if self.isExpanded():
             try:
                 # May fail on artificial items like xmm register data.
-                if not self.tryPutArrayContents(p, n, innerType):
+                #if not self.tryPutArrayContents(p, n, innerType):
                     with Children(self, childType=innerType, addrBase=p, addrStep=ts):
                         self.putFields(value)
             except:
                 with Children(self, childType=innerType):
                     self.putFields(value)
+
+        if hasPlot and self.isSimpleType(innerType):
+            show = displayFormat == ArrayPlotFormat
+            iname = self.currentIName
+            data = []
+            if show:
+                base = self.createPointerValue(p, innerType)
+                data = [str(base[i]) for i in range(0, n)]
+            matplotSend(iname, show, data)
+        else:
+            #self.putValue(self.currentValue.value + " (not plottable)")
+            self.putField("plottable", "0")
 
     def cleanAddress(self, addr):
         if addr is None:
@@ -1744,6 +1756,10 @@ class DumperBase:
         self.qqFormats = {}
         self.qqEditable = {}
         self.typeCache = {}
+
+        if hasPlot: # Hack for generic array type. [] is used as "type" name.
+            self.qqDumpers['[]'] = ""
+            self.qqFormats['[]'] = arrayForms()
 
         for mod in self.dumpermodules:
             m = importlib.import_module(mod)
