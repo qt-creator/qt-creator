@@ -400,9 +400,9 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
 }
 
 // Format printable (char-type) characters
-static QString reformatCharacter(int code, int format)
+static QString reformatCharacter(int code, int format, bool isSigned)
 {
-    const QString codeS = reformatInteger(code, format, 1, true);
+    const QString codeS = reformatInteger(code, format, 1, isSigned);
     if (code < 0) // Append unsigned value.
         return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format, 1, false);
     const QChar c = QChar(uint(code));
@@ -500,10 +500,12 @@ QString WatchItem::formattedValue() const
     const int format = itemFormat();
 
     // Append quoted, printable character also for decimal.
+    // FIXME: This is unreliable.
     if (type.endsWith("char") || type.endsWith("QChar")) {
         bool ok;
         const int code = value.toInt(&ok);
-        return ok ? reformatCharacter(code, format) : value;
+        bool isUnsigned = type == "unsigned char" || type == "uchar";
+        return ok ? reformatCharacter(code, format, !isUnsigned) : value;
     }
 
     if (format == HexadecimalIntegerFormat
