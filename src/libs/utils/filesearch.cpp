@@ -207,6 +207,7 @@ const FileSearchResultList FileSearchRegExp::operator()(const QString &filePath,
 
     QString line;
     while (!stream.atEnd()) {
+        ++lineNr;
         line = stream.readLine();
         const QString resultItemText = clippedText(line, MAX_LINE_SIZE);
         int lengthOfLine = line.size();
@@ -221,7 +222,6 @@ const FileSearchResultList FileSearchRegExp::operator()(const QString &filePath,
             if (pos >= lengthOfLine)
                 break;
         }
-        ++lineNr;
         if (future->isPaused())
             future->waitForResume();
         if (future->isCanceled())
