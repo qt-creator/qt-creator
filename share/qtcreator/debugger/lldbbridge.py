@@ -1765,11 +1765,12 @@ class Tester(Dumper):
                     stoppedThread = self.firstStoppedThread()
                     if stoppedThread is None:
                         warn("NO STOPPED THREAD FOUND")
-                        for i in xrange(0, self.process.GetNumThreads()):
-                            thread = self.process.GetThreadAtIndex(i)
-                            reason = thread.GetStopReason()
-                            warn("THREAD: %s REASON: %s" % (thread, reason))
                         continue
+
+                    #for i in xrange(0, self.process.GetNumThreads()):
+                    #    thread = self.process.GetThreadAtIndex(i)
+                    #    reason = thread.GetStopReason()
+                    #    warn("THREAD: %s REASON: %s" % (thread, reason))
 
                     try:
                         frame = stoppedThread.GetFrameAtIndex(0)

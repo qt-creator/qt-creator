@@ -1274,7 +1274,7 @@ void tst_Dumpers::dumper()
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
                "sc print(dir())\n"
-               "sc Tester('" + t->buildPath.toLatin1() + "/doit', '" + expanded + "')\n"
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit', [" + expandedq + "])\n"
                "quit\n";
 
         fullLldb.write(cmds);
