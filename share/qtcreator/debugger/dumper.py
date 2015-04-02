@@ -911,14 +911,9 @@ class DumperBase:
         self.putNumChild(n)
 
         if self.isExpanded():
-            try:
-                # May fail on artificial items like xmm register data.
-                #if not self.tryPutArrayContents(p, n, innerType):
-                    with Children(self, childType=innerType, addrBase=p, addrStep=ts):
-                        self.putFields(value)
-            except:
-                with Children(self, childType=innerType):
-                    self.putFields(value)
+            with Children(self):
+                for i in range(n):
+                    self.putSubItem(i, value[i])
 
         self.putPlotDataHelper(p, n, innerType)
 
