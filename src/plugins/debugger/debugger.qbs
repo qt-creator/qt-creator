@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "Debugger"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Aggregation" }
     Depends { name: "CPlusPlus" }
     Depends { name: "QtcSsh" }

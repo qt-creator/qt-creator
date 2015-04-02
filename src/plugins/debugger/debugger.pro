@@ -7,8 +7,7 @@ include(../../qtcreatorplugin.pri)
 DEFINES += DEBUGGER_LIBRARY
 
 QT += gui \
-    network \
-    script
+    network
 
 CONFIG += exceptions
 
