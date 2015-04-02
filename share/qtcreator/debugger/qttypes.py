@@ -546,8 +546,7 @@ def qdump__QFiniteStack(d, value):
     size = int(value["_size"])
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    if d.isExpanded():
-        d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
+    d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
 
 # Stock gdb 7.2 seems to have a problem with types here:
 #
