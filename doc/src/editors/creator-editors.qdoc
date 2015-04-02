@@ -750,6 +750,12 @@
     If this does not help, try changing the QML emulation layer to the one that
     was built with the same Qt version as the one selected in the build and run
     kit. For more information, see \l{Running QML Modules in Qt Quick Designer}.
+
+    \section1 Inspecting QML and JavaScript
+
+    To inspect QML and JavaScript properties, methods, and enums, move the
+    cursor over them and select \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Inspect API for Element Under Cursor}.
 */
 
 
