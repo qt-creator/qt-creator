@@ -538,6 +538,13 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     }
 }
 
+void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
+{
+    if (project != currentProject())
+        return;
+    updateTestTree();
+}
+
 void TestCodeParser::removeFiles(const QStringList &files)
 {
     foreach (const QString &file, files)

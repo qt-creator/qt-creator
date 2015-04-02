@@ -83,6 +83,7 @@ public slots:
 
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
+    void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void removeFiles(const QStringList &files);
     void onProFileEvaluated();
 

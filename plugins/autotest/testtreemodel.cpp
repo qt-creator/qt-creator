@@ -115,6 +115,8 @@ void TestTreeModel::enableParsing()
             m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
     connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
             m_parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
+    connect(cppMM, &CppTools::CppModelManager::projectPartsUpdated,
+            m_parser, &TestCodeParser::onProjectPartsUpdated);
 
     QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
