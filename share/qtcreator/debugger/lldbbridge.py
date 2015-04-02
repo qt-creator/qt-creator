@@ -579,11 +579,17 @@ class Dumper(DumperBase):
 
     def createPointerValue(self, address, pointeeType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        return self.context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+        sbaddr = lldb.SBAddress(addr, self.target)
+        # Any type.
+        # FIXME: This can be replaced with self.target.CreateValueFromExpression
+        # as soon as we drop support for lldb builds not having that (~Xcode 6.1)
+        dummy = self.target.CreateValueFromAddress('@', sbaddr, self.target.FindFirstType('char'))
+        return dummy.CreateValueFromExpression('', '(%s*)%s' % (pointeeType, addr))
 
     def createValue(self, address, referencedType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        return self.context.CreateValueFromAddress(None, addr, referencedType)
+        sbaddr = lldb.SBAddress(addr, self.target)
+        return self.target.CreateValueFromAddress(None, sbaddr, referencedType)
 
     def childRange(self):
         if self.currentMaxNumChild is None:
