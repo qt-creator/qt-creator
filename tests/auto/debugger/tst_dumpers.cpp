@@ -5044,10 +5044,15 @@ void tst_Dumpers::dumper_data()
                     "qint64 d = c;\n"
                     "QString dummy;\n"
                     "unused(&a, &b, &c, &d, &dummy);\n")
-               + Check("a", "-1143861252567568256", "@qint64")
-               + Check("b", "17302882821141983360", "@quint64")
-               + Check("c", "18446744073709551614", "@quint64")
-               + Check("d", "-2", "@qint64");
+               + CoreProfile()
+               + Check("a", "-1143861252567568256", "@qint64")  % NoCdbEngine
+               + Check("b", "17302882821141983360", "@quint64") % NoCdbEngine
+               + Check("c", "18446744073709551614", "@quint64") % NoCdbEngine
+               + Check("d", "-2",                   "@qint64")  % NoCdbEngine
+               + Check("a", "-1143861252567568256", "int64")          % CdbEngine
+               + Check("b", "17302882821141983360", "unsigned int64") % CdbEngine
+               + Check("c", "18446744073709551614", "unsigned int64") % CdbEngine
+               + Check("d", "-2",                   "int64")          % CdbEngine;
 
     QTest::newRow("Hidden")
             << Data("#include <QString>\n",
