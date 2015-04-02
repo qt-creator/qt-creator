@@ -1533,16 +1533,16 @@ class DumperBase:
 
     def extractPointer(self, thing, offset = 0):
         if isinstance(thing, int):
-            bytes = self.extractBlob(thing, self.ptrSize()).toBytes()
+            rawBytes = self.extractBlob(thing, self.ptrSize()).toBytes()
         elif sys.version_info[0] == 2 and isinstance(thing, long):
-            bytes = self.extractBlob(thing, self.ptrSize()).toBytes()
+            rawBytes = self.extractBlob(thing, self.ptrSize()).toBytes()
         elif isinstance(thing, Blob):
-            bytes = thing.toBytes()
+            rawBytes = thing.toBytes()
         else:
             # Assume it's a (backend specific) Value.
-            bytes = self.toBlob(thing).toBytes()
+            rawBytes = self.toBlob(thing).toBytes()
         code = "I" if self.ptrSize() == 4 else "Q"
-        return struct.unpack_from(code, bytes, offset)[0]
+        return struct.unpack_from(code, rawBytes, offset)[0]
 
 
     # Parses a..b and  a.(s).b
