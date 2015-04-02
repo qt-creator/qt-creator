@@ -1906,6 +1906,7 @@ def qdump__QUrl(d, value):
                 d.putGenericItem("path", stringType, path, Hex4EncodedLittleEndian)
                 d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
                 d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
+                d.putFields(value)
 
 def qdumpHelper_QVariant_0(d, blob):
     # QVariant::Invalid

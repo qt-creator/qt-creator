@@ -3321,7 +3321,7 @@ void tst_Dumpers::dumper_data()
                + Check("var14", "(invalid)", "@QVariant (QDate)")
                + Check("var15", "(invalid)", "@QVariant (QTime)")
                + Check("var16", "(invalid)", "@QVariant (QDateTime)")
-               + Check4("var17.d", "", "@QUrlPrivate")
+               + Check("var17.d", "", "@QUrlPrivate")
                + Check5("var17", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QVariant (QUrl)")
                + Check("var17.port", "10", "int")
                + Check("var18", "\"en_US\"", "@QVariant (QLocale)")
@@ -3350,7 +3350,7 @@ void tst_Dumpers::dumper_data()
                + Check("var68", "", "@QVariant (QPalette)")
                + Check("var69", "", "@QVariant (QIcon)")
                + Check("var70", "(invalid)", "@QVariant (QImage)")
-               + Check("var71", "", "@QVariant (QPolygon)")
+               + Check("var71", "<0 items>", "@QVariant (QPolygon)")
                //+ Check("var72", "", "@QVariant (QRegion)")    FIXME
                + Check("var73", "", "@QVariant (QBitmap)")
                + Check("var74", "", "@QVariant (QCursor)")
@@ -3364,7 +3364,7 @@ void tst_Dumpers::dumper_data()
                + Check("var83", "", "@QVariant (QVector3D)")
                + Check("var84", "", "@QVariant (QVector4D)")
                + Check("var85", "", "@QVariant (QQuaternion)")
-               + Check("var86", "", "@QVariant (QPolygonF)");
+               + Check("var86", "<0 items>", "@QVariant (QPolygonF)");
 
 
     QTest::newRow("QVariant4")
