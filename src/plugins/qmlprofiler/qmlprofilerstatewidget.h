@@ -48,6 +48,7 @@ public:
     ~QmlProfilerStateWidget();
 
 private slots:
+    void showText(const QString &text, bool showProgress = false);
     void updateDisplay();
     void dataStateChanged();
     void profilerStateChanged();
