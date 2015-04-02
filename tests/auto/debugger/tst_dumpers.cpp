@@ -3540,29 +3540,39 @@ void tst_Dumpers::dumper_data()
                + Check("v1.8999", "[8999]", "80982001", "int")
 
                + Check("v2", "<2 items>", "@QVector<Foo>")
-               + Check("v2.0", "[0]", "", "Foo")
+               + Check("v2.0", "[0]", "", "Foo") % NoCdbEngine
+               + Check("v2.0", "[0]", "class Foo", "Foo") % CdbEngine
                + Check("v2.0.a", "1", "int")
-               + Check("v2.1", "[1]", "", "Foo")
+               + Check("v2.1", "[1]", "", "Foo") % NoCdbEngine
+               + Check("v2.1", "[1]", "class Foo", "Foo") % CdbEngine
                + Check("v2.1.a", "2", "int")
 
-               + Check("v3", "<2 items>", "FooVector")
-               + Check("v3.0", "[0]", "", "Foo")
+               + Check("v3", "<2 items>", "FooVector") % NoCdbEngine
+               + Check("v3", "<2 items>", "QVector<Foo>") % CdbEngine
+               + Check("v3.0", "[0]", "", "Foo") % NoCdbEngine
+               + Check("v3.0", "[0]", "class Foo", "Foo") % CdbEngine
                + Check("v3.0.a", "1", "int")
-               + Check("v3.1", "[1]", "", "Foo")
+               + Check("v3.1", "[1]", "", "Foo") % NoCdbEngine
+               + Check("v3.1", "[1]", "class Foo", "Foo") % CdbEngine
                + Check("v3.1.a", "2", "int")
 
                + Check("v4", "<3 items>", "@QVector<Foo*>")
-               + CheckType("v4.0", "[0]", "Foo")
+               + CheckType("v4.0", "[0]", "Foo") % NoCdbEngine
+               + CheckType("v4.0", "[0]", "Foo *") % CdbEngine
                + Check("v4.0.a", "1", "int")
                + Check("v4.1", "[1]", "0x0", "Foo *")
-               + CheckType("v4.2", "[2]", "Foo")
+               + CheckType("v4.2", "[2]", "Foo") % NoCdbEngine
+               + CheckType("v4.2", "[2]", "Foo *") % CdbEngine
                + Check("v4.2.a", "5", "int")
 
                + Check("v5", "<2 items>", "@QVector<bool>")
-               + Check("v5.0", "[0]", "1", "bool")
-               + Check("v5.1", "[1]", "0", "bool")
+               + Check("v5.0", "[0]", "1", "bool") % NoCdbEngine
+               + Check("v5.1", "[1]", "0", "bool") % NoCdbEngine
+               + Check("v5.0", "[0]", "true", "bool") % CdbEngine
+               + Check("v5.1", "[1]", "false", "bool") % CdbEngine
 
-               + CheckType("pv", "@QVector<@QList<int>>")
+               + CheckType("pv", "@QVector<@QList<int>>") % NoCdbEngine
+               + CheckType("pv", "QVector<QList<int> > *") % CdbEngine
                + Check("pv.0", "[0]", "<1 items>", "@QList<int>")
                + Check("pv.0.0", "[0]", "1", "int")
                + Check("pv.1", "[1]", "<2 items>", "@QList<int>")
