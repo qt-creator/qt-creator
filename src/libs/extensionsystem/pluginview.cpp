@@ -83,6 +83,8 @@ enum Columns { NameColumn, LoadedColumn, VersionColumn, VendorColumn, };
 
 enum IconIndex { OkIcon, ErrorIcon, NotLoadedIcon };
 
+static const int SortRole = Qt::UserRole + 1;
+
 static const QIcon &icon(int num)
 {
     static QIcon icons[] = {
@@ -106,7 +108,7 @@ public:
     {
         switch (column) {
         case NameColumn:
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole || role == SortRole)
                 return m_spec->name();
             if (role == Qt::ToolTipRole) {
                 QString toolTip;
@@ -133,17 +135,17 @@ public:
 
         case LoadedColumn:
             if (!m_spec->isAvailableForHostPlatform()) {
-                if (role == Qt::CheckStateRole)
+                if (role == Qt::CheckStateRole || role == SortRole)
                     return Qt::Unchecked;
                 if (role == Qt::ToolTipRole)
                     return PluginView::tr("Plugin is not available on this platform.");
             } else if (m_spec->isRequired()) {
-                if (role == Qt::CheckStateRole)
+                if (role == Qt::CheckStateRole || role == SortRole)
                     return Qt::Checked;
                 if (role == Qt::ToolTipRole)
                     return PluginView::tr("Plugin is required.");
             } else {
-                if (role == Qt::CheckStateRole)
+                if (role == Qt::CheckStateRole || role == SortRole)
                     return m_spec->isEnabledBySettings() ? Qt::Checked : Qt::Unchecked;
                 if (role == Qt::ToolTipRole)
                     return PluginView::tr("Load on startup");
@@ -151,12 +153,12 @@ public:
             break;
 
         case VersionColumn:
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole || role == SortRole)
                 return QString::fromLatin1("%1 (%2)").arg(m_spec->version(), m_spec->compatVersion());
             break;
 
         case VendorColumn:
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole || role == SortRole)
                 return m_spec->vendor();
             break;
         }
@@ -211,7 +213,7 @@ public:
     QVariant data(int column, int role) const
     {
         if (column == NameColumn) {
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole || role == SortRole)
                 return m_name;
             if (role == Qt::DecorationRole) {
                 foreach (PluginSpec *spec, m_plugins) {
@@ -227,7 +229,7 @@ public:
         if (column == LoadedColumn) {
             if (role == Qt::ToolTipRole)
                 return PluginView::tr("Load on Startup");
-            if (role == Qt::CheckStateRole) {
+            if (role == Qt::CheckStateRole || role == SortRole) {
                 int checkedCount = 0;
                 foreach (PluginSpec *spec, m_plugins) {
                     if (spec->isEnabledBySettings())
@@ -298,6 +300,7 @@ PluginView::PluginView(QWidget *parent)
 
     m_sortModel = new QSortFilterProxyModel(this);
     m_sortModel->setSourceModel(m_model);
+    m_sortModel->setSortRole(SortRole);
     m_categoryView->setModel(m_sortModel);
 
     QGridLayout *gridLayout = new QGridLayout(this);

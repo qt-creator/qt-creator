@@ -230,7 +230,7 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
     QVariantList remotePathList;
     QVariantList timeList;
     typedef QHash<DeployParameters, QDateTime>::ConstIterator DepIt;
-    for (DepIt it = d->lastDeployed.begin(); it != d->lastDeployed.end(); ++it) {
+    for (DepIt it = d->lastDeployed.constBegin(); it != d->lastDeployed.constEnd(); ++it) {
         fileList << it.key().file.localFilePath().toString();
         remotePathList << it.key().file.remoteDirectory();
         hostList << it.key().host;

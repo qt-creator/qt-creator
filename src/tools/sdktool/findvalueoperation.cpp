@@ -152,7 +152,7 @@ QStringList FindValueOperation::findValue(const QVariant &in, const QVariant &va
     if (in.type() == value.type() && in == value) {
         result << prefix;
     } else if (in.type() == QVariant::Map) {
-        QVariantMap map = in.toMap();
+        const QVariantMap map = in.toMap();
         for (QVariantMap::const_iterator i = map.begin(); i != map.end(); ++i) {
             QString pfx = prefix;
             if (!pfx.isEmpty())

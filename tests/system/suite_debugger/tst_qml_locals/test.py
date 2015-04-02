@@ -108,7 +108,16 @@ def main():
 def __unfoldTree__():
     rootIndex = getQModelIndexStr("text='Rectangle'",
                                   ':Locals and Expressions_Debugger::Internal::WatchTreeView')
+    if JIRA.isBugStillOpen(14210):
+        doubleClick(waitForObject(rootIndex))
+    else:
+        test.warning("QTCREATORBUG-14210 is not open anymore. Can the workaround be removed?")
     unfoldQModelIndexIncludingProperties(rootIndex)
+    if JIRA.isBugStillOpen(14210):
+        for item in ["text='Rectangle' occurrence='2'", "text='Rectangle' occurrence='2'", "text='Text'"]:
+            # both Rectangles will be clicked because they change their order
+            doubleClick(waitForObject(getQModelIndexStr(item, rootIndex)))
+            snooze(1)
     subItems = ["text='Rectangle' occurrence='2'", "text='Rectangle'", "text='Text'"]
     for item in subItems:
         unfoldQModelIndexIncludingProperties(getQModelIndexStr(item, rootIndex))

@@ -249,8 +249,8 @@ bool CppSourceProcessor::checkFile(const QString &absoluteFilePath) const
 QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType type)
 {
     if (type == IncludeGlobal) {
-        QHash<QString, QString>::ConstIterator it = m_fileNameCache.find(fileName);
-        if (it != m_fileNameCache.end())
+        QHash<QString, QString>::ConstIterator it = m_fileNameCache.constFind(fileName);
+        if (it != m_fileNameCache.constEnd())
             return it.value();
         const QString fn = resolveFile_helper(fileName, type);
         m_fileNameCache.insert(fileName, fn);

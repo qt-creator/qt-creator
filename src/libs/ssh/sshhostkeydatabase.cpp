@@ -104,7 +104,7 @@ bool SshHostKeyDatabase::store(const QString &filePath, QString *error) const
 SshHostKeyDatabase::KeyLookupResult SshHostKeyDatabase::matchHostKey(const QString &hostName,
                                                                      const QByteArray &key) const
 {
-    auto it = d->hostKeys.find(hostName);
+    auto it = d->hostKeys.constFind(hostName);
     if (it == d->hostKeys.constEnd())
         return KeyLookupNoMatch;
     if (it.value() == key)

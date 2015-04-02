@@ -1510,8 +1510,8 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
     d->engine->gotoLocation(stackHandler->currentFrame());
 
     // Expand watch data that were previously expanded
-    QHash<quint64, QByteArray>::const_iterator itEnd = handlesToLookup.end();
-    for (QHash<quint64, QByteArray>::const_iterator it = handlesToLookup.begin(); it != itEnd; ++it)
+    QHash<quint64, QByteArray>::const_iterator itEnd = handlesToLookup.constEnd();
+    for (QHash<quint64, QByteArray>::const_iterator it = handlesToLookup.constBegin(); it != itEnd; ++it)
         expandObject(it.value(), it.key());
     emit stackFrameCompleted();
 }

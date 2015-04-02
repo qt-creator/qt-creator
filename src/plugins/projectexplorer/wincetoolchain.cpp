@@ -127,7 +127,7 @@ Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &en
         return result;
 
     QMap<QString,QString>::const_iterator envPairIter;
-    for (envPairIter = envPairs.begin(); envPairIter!=envPairs.end(); ++envPairIter) {
+    for (envPairIter = envPairs.constBegin(); envPairIter!=envPairs.constEnd(); ++envPairIter) {
         // Replace the env values with those from the WinCE SDK
         QString varValue = envPairIter.value();
         if (envPairIter.key() == QLatin1String("PATH"))

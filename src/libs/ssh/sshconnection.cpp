@@ -438,7 +438,7 @@ void SshConnectionPrivate::handleCurrentPacket()
     }
 
     QHash<SshPacketType, HandlerInStates>::ConstIterator it
-        = m_packetHandlers.find(m_incomingPacket.type());
+        = m_packetHandlers.constFind(m_incomingPacket.type());
     if (it == m_packetHandlers.constEnd()) {
         m_sendFacility.sendMsgUnimplementedPacket(m_incomingPacket.serverSeqNr());
         return;

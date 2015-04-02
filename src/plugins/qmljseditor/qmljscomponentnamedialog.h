@@ -46,7 +46,7 @@ public:
     explicit ComponentNameDialog(QWidget *parent = 0);
     ~ComponentNameDialog();
 
-    static void go(QString *proposedName, QString *proposedPath, QWidget *parent = 0);
+    static bool go(QString *proposedName, QString *proposedPath, QWidget *parent = 0);
 
 public slots:
     void choosePath();

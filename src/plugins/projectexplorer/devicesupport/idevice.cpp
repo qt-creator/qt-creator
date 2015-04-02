@@ -124,6 +124,7 @@ const char KeyFileKey[] = "KeyFile";
 const char PasswordKey[] = "Password";
 const char TimeoutKey[] = "Timeout";
 const char HostKeyCheckingKey[] = "HostKeyChecking";
+const char SshOptionsKey[] = "SshOptions";
 
 const char DebugServerKey[] = "DebugServerKey";
 
@@ -328,6 +329,8 @@ void IDevice::fromMap(const QVariantMap &map)
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
     d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
             (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
+    d->sshParameters.options
+            = QSsh::SshConnectionOptions(map.value(QLatin1String(SshOptionsKey)).toInt());
 
     d->freePorts = Utils::PortList::fromString(map.value(QLatin1String(PortsSpecKey),
         QLatin1String("10000-10100")).toString());
@@ -360,6 +363,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile);
     map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
     map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
+    map.insert(QLatin1String(SshOptionsKey), static_cast<int>(d->sshParameters.options));
 
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);

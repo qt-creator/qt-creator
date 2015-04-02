@@ -434,7 +434,7 @@ void ValgrindGlobalSettings::writeSettings() const
     settings->beginGroup(QLatin1String(groupC));
     QVariantMap map;
     toMap(map);
-    for (QVariantMap::ConstIterator it = map.begin(); it != map.end(); ++it)
+    for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
         settings->setValue(it.key(), it.value());
     settings->endGroup();
 }

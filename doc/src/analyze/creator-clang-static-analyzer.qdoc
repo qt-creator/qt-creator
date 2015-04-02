@@ -27,7 +27,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-running-valgrind-remotely.html
     \page creator-clang-static-analyzer.html
-    \nextpage creator-advanced.html
+    \nextpage creator-cpu-usage-analyzer.html
 
     \title Using Clang Static Analyzer
 

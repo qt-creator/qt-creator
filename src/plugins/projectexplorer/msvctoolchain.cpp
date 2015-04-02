@@ -317,7 +317,7 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(Utils::Environment& env
 
     // Now loop through and process them
     QMap<QString,QString>::const_iterator envIter;
-    for (envIter = envPairs.begin(); envIter!=envPairs.end(); ++envIter) {
+    for (envIter = envPairs.constBegin(); envIter!=envPairs.constEnd(); ++envIter) {
         const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), env);
         if (!expandedValue.isEmpty())
             result.set(envIter.key(), expandedValue);

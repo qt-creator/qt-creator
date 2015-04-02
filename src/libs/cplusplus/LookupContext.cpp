@@ -705,8 +705,8 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
         foreach (ClassOrNamespace *u, binding->usings())
             lookup_helper(name, u, result, processed, binding->_templateId);
 
-        Anonymouses::const_iterator cit = binding->_anonymouses.begin();
-        Anonymouses::const_iterator citEnd = binding->_anonymouses.end();
+        Anonymouses::const_iterator cit = binding->_anonymouses.constBegin();
+        Anonymouses::const_iterator citEnd = binding->_anonymouses.constEnd();
         for (; cit != citEnd; ++cit) {
             const AnonymousNameId *anonymousNameId = cit.key();
             ClassOrNamespace *a = cit.value();
@@ -802,8 +802,8 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name, Block *block)
 {
     flush();
 
-    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
-    if (citBlock != _blocks.end()) {
+    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.constFind(block);
+    if (citBlock != _blocks.constEnd()) {
         ClassOrNamespace *nestedBlock = citBlock.value();
         QSet<ClassOrNamespace *> processed;
         if (ClassOrNamespace *foundInNestedBlock
@@ -815,7 +815,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name, Block *block)
         }
     }
 
-    for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
+    for (citBlock = _blocks.constBegin(); citBlock != _blocks.constEnd(); ++citBlock) {
         if (ClassOrNamespace *foundNestedBlock = citBlock.value()->lookupType(name, block))
             return foundNestedBlock;
     }
@@ -1027,8 +1027,8 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateNestedAnonymousType(
         const AnonymousNameId *anonymousNameId)
 {
     QHash<const AnonymousNameId *, ClassOrNamespace *>::const_iterator cit
-            = _anonymouses.find(anonymousNameId);
-    if (cit != _anonymouses.end()) {
+            = _anonymouses.constFind(anonymousNameId);
+    if (cit != _anonymouses.constEnd()) {
         return cit.value();
     } else {
         ClassOrNamespace *newAnonymous = _factory->allocClassOrNamespace(this);
@@ -1083,8 +1083,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             }
         } else {
             QMap<const TemplateNameId *, ClassOrNamespace *>::const_iterator citInstantiation
-                    = reference->_instantiations.find(templId);
-            if (citInstantiation != reference->_instantiations.end())
+                    = reference->_instantiations.constFind(templId);
+            if (citInstantiation != reference->_instantiations.constEnd())
                 return citInstantiation.value();
             TemplateNameId *nonConstTemplId = const_cast<TemplateNameId *>(templId);
             // make this instantiation looks like specialization which help to find
