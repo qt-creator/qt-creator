@@ -30,6 +30,7 @@
 
 #include "helpplugin.h"
 
+#include "bookmarkmanager.h"
 #include "centralwidget.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
@@ -668,6 +669,7 @@ void HelpPlugin::doSetupIfNeeded()
         resetFilter();
         m_setupNeeded = false;
         OpenPagesManager::instance().setupInitialPages();
+        LocalHelpManager::bookmarkManager().setupBookmarkModels();
     }
 }
 

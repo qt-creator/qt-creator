@@ -140,10 +140,8 @@ BookmarkManager& LocalHelpManager::bookmarkManager()
 {
     if (!m_bookmarkManager) {
         QMutexLocker _(&m_bkmarkMutex);
-        if (!m_bookmarkManager) {
+        if (!m_bookmarkManager)
             m_bookmarkManager = new BookmarkManager;
-            m_bookmarkManager->setupBookmarkModels();
-        }
     }
     return *m_bookmarkManager;
 }
