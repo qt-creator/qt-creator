@@ -612,7 +612,10 @@ public:
         : _cloner(cloner)
         , _subst(subst)
     {}
-    void instantiate(LookupScopePrivate *lookupScope, LookupScopePrivate *instantiation);
+    void instantiate(LookupScopePrivate *lookupScope,
+                                LookupScopePrivate *instantiation,
+                                bool includeSymbols);
+    LookupScopePrivate *maybeInstantiate(LookupScopePrivate *lookupScope);
 private:
     bool isInstantiationNeeded(LookupScopePrivate *lookupScope) const;
 
@@ -1356,7 +1359,6 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
 
         // The instantiation should have all symbols, enums, and usings from the reference.
         instantiation->_enums = reference->_enums;
-        instantiation->_usings = reference->_usings;
 
         instantiation->_rootClass = reference->_rootClass;
 
@@ -1400,8 +1402,9 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
                 }
 
                 Instantiator instantiator(cloner, subst);
-                instantiator.instantiate(reference, instantiation);
+                instantiator.instantiate(reference, instantiation, true);
             } else {
+                instantiation->_usings = reference->_usings;
                 instantiation->_symbols.append(reference->_symbols);
                 instantiation->_typedefs = reference->_typedefs;
             }
@@ -1477,6 +1480,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
             }
         } else {
             instantiation->_nestedScopes = reference->_nestedScopes;
+            instantiation->_usings = reference->_usings;
             instantiation->_symbols.append(reference->_symbols);
             instantiation->_typedefs = reference->_typedefs;
         }
@@ -1517,8 +1521,34 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
     return reference;
 }
 
+LookupScopePrivate *Instantiator::maybeInstantiate(LookupScopePrivate *lookupScope)
+{
+    lookupScope->flush();
+    LookupScopePrivate *instantiation = lookupScope;
+
+    bool hasTemplateSymbols = isInstantiationNeeded(lookupScope);
+    bool hasTemplateUsings = false;
+    if (!hasTemplateSymbols) {
+        foreach (LookupScope *usingLookupScope, lookupScope->_usings) {
+            if (isInstantiationNeeded(usingLookupScope->d)) {
+                hasTemplateUsings = true;
+                break;
+            }
+        }
+    }
+    if (hasTemplateSymbols || hasTemplateUsings) {
+        instantiation = lookupScope->allocateChild(lookupScope->_name);
+        instantiation->_enums = lookupScope->_enums;
+        instantiation->_instantiationOrigin = lookupScope;
+        instantiate(lookupScope, instantiation, hasTemplateSymbols);
+    }
+
+    return instantiation;
+}
+
 void Instantiator::instantiate(LookupScopePrivate *lookupScope,
-                               LookupScopePrivate *instantiation)
+                               LookupScopePrivate *instantiation,
+                               bool includeSymbols)
 {
     if (_alreadyConsideredInstantiations.contains(lookupScope))
         return;
@@ -1531,52 +1561,48 @@ void Instantiator::instantiate(LookupScopePrivate *lookupScope,
             instantiation->_typedefs[typedefit->first] =
                     _cloner.symbol(typedefit->second, &_subst)->asDeclaration();
         }
-        foreach (Symbol *s, lookupScope->_symbols) {
-            Symbol *clone = _cloner.symbol(s, &_subst);
-            if (!clone->enclosingScope()) // Not from the cache but just cloned.
-                clone->setEnclosingScope(s->enclosingScope());
-            instantiation->_symbols.append(clone);
-            if (s == instantiation->_rootClass) {
-                clone->setName(instantiation->_name);
-                instantiation->_rootClass = clone->asClass();
-            }
-            if (Q_UNLIKELY(debug)) {
-                Overview oo;
-                oo.showFunctionSignatures = true;
-                oo.showReturnTypes = true;
-                oo.showTemplateParameters = true;
-                qDebug() << "cloned" << oo(clone->type());
-                if (Class *klass = clone->asClass()) {
-                    const unsigned klassMemberCount = klass->memberCount();
-                    for (unsigned i = 0; i < klassMemberCount; ++i){
-                        Symbol *klassMemberAsSymbol = klass->memberAt(i);
-                        if (klassMemberAsSymbol->isTypedef()) {
-                            if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
-                                qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+        foreach (LookupScope *usingLookupScope, lookupScope->_usings)
+            instantiation->_usings.append(maybeInstantiate(usingLookupScope->d)->q);
+        if (includeSymbols) {
+            foreach (Symbol *s, lookupScope->_symbols) {
+                Symbol *clone = _cloner.symbol(s, &_subst);
+                if (!clone->enclosingScope()) // Not from the cache but just cloned.
+                    clone->setEnclosingScope(s->enclosingScope());
+                instantiation->_symbols.append(clone);
+                if (s == instantiation->_rootClass) {
+                    clone->setName(instantiation->_name);
+                    instantiation->_rootClass = clone->asClass();
+                }
+                if (Q_UNLIKELY(debug)) {
+                    Overview oo;
+                    oo.showFunctionSignatures = true;
+                    oo.showReturnTypes = true;
+                    oo.showTemplateParameters = true;
+                    qDebug() << "cloned" << oo(clone->type());
+                    if (Class *klass = clone->asClass()) {
+                        const unsigned klassMemberCount = klass->memberCount();
+                        for (unsigned i = 0; i < klassMemberCount; ++i){
+                            Symbol *klassMemberAsSymbol = klass->memberAt(i);
+                            if (klassMemberAsSymbol->isTypedef()) {
+                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
+                                    qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                            }
                         }
                     }
                 }
             }
+        } else {
+            instantiation->_symbols = lookupScope->_symbols;
         }
     }
     auto cit = lookupScope->_nestedScopes.begin();
     for (; cit != lookupScope->_nestedScopes.end(); ++cit) {
         const Name *nestedName = cit->first;
         LookupScopePrivate *nestedLookupScope = cit->second;
-        LookupScopePrivate *nestedInstantiation = nestedLookupScope;
-        nestedLookupScope->flush();
-
-        const bool instantiationNeeded = isInstantiationNeeded(nestedInstantiation);
-        if (instantiationNeeded) {
-            nestedInstantiation = nestedLookupScope->allocateChild(nestedName);
-            nestedInstantiation->_enums = nestedLookupScope->_enums;
-            nestedInstantiation->_usings = nestedLookupScope->_usings;
-            nestedInstantiation->_instantiationOrigin = nestedLookupScope;
-        }
+        LookupScopePrivate *nestedInstantiation = maybeInstantiate(nestedLookupScope);
 
         if (isNestedInstantiationEnclosingTemplate(nestedInstantiation, lookupScope))
             nestedInstantiation->_parent = instantiation;
-        instantiate(nestedLookupScope, nestedInstantiation);
 
         instantiation->_nestedScopes[nestedName] = nestedInstantiation;
     }

@@ -326,13 +326,13 @@ void CppToolsPlugin::test_completion()
     actualCompletions.sort();
     expectedCompletions.sort();
 
-    QEXPECT_FAIL("template_as_base: explicit typedef from base", "QTCREATORBUG-14218", Abort);
+    QEXPECT_FAIL("template_as_base: typedef not available in derived",
+                 "We can live with that...", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
-    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }

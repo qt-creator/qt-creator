@@ -1203,7 +1203,6 @@ void tst_CheckSymbols::findField()
     source[position] = ' ';
     BaseTestCase tc(source);
     Use use = tc.findUse(line, column);
-    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QVERIFY(use.isValid());
     QVERIFY(use.kind == Highlighting::FieldUse);
