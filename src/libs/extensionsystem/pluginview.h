@@ -51,8 +51,11 @@ namespace ExtensionSystem {
 
 class PluginManager;
 class PluginSpec;
+
+namespace Internal {
 class PluginItem;
 class CollectionItem;
+} // Internal
 
 class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
 {
@@ -63,6 +66,7 @@ public:
     ~PluginView();
 
     PluginSpec *currentPlugin() const;
+    void setFilter(const QString &filter);
 
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
@@ -78,8 +82,8 @@ private:
     Utils::TreeModel *m_model;
     QSortFilterProxyModel *m_sortModel;
 
-    friend class CollectionItem;
-    friend class PluginItem;
+    friend class Internal::CollectionItem;
+    friend class Internal::PluginItem;
 };
 
 } // namespae ExtensionSystem

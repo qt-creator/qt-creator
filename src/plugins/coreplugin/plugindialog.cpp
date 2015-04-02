@@ -36,6 +36,8 @@
 #include <extensionsystem/pluginerrorview.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <utils/fancylineedit.h>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDialog>
@@ -54,6 +56,13 @@ PluginDialog::PluginDialog(QWidget *parent)
       m_view(new ExtensionSystem::PluginView(this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
+
+    auto filterEdit = new Utils::FancyLineEdit(this);
+    filterEdit->setFiltering(true);
+    connect(filterEdit, &Utils::FancyLineEdit::filterChanged,
+            m_view, &ExtensionSystem::PluginView::setFilter);
+    vl->addWidget(filterEdit);
+
     vl->addWidget(m_view);
 
     m_detailsButton = new QPushButton(tr("Details"), this);

@@ -79,6 +79,8 @@ using namespace Utils;
 
 namespace ExtensionSystem {
 
+namespace Internal {
+
 enum Columns { NameColumn, LoadedColumn, VersionColumn, VendorColumn, };
 
 enum IconIndex { OkIcon, ErrorIcon, NotLoadedIcon };
@@ -275,6 +277,40 @@ public:
     PluginView *m_view; // Not owned.
 };
 
+class SortFilterModel : public QSortFilterProxyModel
+{
+public:
+    SortFilterModel(QObject *parent) : QSortFilterProxyModel(parent) {}
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    {
+        if (!source_parent.isValid()) {
+            // category items should be visible if any of its children match
+            const QRegExp &regexp = filterRegExp();
+            const QModelIndex &categoryIndex = sourceModel()->index(source_row, 0, source_parent);
+            if (regexp.indexIn(sourceModel()->data(categoryIndex, filterRole()).toString()) != -1)
+                return true;
+            const int rowCount = sourceModel()->rowCount(categoryIndex);
+            const int columnCount = sourceModel()->columnCount(categoryIndex);
+            for (int row = 0; row < rowCount; ++row) {
+                for (int column = 0; column < columnCount; ++column) {
+                    if (regexp.indexIn(sourceModel()->data(
+                                           sourceModel()->index(row, column, categoryIndex),
+                                           filterRole()).toString()) != -1)
+                        return true;
+                }
+            }
+            return false;
+        }
+        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+    }
+};
+
+} // Internal
+
+using namespace ExtensionSystem::Internal;
+
 /*!
     Constructs a PluginView that gets the list of plugins from the
     given plugin \a manager with a given \a parent widget.
@@ -298,9 +334,11 @@ PluginView::PluginView(QWidget *parent)
     m_model = new TreeModel(this);
     m_model->setHeader(QStringList() << tr("Name") << tr("Load") << tr("Version") << tr("Vendor"));
 
-    m_sortModel = new QSortFilterProxyModel(this);
+    m_sortModel = new SortFilterModel(this);
     m_sortModel->setSourceModel(m_model);
     m_sortModel->setSortRole(SortRole);
+    m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_sortModel->setFilterKeyColumn(-1/*all*/);
     m_categoryView->setModel(m_sortModel);
 
     QGridLayout *gridLayout = new QGridLayout(this);
@@ -336,6 +374,12 @@ PluginView::~PluginView()
 PluginSpec *PluginView::currentPlugin() const
 {
     return pluginForIndex(m_categoryView->currentIndex());
+}
+
+void PluginView::setFilter(const QString &filter)
+{
+    m_sortModel->setFilterFixedString(filter);
+    m_categoryView->expandAll();
 }
 
 PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
