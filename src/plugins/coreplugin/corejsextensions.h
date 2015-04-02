@@ -33,6 +33,7 @@
 
 #include <utils/stringutils.h>
 
+#include <QObject>
 #include <QSet>
 
 namespace Core {
