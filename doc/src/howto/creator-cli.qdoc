@@ -108,11 +108,22 @@
 
        \row
             \li -load <plugin>
-            \li Load the specified plugin.
+            \li Enable the specified plugin and all plugins that it depends on.
+                You can combine \c -load and \c -noload options and specify both
+                options multiple times to enable and disable several plugins.
+                The actions are executed in the specified order.
+
+       \row
+            \li -load all
+            \li Enables all plugins.
 
         \row
             \li  -noload <plugin>
-            \li  Do not load the specified plugin.
+            \li  Disable the specified plugin and all plugins that depend on it.
+
+        \row
+            \li  -noload all
+            \li  Disables all plugins.
 
         \row
             \li  -profile

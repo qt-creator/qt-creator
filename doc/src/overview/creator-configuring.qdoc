@@ -158,13 +158,11 @@
     New \QC plugins are often introduced as \e {experimental plugins} to let
     you try them out before they are fully supported. Experimental plugins
     are disabled by default and you must enable them for them to become visible
-    after you restart \QC.
+    after you restart \QC. By default, all the plugins that the plugin depends
+    on are also enabled.
 
     You can also disable plugins that you do not use, to streamline \QC.
-    However, this might cause problems when using another plugin later if the
-    dependencies between plugins are changed between \QC versions. Once you
-    manually disable a plugin, it stays disabled even when you upgrade to a
-    new \QC version, and you must manually enable it to be able to use it.
+    By default, all the plugins that depend on the plugin are also disabled.
 
     To enable and disable plugins, select \uicontrol Help > \uicontrol {About Plugins}.
 
