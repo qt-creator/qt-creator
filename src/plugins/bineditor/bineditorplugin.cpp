@@ -464,7 +464,7 @@ IEditor *BinEditorFactory::createEditor()
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin::BinEditorPlugin() : m_factory(0)
+BinEditorPlugin::BinEditorPlugin()
 {
     m_undoAction = m_redoAction = m_copyAction = m_selectAllAction = 0;
 }

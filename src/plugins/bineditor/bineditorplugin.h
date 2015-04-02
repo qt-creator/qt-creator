@@ -35,7 +35,6 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icontext.h>
 
-#include <QtPlugin>
 #include <QPointer>
 #include <QStringList>
 #include <QAction>
@@ -80,10 +79,6 @@ private:
     QAction *m_copyAction;
     QAction *m_selectAllAction;
 
-    friend class BinEditorFactory;
-    Core::IEditor *createEditor(QWidget *parent);
-
-    BinEditorFactory *m_factory;
     QPointer<BinEditorWidget> m_currentEditor;
 };
 
