@@ -3328,7 +3328,7 @@ void tst_Dumpers::dumper_data()
                + Check("var83", "", "@QVariant (QVector3D)")
                + Check("var84", "", "@QVariant (QVector4D)")
                + Check("var85", "", "@QVariant (QQuaternion)")
-               + Check("var86", "<0 items>", "@QVariant (QPolygonF)");
+               + Check5("var86", "<0 items>", "@QVariant (QPolygonF)");
 
 
     QTest::newRow("QVariant4")
