@@ -748,47 +748,45 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         if (oldProjectInfo.isValid()) {
             ProjectInfoComparer comparer(oldProjectInfo, newProjectInfo);
 
-            if (!comparer.configurationOrFilesChanged()) {
-                // Some other attached data might have changed
-                d->m_projectToProjectsInfo.insert(project, newProjectInfo);
-                return QFuture<void>();
-            }
+            if (comparer.configurationOrFilesChanged()) {
+                d->m_dirty = true;
 
-            // If the project configuration changed, do a full reindexing
-            if (comparer.configurationChanged()) {
-                removeProjectInfoFilesAndIncludesFromSnapshot(oldProjectInfo);
-                filesToReindex.unite(newSourceFiles);
+                // If the project configuration changed, do a full reindexing
+                if (comparer.configurationChanged()) {
+                    removeProjectInfoFilesAndIncludesFromSnapshot(oldProjectInfo);
+                    filesToReindex.unite(newSourceFiles);
 
-                // The "configuration file" includes all defines and therefore should be updated
-                if (comparer.definesChanged()) {
-                    QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-                    d->m_snapshot.remove(configurationFileName());
+                    // The "configuration file" includes all defines and therefore should be updated
+                    if (comparer.definesChanged()) {
+                        QMutexLocker snapshotLocker(&d->m_snapshotMutex);
+                        d->m_snapshot.remove(configurationFileName());
+                    }
+
+                // Otherwise check for added and modified files
+                } else {
+                    const QSet<QString> addedFiles = comparer.addedFiles();
+                    filesToReindex.unite(addedFiles);
+
+                    const QSet<QString> modifiedFiles = comparer.timeStampModifiedFiles(snapshot());
+                    filesToReindex.unite(modifiedFiles);
                 }
 
-            // Otherwise check for added and modified files
-            } else {
-                const QSet<QString> addedFiles = comparer.addedFiles();
-                filesToReindex.unite(addedFiles);
-
-                const QSet<QString> modifiedFiles = comparer.timeStampModifiedFiles(snapshot());
-                filesToReindex.unite(modifiedFiles);
-            }
-
-            // Announce and purge the removed files from the snapshot
-            const QSet<QString> removedFiles = comparer.removedFiles();
-            if (!removedFiles.isEmpty()) {
-                filesRemoved = true;
-                emit aboutToRemoveFiles(removedFiles.toList());
-                removeFilesFromSnapshot(removedFiles);
+                // Announce and purge the removed files from the snapshot
+                const QSet<QString> removedFiles = comparer.removedFiles();
+                if (!removedFiles.isEmpty()) {
+                    filesRemoved = true;
+                    emit aboutToRemoveFiles(removedFiles.toList());
+                    removeFilesFromSnapshot(removedFiles);
+                }
             }
 
         // A new project was opened/created, do a full indexing
         } else {
+            d->m_dirty = true;
             filesToReindex.unite(newSourceFiles);
         }
 
         // Update Project/ProjectInfo and File/ProjectPart table
-        d->m_dirty = true;
         d->m_projectToProjectsInfo.insert(project, newProjectInfo);
         recalculateFileToProjectParts();
 
