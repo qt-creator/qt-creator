@@ -133,7 +133,6 @@ private:
                                   Clone &cloner,
                                   Subst &subst,
                                   ClassOrNamespace *enclosingTemplateClassInstantiation);
-    bool isInstantiateNestedClassNeeded(const QList<Symbol *>& symbols, const Subst &subst) const;
     ClassOrNamespace *findSpecialization(const TemplateNameId *templId,
                                          const TemplateNameIdTable &specializations);
 
