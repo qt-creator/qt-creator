@@ -7,7 +7,7 @@ QtcPlugin {
     Depends {
         name: "Qt"
         submodules: [
-            "widgets", "xml", "network", "script", "sql", "help", "printsupport"
+            "widgets", "xml", "network", "qml", "sql", "help", "printsupport"
         ]
     }
 
