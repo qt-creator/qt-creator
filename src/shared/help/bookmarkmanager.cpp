@@ -32,6 +32,8 @@
 
 #include <localhelpmanager.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/fancylineedit.h>
 #include <utils/styledbar.h>
 
@@ -55,6 +57,8 @@
 #include <QHelpEngine>
 
 using namespace Help::Internal;
+
+static const char kBookmarksKey[] = "Help/Bookmarks";
 
 BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
         const QString &url, QWidget *parent)
@@ -605,8 +609,7 @@ void BookmarkManager::saveBookmarks()
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
     readBookmarksRecursive(treeModel->invisibleRootItem(), stream, 0);
-    (&LocalHelpManager::helpEngine())->setCustomValue(QLatin1String("Bookmarks"),
-        bookmarks);
+    Core::ICore::settings()->setValue(QLatin1String(kBookmarksKey), bookmarks);
 }
 
 QStringList BookmarkManager::bookmarkFolders() const
@@ -723,8 +726,15 @@ void BookmarkManager::setupBookmarkModels()
     QList<int> lastDepths;
     QList<QStandardItem*> parents;
 
-    QByteArray ba = LocalHelpManager::helpEngine()
-        .customValue(QLatin1String("Bookmarks")).toByteArray();
+    QByteArray ba;
+    QSettings *settings = Core::ICore::settings();
+    if (settings->contains(QLatin1String(kBookmarksKey))) {
+        ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
+    } else {
+        // read old settings from help engine
+        // TODO remove some time after Qt Creator 3.5
+        ba = LocalHelpManager::helpEngine().customValue(QLatin1String("Bookmarks")).toByteArray();
+    }
     QDataStream stream(ba);
     while (!stream.atEnd()) {
         stream >> depth >> name >> type >> expanded;

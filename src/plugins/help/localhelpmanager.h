@@ -31,6 +31,8 @@
 #ifndef LOCALHELPMANAGER_H
 #define LOCALHELPMANAGER_H
 
+#include <coreplugin/helpmanager.h>
+
 #include <QMetaType>
 #include <QMutex>
 #include <QObject>
@@ -55,6 +57,12 @@ public:
         QString mimeType;
     };
 
+    enum StartOption {
+        ShowHomePage = 0,
+        ShowBlankPage = 1,
+        ShowLastPages = 2,
+    };
+
     LocalHelpManager(QObject *parent = 0);
     ~LocalHelpManager();
 
@@ -64,13 +72,33 @@ public:
     static QString homePage();
     static void setHomePage(const QString &page);
 
+    static QFont fallbackFont();
+    static void setFallbackFont(const QFont &font);
+
+    static StartOption startOption();
+    static void setStartOption(StartOption option);
+
+    static Core::HelpManager::HelpViewerLocation contextHelpOption();
+    static void setContextHelpOption(Core::HelpManager::HelpViewerLocation location);
+
+    static bool returnOnClose();
+    static void setReturnOnClose(bool returnOnClose);
+
+    static QStringList lastShownPages();
+    static void setLastShownPages(const QStringList &pages);
+
+    static QList<float> lastShownPagesZoom();
+    static void setLastShownPagesZoom(const QList<float> &zoom);
+
+    static int lastSelectedTab();
+    static void setLastSelectedTab(int index);
+
     static void setupGuiHelpEngine();
     static void setEngineNeedsUpdate();
 
     static QHelpEngine& helpEngine();
     static BookmarkManager& bookmarkManager();
 
-    static QVariant engineFontSettings();
     static bool isValidUrl(const QString &link);
 
     static QByteArray loadErrorMessage(const QUrl &url, const QString &errorString);
@@ -84,6 +112,8 @@ public:
 
 signals:
     void filterIndexChanged(int index);
+    void fallbackFontChanged(const QFont &font);
+    void returnOnCloseChanged();
 
 private:
     static bool m_guiNeedsSetup;

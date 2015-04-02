@@ -47,7 +47,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/helpmanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
 #include <texteditor/texteditorconstants.h>
@@ -474,15 +473,6 @@ void HelpWidget::removeViewerAt(int index)
     updateCloseButton();
 }
 
-void HelpWidget::setViewerFont(const QFont &font)
-{
-    for (int i = 0; i < m_viewerStack->count(); ++i) {
-        HelpViewer *viewer = qobject_cast<HelpViewer *>(m_viewerStack->widget(i));
-        QTC_ASSERT(viewer, continue);
-        viewer->setFont(font);
-    }
-}
-
 int HelpWidget::viewerCount() const
 {
     return m_viewerStack->count();
@@ -576,8 +566,7 @@ void HelpWidget::helpModeButtonClicked()
 void HelpWidget::updateCloseButton()
 {
     if (m_style == ModeWidget) {
-        const bool closeOnReturn = Core::HelpManager::customValue(QLatin1String("ReturnOnClose"),
-            false).toBool();
+        const bool closeOnReturn = LocalHelpManager::returnOnClose();
         m_closeAction->setEnabled(closeOnReturn || m_viewerStack->count() > 1);
     }
 }

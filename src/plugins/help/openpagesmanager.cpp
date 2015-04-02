@@ -46,7 +46,6 @@
 #include <QHelpEngine>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 
 using namespace Core;
@@ -127,37 +126,34 @@ QStringList splitString(const QVariant &value)
 void OpenPagesManager::setupInitialPages()
 {
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    const int option = engine.customValue(QLatin1String("StartOption"),
-        Help::Constants::ShowLastPages).toInt();
+    const LocalHelpManager::StartOption option = LocalHelpManager::startOption();
     QString homePage = LocalHelpManager::homePage();
 
     int initialPage = 0;
     switch (option) {
-        case Help::Constants::ShowHomePage: {
+        case LocalHelpManager::ShowHomePage: {
             m_model->addPage(homePage);
         }   break;
 
-        case Help::Constants::ShowBlankPage: {
+        case LocalHelpManager::ShowBlankPage: {
             m_model->addPage(QUrl(Help::Constants::AboutBlank));
         }   break;
 
-        case Help::Constants::ShowLastPages: {
-            const QStringList &lastShownPageList = splitString(engine
-                .customValue(QLatin1String("LastShownPages")));
+        case LocalHelpManager::ShowLastPages: {
+            const QStringList &lastShownPageList = LocalHelpManager::lastShownPages();
             const int pageCount = lastShownPageList.count();
 
             if (pageCount > 0) {
-                QStringList zoomFactors = splitString(engine
-                    .customValue(QLatin1String("LastShownPagesZoom")));
+                QList<float> zoomFactors = LocalHelpManager::lastShownPagesZoom();
                 while (zoomFactors.count() < pageCount)
-                    zoomFactors.append(Help::Constants::DefaultZoomFactor);
+                    zoomFactors.append(0.);
 
-                initialPage = engine.customValue(QLatin1String("LastTabPage"), 0).toInt();
+                initialPage = LocalHelpManager::lastSelectedTab();
                 for (int curPage = 0; curPage < pageCount; ++curPage) {
                     const QString &curFile = lastShownPageList.at(curPage);
                     if (engine.findFile(curFile).isValid()
                         || curFile == Help::Constants::AboutBlank) {
-                        m_model->addPage(curFile, zoomFactors.at(curPage).toFloat());
+                        m_model->addPage(curFile, zoomFactors.at(curPage));
                     } else if (curPage <= initialPage && initialPage > 0) {
                         --initialPage;
                     }
@@ -228,10 +224,9 @@ void OpenPagesManager::closeCurrentPage()
     if (indexes.isEmpty())
         return;
 
-    const bool closeOnReturn = HelpManager::customValue(QLatin1String("ReturnOnClose"),
-        false).toBool();
+    const bool returnOnClose = LocalHelpManager::returnOnClose();
 
-    if (m_model->rowCount() == 1 && closeOnReturn) {
+    if (m_model->rowCount() == 1 && returnOnClose) {
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     } else {
         Q_ASSERT(indexes.count() == 1);

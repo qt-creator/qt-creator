@@ -61,12 +61,6 @@ using namespace Help::Internal;
 GeneralSettingsPage::GeneralSettingsPage()
     : m_ui(0)
 {
-    m_font = qApp->font();
-    // TODO remove QT_NO_WEBKIT
-#if !defined(QT_NO_WEBKIT)
-    QWebSettings* webSettings = QWebSettings::globalSettings();
-    m_font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));
-#endif
     setId("A.General settings");
     setDisplayName(tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
@@ -83,9 +77,7 @@ QWidget *GeneralSettingsPage::widget()
         m_ui->sizeComboBox->setEditable(false);
         m_ui->styleComboBox->setEditable(false);
 
-        QVariant fontSetting = LocalHelpManager::engineFontSettings();
-        if (fontSetting.isValid())
-            m_font = fontSetting.value<QFont>();
+        m_font = LocalHelpManager::fallbackFont();
 
         updateFontSize();
         updateFontStyle();
@@ -94,12 +86,10 @@ QWidget *GeneralSettingsPage::widget()
         m_homePage = LocalHelpManager::homePage();
         m_ui->homePageLineEdit->setText(m_homePage);
 
-        m_startOption = HelpManager::customValue(QLatin1String("StartOption"),
-                                                 Help::Constants::ShowLastPages).toInt();
+        m_startOption = LocalHelpManager::startOption();
         m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
 
-        m_contextOption = HelpManager::customValue(QLatin1String("ContextHelpOption"),
-                                                   HelpManager::SideBySideIfPossible).toInt();
+        m_contextOption = LocalHelpManager::contextHelpOption();
         m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
 
         connect(m_ui->currentPageButton, &QPushButton::clicked,
@@ -119,8 +109,7 @@ QWidget *GeneralSettingsPage::widget()
         connect(m_ui->exportButton, &QPushButton::clicked,
                 this, &GeneralSettingsPage::exportBookmarks);
 
-        m_returnOnClose = HelpManager::customValue(QLatin1String("ReturnOnClose"),
-                                                   false).toBool();
+        m_returnOnClose = LocalHelpManager::returnOnClose();
         m_ui->m_returnOnClose->setChecked(m_returnOnClose);
     }
     return m_widget;
@@ -158,7 +147,7 @@ void GeneralSettingsPage::apply()
 
     if (newFont != m_font) {
         m_font = newFont;
-        HelpManager::setCustomValue(Constants::FontKey, newFont);
+        LocalHelpManager::setFallbackFont(newFont);
         emit fontChanged();
     }
 
@@ -174,25 +163,19 @@ void GeneralSettingsPage::apply()
     const int startOption = m_ui->helpStartComboBox->currentIndex();
     if (m_startOption != startOption) {
         m_startOption = startOption;
-        HelpManager::setCustomValue(QLatin1String("StartOption"), startOption);
+        LocalHelpManager::setStartOption((LocalHelpManager::StartOption)m_startOption);
     }
 
     const int helpOption = m_ui->contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {
         m_contextOption = helpOption;
-        HelpManager::setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
-
-        QSettings *settings = ICore::settings();
-        settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
-        settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
-        settings->endGroup();
+        LocalHelpManager::setContextHelpOption((HelpManager::HelpViewerLocation)m_contextOption);
     }
 
     const bool close = m_ui->m_returnOnClose->isChecked();
     if (m_returnOnClose != close) {
         m_returnOnClose = close;
-        HelpManager::setCustomValue(QLatin1String("ReturnOnClose"), close);
-        emit returnOnCloseChanged();
+        LocalHelpManager::setReturnOnClose(m_returnOnClose);
     }
 }
 

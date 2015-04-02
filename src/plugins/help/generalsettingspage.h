@@ -54,7 +54,6 @@ public:
 
 signals:
     void fontChanged();
-    void returnOnCloseChanged();
 
 private slots:
     void setCurrentPage();

@@ -74,8 +74,6 @@ public:
     void addViewer(HelpViewer *viewer);
     void removeViewerAt(int index);
 
-    void setViewerFont(const QFont &font);
-
     // so central widget can save the state
     int viewerCount() const;
     HelpViewer *viewerAt(int index) const;

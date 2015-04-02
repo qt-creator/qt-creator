@@ -35,8 +35,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QHelpEngine>
-
 using namespace Help::Internal;
 
 CentralWidget *gStaticCentralWidget = 0;
@@ -53,21 +51,20 @@ CentralWidget::CentralWidget(const Core::Context &context, QWidget *parent)
 CentralWidget::~CentralWidget()
 {
     // TODO: this shouldn't be done here
-    QString zoomFactors;
-    QString currentPages;
+    QList<float> zoomFactors;
+    QStringList currentPages;
     for (int i = 0; i < viewerCount(); ++i) {
         const HelpViewer * const viewer = viewerAt(i);
         const QUrl &source = viewer->source();
         if (source.isValid()) {
-            currentPages += source.toString() + QLatin1Char('|');
-            zoomFactors += QString::number(viewer->scale()) + QLatin1Char('|');
+            currentPages.append(source.toString());
+            zoomFactors.append(viewer->scale());
         }
     }
 
-    QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
-    engine->setCustomValue(QLatin1String("LastShownPages"), currentPages);
-    engine->setCustomValue(QLatin1String("LastShownPagesZoom"), zoomFactors);
-    engine->setCustomValue(QLatin1String("LastTabPage"), currentIndex());
+    LocalHelpManager::setLastShownPages(currentPages);
+    LocalHelpManager::setLastShownPagesZoom(zoomFactors);
+    LocalHelpManager::setLastSelectedTab(currentIndex());
 }
 
 CentralWidget *CentralWidget::instance()

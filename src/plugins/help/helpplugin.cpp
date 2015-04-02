@@ -146,7 +146,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     m_openPagesManager = new OpenPagesManager(this);
     addAutoReleasedObject(m_docSettingsPage = new DocSettingsPage());
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
-    addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
+    addAutoReleasedObject(new GeneralSettingsPage());
     addAutoReleasedObject(m_searchTaskHandler = new SearchTaskHandler);
 
     m_centralWidget = new CentralWidget(modecontext);
@@ -155,10 +155,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_centralWidget, &CentralWidget::closeButtonClicked,
             &OpenPagesManager::instance(), &OpenPagesManager::closeCurrentPage);
 
-    connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
-        SLOT(fontChanged()));
-    connect(m_generalSettingsPage, SIGNAL(returnOnCloseChanged()), m_centralWidget,
-        SLOT(updateCloseButton()));
+    connect(LocalHelpManager::instance(), &LocalHelpManager::returnOnCloseChanged,
+            m_centralWidget, &CentralWidget::updateCloseButton);
     connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl,Core::HelpManager::HelpViewerLocation)),
             this, SLOT(handleHelpRequest(QUrl,Core::HelpManager::HelpViewerLocation)));
     connect(m_searchTaskHandler, SIGNAL(search(QUrl)), this,
@@ -390,9 +388,9 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     HelpViewer *viewer = factory();
 
     // initialize font
-    QVariant fontSetting = LocalHelpManager::engineFontSettings();
-    if (fontSetting.isValid())
-        viewer->setViewerFont(fontSetting.value<QFont>());
+    viewer->setViewerFont(LocalHelpManager::fallbackFont());
+    connect(LocalHelpManager::instance(), &LocalHelpManager::fallbackFontChanged,
+            viewer, &HelpViewer::setViewerFont);
 
     // initialize zoom
     viewer->setScale(zoom);
@@ -460,24 +458,11 @@ void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
     }
 }
 
-void HelpPlugin::fontChanged()
-{
-    if (!m_rightPaneSideBarWidget)
-        createRightPaneContextViewer();
-
-    QVariant fontSetting = LocalHelpManager::engineFontSettings();
-    QFont font = fontSetting.isValid() ? fontSetting.value<QFont>()
-                                       : m_rightPaneSideBarWidget->currentViewer()->viewerFont();
-
-    m_rightPaneSideBarWidget->setViewerFont(font);
-    m_centralWidget->setViewerFont(font);
-}
-
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
     LocalHelpManager::setEngineNeedsUpdate();
     if (ModeManager::currentMode() == m_mode
-            || contextHelpOption() == HelpManager::ExternalHelpAlways)
+            || LocalHelpManager::contextHelpOption() == HelpManager::ExternalHelpAlways)
         LocalHelpManager::setupGuiHelpEngine();
 }
 
@@ -528,7 +513,7 @@ HelpViewer *HelpPlugin::viewerForHelpViewerLocation(HelpManager::HelpViewerLocat
 
 HelpViewer *HelpPlugin::viewerForContextHelp()
 {
-    return viewerForHelpViewerLocation(contextHelpOption());
+    return viewerForHelpViewerLocation(LocalHelpManager::contextHelpOption());
 }
 
 static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
@@ -670,17 +655,4 @@ void HelpPlugin::doSetupIfNeeded()
         OpenPagesManager::instance().setupInitialPages();
         LocalHelpManager::bookmarkManager().setupBookmarkModels();
     }
-}
-
-HelpManager::HelpViewerLocation HelpPlugin::contextHelpOption() const
-{
-    QSettings *settings = ICore::settings();
-    const QString key = QLatin1String(Help::Constants::ID_MODE_HELP) + QLatin1String("/ContextHelpOption");
-    if (settings->contains(key))
-        return HelpManager::HelpViewerLocation(
-                    settings->value(key, HelpManager::SideBySideIfPossible).toInt());
-
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    return HelpManager::HelpViewerLocation(engine.customValue(QLatin1String("ContextHelpOption"),
-        HelpManager::SideBySideIfPossible).toInt());
 }

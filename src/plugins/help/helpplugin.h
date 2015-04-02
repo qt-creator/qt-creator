@@ -99,8 +99,6 @@ private slots:
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);
 
-    void fontChanged();
-
     void setupHelpEngineIfNeeded();
 
     void highlightSearchTermsInContextHelp();
@@ -120,7 +118,6 @@ private:
     HelpViewer *externalHelpViewer();
 
     void doSetupIfNeeded();
-    Core::HelpManager::HelpViewerLocation contextHelpOption() const;
 
 private:
     HelpMode *m_mode;
@@ -129,7 +126,6 @@ private:
 
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
-    GeneralSettingsPage *m_generalSettingsPage;
     SearchTaskHandler *m_searchTaskHandler;
 
     bool m_setupNeeded;
