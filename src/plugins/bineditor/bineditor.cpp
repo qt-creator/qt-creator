@@ -57,6 +57,7 @@
 #include <QWheelEvent>
 
 // QByteArray::toLower() is broken, it stops at the first \0
+// FIXME: fixed in Qt5.4 5d11688d02e1f56722dce809cbe7ab5c49fea590
 static void lower(QByteArray &ba)
 {
     char *data = ba.data();
