@@ -31,7 +31,6 @@
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
-#include "diffeditormanager.h"
 #include "diffutils.h"
 
 #include <utils/fileutils.h>
@@ -61,11 +60,6 @@ DiffEditorDocument::DiffEditorDocument() :
     setId(Constants::DIFF_EDITOR_ID);
     setMimeType(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
     setTemporary(true);
-}
-
-DiffEditorDocument::~DiffEditorDocument()
-{
-    DiffEditorManager::removeDocument(this);
 }
 
 /**
@@ -213,8 +207,6 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
 
     if (!ok)
         return false;
-
-    DiffEditorManager::removeDocument(this);
 
     setController(0);
     setDescription(QString());

@@ -64,7 +64,6 @@
 
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffeditorcontroller.h>
-#include <diffeditor/diffeditormanager.h>
 #include <diffeditor/diffutils.h>
 
 #include <QCoreApplication>
@@ -743,7 +742,7 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
                               const QString &title,
                               std::function<DiffEditorController *(IDocument *)> factory) const
 {
-    IDocument *document = DiffEditorManager::findOrCreate(documentId, title);
+    IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
     DiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);

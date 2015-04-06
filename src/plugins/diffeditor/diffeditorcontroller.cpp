@@ -32,6 +32,8 @@
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
@@ -80,6 +82,21 @@ QString DiffEditorController::revisionFromDescription() const
 QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
 {
     return m_document->makePatch(m_diffFileIndex, m_chunkIndex, revert, addPrefix);
+}
+
+Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
+                                                            const QString &displayName)
+{
+    QString preferredDisplayName = displayName;
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                Constants::DIFF_EDITOR_ID, &preferredDisplayName, QByteArray(), vcsId);
+    return editor ? editor->document() : 0;
+}
+
+DiffEditorController *DiffEditorController::controller(Core::IDocument *document)
+{
+    auto doc = qobject_cast<Internal::DiffEditorDocument *>(document);
+    return doc ? doc->controller() : 0;
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,

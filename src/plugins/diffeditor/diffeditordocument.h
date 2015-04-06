@@ -49,7 +49,6 @@ class DiffEditorDocument : public Core::BaseTextDocument
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 public:
     DiffEditorDocument();
-    ~DiffEditorDocument();
 
     DiffEditorController *controller() const;
 

@@ -41,7 +41,6 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <diffeditor/diffeditorcontroller.h>
-#include <diffeditor/diffeditormanager.h>
 #include <diffeditor/diffutils.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -279,8 +278,9 @@ DiffController *SubversionClient::findOrCreateDiffEditor(const QString &document
                                                          const QString &title,
                                                          const QString &workingDirectory) const
 {
-    IDocument *document = DiffEditorManager::findOrCreate(documentId, title);
-    DiffController *controller = qobject_cast<DiffController *>(DiffEditorManager::controller(document));
+    IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
+    DiffController *controller = qobject_cast<DiffController *>(
+                DiffEditorController::controller(document));
     if (!controller)
         controller = new DiffController(document, this, workingDirectory);
     VcsBasePlugin::setSource(document, source);

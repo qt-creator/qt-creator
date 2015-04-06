@@ -34,7 +34,6 @@
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
 #include "diffeditorfactory.h"
-#include "diffeditormanager.h"
 #include "differ.h"
 
 #include <QAction>
@@ -148,8 +147,6 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     addAutoReleasedObject(new DiffEditorFactory(this));
 
-    new DiffEditorManager(this);
-
     return true;
 }
 
@@ -173,15 +170,14 @@ void DiffEditorPlugin::diff()
 
     const QString documentId = QLatin1String("Diff ") + fileName1 + QLatin1String(", ") + fileName2;
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
-    auto const document
-            = qobject_cast<DiffEditorDocument *>(DiffEditorManager::findOrCreate(documentId, title));
+    auto const document = qobject_cast<DiffEditorDocument *>(
+                DiffEditorController::findOrCreateDocument(documentId, title));
     if (!document)
         return;
 
-    DiffEditorController *controller = DiffEditorManager::controller(document);
+    DiffEditorController *controller = DiffEditorController::controller(document);
     if (!controller)
         controller = new FileDiffController(document, fileName1, fileName2);
-    QTC_ASSERT(controller, return);
     Core::EditorManager::activateEditorForDocument(document);
     document->reload();
 }
