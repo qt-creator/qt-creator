@@ -324,6 +324,8 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("pointer_indirect_specialization_typedef", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type_2", "QTCREATORBUG-14141", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -2813,6 +2815,36 @@ void CppToolsPlugin::test_completion_data()
             "   @\n"
             "}\n"
     ) << _("t.p->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("recursive_instantiation_of_template_type") << _(
+            "template<typename _Tp>\n"
+            "struct Temp { typedef _Tp value_type; };\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "   Temp<Temp<Foo> >::value_type::value_type *p;\n"
+            "   @\n"
+            "}\n"
+    ) << _("p->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("recursive_instantiation_of_template_type_2") << _(
+            "template<typename _Tp>\n"
+            "struct Temp { typedef _Tp value_type; };\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "   Temp<Temp<Foo>::value_type>::value_type *p;\n"
+            "   @\n"
+            "}\n"
+    ) << _("p->") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
 }
