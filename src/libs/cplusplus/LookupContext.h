@@ -161,27 +161,7 @@ private:
 
     Class *_rootClass;
 
-    class NestedClassInstantiator
-    {
-    public:
-        NestedClassInstantiator(CreateBindings *factory, Clone &cloner, Subst &subst)
-            : _factory(factory)
-            , _cloner(cloner)
-            , _subst(subst)
-        {}
-        void instantiate(ClassOrNamespace *enclosingTemplateClass,
-                         ClassOrNamespace *enclosingTemplateClassInstantiation);
-    private:
-        bool isInstantiateNestedClassNeeded(const QList<Symbol *> &symbols) const;
-        bool containsTemplateType(Declaration *declaration) const;
-        bool containsTemplateType(Function *function) const;
-        NamedType *findNamedType(Type *memberType) const;
-
-        QSet<ClassOrNamespace *> _alreadyConsideredNestedClassInstantiations;
-        CreateBindings *_factory;
-        Clone &_cloner;
-        Subst &_subst;
-    };
+    class NestedClassInstantiator;
 
 public:
     const Name *_name; // For debug
