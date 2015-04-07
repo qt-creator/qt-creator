@@ -47,7 +47,7 @@ Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
 
 void Bookmark::removedFromEditor()
 {
-    m_manager->removeBookmark(this);
+    m_manager->deleteBookmark(this);
 }
 
 void Bookmark::updateLineNumber(int line)
@@ -76,8 +76,9 @@ void Bookmark::updateBlock(const QTextBlock &block)
 
 void Bookmark::updateFileName(const QString &fileName)
 {
+    const QString &oldFileName = this->fileName();
     TextMark::updateFileName(fileName);
-    m_manager->updateBookmark(this);
+    m_manager->updateBookmarkFileName(this, oldFileName);
 }
 
 void Bookmark::setNote(const QString &note)
