@@ -200,7 +200,7 @@ void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
     }
     d->progressBar->setVisible(showProgress);
     d->text->setText(text);
-    resize(showProgress ? 300 : 200, 70);
+    resize(300, 70);
     reposition();
 }
 
