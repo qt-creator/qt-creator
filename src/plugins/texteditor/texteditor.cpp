@@ -393,6 +393,7 @@ public:
 
     TextEditorWidget::Link m_currentLink;
     bool m_linkPressed;
+    TextEditorWidget::Link m_lastLinkUnderCursor;
 
     QRegExp m_searchExpr;
     FindFlags m_findFlags;
@@ -5385,9 +5386,9 @@ bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
 
 void TextEditorWidgetPrivate::updateLink(QMouseEvent *e)
 {
-    bool linkFound = false;
-
-    if (q->mouseNavigationEnabled() && e->modifiers() & Qt::ControlModifier) {
+    if (!q->mouseNavigationEnabled())
+        return;
+    if (e->modifiers() & Qt::ControlModifier) {
         // Link emulation behaviour for 'go to definition'
         const QTextCursor cursor = q->cursorForPosition(e->pos());
 
@@ -5399,16 +5400,22 @@ void TextEditorWidgetPrivate::updateLink(QMouseEvent *e)
             onText = q->cursorRect(nextPos).right() >= e->x();
         }
 
-        const TextEditorWidget::Link link = q->findLinkAt(cursor, false);
-
-        if (onText && link.hasValidLinkText()) {
-            showLink(link);
-            linkFound = true;
+        if (cursor.position() < m_lastLinkUnderCursor.linkTextStart
+                || cursor.position() > m_lastLinkUnderCursor.linkTextEnd) {
+            m_lastLinkUnderCursor = q->findLinkAt(cursor, false);
         }
-    }
 
-    if (!linkFound)
+        if (onText && m_lastLinkUnderCursor.hasValidLinkText()) {
+            showLink(m_lastLinkUnderCursor);
+        } else {
+            clearLink();
+            // setting position to prevent multiple calls to findLinkAt for the same position
+            m_lastLinkUnderCursor.linkTextStart = cursor.position();
+            m_lastLinkUnderCursor.linkTextEnd = cursor.position();
+        }
+    } else {
         clearLink();
+    }
 }
 
 void TextEditorWidgetPrivate::showLink(const TextEditorWidget::Link &link)
@@ -5430,6 +5437,7 @@ void TextEditorWidgetPrivate::showLink(const TextEditorWidget::Link &link)
 
 void TextEditorWidgetPrivate::clearLink()
 {
+    m_lastLinkUnderCursor = TextEditorWidget::Link();
     if (!m_currentLink.hasValidLinkText())
         return;
 
