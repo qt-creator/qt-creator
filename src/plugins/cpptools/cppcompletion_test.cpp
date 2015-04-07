@@ -162,6 +162,16 @@ private:
     IEditor *m_editor;
 };
 
+bool isProbablyGlobalCompletion(const QStringList &list)
+{
+    const int numberOfPrimitivesAndBasicKeywords = (T_LAST_PRIMITIVE - T_FIRST_PRIMITIVE)
+            + (T_FIRST_OBJC_AT_KEYWORD - T_FIRST_KEYWORD);
+
+    return list.size() >= numberOfPrimitivesAndBasicKeywords
+        && list.contains(QLatin1String("if"))
+        && list.contains(QLatin1String("bool"));
+}
+
 } // anonymous namespace
 
 void CppToolsPlugin::test_completion_basic_1()
@@ -325,6 +335,31 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
+}
+
+void CppToolsPlugin::test_global_completion_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
+
+    // Check that special completion after '&' for Qt5 signal/slots does not
+    // interfere global completion after '&'
+    QTest::newRow("global completion after & in return expression")
+         << _("void f() { foo(myObject, @); }\n")
+         << _("&");
+    QTest::newRow("global completion after & in function argument")
+         << _("int f() { return @; }\n")
+         << _("&");
+}
+
+void CppToolsPlugin::test_global_completion()
+{
+    QFETCH(QByteArray, code);
+    QFETCH(QByteArray, prefix);
+
+    CompletionTestCase test(code, prefix);
+    QVERIFY(test.succeededSoFar());
+    QVERIFY(isProbablyGlobalCompletion(test.getCompletions()));
 }
 
 static void enumTestCase(const QByteArray &tag, const QByteArray &source,
@@ -2336,14 +2371,6 @@ void CppToolsPlugin::test_completion_data()
            << QLatin1String("derivedSlot2")
            << QLatin1String("hiddenFunction")
            << QLatin1String("hiddenSignal"));
-
-    QTest::newRow("Qt5 signals: no class name completion if not after 'connect(' 1")
-         << commonSignalSlotCompletionTestCode
-         << _("foo(myObject, &") << (QStringList());
-
-    QTest::newRow("Qt5 signals/slots: no class name completion if not after 'connect(' 2")
-         << commonSignalSlotCompletionTestCode
-         << _("&") << (QStringList());
 
     QTest::newRow("Qt5 signals: fallback to scope completion")
          << commonSignalSlotCompletionTestCode

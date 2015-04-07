@@ -1128,8 +1128,14 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
             //  "connect(sender, &" or
             //  "connect(otherSender, &Foo::signal1, receiver, &"
             const int beforeExpression = startOfExpression - 1;
-            if (canCompleteClassNameAt2ndOr4thConnectArgument(m_interface.data(), beforeExpression))
+            if (canCompleteClassNameAt2ndOr4thConnectArgument(m_interface.data(),
+                                                              beforeExpression)) {
                 m_model->m_completionOperator = CompleteQt5SignalOrSlotClassNameTrigger;
+            } else { // Ensure global completion
+                startOfExpression = endOfExpression = m_startPosition;
+                expression.clear();
+                m_model->m_completionOperator = T_EOF_SYMBOL;
+            }
         } else if (m_model->m_completionOperator == T_COLON_COLON) {
             // We expect 'expression' to be "Foo" in
             //  "connect(sender, &Foo::" or
