@@ -367,7 +367,7 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files);
-    return AddNewInformation(path().fileName(), context == this ? 120 : 100);
+    return AddNewInformation(displayName(), context == this ? 120 : 100);
 }
 
 /*!
