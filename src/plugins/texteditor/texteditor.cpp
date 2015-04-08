@@ -4355,6 +4355,31 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 
         painter.setPen(pal.color(QPalette::Dark));
 
+        if (d->m_lineNumbersVisible) {
+            const QString &number = lineNumber(blockNumber);
+            bool selected = (
+                    (selStart < block.position() + block.length()
+
+                    && selEnd > block.position())
+                    || (selStart == selEnd && selStart == block.position())
+                    );
+            if (selected) {
+                painter.save();
+                QFont f = painter.font();
+                const QTextCharFormat &currentLineNumberFormat
+                        = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
+                f.setBold(currentLineNumberFormat.font().bold());
+                f.setItalic(currentLineNumberFormat.font().italic());
+                painter.setFont(f);
+                painter.setPen(currentLineNumberFormat.foreground().color());
+                if (currentLineNumberFormat.background() != Qt::NoBrush)
+                    painter.fillRect(QRect(0, top, extraAreaWidth, height), currentLineNumberFormat.background().color());
+            }
+            painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
+            if (selected)
+                painter.restore();
+        }
+
         if (d->m_codeFoldingVisible || d->m_marksVisible) {
             painter.save();
             painter.setRenderHint(QPainter::Antialiasing, false);
@@ -4450,31 +4475,6 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 painter.setPen(QPen(Qt::red, 2));
             painter.drawLine(extraAreaWidth - 1, top, extraAreaWidth - 1, bottom - 1);
             painter.restore();
-        }
-
-        if (d->m_lineNumbersVisible) {
-            const QString &number = lineNumber(blockNumber);
-            bool selected = (
-                    (selStart < block.position() + block.length()
-
-                    && selEnd > block.position())
-                    || (selStart == selEnd && selStart == block.position())
-                    );
-            if (selected) {
-                painter.save();
-                QFont f = painter.font();
-                const QTextCharFormat &currentLineNumberFormat
-                        = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
-                f.setBold(currentLineNumberFormat.font().bold());
-                f.setItalic(currentLineNumberFormat.font().italic());
-                painter.setFont(f);
-                painter.setPen(currentLineNumberFormat.foreground().color());
-                if (currentLineNumberFormat.background() != Qt::NoBrush)
-                  painter.fillRect(QRect(0, top, extraAreaWidth, height), currentLineNumberFormat.background().color());
-            }
-            painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
-            if (selected)
-                painter.restore();
         }
 
         block = nextVisibleBlock;
