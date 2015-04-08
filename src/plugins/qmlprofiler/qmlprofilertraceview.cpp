@@ -98,7 +98,10 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
     connect(modelManager->traceTime(), &QmlProfilerTraceTime::timeChanged,
-            d->m_zoomControl, &Timeline::TimelineZoomControl::setTrace);
+            [this](qint64 start, qint64 end) {
+        d->m_zoomControl->setTrace(start, end);
+        d->m_zoomControl->setRange(start, start + (end - start) / 10);
+    });
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
@@ -129,8 +132,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
 
     d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
-
-    connect(modelManager,SIGNAL(dataAvailable()), d->m_modelProxy,SIGNAL(dataAvailable()));
 
     // external models pushed on top
     foreach (QmlProfilerTimelineModel *timelineModel,

@@ -136,7 +136,6 @@ signals:
     void error(const QString &error);
     void stateChanged();
     void progressChanged();
-    void dataAvailable();
     void loadFinished();
     void saveFinished();
 

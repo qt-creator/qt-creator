@@ -79,16 +79,6 @@ Rectangle {
         }
     }
 
-
-    Connections {
-        target: timelineModelAggregator
-        onDataAvailable: {
-            content.clearChildren();
-            zoomControl.setRange(zoomControl.traceStart,
-                                 zoomControl.traceStart + zoomControl.traceDuration / 10);
-        }
-    }
-
     onSelectionRangeModeChanged: {
         selectionRange.reset();
         buttonsBar.updateRangeButton(selectionRangeMode);

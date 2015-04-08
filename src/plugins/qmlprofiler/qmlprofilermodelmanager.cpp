@@ -337,7 +337,6 @@ void QmlProfilerModelManager::complete()
         // Load notes after the timeline models have been initialized.
         d->notesModel->loadData();
         setState(QmlProfilerDataState::Done);
-        emit dataAvailable();
         break;
     case QmlProfilerDataState::AcquiringData:
         // Make sure the trace fits into the time span.
