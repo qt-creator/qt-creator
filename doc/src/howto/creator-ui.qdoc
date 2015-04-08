@@ -132,6 +132,9 @@
         \li \uicontrol Outline shows the symbol hierarchy of a C++ file and the type
             hierarchy of a QML file.
 
+        \li \uicontrol Tests lists autotests and Qt Quick tests in the project
+            (commercial only).
+
         \li \uicontrol {Type Hierarchy} shows the base classes of a class.
 
         \li \uicontrol {Include Hierarchy} shows which files are included in the current file
@@ -154,7 +157,7 @@
             (\uicontrol {Split}). Select new content to view in the split view.
 
         \li To close a sidebar view, click
-            \inlineimage qtcreator-closesidebar.png
+            \inlineimage qtcreator-remove-split-button.png
             (\uicontrol {Close}).
 
     \endlist
@@ -242,6 +245,29 @@
 
     \endlist
 
+    \section2 Viewing Tests
+
+    The \uicontrol Tests view shows the autotests and Qt Quick tests in the
+    current project (commercial only). Select the test cases to run. If a Qt
+    Quick test case does not have a name, it is marked \uicontrol Unnamed in the
+    list. Unnamed test cases are always executed when the application that
+    contains them is run, and therefore you cannot select or deselect them.
+
+    To show or hide init and cleanup or data functions, select
+    \uicontrol {Filter Test Tree} > \uicontrol {Show Init and Cleanup Functions}
+    or \uicontrol {Show Data Functions}. Double-click a function in the list
+    to open its source code in the code editor.
+
+    The test cases are listed in alphabetic order. To list them in the order in
+    which they are defined in the source code, select
+    \inlineimage qtcreator-autotests-sort-naturally.png
+    (\uicontrol {Sort Naturally}).
+
+    To run tests, select \uicontrol {Run All Tests} or
+    \uicontrol {Run Selected Tests} in the context menu.
+
+    To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
+
     \section2 Viewing Type Hierarchy
 
     To view the base classes of a class, right-click the class and select
@@ -275,6 +301,8 @@
 
        \li \uicontrol{General Messages}
 
+       \li \uicontrol{Test Results} (commercial only)
+
     \endlist
 
     Output panes are available in all \l{Modes}{modes}. Click the name of an
@@ -289,7 +317,8 @@
     To open the \uicontrol{General Messages} and \l{Using Version Control Systems}
     {Version Control} panes, select
     \uicontrol {Window > Output Panes}. To display the \uicontrol {To-Do Entries} pane,
-    enable the Todo plugin.
+    enable the Todo plugin and to display the \l{Running Autotests}
+    {Test Results} pane, enable the Auto Tests plugin.
 
     \section2 Issues
 

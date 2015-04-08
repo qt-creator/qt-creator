@@ -26,7 +26,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-clang-static-analyzer.html
     \page creator-cpu-usage-analyzer.html
-    \nextpage creator-advanced.html
+    \nextpage creator-autotest.html
 
     \title Analyzing CPU Usage
 
