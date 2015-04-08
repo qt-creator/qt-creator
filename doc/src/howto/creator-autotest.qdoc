@@ -35,6 +35,8 @@
 
     \title Running Autotests
 
+    \commercial
+
     \QC integrates the \l{Qt Test} framework for unit testing Qt based
     applications and libraries (commercial only). You can use \QC to build and
     run autotests for your projects.

@@ -30,6 +30,8 @@
 
     \title Analyzing CPU Usage
 
+    \commercial
+
     \QC is integrated with the Linux Perf tool (commercial only) that can be
     used to analyze the CPU usage of an application on embedded devices and, to
     a limited extent, on Linux desktop platforms. The CPU Usage Analyzer uses
