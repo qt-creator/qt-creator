@@ -7,6 +7,7 @@ Project {
             + "/src/libs/timeline"
     references: [
         "timelinemodel/timelinemodel.qbs",
+        "timelinemodelaggregator/timelinemodelaggregator.qbs",
         "timelineabstractrenderer/timelineabstractrenderer.qbs",
         "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
     ]

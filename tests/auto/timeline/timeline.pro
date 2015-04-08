@@ -2,8 +2,9 @@ include(../../../qtcreator.pri)
 TEMPLATE = subdirs
 
 SUBDIRS = \
+    timelineabstractrenderer \
     timelinemodel \
-    timelineabstractrenderer
+    timelinemodelaggregator
 
 minQtVersion(5,4,0) {
     SUBDIRS += \
