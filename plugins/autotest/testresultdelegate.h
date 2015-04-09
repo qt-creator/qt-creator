@@ -56,11 +56,11 @@ private:
               m_top(options.rect.top()),
               m_bottom(options.rect.bottom())
         {
+            m_typeAreaWidth = QFontMetrics(options.font).width(QLatin1String("XXXXXXXX"));
             int flexibleArea = lineAreaLeft() - textAreaLeft() - ITEM_SPACING;
             if (m_maxFileLength > flexibleArea / 2)
                 m_realFileLength = flexibleArea / 2;
             m_fontHeight = QFontMetrics(options.font).height();
-            m_typeAreaWidth = QFontMetrics(options.font).width(QLatin1String("XXXXXXXX"));
         }
 
         int top() const { return m_top + ITEM_MARGIN; }
