@@ -1,9 +1,9 @@
 include(qtcreator.pri)
 
 #version check qt
-!minQtVersion(5, 3, 1) {
+!minQtVersion(5, 4, 0) {
     message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 5.3.1.")
+    error("Use at least Qt 5.4.0.")
 }
 
 include(doc/doc.pri)
