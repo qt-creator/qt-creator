@@ -232,8 +232,12 @@ void tst_TimelineModel::height()
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
     dummy.setExpanded(true);
     QCOMPARE(dummy.height(), 3 * DefaultRowHeight);
-    dummy.setExpandedRowHeight(0, 80);
+    dummy.setExpandedRowHeight(1, 80);
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight + 80);
+    dummy.clear();
+    dummy.loadData();
+    dummy.setExpanded(true);
+    QCOMPARE(dummy.rowHeight(1), DefaultRowHeight); // Make sure the row height gets reset.
 }
 
 void tst_TimelineModel::count()
