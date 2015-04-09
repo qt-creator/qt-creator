@@ -121,8 +121,10 @@ void TimelineModel::setCollapsedRowCount(int rows)
     if (d->collapsedRowCount != rows) {
         d->collapsedRowCount = rows;
         emit collapsedRowCountChanged();
-        if (!d->expanded)
+        if (!d->expanded) {
             emit rowCountChanged();
+            emit heightChanged(); // collapsed rows have a fixed size
+        }
     }
 }
 
@@ -136,12 +138,16 @@ void TimelineModel::setExpandedRowCount(int rows)
 {
     Q_D(TimelineModel);
     if (d->expandedRowCount != rows) {
+        int prevHeight = height();
         if (d->rowOffsets.length() > rows)
             d->rowOffsets.resize(rows);
         d->expandedRowCount = rows;
         emit expandedRowCountChanged();
-        if (d->expanded)
+        if (d->expanded) {
             emit rowCountChanged();
+            if (height() != prevHeight)
+                emit heightChanged();
+        }
     }
 }
 
@@ -156,25 +162,16 @@ TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId, const QSt
 {
 }
 
-void TimelineModel::TimelineModelPrivate::init(TimelineModel *q)
-{
-    q_ptr = q;
-    connect(q,SIGNAL(expandedChanged()),q,SIGNAL(heightChanged()));
-    connect(q,SIGNAL(hiddenChanged()),q,SIGNAL(heightChanged()));
-    connect(q,SIGNAL(emptyChanged()),q,SIGNAL(heightChanged()));
-}
-
-
 TimelineModel::TimelineModel(TimelineModelPrivate &dd, QObject *parent) :
     QObject(parent), d_ptr(&dd)
 {
-    d_ptr->init(this);
+    d_ptr->q_ptr = this;
 }
 
 TimelineModel::TimelineModel(int modelId, const QString &displayName, QObject *parent) :
     QObject(parent), d_ptr(new TimelineModelPrivate(modelId, displayName))
 {
-    d_ptr->init(this);
+    d_ptr->q_ptr = this;
 }
 
 TimelineModel::~TimelineModel()
@@ -492,8 +489,11 @@ void TimelineModel::setExpanded(bool expanded)
 {
     Q_D(TimelineModel);
     if (expanded != d->expanded) {
+        int prevHeight = height();
         d->expanded = expanded;
         emit expandedChanged();
+        if (prevHeight != height())
+            emit heightChanged();
         if (d->collapsedRowCount != d->expandedRowCount)
             emit rowCountChanged();
     }
@@ -509,8 +509,11 @@ void TimelineModel::setHidden(bool hidden)
 {
     Q_D(TimelineModel);
     if (hidden != d->hidden) {
+        int prevHeight = height();
         d->hidden = hidden;
         emit hiddenChanged();
+        if (height() != prevHeight)
+            emit heightChanged();
     }
 }
 
