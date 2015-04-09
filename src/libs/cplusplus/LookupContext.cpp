@@ -89,17 +89,15 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
     }
 }
 
-static bool isNestedInstantiationEnclosingTemplate(
-        ClassOrNamespace *nestedClassOrNamespaceInstantiation,
-        ClassOrNamespace *enclosingTemplateClassInstantiation)
+static bool isNestedInstantiationEnclosingTemplate(ClassOrNamespace *nestedInstantiation,
+                                                   ClassOrNamespace *enclosingInstantiation)
 {
     QList<ClassOrNamespace *> processed;
-    while (enclosingTemplateClassInstantiation
-           && !processed.contains(enclosingTemplateClassInstantiation)) {
-        processed.append(enclosingTemplateClassInstantiation);
-        if (enclosingTemplateClassInstantiation == nestedClassOrNamespaceInstantiation)
+    while (enclosingInstantiation && !processed.contains(enclosingInstantiation)) {
+        processed.append(enclosingInstantiation);
+        if (enclosingInstantiation == nestedInstantiation)
             return false;
-        enclosingTemplateClassInstantiation = enclosingTemplateClassInstantiation->parent();
+        enclosingInstantiation = enclosingInstantiation->parent();
     }
 
     return true;
@@ -538,23 +536,22 @@ ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
     return binding;
 }
 
-class ClassOrNamespace::NestedClassInstantiator
+class ClassOrNamespace::Instantiator
 {
 public:
-    NestedClassInstantiator(CreateBindings *factory, Clone &cloner, Subst &subst)
+    Instantiator(CreateBindings *factory, Clone &cloner, Subst &subst)
         : _factory(factory)
         , _cloner(cloner)
         , _subst(subst)
     {}
-    void instantiate(ClassOrNamespace *enclosingTemplateClass,
-                     ClassOrNamespace *enclosingTemplateClassInstantiation);
+    void instantiate(ClassOrNamespace *classOrNamespace, ClassOrNamespace *instantiation);
 private:
-    bool isInstantiateNestedClassNeeded(const QList<Symbol *> &symbols) const;
+    bool isInstantiationNeeded(ClassOrNamespace *classOrNamespace) const;
     bool containsTemplateType(Declaration *declaration) const;
     bool containsTemplateType(Function *function) const;
     NamedType *findNamedType(Type *memberType) const;
 
-    QSet<ClassOrNamespace *> _alreadyConsideredNestedClassInstantiations;
+    QSet<ClassOrNamespace *> _alreadyConsideredInstantiations;
     CreateBindings *_factory;
     Clone &_cloner;
     Subst &_subst;
@@ -1239,7 +1236,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         }
                     }
                 }
-                instantiateNestedClasses(reference, cloner, subst, instantiation);
+                Instantiator instantiator(_factory, cloner, subst);
+                instantiator.instantiate(reference, instantiation);
             } else {
                 instantiation->_symbols.append(reference->symbols());
             }
@@ -1352,57 +1350,44 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     return reference;
 }
 
-
-void ClassOrNamespace::instantiateNestedClasses(ClassOrNamespace *enclosingTemplateClass,
-                                                Clone &cloner,
-                                                Subst &subst,
-                                                ClassOrNamespace *enclosingTemplateClassInstantiation)
+void ClassOrNamespace::Instantiator::instantiate(ClassOrNamespace *classOrNamespace,
+                                                 ClassOrNamespace *instantiation)
 {
-    NestedClassInstantiator nestedClassInstantiator(_factory, cloner, subst);
-    nestedClassInstantiator.instantiate(enclosingTemplateClass, enclosingTemplateClassInstantiation);
-}
-
-void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *enclosingTemplateClass,
-                                                ClassOrNamespace *enclosingTemplateClassInstantiation)
-{
-    if (_alreadyConsideredNestedClassInstantiations.contains(enclosingTemplateClass))
+    if (_alreadyConsideredInstantiations.contains(classOrNamespace))
         return;
-    _alreadyConsideredNestedClassInstantiations.insert(enclosingTemplateClass);
-    ClassOrNamespace::Table::const_iterator cit = enclosingTemplateClass->_classOrNamespaces.begin();
-    for (; cit != enclosingTemplateClass->_classOrNamespaces.end(); ++cit) {
+    _alreadyConsideredInstantiations.insert(classOrNamespace);
+    ClassOrNamespace::Table::const_iterator cit = classOrNamespace->_classOrNamespaces.begin();
+    for (; cit != classOrNamespace->_classOrNamespaces.end(); ++cit) {
         const Name *nestedName = cit->first;
         ClassOrNamespace *nestedClassOrNamespace = cit->second;
-        ClassOrNamespace *nestedClassOrNamespaceInstantiation = nestedClassOrNamespace;
+        ClassOrNamespace *nestedInstantiation = nestedClassOrNamespace;
 
-        if (isInstantiateNestedClassNeeded(nestedClassOrNamespace->_symbols)) {
-            nestedClassOrNamespaceInstantiation = _factory->allocClassOrNamespace(nestedClassOrNamespace);
-            nestedClassOrNamespaceInstantiation->_enums.append(nestedClassOrNamespace->unscopedEnums());
-            nestedClassOrNamespaceInstantiation->_usings.append(nestedClassOrNamespace->usings());
-            nestedClassOrNamespaceInstantiation->_instantiationOrigin = nestedClassOrNamespace;
+        if (isInstantiationNeeded(nestedClassOrNamespace)) {
+            nestedInstantiation = _factory->allocClassOrNamespace(nestedClassOrNamespace);
+            nestedInstantiation->_enums.append(nestedClassOrNamespace->unscopedEnums());
+            nestedInstantiation->_usings.append(nestedClassOrNamespace->usings());
+            nestedInstantiation->_instantiationOrigin = nestedClassOrNamespace;
 
             foreach (Symbol *s, nestedClassOrNamespace->_symbols) {
                 Symbol *clone = _cloner.symbol(s, &_subst);
                 if (!clone->enclosingScope()) // Not from the cache but just cloned.
                     clone->setEnclosingScope(s->enclosingScope());
-                nestedClassOrNamespaceInstantiation->_symbols.append(clone);
+                nestedInstantiation->_symbols.append(clone);
             }
         }
 
-        if (isNestedInstantiationEnclosingTemplate(nestedClassOrNamespaceInstantiation,
-                                                   enclosingTemplateClass)) {
-            nestedClassOrNamespaceInstantiation->_parent = enclosingTemplateClassInstantiation;
-        }
-        instantiate(nestedClassOrNamespace, nestedClassOrNamespaceInstantiation);
+        if (isNestedInstantiationEnclosingTemplate(nestedInstantiation, classOrNamespace))
+            nestedInstantiation->_parent = instantiation;
+        instantiate(nestedClassOrNamespace, nestedInstantiation);
 
-        enclosingTemplateClassInstantiation->_classOrNamespaces[nestedName] =
-                nestedClassOrNamespaceInstantiation;
+        instantiation->_classOrNamespaces[nestedName] = nestedInstantiation;
     }
-    _alreadyConsideredNestedClassInstantiations.remove(enclosingTemplateClass);
+    _alreadyConsideredInstantiations.remove(classOrNamespace);
 }
 
-bool ClassOrNamespace::NestedClassInstantiator::isInstantiateNestedClassNeeded(const QList<Symbol *> &symbols) const
+bool ClassOrNamespace::Instantiator::isInstantiationNeeded(ClassOrNamespace *classOrNamespace) const
 {
-    foreach (Symbol *s, symbols) {
+    foreach (Symbol *s, classOrNamespace->_symbols) {
         if (Class *klass = s->asClass()) {
             int memberCount = klass->memberCount();
             for (int i = 0; i < memberCount; ++i) {
@@ -1421,14 +1406,14 @@ bool ClassOrNamespace::NestedClassInstantiator::isInstantiateNestedClassNeeded(c
     return false;
 }
 
-bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Declaration *declaration) const
+bool ClassOrNamespace::Instantiator::containsTemplateType(Declaration *declaration) const
 {
     Type *memberType = declaration->type().type();
     NamedType *namedType = findNamedType(memberType);
     return namedType && _subst.contains(namedType->name());
 }
 
-bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Function *function) const
+bool ClassOrNamespace::Instantiator::containsTemplateType(Function *function) const
 {
     Type *returnType = function->returnType().type();
     NamedType *namedType = findNamedType(returnType);
@@ -1436,7 +1421,7 @@ bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Function *f
     //TODO: in future we will need also check function arguments, for now returned value is enough
 }
 
-NamedType *ClassOrNamespace::NestedClassInstantiator::findNamedType(Type *memberType) const
+NamedType *ClassOrNamespace::Instantiator::findNamedType(Type *memberType) const
 {
     if (NamedType *namedType = memberType->asNamedType())
         return namedType;

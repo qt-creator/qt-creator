@@ -129,10 +129,6 @@ private:
 
     ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
-    void instantiateNestedClasses(ClassOrNamespace *enclosingTemplateClass,
-                                  Clone &cloner,
-                                  Subst &subst,
-                                  ClassOrNamespace *enclosingTemplateClassInstantiation);
     ClassOrNamespace *findSpecialization(const TemplateNameId *templId,
                                          const TemplateNameIdTable &specializations);
 
@@ -161,7 +157,7 @@ private:
 
     Class *_rootClass;
 
-    class NestedClassInstantiator;
+    class Instantiator;
 
 public:
     const Name *_name; // For debug
