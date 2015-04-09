@@ -86,7 +86,7 @@ public:
     bool load(const QString &fileName);
     bool save();
     QString contents() const;
-    QString errorMessage() const { return m_qrcFile.errorMessage(); }
+    QString errorMessage() const;
     QString fileName() const;
     void setFileName(const QString &fileName);
 
@@ -141,7 +141,6 @@ private:
     void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
                         const QString &before, const QString &after);
 
-    ResourceFile m_qrcFile;
     RelativeResourceModel *m_qrcModel;
 
     QUndoStack *m_history;

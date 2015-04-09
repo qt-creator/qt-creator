@@ -547,8 +547,8 @@ void ResourceFile::clearPrefixList()
 ** ResourceModel
 */
 
-ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
-    : QAbstractItemModel(parent), m_resource_file(resource_file),  m_dirty(false)
+ResourceModel::ResourceModel(QObject *parent)
+    : QAbstractItemModel(parent), m_dirty(false)
 {
     m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
         QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")), QSize(16, 16));
@@ -646,6 +646,11 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
 void ResourceModel::refresh()
 {
     m_resource_file.refresh();
+}
+
+QString ResourceModel::errorMessage() const
+{
+    return m_resource_file.errorMessage();
 }
 
 Qt::ItemFlags ResourceModel::flags(const QModelIndex &index) const
