@@ -10,13 +10,13 @@ Windows XP SP3 or later
 (K)Ubuntu Linux 11.10 (32-bit and 64-bit) or later
 Mac OS X 10.7 or later
 
-Building the sources requires Qt 5.3.1 or later.
+Building the sources requires Qt 5.4.0 or later.
 
 ## Compiling Qt Creator
 
 Prerequisites:
 
-* Qt 5.3.1 or later
+* Qt 5.4.0 or later
 * On Windows:
     * ActiveState Active Perl
     * MinGW with g++ 4.5 or Visual Studio 2010 or later
