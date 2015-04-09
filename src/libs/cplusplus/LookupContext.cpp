@@ -1308,8 +1308,8 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
         instantiation->_instantiationOrigin = origin;
 
         // The instantiation should have all symbols, enums, and usings from the reference.
-        instantiation->_enums.append(reference->_enums);
-        instantiation->_usings.append(reference->_usings);
+        instantiation->_enums = reference->_enums;
+        instantiation->_usings = reference->_usings;
 
         instantiation->_rootClass = reference->_rootClass;
 
@@ -1349,28 +1349,6 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
                     subst.bind(cloner.name(name, &subst), ty);
                 }
 
-                foreach (Symbol *s, reference->_symbols) {
-                    Symbol *clone = cloner.symbol(s, &subst);
-                    clone->setEnclosingScope(s->enclosingScope());
-                    instantiation->_symbols.append(clone);
-                    if (Q_UNLIKELY(debug)) {
-                        Overview oo;
-                        oo.showFunctionSignatures = true;
-                        oo.showReturnTypes = true;
-                        oo.showTemplateParameters = true;
-                        qDebug() << "cloned" << oo(clone->type());
-                        if (Class *klass = clone->asClass()) {
-                            const unsigned klassMemberCount = klass->memberCount();
-                            for (unsigned i = 0; i < klassMemberCount; ++i){
-                                Symbol *klassMemberAsSymbol = klass->memberAt(i);
-                                if (klassMemberAsSymbol->isTypedef()) {
-                                    if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
-                                        qDebug() << "Member: " << oo(declaration->type(), declaration->name());
-                                }
-                            }
-                        }
-                    }
-                }
                 Instantiator instantiator(cloner, subst);
                 instantiator.instantiate(reference, instantiation);
             } else {
@@ -1493,6 +1471,31 @@ void Instantiator::instantiate(LookupScopePrivate *lookupScope,
     if (_alreadyConsideredInstantiations.contains(lookupScope))
         return;
     _alreadyConsideredInstantiations.insert(lookupScope);
+    if (instantiation != lookupScope) {
+        foreach (Symbol *s, lookupScope->_symbols) {
+            Symbol *clone = _cloner.symbol(s, &_subst);
+            if (!clone->enclosingScope()) // Not from the cache but just cloned.
+                clone->setEnclosingScope(s->enclosingScope());
+            instantiation->_symbols.append(clone);
+            if (Q_UNLIKELY(debug)) {
+                Overview oo;
+                oo.showFunctionSignatures = true;
+                oo.showReturnTypes = true;
+                oo.showTemplateParameters = true;
+                qDebug() << "cloned" << oo(clone->type());
+                if (Class *klass = clone->asClass()) {
+                    const unsigned klassMemberCount = klass->memberCount();
+                    for (unsigned i = 0; i < klassMemberCount; ++i){
+                        Symbol *klassMemberAsSymbol = klass->memberAt(i);
+                        if (klassMemberAsSymbol->isTypedef()) {
+                            if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
+                                qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                        }
+                    }
+                }
+            }
+        }
+    }
     auto cit = lookupScope->_nestedScopes.begin();
     for (; cit != lookupScope->_nestedScopes.end(); ++cit) {
         const Name *nestedName = cit->first;
@@ -1500,18 +1503,12 @@ void Instantiator::instantiate(LookupScopePrivate *lookupScope,
         LookupScopePrivate *nestedInstantiation = nestedLookupScope;
         nestedLookupScope->flush();
 
-        if (isInstantiationNeeded(nestedLookupScope)) {
+        const bool instantiationNeeded = isInstantiationNeeded(nestedInstantiation);
+        if (instantiationNeeded) {
             nestedInstantiation = nestedLookupScope->allocateChild(nestedName);
-            nestedInstantiation->_enums.append(nestedLookupScope->_enums);
-            nestedInstantiation->_usings.append(nestedLookupScope->_usings);
+            nestedInstantiation->_enums = nestedLookupScope->_enums;
+            nestedInstantiation->_usings = nestedLookupScope->_usings;
             nestedInstantiation->_instantiationOrigin = nestedLookupScope;
-
-            foreach (Symbol *s, nestedLookupScope->_symbols) {
-                Symbol *clone = _cloner.symbol(s, &_subst);
-                if (!clone->enclosingScope()) // Not from the cache but just cloned.
-                    clone->setEnclosingScope(s->enclosingScope());
-                nestedInstantiation->_symbols.append(clone);
-            }
         }
 
         if (isNestedInstantiationEnclosingTemplate(nestedInstantiation, lookupScope))
