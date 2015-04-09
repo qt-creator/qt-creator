@@ -115,6 +115,8 @@ public:
 
     void accept();
 
+    bool event(QEvent *event);
+
 private slots:
     void changed()
     {
@@ -155,6 +157,18 @@ void CustomExecutableDialog::accept()
 {
     m_widget->apply();
     QDialog::accept();
+}
+
+bool CustomExecutableDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QDialog::event(event);
 }
 
 // CustomExecutableRunConfiguration
