@@ -31,9 +31,6 @@
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
 #include "qmlprojectfileformat.h"
-#include <QDeclarativeComponent>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
 #include <QtTest>
 
 //TESTED_COMPONENT=src/plugins/qmlprojectmanager/fileformat
