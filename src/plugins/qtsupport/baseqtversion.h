@@ -146,7 +146,6 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Kit *k) const;
     virtual QString frameworkInstallPath() const;
 
     // former local functions

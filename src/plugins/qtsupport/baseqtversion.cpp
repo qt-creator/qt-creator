@@ -1183,14 +1183,6 @@ MacroExpander *BaseQtVersion::macroExpander() const
     return &m_expander;
 }
 
-QList<HeaderPath> BaseQtVersion::systemHeaderPathes(const Kit *k) const
-{
-    Q_UNUSED(k);
-    QList<HeaderPath> result;
-    result.append(HeaderPath(mkspecPath().toString(), HeaderPath::GlobalHeaderPath));
-    return result;
-}
-
 void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k);
