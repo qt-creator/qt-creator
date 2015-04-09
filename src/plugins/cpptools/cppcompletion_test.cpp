@@ -2874,6 +2874,29 @@ void CppToolsPlugin::test_completion_data()
     ) << _("p->") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
+
+    QTest::newRow("qualified_name_in_nested_type") << _(
+            "template<typename _Tp>\n"
+            "struct Temp {\n"
+            "    struct Nested {\n"
+            "        typedef typename _Tp::Nested2 N;\n"
+            "    };\n"
+            "};\n"
+            "\n"
+            "struct Foo {\n"
+            "    struct Nested2 {\n"
+            "        int bar;\n"
+            "    };\n"
+            "};\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    Temp<Foo>::Nested::N p;\n"
+            "    @;\n"
+            "}\n"
+    ) << _("p.") << (QStringList()
+        << QLatin1String("Nested2")
+        << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

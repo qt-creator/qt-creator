@@ -605,9 +605,76 @@ public:
     void instantiate(LookupScopePrivate *lookupScope, LookupScopePrivate *instantiation);
 private:
     bool isInstantiationNeeded(LookupScopePrivate *lookupScope) const;
-    bool containsTemplateType(Declaration *declaration) const;
-    bool containsTemplateType(Function *function) const;
-    NamedType *findNamedType(Type *memberType) const;
+
+    struct TemplateFinder : public TypeVisitor, public NameVisitor
+    {
+    public:
+        TemplateFinder(Subst &subst) : _subst(subst), _found(false) {}
+
+        inline void accept(Type *type) { TypeVisitor::accept(type); }
+        inline void accept(const Name *name) { NameVisitor::accept(name); }
+
+        bool found() const { return _found; }
+    private:
+        void visit(PointerType *type) override { accept(type->elementType().type()); }
+        void visit(ReferenceType *type) override { accept(type->elementType().type()); }
+        void visit(NamedType *type) override { accept(type->name()); }
+
+        void visit(Function *type) override
+        {
+            accept(type->returnType().type());
+            if (_found)
+                return;
+            for (int i = 0, total = type->argumentCount(); i < total; ++i) {
+                accept(type->argumentAt(i)->type().type());
+                if (_found)
+                    return;
+            }
+        }
+
+        void visit(Class *type) override
+        {
+            for (int i = 0, total = type->memberCount(); i < total; ++i) {
+                accept(type->memberAt(i)->type().type());
+                if (_found)
+                    return;
+            }
+        }
+
+        void visit(const Identifier *name) override
+        {
+            if (_subst.contains(name))
+                _found = true;
+        }
+
+        void visit(const TemplateNameId *name) override
+        {
+            if (const Identifier *identifier = name->identifier())
+                visit(identifier);
+            if (_found)
+                return;
+            for (unsigned i = 0, total = name->templateArgumentCount(); i < total; ++i) {
+                accept(name->templateArgumentAt(i).type());
+                if (_found)
+                    return;
+            }
+        }
+
+        void visit(const ConversionNameId *name) override
+        {
+            accept(name->type().type());
+        }
+
+        void visit(const QualifiedNameId *name) override
+        {
+            accept(name->base());
+            if (!_found)
+                accept(name->name());
+        }
+
+        Subst &_subst;
+        bool _found;
+    };
 
     ProcessedSet _alreadyConsideredInstantiations;
     Clone &_cloner;
@@ -1461,48 +1528,14 @@ bool Instantiator::isInstantiationNeeded(LookupScopePrivate *lookupScope) const
 {
     foreach (Symbol *s, lookupScope->_symbols) {
         if (Class *klass = s->asClass()) {
-            int memberCount = klass->memberCount();
-            for (int i = 0; i < memberCount; ++i) {
-                Symbol *memberAsSymbol = klass->memberAt(i);
-                if (Declaration *declaration = memberAsSymbol->asDeclaration()) {
-                    if (containsTemplateType(declaration))
-                        return true;
-                } else if (Function *function = memberAsSymbol->asFunction()) {
-                    if (containsTemplateType(function))
-                        return true;
-                }
-            }
+            TemplateFinder finder(_subst);
+            finder.accept(klass);
+            if (finder.found())
+                return true;
         }
     }
 
     return false;
-}
-
-bool Instantiator::containsTemplateType(Declaration *declaration) const
-{
-    Type *memberType = declaration->type().type();
-    NamedType *namedType = findNamedType(memberType);
-    return namedType && _subst.contains(namedType->name());
-}
-
-bool Instantiator::containsTemplateType(Function *function) const
-{
-    Type *returnType = function->returnType().type();
-    NamedType *namedType = findNamedType(returnType);
-    return namedType && _subst.contains(namedType->name());
-    //TODO: in future we will need also check function arguments, for now returned value is enough
-}
-
-NamedType *Instantiator::findNamedType(Type *memberType) const
-{
-    if (NamedType *namedType = memberType->asNamedType())
-        return namedType;
-    else if (PointerType *pointerType = memberType->asPointerType())
-        return findNamedType(pointerType->elementType().type());
-    else if (ReferenceType *referenceType = memberType->asReferenceType())
-        return findNamedType(referenceType->elementType().type());
-
-    return 0;
 }
 
 void LookupScopePrivate::flush()
