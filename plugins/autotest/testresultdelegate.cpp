@@ -17,8 +17,10 @@
 **
 ****************************************************************************/
 
+#include "autotestplugin.h"
 #include "testresultdelegate.h"
 #include "testresultmodel.h"
+#include "testsettings.h"
 
 #include <QAbstractItemView>
 #include <QDebug>
@@ -27,6 +29,8 @@
 
 namespace Autotest {
 namespace Internal {
+
+const static int outputLimit = 100000;
 
 TestResultDelegate::TestResultDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -124,6 +128,11 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         int leading = fm.leading();
         int fontHeight = fm.height();
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
+
+        if (AutotestPlugin::instance()->settings()->limitResultOutput
+                && output.length() > outputLimit)
+            output = output.left(outputLimit).append(QLatin1String("..."));
+
         QTextLayout tl(output);
         tl.setFont(painter->font());
         QTextOption txtOption;
@@ -143,8 +152,9 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         tl.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
     } else {
         painter->setClipRect(positions.textArea());
+        // cut output before generating elided text as this takes quite long for exhaustive output
         painter->drawText(positions.textAreaLeft(), positions.top() + fm.ascent(),
-                          fm.elidedText(output, Qt::ElideRight, positions.textAreaWidth()));
+                          fm.elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
     }
 
     QString file = testResult.fileName();
@@ -222,6 +232,11 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
         int height = 0;
         int leading = fm.leading();
+
+        if (AutotestPlugin::instance()->settings()->limitResultOutput
+                && output.length() > outputLimit)
+            output = output.left(outputLimit).append(QLatin1String("..."));
+
         QTextLayout tl(output);
         tl.setFont(opt.font);
         QTextOption txtOption;
