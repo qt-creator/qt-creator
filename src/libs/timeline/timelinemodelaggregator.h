@@ -68,7 +68,8 @@ signals:
 
 private:
     class TimelineModelAggregatorPrivate;
-    TimelineModelAggregatorPrivate *d;
+    TimelineModelAggregatorPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(TimelineModelAggregator)
 };
 
 } // namespace Timeline
