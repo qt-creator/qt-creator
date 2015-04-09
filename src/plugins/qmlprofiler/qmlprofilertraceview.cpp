@@ -145,9 +145,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
         d->m_modelProxy->addModel(new QmlProfilerRangeModel(modelManager, (RangeType)i,
                                                             d->m_modelProxy));
 
-    // Connect this last so that it's executed after the models have updated their data.
-    connect(modelManager->qmlModel(), SIGNAL(changed()), d->m_modelProxy, SIGNAL(stateChanged()));
-
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
 

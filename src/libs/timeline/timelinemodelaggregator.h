@@ -63,7 +63,6 @@ public:
     Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
 
 signals:
-    void stateChanged();
     void modelsChanged();
     void heightChanged();
 
