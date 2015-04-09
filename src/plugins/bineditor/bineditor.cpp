@@ -56,19 +56,6 @@
 #include <QToolTip>
 #include <QWheelEvent>
 
-// QByteArray::toLower() is broken, it stops at the first \0
-// FIXME: fixed in Qt5.4 5d11688d02e1f56722dce809cbe7ab5c49fea590
-static void lower(QByteArray &ba)
-{
-    char *data = ba.data();
-    char *end = data + ba.size();
-    while (data != end) {
-        if (*data >= 0x41 && *data <= 0x5A)
-            *data += 0x20;
-        ++data;
-    }
-}
-
 static QByteArray calculateHexPattern(const QByteArray &pattern)
 {
     QByteArray result;
@@ -563,7 +550,7 @@ int BinEditorWidget::dataIndexOf(const QByteArray &pattern, int from, bool caseS
         ::memcpy(b + trailing, data.constData(), m_blockSize);
 
         if (!caseSensitive)
-            ::lower(buffer);
+            buffer = buffer.toLower();
 
         int pos = matcher.indexIn(buffer, from - (block * m_blockSize) + trailing);
         if (pos >= 0)
@@ -596,7 +583,7 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, int from, bool c
         ::memcpy(b, data.constData(), m_blockSize);
 
         if (!caseSensitive)
-            ::lower(buffer);
+            buffer = buffer.toLower();
 
         int pos = buffer.lastIndexOf(pattern, from - (block * m_blockSize));
         if (pos >= 0)
@@ -619,7 +606,7 @@ int BinEditorWidget::find(const QByteArray &pattern_arg, int from,
     bool caseSensitiveSearch = (findFlags & QTextDocument::FindCaseSensitively);
 
     if (!caseSensitiveSearch)
-        ::lower(pattern);
+        pattern = pattern.toLower();
 
     bool backwards = (findFlags & QTextDocument::FindBackward);
     int found = backwards ? dataLastIndexOf(pattern, from, caseSensitiveSearch)
@@ -735,7 +722,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         patternData = dataMid(patternOffset, m_numVisibleLines * m_bytesPerLine + (topLine*m_bytesPerLine - patternOffset));
         patternDataHex = patternData;
         if (!m_caseSensitiveSearch)
-            ::lower(patternData);
+            patternData = patternData.toLower();
     }
 
     int foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
@@ -1413,7 +1400,7 @@ void BinEditorWidget::highlightSearchResults(const QByteArray &pattern, QTextDoc
     m_searchPattern = pattern;
     m_caseSensitiveSearch = (findFlags & QTextDocument::FindCaseSensitively);
     if (!m_caseSensitiveSearch)
-        ::lower(m_searchPattern);
+        m_searchPattern = m_searchPattern.toLower();
     m_searchPatternHex = calculateHexPattern(pattern);
     viewport()->update();
 }
