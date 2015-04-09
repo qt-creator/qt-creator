@@ -530,7 +530,7 @@ public:
                      TemplateNameId::Compare> TemplateNameIdTable;
     typedef QHash<const AnonymousNameId *, LookupScopePrivate *> Anonymouses;
 
-    LookupScopePrivate *allocateChild();
+    LookupScopePrivate *allocateChild(const Name *name);
 
     void flush();
 
@@ -645,9 +645,9 @@ LookupScopePrivate::~LookupScopePrivate()
     delete _scopeLookupCache;
 }
 
-LookupScopePrivate *LookupScopePrivate::allocateChild()
+LookupScopePrivate *LookupScopePrivate::allocateChild(const Name *name)
 {
-    LookupScope *e = _factory->allocLookupScope(q);
+    LookupScope *e = _factory->allocLookupScope(q, name);
     return e->d;
 }
 
@@ -1125,9 +1125,7 @@ LookupScopePrivate *LookupScopePrivate::findOrCreateNestedAnonymousType(
     if (cit != _anonymouses.constEnd()) {
         return cit.value();
     } else {
-        LookupScopePrivate *newAnonymous = allocateChild();
-        if (Q_UNLIKELY(debug))
-            newAnonymous->_name = anonymousNameId;
+        LookupScopePrivate *newAnonymous = allocateChild(anonymousNameId);
         _anonymouses[anonymousNameId] = newAnonymous;
         return newAnonymous;
     }
@@ -1171,9 +1169,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
             if (cit != reference->_specializations.end()) {
                 return cit->second;
             } else {
-                LookupScopePrivate *newSpecialization = reference->allocateChild();
-                if (Q_UNLIKELY(debug))
-                    newSpecialization->_name = templId;
+                LookupScopePrivate *newSpecialization = reference->allocateChild(templId);
                 reference->_specializations[templId] = newSpecialization;
                 return newSpecialization;
             }
@@ -1238,9 +1234,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
     // construct all instantiation data.
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
-        LookupScopePrivate *instantiation = baseTemplateClassReference->allocateChild();
-        if (Q_UNLIKELY(debug))
-            instantiation->_name = templId;
+        LookupScopePrivate *instantiation = baseTemplateClassReference->allocateChild(templId);
 
         while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock())
             origin = origin->_parent;
@@ -1441,7 +1435,7 @@ void Instantiator::instantiate(LookupScopePrivate *lookupScope,
         nestedLookupScope->flush();
 
         if (isInstantiationNeeded(nestedLookupScope)) {
-            nestedInstantiation = nestedLookupScope->allocateChild();
+            nestedInstantiation = nestedLookupScope->allocateChild(nestedName);
             nestedInstantiation->_enums.append(nestedLookupScope->_enums);
             nestedInstantiation->_usings.append(nestedLookupScope->_usings);
             nestedInstantiation->_instantiationOrigin = nestedLookupScope;
@@ -1565,10 +1559,8 @@ LookupScope *LookupScopePrivate::findOrCreateType(
         LookupScopePrivate *e = nestedType(name, origin);
 
         if (! e) {
-            e = allocateChild();
+            e = allocateChild(name);
             e->_rootClass = clazz;
-            if (Q_UNLIKELY(debug))
-                e->_name = name;
             _nestedScopes[name] = e;
         }
 
@@ -1585,7 +1577,7 @@ CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snaps
     , _control(QSharedPointer<Control>(new Control))
     , _expandTemplates(false)
 {
-    _globalNamespace = allocLookupScope(/*parent = */ 0);
+    _globalNamespace = allocLookupScope(/*parent = */ 0, /*name = */ 0);
     _currentLookupScope = _globalNamespace;
 
     process(thisDocument);
@@ -1645,10 +1637,11 @@ void CreateBindings::process(Symbol *symbol)
     _currentLookupScope->d->addTodo(symbol);
 }
 
-LookupScope *CreateBindings::allocLookupScope(LookupScope *parent)
+LookupScope *CreateBindings::allocLookupScope(LookupScope *parent, const Name *name)
 {
     LookupScope *e = new LookupScope(this, parent);
     e->d->_control = control();
+    e->d->_name = name;
     _entities.append(e);
     return e;
 }

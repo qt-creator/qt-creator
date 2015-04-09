@@ -136,7 +136,7 @@ public:
 
     /// Create an empty LookupScope binding with the given \a parent.
     /// \internal
-    LookupScope *allocLookupScope(LookupScope *parent);
+    LookupScope *allocLookupScope(LookupScope *parent, const Name *name);
 
 protected:
     using SymbolVisitor::visit;
