@@ -792,19 +792,15 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
                               const QString &title,
                               std::function<DiffEditorController *(IDocument *)> factory) const
 {
-    DiffEditorController *controller = 0;
     IDocument *document = DiffEditorManager::findOrCreate(documentId, title);
     QTC_ASSERT(document, return);
-    controller = DiffEditorManager::controller(document);
-    if (!controller) {
-        controller = factory(document);
-        QTC_ASSERT(controller, return);
+    DiffEditorController *controller = factory(document);
+    QTC_ASSERT(controller, return);
 
-        connect(controller, &DiffEditorController::chunkActionsRequested,
-                this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
-        connect(controller, &DiffEditorController::requestInformationForCommit,
-                this, &GitClient::branchesForCommit);
-    }
+    connect(controller, &DiffEditorController::chunkActionsRequested,
+            this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
+    connect(controller, &DiffEditorController::requestInformationForCommit,
+            this, &GitClient::branchesForCommit);
 
     VcsBasePlugin::setSource(document, source);
     EditorManager::activateEditorForDocument(document);
