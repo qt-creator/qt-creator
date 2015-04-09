@@ -165,6 +165,9 @@
     The additional options in each view are described in the following
     sections.
 
+    In some views, right-clicking opens a context menu that contains functions
+    for managing the objects listed in the view.
+
     \section2 Viewing Project Files
 
     The sidebar displays projects in a project tree. The project tree contains
@@ -211,6 +214,30 @@
     the .pro file. This way they also become known to \QC, so that they are
     visible in the \uicontrol Projects view and are known to the locator and search.
 
+    The \uicontrol Projects view contains context menus for managing projects,
+    subprojects, folders, and files. The following functions are available for
+    managing projects and subprojects:
+
+    \list
+
+        \li Set a project as the active project.
+
+        \li Execute the \uicontrol Build menu commands.
+
+        \li Add subprojects, libraries, directories, and files.
+
+        \li Remove subprojects.
+
+        \li Search from the selected directory.
+
+        \li Close projects.
+
+    \endlist
+
+    For managing files and directories, the same functions are available as in
+    the \uicontrol {File System} view. In addition, you can remove and rename
+    files.
+
     \section2 Viewing the File System
 
     If you cannot see a file in the \uicontrol Projects view, switch to the
@@ -220,6 +247,21 @@
 
     To keep the position in the tree synchronized with the file
     opened in the editor, select \uicontrol {Synchronize with Editor}.
+
+    Use the context menu functions to:
+
+    \list
+
+        \li Open files with the default editor or some other editor.
+
+        \li Show the file or directory in the file explorer.
+
+        \li Open a terminal window in the selected directory or in the directory
+            that contains the file.
+
+        \li Search from the selected directory.
+
+    \endlist
 
     \section2 Viewing the Class Hierarchy
 
