@@ -72,6 +72,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
+#include <utils/overridecursor.h>
 
 #include <QClipboard>
 #include <QDateTime>
@@ -90,6 +91,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSplitter>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -579,22 +582,64 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         realFn = fn;
     }
 
-    IEditor *editor = createEditor(editorId, fn);
-    // If we could not open the file in the requested editor, fall
-    // back to the default editor:
-    if (!editor)
-        editor = createEditor(Id(), fn);
-    QTC_ASSERT(editor, return 0);
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QString errorString;
-    if (!editor->open(&errorString, fn, realFn)) {
-        QApplication::restoreOverrideCursor();
+    EditorManager::EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), fn);
+    if (editorId.isValid())
+        std::stable_partition(factories.begin(), factories.end(), Utils::equal(&IEditorFactory::id, editorId));
+
+    IEditor *editor = 0;
+    auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
+
+    IEditorFactory *factory = factories.takeFirst();
+    while (factory) {
+        editor = createEditor(factory, fn);
+        if (!editor) {
+            factory = factories.takeFirst();
+            continue;
+        }
+
+        QString errorString;
+        if (editor->open(&errorString, fn, realFn))
+            break;
+
+        overrideCursor.reset();
+        delete editor;
+
         if (errorString.isEmpty())
             errorString = tr("Could not open \"%1\": Unknown error.").arg(realFn);
-        QMessageBox::critical(ICore::mainWindow(), EditorManager::tr("File Error"), errorString);
-        delete editor;
-        return 0;
+
+        QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"), errorString, QMessageBox::Open | QMessageBox::Cancel, ICore::mainWindow());
+
+        IEditorFactory *selectedFactory = 0;
+        if (!factories.isEmpty()) {
+            QPushButton *button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
+            QTC_ASSERT(button, return 0);
+            QMenu *menu = new QMenu(button);
+            foreach (IEditorFactory *factory, factories) {
+                QAction *action = menu->addAction(factory->displayName());
+                connect(action, &QAction::triggered, [&selectedFactory, factory, &msgbox]() {
+                    selectedFactory = factory;
+                    msgbox.done(QMessageBox::Open);
+                });
+            }
+
+            button->setMenu(menu);
+        } else {
+            msgbox.setStandardButtons(QMessageBox::Ok);
+        }
+
+        int ret = msgbox.exec();
+        if (ret == QMessageBox::Cancel || ret == QMessageBox::Ok)
+            return 0;
+
+        overrideCursor.set();
+
+        factories.removeOne(selectedFactory);
+        factory = selectedFactory;
     }
+
+    if (!editor)
+        return 0;
+
     if (realFn != fn)
         editor->document()->setRestoredFrom(realFn);
     addEditor(editor);
@@ -609,7 +654,6 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     if (flags & EditorManager::CanContainLineAndColumnNumber)
         editor->gotoLine(lineNumber, columnNumber);
 
-    QApplication::restoreOverrideCursor();
     return result;
 }
 
@@ -905,7 +949,7 @@ int EditorManagerPrivate::autoSaveInterval()
     return d->m_autoSaveInterval;
 }
 
-IEditor *EditorManagerPrivate::createEditor(Id editorId, const QString &fileName)
+EditorManager::EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString &fileName)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << fileName;
@@ -926,7 +970,7 @@ IEditor *EditorManagerPrivate::createEditor(Id editorId, const QString &fileName
                 && mimeType.name().startsWith(QLatin1String("text"))) {
             mimeType = mdb.mimeTypeForName(QLatin1String("application/octet-stream"));
         }
-        factories = EditorManager::editorFactories(mimeType, true);
+        factories = EditorManager::editorFactories(mimeType, false);
     } else {
         // Find by editor id
         if (IEditorFactory *factory = findById<IEditorFactory>(editorId))
@@ -935,10 +979,17 @@ IEditor *EditorManagerPrivate::createEditor(Id editorId, const QString &fileName
     if (factories.empty()) {
         qWarning("%s: unable to find an editor factory for the file '%s', editor Id '%s'.",
                  Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
-        return 0;
     }
 
-    IEditor *editor = factories.front()->createEditor();
+    return factories;
+}
+
+IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const QString &fileName)
+{
+    if (!factory)
+        return 0;
+
+    IEditor *editor = factory->createEditor();
     if (editor) {
         QTC_CHECK(editor->document()->id().isValid()); // sanity check that the editor has an id set
         connect(editor->document(), SIGNAL(changed()), d, SLOT(handleDocumentStateChange()));
@@ -2420,10 +2471,13 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
             }
     }
 
-    edt = EditorManagerPrivate::createEditor(editorId, title);
-    if (!edt)
+    EditorFactoryList factories = EditorManagerPrivate::findFactories(editorId, title);
+    if (factories.isEmpty())
         return 0;
 
+    edt = EditorManagerPrivate::createEditor(factories.first(), title);
+    if (!edt)
+        return 0;
     if (!edt->document()->setContents(contents)) {
         delete edt;
         edt = 0;

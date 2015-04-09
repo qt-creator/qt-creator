@@ -174,7 +174,8 @@ private:
     static OpenEditorsWindow *windowPopup();
     static void showPopupOrSelectDocument();
 
-    static IEditor *createEditor(Id editorId = Id(), const QString &fileName = QString());
+    static EditorManager::EditorFactoryList findFactories(Id editorId, const QString &fileName);
+    static IEditor *createEditor(IEditorFactory *factory, const QString &fileName);
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);

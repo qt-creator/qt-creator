@@ -123,6 +123,8 @@ QtcLibrary {
         "outputformat.h",
         "outputformatter.cpp",
         "outputformatter.h",
+        "overridecursor.cpp",
+        "overridecursor.h",
         "parameteraction.cpp",
         "parameteraction.h",
         "pathchooser.cpp",

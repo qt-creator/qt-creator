@@ -89,7 +89,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/macroexpander.cpp \
     $$PWD/theme/theme.cpp \
     $$PWD/progressindicator.cpp \
-    $$PWD/fadingindicator.cpp
+    $$PWD/fadingindicator.cpp \
+    $$PWD/overridecursor.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -190,7 +191,8 @@ HEADERS += \
     $$PWD/theme/theme_p.h \
     $$PWD/progressindicator.h \
     $$PWD/fadingindicator.h \
-    $$PWD/executeondestruction.h
+    $$PWD/executeondestruction.h \
+    $$PWD/overridecursor.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
