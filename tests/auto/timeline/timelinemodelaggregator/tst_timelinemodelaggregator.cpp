@@ -54,13 +54,17 @@ void tst_TimelineModelAggregator::height()
     Timeline::TimelineModelAggregator aggregator(0);
     QCOMPARE(aggregator.height(), 0);
 
+    QSignalSpy heightSpy(&aggregator, SIGNAL(heightChanged()));
     Timeline::TimelineModel *model = new Timeline::TimelineModel(25, QString());
     aggregator.addModel(model);
     QCOMPARE(aggregator.height(), 0);
+    QCOMPARE(heightSpy.count(), 0);
     aggregator.addModel(new HeightTestModel);
     QVERIFY(aggregator.height() > 0);
+    QCOMPARE(heightSpy.count(), 1);
     aggregator.clear();
     QCOMPARE(aggregator.height(), 0);
+    QCOMPARE(heightSpy.count(), 2);
 }
 
 void tst_TimelineModelAggregator::addRemoveModel()
