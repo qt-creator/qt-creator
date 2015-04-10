@@ -684,6 +684,8 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevicesImpl(const FileNa
         avds.removeFirst(); // remove the daemon logs
     avds.removeFirst(); // remove "List of devices attached" header line
 
+    bool nextLineIsTargetLine = false;
+
     AndroidDeviceInfo dev;
     for (int i = 0; i < avds.size(); i++) {
         QString line = QLatin1String(avds.at(i));
@@ -701,7 +703,15 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevicesImpl(const FileNa
             line = QLatin1String(avds[i]);
             if (line.contains(QLatin1String("---------")))
                 break;
-            if (line.contains(QLatin1String("Target:"))) {
+
+            if (line.contains(QLatin1String("Target:")) || nextLineIsTargetLine) {
+                if (line.contains(QLatin1String("Google APIs"))) {
+                    nextLineIsTargetLine = true;
+                    continue;
+                }
+
+                nextLineIsTargetLine = false;
+
                 int lastIndex = line.lastIndexOf(QLatin1Char(' '));
                 if (lastIndex == -1) // skip line
                     break;
