@@ -304,6 +304,19 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex, bool openDire
         }
         // Change to directory
         setCurrentDirectory(path);
+        // Find nested entries. If folder contains only one entry and that one is the folder - open it
+        {
+            QDir dir(path);
+            QStringList proFiles;
+            QFileInfoList entries = dir.entryInfoList(QDir::AllEntries);
+            while (entries.size() > 0 && (entries.at(0).fileName() == QLatin1String(".") || entries.at(0).fileName() == QLatin1String("..")))
+                entries.removeAt(0);
+            if (entries.size() == 1 && entries.at(0).isDir()) {
+                const QModelIndex entryIndex = m_fileSystemModel->index(entries.at(0).filePath());
+                // Do not open nested projects automatically
+                openItem(entryIndex, false);
+            }
+        }
         return;
     }
     // Open file.
