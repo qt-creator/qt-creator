@@ -53,15 +53,15 @@ public:
     Q_INVOKABLE int timelineIndex(int index) const;
 
     Q_INVOKABLE QVariantList byTypeId(int typeId) const;
-    Q_INVOKABLE QVariantList byTimelineModel(int timelineModel) const;
+    Q_INVOKABLE QVariantList byTimelineModel(int modelId) const;
 
-    Q_INVOKABLE int get(int timelineModel, int timelineIndex) const;
-    Q_INVOKABLE int add(int timelineModel, int timelineIndex, const QString &text);
+    Q_INVOKABLE int get(int modelId, int timelineIndex) const;
+    Q_INVOKABLE int add(int modelId, int timelineIndex, const QString &text);
     Q_INVOKABLE void update(int index, const QString &text);
     Q_INVOKABLE void remove(int index);
 
     Q_INVOKABLE void setText(int noteId, const QString &text);
-    Q_INVOKABLE void setText(int modelIndex, int index, const QString &text);
+    Q_INVOKABLE void setText(int modelId, int index, const QString &text);
 
     bool isModified() const;
     void resetModified();
@@ -72,7 +72,7 @@ protected:
     const TimelineModel *timelineModelByModelId(int modelId) const;
 
 signals:
-    void changed(int typeId, int timelineModel, int timelineIndex);
+    void changed(int typeId, int modelId, int timelineIndex);
 
 private:
     class TimelineNotesModelPrivate;

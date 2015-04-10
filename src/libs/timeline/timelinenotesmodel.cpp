@@ -62,10 +62,10 @@ void TimelineNotesModel::addTimelineModel(const TimelineModel *timelineModel)
     d->timelineModels.insert(timelineModel->modelId(), timelineModel);
 }
 
-const TimelineModel *TimelineNotesModel::timelineModelByModelId(int timelineModel) const
+const TimelineModel *TimelineNotesModel::timelineModelByModelId(int modelId) const
 {
     Q_D(const TimelineNotesModel);
-    auto it = d->timelineModels.find(timelineModel);
+    auto it = d->timelineModels.find(modelId);
     return it == d->timelineModels.end() ? 0 : it.value();
 }
 
@@ -113,38 +113,38 @@ QVariantList TimelineNotesModel::byTypeId(int selectedType) const
     return ret;
 }
 
-QVariantList TimelineNotesModel::byTimelineModel(int timelineModel) const
+QVariantList TimelineNotesModel::byTimelineModel(int modelId) const
 {
     Q_D(const TimelineNotesModel);
     QVariantList ret;
     for (int noteId = 0; noteId < count(); ++noteId) {
-        if (d->data[noteId].timelineModel == timelineModel)
+        if (d->data[noteId].timelineModel == modelId)
             ret << noteId;
     }
     return ret;
 }
 
-int TimelineNotesModel::get(int timelineModel, int timelineIndex) const
+int TimelineNotesModel::get(int modelId, int timelineIndex) const
 {
     Q_D(const TimelineNotesModel);
     for (int noteId = 0; noteId < count(); ++noteId) {
         const TimelineNotesModelPrivate::Note &note = d->data[noteId];
-        if (note.timelineModel == timelineModel && note.timelineIndex == timelineIndex)
+        if (note.timelineModel == modelId && note.timelineIndex == timelineIndex)
             return noteId;
     }
 
     return -1;
 }
 
-int TimelineNotesModel::add(int timelineModel, int timelineIndex, const QString &text)
+int TimelineNotesModel::add(int modelId, int timelineIndex, const QString &text)
 {
     Q_D(TimelineNotesModel);
-    const TimelineModel *model = d->timelineModels[timelineModel];
+    const TimelineModel *model = d->timelineModels[modelId];
     int typeId = model->typeId(timelineIndex);
-    TimelineNotesModelPrivate::Note note = { text, timelineModel, timelineIndex };
+    TimelineNotesModelPrivate::Note note = { text, modelId, timelineIndex };
     d->data << note;
     d->modified = true;
-    emit changed(typeId, timelineModel, timelineIndex);
+    emit changed(typeId, modelId, timelineIndex);
     return d->data.count() - 1;
 }
 
@@ -201,12 +201,12 @@ void TimelineNotesModel::setText(int noteId, const QString &text)
         remove(noteId);
 }
 
-void TimelineNotesModel::setText(int modelIndex, int index, const QString &text)
+void TimelineNotesModel::setText(int modelId, int index, const QString &text)
 {
-    int noteId = get(modelIndex, index);
+    int noteId = get(modelId, index);
     if (noteId == -1) {
         if (text.length() > 0)
-            add(modelIndex, index, text);
+            add(modelId, index, text);
     } else {
         setText(noteId, text);
     }
