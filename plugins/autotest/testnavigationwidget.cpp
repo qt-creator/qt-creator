@@ -86,7 +86,8 @@ TestNavigationWidget::~TestNavigationWidget()
 
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    const bool enabled = !TestRunner::instance()->isTestRunning();
+    const bool enabled = !TestRunner::instance()->isTestRunning()
+            && m_model->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = m_model->hasTests();
     QMenu menu;
     QAction *runAll = Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action();

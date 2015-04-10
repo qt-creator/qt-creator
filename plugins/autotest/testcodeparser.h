@@ -55,6 +55,7 @@ public:
     explicit TestCodeParser(TestTreeModel *parent = 0);
     virtual ~TestCodeParser();
     void setState(State state);
+    State state() const { return m_parserState; }
 
 #ifdef WITH_TESTS
     int autoTestsCount() const;
