@@ -115,6 +115,13 @@ protected:
                                  QByteArray *outputData, QByteArray *errorData = 0,
                                  unsigned flags = 0) const;
 
+    // Synchronous VCS execution using Utils::SynchronousProcess, with
+    // log windows updating (using VcsBasePlugin::runVcs with flags)
+    Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
+                                                         const QStringList &args,
+                                                         unsigned flags = 0,
+                                                         QTextCodec *outputCodec = 0) const;
+
 private:
     void saveSettings();
     void commandFinishedGotoLine(QWidget*);
@@ -225,13 +232,6 @@ protected:
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
-
-    // Synchronous VCS execution using Utils::SynchronousProcess, with
-    // log windows updating (using VcsBasePlugin::runVcs with flags)
-    Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
-                                                         const QStringList &args,
-                                                         unsigned flags = 0,
-                                                         QTextCodec *outputCodec = 0) const;
 
 private:
     void statusParser(const QString&);

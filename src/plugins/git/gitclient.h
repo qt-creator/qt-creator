@@ -373,12 +373,6 @@ private:
                                     bool useOutputToWindow = false, unsigned additionalFlags = 0,
                                     int editorLineNumber = -1);
 
-    // Synchronous git execution using Utils::SynchronousProcess, with
-    // log windows updating (using VcsBasePlugin::runVcs with flags).
-    inline Utils::SynchronousProcessResponse
-            synchronousGit(const QString &workingDirectory, const QStringList &arguments,
-                           unsigned flags = 0, QTextCodec *outputCodec = 0) const;
-
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = 0) const;
 

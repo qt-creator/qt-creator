@@ -1611,7 +1611,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
     const unsigned flags = VcsBasePlugin::ShowStdOutInLogWindow
             | VcsBasePlugin::ExpectRepoChanges
             | VcsBasePlugin::ShowSuccessMessage;
-    const SynchronousProcessResponse response = synchronousGit(workingDirectory, arguments, flags);
+    const SynchronousProcessResponse response = vcsSynchronousExec(workingDirectory, arguments, flags);
     const bool rc = response.result == SynchronousProcessResponse::Finished;
     if (!rc)
         msgCannotRun(arguments, workingDirectory, response.stdErr.toLocal8Bit(), errorMessage);
@@ -1948,17 +1948,6 @@ bool GitClient::isValidRevision(const QString &revision) const
     return false;
 }
 
-// Synchronous git execution using Utils::SynchronousProcess, with
-// log windows updating.
-SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirectory,
-                                                     const QStringList &gitArguments,
-                                                     unsigned flags,
-                                                     QTextCodec *outputCodec) const
-{
-    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), gitArguments, vcsTimeoutS(),
-                                 flags, outputCodec, processEnvironment());
-}
-
 void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt)
 {
     if (!m_updatedSubmodules.isEmpty() || submoduleList(workingDirectory).isEmpty())
@@ -2211,7 +2200,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     const unsigned flags = VcsBasePlugin::SshPasswordPrompt
             | VcsBasePlugin::SuppressStdErrInLogWindow
             | VcsBasePlugin::SuppressFailMessageInLogWindow;
-    const SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
+    const SynchronousProcessResponse resp = vcsSynchronousExec(workingDirectory, arguments, flags);
     QStringList branches;
     branches << tr("<Detached HEAD>");
     QString headSha;
@@ -2779,7 +2768,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
             | VcsBasePlugin::ShowStdOutInLogWindow
             | VcsBasePlugin::ExpectRepoChanges
             | VcsBasePlugin::ShowSuccessMessage;
-    const SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
+    const SynchronousProcessResponse resp = vcsSynchronousExec(workingDirectory, arguments, flags);
     ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == SynchronousProcessResponse::Finished;
@@ -2904,7 +2893,7 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
     const unsigned flags = VcsBasePlugin::SshPasswordPrompt
             | VcsBasePlugin::ShowStdOutInLogWindow
             | VcsBasePlugin::ShowSuccessMessage;
-    synchronousGit(workingDirectory, args, flags);
+    vcsSynchronousExec(workingDirectory, args, flags);
 }
 
 void GitClient::subversionLog(const QString &workingDirectory)
@@ -3152,8 +3141,8 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
 
         arguments.clear();
         arguments << QLatin1String("fetch");
-        const SynchronousProcessResponse resp =
-                synchronousGit(workingDirectory.path(), arguments, flags);
+        const SynchronousProcessResponse resp
+                = vcsSynchronousExec(workingDirectory.path(), arguments, flags);
         if (resp.result != SynchronousProcessResponse::Finished)
             return false;
 
@@ -3176,8 +3165,8 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         QStringList arguments(QLatin1String("clone"));
         arguments << QLatin1String(url) << workingDirectory.dirName();
         workingDirectory.cdUp();
-        const SynchronousProcessResponse resp =
-                synchronousGit(workingDirectory.path(), arguments, flags);
+        const SynchronousProcessResponse resp
+                = vcsSynchronousExec(workingDirectory.path(), arguments, flags);
         resetCachedVcsInfo(workingDirectory.absolutePath());
         return (resp.result == SynchronousProcessResponse::Finished);
     }
