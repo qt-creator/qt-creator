@@ -8,6 +8,7 @@ Project {
     references: [
         "timelinemodel/timelinemodel.qbs",
         "timelinemodelaggregator/timelinemodelaggregator.qbs",
+        "timelinenotesmodel/timelinenotesmodel.qbs",
         "timelineabstractrenderer/timelineabstractrenderer.qbs",
         "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
     ]

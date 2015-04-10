@@ -4,7 +4,8 @@ TEMPLATE = subdirs
 SUBDIRS = \
     timelineabstractrenderer \
     timelinemodel \
-    timelinemodelaggregator
+    timelinemodelaggregator \
+    timelinenotesmodel
 
 minQtVersion(5,4,0) {
     SUBDIRS += \
