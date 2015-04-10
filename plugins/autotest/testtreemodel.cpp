@@ -411,28 +411,16 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
             // if we could not figure out the run configuration
             // try to use the run configuration of the parent project
             if (!hasDesktopTarget && targetProject && !targetFile.isEmpty()) {
-                QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
-                foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
-                    ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
-                            = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc);
-                    if (localRunConfiguration) {
-                        if (ProjectExplorer::ProjectNode *localRootProjectNode = targetProject->rootProjectNode()) {
-                            QList<ProjectExplorer::FileNode *> localFileNodes = localRootProjectNode->fileNodes();
-                            if (localFileNodes.size()) {
-                                if (localFileNodes.at(0)->path()
-                                        == targetProject->projectFilePath()) {
-                                    hasDesktopTarget = true;
-                                    workDir = Utils::FileUtils::normalizePathName(
-                                                localRunConfiguration->workingDirectory());
-                                    ProjectExplorer::EnvironmentAspect *environmentAspect
-                                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-                                    env = environmentAspect->environment();
-                                    guessedRunConfiguration = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                auto localRunConfiguration
+                        = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(target->activeRunConfiguration());
+                if (localRunConfiguration) {
+                    hasDesktopTarget = true;
+                    workDir = Utils::FileUtils::normalizePathName(
+                                localRunConfiguration->workingDirectory());
+                    ProjectExplorer::EnvironmentAspect *environmentAspect
+                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+                    env = environmentAspect->environment();
+                    guessedRunConfiguration = true;
                 }
             }
         }
