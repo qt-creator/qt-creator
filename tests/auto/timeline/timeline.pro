@@ -9,7 +9,8 @@ SUBDIRS = \
 
 minQtVersion(5,4,0) {
     SUBDIRS += \
-        timelineitemsrenderpass
+        timelineitemsrenderpass \
+        timelinenotesrenderpass
 }
 
 OTHER_FILES += \

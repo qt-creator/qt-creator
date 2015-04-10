@@ -11,5 +11,6 @@ Project {
         "timelinenotesmodel/timelinenotesmodel.qbs",
         "timelineabstractrenderer/timelineabstractrenderer.qbs",
         "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
+        "timelinenotesrenderpass/timelinenotesrenderpass.qbs",
     ]
 }
