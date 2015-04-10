@@ -32,6 +32,9 @@
 #include "androidmanager.h"
 #include "ui_androiddevicedialog.h"
 
+#include <utils/environment.h>
+#include <utils/progressindicator.h>
+
 #include <QMessageBox>
 #include <QPainter>
 #include <QStyledItemDelegate>
@@ -442,16 +445,27 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
     connect(m_ui->deviceView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(accept()));
 
-    connect(&m_futureWatcher, SIGNAL(finished()),
+    connect(&m_futureWatcherAddDevice, SIGNAL(finished()),
             this, SLOT(avdAdded()));
+    connect(&m_futureWatcherRefreshDevices, &QFutureWatcherBase::finished,
+            this, &AndroidDeviceDialog::devicesRefreshed);
 
     refreshDeviceList();
+
+    connect(m_ui->deviceView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &AndroidDeviceDialog::enableOkayButton);
+
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large, this);
+    m_progressIndicator->attachToWidget(m_ui->deviceView);
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
 {
+    m_futureWatcherAddDevice.waitForFinished();
+    m_futureWatcherRefreshDevices.waitForFinished();
     delete m_ui;
-    m_futureWatcher.waitForFinished();
 }
 
 AndroidDeviceInfo AndroidDeviceDialog::device()
@@ -473,17 +487,40 @@ bool AndroidDeviceDialog::saveDeviceSelection()
 
 void AndroidDeviceDialog::refreshDeviceList()
 {
-    QString serialNumber;
-    QModelIndex currentIndex = m_ui->deviceView->currentIndex();
-    if (currentIndex.isValid())
-        serialNumber = m_model->device(currentIndex).serialNumber;
+    m_ui->refreshDevicesButton->setEnabled(false);
+    m_futureWatcherRefreshDevices.setFuture(QtConcurrent::run(&AndroidDeviceDialog::refreshDevices,
+                                                              AndroidConfigurations::currentConfig().adbToolPath().toString(),
+                                                              AndroidConfigurations::currentConfig().androidToolPath().toString(),
+                                                              AndroidConfigurations::currentConfig().androidToolEnvironment()));
+}
 
+QVector<AndroidDeviceInfo> AndroidDeviceDialog::refreshDevices(const QString &adbToolPath,
+                                                               const QString &androidToolPath,
+                                                               const Utils::Environment &environment)
+{
     QVector<AndroidDeviceInfo> devices;
-    foreach (const AndroidDeviceInfo &info, AndroidConfigurations::currentConfig().connectedDevices())
+    foreach (const AndroidDeviceInfo &info, AndroidConfig::connectedDevices(adbToolPath))
         if (info.type == AndroidDeviceInfo::Hardware)
             devices << info;
 
-    devices += AndroidConfigurations::currentConfig().androidVirtualDevices();
+    devices += AndroidConfig::androidVirtualDevices(androidToolPath, environment);
+    return devices;
+}
+
+void AndroidDeviceDialog::devicesRefreshed()
+{
+    m_progressIndicator->hide();
+    QString serialNumber;
+    if (!m_serialNumberFromAdd.isEmpty()) {
+        serialNumber = m_serialNumberFromAdd;
+        m_serialNumberFromAdd.clear();
+    } else {
+        QModelIndex currentIndex = m_ui->deviceView->currentIndex();
+        if (currentIndex.isValid())
+            serialNumber = m_model->device(currentIndex).serialNumber;
+    }
+
+    QVector<AndroidDeviceInfo> devices = m_futureWatcherRefreshDevices.result();
     m_model->setDevices(devices);
 
     m_ui->deviceView->expand(m_model->index(0, 0));
@@ -501,6 +538,8 @@ void AndroidDeviceDialog::refreshDeviceList()
     m_ui->deviceView->setCurrentIndex(newIndex);
 
     m_ui->stackedWidget->setCurrentIndex(devices.isEmpty() ? 1 : 0);
+
+    m_ui->refreshDevicesButton->setEnabled(true);
 }
 
 void AndroidDeviceDialog::createAvd()
@@ -513,21 +552,27 @@ void AndroidDeviceDialog::createAvd()
         return;
     }
 
-    m_futureWatcher.setFuture(AndroidConfigurations::currentConfig().createAVD(info));
+    m_futureWatcherAddDevice.setFuture(AndroidConfigurations::currentConfig().createAVD(info));
 }
 
 void AndroidDeviceDialog::avdAdded()
 {
     m_ui->createAVDButton->setEnabled(true);
-    AndroidConfig::CreateAvdInfo info = m_futureWatcher.result();
+    AndroidConfig::CreateAvdInfo info = m_futureWatcherAddDevice.result();
     if (!info.error.isEmpty()) {
         QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
         return;
     }
 
+    m_serialNumberFromAdd = info.name;
     refreshDeviceList();
-    QModelIndex index = m_model->indexFor(info.name);
-    m_ui->deviceView->setCurrentIndex(index);
+}
+
+void AndroidDeviceDialog::enableOkayButton()
+{
+    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(m_ui->deviceView->currentIndex().internalPointer());
+    bool enable = node && !node->deviceInfo().serialNumber.isEmpty();
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 
 // Does not work.

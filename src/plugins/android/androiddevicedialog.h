@@ -41,6 +41,8 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
+namespace Utils { class ProgressIndicator; }
+
 namespace Android {
 namespace Internal {
 
@@ -67,11 +69,20 @@ private slots:
     void showHelp();
     void avdAdded();
 private:
+    static QVector<AndroidDeviceInfo> refreshDevices(const QString &adbToolPath,
+                                                     const QString &androidToolPath,
+                                                     const Utils::Environment &environment);
+    void devicesRefreshed();
+    void enableOkayButton();
+
     AndroidDeviceModel *m_model;
     Ui::AndroidDeviceDialog *m_ui;
+    Utils::ProgressIndicator *m_progressIndicator;
     int m_apiLevel;
     QString m_abi;
-    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
+    QString m_serialNumberFromAdd;
+    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
+    QFutureWatcher<QVector<AndroidDeviceInfo>> m_futureWatcherRefreshDevices;
 };
 
 }

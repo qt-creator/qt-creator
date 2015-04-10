@@ -148,9 +148,11 @@ public:
     bool removeAVD(const QString &name) const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
+    static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = 0);
 
     QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture();
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
+    static QVector<AndroidDeviceInfo> androidVirtualDevices(const QString &androidTool, const Utils::Environment &environment);
 
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
@@ -173,13 +175,15 @@ public:
     SdkPlatform highestAndroidSdk() const;
 private:
     static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
-    static QVector<AndroidDeviceInfo> androidVirtualDevicesImpl(const Utils::FileName &androidTool, const Utils::Environment &environment);
-    QString getDeviceProperty(const QString &device, const QString &property) const;
+    static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
 
     Utils::FileName toolPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
+    static int getSDKVersion(const QString &adbToolPath, const QString &device);
     QStringList getAbis(const QString &device) const;
+    static QStringList getAbis(const QString &adbToolPath, const QString &device);
+    static bool isBootToQt(const QString &adbToolPath, const QString &device);
     bool isBootToQt(const QString &device) const;
 
     void updateAvailableSdkPlatforms() const;
