@@ -35,14 +35,14 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
 
     m_ui->clangExecutableChooser->setPath(settings->clangExecutable());
     connect(m_ui->clangExecutableChooser, &Utils::PathChooser::changed,
-            m_settings, &ClangStaticAnalyzerSettings::setClangExecutable);
+            [settings](const QString &path) { settings->setClangExecutable(path); });
 
     m_ui->simultaneousProccessesSpinBox->setValue(settings->simultaneousProcesses());
     m_ui->simultaneousProccessesSpinBox->setMinimum(1);
     m_ui->simultaneousProccessesSpinBox->setMaximum(QThread::idealThreadCount());
     connect(m_ui->simultaneousProccessesSpinBox,
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            m_settings, &ClangStaticAnalyzerSettings::setSimultaneousProcesses);
+            [settings](int count) { settings->setSimultaneousProcesses(count); });
 }
 
 ClangStaticAnalyzerConfigWidget::~ClangStaticAnalyzerConfigWidget()
