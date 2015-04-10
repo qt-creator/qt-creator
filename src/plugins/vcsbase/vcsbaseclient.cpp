@@ -375,36 +375,12 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
                                             const QStringList &args,
                                             QByteArray *output) const
 {
-    QProcess vcsProcess;
-    if (!workingDir.isEmpty())
-        vcsProcess.setWorkingDirectory(workingDir);
-    vcsProcess.setProcessEnvironment(processEnvironment());
-
-    VcsOutputWindow::appendCommand(workingDir, vcsBinary(), args);
-
-    const Utils::FileName binary = vcsBinary();
-    vcsProcess.start(binary.toString(), args);
-
-    if (!vcsProcess.waitForStarted()) {
-        VcsOutputWindow::appendError(tr("Unable to start process \"%1\": %2")
-                                         .arg(binary.toUserOutput(), vcsProcess.errorString()));
-        return false;
-    }
-
-    vcsProcess.closeWriteChannel();
-
-    QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, vcsTimeoutS() * 1000,
-                                                        output, &stdErr, true)) {
-        Utils::SynchronousProcess::stopProcess(vcsProcess);
-        VcsOutputWindow::appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
-                                         .arg(vcsTimeoutS()).arg(binary.toUserOutput()));
-        return false;
-    }
-    if (!stdErr.isEmpty())
-        VcsOutputWindow::appendError(QString::fromLocal8Bit(stdErr));
-
-    return vcsProcess.exitStatus() == QProcess::NormalExit && vcsProcess.exitCode() == 0;
+    QByteArray errorData;
+    QScopedPointer<VcsCommand> command = createCommand(workingDir);
+    bool result = command->runFullySynchronous(args, vcsTimeoutS(), output, &errorData);
+    if (!errorData.isEmpty())
+        VcsOutputWindow::appendError(QString::fromLocal8Bit(errorData));
+    return result;
 }
 
 Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(const QString &workingDirectory,
