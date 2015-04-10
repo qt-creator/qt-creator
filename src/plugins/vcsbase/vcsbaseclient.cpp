@@ -389,10 +389,12 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
 bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
                                             const QStringList &args,
                                             QByteArray *outputData,
-                                            QByteArray *errorData) const
+                                            QByteArray *errorData,
+                                            unsigned flags) const
 {
     QByteArray internalErrorData;
     QScopedPointer<VcsCommand> command(createCommand(workingDir));
+    command->addFlags(flags);
     bool result = command->runFullySynchronous(args, vcsTimeoutS(), outputData,
                                                errorData ? errorData : &internalErrorData);
     if (!internalErrorData.isEmpty())
