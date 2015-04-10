@@ -169,10 +169,28 @@ public:
                 topLeft = AndroidConfigurations::currentConfig().getProductModel(device.serialNumber);
             painter->drawText(size + 12, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
-            QString topRight = device.serialNumber;
+
             // topRight
-            if (device.type == AndroidDeviceInfo::Hardware) // otherwise it's not very informative
-                painter->drawText(opt.rect.right() - fm.width(topRight) - 6 , 2 + opt.rect.top() + fm.ascent(), topRight);
+            auto drawTopRight = [&](const QString text, const QFontMetrics &fm) {
+                painter->drawText(opt.rect.right() - fm.width(text) - 6 , 2 + opt.rect.top() + fm.ascent(), text);
+            };
+
+            if (device.type == AndroidDeviceInfo::Hardware) {
+                drawTopRight(device.serialNumber, fm);
+            } else {
+                AndroidConfig::OpenGl openGl = AndroidConfigurations::currentConfig().getOpenGLEnabled(device.serialNumber);
+                if (openGl == AndroidConfig::OpenGl::Enabled) {
+                    drawTopRight(tr("Open GL enabled"), fm);
+                } else if (openGl == AndroidConfig::OpenGl::Disabled) {
+                    QFont font = painter->font();
+                    font.setBold(true);
+                    painter->setFont(font);
+                    QFontMetrics fmBold(font);
+                    drawTopRight(tr("OpenGL disabled"), fmBold);
+                    font.setBold(false);
+                    painter->setFont(font);
+                }
+            }
 
             // Directory
             QColor mix;

@@ -848,20 +848,51 @@ bool AndroidConfig::isBootToQt(const QString &device) const
     return adbProc.readAll().contains("Boot2Qt");
 }
 
-int AndroidConfig::getSDKVersion(const QString &device) const
+QString AndroidConfig::getDeviceProperty(const QString &device, const QString &property) const
 {
     // workaround for '????????????' serial numbers
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << QLatin1String("shell") << QLatin1String("getprop")
-              << QLatin1String("ro.build.version.sdk");
+              << property;
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
     if (!adbProc.waitForFinished(10000)) {
         adbProc.kill();
-        return -1;
+        return QString();
     }
-    return adbProc.readAll().trimmed().toInt();
+
+    return QString::fromLocal8Bit(adbProc.readAll());
+}
+
+int AndroidConfig::getSDKVersion(const QString &device) const
+{
+    QString tmp = getDeviceProperty(device, QLatin1String("ro.build.version.sdk"));
+    if (tmp.isEmpty())
+        return -1;
+    return tmp.trimmed().toInt();
+}
+
+AndroidConfig::OpenGl AndroidConfig::getOpenGLEnabled(const QString &emulator) const
+{
+    QDir dir = QDir::home();
+    if (!dir.cd(QLatin1String(".android")))
+        return OpenGl::Unknown;
+    if (!dir.cd(QLatin1String("avd")))
+        return OpenGl::Unknown;
+    if (!dir.cd(emulator + QLatin1String(".avd")))
+        return OpenGl::Unknown;
+    QFile file(dir.filePath(QLatin1String("config.ini")));
+    if (!file.exists())
+        return OpenGl::Unknown;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return OpenGl::Unknown;
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        if (line.contains("hw.gpu.enabled") && line.contains("yes"))
+            return OpenGl::Enabled;
+    }
+    return OpenGl::Disabled;
 }
 
 //!
@@ -873,20 +904,11 @@ QString AndroidConfig::getProductModel(const QString &device) const
 {
     if (m_serialNumberToDeviceName.contains(device))
         return m_serialNumberToDeviceName.value(device);
-    // workaround for '????????????' serial numbers
-    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
-    arguments << QLatin1String("shell") << QLatin1String("getprop")
-              << QLatin1String("ro.product.model");
 
-    QProcess adbProc;
-    adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(10000)) {
-        adbProc.kill();
-        return device;
-    }
-    QString model = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+    QString model = getDeviceProperty(device, QLatin1String("ro.product.model")).trimmed();
     if (model.isEmpty())
         return device;
+
     if (!device.startsWith(QLatin1String("????")))
         m_serialNumberToDeviceName.insert(device, model);
     return model;

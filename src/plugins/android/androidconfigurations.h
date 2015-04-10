@@ -164,6 +164,8 @@ public:
     static QLatin1String displayName(const ProjectExplorer::Abi &abi);
 
     QString getProductModel(const QString &device) const;
+    enum class OpenGl { Enabled, Disabled, Unknown };
+    OpenGl getOpenGLEnabled(const QString &emulator) const;
     bool hasFinishedBooting(const QString &device) const;
     bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
     bool isConnected(const QString &serialNumber) const;
@@ -172,6 +174,7 @@ public:
 private:
     static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
     static QVector<AndroidDeviceInfo> androidVirtualDevicesImpl(const Utils::FileName &androidTool, const Utils::Environment &environment);
+    QString getDeviceProperty(const QString &device, const QString &property) const;
 
     Utils::FileName toolPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
