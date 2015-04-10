@@ -376,18 +376,16 @@ private:
     void requestReload(const QString &documentId, const QString &source, const QString &title,
                        std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
 
-    VcsBase::VcsCommand *executeGit(const QString &workingDirectory,
-                                 const QStringList &arguments,
-                                 VcsBase::VcsBaseEditorWidget* editor = 0,
-                                 bool useOutputToWindow = false,
-                                 unsigned additionalFlags = 0,
-                                 int editorLineNumber = -1);
+    VcsBase::VcsCommand *executeGit(const QString &workingDirectory, const QStringList &arguments,
+                                    VcsBase::VcsBaseEditorWidget *editor = 0,
+                                    bool useOutputToWindow = false, unsigned additionalFlags = 0,
+                                    int editorLineNumber = -1);
 
     // Fully synchronous git execution (QProcess-based).
     bool fullySynchronousGit(const QString &workingDirectory,
                              const QStringList &arguments,
-                             QByteArray* outputText,
-                             QByteArray* errorText = 0,
+                             QByteArray *outputText,
+                             QByteArray *errorText = 0,
                              unsigned flags = 0) const;
 
     // Synchronous git execution using Utils::SynchronousProcess, with

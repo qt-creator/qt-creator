@@ -1968,12 +1968,9 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
 }
 
 // Execute a single command
-VcsCommand *GitClient::executeGit(const QString &workingDirectory,
-                                  const QStringList &arguments,
-                                  VcsBaseEditorWidget* editor,
-                                  bool useOutputToWindow,
-                                  unsigned additionalFlags,
-                                  int editorLineNumber)
+VcsCommand *GitClient::executeGit(const QString &workingDirectory, const QStringList &arguments,
+                                  VcsBaseEditorWidget *editor, bool useOutputToWindow,
+                                  unsigned additionalFlags, int editorLineNumber)
 {
     VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
     VcsCommand *command = createCommand(workingDirectory, editor,
@@ -2048,8 +2045,8 @@ SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirec
 
 bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                     const QStringList &gitArguments,
-                                    QByteArray* outputText,
-                                    QByteArray* errorText,
+                                    QByteArray *outputText,
+                                    QByteArray *errorText,
                                     unsigned flags) const
 {
     VcsCommand command(vcsBinary(), workingDirectory, processEnvironment());
