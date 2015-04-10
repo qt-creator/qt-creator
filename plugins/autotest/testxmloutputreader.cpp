@@ -20,13 +20,32 @@
 #include "testxmloutputreader.h"
 #include "testresult.h"
 
-#include <QXmlStreamReader>
+#include <QRegExp>
 #include <QProcess>
 #include <QFileInfo>
 #include <QDir>
 
 namespace Autotest {
 namespace Internal {
+
+static QString decode(const QString& original)
+{
+    QString result(original);
+    static QRegExp regex(QLatin1String("&#((x[0-9A-F]+)|([0-9]+));"), Qt::CaseInsensitive);
+    regex.setMinimal(true);
+
+    int pos = 0;
+    while ((pos = regex.indexIn(original, pos)) != -1) {
+        const QString value = regex.cap(1);
+        if (value.startsWith(QLatin1Char('x')))
+            result.replace(regex.cap(0), QChar(value.mid(1).toInt(0, 16)));
+        else
+            result.replace(regex.cap(0), QChar(value.toInt(0, 10)));
+        pos += regex.matchedLength();
+    }
+
+    return result;
+}
 
 static bool xmlStartsWith(const QString &code, const QString &start, QString &result)
 {
@@ -57,7 +76,7 @@ static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
         result = TestResult::resultFromString(
             code.mid(start, code.indexOf(QLatin1Char('"'), start) - start));
         start = code.indexOf(QLatin1String(" file=\"")) + 7;
-        file = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start);
+        file = decode(code.mid(start, code.indexOf(QLatin1Char('"'), start) - start));
         start = code.indexOf(QLatin1String(" line=\"")) + 7;
         line = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
         return true;
