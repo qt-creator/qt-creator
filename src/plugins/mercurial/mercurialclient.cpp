@@ -159,7 +159,7 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
     const SynchronousProcessResponse resp = VcsBasePlugin::runVcs(
-                workingDir, vcsBinary(), args, vcsTimeout() * 1000, flags, 0, env);
+                workingDir, vcsBinary(), args, vcsTimeoutS(), flags, 0, env);
     const bool ok = resp.result == SynchronousProcessResponse::Finished;
 
     parsePullOutput(resp.stdOut.trimmed());

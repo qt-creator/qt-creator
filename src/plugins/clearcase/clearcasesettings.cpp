@@ -63,17 +63,16 @@ using namespace ClearCase::Internal;
 
 ClearCaseSettings::ClearCaseSettings() :
     ccCommand(defaultCommand()),
-    historyCount(defaultHistoryCount),
-    timeOutS(defaultTimeOutS),
     diffType(GraphicalDiff),
     diffArgs(QLatin1String(defaultDiffArgs)),
     autoAssignActivityName(true),
     autoCheckOut(true),
     promptToCheckIn(false),
     disableIndexer(false),
-    extDiffAvailable(false)
-{
-}
+    extDiffAvailable(false),
+    historyCount(defaultHistoryCount),
+    timeOutS(defaultTimeOutS)
+{ }
 
 void ClearCaseSettings::fromSettings(QSettings *settings)
 {

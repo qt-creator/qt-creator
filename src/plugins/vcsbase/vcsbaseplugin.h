@@ -188,7 +188,7 @@ public:
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
                                                     const Utils::FileName &binary,
                                                     const QStringList &arguments,
-                                                    int timeOutMS,
+                                                    int timeOutS,
                                                     unsigned flags = 0,
                                                     QTextCodec *outputCodec = 0,
                                                     const QProcessEnvironment &env = QProcessEnvironment());

@@ -157,7 +157,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
     foreach (const QStringList &arg, args) {
         QTC_ASSERT(!arg.isEmpty(), continue);
 
-        m_command->addJob(arg, gitClient()->vcsTimeout());
+        m_command->addJob(arg, gitClient()->vcsTimeoutS());
     }
 
     m_command->execute();
@@ -1998,7 +1998,7 @@ SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirec
                                                      unsigned flags,
                                                      QTextCodec *outputCodec) const
 {
-    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), gitArguments, vcsTimeout() * 1000,
+    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), gitArguments, vcsTimeoutS(),
                                  flags, outputCodec, processEnvironment());
 }
 
@@ -2010,8 +2010,7 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
 {
     VcsCommand command(vcsBinary(), workingDirectory, processEnvironment());
     command.addFlags(flags);
-    return command.runFullySynchronous(gitArguments, vcsTimeout() * 1000,
-                                       outputText, errorText);
+    return command.runFullySynchronous(gitArguments, vcsTimeoutS(), outputText, errorText);
 }
 
 void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt)

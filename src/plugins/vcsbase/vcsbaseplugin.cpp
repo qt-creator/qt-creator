@@ -804,7 +804,7 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
 SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                                                  const FileName &binary,
                                                  const QStringList &arguments,
-                                                 int timeOutMS,
+                                                 int timeOutS,
                                                  unsigned flags,
                                                  QTextCodec *outputCodec,
                                                  const QProcessEnvironment &env)
@@ -813,7 +813,7 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                        env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    return command.runVcs(arguments, timeOutMS);
+    return command.runVcs(arguments, timeOutS);
 }
 
 } // namespace VcsBase

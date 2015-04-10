@@ -92,7 +92,7 @@ public:
     QString monitorFile(const QString &repository) const;
     QString synchronousTopic(const QString &repository) const;
     SubversionResponse runSvn(const QString &workingDir,
-                              const QStringList &arguments, int timeOut,
+                              const QStringList &arguments, int timeOutS,
                               unsigned flags, QTextCodec *outputCodec = 0) const;
 
 public slots:

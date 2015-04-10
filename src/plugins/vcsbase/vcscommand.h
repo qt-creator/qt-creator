@@ -83,7 +83,8 @@ public:
     ~VcsCommand();
 
     void addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
-    void addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter = 0);
+    void addJob(const QStringList &arguments, int timeoutS,
+                Utils::ExitCodeInterpreter *interpreter = 0);
     void execute();
     void abort();
     bool lastExecutionSuccess() const;
@@ -93,8 +94,8 @@ public:
     const QString &workingDirectory() const;
     const QProcessEnvironment &processEnvironment() const;
 
-    int defaultTimeout() const;
-    void setDefaultTimeout(int timeout);
+    int defaultTimeoutS() const;
+    void setDefaultTimeoutS(int timeout);
 
     unsigned flags() const;
     void addFlags(unsigned f);
@@ -108,15 +109,15 @@ public:
     void setProgressParser(ProgressParser *parser);
     void setProgressiveOutput(bool progressive);
 
-    Utils::SynchronousProcessResponse runVcs(const QStringList &arguments, int timeoutMS,
+    Utils::SynchronousProcessResponse runVcs(const QStringList &arguments, int timeoutS,
                                              Utils::ExitCodeInterpreter *interpreter = 0);
     // Make sure to not pass through the event loop at all:
-    bool runFullySynchronous(const QStringList &arguments, int timeoutMS,
+    bool runFullySynchronous(const QStringList &arguments, int timeoutS,
                              QByteArray *outputData, QByteArray *errorData);
 
 private:
     void run(QFutureInterface<void> &future);
-    Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutMS,
+    Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutS,
                                                      Utils::ExitCodeInterpreter *interpreter = 0);
     void emitRepositoryChanged();
 

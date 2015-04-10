@@ -74,7 +74,7 @@ public:
     VcsBaseClientSettings &settings() const;
 
     virtual Utils::FileName vcsBinary() const;
-    int vcsTimeout() const;
+    int vcsTimeoutS() const;
 
     enum JobOutputBindMode {
         NoOutputBind,

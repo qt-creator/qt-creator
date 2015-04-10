@@ -56,24 +56,23 @@ public:
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
-    inline int timeOutMS() const     { return timeOutS * 1000;  }
-    inline int longTimeOutMS() const { return timeOutS * 10000; }
+    inline int longTimeOutS() const { return timeOutS * 10; }
 
     bool equals(const ClearCaseSettings &s) const;
 
     QString ccCommand;
     QString ccBinaryPath;
-    int historyCount;
-    int timeOutS;
     DiffType diffType;
     QString diffArgs;
+    QString indexOnlyVOBs;
+    QHash<QString, int> totalFiles;
     bool autoAssignActivityName;
     bool autoCheckOut;
     bool promptToCheckIn;
     bool disableIndexer;
-    QString indexOnlyVOBs;
     bool extDiffAvailable;
-    QHash<QString, int> totalFiles;
+    int historyCount;
+    int timeOutS;
 };
 
 inline bool operator==(const ClearCaseSettings &p1, const ClearCaseSettings &p2)

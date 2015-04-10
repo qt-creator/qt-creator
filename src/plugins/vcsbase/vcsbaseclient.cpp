@@ -142,7 +142,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
                                              JobOutputBindMode mode) const
 {
     auto cmd = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
-    cmd->setDefaultTimeout(vcsTimeout());
+    cmd->setDefaultTimeoutS(vcsTimeoutS());
     if (editor)
         d->bindCommandToEditor(cmd, editor);
     if (mode == VcsWindowOutputBind) {
@@ -159,7 +159,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    Utils::ExitCodeInterpreter *interpreter)
 {
-    cmd->addJob(args, vcsTimeout(), interpreter);
+    cmd->addJob(args, vcsTimeoutS(), interpreter);
     cmd->execute();
 }
 
@@ -188,7 +188,7 @@ void VcsBaseClientImpl::annotateRevisionRequested(const QString &workingDirector
     annotate(workingDirectory, file, changeCopy, line);
 }
 
-int VcsBaseClientImpl::vcsTimeout() const
+int VcsBaseClientImpl::vcsTimeoutS() const
 {
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
 }
@@ -394,11 +394,11 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     vcsProcess.closeWriteChannel();
 
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, vcsTimeout() * 1000,
+    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, vcsTimeoutS() * 1000,
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
         VcsOutputWindow::appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
-                                         .arg(vcsTimeout()).arg(binary.toUserOutput()));
+                                         .arg(vcsTimeoutS()).arg(binary.toUserOutput()));
         return false;
     }
     if (!stdErr.isEmpty())
@@ -412,8 +412,8 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(const QStrin
                                                                     unsigned flags,
                                                                     QTextCodec *outputCodec) const
 {
-    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), args, vcsTimeout() * 1000,
-                                 flags, outputCodec);
+    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), args, vcsTimeoutS(), flags,
+                                 outputCodec);
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,

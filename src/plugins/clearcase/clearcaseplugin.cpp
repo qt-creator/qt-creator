@@ -232,7 +232,7 @@ QStringList ClearCasePlugin::getVobList() const
     QStringList args(QLatin1String("lsvob"));
     args << QLatin1String("-s");
     const ClearCaseResponse response =
-            runCleartool(currentState().topLevel(), args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(currentState().topLevel(), args, m_settings.timeOutS, SilentRun);
 
     return response.stdOut.split(QLatin1Char('\n'), QString::SkipEmptyParts);
 }
@@ -356,7 +356,7 @@ QString ClearCasePlugin::ccManagesDirectory(const QString &directory) const
 {
     QStringList args(QLatin1String("pwv"));
     const ClearCaseResponse response =
-            runCleartool(directory, args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(directory, args, m_settings.timeOutS, SilentRun);
 
     if (response.error)
         return QString();
@@ -404,7 +404,7 @@ QString ClearCasePlugin::ccViewRoot(const QString &directory) const
     QStringList args(QLatin1String("pwv"));
     args << QLatin1String("-root");
     const ClearCaseResponse response =
-            runCleartool(directory, args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(directory, args, m_settings.timeOutS, SilentRun);
 
     QString root = response.stdOut.trimmed();
 
@@ -706,7 +706,7 @@ QString ClearCasePlugin::ccGetPredecessor(const QString &version) const
     QStringList args(QLatin1String("describe"));
     args << QLatin1String("-fmt") << QLatin1String("%En@@%PSn") << version;
     const ClearCaseResponse response =
-            runCleartool(currentState().topLevel(), args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(currentState().topLevel(), args, m_settings.timeOutS, SilentRun);
     if (response.error || response.stdOut.endsWith(QLatin1Char('@'))) // <name-unknown>@@
         return QString();
     else
@@ -722,7 +722,7 @@ QStringList ClearCasePlugin::ccGetActiveVobs() const
     const QString theViewRoot = viewRoot();
 
     const ClearCaseResponse response =
-            runCleartool(theViewRoot, args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(theViewRoot, args, m_settings.timeOutS, SilentRun);
     if (response.error)
         return res;
 
@@ -774,7 +774,7 @@ QString ClearCasePlugin::ccGetFileActivity(const QString &workingDir, const QStr
     args << QLatin1String("-fmt") << QLatin1String("%[activity]p");
     args << file;
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(workingDir, args, m_settings.timeOutS, SilentRun);
     return response.stdOut;
 }
 
@@ -911,7 +911,7 @@ void ClearCasePlugin::undoCheckOutCurrent()
     args << fileName;
 
     const ClearCaseResponse diffResponse =
-            runCleartool(state.currentFileTopLevel(), args, m_settings.timeOutMS(), 0);
+            runCleartool(state.currentFileTopLevel(), args, m_settings.timeOutS, 0);
 
     bool different = diffResponse.error; // return value is 1 if there is any difference
     bool keep = false;
@@ -940,7 +940,7 @@ bool ClearCasePlugin::vcsUndoCheckOut(const QString &workingDir, const QString &
     args << QDir::toNativeSeparators(fileName);
 
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.timeOutMS(),
+            runCleartool(workingDir, args, m_settings.timeOutS,
                          ShowStdOutInLogWindow | FullySynchronously);
 
     if (!response.error) {
@@ -973,7 +973,7 @@ bool ClearCasePlugin::vcsUndoHijack(const QString &workingDir, const QString &fi
     args << QDir::toNativeSeparators(fileName);
 
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.timeOutMS(),
+            runCleartool(workingDir, args, m_settings.timeOutS,
                    ShowStdOutInLogWindow | FullySynchronously);
     if (!response.error && !m_settings.disableIndexer) {
         const QString absPath = workingDir + QLatin1Char('/') + fileName;
@@ -1080,7 +1080,7 @@ QStringList ClearCasePlugin::ccGetActivityVersions(const QString &workingDir, co
     QStringList args(QLatin1String("lsactivity"));
     args << QLatin1String("-fmt") << QLatin1String("%[versions]Cp") << activity;
     const ClearCaseResponse response =
-        runCleartool(workingDir, args, m_settings.timeOutMS(), SilentRun);
+        runCleartool(workingDir, args, m_settings.timeOutS, SilentRun);
     if (response.error)
         return QStringList();
     QStringList versions = response.stdOut.split(QLatin1String(", "));
@@ -1306,8 +1306,7 @@ void ClearCasePlugin::history(const QString &workingDir,
         args.append(QDir::toNativeSeparators(file));
 
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.timeOutMS(),
-                   0, codec);
+            runCleartool(workingDir, args, m_settings.timeOutS, 0, codec);
     if (response.error)
         return;
 
@@ -1367,7 +1366,7 @@ void ClearCasePlugin::ccUpdate(const QString &workingDir, const QStringList &rel
     if (!relativePaths.isEmpty())
         args.append(relativePaths);
         const ClearCaseResponse response =
-                runCleartool(workingDir, args, m_settings.longTimeOutMS(), ShowStdOutInLogWindow);
+                runCleartool(workingDir, args, m_settings.longTimeOutS(), ShowStdOutInLogWindow);
     if (!response.error)
         clearCaseControl()->emitRepositoryChanged(workingDir);
 }
@@ -1408,7 +1407,7 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
     args.append(QDir::toNativeSeparators(id));
 
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.timeOutMS(), 0, codec);
+            runCleartool(workingDir, args, m_settings.timeOutS, 0, codec);
     if (response.error)
         return;
 
@@ -1458,7 +1457,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     args.push_back(id);
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
     const ClearCaseResponse response =
-            runCleartool(topLevel, args, m_settings.timeOutMS(), 0, codec);
+            runCleartool(topLevel, args, m_settings.timeOutS, 0, codec);
     description = response.stdOut;
     if (m_settings.extDiffAvailable)
         description += diffExternal(id);
@@ -1486,13 +1485,13 @@ void ClearCasePlugin::checkInSelected()
 QString ClearCasePlugin::runCleartoolSync(const QString &workingDir,
                                           const QStringList &arguments) const
 {
-    return runCleartool(workingDir, arguments, m_settings.timeOutMS(), SilentRun).stdOut;
+    return runCleartool(workingDir, arguments, m_settings.timeOutS, SilentRun).stdOut;
 }
 
 ClearCaseResponse
 ClearCasePlugin::runCleartool(const QString &workingDir,
                               const QStringList &arguments,
-                              int timeOut,
+                              int timeOutS,
                               unsigned flags,
                               QTextCodec *outputCodec) const
 {
@@ -1506,12 +1505,12 @@ ClearCasePlugin::runCleartool(const QString &workingDir,
 
     const SynchronousProcessResponse sp_resp =
             VcsBasePlugin::runVcs(workingDir, FileName::fromUserInput(executable),
-                                  arguments, timeOut,
+                                  arguments, timeOutS,
                                   flags, outputCodec);
 
     response.error = sp_resp.result != SynchronousProcessResponse::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(executable, timeOut);
+        response.message = sp_resp.exitMessage(executable, timeOutS);
     response.stdErr = sp_resp.stdErr;
     response.stdOut = sp_resp.stdOut;
     return response;
@@ -1629,7 +1628,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         }
         args << file;
         ClearCaseResponse response =
-                runCleartool(topLevel, args, m_settings.timeOutMS(), ShowStdOutInLogWindow |
+                runCleartool(topLevel, args, m_settings.timeOutS, ShowStdOutInLogWindow |
                              SuppressStdErrInLogWindow | FullySynchronously);
         if (response.error) {
             if (response.stdErr.contains(QLatin1String("Versions other than the selected version"))) {
@@ -1639,7 +1638,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
                         ccUpdate(workingDir, QStringList() << file);
                     else
                         args.removeOne(QLatin1String("-query"));
-                    response = runCleartool(topLevel, args, m_settings.timeOutMS(),
+                    response = runCleartool(topLevel, args, m_settings.timeOutS,
                                             ShowStdOutInLogWindow | FullySynchronously);
                 }
             } else {
@@ -1675,7 +1674,7 @@ bool ClearCasePlugin::vcsSetActivity(const QString &workingDir, const QString &t
     QStringList args;
     args << QLatin1String("setactivity") << activity;
     const ClearCaseResponse actResponse =
-            runCleartool(workingDir, args, m_settings.timeOutMS(), ShowStdOutInLogWindow);
+            runCleartool(workingDir, args, m_settings.timeOutS, ShowStdOutInLogWindow);
     if (actResponse.error) {
         QMessageBox::warning(ICore::dialogParent(), title,
                              tr("Set current activity failed: %1").arg(actResponse.message), QMessageBox::Ok);
@@ -1719,7 +1718,7 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
         blockers.append(fcb);
     }
     const ClearCaseResponse response =
-            runCleartool(m_checkInView, args, m_settings.longTimeOutMS(), ShowStdOutInLogWindow);
+            runCleartool(m_checkInView, args, m_settings.longTimeOutS(), ShowStdOutInLogWindow);
     QRegExp checkedIn(QLatin1String("Checked in \\\"([^\"]*)\\\""));
     bool anySucceeded = false;
     int offset = checkedIn.indexIn(response.stdOut);
@@ -1785,7 +1784,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     QStringList args;
     args << QLatin1String("checkout") << commentArg << dirName;
     const ClearCaseResponse coResponse =
-        runCleartool(workingDir, args, m_settings.timeOutMS(),
+        runCleartool(workingDir, args, m_settings.timeOutS,
                      ShowStdOutInLogWindow | FullySynchronously);
     if (coResponse.error) {
         if (coResponse.stdErr.contains(QLatin1String("already checked out")))
@@ -1800,7 +1799,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     if (!file2.isEmpty())
         args << QDir::toNativeSeparators(file2);
     const ClearCaseResponse opResponse =
-            runCleartool(workingDir, args, m_settings.timeOutMS(),
+            runCleartool(workingDir, args, m_settings.timeOutS,
                          ShowStdOutInLogWindow | FullySynchronously);
     if (opResponse.error) {
         // on failure - undo checkout for the directory
@@ -1814,7 +1813,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
         args.clear();
         args << QLatin1String("checkin") << commentArg << dirName;
         const ClearCaseResponse ciResponse =
-            runCleartool(workingDir, args, m_settings.timeOutMS(),
+            runCleartool(workingDir, args, m_settings.timeOutS,
                          ShowStdOutInLogWindow | FullySynchronously);
         return !ciResponse.error;
     }
@@ -1963,7 +1962,7 @@ bool ClearCasePlugin::newActivity()
     }
 
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.timeOutMS(), 0);
+            runCleartool(workingDir, args, m_settings.timeOutS, 0);
 
     if (!response.error)
         refreshActivities();
@@ -2103,7 +2102,7 @@ QString ClearCasePlugin::getFile(const QString &nativeFile, const QString &prefi
     QStringList args(QLatin1String("get"));
     args << QLatin1String("-to") << tempFile << nativeFile;
     const ClearCaseResponse response =
-            runCleartool(m_topLevel, args, m_settings.timeOutMS(), SilentRun);
+            runCleartool(m_topLevel, args, m_settings.timeOutS, SilentRun);
     if (response.error)
         return QString();
     QFile::setPermissions(tempFile, QFile::ReadOwner | QFile::ReadUser |
@@ -2146,8 +2145,7 @@ QString ClearCasePlugin::diffExternal(QString file1, QString file2, bool keep)
     } else {
         args << file2;
     }
-    const QString diffResponse =
-            runExtDiff(m_topLevel, args, m_settings.timeOutMS(), codec);
+    const QString diffResponse = runExtDiff(m_topLevel, args, m_settings.timeOutS, codec);
     if (!keep && !tempFile1.isEmpty()) {
         QFile::remove(tempFile1);
         QFileInfo(tempFile1).dir().rmpath(QLatin1String("."));
@@ -2179,10 +2177,8 @@ void ClearCasePlugin::diffGraphical(const QString &file1, const QString &file2)
     QProcess::startDetached(m_settings.ccBinaryPath, args, m_topLevel);
 }
 
-QString ClearCasePlugin::runExtDiff(const QString &workingDir,
-                                  const QStringList &arguments,
-                                  int timeOut,
-                                  QTextCodec *outputCodec)
+QString ClearCasePlugin::runExtDiff(const QString &workingDir, const QStringList &arguments,
+                                    int timeOutS, QTextCodec *outputCodec)
 {
     const QString executable(QLatin1String("diff"));
     QStringList args(m_settings.diffArgs.split(QLatin1Char(' '), QString::SkipEmptyParts));
@@ -2191,7 +2187,7 @@ QString ClearCasePlugin::runExtDiff(const QString &workingDir,
     QProcess process;
     process.setWorkingDirectory(workingDir);
     process.start(executable, args);
-    if (!process.waitForFinished(timeOut))
+    if (!process.waitForFinished(timeOutS * 1000))
         return QString();
     QByteArray ba = process.readAll();
     return outputCodec ? outputCodec->toUnicode(ba) :

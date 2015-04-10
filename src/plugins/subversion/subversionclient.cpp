@@ -222,7 +222,7 @@ QString DiffController::getDescription() const
     args << QString::number(m_changeNumber);
     const SubversionResponse logResponse =
             SubversionPlugin::instance()->runSvn(m_workingDirectory, args,
-                                                 m_client->vcsTimeout() * 1000,
+                                                 m_client->vcsTimeoutS(),
                                                  VcsBasePlugin::SshPasswordPrompt);
 
     if (logResponse.error)
@@ -252,7 +252,7 @@ void DiffController::postCollectTextualDiffOutput()
         args << m_filesList;
     }
 
-    command->addJob(args, m_client->vcsTimeout());
+    command->addJob(args, m_client->vcsTimeoutS());
     command->execute();
 }
 

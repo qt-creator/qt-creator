@@ -84,7 +84,7 @@ public:
         explicit Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter = 0);
 
         QStringList arguments;
-        int timeout;
+        int timeoutS;
         Utils::ExitCodeInterpreter *exitCodeInterpreter;
     };
 
@@ -97,7 +97,7 @@ public:
     const QString m_workingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;
-    int m_defaultTimeout;
+    int m_defaultTimeoutS;
     unsigned m_flags;
     QTextCodec *m_codec;
     const QString m_sshPasswordPrompt;
@@ -120,7 +120,7 @@ VcsCommandPrivate::VcsCommandPrivate(const Utils::FileName &binary,
     m_binaryPath(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
-    m_defaultTimeout(10),
+    m_defaultTimeoutS(10),
     m_flags(0),
     m_codec(0),
     m_sshPasswordPrompt(VcsBasePlugin::sshPrompt()),
@@ -141,7 +141,7 @@ VcsCommandPrivate::~VcsCommandPrivate()
 
 VcsCommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter) :
     arguments(a),
-    timeout(t),
+    timeoutS(t),
     exitCodeInterpreter(interpreter)
 {
     // Finished cookie is emitted via queued slot, needs metatype
@@ -180,14 +180,14 @@ const QProcessEnvironment &VcsCommand::processEnvironment() const
     return d->m_environment;
 }
 
-int VcsCommand::defaultTimeout() const
+int VcsCommand::defaultTimeoutS() const
 {
-    return d->m_defaultTimeout;
+    return d->m_defaultTimeoutS;
 }
 
-void VcsCommand::setDefaultTimeout(int timeout)
+void VcsCommand::setDefaultTimeoutS(int timeout)
 {
-    d->m_defaultTimeout = timeout;
+    d->m_defaultTimeoutS = timeout;
 }
 
 unsigned VcsCommand::flags() const
@@ -202,12 +202,13 @@ void VcsCommand::addFlags(unsigned f)
 
 void VcsCommand::addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter)
 {
-    addJob(arguments, defaultTimeout(), interpreter);
+    addJob(arguments, defaultTimeoutS(), interpreter);
 }
 
-void VcsCommand::addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter)
+void VcsCommand::addJob(const QStringList &arguments, int timeoutS,
+                        Utils::ExitCodeInterpreter *interpreter)
 {
-    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(arguments, timeout, interpreter));
+    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(arguments, timeoutS, interpreter));
 }
 
 void VcsCommand::execute()
@@ -272,11 +273,8 @@ void VcsCommand::run(QFutureInterface<void> &future)
     d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(j);
-        const int timeOutSeconds = job.timeout;
-        Utils::SynchronousProcessResponse resp = runVcs(
-                    job.arguments,
-                    timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1,
-                    job.exitCodeInterpreter);
+        Utils::SynchronousProcessResponse resp
+                = runVcs( job.arguments, job.timeoutS, job.exitCodeInterpreter);
         stdOut += resp.stdOut;
         stdErr += resp.stdErr;
         d->m_lastExecExitCode = resp.exitCode;
@@ -334,7 +332,7 @@ signals:
     void appendMessage(const QString &text);
 };
 
-Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &arguments, int timeoutMS,
+Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &arguments, int timeoutS,
                                                      Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
@@ -352,7 +350,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
     if (debugExecution) {
         QDebug nsp = qDebug().nospace();
         nsp << "Command::runVcs" << d->m_workingDirectory << d->m_binaryPath << arguments
-                << timeoutMS;
+                << timeoutS;
         if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
             nsp << "stdout";
         if (d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow)
@@ -379,7 +377,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
     //    if (d->m_flags & ExpectRepoChanges)
     //        Core::DocumentManager::expectDirectoryChange(d->m_workingDirectory);
     if (d->m_flags & VcsBasePlugin::FullySynchronously) {
-        response = runSynchronous(arguments, timeoutMS, interpreter);
+        response = runSynchronous(arguments, timeoutS, interpreter);
     } else {
         Utils::SynchronousProcess process;
         process.setExitCodeInterpreter(interpreter);
@@ -392,7 +390,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
                                              (d->m_flags & VcsBasePlugin::ForceCLocale),
                                              d->m_sshPasswordPrompt);
         process.setProcessEnvironment(env);
-        process.setTimeout(timeoutMS);
+        process.setTimeout(timeoutS * 1000);
         if (d->m_codec)
             process.setCodec(d->m_codec);
 
@@ -429,11 +427,11 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             if (d->m_flags & VcsBasePlugin::ShowSuccessMessage) {
                 emit outputProxy.appendMessage(response.exitMessage(d->m_binaryPath.toUserOutput(),
-                                                                    timeoutMS));
+                                                                    timeoutS));
             }
         } else if (!(d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)) {
             emit outputProxy.appendError(response.exitMessage(d->m_binaryPath.toUserOutput(),
-                                                              timeoutMS));
+                                                              timeoutS));
         }
     }
     emitRepositoryChanged();
@@ -442,7 +440,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
 }
 
 Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const QStringList &arguments,
-                                                             int timeoutMS,
+                                                             int timeoutS,
                                                              Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
@@ -474,7 +472,7 @@ Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const QStringList &
     QByteArray stdOut;
     QByteArray stdErr;
     const bool timedOut =
-            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutMS,
+            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutS * 1000,
                                                             &stdOut, &stdErr, true);
 
     if (!d->m_aborted) {
@@ -519,7 +517,7 @@ void VcsCommand::emitRepositoryChanged()
     Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
 }
 
-bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutMS,
+bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutS,
                                      QByteArray *outputData, QByteArray *errorData)
 {
     if (d->m_binaryPath.isEmpty())
@@ -547,9 +545,9 @@ bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutMS
         return false;
     }
 
-    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutMS, outputData, errorData, true)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutS * 1000, outputData, errorData, true)) {
         if (errorData)
-            errorData->append(tr("Error: Executable timed out after %1s.").arg(timeoutMS / 1000).toLocal8Bit());
+            errorData->append(tr("Error: Executable timed out after %1s.").arg(timeoutS).toLocal8Bit());
         Utils::SynchronousProcess::stopProcess(process);
         return false;
     }

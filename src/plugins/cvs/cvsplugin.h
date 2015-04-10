@@ -142,7 +142,7 @@ private:
 
     CvsResponse runCvs(const QString &workingDirectory,
                        const QStringList &arguments,
-                       int timeOut,
+                       int timeOutS,
                        unsigned flags,
                        QTextCodec *outputCodec = 0) const;
 

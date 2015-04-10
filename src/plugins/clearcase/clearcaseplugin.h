@@ -235,9 +235,8 @@ private:
                                       int editorType, const QString &source,
                                       QTextCodec *codec) const;
     QString runCleartoolSync(const QString &workingDir, const QStringList &arguments) const;
-    ClearCaseResponse runCleartool(const QString &workingDir,
-                              const QStringList &arguments, int timeOut,
-                              unsigned flags, QTextCodec *outputCodec = 0) const;
+    ClearCaseResponse runCleartool(const QString &workingDir, const QStringList &arguments,
+                                   int timeOutS, unsigned flags, QTextCodec *outputCodec = 0) const;
     static void sync(QFutureInterface<void> &future, QStringList files);
 
     void history(const QString &workingDir,
@@ -255,8 +254,8 @@ private:
     QString diffExternal(QString file1, QString file2 = QString(), bool keep = false);
     QString getFile(const QString &nativeFile, const QString &prefix);
     static void rmdir(const QString &path);
-    QString runExtDiff(const QString &workingDir, const QStringList &arguments,
-                       int timeOut, QTextCodec *outputCodec = 0);
+    QString runExtDiff(const QString &workingDir, const QStringList &arguments, int timeOutS,
+                       QTextCodec *outputCodec = 0);
     static QString getDriveLetterOfPath(const QString &directory);
 
     FileStatus::Status getFileStatus(const QString &fileName) const;
