@@ -45,7 +45,6 @@ public:
 
     int count() const;
     void addTimelineModel(const TimelineModel *timelineModel);
-    const TimelineModel *timelineModelByModelId(int timelineModel) const;
     QList<const TimelineModel *> timelineModels() const;
 
     Q_INVOKABLE int typeId(int index) const;
@@ -68,6 +67,9 @@ public:
     void resetModified();
 
     void clear();
+
+protected:
+    const TimelineModel *timelineModelByModelId(int modelId) const;
 
 signals:
     void changed(int typeId, int timelineModel, int timelineIndex);
