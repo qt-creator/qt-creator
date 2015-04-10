@@ -77,4 +77,15 @@ QtcPlugin {
             "autotestunittests.qrc",
         ]
     }
+
+    Group {
+        name: "Auto Test Wizard"
+        prefix: "../../shared/autotest/"
+        files: [
+            "*"
+        ]
+        fileTags: []
+        qbs.install: true
+        qbs.installDir: project.ide_data_path + "/templates/wizards/autotest"
+    }
 }
