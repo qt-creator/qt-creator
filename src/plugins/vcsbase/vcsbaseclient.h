@@ -110,6 +110,11 @@ protected:
     virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
                                            const QString &change, int line);
 
+    // Fully synchronous VCS execution (QProcess-based)
+    bool vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
+                                 QByteArray *outputData, QByteArray *errorData = 0,
+                                 unsigned flags = 0) const;
+
 private:
     void saveSettings();
     void commandFinishedGotoLine(QWidget*);
@@ -220,10 +225,7 @@ protected:
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
-    // Fully synchronous VCS execution (QProcess-based)
-    bool vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
-                                 QByteArray *outputData, QByteArray *errorData = 0,
-                                 unsigned flags = 0) const;
+
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,

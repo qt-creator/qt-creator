@@ -373,13 +373,6 @@ private:
                                     bool useOutputToWindow = false, unsigned additionalFlags = 0,
                                     int editorLineNumber = -1);
 
-    // Fully synchronous git execution (QProcess-based).
-    bool fullySynchronousGit(const QString &workingDirectory,
-                             const QStringList &arguments,
-                             QByteArray *outputText,
-                             QByteArray *errorText = 0,
-                             unsigned flags = 0) const;
-
     // Synchronous git execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags).
     inline Utils::SynchronousProcessResponse

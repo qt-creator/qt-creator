@@ -634,8 +634,8 @@ bool GitClient::managesFile(const QString &workingDirectory, const QString &file
     QByteArray output;
     QStringList arguments;
     arguments << QLatin1String("ls-files") << QLatin1String("--error-unmatch") << fileName;
-    return fullySynchronousGit(workingDirectory, arguments, &output, 0,
-                               VcsBasePlugin::SuppressCommandLogging);
+    return vcsFullySynchronousExec(workingDirectory, arguments, &output, 0,
+                                   VcsBasePlugin::SuppressCommandLogging);
 }
 
 VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
@@ -976,15 +976,14 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                                        VcsBasePlugin::ExpectRepoChanges);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, 0,
+                                            VcsBasePlugin::ExpectRepoChanges);
     VcsOutputWindow::append(commandOutputFromLocal8Bit(outputText));
-    if (!rc) {
+    if (rc)
+        updateSubmodulesIfNeeded(workingDirectory, true);
+    else
         msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
-        return false;
-    }
-    updateSubmodulesIfNeeded(workingDirectory, true);
-    return true;
+    return rc;
 }
 
 /* method used to setup arguments for checkout, in case user wants to create local branch */
@@ -1072,22 +1071,22 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
 bool GitClient::synchronousLog(const QString &workingDirectory, const QStringList &arguments,
                                QString *output, QString *errorMessageIn, unsigned flags)
 {
-    QByteArray outputText;
-    QByteArray errorText;
+    QByteArray outputData;
+    QByteArray errorData;
     QStringList allArguments;
     allArguments << QLatin1String("log") << QLatin1String(noColorOption);
     allArguments.append(arguments);
-    const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText,
-                                        flags);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, allArguments, &outputData, &errorData, flags);
     if (rc) {
         if (QTextCodec *codec = encoding(workingDirectory, "i18n.logOutputEncoding"))
-            *output = codec->toUnicode(outputText);
+            *output = codec->toUnicode(outputData);
         else
-            *output = commandOutputFromLocal8Bit(outputText);
+            *output = commandOutputFromLocal8Bit(outputData);
     } else {
         msgCannotRun(tr("Cannot obtain log of \"%1\": %2")
                      .arg(QDir::toNativeSeparators(workingDirectory),
-                         commandOutputFromLocal8Bit(errorText)), errorMessageIn);
+                          commandOutputFromLocal8Bit(errorData)), errorMessageIn);
+
     }
     return rc;
 }
@@ -1095,16 +1094,9 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
 bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
 {
     QByteArray outputText;
-    QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("add") << files;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
-    if (!rc) {
-        msgCannotRun(tr("Cannot add %n file(s) to \"%1\": %2", 0, files.size())
-                     .arg(QDir::toNativeSeparators(workingDirectory),
-                          commandOutputFromLocal8Bit(errorText)), 0);
-    }
-    return rc;
+    return vcsFullySynchronousExec(workingDirectory, arguments, &outputText);
 }
 
 bool GitClient::synchronousDelete(const QString &workingDirectory,
@@ -1112,19 +1104,12 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
                                   const QStringList &files)
 {
     QByteArray outputText;
-    QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("rm");
     if (force)
         arguments << QLatin1String("--force");
     arguments.append(files);
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
-    if (!rc) {
-        msgCannotRun(tr("Cannot remove %n file(s) from \"%1\": %2", 0, files.size())
-                     .arg(QDir::toNativeSeparators(workingDirectory),
-                          commandOutputFromLocal8Bit(errorText)), 0);
-    }
-    return rc;
+    return vcsFullySynchronousExec(workingDirectory, arguments, &outputText);
 }
 
 bool GitClient::synchronousMove(const QString &workingDirectory,
@@ -1132,17 +1117,11 @@ bool GitClient::synchronousMove(const QString &workingDirectory,
                                 const QString &to)
 {
     QByteArray outputText;
-    QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("mv");
     arguments << (from);
     arguments << (to);
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
-    if (!rc) {
-        msgCannotRun(tr("Cannot move from \"%1\" to \"%2\": %3")
-                     .arg(from, to, commandOutputFromLocal8Bit(errorText)), 0);
-    }
-    return rc;
+    return vcsFullySynchronousExec(workingDirectory, arguments, &outputText);
 }
 
 bool GitClient::synchronousReset(const QString &workingDirectory,
@@ -1157,7 +1136,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
         arguments << QLatin1String("--hard");
     else
         arguments << QLatin1String(HEAD) << QLatin1String("--") << files;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
     VcsOutputWindow::append(output);
     // Note that git exits with 1 even if the operation is successful
@@ -1182,17 +1161,12 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
 bool GitClient::synchronousInit(const QString &workingDirectory)
 {
     QByteArray outputText;
-    QByteArray errorText;
     const QStringList arguments(QLatin1String("init"));
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText);
     // '[Re]Initialized...'
     VcsOutputWindow::append(commandOutputFromLocal8Bit(outputText));
-    if (!rc) {
-        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(errorText));
-    } else {
-        // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        VcsManager::resetVersionControlForDirectory(workingDirectory);
-    }
+    if (rc)
+        resetCachedVcsInfo(workingDirectory);
     return rc;
 }
 
@@ -1217,8 +1191,8 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
     if (revertStaging)
         arguments << revision;
     arguments << QLatin1String("--") << files;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                                        VcsBasePlugin::ExpectRepoChanges);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, &errorText,
+                                            VcsBasePlugin::ExpectRepoChanges);
     if (!rc) {
         const QString fileArg = files.join(QLatin1String(", "));
         //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
@@ -1284,9 +1258,9 @@ bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QSt
     QStringList args(QLatin1String("rev-list"));
     args << QLatin1String(noColorOption) << arguments;
 
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputTextData, &errorText,
-                                        VcsBasePlugin::SuppressCommandLogging);
-    if (!rc) {
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputTextData, &errorText,
+                                            VcsBasePlugin::SuppressCommandLogging);
+    if (rc) {
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
         return false;
     }
@@ -1353,8 +1327,8 @@ QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory
     QByteArray outputTextData;
     QStringList arguments;
     arguments << QLatin1String("symbolic-ref") << QLatin1String(HEAD);
-    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0,
-                            VcsBasePlugin::SuppressCommandLogging)) {
+    if (vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, 0,
+                                VcsBasePlugin::SuppressCommandLogging)) {
         QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
         const QString refsHeadsPrefix = QLatin1String("refs/heads/");
         if (branch.startsWith(refsHeadsPrefix)) {
@@ -1373,8 +1347,8 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
          << QLatin1String("--abbrev=10") << QLatin1String("--dereference");
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText,
-                                        VcsBasePlugin::SuppressCommandLogging);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText,
+                                            VcsBasePlugin::SuppressCommandLogging);
     if (!rc) {
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
         return false;
@@ -1431,7 +1405,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory) const
     QByteArray output;
     QStringList arguments;
     arguments << QLatin1String("describe");
-    if (fullySynchronousGit(workingDirectory, arguments, &output, 0, VcsBasePlugin::NoOutput)) {
+    if (vcsFullySynchronousExec(workingDirectory, arguments, &output, 0, VcsBasePlugin::NoOutput)) {
         const QString describeOutput = commandOutputFromLocal8Bit(output.trimmed());
         if (!describeOutput.isEmpty())
             return describeOutput;
@@ -1446,8 +1420,8 @@ bool GitClient::synchronousRevParseCmd(const QString &workingDirectory, const QS
     arguments << ref;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                                        VcsBasePlugin::SuppressCommandLogging);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, &errorText,
+                                            VcsBasePlugin::SuppressCommandLogging);
     *output = commandOutputFromLocal8Bit(outputText.trimmed());
     if (!rc)
         msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
@@ -1471,8 +1445,8 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     QByteArray pr;
     QStringList arguments;
     arguments << QLatin1String("describe") << QLatin1String("--contains") << revision;
-    fullySynchronousGit(workingDirectory, arguments, &pr, 0,
-                        VcsBasePlugin::SuppressCommandLogging);
+    vcsFullySynchronousExec(workingDirectory, arguments, &pr, 0,
+                            VcsBasePlugin::SuppressCommandLogging);
     int tilde = pr.indexOf('~');
     if (tilde != -1)
         pr.truncate(tilde);
@@ -1488,8 +1462,8 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
         arguments.clear();
         arguments << QLatin1String("describe") << QLatin1String("--tags")
                   << QLatin1String("--abbrev=0") << p;
-        fullySynchronousGit(workingDirectory, arguments, &pf, 0,
-                            VcsBasePlugin::SuppressCommandLogging);
+        vcsFullySynchronousExec(workingDirectory, arguments, &pf, 0,
+                                VcsBasePlugin::SuppressCommandLogging);
         pf.truncate(pf.lastIndexOf('\n'));
         if (!pf.isEmpty()) {
             if (!follows.isEmpty())
@@ -1523,8 +1497,8 @@ bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &c
     QByteArray outputText;
     arguments << QLatin1String("branch") << QLatin1String("-r")
               << QLatin1String("--contains") << commit;
-    fullySynchronousGit(workingDirectory, arguments, &outputText, 0,
-                        VcsBasePlugin::SuppressCommandLogging);
+    vcsFullySynchronousExec(workingDirectory, arguments, &outputText, 0,
+                            VcsBasePlugin::SuppressCommandLogging);
     return !outputText.isEmpty();
 }
 
@@ -1533,8 +1507,8 @@ bool GitClient::isFastForwardMerge(const QString &workingDirectory, const QStrin
     QStringList arguments;
     QByteArray outputText;
     arguments << QLatin1String("merge-base") << QLatin1String(HEAD) << branch;
-    fullySynchronousGit(workingDirectory, arguments, &outputText, 0,
-                        VcsBasePlugin::SuppressCommandLogging);
+    vcsFullySynchronousExec(workingDirectory, arguments, &outputText, 0,
+                            VcsBasePlugin::SuppressCommandLogging);
     return commandOutputFromLocal8Bit(outputText).trimmed()
             == synchronousTopRevision(workingDirectory);
 }
@@ -1550,7 +1524,7 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
               << (QLatin1String("--pretty=format:") + format)
               << QLatin1String("--max-count=1") << revision;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText);
     if (!rc) {
         VcsOutputWindow::appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
                                      .arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText)));
@@ -1677,7 +1651,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     branchArgs.push_front(QLatin1String("branch"));
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, branchArgs, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc)
         msgCannotRun(branchArgs, workingDirectory, errorText, errorMessage);
@@ -1691,7 +1665,7 @@ bool GitClient::synchronousTagCmd(const QString &workingDirectory, QStringList t
     tagArgs.push_front(QLatin1String("tag"));
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, tagArgs, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, tagArgs, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc)
         msgCannotRun(tagArgs, workingDirectory, errorText, errorMessage);
@@ -1705,8 +1679,8 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
     args.push_front(QLatin1String("for-each-ref"));
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText,
-                                        VcsBasePlugin::SuppressCommandLogging);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText,
+                                            VcsBasePlugin::SuppressCommandLogging);
     *output = SynchronousProcess::normalizeNewlines(QString::fromUtf8(outputText));
     if (!rc)
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
@@ -1720,8 +1694,8 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
     remoteArgs.push_front(QLatin1String("remote"));
     QByteArray outputText;
     QByteArray errorText;
-    if (!fullySynchronousGit(workingDirectory, remoteArgs, &outputText, &errorText,
-                             silent ? VcsBasePlugin::SuppressCommandLogging : 0)) {
+    if (!vcsFullySynchronousExec(workingDirectory, remoteArgs, &outputText, &errorText,
+                                 silent ? VcsBasePlugin::SuppressCommandLogging : 0)) {
         msgCannotRun(remoteArgs, workingDirectory, errorText, errorMessage);
         return false;
     }
@@ -1765,7 +1739,7 @@ QStringList GitClient::synchronousSubmoduleStatus(const QString &workingDirector
 
     // get submodule status
     arguments << QLatin1String("submodule") << QLatin1String("status");
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
+    if (!vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText)) {
         msgCannotRun(tr("Cannot retrieve submodule status of \"%1\": %2")
                      .arg(QDir::toNativeSeparators(workingDirectory),
                           commandOutputFromLocal8Bit(errorText)), errorMessage);
@@ -1842,7 +1816,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     args << QLatin1String(decorateOption) << QLatin1String(noColorOption) << id;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText);
     if (rc)
         *output = commandOutputFromLocal8Bit(outputText);
     else
@@ -1857,7 +1831,7 @@ bool GitClient::cleanList(const QString &workingDirectory, const QString &flag, 
     args << QLatin1String("clean") << QLatin1String("--dry-run") << flag;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
         msgCannotRun(QStringList(QLatin1String("clean")), workingDirectory,
                      errorText, errorMessage);
@@ -1896,12 +1870,14 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
     args << QLatin1String("apply") << QLatin1String("--whitespace=fix") << arguments << file;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText);
     if (rc) {
         if (!errorText.isEmpty())
-            *errorMessage = tr("There were warnings while applying \"%1\" to \"%2\":\n%3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
+            *errorMessage = tr("There were warnings while applying \"%1\" to \"%2\":\n%3")
+                .arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
     } else {
-        *errorMessage = tr("Cannot apply patch \"%1\" to \"%2\": %3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot apply patch \"%1\" to \"%2\": %3")
+                .arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     return true;
@@ -1981,17 +1957,6 @@ SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirec
 {
     return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), gitArguments, vcsTimeoutS(),
                                  flags, outputCodec, processEnvironment());
-}
-
-bool GitClient::fullySynchronousGit(const QString &workingDirectory,
-                                    const QStringList &gitArguments,
-                                    QByteArray *outputText,
-                                    QByteArray *errorText,
-                                    unsigned flags) const
-{
-    VcsCommand command(vcsBinary(), workingDirectory, processEnvironment());
-    command.addFlags(flags);
-    return command.runFullySynchronous(gitArguments, vcsTimeoutS(), outputText, errorText);
 }
 
 void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt)
@@ -2076,8 +2041,9 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
         statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("--porcelain") << QLatin1String("-b");
 
-    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText,
-                                              VcsBasePlugin::SuppressCommandLogging);
+    const bool statusRc = vcsFullySynchronousExec(workingDirectory, statusArgs,
+                                                  &outputText, &errorText,
+                                                  VcsBasePlugin::SuppressCommandLogging);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
 
@@ -2426,8 +2392,8 @@ bool GitClient::readDataFromCommit(const QString &repoDirectory, const QString &
     args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\n%an\n%ae\n%B");
     args << commit;
     QByteArray outputText;
-    if (!fullySynchronousGit(repoDirectory, args, &outputText, 0,
-                             VcsBasePlugin::SuppressCommandLogging)) {
+    if (!vcsFullySynchronousExec(repoDirectory, args, &outputText, 0,
+                                 VcsBasePlugin::SuppressCommandLogging)) {
         if (errorMessage)
             *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
         return false;
@@ -2674,7 +2640,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     QByteArray outputText;
     QByteArray errorText;
 
-    const bool rc = fullySynchronousGit(repositoryDirectory, args, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(repositoryDirectory, args, &outputText, &errorText);
     const QString stdErr = commandOutputFromLocal8Bit(errorText);
     if (rc) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
@@ -2855,12 +2821,8 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     QStringList arguments;
     arguments << abortCommand << QLatin1String("--abort");
     QByteArray stdOut;
-    QByteArray stdErr;
-    const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr,
-                                        VcsBasePlugin::ExpectRepoChanges);
+    vcsFullySynchronousExec(workingDir, arguments, &stdOut, 0, VcsBasePlugin::ExpectRepoChanges);
     VcsOutputWindow::append(commandOutputFromLocal8Bit(stdOut));
-    if (!rc)
-        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
 QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, const QString &branch)
@@ -2884,19 +2846,13 @@ bool GitClient::synchronousSetTrackingBranch(const QString &workingDirectory,
                                              const QString &branch, const QString &tracking)
 {
     QByteArray outputText;
-    QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("branch");
     if (gitVersion() >= 0x010800)
         arguments << (QLatin1String("--set-upstream-to=") + tracking) << branch;
     else
         arguments << QLatin1String("--set-upstream") << branch << tracking;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
-    if (!rc) {
-        msgCannotRun(tr("Cannot set tracking branch: %1")
-                     .arg(commandOutputFromLocal8Bit(errorText)), 0);
-    }
-    return rc;
+    return vcsFullySynchronousExec(workingDirectory, arguments, &outputText);
 }
 
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit,
@@ -3125,7 +3081,7 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
         arguments << QLatin1String("drop") << stash;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, &errorText);
     if (rc) {
         const QString output = commandOutputFromLocal8Bit(outputText);
         if (!output.isEmpty())
@@ -3145,7 +3101,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     arguments << QLatin1String("list") << QLatin1String(noColorOption);
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
         return false;
@@ -3169,9 +3125,8 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
     arguments << QLatin1String("config") << configVar;
 
     QByteArray outputText;
-    QByteArray errorText;
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                             VcsBasePlugin::SuppressCommandLogging))
+    if (!vcsFullySynchronousExec(workingDirectory, arguments, &outputText, 0,
+                                 VcsBasePlugin::SuppressCommandLogging))
         return QString();
     if (HostOsInfo::isWindowsHost())
         outputText.replace("\r\n", "\n");
@@ -3192,7 +3147,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
 
         QStringList arguments(QLatin1String("remote"));
         arguments << QLatin1String("add") << QLatin1String("origin") << QLatin1String(url);
-        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0))
+        if (!vcsFullySynchronousExec(workingDirectory.path(), arguments, 0))
             return false;
 
         arguments.clear();
@@ -3206,14 +3161,14 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         arguments << QLatin1String("config")
                   << QLatin1String("branch.master.remote")
                   <<  QLatin1String("origin");
-        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0))
+        if (!vcsFullySynchronousExec(workingDirectory.path(), arguments, 0))
             return false;
 
         arguments.clear();
         arguments << QLatin1String("config")
                   << QLatin1String("branch.master.merge")
                   << QLatin1String("refs/heads/master");
-        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0))
+        if (!vcsFullySynchronousExec(workingDirectory.path(), arguments, 0))
             return false;
 
         return true;
@@ -3250,9 +3205,9 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     // run git --version
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(QString(), QStringList(QLatin1String("--version")),
-                                        &outputText, &errorText,
-                                        VcsBasePlugin::SuppressCommandLogging);
+    const bool rc = vcsFullySynchronousExec(QString(), QStringList(QLatin1String("--version")),
+                                            &outputText, &errorText,
+                                            VcsBasePlugin::SuppressCommandLogging);
     if (!rc) {
         msgCannotRun(tr("Cannot determine Git version: %1")
                      .arg(commandOutputFromLocal8Bit(errorText)),

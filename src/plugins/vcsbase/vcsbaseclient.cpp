@@ -386,11 +386,9 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
-                                            const QStringList &args,
-                                            QByteArray *outputData,
-                                            QByteArray *errorData,
-                                            unsigned flags) const
+bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
+                                                QByteArray *outputData, QByteArray *errorData,
+                                                unsigned flags) const
 {
     QByteArray internalErrorData;
     QScopedPointer<VcsCommand> command(createCommand(workingDir));
