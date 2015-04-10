@@ -176,12 +176,12 @@ void TestXmlOutputReader::processOutput()
     while (m_testApplication->canReadLine()) {
         // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
         const QString line = QString::fromUtf8(m_testApplication->readLine()).trimmed();
-        if (line.isEmpty() || line.startsWith(QLatin1String("<?xml version"))) {
+        if (line.isEmpty() || xmlStartsWith(line, QLatin1String("<TestCase name=\""), className))
+            continue;
+        if (line.startsWith(QLatin1String("<?xml version"))) {
             className = QString();
             continue;
         }
-        if (xmlStartsWith(line, QLatin1String("<TestCase name=\""), className))
-            continue;
         if (xmlStartsWith(line, QLatin1String("<TestFunction name=\""), testCase)) {
             dataTag = QString();
             description = QString();
