@@ -170,6 +170,22 @@ QProcessEnvironment VcsBaseClientImpl::processEnvironment() const
     return environment;
 }
 
+QString VcsBaseClientImpl::commandOutputFromLocal8Bit(const QByteArray &a)
+{
+    return Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(a));
+}
+
+QStringList VcsBaseClientImpl::commandOutputLinesFromLocal8Bit(const QByteArray &a)
+{
+    QString output = commandOutputFromLocal8Bit(a);
+    const QChar newLine = QLatin1Char('\n');
+    if (output.endsWith(newLine))
+        output.truncate(output.size() - 1);
+    if (output.isEmpty())
+        return QStringList();
+    return output.split(newLine);
+}
+
 void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
@@ -288,8 +304,7 @@ bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return false;
-    VcsOutputWindow::append(
-                Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(outputData)));
+    VcsOutputWindow::append(commandOutputFromLocal8Bit(outputData));
 
     resetCachedVcsInfo(workingDirectory);
 
@@ -373,13 +388,15 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
 
 bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
                                             const QStringList &args,
-                                            QByteArray *output) const
+                                            QByteArray *outputData,
+                                            QByteArray *errorData) const
 {
-    QByteArray errorData;
-    QScopedPointer<VcsCommand> command = createCommand(workingDir);
-    bool result = command->runFullySynchronous(args, vcsTimeoutS(), output, &errorData);
-    if (!errorData.isEmpty())
-        VcsOutputWindow::appendError(QString::fromLocal8Bit(errorData));
+    QByteArray internalErrorData;
+    QScopedPointer<VcsCommand> command(createCommand(workingDir));
+    bool result = command->runFullySynchronous(args, vcsTimeoutS(), outputData,
+                                               errorData ? errorData : &internalErrorData);
+    if (!internalErrorData.isEmpty())
+        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));
     return result;
 }
 

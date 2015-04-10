@@ -540,24 +540,6 @@ IEditor *locateEditor(const char *property, const QString &entry)
     return 0;
 }
 
-// Return converted command output, remove '\r' read on Windows
-static inline QString commandOutputFromLocal8Bit(const QByteArray &a)
-{
-    return SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(a));
-}
-
-// Return converted command output split into lines
-static inline QStringList commandOutputLinesFromLocal8Bit(const QByteArray &a)
-{
-    QString output = commandOutputFromLocal8Bit(a);
-    const QChar newLine = QLatin1Char('\n');
-    if (output.endsWith(newLine))
-        output.truncate(output.size() - 1);
-    if (output.isEmpty())
-        return QStringList();
-    return output.split(newLine);
-}
-
 static inline QString msgRepositoryNotFound(const QString &dir)
 {
     return GitClient::tr("Cannot determine the repository for \"%1\".").arg(dir);
@@ -594,7 +576,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
     const QString message = GitClient::tr("Cannot run \"%1 %2\" in \"%2\": %3")
             .arg(QLatin1String("git ") + args.join(QLatin1Char(' ')),
                  QDir::toNativeSeparators(workingDirectory),
-                 commandOutputFromLocal8Bit(error));
+                 GitClient::commandOutputFromLocal8Bit(error));
 
     msgCannotRun(message, errorMessage);
 }

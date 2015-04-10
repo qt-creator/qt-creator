@@ -244,7 +244,7 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return revision;
-    description = SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(outputData));
+    description = commandOutputFromLocal8Bit(outputData);
     if (description.endsWith(QLatin1Char('\n')))
         description.truncate(description.size() - 1);
     return description;

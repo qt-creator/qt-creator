@@ -150,7 +150,7 @@ QString SubversionClient::synchronousTopic(const QString &repository)
 
     const QString revisionString = QLatin1String("Revision: ");
     // stdOut is ASCII only (at least in those areas we care about).
-    QString output = SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(stdOut));
+    QString output = commandOutputFromLocal8Bit(stdOut);
     foreach (const QString &line, output.split(QLatin1Char('\n'))) {
         if (line.startsWith(revisionString))
             return QString::fromLatin1("r") + line.mid(revisionString.count());
