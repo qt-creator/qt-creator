@@ -138,8 +138,8 @@ Utils::FileName VcsBaseClientImpl::vcsBinary() const
 }
 
 VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
-                                         VcsBaseEditorWidget *editor,
-                                         JobOutputBindMode mode) const
+                                             VcsBaseEditorWidget *editor,
+                                             JobOutputBindMode mode) const
 {
     auto cmd = new VcsCommand(vcsBinary(), workingDirectory,
                               processEnvironment());
