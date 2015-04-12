@@ -985,7 +985,7 @@ public:
 
     const ASTObjectValue *asAstObjectValue() const Q_DECL_OVERRIDE;
 
-    bool getSourceLocation(QString *fileName, int *line, int *column) const;
+    bool getSourceLocation(QString *fileName, int *line, int *column) const Q_DECL_OVERRIDE;
     void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
 
     QString defaultPropertyName() const;
@@ -1059,7 +1059,7 @@ public:
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
-                                      bool examinePrototypes = true) const;
+                                      bool examinePrototypes = true) const Q_DECL_OVERRIDE;
     void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
     const TypeScope *asTypeScope() const Q_DECL_OVERRIDE;
 private:
@@ -1073,7 +1073,7 @@ public:
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
-                                      bool examinePrototypes = true) const;
+                                      bool examinePrototypes = true) const Q_DECL_OVERRIDE;
     void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
     const JSImportScope *asJSImportScope() const Q_DECL_OVERRIDE;
 private:
