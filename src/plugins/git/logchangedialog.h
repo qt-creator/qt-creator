@@ -78,7 +78,7 @@ private slots:
     void emitActivated(const QModelIndex &index);
 
 private:
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
     bool populateLog(const QString &repository, const QString &commit, LogFlags flags);
     const QStandardItem *currentItem(int column = 0) const;
 
@@ -126,7 +126,7 @@ public:
     virtual bool hasIcon(int row) const = 0;
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
 private:
     QIcon m_icon;

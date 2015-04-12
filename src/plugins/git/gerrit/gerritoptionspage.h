@@ -75,9 +75,9 @@ public:
                       QObject *parent = 0);
     ~GerritOptionsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     const QSharedPointer<GerritParameters> &m_parameters;

@@ -81,7 +81,7 @@ public:
 
     static GitPlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     GitVersionControl *gitVersionControl() const;
 
@@ -147,8 +147,8 @@ private slots:
     void testCloneWizard_directoryFromRepository_data();
 #endif
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
 
 private:
     Utils::ParameterAction *createParameterAction(Core::ActionContainer *ac,

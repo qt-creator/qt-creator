@@ -56,7 +56,7 @@ public:
     }
 
 protected:
-    qint64 readData(char *data, qint64 maxlen)
+    qint64 readData(char *data, qint64 maxlen) override
     {
         qint64 res = QProcess::readData(data, maxlen);
         if (res > 0)
@@ -64,7 +64,7 @@ protected:
         return res;
     }
 
-    qint64 writeData(const char *data, qint64 len)
+    qint64 writeData(const char *data, qint64 len) override
     {
         if (len > 0)
             VcsOutputWindow::append(QString::fromLocal8Bit(data, len));

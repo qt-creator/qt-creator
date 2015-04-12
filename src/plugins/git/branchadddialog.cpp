@@ -71,7 +71,7 @@ public:
 
     ~BranchNameValidator() {}
 
-    State validate(QString &input, int &pos) const
+    State validate(QString &input, int &pos) const override
     {
         Q_UNUSED(pos)
 

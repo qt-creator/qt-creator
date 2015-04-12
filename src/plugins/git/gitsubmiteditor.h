@@ -65,8 +65,8 @@ signals:
     void show(const QString &workingDirectory, const QString &commit);
 
 protected:
-    QByteArray fileContents() const;
-    void updateFileModel();
+    QByteArray fileContents() const override;
+    void updateFileModel() override;
 
 private slots:
     void slotDiffSelected(const QList<int> &rows);

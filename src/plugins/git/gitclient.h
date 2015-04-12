@@ -140,7 +140,7 @@ public:
 
     explicit GitClient();
 
-    Utils::FileName vcsBinary() const;
+    Utils::FileName vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir) const;
@@ -330,7 +330,7 @@ public:
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
                                               const QString &workingDirectory = QString()) const;
 
-    QProcessEnvironment processEnvironment() const;
+    QProcessEnvironment processEnvironment() const override;
 
     bool beginStashScope(const QString &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);

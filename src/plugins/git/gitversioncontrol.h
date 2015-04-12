@@ -45,24 +45,24 @@ class GitVersionControl : public Core::IVersionControl
 public:
     explicit GitVersionControl(GitClient *client);
 
-    QString displayName() const;
-    Core::Id id() const;
+    QString displayName() const override;
+    Core::Id id() const override;
 
-    bool managesDirectory(const QString &directory, QString *topLevel) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    bool managesDirectory(const QString &directory, QString *topLevel) const override;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
 
-    bool isConfigured() const;
-    bool supportsOperation(Operation operation) const;
-    bool vcsOpen(const QString &fileName);
-    bool vcsAdd(const QString &fileName);
-    bool vcsDelete(const QString &filename);
-    bool vcsMove(const QString &from, const QString &to);
-    bool vcsCreateRepository(const QString &directory);
+    bool isConfigured() const override;
+    bool supportsOperation(Operation operation) const override;
+    bool vcsOpen(const QString &fileName) override;
+    bool vcsAdd(const QString &fileName) override;
+    bool vcsDelete(const QString &filename) override;
+    bool vcsMove(const QString &from, const QString &to) override;
+    bool vcsCreateRepository(const QString &directory) override;
 
-    bool vcsAnnotate(const QString &file, int line);
-    QString vcsTopic(const QString &directory);
+    bool vcsAnnotate(const QString &file, int line) override;
+    QString vcsTopic(const QString &directory) override;
 
-    QStringList additionalToolsPath() const;
+    QStringList additionalToolsPath() const override;
 
     void emitFilesChanged(const QStringList &);
     void emitRepositoryChanged(const QString &);

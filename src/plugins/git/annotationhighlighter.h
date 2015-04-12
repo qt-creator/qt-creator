@@ -45,7 +45,7 @@ public:
                                       QTextDocument *document = 0);
 
 private:
-    QString changeNumber(const QString &block) const;
+    QString changeNumber(const QString &block) const override;
 
     const QChar m_blank;
 };

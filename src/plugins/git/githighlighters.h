@@ -55,7 +55,7 @@ class GitSubmitHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
     explicit GitSubmitHighlighter(QTextEdit *parent = 0);
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
     enum State { None = -1, Header, Other };
@@ -69,7 +69,7 @@ class GitRebaseHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
     explicit GitRebaseHighlighter(QTextDocument *parent = 0);
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
     class RebaseAction

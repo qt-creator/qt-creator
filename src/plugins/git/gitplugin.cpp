@@ -760,7 +760,7 @@ class ResetItemDelegate : public LogItemDelegate
 {
 public:
     ResetItemDelegate(LogChangeWidget *widget) : LogItemDelegate(widget) {}
-    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const override
     {
         if (index.row() < currentRow())
             option->font.setStrikeOut(true);
@@ -777,7 +777,7 @@ public:
     }
 
 protected:
-    bool hasIcon(int row) const
+    bool hasIcon(int row) const override
     {
         return row <= currentRow();
     }

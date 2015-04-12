@@ -219,7 +219,7 @@ public:
         BaseController(document, dir)
     { }
 
-    void reload();
+    void reload() override;
 };
 
 void RepositoryDiffController::reload()
@@ -239,7 +239,7 @@ public:
         m_fileName(fileName)
     { }
 
-    void reload();
+    void reload() override;
 
 private:
     const QString m_fileName;
@@ -265,7 +265,7 @@ public:
         m_unstagedFiles(unstagedFiles)
     { }
 
-    void reload();
+    void reload() override;
 
 private:
     const QStringList m_stagedFiles;
@@ -303,7 +303,7 @@ public:
         m_projectPaths(projectPaths)
     { }
 
-    void reload();
+    void reload() override;
 
 private:
     const QStringList m_projectPaths;
@@ -327,7 +327,7 @@ public:
         m_branch(branch)
     { }
 
-    void reload();
+    void reload() override;
 
 private:
     const QString m_branch;
@@ -350,8 +350,8 @@ public:
         m_state(Idle)
     { }
 
-    void reload();
-    void processOutput(const QString &output);
+    void reload() override;
+    void processOutput(const QString &output) override;
 
 private:
     const QString m_id;
@@ -522,7 +522,7 @@ public:
     }
 
 protected:
-    void parseProgress(const QString &text)
+    void parseProgress(const QString &text) override
     {
         if (m_progressExp.lastIndexIn(text) != -1)
             setProgressAndMaximum(m_progressExp.cap(1).toInt(), m_progressExp.cap(2).toInt());

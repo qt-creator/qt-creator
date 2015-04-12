@@ -51,8 +51,8 @@ public:
     VcsBase::VcsCommand *createCheckoutJob(Utils::FileName *checkoutPath) const;
 
 protected:
-    QString directoryFromRepository(const QString &r) const;
-    QStringList branches(const QString &repository, int *current);
+    QString directoryFromRepository(const QString &r) const override;
+    QStringList branches(const QString &repository, int *current) override;
 
 #ifdef WITH_TESTS
 public:

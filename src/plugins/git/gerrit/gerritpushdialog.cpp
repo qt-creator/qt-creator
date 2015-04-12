@@ -54,7 +54,7 @@ public:
     }
 
 protected:
-    bool hasIcon(int row) const
+    bool hasIcon(int row) const override
     {
         return row >= currentRow();
     }

@@ -58,7 +58,7 @@ public:
     GitSubmitFileModel(QObject *parent = 0) : SubmitFileModel(parent)
     { }
 
-    void updateSelections(SubmitFileModel *source)
+    void updateSelections(SubmitFileModel *source) override
     {
         QTC_ASSERT(source, return);
         GitSubmitFileModel *gitSource = static_cast<GitSubmitFileModel *>(source);

@@ -48,13 +48,13 @@ public:
     }
 
 protected:
-    QString trackFile(const QString &repository)
+    QString trackFile(const QString &repository) override
     {
         const QString gitDir = m_client->findGitDirForRepository(repository);
         return gitDir.isEmpty() ? QString() : (gitDir + QLatin1String("/HEAD"));
     }
 
-    QString refreshTopic(const QString &repository)
+    QString refreshTopic(const QString &repository) override
     {
         return m_client->synchronousTopic(repository);
     }

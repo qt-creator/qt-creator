@@ -118,7 +118,7 @@ public:
     GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = 0);
     ~GerritModel();
 
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     GerritChangePtr change(const QModelIndex &index) const;
     QString toHtml(const QModelIndex &index) const;

@@ -60,20 +60,20 @@ private slots:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
 private:
-    void init();
+    void init() override;
     void resetChange(const QByteArray &resetType);
-    void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk);
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    QSet<QString> annotationChanges() const;
-    QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
-    QString decorateVersion(const QString &revision) const;
-    QStringList annotationPreviousVersions(const QString &revision) const;
-    bool isValidRevision(const QString &revision) const;
-    void addChangeActions(QMenu *menu, const QString &change);
-    QString revisionSubject(const QTextBlock &inBlock) const;
-    bool supportChangeLinks() const;
-    QString fileNameForLine(int line) const;
+    void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    QSet<QString> annotationChanges() const override;
+    QString changeUnderCursor(const QTextCursor &) const override;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const override;
+    QString decorateVersion(const QString &revision) const override;
+    QStringList annotationPreviousVersions(const QString &revision) const override;
+    bool isValidRevision(const QString &revision) const override;
+    void addChangeActions(QMenu *menu, const QString &change) override;
+    QString revisionSubject(const QTextBlock &inBlock) const override;
+    bool supportChangeLinks() const override;
+    QString fileNameForLine(int line) const override;
     QString sourceWorkingDirectory() const;
 
     mutable QRegExp m_changeNumberPattern;

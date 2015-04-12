@@ -45,7 +45,7 @@ public:
     CloneWizard(const Utils::FileName &path, QWidget *parent = 0);
 
 protected:
-    VcsBase::VcsCommand *createCommand(Utils::FileName *checkoutDir);
+    VcsBase::VcsCommand *createCommand(Utils::FileName *checkoutDir) override;
 };
 
 } // namespace Internal
