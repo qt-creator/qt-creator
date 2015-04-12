@@ -2184,8 +2184,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
         statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("--porcelain") << QLatin1String("-b");
 
-    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs,
-                                              &outputText, &errorText, false);
+    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText,
+                                              VcsBasePlugin::SuppressCommandLogging);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
 
