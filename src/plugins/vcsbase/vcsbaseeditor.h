@@ -213,6 +213,9 @@ public:
     VcsBaseEditorParameterWidget *configurationWidget() const;
 
     void setCommand(VcsCommand *command);
+
+    virtual void setPlainText(const QString &text);
+
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted

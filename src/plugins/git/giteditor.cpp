@@ -176,7 +176,7 @@ static QString removeAnnotationDate(const QString &b)
     return result;
 }
 
-void GitEditorWidget::setPlainTextFiltered(const QString &text)
+void GitEditorWidget::setPlainText(const QString &text)
 {
     QString modText = text;
     GitPlugin *plugin = GitPlugin::instance();

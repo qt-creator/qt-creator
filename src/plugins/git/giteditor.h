@@ -49,8 +49,7 @@ class GitEditorWidget : public VcsBase::VcsBaseEditorWidget
 public:
     GitEditorWidget();
 
-public slots:
-    void setPlainTextFiltered(const QString &text);
+    void setPlainText(const QString &text) override;
 
 private slots:
     void checkoutChange();

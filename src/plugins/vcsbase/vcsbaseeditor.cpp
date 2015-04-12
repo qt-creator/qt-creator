@@ -1386,6 +1386,11 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
     }
 }
 
+void VcsBaseEditorWidget::setPlainText(const QString &text)
+{
+    TextEditorWidget::setPlainText(text);
+}
+
 // Find the complete file from a diff relative specification.
 QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
 {
