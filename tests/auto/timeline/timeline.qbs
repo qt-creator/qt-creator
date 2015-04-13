@@ -12,5 +12,6 @@ Project {
         "timelineabstractrenderer/timelineabstractrenderer.qbs",
         "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
         "timelinenotesrenderpass/timelinenotesrenderpass.qbs",
+        "timelineoverviewrenderer/timelineoverviewrenderer.qbs"
     ]
 }
