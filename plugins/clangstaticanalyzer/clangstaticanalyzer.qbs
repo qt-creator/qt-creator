@@ -15,6 +15,11 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.network" }  // TODO: See above
 
+    pluginTestDepends: [
+        "QbsProjectManager",
+        "QmakeProjectManager",
+    ]
+
     files: [
         "clangstaticanalyzerconfigwidget.cpp",
         "clangstaticanalyzerconfigwidget.h",

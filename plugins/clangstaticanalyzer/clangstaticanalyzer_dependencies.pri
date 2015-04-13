@@ -6,3 +6,6 @@ QTC_PLUGIN_DEPENDS += \
     analyzerbase \
     cpptools \
     licensechecker
+QTC_TEST_DEPENDS += \
+    qbsprojectmanager \
+    qmakeprojectmanager
