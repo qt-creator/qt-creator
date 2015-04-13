@@ -204,6 +204,20 @@ void VcsBaseClientImpl::annotateRevisionRequested(const QString &workingDirector
     annotate(workingDirectory, file, changeCopy, line);
 }
 
+bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
+                                                QByteArray *outputData, QByteArray *errorData,
+                                                unsigned flags) const
+{
+    QByteArray internalErrorData;
+    QScopedPointer<VcsCommand> command(createCommand(workingDir));
+    command->addFlags(flags);
+    bool result = command->runFullySynchronous(args, vcsTimeoutS(), outputData,
+                                               errorData ? errorData : &internalErrorData);
+    if (!internalErrorData.isEmpty())
+        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));
+    return result;
+}
+
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
@@ -384,20 +398,6 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
             | VcsBasePlugin::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;
-}
-
-bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
-                                                QByteArray *outputData, QByteArray *errorData,
-                                                unsigned flags) const
-{
-    QByteArray internalErrorData;
-    QScopedPointer<VcsCommand> command(createCommand(workingDir));
-    command->addFlags(flags);
-    bool result = command->runFullySynchronous(args, vcsTimeoutS(), outputData,
-                                               errorData ? errorData : &internalErrorData);
-    if (!internalErrorData.isEmpty())
-        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));
-    return result;
 }
 
 Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(const QString &workingDirectory,
