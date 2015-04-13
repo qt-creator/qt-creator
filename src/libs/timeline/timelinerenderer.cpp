@@ -110,7 +110,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     Q_D(TimelineRenderer);
     Q_UNUSED(updatePaintNodeData)
 
-    if (!d->model || d->model->hidden() || d->model->isEmpty() ||
+    if (!d->model || d->model->hidden() || d->model->isEmpty() || !d->zoomer ||
             d->zoomer->windowDuration() <= 0) {
         delete node;
         return 0;
@@ -181,7 +181,7 @@ void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(TimelineRenderer);
     Q_UNUSED(event);
-    if (!d->model->isEmpty())
+    if (d->model && !d->model->isEmpty())
         d->manageClicked();
 }
 
@@ -222,6 +222,9 @@ void TimelineRenderer::TimelineRendererPrivate::manageClicked()
 void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mouseY)
 {
     Q_Q(TimelineRenderer);
+    if (!zoomer || !model || q->width() < 1)
+        return;
+
     qint64 duration = zoomer->windowDuration();
     if (duration <= 0)
         return;
