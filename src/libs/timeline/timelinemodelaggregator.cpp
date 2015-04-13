@@ -98,7 +98,6 @@ TimelineNotesModel *TimelineModelAggregator::notes() const
 
 void TimelineModelAggregator::clear()
 {
-    qDeleteAll(d->modelList);
     d->modelList.clear();
     if (d->notesModel)
         d->notesModel->clear();

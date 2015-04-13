@@ -37,6 +37,7 @@
 #include <QMetaType>
 
 #include <functional>
+#include <vector>
 
 namespace Debugger {
 namespace Internal {
@@ -113,6 +114,7 @@ public:
     QString         value;         // Displayed value
     QByteArray      editvalue;     // Displayed value
     DebuggerDisplay editformat;    // Format of displayed value
+    DebuggerEncoding editencoding; // Encoding of displayed value
     QByteArray      type;          // Type for further processing
     QString         displayedType; // Displayed type (optional)
     quint64         address;       // Displayed address of the actual object
@@ -133,6 +135,10 @@ void decodeArrayData(std::function<void(const WatchData &)> itemHandler,
                      const WatchData &tmplate,
                      const QByteArray &rawData,
                      int encoding);
+
+void readNumericVector(std::vector<double> *,
+                       const QByteArray &rawData,
+                       DebuggerEncoding encoding);
 
 void parseChildrenData(const WatchData &parent, const GdbMi &child,
                        std::function<void(const WatchData &)> itemHandler,

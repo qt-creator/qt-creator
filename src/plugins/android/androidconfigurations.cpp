@@ -380,7 +380,7 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
     QProcess proc;
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
-    if (!proc.waitForFinished(5000)) {
+    if (!proc.waitForFinished(10000)) {
         proc.terminate();
         return;
     }
@@ -671,7 +671,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevicesImpl(const FileNa
     proc.setProcessEnvironment(environment.toProcessEnvironment());
     proc.start(androidTool.toString(),
                QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
-    if (!proc.waitForFinished(5000)) {
+    if (!proc.waitForFinished(10000)) {
         proc.terminate();
         return devices;
     }

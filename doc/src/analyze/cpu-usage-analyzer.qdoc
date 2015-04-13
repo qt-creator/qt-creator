@@ -26,9 +26,11 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-clang-static-analyzer.html
     \page creator-cpu-usage-analyzer.html
-    \nextpage creator-advanced.html
+    \nextpage creator-autotest.html
 
     \title Analyzing CPU Usage
+
+    \commercial
 
     \QC is integrated with the Linux Perf tool (commercial only) that can be
     used to analyze the CPU usage of an application on embedded devices and, to

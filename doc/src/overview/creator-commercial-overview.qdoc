@@ -28,10 +28,13 @@
 
     \title Qt Creator Commercial Features
 
+    \commercial
+
     You can use the following \QC features if you have the appropriate
     \l{http://qt.io/licensing/}{Qt license}:
 
     \list
+        \li \l{Running Autotests}
         \li \l{Using Clang Static Analyzer}{Clang Static Analyzer} integration.
         \li Additional \l{Understanding the Data}{QML Profiler} event
             categories:

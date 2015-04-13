@@ -8,6 +8,10 @@ imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR/examples
 
+HTML.extraimages         = images/commercial.png
+qhp.QtCreator.extraFiles = images/commercial.png
+
+
 indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
               $QDOC_INDEX_DIR/qtcore/qtcore.index \
               $QDOC_INDEX_DIR/qtqml/qtqml.index \
@@ -22,6 +26,7 @@ indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
               $QDOC_INDEX_DIR/qtlinguist/qtlinguist.index \
               $QDOC_INDEX_DIR/qtscript/qtscript.index \
               $QDOC_INDEX_DIR/qtsensors/qtsensors.index \
+              $QDOC_INDEX_DIR/qttestlib/qttestlib.index \
               $QDOC_INDEX_DIR/qtuitools/qtuitools.index \
               $QDOC_INDEX_DIR/qtwebkit/qtwebkit.index \
               $QDOC_INDEX_DIR/qtxml/qtxml.index

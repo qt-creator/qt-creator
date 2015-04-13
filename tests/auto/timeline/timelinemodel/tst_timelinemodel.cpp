@@ -88,6 +88,7 @@ private slots:
     void insertStartEnd();
     void rowCount();
     void prevNext();
+    void parentingOfEqualStarts();
 };
 
 DummyModel::DummyModel(int modelId) :
@@ -441,6 +442,22 @@ void tst_TimelineModel::prevNext()
     QCOMPARE(dummy.prevItemBySelectionId(5, 10, 5), 4);
     QCOMPARE(dummy.nextItemByTypeId(-1, 10, 5), 6);
     QCOMPARE(dummy.prevItemByTypeId(-1, 10, 5), 4);
+}
+
+void tst_TimelineModel::parentingOfEqualStarts()
+{
+    DummyModel dummy;
+    // Trick it so that it cannot reorder the events and has to parent them in the "wrong" way ...
+    QCOMPARE(dummy.insert(1, 10, 998), 0);
+    QCOMPARE(dummy.insertStart(1, 999), 1);
+    dummy.insertEnd(1, 20);
+    dummy.computeNesting();
+
+    // .. which is reflected in the resulting order.
+    QCOMPARE(dummy.selectionId(0), 998);
+    QCOMPARE(dummy.selectionId(1), 999);
+    QCOMPARE(dummy.firstIndex(10), 0);
+    QCOMPARE(dummy.lastIndex(2), 1);
 }
 
 QTEST_MAIN(tst_TimelineModel)

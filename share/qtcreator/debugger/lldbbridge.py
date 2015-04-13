@@ -509,15 +509,15 @@ class Dumper(DumperBase):
         return int(value.GetLoadAddress())
 
     def extractInt(self, address):
-        error = SBError()
+        error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 4, error))
 
     def extractInt64(self, address):
-        error = SBError()
+        error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 8, error))
 
     def extractByte(self, address):
-        error = SBError()
+        error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 1, error) & 0xFF)
 
     def handleCommand(self, command):
@@ -1130,13 +1130,13 @@ class Dumper(DumperBase):
                 with SubItem(self, child):
                     self.putItem(child)
 
-    def reportVariables(self, args = None):
+    def reportVariables(self, args = {}):
         with self.outputLock:
             sys.stdout.write("@\n")
             self.reportVariablesHelper(args)
             sys.stdout.write("@\n")
 
-    def reportVariablesHelper(self, args = None):
+    def reportVariablesHelper(self, args = {}):
         frame = self.currentFrame()
         if frame is None:
             return
@@ -1765,11 +1765,12 @@ class Tester(Dumper):
                     stoppedThread = self.firstStoppedThread()
                     if stoppedThread is None:
                         warn("NO STOPPED THREAD FOUND")
-                        for i in xrange(0, self.process.GetNumThreads()):
-                            thread = self.process.GetThreadAtIndex(i)
-                            reason = thread.GetStopReason()
-                            warn("THREAD: %s REASON: %s" % (thread, reason))
                         continue
+
+                    #for i in xrange(0, self.process.GetNumThreads()):
+                    #    thread = self.process.GetThreadAtIndex(i)
+                    #    reason = thread.GetStopReason()
+                    #    warn("THREAD: %s REASON: %s" % (thread, reason))
 
                     try:
                         frame = stoppedThread.GetFrameAtIndex(0)

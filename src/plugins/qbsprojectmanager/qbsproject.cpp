@@ -295,6 +295,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
         QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData),
                                  allPaths, QFileInfo(productFilePath).absolutePath(), true);
         m_rootProjectNode->update();
+        emit fileListChanged();
     }
     return notAdded->isEmpty();
 }
@@ -323,6 +324,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
         QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData), allPaths,
                                  QFileInfo(productFilePath).absolutePath(), true);
         m_rootProjectNode->update();
+        emit fileListChanged();
     }
     return notRemoved->isEmpty();
 }

@@ -178,7 +178,8 @@ Item {
         height: 18
         y: 2
         verticalAlignment: Text.AlignVCenter
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: editIcon.left
         color: "white"
         renderType: Text.NativeRendering
         elide: Text.ElideRight
@@ -201,6 +202,17 @@ Item {
             y: 5
             spacing: 5
             columns: 2
+            property int minimumWidth: {
+                var result = 150;
+                for (var i = 0; i < children.length; ++i)
+                    result = Math.max(children[i].x, result);
+                return result + 20;
+            }
+
+            onMinimumWidthChanged: {
+                if (dragHandle.x < minimumWidth)
+                    dragHandle.x = minimumWidth;
+            }
 
             Repeater {
                 model: eventInfo
@@ -310,6 +322,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             drag.target: parent
+            drag.minimumX: col.minimumWidth
             drag.axis: Drag.XAxis
             cursorShape: Qt.SizeHorCursor
         }

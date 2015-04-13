@@ -34,6 +34,7 @@ macro.begincomment      = "\\c{/*}"
 macro.endcomment        = "\\c{*/}"
 macro.uuml.HTML         = "&uuml;"
 macro.mdash.HTML        = "&mdash;"
+macro.commercial        = "\\raw HTML\n<p><a title=\"Available under certain Qt licenses.\"><img src=\"images/commercial.png\"/></a></p>\n\\endraw"
 
 macro.beginfloatleft.HTML   = "<div style=\"float: left; margin-right: 2em\">"
 macro.beginfloatright.HTML  = "<div style=\"float: right; margin-left: 2em\">"

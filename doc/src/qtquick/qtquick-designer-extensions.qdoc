@@ -35,6 +35,8 @@
 
     \title Using Qt Quick Designer Extensions
 
+    \commercial
+
     \image qmldesigner-extensions.png
 
     \QMLD contains commercial features that make developing Qt Quick

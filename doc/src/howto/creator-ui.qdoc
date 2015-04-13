@@ -132,6 +132,9 @@
         \li \uicontrol Outline shows the symbol hierarchy of a C++ file and the type
             hierarchy of a QML file.
 
+        \li \uicontrol Tests lists autotests and Qt Quick tests in the project
+            (commercial only).
+
         \li \uicontrol {Type Hierarchy} shows the base classes of a class.
 
         \li \uicontrol {Include Hierarchy} shows which files are included in the current file
@@ -154,13 +157,16 @@
             (\uicontrol {Split}). Select new content to view in the split view.
 
         \li To close a sidebar view, click
-            \inlineimage qtcreator-closesidebar.png
+            \inlineimage qtcreator-remove-split-button.png
             (\uicontrol {Close}).
 
     \endlist
 
     The additional options in each view are described in the following
     sections.
+
+    In some views, right-clicking opens a context menu that contains functions
+    for managing the objects listed in the view.
 
     \section2 Viewing Project Files
 
@@ -208,6 +214,30 @@
     the .pro file. This way they also become known to \QC, so that they are
     visible in the \uicontrol Projects view and are known to the locator and search.
 
+    The \uicontrol Projects view contains context menus for managing projects,
+    subprojects, folders, and files. The following functions are available for
+    managing projects and subprojects:
+
+    \list
+
+        \li Set a project as the active project.
+
+        \li Execute the \uicontrol Build menu commands.
+
+        \li Add subprojects, libraries, directories, and files.
+
+        \li Remove subprojects.
+
+        \li Search from the selected directory.
+
+        \li Close projects.
+
+    \endlist
+
+    For managing files and directories, the same functions are available as in
+    the \uicontrol {File System} view. In addition, you can remove and rename
+    files.
+
     \section2 Viewing the File System
 
     If you cannot see a file in the \uicontrol Projects view, switch to the
@@ -217,6 +247,21 @@
 
     To keep the position in the tree synchronized with the file
     opened in the editor, select \uicontrol {Synchronize with Editor}.
+
+    Use the context menu functions to:
+
+    \list
+
+        \li Open files with the default editor or some other editor.
+
+        \li Show the file or directory in the file explorer.
+
+        \li Open a terminal window in the selected directory or in the directory
+            that contains the file.
+
+        \li Search from the selected directory.
+
+    \endlist
 
     \section2 Viewing the Class Hierarchy
 
@@ -241,6 +286,29 @@
             selected in the editor, select \uicontrol {Synchronize with Editor}.
 
     \endlist
+
+    \section2 Viewing Tests
+
+    The \uicontrol Tests view shows the autotests and Qt Quick tests in the
+    current project (commercial only). Select the test cases to run. If a Qt
+    Quick test case does not have a name, it is marked \uicontrol Unnamed in the
+    list. Unnamed test cases are always executed when the application that
+    contains them is run, and therefore you cannot select or deselect them.
+
+    To show or hide init and cleanup or data functions, select
+    \uicontrol {Filter Test Tree} > \uicontrol {Show Init and Cleanup Functions}
+    or \uicontrol {Show Data Functions}. Double-click a function in the list
+    to open its source code in the code editor.
+
+    The test cases are listed in alphabetic order. To list them in the order in
+    which they are defined in the source code, select
+    \inlineimage qtcreator-autotests-sort-naturally.png
+    (\uicontrol {Sort Naturally}).
+
+    To run tests, select \uicontrol {Run All Tests} or
+    \uicontrol {Run Selected Tests} in the context menu.
+
+    To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
 
     \section2 Viewing Type Hierarchy
 
@@ -275,6 +343,8 @@
 
        \li \uicontrol{General Messages}
 
+       \li \uicontrol{Test Results} (commercial only)
+
     \endlist
 
     Output panes are available in all \l{Modes}{modes}. Click the name of an
@@ -289,7 +359,8 @@
     To open the \uicontrol{General Messages} and \l{Using Version Control Systems}
     {Version Control} panes, select
     \uicontrol {Window > Output Panes}. To display the \uicontrol {To-Do Entries} pane,
-    enable the Todo plugin.
+    enable the Todo plugin and to display the \l{Running Autotests}
+    {Test Results} pane, enable the Auto Tests plugin.
 
     \section2 Issues
 
@@ -300,7 +371,7 @@
         \li \uicontrol Analyzer - Errors encountered while running the
             \l{Analyzing Code}{Valgrind code analysis tools}.
 
-        \li \uicontrol {Bar Descriptor} - Errors and warnings encountered when using
+        \li \uicontrol {BAR Descriptor} - Errors and warnings encountered when using
             the BlackBerry 10 BAR descriptor editor to customize the appearance
             and behavior of an application.
 

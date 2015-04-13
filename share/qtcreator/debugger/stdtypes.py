@@ -711,15 +711,15 @@ def qdump__std__vector(d, value):
     d.checkPointer(alloc)
 
     d.putItemCount(size)
-    if d.isExpanded():
-        if isBool:
+    if isBool:
+        if d.isExpanded():
             with Children(d, size, maxNumChild=10000, childType=type):
                 base = d.pointerValue(start)
                 for i in d.childRange():
                     q = base + int(i / 8)
                     d.putBoolItem(str(i), (int(d.extractPointer(q)) >> (i % 8)) & 1)
-        else:
-            d.putPlotData(start, size, type)
+    else:
+        d.putPlotData(start, size, type)
 
 def qdump__std__vector__QNX(d, value):
     innerType = d.templateArgument(value.type, 0)

@@ -62,14 +62,12 @@ def qdump__QByteArray(d, value):
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     displayFormat = d.currentItemFormat()
     if displayFormat == AutomaticFormat or displayFormat == Latin1StringFormat:
-        d.putDisplay(StopDisplay)
         d.putValue(p, Hex2EncodedLatin1, elided=elided)
     elif displayFormat == SeparateLatin1StringFormat:
         d.putValue(p, Hex2EncodedLatin1, elided=elided)
         d.putField("editformat", DisplayLatin1String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
     elif displayFormat == Utf8StringFormat:
-        d.putDisplay(StopDisplay)
         d.putValue(p, Hex2EncodedUtf8, elided=elided)
     elif displayFormat == SeparateUtf8StringFormat:
         d.putValue(p, Hex2EncodedUtf8, elided=elided)
@@ -548,27 +546,6 @@ def qdump__QFiniteStack(d, value):
     d.putItemCount(size)
     d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
 
-# Stock gdb 7.2 seems to have a problem with types here:
-#
-#  echo -e "namespace N { struct S { enum E { zero, one, two }; }; }\n"\
-#      "int main() { N::S::E x = N::S::one;\n return x; }" >> main.cpp
-#  g++ -g main.cpp
-#  gdb-7.2 -ex 'file a.out' -ex 'b main' -ex 'run' -ex 'step' \
-#     -ex 'ptype N::S::E' -ex 'python print gdb.lookup_type("N::S::E")' -ex 'q'
-#  gdb-7.1 -ex 'file a.out' -ex 'b main' -ex 'run' -ex 'step' \
-#     -ex 'ptype N::S::E' -ex 'python print gdb.lookup_type("N::S::E")' -ex 'q'
-#  gdb-cvs -ex 'file a.out' -ex 'b main' -ex 'run' -ex 'step' \
-#     -ex 'ptype N::S::E' -ex 'python print gdb.lookup_type("N::S::E")' -ex 'q'
-#
-# gives as of 2010-11-02
-#
-#  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n
-#    Traceback (most recent call last): File "<string>", line 1,
-#      in <module> RuntimeError: No type named N::S::E.
-#  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n  N::S::E
-#  type = enum N::S::E {N::S::zero, N::S::one, N::S::two} \n  N::S::E
-#
-# i.e. there's something broken in stock 7.2 that is was ok in 7.1 and is ok later.
 
 def qdump__QFlags(d, value):
     i = value["i"]
@@ -867,9 +844,7 @@ def qdump__QImage(d, value):
                 d.putType("void *")
 
     displayFormat = d.currentItemFormat()
-    if displayFormat == SimpleFormat:
-        d.putDisplay(StopDisplay)
-    elif displayFormat == SeparateFormat:
+    if displayFormat == SeparateFormat:
         # This is critical for performance. Writing to an external
         # file using the following is faster when using GDB.
         #   file = tempfile.mkstemp(prefix="gdbpy_")
@@ -1763,9 +1738,7 @@ def qdump__QString(d, value):
     data, size, alloc = d.stringData(value)
     d.putNumChild(size)
     displayFormat = d.currentItemFormat()
-    if displayFormat == SimpleFormat:
-        d.putDisplay(StopDisplay)
-    elif displayFormat == SeparateFormat:
+    if displayFormat == SeparateFormat:
         d.putField("editformat", DisplayUtf16String)
         d.putField("editvalue", d.encodeString(value, limit=100000))
     if d.isExpanded():
@@ -1917,9 +1890,7 @@ def qdump__QUrl(d, value):
         d.putValue(url, Hex4EncodedLittleEndian)
 
         displayFormat = d.currentItemFormat()
-        if displayFormat == SimpleFormat:
-            d.putDisplay(StopDisplay)
-        elif displayFormat == SeparateFormat:
+        if displayFormat == SeparateFormat:
             d.putField("editformat", DisplayUtf16String)
             d.putField("editvalue", url)
 
@@ -1935,6 +1906,7 @@ def qdump__QUrl(d, value):
                 d.putGenericItem("path", stringType, path, Hex4EncodedLittleEndian)
                 d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
                 d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
+                d.putFields(value)
 
 def qdumpHelper_QVariant_0(d, blob):
     # QVariant::Invalid

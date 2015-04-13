@@ -159,6 +159,11 @@
 
                 Qt unit tests for features or classes
 
+            \li Qt Auto Test (commercial only)
+
+                Projects with boilerplate code for an autotest. For more
+                information, see \l {Creating Autotests}.
+
             \li Qt Custom Designer Widgets
 
                 Custom \QD widget or widget collection

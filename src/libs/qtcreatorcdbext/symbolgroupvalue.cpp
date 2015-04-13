@@ -2212,7 +2212,9 @@ static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str, int *encodi
 
 static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str, int *encoding)
 {
-    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str, encoding);
+    if (!dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str, encoding))
+        str << L"(null)";
+    return true;
 }
 
 // Convenience to dump a QTimeZone from the unexported private class of a Qt class.

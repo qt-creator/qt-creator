@@ -187,57 +187,52 @@ void QmlProfilerStateWidget::paintEvent(QPaintEvent *event)
 
 }
 
-void QmlProfilerStateWidget::updateDisplay()
+void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
 {
-    // When datamodel is acquiring data
-    if (!d->loadingDone && !d->emptyList && !d->appKilled) {
-        setVisible(true);
-        d->text->setText(tr("Loading data"));
+    setVisible(true);
+    if (showProgress) {
         if (d->isRecording) {
             d->isRecording = false;
             d->estimatedProfilingTime = d->profilingTimer.elapsed();
             emit newTimeEstimation(d->estimatedProfilingTime);
         }
         d->progressBar->setValue(d->m_modelManager->progress() * 1000);
-        d->progressBar->setVisible(true);
-        resize(300,70);
-        reposition();
+    }
+    d->progressBar->setVisible(showProgress);
+    d->text->setText(text);
+    resize(300, 70);
+    reposition();
+}
+
+void QmlProfilerStateWidget::updateDisplay()
+{
+    // When datamodel is acquiring data
+    if (!d->loadingDone && !d->emptyList && !d->appKilled) {
+        showText(tr("Loading data"), true);
         return;
     }
 
     // When application is being profiled
     if (d->isRecording) {
-        setVisible(true);
-        d->progressBar->setVisible(false);
-        d->text->setText(tr("Profiling application"));
-        resize(200,70);
-        reposition();
+        showText(tr("Profiling application"));
         return;
     }
 
     // After profiling, there is an empty trace
     if (d->traceAvailable && d->loadingDone && d->emptyList) {
-        setVisible(true);
-        d->progressBar->setVisible(false);
-        d->text->setText(tr("No QML events recorded"));
-        resize(200,70);
-        reposition();
+        showText(tr("No QML events recorded"));
+        return;
+    }
+
+    // View is not supported for this kind of application
+    if (d->traceAvailable && d->loadingDone && !parentWidget()->isEnabled()) {
+        showText(tr("Not supported for this application"));
         return;
     }
 
     // Application died before all data could be read
     if (!d->loadingDone && !d->emptyList && d->appKilled) {
-        setVisible(true);
-        d->text->setText(tr("Application stopped before loading all data"));
-        if (d->isRecording) {
-            d->isRecording = false;
-            d->estimatedProfilingTime = d->profilingTimer.elapsed();
-            emit newTimeEstimation(d->estimatedProfilingTime);
-        }
-        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
-        d->progressBar->setVisible(true);
-        resize(300,70);
-        reposition();
+        showText(tr("Application stopped before loading all data"), true);
         return;
     }
 

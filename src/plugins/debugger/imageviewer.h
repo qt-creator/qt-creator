@@ -33,6 +33,8 @@
 
 #include <QWidget>
 
+#include <vector>
+
 QT_BEGIN_NAMESPACE
 class QScrollArea;
 class QLabel;
@@ -49,18 +51,35 @@ class ImageViewer : public QWidget
 public:
     explicit ImageViewer(QWidget *parent = 0);
 
-    void setImage(const QImage &);
+    void setImage(const QImage &image);
+    void setInfo(const QString &description);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *);
 
-private slots:
+private:
     void clicked(const QString &);
 
-private:
     QScrollArea *m_scrollArea;
     ImageWidget *m_imageWidget;
     QLabel *m_infoLabel;
+    QString m_info;
+};
+
+class PlotViewer : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit PlotViewer(QWidget *parent = 0);
+
+    typedef std::vector<double> Data;
+    void setData(const Data &data);
+    void setInfo(const QString &description);
+
+    void paintEvent(QPaintEvent *ev);
+
+private:
+    Data m_data;
     QString m_info;
 };
 

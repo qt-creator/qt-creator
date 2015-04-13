@@ -129,6 +129,8 @@ Version Control Systems
         (QTCREATORBUG-13979)
    * Perforce
       * Improved repository log (QTCREATORBUG-13526)
+   * Bazaar
+      * Fixed committing (QTCREATORBUG-13878)
 
 FakeVim
    * Fixed target column for various commands

@@ -519,10 +519,11 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
 
         // Handle files:
         if (c->isFile()) {
+            const ProjectExplorer::FileType newFileType = fileType(group, c->path());
             ProjectExplorer::FileNode *fn = 0;
             foreach (ProjectExplorer::FileNode *f, root->fileNodes()) {
                 // There can be one match only here!
-                if (f->path() != path)
+                if (f->path() != path || f->fileType() != newFileType)
                     continue;
                 fn = f;
                 break;
@@ -532,7 +533,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
                 if (updateExisting)
                     fn->emitNodeUpdated();
             } else {
-                fn = new ProjectExplorer::FileNode(path, fileType(group, c->path()), false);
+                fn = new ProjectExplorer::FileNode(path, newFileType, false);
                 filesToAdd.append(fn);
             }
             continue;

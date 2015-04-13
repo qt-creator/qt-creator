@@ -28,7 +28,7 @@
     \page creator-testing.html
     \nextpage creator-debugging.html
 
-    \title Debugging and Analyzing
+    \title Testing
 
     \image creator_testing.png
 
@@ -50,6 +50,11 @@
             install them separately to use them from \QC. The QML Profiler is
             installed as part of \QC. It enables you to profile your Qt Quick
             applications.
+
+        \li \l{Running Autotests}
+
+            You can use an experimental Auto Test plugin to build and run
+            autotests using \QC (commercial only).
 
     \endlist
 

@@ -38,7 +38,6 @@
 
 using namespace TextEditor;
 
-const char NOMANGLER_ID[] = "TextEditor::NoMangler";
 const char UCMANGLER_ID[] = "TextEditor::UppercaseMangler";
 const char LCMANGLER_ID[] = "TextEditor::LowercaseMangler";
 const char TCMANGLER_ID[] = "TextEditor::TitlecaseMangler";
@@ -275,6 +274,8 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
 #   include <QTest>
 
 #   include "../texteditorplugin.h"
+
+const char NOMANGLER_ID[] = "TextEditor::NoMangler";
 
 void Internal::TextEditorPlugin::testSnippetParsing_data()
 {

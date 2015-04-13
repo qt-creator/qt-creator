@@ -87,10 +87,11 @@
                     \li \l{Deploying to Mobile Devices}
                     \li \l{Connecting Mobile Devices}
             \endlist
-            \li \b {\l{Debugging and Analyzing}}
+            \li \b {\l{Testing}}
                 \list
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
+                    \li \l{Running Autotests}
                 \endlist
         \row
             \li \inlineimage creator_advanceduse.png
@@ -245,7 +246,7 @@
             \endlist
             \li \l{Customizing the Build Process}
         \endlist
-        \li \l{Debugging and Analyzing}
+        \li \l{Testing}
         \list
             \li \l{Debugging}
             \list
@@ -270,7 +271,7 @@
                 \li \l{Using Clang Static Analyzer}
                 \li \l{Analyzing CPU Usage}
             \endlist
-
+            \li \l{Running Autotests}
         \endlist
         \li \l{Advanced Use}
         \list

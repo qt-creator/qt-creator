@@ -92,7 +92,7 @@
                 different setups and target platforms.
 
                 For more information, see \l{Building and Running}.
-            \li \b {\l{Debugging and Analyzing}}
+            \li \b {\l{Testing}}
 
                 \QC is integrated to several external native debuggers: GNU
                 Symbolic Debugger (GDB), Microsoft Console Debugger (CDB), and
@@ -105,7 +105,11 @@
                 execution. In addition, the QML Profiler enables you to profile
                 Qt Quick applications.
 
-                For more information, see \l{Debugging and Analyzing}.
+                \QC is integrated to the \l{Qt Test} framework for unit testing
+                Qt based applications and libraries. You can use \QC to build
+                and run autotests (commercial only).
+
+                For more information, see \l{Testing}.
             \li \b {Publishing}
 
                 \QC allows you to create installation packages for mobile

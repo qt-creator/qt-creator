@@ -122,6 +122,7 @@ WatchData::WatchData() :
     id(0),
     state(InitialState),
     editformat(StopDisplay),
+    editencoding(Unencoded8Bit),
     address(0),
     origaddr(0),
     size(0),
@@ -552,14 +553,12 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     GdbMi children = item["children"];
 
     data.updateType(item["type"]);
-    GdbMi mi = item["editvalue"];
-    if (mi.isValid())
-        data.editvalue = mi.data();
 
-    mi = item["editformat"];
-    data.editformat = DebuggerDisplay(mi.toInt());
+    data.editvalue = item["editvalue"].data();
+    data.editformat = DebuggerDisplay(item["editformat"].toInt());
+    data.editencoding = DebuggerEncoding(item["editencoding"].toInt());
 
-    mi = item["valueelided"];
+    GdbMi mi = item["valueelided"];
     if (mi.isValid())
         data.elided = mi.toInt();
 
@@ -656,6 +655,52 @@ void parseWatchData(const WatchData &data0, const GdbMi &input,
     };
 
     parseChildrenData(data0, input, itemHandler, childHandler, arrayDecoder);
+}
+
+template <class T>
+void readNumericVectorHelper(std::vector<double> *v, const QByteArray &ba)
+{
+    const T *p = (const T *) ba.data();
+    std::copy(p, p + ba.size() / sizeof(T), std::back_insert_iterator<std::vector<double> >(*v));
+}
+
+void readNumericVector(std::vector<double> *v, const QByteArray &rawData, DebuggerEncoding encoding)
+{
+    switch (encoding) {
+        case Hex2EncodedInt1:
+            readNumericVectorHelper<signed char>(v, rawData);
+            break;
+        case Hex2EncodedInt2:
+            readNumericVectorHelper<short>(v, rawData);
+            break;
+        case Hex2EncodedInt4:
+            readNumericVectorHelper<int>(v, rawData);
+            break;
+        case Hex2EncodedInt8:
+            readNumericVectorHelper<qint64>(v, rawData);
+            break;
+        case Hex2EncodedUInt1:
+            readNumericVectorHelper<uchar>(v, rawData);
+            break;
+        case Hex2EncodedUInt2:
+            readNumericVectorHelper<ushort>(v, rawData);
+            break;
+        case Hex2EncodedUInt4:
+            readNumericVectorHelper<uint>(v, rawData);
+            break;
+        case Hex2EncodedUInt8:
+            readNumericVectorHelper<quint64>(v, rawData);
+            break;
+        case Hex2EncodedFloat4:
+            readNumericVectorHelper<float>(v, rawData);
+            break;
+        case Hex2EncodedFloat8:
+            readNumericVectorHelper<double>(v, rawData);
+            break;
+        default:
+            qDebug() << "ENCODING ERROR: " << encoding;
+    }
+
 }
 
 } // namespace Internal

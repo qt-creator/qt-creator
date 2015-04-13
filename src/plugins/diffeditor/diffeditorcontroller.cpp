@@ -48,7 +48,6 @@ DiffEditorController::DiffEditorController(Core::IDocument *document) :
     m_chunkIndex(-1)
 {
     QTC_ASSERT(m_document, return);
-    QTC_CHECK(!m_document->controller());
     m_document->setController(this);
 }
 

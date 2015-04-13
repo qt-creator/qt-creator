@@ -781,19 +781,15 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
                               const QString &title,
                               std::function<DiffEditorController *(IDocument *)> factory) const
 {
-    DiffEditorController *controller = 0;
     IDocument *document = DiffEditorManager::findOrCreate(documentId, title);
     QTC_ASSERT(document, return);
-    controller = DiffEditorManager::controller(document);
-    if (!controller) {
-        controller = factory(document);
-        QTC_ASSERT(controller, return);
+    DiffEditorController *controller = factory(document);
+    QTC_ASSERT(controller, return);
 
-        connect(controller, &DiffEditorController::chunkActionsRequested,
-                this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
-        connect(controller, &DiffEditorController::requestInformationForCommit,
-                this, &GitClient::branchesForCommit);
-    }
+    connect(controller, &DiffEditorController::chunkActionsRequested,
+            this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
+    connect(controller, &DiffEditorController::requestInformationForCommit,
+            this, &GitClient::branchesForCommit);
 
     VcsBasePlugin::setSource(document, source);
     EditorManager::activateEditorForDocument(document);
@@ -2137,8 +2133,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
         statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("--porcelain") << QLatin1String("-b");
 
-    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs,
-                                              &outputText, &errorText, false);
+    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText,
+                                              VcsBasePlugin::SuppressCommandLogging);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
 

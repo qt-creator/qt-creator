@@ -1615,8 +1615,6 @@ class Dumper(DumperBase):
         self.qmlBreakpoints.append(Resolver(self, args))
 
     def exitGdb(self, _):
-        if hasPlot:
-            matplotQuit()
         gdb.execute("quit")
 
     def loadDumpers(self, args):
