@@ -1,9 +1,7 @@
 import qbs
+import "../timelineautotest.qbs" as TimelineAutotest
 
-QtcAutotest {
-    Depends { name: "Timeline" }
-    Depends { name: "Qt.quick" }
-
+TimelineAutotest {
     name: "TimelineAbstractRenderer autotest"
     Group {
         name: "Test sources"

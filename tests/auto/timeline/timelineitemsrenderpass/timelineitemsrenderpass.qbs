@@ -1,11 +1,9 @@
 import qbs
 import QtcFunctions
+import "../timelineautotest.qbs" as TimelineAutotest
 
-QtcAutotest {
+TimelineAutotest {
     condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.4")
-    Depends { name: "Timeline" }
-    Depends { name: "Qt.quick" }
-
     name: "TimelineItemsRenderPass autotest"
     Group {
         name: "Test sources"

@@ -11,3 +11,6 @@ minQtVersion(5,4,0) {
     SUBDIRS += \
         timelineitemsrenderpass
 }
+
+OTHER_FILES += \
+    timelineautotest.qbs

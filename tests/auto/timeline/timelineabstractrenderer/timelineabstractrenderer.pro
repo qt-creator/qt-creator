@@ -1,7 +1,4 @@
-QT += quick
-
-QTC_LIB_DEPENDS += timeline
-include(../../qttest.pri)
+include(../shared/shared.pri)
 
 SOURCES += \
     tst_timelineabstractrenderer.cpp

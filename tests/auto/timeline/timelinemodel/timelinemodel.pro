@@ -1,5 +1,4 @@
-QTC_LIB_DEPENDS += timeline
-include(../../qttest.pri)
+include(../shared/shared.pri)
 
 SOURCES += \
     tst_timelinemodel.cpp
