@@ -54,6 +54,11 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
     Q_D(TimelineOverviewRenderer);
     Q_UNUSED(updatePaintNodeData)
 
+    if (!d->model || d->model->isEmpty() || !d->zoomer || d->zoomer->traceDuration() <= 0) {
+        delete oldNode;
+        return 0;
+    }
+
     if (d->modelDirty) {
         delete d->renderState;
         d->renderState = 0;
