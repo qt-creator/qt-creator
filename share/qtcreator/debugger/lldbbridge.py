@@ -589,7 +589,7 @@ class Dumper(DumperBase):
     def createValue(self, address, referencedType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
         sbaddr = lldb.SBAddress(addr, self.target)
-        return self.target.CreateValueFromAddress(None, sbaddr, referencedType)
+        return self.target.CreateValueFromAddress('@', sbaddr, referencedType)
 
     def childRange(self):
         if self.currentMaxNumChild is None:
