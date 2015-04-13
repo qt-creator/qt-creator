@@ -13,6 +13,7 @@ Project {
         "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
         "timelinenotesrenderpass/timelinenotesrenderpass.qbs",
         "timelineoverviewrenderer/timelineoverviewrenderer.qbs",
-        "timelinerenderer/timelinerenderer.qbs"
+        "timelinerenderer/timelinerenderer.qbs",
+        "timelinerenderpass/timelinerenderpass.qbs"
     ]
 }
