@@ -41,6 +41,7 @@
 #include <texteditor/codeassist/iassistproposalmodel.h>
 
 #include <cplusplus/CppDocument.h>
+#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 
 #include <QtTest>
@@ -228,27 +229,30 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
     return true;
 }
 
-ProjectOpenerAndCloser::ProjectOpenerAndCloser(bool waitForFinishedGcOnDestruction)
-    : m_waitForFinishedGcOnDestruction(waitForFinishedGcOnDestruction)
-    , m_gcFinished(false)
+ProjectOpenerAndCloser::ProjectOpenerAndCloser()
 {
     QVERIFY(!SessionManager::hasProjects());
-    if (m_waitForFinishedGcOnDestruction) {
-        CppModelManager *mm = CppModelManager::instance();
-        connect(mm, &CppModelManager::gcFinished, this, &ProjectOpenerAndCloser::onGcFinished);
-    }
 }
 
 ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
 {
+    if (m_openProjects.isEmpty())
+        return;
+
+    bool hasGcFinished = false;
+    QMetaObject::Connection connection;
+    Utils::ExecuteOnDestruction disconnect([&]() { QObject::disconnect(connection); });
+    connection = QObject::connect(CppModelManager::instance(), &CppModelManager::gcFinished, [&]() {
+        hasGcFinished = true;
+    });
+
     foreach (Project *project, m_openProjects)
         ProjectExplorerPlugin::unloadProject(project);
 
-    if (m_waitForFinishedGcOnDestruction) {
-        m_gcFinished = false;
-        while (!m_gcFinished)
-            QCoreApplication::processEvents();
-    }
+    QTime t;
+    t.start();
+    while (!hasGcFinished && t.elapsed() <= 30000)
+        QCoreApplication::processEvents();
 }
 
 ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject)
@@ -259,20 +263,16 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
         qWarning() << error;
     if (!project)
         return ProjectInfo();
-    m_openProjects.append(project);
 
     if (configureAsExampleProject)
         project->configureAsExampleProject(QStringList());
 
-    if (TestCase::waitUntilCppModelManagerIsAwareOf(project))
+    if (TestCase::waitUntilCppModelManagerIsAwareOf(project)) {
+        m_openProjects.append(project);
         return CppModelManager::instance()->projectInfo(project);
+    }
 
     return ProjectInfo();
-}
-
-void ProjectOpenerAndCloser::onGcFinished()
-{
-    m_gcFinished = true;
 }
 
 TemporaryDir::TemporaryDir()
