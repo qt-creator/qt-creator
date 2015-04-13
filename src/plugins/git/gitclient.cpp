@@ -955,51 +955,37 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
                                });
 }
 
-void GitClient::annotateRevisionRequested(const QString &workingDirectory, const QString &file,
-                                          const QString &change, int lineNumber)
-{
-    QString sha1 = change;
-    // This might be invoked with a verbose revision description
-    // "SHA1 author subject" from the annotation context menu. Strip the rest.
-    const int blankPos = sha1.indexOf(QLatin1Char(' '));
-    if (blankPos != -1)
-        sha1.truncate(blankPos);
-    blame(workingDirectory, QStringList(), file, sha1, lineNumber);
-}
-
-void GitClient::blame(const QString &workingDirectory,
-                      const QStringList &args,
-                      const QString &fileName,
-                      const QString &revision,
-                      int lineNumber)
+void GitClient::annotate(const QString &workingDir, const QString &file, const QString &revision,
+                         int lineNumber, const QStringList &extraOptions)
 {
     const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
-    const QString id = VcsBaseEditor::getTitleId(workingDirectory, QStringList(fileName), revision);
+    const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file), revision);
     const QString title = tr("Git Blame \"%1\"").arg(id);
-    const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
+    const QString sourceFile = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = findExistingVCSEditor("blameFileName", id);
     if (!editor) {
         auto *argWidget = new GitBlameArgumentsWidget(settings());
-        argWidget->setBaseArguments(args);
+        argWidget->setBaseArguments(extraOptions);
         connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
                 [=] {
                     const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
-                    blame(workingDirectory, args, fileName, revision, line);
+                    annotate(workingDir, file, revision, line, extraOptions);
                 } );
         editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecSource, sourceFile),
                                  "blameFileName", id);
         editor->setConfigurationWidget(argWidget);
     }
 
-    editor->setWorkingDirectory(workingDirectory);
+    editor->setWorkingDirectory(workingDir);
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
     arguments.append(editor->configurationWidget()->arguments());
-    arguments << QLatin1String("--") << fileName;
+    arguments.append(extraOptions);
+    arguments << QLatin1String("--") << file;
     if (!revision.isEmpty())
         arguments << revision;
-    executeGit(workingDirectory, arguments, editor, false, 0, lineNumber);
+    executeGit(workingDir, arguments, editor, false, 0, lineNumber);
 }
 
 bool GitClient::synchronousCheckout(const QString &workingDirectory,

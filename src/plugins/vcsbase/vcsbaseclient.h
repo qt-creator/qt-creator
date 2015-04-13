@@ -95,10 +95,15 @@ public:
 
     virtual QProcessEnvironment processEnvironment() const;
 
+    // VCS functionality:
+    virtual void annotate(const QString &workingDir, const QString &file,
+                          const QString &revision = QString(), int lineNumber = -1,
+                          const QStringList &extraOptions = QStringList()) = 0;
+
 protected:
     void resetCachedVcsInfo(const QString &workingDir);
     virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
-                                           const QString &change, int line) = 0;
+                                           const QString &change, int line);
 
 private:
     void saveSettings();
@@ -179,9 +184,6 @@ public slots:
                       const QStringList &extraOptions = QStringList());
 
 protected:
-    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
-                                   const QString &change, int line);
-
     enum VcsCommandTag
     {
         CreateRepositoryCommand,

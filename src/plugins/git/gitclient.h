@@ -162,8 +162,9 @@ public:
     void log(const QString &workingDirectory, const QString &fileName = QString(),
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
     void reflog(const QString &workingDirectory);
-    void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,
-               const QString &revision = QString(), int lineNumber = -1);
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber = -1,
+                  const QStringList &extraOptions = QStringList()) override;
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory,
@@ -357,9 +358,6 @@ private slots:
     void branchesForCommit(const QString &revision);
 
 private:
-    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
-                                   const QString &change, int lineNumber) override;
-
     void stage(const QString &patch, bool revert);
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const;

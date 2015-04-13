@@ -164,7 +164,7 @@ bool GitVersionControl::managesFile(const QString &workingDirectory, const QStri
 bool GitVersionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
-    m_client->blame(fi.absolutePath(), QStringList(), fi.fileName(), QString(), line);
+    m_client->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
 }
 

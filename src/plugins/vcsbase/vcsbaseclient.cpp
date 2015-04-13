@@ -175,6 +175,19 @@ void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
 }
 
+void VcsBaseClientImpl::annotateRevisionRequested(const QString &workingDirectory,
+                                                  const QString &file, const QString &change,
+                                                  int line)
+{
+    QString changeCopy = change;
+    // This might be invoked with a verbose revision description
+    // "SHA1 author subject" from the annotation context menu. Strip the rest.
+    const int blankPos = changeCopy.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        changeCopy.truncate(blankPos);
+    annotate(workingDirectory, file, changeCopy, line);
+}
+
 int VcsBaseClientImpl::vcsTimeout() const
 {
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
@@ -648,19 +661,6 @@ void VcsBaseClient::statusParser(const QString &text)
     }
 
     emit parsedStatus(lineInfoList);
-}
-
-void VcsBaseClient::annotateRevisionRequested(const QString &workingDirectory,
-                                              const QString &file, const QString &change,
-                                              int line)
-{
-    QString changeCopy = change;
-    // This might be invoked with a verbose revision description
-    // "SHA1 author subject" from the annotation context menu. Strip the rest.
-    const int blankPos = changeCopy.indexOf(QLatin1Char(' '));
-    if (blankPos != -1)
-        changeCopy.truncate(blankPos);
-    annotate(workingDirectory, file, changeCopy, line);
 }
 
 } // namespace VcsBase
