@@ -203,7 +203,6 @@ void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
 void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(TimelineRenderer);
-    Q_UNUSED(event);
     d->manageHovered(event->pos().x(), event->pos().y());
     if (d->currentSelection.eventIndex == -1)
         event->setAccepted(false);
