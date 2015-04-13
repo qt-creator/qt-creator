@@ -726,8 +726,14 @@ class Dumper(DumperBase):
     def extractInt64(self, addr):
         return struct.unpack("q", self.readRawMemory(addr, 8))[0]
 
+    def extractUInt64(self, addr):
+        return struct.unpack("Q", self.readRawMemory(addr, 8))[0]
+
     def extractInt(self, addr):
         return struct.unpack("i", self.readRawMemory(addr, 4))[0]
+
+    def extractUInt(self, addr):
+        return struct.unpack("I", self.readRawMemory(addr, 4))[0]
 
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]

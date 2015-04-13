@@ -385,8 +385,8 @@ def qdump__std__set__QNX(d, value):
 
 def qdump__std____1__set(d, value):
     base3 = d.addressOf(value["__tree_"]["__pair3_"])
-    size = d.extractInt(base3)
-    d.check(0 <= size and size <= 100*1000*1000)
+    size = d.extractUInt(base3)
+    d.check(size <= 100*1000*1000)
     d.putItemCount(size)
     d.putNumChild(0)
 
@@ -442,7 +442,7 @@ def qdump__std____1__string(d, value):
     if firstByte & 1:
         # Long/external.
         data = d.extractPointer(base + 2 * d.ptrSize())
-        size = d.extractInt(base + d.ptrSize())
+        size = d.extractUInt(base + d.ptrSize())
     else:
         # Short/internal.
         size = firstByte / 2
@@ -457,7 +457,7 @@ def qdump__std____1__wstring(d, value):
     if firstByte & 1:
         # Long/external.
         data = d.extractPointer(base + 2 * d.ptrSize())
-        size = d.extractInt(base + d.ptrSize())
+        size = d.extractUInt(base + d.ptrSize())
     else:
         # Short/internal.
         size = firstByte / 2

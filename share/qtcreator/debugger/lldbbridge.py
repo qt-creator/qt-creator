@@ -508,13 +508,25 @@ class Dumper(DumperBase):
     def addressOf(self, value):
         return int(value.GetLoadAddress())
 
-    def extractInt(self, address):
+    def extractUInt(self, address):
         error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 4, error))
 
-    def extractInt64(self, address):
+    def extractInt(self, address):
+        i = self.extractUInt(address)
+        if i >= 0x80000000:
+            i -= 0x100000000
+        return i
+
+    def extractUInt64(self, address):
         error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 8, error))
+
+    def extractInt64(self, address):
+        i = self.extractUInt64(address)
+        if i >= 0x8000000000000000:
+            i -= 0x10000000000000000
+        return i
 
     def extractByte(self, address):
         error = lldb.SBError()
