@@ -48,6 +48,7 @@ const char *description[] =
     "g++_wstringvector",
     "g++_unordered_set",
     "g++_unordered_map",
+    "g++_stdvector_int_ptr",
 
     "libc++_stringvector",
     "libc++_unordered_map",
@@ -82,6 +83,7 @@ const char *input[] =
 
 "std::unordered_set<int, std::hash<int>, std::equal_to<int>, std::allocator<int> >",
 "std::unordered_map<int, int, std::hash<int>, std::equal_to<int>, std::allocator<std::pair<int const, int> > >",
+"std::vector<int *, std::allocator<int*> >",
 
 // libc++
 "std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >",
@@ -119,6 +121,7 @@ const char *output[] =
     "std::vector<std::wstring>",
     "std::unordered_set<int>",
     "std::unordered_map<int, int>",
+    "std::vector<int *>",
     // libc++
     "std::vector<std::string>",
     "std::unordered_map<std::string, float>",

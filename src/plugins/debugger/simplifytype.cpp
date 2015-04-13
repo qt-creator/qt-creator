@@ -126,6 +126,9 @@ QString simplifyType(const QString &typeIn)
     type.replace(QLatin1String("std::__debug::"), QLatin1String("std::"));
     QRegExp simpleStringRE(QString::fromLatin1("std::basic_string<char> ?"));
     type.replace(simpleStringRE, QLatin1String("std::string"));
+
+    // Normalize space + ptr.
+    type.replace(QLatin1String(" *"), QLatin1String("@"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
@@ -303,7 +306,7 @@ QString simplifyType(const QString &typeIn)
             }
         } // with std::allocator
     }
-    type.replace(QLatin1Char('@'), QLatin1Char('*'));
+    type.replace(QLatin1Char('@'), QLatin1String(" *"));
     type.replace(QLatin1String(" >"), QLatin1String(">"));
     return type;
 }
