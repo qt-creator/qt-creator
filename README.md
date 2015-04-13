@@ -19,10 +19,10 @@ Prerequisites:
 * Qt 5.4.0 or later
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 4.5 or Visual Studio 2010 or later
+    * MinGW with g++ 4.7 or Visual Studio 2013 or later
     * jom
 * On Mac OS X: latest Xcode
-* On Linux: g++ 4.5 or later
+* On Linux: g++ 4.7 or later
 
 The installed toolchains have to match the one Qt was compiled with.
 
@@ -41,7 +41,7 @@ Installation ("make install") is not needed. It is however possible, using
 This section provides step by step instructions for compiling the latest
 versions of Qt and Qt Creator on Windows. Alternatively, to avoid having to
 compile Qt yourself, you can use one of the versions of Qt shipped with the Qt
-SDK (release builds of Qt using MinGW and Visual C++ 2010 or later).
+SDK (release builds of Qt using MinGW and Visual C++ 2013 or later).
 For detailed information on the supported compilers, see
 <https://wiki.qt.io/Building_Qt_5_from_Git> .
 
@@ -58,7 +58,7 @@ For detailed information on the supported compilers, see
        for example, `c:\work`. If you plan to use MinGW and Microsoft Visual
        Studio simultaneously or mix different Qt versions, we recommend
        creating a directory structure which reflects that. For example:
-       `C:\work\qt5.2.1-vs10, C:\work\qt5.2.1-mingw`.
+       `C:\work\qt5.4.1-vs12, C:\work\qt5.4.1-mingw`.
 
    4.  Download and install Perl from <https://www.activestate.com/activeperl>
        and check that perl.exe is added to the path. Run `perl -v` to verify
@@ -80,10 +80,6 @@ For detailed information on the supported compilers, see
          Tools for Windows" from the SDK image. We strongly recommend using the
          64-bit version and 64-bit compilers on 64-bit systems.
 
-         When using Visual C++ 2010, you must apply a hotfix that is available
-         from `https://support.microsoft.com/kb/2280741`
-         (see [QTBUG-11445](https://bugreports.qt.io/browse/QTBUG-11445)).
-
          For the Visual C++ compilers, it is recommended to use the tool 'jom'.
          It is a replacement for nmake that utilizes all CPU cores and thus
          speeds up compilation significantly. Download it from
@@ -103,9 +99,9 @@ For detailed information on the supported compilers, see
        environment for the compiler (provided by the Windows SDK or the
        compiler):
 
-         CALL "C:\Program Files (x86)\MSVC10\VC\vcvarsall.bat" amd64
+         CALL "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
          set PATH=<path_to_qt>\[qtbase\]bin;<working_directory>\creator\bin;%PATH%
-         set QMAKESPEC=win32-msvc2010
+         set QMAKESPEC=win32-msvc2013
 
        You can create desktop links to the `.bat` files using the working
        directory and specifying
