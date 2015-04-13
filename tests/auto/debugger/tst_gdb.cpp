@@ -61,9 +61,7 @@ void tst_gdb::version()
     bool qnx = true;
     Debugger::Internal::extractGdbVersion(msg, &v, &bv, &mac, &qnx);
     //qDebug() << msg << " -> " << v << bv << mac << qnx;
-    QEXPECT_FAIL("openSUSE 13.1", "Not done yet", Continue);
     QCOMPARE(v, gdbVersion);
-    QEXPECT_FAIL("openSUSE 13.1", "Not done yet", Continue);
     QCOMPARE(bv, gdbBuildVersion);
     QCOMPARE(mac, isMacGdb);
     QCOMPARE(qnx, isQnxGdb);
@@ -124,6 +122,10 @@ void tst_gdb::version_data()
     QTest::newRow("openSUSE 13.1")
         << "GNU gdb (GDB; openSUSE 13.1) 7.6.50.20130731-cvs"
         << 70650 << 20130731 << false << false;
+
+    QTest::newRow("openSUSE 13.2")
+        << "GNU gdb (GDB; openSUSE 13.2) 7.8"
+        << 70800 << 0 << false << false;
 }
 
 static QString chopConst(QString type)
