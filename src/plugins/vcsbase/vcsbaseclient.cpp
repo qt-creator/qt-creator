@@ -218,6 +218,15 @@ bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const
     return result;
 }
 
+Utils::SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &workingDir,
+                                                                        const QStringList &args,
+                                                                        unsigned flags,
+                                                                        QTextCodec *outputCodec) const
+{
+    return VcsBasePlugin::runVcs(workingDir, vcsBinary(), args, vcsTimeoutS(), flags,
+                                 outputCodec, processEnvironment());
+}
+
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
     return settings().intValue(VcsBaseClientSettings::timeoutKey);
@@ -398,15 +407,6 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
             | VcsBasePlugin::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;
-}
-
-Utils::SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &workingDir,
-                                                                        const QStringList &args,
-                                                                        unsigned flags,
-                                                                        QTextCodec *outputCodec) const
-{
-    return VcsBasePlugin::runVcs(workingDir, vcsBinary(), args, vcsTimeoutS(), flags,
-                                 outputCodec, processEnvironment());
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
