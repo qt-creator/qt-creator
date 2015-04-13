@@ -6,7 +6,8 @@ SUBDIRS = \
     timelinemodel \
     timelinemodelaggregator \
     timelinenotesmodel \
-    timelineoverviewrenderer
+    timelineoverviewrenderer \
+    timelinerenderer
 
 minQtVersion(5,4,0) {
     SUBDIRS += \
