@@ -52,7 +52,6 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
                                                   UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_D(TimelineOverviewRenderer);
-    Q_UNUSED(updatePaintNodeData)
 
     if (!d->model || d->model->isEmpty() || !d->zoomer || d->zoomer->traceDuration() <= 0) {
         delete oldNode;
@@ -62,7 +61,6 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
     if (d->modelDirty) {
         delete d->renderState;
         d->renderState = 0;
-        d->modelDirty = false;
     }
 
     if (d->renderState == 0) {
@@ -83,9 +81,7 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
     if (d->renderState->isEmpty())
         d->renderState->assembleNodeTree(d->model, d->model->height(), 0);
 
-    d->modelDirty = false;
-    d->notesDirty = false;
-    d->rowHeightsDirty = false;
+    TimelineAbstractRenderer::updatePaintNode(0, updatePaintNodeData);
 
     QMatrix4x4 matrix;
     matrix.scale(xSpacing, ySpacing, 1);

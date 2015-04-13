@@ -34,9 +34,9 @@
 using namespace Timeline;
 
 class DummyRenderer : public TimelineAbstractRenderer {
+    friend class tst_TimelineAbstractRenderer;
 public:
     DummyRenderer() : TimelineAbstractRenderer(*new TimelineAbstractRendererPrivate) {}
-    TimelineAbstractRendererPrivate *dd() { return d_func(); }
 };
 
 class tst_TimelineAbstractRenderer : public QObject
@@ -56,7 +56,7 @@ private slots:
 void tst_TimelineAbstractRenderer::privateCtor()
 {
     DummyRenderer renderer;
-    QVERIFY(renderer.dd() != 0);
+    QVERIFY(renderer.d_func() != 0);
 }
 
 void tst_TimelineAbstractRenderer::selectionLocked()
@@ -137,7 +137,7 @@ void tst_TimelineAbstractRenderer::zoomer()
 
 void tst_TimelineAbstractRenderer::dirty()
 {
-    TimelineAbstractRenderer renderer;
+    DummyRenderer renderer;
     QVERIFY(!renderer.modelDirty());
     QVERIFY(!renderer.notesDirty());
     QVERIFY(!renderer.rowHeightsDirty());
@@ -148,6 +148,11 @@ void tst_TimelineAbstractRenderer::dirty()
     QVERIFY(renderer.notesDirty());
     renderer.setRowHeightsDirty();
     QVERIFY(renderer.rowHeightsDirty());
+
+    renderer.updatePaintNode(0, 0);
+    QVERIFY(!renderer.modelDirty());
+    QVERIFY(!renderer.notesDirty());
+    QVERIFY(!renderer.rowHeightsDirty());
 }
 
 QTEST_MAIN(tst_TimelineAbstractRenderer)

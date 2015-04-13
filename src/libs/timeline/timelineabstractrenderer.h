@@ -89,6 +89,8 @@ public slots:
     void setRowHeightsDirty();
 
 protected:
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+
     class TimelineAbstractRendererPrivate;
     TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd, QQuickItem *parent = 0);
     TimelineAbstractRendererPrivate *d_ptr;

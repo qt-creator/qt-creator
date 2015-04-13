@@ -121,7 +121,6 @@ TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState(
 QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_D(TimelineRenderer);
-    Q_UNUSED(updatePaintNodeData)
 
     if (!d->model || d->model->hidden() || d->model->isEmpty() || !d->zoomer ||
             d->zoomer->windowDuration() <= 0) {
@@ -155,9 +154,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
                                         TimelineModel::defaultRowHeight());
     }
 
-    d->modelDirty = false;
-    d->notesDirty = false;
-    d->rowHeightsDirty = false;
+    TimelineAbstractRenderer::updatePaintNode(0, updatePaintNodeData);
     d->lastState = state;
 
     QMatrix4x4 matrix;

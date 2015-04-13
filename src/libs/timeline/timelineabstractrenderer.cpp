@@ -214,5 +214,15 @@ void TimelineAbstractRenderer::setNotesDirty()
     update();
 }
 
-} // namespace Timeline
+// Reset the dirty flags, delete the old node (if given), and return 0
+QSGNode *TimelineAbstractRenderer::updatePaintNode(QSGNode *oldNode,
+                                                   UpdatePaintNodeData *updatePaintNodeData)
+{
+    Q_D(TimelineAbstractRenderer);
+    d->modelDirty = false;
+    d->rowHeightsDirty = false;
+    d->notesDirty = false;
+    return QQuickItem::updatePaintNode(oldNode, updatePaintNodeData);
+}
 
+} // namespace Timeline
