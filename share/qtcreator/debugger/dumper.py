@@ -1057,10 +1057,18 @@ class DumperBase:
         innerType = value.type.target().unqualified()
         innerTypeName = str(innerType)
 
+        goodPointer = False
         try:
             target = value.dereference()
-            target.is_optimized_out # Access test.
+            str(target) # Dummy access.
+            if self.isLldb and target.GetError().Fail():
+                pass
+            else:
+                goodPointer = True
         except:
+            pass
+
+        if not goodPointer:
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
             self.putValue(self.cleanAddress(value))
@@ -1128,7 +1136,6 @@ class DumperBase:
                 self.currentChildType = self.stripClassTag(innerTypeName)
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
-                #self.putPointerValue(value)
                 self.putOriginalAddress(value)
                 return
 
