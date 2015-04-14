@@ -562,13 +562,6 @@ static inline QString msgCannotLaunch(const QString &binary)
     return GitClient::tr("Cannot launch \"%1\".").arg(QDir::toNativeSeparators(binary));
 }
 
-static inline QString currentDocumentPath()
-{
-    if (IDocument *document= EditorManager::currentDocument())
-        return document->filePath().toFileInfo().path();
-    return QString();
-}
-
 static inline void msgCannotRun(const QString &message, QString *errorMessage)
 {
     if (errorMessage)
@@ -1490,7 +1483,6 @@ void GitClient::branchesForCommit(const QString &revision)
     auto controller = qobject_cast<DiffEditorController *>(sender());
     QString workingDirectory = controller->baseDirectory();
     auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
-    command->setCodec(codecFor(CodecSource, currentDocumentPath()));
     command->setCookie(workingDirectory);
 
     connect(command, &VcsCommand::output, controller,
