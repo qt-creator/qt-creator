@@ -554,24 +554,24 @@ def qdump__std__unordered_map(d, value):
     ptrSize = d.ptrSize()
     try:
         # gcc ~= 4.7
-        size = value["_M_element_count"]
+        size = int(value["_M_element_count"])
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
         try:
             # libc++ (Mac)
-            size = value["_M_h"]["_M_element_count"]
+            size = int(value["_M_h"]["_M_element_count"])
             start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
             offset = 0
         except:
             try:
                 # gcc 4.9.1
-                size = value["_M_h"]["_M_element_count"]
+                size = int(value["_M_h"]["_M_element_count"])
                 start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
                 offset = 0
             except:
                 # gcc 4.6.2
-                size = value["_M_element_count"]
+                size = int(value["_M_element_count"])
                 start = value["_M_buckets"].dereference()
                 # FIXME: Pointer-aligned?
                 offset = pairType.sizeof
@@ -579,17 +579,16 @@ def qdump__std__unordered_map(d, value):
                 # We don't know where the data is
                 d.putNumChild(0)
                 return
+
     d.putItemCount(size)
     if d.isExpanded():
         p = d.pointerValue(start)
         if d.isMapCompact(keyType, valueType):
-            with Children(d, size, childType=valueType):
+            with PairedChildren(d, size, pairType=pairType):
                 for i in d.childRange():
                     pair = d.createValue(p + ptrSize, pairType)
                     with SubItem(d, i):
-                        d.putField("iname", d.currentIName)
-                        d.putName("[%s] %s" % (i, pair["first"]))
-                        d.putValue(pair["second"])
+                        d.putPair(pair, i)
                     p = d.extractPointer(p)
         else:
             with Children(d, size, childType=pairType):
@@ -603,24 +602,24 @@ def qdump__std____debug__unordered_map(d, value):
 def qdump__std__unordered_set(d, value):
     try:
         # gcc ~= 4.7
-        size = value["_M_element_count"]
+        size = int(value["_M_element_count"])
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
         try:
             # libc++ (Mac)
-            size = value["_M_h"]["_M_element_count"]
+            size = int(value["_M_h"]["_M_element_count"])
             start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
             offset = 0
         except:
             try:
                 # gcc 4.6.2
-                size = value["_M_element_count"]
+                size = int(value["_M_element_count"])
                 start = value["_M_buckets"].dereference()
                 offset = d.ptrSize()
             except:
                 # gcc 4.9.1
-                size = value["_M_h"]["_M_element_count"]
+                size = int(value["_M_h"]["_M_element_count"])
                 start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
                 offset = 0
 

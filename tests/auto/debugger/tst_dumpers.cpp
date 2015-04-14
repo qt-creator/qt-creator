@@ -4372,12 +4372,12 @@ void tst_Dumpers::dumper_data()
                     "std::unordered_map<unsigned int, unsigned int> map1;\n"
                     "map1[11] = 1;\n"
                     "map1[22] = 2;\n"
+                    "unused(&map1);\n\n"
 
                     "std::unordered_map<std::string, float> map2;\n"
                     "map2[\"11.0\"] = 11.0;\n"
                     "map2[\"22.0\"] = 22.0;\n"
-
-                    "unused(&map1);\n")
+                    "unused(&map2);\n")
 
                + Cxx11Profile()
 
