@@ -60,7 +60,7 @@ static int testSynchronous(const QString &cmd, const QStringList &args)
 
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(p, 2000, &stdOut, &stdErr)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(p, 2, &stdOut, &stdErr)) {
         std::fputs("Timeout", stderr);
         return -3;
     }

@@ -103,8 +103,8 @@ public:
     Settings settings() const;
 
     inline int timeOutS()      const { return m_settings.timeOutS;  }
+    inline int longTimeOutS() const { return m_settings.timeOutS * 10; }
     inline int timeOutMS()     const { return m_settings.timeOutS * 1000;  }
-    inline int longTimeOutMS() const { return m_settings.timeOutS * 10000; }
 
     inline int logCount() const { return m_settings.logCount; }
 

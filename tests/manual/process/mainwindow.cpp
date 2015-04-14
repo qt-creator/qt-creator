@@ -57,7 +57,7 @@ void MainWindow::test()
     const QString cmd = args.front();
     args.pop_front();
     Utils::SynchronousProcess process;
-    process.setTimeout(2000);
+    process.setTimeoutS(2);
     qDebug() << "Async: " << cmd << args;
     connect(&process, SIGNAL(stdOut(QString,bool)), this, SLOT(append(QString)));
     connect(&process, SIGNAL(stdErr(QString,bool)), this, SLOT(append(QString)));

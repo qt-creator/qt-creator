@@ -62,7 +62,7 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
     void clear();
 
     // Helper to format an exit message.
-    QString exitMessage(const QString &binary, int timeoutMS) const;
+    QString exitMessage(const QString &binary, int timeoutS) const;
 
     Result result;
     int exitCode;
@@ -94,8 +94,8 @@ public:
 
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
-    void setTimeout(int timeoutMS);
-    int timeout() const;
+    void setTimeoutS(int timeoutS);
+    int timeoutS() const;
 
     void setCodec(QTextCodec *c);
     QTextCodec *codec() const;
@@ -136,7 +136,7 @@ public:
     // detection similar SynchronousProcess' handling (taking effect after no more output
     // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
     // occurs. Checking of the process' exit state/code still has to be done.
-    static bool readDataFromProcess(QProcess &p, int timeOutMS,
+    static bool readDataFromProcess(QProcess &p, int timeoutS,
                                     QByteArray *stdOut = 0, QByteArray *stdErr = 0,
                                     bool timeOutMessageBox = false);
     // Stop a process by first calling terminate() (allowing for signal handling) and

@@ -211,7 +211,7 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
 static inline bool runBuildProcessI(QProcess &proc,
                                     const FileName &binary,
                                     const QStringList &args,
-                                    int timeoutMS,
+                                    int timeoutS,
                                     bool ignoreNonNullExitCode,
                                     QString *output, QString *errorMessage)
 {
@@ -225,10 +225,10 @@ static inline bool runBuildProcessI(QProcess &proc,
     // Read stdout/err and check for timeouts
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!SynchronousProcess::readDataFromProcess(proc, timeoutMS, &stdOut, &stdErr, false)) {
+    if (!SynchronousProcess::readDataFromProcess(proc, timeoutS, &stdOut, &stdErr, false)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                    "Timeout after %1s.").
-                                                    arg(timeoutMS / 1000);
+                                                    "Timeout after %1 s.").
+                                                    arg(timeoutS);
         SynchronousProcess::stopProcess(proc);
         return false;
     }
@@ -252,11 +252,11 @@ static inline bool runBuildProcessI(QProcess &proc,
 static bool runBuildProcess(QProcess &proc,
                             const FileName &binary,
                             const QStringList &args,
-                            int timeoutMS,
+                            int timeoutS,
                             bool ignoreNonNullExitCode,
                             QString *output, QString *errorMessage)
 {
-    const bool rc = runBuildProcessI(proc, binary, args, timeoutMS, ignoreNonNullExitCode, output, errorMessage);
+    const bool rc = runBuildProcessI(proc, binary, args, timeoutS, ignoreNonNullExitCode, output, errorMessage);
     if (!rc) {
         // Fail - reformat error.
         QString cmd = binary.toString();
@@ -300,7 +300,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
         log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                                    "Running %1 %2...\n")
                     .arg(makeFullPath.toUserOutput(), cleanTarget));
-        if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30000, true, log, errorMessage))
+        if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30, true, log, errorMessage))
             return false;
     }
     QStringList qmakeArgs;
@@ -316,7 +316,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
                                             "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
                                                                        qmakeArgs.join(QLatin1Char(' '))));
 
-    if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30000, false, log, errorMessage))
+    if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30, false, log, errorMessage))
         return false;
     log->append(newline);
     if (makeFullPath.isEmpty()) {
@@ -327,7 +327,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n")
                 .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1Char(' '))));
-    if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120000, false, log, errorMessage))
+    if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120, false, log, errorMessage))
         return false;
     return true;
 }

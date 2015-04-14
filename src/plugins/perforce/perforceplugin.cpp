@@ -991,9 +991,9 @@ static inline QString msgNotStarted(const QString &cmd)
     return PerforcePlugin::tr("Could not start perforce \"%1\". Please check your settings in the preferences.").arg(cmd);
 }
 
-static inline QString msgTimeout(int timeOut)
+static inline QString msgTimeout(int timeOutS)
 {
-    return PerforcePlugin::tr("Perforce did not respond within timeout limit (%1 ms).").arg(timeOut );
+    return PerforcePlugin::tr("Perforce did not respond within timeout limit (%1 s).").arg(timeOutS);
 }
 
 static inline QString msgCrash()
@@ -1018,8 +1018,8 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
     // Run, connect stderr to the output window
     SynchronousProcess process;
-    const int timeOut = (flags & LongTimeOut) ? settings().longTimeOutMS() : settings().timeOutMS();
-    process.setTimeout(timeOut);
+    const int timeOutS = (flags & LongTimeOut) ? settings().longTimeOutS() : settings().timeOutS();
+    process.setTimeoutS(timeOutS);
     process.setCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
         process.setProcessEnvironment(overrideDiffEnvironmentVariable());
@@ -1116,11 +1116,11 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
 
     QByteArray stdOut;
     QByteArray stdErr;
-    const int timeOut = (flags & LongTimeOut) ? settings().longTimeOutMS() : settings().timeOutMS();
-    if (!SynchronousProcess::readDataFromProcess(process, timeOut, &stdOut, &stdErr, true)) {
+    const int timeOutS = (flags & LongTimeOut) ? settings().longTimeOutS() : settings().timeOutS();
+    if (!SynchronousProcess::readDataFromProcess(process, timeOutS, &stdOut, &stdErr, true)) {
         SynchronousProcess::stopProcess(process);
         response.error = true;
-        response.message = msgTimeout(timeOut);
+        response.message = msgTimeout(timeOutS);
         return response;
     }
     if (process.exitStatus() != QProcess::NormalExit) {

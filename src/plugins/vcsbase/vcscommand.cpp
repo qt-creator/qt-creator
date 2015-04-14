@@ -388,7 +388,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
                                              (d->m_flags & VcsBasePlugin::ForceCLocale),
                                              d->m_sshPasswordPrompt);
         process.setProcessEnvironment(env);
-        process.setTimeout(timeoutS * 1000);
+        process.setTimeoutS(timeoutS);
         if (d->m_codec)
             process.setCodec(d->m_codec);
 
@@ -470,7 +470,7 @@ Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const QStringList &
     QByteArray stdOut;
     QByteArray stdErr;
     const bool timedOut =
-            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutS * 1000,
+            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutS,
                                                             &stdOut, &stdErr, true);
 
     if (!d->m_aborted) {
@@ -543,7 +543,7 @@ bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutS,
         return false;
     }
 
-    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutS * 1000, outputData, errorData, true)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutS, outputData, errorData, true)) {
         if (errorData)
             errorData->append(tr("Error: Executable timed out after %1s.").arg(timeoutS).toLocal8Bit());
         Utils::SynchronousProcess::stopProcess(process);

@@ -124,7 +124,7 @@ void SynchronousProcessResponse::clear()
     stdErr.clear();
 }
 
-QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeoutMS) const
+QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeoutS) const
 {
     switch (result) {
     case Finished:
@@ -136,8 +136,8 @@ QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeo
     case StartFailed:
         return SynchronousProcess::tr("The command \"%1\" could not be started.").arg(QDir::toNativeSeparators(binary));
     case Hang:
-        return SynchronousProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 ms).").
-                arg(QDir::toNativeSeparators(binary)).arg(timeoutMS);
+        return SynchronousProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
+                .arg(QDir::toNativeSeparators(binary)).arg(timeoutS);
     }
     return QString();
 }
@@ -268,17 +268,17 @@ SynchronousProcess::~SynchronousProcess()
     delete d;
 }
 
-void SynchronousProcess::setTimeout(int timeoutMS)
+void SynchronousProcess::setTimeoutS(int timeoutS)
 {
-    if (timeoutMS >= 0)
-        d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
+    if (timeoutS >= 0)
+        d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
         d->m_maxHangTimerCount = INT_MAX;
 }
 
-int SynchronousProcess::timeout() const
+int SynchronousProcess::timeoutS() const
 {
-    return d->m_maxHangTimerCount == INT_MAX ? -1 : 1000 * d->m_maxHangTimerCount;
+    return d->m_maxHangTimerCount == INT_MAX ? -1 : d->m_maxHangTimerCount;
 }
 
 void SynchronousProcess::setCodec(QTextCodec *c)
@@ -582,12 +582,12 @@ QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
 }
 
 // Static utilities: Keep running as long as it gets data.
-bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
+bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
                                              QByteArray *stdOut, QByteArray *stdErr,
                                              bool showTimeOutMessageBox)
 {
     if (syncDebug)
-        qDebug() << ">readDataFromProcess" << timeOutMS;
+        qDebug() << ">readDataFromProcess" << timeoutS;
     if (p.state() != QProcess::Running) {
         qWarning("readDataFromProcess: Process in non-running state passed in.");
         return false;
@@ -599,7 +599,7 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
     bool finished = false;
     bool hasData = false;
     do {
-        finished = p.state() == QProcess::NotRunning || p.waitForFinished(timeOutMS);
+        finished = p.state() == QProcess::NotRunning || p.waitForFinished(timeoutS * 1000);
         hasData = false;
         // First check 'stdout'
         if (p.bytesAvailable()) { // applies to readChannel() only

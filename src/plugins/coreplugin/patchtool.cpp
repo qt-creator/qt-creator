@@ -111,7 +111,7 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
     patchProcess.closeWriteChannel();
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(patchProcess, 30000, &stdOut, &stdErr, true)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(patchProcess, 30, &stdOut, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(patchProcess);
         MessageManager::write(QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"").arg(patch));
         return false;
