@@ -250,9 +250,9 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Core::Id kind, QString t
         outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
+        QTC_ASSERT(baseEditor, return 0);
         connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
                 this, &VcsBaseClientImpl::annotateRevisionRequested);
-        QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (codec)
             baseEditor->setCodec(codec);
