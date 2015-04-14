@@ -491,12 +491,6 @@ int main(int argc, char **argv)
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
         return 1;
     }
-    if (PluginManager::hasError()) {
-        PluginErrorOverview *errorOverview = new PluginErrorOverview(QApplication::activeWindow());
-        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
-        errorOverview->setModal(true);
-        errorOverview->show();
-    }
 
     // Set up remote arguments.
     QObject::connect(&app, SIGNAL(messageReceived(QString,QObject*)),

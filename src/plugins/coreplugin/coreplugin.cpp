@@ -44,6 +44,8 @@
 #include <coreplugin/locator/locator.h>
 #include <coreplugin/coreconstants.h>
 
+#include <extensionsystem/pluginerroroverview.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/macroexpander.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
@@ -217,6 +219,12 @@ void CorePlugin::extensionsInitialized()
     m_findPlugin->extensionsInitialized();
     m_locator->extensionsInitialized();
     m_mainWindow->extensionsInitialized();
+    if (ExtensionSystem::PluginManager::hasError()) {
+        auto errorOverview = new ExtensionSystem::PluginErrorOverview(m_mainWindow);
+        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
+        errorOverview->setModal(true);
+        errorOverview->show();
+    }
 }
 
 bool CorePlugin::delayedInitialize()
