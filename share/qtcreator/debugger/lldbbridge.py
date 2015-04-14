@@ -125,7 +125,10 @@ def impl_SBValue__getitem__(value, index):
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return value.CreateValueFromAddress(None, address, innertype)
         return value.GetChildAtIndex(index)
-    return value.GetChildMemberWithName(index)
+    item = value.GetChildMemberWithName(index)
+    if item.IsValid():
+        return item
+    raise RuntimeError("SBValue.__getitem__: No such member '%s'" % index)
 
 def impl_SBValue__deref(value):
     result = value.Dereference()
