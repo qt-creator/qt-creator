@@ -39,7 +39,7 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     TimelineModel(modelManager->registerModelProxy(), displayName, parent), m_message(message),
     m_rangeType(rangeType), m_modelManager(modelManager)
 {
-    connect(modelManager->qmlModel(), &QmlProfilerDataModel::changed,
+    connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerTimelineModel::dataChanged);
 }
 
@@ -91,7 +91,7 @@ void QmlProfilerTimelineModel::dataChanged()
 {
 
     switch (m_modelManager->state()) {
-    case QmlProfilerDataState::ProcessingData:
+    case QmlProfilerDataState::Done:
         loadData();
         emit emptyChanged();
         break;
