@@ -2935,34 +2935,36 @@ bool GitClient::canRebase(const QString &workingDirectory) const
 
 void GitClient::rebase(const QString &workingDirectory, const QString &argument)
 {
-    asyncCommand(workingDirectory, QStringList() << QLatin1String("rebase") << argument, true);
+    VcsCommand *command = vcsExecAbortable(workingDirectory,
+                                           QStringList() << QLatin1String("rebase") << argument);
+    GitProgressParser::attachToCommand(command);
 }
 
 void GitClient::cherryPick(const QString &workingDirectory, const QString &argument)
 {
-    asyncCommand(workingDirectory, QStringList() << QLatin1String("cherry-pick") << argument);
+    vcsExecAbortable(workingDirectory, QStringList() << QLatin1String("cherry-pick") << argument);
 }
 
 void GitClient::revert(const QString &workingDirectory, const QString &argument)
 {
-    asyncCommand(workingDirectory, QStringList() << QLatin1String("revert") << argument);
+    vcsExecAbortable(workingDirectory, QStringList() << QLatin1String("revert") << argument);
 }
 
 // Executes a command asynchronously. Work tree is expected to be clean.
 // Stashing is handled prior to this call.
-void GitClient::asyncCommand(const QString &workingDirectory, const QStringList &arguments,
-                             bool hasProgress)
+VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
+                                        const QStringList &arguments)
 {
+    QTC_ASSERT(!arguments.isEmpty(), return 0);
+
+    QString abortCommand = arguments.at(0);
     // Git might request an editor, so this must be done asynchronously
-    // and without timeout
-    QString gitCommand = arguments.first();
-    VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
-    VcsCommand *command = createCommand(workingDirectory, 0, VcsWindowOutputBind);
-    ConflictHandler::attachToCommand(command, gitCommand);
-    if (hasProgress)
-        GitProgressParser::attachToCommand(command);
-    command->setCookie(workingDirectory);
-    enqueueJob(command, arguments);
+    VcsCommand *command = vcsExec(workingDirectory, arguments, 0, true, 0, workingDirectory);
+    // ... and without timeout
+    command->setDefaultTimeoutS(0);
+    ConflictHandler::attachToCommand(command, abortCommand);
+
+    return command;
 }
 
 bool GitClient::synchronousRevert(const QString &workingDirectory, const QString &commit)
@@ -3004,7 +3006,8 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
     if (fixup)
         m_disableEditor = true;
-    asyncCommand(workingDirectory, arguments, true);
+    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments);
+    GitProgressParser::attachToCommand(command);
     if (fixup)
         m_disableEditor = false;
 }

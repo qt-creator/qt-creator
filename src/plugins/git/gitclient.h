@@ -143,6 +143,8 @@ public:
     Utils::FileName vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
+    VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory, const QStringList &arguments);
+
     QString findRepositoryForDirectory(const QString &dir) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
@@ -266,8 +268,7 @@ public:
     void rebase(const QString &workingDirectory, const QString &argument);
     void cherryPick(const QString &workingDirectory, const QString &argument);
     void revert(const QString &workingDirectory, const QString &argument);
-    void asyncCommand(const QString &workingDirectory, const QStringList &arguments,
-                      bool hasProgress = false);
+
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);
