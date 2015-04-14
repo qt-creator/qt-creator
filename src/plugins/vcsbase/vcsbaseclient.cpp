@@ -211,7 +211,7 @@ bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const
     command->addFlags(flags);
     bool result = command->runFullySynchronous(args, vcsTimeoutS(), outputData,
                                                errorData ? errorData : &internalErrorData);
-    if (!internalErrorData.isEmpty())
+    if (!internalErrorData.isEmpty() && !(flags & VcsBasePlugin::SuppressStdErrInLogWindow))
         VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));
     return result;
 }
