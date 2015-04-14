@@ -1273,7 +1273,7 @@ void tst_Dumpers::dumper()
         cmds = "sc import sys\n"
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
-               "sc print(dir())\n"
+              // "sc print(dir())\n"
                "sc Tester('" + t->buildPath.toLatin1() + "/doit', [" + expandedq + "])\n"
                "quit\n";
 

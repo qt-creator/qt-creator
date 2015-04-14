@@ -1748,6 +1748,9 @@ class Tester(Dumper):
         s.start()
         s.join(30)
 
+    def reportDumpers(self, msg):
+        pass
+
     def testLoop(self):
         # Disable intermediate reporting.
         savedReport = self.report
@@ -1769,53 +1772,37 @@ class Tester(Dumper):
             state = self.process.GetState()
             if listener.WaitForEvent(100, event):
                 #warn("EVENT: %s" % event)
-                out = lldb.SBStream()
-                event.GetDescription(out)
-                msg = lldb.SBEvent.GetCStringFromEvent(event)
-                flavor = event.GetDataFlavor()
-                state = lldb.SBProcess.GetStateFromEvent(event)
-                #warn('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-                #    % (event.GetType(), out.GetData(), msg, flavor, state))
                 state = lldb.SBProcess.GetStateFromEvent(event)
                 if state == lldb.eStateExited: # 10
                     break
                 if state == lldb.eStateStopped: # 5
-                    stoppedThread = self.firstStoppedThread()
-                    if stoppedThread is None:
-                        warn("NO STOPPED THREAD FOUND")
-                        continue
+                    stoppedThread = None
+                    for i in xrange(0, self.process.GetNumThreads()):
+                        thread = self.process.GetThreadAtIndex(i)
+                        reason = thread.GetStopReason()
+                        #warn("THREAD: %s REASON: %s" % (thread, reason))
+                        if (reason == lldb.eStopReasonBreakpoint or
+                                reason == lldb.eStopReasonException or
+                                reason == lldb.eStopReasonSignal):
+                            stoppedThread = thread
 
-                    #for i in xrange(0, self.process.GetNumThreads()):
-                    #    thread = self.process.GetThreadAtIndex(i)
-                    #    reason = thread.GetStopReason()
-                    #    warn("THREAD: %s REASON: %s" % (thread, reason))
-
-                    try:
+                    if stoppedThread:
+                        # This seems highly fragile and depending on the "No-ops" in the
+                        # event handling above.
                         frame = stoppedThread.GetFrameAtIndex(0)
-                        break
-                    except:
-                        warn("NO FRAME FOUND FOR THREAD %s" % stoppedThread)
+                        line = frame.line_entry.line
+                        if line != 0:
+                            self.report = savedReport
+                            self.process.SetSelectedThread(stoppedThread)
+                            self.reportVariables()
+                            #self.reportLocation(frame)
+                            self.report("@NS@%s@" % self.qtNamespace())
+                            #self.report("ENV=%s" % os.environ.items())
+                            #self.report("DUMPER=%s" % self.qqDumpers)
+                            break
+
             else:
                 warn('TIMEOUT')
+                warn("Cannot determined stopped thread")
 
-
-        stoppedThread = self.firstStoppedThread()
-        if not stoppedThread:
-            warn("Cannot determined stopped thread")
-            return
-
-        # This seems highly fragile and depending on the "No-ops" in the
-        # event handling above.
-        self.process.SetSelectedThread(stoppedThread)
-
-        frame = stoppedThread.GetFrameAtIndex(0)
-        #file = fileName(frame.line_entry.file)
-        #line = frame.line_entry.line
-        #warn('LOCATION={file="%s",line="%s",addr="%s"}'
-        #    % (file, line, frame.pc))
-        self.report = savedReport
-        self.reportVariables()
-        self.report("@NS@%s@" % self.qtNamespace())
-        #self.report("ENV=%s" % os.environ.items())
-        #self.report("DUMPER=%s" % self.qqDumpers)
         lldb.SBDebugger.Destroy(self.debugger)
