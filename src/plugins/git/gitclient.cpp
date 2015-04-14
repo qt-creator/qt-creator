@@ -1484,13 +1484,9 @@ void GitClient::branchesForCommit(const QString &revision)
 
     auto controller = qobject_cast<DiffEditorController *>(sender());
     QString workingDirectory = controller->baseDirectory();
-    auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
-    command->setCookie(workingDirectory);
-
+    VcsCommand *command = vcsExec(workingDirectory, arguments, 0, false, 0, workingDirectory);
     connect(command, &VcsCommand::output, controller,
             &DiffEditorController::informationForCommitReceived);
-
-    enqueueJob(command, arguments);
 }
 
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
