@@ -56,16 +56,30 @@ private:
     QColor m_selectionColor;
 };
 
-struct TimelineItemsRenderPassState : public TimelineRenderPass::State {
-    TimelineItemsRenderPassState() : indexFrom(std::numeric_limits<int>::max()), indexTo(-1) {}
-    int indexFrom;
-    int indexTo;
-    TimelineItemsMaterial collapsedRowMaterial;
+class TimelineItemsRenderPassState : public TimelineRenderPass::State {
+public:
+    TimelineItemsRenderPassState(const TimelineModel *model);
+    ~TimelineItemsRenderPassState();
+
+    QSGNode *expandedRow(int row) const { return m_expandedRows[row]; }
+    QSGNode *collapsedRow(int row) const { return m_collapsedRows[row]; }
+
+    const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
+    const QVector<QSGNode *> &collapsedRows() const { return m_collapsedRows; }
+    TimelineItemsMaterial *collapsedRowMaterial() { return &m_collapsedRowMaterial; }
+
+    int indexFrom() const { return m_indexFrom; }
+    int indexTo() const { return m_indexTo; }
+    void updateIndexes(int from, int to);
+    void updateCollapsedRowMaterial(float xScale, int selectedItem, QColor selectionColor);
+
+private:
+    int m_indexFrom;
+    int m_indexTo;
+    TimelineItemsMaterial m_collapsedRowMaterial;
 
     QVector<QSGNode *> m_expandedRows;
     QVector<QSGNode *> m_collapsedRows;
-    const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
-    const QVector<QSGNode *> &collapsedRows() const { return m_collapsedRows; }
 };
 
 struct OpaqueColoredPoint2DWithSize {
@@ -214,16 +228,16 @@ static void updateNodes(int from, int to, const TimelineModel *model,
         TimelineItemsGeometry &row = expandedPerRow[i];
         if (row.usedVertices > 0) {
             row.allocate(&static_cast<TimelineExpandedRowNode *>(
-                             state->m_expandedRows[i])->material);
-            state->m_expandedRows[i]->appendChildNode(row.node);
+                             state->expandedRow(i))->material);
+            state->expandedRow(i)->appendChildNode(row.node);
         }
     }
 
     for (int i = 0; i < model->collapsedRowCount(); ++i) {
         TimelineItemsGeometry &row = collapsedPerRow[i];
         if (row.usedVertices > 0) {
-            row.allocate(&state->collapsedRowMaterial);
-            state->m_collapsedRows[i]->appendChildNode(row.node);
+            row.allocate(state->collapsedRowMaterial());
+            state->collapsedRow(i)->appendChildNode(row.node);
         }
     }
 
@@ -290,36 +304,25 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
 
     TimelineItemsRenderPassState *state;
     if (oldState == 0)
-        state = new TimelineItemsRenderPassState;
+        state = new TimelineItemsRenderPassState(model);
     else
         state = static_cast<TimelineItemsRenderPassState *>(oldState);
 
 
-    float selectedItem = renderer->selectedItem() == -1 ? -1 :
+    int selectedItem = renderer->selectedItem() == -1 ? -1 :
             model->selectionId(renderer->selectedItem());
 
-    state->collapsedRowMaterial.setScale(QVector2D(spacing / parentState->scale(), 1));
-    state->collapsedRowMaterial.setSelectedItem(selectedItem);
-    state->collapsedRowMaterial.setSelectionColor(selectionColor);
+    state->updateCollapsedRowMaterial(spacing / parentState->scale(), selectedItem, selectionColor);
 
-    if (state->m_expandedRows.isEmpty()) {
-        state->m_expandedRows.reserve(model->expandedRowCount());
-        state->m_collapsedRows.reserve(model->collapsedRowCount());
-        for (int i = 0; i < model->expandedRowCount(); ++i)
-            state->m_expandedRows << new TimelineExpandedRowNode;
-        for (int i = 0; i < model->collapsedRowCount(); ++i)
-            state->m_collapsedRows << new QSGNode;
-    }
-
-    if (state->indexFrom < state->indexTo) {
-        if (indexFrom < state->indexFrom) {
-            for (int i = indexFrom; i < state->indexFrom;
+    if (state->indexFrom() < state->indexTo()) {
+        if (indexFrom < state->indexFrom()) {
+            for (int i = indexFrom; i < state->indexFrom();
                  i+= TimelineItemsGeometry::maxEventsPerNode)
-                updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, state->indexFrom),
-                            model, parentState, state);
+                updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode,
+                                    state->indexFrom()), model, parentState, state);
         }
-        if (indexTo > state->indexTo) {
-            for (int i = state->indexTo; i < indexTo; i+= TimelineItemsGeometry::maxEventsPerNode)
+        if (indexTo > state->indexTo()) {
+            for (int i = state->indexTo(); i < indexTo; i+= TimelineItemsGeometry::maxEventsPerNode)
                 updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, indexTo), model,
                             parentState, state);
         }
@@ -332,7 +335,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
     if (model->expanded()) {
         for (int row = 0; row < model->expandedRowCount(); ++row) {
             TimelineExpandedRowNode *rowNode = static_cast<TimelineExpandedRowNode *>(
-                        state->m_expandedRows[row]);
+                        state->expandedRow(row));
             rowNode->material.setScale(
                         QVector2D(spacing / parentState->scale(),
                                   static_cast<qreal>(model->expandedRowHeight(row))) /
@@ -342,8 +345,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
         }
     }
 
-    state->indexFrom = qMin(state->indexFrom, indexFrom);
-    state->indexTo = qMax(state->indexTo, indexTo);
+    state->updateIndexes(indexFrom, indexTo);
     return state;
 }
 
@@ -456,6 +458,45 @@ void OpaqueColoredPoint2DWithSize::set(float nx, float ny, float nw, float nh, f
                                        uchar nr, uchar ng, uchar nb) {
     x = nx; y = ny; w = nw; h = nh; id = nid;
     r = nr; g = ng, b = nb; a = 255;
+}
+
+TimelineItemsRenderPassState::TimelineItemsRenderPassState(const TimelineModel *model) :
+    m_indexFrom(std::numeric_limits<int>::max()), m_indexTo(-1)
+{
+    m_expandedRows.reserve(model->expandedRowCount());
+    m_collapsedRows.reserve(model->collapsedRowCount());
+    for (int i = 0; i < model->expandedRowCount(); ++i) {
+        TimelineExpandedRowNode *node = new TimelineExpandedRowNode;
+        node->setFlag(QSGNode::OwnedByParent, false);
+        m_expandedRows << node;
+    }
+    for (int i = 0; i < model->collapsedRowCount(); ++i) {
+        QSGNode *node = new QSGNode;
+        node->setFlag(QSGNode::OwnedByParent, false);
+        m_collapsedRows << node;
+    }
+}
+
+TimelineItemsRenderPassState::~TimelineItemsRenderPassState()
+{
+    qDeleteAll(m_collapsedRows);
+    qDeleteAll(m_expandedRows);
+}
+
+void TimelineItemsRenderPassState::updateIndexes(int from, int to)
+{
+    if (from < m_indexFrom)
+        m_indexFrom = from;
+    if (to > m_indexTo)
+        m_indexTo = to;
+}
+
+void TimelineItemsRenderPassState::updateCollapsedRowMaterial(float xScale, int selectedItem,
+                                                              QColor selectionColor)
+{
+    m_collapsedRowMaterial.setScale(QVector2D(xScale, 1));
+    m_collapsedRowMaterial.setSelectedItem(selectedItem);
+    m_collapsedRowMaterial.setSelectionColor(selectionColor);
 }
 
 } // namespace Timeline

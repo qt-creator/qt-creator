@@ -40,17 +40,27 @@ public:
     BindingLoopMaterial();
 };
 
-struct BindingLoopsRenderPassState : public Timeline::TimelineRenderPass::State {
-    BindingLoopsRenderPassState() : indexFrom(std::numeric_limits<int>::max()), indexTo(-1) {}
-    BindingLoopMaterial material;
-    int indexFrom;
-    int indexTo;
+class BindingLoopsRenderPassState : public Timeline::TimelineRenderPass::State {
+public:
+    BindingLoopsRenderPassState(const QmlProfilerRangeModel *model);
+    ~BindingLoopsRenderPassState();
 
-    QVector<QSGNode *> m_expandedRows;
+    BindingLoopMaterial *material() { return &m_material; }
+    void updateIndexes(int from, int to);
+
+    int indexFrom() const { return m_indexFrom; }
+    int indexTo() const { return m_indexTo; }
+
+    QSGNode *expandedRow(int row) const { return m_expandedRows[row]; }
     const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
-
-    QSGNode *m_collapsedOverlay;
     QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
+
+private:
+    QVector<QSGNode *> m_expandedRows;
+    QSGNode *m_collapsedOverlay;
+    BindingLoopMaterial m_material;
+    int m_indexFrom;
+    int m_indexTo;
 };
 
 struct Point2DWithOffset {
@@ -111,14 +121,14 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
     for (int i = 0; i < model->expandedRowCount(); ++i) {
         BindlingLoopsGeometry &row = expandedPerRow[i];
         if (row.usedVertices > 0) {
-            row.allocate(&state->material);
-            state->m_expandedRows[i]->appendChildNode(row.node);
+            row.allocate(state->material());
+            state->expandedRow(i)->appendChildNode(row.node);
         }
     }
 
     if (collapsed.usedVertices > 0) {
-        collapsed.allocate(&state->material);
-        state->m_collapsedOverlay->appendChildNode(collapsed.node);
+        collapsed.allocate(state->material());
+        state->collapsedOverlay()->appendChildNode(collapsed.node);
     }
 
     int rowHeight = Timeline::TimelineModel::defaultRowHeight();
@@ -163,25 +173,20 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
         return oldState;
 
     BindingLoopsRenderPassState *state;
-    if (oldState == 0) {
-        state = new BindingLoopsRenderPassState;
-        state->m_expandedRows.reserve(model->expandedRowCount());
-        for (int i = 0; i < model->expandedRowCount(); ++i)
-            state->m_expandedRows << new QSGNode;
-        state->m_collapsedOverlay = new QSGNode;
-    } else {
+    if (oldState == 0)
+        state = new BindingLoopsRenderPassState(model);
+    else
         state = static_cast<BindingLoopsRenderPassState *>(oldState);
-    }
 
-    if (state->indexFrom < state->indexTo) {
-        if (indexFrom < state->indexFrom) {
-            for (int i = indexFrom; i < state->indexFrom;
+    if (state->indexFrom() < state->indexTo()) {
+        if (indexFrom < state->indexFrom()) {
+            for (int i = indexFrom; i < state->indexFrom();
                  i += BindlingLoopsGeometry::maxEventsPerNode)
                 updateNodes(model, i, qMin(i + BindlingLoopsGeometry::maxEventsPerNode,
-                                           state->indexFrom), parentState, state);
+                                           state->indexFrom()), parentState, state);
         }
-        if (indexTo > state->indexTo) {
-            for (int i = state->indexTo; i < indexTo; i+= BindlingLoopsGeometry::maxEventsPerNode)
+        if (indexTo > state->indexTo()) {
+            for (int i = state->indexTo(); i < indexTo; i+= BindlingLoopsGeometry::maxEventsPerNode)
                 updateNodes(model, i, qMin(i + BindlingLoopsGeometry::maxEventsPerNode, indexTo),
                             parentState, state);
         }
@@ -191,8 +196,7 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
                         parentState, state);
     }
 
-    state->indexFrom = qMin(state->indexFrom, indexFrom);
-    state->indexTo = qMax(state->indexTo, indexTo);
+    state->updateIndexes(indexFrom, indexTo);
     return state;
 }
 
@@ -354,6 +358,32 @@ void Point2DWithOffset::set(float nx, float ny, float nx2, float ny2)
     x = nx; y = ny; x2 = nx2; y2 = ny2;
 }
 
+BindingLoopsRenderPassState::BindingLoopsRenderPassState(const QmlProfilerRangeModel *model) :
+    m_indexFrom(std::numeric_limits<int>::max()), m_indexTo(-1)
+{
+    m_collapsedOverlay = new QSGNode;
+    m_collapsedOverlay->setFlag(QSGNode::OwnedByParent, false);
+    m_expandedRows.reserve(model->expandedRowCount());
+    for (int i = 0; i < model->expandedRowCount(); ++i) {
+        QSGNode *node = new QSGNode;
+        node->setFlag(QSGNode::OwnedByParent, false);
+        m_expandedRows << node;
+    }
+}
+
+BindingLoopsRenderPassState::~BindingLoopsRenderPassState()
+{
+    delete m_collapsedOverlay;
+    qDeleteAll(m_expandedRows);
+}
+
+void BindingLoopsRenderPassState::updateIndexes(int from, int to)
+{
+    if (from < m_indexFrom)
+        m_indexFrom = from;
+    if (to > m_indexTo)
+        m_indexTo = to;
+}
 
 }
 }

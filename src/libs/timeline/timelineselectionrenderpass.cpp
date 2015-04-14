@@ -40,6 +40,7 @@ QSGSimpleRectNode *createSelectionNode()
     QSGSimpleRectNode *selectionNode = new QSGSimpleRectNode;
     selectionNode->material()->setFlag(QSGMaterial::Blending, false);
     selectionNode->setRect(0, 0, 0, 0);
+    selectionNode->setFlag(QSGNode::OwnedByParent, false);
     QSGSimpleRectNode *selectionChild = new QSGSimpleRectNode;
     selectionChild->material()->setFlag(QSGMaterial::Blending, false);
     selectionChild->setRect(0, 0, 0, 0);
@@ -47,12 +48,16 @@ QSGSimpleRectNode *createSelectionNode()
     return selectionNode;
 }
 
-struct TimelineSelectionRenderPassState : public TimelineRenderPass::State {
-    QSGSimpleRectNode *m_expandedOverlay;
-    QSGSimpleRectNode *m_collapsedOverlay;
+class TimelineSelectionRenderPassState : public TimelineRenderPass::State {
+public:
+    TimelineSelectionRenderPassState();
+    ~TimelineSelectionRenderPassState();
 
     QSGNode *expandedOverlay() const { return m_expandedOverlay; }
     QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
+private:
+    QSGSimpleRectNode *m_expandedOverlay;
+    QSGSimpleRectNode *m_collapsedOverlay;
 };
 
 TimelineRenderPass::State *TimelineSelectionRenderPass::update(
@@ -67,17 +72,14 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
 
     TimelineSelectionRenderPassState *state;
 
-    if (oldState == 0) {
+    if (oldState == 0)
         state = new TimelineSelectionRenderPassState;
-        state->m_expandedOverlay = createSelectionNode();
-        state->m_collapsedOverlay = createSelectionNode();
-    } else {
+    else
         state = static_cast<TimelineSelectionRenderPassState *>(oldState);
-    }
 
     QSGSimpleRectNode *selectionNode = static_cast<QSGSimpleRectNode *>(model->expanded() ?
-                                                                        state->m_expandedOverlay :
-                                                                        state->m_collapsedOverlay);
+                                                                        state->expandedOverlay() :
+                                                                        state->collapsedOverlay());
 
     QSGSimpleRectNode *child = static_cast<QSGSimpleRectNode *>(selectionNode->firstChild());
     int selectedItem = renderer->selectedItem();
@@ -145,6 +147,17 @@ const TimelineSelectionRenderPass *TimelineSelectionRenderPass::instance()
 
 TimelineSelectionRenderPass::TimelineSelectionRenderPass()
 {
+}
+
+TimelineSelectionRenderPassState::TimelineSelectionRenderPassState() :
+    m_expandedOverlay(createSelectionNode()), m_collapsedOverlay(createSelectionNode())
+{
+}
+
+TimelineSelectionRenderPassState::~TimelineSelectionRenderPassState()
+{
+    delete m_collapsedOverlay;
+    delete m_expandedOverlay;
 }
 
 } // namespace Timeline

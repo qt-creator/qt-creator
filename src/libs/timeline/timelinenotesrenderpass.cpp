@@ -57,19 +57,26 @@ struct NotesGeometry
 
 const int NotesGeometry::maxNotes = 0xffff / 2;
 
-struct TimelineNotesRenderPassState : public TimelineRenderPass::State
+class TimelineNotesRenderPassState : public TimelineRenderPass::State
 {
+public:
     TimelineNotesRenderPassState(int expandedRows);
+    ~TimelineNotesRenderPassState();
 
-    QSGGeometryNode *createNode();
-
-    NotesMaterial material;
-    QSGGeometry nullGeometry;
-    QSGGeometryNode *m_collapsedOverlay;
-    QVector<QSGNode *> m_expandedRows;
-
+    QSGNode *expandedRow(int row) const { return m_expandedRows[row]; }
     QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
     const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
+
+    QSGGeometry *nullGeometry() { return &m_nullGeometry; }
+    NotesMaterial *material() { return &m_material; }
+
+private:
+    QSGGeometryNode *createNode();
+
+    NotesMaterial m_material;
+    QSGGeometry m_nullGeometry;
+    QSGGeometryNode *m_collapsedOverlay;
+    QVector<QSGNode *> m_expandedRows;
 };
 
 const QSGGeometry::AttributeSet &NotesGeometry::point2DWithDistanceFromTop()
@@ -135,21 +142,21 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
         collapsed << timelineIndex;
     }
 
-    QSGGeometryNode *collapsedNode = state->m_collapsedOverlay;
+    QSGGeometryNode *collapsedNode = static_cast<QSGGeometryNode *>(state->collapsedOverlay());
 
     if (collapsed.count() > 0) {
         collapsedNode->setGeometry(NotesGeometry::createGeometry(collapsed, model, parentState,
                                                                  true));
         collapsedNode->setFlag(QSGGeometryNode::OwnsGeometry, true);
     } else {
-        collapsedNode->setGeometry(&state->nullGeometry);
+        collapsedNode->setGeometry(state->nullGeometry());
         collapsedNode->setFlag(QSGGeometryNode::OwnsGeometry, false);
     }
 
     for (int row = 0; row < model->expandedRowCount(); ++row) {
-        QSGGeometryNode *rowNode = static_cast<QSGGeometryNode *>(state->m_expandedRows[row]);
+        QSGGeometryNode *rowNode = static_cast<QSGGeometryNode *>(state->expandedRow(row));
         if (expanded[row].isEmpty()) {
-            rowNode->setGeometry(&state->nullGeometry);
+            rowNode->setGeometry(state->nullGeometry());
             rowNode->setFlag(QSGGeometryNode::OwnsGeometry, false);
         } else {
             rowNode->setGeometry(NotesGeometry::createGeometry(expanded[row], model, parentState,
@@ -162,20 +169,27 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
 }
 
 TimelineNotesRenderPassState::TimelineNotesRenderPassState(int numExpandedRows) :
-    nullGeometry(NotesGeometry::point2DWithDistanceFromTop(), 0)
+    m_nullGeometry(NotesGeometry::point2DWithDistanceFromTop(), 0)
 {
-    material.setFlag(QSGMaterial::Blending, true);
+    m_material.setFlag(QSGMaterial::Blending, true);
     m_expandedRows.reserve(numExpandedRows);
     for (int i = 0; i < numExpandedRows; ++i)
         m_expandedRows << createNode();
     m_collapsedOverlay = createNode();
 }
 
+TimelineNotesRenderPassState::~TimelineNotesRenderPassState()
+{
+    qDeleteAll(m_expandedRows);
+    delete m_collapsedOverlay;
+}
+
 QSGGeometryNode *TimelineNotesRenderPassState::createNode()
 {
     QSGGeometryNode *node = new QSGGeometryNode;
-    node->setGeometry(&nullGeometry);
-    node->setMaterial(&material);
+    node->setGeometry(&m_nullGeometry);
+    node->setMaterial(&m_material);
+    node->setFlag(QSGNode::OwnedByParent, false);
     return node;
 }
 
