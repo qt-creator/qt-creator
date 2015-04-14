@@ -30,6 +30,38 @@
 
     \title Profiling QML Applications
 
+    You can use the QML Profiler to find causes for typical performance problems
+    in your applications, such as slowness and unresponsive, stuttering user
+    interfaces. Typical causes include executing too much JavaScript in too few
+    frames. All JavaScript must return before the GUI thread can proceed, and
+    frames are delayed or dropped if the GUI thread is not ready.
+
+    Another typical cause for similar performance problems is creating,
+    painting, or updating invisible items, which takes time in the GUI thread.
+
+    Triggering long-running C++ functions, such as paint methods and signal
+    handlers, also takes time in the GUI thread, but is more difficult to see in
+    the QML Profiler, because it does not profile C++ code.
+
+    To find excessive use of JavaScript, check the frame rate in animations and
+    Scene Graph events, look for gaps, and check whether the application behaves
+    as expected. The JavaScript category displays the run time of functions,
+    which you should try to keep below 16 ms per frame.
+
+    To find problems caused by handling invisible items, look for dropped
+    frames and check that you are not using too many short bindings or signal
+    handlers that are updated per frame. You can also \l{Visualizing Overdraw}
+    {visualize Scene Graph overdraw} to check scene layout and find items that
+    are never visible to the users, because they are located outside the screen
+    or hidden beneath other, visible elements.
+
+    If frames get dropped even though JavaScript is not being run, and there are
+    large, unexplained gaps in the timeline, check your custom QQuickItem
+    implementations. You can use \l{Using Valgrind Code Analysis Tools}
+    {Valgrind} or other general purpose profilers to analyze C++ code.
+
+    \section1 Using QML Profiler
+
     To monitor the performance of an application in the QML Profiler:
 
     \list 1
