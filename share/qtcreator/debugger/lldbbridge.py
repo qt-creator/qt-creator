@@ -1082,6 +1082,20 @@ class Dumper(DumperBase):
             self.putFormattedPointer(value)
             return
 
+        # Chars
+        if typeClass == lldb.eTypeClassBuiltin:
+            basicType = value.GetType().GetBasicType()
+            if basicType == lldb.eBasicTypeChar:
+                self.putValue(value.GetValueAsUnsigned())
+                self.putType(typeName)
+                self.putNumChild(0)
+                return
+            if basicType == lldb.eBasicTypeSignedChar:
+                self.putValue(value.GetValueAsSigned())
+                self.putType(typeName)
+                self.putNumChild(0)
+                return
+
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
         if self.tryPutPrettyItem(typeName, value):
