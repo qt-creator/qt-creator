@@ -541,14 +541,6 @@ private:
     QRegExp m_progressExp;
 };
 
-IEditor *locateEditor(const char *property, const QString &entry)
-{
-    foreach (IDocument *document, DocumentModel::openedDocuments())
-        if (document->property(property).toString() == entry)
-            return DocumentModel::editorsForDocument(document).first();
-    return 0;
-}
-
 static inline QString msgRepositoryNotFound(const QString &dir)
 {
     return GitClient::tr("Cannot determine the repository for \"%1\".").arg(dir);
@@ -639,22 +631,6 @@ bool GitClient::managesFile(const QString &workingDirectory, const QString &file
     arguments << QLatin1String("ls-files") << QLatin1String("--error-unmatch") << fileName;
     return vcsFullySynchronousExec(workingDirectory, arguments, &output, 0,
                                    VcsBasePlugin::SuppressCommandLogging);
-}
-
-VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
-                                                      const QString &dynamicPropertyValue) const
-{
-    VcsBaseEditorWidget *rc = 0;
-    IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
-    if (!outputEditor)
-        return 0;
-
-    // Exists already
-    EditorManager::activateEditor(outputEditor);
-    outputEditor->document()->setContents(QByteArray()); // clear
-    rc = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-
-    return rc;
 }
 
 QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const QString &source) const
@@ -848,13 +824,12 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
-    VcsBaseEditorWidget *editor = findExistingVCSEditor("logTitle", msgArg);
-    if (!editor) {
+    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
+                                                  codecFor(CodecLogOutput), "logTitle", msgArg);
+    if (!editor->configurationWidget()) {
         auto *argWidget = new GitLogArgumentsWidget(settings());
         connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
                 [=]() { this->log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
-        editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecLogOutput),
-                                 "logTitle", msgArg);
         editor->setConfigurationWidget(argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
@@ -884,11 +859,8 @@ void GitClient::reflog(const QString &workingDirectory)
 {
     const QString title = tr("Git Reflog \"%1\"").arg(workingDirectory);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    VcsBaseEditorWidget *editor = findExistingVCSEditor("reflogRepository", workingDirectory);
-    if (!editor) {
-        editor = createVcsEditor(editorId, title, workingDirectory, codecFor(CodecLogOutput),
-                                 "reflogRepository", workingDirectory);
-    }
+    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, workingDirectory, codecFor(CodecLogOutput),
+                                                  "reflogRepository", workingDirectory);
     editor->setWorkingDirectory(workingDirectory);
 
     QStringList arguments;
@@ -947,8 +919,10 @@ void GitClient::annotate(const QString &workingDir, const QString &file, const Q
     const QString title = tr("Git Blame \"%1\"").arg(id);
     const QString sourceFile = VcsBaseEditor::getSource(workingDir, file);
 
-    VcsBaseEditorWidget *editor = findExistingVCSEditor("blameFileName", id);
-    if (!editor) {
+    VcsBaseEditorWidget *editor
+            = createVcsEditor(editorId, title, sourceFile, codecFor(CodecSource, sourceFile),
+                              "blameFileName", id);
+    if (!editor->configurationWidget()) {
         auto *argWidget = new GitBlameArgumentsWidget(settings());
         argWidget->setBaseArguments(extraOptions);
         connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
@@ -956,8 +930,6 @@ void GitClient::annotate(const QString &workingDir, const QString &file, const Q
                     const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
                     annotate(workingDir, file, revision, line, extraOptions);
                 } );
-        editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecSource, sourceFile),
-                                 "blameFileName", id);
         editor->setConfigurationWidget(argWidget);
     }
 
@@ -2888,10 +2860,8 @@ void GitClient::subversionLog(const QString &workingDirectory)
     const QString title = tr("Git SVN Log");
     const Id editorId = Git::Constants::GIT_COMMAND_LOG_EDITOR_ID;
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, QStringList());
-    VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
-    if (!editor)
-        editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
-                                 "svnLog", sourceFile);
+    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
+                                                  "svnLog", sourceFile);
     editor->setWorkingDirectory(workingDirectory);
     vcsExec(workingDirectory, arguments, editor);
 }

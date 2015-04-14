@@ -360,8 +360,6 @@ private slots:
 
 private:
     void stage(const QString &patch, bool revert);
-    VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
-                                                        const QString &dynamicPropertyValue) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
