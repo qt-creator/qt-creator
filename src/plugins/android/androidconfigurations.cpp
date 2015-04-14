@@ -597,8 +597,9 @@ AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Fi
     arguments << QLatin1String("create") << QLatin1String("avd")
               << QLatin1String("-t") << info.target
               << QLatin1String("-n") << info.name
-              << QLatin1String("-b") << info.abi
-              << QLatin1String("-c") << QString::fromLatin1("%1M").arg(info.sdcardSize);
+              << QLatin1String("-b") << info.abi;
+    if (info.sdcardSize > 0)
+        arguments << QLatin1String("-c") << QString::fromLatin1("%1M").arg(info.sdcardSize);
     proc.start(androidToolPath.toString(), arguments);
     if (!proc.waitForStarted()) {
         info.error = QApplication::translate("AndroidConfig", "Could not start process \"%1 %2\"")

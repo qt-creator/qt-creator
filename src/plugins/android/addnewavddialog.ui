@@ -95,13 +95,13 @@
         <string> MiB</string>
        </property>
        <property name="minimum">
-        <number>50</number>
+        <number>0</number>
        </property>
        <property name="maximum">
         <number>9999999</number>
        </property>
        <property name="value">
-        <number>200</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
