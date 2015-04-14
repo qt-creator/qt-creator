@@ -53,8 +53,6 @@
 #include <QTextCodec>
 #include <QMutex>
 
-Q_DECLARE_METATYPE(QVariant)
-
 enum { debugExecution = 0 };
 
 /*!

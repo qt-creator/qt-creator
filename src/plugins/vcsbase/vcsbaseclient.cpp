@@ -67,8 +67,6 @@
     \sa VcsBase::VcsJobRunner
 */
 
-Q_DECLARE_METATYPE(QVariant)
-
 static Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
