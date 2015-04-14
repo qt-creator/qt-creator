@@ -14,6 +14,7 @@ Project {
         "timelinenotesrenderpass/timelinenotesrenderpass.qbs",
         "timelineoverviewrenderer/timelineoverviewrenderer.qbs",
         "timelinerenderer/timelinerenderer.qbs",
-        "timelinerenderpass/timelinerenderpass.qbs"
+        "timelinerenderpass/timelinerenderpass.qbs",
+        "timelinerenderstate/timelinerenderstate.qbs"
     ]
 }
