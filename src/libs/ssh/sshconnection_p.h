@@ -89,7 +89,8 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
-    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(quint16 remotePort);
+    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(const QString &originatingHost,
+            quint16 originatingPort, const QString &remoteHost, quint16 remotePort);
 
     SshStateInternal state() const { return m_state; }
     SshError error() const { return m_error; }

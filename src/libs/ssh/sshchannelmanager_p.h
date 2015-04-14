@@ -37,7 +37,6 @@
 
 namespace QSsh {
 class SftpChannel;
-class SshConnectionInfo;
 class SshDirectTcpIpTunnel;
 class SshRemoteProcess;
 
@@ -56,8 +55,8 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
-    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(quint16 remotePort,
-            const SshConnectionInfo &connectionInfo);
+    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(const QString &originatingHost,
+            quint16 originatingPort, const QString &remoteHost, quint16 remotePort);
 
     int channelCount() const;
     enum CloseAllMode { CloseAllRegular, CloseAllAndReset };

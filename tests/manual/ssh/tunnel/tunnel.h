@@ -68,9 +68,9 @@ private slots:
 private:
     QSsh::SshConnection * const m_connection;
     QSharedPointer<QSsh::SshDirectTcpIpTunnel> m_tunnel;
-    QTcpServer * const m_tunnelServer;
-    QTcpSocket *m_tunnelSocket;
-    quint16 m_forwardedPort;
+    QTcpServer * const m_targetServer;
+    QTcpSocket *m_targetSocket;
+    quint16 m_targetPort;
     QByteArray m_dataReceivedFromServer;
     QByteArray m_dataReceivedFromClient;
     bool m_expectingChannelClose;

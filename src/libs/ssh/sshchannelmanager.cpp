@@ -170,11 +170,11 @@ QSsh::SftpChannel::Ptr SshChannelManager::createSftpChannel()
     return sftp;
 }
 
-SshDirectTcpIpTunnel::Ptr SshChannelManager::createTunnel(quint16 remotePort,
-        const SshConnectionInfo &connectionInfo)
+SshDirectTcpIpTunnel::Ptr SshChannelManager::createTunnel(const QString &originatingHost,
+        quint16 originatingPort, const QString &remoteHost, quint16 remotePort)
 {
-    SshDirectTcpIpTunnel::Ptr tunnel(new SshDirectTcpIpTunnel(m_nextLocalChannelId++, remotePort,
-            connectionInfo, m_sendFacility));
+    SshDirectTcpIpTunnel::Ptr tunnel(new SshDirectTcpIpTunnel(m_nextLocalChannelId++,
+            originatingHost, originatingPort, remoteHost, remotePort, m_sendFacility));
     insertChannel(tunnel->d, tunnel);
     return tunnel;
 }
