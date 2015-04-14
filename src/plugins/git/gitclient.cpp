@@ -523,19 +523,21 @@ private:
 class GitProgressParser : public ProgressParser
 {
 public:
-    GitProgressParser() :
-        m_progressExp(QLatin1String("\\((\\d+)/(\\d+)\\)")) // e.g. Rebasing (7/42)
+    static void attachToCommand(VcsCommand *command)
     {
+        command->setProgressParser(new GitProgressParser);
     }
 
-protected:
+private:
+    GitProgressParser() : m_progressExp(QLatin1String("\\((\\d+)/(\\d+)\\)")) // e.g. Rebasing (7/42)
+    { }
+
     void parseProgress(const QString &text) override
     {
         if (m_progressExp.lastIndexIn(text) != -1)
             setProgressAndMaximum(m_progressExp.cap(1).toInt(), m_progressExp.cap(2).toInt());
     }
 
-private:
     QRegExp m_progressExp;
 };
 
@@ -2973,7 +2975,7 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     VcsCommand *command = createCommand(workingDirectory, 0, VcsWindowOutputBind);
     ConflictHandler::attachToCommand(command, gitCommand);
     if (hasProgress)
-        command->setProgressParser(new GitProgressParser);
+        GitProgressParser::attachToCommand(command);
     command->setCookie(workingDirectory);
     enqueueJob(command, arguments);
 }
