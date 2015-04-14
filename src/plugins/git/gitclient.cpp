@@ -1260,7 +1260,7 @@ bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QSt
 
     const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputTextData, &errorText,
                                             VcsBasePlugin::SuppressCommandLogging);
-    if (rc) {
+    if (!rc) {
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
         return false;
     }
