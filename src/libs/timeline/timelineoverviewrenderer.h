@@ -39,7 +39,6 @@ class TIMELINE_EXPORT TimelineOverviewRenderer : public TimelineAbstractRenderer
 {
 public:
     TimelineOverviewRenderer(QQuickItem *parent = 0);
-    ~TimelineOverviewRenderer();
 
 protected:
     virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);

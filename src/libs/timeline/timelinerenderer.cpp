@@ -54,6 +54,19 @@ TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate(TimelineRende
     resetCurrentSelection();
 }
 
+TimelineRenderer::TimelineRendererPrivate::~TimelineRendererPrivate()
+{
+    clear();
+}
+
+void TimelineRenderer::TimelineRendererPrivate::clear()
+{
+    for (auto i = renderStates.begin(); i != renderStates.end(); ++i)
+        qDeleteAll(*i);
+    renderStates.clear();
+    lastState = 0;
+}
+
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
     TimelineAbstractRenderer(*(new TimelineRendererPrivate(this)), parent)
 {
@@ -121,10 +134,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     if (d->modelDirty) {
         if (node)
             node->removeAllChildNodes();
-        for (auto i = d->renderStates.begin(); i != d->renderStates.end(); ++i)
-            qDeleteAll(*i);
-        d->renderStates.clear();
-        d->lastState = 0;
+        d->clear();
     }
 
     TimelineRenderState *state = d->findRenderState();

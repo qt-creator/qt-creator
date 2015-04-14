@@ -55,6 +55,7 @@ class TIMELINE_EXPORT TimelineAbstractRenderer : public QQuickItem
 
 public:
     TimelineAbstractRenderer(QQuickItem *parent = 0);
+    ~TimelineAbstractRenderer();
 
     bool selectionLocked() const;
     int selectedItem() const;

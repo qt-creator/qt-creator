@@ -40,6 +40,9 @@ class TimelineOverviewRenderer::TimelineOverviewRendererPrivate :
         public TimelineAbstractRenderer::TimelineAbstractRendererPrivate
 {
 public:
+    TimelineOverviewRendererPrivate();
+    ~TimelineOverviewRendererPrivate();
+
     TimelineRenderState *renderState;
 };
 

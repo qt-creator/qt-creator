@@ -36,15 +36,16 @@ namespace Timeline {
 TimelineOverviewRenderer::TimelineOverviewRenderer(QQuickItem *parent) :
     TimelineAbstractRenderer(*(new TimelineOverviewRendererPrivate), parent)
 {
-    Q_D(TimelineOverviewRenderer);
-    d->renderState = 0;
 }
 
-TimelineOverviewRenderer::~TimelineOverviewRenderer()
+TimelineOverviewRenderer::TimelineOverviewRendererPrivate::TimelineOverviewRendererPrivate() :
+    renderState(0)
 {
-    Q_D(TimelineOverviewRenderer);
-    delete d->renderState;
-    delete d;
+}
+
+TimelineOverviewRenderer::TimelineOverviewRendererPrivate::~TimelineOverviewRendererPrivate()
+{
+    delete renderState;
 }
 
 QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
