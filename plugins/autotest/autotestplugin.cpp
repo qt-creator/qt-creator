@@ -126,8 +126,10 @@ void AutotestPlugin::initializeMenuEntries()
             TestTreeModel::instance()->parser(), &TestCodeParser::updateTestTree);
     menu->addAction(command);
 
-    ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-    connect(menu->menu(), &QMenu::aboutToShow, this, &AutotestPlugin::updateMenuItemsEnabledState);
+    ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    toolsMenu->addMenu(menu);
+    connect(toolsMenu->menu(), &QMenu::aboutToShow,
+            this, &AutotestPlugin::updateMenuItemsEnabledState);
 }
 
 bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -175,7 +177,8 @@ void AutotestPlugin::onRunSelectedTriggered()
 
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
-    const bool enabled = !TestRunner::instance()->isTestRunning();
+    const bool enabled = !TestRunner::instance()->isTestRunning()
+            && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = TestTreeModel::instance()->hasTests();
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(enabled && hasTests);

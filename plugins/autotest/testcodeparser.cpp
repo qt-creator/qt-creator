@@ -86,10 +86,15 @@ ProjectExplorer::Project *currentProject()
 
 void TestCodeParser::setState(State state)
 {
-    m_parserState = state;
     // avoid triggering parse before code model parsing has finished
     if (!m_parserEnabled)
         return;
+
+    if ((state == Disabled || state == Idle)
+            && (m_parserState == PartialParse || m_parserState == FullParse))
+        return;
+    m_parserState = state;
+
     if (m_parserState == Disabled) {
         m_fullUpdatePostponed = m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
@@ -738,8 +743,8 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
         return;
     m_parserEnabled = true;
     // avoid illegal parser state if respective widgets became hidden while parsing
-    if (m_parserState == Disabled)
-        m_parserState = Idle;
+    setState(Idle);
+
     if (m_fullUpdatePostponed)
         updateTestTree();
     else if (m_partialUpdatePostponed) {
@@ -902,8 +907,7 @@ void TestCodeParser::onProFileEvaluated()
             foreach (auto projectFile, p->files)
                 files.append(projectFile.path);
             // avoid illegal parser state when respective widgets became hidden while evaluating
-            if (m_parserState == Disabled)
-                m_parserState = Idle;
+            setState(Idle);
             scanForTests(files);
         }
     }
