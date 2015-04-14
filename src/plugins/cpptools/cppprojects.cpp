@@ -86,6 +86,8 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
         languageVersion = CXX14;
     else if (flags & ToolChain::StandardCxx11)
         languageVersion = CXX11;
+    else if (flags & ToolChain::StandardCxx98)
+        languageVersion = CXX98;
     else
         languageVersion = CXX11;
 
