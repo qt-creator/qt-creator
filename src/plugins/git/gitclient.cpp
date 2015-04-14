@@ -2014,9 +2014,6 @@ VcsCommand *GitClient::executeGit(const QString &workingDirectory,
                                   unsigned additionalFlags,
                                   int editorLineNumber)
 {
-    VcsOutputWindow::appendCommand(workingDirectory,
-                                   FileName::fromUserInput(settings()->stringValue(GitSettings::binaryPathKey)),
-                                   arguments);
     VcsCommand *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
     command->addFlags(additionalFlags);
@@ -3128,7 +3125,6 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     // Git might request an editor, so this must be done asynchronously
     // and without timeout
     QString gitCommand = arguments.first();
-    VcsOutputWindow::appendCommand(workingDirectory, settings()->binaryPath(), arguments);
     VcsCommand *command = createCommand(workingDirectory, 0, true);
     new ConflictHandler(command, workingDirectory, gitCommand);
     if (hasProgress)
@@ -3174,7 +3170,6 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     if (fixup)
         arguments << QLatin1String("--autosquash");
     arguments << commit + QLatin1Char('^');
-    VcsOutputWindow::appendCommand(workingDirectory, settings()->binaryPath(), arguments);
     if (fixup)
         m_disableEditor = true;
     asyncCommand(workingDirectory, arguments, true);
