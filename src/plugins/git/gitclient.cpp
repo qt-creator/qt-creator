@@ -830,7 +830,7 @@ void GitClient::status(const QString &workingDirectory)
     QStringList statusArgs;
     statusArgs << QLatin1String("status") << QLatin1String("-u");
     VcsOutputWindow::setRepository(workingDirectory);
-    VcsCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
+    VcsCommand *command = vcsExec(workingDirectory, statusArgs, 0, true);
     connect(command, &VcsCommand::finished, VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,
             Qt::QueuedConnection);
 }
@@ -877,7 +877,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (!fileName.isEmpty())
         arguments << QLatin1String("--follow") << QLatin1String("--") << fileName;
 
-    executeGit(workingDirectory, arguments, editor);
+    vcsExec(workingDirectory, arguments, editor);
 }
 
 void GitClient::reflog(const QString &workingDirectory)
@@ -899,7 +899,7 @@ void GitClient::reflog(const QString &workingDirectory)
     if (logCount > 0)
          arguments << QLatin1String("-n") << QString::number(logCount);
 
-    executeGit(workingDirectory, arguments, editor);
+    vcsExec(workingDirectory, arguments, editor);
 }
 
 // Do not show "0000" or "^32ae4"
@@ -969,7 +969,7 @@ void GitClient::annotate(const QString &workingDir, const QString &file, const Q
     arguments << QLatin1String("--") << file;
     if (!revision.isEmpty())
         arguments << revision;
-    executeGit(workingDir, arguments, editor, false, 0, lineNumber);
+    vcsExec(workingDir, arguments, editor, false, 0, lineNumber);
 }
 
 bool GitClient::synchronousCheckout(const QString &workingDirectory,
@@ -1060,7 +1060,7 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     unsigned flags = 0;
     if (argument == QLatin1String("--hard"))
         flags |= VcsBasePlugin::ExpectRepoChanges;
-    executeGit(workingDirectory, arguments, 0, true, flags);
+    vcsExec(workingDirectory, arguments, 0, true, flags);
 }
 
 void GitClient::addFile(const QString &workingDirectory, const QString &fileName)
@@ -1068,7 +1068,7 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
     QStringList arguments;
     arguments << QLatin1String("add") << fileName;
 
-    executeGit(workingDirectory, arguments, 0);
+    vcsExec(workingDirectory, arguments);
 }
 
 bool GitClient::synchronousLog(const QString &workingDirectory, const QStringList &arguments,
@@ -1885,20 +1885,6 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
     return true;
 }
 
-// Execute a single command
-VcsCommand *GitClient::executeGit(const QString &workingDirectory, const QStringList &arguments,
-                                  VcsBaseEditorWidget *editor, bool useOutputToWindow,
-                                  unsigned additionalFlags, int editorLineNumber)
-{
-    VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
-    VcsCommand *command = createCommand(workingDirectory, editor,
-                                        useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
-    command->setCookie(editorLineNumber);
-    command->addFlags(additionalFlags);
-    enqueueJob(command, arguments);
-    return command;
-}
-
 QProcessEnvironment GitClient::processEnvironment() const
 {
     QProcessEnvironment environment = VcsBaseClientImpl::processEnvironment();
@@ -1998,8 +1984,8 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     QStringList arguments;
     arguments << QLatin1String("submodule") << QLatin1String("update");
 
-    VcsCommand *cmd = executeGit(workingDirectory, arguments, 0, true,
-                                 VcsBasePlugin::ExpectRepoChanges);
+    VcsCommand *cmd = vcsExec(workingDirectory, arguments, 0, true,
+                              VcsBasePlugin::ExpectRepoChanges);
     connect(cmd, &VcsCommand::finished, this, &GitClient::finishSubmoduleUpdate);
 }
 
@@ -2756,8 +2742,7 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 {
     QStringList arguments(QLatin1String("fetch"));
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
-    VcsCommand *command = executeGit(workingDirectory, arguments, 0, true);
-    command->setCookie(workingDirectory);
+    VcsCommand *command = vcsExec(workingDirectory, arguments, 0, true, 0, workingDirectory);
     connect(command, &VcsCommand::success, this, &GitClient::fetchFinished);
 }
 
@@ -2912,7 +2897,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
         editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
                                  "svnLog", sourceFile);
     editor->setWorkingDirectory(workingDirectory);
-    executeGit(workingDirectory, arguments, editor);
+    vcsExec(workingDirectory, arguments, editor);
 }
 
 void GitClient::push(const QString &workingDirectory, const QStringList &pushArgs)
@@ -2920,7 +2905,7 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
     QStringList arguments(QLatin1String("push"));
     if (!pushArgs.isEmpty())
         arguments += pushArgs;
-    executeGit(workingDirectory, arguments, 0, true);
+    vcsExec(workingDirectory, arguments, 0, true);
 }
 
 bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch,
@@ -3040,8 +3025,8 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     arguments << QLatin1String("pop");
     if (!stash.isEmpty())
         arguments << stash;
-    VcsCommand *cmd = executeGit(workingDirectory, arguments, 0, true,
-                                 VcsBasePlugin::ExpectRepoChanges);
+    VcsCommand *cmd = vcsExec(workingDirectory, arguments, 0, true,
+                              VcsBasePlugin::ExpectRepoChanges);
     ConflictHandler::attachToCommand(cmd);
 }
 

@@ -115,6 +115,11 @@ protected:
                                  QByteArray *outputData, QByteArray *errorData = 0,
                                  unsigned flags = 0) const;
 
+    // Simple helper to execute a single command using createCommand and enqueueJob.
+    VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
+                        VcsBaseEditorWidget *editor = 0, bool useOutputToWindow = false,
+                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant());
+
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,

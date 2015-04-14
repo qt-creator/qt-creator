@@ -368,11 +368,6 @@ private:
     void requestReload(const QString &documentId, const QString &source, const QString &title,
                        std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
 
-    VcsBase::VcsCommand *executeGit(const QString &workingDirectory, const QStringList &arguments,
-                                    VcsBase::VcsBaseEditorWidget *editor = 0,
-                                    bool useOutputToWindow = false, unsigned additionalFlags = 0,
-                                    int editorLineNumber = -1);
-
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = 0) const;
 

@@ -216,6 +216,18 @@ bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const
     return result;
 }
 
+VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QStringList &arguments,
+                                       VcsBaseEditorWidget *editor, bool useOutputToWindow,
+                                       unsigned additionalFlags, const QVariant &cookie)
+{
+    VcsCommand *command = createCommand(workingDirectory, editor,
+                                        useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
+    command->setCookie(cookie);
+    command->addFlags(additionalFlags);
+    enqueueJob(command, arguments);
+    return command;
+}
+
 Utils::SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &workingDir,
                                                                         const QStringList &args,
                                                                         unsigned flags,
