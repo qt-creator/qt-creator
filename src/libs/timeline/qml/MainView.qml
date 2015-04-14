@@ -30,6 +30,7 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import QtQuick.Controls.Styles 1.0
 
 Rectangle {
     id: root
@@ -401,10 +402,25 @@ Rectangle {
                 anchors.right: filterMenu.right
                 height: buttonsBar.height
                 y: index * height
-                text: modelData.displayName
                 enabled: !modelData.empty
-                checked: enabled && !modelData.hidden
+                checked: true
                 onCheckedChanged: modelData.hidden = !checked
+
+                style: CheckBoxStyle {
+                    label: Text {
+                        width: filterMenu.width - implicitHeight * 1.5
+                        color: control.enabled ? "black" : "#808080"
+                        text: modelData.displayName
+                        textFormat: Text.PlainText
+                        elide: Text.ElideRight
+                        renderType: Text.NativeRendering
+                    }
+                }
+
+                Connections {
+                    target: modelData
+                    onEmptyChanged: checked = true
+                }
             }
         }
 
