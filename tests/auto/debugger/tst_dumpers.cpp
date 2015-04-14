@@ -5740,7 +5740,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&v, &n);\n")
 
                + Check("v", "", "{...}") % GdbEngine
-               + Check("v", "", Pattern("<anonymous .*>")) % LldbEngine
+               + Check("v", "", Pattern(".*anonymous .*")) % LldbEngine
                + Check("n", "", "S")
                + Check("v.a", "2", "int") % GdbVersion(0, 70699)
                + Check("v.0.a", "2", "int") % GdbVersion(70700)
