@@ -640,11 +640,18 @@ def qdump__std____1__unordered_map(d, value):
     size = int(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(size)
     if d.isExpanded():
+        # There seem to be several versions of the implementation.
+        def valueCCorNot(val):
+            try:
+                return val["__cc"]
+            except:
+                return val
+
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        with PairedChildren(d, size, pairType=node["__value_"].type, maxNumChild=1000):
+        with PairedChildren(d, size, pairType=valueCCorNot(node["__value_"]).type):
             for i in d.childRange():
                 with SubItem(d, i):
-                    d.putPair(node["__value_"], i)
+                    d.putPair(valueCCorNot(node["__value_"]), i)
                 node = node["__next_"]
 
 
