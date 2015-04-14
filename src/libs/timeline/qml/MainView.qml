@@ -190,7 +190,7 @@ Rectangle {
 
     ButtonsBar {
         id: buttonsBar
-        enabled: timelineModelAggregator.height > 0
+        enabled: zoomControl.traceDuration > 0
         anchors.top: parent.top
         anchors.left: parent.left
         width: 150
