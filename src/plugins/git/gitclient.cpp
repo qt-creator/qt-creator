@@ -457,19 +457,29 @@ class ConflictHandler : public QObject
 {
     Q_OBJECT
 public:
-    ConflictHandler(VcsCommand *parentCommand,
-                    const QString &workingDirectory,
-                    const QString &command = QString())
-        : QObject(parentCommand),
-          m_workingDirectory(workingDirectory),
-          m_command(command)
-    {
-        if (parentCommand) {
-            parentCommand->addFlags(VcsBasePlugin::ExpectRepoChanges);
-            connect(parentCommand, &VcsCommand::output, this, &ConflictHandler::readStdOut);
-            connect(parentCommand, &VcsCommand::errorText, this, &ConflictHandler::readStdErr);
-        }
+    static void attachToCommand(VcsCommand *command, const QString &abortCommand = QString()) {
+        ConflictHandler *handler = new ConflictHandler(command->workingDirectory(), abortCommand);
+        handler->setParent(command); // delete when command goes out of scope
+
+        command->addFlags(VcsBasePlugin::ExpectRepoChanges);
+        connect(command, &VcsCommand::output, handler, &ConflictHandler::readStdOut);
+        connect(command, &VcsCommand::errorText, handler, &ConflictHandler::readStdErr);
     }
+
+    static void handleResponse(const Utils::SynchronousProcessResponse &response,
+                               const QString &workingDirectory,
+                               const QString &abortCommand = QString())
+    {
+        ConflictHandler handler(workingDirectory, abortCommand);
+        handler.readStdOut(response.stdOut);
+        handler.readStdErr(response.stdErr);
+    }
+
+private:
+    ConflictHandler(const QString &workingDirectory, const QString &abortCommand) :
+          m_workingDirectory(workingDirectory),
+          m_abortCommand(abortCommand)
+    { }
 
     ~ConflictHandler()
     {
@@ -481,12 +491,11 @@ public:
                 if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
                     client->endStashScope(m_workingDirectory);
             } else {
-                client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_command);
+                client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_abortCommand);
             }
         }
     }
 
-public slots:
     void readStdOut(const QString &data)
     {
         static QRegExp patchFailedRE(QLatin1String("Patch failed at ([^\\n]*)"));
@@ -494,9 +503,8 @@ public slots:
         if (patchFailedRE.indexIn(data) != -1)
             m_commit = patchFailedRE.cap(1);
         int fileIndex = -1;
-        while ((fileIndex = conflictedFilesRE.indexIn(data, fileIndex + 1)) != -1) {
+        while ((fileIndex = conflictedFilesRE.indexIn(data, fileIndex + 1)) != -1)
             m_files.append(conflictedFilesRE.cap(1));
-        }
     }
 
     void readStdErr(const QString &data)
@@ -507,7 +515,7 @@ public slots:
     }
 private:
     QString m_workingDirectory;
-    QString m_command;
+    QString m_abortCommand;
     QString m_commit;
     QStringList m_files;
 };
@@ -2769,13 +2777,10 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
             | VcsBasePlugin::ExpectRepoChanges
             | VcsBasePlugin::ShowSuccessMessage;
     const SynchronousProcessResponse resp = vcsSynchronousExec(workingDirectory, arguments, flags);
-    ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == SynchronousProcessResponse::Finished;
-    if (!ok) {
-        conflictHandler.readStdOut(resp.stdOut);
-        conflictHandler.readStdErr(resp.stdErr);
-    }
+    if (!ok)
+        ConflictHandler::handleResponse(resp, workingDirectory, abortCommand);
     return ok;
 }
 
@@ -2974,7 +2979,7 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     QString gitCommand = arguments.first();
     VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
     VcsCommand *command = createCommand(workingDirectory, 0, VcsWindowOutputBind);
-    new ConflictHandler(command, workingDirectory, gitCommand);
+    ConflictHandler::attachToCommand(command, gitCommand);
     if (hasProgress)
         command->setProgressParser(new GitProgressParser);
     command->setCookie(workingDirectory);
@@ -3043,7 +3048,7 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
         arguments << stash;
     VcsCommand *cmd = executeGit(workingDirectory, arguments, 0, true,
                                  VcsBasePlugin::ExpectRepoChanges);
-    new ConflictHandler(cmd, workingDirectory);
+    ConflictHandler::attachToCommand(cmd);
 }
 
 bool GitClient::synchronousStashRestore(const QString &workingDirectory,
