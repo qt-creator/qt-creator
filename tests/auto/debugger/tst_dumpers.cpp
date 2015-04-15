@@ -391,7 +391,7 @@ struct Type
     Type(const char *str) : type(str), qtVersion(0), isPattern(false) {}
     Type(const QByteArray &ba) : type(ba), qtVersion(0), isPattern(false) {}
 
-    bool matches(const QByteArray &actualType0, const Context &context) const
+    bool matches(const QByteArray &actualType0, const Context &context, bool fullNamespaceMatch = true) const
     {
         if (context.qtVersion) {
             if (qtVersion == 4) {
@@ -414,13 +414,30 @@ struct Type
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
+        if (fullNamespaceMatch)
+            expectedType.replace('?', context.nameSpace);
+        else
+            expectedType.replace('?', "");
+
         if (isPattern) {
             QString actual = QString::fromLatin1(actualType);
             QString expected = QString::fromLatin1(expectedType);
             return QRegExp(expected).exactMatch(actual);
         }
-        return actualType == expectedType;
+
+        if (actualType == expectedType)
+            return true;
+
+        // LLDB 3.7 on Linux doesn't get the namespace right in QMapNode:
+        // t = lldb.target.FindFirstType('Myns::QMapNode<int, CustomStruct>')
+        // t.GetName() -> QMapNode<int, CustomStruct> (no Myns::)
+        // So try again without namespace.
+        if (fullNamespaceMatch)
+            return matches(actualType0, context, false);
+
+        return false;
     }
+
     QByteArray type;
     int qtVersion;
     bool isPattern;
@@ -2182,11 +2199,11 @@ void tst_Dumpers::dumper_data()
               + Check("m0", "<0 items>", "@QMap<unsigned int, @QStringList>")
 
               + Check("m1", "<2 items>", "@QMap<unsigned int, @QStringList>")
-              + Check("m1.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+              + Check("m1.0", "[0]", "", "?QMapNode<unsigned int, @QStringList>")
               + Check("m1.0.key", "11", "unsigned int")
               + Check("m1.0.value", "<1 items>", "@QStringList")
               + Check("m1.0.value.0", "[0]", "\"11\"", "@QString")
-              + Check("m1.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
+              + Check("m1.1", "[1]", "", "?QMapNode<unsigned int, @QStringList>")
               + Check("m1.1.key", "22", "unsigned int")
               + Check("m1.1.value", "<1 items>", "@QStringList")
               + Check("m1.1.value.0", "[0]", "\"22\"", "@QString")
@@ -2196,41 +2213,41 @@ void tst_Dumpers::dumper_data()
               + Check("m2.1", "[1] 22", FloatValue("32.0"), "float")
 
               + Check("m3", "<2 items>", "T")
-              + Check("m3.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+              + Check("m3.0", "[0]", "", "?QMapNode<unsigned int, @QStringList>")
 
               + Check("m4", "<1 items>", "@QMap<@QString, float>")
-              + Check("m4.0", "[0]", "", "@QMapNode<@QString, float>")
+              + Check("m4.0", "[0]", "", "?QMapNode<@QString, float>")
               + Check("m4.0.key", "\"22.0\"", "@QString")
               + Check("m4.0.value", "22", "float")
 
               + Check("m5", "<1 items>", "@QMap<int, @QString>")
-              + Check("m5.0", "[0]", "", "@QMapNode<int, @QString>")
+              + Check("m5.0", "[0]", "", "?QMapNode<int, @QString>")
               + Check("m5.0.key", "22", "int")
               + Check("m5.0.value", "\"22.0\"", "@QString")
 
               + Check("m6", "<2 items>", "@QMap<@QString, Foo>")
-              + Check("m6.0", "[0]", "", "@QMapNode<@QString, Foo>")
+              + Check("m6.0", "[0]", "", "?QMapNode<@QString, Foo>")
               + Check("m6.0.key", "\"22.0\"", "@QString")
               + Check("m6.0.value", "", "Foo")
               + Check("m6.0.value.a", "22", "int")
-              + Check("m6.1", "[1]", "", "@QMapNode<@QString, Foo>")
+              + Check("m6.1", "[1]", "", "?QMapNode<@QString, Foo>")
               + Check("m6.1.key", "\"33.0\"", "@QString")
               + Check("m6.1.value", "", "Foo")
               + Check("m6.1.value.a", "33", "int")
 
               + Check("m7", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
-              + Check("m7.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m7.0", "[0]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m7.0.key", "\".\"", "@QString")
               + Check("m7.0.value", "", "@QPointer<@QObject>")
               //+ Check("m7.0.value.o", Pointer(), "@QObject")
               // FIXME: it's '.wp' in Qt 5
-              + Check("m7.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m7.1", "[1]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m7.1.key", "\"Hallo\"", "@QString")
-              + Check("m7.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m7.2", "[2]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m7.2.key", "\"Welt\"", "@QString")
 
               + Check("m8", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
-              + Check("m8.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
+              + Check("m8.0", "[0]", "", "?QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
               + Check("m8.0.key", "\"1\"", "@QString")
               + Check("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
               + Check("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
@@ -2239,7 +2256,7 @@ void tst_Dumpers::dumper_data()
               + Check("m8.0.value.1.a", "2", "int")
               + Check("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
               + Check("m8.0.value.2.a", "3", "int")
-              + Check("m8.3", "[3]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
+              + Check("m8.3", "[3]", "", "?QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
               + Check("m8.3.key", "\"foo\"", "@QString")
               + Check("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
               + Check("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
@@ -2291,33 +2308,33 @@ void tst_Dumpers::dumper_data()
               + Check("m1.5", "[5] 22", "22", "float")
 
               + Check("m2", "<1 items>", "@QMultiMap<@QString, float>")
-              + Check("m2.0", "[0]", "", "@QMapNode<@QString, float>")
+              + Check("m2.0", "[0]", "", "?QMapNode<@QString, float>")
               + Check("m2.0.key", "\"22.0\"", "@QString")
               + Check("m2.0.value", "22", "float")
 
               + CoreProfile()
               + Check("m3", "<1 items>", "@QMultiMap<int, @QString>")
-              + Check("m3.0", "[0]", "", "@QMapNode<int, @QString>")
+              + Check("m3.0", "[0]", "", "?QMapNode<int, @QString>")
               + Check("m3.0.key", "22", "int")
               + Check("m3.0.value", "\"22.0\"", "@QString")
 
               + CoreProfile()
               + Check("m4", "<3 items>", "@QMultiMap<@QString, Foo>")
-              + Check("m4.0", "[0]", "", "@QMapNode<@QString, Foo>")
+              + Check("m4.0", "[0]", "", "?QMapNode<@QString, Foo>")
               + Check("m4.0.key", "\"22.0\"", "@QString")
               + Check("m4.0.value", "", "Foo")
               + Check("m4.0.value.a", "22", "int")
-              + Check("m4.2", "[2]", "", "@QMapNode<@QString, Foo>")
+              + Check("m4.2", "[2]", "", "?QMapNode<@QString, Foo>")
 
               + Check("m5", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
-              + Check("m5.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.0", "[0]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m5.0.key", "\".\"", "@QString")
               + Check("m5.0.value", "", "@QPointer<@QObject>")
-              + Check("m5.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.1", "[1]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m5.1.key", "\".\"", "@QString")
-              + Check("m5.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.2", "[2]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m5.2.key", "\"Hallo\"", "@QString")
-              + Check("m5.3", "[3]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.3", "[3]", "", "?QMapNode<@QString, @QPointer<@QObject>>")
               + Check("m5.3.key", "\"Welt\"", "@QString");
 
 
@@ -3134,21 +3151,21 @@ void tst_Dumpers::dumper_data()
                + CheckType("v1", "@QVariant (QString)")
 
                + Check("my", "<2 items>", "MyType")
-               + Check("my.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("my.0", "[0]", "", "?QMapNode<unsigned int, @QStringList>")
                + Check("my.0.key", "1", "unsigned int")
                + Check("my.0.value", "<1 items>", "@QStringList")
                + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
-               + Check("my.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("my.1", "[1]", "", "?QMapNode<unsigned int, @QStringList>")
                + Check("my.1.key", "3", "unsigned int")
                + Check("my.1.value", "<1 items>", "@QStringList")
                + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
                + CheckType("v2", "@QVariant (MyType)")
                + Check("v2.data", "<2 items>", "MyType")
-               + Check("v2.data.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("v2.data.0", "[0]", "", "?QMapNode<unsigned int, @QStringList>")
                + Check("v2.data.0.key", "1", "unsigned int")
                + Check("v2.data.0.value", "<1 items>", "@QStringList")
                + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString")
-               + Check("v2.data.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("v2.data.1", "[1]", "", "?QMapNode<unsigned int, @QStringList>")
                + Check("v2.data.1.key", "3", "unsigned int")
                + Check("v2.data.1.value", "<1 items>", "@QStringList")
                + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString")
@@ -3439,10 +3456,10 @@ void tst_Dumpers::dumper_data()
                + Check("vm0", "<0 items>", "@QVariantMap")
 
                + Check("vm1", "<6 items>", "@QVariantMap")
-               + Check("vm1.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
+               + Check("vm1.0", "[0]", "", "?QMapNode<@QString, @QVariant>")
                + Check("vm1.0.key", "\"a\"", "@QString")
                + Check("vm1.0.value", "1", "@QVariant (int)")
-               + Check("vm1.5", "[5]", "", "@QMapNode<@QString, @QVariant>")
+               + Check("vm1.5", "[5]", "", "?QMapNode<@QString, @QVariant>")
                + Check("vm1.5.key", "\"f\"", "@QString")
                + Check("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
 
@@ -5365,11 +5382,7 @@ void tst_Dumpers::dumper_data()
                 "QMap<int, CustomStruct>::iterator it = map.begin();\n")
          + CoreProfile()
          + Check("map", "<2 items>", "@QMap<int, CustomStruct>")
-            // FIXME: Hack
-            // LLDB 3.7 on Linux doesn't get the namespace right in QMapNode:
-            // t = lldb.target.FindFirstType('Myns::QMapNode<int, CustomStruct>')
-            // t.GetName() -> QMapNode<int, CustomStruct> (no Myns::)
-         + CheckType("map.0", "[0]", Pattern(".*QMapNode<int, CustomStruct>"))
+         + CheckType("map.0", "[0]", "?QMapNode<int, CustomStruct>")
          + Check("map.0.key", "-1", "int")
          + CheckType("map.0.value", "CustomStruct")
          + Check("map.0.value.dvalue", FloatValue("3.14"), "double")
