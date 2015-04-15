@@ -776,21 +776,24 @@ QString WatchItem::displayType() const
     return result;
 }
 
-QColor WatchItem::valueColor() const
+QColor WatchItem::valueColor(int column) const
 {
-    using Utils::Theme;
-    Theme *theme = Utils::creatorTheme();
-    if (watchModel()) {
-        if (!valueEnabled)
-            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
-        if (!watchModel()->m_contentsValid && !isInspect())
-            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
-        if (value.isEmpty()) // This might still show 0x...
-            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
-        if (value != watchModel()->m_valueCache.value(iname))
-            return theme->color(Theme::Debugger_WatchItem_ValueChanged);
+    Theme::Color color = Theme::Debugger_WatchItem_ValueNormal;
+    if (const WatchModel *model = watchModel()) {
+        if (!model->m_contentsValid && !isInspect()) {
+            color = Theme::Debugger_WatchItem_ValueInvalid;
+        } else if (column == 1) {
+            if (!valueEnabled)
+                color = Theme::Debugger_WatchItem_ValueInvalid;
+            else if (!model->m_contentsValid && !isInspect())
+                color = Theme::Debugger_WatchItem_ValueInvalid;
+            else if (column == 1 && value.isEmpty()) // This might still show 0x...
+                color = Theme::Debugger_WatchItem_ValueInvalid;
+            else if (column == 1 && value != model->m_valueCache.value(iname))
+                color = Theme::Debugger_WatchItem_ValueChanged;
+        }
     }
-    return theme->color(Theme::Debugger_WatchItem_ValueNormal);
+    return creatorTheme()->color(color);
 }
 
 QVariant WatchItem::data(int column, int role) const
@@ -837,8 +840,7 @@ QVariant WatchItem::data(int column, int role) const
                 ? toToolTip() : QVariant();
 
         case Qt::ForegroundRole:
-            if (column == 1)
-                return valueColor();
+            return valueColor(column);
 
         case LocalsExpressionRole:
             return expression();

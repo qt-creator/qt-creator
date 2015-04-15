@@ -107,7 +107,7 @@ public:
 
     QVariant editValue() const;
     int editType() const;
-    QColor valueColor() const;
+    QColor valueColor(int column) const;
 
     int requestedFormat() const;
     WatchItem *findItem(const QByteArray &iname);

@@ -219,7 +219,7 @@ ToolTipWatchItem::ToolTipWatchItem(WatchItem *item)
     value = item->displayValue();
     type = item->displayType();
     iname = item->iname;
-    valueColor = item->valueColor();
+    valueColor = item->valueColor(1);
     expandable = item->hasChildren();
     expression = item->expression();
     foreach (TreeItem *child, item->children())
