@@ -927,6 +927,8 @@ bool SessionManager::loadSession(const QString &session)
     d->m_values.clear();
 
     d->m_sessionName = session;
+    delete d->m_writer;
+    d->m_writer = 0;
     EditorManager::updateWindowTitles();
 
     if (fileName.exists()) {
