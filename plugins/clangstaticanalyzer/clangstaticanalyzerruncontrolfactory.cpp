@@ -25,6 +25,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojects.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -99,6 +100,10 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
     AnalyzerStartParameters sp;
     sp.runMode = runMode;
     sp.startMode = StartLocal;
+    BuildConfiguration * const buildConfiguration = target->activeBuildConfiguration();
+    QTC_ASSERT(buildConfiguration, return 0);
+    sp.environment = buildConfiguration->environment();
+
     return AnalyzerManager::createRunControl(sp, runConfiguration);
 }
 

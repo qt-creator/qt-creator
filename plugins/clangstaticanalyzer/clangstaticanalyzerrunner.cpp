@@ -64,6 +64,7 @@ QString finishedWithBadExitCode(int exitCode)
 
 ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecutable,
                                                      const QString &clangLogFileDir,
+                                                     const Utils::Environment &environment,
                                                      QObject *parent)
     : QObject(parent)
     , m_clangExecutable(clangExecutable)
@@ -73,6 +74,7 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
     QTC_CHECK(!m_clangLogFileDir.isEmpty());
 
     m_process.setProcessChannelMode(QProcess::MergedChannels);
+    m_process.setProcessEnvironment(environment.toProcessEnvironment());
     m_process.setWorkingDirectory(m_clangLogFileDir); // Current clang-cl puts log file into working dir.
     connect(&m_process, &QProcess::started,
             this, &ClangStaticAnalyzerRunner::onProcessStarted);

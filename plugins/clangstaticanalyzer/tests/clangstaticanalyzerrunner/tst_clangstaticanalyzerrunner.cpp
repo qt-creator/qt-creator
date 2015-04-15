@@ -141,7 +141,8 @@ void ClangStaticAnalyzerRunnerTest::runWithTestCodeGeneratedOneIssue()
 
     QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
     QVERIFY(temporaryDir.isValid());
-    ClangStaticAnalyzerRunner runner(QLatin1String("clang"), temporaryDir.path());
+    ClangStaticAnalyzerRunner runner(QLatin1String("clang"), temporaryDir.path(),
+                                     Utils::Environment::systemEnvironment());
 
     ClangStaticAnalyzerRunnerSignalTester st(&runner);
     QVERIFY(runner.run(testFilePath));
@@ -153,7 +154,8 @@ void ClangStaticAnalyzerRunnerTest::runWithNonExistentFileToAnalyze()
 {
     QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
     QVERIFY(temporaryDir.isValid());
-    ClangStaticAnalyzerRunner runner(QLatin1String("clang"), temporaryDir.path());
+    ClangStaticAnalyzerRunner runner(QLatin1String("clang"), temporaryDir.path(),
+                                     Utils::Environment::systemEnvironment());
 
     ClangStaticAnalyzerRunnerSignalTester st(&runner);
     QVERIFY(runner.run(QLatin1String("not.existing.file.111")));

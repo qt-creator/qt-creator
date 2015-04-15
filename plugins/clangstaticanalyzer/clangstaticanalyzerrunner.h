@@ -37,6 +37,7 @@ class ClangStaticAnalyzerRunner : public QObject
 public:
     ClangStaticAnalyzerRunner(const QString &clangExecutable,
                               const QString &clangLogFileDir,
+                              const Utils::Environment &environment,
                               QObject *parent = 0);
     ~ClangStaticAnalyzerRunner();
 

@@ -209,6 +209,13 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::unitsToAnalyze()
                                           m_wordWidth);
 }
 
+static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
+{
+    foreach (const QString &entry, environment.toStringList())
+        debug << "\n  " << entry;
+    return debug;
+}
+
 bool ClangStaticAnalyzerRunControl::startEngine()
 {
     emit starting(this);
@@ -271,6 +278,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_progress.reportStarted();
 
     // Start process(es)
+    qCDebug(LOG) << "Environment:" << startParameters().environment;
     m_runners.clear();
     const int parallelRuns = ClangStaticAnalyzerSettings::instance()->simultaneousProcesses();
     QTC_ASSERT(parallelRuns >= 1, emit finished(); return false);
@@ -335,7 +343,10 @@ ClangStaticAnalyzerRunner *ClangStaticAnalyzerRunControl::createRunner()
     QTC_ASSERT(!m_clangLogFileDir.isEmpty(), return 0);
 
     ClangStaticAnalyzerRunner *runner
-            = new ClangStaticAnalyzerRunner(m_clangExecutable, m_clangLogFileDir, this);
+            = new ClangStaticAnalyzerRunner(m_clangExecutable,
+                                            m_clangLogFileDir,
+                                            startParameters().environment,
+                                            this);
     connect(runner, &ClangStaticAnalyzerRunner::finishedWithSuccess,
             this, &ClangStaticAnalyzerRunControl::onRunnerFinishedWithSuccess);
     connect(runner, &ClangStaticAnalyzerRunner::finishedWithFailure,
