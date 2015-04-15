@@ -383,6 +383,8 @@ struct UnsubstitutedValue : Value
     UnsubstitutedValue(const QByteArray &value) : Value(value) { substituteNamespace = false; }
 };
 
+struct Optional {};
+
 struct Type
 {
     Type() : qtVersion(0), isPattern(false) {}
@@ -454,12 +456,13 @@ enum DebuggerEngine
 
 struct CheckBase
 {
-    CheckBase() : enginesForCheck(AllEngines) {}
+    CheckBase() : enginesForCheck(AllEngines), optionallyPresent(false) {}
     mutable int enginesForCheck;
     mutable VersionBase debuggerVersionForCheck;
     mutable VersionBase gccVersionForCheck;
     mutable VersionBase clangVersionForCheck;
     mutable QtVersion qtVersionForCheck;
+    mutable bool optionallyPresent;
 };
 
 struct Check : CheckBase
@@ -484,6 +487,12 @@ struct Check : CheckBase
             && gccVersionForCheck.covers(context.gccVersion)
             && clangVersionForCheck.covers(context.clangVersion)
             && qtVersionForCheck.covers(context.qtVersion);
+    }
+
+    const Check &operator%(Optional) const
+    {
+        optionallyPresent = true;
+        return *this;
     }
 
     const Check &operator%(DebuggerEngine engine)
@@ -1429,16 +1438,17 @@ void tst_Dumpers::dumper()
     }
 
     if (!data.checks.isEmpty()) {
-        bool fail = false;
         qDebug() << "SOME TESTS NOT EXECUTED: ";
         foreach (const Check &check, data.checks) {
-            qDebug() << "  TEST NOT FOUND FOR INAME: " << check.iname;
-            if (!fail && check.expectedValue.qtVersion != 0)
-                fail = true;
+            if (check.optionallyPresent) {
+                qDebug() << "  OPTIONAL TEST NOT FOUND FOR INAME: " << check.iname << " IGNORED.";
+            } else {
+                qDebug() << "  COMPULSORY TEST NOT FOUND FOR INAME: " << check.iname;
+                ok = false;
+            }
         }
         qDebug() << "SEEN INAMES " << seenINames;
         qDebug() << "EXPANDED     : " << expanded;
-        ok = false;
     }
     if (ok) {
         m_keepTemp = false;
@@ -1592,33 +1602,33 @@ void tst_Dumpers::dumper_data()
 
                + Check("d0", "(invalid)", "@QDate")
                + Check("d1", "Tue Jan 1 1980", "@QDate")
-               + Check("d1.(ISO)", "\"1980-01-01\"", "@QString") % NoCdbEngine
-               + CheckType("d1.(Locale)", "@QString") % NoCdbEngine
-               + CheckType("d1.(SystemLocale)", "@QString") % NoCdbEngine
-               + Check("d1.toString", "\"Tue Jan 1 1980\"", "@QString") % NoCdbEngine
+               + Check("d1.(ISO)", "\"1980-01-01\"", "@QString") % NoCdbEngine % Optional()
+               + Check("d1.toString", "\"Tue Jan 1 1980\"", "@QString") % NoCdbEngine % Optional()
+               + CheckType("d1.(Locale)", "@QString") % NoCdbEngine % Optional()
+               + CheckType("d1.(SystemLocale)", "@QString") % NoCdbEngine % Optional()
 
                + Check("t0", "(invalid)", "@QTime")
                + Check("t1", "13:15:32", "@QTime")
                + Check("t1.(ISO)", "\"13:15:32\"", "@QString") % NoCdbEngine
-               + CheckType("t1.(Locale)", "@QString") % NoCdbEngine
-               + CheckType("t1.(SystemLocale)", "@QString") % NoCdbEngine
                + Check("t1.toString", "\"13:15:32\"", "@QString") % NoCdbEngine
+               + CheckType("t1.(Locale)", "@QString") % NoCdbEngine % Optional()
+               + CheckType("t1.(SystemLocale)", "@QString") % NoCdbEngine % Optional()
 
                + Check("dt0", "(invalid)", "@QDateTime")
                + Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
                + Check("dt1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
                + Check("dt1.(ISO)",
-                    "\"1980-01-01T13:15:32Z\"", "@QString") % NoCdbEngine
-               + CheckType("dt1.(Locale)", "@QString") % NoCdbEngine
-               + CheckType("dt1.(SystemLocale)", "@QString") % NoCdbEngine
+                    "\"1980-01-01T13:15:32Z\"", "@QString") % NoCdbEngine % Optional()
+               + CheckType("dt1.(Locale)", "@QString") % NoCdbEngine % Optional()
+               + CheckType("dt1.(SystemLocale)", "@QString") % NoCdbEngine % Optional()
                + Check("dt1.toString",
-                    Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % NoCdbEngine
+                    Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % NoCdbEngine % Optional()
                + Check("dt1.toString",
-                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % NoCdbEngine
+                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % NoCdbEngine % Optional()
                + Check("dt1.toUTC",
-                    Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime") % NoCdbEngine
+                    Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime") % NoCdbEngine % Optional()
                + Check("dt1.toUTC",
-                    Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % NoCdbEngine;
+                    Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % NoCdbEngine % Optional();
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";

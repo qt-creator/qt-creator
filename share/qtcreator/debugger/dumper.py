@@ -1792,6 +1792,11 @@ class DumperBase:
             return True
         return functionName.startswith(self.qtNamespace() + "QV4::")
 
+    # Hack to avoid QDate* dumper timeouts with GDB 7.4 on 32 bit
+    # due to misaligned %ebx in SSE calls (qstring.cpp:findChar)
+    def canCallLocale(self):
+        return True
+
     def isReportableQmlFrame(self, functionName):
         return functionName and functionName.find("QV4::Moth::VME::exec") >= 0
 

@@ -346,6 +346,11 @@ class Dumper(DumperBase):
 
         return items
 
+    # Hack to avoid QDate* dumper timeouts with GDB 7.4 on 32 bit
+    # due to misaligned %ebx in SSE calls (qstring.cpp:findChar)
+    # This seems to be fixed in 7.9 (or earlier)
+    def canCallLocale(self):
+        return False if self.is32bit() else True
 
     def showData(self, args):
         self.prepare(args)
@@ -1653,8 +1658,8 @@ class CliDumper(Dumper):
         self.indent = 0
         self.isCli = True
 
-    def reportDumpers(self):
-        return ""
+    def reportDumpers(self, msg):
+        return msg
 
     def enterSubItem(self, item):
         if not item.iname:
@@ -1734,20 +1739,11 @@ class CliDumper(Dumper):
         return True
 
     def showData(self, args):
-        arglist = args.split(' ')
-        name = ''
-        if len(arglist) >= 1:
-            name = arglist[0]
-        allexpanded = [name]
-        if len(arglist) >= 2:
-            for sub in arglist[1].split(','):
-                allexpanded.append(name + '.' + sub)
-        pars = {}
-        pars['fancy': 1]
-        pars['passException': 1]
-        pars['autoderef': 1]
-        pars['expanded': allexpanded]
-        self.prepare(pars)
+        args['fancy'] = 1
+        args['passException'] = 1
+        args['autoderef'] = 1
+        name = args['varlist']
+        self.prepare(args)
         self.output = name + ' = '
         frame = gdb.selected_frame()
         value = frame.read_var(name)
