@@ -83,6 +83,7 @@ private:
     TargetSelector *m_targetSelector;
     QPushButton *m_addButton;
     QPushButton *m_manageButton;
+    QWidget *m_centralWidget = 0;
 };
 
 } // namespace Internal

@@ -139,7 +139,10 @@ QString TargetSettingsWidget::targetNameAt(int index) const
 
 void TargetSettingsWidget::setCentralWidget(QWidget *widget)
 {
-    ui->scrollArea->setWidget(widget);
+    if (m_centralWidget)
+        ui->scrollAreaWidgetContents->layout()->removeWidget(m_centralWidget);
+    m_centralWidget = widget;
+    ui->scrollAreaWidgetContents->layout()->addWidget(m_centralWidget);
 }
 
 int TargetSettingsWidget::targetCount() const
