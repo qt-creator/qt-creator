@@ -1065,7 +1065,7 @@ class Dumper(DumperBase):
 
         if typeobj.code != StructCode and typeobj.code != UnionCode:
             warn("WRONG ASSUMPTION HERE: %s " % typeobj.code)
-            check(False)
+            self.check(False)
 
 
         if tryDynamic:
