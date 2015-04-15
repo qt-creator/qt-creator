@@ -30,6 +30,7 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import QtQuick.Controls.Styles 1.0
 
 Rectangle {
     id: root
@@ -186,7 +187,7 @@ Rectangle {
 
     ButtonsBar {
         id: buttonsBar
-        enabled: timelineModelAggregator.height > 0
+        enabled: zoomControl.traceDuration > 0
         anchors.top: parent.top
         anchors.left: parent.left
         width: 150
@@ -397,10 +398,25 @@ Rectangle {
                 anchors.right: filterMenu.right
                 height: buttonsBar.height
                 y: index * height
-                text: modelData.displayName
                 enabled: !modelData.empty
-                checked: !modelData.empty && !modelData.hidden
+                checked: true
                 onCheckedChanged: modelData.hidden = !checked
+
+                style: CheckBoxStyle {
+                    label: Text {
+                        width: filterMenu.width - implicitHeight * 1.5
+                        color: control.enabled ? "black" : "#808080"
+                        text: modelData.displayName
+                        textFormat: Text.PlainText
+                        elide: Text.ElideRight
+                        renderType: Text.NativeRendering
+                    }
+                }
+
+                Connections {
+                    target: modelData
+                    onEmptyChanged: checked = true
+                }
             }
         }
 

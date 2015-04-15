@@ -32,8 +32,6 @@
 
 #include "sshchannel_p.h"
 
-#include "sshconnection.h"
-
 namespace QSsh {
 class SshDirectTcpIpTunnel;
 
@@ -46,8 +44,9 @@ class SshDirectTcpIpTunnelPrivate : public AbstractSshChannel
     friend class QSsh::SshDirectTcpIpTunnel;
 
 public:
-    explicit SshDirectTcpIpTunnelPrivate(quint32 channelId, quint16 remotePort,
-            const SshConnectionInfo &connectionInfo, SshSendFacility &sendFacility);
+    explicit SshDirectTcpIpTunnelPrivate(quint32 channelId, const QString &originatingHost,
+            quint16 originatingPort, const QString &remoteHost, quint16 remotePort,
+            SshSendFacility &sendFacility);
 
 signals:
     void initialized();
@@ -71,8 +70,10 @@ private:
 
     void closeHook();
 
+    const QString m_originatingHost;
+    const quint16 m_originatingPort;
+    const QString m_remoteHost;
     const quint16 m_remotePort;
-    const SshConnectionInfo m_connectionInfo;
     QByteArray m_data;
 };
 

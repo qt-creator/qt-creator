@@ -45,14 +45,9 @@
 
         \li Select an example in the list of examples.
 
-            You can also search for examples (2). Enter the \uicontrol android or
-            \uicontrol iOS keyword in the search field to list all the examples tested
-            for Android or iOS.
-
-            \note The project opens in the \uicontrol Edit mode, and the documentation
-            for the example hides these instructions. To return to these
-            instructions, select \uicontrol {Previous Page} on the toolbar or
-            press \key {Alt+Left}.
+            You can also search for examples. Enter the \uicontrol android or
+            \uicontrol iOS keyword in the search field (2) to list all the
+            examples tested for Android or iOS.
 
         \li To check that the application code can be compiled and linked for a
             device, click the \uicontrol {Kit Selector} and select a

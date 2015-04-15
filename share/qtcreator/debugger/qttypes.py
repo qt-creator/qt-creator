@@ -198,14 +198,15 @@ def qdump__QDate(d, value):
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                d.putCallItem("toString", value, "toString",
-                    d.enumExpression("DateFormat", "TextDate"))
-                d.putCallItem("(ISO)", value, "toString",
-                    d.enumExpression("DateFormat", "ISODate"))
-                d.putCallItem("(SystemLocale)", value, "toString",
-                    d.enumExpression("DateFormat", "SystemLocaleDate"))
-                d.putCallItem("(Locale)", value, "toString",
-                    d.enumExpression("DateFormat", "LocaleDate"))
+                if d.canCallLocale():
+                    d.putCallItem("toString", value, "toString",
+                        d.enumExpression("DateFormat", "TextDate"))
+                    d.putCallItem("(ISO)", value, "toString",
+                        d.enumExpression("DateFormat", "ISODate"))
+                    d.putCallItem("(SystemLocale)", value, "toString",
+                        d.enumExpression("DateFormat", "SystemLocaleDate"))
+                    d.putCallItem("(Locale)", value, "toString",
+                        d.enumExpression("DateFormat", "LocaleDate"))
                 d.putFields(value)
     else:
         d.putValue("(invalid)")
@@ -224,10 +225,11 @@ def qdump__QTime(d, value):
                     d.enumExpression("DateFormat", "TextDate"))
                 d.putCallItem("(ISO)", value, "toString",
                     d.enumExpression("DateFormat", "ISODate"))
-                d.putCallItem("(SystemLocale)", value, "toString",
-                    d.enumExpression("DateFormat", "SystemLocaleDate"))
-                d.putCallItem("(Locale)", value, "toString",
-                    d.enumExpression("DateFormat", "LocaleDate"))
+                if d.canCallLocale():
+                    d.putCallItem("(SystemLocale)", value, "toString",
+                        d.enumExpression("DateFormat", "SystemLocaleDate"))
+                    d.putCallItem("(Locale)", value, "toString",
+                        d.enumExpression("DateFormat", "LocaleDate"))
                 d.putFields(value)
     else:
         d.putValue("(invalid)")
@@ -305,18 +307,19 @@ def qdump__QDateTime(d, value):
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 d.putCallItem("toTime_t", value, "toTime_t")
-                d.putCallItem("toString", value, "toString",
-                    d.enumExpression("DateFormat", "TextDate"))
-                d.putCallItem("(ISO)", value, "toString",
-                    d.enumExpression("DateFormat", "ISODate"))
-                d.putCallItem("(SystemLocale)", value, "toString",
-                    d.enumExpression("DateFormat", "SystemLocaleDate"))
-                d.putCallItem("(Locale)", value, "toString",
-                    d.enumExpression("DateFormat", "LocaleDate"))
-                d.putCallItem("toUTC", value, "toTimeSpec",
-                    d.enumExpression("TimeSpec", "UTC"))
-                d.putCallItem("toLocalTime", value, "toTimeSpec",
-                    d.enumExpression("TimeSpec", "LocalTime"))
+                if d.canCallLocale():
+                    d.putCallItem("toString", value, "toString",
+                        d.enumExpression("DateFormat", "TextDate"))
+                    d.putCallItem("(ISO)", value, "toString",
+                        d.enumExpression("DateFormat", "ISODate"))
+                    d.putCallItem("toUTC", value, "toTimeSpec",
+                        d.enumExpression("TimeSpec", "UTC"))
+                    d.putCallItem("(SystemLocale)", value, "toString",
+                        d.enumExpression("DateFormat", "SystemLocaleDate"))
+                    d.putCallItem("(Locale)", value, "toString",
+                        d.enumExpression("DateFormat", "LocaleDate"))
+                    d.putCallItem("toLocalTime", value, "toTimeSpec",
+                        d.enumExpression("TimeSpec", "LocalTime"))
                 d.putFields(value)
     else:
         d.putValue("(invalid)")

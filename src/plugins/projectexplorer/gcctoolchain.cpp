@@ -448,6 +448,7 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
             const QByteArray std = flag.mid(5).toLatin1();
             if (std == "c++98" || std == "c++03") {
                 flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | StandardCxx17 | GnuExtensions);
+                flags |= StandardCxx98;
             } else if (std == "gnu++98" || std == "gnu++03") {
                 flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | StandardCxx17);
                 flags |= GnuExtensions;

@@ -125,7 +125,10 @@ def impl_SBValue__getitem__(value, index):
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return value.CreateValueFromAddress(None, address, innertype)
         return value.GetChildAtIndex(index)
-    return value.GetChildMemberWithName(index)
+    item = value.GetChildMemberWithName(index)
+    if item.IsValid():
+        return item
+    raise RuntimeError("SBValue.__getitem__: No such member '%s'" % index)
 
 def impl_SBValue__deref(value):
     result = value.Dereference()
@@ -508,13 +511,25 @@ class Dumper(DumperBase):
     def addressOf(self, value):
         return int(value.GetLoadAddress())
 
-    def extractInt(self, address):
+    def extractUInt(self, address):
         error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 4, error))
 
-    def extractInt64(self, address):
+    def extractInt(self, address):
+        i = self.extractUInt(address)
+        if i >= 0x80000000:
+            i -= 0x100000000
+        return i
+
+    def extractUInt64(self, address):
         error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 8, error))
+
+    def extractInt64(self, address):
+        i = self.extractUInt64(address)
+        if i >= 0x8000000000000000:
+            i -= 0x10000000000000000
+        return i
 
     def extractByte(self, address):
         error = lldb.SBError()
@@ -579,11 +594,17 @@ class Dumper(DumperBase):
 
     def createPointerValue(self, address, pointeeType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        return self.context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+        sbaddr = lldb.SBAddress(addr, self.target)
+        # Any type.
+        # FIXME: This can be replaced with self.target.CreateValueFromExpression
+        # as soon as we drop support for lldb builds not having that (~Xcode 6.1)
+        dummy = self.target.CreateValueFromAddress('@', sbaddr, self.target.FindFirstType('char'))
+        return dummy.CreateValueFromExpression('', '(%s*)%s' % (pointeeType, addr))
 
     def createValue(self, address, referencedType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        return self.context.CreateValueFromAddress(None, addr, referencedType)
+        sbaddr = lldb.SBAddress(addr, self.target)
+        return self.target.CreateValueFromAddress('@', sbaddr, referencedType)
 
     def childRange(self):
         if self.currentMaxNumChild is None:
@@ -1063,6 +1084,20 @@ class Dumper(DumperBase):
         if value.GetType().IsPointerType():
             self.putFormattedPointer(value)
             return
+
+        # Chars
+        if typeClass == lldb.eTypeClassBuiltin:
+            basicType = value.GetType().GetBasicType()
+            if basicType == lldb.eBasicTypeChar:
+                self.putValue(value.GetValueAsUnsigned())
+                self.putType(typeName)
+                self.putNumChild(0)
+                return
+            if basicType == lldb.eBasicTypeSignedChar:
+                self.putValue(value.GetValueAsSigned())
+                self.putType(typeName)
+                self.putNumChild(0)
+                return
 
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
@@ -1730,6 +1765,9 @@ class Tester(Dumper):
         s.start()
         s.join(30)
 
+    def reportDumpers(self, msg):
+        pass
+
     def testLoop(self):
         # Disable intermediate reporting.
         savedReport = self.report
@@ -1751,53 +1789,37 @@ class Tester(Dumper):
             state = self.process.GetState()
             if listener.WaitForEvent(100, event):
                 #warn("EVENT: %s" % event)
-                out = lldb.SBStream()
-                event.GetDescription(out)
-                msg = lldb.SBEvent.GetCStringFromEvent(event)
-                flavor = event.GetDataFlavor()
-                state = lldb.SBProcess.GetStateFromEvent(event)
-                #warn('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-                #    % (event.GetType(), out.GetData(), msg, flavor, state))
                 state = lldb.SBProcess.GetStateFromEvent(event)
                 if state == lldb.eStateExited: # 10
                     break
                 if state == lldb.eStateStopped: # 5
-                    stoppedThread = self.firstStoppedThread()
-                    if stoppedThread is None:
-                        warn("NO STOPPED THREAD FOUND")
-                        continue
+                    stoppedThread = None
+                    for i in xrange(0, self.process.GetNumThreads()):
+                        thread = self.process.GetThreadAtIndex(i)
+                        reason = thread.GetStopReason()
+                        #warn("THREAD: %s REASON: %s" % (thread, reason))
+                        if (reason == lldb.eStopReasonBreakpoint or
+                                reason == lldb.eStopReasonException or
+                                reason == lldb.eStopReasonSignal):
+                            stoppedThread = thread
 
-                    #for i in xrange(0, self.process.GetNumThreads()):
-                    #    thread = self.process.GetThreadAtIndex(i)
-                    #    reason = thread.GetStopReason()
-                    #    warn("THREAD: %s REASON: %s" % (thread, reason))
-
-                    try:
+                    if stoppedThread:
+                        # This seems highly fragile and depending on the "No-ops" in the
+                        # event handling above.
                         frame = stoppedThread.GetFrameAtIndex(0)
-                        break
-                    except:
-                        warn("NO FRAME FOUND FOR THREAD %s" % stoppedThread)
+                        line = frame.line_entry.line
+                        if line != 0:
+                            self.report = savedReport
+                            self.process.SetSelectedThread(stoppedThread)
+                            self.reportVariables()
+                            #self.reportLocation(frame)
+                            self.report("@NS@%s@" % self.qtNamespace())
+                            #self.report("ENV=%s" % os.environ.items())
+                            #self.report("DUMPER=%s" % self.qqDumpers)
+                            break
+
             else:
                 warn('TIMEOUT')
+                warn("Cannot determined stopped thread")
 
-
-        stoppedThread = self.firstStoppedThread()
-        if not stoppedThread:
-            warn("Cannot determined stopped thread")
-            return
-
-        # This seems highly fragile and depending on the "No-ops" in the
-        # event handling above.
-        self.process.SetSelectedThread(stoppedThread)
-
-        frame = stoppedThread.GetFrameAtIndex(0)
-        #file = fileName(frame.line_entry.file)
-        #line = frame.line_entry.line
-        #warn('LOCATION={file="%s",line="%s",addr="%s"}'
-        #    % (file, line, frame.pc))
-        self.report = savedReport
-        self.reportVariables()
-        self.report("@NS@%s@" % self.qtNamespace())
-        #self.report("ENV=%s" % os.environ.items())
-        #self.report("DUMPER=%s" % self.qqDumpers)
         lldb.SBDebugger.Destroy(self.debugger)

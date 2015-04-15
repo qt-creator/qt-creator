@@ -2964,7 +2964,6 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     if (fixup)
         arguments << QLatin1String("--autosquash");
     arguments << commit + QLatin1Char('^');
-    VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
     if (fixup)
         m_disableEditor = true;
     VcsCommand *command = vcsExecAbortable(workingDirectory, arguments);

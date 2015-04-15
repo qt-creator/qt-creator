@@ -385,8 +385,8 @@ def qdump__std__set__QNX(d, value):
 
 def qdump__std____1__set(d, value):
     base3 = d.addressOf(value["__tree_"]["__pair3_"])
-    size = d.extractInt(base3)
-    d.check(0 <= size and size <= 100*1000*1000)
+    size = d.extractUInt(base3)
+    d.check(size <= 100*1000*1000)
     d.putItemCount(size)
     d.putNumChild(0)
 
@@ -442,7 +442,7 @@ def qdump__std____1__string(d, value):
     if firstByte & 1:
         # Long/external.
         data = d.extractPointer(base + 2 * d.ptrSize())
-        size = d.extractInt(base + d.ptrSize())
+        size = d.extractUInt(base + d.ptrSize())
     else:
         # Short/internal.
         size = firstByte / 2
@@ -457,7 +457,7 @@ def qdump__std____1__wstring(d, value):
     if firstByte & 1:
         # Long/external.
         data = d.extractPointer(base + 2 * d.ptrSize())
-        size = d.extractInt(base + d.ptrSize())
+        size = d.extractUInt(base + d.ptrSize())
     else:
         # Short/internal.
         size = firstByte / 2
@@ -476,7 +476,6 @@ def qdump__std__shared_ptr(d, value):
     if d.isSimpleType(d.templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
-        i = d.expensiveDowncast(i)
         d.putValue("@0x%x" % d.pointerValue(i))
 
     d.putNumChild(3)
@@ -515,7 +514,6 @@ def qdump__std__unique_ptr(d, value):
     if d.isSimpleType(d.templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
-        i = d.expensiveDowncast(i)
         d.putValue("@0x%x" % d.pointerValue(i))
 
     d.putNumChild(1)
@@ -554,24 +552,24 @@ def qdump__std__unordered_map(d, value):
     ptrSize = d.ptrSize()
     try:
         # gcc ~= 4.7
-        size = value["_M_element_count"]
+        size = int(value["_M_element_count"])
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
         try:
             # libc++ (Mac)
-            size = value["_M_h"]["_M_element_count"]
+            size = int(value["_M_h"]["_M_element_count"])
             start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
             offset = 0
         except:
             try:
                 # gcc 4.9.1
-                size = value["_M_h"]["_M_element_count"]
+                size = int(value["_M_h"]["_M_element_count"])
                 start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
                 offset = 0
             except:
                 # gcc 4.6.2
-                size = value["_M_element_count"]
+                size = int(value["_M_element_count"])
                 start = value["_M_buckets"].dereference()
                 # FIXME: Pointer-aligned?
                 offset = pairType.sizeof
@@ -579,17 +577,16 @@ def qdump__std__unordered_map(d, value):
                 # We don't know where the data is
                 d.putNumChild(0)
                 return
+
     d.putItemCount(size)
     if d.isExpanded():
         p = d.pointerValue(start)
         if d.isMapCompact(keyType, valueType):
-            with Children(d, size, childType=valueType):
+            with PairedChildren(d, size, pairType=pairType):
                 for i in d.childRange():
                     pair = d.createValue(p + ptrSize, pairType)
                     with SubItem(d, i):
-                        d.putField("iname", d.currentIName)
-                        d.putName("[%s] %s" % (i, pair["first"]))
-                        d.putValue(pair["second"])
+                        d.putPair(pair, i)
                     p = d.extractPointer(p)
         else:
             with Children(d, size, childType=pairType):
@@ -603,24 +600,24 @@ def qdump__std____debug__unordered_map(d, value):
 def qdump__std__unordered_set(d, value):
     try:
         # gcc ~= 4.7
-        size = value["_M_element_count"]
+        size = int(value["_M_element_count"])
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
         try:
             # libc++ (Mac)
-            size = value["_M_h"]["_M_element_count"]
+            size = int(value["_M_h"]["_M_element_count"])
             start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
             offset = 0
         except:
             try:
                 # gcc 4.6.2
-                size = value["_M_element_count"]
+                size = int(value["_M_element_count"])
                 start = value["_M_buckets"].dereference()
                 offset = d.ptrSize()
             except:
                 # gcc 4.9.1
-                size = value["_M_h"]["_M_element_count"]
+                size = int(value["_M_h"]["_M_element_count"])
                 start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
                 offset = 0
 
@@ -641,11 +638,18 @@ def qdump__std____1__unordered_map(d, value):
     size = int(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(size)
     if d.isExpanded():
+        # There seem to be several versions of the implementation.
+        def valueCCorNot(val):
+            try:
+                return val["__cc"]
+            except:
+                return val
+
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        with PairedChildren(d, size, pairType=node["__value_"].type, maxNumChild=1000):
+        with PairedChildren(d, size, pairType=valueCCorNot(node["__value_"]).type):
             for i in d.childRange():
                 with SubItem(d, i):
-                    d.putPair(node["__value_"], i)
+                    d.putPair(valueCCorNot(node["__value_"]), i)
                 node = node["__next_"]
 
 

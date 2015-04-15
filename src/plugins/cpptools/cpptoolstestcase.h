@@ -117,21 +117,15 @@ private:
     bool m_runGarbageCollector;
 };
 
-class CPPTOOLS_EXPORT ProjectOpenerAndCloser : public QObject
+class CPPTOOLS_EXPORT ProjectOpenerAndCloser
 {
-    Q_OBJECT
-
 public:
-    ProjectOpenerAndCloser(bool waitForFinishedGcOnDestruction = true);
+    ProjectOpenerAndCloser();
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
     ProjectInfo open(const QString &projectFile, bool configureAsExampleProject = false);
 
 private:
-    void onGcFinished();
-
-    bool m_waitForFinishedGcOnDestruction;
-    bool m_gcFinished;
     QList<ProjectExplorer::Project *> m_openProjects;
 };
 

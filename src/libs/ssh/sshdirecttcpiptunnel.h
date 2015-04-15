@@ -37,7 +37,6 @@
 #include <QSharedPointer>
 
 namespace QSsh {
-class SshConnectionInfo;
 
 namespace Internal {
 class SshChannelManager;
@@ -71,8 +70,9 @@ signals:
     void tunnelClosed();
 
 private:
-    SshDirectTcpIpTunnel(quint32 channelId, quint16 remotePort,
-            const SshConnectionInfo &connectionInfo, Internal::SshSendFacility &sendFacility);
+    SshDirectTcpIpTunnel(quint32 channelId, const QString &originatingHost,
+            quint16 originatingPort, const QString &remoteHost, quint16 remotePort,
+            Internal::SshSendFacility &sendFacility);
 
     // QIODevice stuff
     qint64 readData(char *data, qint64 maxlen);

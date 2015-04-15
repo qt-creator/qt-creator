@@ -184,10 +184,11 @@ QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
     return d->createSftpChannel();
 }
 
-SshDirectTcpIpTunnel::Ptr SshConnection::createTunnel(quint16 remotePort)
+SshDirectTcpIpTunnel::Ptr SshConnection::createTunnel(const QString &originatingHost,
+        quint16 originatingPort, const QString &remoteHost, quint16 remotePort)
 {
     QSSH_ASSERT_AND_RETURN_VALUE(state() == Connected, SshDirectTcpIpTunnel::Ptr());
-    return d->createTunnel(remotePort);
+    return d->createTunnel(originatingHost, originatingPort, remoteHost, remotePort);
 }
 
 int SshConnection::closeAllChannels()
@@ -828,9 +829,10 @@ QSharedPointer<SftpChannel> SshConnectionPrivate::createSftpChannel()
     return m_channelManager->createSftpChannel();
 }
 
-SshDirectTcpIpTunnel::Ptr SshConnectionPrivate::createTunnel(quint16 remotePort)
+SshDirectTcpIpTunnel::Ptr SshConnectionPrivate::createTunnel(const QString &originatingHost,
+        quint16 originatingPort, const QString &remoteHost, quint16 remotePort)
 {
-    return m_channelManager->createTunnel(remotePort, m_conn->connectionInfo());
+    return m_channelManager->createTunnel(originatingHost, originatingPort, remoteHost, remotePort);
 }
 
 const quint64 SshConnectionPrivate::InvalidSeqNr = static_cast<quint64>(-1);

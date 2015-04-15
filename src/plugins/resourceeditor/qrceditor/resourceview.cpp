@@ -103,7 +103,7 @@ void PrefixEntryBackup::restore() const
 class RelativeResourceModel : public ResourceModel
 {
 public:
-    RelativeResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
+    RelativeResourceModel(QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
     {
@@ -129,8 +129,8 @@ private:
     bool m_resourceDragEnabled;
 };
 
-RelativeResourceModel::RelativeResourceModel(const ResourceFile &resource_file, QObject *parent)  :
-    ResourceModel(resource_file, parent),
+RelativeResourceModel::RelativeResourceModel(QObject *parent)  :
+    ResourceModel(parent),
     m_resourceDragEnabled(false)
 {
 }
@@ -190,7 +190,7 @@ using namespace ResourceEditor::Internal;
 
 ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
     Utils::TreeView(parent),
-    m_qrcModel(new RelativeResourceModel(m_qrcFile, this)),
+    m_qrcModel(new RelativeResourceModel(this)),
     m_history(history),
     m_mergeId(-1)
 {
@@ -384,6 +384,11 @@ bool ResourceView::save()
 QString ResourceView::contents() const
 {
     return m_qrcModel->contents();
+}
+
+QString ResourceView::errorMessage() const
+{
+    return m_qrcModel->errorMessage();
 }
 
 QString ResourceView::currentAlias() const

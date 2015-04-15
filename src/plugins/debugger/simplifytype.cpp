@@ -30,6 +30,7 @@
 
 #include "simplifytype.h"
 
+#include <QDebug>
 #include <QRegExp>
 
 #include <ctype.h>
@@ -126,7 +127,13 @@ QString simplifyType(const QString &typeIn)
     type.replace(QLatin1String("std::__debug::"), QLatin1String("std::"));
     QRegExp simpleStringRE(QString::fromLatin1("std::basic_string<char> ?"));
     type.replace(simpleStringRE, QLatin1String("std::string"));
+
+    // Normalize space + ptr.
+    type.replace(QLatin1String(" *"), QLatin1String("@"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
+
+    // Normalize char const * and const char *.
+    type.replace(QLatin1String("char const@"), QLatin1String("const char@"));
 
     for (int i = 0; i < 10; ++i) {
         // boost::shared_ptr<...>::element_type
@@ -303,7 +310,7 @@ QString simplifyType(const QString &typeIn)
             }
         } // with std::allocator
     }
-    type.replace(QLatin1Char('@'), QLatin1Char('*'));
+    type.replace(QLatin1Char('@'), QLatin1String(" *"));
     type.replace(QLatin1String(" >"), QLatin1String(">"));
     return type;
 }

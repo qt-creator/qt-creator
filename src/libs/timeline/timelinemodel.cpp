@@ -136,6 +136,8 @@ void TimelineModel::setExpandedRowCount(int rows)
 {
     Q_D(TimelineModel);
     if (d->expandedRowCount != rows) {
+        if (d->rowOffsets.length() > rows)
+            d->rowOffsets.resize(rows);
         d->expandedRowCount = rows;
         emit expandedRowCountChanged();
         if (d->expanded)

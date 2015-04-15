@@ -139,10 +139,13 @@ QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedIte
             if (selectedModel == i) {
                 itemIndexes[i] = (selectedItem + 1) % currentModel->count();
             } else {
-                if (currentModel->startTime(0) > time)
+                if (currentModel->startTime(0) >= time)
                     itemIndexes[i] = 0;
                 else
                     itemIndexes[i] = (currentModel->lastIndex(time) + 1) % currentModel->count();
+
+                if (i < selectedModel && currentModel->startTime(itemIndexes[i]) == time)
+                    itemIndexes[i] = (itemIndexes[i] + 1) % currentModel->count();
             }
         } else {
             itemIndexes[i] = -1;
@@ -155,7 +158,8 @@ QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedIte
         if (itemIndexes[i] == -1)
             continue;
         qint64 newStartTime = model(i)->startTime(itemIndexes[i]);
-        if (newStartTime > time && newStartTime < candidateStartTime) {
+        if (newStartTime < candidateStartTime &&
+                (newStartTime > time || (newStartTime == time && i > selectedModel))) {
             candidateStartTime = newStartTime;
             candidateModelIndex = i;
         }
@@ -191,23 +195,29 @@ QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedIte
 
     QVarLengthArray<int> itemIndexes(modelCount());
     for (int i = 0; i < modelCount(); i++) {
+        const TimelineModel *currentModel = model(i);
         if (selectedModel == i) {
-            itemIndexes[i] = selectedItem - 1;
-            if (itemIndexes[i] < 0)
-                itemIndexes[i] = model(selectedModel)->count() -1;
+            itemIndexes[i] = (selectedItem == 0 ? currentModel->count() : selectedItem) - 1;
+        } else {
+            itemIndexes[i] = currentModel->lastIndex(time);
+            if (itemIndexes[i] == -1)
+                itemIndexes[i] = currentModel->count() - 1;
+            else if (i < selectedModel && itemIndexes[i] + 1 < currentModel->count() &&
+                     currentModel->startTime(itemIndexes[i] + 1) == time) {
+                ++itemIndexes[i];
+            }
         }
-        else
-            itemIndexes[i] = model(i)->lastIndex(time);
     }
 
     int candidateModelIndex = -1;
     qint64 candidateStartTime = std::numeric_limits<qint64>::min();
-    for (int i = 0; i < modelCount(); i++) {
+    for (int i = modelCount() - 1; i >= 0 ; --i) {
         const TimelineModel *currentModel = model(i);
         if (itemIndexes[i] == -1 || itemIndexes[i] >= currentModel->count())
             continue;
         qint64 newStartTime = currentModel->startTime(itemIndexes[i]);
-        if (newStartTime < time && newStartTime > candidateStartTime) {
+        if (newStartTime > candidateStartTime &&
+                (newStartTime < time || (newStartTime == time && i < selectedModel))) {
             candidateStartTime = newStartTime;
             candidateModelIndex = i;
         }

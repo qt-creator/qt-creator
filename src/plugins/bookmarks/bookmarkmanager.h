@@ -60,7 +60,8 @@ public:
     QIcon bookmarkIcon() const { return m_bookmarkIcon; }
 
     void updateBookmark(Bookmark *bookmark);
-    void removeBookmark(Bookmark *bookmark); // Does not remove the mark
+    void updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName);
+    void deleteBookmark(Bookmark *bookmark); // Does not remove the mark
     void removeAllBookmarks();
     Bookmark *bookmarkForIndex(const QModelIndex &index) const;
 
@@ -119,6 +120,8 @@ private:
     Bookmark *findBookmark(const QString &filePath, int lineNumber);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
+    void addBookmarkToMap(Bookmark *bookmark);
+    bool removeBookmarkFromMap(Bookmark *bookmark, const QString &fileName = QString());
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
     void operateTooltip(QWidget *widget, const QPoint &pos, Bookmark *mark);

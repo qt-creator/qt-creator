@@ -203,7 +203,7 @@ class ResourceModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
+    explicit ResourceModel(QObject *parent = 0);
 
     QModelIndex index(int row, int column,
                         const QModelIndex &parent = QModelIndex()) const;
@@ -214,6 +214,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void refresh();
+
+    QString errorMessage() const;
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

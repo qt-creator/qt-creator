@@ -79,8 +79,8 @@ Flickable {
                 id: loader
                 asynchronous: y < categories.contentY + categories.height &&
                               y + height > categories.contentY
-                active: modelData !== null &&
-                        (modelProxy.height === 0 || (!modelData.hidden && !modelData.empty))
+                active: modelData !== null && zoomer !== null &&
+                        (zoomer.traceDuration <= 0 || (!modelData.hidden && !modelData.empty))
                 height: active ? Math.max(modelData.height, modelData.defaultRowHeight) : 0
                 width: categories.width
                 property int visualIndex: DelegateModel.itemsIndex

@@ -38,6 +38,7 @@ namespace Timeline {
 class TIMELINE_EXPORT TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
 public:
     TimelineAbstractRendererPrivate();
+    virtual ~TimelineAbstractRendererPrivate();
 
     int selectedItem;
     bool selectionLocked;

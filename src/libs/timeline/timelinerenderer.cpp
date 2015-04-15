@@ -54,6 +54,19 @@ TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate(TimelineRende
     resetCurrentSelection();
 }
 
+TimelineRenderer::TimelineRendererPrivate::~TimelineRendererPrivate()
+{
+    clear();
+}
+
+void TimelineRenderer::TimelineRendererPrivate::clear()
+{
+    for (auto i = renderStates.begin(); i != renderStates.end(); ++i)
+        qDeleteAll(*i);
+    renderStates.clear();
+    lastState = 0;
+}
+
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
     TimelineAbstractRenderer(*(new TimelineRendererPrivate(this)), parent)
 {
@@ -110,7 +123,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     Q_D(TimelineRenderer);
     Q_UNUSED(updatePaintNodeData)
 
-    if (!d->model || d->model->hidden() || d->model->isEmpty() ||
+    if (!d->model || d->model->hidden() || d->model->isEmpty() || !d->zoomer ||
             d->zoomer->windowDuration() <= 0) {
         delete node;
         return 0;
@@ -121,10 +134,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     if (d->modelDirty) {
         if (node)
             node->removeAllChildNodes();
-        for (auto i = d->renderStates.begin(); i != d->renderStates.end(); ++i)
-            qDeleteAll(*i);
-        d->renderStates.clear();
-        d->lastState = 0;
+        d->clear();
     }
 
     TimelineRenderState *state = d->findRenderState();
@@ -181,7 +191,7 @@ void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(TimelineRenderer);
     Q_UNUSED(event);
-    if (!d->model->isEmpty())
+    if (d->model && !d->model->isEmpty())
         d->manageClicked();
 }
 
@@ -222,6 +232,9 @@ void TimelineRenderer::TimelineRendererPrivate::manageClicked()
 void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mouseY)
 {
     Q_Q(TimelineRenderer);
+    if (!zoomer || !model || q->width() < 1)
+        return;
+
     qint64 duration = zoomer->windowDuration();
     if (duration <= 0)
         return;

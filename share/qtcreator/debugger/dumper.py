@@ -963,20 +963,6 @@ class DumperBase:
 
         return False
 
-    def tryPutArrayContents(self, base, n, innerType):
-        enc = self.simpleEncoding(innerType)
-        if not enc:
-            return False
-        size = n * innerType.sizeof;
-        self.put('childtype="%s",' % innerType)
-        self.put('addrbase="0x%x",' % toInteger(base))
-        self.put('addrstep="0x%x",' % toInteger(innerType.sizeof))
-        self.put('arrayencoding="%s",' % enc)
-        self.put('arraydata="')
-        self.put(self.readMemory(base, size))
-        self.put('",')
-        return True
-
     def putSimpleCharArray(self, base, size = None):
         if size is None:
             elided, shown, data = self.readToFirstZero(base, 1, self.displayStringLimit)
@@ -1057,10 +1043,18 @@ class DumperBase:
         innerType = value.type.target().unqualified()
         innerTypeName = str(innerType)
 
+        goodPointer = False
         try:
             target = value.dereference()
-            target.is_optimized_out # Access test.
+            str(target) # Dummy access.
+            if self.isLldb and target.GetError().Fail():
+                pass
+            else:
+                goodPointer = True
         except:
+            pass
+
+        if not goodPointer:
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
             self.putValue(self.cleanAddress(value))
@@ -1128,7 +1122,6 @@ class DumperBase:
                 self.currentChildType = self.stripClassTag(innerTypeName)
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
-                #self.putPointerValue(value)
                 self.putOriginalAddress(value)
                 return
 
@@ -1473,17 +1466,24 @@ class DumperBase:
             displayFormat = self.typeformats.get(needle, AutomaticFormat)
         return displayFormat
 
-    def putArrayData(self, base, n, innerType = None,
+    def putArrayData(self, base, n, innerType,
             childNumChild = None, maxNumChild = 10000):
-        if innerType is None:
-            innerType = base.dereference().type
-        if not self.tryPutArrayContents(base, n, innerType):
-            base = self.createPointerValue(base, innerType)
+        addrBase = toInteger(base)
+        innerSize = innerType.sizeof
+        enc = self.simpleEncoding(innerType)
+        if enc:
+            self.put('childtype="%s",' % innerType)
+            self.put('addrbase="0x%x",' % addrBase)
+            self.put('addrstep="0x%x",' % innerSize)
+            self.put('arrayencoding="%s",' % enc)
+            self.put('arraydata="')
+            self.put(self.readMemory(addrBase, n * innerSize))
+            self.put('",')
+        else:
             with Children(self, n, innerType, childNumChild, maxNumChild,
-                    base, innerType.sizeof):
+                    addrBase=addrBase, addrStep=innerSize):
                 for i in self.childRange():
-                    i = toInteger(i)
-                    self.putSubItem(i, (base + i).dereference())
+                    self.putSubItem(i, self.createValue(addrBase + i * innerSize, innerType))
 
     def putArrayItem(self, name, addr, n, typeName):
         with SubItem(self, name):
@@ -1791,6 +1791,11 @@ class DumperBase:
         if functionName.startswith("qt_v4"):
             return True
         return functionName.startswith(self.qtNamespace() + "QV4::")
+
+    # Hack to avoid QDate* dumper timeouts with GDB 7.4 on 32 bit
+    # due to misaligned %ebx in SSE calls (qstring.cpp:findChar)
+    def canCallLocale(self):
+        return True
 
     def isReportableQmlFrame(self, functionName):
         return functionName and functionName.find("QV4::Moth::VME::exec") >= 0

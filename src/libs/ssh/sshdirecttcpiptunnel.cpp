@@ -38,11 +38,14 @@
 namespace QSsh {
 namespace Internal {
 
-SshDirectTcpIpTunnelPrivate::SshDirectTcpIpTunnelPrivate(quint32 channelId, quint16 remotePort,
-        const SshConnectionInfo &connectionInfo, SshSendFacility &sendFacility)
+SshDirectTcpIpTunnelPrivate::SshDirectTcpIpTunnelPrivate(quint32 channelId,
+        const QString &originatingHost, quint16 originatingPort, const QString &remoteHost,
+        quint16 remotePort, SshSendFacility &sendFacility)
     : AbstractSshChannel(channelId, sendFacility),
-      m_remotePort(remotePort),
-      m_connectionInfo(connectionInfo)
+      m_originatingHost(originatingHost),
+      m_originatingPort(originatingPort),
+      m_remoteHost(remoteHost),
+      m_remotePort(remotePort)
 {
     connect(this, SIGNAL(eof()), SLOT(handleEof()));
 }
@@ -112,9 +115,11 @@ void SshDirectTcpIpTunnelPrivate::handleEof()
 
 using namespace Internal;
 
-SshDirectTcpIpTunnel::SshDirectTcpIpTunnel(quint32 channelId, quint16 remotePort,
-        const SshConnectionInfo &connectionInfo, SshSendFacility &sendFacility)
-    : d(new SshDirectTcpIpTunnelPrivate(channelId, remotePort, connectionInfo, sendFacility))
+SshDirectTcpIpTunnel::SshDirectTcpIpTunnel(quint32 channelId, const QString &originatingHost,
+        quint16 originatingPort, const QString &remoteHost, quint16 remotePort,
+        SshSendFacility &sendFacility)
+    : d(new SshDirectTcpIpTunnelPrivate(channelId, originatingHost, originatingPort, remoteHost,
+                                        remotePort, sendFacility))
 {
     connect(d, SIGNAL(initialized()), SIGNAL(initialized()), Qt::QueuedConnection);
     connect(d, SIGNAL(readyRead()), SIGNAL(readyRead()), Qt::QueuedConnection);
@@ -156,9 +161,8 @@ void SshDirectTcpIpTunnel::initialize()
     try {
         QIODevice::open(QIODevice::ReadWrite);
         d->m_sendFacility.sendDirectTcpIpPacket(d->localChannelId(), d->initialWindowSize(),
-            d->maxPacketSize(), d->m_connectionInfo.peerAddress.toString().toUtf8(),
-            d->m_remotePort, d->m_connectionInfo.localAddress.toString().toUtf8(),
-            d->m_connectionInfo.localPort);
+            d->maxPacketSize(), d->m_remoteHost.toUtf8(), d->m_remotePort,
+            d->m_originatingHost.toUtf8(), d->m_originatingPort);
         d->setChannelState(AbstractSshChannel::SessionRequested);
         d->m_timeoutTimer.start(d->ReplyTimeout);
     }  catch (const Botan::Exception &e) { // Won't happen, but let's play it safe.

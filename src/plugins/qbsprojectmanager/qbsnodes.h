@@ -57,6 +57,16 @@ public:
     QString displayName() const;
 };
 
+class QbsFolderNode : public ProjectExplorer::FolderNode
+{
+public:
+    QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
+                  const QString &displayName);
+
+private:
+    QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const;
+};
+
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------

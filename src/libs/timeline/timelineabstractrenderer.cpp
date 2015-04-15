@@ -38,6 +38,11 @@ TimelineAbstractRenderer::TimelineAbstractRendererPrivate::TimelineAbstractRende
 {
 }
 
+TimelineAbstractRenderer::TimelineAbstractRendererPrivate::~TimelineAbstractRendererPrivate()
+{
+    // Nothing to delete here as all the pointer members are owned by other classes.
+}
+
 TimelineAbstractRenderer::TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd,
                                                    QQuickItem *parent) :
     QQuickItem(parent), d_ptr(&dd)
@@ -65,6 +70,12 @@ TimelineAbstractRenderer::TimelineAbstractRenderer(QQuickItem *parent) : QQuickI
     d_ptr(new TimelineAbstractRendererPrivate)
 {
     setFlag(ItemHasContents);
+}
+
+TimelineAbstractRenderer::~TimelineAbstractRenderer()
+{
+    Q_D(TimelineAbstractRenderer);
+    delete d;
 }
 
 bool TimelineAbstractRenderer::selectionLocked() const

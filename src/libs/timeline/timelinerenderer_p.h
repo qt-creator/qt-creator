@@ -40,6 +40,9 @@ class TimelineRenderer::TimelineRendererPrivate :
         TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
 public:
     TimelineRendererPrivate(TimelineRenderer *q);
+    ~TimelineRendererPrivate();
+
+    void clear();
 
     int rowFromPosition(int y) const;
 

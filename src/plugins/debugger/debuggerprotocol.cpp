@@ -423,12 +423,16 @@ QByteArray DebuggerResponse::toString() const
 //
 //////////////////////////////////////////////////////////////////////////////////
 
+// Tested in tests/auto/debugger/tst_gdb.cpp
+
 void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb)
 {
     const QChar dot(QLatin1Char('.'));
 
-    const bool ignoreParenthesisContent = msg.contains(QLatin1String("rubenvb"));
+    const bool ignoreParenthesisContent = msg.contains(QLatin1String("rubenvb"))
+                                       || msg.contains(QLatin1String("openSUSE"));
+
     const QChar parOpen(QLatin1Char('('));
     const QChar parClose(QLatin1Char(')'));
 
