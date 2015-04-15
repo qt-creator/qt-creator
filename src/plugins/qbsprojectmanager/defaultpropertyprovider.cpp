@@ -62,7 +62,9 @@ static QString extractToolchainPrefix(QString *compilerName)
 {
     QString prefix;
     if (compilerName->endsWith(QLatin1String("-g++"))
-            || compilerName->endsWith(QLatin1String("-clang++"))) {
+            || compilerName->endsWith(QLatin1String("-clang++"))
+            || compilerName->endsWith(QLatin1String("-gcc"))
+            || compilerName->endsWith(QLatin1String("-clang"))) {
         const int idx = compilerName->lastIndexOf(QLatin1Char('-')) + 1;
         prefix = compilerName->left(idx);
         compilerName->remove(0, idx);
