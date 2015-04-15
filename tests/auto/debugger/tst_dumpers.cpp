@@ -1067,8 +1067,15 @@ void tst_Dumpers::dumper()
         if (pos != -1)
             output = output.left(pos);
         qDebug() << "Extracting GCC version from: " << output;
-        pos = output.lastIndexOf(' ');
-        output = output.mid(pos + 1);
+        if (output.contains(QByteArray("SUSE Linux"))) {
+            pos = output.indexOf(')');
+            output = output.mid(pos + 1).trimmed();
+            pos = output.indexOf(' ');
+            output = output.left(pos);
+        } else {
+            pos = output.lastIndexOf(' ');
+            output = output.mid(pos + 1);
+        }
         int pos1 = output.indexOf('.');
         int major = output.left(pos1++).toInt();
         int pos2 = output.indexOf('.', pos1 + 1);
