@@ -81,7 +81,7 @@ static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsign
     if (!arguments->contains(argument))
         arguments->prepend(argument);
 
-    QTC_CHECK(!arguments->contains(m32Argument) || !arguments->contains(m32Argument));
+    QTC_CHECK(!arguments->contains(m32Argument) || !arguments->contains(m64Argument));
 }
 
 // Removes (1) filePath (2) -o <somePath>.
