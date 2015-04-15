@@ -191,6 +191,9 @@ void TestRunner::runTests()
     const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
     const bool displayRunConfigWarnings = !settings->omitRunConfigWarn;
 
+    m_executingTests = true;
+    emit testRunStarted();
+
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
 
@@ -218,6 +221,7 @@ void TestRunner::runTests()
     if (m_selectedTests.empty()) {
         TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
             tr("No tests selected. Canceling test run.")));
+        onFinished();
         return;
     }
 
@@ -227,6 +231,7 @@ void TestRunner::runTests()
             tr("Project is null. Canceling test run.\n"
             "Only desktop kits are supported. Make sure the "
             "currently active kit is a desktop kit.")));
+        onFinished();
         return;
     }
 
@@ -236,26 +241,32 @@ void TestRunner::runTests()
         if (!project->hasActiveBuildSettings()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("Project is not configured. Canceling test run.")));
+            onFinished();
             return;
         }
+
+        auto connection = connect(this, &TestRunner::requestStopTestRun, [&] () {
+            ProjectExplorer::BuildManager::instance()->cancel();
+            m_building = false;
+            m_buildSucceeded = false;
+        });
         buildProject(project);
         while (m_building) {
             qApp->processEvents();
         }
+        disconnect(connection);
 
         if (!m_buildSucceeded) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("Build failed. Canceling test run.")));
+            onFinished();
             return;
         }
     }
 
-    m_executingTests = true;
     connect(this, &TestRunner::testResultCreated,
             TestResultsPane::instance(), &TestResultsPane::addTestResult,
             Qt::QueuedConnection);
-
-    emit testRunStarted();
 
     QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, timeout, metricsOption, this);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
@@ -268,8 +279,7 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
 {
     m_building = true;
     m_buildSucceeded = false;
-    ProjectExplorer::BuildManager *buildManager = static_cast<ProjectExplorer::BuildManager *>(
-                ProjectExplorer::BuildManager::instance());
+    ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
     connect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
     ProjectExplorer::ProjectExplorerPlugin::buildProject(project);
@@ -277,8 +287,7 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
 
 void TestRunner::buildFinished(bool success)
 {
-    ProjectExplorer::BuildManager *buildManager = static_cast<ProjectExplorer::BuildManager *>(
-                ProjectExplorer::BuildManager::instance());
+    ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
     disconnect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
                this, &TestRunner::buildFinished);
     m_building = false;
