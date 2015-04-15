@@ -139,7 +139,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
                                              VcsBaseEditorWidget *editor,
                                              JobOutputBindMode mode) const
 {
-    auto cmd = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
+    auto cmd = new VcsCommand(workingDirectory, processEnvironment());
     cmd->setDefaultTimeoutS(vcsTimeoutS());
     if (editor)
         d->bindCommandToEditor(cmd, editor);
@@ -157,7 +157,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    Utils::ExitCodeInterpreter *interpreter)
 {
-    cmd->addJob(args, vcsTimeoutS(), interpreter);
+    cmd->addJob(vcsBinary(), args, vcsTimeoutS(), interpreter);
     cmd->execute();
 }
 
@@ -209,7 +209,7 @@ bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const
     QByteArray internalErrorData;
     QScopedPointer<VcsCommand> command(createCommand(workingDir));
     command->addFlags(flags);
-    bool result = command->runFullySynchronous(args, vcsTimeoutS(), outputData,
+    bool result = command->runFullySynchronous(vcsBinary(), args, vcsTimeoutS(), outputData,
                                                errorData ? errorData : &internalErrorData);
     if (!internalErrorData.isEmpty() && !(flags & VcsBasePlugin::SuppressStdErrInLogWindow))
         VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));

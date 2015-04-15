@@ -105,9 +105,8 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     args << client->vcsCommandString(BazaarClient::CloneCommand)
          << extraOptions << cwp->repository() << cwp->directory();
 
-    auto command = new VcsCommand(settings.binaryPath(), cwp->path(),
-                                  client->processEnvironment());
-    command->addJob(args, -1);
+    auto command = new VcsCommand(cwp->path(), client->processEnvironment());
+    command->addJob(settings.binaryPath(), args, -1);
     return command;
 }
 

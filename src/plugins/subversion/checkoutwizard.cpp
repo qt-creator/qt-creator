@@ -88,9 +88,8 @@ VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
     const QString workingDirectory = cwp->path();
     *checkoutDir = FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
 
-    auto command = new VcsCommand(binary, workingDirectory,
-                                  QProcessEnvironment::systemEnvironment());
-    command->addJob(args, -1);
+    auto command = new VcsCommand(workingDirectory, QProcessEnvironment::systemEnvironment());
+    command->addJob(binary, args, -1);
     return command;
 }
 

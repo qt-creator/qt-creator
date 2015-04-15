@@ -83,9 +83,8 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     QStringList args;
     args << QLatin1String("clone") << cwp->repository() << directory;
     *checkoutDir = Utils::FileName::fromString(path + QLatin1Char('/') + directory);
-    auto command = new VcsCommand(settings.binaryPath(), path,
-                                  QProcessEnvironment::systemEnvironment());
-    command->addJob(args, -1);
+    auto command = new VcsCommand(path, QProcessEnvironment::systemEnvironment());
+    command->addJob(settings.binaryPath(), args, -1);
     return command;
 }
 

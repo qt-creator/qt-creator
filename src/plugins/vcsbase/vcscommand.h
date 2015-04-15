@@ -77,20 +77,18 @@ class VCSBASE_EXPORT VcsCommand : public QObject
     Q_OBJECT
 
 public:
-    VcsCommand(const Utils::FileName &binary,
-               const QString &workingDirectory,
+    VcsCommand(const QString &workingDirectory,
                const QProcessEnvironment &environment);
     ~VcsCommand();
 
-    void addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
-    void addJob(const QStringList &arguments, int timeoutS,
+    void addJob(const Utils::FileName &binary, const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
+    void addJob(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
                 Utils::ExitCodeInterpreter *interpreter = 0);
     void execute();
     void abort();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
-    const Utils::FileName &binaryPath() const;
     const QString &workingDirectory() const;
     const QProcessEnvironment &processEnvironment() const;
 
@@ -109,15 +107,15 @@ public:
     void setProgressParser(ProgressParser *parser);
     void setProgressiveOutput(bool progressive);
 
-    Utils::SynchronousProcessResponse runVcs(const QStringList &arguments, int timeoutS,
+    Utils::SynchronousProcessResponse runVcs(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
                                              Utils::ExitCodeInterpreter *interpreter = 0);
     // Make sure to not pass through the event loop at all:
-    bool runFullySynchronous(const QStringList &arguments, int timeoutS,
+    bool runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
                              QByteArray *outputData, QByteArray *errorData);
 
 private:
     void run(QFutureInterface<void> &future);
-    Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutS,
+    Utils::SynchronousProcessResponse runSynchronous(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
                                                      Utils::ExitCodeInterpreter *interpreter = 0);
     void emitRepositoryChanged();
 

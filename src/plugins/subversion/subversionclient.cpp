@@ -90,7 +90,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
     VcsCommand *cmd = createCommand(repositoryRoot);
     cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
     QStringList args(vcsCommandString(CommitCommand));
-    cmd->addJob(args << svnExtraOptions << files);
+    cmd->addJob(vcsBinary(), args << svnExtraOptions << files);
     return cmd;
 }
 
@@ -232,7 +232,7 @@ QString DiffController::getDescription() const
 
 void DiffController::postCollectTextualDiffOutput()
 {
-    auto command = new VcsCommand(m_client->vcsBinary(), m_workingDirectory, processEnvironment());
+    auto command = new VcsCommand(m_workingDirectory, processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
             this, SLOT(slotTextualDiffOutputReceived(QString)));
@@ -251,7 +251,7 @@ void DiffController::postCollectTextualDiffOutput()
         args << m_filesList;
     }
 
-    command->addJob(args, m_client->vcsTimeoutS());
+    command->addJob(m_client->vcsBinary(), args, m_client->vcsTimeoutS());
     command->execute();
 }
 

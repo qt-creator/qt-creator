@@ -809,11 +809,10 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                                                  QTextCodec *outputCodec,
                                                  const QProcessEnvironment &env)
 {
-    VcsCommand command(binary, workingDir,
-                       env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
+    VcsCommand command(workingDir, env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    return command.runVcs(arguments, timeOutS);
+    return command.runVcs(binary, arguments, timeOutS);
 }
 
 } // namespace VcsBase

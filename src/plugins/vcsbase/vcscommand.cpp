@@ -79,19 +79,18 @@ class VcsCommandPrivate
 {
 public:
     struct Job {
-        explicit Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter = 0);
+        explicit Job(const Utils::FileName &b, const QStringList &a, int t,
+                     Utils::ExitCodeInterpreter *interpreter = 0);
 
+        Utils::FileName binary;
         QStringList arguments;
         int timeoutS;
         Utils::ExitCodeInterpreter *exitCodeInterpreter;
     };
 
-    VcsCommandPrivate(const Utils::FileName &binary,
-                      const QString &workingDirectory,
-                      const QProcessEnvironment &environment);
+    VcsCommandPrivate(const QString &workingDirectory, const QProcessEnvironment &environment);
     ~VcsCommandPrivate();
 
-    const Utils::FileName m_binaryPath;
     const QString m_workingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;
@@ -112,10 +111,8 @@ public:
     int m_lastExecExitCode;
 };
 
-VcsCommandPrivate::VcsCommandPrivate(const Utils::FileName &binary,
-                                     const QString &workingDirectory,
+VcsCommandPrivate::VcsCommandPrivate(const QString &workingDirectory,
                                      const QProcessEnvironment &environment) :
-    m_binaryPath(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
     m_defaultTimeoutS(10),
@@ -137,7 +134,9 @@ VcsCommandPrivate::~VcsCommandPrivate()
     delete m_progressParser;
 }
 
-VcsCommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter) :
+VcsCommandPrivate::Job::Job(const Utils::FileName &b, const QStringList &a,
+                            int t, Utils::ExitCodeInterpreter *interpreter) :
+    binary(b),
     arguments(a),
     timeoutS(t),
     exitCodeInterpreter(interpreter)
@@ -149,10 +148,9 @@ VcsCommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpre
 
 } // namespace Internal
 
-VcsCommand::VcsCommand(const Utils::FileName &binary,
-                       const QString &workingDirectory,
+VcsCommand::VcsCommand(const QString &workingDirectory,
                        const QProcessEnvironment &environment) :
-    d(new Internal::VcsCommandPrivate(binary, workingDirectory, environment))
+    d(new Internal::VcsCommandPrivate(workingDirectory, environment))
 {
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
             this, &VcsCommand::coreAboutToClose);
@@ -161,11 +159,6 @@ VcsCommand::VcsCommand(const Utils::FileName &binary,
 VcsCommand::~VcsCommand()
 {
     delete d;
-}
-
-const Utils::FileName &VcsCommand::binaryPath() const
-{
-    return d->m_binaryPath;
 }
 
 const QString &VcsCommand::workingDirectory() const
@@ -198,15 +191,16 @@ void VcsCommand::addFlags(unsigned f)
     d->m_flags |= f;
 }
 
-void VcsCommand::addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter)
-{
-    addJob(arguments, defaultTimeoutS(), interpreter);
-}
-
-void VcsCommand::addJob(const QStringList &arguments, int timeoutS,
+void VcsCommand::addJob(const Utils::FileName &binary, const QStringList &arguments,
                         Utils::ExitCodeInterpreter *interpreter)
 {
-    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(arguments, timeoutS, interpreter));
+    addJob(binary, arguments, defaultTimeoutS(), interpreter);
+}
+
+void VcsCommand::addJob(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
+                        Utils::ExitCodeInterpreter *interpreter)
+{
+    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(binary, arguments, timeoutS, interpreter));
 }
 
 void VcsCommand::execute()
@@ -221,7 +215,7 @@ void VcsCommand::execute()
     QFuture<void> task = QtConcurrent::run(&VcsCommand::run, this);
     d->m_watcher.setFuture(task);
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
-    QString binary = d->m_binaryPath.toFileInfo().baseName();
+    QString binary = d->m_jobs.at(0).binary.toFileInfo().baseName();
     if (!binary.isEmpty())
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
     const QString taskName = binary + QLatin1Char(' ') + d->m_jobs.front().arguments.at(0);
@@ -254,10 +248,7 @@ int VcsCommand::lastExecutionExitCode() const
 void VcsCommand::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
-    if (binaryPath().isEmpty()) {
-        emit errorText(tr("Unable to start process, binary is empty"));
-        return;
-    }
+    QTC_ASSERT(!d->m_jobs.isEmpty(), return);
 
     QString stdOut;
     QString stdErr;
@@ -272,7 +263,7 @@ void VcsCommand::run(QFutureInterface<void> &future)
     for (int j = 0; j < count; j++) {
         const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(j);
         Utils::SynchronousProcessResponse resp
-                = runVcs( job.arguments, job.timeoutS, job.exitCodeInterpreter);
+                = runVcs(job.binary, job.arguments, job.timeoutS, job.exitCodeInterpreter);
         stdOut += resp.stdOut;
         stdErr += resp.stdErr;
         d->m_lastExecExitCode = resp.exitCode;
@@ -330,24 +321,25 @@ signals:
     void appendMessage(const QString &text);
 };
 
-Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &arguments, int timeoutS,
+Utils::SynchronousProcessResponse VcsCommand::runVcs(const Utils::FileName &binary,
+                                                     const QStringList &arguments, int timeoutS,
                                                      Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
     OutputProxy outputProxy;
 
-    if (d->m_binaryPath.isEmpty()) {
+    if (binary.isEmpty()) {
         response.result = Utils::SynchronousProcessResponse::StartFailed;
         return response;
     }
 
     if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
-        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
+        emit outputProxy.appendCommand(d->m_workingDirectory, binary, arguments);
 
     const bool sshPromptConfigured = !d->m_sshPasswordPrompt.isEmpty();
     if (debugExecution) {
         QDebug nsp = qDebug().nospace();
-        nsp << "Command::runVcs" << d->m_workingDirectory << d->m_binaryPath << arguments
+        nsp << "Command::runVcs" << d->m_workingDirectory << binary << arguments
                 << timeoutS;
         if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
             nsp << "stdout";
@@ -375,7 +367,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
     //    if (d->m_flags & ExpectRepoChanges)
     //        Core::DocumentManager::expectDirectoryChange(d->m_workingDirectory);
     if (d->m_flags & VcsBasePlugin::FullySynchronously) {
-        response = runSynchronous(arguments, timeoutS, interpreter);
+        response = runSynchronous(binary, arguments, timeoutS, interpreter);
     } else {
         Utils::SynchronousProcess process;
         process.setExitCodeInterpreter(interpreter);
@@ -417,19 +409,16 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
         process.setTimeOutMessageBoxEnabled(true);
 
         // Run!
-        response = process.run(d->m_binaryPath.toString(), arguments);
+        response = process.run(binary.toString(), arguments);
     }
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            if (d->m_flags & VcsBasePlugin::ShowSuccessMessage) {
-                emit outputProxy.appendMessage(response.exitMessage(d->m_binaryPath.toUserOutput(),
-                                                                    timeoutS));
-            }
+            if (d->m_flags & VcsBasePlugin::ShowSuccessMessage)
+                emit outputProxy.appendMessage(response.exitMessage(binary.toUserOutput(), timeoutS));
         } else if (!(d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)) {
-            emit outputProxy.appendError(response.exitMessage(d->m_binaryPath.toUserOutput(),
-                                                              timeoutS));
+            emit outputProxy.appendError(response.exitMessage(binary.toUserOutput(), timeoutS));
         }
     }
     emitRepositoryChanged();
@@ -437,7 +426,8 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
     return response;
 }
 
-Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const QStringList &arguments,
+Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const Utils::FileName &binary,
+                                                             const QStringList &arguments,
                                                              int timeoutS,
                                                              Utils::ExitCodeInterpreter *interpreter)
 {
@@ -459,7 +449,7 @@ Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const QStringList &
         process->setProcessChannelMode(QProcess::MergedChannels);
 
     // Start
-    process->start(d->m_binaryPath.toString(), arguments, QIODevice::ReadOnly);
+    process->start(binary.toString(), arguments, QIODevice::ReadOnly);
     process->closeWriteChannel();
     if (!process->waitForStarted()) {
         response.result = Utils::SynchronousProcessResponse::StartFailed;
@@ -515,15 +505,14 @@ void VcsCommand::emitRepositoryChanged()
     Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
 }
 
-bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutS,
-                                     QByteArray *outputData, QByteArray *errorData)
+bool VcsCommand::runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
+                                     int timeoutS, QByteArray *outputData, QByteArray *errorData)
 {
-    if (d->m_binaryPath.isEmpty())
-        return false;
+    QTC_ASSERT(!binary.isEmpty(), return false);
 
     OutputProxy outputProxy;
     if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
-        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
+        emit outputProxy.appendCommand(d->m_workingDirectory, binary, arguments);
 
     // TODO tell the document manager about expected repository changes
     // if (d->m_flags & ExpectRepoChanges)
@@ -532,12 +521,12 @@ bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutS,
     process.setWorkingDirectory(d->m_workingDirectory);
     process.setProcessEnvironment(d->m_environment);
 
-    process.start(d->m_binaryPath.toString(), arguments);
+    process.start(binary.toString(), arguments);
     process.closeWriteChannel();
     if (!process.waitForStarted()) {
         if (errorData) {
             const QString msg = QString::fromLatin1("Unable to execute \"%1\": %2:")
-                                .arg(d->m_binaryPath.toUserOutput(), process.errorString());
+                                .arg(binary.toUserOutput(), process.errorString());
             *errorData = msg.toLocal8Bit();
         }
         return false;

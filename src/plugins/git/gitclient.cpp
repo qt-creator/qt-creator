@@ -150,7 +150,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
         m_command->cancel();
     }
 
-    m_command = new VcsCommand(gitClient()->vcsBinary(), m_directory, gitClient()->processEnvironment());
+    m_command = new VcsCommand(m_directory, gitClient()->processEnvironment());
     m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     connect(m_command, &VcsCommand::output, this, &BaseController::processOutput);
     connect(m_command, &VcsCommand::finished, this, &BaseController::reloadFinished);
@@ -159,7 +159,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
     foreach (const QStringList &arg, args) {
         QTC_ASSERT(!arg.isEmpty(), continue);
 
-        m_command->addJob(arg, gitClient()->vcsTimeoutS());
+        m_command->addJob(gitClient()->vcsBinary(), arg, gitClient()->vcsTimeoutS());
     }
 
     m_command->execute();
