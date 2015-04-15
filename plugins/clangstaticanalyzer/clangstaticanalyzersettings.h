@@ -19,16 +19,13 @@
 #ifndef CLANGSTATICANALYZERSETTINGS_H
 #define CLANGSTATICANALYZERSETTINGS_H
 
-#include <QObject>
 #include <QString>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class ClangStaticAnalyzerSettings : public QObject
+class ClangStaticAnalyzerSettings
 {
-    Q_OBJECT
-
 public:
     static ClangStaticAnalyzerSettings *instance();
 
