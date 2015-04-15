@@ -3,5 +3,11 @@
         <file>unit-tests/simple/main.cpp</file>
         <file>unit-tests/simple/simple.qbs</file>
         <file>unit-tests/simple/simple.pro</file>
+        <file>unit-tests/qt-widgets-app/main.cpp</file>
+        <file>unit-tests/qt-widgets-app/mainwindow.cpp</file>
+        <file>unit-tests/qt-widgets-app/mainwindow.h</file>
+        <file>unit-tests/qt-widgets-app/mainwindow.ui</file>
+        <file>unit-tests/qt-widgets-app/qt-widgets-app.pro</file>
+        <file>unit-tests/qt-widgets-app/qt-widgets-app.qbs</file>
     </qresource>
 </RCC>

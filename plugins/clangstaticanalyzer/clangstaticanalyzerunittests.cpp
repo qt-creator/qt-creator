@@ -94,10 +94,16 @@ void ClangStaticAnalyzerUnitTests::testProject_data()
 {
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
-    QTest::newRow("qbs project")
+
+    QTest::newRow("simple qbs project")
             << QString(m_tmpDir->path() + QLatin1String("/simple/simple.qbs")) << 1;
-    QTest::newRow("qmake project")
+    QTest::newRow("simple qmake project")
             << QString(m_tmpDir->path() + QLatin1String("/simple/simple.pro")) << 1;
+
+    QTest::newRow("qt-widgets-app qbs project")
+            << QString(m_tmpDir->path() + QLatin1String("/qt-widgets-app/qt-widgets-app.qbs")) << 0;
+    QTest::newRow("qt-widgets-app qmake project")
+            << QString(m_tmpDir->path() + QLatin1String("/qt-widgets-app/qt-widgets-app.pro")) << 0;
 }
 
 } // namespace Internal
