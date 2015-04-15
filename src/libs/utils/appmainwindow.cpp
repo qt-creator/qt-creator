@@ -37,11 +37,6 @@
 #include <QEvent>
 #include <QCoreApplication>
 
-#ifdef QTC_USE_QX11INFO
-#include <X11/Xlib.h>
-#include <QX11Info>
-#endif
-
 namespace Utils {
 
 /* The notification signal is delayed by using a custom event
@@ -64,27 +59,7 @@ void AppMainWindow::raiseWindow()
 
     raise();
 
-#if defined(QTC_USE_QX11INFO)
-    // Do the same as QWidget::activateWindow(), but with two differences
-    // * set newest timestamp (instead of userTime()). See QTBUG-24932
-    // * set source to 'pager'. This seems to do the trick e.g. on kwin even if
-    //   the app currently having focus is 'active' (but we hit a breakpoint).
-    XEvent e;
-    e.xclient.type = ClientMessage;
-    e.xclient.message_type = XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", 1);
-    e.xclient.display = QX11Info::display();
-    e.xclient.window = winId();
-    e.xclient.format = 32;
-    e.xclient.data.l[0] = 2;     // pager!
-    e.xclient.data.l[1] = QX11Info::appTime(); // X11 time!
-    e.xclient.data.l[2] = None;
-    e.xclient.data.l[3] = 0;
-    e.xclient.data.l[4] = 0;
-    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(),
-               false, SubstructureNotifyMask | SubstructureRedirectMask, &e);
-#else
     activateWindow();
-#endif
 }
 
 #ifdef Q_OS_WIN
