@@ -545,7 +545,7 @@ bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutS,
 
     if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutS, outputData, errorData, true)) {
         if (errorData)
-            errorData->append(tr("Error: Executable timed out after %1s.").arg(timeoutS).toLocal8Bit());
+            errorData->append(tr("Error: Executable timed out after %1 s.").arg(timeoutS).toLocal8Bit());
         Utils::SynchronousProcess::stopProcess(process);
         return false;
     }

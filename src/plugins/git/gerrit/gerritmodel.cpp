@@ -390,7 +390,7 @@ void QueryContext::timeout()
     if (!parent)
         parent = QApplication::activeWindow();
     QMessageBox box(QMessageBox::Question, tr("Timeout"),
-                    tr("The gerrit process has not responded within %1s.\n"
+                    tr("The gerrit process has not responded within %1 s.\n"
                        "Most likely this is caused by problems with SSH authentication.\n"
                        "Would you like to terminate it?").
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);

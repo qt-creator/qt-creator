@@ -112,7 +112,7 @@ void PerforceChecker::slotTimeOut()
         return;
     m_timedOut = true;
     Utils::SynchronousProcess::stopProcess(m_process);
-    emitFailed(tr("\"%1\" timed out after %2ms.").
+    emitFailed(tr("\"%1\" timed out after %2 ms.").
                arg(m_binary).arg(m_timeOutMS));
 }
 
