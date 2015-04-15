@@ -112,6 +112,7 @@ private:
     TestTreeItem *m_quickTestRootItem;
     TestCodeParser *m_parser;
     bool m_connectionsInitialized;
+    QAtomicInt m_refCounter;
 };
 
 class TestTreeSortFilterModel : public QSortFilterProxyModel

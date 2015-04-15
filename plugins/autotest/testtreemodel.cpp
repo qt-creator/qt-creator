@@ -102,6 +102,7 @@ TestTreeModel::~TestTreeModel()
 
 void TestTreeModel::enableParsing()
 {
+    m_refCounter.ref();
     m_parser->setState(TestCodeParser::Idle);
     if (m_connectionsInitialized)
         return;
@@ -128,7 +129,8 @@ void TestTreeModel::enableParsing()
 
 void TestTreeModel::disableParsing()
 {
-    m_parser->setState(TestCodeParser::Disabled);
+    if (!m_refCounter.deref())
+        m_parser->setState(TestCodeParser::Disabled);
 }
 
 QModelIndex TestTreeModel::index(int row, int column, const QModelIndex &parent) const
