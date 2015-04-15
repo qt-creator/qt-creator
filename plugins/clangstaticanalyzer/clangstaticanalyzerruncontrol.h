@@ -70,6 +70,7 @@ private:
 private:
     const CppTools::ProjectInfo m_projectInfo;
     const QString m_toolchainType;
+    const unsigned char m_wordWidth;
 
     QString m_clangExecutable;
     QString m_clangLogFileDir;

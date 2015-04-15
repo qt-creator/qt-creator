@@ -35,8 +35,10 @@
 #include <cpptools/cppprojects.h>
 #include <cpptools/cppprojectfile.h>
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -61,14 +63,32 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     , m_projectInfo(projectInfo)
     , m_toolchainType(ProjectExplorer::ToolChainKitInformation
                       ::toolChain(runConfiguration->target()->kit())->type())
+    , m_wordWidth(runConfiguration->abi().wordWidth())
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
 {
 }
 
-// Removes (1) filePath (2) -o <somePath>
-static QStringList tweakedArguments(const QString &filePath, const QStringList &arguments)
+static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsigned char wordWidth)
+{
+    QTC_ASSERT(arguments, return);
+
+    const QString m64Argument = QLatin1String("-m64");
+    const QString m32Argument = QLatin1String("-m32");
+
+    const QString argument = wordWidth == 64 ? m64Argument : m32Argument;
+    if (!arguments->contains(argument))
+        arguments->prepend(argument);
+
+    QTC_CHECK(!arguments->contains(m32Argument) || !arguments->contains(m32Argument));
+}
+
+// Removes (1) filePath (2) -o <somePath>.
+// Adds -m64/-m32 argument if not already included.
+static QStringList tweakedArguments(const QString &filePath,
+                                    const QStringList &arguments,
+                                    unsigned char wordWidth)
 {
     QStringList newArguments;
 
@@ -88,12 +108,15 @@ static QStringList tweakedArguments(const QString &filePath, const QStringList &
     }
     QTC_CHECK(skip == false);
 
+    prependWordWidthArgumentIfNotIncluded(&newArguments, wordWidth);
+
     return newArguments;
 }
 
 static QStringList argumentsFromProjectPart(const CppTools::ProjectPart::Ptr &projectPart,
                                             CppTools::ProjectFile::Kind fileKind,
-                                            const QString &toolchainType)
+                                            const QString &toolchainType,
+                                            unsigned char wordWidth)
 {
     QStringList result;
 
@@ -112,16 +135,20 @@ static QStringList argumentsFromProjectPart(const CppTools::ProjectPart::Ptr &pr
                 projectPart->headerPaths,
                 CompilerOptionsBuilder::IsBlackListed(),
                 toolchainType);
+
     if (toolchainType == QLatin1String("msvc"))
         result += QLatin1String("/EHsc"); // clang-cl does not understand exceptions
     else
         result += QLatin1String("-fPIC"); // TODO: Remove?
 
+    prependWordWidthArgumentIfNotIncluded(&result, wordWidth);
+
     return result;
 }
 
 static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromCompilerCallData(
-            const ProjectInfo::CompilerCallData &compilerCallData)
+            const ProjectInfo::CompilerCallData &compilerCallData,
+            unsigned char wordWidth)
 {
     typedef ClangStaticAnalyzerRunControl::AnalyzeUnit AnalyzeUnit;
     qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
@@ -134,7 +161,7 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromCompi
         const QString file = it.key();
         const QList<QStringList> compilerCalls = it.value();
         foreach (const QStringList &options, compilerCalls) {
-            const QStringList arguments = tweakedArguments(file, options);
+            const QStringList arguments = tweakedArguments(file, options, wordWidth);
             unitsToAnalyze << AnalyzeUnit(file, arguments);
         }
     }
@@ -143,7 +170,9 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromCompi
 }
 
 static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProjectParts(
-            const QList<ProjectPart::Ptr> projectParts, const QString &toolchainType)
+            const QList<ProjectPart::Ptr> projectParts,
+            const QString &toolchainType,
+            unsigned char wordWidth)
 {
     typedef ClangStaticAnalyzerRunControl::AnalyzeUnit AnalyzeUnit;
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
@@ -159,8 +188,10 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProje
                 continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
-                const QStringList arguments
-                        = argumentsFromProjectPart(projectPart, file.kind, toolchainType);
+                const QStringList arguments = argumentsFromProjectPart(projectPart,
+                                                                       file.kind,
+                                                                       toolchainType,
+                                                                       wordWidth);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -175,8 +206,10 @@ QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> ClangStaticAnalyzerRunControl:
 
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (!compilerCallData.isEmpty())
-        return unitsToAnalyzeFromCompilerCallData(compilerCallData);
-    return unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_toolchainType);
+        return unitsToAnalyzeFromCompilerCallData(compilerCallData, m_wordWidth);
+    return unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
+                                          m_toolchainType,
+                                          m_wordWidth);
 }
 
 bool ClangStaticAnalyzerRunControl::startEngine()
