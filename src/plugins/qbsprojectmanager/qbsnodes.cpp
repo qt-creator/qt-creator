@@ -264,6 +264,19 @@ QString QbsFileNode::displayName() const
     return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(l);
 }
 
+
+QbsFolderNode::QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
+                             const QString &displayName)
+    : ProjectExplorer::FolderNode(folderPath, nodeType, displayName)
+{
+}
+
+QList<ProjectExplorer::ProjectAction> QbsFolderNode::supportedActions(ProjectExplorer::Node *node) const
+{
+    Q_UNUSED(node);
+    return QList<ProjectExplorer::ProjectAction>();
+}
+
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------
@@ -547,9 +560,9 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
                 break;
             }
             if (!fn) {
-                fn = new FolderNode(Utils::FileName::fromString(c->path()),
-                                    ProjectExplorer::FolderNodeType,
-                                    displayNameFromPath(c->path(), baseDir));
+                fn = new QbsFolderNode(Utils::FileName::fromString(c->path()),
+                                       ProjectExplorer::FolderNodeType,
+                                       displayNameFromPath(c->path(), baseDir));
                 root->addFolderNodes(QList<FolderNode *>() << fn);
             } else {
                 foldersToRemove.removeOne(fn);
