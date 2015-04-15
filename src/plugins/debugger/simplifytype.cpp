@@ -30,6 +30,7 @@
 
 #include "simplifytype.h"
 
+#include <QDebug>
 #include <QRegExp>
 
 #include <ctype.h>
@@ -130,6 +131,9 @@ QString simplifyType(const QString &typeIn)
     // Normalize space + ptr.
     type.replace(QLatin1String(" *"), QLatin1String("@"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
+
+    // Normalize char const * and const char *.
+    type.replace(QLatin1String("char const@"), QLatin1String("const char@"));
 
     for (int i = 0; i < 10; ++i) {
         // boost::shared_ptr<...>::element_type
