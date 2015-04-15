@@ -3051,8 +3051,9 @@ void tst_Dumpers::dumper_data()
                     "{\n"
                     "    void run()\n"
                     "    {\n"
-                    "        if (m_id == 3)\n"
+                    "        if (m_id == 3) {\n"
                     "            BREAK;\n"
+                    "        }\n"
                     "    }\n"
                     "    int m_id;\n"
                     "};\n",
