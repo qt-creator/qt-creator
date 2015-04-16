@@ -7084,6 +7084,27 @@ void TextEditorWidget::inSnippetMode(bool *active)
     *active = d->m_snippetOverlay->isVisible();
 }
 
+QTextBlock TextEditorWidget::blockForVisibleRow(int row) const
+{
+    const int count = rowCount();
+    if (row < 0 && row >= count)
+        return QTextBlock();
+
+    QTextBlock block = firstVisibleBlock();
+    for (int i = 0; i < count; ++i) {
+        if (!block.isValid() || i == row)
+            return block;
+
+        while (block.isValid()) {
+            block = block.next();
+            if (block.isVisible())
+                break;
+        }
+    }
+    return QTextBlock();
+
+}
+
 void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
     if (kind == QuickFix && d->m_snippetOverlay->isVisible()) {
@@ -7211,6 +7232,33 @@ void TextEditorWidget::configureGenericHighlighter()
     textDocument()->setFontSettings(TextEditorSettings::fontSettings());
 
     updateEditorInfoBar(this);
+}
+
+int TextEditorWidget::lineForVisibleRow(int row) const
+{
+    QTextBlock block = blockForVisibleRow(row);
+    return block.isValid() ? block.blockNumber() : -1;
+}
+
+int TextEditorWidget::firstVisibleLine() const
+{
+    return lineForVisibleRow(0);
+}
+
+int TextEditorWidget::lastVisibleLine() const
+{
+    QTextBlock block = blockForVisibleRow(rowCount() - 1);
+    if (!block.isValid())
+        block.previous();
+    return block.isValid() ? block.blockNumber() : -1;
+}
+
+int TextEditorWidget::centerVisibleLine() const
+{
+    QTextBlock block = blockForVisibleRow(rowCount() / 2);
+    if (!block.isValid())
+        block.previous();
+    return block.isValid() ? block.blockNumber() : -1;
 }
 
 bool TextEditorWidget::isMissingSyntaxDefinition() const

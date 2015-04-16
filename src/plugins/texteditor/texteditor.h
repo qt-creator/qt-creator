@@ -466,6 +466,21 @@ public:
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 
+    /*! Returns the document line number for the visible \a row.
+     *
+     * The first visible row is 0, the last visible row is rowCount() - 1.
+     *
+     * Any invalid row will return -1 as line number.
+     */
+    int lineForVisibleRow(int row) const;
+
+    /*! Returns the first visible line of the document. */
+    int firstVisibleLine() const;
+    /*! Returns the last visible line of the document. */
+    int lastVisibleLine() const;
+    /*! Returns the line visible closest to the vertical center of the editor. */
+    int centerVisibleLine() const;
+
 signals:
     void assistFinished(); // Used in tests.
     void readOnlyChanged();
@@ -475,6 +490,7 @@ signals:
     void requestBlockUpdate(const QTextBlock &);
 
 protected:
+    QTextBlock blockForVisibleRow(int row) const;
     bool event(QEvent *e);
     void inputMethodEvent(QInputMethodEvent *e);
     void keyPressEvent(QKeyEvent *e);
