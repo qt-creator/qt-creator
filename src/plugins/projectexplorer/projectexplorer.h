@@ -104,7 +104,7 @@ public:
                              const bool forceSkipDeploy = false);
 
     static void addExistingFiles(FolderNode *projectNode, const QStringList &filePaths);
-    static void addExistingFiles(const QStringList &filePaths);
+    static void addExistingFiles(const QStringList &filePaths, FolderNode *folderNode);
 
     static void buildProject(Project *p);
     /// Normally there's no need to call this function.
