@@ -479,33 +479,23 @@ class Dumper(DumperBase):
     def intSize(self):
         return 4
 
+    def ptrSize(self):
+        return self.target.GetAddressByteSize()
+
     def intType(self):
-        if self.intType_ is None:
-             self.intType_ = self.target.FindFirstType('int')
-        return self.intType_
+        return self.target.GetBasicType(lldb.eBasicTypeInt)
 
     def int64Type(self):
-        if self.int64Type_ is None:
-             self.int64Type_ = self.target.FindFirstType('long long int')
-        return self.int64Type_
+        return self.target.GetBasicType(lldb.eBasicTypeLongLong)
 
     def charType(self):
-        if self.charType_ is None:
-             self.charType_ = self.target.FindFirstType('char')
-        return self.charType_
+        return self.target.GetBasicType(lldb.eBasicTypeChar)
 
     def charPtrType(self):
-        if self.charPtrType_ is None:
-             self.charPtrType_ = self.charType().GetPointerType()
-        return self.charPtrType_
+        return self.target.GetBasicType(lldb.eBasicTypeChar).GetPointerType()
 
     def voidPtrType(self):
-        if self.voidPtrType_ is None:
-             self.voidPtrType_ = self.target.FindFirstType('void').GetPointerType()
-        return self.voidPtrType_
-
-    def ptrSize(self):
-        return self.charPtrType().GetByteSize()
+        return self.target.GetBasicType(lldb.eBasicVoid).GetPointerType()
 
     def sizetType(self):
         if self.sizetType_ is None:
