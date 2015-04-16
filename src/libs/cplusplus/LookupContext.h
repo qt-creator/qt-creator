@@ -58,6 +58,8 @@ struct FullyQualifiedName
         : fqn(fqn)
     {}
 };
+class ClassOrNamespacePrivate;
+class Instantiator;
 } // namespace Internal;
 
 class CreateBindings;
@@ -78,8 +80,6 @@ public:
     QList<Enum *> unscopedEnums() const;
     QList<Symbol *> symbols() const;
 
-    ClassOrNamespace *globalNamespace() const;
-
     QList<LookupItem> lookup(const Name *name);
     QList<LookupItem> find(const Name *name);
 
@@ -88,77 +88,14 @@ public:
     ClassOrNamespace *findType(const Name *name);
     ClassOrNamespace *findBlock(Block *block);
 
-    Symbol *lookupInScope(const QList<const Name *> &fullName);
-
     /// The class this ClassOrNamespace is based on.
-    Class *rootClass() const { return _rootClass; }
+    Class *rootClass() const;
 
 private:
-    typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
-    typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
-    typedef QHash<const AnonymousNameId *, ClassOrNamespace *> Anonymouses;
+    Internal::ClassOrNamespacePrivate *d;
 
-    /// \internal
-    void flush();
-
-    /// \internal
-    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = 0,
-                                       Class *clazz = 0);
-
-    ClassOrNamespace *findOrCreateNestedAnonymousType(const AnonymousNameId *anonymousNameId);
-
-    void addTodo(Symbol *symbol);
-    void addSymbol(Symbol *symbol);
-    void addUnscopedEnum(Enum *e);
-    void addUsing(ClassOrNamespace *u);
-    void addNestedType(const Name *alias, ClassOrNamespace *e);
-
-    QList<LookupItem> lookup_helper(const Name *name, bool searchInEnclosingScope);
-
-    void lookup_helper(const Name *name, ClassOrNamespace *binding,
-                       QList<LookupItem> *result,
-                       QSet<ClassOrNamespace *> *processed);
-
-    ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
-                                        bool searchInEnclosingScope, ClassOrNamespace *origin);
-
-    ClassOrNamespace *findBlock_helper(Block *block, QSet<ClassOrNamespace *> *processed,
-                                       bool searchInEnclosingScope);
-
-    ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
-
-    ClassOrNamespace *findSpecialization(const TemplateNameId *templId,
-                                         const TemplateNameIdTable &specializations);
-
-    CreateBindings *_factory;
-    ClassOrNamespace *_parent;
-    QList<Symbol *> _symbols;
-    QList<ClassOrNamespace *> _usings;
-    Table _classOrNamespaces;
-    QHash<Block *, ClassOrNamespace *> _blocks;
-    QList<Enum *> _enums;
-    QList<Symbol *> _todo;
-    QSharedPointer<Control> _control;
-    TemplateNameIdTable _specializations;
-    QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
-    Anonymouses _anonymouses;
-    QSet<const AnonymousNameId *> _declaredOrTypedefedAnonymouses;
-
-    QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
-
-    // it's an instantiation.
-    ClassOrNamespace *_instantiationOrigin;
-
-    AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
-    AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
-
-    Class *_rootClass;
-
-    class Instantiator;
-
-public:
-    const Name *_name; // For debug
-
+    friend class Internal::ClassOrNamespacePrivate;
+    friend class Internal::Instantiator;
     friend class CreateBindings;
 };
 
