@@ -31,18 +31,18 @@ namespace Internal {
 class ClangStaticAnalyzerRunner;
 class Diagnostic;
 
+struct AnalyzeUnit {
+    AnalyzeUnit(const QString &file, const QStringList &options)
+        : file(file), arguments(options) {}
+
+    QString file;
+    QStringList arguments; // without file itself and "-o somePath"
+};
+typedef QList<AnalyzeUnit> AnalyzeUnits;
+
 class ClangStaticAnalyzerRunControl : public Analyzer::AnalyzerRunControl
 {
     Q_OBJECT
-
-public:
-    struct AnalyzeUnit {
-        AnalyzeUnit(const QString &file, const QStringList &options)
-            : file(file), arguments(options) {}
-
-        QString file;
-        QStringList arguments; // without file itself and "-o somePath"
-    };
 
 public:
     explicit ClangStaticAnalyzerRunControl(const Analyzer::AnalyzerStartParameters &startParams,
@@ -56,7 +56,7 @@ signals:
     void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
 
 private:
-    QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze();
+    AnalyzeUnits unitsToAnalyze();
     void analyzeNextFile();
     ClangStaticAnalyzerRunner *createRunner();
 
@@ -75,7 +75,7 @@ private:
     QString m_clangExecutable;
     QString m_clangLogFileDir;
     QFutureInterface<void> m_progress;
-    QList<AnalyzeUnit> m_unitsToProcess;
+    AnalyzeUnits m_unitsToProcess;
     QSet<ClangStaticAnalyzerRunner *> m_runners;
     int m_initialFilesToProcessSize;
     int m_filesAnalyzed;

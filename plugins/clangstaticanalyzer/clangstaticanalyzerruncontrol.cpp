@@ -146,14 +146,13 @@ static QStringList argumentsFromProjectPart(const CppTools::ProjectPart::Ptr &pr
     return result;
 }
 
-static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromCompilerCallData(
+static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
             const ProjectInfo::CompilerCallData &compilerCallData,
             unsigned char wordWidth)
 {
-    typedef ClangStaticAnalyzerRunControl::AnalyzeUnit AnalyzeUnit;
     qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
 
-    QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze;
+    AnalyzeUnits unitsToAnalyze;
 
     QHashIterator<QString, QList<QStringList> > it(compilerCallData);
     while (it.hasNext()) {
@@ -169,15 +168,13 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromCompi
     return unitsToAnalyze;
 }
 
-static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProjectParts(
-            const QList<ProjectPart::Ptr> projectParts,
-            const QString &toolchainType,
-            unsigned char wordWidth)
+static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts,
+                                                   const QString &toolchainType,
+                                                   unsigned char wordWidth)
 {
-    typedef ClangStaticAnalyzerRunControl::AnalyzeUnit AnalyzeUnit;
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
-    QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze;
+    AnalyzeUnits unitsToAnalyze;
 
     foreach (const ProjectPart::Ptr &projectPart, projectParts) {
         if (!projectPart->selectedForBuilding)
@@ -200,9 +197,9 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProje
     return unitsToAnalyze;
 }
 
-QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> ClangStaticAnalyzerRunControl::unitsToAnalyze()
+AnalyzeUnits ClangStaticAnalyzerRunControl::unitsToAnalyze()
 {
-    QTC_ASSERT(m_projectInfo.isValid(), return QList<ClangStaticAnalyzerRunControl::AnalyzeUnit>());
+    QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (!compilerCallData.isEmpty())
@@ -249,7 +246,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    QList<AnalyzeUnit> unitsToProcess = unitsToAnalyze();
+    AnalyzeUnits unitsToProcess = unitsToAnalyze();
     Utils::sort(unitsToProcess, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
         return a1.file < a2.file;
     });
