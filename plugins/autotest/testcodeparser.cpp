@@ -547,7 +547,10 @@ void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     if (project != currentProject())
         return;
-    updateTestTree();
+    if (!m_parserEnabled || m_parserState == Disabled)
+        m_fullUpdatePostponed = true;
+    else
+        emitUpdateTestTree();
 }
 
 void TestCodeParser::removeFiles(const QStringList &files)
