@@ -414,16 +414,17 @@ struct Type
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
-        if (fullNamespaceMatch)
-            expectedType.replace('?', context.nameSpace);
-        else
-            expectedType.replace('?', "");
 
         if (isPattern) {
             QString actual = QString::fromLatin1(actualType);
             QString expected = QString::fromLatin1(expectedType);
             return QRegExp(expected).exactMatch(actual);
         }
+
+        if (fullNamespaceMatch)
+            expectedType.replace('?', context.nameSpace);
+        else
+            expectedType.replace('?', "");
 
         if (actualType == expectedType)
             return true;
