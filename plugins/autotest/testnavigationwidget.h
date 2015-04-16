@@ -69,6 +69,7 @@ private slots:
 
 private:
     void initializeFilterMenu();
+    void onRunThisTestTriggered();
 
     TestTreeModel *m_model;
     TestTreeSortFilterModel *m_sortFilterModel;

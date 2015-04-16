@@ -255,6 +255,8 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
         default:
             return false;
         }
+    case TypeRole:
+        return item->type();
     }
 
     // TODO ?
@@ -504,6 +506,55 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             result << config;
 
     return result;
+}
+
+TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item) const
+{
+    QTC_ASSERT(item != 0, return 0);
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    QTC_ASSERT(project, return 0);
+
+    TestConfiguration *config = 0;
+    switch (item->type()) {
+    case TestTreeItem::TEST_CLASS: {
+        if (item->parent() == m_quickTestRootItem) {
+            // Quick Test TestCase
+            QStringList testFunctions;
+            for (int row = 0, count = item->childCount(); row < count; ++row) {
+                    testFunctions << item->name() + QLatin1String("::") + item->child(row)->name();
+            }
+            config = new TestConfiguration(QString(), testFunctions);
+            config->setMainFilePath(item->mainFile());
+            config->setProject(project);
+        } else {
+            // normal auto test
+            config = new TestConfiguration(item->name(), QStringList(), item->childCount());
+            config->setMainFilePath(item->filePath());
+            config->setProject(project);
+        }
+        break;
+    }
+    case TestTreeItem::TEST_FUNCTION: {
+        const TestTreeItem *parent = item->parent();
+        if (parent->parent() == m_quickTestRootItem) {
+            // it's a Quick Test function of a named TestCase
+            QStringList testFunction(parent->name() + QLatin1String("::") + item->name());
+            config = new TestConfiguration(QString(), testFunction);
+            config->setMainFilePath(parent->mainFile());
+            config->setProject(project);
+        } else {
+            // normal auto test
+            config = new TestConfiguration(parent->name(), QStringList() << item->name());
+            config->setMainFilePath(parent->filePath());
+            config->setProject(project);
+        }
+        break;
+    }
+    // not supported items
+    default:
+        return 0;
+    }
+    return config;
 }
 
 QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) const
