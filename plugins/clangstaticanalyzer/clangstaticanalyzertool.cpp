@@ -166,7 +166,7 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
     // Some projects provides CompilerCallData once a build is finished,
     // so pass on the updated Project Info unless no configuration change
     // (defines/includes/files) happened.
-    Project *project = SessionManager::startupProject();
+    Project *project = runConfiguration->target()->project();
     QTC_ASSERT(project, return 0);
     const CppTools::ProjectInfo projectInfoAfterBuild
             = CppTools::CppModelManager::instance()->projectInfo(project);
@@ -185,9 +185,8 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
     return engine;
 }
 
-static bool dontStartAfterHintForDebugMode()
+static bool dontStartAfterHintForDebugMode(Project *project)
 {
-    const Project *project = SessionManager::startupProject();
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
     if (project) {
         if (const Target *target = project->activeTarget()) {
@@ -222,13 +221,14 @@ void ClangStaticAnalyzerTool::startTool()
 {
     AnalyzerManager::showMode();
 
-    if (dontStartAfterHintForDebugMode())
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return);
+
+    if (dontStartAfterHintForDebugMode(project))
         return;
 
     m_diagnosticModel->clear();
     setBusyCursor(true);
-    Project *project = SessionManager::startupProject();
-    QTC_ASSERT(project, return);
     m_diagnosticFilterModel->setProject(project);
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);

@@ -74,8 +74,12 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
     const ProjectInfo projectInfoBeforeBuild = m_tool->projectInfoBeforeBuild();
     QTC_ASSERT(projectInfoBeforeBuild.isValid(), return 0);
 
-    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(runConfiguration, return 0);
+    Target * const target = runConfiguration->target();
+    QTC_ASSERT(target, return 0);
+    Project * const project = target->project();
     QTC_ASSERT(project, return 0);
+
     const ProjectInfo projectInfoAfterBuild = CppModelManager::instance()->projectInfo(project);
 
     if (projectInfoAfterBuild.configurationOrFilesChanged(projectInfoBeforeBuild)) {
