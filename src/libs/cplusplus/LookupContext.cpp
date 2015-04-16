@@ -47,9 +47,9 @@
 #include <QVarLengthArray>
 #include <QDebug>
 
-using namespace CPlusPlus;
-
 static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
+
+namespace CPlusPlus {
 
 static void addNames(const Name *name, QList<const Name *> *names, bool addAllNames = false)
 {
@@ -103,8 +103,6 @@ static bool isNestedInstantiationEnclosingTemplate(ClassOrNamespace *nestedInsta
     return true;
 }
 
-namespace CPlusPlus {
-
 static inline bool compareName(const Name *name, const Name *other)
 {
     if (name == other)
@@ -134,9 +132,6 @@ bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<cons
     return true;
 }
 
-}
-
-namespace CPlusPlus {
 namespace Internal {
 
 bool operator==(const FullyQualifiedName &left, const FullyQualifiedName &right)
@@ -156,7 +151,6 @@ uint qHash(const FullyQualifiedName &fullyQualifiedName)
         }
     }
     return h;
-}
 }
 }
 
@@ -1911,3 +1905,4 @@ Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instan
     return cloner.symbol(specialization, &subst);
 }
 
+} // namespace CPlusPlus
