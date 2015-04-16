@@ -67,7 +67,7 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
     Q_UNUSED(stateChanged);
 
     const TimelineModel *model = renderer->model();
-    if (!model)
+    if (!model || model->isEmpty())
         return oldState;
 
     TimelineSelectionRenderPassState *state;
