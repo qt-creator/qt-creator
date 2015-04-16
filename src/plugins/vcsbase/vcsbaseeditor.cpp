@@ -1287,7 +1287,16 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
     const BaseTextEditor *eda = qobject_cast<const BaseTextEditor *>(ed);
     if (!eda)
         return -1;
-    return eda->currentLine();
+    const int cursorLine = eda->currentLine();
+    auto const edw = qobject_cast<const TextEditorWidget *>(ed->widget());
+    if (edw) {
+        const int firstLine = edw->firstVisibleLine();
+        const int lastLine = edw->lastVisibleLine();
+        if (firstLine <= cursorLine && cursorLine < lastLine)
+            return cursorLine;
+        return edw->centerVisibleLine();
+    }
+    return cursorLine;
 }
 
 bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
