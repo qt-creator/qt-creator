@@ -16,6 +16,7 @@ Project {
         "timelinerenderer/timelinerenderer.qbs",
         "timelinerenderpass/timelinerenderpass.qbs",
         "timelinerenderstate/timelinerenderstate.qbs",
-        "timelineselectionrenderpass/timelineselectionrenderpass.qbs"
+        "timelineselectionrenderpass/timelineselectionrenderpass.qbs",
+        "timelinezoomcontrol/timelinezoomcontrol.qbs"
     ]
 }

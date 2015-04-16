@@ -9,7 +9,8 @@ SUBDIRS = \
     timelineoverviewrenderer \
     timelinerenderer \
     timelinerenderpass \
-    timelinerenderstate
+    timelinerenderstate \
+    timelinezoomcontrol
 
 minQtVersion(5,4,0) {
     SUBDIRS += \
