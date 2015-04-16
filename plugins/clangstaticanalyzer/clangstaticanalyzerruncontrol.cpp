@@ -197,22 +197,37 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
     return unitsToAnalyze;
 }
 
-AnalyzeUnits ClangStaticAnalyzerRunControl::unitsToAnalyze()
+AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
+    AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
-    if (!compilerCallData.isEmpty())
-        return unitsToAnalyzeFromCompilerCallData(compilerCallData, m_wordWidth);
-    return unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
-                                          m_toolchainType,
-                                          m_wordWidth);
+    if (compilerCallData.isEmpty()) {
+        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
+                                               m_toolchainType,
+                                               m_wordWidth);
+    } else {
+        units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_wordWidth);
+    }
+
+    Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
+        return a1.file < a2.file;
+    });
+    return units;
 }
 
 static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
 {
     foreach (const QString &entry, environment.toStringList())
         debug << "\n  " << entry;
+    return debug;
+}
+
+static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
+{
+    foreach (const AnalyzeUnit &unit, analyzeUnits)
+        debug << "\n  " << unit.file;
     return debug;
 }
 
@@ -253,14 +268,8 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    AnalyzeUnits unitsToProcess = unitsToAnalyze();
-    Utils::sort(unitsToProcess, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
-        return a1.file < a2.file;
-    });
-
-    qCDebug(LOG) << "Files to process:";
-    foreach (const AnalyzeUnit &fileConfig, unitsToProcess)
-        qCDebug(LOG) << fileConfig.file;
+    const AnalyzeUnits unitsToProcess = sortedUnitsToAnalyze();
+    qCDebug(LOG) << "Files to process:" << unitsToProcess;
     m_unitsToProcess = unitsToProcess;
     m_initialFilesToProcessSize = m_unitsToProcess.count();
     m_filesAnalyzed = 0;

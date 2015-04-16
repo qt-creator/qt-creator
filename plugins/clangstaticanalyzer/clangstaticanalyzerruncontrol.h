@@ -56,7 +56,7 @@ signals:
     void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
 
 private:
-    AnalyzeUnits unitsToAnalyze();
+    AnalyzeUnits sortedUnitsToAnalyze();
     void analyzeNextFile();
     ClangStaticAnalyzerRunner *createRunner();
 
