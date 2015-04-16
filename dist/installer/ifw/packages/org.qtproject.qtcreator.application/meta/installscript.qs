@@ -60,11 +60,8 @@ Component.prototype.beginInstallation = function()
     else if (installer.value("os") == "mac")
         component.qtCreatorBinaryPath = component.qtCreatorBinaryPath + "/Qt Creator.app/Contents/MacOS/Qt Creator";
 
-    if ( installer.value("os") === "win" ) {
+    if ( installer.value("os") === "win" )
         component.setStopProcessForUpdateRequest(component.qtCreatorBinaryPath, true);
-        component.setStopProcessForUpdateRequest("@TargetDir@/bin/linguist.exe", true);
-        component.setStopProcessForUpdateRequest("@TargetDir@/bin/qmlviewer.exe", true);
-    }
 }
 
 registerCommonWindowsFileTypeExtensions = function()
