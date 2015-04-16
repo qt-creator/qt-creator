@@ -43,8 +43,8 @@ void TimelineZoomControl::clear()
 {
     m_timer.stop();
     setWindowLocked(false);
-    setRange(-1, -1);
-    setTrace(-1, -1);
+    setTrace(-1, -1); // automatically sets window and range
+    setSelection(-1, -1);
 }
 
 void TimelineZoomControl::setTrace(qint64 start, qint64 end)
@@ -66,7 +66,9 @@ void TimelineZoomControl::setRange(qint64 start, qint64 end)
         m_rangeStart = start;
         m_rangeEnd = end;
         rebuildWindow();
-        emit rangeChanged(start, end);
+        if (m_rangeStart == start && m_rangeEnd == end)
+            emit rangeChanged(m_rangeStart, m_rangeEnd);
+        // otherwise rebuildWindow() has changed it again.
     }
 }
 
