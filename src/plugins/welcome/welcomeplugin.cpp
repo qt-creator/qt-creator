@@ -215,7 +215,7 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
 
     ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
-#if defined(USE_QUICK_WIDGET)
+#if defined(USE_QUICK_WIDGET) && (QT_VERSION < QT_VERSION_CHECK(5, 5, 0))
     bool useNativeText = !HostOsInfo::isMacHost();
 #else
     bool useNativeText = true;
