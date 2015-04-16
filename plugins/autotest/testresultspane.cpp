@@ -37,6 +37,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QMenu>
+#include <QScrollBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -46,7 +47,8 @@ namespace Internal {
 TestResultsPane::TestResultsPane(QObject *parent) :
     Core::IOutputPane(parent),
     m_context(new Core::IContext(this)),
-    m_wasVisibleBefore(false)
+    m_wasVisibleBefore(false),
+    m_autoScroll(false)
 {
     m_outputWidget = new QWidget;
     QVBoxLayout *outputLayout = new QVBoxLayout;
@@ -144,6 +146,9 @@ TestResultsPane::~TestResultsPane()
 
 void TestResultsPane::addTestResult(const TestResult &result)
 {
+    const QScrollBar *scrollBar = m_treeView->verticalScrollBar();
+    m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
+
     m_model->addTestResult(result);
     if (!m_treeView->isVisible())
         popup(Core::IOutputPane::NoModeSwitch);
@@ -181,6 +186,9 @@ void TestResultsPane::clearContents()
     m_filterModel->clearTestResults();
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
+    m_autoScroll = AutotestPlugin::instance()->settings()->autoScroll;
+    connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
+            this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
 }
 
 void TestResultsPane::visibilityChanged(bool visible)
@@ -381,6 +389,14 @@ void TestResultsPane::onTestRunFinished()
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();
+    disconnect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
+               this, &TestResultsPane::onScrollBarRangeChanged);
+}
+
+void TestResultsPane::onScrollBarRangeChanged(int, int max)
+{
+    if (m_autoScroll && m_atEnd)
+        m_treeView->verticalScrollBar()->setValue(max);
 }
 
 void TestResultsPane::onTestTreeModelChanged()

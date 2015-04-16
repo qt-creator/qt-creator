@@ -30,11 +30,12 @@ static const char metricsKey[] = "Metrics";
 static const char omitInternalKey[] = "OmitInternal";
 static const char omitRunConfigWarnKey[] = "OmitRCWarnings";
 static const char limitResultOutputKey[] = "LimitResultOutput";
+static const char autoScrollKey[] = "AutoScrollResults";
 static const int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
     : timeout(defaultTimeout), metrics(Walltime), omitInternalMssg(true), omitRunConfigWarn(false),
-      limitResultOutput(true)
+      limitResultOutput(true), autoScroll(true)
 {
 }
 
@@ -46,6 +47,7 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(omitInternalKey), omitInternalMssg);
     s->setValue(QLatin1String(omitRunConfigWarnKey), omitRunConfigWarn);
     s->setValue(QLatin1String(limitResultOutputKey), limitResultOutput);
+    s->setValue(QLatin1String(autoScrollKey), autoScroll);
     s->endGroup();
 }
 
@@ -75,6 +77,7 @@ void TestSettings::fromSettings(const QSettings *s)
     omitInternalMssg = s->value(root + QLatin1String(omitInternalKey), true).toBool();
     omitRunConfigWarn = s->value(root + QLatin1String(omitRunConfigWarnKey), false).toBool();
     limitResultOutput = s->value(root + QLatin1String(limitResultOutputKey), true).toBool();
+    autoScroll = s->value(root + QLatin1String(autoScrollKey), true).toBool();
 }
 
 bool TestSettings::equals(const TestSettings &rhs) const
@@ -82,7 +85,8 @@ bool TestSettings::equals(const TestSettings &rhs) const
     return timeout == rhs.timeout && metrics == rhs.metrics
             && omitInternalMssg == rhs.omitInternalMssg
             && omitRunConfigWarn == rhs.omitRunConfigWarn
-            && limitResultOutput == rhs.limitResultOutput;
+            && limitResultOutput == rhs.limitResultOutput
+            && autoScroll == rhs.autoScroll;
 }
 
 QString TestSettings::metricsTypeToOption(const MetricsType type)

@@ -88,6 +88,7 @@ private:
     void createToolButtons();
     void onTestRunStarted();
     void onTestRunFinished();
+    void onScrollBarRangeChanged(int, int max);
     void onTestTreeModelChanged();
 
     QWidget *m_outputWidget;
@@ -103,6 +104,8 @@ private:
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
     bool m_wasVisibleBefore;
+    bool m_autoScroll;
+    bool m_atEnd;
 };
 
 } // namespace Internal

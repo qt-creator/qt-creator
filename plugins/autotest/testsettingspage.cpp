@@ -42,6 +42,7 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.omitInternalMsgCB->setChecked(settings.omitInternalMssg);
     m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
+    m_ui.autoScrollCB->setChecked(settings.autoScroll);
 
     switch (settings.metrics) {
     case MetricsType::Walltime:
@@ -71,6 +72,7 @@ TestSettings TestSettingsWidget::settings() const
     result.omitInternalMssg = m_ui.omitInternalMsgCB->isChecked();
     result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
+    result.autoScroll = m_ui.autoScrollCB->isChecked();
 
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;

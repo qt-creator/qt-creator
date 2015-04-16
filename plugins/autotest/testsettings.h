@@ -50,6 +50,7 @@ struct TestSettings
     bool omitInternalMssg;
     bool omitRunConfigWarn;
     bool limitResultOutput;
+    bool autoScroll;
 };
 
 inline bool operator==(const TestSettings &s1, const TestSettings &s2) { return s1.equals(s2); }
