@@ -37,6 +37,7 @@
 #include <QPlainTextEdit>
 #include <QMenu>
 #include <QPlainTextDocumentLayout>
+#include <QScrollBar>
 #include <QTextBlock>
 #include <QTextCodec>
 #include <QPainter>
@@ -734,7 +735,7 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     QTextCursor cursor = textCursor();
     cursor.setPosition(block.position());
     setTextCursor(cursor);
-    centerCursor();
+    verticalScrollBar()->setValue(blockNumber);
     m_ignoreCurrentIndexChange = oldIgnore;
 }
 

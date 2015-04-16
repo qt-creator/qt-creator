@@ -631,14 +631,14 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     QTextCursor leftCursor = m_leftEditor->textCursor();
     leftCursor.setPosition(leftBlock.position());
     m_leftEditor->setTextCursor(leftCursor);
+    m_leftEditor->verticalScrollBar()->setValue(blockNumber);
 
     QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
     QTextCursor rightCursor = m_rightEditor->textCursor();
     rightCursor.setPosition(rightBlock.position());
     m_rightEditor->setTextCursor(rightCursor);
+    m_rightEditor->verticalScrollBar()->setValue(blockNumber);
 
-    m_leftEditor->centerCursor();
-    m_rightEditor->centerCursor();
     m_ignoreCurrentIndexChange = oldIgnore;
 }
 
