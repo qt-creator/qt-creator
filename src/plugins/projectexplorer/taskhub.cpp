@@ -29,21 +29,36 @@
 ****************************************************************************/
 
 #include "taskhub.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/ioutputpane.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
 
 TaskHub *m_instance = 0;
 QSet<Core::Id> TaskHub::m_registeredCategories;
 
+static Core::Id categoryForType(Task::TaskType type)
+{
+    switch (type) {
+    case Task::Error:
+        return Constants::TASK_MARK_ERROR;
+    case Task::Warning:
+        return Constants::TASK_MARK_WARNING;
+    default:
+        return Core::Id();
+    }
+}
+
 class TaskMark : public TextEditor::TextMark
 {
 public:
-    TaskMark(unsigned int id, const QString &fileName, int lineNumber, bool visible)
-        : TextMark(fileName, lineNumber), m_id(id)
+    TaskMark(unsigned int id, const QString &fileName, int lineNumber, Task::TaskType type, bool visible)
+        : TextMark(fileName, lineNumber, categoryForType(type))
+        , m_id(id)
     {
         setVisible(visible);
     }
@@ -92,6 +107,10 @@ TaskHub::TaskHub()
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
+    TaskMark::setCategoryColor(Constants::TASK_MARK_ERROR,
+                               Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
+    TaskMark::setCategoryColor(Constants::TASK_MARK_WARNING,
+                               Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
 }
 
 TaskHub::~TaskHub()
@@ -130,7 +149,8 @@ void TaskHub::addTask(Task task)
     task.movedLine = task.line;
 
     if (task.line != -1 && !task.file.isEmpty()) {
-        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, !task.icon.isNull());
+        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line,
+                                      task.type, !task.icon.isNull());
         mark->setIcon(task.icon);
         mark->setPriority(TextEditor::TextMark::LowPriority);
         task.addMark(mark);

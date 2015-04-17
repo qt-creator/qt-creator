@@ -44,6 +44,7 @@ const char BOOKMARKS_PREVDIR_ACTION[]     = "Bookmarks.PreviousDirectory";
 const char BOOKMARKS_NEXTDIR_ACTION[]     = "Bookmarks.NextDirectory";
 const char BOOKMARKS_PREVDOC_ACTION[]     = "Bookmarks.PreviousDocument";
 const char BOOKMARKS_NEXTDOC_ACTION[]     = "Bookmarks.NextDocument";
+const char BOOKMARKS_TEXT_MARK_CATEGORY[] = "Bookmarks.TextMarkCategory";
 
 const char BOOKMARKS_MENU[]               = "Bookmarks.Menu";
 const char BOOKMARKS_CONTEXT[]            = "Bookmarks";

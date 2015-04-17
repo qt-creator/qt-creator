@@ -33,6 +33,9 @@
 
 #include "texteditor_global.h"
 
+#include <coreplugin/id.h>
+#include <utils/theme/theme.h>
+
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE
@@ -51,7 +54,7 @@ namespace Internal { class TextMarkRegistry; }
 class TEXTEDITOR_EXPORT TextMark
 {
 public:
-    TextMark(const QString &fileName, int lineNumber);
+    TextMark(const QString &fileName, int lineNumber, Core::Id category);
     virtual ~TextMark();
 
     // determine order on markers on the same line.
@@ -77,6 +80,8 @@ public:
     virtual bool isDraggable() const;
     virtual void dragToLine(int lineNumber);
 
+    static Utils::Theme::Color categoryColor(Core::Id category);
+    static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
     void setIcon(const QIcon &icon);
     // call this if the icon has changed.
     void updateMarker();
@@ -84,6 +89,7 @@ public:
     void setPriority(Priority prioriy);
     bool isVisible() const;
     void setVisible(bool isVisible);
+    Core::Id category() const;
     double widthFactor() const;
     void setWidthFactor(double factor);
 
@@ -100,6 +106,8 @@ private:
     Priority m_priority;
     bool m_visible;
     QIcon m_icon;
+    QColor m_color;
+    Core::Id m_category;
     double m_widthFactor;
 };
 

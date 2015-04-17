@@ -610,7 +610,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new TextMark(file, line));
+        d->m_locationMark.reset(new TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION));
         d->m_locationMark->setIcon(Internal::locationMarkIcon());
         d->m_locationMark->setPriority(TextMark::HighPriority);
     }

@@ -30,6 +30,7 @@
 
 #include "bookmark.h"
 #include "bookmarkmanager.h"
+#include "bookmarks_global.h"
 
 #include <QDebug>
 #include <QFileInfo>
@@ -38,7 +39,7 @@
 using namespace Bookmarks::Internal;
 
 Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
-    TextMark(QString(), lineNumber),
+    TextMark(QString(), lineNumber, Constants::BOOKMARKS_TEXT_MARK_CATEGORY),
     m_manager(manager)
 {
     setPriority(TextEditor::TextMark::NormalPriority);

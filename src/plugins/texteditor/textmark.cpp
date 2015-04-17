@@ -44,12 +44,13 @@ using namespace TextEditor::Internal;
 
 namespace TextEditor {
 
-TextMark::TextMark(const QString &fileName, int lineNumber)
+TextMark::TextMark(const QString &fileName, int lineNumber, Id category)
     : m_baseTextDocument(0),
       m_fileName(fileName),
       m_lineNumber(lineNumber),
       m_priority(NormalPriority),
       m_visible(true),
+      m_category(category),
       m_widthFactor(1.0)
 {
     if (!m_fileName.isEmpty())
@@ -116,6 +117,16 @@ void TextMark::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
+Theme::Color TextMark::categoryColor(Id category)
+{
+    return TextEditorPlugin::baseTextMarkRegistry()->categoryColor(category);
+}
+
+void TextMark::setCategoryColor(Id category, Theme::Color color)
+{
+    TextEditorPlugin::baseTextMarkRegistry()->setCategoryColor(category, color);
+}
+
 void TextMark::updateMarker()
 {
     if (m_baseTextDocument)
@@ -142,6 +153,11 @@ void TextMark::setVisible(bool visible)
     m_visible = visible;
     if (m_baseTextDocument)
         m_baseTextDocument->updateMark(this);
+}
+
+Id TextMark::category() const
+{
+    return m_category;
 }
 
 double TextMark::widthFactor() const
@@ -207,6 +223,18 @@ void TextMarkRegistry::add(TextMark *mark)
 bool TextMarkRegistry::remove(TextMark *mark)
 {
     return m_marks[FileName::fromString(mark->fileName())].remove(mark);
+}
+
+Theme::Color TextMarkRegistry::categoryColor(Id category)
+{
+    return m_colors.contains(category) ? m_colors[category] : Theme::InvalidColor;
+}
+
+void TextMarkRegistry::setCategoryColor(Id category, Theme::Color color)
+{
+    if (m_colors[category] == color)
+        return;
+    m_colors[category] = color;
 }
 
 void TextMarkRegistry::editorOpened(IEditor *editor)

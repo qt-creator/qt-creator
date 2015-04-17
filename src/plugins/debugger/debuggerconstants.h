@@ -69,6 +69,9 @@ const char QML_ZOOMTOOL[]           = "Debugger.QmlZoomTool";
 const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
 const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
 
+const char TEXT_MARK_CATEGORY_BREAKPOINT[] = "Debugger.Mark.Breakpoint";
+const char TEXT_MARK_CATEGORY_LOCATION[] = "Debugger.Mark.Location";
+
 // Run Configuration Aspect defaults:
 const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 

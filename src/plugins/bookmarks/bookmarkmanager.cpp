@@ -45,6 +45,7 @@
 #include <utils/tooltip/tooltip.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
@@ -331,6 +332,8 @@ BookmarkManager::BookmarkManager() :
             this, &BookmarkManager::loadBookmarks);
 
     updateActionStatus();
+    Bookmark::setCategoryColor(Constants::BOOKMARKS_TEXT_MARK_CATEGORY,
+                               Theme::Bookmarks_TextMarkColor);
 }
 
 BookmarkManager::~BookmarkManager()

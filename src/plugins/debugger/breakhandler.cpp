@@ -48,6 +48,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <utils/theme/theme.h>
 
 #if USE_BREAK_MODEL_TEST
 #include <modeltest.h>
@@ -145,7 +146,7 @@ class BreakpointMarker : public TextEditor::TextMark
 {
 public:
     BreakpointMarker(BreakpointItem *b, const QString &fileName, int lineNumber)
-        : TextMark(fileName, lineNumber), m_bp(b)
+        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(b)
     {
         setIcon(b->icon());
         setPriority(TextEditor::TextMark::NormalPriority);
@@ -253,6 +254,8 @@ BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
 {
     qRegisterMetaType<BreakpointModelId>();
+    TextEditor::TextMark::setCategoryColor(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
+                                           Utils::Theme::Debugger_Breakpoint_TextMarkColor);
 
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);

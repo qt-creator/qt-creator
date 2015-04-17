@@ -33,9 +33,13 @@
 
 #include <utils/fileutils.h>
 
-#include <QObject>
+#include <QColor>
 #include <QHash>
+#include <QObject>
 #include <QSet>
+
+#include <coreplugin/id.h>
+#include <utils/theme/theme.h>
 
 namespace Core {
 class IEditor;
@@ -54,12 +58,15 @@ public:
 
     void add(TextMark *mark);
     bool remove(TextMark *mark);
+    Utils::Theme::Color categoryColor(Core::Id category);
+    void setCategoryColor(Core::Id category, Utils::Theme::Color color);
 private slots:
     void editorOpened(Core::IEditor *editor);
     void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
     void allDocumentsRenamed(const QString &oldName, const QString &newName);
 private:
     QHash<Utils::FileName, QSet<TextMark *> > m_marks;
+    QHash<Core::Id, Utils::Theme::Color> m_colors;
 };
 
 } // namespace Internal

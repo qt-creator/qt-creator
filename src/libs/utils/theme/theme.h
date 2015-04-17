@@ -58,6 +58,7 @@ public:
     ~Theme();
 
     enum Color {
+        InvalidColor,
         BackgroundColorAlternate,
         BackgroundColorDark,
         BackgroundColorHover,
@@ -180,7 +181,17 @@ public:
         VcsBase_FileAdded_TextColor,
         VcsBase_FileModified_TextColor,
         VcsBase_FileDeleted_TextColor,
-        VcsBase_FileRenamed_TextColor
+        VcsBase_FileRenamed_TextColor,
+
+        /* Bookmarks Plugin */
+        Bookmarks_TextMarkColor,
+
+        /* Debugger Plugin */
+        Debugger_Breakpoint_TextMarkColor,
+
+        /* ProjectExplorer Plugin */
+        ProjectExplorer_TaskError_TextMarkColor,
+        ProjectExplorer_TaskWarn_TextMarkColor
     };
 
     enum Gradient {

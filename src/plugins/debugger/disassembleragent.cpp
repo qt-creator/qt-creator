@@ -116,7 +116,7 @@ public:
 
 DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : document(0),
-    locationMark(QString(), 0),
+    locationMark(QString(), 0, Constants::TEXT_MARK_CATEGORY_LOCATION),
     mimeType(_("text/x-qtcreator-generic-asm")),
     resetLocationScheduled(false)
 {
@@ -352,7 +352,8 @@ void DisassemblerAgent::updateBreakpointMarkers()
         const int lineNumber = contents.lineForAddress(address);
         if (!lineNumber)
             continue;
-        TextMark *marker = new TextMark(QString(), lineNumber);
+        TextMark *marker = new TextMark(QString(), lineNumber,
+                                        Constants::TEXT_MARK_CATEGORY_BREAKPOINT);
         marker->setIcon(bp.icon());
         marker->setPriority(TextMark::NormalPriority);
         d->breakpointMarks.append(marker);

@@ -194,6 +194,10 @@ const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
 
+// Task mark categories
+const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
+const char TASK_MARK_ERROR[] = "Task.Mark.Error";
+
 // Wizard categories
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
 const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
