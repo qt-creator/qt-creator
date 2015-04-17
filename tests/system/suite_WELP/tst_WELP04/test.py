@@ -74,11 +74,11 @@ def main():
     # close help widget again to avoid focus issues
     sendEvent("QCloseEvent", waitForObject(":Help Widget_Help::Internal::HelpWidget"))
     # check a demonstration video link
-    replaceEditorContent(waitForObject(searchTut), "embedded linux")
+    replaceEditorContent(waitForObject(searchTut), "embedded device")
     test.verify(checkIfObjectExists(getQmlItem("Delegate",
                                                ":WelcomePageStyledBar.WelcomePage_QQuickView",
                                                False, "id='delegate' radius='0' caption="
-                                               "'Developing Embedded Linux Applications with Qt'")),
+                                               "'Device Creation with Qt'")),
                 "Verifying: Link to the expected demonstration video exists.")
     # exit Qt Creator
     invokeMenuItem("File", "Exit")
