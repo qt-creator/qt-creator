@@ -4383,24 +4383,6 @@ void tst_Dumpers::dumper_data()
                + Check("v2.3", "[3]", "", "Foo");
 
 
-    QTest::newRow("StdStream")
-            << Data("#include <istream>\n"
-                    "#include <fstream>\n",
-
-                    "using namespace std;\n"
-                    "ifstream is0, is;\n"
-                    "#ifdef Q_OS_WIN\n"
-                    "is.open(\"C:\\\\Program Files\\\\Windows NT\\\\Accessories\\\\wordpad.exe\");\n"
-                    "#else\n"
-                    "is.open(\"/etc/passwd\");\n"
-                    "#endif\n"
-                    "bool ok = is.good();\n"
-                    "unused(&ok, &is, &is0);\n")
-
-               + Check("is", "", "std::ifstream")
-               + Check("ok", "true", "bool");
-
-
     QTest::newRow("StdUnorderedMap")
             << Data("#include <unordered_map>\n"
                     "#include <string>\n",
