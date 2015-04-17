@@ -36,6 +36,8 @@
 
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/theme/theme.h>
+
 #include <QProcess>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -48,6 +50,8 @@
 #include <QCompleter>
 #include <QStringListModel>
 #include <QTimer>
+
+using namespace Utils;
 
 namespace Git {
 namespace Internal {
@@ -186,15 +190,17 @@ void ChangeSelectionDialog::acceptShow()
 //! Set commit message in details
 void ChangeSelectionDialog::setDetails(int exitCode)
 {
+    Theme *theme = creatorTheme();
+
     QPalette palette;
     if (exitCode == 0) {
         m_ui->detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
-        palette.setColor(QPalette::Text, Qt::black);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);
         enableButtons(true);
     } else {
         m_ui->detailsText->setPlainText(tr("Error: Unknown reference"));
-        palette.setColor(QPalette::Text, Qt::red);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
         m_ui->changeNumberEdit->setPalette(palette);
     }
 }
@@ -244,13 +250,14 @@ void ChangeSelectionDialog::recalculateDetails()
 
     const QString workingDir = workingDirectory();
     QPalette palette = m_ui->workingDirectoryEdit->palette();
+    Theme *theme = creatorTheme();
     if (workingDir.isEmpty()) {
         m_ui->detailsText->setPlainText(tr("Error: Bad working directory."));
-        palette.setColor(QPalette::Text, Qt::red);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
         m_ui->workingDirectoryEdit->setPalette(palette);
         return;
     } else {
-        palette.setColor(QPalette::Text, Qt::black);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->workingDirectoryEdit->setPalette(palette);
     }
 
