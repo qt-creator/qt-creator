@@ -107,12 +107,10 @@ QT_END_NAMESPACE
 
 namespace {
 
-class TestCase
+class BaseTestCase
 {
 public:
-    TestCase(const QByteArray &source,
-             const UseList &expectedUsesAll,
-             const UseList &expectedUsesMacros = UseList())
+    BaseTestCase(const QByteArray &source, const UseList &expectedUsesMacros = UseList())
     {
         // Write source to temprorary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
@@ -124,29 +122,7 @@ public:
         snapshot.insert(document);
 
         // Collect symbols
-        CheckSymbols::Future future = runCheckSymbols(document, snapshot, expectedUsesMacros);
-
-        const int resultCount = future.resultCount();
-        UseList actualUses;
-        for (int i = 0; i < resultCount; ++i) {
-            const Use use = future.resultAt(i);
-            // When adding tests, you may want to uncomment the
-            // following line in order to print out all found uses.
-            // qDebug() << QTest::toString(use);
-            actualUses.append(use);
-        }
-
-        // Checks
-        QVERIFY(resultCount > 0);
-        QCOMPARE(resultCount, expectedUsesAll.count());
-
-        for (int i = 0; i < resultCount; ++i) {
-            const Use actualUse = actualUses.at(i);
-            const Use expectedUse = expectedUsesAll.at(i);
-            QVERIFY(actualUse.isValid());
-            QVERIFY(expectedUse.isValid());
-            QCOMPARE(actualUse, expectedUse);
-        }
+        future = runCheckSymbols(document, snapshot, expectedUsesMacros);
     }
 
     static CheckSymbols::Future runCheckSymbols(const Document::Ptr &document,
@@ -176,6 +152,55 @@ public:
 
         return document;
     }
+
+    Use findUse(unsigned line, unsigned column)
+    {
+        const int resultCount = future.resultCount();
+        for (int i = resultCount - 1; i >= 0; --i) {
+            Use result = future.resultAt(i);
+            if (result.line > line)
+                continue;
+            if (result.line < line || result.column < column)
+                break;
+            if (result.column == column)
+                return result;
+        }
+        return Use();
+    }
+
+    CheckSymbols::Future future;
+};
+
+class TestCase : public BaseTestCase
+{
+public:
+    TestCase(const QByteArray &source,
+             const UseList &expectedUsesAll,
+             const UseList &expectedUsesMacros = UseList())
+        : BaseTestCase(source, expectedUsesMacros)
+    {
+        const int resultCount = future.resultCount();
+        UseList actualUses;
+        for (int i = 0; i < resultCount; ++i) {
+            const Use use = future.resultAt(i);
+            // When adding tests, you may want to uncomment the
+            // following line in order to print out all found uses.
+            // qDebug() << QTest::toString(use);
+            actualUses.append(use);
+        }
+
+        // Checks
+        QVERIFY(resultCount > 0);
+        QCOMPARE(resultCount, expectedUsesAll.count());
+
+        for (int i = 0; i < resultCount; ++i) {
+            const Use actualUse = actualUses.at(i);
+            const Use expectedUse = expectedUsesAll.at(i);
+            QVERIFY(actualUse.isValid());
+            QVERIFY(expectedUse.isValid());
+            QCOMPARE(actualUse, expectedUse);
+        }
+    }
 };
 
 } // anonymous namespace
@@ -196,6 +221,9 @@ private slots:
     void test_checksymbols_infiniteLoop();
 
     void test_parentOfBlock();
+
+    void findField();
+    void findField_data();
 };
 
 void tst_CheckSymbols::test_checksymbols()
@@ -1086,11 +1114,7 @@ void tst_CheckSymbols::test_parentOfBlock()
                               "{\n"
                               "    enum E { e1 };\n"
                               "}\n";
-
-    const Document::Ptr document = TestCase::createDocument(QLatin1String("file1.cpp"), source);
-    Snapshot snapshot;
-    snapshot.insert(document);
-    TestCase::runCheckSymbols(document, snapshot);
+    BaseTestCase tc(source);
 }
 
 void tst_CheckSymbols::test_checksymbols_infiniteLoop_data()
@@ -1163,6 +1187,195 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop_data()
            "    void construct(value_type *_Ptr) {}\n"
            "};\n")
            ;
+}
+
+void tst_CheckSymbols::findField()
+{
+    QFETCH(QByteArray, source);
+
+    int position = source.indexOf('@');
+    QVERIFY(position != -1);
+    QByteArray truncated = source;
+    truncated.truncate(position);
+    const unsigned line = truncated.count('\n') + 1;
+    const unsigned column = position - truncated.lastIndexOf('\n', position) + 1;
+    source[position] = ' ';
+    BaseTestCase tc(source);
+    Use use = tc.findUse(line, column);
+    QEXPECT_FAIL("pointer_indirect_specialization", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_typedef", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("instantiation_of_pointer_typedef_in_block", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type_2", "QTCREATORBUG-14141", Abort);
+    QVERIFY(use.isValid());
+    QVERIFY(use.kind == Highlighting::FieldUse);
+}
+
+void tst_CheckSymbols::findField_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    QTest::newRow("pointer_indirect_specialization") << _(
+        "template<typename T>\n"
+        "struct Traits { typedef typename T::pointer pointer; };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+        "\n"
+        "template<typename T>\n"
+        "class Temp\n"
+        "{\n"
+        "protected:\n"
+        "   typedef Traits<T> TraitsT;\n"
+        "\n"
+        "public:\n"
+        "   typedef typename TraitsT::pointer pointer;\n"
+        "   pointer p;\n"
+        "};\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Foo *> t;\n"
+        "   t.p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("pointer_indirect_specialization_typedef") << _(
+        "template<typename T>\n"
+        "struct Traits { typedef typename T::pointer pointer; };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "class Temp\n"
+        "{\n"
+        "protected:\n"
+        "   typedef Foo *FooPtr;\n"
+        "   typedef Traits<FooPtr> TraitsT;\n"
+        "\n"
+        "public:\n"
+        "   typedef typename TraitsT::pointer pointer;\n"
+        "   pointer p;\n"
+        "};\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp t;\n"
+        "   t.p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("instantiation_of_pointer_typedef_in_block") << _(
+        "template<typename _Tp>\n"
+        "struct Temp { _Tp p; };\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   typedef Foo *pointer;\n"
+        "   Temp<pointer> t;\n"
+        "   t.p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("pointer_indirect_specialization_double_indirection") << _(
+        "template<typename _Tp>\n"
+        "struct Traits { };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct IndirectT\n"
+        "{\n"
+        "   typedef Traits<_Tp> TraitsT;\n"
+        "   typedef typename TraitsT::pointer pointer;\n"
+        "   pointer p;\n"
+        "};\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct Temp\n"
+        "{\n"
+        "   typedef _Tp *pointer;\n"
+        "   typedef IndirectT<pointer> indirect;\n"
+        "};\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Foo>::indirect t;\n"
+        "   t.p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("pointer_indirect_specialization_double_indirection_with_base") << _(
+        "template<typename _Tp>\n"
+        "struct Traits { };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct IndirectT\n"
+        "{\n"
+        "   typedef Traits<_Tp> TraitsT;\n"
+        "   typedef typename TraitsT::pointer pointer;\n"
+        "   pointer p;\n"
+        "};\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct TempBase { typedef _Tp *pointer; };\n"
+        "\n"
+        "template<typename _Tp>\n"
+        "struct Temp : public TempBase<_Tp>\n"
+        "{\n"
+        "   typedef TempBase<_Tp> _Base;\n"
+        "   typedef typename _Base::pointer pointer;\n"
+        "   typedef IndirectT<pointer> indirect;\n"
+        "};\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Foo>::indirect t;\n"
+        "   t.p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("recursive_instantiation_of_template_type") << _(
+        "template<typename _Tp>\n"
+        "struct Temp { typedef _Tp value_type; };\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Temp<Foo> >::value_type::value_type *p;\n"
+        "   p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("recursive_instantiation_of_template_type_2") << _(
+        "template<typename _Tp>\n"
+        "struct Temp { typedef _Tp value_type; };\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Temp<Foo>::value_type>::value_type *p;\n"
+        "   p->@bar;\n"
+        "}\n"
+    );
 }
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)
