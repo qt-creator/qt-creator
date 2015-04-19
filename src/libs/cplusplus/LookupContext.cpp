@@ -32,7 +32,6 @@
 
 #include "ResolveExpression.h"
 #include "Overview.h"
-#include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
 
 #include <cplusplus/CoreTypes.h>
@@ -399,7 +398,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 
     for (; scope; scope = scope->enclosingScope()) {
         if (name->identifier() != 0 && scope->isBlock()) {
-            bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0, /*binding=*/ 0);
+            bindings()->lookupInScope(name, scope, &candidates);
 
             if (! candidates.isEmpty()) {
                 // it's a local.
@@ -435,7 +434,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             }
 
         } else if (Function *fun = scope->asFunction()) {
-            bindings()->lookupInScope(name, fun, &candidates, /*templateId = */ 0, /*binding=*/ 0);
+            bindings()->lookupInScope(name, fun, &candidates);
 
             if (! candidates.isEmpty()) {
                 // it's an argument or a template parameter.
@@ -462,13 +461,13 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             // continue, and look at the enclosing scope.
 
         } else if (ObjCMethod *method = scope->asObjCMethod()) {
-            bindings()->lookupInScope(name, method, &candidates, /*templateId = */ 0, /*binding=*/ 0);
+            bindings()->lookupInScope(name, method, &candidates);
 
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
         } else if (Template *templ = scope->asTemplate()) {
-            bindings()->lookupInScope(name, templ, &candidates, /*templateId = */ 0, /*binding=*/ 0);
+            bindings()->lookupInScope(name, templ, &candidates);
 
             if (! candidates.isEmpty()) {
                 // it's a template parameter.
@@ -555,7 +554,6 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
     : _factory(factory)
     , _parent(parent)
     , _scopeLookupCache(0)
-    , _templateId(0)
     , _instantiationOrigin(0)
     , _rootClass(0)
     , _name(0)
@@ -566,11 +564,6 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
 ClassOrNamespace::~ClassOrNamespace()
 {
     delete _scopeLookupCache;
-}
-
-const TemplateNameId *ClassOrNamespace::templateId() const
-{
-    return _templateId;
 }
 
 ClassOrNamespace *ClassOrNamespace::instantiationOrigin() const
@@ -672,7 +665,7 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
             if (processedOwnParents.contains(binding))
                 break;
             processedOwnParents.insert(binding);
-            lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
+            lookup_helper(name, binding, &result, &processed);
             binding = binding->_parent;
         } while (searchInEnclosingScope && binding);
     }
@@ -681,9 +674,8 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
 }
 
 void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding,
-                                          QList<LookupItem> *result,
-                                          QSet<ClassOrNamespace *> *processed,
-                                          const TemplateNameId *templateId)
+                                     QList<LookupItem> *result,
+                                     QSet<ClassOrNamespace *> *processed)
 {
     if (binding && ! processed->contains(binding)) {
         processed->insert(binding);
@@ -708,15 +700,15 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
                         }
                     }
                 }
-                _factory->lookupInScope(name, scope, result, templateId, binding);
+                _factory->lookupInScope(name, scope, result, binding);
             }
         }
 
         foreach (Enum *e, binding->unscopedEnums())
-            _factory->lookupInScope(name, e, result, templateId, binding);
+            _factory->lookupInScope(name, e, result, binding);
 
         foreach (ClassOrNamespace *u, binding->usings())
-            lookup_helper(name, u, result, processed, binding->_templateId);
+            lookup_helper(name, u, result, processed);
 
         Anonymouses::const_iterator cit = binding->_anonymouses.constBegin();
         Anonymouses::const_iterator citEnd = binding->_anonymouses.constEnd();
@@ -724,14 +716,13 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
             const AnonymousNameId *anonymousNameId = cit.key();
             ClassOrNamespace *a = cit.value();
             if (!binding->_declaredOrTypedefedAnonymouses.contains(anonymousNameId))
-                lookup_helper(name, a, result, processed, binding->_templateId);
+                lookup_helper(name, a, result, processed);
         }
     }
 }
 
 void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                                    QList<LookupItem> *result,
-                                   const TemplateNameId *templateId,
                                    ClassOrNamespace *binding)
 {
     if (! name) {
@@ -780,11 +771,6 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                     Symbol *resolvedSymbol = targetNamespaceBinding->symbols().first();
                     item.setType(resolvedSymbol->type()); // override the type
                 }
-            }
-
-            if (templateId && (s->isDeclaration() || s->isFunction())) {
-                FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, control());
-                item.setType(ty); // override the type.
             }
 
             // instantiate function template
@@ -932,21 +918,6 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 
             if (ClassOrNamespace *e = nestedType(name, origin))
                 return e;
-
-            if (_templateId) {
-                if (_usings.size() == 1) {
-                    ClassOrNamespace *delegate = _usings.first();
-
-                    if (ClassOrNamespace *r = delegate->lookupType_helper(name,
-                                                                          processed,
-                                                                          /*searchInEnclosingScope = */ true,
-                                                                          origin))
-                        return r;
-                } else if (Q_UNLIKELY(debug)) {
-                    qWarning() << "expected one using declaration. Number of using declarations is:"
-                               << _usings.size();
-                }
-            }
 
             foreach (ClassOrNamespace *u, usings()) {
                 if (ClassOrNamespace *r = u->lookupType_helper(name,
@@ -1159,7 +1130,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(baseTemplateClassReference);
         if (Q_UNLIKELY(debug))
             instantiation->_name = templId;
-        instantiation->_templateId = templId;
 
         while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock())
             origin = origin->parent();

@@ -38,7 +38,6 @@
 #include <cplusplus/Bind.h>
 #include <cplusplus/Control.h>
 #include <cplusplus/CoreTypes.h>
-#include <cplusplus/DeprecatedGenTemplateInstance.h>
 #include <cplusplus/DiagnosticClient.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Literals.h>
@@ -48,6 +47,7 @@
 #include <cplusplus/Parser.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Symbols.h>
+#include <cplusplus/Templates.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 
@@ -511,14 +511,15 @@ void tst_Semantic::template_instance_1()
     QVERIFY(decl);
 
     FullySpecifiedType templArgs[] = { control->integerType(IntegerType::Int) };
-    const Name *templId = control->templateNameId(control->identifier("QList"), false, templArgs, 1);
-
-    FullySpecifiedType genTy = DeprecatedGenTemplateInstance::instantiate(templId, decl, control);
+    Clone cloner(control.data());
+    Class *clone = cloner.instantiate(templ, templArgs, 1)->asClass();
+    QVERIFY(clone);
 
     Overview oo;
     oo.showReturnTypes = true;
 
-    const QString genDecl = oo.prettyType(genTy);
+    Declaration *clonedDecl = clone->memberAt(0)->asDeclaration();
+    const QString genDecl = oo.prettyType(clonedDecl->type());
     QCOMPARE(genDecl, QString::fromLatin1("void (const int &)"));
 }
 

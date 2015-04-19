@@ -105,8 +105,6 @@ QString CPlusPlus::toString(const ClassOrNamespace *binding, QString id)
     QString result = QString::fromLatin1("%0: %1 symbols").arg(
                 id,
                 QString::number(binding->symbols().length()));
-    if (binding->templateId())
-        result.append(QString::fromLatin1("\n%1").arg(indent(toString(binding->templateId(), QLatin1String("Template")))));
     return result;
 }
 

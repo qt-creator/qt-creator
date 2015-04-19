@@ -32,7 +32,6 @@
 
 #include "LookupContext.h"
 #include "Overview.h"
-#include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
 #include "TypeOfExpression.h"
 #include "TypeResolver.h"
@@ -493,14 +492,12 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                         Symbol *overload = r.declaration();
                         if (Function *funTy = overload->type()->asFunctionType()) {
                             if (maybeValidPrototype(funTy, 0)) {
-                                if (Function *proto = instantiate(b->templateId(), funTy)->asFunctionType()) {
-                                    FullySpecifiedType retTy = proto->returnType().simplified();
-                                    p.setType(retTy);
-                                    p.setScope(proto->enclosingScope());
-                                    it.setValue(p);
-                                    added = true;
-                                    break;
-                                }
+                                FullySpecifiedType retTy = funTy->returnType().simplified();
+                                p.setType(retTy);
+                                p.setScope(funTy->enclosingScope());
+                                it.setValue(p);
+                                added = true;
+                                break;
                             }
                         }
                     }
@@ -753,10 +750,8 @@ bool ResolveExpression::visit(CallAST *ast)
                 foreach (const LookupItem &r, b->find(functionCallOp)) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        if (maybeValidPrototype(funTy, actualArgumentCount)) {
-                            if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
-                                addResult(proto->returnType().simplified(), scope);
-                        }
+                        if (maybeValidPrototype(funTy, actualArgumentCount))
+                            addResult(funTy->returnType().simplified(), scope);
                     }
                 }
             }
@@ -806,9 +801,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
                 foreach (const LookupItem &r, b->find(arrayAccessOp)) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
-                            // ### TODO: check the actual arguments
-                            addResult(proto->returnType().simplified(), scope);
+                        // ### TODO: check the actual arguments
+                        addResult(funTy->returnType().simplified(), scope);
                     }
                 }
 
@@ -967,14 +961,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             continue;
                         Scope *functionScope = overload->enclosingScope();
 
-                        if (overload->type()->isFunctionType()) {
-                            FullySpecifiedType overloadTy
-                                    = instantiate(binding->templateId(), overload);
-                            Function *instantiatedFunction = overloadTy->asFunctionType();
-                            Q_ASSERT(instantiatedFunction != 0);
-
-                            FullySpecifiedType retTy
-                                    = instantiatedFunction->returnType().simplified();
+                        if (Function *funTy = overload->type()->asFunctionType()) {
+                            FullySpecifiedType retTy = funTy->returnType().simplified();
 
                             typeResolver.resolve(&retTy, &functionScope, r.binding());
 
@@ -1050,12 +1038,6 @@ ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionSc
     }
 
     return 0;
-}
-
-FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol *candidate) const
-{
-    return DeprecatedGenTemplateInstance::instantiate(className, candidate,
-                                                      _context.bindings()->control());
 }
 
 bool ResolveExpression::visit(PostIncrDecrAST *ast)

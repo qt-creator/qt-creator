@@ -71,7 +71,6 @@ class CPLUSPLUS_EXPORT ClassOrNamespace
 public:
     ~ClassOrNamespace();
 
-    const TemplateNameId *templateId() const;
     ClassOrNamespace *instantiationOrigin() const;
 
     ClassOrNamespace *parent() const;
@@ -118,8 +117,7 @@ private:
 
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
                        QList<LookupItem> *result,
-                       QSet<ClassOrNamespace *> *processed,
-                       const TemplateNameId *templateId);
+                       QSet<ClassOrNamespace *> *processed);
 
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope, ClassOrNamespace *origin);
@@ -149,7 +147,6 @@ private:
     QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
 
     // it's an instantiation.
-    const TemplateNameId *_templateId;
     ClassOrNamespace *_instantiationOrigin;
 
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
@@ -195,7 +192,7 @@ public:
     /// Store the result in \a results.
     /// \internal
     void lookupInScope(const Name *name, Scope *scope, QList<LookupItem> *result,
-                            const TemplateNameId *templateId, ClassOrNamespace *binding);
+                       ClassOrNamespace *binding = 0);
 
     /// Create bindings for the symbols reachable from \a rootSymbol.
     /// \internal

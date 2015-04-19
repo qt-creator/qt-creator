@@ -97,7 +97,6 @@ QtcLibrary {
             "CppRewriter.cpp", "CppRewriter.h",
             "cppmodelmanagerbase.cpp", "cppmodelmanagerbase.h",
             "DependencyTable.cpp", "DependencyTable.h",
-            "DeprecatedGenTemplateInstance.cpp", "DeprecatedGenTemplateInstance.h",
             "ExpressionUnderCursor.cpp", "ExpressionUnderCursor.h",
             "FastPreprocessor.cpp", "FastPreprocessor.h",
             "FindUsages.cpp", "FindUsages.h",

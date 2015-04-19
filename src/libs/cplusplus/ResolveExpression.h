@@ -66,7 +66,6 @@ protected:
     QList<LookupItem> expression(ExpressionAST *ast);
 
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
-    FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
 
     QList<LookupItem> getMembers(ClassOrNamespace *binding, const Name *memberName) const;
 
