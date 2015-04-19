@@ -319,12 +319,12 @@ void PathChooser::setEnvironment(const Environment &env)
 
 QString PathChooser::path() const
 {
-    return d->expandedPath(QDir::fromNativeSeparators(d->m_lineEdit->text()));
+    return d->expandedPath(rawPath());
 }
 
 QString PathChooser::rawPath() const
 {
-    return QDir::fromNativeSeparators(d->m_lineEdit->text());
+    return FileName::fromUserInput(QDir::fromNativeSeparators(d->m_lineEdit->text())).toString();
 }
 
 FileName PathChooser::fileName() const
