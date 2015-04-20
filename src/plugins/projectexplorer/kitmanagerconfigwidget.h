@@ -95,7 +95,6 @@ private:
 
     void showEvent(QShowEvent *event);
     QLabel *createLabel(const QString &name, const QString &toolTip);
-    void paintEvent(QPaintEvent *ev);
 
     QGridLayout *m_layout;
     QToolButton *m_iconButton;
@@ -108,7 +107,6 @@ private:
     bool m_isDefaultKit;
     bool m_fixingKit;
     bool m_hasUniqueName;
-    QPixmap m_background;
     QList<QAction *> m_actions;
     mutable QString m_cachedDisplayName;
 };

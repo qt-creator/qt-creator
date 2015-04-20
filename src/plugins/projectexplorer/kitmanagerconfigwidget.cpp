@@ -380,13 +380,5 @@ QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &
     return label;
 }
 
-void KitManagerConfigWidget::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    if (m_background.size() != size())
-        m_background = Utils::DetailsWidget::createBackground(size(), 0, this);
-    p.drawPixmap(rect(), m_background);
-}
-
 } // namespace Internal
 } // namespace ProjectExplorer
