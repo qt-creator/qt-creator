@@ -55,7 +55,7 @@ void JsonKitsPage::initializePage()
     JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
 
-    connect(wiz, &JsonWizard::filesReady, this, &JsonKitsPage::setupProjectFiles);
+    connect(wiz, &JsonWizard::allDone, this, &JsonKitsPage::setupProjectFiles);
 
     const QString platform = wiz->stringValue(QLatin1String("Platform"));
     const Core::FeatureSet preferred = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("PreferredFeatures")).toStringList());
@@ -73,7 +73,7 @@ void JsonKitsPage::cleanupPage()
     JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
 
-    disconnect(wiz, &JsonWizard::filesReady, this, 0);
+    disconnect(wiz, &JsonWizard::allDone, this, 0);
 
     TargetSetupPage::cleanupPage();
 }
