@@ -84,7 +84,7 @@ void XcodebuildParser::stdOutput(const QString &line)
                       Utils::FileName::fromString(m_replacingSignatureRe.cap(1)), /* filename */
                       -1, /* line */
                       Constants::TASK_CATEGORY_COMPILE);
-            taskAdded(task);
+            taskAdded(task, 1);
             return;
         }
         IOutputParser::stdError(line);

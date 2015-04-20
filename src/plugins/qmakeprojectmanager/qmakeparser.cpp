@@ -32,6 +32,7 @@
 
 #include <projectexplorer/task.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildmanager.h>
 
 using namespace QmakeProjectManager;
 using ProjectExplorer::Task;
@@ -47,20 +48,22 @@ void QMakeParser::stdError(const QString &line)
     QString lne = rightTrimmed(line);
     if (lne.startsWith(QLatin1String("Project ERROR:"))) {
         const QString description = lne.mid(15);
-        emit addTask(Task(Task::Error,
-                          description,
-                          Utils::FileName() /* filename */,
-                          -1 /* linenumber */,
-                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        Task task = Task(Task::Error,
+                         description,
+                         Utils::FileName() /* filename */,
+                         -1 /* linenumber */,
+                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(task, 1);
         return;
     }
     if (lne.startsWith(QLatin1String("Project WARNING:"))) {
         const QString description = lne.mid(17);
-        emit addTask(Task(Task::Warning,
-                          description,
-                          Utils::FileName() /* filename */,
-                          -1 /* linenumber */,
-                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        Task task = Task(Task::Warning,
+                         description,
+                         Utils::FileName() /* filename */,
+                         -1 /* linenumber */,
+                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(task, 1);
         return;
     }
     if (m_error.indexIn(lne) > -1) {
@@ -72,11 +75,12 @@ void QMakeParser::stdError(const QString &line)
         } else if (fileName.startsWith(QLatin1String("ERROR: "))) {
             fileName = fileName.mid(7);
         }
-        emit addTask(Task(type,
-                          m_error.cap(3) /* description */,
-                          Utils::FileName::fromUserInput(fileName),
-                          m_error.cap(2).toInt() /* line */,
-                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        Task task = Task(type,
+                         m_error.cap(3) /* description */,
+                         Utils::FileName::fromUserInput(fileName),
+                         m_error.cap(2).toInt() /* line */,
+                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(task, 1);
         return;
     }
     IOutputParser::stdError(line);

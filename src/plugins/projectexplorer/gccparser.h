@@ -61,6 +61,7 @@ private:
     QRegularExpression m_regExpGccNames;
 
     Task m_currentTask;
+    int m_lines = 0;
 };
 
 } // namespace ProjectExplorer

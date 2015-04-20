@@ -53,6 +53,7 @@ private:
     QRegExp m_commonError;
     QRegExp m_nextSubError;
     bool m_skippedFirstEmptyLine;
+    int m_lines = 0;
 };
 
 } // namespace CMakeProjectManager

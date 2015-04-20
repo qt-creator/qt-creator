@@ -90,6 +90,7 @@ void LinuxIccParser::stdError(const QString &line)
                                             m_firstLine.cap(2).toInt(),
                                             Constants::TASK_CATEGORY_COMPILE);
 
+        m_lines = 1;
         m_expectFirstLine = false;
     } else if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
         // Format the last line as code
@@ -106,7 +107,7 @@ void LinuxIccParser::stdError(const QString &line)
         m_temporary.formats.append(fr2);
     } else if (!m_expectFirstLine && line.trimmed().isEmpty()) { // last Line
         m_expectFirstLine = true;
-        emit addTask(m_temporary);
+        emit addTask(m_temporary, m_lines);
         m_temporary = Task();
     } else if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
         m_temporary.description.append(QLatin1Char('\n'));
@@ -114,6 +115,7 @@ void LinuxIccParser::stdError(const QString &line)
         while (m_indent < line.length() && line.at(m_indent).isSpace())
             m_indent++;
         m_temporary.description.append(m_continuationLines.cap(1).trimmed());
+        ++m_lines;
     } else {
         IOutputParser::stdError(line);
     }
@@ -125,7 +127,7 @@ void LinuxIccParser::doFlush()
         return;
     Task t = m_temporary;
     m_temporary.clear();
-    emit addTask(t);
+    emit addTask(t, m_lines, 1);
 }
 
 #ifdef WITH_TESTS

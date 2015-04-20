@@ -75,7 +75,7 @@ signals:
 
 private slots:
     void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    void taskAdded(const ProjectExplorer::Task &task);
+    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines);
 
 private:
     void reset();

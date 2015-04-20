@@ -32,6 +32,7 @@
 #include "ldparser.h"
 #include "task.h"
 #include "projectexplorerconstants.h"
+#include "buildmanager.h"
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -152,6 +153,7 @@ void GccParser::newTask(const Task &task)
 {
     doFlush();
     m_currentTask = task;
+    m_lines = 1;
 }
 
 void GccParser::doFlush()
@@ -160,7 +162,8 @@ void GccParser::doFlush()
         return;
     Task t = m_currentTask;
     m_currentTask.clear();
-    emit addTask(t);
+    emit addTask(t, m_lines, 1);
+    m_lines = 0;
 }
 
 void GccParser::amendDescription(const QString &desc, bool monospaced)
@@ -178,6 +181,7 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
         fr.format.setFontStyleHint(QFont::Monospace);
         m_currentTask.formats.append(fr);
     }
+    ++m_lines;
     return;
 }
 

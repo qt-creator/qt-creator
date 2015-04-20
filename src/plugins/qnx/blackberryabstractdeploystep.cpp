@@ -188,9 +188,10 @@ void BlackBerryAbstractDeployStep::emitOutputInfo(const ProjectExplorer::Process
 
 void BlackBerryAbstractDeployStep::raiseError(const QString &errorMessage)
 {
+    ProjectExplorer::Task task = ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task, 1);
     emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
-    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void BlackBerryAbstractDeployStep::processReadyReadStdOutput()

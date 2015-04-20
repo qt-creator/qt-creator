@@ -170,16 +170,18 @@ void AbstractPackagingStep::setDeploymentDataModified()
 
 void AbstractPackagingStep::raiseError(const QString &errorMessage)
 {
+    Task task = Task(Task::Error, errorMessage, Utils::FileName(), -1,
+                     Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task);
     emit addOutput(errorMessage, BuildStep::ErrorOutput);
-    emit addTask(Task(Task::Error, errorMessage, Utils::FileName(), -1,
-                      Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void AbstractPackagingStep::raiseWarning(const QString &warningMessage)
 {
+    Task task = Task(Task::Warning, warningMessage, Utils::FileName(), -1,
+                     Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task);
     emit addOutput(warningMessage, ErrorMessageOutput);
-    emit addTask(Task(Task::Warning, warningMessage, Utils::FileName(), -1,
-                      Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 } // namespace RemoteLinux

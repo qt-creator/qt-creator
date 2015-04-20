@@ -71,15 +71,18 @@ void CMakeParser::stdError(const QString &line)
     if (m_commonError.indexIn(trimmedLine) != -1) {
         m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_commonError.cap(1)),
                           m_commonError.cap(2).toInt(), Constants::TASK_CATEGORY_BUILDSYSTEM);
+        m_lines = 1;
         return;
     } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
         m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_nextSubError.cap(1)), -1,
                           Constants::TASK_CATEGORY_BUILDSYSTEM);
+        m_lines = 1;
         return;
     } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
         if (!m_lastTask.description.isEmpty())
             m_lastTask.description.append(QLatin1Char(' '));
         m_lastTask.description.append(trimmedLine.trimmed());
+        ++m_lines;
         return;
     }
 
@@ -92,7 +95,8 @@ void CMakeParser::doFlush()
         return;
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t);
+    emit addTask(t, m_lines, 1);
+    m_lines = 0;
 }
 
 #ifdef WITH_TESTS

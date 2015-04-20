@@ -55,7 +55,7 @@ public:
     bool hasFatalErrors() const;
 
 public slots:
-    void taskAdded(const ProjectExplorer::Task &task);
+    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skippedLines);
 
 private:
     void addDirectory(const QString &dir);

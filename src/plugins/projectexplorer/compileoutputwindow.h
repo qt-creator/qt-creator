@@ -35,6 +35,7 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <QHash>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -79,7 +80,7 @@ public:
     void goToPrev();
     bool canNavigate() const;
 
-    void registerPositionOf(const Task &task);
+    void registerPositionOf(const Task &task, int linkedOutputLines, int skipLines);
     bool knowsPositionOf(const Task &task);
     void showPositionOf(const Task &task);
 
@@ -90,7 +91,7 @@ private slots:
 
 private:
     CompileOutputTextEdit *m_outputWindow;
-    QHash<unsigned int, int> m_taskPositions;
+    QHash<unsigned int, QPair<int, int>> m_taskPositions;
     ShowOutputTaskHandler * m_handler;
     QToolButton *m_cancelBuildButton;
     Utils::AnsiEscapeCodeHandler *m_escapeCodeHandler;

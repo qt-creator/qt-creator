@@ -243,16 +243,18 @@ QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
 
 void WinRtPackageDeploymentStep::raiseError(const QString &errorMessage)
 {
+    ProjectExplorer::Task task = Task(Task::Error, errorMessage, Utils::FileName(), -1,
+                                      ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task, 1);
     emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
-    emit addTask(Task(Task::Error, errorMessage, Utils::FileName(), -1,
-                      ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void WinRtPackageDeploymentStep::raiseWarning(const QString &warningMessage)
 {
+    ProjectExplorer::Task task = Task(Task::Warning, warningMessage, Utils::FileName(), -1,
+                                      ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task, 1);
     emit addOutput(warningMessage, BuildStep::MessageOutput);
-    emit addTask(Task(Task::Warning, warningMessage, Utils::FileName(), -1,
-                      ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 bool WinRtPackageDeploymentStep::fromMap(const QVariantMap &map)

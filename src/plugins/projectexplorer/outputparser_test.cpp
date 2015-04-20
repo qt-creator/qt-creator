@@ -142,8 +142,10 @@ void OutputParserTester::outputAdded(const QString &line, BuildStep::OutputForma
     m_receivedOutput.append(line);
 }
 
-void OutputParserTester::taskAdded(const Task &task)
+void OutputParserTester::taskAdded(const Task &task, int linkedLines, int skipLines)
 {
+    Q_UNUSED(linkedLines);
+    Q_UNUSED(skipLines);
     m_receivedTasks.append(task);
 }
 

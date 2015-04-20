@@ -67,11 +67,11 @@ public:
 
 signals:
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    void addTask(const ProjectExplorer::Task &task);
+    void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
 public slots:
     virtual void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    virtual void taskAdded(const ProjectExplorer::Task &task);
+    virtual void taskAdded(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
 private:
     virtual void doFlush();

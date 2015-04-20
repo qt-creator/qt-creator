@@ -58,6 +58,7 @@ private:
     bool m_expectFirstLine;
     int m_indent;
     Task m_temporary;
+    int m_lines = 0;
 };
 
 } // namespace ProjectExplorer

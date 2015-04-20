@@ -30,6 +30,7 @@
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
+#include "buildmanager.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -100,6 +101,7 @@ void MsvcParser::stdOutput(const QString &line)
         } else {
             m_lastTask.formats[0].length = m_lastTask.description.length() - m_lastTask.formats[0].start;
         }
+        ++m_lines;
         return;
     }
 
@@ -111,6 +113,7 @@ void MsvcParser::stdOutput(const QString &line)
                           Utils::FileName(), /* fileName */
                           -1, /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     if (line.startsWith(QLatin1String("Warning:"))) {
@@ -119,6 +122,7 @@ void MsvcParser::stdOutput(const QString &line)
                           Utils::FileName(), /* fileName */
                           -1, /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     if (match.hasMatch()) {
@@ -130,6 +134,7 @@ void MsvcParser::stdOutput(const QString &line)
                           Utils::FileName::fromUserInput(match.captured(2)), /* fileName */
                           match.captured(3).toInt(), /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     IOutputParser::stdOutput(line);
@@ -146,6 +151,7 @@ void MsvcParser::stdError(const QString &line)
                           Utils::FileName(), /* fileName */
                           -1, /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     IOutputParser::stdError(line);
@@ -167,6 +173,7 @@ bool MsvcParser::processCompileLine(const QString &line)
         m_lastTask = Task(type, match.captured(4).trimmed() /* description */,
                           position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return true;
     }
     return false;
@@ -179,7 +186,7 @@ void MsvcParser::doFlush()
 
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t);
+    emit addTask(t, m_lines, 1);
 }
 
 // Unit tests:

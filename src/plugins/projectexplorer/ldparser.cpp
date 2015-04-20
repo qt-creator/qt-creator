@@ -71,11 +71,12 @@ void LdParser::stdError(const QString &line)
     }
 
     if (lne.startsWith(QLatin1String("collect2:"))) {
-        emit addTask(Task(Task::Error,
-                          lne /* description */,
-                          Utils::FileName() /* filename */,
-                          -1 /* linenumber */,
-                          Constants::TASK_CATEGORY_COMPILE));
+        Task task = Task(Task::Error,
+                         lne /* description */,
+                         Utils::FileName() /* filename */,
+                         -1 /* linenumber */,
+                         Constants::TASK_CATEGORY_COMPILE);
+        emit addTask(task, 1);
         return;
     }
 
@@ -85,7 +86,7 @@ void LdParser::stdError(const QString &line)
         Task task(Task::Warning, description,
                   Utils::FileName(), -1,
                   Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
 
@@ -101,7 +102,7 @@ void LdParser::stdError(const QString &line)
         }
         Task task(type, description, Utils::FileName() /* filename */, -1 /* line */,
                   Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
 
@@ -131,7 +132,7 @@ void LdParser::stdError(const QString &line)
             description = description.mid(9);
         }
         Task task(type, description, filename, lineno, Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
 

@@ -341,10 +341,10 @@ void BuildManager::showBuildResults()
     //toggleTaskWindow();
 }
 
-void BuildManager::addToTaskWindow(const Task &task)
+void BuildManager::addToTaskWindow(const Task &task, int linkedOutputLines, int skipLines)
 {
-    d->m_outputWindow->registerPositionOf(task);
     // Distribute to all others
+    d->m_outputWindow->registerPositionOf(task, linkedOutputLines, skipLines);
     TaskHub::addTask(task);
 }
 
@@ -496,8 +496,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names,
     int i = 0;
     for (; i < count; ++i) {
         BuildStep *bs = steps.at(i);
-        connect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
-                m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task)));
+        connect(bs, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
+                m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task, int, int)));
         connect(bs, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)),
                 m_instance, SLOT(addToOutputWindow(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)));
         if (bs->enabled()) {
@@ -657,8 +657,8 @@ void BuildManager::decrementActiveBuildSteps(BuildStep *bs)
 
 void BuildManager::disconnectOutput(BuildStep *bs)
 {
-    disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
-               m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task)));
+    disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
+               m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task, int, int)));
     disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat,
         ProjectExplorer::BuildStep::OutputNewlineSetting)),
         m_instance, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat,

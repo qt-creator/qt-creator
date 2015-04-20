@@ -57,6 +57,7 @@ private:
     QRegularExpression m_additionalInfoRegExp;
 
     Task m_lastTask;
+    int m_lines = 0;
 };
 
 } // namespace ProjectExplorer

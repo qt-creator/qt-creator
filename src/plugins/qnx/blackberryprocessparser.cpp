@@ -96,7 +96,7 @@ void BlackBerryProcessParser::parseErrorAndWarningMessage(const QString &line, b
                                Utils::FileName(),
                                -1,
                                Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    emit addTask(task);
+    emit addTask(task, 1);
 }
 
 void BlackBerryProcessParser::parseProgress(const QString &line)

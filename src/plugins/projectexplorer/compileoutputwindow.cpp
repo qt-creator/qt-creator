@@ -257,14 +257,21 @@ bool CompileOutputWindow::canNavigate() const
     return false;
 }
 
-void CompileOutputWindow::registerPositionOf(const Task &task)
+void CompileOutputWindow::registerPositionOf(const Task &task, int linkedOutputLines, int skipLines)
 {
-    int blocknumber = m_outputWindow->blockCount();
+    if (linkedOutputLines <= 0)
+        return;
+    int blocknumber = m_outputWindow->document()->blockCount();
     if (blocknumber > MAX_LINECOUNT)
         return;
 
-    m_taskPositions.insert(task.taskId, blocknumber);
-    m_outputWindow->addTask(task, blocknumber);
+    const int startLine = blocknumber - linkedOutputLines + 1 - skipLines;
+    const int endLine = blocknumber - skipLines;
+
+    m_taskPositions.insert(task.taskId, qMakePair(startLine, endLine));
+
+    for (int i = startLine; i <= endLine; ++i)
+        m_outputWindow->addTask(task, i);
 }
 
 bool CompileOutputWindow::knowsPositionOf(const Task &task)
@@ -274,10 +281,20 @@ bool CompileOutputWindow::knowsPositionOf(const Task &task)
 
 void CompileOutputWindow::showPositionOf(const Task &task)
 {
-    int position = m_taskPositions.value(task.taskId);
-    QTextCursor newCursor(m_outputWindow->document()->findBlockByNumber(position));
-    newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    QPair<int, int> position = m_taskPositions.value(task.taskId);
+    QTextCursor newCursor(m_outputWindow->document()->findBlockByNumber(position.second));
+
+    // Move cursor to end of last line of interest:
+    newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
     m_outputWindow->setTextCursor(newCursor);
+
+    // Move cursor and select lines:
+    newCursor.setPosition(m_outputWindow->document()->findBlockByNumber(position.first).position(),
+                          QTextCursor::KeepAnchor);
+    m_outputWindow->setTextCursor(newCursor);
+
+    // Center cursor now:
+    m_outputWindow->centerCursor();
 }
 
 void CompileOutputWindow::flush()

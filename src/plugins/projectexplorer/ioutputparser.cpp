@@ -149,8 +149,8 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
     m_parser = parser;
     connect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
             this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)), Qt::DirectConnection);
-    connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
-            this, SLOT(taskAdded(ProjectExplorer::Task)), Qt::DirectConnection);
+    connect(parser, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
+            this, SLOT(taskAdded(ProjectExplorer::Task, int, int)), Qt::DirectConnection);
 }
 
 IOutputParser *IOutputParser::takeOutputParserChain()
@@ -158,8 +158,8 @@ IOutputParser *IOutputParser::takeOutputParserChain()
     IOutputParser *parser = m_parser;
     disconnect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
                this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
-    disconnect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
-               this, SLOT(taskAdded(ProjectExplorer::Task)));
+    disconnect(parser, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
+               this, SLOT(taskAdded(ProjectExplorer::Task, int, int)));
     m_parser = 0;
     return parser;
 }
@@ -193,9 +193,9 @@ void IOutputParser::outputAdded(const QString &string, BuildStep::OutputFormat f
     emit addOutput(string, format);
 }
 
-void IOutputParser::taskAdded(const Task &task)
+void IOutputParser::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
 {
-    emit addTask(task);
+    emit addTask(task, linkedOutputLines, skipLines);
 }
 
 void IOutputParser::doFlush()

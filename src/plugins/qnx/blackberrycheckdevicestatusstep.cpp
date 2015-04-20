@@ -238,16 +238,18 @@ ProjectExplorer::BuildStepConfigWidget *BlackBerryCheckDeviceStatusStep::createC
 
 void BlackBerryCheckDeviceStatusStep::raiseError(const QString &errorMessage)
 {
+    ProjectExplorer::Task task = ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task, 1);
     emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
-    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void BlackBerryCheckDeviceStatusStep::raiseWarning(const QString &warningMessage)
 {
+    ProjectExplorer::Task task = ProjectExplorer::Task(ProjectExplorer::Task::Warning, warningMessage, Utils::FileName(), -1,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    emit addTask(task, 1);
     emit addOutput(warningMessage, BuildStep::ErrorOutput);
-    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning, warningMessage, Utils::FileName(), -1,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 

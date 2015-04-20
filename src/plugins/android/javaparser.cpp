@@ -95,7 +95,7 @@ void JavaParser::parse(const QString &line)
                   file /* filename */,
                   lineno,
                   Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
 

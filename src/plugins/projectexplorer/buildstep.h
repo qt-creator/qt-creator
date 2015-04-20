@@ -84,8 +84,13 @@ public:
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
 signals:
-    void addTask(const ProjectExplorer::Task &task);
+    /// Adds a \p task to the Issues pane.
+    /// Do note that for linking compile output with tasks, you should first emit the task
+    /// and then emit the output. \p linkedOutput lines will be linked. And the last \p skipLines will
+    /// be skipped.
+    void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
+    /// Adds \p string to the compile output view, formatted in \p format
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
         ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const;
 

@@ -31,6 +31,7 @@
 #include "customparser.h"
 #include "task.h"
 #include "projectexplorerconstants.h"
+#include "buildmanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -143,7 +144,8 @@ bool CustomParser::parseLine(const QString &rawLine)
     const int lineNumber = m_errorRegExp.cap(m_lineNumberCap).toInt();
     const QString message = m_errorRegExp.cap(m_messageCap);
 
-    emit addTask(Task(Task::Error, message, fileName, lineNumber, Constants::TASK_CATEGORY_COMPILE));
+    Task task = Task(Task::Error, message, fileName, lineNumber, Constants::TASK_CATEGORY_COMPILE);
+    emit addTask(task, 1);
     return true;
 }
 

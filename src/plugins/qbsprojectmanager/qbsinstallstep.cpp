@@ -222,9 +222,10 @@ void QbsInstallStep::handleProgress(int value)
 void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                                          const QString &message, const QString &file, int line)
 {
-    emit addTask(ProjectExplorer::Task(type, message,
-                                       Utils::FileName::fromString(file), line,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
+    ProjectExplorer::Task task = ProjectExplorer::Task(type, message,
+                                                       Utils::FileName::fromString(file), line,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+    emit addTask(task, 1);
     emit addOutput(message, NormalOutput);
 }
 

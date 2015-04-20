@@ -66,7 +66,7 @@ void QtParser::stdError(const QString &line)
                   Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
     if (m_translationRegExp.indexIn(lne) > -1) {
@@ -77,7 +77,7 @@ void QtParser::stdError(const QString &line)
                   Utils::FileName::fromUserInput(m_translationRegExp.cap(3)) /* filename */,
                   -1,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
     IOutputParser::stdError(line);

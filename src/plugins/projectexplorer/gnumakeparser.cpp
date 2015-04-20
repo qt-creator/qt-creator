@@ -128,7 +128,7 @@ void GnuMakeParser::stdError(const QString &line)
             taskAdded(Task(res.type, res.description,
                            Utils::FileName::fromUserInput(match.captured(1)) /* filename */,
                            match.captured(4).toInt(), /* line */
-                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)), 1, 0);
         }
         return;
     }
@@ -138,9 +138,10 @@ void GnuMakeParser::stdError(const QString &line)
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {
-            taskAdded(Task(res.type, res.description,
-                           Utils::FileName() /* filename */, -1, /* line */
-                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+            Task task = Task(res.type, res.description,
+                             Utils::FileName() /* filename */, -1, /* line */
+                             Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+            taskAdded(task, 1, 0);
         }
         return;
     }
@@ -160,7 +161,7 @@ void GnuMakeParser::removeDirectory(const QString &dir)
     m_directories.removeOne(dir);
 }
 
-void GnuMakeParser::taskAdded(const Task &task)
+void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLines)
 {
     Task editable(task);
 
@@ -187,7 +188,7 @@ void GnuMakeParser::taskAdded(const Task &task)
         // identify the file!
     }
 
-    IOutputParser::taskAdded(editable);
+    IOutputParser::taskAdded(editable, linkedLines, skippedLines);
 }
 
 #if defined WITH_TESTS

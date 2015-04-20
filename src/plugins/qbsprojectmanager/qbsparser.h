@@ -50,7 +50,7 @@ public:
     void setWorkingDirectory(const QString &workingDirectory);
 
 public slots:
-    void taskAdded(const ProjectExplorer::Task &task);
+    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines);
 
 private:
     QDir m_workingDirectory;

@@ -86,7 +86,7 @@ signals:
     void tasksCleared();
 
 private slots:
-    static void addToTaskWindow(const ProjectExplorer::Task &task);
+    static void addToTaskWindow(const ProjectExplorer::Task &task, int linkedOutputLines, int skipLines);
     static void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat,
         ProjectExplorer::BuildStep::OutputNewlineSetting = BuildStep::DoAppendNewline);
 

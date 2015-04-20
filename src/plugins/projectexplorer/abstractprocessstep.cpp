@@ -391,7 +391,7 @@ void AbstractProcessStep::checkForCancel()
     }
 }
 
-void AbstractProcessStep::taskAdded(const Task &task)
+void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
 {
     // Do not bother to report issues if we do not care about the results of
     // the buildstep anyway:
@@ -443,7 +443,7 @@ void AbstractProcessStep::taskAdded(const Task &task)
                 qWarning() << "Could not find absolute location of file " << filePath;
         }
     }
-    emit addTask(editable);
+    emit addTask(editable, linkedOutputLines, skipLines);
 }
 
 void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFormat format)
