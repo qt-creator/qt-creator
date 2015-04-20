@@ -45,6 +45,7 @@
 #include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QSettings>
+#include <QStyle>
 #include <QTextStream>
 #include <QThreadPool>
 #include <QTimer>
@@ -291,6 +292,8 @@ static inline QSettings *userSettings()
 
 int main(int argc, char **argv)
 {
+    if (!qEnvironmentVariableIsSet("QT_DEVICE_PIXEL_RATIO"))
+        qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
 #ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.
@@ -303,6 +306,11 @@ int main(int argc, char **argv)
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
 
+    if (!qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
+            && QApplication::style()->objectName().startsWith(
+                QLatin1String("windows"), Qt::CaseInsensitive)) {
+        QApplication::setStyle(QLatin1String("fusion"));
+    }
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
