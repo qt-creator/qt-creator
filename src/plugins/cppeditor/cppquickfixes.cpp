@@ -4059,19 +4059,20 @@ private:
 
     void removeNewExpression(ChangeSet &changes, NewExpressionAST *newExprAST) const
     {
-        if (newExprAST->new_initializer) {
+        ExpressionListParenAST *exprlist = newExprAST->new_initializer
+                ? newExprAST->new_initializer->asExpressionListParen()
+                : 0;
+
+        if (exprlist && exprlist->expression_list) {
             // remove 'new' keyword and type before initializer
             changes.remove(m_file->startOf(newExprAST->new_token),
                            m_file->startOf(newExprAST->new_initializer));
 
             // remove parenthesis around initializer
-            if (ExpressionListParenAST *exprlist
-                    = newExprAST->new_initializer->asExpressionListParen()) {
-                int pos = m_file->startOf(exprlist->lparen_token);
-                changes.remove(pos, pos + 1);
-                pos = m_file->startOf(exprlist->rparen_token);
-                changes.remove(pos, pos + 1);
-            }
+            int pos = m_file->startOf(exprlist->lparen_token);
+            changes.remove(pos, pos + 1);
+            pos = m_file->startOf(exprlist->rparen_token);
+            changes.remove(pos, pos + 1);
         } else {
             // remove the whole new expression
             changes.remove(m_file->endOf(m_identifierAST->firstToken()),

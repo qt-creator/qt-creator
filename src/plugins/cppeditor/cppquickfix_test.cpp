@@ -1559,6 +1559,19 @@ void CppEditorPlugin::test_quickfix_data()
              "        str.clear();\n"
              "}\n");
 
+    QTest::newRow("ConvertFromPointer_withEmptyInitializer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString *@str = new QString();\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString str;\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "}\n");
+
     QTest::newRow("ConvertFromPointer_structWithPointer")
         << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
         << _("struct Bar{ QString *str; };\n"
