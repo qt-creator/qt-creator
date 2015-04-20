@@ -265,6 +265,7 @@ void TargetSetupPage::setupWidgets()
     else
         kitList = KitManager::kits();
 
+    kitList = KitManager::sortKits(kitList);
 
     foreach (Kit *k, kitList)
         addWidget(k);

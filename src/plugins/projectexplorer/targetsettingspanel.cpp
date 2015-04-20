@@ -611,7 +611,7 @@ void TargetSettingsPanelWidget::updateTargetButtons()
             this, SLOT(duplicateActionTriggered(QAction*)));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTarget()));
 
-    foreach (Kit *k, KitManager::sortedKits()) {
+    foreach (Kit *k, KitManager::sortKits(KitManager::kits())) {
         if (m_project->target(k))
             continue;
         createAction(k, m_addMenu);

@@ -134,7 +134,6 @@ public:
     ~KitManager();
 
     static QList<Kit *> kits();
-    static QList<Kit *> sortedKits(); // Use kits() whenever possible as that is cheaper!
     static QList<Kit *> matchingKits(const KitMatcher &matcher);
     static Kit *find(Core::Id id);
     static Kit *find(const KitMatcher &matcher);
@@ -156,6 +155,8 @@ public:
     static QSet<QString> availablePlatforms();
     static QString displayNameForPlatform(const QString &platform);
     static Core::FeatureSet availableFeatures(const QString &platform);
+
+    static QList<Kit *> sortKits(const QList<Kit *> kits); // Avoid sorting whenever possible!
 
 public slots:
     void saveKits();

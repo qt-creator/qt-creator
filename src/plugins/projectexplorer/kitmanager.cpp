@@ -331,6 +331,23 @@ FeatureSet KitManager::availableFeatures(const QString &platform)
     return features;
 }
 
+QList<Kit *> KitManager::sortKits(const QList<Kit *> kits)
+{
+    // This method was added to delay the sorting of kits as long as possible.
+    // Since the displayName can contain variables it can be costly (e.g. involve
+    // calling executables to find version information, etc.) to call that
+    // method!
+    // Avoid lots of potentially expensive calls to Kit::displayName():
+    QList<QPair<QString, Kit *> > sortList
+            = Utils::transform(kits, [](Kit *k) { return qMakePair(k->displayName(), k); });
+    Utils::sort(sortList, [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) -> bool {
+        if (a.first == b.first)
+            return a.second < b.second;
+        return a. first < b.first;
+    });
+    return Utils::transform(sortList, [](const QPair<QString, Kit *> &a) { return a.second; });
+}
+
 KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 {
     KitList result;
@@ -383,21 +400,6 @@ KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 QList<Kit *> KitManager::kits()
 {
     return d->m_kitList;
-}
-
-QList<Kit *> KitManager::sortedKits()
-{
-    // This method was added to delay the sorting of kits as long as possible.
-    // Since the displayName can contain variables it can be costly (e.g. involve
-    // calling executables to find version information, etc.) to call that
-    // method!
-    // Avoid lots of potentially expensive calls to Kit::displayName():
-    QList<QPair<QString, Kit *> > sortList
-            = Utils::transform(d->m_kitList, [](Kit *k) { return qMakePair(k->displayName(), k); });
-    Utils::sort(sortList, [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) {
-        return a.first < b.first;
-    });
-    return Utils::transform(sortList, [](const QPair<QString, Kit *> &a) { return a.second; });
 }
 
 QList<Kit *> KitManager::matchingKits(const KitMatcher &matcher)
