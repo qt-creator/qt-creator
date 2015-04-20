@@ -220,14 +220,23 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
     foreach (int row, rows) {
         const QString fileName = m_model->file(row);
         const FileStates state = static_cast<FileStates>(m_model->extraData(row).toInt());
-        if (state & UnmergedFile)
+        if (state & UnmergedFile) {
             unmergedFiles.push_back(fileName);
-        else if (state & StagedFile)
+        } else if (state & StagedFile) {
+            if (state & (RenamedFile | CopiedFile)) {
+                const int arrow = fileName.indexOf(QLatin1String(" -> "));
+                if (arrow != -1) {
+                    stagedFiles.push_back(fileName.left(arrow));
+                    stagedFiles.push_back(fileName.mid(arrow + 4));
+                    continue;
+                }
+            }
             stagedFiles.push_back(fileName);
-        else if (state == UntrackedFile)
+        } else if (state == UntrackedFile) {
             Core::EditorManager::openEditor(m_workingDirectory + QLatin1Char('/') + fileName);
-        else
+        } else {
             unstagedFiles.push_back(fileName);
+        }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
         emit diff(unstagedFiles, stagedFiles);
