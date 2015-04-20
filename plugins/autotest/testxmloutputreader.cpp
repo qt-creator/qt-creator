@@ -20,6 +20,8 @@
 #include "testxmloutputreader.h"
 #include "testresult.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QRegExp>
 #include <QProcess>
 #include <QFileInfo>
@@ -45,6 +47,17 @@ static QString decode(const QString& original)
     }
 
     return result;
+}
+
+static QString constructSourceFilePath(const QString &path, const QString &filePath,
+                                       const QString &app)
+{
+    if (Utils::HostOsInfo::isMacHost() && !app.isEmpty()) {
+        const QString fileName(QFileInfo(app).fileName());
+        return QFileInfo(path.left(path.lastIndexOf(fileName + QLatin1String(".app"))), filePath)
+                   .canonicalFilePath();
+    }
+    return QFileInfo(path, filePath).canonicalFilePath();
 }
 
 static bool xmlStartsWith(const QString &code, const QString &start, QString &result)
@@ -229,7 +242,8 @@ void TestXmlOutputReader::processOutput()
             if (line.endsWith(QLatin1String("/>"))) {
                 TestResult testResult(className, testCase, dataTag, result, description);
                 if (!file.isEmpty())
-                    file = QFileInfo(m_testApplication->workingDirectory(), file).canonicalFilePath();
+                    file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
+                                                   m_testApplication->program());
                 testResult.setFileName(file);
                 testResult.setLine(lineNumber);
                 testResultCreated(testResult);
@@ -244,7 +258,8 @@ void TestXmlOutputReader::processOutput()
         if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
             TestResult testResult(className, testCase, dataTag, result, description);
             if (!file.isEmpty())
-                file = QFileInfo(m_testApplication->workingDirectory(), file).canonicalFilePath();
+                file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
+                                               m_testApplication->program());
             testResult.setFileName(file);
             testResult.setLine(lineNumber);
             testResultCreated(testResult);
