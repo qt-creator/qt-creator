@@ -236,24 +236,80 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
 void BaseQtVersion::setupExpander()
 {
     m_expander.setDisplayName(
-        QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
+        QtKitInformation::tr("Qt version"));
 
     m_expander.registerVariable("Qt:Version",
-        QCoreApplication::translate("QtSupport::QtKitInformation", "The version string of the current Qt version."),
-        [this]() { return qtVersionString(); });
+        QtKitInformation::tr("The version string of the current Qt version."),
+        [this] { return qtVersionString(); });
 
     m_expander.registerVariable("Qt:Type",
-        QCoreApplication::translate("QtSupport::QtKitInformation", "The type of the current Qt version."),
-        [this]() { return type(); });
+        QtKitInformation::tr("The type of the current Qt version."),
+        [this] { return type(); });
 
     m_expander.registerVariable("Qt:Mkspec",
-        QCoreApplication::translate("QtSupport::QtKitInformation", "The mkspec of the current Qt version."),
-        [this]() { return mkspec().toUserOutput(); });
+        QtKitInformation::tr("The mkspec of the current Qt version."),
+        [this] { return mkspec().toUserOutput(); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_PREFIX",
+        QtKitInformation::tr("The installation prefix of the current Qt version."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_PREFIX"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_DATA",
+        QtKitInformation::tr("The installation location of the current Qt version's data."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_DATA"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_HEADERS",
+        QtKitInformation::tr("The installation location of the current Qt version's header files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_HEADERS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_LIBS",
+        QtKitInformation::tr("The installation location of the current Qt version's library files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_LIBS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_DOCS",
+        QtKitInformation::tr("The installation location of the current Qt version's documentation files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_DOCS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_BINS",
+        QtKitInformation::tr("The installation location of the current Qt version's executable files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_BINS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_PLUGINS",
+        QtKitInformation::tr("The installation location of the current Qt version's plugins."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_PLUGINS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_IMPORTS",
+        QtKitInformation::tr("The installation location of the current Qt version's imports."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_IMPORTS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_TRANSLATIONS",
+        QtKitInformation::tr("The installation location of the current Qt version's translation files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_TRANSLATIONS"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_CONFIGURATION",
+        QtKitInformation::tr("The installation location of the current Qt version's translation files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_CONFIGURATION"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_EXAMPLES",
+        QtKitInformation::tr("The installation location of the current Qt version's examples."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_EXAMPLES"); });
+
+    m_expander.registerVariable("Qt:QT_INSTALL_DEMOS",
+        QtKitInformation::tr("The installation location of the current Qt version's demos."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_DEMOS"); });
+
+    m_expander.registerVariable("Qt:QMAKE_MKSPECS",
+        QtKitInformation::tr("The current Qt version's default mkspecs."),
+        [this] { return qmakeProperty(m_versionInfo, "QMAKE_MKSPECS"); });
+
+    m_expander.registerVariable("Qt:QMAKE_VERSION",
+        QtKitInformation::tr("The current Qt's qmake version."),
+        [this] { return qmakeProperty(m_versionInfo, "QMAKE_VERSION"); });
 
 //    FIXME: Re-enable once we can detect expansion loops.
 //    m_expander.registerVariable("Qt:Name",
-//        QCoreApplication::translate("QtSupport::QtKitInformation", "The display name of the current Qt version."),
-//        [this]() { return displayName(); });
+//        QtKitInformation::tr("The display name of the current Qt version."),
+//        [this] { return displayName(); });
 }
 
 BaseQtVersion::~BaseQtVersion()
