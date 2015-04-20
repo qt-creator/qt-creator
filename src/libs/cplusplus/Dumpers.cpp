@@ -97,7 +97,7 @@ QString CPlusPlus::toString(const LookupItem &it, const QString &id)
     return result;
 }
 
-QString CPlusPlus::toString(const ClassOrNamespace *binding, QString id)
+QString CPlusPlus::toString(const LookupScope *binding, QString id)
 {
     if (!binding)
         return QString::fromLatin1("%0: (null)").arg(id);
@@ -128,7 +128,7 @@ void CPlusPlus::dump(const LookupItem &it)
     qDebug() << qPrintable(toString(it));
 }
 
-void CPlusPlus::dump(const ClassOrNamespace *binding)
+void CPlusPlus::dump(const LookupScope *binding)
 {
     qDebug() << qPrintable(toString(binding));
 }

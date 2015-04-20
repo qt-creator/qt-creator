@@ -327,10 +327,10 @@ bool CppClass::operator==(const CppClass &other)
 
 void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
 {
-    typedef QPair<ClassOrNamespace *, CppClass *> Data;
+    typedef QPair<LookupScope *, CppClass *> Data;
 
-    if (ClassOrNamespace *clazz = context.lookupType(declaration)) {
-        QSet<ClassOrNamespace *> visited;
+    if (LookupScope *clazz = context.lookupType(declaration)) {
+        QSet<LookupScope *> visited;
 
         QQueue<Data> q;
         q.enqueue(qMakePair(clazz, this));
@@ -338,8 +338,8 @@ void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
             Data current = q.dequeue();
             clazz = current.first;
             visited.insert(clazz);
-            const QList<ClassOrNamespace *> &bases = clazz->usings();
-            foreach (ClassOrNamespace *baseClass, bases) {
+            const QList<LookupScope *> &bases = clazz->usings();
+            foreach (LookupScope *baseClass, bases) {
                 const QList<Symbol *> &symbols = baseClass->symbols();
                 foreach (Symbol *symbol, symbols) {
                     if (symbol->isClass() && (
@@ -429,7 +429,7 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
     }
 
     if (typeName) {
-        if (ClassOrNamespace *clazz = context.lookupType(typeName, scope)) {
+        if (LookupScope *clazz = context.lookupType(typeName, scope)) {
             if (!clazz->symbols().isEmpty()) {
                 Overview overview;
                 Symbol *symbol = clazz->symbols().at(0);

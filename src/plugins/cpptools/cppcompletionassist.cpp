@@ -746,8 +746,8 @@ bool canCompleteClassNameAt2ndOr4thConnectArgument(
         || eater.eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma();
 }
 
-ClassOrNamespace *classOrNamespaceFromLookupItem(const LookupItem &lookupItem,
-                                                 const LookupContext &context)
+LookupScope *lookupScopeFromLookupItem(const LookupItem &lookupItem,
+                                       const LookupContext &context)
 {
     const Name *name = 0;
 
@@ -776,7 +776,7 @@ ClassOrNamespace *classOrNamespaceFromLookupItem(const LookupItem &lookupItem,
 
 Class *classFromLookupItem(const LookupItem &lookupItem, const LookupContext &context)
 {
-    ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
+    LookupScope *b = lookupScopeFromLookupItem(lookupItem, context);
     if (!b)
         return 0;
 
@@ -789,7 +789,7 @@ Class *classFromLookupItem(const LookupItem &lookupItem, const LookupContext &co
 
 const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext &context)
 {
-    ClassOrNamespace *target = context.lookupType(targetScope);
+    LookupScope *target = context.lookupType(targetScope);
     if (!target)
         target = context.globalNamespace();
     return context.minimalName(symbol, target, context.bindings()->control().data());
@@ -1211,12 +1211,12 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
             ty = ty->asPointerType()->elementType().simplified();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                ClassOrNamespace *binding = lookupContext.lookupType(namedTy->name(), item.scope());
+                LookupScope *binding = lookupContext.lookupType(namedTy->name(), item.scope());
                 completeObjCMsgSend(binding, false);
             }
         } else {
             if (ObjCClass *clazz = ty->asObjCClassType()) {
-                ClassOrNamespace *binding = lookupContext.lookupType(clazz->name(), item.scope());
+                LookupScope *binding = lookupContext.lookupType(clazz->name(), item.scope());
                 completeObjCMsgSend(binding, true);
             }
         }
@@ -1265,7 +1265,7 @@ void InternalCppCompletionAssistProcessor::addCompletionItem(Symbol *symbol, int
     }
 }
 
-void InternalCppCompletionAssistProcessor::completeObjCMsgSend(ClassOrNamespace *binding,
+void InternalCppCompletionAssistProcessor::completeObjCMsgSend(LookupScope *binding,
                                                                bool staticClassAccess)
 {
     QList<Scope*> memberScopes;
@@ -1534,26 +1534,26 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         return !m_completions.isEmpty();
     }
 
-    QList<ClassOrNamespace *> usingBindings;
-    ClassOrNamespace *currentBinding = 0;
+    QList<LookupScope *> usingBindings;
+    LookupScope *currentBinding = 0;
 
     for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
         if (Block *block = scope->asBlock()) {
-            if (ClassOrNamespace *binding = context.lookupType(scope)) {
+            if (LookupScope *binding = context.lookupType(scope)) {
                 for (unsigned i = 0; i < scope->memberCount(); ++i) {
                     Symbol *member = scope->memberAt(i);
                     if (member->isEnum()) {
-                        if (ClassOrNamespace *b = binding->findBlock(block))
+                        if (LookupScope *b = binding->findBlock(block))
                             completeNamespace(b);
                     }
                     if (!member->name())
                         continue;
                     if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
-                        if (ClassOrNamespace *b = binding->lookupType(u->name()))
+                        if (LookupScope *b = binding->lookupType(u->name()))
                             usingBindings.append(b);
                     } else if (Class *c = member->asClass()) {
                         if (c->name()->isAnonymousNameId()) {
-                            if (ClassOrNamespace *b = binding->findBlock(block))
+                            if (LookupScope *b = binding->findBlock(block))
                                 completeClass(b);
                         }
                     }
@@ -1580,7 +1580,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
     }
 
     for (; currentBinding; currentBinding = currentBinding->parent()) {
-        foreach (ClassOrNamespace* u, currentBinding->usings())
+        foreach (LookupScope* u, currentBinding->usings())
             usingBindings.append(u);
 
         const QList<Symbol *> symbols = currentBinding->symbols();
@@ -1593,7 +1593,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         }
     }
 
-    foreach (ClassOrNamespace *b, usingBindings)
+    foreach (LookupScope *b, usingBindings)
         completeNamespace(b);
 
     addKeywords();
@@ -1616,7 +1616,7 @@ bool InternalCppCompletionAssistProcessor::completeMember(const QList<LookupItem
     if (!m_interface->languageFeatures().objCEnabled)
         replaceDotForArrow = &m_model->m_replaceDotForArrow;
 
-    if (ClassOrNamespace *binding =
+    if (LookupScope *binding =
             resolveExpression.baseExpression(baseResults,
                                              m_model->m_completionOperator,
                                              replaceDotForArrow)) {
@@ -1640,27 +1640,27 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
         Scope *scope = result.scope();
 
         if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = context.lookupType(namedTy->name(), scope)) {
+            if (LookupScope *b = context.lookupType(namedTy->name(), scope)) {
                 completeClass(b);
                 break;
             }
 
         } else if (Class *classTy = ty->asClassType()) {
-            if (ClassOrNamespace *b = context.lookupType(classTy)) {
+            if (LookupScope *b = context.lookupType(classTy)) {
                 completeClass(b);
                 break;
             }
 
             // it can be class defined inside a block
             if (classTy->enclosingScope()->isBlock()) {
-                if (ClassOrNamespace *b = context.lookupType(classTy->name(), classTy->enclosingScope())) {
+                if (LookupScope *b = context.lookupType(classTy->name(), classTy->enclosingScope())) {
                     completeClass(b);
                     break;
                 }
             }
 
         } else if (Namespace *nsTy = ty->asNamespaceType()) {
-            if (ClassOrNamespace *b = context.lookupType(nsTy)) {
+            if (LookupScope *b = context.lookupType(nsTy)) {
                 completeNamespace(b);
                 break;
             }
@@ -1668,7 +1668,7 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
         } else if (Template *templ = ty->asTemplateType()) {
             if (!result.binding())
                 continue;
-            if (ClassOrNamespace *b = result.binding()->lookupType(templ->name())) {
+            if (LookupScope *b = result.binding()->lookupType(templ->name())) {
                 completeClass(b);
                 break;
             }
@@ -1676,16 +1676,16 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
         } else if (Enum *e = ty->asEnumType()) {
             // it can be class defined inside a block
             if (e->enclosingScope()->isBlock()) {
-                if (ClassOrNamespace *b = context.lookupType(e)) {
+                if (LookupScope *b = context.lookupType(e)) {
                     Block *block = e->enclosingScope()->asBlock();
-                    if (ClassOrNamespace *bb = b->findBlock(block)) {
+                    if (LookupScope *bb = b->findBlock(block)) {
                         completeNamespace(bb);
                         break;
                     }
                 }
             }
 
-            if (ClassOrNamespace *b = context.lookupType(e)) {
+            if (LookupScope *b = context.lookupType(e)) {
                 completeNamespace(b);
                 break;
             }
@@ -1696,14 +1696,14 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
     return !m_completions.isEmpty();
 }
 
-void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b)
+void InternalCppCompletionAssistProcessor::completeNamespace(LookupScope *b)
 {
-    QSet<ClassOrNamespace *> bindingsVisited;
-    QList<ClassOrNamespace *> bindingsToVisit;
+    QSet<LookupScope *> bindingsVisited;
+    QList<LookupScope *> bindingsToVisit;
     bindingsToVisit.append(b);
 
     while (!bindingsToVisit.isEmpty()) {
-        ClassOrNamespace *binding = bindingsToVisit.takeFirst();
+        LookupScope *binding = bindingsToVisit.takeFirst();
         if (!binding || bindingsVisited.contains(binding))
             continue;
 
@@ -1736,14 +1736,14 @@ void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b
     }
 }
 
-void InternalCppCompletionAssistProcessor::completeClass(ClassOrNamespace *b, bool staticLookup)
+void InternalCppCompletionAssistProcessor::completeClass(LookupScope *b, bool staticLookup)
 {
-    QSet<ClassOrNamespace *> bindingsVisited;
-    QList<ClassOrNamespace *> bindingsToVisit;
+    QSet<LookupScope *> bindingsVisited;
+    QList<LookupScope *> bindingsToVisit;
     bindingsToVisit.append(b);
 
     while (!bindingsToVisit.isEmpty()) {
-        ClassOrNamespace *binding = bindingsToVisit.takeFirst();
+        LookupScope *binding = bindingsToVisit.takeFirst();
         if (!binding || bindingsVisited.contains(binding))
             continue;
 
@@ -1830,16 +1830,16 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
 
     QSet<QString> signatures;
     foreach (const LookupItem &lookupItem, results) {
-        ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
+        LookupScope *b = lookupScopeFromLookupItem(lookupItem, context);
         if (!b)
             continue;
 
-        QList<ClassOrNamespace *>todo;
-        QSet<ClassOrNamespace *> processed;
+        QList<LookupScope *>todo;
+        QSet<LookupScope *> processed;
         QList<Scope *> scopes;
         todo.append(b);
         while (!todo.isEmpty()) {
-            ClassOrNamespace *binding = todo.takeLast();
+            LookupScope *binding = todo.takeLast();
             if (!processed.contains(binding)) {
                 processed.insert(binding);
 
@@ -2048,7 +2048,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
             Scope *scope = result.scope();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                if (ClassOrNamespace *b = context.lookupType(namedTy->name(), scope)) {
+                if (LookupScope *b = context.lookupType(namedTy->name(), scope)) {
                     foreach (const LookupItem &r, b->lookup(functionCallOp)) {
                         Symbol *overload = r.declaration();
                         FullySpecifiedType overloadTy = overload->type().simplified();
@@ -2130,7 +2130,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
                 SubstitutionEnvironment env;
                 env.setContext(context);
                 env.switchScope(sc);
-                ClassOrNamespace *targetCoN = context.lookupType(sc);
+                LookupScope *targetCoN = context.lookupType(sc);
                 if (!targetCoN)
                     targetCoN = context.globalNamespace();
                 UseMinimalNames q(targetCoN);

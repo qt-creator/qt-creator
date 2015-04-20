@@ -607,7 +607,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         SubstitutionEnvironment env;
         env.setContext(sourceContext);
         env.switchScope(sourceFunction->enclosingScope());
-        ClassOrNamespace *targetCoN = targetContext.lookupType(targetFunction->enclosingScope());
+        LookupScope *targetCoN = targetContext.lookupType(targetFunction->enclosingScope());
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
@@ -653,7 +653,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         SubstitutionEnvironment env;
         env.setContext(sourceContext);
         env.switchScope(sourceFunction);
-        ClassOrNamespace *targetCoN = targetContext.lookupType(targetFunction);
+        LookupScope *targetCoN = targetContext.lookupType(targetFunction);
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);

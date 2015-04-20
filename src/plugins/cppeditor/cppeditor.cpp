@@ -389,7 +389,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     } else if (functionDefinitionSymbol) {
         const Snapshot snapshot = d->m_modelManager->snapshot();
         LookupContext context(d->m_lastSemanticInfo.doc, snapshot);
-        ClassOrNamespace *binding = context.lookupType(functionDefinitionSymbol);
+        LookupScope *binding = context.lookupType(functionDefinitionSymbol);
         const QList<LookupItem> declarations = context.lookup(functionDefinitionSymbol->name(),
             functionDefinitionSymbol->enclosingScope());
 

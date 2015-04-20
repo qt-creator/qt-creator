@@ -53,25 +53,25 @@ public:
     QList<LookupItem> resolve(ExpressionAST *ast, Scope *scope, bool ref = false);
     QList<LookupItem> reference(ExpressionAST *ast, Scope *scope);
 
-    ClassOrNamespace *baseExpression(const QList<LookupItem> &baseResults,
+    LookupScope *baseExpression(const QList<LookupItem> &baseResults,
                                      int accessOp,
                                      bool *replacedDotOperator = 0) const;
 
     const LookupContext &context() const;
 
 protected:
-    ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope,
-                                ClassOrNamespace *enclosingBinding = 0) const;
+    LookupScope *findClass(const FullySpecifiedType &ty, Scope *scope,
+                           LookupScope *enclosingBinding = 0) const;
 
     QList<LookupItem> expression(ExpressionAST *ast);
 
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
 
-    QList<LookupItem> getMembers(ClassOrNamespace *binding, const Name *memberName) const;
+    QList<LookupItem> getMembers(LookupScope *binding, const Name *memberName) const;
 
     void thisObject();
 
-    void addResult(const FullySpecifiedType &ty, Scope *scope, ClassOrNamespace *binding = 0);
+    void addResult(const FullySpecifiedType &ty, Scope *scope, LookupScope *binding = 0);
     void addResults(const QList<Symbol *> &symbols);
     void addResults(const QList<LookupItem> &items);
 
@@ -125,8 +125,8 @@ protected:
 
 
 private:
-    ClassOrNamespace *findClassForTemplateParameterInExpressionScope(
-            ClassOrNamespace *resultBinding,
+    LookupScope *findClassForTemplateParameterInExpressionScope(
+            LookupScope *resultBinding,
             const FullySpecifiedType &ty) const;
 
     Scope *_scope;

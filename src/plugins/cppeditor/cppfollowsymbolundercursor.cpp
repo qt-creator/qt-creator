@@ -187,7 +187,7 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
         const QList<LookupItem> items = typeOfExpression(memberAccessAST->base_expression,
                                                          m_expressionDocument, m_scope);
         ResolveExpression resolveExpression(typeOfExpression.context());
-        ClassOrNamespace *binding = resolveExpression.baseExpression(items, m_accessTokenKind);
+        LookupScope *binding = resolveExpression.baseExpression(items, m_accessTokenKind);
         if (binding) {
             if (Class *klass = binding->rootClass()) {
                 result = klass;

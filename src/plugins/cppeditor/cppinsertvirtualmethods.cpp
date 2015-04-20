@@ -480,15 +480,15 @@ public:
 
         // Determine base classes
         QList<const Class *> baseClasses;
-        QQueue<ClassOrNamespace *> baseClassQueue;
-        QSet<ClassOrNamespace *> visitedBaseClasses;
-        if (ClassOrNamespace *clazz = interface.context().lookupType(m_classAST->symbol))
+        QQueue<LookupScope *> baseClassQueue;
+        QSet<LookupScope *> visitedBaseClasses;
+        if (LookupScope *clazz = interface.context().lookupType(m_classAST->symbol))
             baseClassQueue.enqueue(clazz);
         while (!baseClassQueue.isEmpty()) {
-            ClassOrNamespace *clazz = baseClassQueue.dequeue();
+            LookupScope *clazz = baseClassQueue.dequeue();
             visitedBaseClasses.insert(clazz);
-            const QList<ClassOrNamespace *> bases = clazz->usings();
-            foreach (ClassOrNamespace *baseClass, bases) {
+            const QList<LookupScope *> bases = clazz->usings();
+            foreach (LookupScope *baseClass, bases) {
                 foreach (Symbol *symbol, baseClass->symbols()) {
                     Class *base = symbol->asClass();
                     if (base
@@ -690,7 +690,7 @@ public:
         const LookupContext targetContext(headerFile->cppDocument(), snapshot());
 
         const Class *targetClass = m_classAST->symbol;
-        ClassOrNamespace *targetCoN = targetContext.lookupType(targetClass->enclosingScope());
+        LookupScope *targetCoN = targetContext.lookupType(targetClass->enclosingScope());
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames useMinimalNames(targetCoN);
@@ -778,7 +778,7 @@ public:
             implementationDoc->translationUnit()->getPosition(insertPos, &line, &column);
             Scope *targetScope = implementationDoc->scopeAt(line, column);
             const LookupContext targetContext(implementationDoc, snapshot());
-            ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
+            LookupScope *targetCoN = targetContext.lookupType(targetScope);
             if (!targetCoN)
                 targetCoN = targetContext.globalNamespace();
 

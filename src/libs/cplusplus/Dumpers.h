@@ -45,13 +45,13 @@ QString CPLUSPLUS_EXPORT toString(const Name *name, QString id = QLatin1String("
 QString CPLUSPLUS_EXPORT toString(FullySpecifiedType ty, QString id = QLatin1String("Type"));
 QString CPLUSPLUS_EXPORT toString(const Symbol *s, QString id = QLatin1String("Symbol"));
 QString CPLUSPLUS_EXPORT toString(const LookupItem &it, const QString &id = QLatin1String("LookupItem"));
-QString CPLUSPLUS_EXPORT toString(const ClassOrNamespace *binding, QString id = QLatin1String("ClassOrNamespace"));
+QString CPLUSPLUS_EXPORT toString(const LookupScope *binding, QString id = QLatin1String("LookupScope"));
 
 void CPLUSPLUS_EXPORT dump(const Name *name);
 void CPLUSPLUS_EXPORT dump(const FullySpecifiedType &ty);
 void CPLUSPLUS_EXPORT dump(const Symbol *s);
 void CPLUSPLUS_EXPORT dump(const LookupItem &it);
-void CPLUSPLUS_EXPORT dump(const ClassOrNamespace *binding);
+void CPLUSPLUS_EXPORT dump(const LookupScope *binding);
 
 } // namespace CPlusPlus
 

@@ -77,10 +77,10 @@ Scope *LookupItem::scope() const
 void LookupItem::setScope(Scope *scope)
 { _scope = scope; }
 
-ClassOrNamespace *LookupItem::binding() const
+LookupScope *LookupItem::binding() const
 { return _binding; }
 
-void LookupItem::setBinding(ClassOrNamespace *binding)
+void LookupItem::setBinding(LookupScope *binding)
 { _binding = binding; }
 
 bool LookupItem::operator == (const LookupItem &other) const

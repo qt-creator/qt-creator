@@ -532,7 +532,7 @@ void FindUsages::memInitializer(MemInitializerAST *ast)
     if (_currentScope->isFunction()) {
         Class *classScope = _currentScope->enclosingClass();
         if (! classScope) {
-            if (ClassOrNamespace *binding = _context.lookupType(_currentScope)) {
+            if (LookupScope *binding = _context.lookupType(_currentScope)) {
                 foreach (Symbol *s, binding->symbols()) {
                     if (Class *k = s->asClass()) {
                         classScope = k;

@@ -39,13 +39,13 @@ class TypeResolver
 {
 public:
     TypeResolver(const LookupContext &context) : _context(context) {}
-    void resolve(FullySpecifiedType *type, Scope **scope, ClassOrNamespace *binding);
+    void resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding);
 
 private:
     NamedType *getNamedType(FullySpecifiedType& type) const;
 
     QList<LookupItem> getNamedTypeItems(const Name *name, Scope *scope,
-                                        ClassOrNamespace *binding) const;
+                                        LookupScope *binding) const;
 
     static QList<LookupItem> typedefsFromScopeUpToFunctionScope(const Name *name, Scope *scope);
 
@@ -56,7 +56,7 @@ private:
 
     const LookupContext &_context;
     // binding has to be remembered in case of resolving typedefs for templates
-    ClassOrNamespace *_binding;
+    LookupScope *_binding;
 };
 
 } // namespace CPlusPlus

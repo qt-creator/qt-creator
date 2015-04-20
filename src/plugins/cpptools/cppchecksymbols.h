@@ -105,7 +105,7 @@ protected:
                  const QList<Result> &otherUses);
 
     bool hasVirtualDestructor(CPlusPlus::Class *klass) const;
-    bool hasVirtualDestructor(CPlusPlus::ClassOrNamespace *binding) const;
+    bool hasVirtualDestructor(CPlusPlus::LookupScope *binding) const;
 
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(CPlusPlus::AST *ast, const QString &text);
@@ -119,13 +119,13 @@ protected:
 
     void checkNamespace(CPlusPlus::NameAST *name);
     void checkName(CPlusPlus::NameAST *ast, CPlusPlus::Scope *scope = 0);
-    CPlusPlus::ClassOrNamespace *checkNestedName(CPlusPlus::QualifiedNameAST *ast);
+    CPlusPlus::LookupScope *checkNestedName(CPlusPlus::QualifiedNameAST *ast);
 
     void addUse(const Result &use);
     void addUse(unsigned tokenIndex, Kind kind);
     void addUse(CPlusPlus::NameAST *name, Kind kind);
 
-    void addType(CPlusPlus::ClassOrNamespace *b, CPlusPlus::NameAST *ast);
+    void addType(CPlusPlus::LookupScope *b, CPlusPlus::NameAST *ast);
 
     bool maybeAddTypeOrStatic(const QList<CPlusPlus::LookupItem> &candidates,
                               CPlusPlus::NameAST *ast);

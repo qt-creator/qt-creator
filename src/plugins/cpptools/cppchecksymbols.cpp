@@ -673,7 +673,7 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
     if (highlightCtorDtorAsType) {
         accept(ast->new_type_id);
     } else {
-        ClassOrNamespace *binding = 0;
+        LookupScope *binding = 0;
         NameAST *nameAST = 0;
         if (ast->new_type_id) {
             for (SpecifierListAST *it = ast->new_type_id->type_specifier_list; it; it = it->next) {
@@ -739,7 +739,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
     unsigned line, column;
     getTokenStartPosition(name->firstToken(), &line, &column);
 
-    if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope())) {
+    if (LookupScope *b = _context.lookupType(name->name, enclosingScope())) {
         foreach (Symbol *s, b->symbols()) {
             if (s->isNamespace())
                 return;
@@ -772,14 +772,14 @@ bool CheckSymbols::hasVirtualDestructor(Class *klass) const
     return false;
 }
 
-bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
+bool CheckSymbols::hasVirtualDestructor(LookupScope *binding) const
 {
-    QSet<ClassOrNamespace *> processed;
-    QList<ClassOrNamespace *> todo;
+    QSet<LookupScope *> processed;
+    QList<LookupScope *> todo;
     todo.append(binding);
 
     while (!todo.isEmpty()) {
-        ClassOrNamespace *b = todo.takeFirst();
+        LookupScope *b = todo.takeFirst();
         if (b && !processed.contains(b)) {
             processed.insert(b);
             foreach (Symbol *s, b->symbols()) {
@@ -861,7 +861,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
 
-        ClassOrNamespace *binding = checkNestedName(ast);
+        LookupScope *binding = checkNestedName(ast);
 
         if (binding && ast->unqualified_name) {
             if (ast->unqualified_name->asDestructorName() != 0) {
@@ -890,9 +890,9 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
     return false;
 }
 
-ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
+LookupScope *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
 {
-    ClassOrNamespace *binding = 0;
+    LookupScope *binding = 0;
 
     if (ast->name) {
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
@@ -958,7 +958,7 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
 {
     if (FunctionDefinitionAST *enclosingFunction = enclosingFunctionDefinition()) {
         if (ast->name && enclosingFunction->symbol) {
-            if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
+            if (LookupScope *binding = _context.lookupType(enclosingFunction->symbol)) {
                 foreach (Symbol *s, binding->symbols()) {
                     if (Class *klass = s->asClass()) {
                         NameAST *nameAST = ast->name;
@@ -1161,7 +1161,7 @@ void CheckSymbols::addUse(const Result &use)
     _usages.append(use);
 }
 
-void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
+void CheckSymbols::addType(LookupScope *b, NameAST *ast)
 {
     unsigned startToken;
     if (!b || !acceptName(ast, &startToken))

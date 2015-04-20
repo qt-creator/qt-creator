@@ -37,7 +37,7 @@
 
 namespace CPlusPlus {
 
-class ClassOrNamespace;
+class LookupScope;
 
 class CPLUSPLUS_EXPORT LookupItem
 {
@@ -63,8 +63,8 @@ public:
     /// Sets this item's scope.
     void setScope(Scope *scope);
 
-    ClassOrNamespace *binding() const;
-    void setBinding(ClassOrNamespace *binding);
+    LookupScope *binding() const;
+    void setBinding(LookupScope *binding);
 
     bool operator == (const LookupItem &other) const;
     bool operator != (const LookupItem &other) const;
@@ -73,7 +73,7 @@ private:
     FullySpecifiedType _type;
     Scope *_scope;
     Symbol *_declaration;
-    ClassOrNamespace *_binding;
+    LookupScope *_binding;
 };
 
 uint qHash(const CPlusPlus::LookupItem &result);

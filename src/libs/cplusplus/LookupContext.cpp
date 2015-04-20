@@ -50,7 +50,7 @@ static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
 
 namespace CPlusPlus {
 
-typedef QSet<Internal::ClassOrNamespacePrivate *> ProcessedSet;
+typedef QSet<Internal::LookupScopePrivate *> ProcessedSet;
 
 static void addNames(const Name *name, QList<const Name *> *names, bool addAllNames = false)
 {
@@ -214,7 +214,7 @@ static bool symbolIdentical(Symbol *s1, Symbol *s2)
     return QByteArray(s1->fileName()) == QByteArray(s2->fileName());
 }
 
-const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control)
+const Name *LookupContext::minimalName(Symbol *symbol, LookupScope *target, Control *control)
 {
     const Name *n = 0;
     QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
@@ -239,7 +239,7 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
 }
 
 QList<LookupItem> LookupContext::lookupByUsing(const Name *name,
-                                               ClassOrNamespace *bindingScope) const
+                                               LookupScope *bindingScope) const
 {
     QList<LookupItem> candidates;
     // if it is a nameId there can be a using declaration for it
@@ -273,7 +273,7 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name,
     } else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         foreach (Symbol *s, bindingScope->symbols()) {
             if (Scope *scope = s->asScope()) {
-                ClassOrNamespace *base = lookupType(q->base(), scope);
+                LookupScope *base = lookupType(q->base(), scope);
                 if (base)
                     candidates = lookupByUsing(q->name(), base);
                 if (!candidates.isEmpty())
@@ -297,14 +297,14 @@ Document::Ptr LookupContext::document(const QString &fileName) const
 Snapshot LookupContext::snapshot() const
 { return _snapshot; }
 
-ClassOrNamespace *LookupContext::globalNamespace() const
+LookupScope *LookupContext::globalNamespace() const
 {
     return bindings()->globalNamespace();
 }
 
-ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
-                                            ClassOrNamespace *enclosingBinding,
-                                            QSet<const Declaration *> typedefsBeingResolved) const
+LookupScope *LookupContext::lookupType(const Name *name, Scope *scope,
+                                       LookupScope *enclosingBinding,
+                                       QSet<const Declaration *> typedefsBeingResolved) const
 {
     if (! scope || ! name) {
         return 0;
@@ -312,8 +312,8 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
         for (unsigned i = 0; i < block->memberCount(); ++i) {
             Symbol *m = block->memberAt(i);
             if (UsingNamespaceDirective *u = m->asUsingNamespaceDirective()) {
-                if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
-                    if (ClassOrNamespace *r = uu->lookupType(name))
+                if (LookupScope *uu = lookupType(u->name(), scope->enclosingNamespace())) {
+                    if (LookupScope *r = uu->lookupType(name))
                         return r;
                 }
             } else if (Declaration *d = m->asDeclaration()) {
@@ -346,20 +346,20 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
         }
         // try to find it in block (rare case but has priority before enclosing scope)
         // e.g.: void foo() { struct S {};  S s; }
-        if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingBinding)) {
-            if (ClassOrNamespace *classOrNamespaceNestedInNestedBlock = b->lookupType(name, block))
-                return classOrNamespaceNestedInNestedBlock;
+        if (LookupScope *b = bindings()->lookupType(scope, enclosingBinding)) {
+            if (LookupScope *lookupScopeNestedInNestedBlock = b->lookupType(name, block))
+                return lookupScopeNestedInNestedBlock;
         }
 
         // try to find type in enclosing scope(typical case)
-        if (ClassOrNamespace *found = lookupType(name, scope->enclosingScope()))
+        if (LookupScope *found = lookupType(name, scope->enclosingScope()))
             return found;
 
-    } else if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingBinding)) {
+    } else if (LookupScope *b = bindings()->lookupType(scope, enclosingBinding)) {
         return b->lookupType(name);
     } else if (Class *scopeAsClass = scope->asClass()) {
         if (scopeAsClass->enclosingScope()->isBlock()) {
-            if (ClassOrNamespace *b = lookupType(scopeAsClass->name(),
+            if (LookupScope *b = lookupType(scopeAsClass->name(),
                                                  scopeAsClass->enclosingScope(),
                                                  enclosingBinding,
                                                  typedefsBeingResolved)) {
@@ -371,8 +371,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
     return 0;
 }
 
-ClassOrNamespace *LookupContext::lookupType(Symbol *symbol,
-                                            ClassOrNamespace *enclosingBinding) const
+LookupScope *LookupContext::lookupType(Symbol *symbol, LookupScope *enclosingBinding) const
 {
     return bindings()->lookupType(symbol, enclosingBinding);
 }
@@ -399,7 +398,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
                 if (UsingNamespaceDirective *u = scope->memberAt(i)->asUsingNamespaceDirective()) {
-                    if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
+                    if (LookupScope *uu = lookupType(u->name(), scope->enclosingNamespace())) {
                         candidates = uu->find(name);
 
                         if (! candidates.isEmpty())
@@ -408,8 +407,8 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 }
             }
 
-            if (ClassOrNamespace *bindingScope = bindings()->lookupType(scope)) {
-                if (ClassOrNamespace *bindingBlock = bindingScope->findBlock(scope->asBlock())) {
+            if (LookupScope *bindingScope = bindings()->lookupType(scope)) {
+                if (LookupScope *bindingBlock = bindingScope->findBlock(scope->asBlock())) {
                     candidates = lookupByUsing(name, bindingBlock);
                     if (! candidates.isEmpty())
                         return candidates;
@@ -434,7 +433,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             }
 
             if (fun->name() && fun->name()->isQualifiedNameId()) {
-                if (ClassOrNamespace *binding = bindings()->lookupType(fun)) {
+                if (LookupScope *binding = bindings()->lookupType(fun)) {
                     candidates = binding->find(name);
 
                     // try find this name in parent class
@@ -470,7 +469,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                    || scope->asClass()
                    || (scope->asEnum() && scope->asEnum()->isScoped())) {
 
-            if (ClassOrNamespace *bindingScope = bindings()->lookupType(scope)) {
+            if (LookupScope *bindingScope = bindings()->lookupType(scope)) {
                 candidates = bindingScope->find(name);
 
                 if (! candidates.isEmpty())
@@ -483,9 +482,9 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 
             // the scope can be defined inside a block, try to find it
             if (Block *block = scope->enclosingBlock()) {
-                if (ClassOrNamespace *b = bindings()->lookupType(block)) {
-                    if (ClassOrNamespace *classOrNamespaceNestedInNestedBlock = b->lookupType(scope->name(), block))
-                        candidates = classOrNamespaceNestedInNestedBlock->find(name);
+                if (LookupScope *b = bindings()->lookupType(block)) {
+                    if (LookupScope *lookupScopeNestedInNestedBlock = b->lookupType(scope->name(), block))
+                        candidates = lookupScopeNestedInNestedBlock->find(name);
                 }
             }
 
@@ -493,7 +492,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 return candidates;
 
         } else if (scope->isObjCClass() || scope->isObjCProtocol()) {
-            if (ClassOrNamespace *binding = bindings()->lookupType(scope))
+            if (LookupScope *binding = bindings()->lookupType(scope))
                 candidates = binding->find(name);
 
                 if (! candidates.isEmpty())
@@ -504,10 +503,10 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
     return candidates;
 }
 
-ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
+LookupScope *LookupContext::lookupParent(Symbol *symbol) const
 {
     QList<const Name *> fqName = path(symbol);
-    ClassOrNamespace *binding = globalNamespace();
+    LookupScope *binding = globalNamespace();
     foreach (const Name *name, fqName) {
         binding = binding->findType(name);
         if (!binding)
@@ -519,67 +518,67 @@ ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
 
 namespace Internal {
 
-class ClassOrNamespacePrivate
+class LookupScopePrivate
 {
 public:
-    ClassOrNamespacePrivate(ClassOrNamespace *q, CreateBindings *factory, ClassOrNamespace *parent);
-    ~ClassOrNamespacePrivate();
+    LookupScopePrivate(LookupScope *q, CreateBindings *factory, LookupScope *parent);
+    ~LookupScopePrivate();
 
-    typedef std::map<const Name *, ClassOrNamespacePrivate *, Name::Compare> Table;
+    typedef std::map<const Name *, LookupScopePrivate *, Name::Compare> Table;
     typedef std::map<const TemplateNameId *,
-                     ClassOrNamespacePrivate *,
+                     LookupScopePrivate *,
                      TemplateNameId::Compare> TemplateNameIdTable;
-    typedef QHash<const AnonymousNameId *, ClassOrNamespacePrivate *> Anonymouses;
+    typedef QHash<const AnonymousNameId *, LookupScopePrivate *> Anonymouses;
 
-    ClassOrNamespacePrivate *allocateChild();
+    LookupScopePrivate *allocateChild();
 
     void flush();
 
-    ClassOrNamespace *globalNamespace() const;
+    LookupScope *globalNamespace() const;
 
     Symbol *lookupInScope(const QList<const Name *> &fullName);
 
-    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespacePrivate *origin = 0,
+    LookupScope *findOrCreateType(const Name *name, LookupScopePrivate *origin = 0,
                                        Class *clazz = 0);
 
-    ClassOrNamespacePrivate *findOrCreateNestedAnonymousType(const AnonymousNameId *anonymousNameId);
+    LookupScopePrivate *findOrCreateNestedAnonymousType(const AnonymousNameId *anonymousNameId);
 
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);
     void addUnscopedEnum(Enum *e);
-    void addUsing(ClassOrNamespace *u);
-    void addNestedType(const Name *alias, ClassOrNamespace *e);
+    void addUsing(LookupScope *u);
+    void addNestedType(const Name *alias, LookupScope *e);
 
     QList<LookupItem> lookup_helper(const Name *name, bool searchInEnclosingScope);
 
-    void lookup_helper(const Name *name, ClassOrNamespacePrivate *binding,
+    void lookup_helper(const Name *name, LookupScopePrivate *binding,
                        QList<LookupItem> *result,
                        ProcessedSet *processed);
 
-    ClassOrNamespace *lookupType_helper(const Name *name, ProcessedSet *processed,
-                                        bool searchInEnclosingScope, ClassOrNamespacePrivate *origin);
+    LookupScope *lookupType_helper(const Name *name, ProcessedSet *processed,
+                                   bool searchInEnclosingScope, LookupScopePrivate *origin);
 
-    ClassOrNamespace *findBlock_helper(Block *block, ProcessedSet *processed,
-                                       bool searchInEnclosingScope);
+    LookupScope *findBlock_helper(Block *block, ProcessedSet *processed,
+                                  bool searchInEnclosingScope);
 
-    ClassOrNamespacePrivate *nestedType(const Name *name, ClassOrNamespacePrivate *origin);
+    LookupScopePrivate *nestedType(const Name *name, LookupScopePrivate *origin);
 
-    ClassOrNamespacePrivate *findSpecialization(const TemplateNameId *templId,
-                                         const TemplateNameIdTable &specializations);
+    LookupScopePrivate *findSpecialization(const TemplateNameId *templId,
+                                           const TemplateNameIdTable &specializations);
 
-    ClassOrNamespace *q;
+    LookupScope *q;
 
     CreateBindings *_factory;
-    ClassOrNamespacePrivate *_parent;
+    LookupScopePrivate *_parent;
     QList<Symbol *> _symbols;
-    QList<ClassOrNamespace *> _usings;
-    Table _classOrNamespaces;
-    QHash<Block *, ClassOrNamespace *> _blocks;
+    QList<LookupScope *> _usings;
+    Table _nestedScopes;
+    QHash<Block *, LookupScope *> _blocks;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
     QSharedPointer<Control> _control;
     TemplateNameIdTable _specializations;
-    QMap<const TemplateNameId *, ClassOrNamespacePrivate *> _instantiations;
+    QMap<const TemplateNameId *, LookupScopePrivate *> _instantiations;
     Anonymouses _anonymouses;
     QSet<const AnonymousNameId *> _declaredOrTypedefedAnonymouses;
 
@@ -587,7 +586,7 @@ public:
 
     // it's an instantiation.
     const TemplateNameId *_templateId;
-    ClassOrNamespacePrivate *_instantiationOrigin;
+    LookupScopePrivate *_instantiationOrigin;
 
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
     AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
@@ -604,9 +603,9 @@ public:
         , _cloner(cloner)
         , _subst(subst)
     {}
-    void instantiate(ClassOrNamespacePrivate *classOrNamespace, ClassOrNamespacePrivate *instantiation);
+    void instantiate(LookupScopePrivate *lookupScope, LookupScopePrivate *instantiation);
 private:
-    bool isInstantiationNeeded(ClassOrNamespacePrivate *classOrNamespace) const;
+    bool isInstantiationNeeded(LookupScopePrivate *lookupScope) const;
     bool containsTemplateType(Declaration *declaration) const;
     bool containsTemplateType(Function *function) const;
     NamedType *findNamedType(Type *memberType) const;
@@ -617,8 +616,8 @@ private:
     Subst &_subst;
 };
 
-static bool isNestedInstantiationEnclosingTemplate(ClassOrNamespacePrivate *nestedInstantiation,
-                                                   ClassOrNamespacePrivate *enclosingInstantiation)
+static bool isNestedInstantiationEnclosingTemplate(LookupScopePrivate *nestedInstantiation,
+                                                   LookupScopePrivate *enclosingInstantiation)
 {
     ProcessedSet processed;
     while (enclosingInstantiation && !processed.contains(enclosingInstantiation)) {
@@ -631,8 +630,7 @@ static bool isNestedInstantiationEnclosingTemplate(ClassOrNamespacePrivate *nest
     return true;
 }
 
-ClassOrNamespacePrivate::ClassOrNamespacePrivate(ClassOrNamespace *q, CreateBindings *factory,
-                                                 ClassOrNamespace *parent)
+LookupScopePrivate::LookupScopePrivate(LookupScope *q, CreateBindings *factory, LookupScope *parent)
     : q(q)
     , _factory(factory)
     , _parent(parent ? parent->d : 0)
@@ -644,76 +642,76 @@ ClassOrNamespacePrivate::ClassOrNamespacePrivate(ClassOrNamespace *q, CreateBind
     Q_ASSERT(factory);
 }
 
-ClassOrNamespacePrivate::~ClassOrNamespacePrivate()
+LookupScopePrivate::~LookupScopePrivate()
 {
     delete _scopeLookupCache;
 }
 
-ClassOrNamespacePrivate *ClassOrNamespacePrivate::allocateChild()
+LookupScopePrivate *LookupScopePrivate::allocateChild()
 {
-    ClassOrNamespace *e = _factory->allocClassOrNamespace(q);
+    LookupScope *e = _factory->allocLookupScope(q);
     return e->d;
 }
 
 } // namespace Internal
 
-ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)
-    : d(new Internal::ClassOrNamespacePrivate(this, factory, parent))
+LookupScope::LookupScope(CreateBindings *factory, LookupScope *parent)
+    : d(new Internal::LookupScopePrivate(this, factory, parent))
 {
 }
 
-ClassOrNamespace::~ClassOrNamespace()
+LookupScope::~LookupScope()
 {
     delete d;
 }
 
-ClassOrNamespace *ClassOrNamespace::instantiationOrigin() const
+LookupScope *LookupScope::instantiationOrigin() const
 {
-    if (Internal::ClassOrNamespacePrivate *i = d->_instantiationOrigin)
+    if (Internal::LookupScopePrivate *i = d->_instantiationOrigin)
         return i->q;
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::parent() const
+LookupScope *LookupScope::parent() const
 {
-    if (Internal::ClassOrNamespacePrivate *p = d->_parent)
+    if (Internal::LookupScopePrivate *p = d->_parent)
         return p->q;
     return 0;
 }
 
-QList<ClassOrNamespace *> ClassOrNamespace::usings() const
+QList<LookupScope *> LookupScope::usings() const
 {
-    const_cast<ClassOrNamespace *>(this)->d->flush();
+    const_cast<LookupScope *>(this)->d->flush();
     return d->_usings;
 }
 
-QList<Enum *> ClassOrNamespace::unscopedEnums() const
+QList<Enum *> LookupScope::unscopedEnums() const
 {
-    const_cast<ClassOrNamespace *>(this)->d->flush();
+    const_cast<LookupScope *>(this)->d->flush();
     return d->_enums;
 }
 
-QList<Symbol *> ClassOrNamespace::symbols() const
+QList<Symbol *> LookupScope::symbols() const
 {
-    const_cast<ClassOrNamespace *>(this)->d->flush();
+    const_cast<LookupScope *>(this)->d->flush();
     return d->_symbols;
 }
 
-QList<LookupItem> ClassOrNamespace::find(const Name *name)
+QList<LookupItem> LookupScope::find(const Name *name)
 {
     return d->lookup_helper(name, false);
 }
 
-QList<LookupItem> ClassOrNamespace::lookup(const Name *name)
+QList<LookupItem> LookupScope::lookup(const Name *name)
 {
     return d->lookup_helper(name, true);
 }
 
 namespace Internal {
 
-ClassOrNamespace *ClassOrNamespacePrivate::globalNamespace() const
+LookupScope *LookupScopePrivate::globalNamespace() const
 {
-    const ClassOrNamespacePrivate *e = this;
+    const LookupScopePrivate *e = this;
 
     do {
         if (! e->_parent)
@@ -725,7 +723,7 @@ ClassOrNamespace *ClassOrNamespacePrivate::globalNamespace() const
     return e ? e->q : 0;
 }
 
-QList<LookupItem> ClassOrNamespacePrivate::lookup_helper(const Name *name, bool searchInEnclosingScope)
+QList<LookupItem> LookupScopePrivate::lookup_helper(const Name *name, bool searchInEnclosingScope)
 {
     QList<LookupItem> result;
 
@@ -734,7 +732,7 @@ QList<LookupItem> ClassOrNamespacePrivate::lookup_helper(const Name *name, bool 
         if (const QualifiedNameId *qName = name->asQualifiedNameId()) {
             if (! qName->base()) { // e.g. ::std::string
                 result = globalNamespace()->find(qName->name());
-            } else if (ClassOrNamespace *binding = q->lookupType(qName->base())) {
+            } else if (LookupScope *binding = q->lookupType(qName->base())) {
                 result = binding->find(qName->name());
 
                 QList<const Name *> fullName;
@@ -745,7 +743,7 @@ QList<LookupItem> ClassOrNamespacePrivate::lookup_helper(const Name *name, bool 
                 // in the class but defined outside it - we should capture both.
                 Symbol *match = 0;
                 ProcessedSet processed;
-                for (ClassOrNamespacePrivate *parentBinding = binding->d->_parent;
+                for (LookupScopePrivate *parentBinding = binding->d->_parent;
                         parentBinding && !match;
                         parentBinding = parentBinding->_parent) {
                     if (processed.contains(parentBinding))
@@ -767,7 +765,7 @@ QList<LookupItem> ClassOrNamespacePrivate::lookup_helper(const Name *name, bool 
 
         ProcessedSet processed;
         ProcessedSet processedOwnParents;
-        ClassOrNamespacePrivate *binding = this;
+        LookupScopePrivate *binding = this;
         do {
             if (processedOwnParents.contains(binding))
                 break;
@@ -780,8 +778,8 @@ QList<LookupItem> ClassOrNamespacePrivate::lookup_helper(const Name *name, bool 
     return result;
 }
 
-void ClassOrNamespacePrivate::lookup_helper(
-        const Name *name, ClassOrNamespacePrivate *binding, QList<LookupItem> *result,
+void LookupScopePrivate::lookup_helper(
+        const Name *name, LookupScopePrivate *binding, QList<LookupItem> *result,
         ProcessedSet *processed)
 {
     if (!binding || processed->contains(binding))
@@ -816,14 +814,14 @@ void ClassOrNamespacePrivate::lookup_helper(
     foreach (Enum *e, binding->_enums)
         _factory->lookupInScope(name, e, result, binding->q);
 
-    foreach (ClassOrNamespace *u, binding->_usings)
+    foreach (LookupScope *u, binding->_usings)
         lookup_helper(name, u->d, result, processed);
 
     Anonymouses::const_iterator cit = binding->_anonymouses.constBegin();
     Anonymouses::const_iterator citEnd = binding->_anonymouses.constEnd();
     for (; cit != citEnd; ++cit) {
         const AnonymousNameId *anonymousNameId = cit.key();
-        ClassOrNamespacePrivate *a = cit.value();
+        LookupScopePrivate *a = cit.value();
         if (!binding->_declaredOrTypedefedAnonymouses.contains(anonymousNameId))
             lookup_helper(name, a, result, processed);
     }
@@ -833,7 +831,7 @@ void ClassOrNamespacePrivate::lookup_helper(
 
 void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                                    QList<LookupItem> *result,
-                                   ClassOrNamespace *binding)
+                                   LookupScope *binding)
 {
     if (! name) {
         return;
@@ -875,7 +873,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             item.setBinding(binding);
 
             if (s->asNamespaceAlias() && binding) {
-                ClassOrNamespace *targetNamespaceBinding = binding->lookupType(name);
+                LookupScope *targetNamespaceBinding = binding->lookupType(name);
                 //there can be many namespace definitions
                 if (targetNamespaceBinding && targetNamespaceBinding->symbols().size() > 0) {
                     Symbol *resolvedSymbol = targetNamespaceBinding->symbols().first();
@@ -898,7 +896,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
     }
 }
 
-ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
+LookupScope *LookupScope::lookupType(const Name *name)
 {
     if (! name)
         return 0;
@@ -907,15 +905,15 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
     return d->lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ true, d);
 }
 
-ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name, Block *block)
+LookupScope *LookupScope::lookupType(const Name *name, Block *block)
 {
     d->flush();
 
-    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = d->_blocks.constFind(block);
+    QHash<Block *, LookupScope *>::const_iterator citBlock = d->_blocks.constFind(block);
     if (citBlock != d->_blocks.constEnd()) {
-        ClassOrNamespace *nestedBlock = citBlock.value();
+        LookupScope *nestedBlock = citBlock.value();
         ProcessedSet processed;
-        if (ClassOrNamespace *foundInNestedBlock
+        if (LookupScope *foundInNestedBlock
                 = nestedBlock->d->lookupType_helper(name,
                                                     &processed,
                                                     /*searchInEnclosingScope = */ true,
@@ -925,23 +923,23 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name, Block *block)
     }
 
     for (citBlock = d->_blocks.constBegin(); citBlock != d->_blocks.constEnd(); ++citBlock) {
-        if (ClassOrNamespace *foundNestedBlock = citBlock.value()->lookupType(name, block))
+        if (LookupScope *foundNestedBlock = citBlock.value()->lookupType(name, block))
             return foundNestedBlock;
     }
 
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
+LookupScope *LookupScope::findType(const Name *name)
 {
     ProcessedSet processed;
     return d->lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false, d);
 }
 
-ClassOrNamespace *Internal::ClassOrNamespacePrivate::findBlock_helper(
+LookupScope *Internal::LookupScopePrivate::findBlock_helper(
         Block *block, ProcessedSet *processed, bool searchInEnclosingScope)
 {
-    for (ClassOrNamespacePrivate *binding = this; binding; binding = binding->_parent) {
+    for (LookupScopePrivate *binding = this; binding; binding = binding->_parent) {
         if (processed->contains(binding))
             break;
         processed->insert(binding);
@@ -952,7 +950,7 @@ ClassOrNamespace *Internal::ClassOrNamespacePrivate::findBlock_helper(
             return citBlock.value();
 
         for (citBlock = binding->_blocks.begin(); citBlock != end; ++citBlock) {
-            if (ClassOrNamespace *foundNestedBlock =
+            if (LookupScope *foundNestedBlock =
                     citBlock.value()->d->findBlock_helper(block, processed, false)) {
                 return foundNestedBlock;
             }
@@ -963,13 +961,13 @@ ClassOrNamespace *Internal::ClassOrNamespacePrivate::findBlock_helper(
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
+LookupScope *LookupScope::findBlock(Block *block)
 {
     ProcessedSet processed;
     return d->findBlock_helper(block, &processed, true);
 }
 
-Symbol *Internal::ClassOrNamespacePrivate::lookupInScope(const QList<const Name *> &fullName)
+Symbol *Internal::LookupScopePrivate::lookupInScope(const QList<const Name *> &fullName)
 {
     if (!_scopeLookupCache) {
         _scopeLookupCache = new QHash<Internal::FullyQualifiedName, Symbol *>;
@@ -988,16 +986,16 @@ Symbol *Internal::ClassOrNamespacePrivate::lookupInScope(const QList<const Name 
     return _scopeLookupCache->value(fullName, 0);
 }
 
-Class *ClassOrNamespace::rootClass() const
+Class *LookupScope::rootClass() const
 {
     return d->_rootClass;
 }
 
 namespace Internal {
 
-ClassOrNamespace *ClassOrNamespacePrivate::lookupType_helper(
+LookupScope *LookupScopePrivate::lookupType_helper(
         const Name *name, ProcessedSet *processed,
-        bool searchInEnclosingScope, ClassOrNamespacePrivate *origin)
+        bool searchInEnclosingScope, LookupScopePrivate *origin)
 {
     if (Q_UNLIKELY(debug)) {
         Overview oo;
@@ -1010,7 +1008,7 @@ ClassOrNamespace *ClassOrNamespacePrivate::lookupType_helper(
         if (! qName->base())
             return globalNamespace()->d->lookupType_helper(qName->name(), &innerProcessed, true, origin);
 
-        if (ClassOrNamespace *binding = lookupType_helper(qName->base(), processed, true, origin))
+        if (LookupScope *binding = lookupType_helper(qName->base(), processed, true, origin))
             return binding->d->lookupType_helper(qName->name(), &innerProcessed, false, origin);
 
         return 0;
@@ -1032,11 +1030,11 @@ ClassOrNamespace *ClassOrNamespacePrivate::lookupType_helper(
                     return q;
             }
 
-            if (ClassOrNamespacePrivate *e = nestedType(name, origin))
+            if (LookupScopePrivate *e = nestedType(name, origin))
                 return e->q;
 
-            foreach (ClassOrNamespace *u, _usings) {
-                if (ClassOrNamespace *r = u->d->lookupType_helper(
+            foreach (LookupScope *u, _usings) {
+                if (LookupScope *r = u->d->lookupType_helper(
                             name, processed, /*searchInEnclosingScope =*/ false, origin)) {
                     return r;
                 }
@@ -1050,8 +1048,8 @@ ClassOrNamespace *ClassOrNamespacePrivate::lookupType_helper(
     return 0;
 }
 
-static ClassOrNamespacePrivate *findSpecializationWithMatchingTemplateArgument(
-        const Name *argumentName, ClassOrNamespacePrivate *reference)
+static LookupScopePrivate *findSpecializationWithMatchingTemplateArgument(
+        const Name *argumentName, LookupScopePrivate *reference)
 {
     foreach (Symbol *s, reference->_symbols) {
         if (Class *clazz = s->asClass()) {
@@ -1073,7 +1071,7 @@ static ClassOrNamespacePrivate *findSpecializationWithMatchingTemplateArgument(
     return 0;
 }
 
-ClassOrNamespacePrivate *ClassOrNamespacePrivate::findSpecialization(
+LookupScopePrivate *LookupScopePrivate::findSpecialization(
         const TemplateNameId *templId, const TemplateNameIdTable &specializations)
 {
     // we go through all specialization and try to find that one with template argument as pointer
@@ -1107,7 +1105,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::findSpecialization(
                     if (const NamedType *argumentNamedType
                             = specArray->elementType().type()->asNamedType()) {
                         if (const Name *argumentName = argumentNamedType->name()) {
-                            if (ClassOrNamespacePrivate *reference
+                            if (LookupScopePrivate *reference
                                     = findSpecializationWithMatchingTemplateArgument(
                                             argumentName, cit->second)) {
                                 return reference;
@@ -1122,14 +1120,14 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::findSpecialization(
     return 0;
 }
 
-ClassOrNamespacePrivate *ClassOrNamespacePrivate::findOrCreateNestedAnonymousType(
+LookupScopePrivate *LookupScopePrivate::findOrCreateNestedAnonymousType(
         const AnonymousNameId *anonymousNameId)
 {
     auto cit = _anonymouses.constFind(anonymousNameId);
     if (cit != _anonymouses.constEnd()) {
         return cit.value();
     } else {
-        ClassOrNamespacePrivate *newAnonymous = allocateChild();
+        LookupScopePrivate *newAnonymous = allocateChild();
         if (Q_UNLIKELY(debug))
             newAnonymous->_name = anonymousNameId;
         _anonymouses[anonymousNameId] = newAnonymous;
@@ -1137,28 +1135,28 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::findOrCreateNestedAnonymousTyp
     }
 }
 
-ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
-        const Name *name, ClassOrNamespacePrivate *origin)
+LookupScopePrivate *LookupScopePrivate::nestedType(
+        const Name *name, LookupScopePrivate *origin)
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId());
 
-    const_cast<ClassOrNamespacePrivate *>(this)->flush();
+    const_cast<LookupScopePrivate *>(this)->flush();
 
     if (const AnonymousNameId *anonymousNameId = name->asAnonymousNameId())
         return findOrCreateNestedAnonymousType(anonymousNameId);
 
-    Table::const_iterator it = _classOrNamespaces.find(name);
-    if (it == _classOrNamespaces.end())
+    Table::const_iterator it = _nestedScopes.find(name);
+    if (it == _nestedScopes.end())
         return 0;
 
-    ClassOrNamespacePrivate *reference = it->second;
-    ClassOrNamespacePrivate *baseTemplateClassReference = reference;
+    LookupScopePrivate *reference = it->second;
+    LookupScopePrivate *baseTemplateClassReference = reference;
     reference->flush();
 
     const TemplateNameId *templId = name->asTemplateNameId();
     if (templId) {
-        // for "using" we should use the real one ClassOrNamespace(it should be the first
+        // for "using" we should use the real one LookupScope(it should be the first
         // one item from usings list)
         // we indicate that it is a 'using' by checking number of symbols(it should be 0)
         if (reference->_symbols.count() == 0 && reference->_usings.count() != 0)
@@ -1175,7 +1173,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
             if (cit != reference->_specializations.end()) {
                 return cit->second;
             } else {
-                ClassOrNamespacePrivate *newSpecialization = reference->allocateChild();
+                LookupScopePrivate *newSpecialization = reference->allocateChild();
                 if (Q_UNLIKELY(debug))
                     newSpecialization->_name = templId;
                 reference->_specializations[templId] = newSpecialization;
@@ -1195,7 +1193,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
                 // we found full specialization
                 reference = cit->second;
             } else {
-                ClassOrNamespacePrivate *specializationWithPointer
+                LookupScopePrivate *specializationWithPointer
                         = findSpecialization(templId, specializations);
                 if (specializationWithPointer)
                     reference = specializationWithPointer;
@@ -1236,13 +1234,13 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
     if (!name->isTemplateNameId())
         _alreadyConsideredClasses.insert(referenceClass);
 
-    QSet<ClassOrNamespace *> knownUsings = reference->_usings.toSet();
+    QSet<LookupScope *> knownUsings = reference->_usings.toSet();
 
     // If we are dealling with a template type, more work is required, since we need to
     // construct all instantiation data.
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
-        ClassOrNamespacePrivate *instantiation = baseTemplateClassReference->allocateChild();
+        LookupScopePrivate *instantiation = baseTemplateClassReference->allocateChild();
         if (Q_UNLIKELY(debug))
             instantiation->_name = templId;
 
@@ -1326,7 +1324,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
                 templParams.insert(templateSpecialization->templateParameterAt(i)->name(), i);
 
             foreach (const Name *baseName, allBases) {
-                ClassOrNamespace *baseBinding = 0;
+                LookupScope *baseBinding = 0;
 
                 if (const Identifier *nameId = baseName->asNameId()) {
                     // This is the simple case in which a template parameter is itself a base.
@@ -1368,13 +1366,13 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
                         // Another template that uses the dependent name.
                         // Ex.: template <class T> class A : public B<T> {};
                         if (baseTemplId->identifier() != templId->identifier()) {
-                            if (ClassOrNamespacePrivate *nested = nestedType(baseName, origin))
+                            if (LookupScopePrivate *nested = nestedType(baseName, origin))
                                 baseBinding = nested->q;
                         }
                     } else if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
                         // Qualified names in general.
                         // Ex.: template <class T> class A : public B<T>::Type {};
-                        ClassOrNamespace *binding = q;
+                        LookupScope *binding = q;
                         if (const Name *qualification = qBaseName->base()) {
                             const TemplateNameId *baseTemplName = qualification->asTemplateNameId();
                             if (!baseTemplName || !compareName(baseTemplName, templateSpecialization->name()))
@@ -1391,7 +1389,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
                     instantiation->addUsing(baseBinding);
             }
         } else {
-            instantiation->_classOrNamespaces = reference->_classOrNamespaces;
+            instantiation->_nestedScopes = reference->_nestedScopes;
             instantiation->_symbols.append(reference->_symbols);
         }
 
@@ -1406,7 +1404,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
     // Find the missing bases for regular (non-template) types.
     // Ex.: class A : public B<Some>::Type {};
     foreach (const Name *baseName, allBases) {
-        ClassOrNamespace *binding = q;
+        LookupScope *binding = q;
         if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
             if (const Name *qualification = qBaseName->base())
                 binding = q->lookupType(qualification);
@@ -1421,7 +1419,7 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
         }
 
         if (binding) {
-            ClassOrNamespace * baseBinding = binding->lookupType(baseName);
+            LookupScope * baseBinding = binding->lookupType(baseName);
             if (baseBinding && !knownUsings.contains(baseBinding))
                 reference->addUsing(baseBinding);
         }
@@ -1431,26 +1429,26 @@ ClassOrNamespacePrivate *ClassOrNamespacePrivate::nestedType(
     return reference;
 }
 
-void Instantiator::instantiate(ClassOrNamespacePrivate *classOrNamespace,
-                               ClassOrNamespacePrivate *instantiation)
+void Instantiator::instantiate(LookupScopePrivate *lookupScope,
+                               LookupScopePrivate *instantiation)
 {
-    if (_alreadyConsideredInstantiations.contains(classOrNamespace))
+    if (_alreadyConsideredInstantiations.contains(lookupScope))
         return;
-    _alreadyConsideredInstantiations.insert(classOrNamespace);
-    auto cit = classOrNamespace->_classOrNamespaces.begin();
-    for (; cit != classOrNamespace->_classOrNamespaces.end(); ++cit) {
+    _alreadyConsideredInstantiations.insert(lookupScope);
+    auto cit = lookupScope->_nestedScopes.begin();
+    for (; cit != lookupScope->_nestedScopes.end(); ++cit) {
         const Name *nestedName = cit->first;
-        ClassOrNamespacePrivate *nestedClassOrNamespace = cit->second;
-        ClassOrNamespacePrivate *nestedInstantiation = nestedClassOrNamespace;
-        nestedClassOrNamespace->flush();
+        LookupScopePrivate *nestedLookupScope = cit->second;
+        LookupScopePrivate *nestedInstantiation = nestedLookupScope;
+        nestedLookupScope->flush();
 
-        if (isInstantiationNeeded(nestedClassOrNamespace)) {
-            nestedInstantiation = nestedClassOrNamespace->allocateChild();
-            nestedInstantiation->_enums.append(nestedClassOrNamespace->_enums);
-            nestedInstantiation->_usings.append(nestedClassOrNamespace->_usings);
-            nestedInstantiation->_instantiationOrigin = nestedClassOrNamespace;
+        if (isInstantiationNeeded(nestedLookupScope)) {
+            nestedInstantiation = nestedLookupScope->allocateChild();
+            nestedInstantiation->_enums.append(nestedLookupScope->_enums);
+            nestedInstantiation->_usings.append(nestedLookupScope->_usings);
+            nestedInstantiation->_instantiationOrigin = nestedLookupScope;
 
-            foreach (Symbol *s, nestedClassOrNamespace->_symbols) {
+            foreach (Symbol *s, nestedLookupScope->_symbols) {
                 Symbol *clone = _cloner.symbol(s, &_subst);
                 if (!clone->enclosingScope()) // Not from the cache but just cloned.
                     clone->setEnclosingScope(s->enclosingScope());
@@ -1458,18 +1456,18 @@ void Instantiator::instantiate(ClassOrNamespacePrivate *classOrNamespace,
             }
         }
 
-        if (isNestedInstantiationEnclosingTemplate(nestedInstantiation, classOrNamespace))
+        if (isNestedInstantiationEnclosingTemplate(nestedInstantiation, lookupScope))
             nestedInstantiation->_parent = instantiation;
-        instantiate(nestedClassOrNamespace, nestedInstantiation);
+        instantiate(nestedLookupScope, nestedInstantiation);
 
-        instantiation->_classOrNamespaces[nestedName] = nestedInstantiation;
+        instantiation->_nestedScopes[nestedName] = nestedInstantiation;
     }
-    _alreadyConsideredInstantiations.remove(classOrNamespace);
+    _alreadyConsideredInstantiations.remove(lookupScope);
 }
 
-bool Instantiator::isInstantiationNeeded(ClassOrNamespacePrivate *classOrNamespace) const
+bool Instantiator::isInstantiationNeeded(LookupScopePrivate *lookupScope) const
 {
-    foreach (Symbol *s, classOrNamespace->_symbols) {
+    foreach (Symbol *s, lookupScope->_symbols) {
         if (Class *klass = s->asClass()) {
             int memberCount = klass->memberCount();
             for (int i = 0; i < memberCount; ++i) {
@@ -1515,7 +1513,7 @@ NamedType *Instantiator::findNamedType(Type *memberType) const
     return 0;
 }
 
-void ClassOrNamespacePrivate::flush()
+void LookupScopePrivate::flush()
 {
     if (! _todo.isEmpty()) {
         const QList<Symbol *> todo = _todo;
@@ -1526,33 +1524,33 @@ void ClassOrNamespacePrivate::flush()
     }
 }
 
-void ClassOrNamespacePrivate::addSymbol(Symbol *symbol)
+void LookupScopePrivate::addSymbol(Symbol *symbol)
 {
     _symbols.append(symbol);
 }
 
-void ClassOrNamespacePrivate::addTodo(Symbol *symbol)
+void LookupScopePrivate::addTodo(Symbol *symbol)
 {
     _todo.append(symbol);
 }
 
-void ClassOrNamespacePrivate::addUnscopedEnum(Enum *e)
+void LookupScopePrivate::addUnscopedEnum(Enum *e)
 {
     _enums.append(e);
 }
 
-void ClassOrNamespacePrivate::addUsing(ClassOrNamespace *u)
+void LookupScopePrivate::addUsing(LookupScope *u)
 {
     _usings.append(u);
 }
 
-void ClassOrNamespacePrivate::addNestedType(const Name *alias, ClassOrNamespace *e)
+void LookupScopePrivate::addNestedType(const Name *alias, LookupScope *e)
 {
-    _classOrNamespaces[alias] = e ? e->d : 0;
+    _nestedScopes[alias] = e ? e->d : 0;
 }
 
-ClassOrNamespace *ClassOrNamespacePrivate::findOrCreateType(
-        const Name *name, ClassOrNamespacePrivate *origin, Class *clazz)
+LookupScope *LookupScopePrivate::findOrCreateType(
+        const Name *name, LookupScopePrivate *origin, Class *clazz)
 {
     if (! name)
         return q;
@@ -1566,14 +1564,14 @@ ClassOrNamespace *ClassOrNamespacePrivate::findOrCreateType(
         return findOrCreateType(qName->base(), origin)->d->findOrCreateType(qName->name(), origin, clazz);
 
     } else if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
-        ClassOrNamespacePrivate *e = nestedType(name, origin);
+        LookupScopePrivate *e = nestedType(name, origin);
 
         if (! e) {
             e = allocateChild();
             e->_rootClass = clazz;
             if (Q_UNLIKELY(debug))
                 e->_name = name;
-            _classOrNamespaces[name] = e;
+            _nestedScopes[name] = e;
         }
 
         return e->q;
@@ -1589,8 +1587,8 @@ CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snaps
     , _control(QSharedPointer<Control>(new Control))
     , _expandTemplates(false)
 {
-    _globalNamespace = allocClassOrNamespace(/*parent = */ 0);
-    _currentClassOrNamespace = _globalNamespace;
+    _globalNamespace = allocLookupScope(/*parent = */ 0);
+    _currentLookupScope = _globalNamespace;
 
     process(thisDocument);
 }
@@ -1600,36 +1598,36 @@ CreateBindings::~CreateBindings()
     qDeleteAll(_entities);
 }
 
-ClassOrNamespace *CreateBindings::switchCurrentClassOrNamespace(ClassOrNamespace *classOrNamespace)
+LookupScope *CreateBindings::switchCurrentLookupScope(LookupScope *lookupScope)
 {
-    ClassOrNamespace *previous = _currentClassOrNamespace;
-    _currentClassOrNamespace = classOrNamespace;
+    LookupScope *previous = _currentLookupScope;
+    _currentLookupScope = lookupScope;
     return previous;
 }
 
-ClassOrNamespace *CreateBindings::globalNamespace() const
+LookupScope *CreateBindings::globalNamespace() const
 {
     return _globalNamespace;
 }
 
-ClassOrNamespace *CreateBindings::lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding)
+LookupScope *CreateBindings::lookupType(Symbol *symbol, LookupScope *enclosingBinding)
 {
     const QList<const Name *> path = LookupContext::path(symbol);
     return lookupType(path, enclosingBinding);
 }
 
-ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path,
-                                             ClassOrNamespace *enclosingBinding)
+LookupScope *CreateBindings::lookupType(const QList<const Name *> &path,
+                                             LookupScope *enclosingBinding)
 {
     if (path.isEmpty())
         return _globalNamespace;
 
     if (enclosingBinding) {
-        if (ClassOrNamespace *b = enclosingBinding->lookupType(path.last()))
+        if (LookupScope *b = enclosingBinding->lookupType(path.last()))
             return b;
     }
 
-    ClassOrNamespace *b = _globalNamespace->lookupType(path.at(0));
+    LookupScope *b = _globalNamespace->lookupType(path.at(0));
 
     for (int i = 1; b && i < path.size(); ++i)
         b = b->findType(path.at(i));
@@ -1637,21 +1635,21 @@ ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path,
     return b;
 }
 
-void CreateBindings::process(Symbol *s, ClassOrNamespace *classOrNamespace)
+void CreateBindings::process(Symbol *s, LookupScope *lookupScope)
 {
-    ClassOrNamespace *previous = switchCurrentClassOrNamespace(classOrNamespace);
+    LookupScope *previous = switchCurrentLookupScope(lookupScope);
     accept(s);
-    (void) switchCurrentClassOrNamespace(previous);
+    (void) switchCurrentLookupScope(previous);
 }
 
 void CreateBindings::process(Symbol *symbol)
 {
-    _currentClassOrNamespace->d->addTodo(symbol);
+    _currentLookupScope->d->addTodo(symbol);
 }
 
-ClassOrNamespace *CreateBindings::allocClassOrNamespace(ClassOrNamespace *parent)
+LookupScope *CreateBindings::allocLookupScope(LookupScope *parent)
 {
-    ClassOrNamespace *e = new ClassOrNamespace(this, parent);
+    LookupScope *e = new LookupScope(this, parent);
     e->d->_control = control();
     _entities.append(e);
     return e;
@@ -1676,22 +1674,22 @@ void CreateBindings::process(Document::Ptr doc)
     }
 }
 
-ClassOrNamespace *CreateBindings::enterClassOrNamespaceBinding(Symbol *symbol)
+LookupScope *CreateBindings::enterLookupScopeBinding(Symbol *symbol)
 {
-    ClassOrNamespace *entity = _currentClassOrNamespace->d->findOrCreateType(
+    LookupScope *entity = _currentLookupScope->d->findOrCreateType(
                 symbol->name(), 0, symbol->asClass());
     entity->d->addSymbol(symbol);
 
-    return switchCurrentClassOrNamespace(entity);
+    return switchCurrentLookupScope(entity);
 }
 
-ClassOrNamespace *CreateBindings::enterGlobalClassOrNamespace(Symbol *symbol)
+LookupScope *CreateBindings::enterGlobalLookupScope(Symbol *symbol)
 {
-    ClassOrNamespace *entity = _globalNamespace->d->findOrCreateType(
+    LookupScope *entity = _globalNamespace->d->findOrCreateType(
                 symbol->name(), 0, symbol->asClass());
     entity->d->addSymbol(symbol);
 
-    return switchCurrentClassOrNamespace(entity);
+    return switchCurrentLookupScope(entity);
 }
 
 bool CreateBindings::visit(Template *templ)
@@ -1704,32 +1702,32 @@ bool CreateBindings::visit(Template *templ)
 
 bool CreateBindings::visit(Namespace *ns)
 {
-    ClassOrNamespace *previous = enterClassOrNamespaceBinding(ns);
+    LookupScope *previous = enterLookupScopeBinding(ns);
 
     for (unsigned i = 0; i < ns->memberCount(); ++i)
         process(ns->memberAt(i));
 
     if (ns->isInline() && previous)
-        previous->d->addUsing(_currentClassOrNamespace);
+        previous->d->addUsing(_currentLookupScope);
 
-    _currentClassOrNamespace = previous;
+    _currentLookupScope = previous;
 
     return false;
 }
 
 bool CreateBindings::visit(Class *klass)
 {
-    ClassOrNamespace *previous = _currentClassOrNamespace;
-    ClassOrNamespace *binding = 0;
+    LookupScope *previous = _currentLookupScope;
+    LookupScope *binding = 0;
 
     if (klass->name() && klass->name()->isQualifiedNameId())
-        binding = _currentClassOrNamespace->lookupType(klass->name());
+        binding = _currentLookupScope->lookupType(klass->name());
 
     if (! binding)
-        binding = _currentClassOrNamespace->d->findOrCreateType(klass->name(), 0, klass);
+        binding = _currentLookupScope->d->findOrCreateType(klass->name(), 0, klass);
 
-    _currentClassOrNamespace = binding;
-    _currentClassOrNamespace->d->addSymbol(klass);
+    _currentLookupScope = binding;
+    _currentLookupScope->d->addSymbol(klass);
 
     for (unsigned i = 0; i < klass->baseClassCount(); ++i)
         process(klass->baseClassAt(i));
@@ -1737,15 +1735,15 @@ bool CreateBindings::visit(Class *klass)
     for (unsigned i = 0; i < klass->memberCount(); ++i)
         process(klass->memberAt(i));
 
-    _currentClassOrNamespace = previous;
+    _currentLookupScope = previous;
     return false;
 }
 
 bool CreateBindings::visit(ForwardClassDeclaration *klass)
 {
     if (! klass->isFriend()) {
-        ClassOrNamespace *previous = enterClassOrNamespaceBinding(klass);
-        _currentClassOrNamespace = previous;
+        LookupScope *previous = enterLookupScopeBinding(klass);
+        _currentLookupScope = previous;
     }
 
     return false;
@@ -1754,10 +1752,10 @@ bool CreateBindings::visit(ForwardClassDeclaration *klass)
 bool CreateBindings::visit(Enum *e)
 {
     if (e->isScoped()) {
-        ClassOrNamespace *previous = enterClassOrNamespaceBinding(e);
-        _currentClassOrNamespace = previous;
+        LookupScope *previous = enterLookupScopeBinding(e);
+        _currentLookupScope = previous;
     } else {
-        _currentClassOrNamespace->d->addUnscopedEnum(e);
+        _currentLookupScope->d->addUnscopedEnum(e);
     }
     return false;
 }
@@ -1770,16 +1768,16 @@ bool CreateBindings::visit(Declaration *decl)
 
         if (typedefId && ! (ty.isConst() || ty.isVolatile())) {
             if (const NamedType *namedTy = ty->asNamedType()) {
-                if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(namedTy->name())) {
-                    _currentClassOrNamespace->d->addNestedType(decl->name(), e);
+                if (LookupScope *e = _currentLookupScope->lookupType(namedTy->name())) {
+                    _currentLookupScope->d->addNestedType(decl->name(), e);
                 } else if (false) {
                     Overview oo;
                     qDebug() << "found entity not found for" << oo.prettyName(namedTy->name());
                 }
             } else if (Class *klass = ty->asClassType()) {
                 if (const Identifier *nameId = decl->name()->asNameId()) {
-                    ClassOrNamespace *binding
-                        = _currentClassOrNamespace->d->findOrCreateType(nameId, 0, klass);
+                    LookupScope *binding
+                        = _currentLookupScope->d->findOrCreateType(nameId, 0, klass);
                     binding->d->addSymbol(klass);
                 }
             }
@@ -1788,7 +1786,7 @@ bool CreateBindings::visit(Declaration *decl)
     if (Class *clazz = decl->type()->asClassType()) {
         if (const Name *name = clazz->name()) {
             if (const AnonymousNameId *anonymousNameId = name->asAnonymousNameId())
-                _currentClassOrNamespace->d->_declaredOrTypedefedAnonymouses.insert(anonymousNameId);
+                _currentLookupScope->d->_declaredOrTypedefedAnonymouses.insert(anonymousNameId);
         }
     }
     return false;
@@ -1796,42 +1794,42 @@ bool CreateBindings::visit(Declaration *decl)
 
 bool CreateBindings::visit(Function *function)
 {
-    ClassOrNamespace *previous = _currentClassOrNamespace;
-    ClassOrNamespace *binding = lookupType(function, previous);
+    LookupScope *previous = _currentLookupScope;
+    LookupScope *binding = lookupType(function, previous);
     if (!binding)
         return false;
-    _currentClassOrNamespace = binding;
+    _currentLookupScope = binding;
     for (unsigned i = 0, count = function->memberCount(); i < count; ++i) {
         Symbol *s = function->memberAt(i);
         if (Block *b = s->asBlock())
             visit(b);
     }
-    _currentClassOrNamespace = previous;
+    _currentLookupScope = previous;
     return false;
 }
 
 bool CreateBindings::visit(Block *block)
 {
-    ClassOrNamespace *previous = _currentClassOrNamespace;
+    LookupScope *previous = _currentLookupScope;
 
-    ClassOrNamespace *binding = new ClassOrNamespace(this, previous);
+    LookupScope *binding = new LookupScope(this, previous);
     binding->d->_control = control();
 
-    _currentClassOrNamespace = binding;
-    _currentClassOrNamespace->d->addSymbol(block);
+    _currentLookupScope = binding;
+    _currentLookupScope->d->addSymbol(block);
 
     for (unsigned i = 0; i < block->memberCount(); ++i)
         // we cannot use lazy processing here, because we have to know
-        // does this block contain any other blocks or classOrNamespaces
-        process(block->memberAt(i), _currentClassOrNamespace);
+        // does this block contain any other blocks or LookupScopes
+        process(block->memberAt(i), _currentLookupScope);
 
-    // we add this block to parent ClassOrNamespace only if it contains
-    // any nested ClassOrNamespaces or other blocks(which have to contain
-    // nested ClassOrNamespaces)
-    if (! _currentClassOrNamespace->d->_blocks.empty()
-            || ! _currentClassOrNamespace->d->_classOrNamespaces.empty()
-            || ! _currentClassOrNamespace->d->_enums.empty()
-            || ! _currentClassOrNamespace->d->_anonymouses.empty()) {
+    // we add this block to parent LookupScope only if it contains
+    // any nested LookupScopes or other blocks(which have to contain
+    // nested LookupScopes)
+    if (! _currentLookupScope->d->_blocks.empty()
+            || ! _currentLookupScope->d->_nestedScopes.empty()
+            || ! _currentLookupScope->d->_enums.empty()
+            || ! _currentLookupScope->d->_anonymouses.empty()) {
         previous->d->_blocks[block] = binding;
         _entities.append(binding);
     } else {
@@ -1839,15 +1837,15 @@ bool CreateBindings::visit(Block *block)
         binding = 0;
     }
 
-    _currentClassOrNamespace = previous;
+    _currentLookupScope = previous;
 
     return false;
 }
 
 bool CreateBindings::visit(BaseClass *b)
 {
-    if (ClassOrNamespace *base = _currentClassOrNamespace->lookupType(b->name())) {
-        _currentClassOrNamespace->d->addUsing(base);
+    if (LookupScope *base = _currentLookupScope->lookupType(b->name())) {
+        _currentLookupScope->d->addUsing(base);
     } else if (false) {
         Overview oo;
         qDebug() << "no entity for:" << oo.prettyName(b->name());
@@ -1860,8 +1858,8 @@ bool CreateBindings::visit(UsingDeclaration *u)
     if (u->name()) {
         if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
             if (const Identifier *unqualifiedId = q->name()->asNameId()) {
-                if (ClassOrNamespace *delegate = _currentClassOrNamespace->lookupType(q)) {
-                    ClassOrNamespace *b = _currentClassOrNamespace->d->findOrCreateType(unqualifiedId);
+                if (LookupScope *delegate = _currentLookupScope->lookupType(q)) {
+                    LookupScope *b = _currentLookupScope->d->findOrCreateType(unqualifiedId);
                     b->d->addUsing(delegate);
                 }
             }
@@ -1872,8 +1870,8 @@ bool CreateBindings::visit(UsingDeclaration *u)
 
 bool CreateBindings::visit(UsingNamespaceDirective *u)
 {
-    if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(u->name())) {
-        _currentClassOrNamespace->d->addUsing(e);
+    if (LookupScope *e = _currentLookupScope->lookupType(u->name())) {
+        _currentLookupScope->d->addUsing(e);
     } else if (false) {
         Overview oo;
         qDebug() << "no entity for namespace:" << oo.prettyName(u->name());
@@ -1886,9 +1884,9 @@ bool CreateBindings::visit(NamespaceAlias *a)
     if (! a->identifier()) {
         return false;
 
-    } else if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(a->namespaceName())) {
+    } else if (LookupScope *e = _currentLookupScope->lookupType(a->namespaceName())) {
         if (a->name()->isNameId() || a->name()->isTemplateNameId() || a->name()->isAnonymousNameId())
-            _currentClassOrNamespace->d->addNestedType(a->name(), e);
+            _currentLookupScope->d->addNestedType(a->name(), e);
 
     } else if (false) {
         Overview oo;
@@ -1900,7 +1898,7 @@ bool CreateBindings::visit(NamespaceAlias *a)
 
 bool CreateBindings::visit(ObjCClass *klass)
 {
-    ClassOrNamespace *previous = enterGlobalClassOrNamespace(klass);
+    LookupScope *previous = enterGlobalLookupScope(klass);
 
     process(klass->baseClass());
 
@@ -1910,14 +1908,14 @@ bool CreateBindings::visit(ObjCClass *klass)
     for (unsigned i = 0; i < klass->memberCount(); ++i)
         process(klass->memberAt(i));
 
-    _currentClassOrNamespace = previous;
+    _currentLookupScope = previous;
     return false;
 }
 
 bool CreateBindings::visit(ObjCBaseClass *b)
 {
-    if (ClassOrNamespace *base = _globalNamespace->lookupType(b->name())) {
-        _currentClassOrNamespace->d->addUsing(base);
+    if (LookupScope *base = _globalNamespace->lookupType(b->name())) {
+        _currentLookupScope->d->addUsing(base);
     } else if (false) {
         Overview oo;
         qDebug() << "no entity for:" << oo.prettyName(b->name());
@@ -1927,14 +1925,14 @@ bool CreateBindings::visit(ObjCBaseClass *b)
 
 bool CreateBindings::visit(ObjCForwardClassDeclaration *klass)
 {
-    ClassOrNamespace *previous = enterGlobalClassOrNamespace(klass);
-    _currentClassOrNamespace = previous;
+    LookupScope *previous = enterGlobalLookupScope(klass);
+    _currentLookupScope = previous;
     return false;
 }
 
 bool CreateBindings::visit(ObjCProtocol *proto)
 {
-    ClassOrNamespace *previous = enterGlobalClassOrNamespace(proto);
+    LookupScope *previous = enterGlobalLookupScope(proto);
 
     for (unsigned i = 0; i < proto->protocolCount(); ++i)
         process(proto->protocolAt(i));
@@ -1942,14 +1940,14 @@ bool CreateBindings::visit(ObjCProtocol *proto)
     for (unsigned i = 0; i < proto->memberCount(); ++i)
         process(proto->memberAt(i));
 
-    _currentClassOrNamespace = previous;
+    _currentLookupScope = previous;
     return false;
 }
 
 bool CreateBindings::visit(ObjCBaseProtocol *b)
 {
-    if (ClassOrNamespace *base = _globalNamespace->lookupType(b->name())) {
-        _currentClassOrNamespace->d->addUsing(base);
+    if (LookupScope *base = _globalNamespace->lookupType(b->name())) {
+        _currentLookupScope->d->addUsing(base);
     } else if (false) {
         Overview oo;
         qDebug() << "no entity for:" << oo.prettyName(b->name());
@@ -1959,8 +1957,8 @@ bool CreateBindings::visit(ObjCBaseProtocol *b)
 
 bool CreateBindings::visit(ObjCForwardProtocolDeclaration *proto)
 {
-    ClassOrNamespace *previous = enterGlobalClassOrNamespace(proto);
-    _currentClassOrNamespace = previous;
+    LookupScope *previous = enterGlobalLookupScope(proto);
+    _currentLookupScope = previous;
     return false;
 }
 

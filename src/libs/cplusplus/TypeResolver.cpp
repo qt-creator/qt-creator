@@ -37,7 +37,7 @@ static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
 
 namespace CPlusPlus {
 
-void TypeResolver::resolve(FullySpecifiedType *type, Scope **scope, ClassOrNamespace *binding)
+void TypeResolver::resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding)
 {
     QSet<Symbol *> visited;
     _binding = binding;
@@ -73,13 +73,13 @@ NamedType *TypeResolver::getNamedType(FullySpecifiedType &type) const
 }
 
 QList<LookupItem> TypeResolver::getNamedTypeItems(const Name *name, Scope *scope,
-                                                  ClassOrNamespace *binding) const
+                                                  LookupScope *binding) const
 {
     QList<LookupItem> namedTypeItems = typedefsFromScopeUpToFunctionScope(name, scope);
     if (namedTypeItems.isEmpty()) {
         if (binding)
             namedTypeItems = binding->lookup(name);
-        if (ClassOrNamespace *scopeCon = _context.lookupType(scope))
+        if (LookupScope *scopeCon = _context.lookupType(scope))
             namedTypeItems += scopeCon->lookup(name);
     }
 

@@ -58,43 +58,43 @@ struct FullyQualifiedName
         : fqn(fqn)
     {}
 };
-class ClassOrNamespacePrivate;
+class LookupScopePrivate;
 class Instantiator;
 } // namespace Internal;
 
 class CreateBindings;
 
-class CPLUSPLUS_EXPORT ClassOrNamespace
+class CPLUSPLUS_EXPORT LookupScope
 {
-    Q_DISABLE_COPY(ClassOrNamespace)
+    Q_DISABLE_COPY(LookupScope)
 
-    ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent);
+    LookupScope(CreateBindings *factory, LookupScope *parent);
 
 public:
-    ~ClassOrNamespace();
+    ~LookupScope();
 
-    ClassOrNamespace *instantiationOrigin() const;
+    LookupScope *instantiationOrigin() const;
 
-    ClassOrNamespace *parent() const;
-    QList<ClassOrNamespace *> usings() const;
+    LookupScope *parent() const;
+    QList<LookupScope *> usings() const;
     QList<Enum *> unscopedEnums() const;
     QList<Symbol *> symbols() const;
 
     QList<LookupItem> lookup(const Name *name);
     QList<LookupItem> find(const Name *name);
 
-    ClassOrNamespace *lookupType(const Name *name);
-    ClassOrNamespace *lookupType(const Name *name, Block *block);
-    ClassOrNamespace *findType(const Name *name);
-    ClassOrNamespace *findBlock(Block *block);
+    LookupScope *lookupType(const Name *name);
+    LookupScope *lookupType(const Name *name, Block *block);
+    LookupScope *findType(const Name *name);
+    LookupScope *findBlock(Block *block);
 
-    /// The class this ClassOrNamespace is based on.
+    /// The class this LookupScope is based on.
     Class *rootClass() const;
 
 private:
-    Internal::ClassOrNamespacePrivate *d;
+    Internal::LookupScopePrivate *d;
 
-    friend class Internal::ClassOrNamespacePrivate;
+    friend class Internal::LookupScopePrivate;
     friend class Internal::Instantiator;
     friend class CreateBindings;
 };
@@ -108,12 +108,11 @@ public:
     virtual ~CreateBindings();
 
     /// Returns the binding for the global namespace.
-    ClassOrNamespace *globalNamespace() const;
+    LookupScope *globalNamespace() const;
 
     /// Finds the binding associated to the given symbol.
-    ClassOrNamespace *lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding = 0);
-    ClassOrNamespace *lookupType(const QList<const Name *> &path,
-                                 ClassOrNamespace *enclosingBinding = 0);
+    LookupScope *lookupType(Symbol *symbol, LookupScope *enclosingBinding = 0);
+    LookupScope *lookupType(const QList<const Name *> &path, LookupScope *enclosingBinding = 0);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
@@ -129,28 +128,28 @@ public:
     /// Store the result in \a results.
     /// \internal
     void lookupInScope(const Name *name, Scope *scope, QList<LookupItem> *result,
-                       ClassOrNamespace *binding = 0);
+                       LookupScope *binding = 0);
 
     /// Create bindings for the symbols reachable from \a rootSymbol.
     /// \internal
-    void process(Symbol *rootSymbol, ClassOrNamespace *classOrNamespace);
+    void process(Symbol *rootSymbol, LookupScope *lookupScope);
 
-    /// Create an empty ClassOrNamespace binding with the given \a parent.
+    /// Create an empty LookupScope binding with the given \a parent.
     /// \internal
-    ClassOrNamespace *allocClassOrNamespace(ClassOrNamespace *parent);
+    LookupScope *allocLookupScope(LookupScope *parent);
 
 protected:
     using SymbolVisitor::visit;
 
-    /// Change the current ClassOrNamespace binding.
-    ClassOrNamespace *switchCurrentClassOrNamespace(ClassOrNamespace *classOrNamespace);
+    /// Change the current LookupScope binding.
+    LookupScope *switchCurrentLookupScope(LookupScope *lookupScope);
 
-    /// Enters the ClassOrNamespace binding associated with the given \a symbol.
-    ClassOrNamespace *enterClassOrNamespaceBinding(Symbol *symbol);
+    /// Enters the LookupScope binding associated with the given \a symbol.
+    LookupScope *enterLookupScopeBinding(Symbol *symbol);
 
-    /// Enters a ClassOrNamespace binding for the given \a symbol in the global
+    /// Enters a LookupScope binding for the given \a symbol in the global
     /// namespace binding.
-    ClassOrNamespace *enterGlobalClassOrNamespace(Symbol *symbol);
+    LookupScope *enterGlobalLookupScope(Symbol *symbol);
 
     /// Creates bindings for the given \a document.
     void process(Document::Ptr document);
@@ -187,9 +186,9 @@ private:
     Snapshot _snapshot;
     QSharedPointer<Control> _control;
     QSet<Namespace *> _processed;
-    QList<ClassOrNamespace *> _entities;
-    ClassOrNamespace *_globalNamespace;
-    ClassOrNamespace *_currentClassOrNamespace;
+    QList<LookupScope *> _entities;
+    LookupScope *_globalNamespace;
+    LookupScope *_currentLookupScope;
     bool _expandTemplates;
 };
 
@@ -214,16 +213,16 @@ public:
     Document::Ptr document(const QString &fileName) const;
     Snapshot snapshot() const;
 
-    ClassOrNamespace *globalNamespace() const;
+    LookupScope *globalNamespace() const;
 
     QList<LookupItem> lookup(const Name *name, Scope *scope) const;
-    ClassOrNamespace *lookupType(const Name *name, Scope *scope,
-                                 ClassOrNamespace *enclosingBinding = 0,
+    LookupScope *lookupType(const Name *name, Scope *scope,
+                                 LookupScope *enclosingBinding = 0,
                                  QSet<const Declaration *> typedefsBeingResolved
                                     = QSet<const Declaration *>()) const;
-    ClassOrNamespace *lookupType(Symbol *symbol,
-                                 ClassOrNamespace *enclosingBinding = 0) const;
-    ClassOrNamespace *lookupParent(Symbol *symbol) const;
+    LookupScope *lookupType(Symbol *symbol,
+                                 LookupScope *enclosingBinding = 0) const;
+    LookupScope *lookupParent(Symbol *symbol) const;
 
     /// \internal
     QSharedPointer<CreateBindings> bindings() const
@@ -232,7 +231,7 @@ public:
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
     static QList<const Name *> path(Symbol *symbol);
 
-    static const Name *minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control);
+    static const Name *minimalName(Symbol *symbol, LookupScope *target, Control *control);
 
     void setExpandTemplates(bool expandTemplates)
     {
@@ -242,7 +241,7 @@ public:
     }
 
 private:
-    QList<LookupItem> lookupByUsing(const Name *name, ClassOrNamespace *bindingScope) const;
+    QList<LookupItem> lookupByUsing(const Name *name, LookupScope *bindingScope) const;
 
     // The current expression.
     Document::Ptr _expressionDocument;

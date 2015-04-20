@@ -104,7 +104,7 @@ bool isOwnershipRAIIType(Symbol *symbol, const LookupContext &context)
         Declaration *declaration = symbol->asDeclaration();
         const NamedType *namedType = declaration->type()->asNamedType();
         if (namedType) {
-            ClassOrNamespace *clazz = context.lookupType(namedType->name(),
+            LookupScope *clazz = context.lookupType(namedType->name(),
                                                          declaration->enclosingScope());
             if (clazz && !clazz->symbols().isEmpty()) {
                 Overview overview;

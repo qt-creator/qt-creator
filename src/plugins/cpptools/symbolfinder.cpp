@@ -149,7 +149,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
 
             QList<Function *> viableFunctions;
 
-            ClassOrNamespace *enclosingType = context.lookupType(declaration);
+            LookupScope *enclosingType = context.lookupType(declaration);
             if (!enclosingType)
                 continue; // nothing to do
 
@@ -232,7 +232,7 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
 
         LookupContext context(doc, snapshot);
 
-        ClassOrNamespace *type = context.lookupType(declaration);
+        LookupScope *type = context.lookupType(declaration);
         if (!type)
             continue;
 
@@ -281,7 +281,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
     if (!functionName)
         return;
 
-    ClassOrNamespace *binding = 0;
+    LookupScope *binding = 0;
     const QualifiedNameId *qName = functionName->asQualifiedNameId();
     if (qName) {
         if (qName->base())
