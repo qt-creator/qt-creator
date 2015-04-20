@@ -162,8 +162,10 @@ bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expand
 
 void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)
 {
-    for (int i = 0; i < m_files.count(); ++i)
-        m_files[i].file.setAttributes(m_files.at(i).file.attributes() ^ a);
+    for (int i = 0; i < m_files.count(); ++i) {
+        if (m_files.at(i).file.attributes() & a)
+            m_files[i].file.setAttributes(m_files.at(i).file.attributes() ^ a);
+    }
 }
 
 void JsonWizard::accept()
