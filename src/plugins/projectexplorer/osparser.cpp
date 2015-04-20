@@ -44,6 +44,12 @@ OsParser::OsParser() :
 
 void OsParser::stdError(const QString &line)
 {
+    if (Utils::HostOsInfo::isLinuxHost()) {
+        const QString trimmed = line.trimmed();
+        if (trimmed.contains(QLatin1String(": error while loading shared libraries:"))) {
+            addTask(Task(Task::Error, trimmed, Utils::FileName(), -1, Constants::TASK_CATEGORY_COMPILE));
+        }
+    }
     IOutputParser::stdError(line);
 }
 
