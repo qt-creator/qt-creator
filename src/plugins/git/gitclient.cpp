@@ -181,6 +181,7 @@ QStringList BaseController::addConfigurationArguments(const QStringList &args) c
     QStringList realArgs;
     realArgs << args.at(0);
     realArgs << QLatin1String("-m"); // show diff agains parents instead of merge commits
+    realArgs << QLatin1String("-M") << QLatin1String("-C"); // Detect renames and copies
     realArgs << QLatin1String("--first-parent"); // show only first parent
     if (ignoreWhitespace())
         realArgs << QLatin1String("--ignore-space-change");
