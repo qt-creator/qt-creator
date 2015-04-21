@@ -81,18 +81,18 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
 {
     QTC_ASSERT(canRun(runConfig, mode), return 0);
 
-    auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
-    QTC_ASSERT(rc, return 0);
     switch (mode) {
     case NormalRunMode:
-        return new RemoteLinuxRunControl(rc);
+        return new RemoteLinuxRunControl(runConfig);
     case DebugRunMode:
     case DebugRunModeWithBreakOnMain: {
-        IDevice::ConstPtr dev = DeviceKitInformation::device(rc->target()->kit());
+        IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
         if (!dev) {
             *errorMessage = tr("Cannot debug: Kit has no device.");
             return 0;
         }
+        auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
+        QTC_ASSERT(rc, return 0);
         if (rc->portsUsedByDebuggers() > dev->freePorts().count()) {
             *errorMessage = tr("Cannot debug: Not enough free ports available.");
             return 0;
@@ -106,7 +106,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
         if (mode == DebugRunModeWithBreakOnMain)
             params.breakOnMain = true;
-        params.runConfiguration = rc;
+        params.runConfiguration = runConfig;
         DebuggerRunControl * const runControl
                 = DebuggerRunControlFactory::doCreate(params, errorMessage);
         if (!runControl)
@@ -117,11 +117,11 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         return runControl;
     }
     case QmlProfilerRunMode: {
-        AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
+        AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(runConfig, mode);
+        auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
+        QTC_ASSERT(rc, return 0);
         AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig);
-        RemoteLinuxAnalyzeSupport * const analyzeSupport =
-                new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
-        connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
+        (void) new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         return runControl;
     }
     case PerfProfilerRunMode:
