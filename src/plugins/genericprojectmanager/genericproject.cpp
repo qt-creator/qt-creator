@@ -46,7 +46,9 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -349,6 +351,17 @@ void GenericProject::refreshCppCodeModel()
 
     CppTools::ProjectInfo pInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
+
+    CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
+    if (QtSupport::BaseQtVersion *qtVersion =
+            QtSupport::QtKitInformation::qtVersion(activeTarget()->kit())) {
+        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            activeQtVersion = CppTools::ProjectPart::Qt4;
+        else
+            activeQtVersion = CppTools::ProjectPart::Qt5;
+    }
+
+    ppBuilder.setQtVersion(activeQtVersion);
     ppBuilder.setIncludePaths(projectIncludePaths());
     ppBuilder.setConfigFileName(configFileName());
     ppBuilder.setCxxFlags(QStringList() << QLatin1String("-std=c++11"));

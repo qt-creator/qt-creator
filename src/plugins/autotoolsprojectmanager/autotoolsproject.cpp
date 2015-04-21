@@ -53,6 +53,8 @@
 #include <cpptools/cppmodelmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 #include <utils/filesystemwatcher.h>
 
@@ -408,6 +410,16 @@ void AutotoolsProject::updateCppCodeModel()
     CppTools::ProjectInfo pInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
 
+    CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
+    if (QtSupport::BaseQtVersion *qtVersion =
+            QtSupport::QtKitInformation::qtVersion(activeTarget()->kit())) {
+        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            activeQtVersion = CppTools::ProjectPart::Qt4;
+        else
+            activeQtVersion = CppTools::ProjectPart::Qt5;
+    }
+
+    ppBuilder.setQtVersion(activeQtVersion);
     const QStringList cflags = m_makefileParserThread->cflags();
     QStringList cxxflags = m_makefileParserThread->cxxflags();
     if (cxxflags.isEmpty())

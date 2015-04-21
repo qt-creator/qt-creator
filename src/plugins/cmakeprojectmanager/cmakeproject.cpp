@@ -317,6 +317,16 @@ bool CMakeProject::parseCMakeLists()
     CppTools::ProjectInfo pinfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
+    CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
+        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            activeQtVersion = CppTools::ProjectPart::Qt4;
+        else
+            activeQtVersion = CppTools::ProjectPart::Qt5;
+    }
+
+    ppBuilder.setQtVersion(activeQtVersion);
+
     foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
         // This explicitly adds -I. to the include paths
         QStringList includePaths = cbt.includeFiles;
