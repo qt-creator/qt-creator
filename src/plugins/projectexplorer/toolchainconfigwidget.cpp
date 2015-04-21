@@ -31,6 +31,7 @@
 #include "toolchainconfigwidget.h"
 #include "toolchain.h"
 
+#include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 
 #include <QString>
@@ -38,6 +39,8 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QLabel>
+#include <QScrollArea>
+#include <QPainter>
 
 namespace ProjectExplorer {
 
@@ -46,10 +49,26 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
 {
     Q_ASSERT(tc);
 
-    m_nameLineEdit = new QLineEdit(this);
-    m_mainLayout = new QFormLayout(this);
-    m_nameLineEdit->setText(tc->displayName());
+    Utils::DetailsWidget *centralWidget = new Utils::DetailsWidget;
+    centralWidget->setState(Utils::DetailsWidget::NoSummary);
+
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setFrameShape(QFrame::NoFrame);
+    setWidgetResizable(true);
+    setFocusPolicy(Qt::NoFocus);
+
+    setWidget(centralWidget);
+
+    QWidget *detailsBox = new QWidget();
+
+    m_mainLayout = new QFormLayout(detailsBox);
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
+    centralWidget->setWidget(detailsBox);
     m_mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow); // for the Macs...
+
+    m_nameLineEdit = new QLineEdit;
+    m_nameLineEdit->setText(tc->displayName());
+
     m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
 
     connect(m_nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(dirty()));

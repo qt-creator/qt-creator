@@ -33,7 +33,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <QWidget>
+#include <QScrollArea>
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
@@ -50,7 +50,7 @@ class ToolChain;
 // ToolChainConfigWidget
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QWidget
+class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QScrollArea
 {
     Q_OBJECT
 
