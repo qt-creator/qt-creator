@@ -30,6 +30,7 @@
 
 #include "searchwidget.h"
 #include "helpconstants.h"
+#include "helpplugin.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
@@ -303,7 +304,7 @@ QStringList SearchWidget::currentSearchTerms() const
 SearchSideBarItem::SearchSideBarItem()
     : SideBarItem(new SearchWidget, QLatin1String(Constants::HELP_SEARCH))
 {
-    widget()->setWindowTitle(tr(Constants::SB_SEARCH));
+    widget()->setWindowTitle(HelpPlugin::tr(Constants::SB_SEARCH));
     connect(widget(), SIGNAL(linkActivated(QUrl,QStringList,bool)),
             this, SIGNAL(linkActivated(QUrl,QStringList,bool)));
 }

@@ -303,7 +303,7 @@ void HelpWidget::addSideBar()
     auto contentWindow = new ContentWindow;
     auto contentItem = new Core::SideBarItem(contentWindow, QLatin1String(Constants::HELP_CONTENTS));
     contentWindow->setOpenInNewPageActionVisible(supportsNewPages);
-    contentWindow->setWindowTitle(tr(Constants::SB_CONTENTS));
+    contentWindow->setWindowTitle(HelpPlugin::tr(Constants::SB_CONTENTS));
     connect(contentWindow, &ContentWindow::linkActivated,
             this, &HelpWidget::open);
     m_contentsAction = new QAction(tr(Constants::SB_CONTENTS), this);
@@ -315,7 +315,7 @@ void HelpWidget::addSideBar()
     auto indexWindow = new IndexWindow();
     auto indexItem = new Core::SideBarItem(indexWindow, QLatin1String(Constants::HELP_INDEX));
     indexWindow->setOpenInNewPageActionVisible(supportsNewPages);
-    indexWindow->setWindowTitle(tr(Constants::SB_INDEX));
+    indexWindow->setWindowTitle(HelpPlugin::tr(Constants::SB_INDEX));
     connect(indexWindow, &IndexWindow::linkActivated,
             this, &HelpWidget::open);
     connect(indexWindow, &IndexWindow::linksActivated,
@@ -327,7 +327,7 @@ void HelpWidget::addSideBar()
     shortcutMap.insert(QLatin1String(Constants::HELP_INDEX), cmd);
 
     auto bookmarkWidget = new BookmarkWidget(&LocalHelpManager::bookmarkManager());
-    bookmarkWidget->setWindowTitle(tr(Constants::SB_BOOKMARKS));
+    bookmarkWidget->setWindowTitle(HelpPlugin::tr(Constants::SB_BOOKMARKS));
     bookmarkWidget->setOpenInNewPageActionVisible(supportsNewPages);
     auto bookmarkItem = new Core::SideBarItem(bookmarkWidget,
                                               QLatin1String(Constants::HELP_BOOKMARKS));
@@ -351,7 +351,7 @@ void HelpWidget::addSideBar()
     Core::SideBarItem *openPagesItem = 0;
     if (m_style == ModeWidget) {
         QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
-        openPagesWidget->setWindowTitle(tr(Constants::SB_OPENPAGES));
+        openPagesWidget->setWindowTitle(HelpPlugin::tr(Constants::SB_OPENPAGES));
         openPagesItem = new Core::SideBarItem(openPagesWidget,
                                               QLatin1String(Constants::HELP_OPENPAGES));
         m_openPagesAction = new QAction(tr("Activate Open Help Pages View"), this);
