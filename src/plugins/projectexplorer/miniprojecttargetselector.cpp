@@ -60,6 +60,7 @@
 #include <QStatusBar>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QStyleFactory>
 #include <QAction>
 #include <QItemDelegate>
 
@@ -551,6 +552,12 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout->setMargin(3);
     setAutoFillBackground(true);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
+
+    QPalette p = palette();
+    p.setColor(QPalette::Window, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
+    p.setColor(QPalette::Button, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
+    p.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor).name());
+    setPalette(p);
 }
 
 KitAreaWidget::~KitAreaWidget()
@@ -580,7 +587,10 @@ void KitAreaWidget::setKit(Kit *k)
             m_labels << label;
 
             m_layout->addWidget(label, row, 0);
-            m_layout->addWidget(widget->mainWidget(), row, 1);
+            QWidget *mainWidget = widget->mainWidget();
+            // force fusion style as native style has rendering issues on windows:
+            mainWidget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
+            m_layout->addWidget(mainWidget, row, 1);
             ++row;
         }
     }
