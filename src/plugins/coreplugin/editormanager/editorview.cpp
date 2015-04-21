@@ -48,6 +48,7 @@
 
 #include <QDebug>
 
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -511,6 +512,13 @@ void EditorView::updateCurrentPositionInNavigationHistory()
     location->state = QVariant(editor->saveState());
 }
 
+namespace {
+static inline bool fileNameWasRemoved(const QString &fileName)
+{
+    return !fileName.isEmpty() && !QFileInfo(fileName).exists();
+}
+} // End of anonymous namespace
+
 void EditorView::goBackInNavigationHistory()
 {
     updateCurrentPositionInNavigationHistory();
@@ -523,6 +531,10 @@ void EditorView::goBackInNavigationHistory()
                                         EditorManager::IgnoreNavigationHistory);
         }
         if (!editor) {
+            if (fileNameWasRemoved(location.fileName)) {
+                m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
+                continue;
+            }
             editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
                                     EditorManager::IgnoreNavigationHistory);
             if (!editor) {
@@ -542,22 +554,30 @@ void EditorView::goForwardInNavigationHistory()
     if (m_currentNavigationHistoryPosition >= m_navigationHistory.size()-1)
         return;
     ++m_currentNavigationHistoryPosition;
-    EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
-    IEditor *editor = 0;
-    if (location.document) {
-        editor = EditorManagerPrivate::activateEditorForDocument(this, location.document,
-                                    EditorManager::IgnoreNavigationHistory);
-    }
-    if (!editor) {
-        editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
-                                                  EditorManager::IgnoreNavigationHistory);
-        if (!editor) {
-            //TODO
-            qDebug() << Q_FUNC_INFO << "can't open file" << location.fileName;
-            return;
+    while (m_currentNavigationHistoryPosition < m_navigationHistory.size()) {
+        IEditor *editor = 0;
+        EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
+        if (location.document) {
+            editor = EditorManagerPrivate::activateEditorForDocument(this, location.document,
+                                                                     EditorManager::IgnoreNavigationHistory);
         }
+        if (!editor) {
+            if (fileNameWasRemoved(location.fileName)) {
+                m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
+                continue;
+            }
+            editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
+                                                      EditorManager::IgnoreNavigationHistory);
+            if (!editor) {
+                m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
+                continue;
+            }
+        }
+        editor->restoreState(location.state.toByteArray());
+        break;
     }
-    editor->restoreState(location.state.toByteArray());
+    if (m_currentNavigationHistoryPosition >= m_navigationHistory.size())
+        m_currentNavigationHistoryPosition = qMax<int>(m_navigationHistory.size() - 1, 0);
     updateNavigatorActions();
 }
 
