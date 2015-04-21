@@ -598,9 +598,8 @@ public:
 class Instantiator
 {
 public:
-    Instantiator(CreateBindings *factory, Clone &cloner, Subst &subst)
-        : _factory(factory)
-        , _cloner(cloner)
+    Instantiator(Clone &cloner, Subst &subst)
+        : _cloner(cloner)
         , _subst(subst)
     {}
     void instantiate(LookupScopePrivate *lookupScope, LookupScopePrivate *instantiation);
@@ -611,7 +610,6 @@ private:
     NamedType *findNamedType(Type *memberType) const;
 
     ProcessedSet _alreadyConsideredInstantiations;
-    CreateBindings *_factory;
     Clone &_cloner;
     Subst &_subst;
 };
@@ -1313,7 +1311,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(
                         }
                     }
                 }
-                Instantiator instantiator(_factory, cloner, subst);
+                Instantiator instantiator(cloner, subst);
                 instantiator.instantiate(reference, instantiation);
             } else {
                 instantiation->_symbols.append(reference->_symbols);
