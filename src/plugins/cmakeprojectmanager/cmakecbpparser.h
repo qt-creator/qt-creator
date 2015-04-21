@@ -72,6 +72,7 @@ private:
     void parseUnknownElement();
     void sortFiles();
 
+    QMap<Utils::FileName, QString> m_unitTargetMap;
     ProjectExplorer::Kit *m_kit;
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
@@ -84,6 +85,7 @@ private:
     QString m_compiler;
     QString m_sourceDirectory;
     QString m_buildDirectory;
+    QString m_unitTarget;
 };
 
 } // namespace Internal
