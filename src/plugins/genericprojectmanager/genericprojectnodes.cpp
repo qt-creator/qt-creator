@@ -120,6 +120,8 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
         QList<FileNode *> fileNodes;
         foreach (const QString &file, it.value()) {
             FileType fileType = SourceType; // ### FIXME
+            if (file.endsWith(QLatin1String(".qrc")))
+                fileType = ResourceType;
             FileNode *fileNode = new FileNode(Utils::FileName::fromString(file),
                                               fileType, /*generated = */ false);
             fileNodes.append(fileNode);
