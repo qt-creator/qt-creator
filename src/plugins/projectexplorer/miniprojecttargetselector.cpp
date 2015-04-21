@@ -549,6 +549,7 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout(new QGridLayout(this)), m_kit(0)
 {
     m_layout->setMargin(3);
+    setAutoFillBackground(true);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
 }
 
