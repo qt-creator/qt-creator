@@ -298,9 +298,6 @@ public:
     void transformSelection(TransformationMethod method);
     void transformBlockSelection(TransformationMethod method);
 
-    bool inFindScope(const QTextCursor &cursor);
-    bool inFindScope(int selectionStart, int selectionEnd);
-
     void slotUpdateExtraAreaWidth();
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
@@ -3143,7 +3140,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block,
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
 
-        if (!inFindScope(blockPosition + idx, blockPosition + idx + l))
+        if (!q->inFindScope(blockPosition + idx, blockPosition + idx + l))
             continue;
 
         const QTextCharFormat &searchResultFormat
@@ -6923,30 +6920,30 @@ void TextBlockSelection::fromPostition(int positionBlock, int positionColumn,
     this->anchorColumn = anchorColumn;
 }
 
-bool TextEditorWidgetPrivate::inFindScope(const QTextCursor &cursor)
+bool TextEditorWidget::inFindScope(const QTextCursor &cursor)
 {
     if (cursor.isNull())
         return false;
     return inFindScope(cursor.selectionStart(), cursor.selectionEnd());
 }
 
-bool TextEditorWidgetPrivate::inFindScope(int selectionStart, int selectionEnd)
+bool TextEditorWidget::inFindScope(int selectionStart, int selectionEnd)
 {
-    if (m_findScopeStart.isNull())
+    if (d->m_findScopeStart.isNull())
         return true; // no scope, everything is included
-    if (selectionStart < m_findScopeStart.position())
+    if (selectionStart < d->m_findScopeStart.position())
         return false;
-    if (selectionEnd > m_findScopeEnd.position())
+    if (selectionEnd > d->m_findScopeEnd.position())
         return false;
-    if (m_findScopeVerticalBlockSelectionFirstColumn < 0)
+    if (d->m_findScopeVerticalBlockSelectionFirstColumn < 0)
         return true;
-    QTextBlock block = q->document()->findBlock(selectionStart);
-    if (block != q->document()->findBlock(selectionEnd))
+    QTextBlock block = document()->findBlock(selectionStart);
+    if (block != document()->findBlock(selectionEnd))
         return false;
     QString text = block.text();
-    const TabSettings &ts = m_document->tabSettings();
-    int startPosition = ts.positionAtColumn(text, m_findScopeVerticalBlockSelectionFirstColumn);
-    int endPosition = ts.positionAtColumn(text, m_findScopeVerticalBlockSelectionLastColumn);
+    const TabSettings &ts = d->m_document->tabSettings();
+    int startPosition = ts.positionAtColumn(text, d->m_findScopeVerticalBlockSelectionFirstColumn);
+    int endPosition = ts.positionAtColumn(text, d->m_findScopeVerticalBlockSelectionLastColumn);
     if (selectionStart - block.position() < startPosition)
         return false;
     if (selectionEnd - block.position() > endPosition)

@@ -623,6 +623,9 @@ protected slots:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
+    bool inFindScope(const QTextCursor &cursor);
+    bool inFindScope(int selectionStart, int selectionEnd);
+
     void doFoo();
 
 private:
