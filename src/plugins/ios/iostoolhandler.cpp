@@ -443,7 +443,7 @@ void IosToolHandlerPrivate::processXml()
                 else if (statusStr.compare(QLatin1String("failure"), Qt::CaseInsensitive) == 0)
                     status = Ios::IosToolHandler::Failure;
                 emit didTransferApp(bundlePath, deviceId, status);
-            } else if (elName == QLatin1String("device_info")) {
+            } else if (elName == QLatin1String("device_info") || elName == QLatin1String("deviceinfo")) {
                 stack.append(ParserState(ParserState::DeviceInfo));
             } else if (elName == QLatin1String("inferior_pid")) {
                 stack.append(ParserState(ParserState::InferiorPid));
