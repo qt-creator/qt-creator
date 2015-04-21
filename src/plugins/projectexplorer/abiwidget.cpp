@@ -82,6 +82,8 @@ AbiWidget::AbiWidget(QWidget *parent) :
     layout->setSpacing(2);
 
     d->m_abi = new QComboBox(this);
+    d->m_abi->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    d->m_abi->setMinimumContentsLength(4);
     layout->addWidget(d->m_abi);
     connect(d->m_abi, SIGNAL(currentIndexChanged(int)), this, SLOT(modeChanged()));
 
