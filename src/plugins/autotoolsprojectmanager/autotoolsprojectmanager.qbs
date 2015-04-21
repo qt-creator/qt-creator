@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "CppTools" }
+    Depends { name: "QtSupport" }
 
     files: [
         "autogenstep.cpp",
