@@ -3004,6 +3004,11 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
         }
         if (hasFile) {
             const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file);
+            if (!fileName.exists && i == 0 && sourceStepInto) {
+                showMessage(QString::fromLatin1("Step into: Hit frame with no source, "
+                                                "step out..."), LogMisc);
+                return ParseStackStepOut;
+            }
             frames[i].file = fileName.fileName;
             frames[i].usable = fileName.exists;
             if (current == -1 && frames[i].usable)
