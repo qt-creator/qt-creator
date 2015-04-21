@@ -549,6 +549,7 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout(new QGridLayout(this)), m_kit(0)
 {
     m_layout->setMargin(3);
+    connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
 }
 
 KitAreaWidget::~KitAreaWidget()
@@ -558,20 +559,16 @@ KitAreaWidget::~KitAreaWidget()
 
 void KitAreaWidget::setKit(Kit *k)
 {
-    if (k == m_kit)
-        return;
-
     foreach (KitConfigWidget *w, m_widgets)
         delete(w);
     m_widgets.clear();
+
+    if (!k)
+        return;
+
     foreach (QLabel *l, m_labels)
         l->deleteLater();
     m_labels.clear();
-
-    if (m_kit) {
-        disconnect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-                   this, SLOT(updateKit(ProjectExplorer::Kit*)));
-    }
 
     int row = 0;
     foreach (KitInformation *ki, KitManager::kitInformation()) {
@@ -587,11 +584,6 @@ void KitAreaWidget::setKit(Kit *k)
         }
     }
     m_kit = k;
-
-    if (m_kit) {
-        connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-                this, SLOT(updateKit(ProjectExplorer::Kit*)));
-    }
 
     setHidden(m_widgets.isEmpty());
 }
