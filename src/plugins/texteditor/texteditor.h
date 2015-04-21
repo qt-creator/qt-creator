@@ -284,9 +284,6 @@ public:
 
     void setReadOnly(bool b);
 
-    void setTextCursor(const QTextCursor &cursor, bool keepBlockSelection);
-    void setTextCursor(const QTextCursor &cursor);
-
     void insertCodeSnippet(const QTextCursor &cursor, const QString &snippet);
 
     void setBlockSelection(bool on);
@@ -605,7 +602,8 @@ protected:
                                          QPointF offset,
                                          const QRect &clip);
     int visibleFoldedBlockNumber() const;
-
+    void doSetTextCursor(const QTextCursor &cursor) override;
+    void doSetTextCursor(const QTextCursor &cursor, bool keepBlockSelection);
 
 signals:
     void markRequested(TextEditor::TextEditorWidget *widget,

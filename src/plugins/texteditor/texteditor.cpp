@@ -2146,7 +2146,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                && d->m_inBlockSelectionMode) {
         QPlainTextEdit::keyPressEvent(e);
         d->m_blockSelection.positionBlock = QPlainTextEdit::textCursor().blockNumber();
-        setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+        doSetTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
         viewport()->update();
         e->accept();
         return;
@@ -2229,7 +2229,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 break;
             }
             d->resetCursorFlashTimer();
-            setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+            doSetTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
             viewport()->update();
             e->accept();
             return;
@@ -2417,7 +2417,7 @@ void TextEditorWidgetPrivate::universalHelper()
     // give it proper scrutiny before pushing it onto others.
 }
 
-void TextEditorWidget::setTextCursor(const QTextCursor &cursor, bool keepBlockSelection)
+void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor, bool keepBlockSelection)
 {
     // workaround for QTextControl bug
     bool selectionChange = cursor.hasSelection() || textCursor().hasSelection();
@@ -2425,14 +2425,14 @@ void TextEditorWidget::setTextCursor(const QTextCursor &cursor, bool keepBlockSe
         d->disableBlockSelection(false);
     QTextCursor c = cursor;
     c.setVisualNavigation(true);
-    QPlainTextEdit::setTextCursor(c);
+    QPlainTextEdit::doSetTextCursor(c);
     if (selectionChange)
         d->slotSelectionChanged();
 }
 
-void TextEditorWidget::setTextCursor(const QTextCursor &cursor)
+void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor)
 {
-    setTextCursor(cursor, false);
+    doSetTextCursor(cursor, false);
 }
 
 void TextEditorWidget::gotoLine(int line, int column, bool centerLine)
@@ -3303,7 +3303,7 @@ void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
 
     column += textLength;
     m_blockSelection.fromPostition(positionBlock, column, anchorBlock, column);
-    q->setTextCursor(m_blockSelection.selection(m_document.data()), true);
+    q->doSetTextCursor(m_blockSelection.selection(m_document.data()), true);
 }
 
 void TextEditorWidgetPrivate::removeBlockSelection()
@@ -3345,7 +3345,7 @@ void TextEditorWidgetPrivate::removeBlockSelection()
     cursor.endEditBlock();
     m_blockSelection.fromPostition(positionBlock, firstColumn, anchorBlock, firstColumn);
     cursor = m_blockSelection.selection(m_document.data());
-    q->setTextCursor(cursor, m_blockSelection.hasSelection());
+    q->doSetTextCursor(cursor, m_blockSelection.hasSelection());
 }
 
 void TextEditorWidgetPrivate::enableBlockSelection(const QTextCursor &cursor)
@@ -3370,7 +3370,7 @@ void TextEditorWidgetPrivate::enableBlockSelection(int positionBlock, int positi
     m_blockSelection.fromPostition(positionBlock, anchorColumn, anchorBlock, positionColumn);
     resetCursorFlashTimer();
     m_inBlockSelectionMode = true;
-    q->setTextCursor(m_blockSelection.selection(m_document.data()), true);
+    q->doSetTextCursor(m_blockSelection.selection(m_document.data()), true);
     q->viewport()->update();
 }
 
@@ -4771,7 +4771,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                 d->m_blockSelection.positionBlock = cursor.blockNumber();
                 d->m_blockSelection.positionColumn = column;
 
-                setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+                doSetTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
                 viewport()->update();
             }
         } else if (d->m_inBlockSelectionMode) {
@@ -4812,7 +4812,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
                 d->m_blockSelection.positionBlock = block;
                 d->m_blockSelection.positionColumn = column;
 
-                setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+                doSetTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
                 viewport()->update();
             } else {
                 d->enableBlockSelection(block, column, block, column);
@@ -5802,7 +5802,7 @@ void TextEditorWidget::copyLine()
     copy();
     if (!prevCursor.hasSelection())
         prevCursor.movePosition(QTextCursor::StartOfBlock);
-    setTextCursor(prevCursor, d->m_inBlockSelectionMode);
+    doSetTextCursor(prevCursor, d->m_inBlockSelectionMode);
 }
 
 void TextEditorWidget::deleteLine()
