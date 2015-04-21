@@ -72,21 +72,22 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     outputLayout->addWidget(m_summaryWidget);
 
-    m_listView = new Utils::ListView(m_outputWidget);
-    m_listView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_treeView = new Utils::TreeView(m_outputWidget);
+    m_treeView->setHeaderHidden(true);
+    m_treeView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
-    m_listView->setModel(m_filterModel);
+    m_treeView->setModel(m_filterModel);
     TestResultDelegate *trd = new TestResultDelegate(this);
-    m_listView->setItemDelegate(trd);
+    m_treeView->setItemDelegate(trd);
 
-    outputLayout->addWidget(m_listView);
+    outputLayout->addWidget(m_treeView);
 
     createToolButtons();
 
-    connect(m_listView, &Utils::ListView::activated, this, &TestResultsPane::onItemActivated);
-    connect(m_listView->selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(m_treeView, &Utils::TreeView::activated, this, &TestResultsPane::onItemActivated);
+    connect(m_treeView->selectionModel(), &QItemSelectionModel::currentChanged,
             trd, &TestResultDelegate::currentChanged);
     connect(TestRunner::instance(), &TestRunner::testRunStarted,
             this, &TestResultsPane::onTestRunStarted);
@@ -96,23 +97,23 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
 void TestResultsPane::createToolButtons()
 {
-    m_runAll = new QToolButton(m_listView);
+    m_runAll = new QToolButton(m_treeView);
     m_runAll->setIcon(QIcon(QLatin1String(":/images/run.png")));
     m_runAll->setToolTip(tr("Run All Tests"));
     connect(m_runAll, &QToolButton::clicked, this, &TestResultsPane::onRunAllTriggered);
 
-    m_runSelected = new QToolButton(m_listView);
+    m_runSelected = new QToolButton(m_treeView);
     m_runSelected->setIcon(QIcon(QLatin1String(":/images/runselected.png")));
     m_runSelected->setToolTip(tr("Run Selected Tests"));
     connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
 
-    m_stopTestRun = new QToolButton(m_listView);
+    m_stopTestRun = new QToolButton(m_treeView);
     m_stopTestRun->setIcon(QIcon(QLatin1String(":/images/stop.png")));
     m_stopTestRun->setToolTip(tr("Stop Test Run"));
     m_stopTestRun->setEnabled(false);
     connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::requestStopTestRun);
 
-    m_filterButton = new QToolButton(m_listView);
+    m_filterButton = new QToolButton(m_treeView);
     m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     m_filterButton->setToolTip(tr("Filter Test Results"));
     m_filterButton->setProperty("noArrow", true);
@@ -135,14 +136,14 @@ TestResultsPane *TestResultsPane::instance()
 
 TestResultsPane::~TestResultsPane()
 {
-    delete m_listView;
+    delete m_treeView;
     m_instance = 0;
 }
 
 void TestResultsPane::addTestResult(const TestResult &result)
 {
     m_model->addTestResult(result);
-    if (!m_listView->isVisible())
+    if (!m_treeView->isVisible())
         popup(Core::IOutputPane::NoModeSwitch);
     flash();
     navigateStateChanged();
@@ -205,7 +206,7 @@ void TestResultsPane::setFocus()
 
 bool TestResultsPane::hasFocus() const
 {
-    return m_listView->hasFocus();
+    return m_treeView->hasFocus();
 }
 
 bool TestResultsPane::canFocus() const
@@ -233,7 +234,7 @@ void TestResultsPane::goToNext()
     if (!canNext())
         return;
 
-    QModelIndex currentIndex = m_listView->currentIndex();
+    QModelIndex currentIndex = m_treeView->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() + 1;
         if (row == m_filterModel->rowCount(QModelIndex()))
@@ -242,7 +243,7 @@ void TestResultsPane::goToNext()
     } else {
         currentIndex = m_filterModel->index(0, 0, QModelIndex());
     }
-    m_listView->setCurrentIndex(currentIndex);
+    m_treeView->setCurrentIndex(currentIndex);
     onItemActivated(currentIndex);
 }
 
@@ -251,7 +252,7 @@ void TestResultsPane::goToPrev()
     if (!canPrevious())
         return;
 
-    QModelIndex currentIndex = m_listView->currentIndex();
+    QModelIndex currentIndex = m_treeView->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() - 1;
         if (row < 0)
@@ -260,7 +261,7 @@ void TestResultsPane::goToPrev()
     } else {
         currentIndex = m_filterModel->index(m_filterModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
     }
-    m_listView->setCurrentIndex(currentIndex);
+    m_treeView->setCurrentIndex(currentIndex);
     onItemActivated(currentIndex);
 }
 

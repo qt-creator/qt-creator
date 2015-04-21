@@ -36,7 +36,7 @@ class IContext;
 }
 
 namespace Utils {
-class ListView;
+class TreeView;
 }
 
 namespace Autotest {
@@ -93,7 +93,7 @@ private:
     QWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
-    Utils::ListView *m_listView;
+    Utils::TreeView *m_treeView;
     TestResultModel *m_model;
     TestResultFilterModel *m_filterModel;
     Core::IContext *m_context;

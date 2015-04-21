@@ -46,6 +46,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItemV4 opt = option;
     initStyleOption(&opt, index);
+    // make sure we paint the complete delegate instead of keeping an offset
+    opt.rect.adjust(-opt.rect.x(), 0, 0, 0);
     painter->save();
 
     QFontMetrics fm(opt.font);
@@ -181,6 +183,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 opt = option;
+    // make sure opt.rect is initialized correctly - otherwise we might get a width of 0
+    opt.initFrom(opt.widget);
     initStyleOption(&opt, index);
 
     const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(opt.widget);
