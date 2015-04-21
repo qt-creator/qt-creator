@@ -123,14 +123,6 @@ ModeManager::~ModeManager()
     m_instance = 0;
 }
 
-void ModeManager::addWidget(QWidget *widget)
-{
-    // We want the actionbar to stay on the bottom
-    // so d->m_modeStack->cornerWidgetCount() -1 inserts it at the position immediately above
-    // the actionbar
-    d->m_modeStack->insertCornerWidget(d->m_modeStack->cornerWidgetCount() -1, widget);
-}
-
 IMode *ModeManager::currentMode()
 {
     int currentIndex = d->m_modeStack->currentIndex();

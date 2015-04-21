@@ -60,7 +60,6 @@ public:
 
     static void addAction(QAction *action, int priority);
     static void addProjectSelector(QAction *action);
-    static void addWidget(QWidget *widget);
 
     static void activateMode(Id id);
     static void setFocusToCurrentMode();
