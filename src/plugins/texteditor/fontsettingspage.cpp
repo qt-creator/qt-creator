@@ -337,11 +337,7 @@ QWidget *FontSettingsPage::widget()
         d_ptr->m_ui->setupUi(d_ptr->m_widget);
         d_ptr->m_ui->schemeComboBox->setModel(d_ptr->m_schemeListModel);
 
-        QFontDatabase db;
-        const QStringList families = db.families();
-        d_ptr->m_ui->familyComboBox->addItems(families);
-        const int idx = families.indexOf(d_ptr->m_value.family());
-        d_ptr->m_ui->familyComboBox->setCurrentIndex(idx);
+        d_ptr->m_ui->fontComboBox->setCurrentFont(d_ptr->m_value.family());
 
         d_ptr->m_ui->antialias->setChecked(d_ptr->m_value.antialias());
         d_ptr->m_ui->zoomSpinBox->setValue(d_ptr->m_value.fontZoom());
@@ -350,13 +346,23 @@ QWidget *FontSettingsPage::widget()
         d_ptr->m_ui->schemeEdit->setBaseFont(d_ptr->m_value.font());
         d_ptr->m_ui->schemeEdit->setColorScheme(d_ptr->m_value.colorScheme());
 
-        connect(d_ptr->m_ui->familyComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontFamilySelected(QString)));
-        connect(d_ptr->m_ui->sizeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontSizeSelected(QString)));
-        connect(d_ptr->m_ui->zoomSpinBox, SIGNAL(valueChanged(int)), this, SLOT(fontZoomChanged()));
-        connect(d_ptr->m_ui->antialias, SIGNAL(toggled(bool)), this, SLOT(antialiasChanged()));
-        connect(d_ptr->m_ui->schemeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(colorSchemeSelected(int)));
-        connect(d_ptr->m_ui->copyButton, SIGNAL(clicked()), this, SLOT(copyColorScheme()));
-        connect(d_ptr->m_ui->deleteButton, SIGNAL(clicked()), this, SLOT(confirmDeleteColorScheme()));
+        connect(d_ptr->m_ui->fontComboBox, &QFontComboBox::currentFontChanged,
+                this, &FontSettingsPage::fontSelected);
+        connect(d_ptr->m_ui->sizeComboBox,
+                static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+                this, &FontSettingsPage::fontSizeSelected);
+        connect(d_ptr->m_ui->zoomSpinBox,
+                static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+                this, &FontSettingsPage::fontZoomChanged);
+        connect(d_ptr->m_ui->antialias, &QCheckBox::toggled,
+                this, &FontSettingsPage::antialiasChanged);
+        connect(d_ptr->m_ui->schemeComboBox,
+                static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &FontSettingsPage::colorSchemeSelected);
+        connect(d_ptr->m_ui->copyButton, &QPushButton::clicked,
+                this, &FontSettingsPage::openCopyColorSchemeDialog);
+        connect(d_ptr->m_ui->deleteButton, &QPushButton::clicked,
+                this, &FontSettingsPage::confirmDeleteColorScheme);
 
 
         updatePointSizes();
@@ -366,10 +372,10 @@ QWidget *FontSettingsPage::widget()
     return d_ptr->m_widget;
 }
 
-void FontSettingsPage::fontFamilySelected(const QString &family)
+void FontSettingsPage::fontSelected(const QFont &font)
 {
-    d_ptr->m_value.setFamily(family);
-    d_ptr->m_ui->schemeEdit->setBaseFont(d_ptr->m_value.font());
+    d_ptr->m_value.setFamily(font.family());
+    d_ptr->m_ui->schemeEdit->setBaseFont(font);
     updatePointSizes();
 }
 
@@ -393,7 +399,7 @@ void FontSettingsPage::updatePointSizes()
 QList<int> FontSettingsPage::pointSizesForSelectedFont() const
 {
     QFontDatabase db;
-    const QString familyName = d_ptr->m_ui->familyComboBox->currentText();
+    const QString familyName = d_ptr->m_ui->fontComboBox->currentFont().family();
     QList<int> sizeLst = db.pointSizes(familyName);
     if (!sizeLst.isEmpty())
         return sizeLst;
@@ -446,7 +452,7 @@ void FontSettingsPage::colorSchemeSelected(int index)
     d_ptr->m_ui->schemeEdit->setReadOnly(readOnly);
 }
 
-void FontSettingsPage::copyColorScheme()
+void FontSettingsPage::openCopyColorSchemeDialog()
 {
     QInputDialog *dialog = new QInputDialog(d_ptr->m_ui->copyButton->window());
     dialog->setAttribute(Qt::WA_DeleteOnClose);

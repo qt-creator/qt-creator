@@ -107,12 +107,12 @@ signals:
 
 private slots:
     void delayedChange();
-    void fontFamilySelected(const QString &family);
+    void fontSelected(const QFont &font);
     void fontSizeSelected(const QString &sizeString);
     void fontZoomChanged();
     void antialiasChanged();
     void colorSchemeSelected(int index);
-    void copyColorScheme();
+    void openCopyColorSchemeDialog();
     void copyColorScheme(const QString &name);
     void confirmDeleteColorScheme();
     void deleteColorScheme();
