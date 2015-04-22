@@ -72,9 +72,7 @@ public:
 
     virtual TreeItem *parent() const { return m_parent; }
     virtual TreeItem *child(int pos) const;
-    virtual bool isLazy() const;
     virtual int rowCount() const;
-    virtual void populate();
 
     virtual QVariant data(int column, int role) const;
     virtual bool setData(int column, const QVariant &data, int role);
@@ -96,8 +94,6 @@ public:
     TreeItem *lastChild() const;
     int level() const;
 
-    void setLazy(bool on);
-    void setPopulated(bool on);
     void setFlags(Qt::ItemFlags flags);
     int childCount() const { return m_children.size(); }
     TreeItem *childAt(int index) const { return m_children.at(index); }
@@ -115,14 +111,12 @@ private:
     void operator=(const TreeItem &) Q_DECL_EQ_DELETE;
 
     void clear();
-    void ensurePopulated() const;
     void propagateModel(TreeModel *m);
 
     TreeItem *m_parent; // Not owned.
     TreeModel *m_model; // Not owned.
     QVector<TreeItem *> m_children; // Owned.
     QStringList *m_displays;
-    bool m_lazy;
     mutable bool m_populated;
     Qt::ItemFlags m_flags;
 

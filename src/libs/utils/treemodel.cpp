@@ -611,14 +611,12 @@ namespace Utils {
 // TreeItem
 //
 TreeItem::TreeItem()
-    : m_parent(0), m_model(0), m_displays(0), m_lazy(false), m_populated(false),
-      m_flags(Qt::ItemIsEnabled|Qt::ItemIsSelectable)
+    : m_parent(0), m_model(0), m_displays(0), m_flags(Qt::ItemIsEnabled|Qt::ItemIsSelectable)
 {
 }
 
 TreeItem::TreeItem(const QStringList &displays, int flags)
-    : m_parent(0), m_model(0), m_displays(new QStringList(displays)), m_lazy(false), m_populated(false),
-      m_flags(flags)
+    : m_parent(0), m_model(0), m_displays(new QStringList(displays)), m_flags(flags)
 {
 }
 
@@ -630,24 +628,13 @@ TreeItem::~TreeItem()
 
 TreeItem *TreeItem::child(int pos) const
 {
-    ensurePopulated();
     QTC_ASSERT(pos >= 0, return 0);
     return pos < m_children.size() ? m_children.at(pos) : 0;
 }
 
-bool TreeItem::isLazy() const
-{
-    return m_lazy;
-}
-
 int TreeItem::rowCount() const
 {
-    ensurePopulated();
     return m_children.size();
-}
-
-void TreeItem::populate()
-{
 }
 
 QVariant TreeItem::data(int column, int role) const
@@ -696,7 +683,7 @@ void TreeItem::insertChild(int pos, TreeItem *item)
     QTC_CHECK(!item->parent());
     QTC_ASSERT(0 <= pos && pos <= m_children.size(), return); // '<= size' is intentional.
 
-    if (m_model && !m_lazy) {
+    if (m_model) {
         QModelIndex idx = index();
         m_model->beginInsertRows(idx, pos, pos);
         item->m_parent = this;
@@ -770,11 +757,6 @@ int TreeItem::level() const
     return l;
 }
 
-void TreeItem::setLazy(bool on)
-{
-    m_lazy = on;
-}
-
 void TreeItem::setFlags(Qt::ItemFlags flags)
 {
     m_flags = flags;
@@ -828,15 +810,6 @@ void TreeItem::expand()
 {
     QTC_ASSERT(m_model, return);
     m_model->requestExpansion(index());
-}
-
-void TreeItem::ensurePopulated() const
-{
-    if (!m_populated) {
-        if (isLazy())
-            const_cast<TreeItem *>(this)->populate();
-        m_populated = true;
-    }
 }
 
 void TreeItem::propagateModel(TreeModel *m)

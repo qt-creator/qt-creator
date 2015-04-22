@@ -127,9 +127,8 @@ class VariableGroupItem : public TreeItem
 {
 public:
     VariableGroupItem()
-        : m_chooser(0)
+        : m_chooser(0), m_populated(false)
     {
-        setLazy(true);
     }
 
     QVariant data(int column, int role) const
@@ -143,16 +142,23 @@ public:
         return QVariant();
     }
 
-    void populate()
+    bool canFetchMore() const
+    {
+        return !m_populated;
+    }
+
+    void fetchMore()
     {
         if (MacroExpander *expander = m_provider())
             populateGroup(expander);
+        m_populated = true;
     }
 
     void populateGroup(MacroExpander *expander);
 
 public:
     VariableChooserPrivate *m_chooser; // Not owned.
+    bool m_populated;
     MacroExpanderProvider m_provider;
 };
 
