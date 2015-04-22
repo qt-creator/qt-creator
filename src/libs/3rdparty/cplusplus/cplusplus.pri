@@ -61,7 +61,6 @@ SOURCES += \
     $$PWD/Bind.cpp \
     $$PWD/Symbol.cpp \
     $$PWD/Symbols.cpp \
-    $$PWD/SymbolVisitor.cpp \
     $$PWD/Token.cpp \
     $$PWD/TranslationUnit.cpp \
     $$PWD/Type.cpp \

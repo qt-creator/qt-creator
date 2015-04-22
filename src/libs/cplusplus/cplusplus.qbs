@@ -69,7 +69,6 @@ QtcLibrary {
             "Scope.h",
             "Symbol.cpp",
             "Symbol.h",
-            "SymbolVisitor.cpp",
             "SymbolVisitor.h",
             "Symbols.cpp",
             "Symbols.h",
