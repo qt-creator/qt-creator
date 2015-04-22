@@ -151,7 +151,7 @@ QModelIndex DebuggerItemModel::lastIndex() const
 {
     TreeItem *manualGroup = rootItem()->lastChild();
     TreeItem *lastItem = manualGroup->lastChild();
-    return lastItem ? indexFromItem(lastItem) : QModelIndex();
+    return lastItem ? indexForItem(lastItem) : QModelIndex();
 }
 
 DebuggerItem *DebuggerItemModel::currentDebugger() const
@@ -183,7 +183,7 @@ void DebuggerItemModel::apply()
 
 void DebuggerItemModel::setCurrentIndex(const QModelIndex &index)
 {
-    TreeItem *treeItem = itemFromIndex(index);
+    TreeItem *treeItem = itemForIndex(index);
     m_currentTreeItem = treeItem && treeItem->level() == 2 ? static_cast<DebuggerTreeItem *>(treeItem) : 0;
 }
 

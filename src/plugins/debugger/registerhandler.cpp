@@ -603,7 +603,7 @@ void RegisterHandler::setNumberFormat(const QByteArray &name, RegisterFormat for
     RegisterItem *reg = m_registerByName.value(name, 0);
     QTC_ASSERT(reg, return);
     reg->m_format = format;
-    QModelIndex index = indexFromItem(reg);
+    QModelIndex index = indexForItem(reg);
     emit dataChanged(index, index);
 }
 

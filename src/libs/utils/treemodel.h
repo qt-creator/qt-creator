@@ -276,12 +276,11 @@ public:
 
     TreeItem *rootItem() const;
     void setRootItem(TreeItem *item);
-    TreeItem *itemFromIndex(const QModelIndex &) const;
-    QModelIndex indexFromItem(const TreeItem *needle) const;
+    TreeItem *itemForIndex(const QModelIndex &) const;
+    QModelIndex indexForItem(const TreeItem *needle) const;
     void removeItems();
 
     void setHeader(const QStringList &displays);
-    void setColumnCount(int columnCount);
 
     UntypedTreeLevelItems untypedLevelItems(int level = 0, TreeItem *start = 0) const;
     UntypedTreeLevelItems untypedLevelItems(TreeItem *start) const;

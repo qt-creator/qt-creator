@@ -534,7 +534,7 @@ void BreakHandler::updateMarkers()
 
 Breakpoint BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 {
-    TreeItem *item = itemFromIndex(index);
+    TreeItem *item = itemForIndex(index);
     return Breakpoint(item && item->parent() == rootItem() ? static_cast<BreakpointItem *>(item) : 0);
 }
 

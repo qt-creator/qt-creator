@@ -143,14 +143,14 @@ Kit *KitModel::kit(const QModelIndex &index)
 
 KitNode *KitModel::kitNode(const QModelIndex &index)
 {
-    TreeItem *n = itemFromIndex(index);
+    TreeItem *n = itemForIndex(index);
     return n && n->level() == 2 ? static_cast<KitNode *>(n) : 0;
 }
 
 QModelIndex KitModel::indexOf(Kit *k) const
 {
     KitNode *n = findWorkingCopy(k);
-    return n ? indexFromItem(n) : QModelIndex();
+    return n ? indexForItem(n) : QModelIndex();
 }
 
 void KitModel::setDefaultKit(const QModelIndex &index)
@@ -191,7 +191,7 @@ void KitModel::isAutoDetectedChanged()
     }
 
     if (oldParent && oldParent != newParent) {
-        beginMoveRows(indexFromItem(oldParent), idx, idx, indexFromItem(newParent), newParent->children().size());
+        beginMoveRows(indexForItem(oldParent), idx, idx, indexForItem(newParent), newParent->children().size());
         TreeItem *n = oldParent->children().at(idx);
         removeItem(n);
         newParent->appendChild(n);

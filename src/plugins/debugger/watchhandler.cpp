@@ -904,9 +904,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
     if (role == BaseTreeView::ExtraIndicesForColumnWidth) {
         QModelIndexList l;
         foreach (TreeItem *item, m_watchRoot->children())
-            l.append(indexFromItem(item));
+            l.append(indexForItem(item));
         foreach (TreeItem *item, m_returnRoot->children())
-            l.append(indexFromItem(item));
+            l.append(indexForItem(item));
         return QVariant::fromValue(l);
     }
     return WatchModelBase::data(idx, role);
@@ -917,7 +917,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
     if (!idx.isValid())
         return false; // Triggered by ModelTester.
 
-    WatchItem *item = static_cast<WatchItem *>(itemFromIndex(idx));
+    WatchItem *item = static_cast<WatchItem *>(itemForIndex(idx));
     QTC_ASSERT(item, return false);
 
     switch (role) {
@@ -1189,7 +1189,7 @@ void WatchModel::reinsertAllData()
         parent->insertChild(row, newItem);
         if (m_expandedINames.contains(parent->iname)) {
             emit inameIsExpanded(parent->iname);
-            emit itemIsExpanded(indexFromItem(parent));
+            emit itemIsExpanded(indexForItem(parent));
         }
         showEditValue(newItem); // FIXME: Needed?
     }
@@ -1258,7 +1258,7 @@ void WatchModel::reexpandItems()
 {
     foreach (const QByteArray &iname, m_expandedINames) {
         if (WatchItem *item = findItem(iname)) {
-            emit itemIsExpanded(indexFromItem(item));
+            emit itemIsExpanded(indexForItem(item));
             emit inameIsExpanded(iname);
         } else {
             // Can happen. We might have stepped into another frame
@@ -1534,7 +1534,7 @@ WatchModelBase *WatchHandler::model() const
 
 const WatchItem *WatchHandler::watchItem(const QModelIndex &idx) const
 {
-    return static_cast<WatchItem *>(m_model->itemFromIndex(idx));
+    return static_cast<WatchItem *>(m_model->itemForIndex(idx));
 }
 
 void WatchHandler::fetchMore(const QByteArray &iname) const
@@ -1723,7 +1723,7 @@ void WatchHandler::resetLocation()
 void WatchHandler::setCurrentItem(const QByteArray &iname)
 {
     if (WatchItem *item = m_model->findItem(iname)) {
-        QModelIndex idx = m_model->indexFromItem(item);
+        QModelIndex idx = m_model->indexForItem(item);
         emit m_model->currentIndexRequested(idx);
     }
 }

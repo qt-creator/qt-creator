@@ -385,7 +385,7 @@ void PluginView::setFilter(const QString &filter)
 PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 {
     const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
-    auto item = dynamic_cast<PluginItem *>(m_model->itemFromIndex(sourceIndex));
+    auto item = dynamic_cast<PluginItem *>(m_model->itemForIndex(sourceIndex));
     return item ? item->m_spec: 0;
 }
 

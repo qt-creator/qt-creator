@@ -783,7 +783,7 @@ void TreeItem::setFlags(Qt::ItemFlags flags)
 QModelIndex TreeItem::index() const
 {
     QTC_ASSERT(m_model, return QModelIndex());
-    return m_model->indexFromItem(this);
+    return m_model->indexForItem(this);
 }
 
 void TreeItem::setModel(TreeModel *model)
@@ -887,7 +887,7 @@ QModelIndex TreeModel::parent(const QModelIndex &idx) const
     if (!idx.isValid())
         return QModelIndex();
 
-    const TreeItem *item = itemFromIndex(idx);
+    const TreeItem *item = itemForIndex(idx);
     QTC_ASSERT(item, return QModelIndex());
     const TreeItem *parent = item->parent();
     if (!parent || parent == m_root)
@@ -911,7 +911,7 @@ int TreeModel::rowCount(const QModelIndex &idx) const
         return m_root->rowCount();
     if (idx.column() > 0)
         return 0;
-    const TreeItem *item = itemFromIndex(idx);
+    const TreeItem *item = itemForIndex(idx);
     QTC_ASSERT(item, return 0);
     return item->rowCount();
 }
@@ -926,7 +926,7 @@ int TreeModel::columnCount(const QModelIndex &idx) const
 
 bool TreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
 {
-    TreeItem *item = itemFromIndex(idx);
+    TreeItem *item = itemForIndex(idx);
     bool res = item ? item->setData(idx.column(), data, role) : false;
     if (res)
         emit dataChanged(idx, idx);
@@ -935,7 +935,7 @@ bool TreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
 
 QVariant TreeModel::data(const QModelIndex &idx, int role) const
 {
-    TreeItem *item = itemFromIndex(idx);
+    TreeItem *item = itemForIndex(idx);
     return item ? item->data(idx.column(), role) : QVariant();
 }
 
@@ -949,7 +949,7 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
 
 bool TreeModel::hasChildren(const QModelIndex &idx) const
 {
-    TreeItem *item = itemFromIndex(idx);
+    TreeItem *item = itemForIndex(idx);
     return !item || item->hasChildren();
 }
 
@@ -957,7 +957,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return 0;
-    TreeItem *item = itemFromIndex(idx);
+    TreeItem *item = itemForIndex(idx);
     return item ? item->flags(idx.column())
                 : (Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 }
@@ -966,7 +966,7 @@ bool TreeModel::canFetchMore(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return false;
-    TreeItem *item = itemFromIndex(idx);
+    TreeItem *item = itemForIndex(idx);
     return item ? item->canFetchMore() : false;
 }
 
@@ -974,7 +974,7 @@ void TreeModel::fetchMore(const QModelIndex &idx)
 {
     if (!idx.isValid())
         return;
-    TreeItem *item = itemFromIndex(idx);
+    TreeItem *item = itemForIndex(idx);
     if (item)
         item->fetchMore();
 }
@@ -997,25 +997,20 @@ void TreeModel::setHeader(const QStringList &displays)
     m_columnCount = displays.size();
 }
 
-void TreeModel::setColumnCount(int columnCount)
-{
-    m_columnCount = columnCount;
-}
-
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     CHECK_INDEX(parent);
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
-    const TreeItem *item = itemFromIndex(parent);
+    const TreeItem *item = itemForIndex(parent);
     QTC_ASSERT(item, return QModelIndex());
     if (row >= item->rowCount())
         return QModelIndex();
     return createIndex(row, column, (void*)(item->child(row)));
 }
 
-TreeItem *TreeModel::itemFromIndex(const QModelIndex &idx) const
+TreeItem *TreeModel::itemForIndex(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
     TreeItem *item = idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
@@ -1024,7 +1019,7 @@ TreeItem *TreeModel::itemFromIndex(const QModelIndex &idx) const
     return item;
 }
 
-QModelIndex TreeModel::indexFromItem(const TreeItem *item) const
+QModelIndex TreeModel::indexForItem(const TreeItem *item) const
 {
     QTC_ASSERT(item, return QModelIndex());
     if (item == m_root)
@@ -1065,7 +1060,7 @@ void TreeModel::removeItem(TreeItem *item)
     int pos = parent->m_children.indexOf(item);
     QTC_ASSERT(pos != -1, return);
 
-    QModelIndex idx = indexFromItem(parent);
+    QModelIndex idx = indexForItem(parent);
     beginRemoveRows(idx, pos, pos);
     item->m_parent = 0;
     parent->m_children.removeAt(pos);

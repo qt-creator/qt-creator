@@ -226,7 +226,7 @@ CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const Core::Id &id) const
 
 CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const QModelIndex &index) const
 {
-    TreeItem *item = itemFromIndex(index);
+    TreeItem *item = itemForIndex(index);
     if (item->level() == 2)
         return static_cast<CMakeToolTreeItem *>(item);
     return 0;

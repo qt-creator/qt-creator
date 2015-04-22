@@ -357,7 +357,7 @@ void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory)
 
     m_manualRoot->appendChild(item);
 
-    m_toolChainView->setCurrentIndex(m_model.indexFromItem(item));
+    m_toolChainView->setCurrentIndex(m_model.indexForItem(item));
 }
 
 void ToolChainOptionsWidget::updateState()
@@ -377,7 +377,7 @@ void ToolChainOptionsWidget::updateState()
 ToolChainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 {
     QModelIndex index = m_toolChainView->currentIndex();
-    TreeItem *item = m_model.itemFromIndex(index);
+    TreeItem *item = m_model.itemForIndex(index);
     return item && item->level() == 2 ? static_cast<ToolChainTreeItem *>(item) : 0;
 }
 

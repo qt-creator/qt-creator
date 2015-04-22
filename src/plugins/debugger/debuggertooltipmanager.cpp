@@ -264,7 +264,7 @@ public:
     {
         if (!idx.isValid())
             return;
-        auto item = dynamic_cast<ToolTipWatchItem *>(itemFromIndex(idx));
+        auto item = dynamic_cast<ToolTipWatchItem *>(itemForIndex(idx));
         if (!item)
             return;
         QByteArray iname = item->iname;
@@ -473,7 +473,7 @@ public:
 
     void reexpand(const QModelIndex &idx)
     {
-        TreeItem *item = model.itemFromIndex(idx);
+        TreeItem *item = model.itemForIndex(idx);
         QTC_ASSERT(item, return);
         QByteArray iname = item->data(0, LocalsINameRole).toByteArray();
         bool shouldExpand = model.m_expandedINames.contains(iname);
