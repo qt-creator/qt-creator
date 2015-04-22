@@ -218,10 +218,14 @@ int ProjectTreeWidget::expandedCount(Node *node)
 
 void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    const QString path = m_model->nodeForIndex(parent)->path().toString();
-    if (m_toExpand.contains(path)) {
+    Node *node = m_model->nodeForIndex(parent);
+    const QString path = node->path().toString();
+    const QString displayName = node->displayName();
+
+    auto it = m_toExpand.find(ExpandData(path, displayName));
+    if (it != m_toExpand.end()) {
         m_view->expand(parent);
-        m_toExpand.remove(path);
+        m_toExpand.erase(it);
     }
     int i = start;
     while (i <= end) {
@@ -272,19 +276,31 @@ void ProjectTreeWidget::disableAutoExpand()
 void ProjectTreeWidget::loadExpandData()
 {
     m_autoExpand = true;
-    QSet<QString> data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).toStringList().toSet();
-    recursiveLoadExpandData(m_view->rootIndex(), data);
+    QList<QVariant> data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).value<QList<QVariant>>();
+    QSet<ExpandData> set = Utils::transform<QSet>(data, [](const QVariant &v) {
+        QStringList list = v.toStringList();
+        if (list.size() != 2)
+            return ExpandData();
+        return ExpandData(list.at(0), list.at(1));
+    });
+
+    set.remove(ExpandData());
+
+    recursiveLoadExpandData(m_view->rootIndex(), set);
 
     // store remaning nodes to expand
-    m_toExpand = data;
+    m_toExpand = set;
 }
 
-void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, QSet<QString> &data)
+void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, QSet<ExpandData> &data)
 {
-    const QString path = m_model->nodeForIndex(index)->path().toString();
-    if (data.contains(path)) {
+    Node *node = m_model->nodeForIndex(index);
+    const QString path = node->path().toString();
+    const QString displayName = node->displayName();
+    auto it = data.find(ExpandData(path, displayName));
+    if (it != data.end()) {
         m_view->expand(index);
-        data.remove(path);
+        data.erase(it);
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveLoadExpandData(index.child(i, 0), data);
@@ -293,19 +309,21 @@ void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, QSet<Q
 
 void ProjectTreeWidget::saveExpandData()
 {
-    QStringList data;
+    QList<QVariant> data;
     recursiveSaveExpandData(m_view->rootIndex(), &data);
     // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
     SessionManager::setValue(QLatin1String("ProjectTree.ExpandData"), data);
 }
 
-void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStringList *data)
+void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QList<QVariant> *data)
 {
     Q_ASSERT(data);
     if (m_view->isExpanded(index) || index == m_view->rootIndex()) {
-        // Note: We store the path of the node, which isn't unique for e.g. .pri files
+        // Note: We store the path+displayname of the node, which isn't unique for e.g. .pri files
         // but works for most nodes
-        data->append(m_model->nodeForIndex(index)->path().toString());
+        Node *node = m_model->nodeForIndex(index);
+        const QStringList &list = ExpandData(node->path().toString(), node->displayName()).toStringList();
+        data->append(QVariant::fromValue(list));
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveSaveExpandData(index.child(i, 0), data);

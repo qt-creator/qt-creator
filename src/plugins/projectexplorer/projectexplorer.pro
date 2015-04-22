@@ -153,7 +153,8 @@ HEADERS += projectexplorer.h \
     panelswidget.h \
     projectwelcomepage.h \
     projectpanelfactory.h \
-    projecttree.h
+    projecttree.h \
+    expanddata.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -292,7 +293,8 @@ SOURCES += projectexplorer.cpp \
     panelswidget.cpp \
     projectwelcomepage.cpp \
     projectpanelfactory.cpp \
-    projecttree.cpp
+    projecttree.cpp \
+    expanddata.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

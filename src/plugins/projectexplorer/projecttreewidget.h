@@ -31,6 +31,8 @@
 #ifndef PROJECTTREEWIDGET_H
 #define PROJECTTREEWIDGET_H
 
+#include "expanddata.h"
+
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/fileutils.h>
@@ -92,13 +94,13 @@ private slots:
 
 private:
     void setCurrentItem(ProjectExplorer::Node *node);
-    void recursiveLoadExpandData(const QModelIndex &index, QSet<QString> &data);
-    void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
+    void recursiveLoadExpandData(const QModelIndex &index, QSet<ExpandData> &data);
+    void recursiveSaveExpandData(const QModelIndex &index, QList<QVariant> *data);
     static int expandedCount(Node *node);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
 
-    QSet<QString> m_toExpand;
+    QSet<ExpandData> m_toExpand;
     QTreeView *m_view;
     FlatModel *m_model;
     QAction *m_filterProjectsAction;

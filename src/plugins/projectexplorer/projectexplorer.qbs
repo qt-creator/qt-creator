@@ -70,6 +70,7 @@ QtcPlugin {
             "environmentaspectwidget.cpp", "environmentaspectwidget.h",
             "environmentitemswidget.cpp", "environmentitemswidget.h",
             "environmentwidget.cpp", "environmentwidget.h",
+            "expanddata.cpp", "expanddata.h",
             "foldernavigationwidget.cpp", "foldernavigationwidget.h",
             "gccparser.cpp", "gccparser.h",
             "gcctoolchain.cpp", "gcctoolchain.h",
