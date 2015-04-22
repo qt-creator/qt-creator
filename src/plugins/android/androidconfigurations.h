@@ -228,7 +228,8 @@ public:
     static QString defaultDevice(ProjectExplorer::Project *project, const QString &abi); // serial number or avd name
 public slots:
     static void clearDefaultDevices(ProjectExplorer::Project *project);
-    static void updateToolChainList();
+    static void registerNewToolChains();
+    static void removeOldToolChains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();
 
