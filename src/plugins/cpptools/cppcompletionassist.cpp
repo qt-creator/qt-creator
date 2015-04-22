@@ -1937,6 +1937,12 @@ void InternalCppCompletionAssistProcessor::addKeywords()
     // primitive type completion items.
     for (int i = T_FIRST_PRIMITIVE; i <= T_LAST_PRIMITIVE; ++i)
         addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+
+    // "Identifiers with special meaning"
+    if (m_interface->languageFeatures().cxx11Enabled) {
+        addCompletionItem(QLatin1String("override"), m_icons.keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String("final"), m_icons.keywordIcon(), KeywordsOrder);
+    }
 }
 
 void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,

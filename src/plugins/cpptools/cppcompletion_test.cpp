@@ -168,6 +168,8 @@ bool isProbablyGlobalCompletion(const QStringList &list)
             + (T_FIRST_OBJC_AT_KEYWORD - T_FIRST_KEYWORD);
 
     return list.size() >= numberOfPrimitivesAndBasicKeywords
+        && list.contains(QLatin1String("override"))
+        && list.contains(QLatin1String("final"))
         && list.contains(QLatin1String("if"))
         && list.contains(QLatin1String("bool"));
 }
