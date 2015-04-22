@@ -473,8 +473,12 @@ void FindToolBar::invokeFindNext()
 
 void FindToolBar::invokeGlobalFindNext()
 {
-    acceptCandidateAndMoveToolBar();
-    invokeFindNext();
+    if (getFindText().isEmpty()) {
+        openFind();
+    } else {
+        acceptCandidateAndMoveToolBar();
+        invokeFindNext();
+    }
 }
 
 void FindToolBar::invokeFindPrevious()
@@ -485,8 +489,12 @@ void FindToolBar::invokeFindPrevious()
 
 void FindToolBar::invokeGlobalFindPrevious()
 {
-    acceptCandidateAndMoveToolBar();
-    invokeFindPrevious();
+    if (getFindText().isEmpty()) {
+        openFind();
+    } else {
+        acceptCandidateAndMoveToolBar();
+        invokeFindPrevious();
+    }
 }
 
 QString FindToolBar::getFindText()
