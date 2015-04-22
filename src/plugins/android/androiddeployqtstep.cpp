@@ -420,17 +420,16 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 
     emit addOutput(tr("Pulling files necessary for debugging."), MessageOutput);
 
+    const QString remoteAppProcessFile = systemAppProcessFilePath();
     QString localAppProcessFile = QString::fromLatin1("%1/app_process").arg(m_buildDirectory);
     runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber)
-               << QLatin1String("pull") << QLatin1String("/system/bin/app_process")
+               << QLatin1String("pull") << remoteAppProcessFile
                << localAppProcessFile);
-    // Workaround for QTCREATORBUG-14201: /system/bin/app_process might be a link to asan/app_process
     if (!QFileInfo::exists(localAppProcessFile)) {
-        runCommand(m_adbPath,
-                   AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << QLatin1String("pull") << QLatin1String("/system/bin/asan/app_process")
-                   << localAppProcessFile);
+        returnValue = Failure;
+        emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
+                       .arg(remoteAppProcessFile).arg(localAppProcessFile), ErrorMessageOutput);
     }
     runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("pull")
@@ -462,6 +461,17 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
             mainMessage += tr("Exit code: %1").arg(buildProc.exitCode());
         emit addOutput(mainMessage, BuildStep::ErrorMessageOutput);
     }
+}
+
+QString AndroidDeployQtStep::systemAppProcessFilePath() const
+{
+    QProcess proc;
+    const QStringList args =
+            QStringList() << QLatin1String("shell")
+                          << QLatin1String("readlink -f -s /system/bin/app_process");
+    proc.start(m_adbPath, args);
+    proc.waitForFinished();
+    return QString::fromUtf8(proc.readAll()).trimmed();
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()

@@ -102,6 +102,7 @@ private:
         AndroidDeployQtStep *other);
     void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
+    QString systemAppProcessFilePath() const;
 
     bool init();
     void run(QFutureInterface<bool> &fi);
