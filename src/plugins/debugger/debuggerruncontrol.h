@@ -82,7 +82,7 @@ signals:
 private:
     void handleFinished();
     friend class DebuggerRunControlFactory;
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                        Internal::DebuggerEngine *engine);
 
     Internal::DebuggerEngine *m_engine;
@@ -97,11 +97,11 @@ public:
 
     // FIXME: Used by qmljsinspector.cpp:469
     ProjectExplorer::RunControl *create(
-        ProjectExplorer::RunConfiguration *runConfiguration,
+        ProjectExplorer::RunConfiguration *runConfig,
         ProjectExplorer::RunMode mode,
         QString *errorMessage);
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+    bool canRun(ProjectExplorer::RunConfiguration *runConfig,
         ProjectExplorer::RunMode mode) const;
 
     static Internal::DebuggerEngine *createEngine(DebuggerEngineType et,
@@ -112,7 +112,7 @@ public:
          const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
 
     static bool fillParametersFromLocalRunConfiguration(DebuggerStartParameters *sp,
-         const ProjectExplorer::RunConfiguration *rc, QString *errorMessage = 0);
+         const ProjectExplorer::RunConfiguration *runConfig, QString *errorMessage = 0);
 
     static DebuggerRunControl *createAndScheduleRun(const DebuggerStartParameters &sp);
 

@@ -101,8 +101,8 @@ static const char *engineTypeName(DebuggerEngineType et)
     return "No engine";
 }
 
-DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration, DebuggerEngine *engine)
-    : RunControl(runConfiguration, DebugRunMode),
+DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngine *engine)
+    : RunControl(runConfig, DebugRunMode),
       m_engine(engine),
       m_running(false)
 {
@@ -283,27 +283,27 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {}
 
-bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfig, RunMode mode) const
 {
     return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
-            && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+            && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
 }
 
 bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
-    (DebuggerStartParameters *sp, const RunConfiguration *runConfiguration, QString *errorMessage)
+    (DebuggerStartParameters *sp, const RunConfiguration *runConfig, QString *errorMessage)
 {
-    QTC_ASSERT(runConfiguration, return false);
-    auto rc = qobject_cast<const LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return false);
-    EnvironmentAspect *environmentAspect = rc->extraAspect<EnvironmentAspect>();
+    QTC_ASSERT(runConfig, return false);
+    EnvironmentAspect *environmentAspect = runConfig->extraAspect<EnvironmentAspect>();
     QTC_ASSERT(environmentAspect, return false);
 
-    Target *target = runConfiguration->target();
+    Target *target = runConfig->target();
     Kit *kit = target ? target->kit() : KitManager::defaultKit();
     if (!fillParametersFromKit(sp, kit, errorMessage))
         return false;
     sp->environment = environmentAspect->environment();
 
+    auto rc = qobject_cast<const LocalApplicationRunConfiguration *>(runConfig);
+    QTC_ASSERT(rc, return false);
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     sp->workingDirectory = FileUtils::normalizePathName(rc->workingDirectory());
 
@@ -323,7 +323,7 @@ bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
         }
     }
 
-    DebuggerRunConfigurationAspect *debuggerAspect = runConfiguration->extraAspect<DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *debuggerAspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     QTC_ASSERT(debuggerAspect, return false);
     sp->multiProcess = debuggerAspect->useMultiProcess();
 
@@ -331,8 +331,7 @@ bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
         sp->languages |= CppLanguage;
 
     if (debuggerAspect->useQmlDebugger()) {
-        const IDevice::ConstPtr device =
-                DeviceKitInformation::device(runConfiguration->target()->kit());
+        const IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
         const bool canListen = server.listen(QHostAddress::LocalHost)
@@ -356,7 +355,7 @@ bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
     }
 
     sp->startMode = StartInternal;
-    sp->displayName = rc->displayName();
+    sp->displayName = runConfig->displayName();
 
     return true;
 }
