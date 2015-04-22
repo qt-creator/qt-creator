@@ -1944,7 +1944,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 
     QSet<QByteArray> toDelete;
     if (!partial) {
-        foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+        foreach (WatchItem *item, handler->model()->itemsAtLevel<WatchItem *>(2))
             toDelete.insert(item->iname);
     }
 

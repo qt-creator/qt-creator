@@ -99,6 +99,8 @@ public:
     void setLazy(bool on);
     void setPopulated(bool on);
     void setFlags(Qt::ItemFlags flags);
+    int childCount() const { return m_children.size(); }
+    TreeItem *childAt(int index) const { return m_children.at(index); }
     QVector<TreeItem *> children() const { return m_children; }
     QModelIndex index() const;
 
@@ -258,8 +260,17 @@ class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
 public:
     explicit TreeModel(QObject *parent = 0);
     explicit TreeModel(TreeItem *root, QObject *parent = 0);
-    virtual ~TreeModel();
+    ~TreeModel();
 
+    void setHeader(const QStringList &displays);
+    void clear();
+
+    TreeItem *rootItem() const;
+    void setRootItem(TreeItem *item);
+    TreeItem *itemForIndex(const QModelIndex &) const;
+    QModelIndex indexForItem(const TreeItem *needle) const;
+
+    int topLevelItemCount() const;
     int rowCount(const QModelIndex &idx = QModelIndex()) const;
     int columnCount(const QModelIndex &idx) const;
 
@@ -274,36 +285,19 @@ public:
     bool canFetchMore(const QModelIndex &idx) const;
     void fetchMore(const QModelIndex &idx);
 
-    TreeItem *rootItem() const;
-    void setRootItem(TreeItem *item);
-    TreeItem *itemForIndex(const QModelIndex &) const;
-    QModelIndex indexForItem(const TreeItem *needle) const;
-    void removeItems();
-
-    void setHeader(const QStringList &displays);
-
-    UntypedTreeLevelItems untypedLevelItems(int level = 0, TreeItem *start = 0) const;
-    UntypedTreeLevelItems untypedLevelItems(TreeItem *start) const;
-
     template <class T>
-    TreeLevelItems<T> treeLevelItems(int level, TreeItem *start = 0) const
+    TreeLevelItems<T> itemsAtLevel(int level, TreeItem *start = 0) const
     {
-        return TreeLevelItems<T>(untypedLevelItems(level, start));
-    }
-
-    template <class T>
-    TreeLevelItems<T> treeLevelItems(TreeItem *start) const
-    {
-        return TreeLevelItems<T>(untypedLevelItems(start));
+        return TreeLevelItems<T>(UntypedTreeLevelItems(start ? start : m_root, level));
     }
 
     template <class T>
     T findItemAtLevel(int level, std::function<bool(T)> f, TreeItem *start = 0) const
     {
-        return Utils::findOrDefault(treeLevelItems<T>(level, start), f);
+        return Utils::findOrDefault(itemsAtLevel<T>(level, start), f);
     }
 
-    void removeItem(TreeItem *item); // item is not destroyed.
+    void takeItem(TreeItem *item); // item is not destroyed.
 
 signals:
     void requestExpansion(QModelIndex);

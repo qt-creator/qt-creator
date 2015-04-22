@@ -1241,7 +1241,7 @@ void WatchModel::insertItem(WatchItem *item)
 {
     WatchItem *existing = findItem(item->iname);
     if (existing)
-        removeItem(existing);
+        takeItem(existing);
 
     //item->walkTree([item](TreeItem *sub) { sub->sortChildren(&watchItemSorter); });
     item->sortChildren(&watchItemSorter);
@@ -1308,7 +1308,7 @@ void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
 {
     foreach (const QByteArray &iname, inames) {
         WatchItem *item = findItem(iname);
-        m_model->removeItem(item);
+        m_model->takeItem(item);
     }
 
     m_model->layoutChanged();
@@ -1326,7 +1326,7 @@ void WatchHandler::removeItemByIName(const QByteArray &iname)
         theWatcherNames.remove(item->exp);
         saveWatchers();
     }
-    m_model->removeItem(item);
+    m_model->takeItem(item);
     delete item;
     updateWatchersWindow();
 }
@@ -1492,7 +1492,7 @@ void WatchHandler::updateWatchersWindow()
 
     // Force show/hide of watchers and return view.
     int showWatch = !theWatcherNames.isEmpty();
-    int showReturn = !m_model->m_returnRoot->children().isEmpty();
+    int showReturn = m_model->m_returnRoot->childCount() != 0;
     Internal::updateWatchersWindow(showWatch, showReturn);
 }
 

@@ -984,6 +984,11 @@ TreeItem *TreeModel::rootItem() const
     return m_root;
 }
 
+int TreeModel::topLevelItemCount() const
+{
+    return m_root->childCount();
+}
+
 void TreeModel::setRootItem(TreeItem *item)
 {
     delete m_root;
@@ -1030,25 +1035,22 @@ QModelIndex TreeModel::indexForItem(const TreeItem *item) const
     return createIndex(row, 0, mitem);
 }
 
-void TreeModel::removeItems()
+/*!
+  Destroys all items in them model except the invisible root item.
+*/
+void TreeModel::clear()
 {
     if (m_root)
         m_root->removeChildren();
 }
 
-UntypedTreeLevelItems TreeModel::untypedLevelItems(int level, TreeItem *start) const
-{
-    if (start == 0)
-        start = m_root;
-    return UntypedTreeLevelItems(start, level);
-}
+/*!
+   Removes the specified item from the model.
 
-UntypedTreeLevelItems TreeModel::untypedLevelItems(TreeItem *start) const
-{
-    return UntypedTreeLevelItems(start, 1);
-}
+   \note The item is not destroyed, ownership is effectively passed to the caller.
+   */
 
-void TreeModel::removeItem(TreeItem *item)
+void TreeModel::takeItem(TreeItem *item)
 {
 #if USE_MODEL_TEST
     (void) new ModelTest(this, this);

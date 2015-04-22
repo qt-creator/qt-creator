@@ -572,7 +572,7 @@ void PdbEngine::refreshLocals(const GdbMi &vars)
     handler->resetValueCache();
 
     QSet<QByteArray> toDelete;
-    foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+    foreach (WatchItem *item, handler->model()->itemsAtLevel<WatchItem *>(2))
         toDelete.insert(item->iname);
 
     foreach (const GdbMi &child, vars.children()) {

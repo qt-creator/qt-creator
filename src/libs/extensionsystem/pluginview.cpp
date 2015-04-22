@@ -392,7 +392,7 @@ PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 void PluginView::updatePlugins()
 {
     // Model.
-    m_model->removeItems();
+    m_model->clear();
 
     PluginCollection *defaultCollection = 0;
     QList<CollectionItem *> collections;

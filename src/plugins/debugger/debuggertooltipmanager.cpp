@@ -199,7 +199,7 @@ public:
     ToolTipWatchItem(WatchItem *item);
 
     bool hasChildren() const { return expandable; }
-    bool canFetchMore() const { return children().isEmpty() && expandable && model(); }
+    bool canFetchMore() const { return childCount() == 0 && expandable && model(); }
     void fetchMore() {}
     QVariant data(int column, int role) const;
 

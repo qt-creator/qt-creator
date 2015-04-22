@@ -47,7 +47,7 @@ private slots:
 static int countLevelItems(TreeItem *base, int level)
 {
     int n = 0;
-    foreach (TreeItem *item, base->model()->untypedLevelItems(level, base)) {
+    foreach (TreeItem *item, base->model()->untypedItemsAtLevel(level, base)) {
         Q_UNUSED(item);
         ++n;
     }

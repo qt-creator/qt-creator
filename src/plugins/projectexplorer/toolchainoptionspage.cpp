@@ -219,7 +219,7 @@ public:
 
 void ToolChainOptionsWidget::markForRemoval(ToolChainTreeItem *item)
 {
-    m_model.removeItem(item);
+    m_model.takeItem(item);
     if (m_toAddList.contains(item)) {
         delete item->toolChain;
         item->toolChain = 0;
@@ -257,9 +257,9 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
     }
 
     TreeItem *parent = m_model.rootItem()->child(tc->isAutoDetected() ? 0 : 1);
-    foreach (ToolChainTreeItem *item, m_model.treeLevelItems<ToolChainTreeItem *>(1, parent)) {
+    foreach (ToolChainTreeItem *item, m_model.itemsAtLevel<ToolChainTreeItem *>(1, parent)) {
         if (item->toolChain == tc) {
-            m_model.removeItem(item);
+            m_model.takeItem(item);
             delete item;
             break;
         }
@@ -292,7 +292,7 @@ void ToolChainOptionsWidget::apply()
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    foreach (ToolChainTreeItem *item, m_model.treeLevelItems<ToolChainTreeItem *>(1, m_manualRoot)) {
+    foreach (ToolChainTreeItem *item, m_model.itemsAtLevel<ToolChainTreeItem *>(1, m_manualRoot)) {
         if (item->changed) {
             Q_ASSERT(item->toolChain);
             if (item->widget)

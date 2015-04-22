@@ -401,7 +401,7 @@ void BreakHandler::deletionHelper(BreakpointModelId id)
 {
     Breakpoint b = breakpointById(id);
     QTC_ASSERT(b, return);
-    removeItem(b.b);
+    takeItem(b.b);
     delete b.b;
 }
 
@@ -1132,7 +1132,7 @@ void BreakHandler::saveSessionData()
 
 void BreakHandler::loadSessionData()
 {
-    removeItems();
+    clear();
     loadBreakpoints();
 }
 
@@ -1216,7 +1216,7 @@ void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id)
     Breakpoint b = breakpointById(id);
     QTC_ASSERT(b, return);
     BreakpointParameters params = b.parameters();
-    removeItem(b.b);
+    takeItem(b.b);
     delete b.b;
     appendBreakpoint(params);
 }

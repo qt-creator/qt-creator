@@ -165,7 +165,7 @@ void DebuggerItemModel::removeCurrentDebugger()
     QVariant id = m_currentTreeItem->m_item.id();
     DebuggerTreeItem *treeItem = m_currentTreeItem;
     m_currentTreeItem = 0;
-    removeItem(treeItem);
+    takeItem(treeItem);
     delete treeItem;
     m_removedItems.append(id);
 }
@@ -175,7 +175,7 @@ void DebuggerItemModel::apply()
     foreach (const QVariant &id, m_removedItems)
         DebuggerItemManager::deregisterDebugger(id);
 
-    foreach (auto item, treeLevelItems<DebuggerTreeItem *>(2)) {
+    foreach (auto item, itemsAtLevel<DebuggerTreeItem *>(2)) {
         item->m_changed = false;
         DebuggerItemManager::updateOrAddDebugger(item->m_item);
     }

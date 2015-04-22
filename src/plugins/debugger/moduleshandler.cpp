@@ -197,7 +197,7 @@ QAbstractItemModel *ModulesHandler::model() const
 
 void ModulesHandler::removeAll()
 {
-    m_model->removeItems();
+    m_model->clear();
 }
 
 Modules ModulesHandler::modules() const
@@ -212,7 +212,7 @@ Modules ModulesHandler::modules() const
 void ModulesHandler::removeModule(const QString &modulePath)
 {
     if (ModuleItem *item = moduleFromPath(m_model->rootItem(), modulePath))
-        m_model->removeItem(item);
+        m_model->takeItem(item);
 }
 
 void ModulesHandler::updateModule(const Module &module)
@@ -254,7 +254,7 @@ void ModulesHandler::endUpdateAll()
     for (int i = root->rowCount(); --i >= 0; ) {
         auto item = static_cast<ModuleItem *>(root->child(i));
         if (!item->updated)
-            m_model->removeItem(item);
+            m_model->takeItem(item);
     }
 }
 

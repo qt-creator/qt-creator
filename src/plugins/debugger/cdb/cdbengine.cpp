@@ -1875,7 +1875,7 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
 
         QSet<QByteArray> toDelete;
         if (newFrame) {
-            foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+            foreach (WatchItem *item, handler->model()->itemsAtLevel<WatchItem *>(2))
                 toDelete.insert(item->iname);
         }
 
