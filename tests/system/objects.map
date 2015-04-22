@@ -146,7 +146,7 @@
 :Qt Creator.WelcomePageStyledBar_QWindowContainer	{aboveWidget=':Qt Creator.WelcomePageStyledBar_Utils::StyledBar' type='QWindowContainer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.WelcomePageStyledBar_Utils::StyledBar	{name='WelcomePageStyledBar' type='Utils::StyledBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.replaceEdit_Utils::FilterLineEdit	{name='replaceEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.scrollArea_QScrollArea	{type='ProjectExplorer::PanelsWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.splitter_QSplitter	{name='splitter' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Bookmarks_TreeView	{type='TreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
