@@ -337,8 +337,8 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
 
 ProjectWizardPage::~ProjectWizardPage()
 {
-    delete m_ui;
     delete m_model;
+    delete m_ui;
 }
 
 void ProjectWizardPage::setModel(TreeModel *model)
