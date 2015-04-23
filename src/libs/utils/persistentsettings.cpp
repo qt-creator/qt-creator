@@ -90,6 +90,13 @@ static QRect stringToRectangle(const QString &v)
     \li list
     \endlist
 
+    You can register string-serialize functions for custom types by registering them in the Qt Meta
+    type system. Example:
+    \code
+      QMetaType::registerConverter(&MyCustomType::toString);
+      QMetaType::registerConverter<QString, MyCustomType>(&myCustomTypeFromString);
+    \endcode
+
     When entering a value element ( \c <value> / \c <valuelist> , \c <valuemap> ), entry is pushed
     accordingly. When leaving the element, the QVariant-value of the entry is taken off the stack
     and added to the stack entry below (added to list or inserted into map). The first element
@@ -329,7 +336,7 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
     }
     QVariant value;
     value.setValue(text);
-    value.convert(QVariant::nameToType(type.toLatin1().data()));
+    value.convert(QMetaType::type(type.toLatin1().data()));
     return value;
 }
 
