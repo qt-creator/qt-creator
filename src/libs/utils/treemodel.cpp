@@ -1003,8 +1003,11 @@ QModelIndex TreeModel::indexForItem(const TreeItem *item) const
     if (item == m_root)
         return QModelIndex();
 
+    TreeItem *p = item->parent();
+    QTC_ASSERT(p, return QModelIndex());
+
     TreeItem *mitem = const_cast<TreeItem *>(item);
-    int row = item->parent()->m_children.indexOf(mitem);
+    int row = p->m_children.indexOf(mitem);
     return createIndex(row, 0, mitem);
 }
 
