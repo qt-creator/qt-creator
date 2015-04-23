@@ -379,8 +379,7 @@ void ShowController::processOutput(const QString &output)
 
         QStringList args;
         args << QLatin1String("show") << QLatin1String("--format=format:") // omit header, already generated
-             << QLatin1String("-M") << QLatin1String("-C") << QLatin1String(noColorOption)
-             << QLatin1String(decorateOption) << m_id;
+             << QLatin1String(noColorOption) << QLatin1String(decorateOption) << m_id;
         m_state = GettingDiff;
         runCommand(QList<QStringList>() << addConfigurationArguments(args));
     } else if (m_state == GettingDiff) {
