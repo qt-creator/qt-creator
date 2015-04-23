@@ -868,6 +868,11 @@ static QList<FileData> readDiffPatch(const QString &patch,
     return fileDataList;
 }
 
+static bool fileNameEnd(const QChar &c)
+{
+    return c == QLatin1Char('\n') || c == QLatin1Char('\t');
+}
+
 static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
                                        const QString &fileName,
                                        bool *ok)
@@ -909,34 +914,30 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
         patch.remove(0, indexRegExp.matchedLength());
     }
 
-    const QRegExp leftFileRegExp(QLatin1String("^-{3} ")                 // "--- "
-                                 + leftFileName                          // "a/fileName" or "/dev/null"
-                                 + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-    const QRegExp rightFileRegExp(QLatin1String("^\\+{3} ")               // "+++ "
-                                  + rightFileName                         // "b/fileName" or "/dev/null"
-                                  + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-    const QRegExp binaryRegExp(QLatin1String("^Binary files ")
-                               + leftFileName
-                               + QLatin1String(" and ")
-                               + rightFileName
-                               + QLatin1String(" differ$"));
+    const QString binaryLine = QString::fromLatin1("Binary files ") + leftFileName
+            + QLatin1String(" and ") + rightFileName + QLatin1String(" differ");
+    const QString leftStart = QString::fromLatin1("--- ") + leftFileName;
+    QChar leftFollow = patch.count() > leftStart.count() ? patch.at(leftStart.count()) : QLatin1Char('\n');
 
     // empty or followed either by leftFileRegExp or by binaryRegExp
     if (patch.isEmpty() && (fileData.fileOperation == FileData::NewFile
                          || fileData.fileOperation == FileData::DeleteFile)) {
         readOk = true;
-    } else if (leftFileRegExp.indexIn(patch) == 0) {
-        patch.remove(0, leftFileRegExp.matchedLength());
+    } else if (patch.startsWith(leftStart) && fileNameEnd(leftFollow)) {
+        patch.remove(0, patch.indexOf(QLatin1Char('\n'), leftStart.count()) + 1);
+
+        const QString rightStart = QString::fromLatin1("+++ ") + rightFileName;
+        QChar rightFollow = patch.count() > rightStart.count() ? patch.at(rightStart.count()) : QLatin1Char('\n');
 
         // followed by rightFileRegExp
-        if (rightFileRegExp.indexIn(patch) == 0) {
-            patch.remove(0, rightFileRegExp.matchedLength());
+        if (patch.startsWith(rightStart) && fileNameEnd(rightFollow)) {
+            patch.remove(0, patch.indexOf(QLatin1Char('\n'), rightStart.count()) + 1);
 
             fileData.chunks = readChunks(patch,
                                          &fileData.lastChunkAtTheEndOfFile,
                                          &readOk);
         }
-    } else if (binaryRegExp.indexIn(patch) == 0) {
+    } else if (patch == binaryLine) {
         readOk = true;
         fileData.binaryFiles = true;
     }
@@ -966,9 +967,6 @@ static FileData readCopyRenameChunks(const QString &copyRenameChunks,
 
     const QRegExp indexRegExp(QLatin1String("^index (\\w+)\\.{2}(\\w+)(?: \\d+)?(\\n|$)")); // index cap1..cap2(optionally: octal)
 
-    QString leftGitFileName = QLatin1String("a/") + leftFileName;
-    QString rightGitFileName = QLatin1String("b/") + rightFileName;
-
     if (fileOperation == FileData::CopyFile || fileOperation == FileData::RenameFile) {
         if (indexRegExp.indexIn(patch) == 0) {
             fileData.leftFileInfo.typeInfo = indexRegExp.cap(1);
@@ -976,20 +974,20 @@ static FileData readCopyRenameChunks(const QString &copyRenameChunks,
 
             patch.remove(0, indexRegExp.matchedLength());
 
-            const QRegExp leftFileRegExp(QLatin1String("^-{3} ")                 // "--- "
-                                         + leftGitFileName                       // "a/fileName" or "/dev/null"
-                                         + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-            const QRegExp rightFileRegExp(QLatin1String("^\\+{3} ")               // "+++ "
-                                          + rightGitFileName                      // "b/fileName" or "/dev/null"
-                                          + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
+            const QString leftStart = QString::fromLatin1("--- a/") + leftFileName;
+            QChar leftFollow = patch.count() > leftStart.count() ? patch.at(leftStart.count()) : QLatin1Char('\n');
 
             // followed by leftFileRegExp
-            if (leftFileRegExp.indexIn(patch) == 0) {
-                patch.remove(0, leftFileRegExp.matchedLength());
+            if (patch.startsWith(leftStart) && fileNameEnd(leftFollow)) {
+                patch.remove(0, patch.indexOf(QLatin1Char('\n'), leftStart.count()) + 1);
 
                 // followed by rightFileRegExp
-                if (rightFileRegExp.indexIn(patch) == 0) {
-                    patch.remove(0, rightFileRegExp.matchedLength());
+                const QString rightStart = QString::fromLatin1("+++ b/") + rightFileName;
+                QChar rightFollow = patch.count() > rightStart.count() ? patch.at(rightStart.count()) : QLatin1Char('\n');
+
+                // followed by rightFileRegExp
+                if (patch.startsWith(rightStart) && fileNameEnd(rightFollow)) {
+                    patch.remove(0, patch.indexOf(QLatin1Char('\n'), rightStart.count()) + 1);
 
                     fileData.chunks = readChunks(patch,
                                                  &fileData.lastChunkAtTheEndOfFile,
