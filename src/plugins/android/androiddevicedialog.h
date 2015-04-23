@@ -80,7 +80,7 @@ private:
     Utils::ProgressIndicator *m_progressIndicator;
     int m_apiLevel;
     QString m_abi;
-    QString m_serialNumberFromAdd;
+    QString m_avdNameFromAdd;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
     QFutureWatcher<QVector<AndroidDeviceInfo>> m_futureWatcherRefreshDevices;
 };

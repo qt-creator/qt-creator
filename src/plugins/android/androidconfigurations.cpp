@@ -68,6 +68,8 @@
 
 #include <QStringListModel>
 #include <QMessageBox>
+#include <QTcpSocket>
+#include <QHostAddress>
 
 #include <functional>
 
@@ -129,6 +131,8 @@ namespace {
             return dev1.type == AndroidDeviceInfo::Hardware;
         if (dev1.sdk != dev2.sdk)
             return dev1.sdk < dev2.sdk;
+        if (dev1.avdname != dev2.avdname)
+            return dev1.avdname < dev2.avdname;
 
         return dev1.serialNumber < dev2.serialNumber;
     }
@@ -564,6 +568,10 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
             dev.state = AndroidDeviceInfo::OfflineState;
         else
             dev.state = AndroidDeviceInfo::OkState;
+
+        if (dev.type == AndroidDeviceInfo::Emulator)
+            dev.avdname = getAvdName(dev.serialNumber);
+
         devices.push_back(dev);
     }
 
@@ -700,7 +708,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
         int index = line.indexOf(QLatin1Char(':')) + 2;
         if (index >= line.size())
             break;
-        dev.serialNumber = line.mid(index).trimmed();
+        dev.avdname = line.mid(index).trimmed();
         dev.sdk = -1;
         dev.cpuAbi.clear();
         ++i;
@@ -752,10 +760,10 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
     return devices;
 }
 
-QString AndroidConfig::startAVD(const QString &name, int apiLevel, QString cpuAbi) const
+QString AndroidConfig::startAVD(const QString &name) const
 {
-    if (!findAvd(apiLevel, cpuAbi).isEmpty() || startAVDAsync(name))
-        return waitForAvd(apiLevel, cpuAbi);
+    if (!findAvd(name).isEmpty() || startAVDAsync(name))
+        return waitForAvd(name);
     return QString();
 }
 
@@ -779,17 +787,14 @@ bool AndroidConfig::startAVDAsync(const QString &avdName) const
     return true;
 }
 
-QString AndroidConfig::findAvd(int apiLevel, const QString &cpuAbi) const
+QString AndroidConfig::findAvd(const QString &avdName) const
 {
     QVector<AndroidDeviceInfo> devices = connectedDevices();
     foreach (AndroidDeviceInfo device, devices) {
-        if (!device.serialNumber.startsWith(QLatin1String("emulator")))
+        if (device.type != AndroidDeviceInfo::Emulator)
             continue;
-        if (!device.cpuAbi.contains(cpuAbi))
-            continue;
-        if (device.sdk != apiLevel)
-            continue;
-        return device.serialNumber;
+        if (device.avdname == avdName)
+            return device.serialNumber;
     }
     return QString();
 }
@@ -821,7 +826,7 @@ bool AndroidConfig::waitForBooted(const QString &serialNumber, const QFutureInte
     return false;
 }
 
-QString AndroidConfig::waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi) const
+QString AndroidConfig::waitForAvd(const QString &avdName, const QFutureInterface<bool> &fi) const
 {
     // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
     // 60 rounds of 2s sleeping, two minutes for the avd to start
@@ -829,7 +834,7 @@ QString AndroidConfig::waitForAvd(int apiLevel, const QString &cpuAbi, const QFu
     for (int i = 0; i < 60; ++i) {
         if (fi.isCanceled())
             return QString();
-        serialNumber = findAvd(apiLevel, cpuAbi);
+        serialNumber = findAvd(avdName);
         if (!serialNumber.isEmpty())
             return waitForBooted(serialNumber, fi) ?  serialNumber : QString();
         Utils::sleep(2000);
@@ -887,6 +892,36 @@ int AndroidConfig::getSDKVersion(const QString &adbToolPath, const QString &devi
     if (tmp.isEmpty())
         return -1;
     return tmp.trimmed().toInt();
+}
+
+QString AndroidConfig::getAvdName(const QString &serialnumber)
+{
+    int index = serialnumber.indexOf(QLatin1String("-"));
+    if (index == -1)
+        return QString();
+    bool ok;
+    int port = serialnumber.mid(index + 1).toInt(&ok);
+    if (!ok)
+        return QString();
+
+    QByteArray avdName = "avd name\n";
+
+    QTcpSocket tcpSocket;
+    tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
+    tcpSocket.waitForConnected();
+    tcpSocket.write(avdName + "exit\n");
+    tcpSocket.waitForDisconnected();
+
+    QByteArray response = tcpSocket.readAll();
+    int start = response.indexOf("OK\r\n");
+    if (start == -1)
+        return QString();
+    start = start + 4;
+
+    int end = response.indexOf("\r\n", start);
+    if (end == -1)
+        return QString();
+    return QString::fromLatin1(response.mid(start, end - start));
 }
 
 AndroidConfig::OpenGl AndroidConfig::getOpenGLEnabled(const QString &emulator) const

@@ -129,7 +129,6 @@ private:
     QString m_apkPath;
 
     QString m_targetArch;
-    int m_deviceAPILevel;
     bool m_uninstallPreviousPackage;
     bool m_uninstallPreviousPackageRun;
     static const Core::Id Id;

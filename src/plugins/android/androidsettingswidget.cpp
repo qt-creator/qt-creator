@@ -79,7 +79,7 @@ QModelIndex AvdModel::indexForAvdName(const QString &avdName) const
 
 QString AvdModel::avdName(const QModelIndex &index) const
 {
-    return m_list.at(index.row()).serialNumber;
+    return m_list.at(index.row()).avdname;
 }
 
 QVariant AvdModel::data(const QModelIndex &index, int role) const
@@ -88,7 +88,7 @@ QVariant AvdModel::data(const QModelIndex &index, int role) const
         return QVariant();
     switch (index.column()) {
         case 0:
-            return m_list[index.row()].serialNumber;
+            return m_list[index.row()].avdname;
         case 1:
             return QString::fromLatin1("API %1").arg(m_list[index.row()].sdk);
         case 2: {

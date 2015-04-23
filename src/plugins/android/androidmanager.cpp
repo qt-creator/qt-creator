@@ -493,14 +493,14 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
         return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
-    if (info.serialNumber.isEmpty()) // aborted
+    if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
         return;
 
     deviceAPILevel = info.sdk;
     QString deviceSerialNumber = info.serialNumber;
 
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
+        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
@@ -523,13 +523,13 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
         return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
-    if (info.serialNumber.isEmpty()) // aborted
+    if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
         return;
 
     deviceAPILevel = info.sdk;
     QString deviceSerialNumber = info.serialNumber;
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
+        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }

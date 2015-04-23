@@ -60,6 +60,7 @@ class AndroidPlugin;
 struct AndroidDeviceInfo
 {
     QString serialNumber;
+    QString avdname;
     QStringList cpuAbi;
     int sdk;
     enum State { OkState, UnAuthorizedState, OfflineState };
@@ -154,10 +155,10 @@ public:
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
     static QVector<AndroidDeviceInfo> androidVirtualDevices(const QString &androidTool, const Utils::Environment &environment);
 
-    QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
+    QString startAVD(const QString &name) const;
     bool startAVDAsync(const QString &avdName) const;
-    QString findAvd(int apiLevel, const QString &cpuAbi) const;
-    QString waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
+    QString findAvd(const QString &avdName) const;
+    QString waitForAvd(const QString &avdName, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
     QString bestNdkPlatformMatch(int target) const;
 
     static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
@@ -185,6 +186,7 @@ private:
     static QStringList getAbis(const QString &adbToolPath, const QString &device);
     static bool isBootToQt(const QString &adbToolPath, const QString &device);
     bool isBootToQt(const QString &device) const;
+    static QString getAvdName(const QString &serialnumber);
 
     void updateAvailableSdkPlatforms() const;
     void updateNdkInformation() const;

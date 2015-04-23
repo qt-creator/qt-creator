@@ -34,6 +34,7 @@
 
 #include <utils/environment.h>
 #include <utils/progressindicator.h>
+#include <utils/algorithm.h>
 
 #include <QMessageBox>
 #include <QPainter>
@@ -167,9 +168,11 @@ public:
 
             QFontMetrics fm(opt.font);
             // TopLeft
-            QString topLeft = device.serialNumber;
+            QString topLeft;
             if (device.type == AndroidDeviceInfo::Hardware)
                 topLeft = AndroidConfigurations::currentConfig().getProductModel(device.serialNumber);
+            else
+                topLeft = device.avdname;
             painter->drawText(size + 12, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
 
@@ -181,7 +184,7 @@ public:
             if (device.type == AndroidDeviceInfo::Hardware) {
                 drawTopRight(device.serialNumber, fm);
             } else {
-                AndroidConfig::OpenGl openGl = AndroidConfigurations::currentConfig().getOpenGLEnabled(device.serialNumber);
+                AndroidConfig::OpenGl openGl = AndroidConfigurations::currentConfig().getOpenGLEnabled(device.avdname);
                 if (openGl == AndroidConfig::OpenGl::Enabled) {
                     drawTopRight(tr("OpenGL enabled"), fm);
                 } else if (openGl == AndroidConfig::OpenGl::Disabled) {
@@ -249,7 +252,7 @@ public:
     AndroidDeviceInfo device(QModelIndex index);
     void setDevices(const QVector<AndroidDeviceInfo> &devices);
 
-    QModelIndex indexFor(const QString &serial);
+    QModelIndex indexFor(AndroidDeviceInfo::AndroidDeviceType type, const QString &serial);
 private:
     int m_apiLevel;
     QString m_abi;
@@ -385,12 +388,16 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
     endResetModel();
 }
 
-QModelIndex AndroidDeviceModel::indexFor(const QString &serial)
+QModelIndex AndroidDeviceModel::indexFor(AndroidDeviceInfo::AndroidDeviceType type, const QString &serial)
 {
     foreach (AndroidDeviceModelNode *topLevelNode, m_root->children()) {
         QList<AndroidDeviceModelNode *> deviceNodes = topLevelNode->children();
         for (int i = 0; i < deviceNodes.size(); ++i) {
-            if (deviceNodes.at(i)->deviceInfo().serialNumber == serial)
+            const AndroidDeviceInfo &info = deviceNodes.at(i)->deviceInfo();
+            if (info.type != type)
+                continue;
+            if ((type == AndroidDeviceInfo::Hardware && serial == info.serialNumber)
+                    || (type == AndroidDeviceInfo::Emulator && serial == info.avdname))
                 return createIndex(i, 0, deviceNodes.at(i));
         }
     }
@@ -498,12 +505,16 @@ QVector<AndroidDeviceInfo> AndroidDeviceDialog::refreshDevices(const QString &ad
                                                                const QString &androidToolPath,
                                                                const Utils::Environment &environment)
 {
-    QVector<AndroidDeviceInfo> devices;
-    foreach (const AndroidDeviceInfo &info, AndroidConfig::connectedDevices(adbToolPath))
-        if (info.type == AndroidDeviceInfo::Hardware)
-            devices << info;
+    QVector<AndroidDeviceInfo> devices = AndroidConfig::connectedDevices(adbToolPath);
 
-    devices += AndroidConfig::androidVirtualDevices(androidToolPath, environment);
+    QSet<QString> startedAvds = Utils::transform<QSet>(devices,
+                                                       [] (const AndroidDeviceInfo &info) {
+                                                           return info.avdname;
+                                                       });
+
+    for (const AndroidDeviceInfo &dev : AndroidConfig::androidVirtualDevices(androidToolPath, environment))
+        if (!startedAvds.contains(dev.avdname))
+            devices << dev;
     return devices;
 }
 
@@ -511,13 +522,18 @@ void AndroidDeviceDialog::devicesRefreshed()
 {
     m_progressIndicator->hide();
     QString serialNumber;
-    if (!m_serialNumberFromAdd.isEmpty()) {
-        serialNumber = m_serialNumberFromAdd;
-        m_serialNumberFromAdd.clear();
+    AndroidDeviceInfo::AndroidDeviceType deviceType;
+    if (!m_avdNameFromAdd.isEmpty()) {
+        serialNumber = m_avdNameFromAdd;
+        m_avdNameFromAdd.clear();
+        deviceType = AndroidDeviceInfo::Emulator;
     } else {
         QModelIndex currentIndex = m_ui->deviceView->currentIndex();
-        if (currentIndex.isValid())
-            serialNumber = m_model->device(currentIndex).serialNumber;
+        if (currentIndex.isValid()) {
+            AndroidDeviceInfo info = m_model->device(currentIndex);
+            deviceType = info.type;
+            serialNumber = deviceType == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
+        }
     }
 
     QVector<AndroidDeviceInfo> devices = m_futureWatcherRefreshDevices.result();
@@ -530,10 +546,13 @@ void AndroidDeviceDialog::devicesRefreshed()
     // Smartly select a index
     QModelIndex newIndex;
     if (!serialNumber.isEmpty())
-        newIndex = m_model->indexFor(serialNumber);
+        newIndex = m_model->indexFor(deviceType, serialNumber);
 
-    if (!newIndex.isValid() && !devices.isEmpty())
-        newIndex = m_model->indexFor(devices.first().serialNumber);
+    if (!newIndex.isValid() && !devices.isEmpty()) {
+        AndroidDeviceInfo info = devices.first();
+        const QString &name = info.type == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
+        newIndex = m_model->indexFor(info.type, name);
+    }
 
     m_ui->deviceView->setCurrentIndex(newIndex);
 
@@ -564,14 +583,14 @@ void AndroidDeviceDialog::avdAdded()
         return;
     }
 
-    m_serialNumberFromAdd = info.name;
+    m_avdNameFromAdd = info.name;
     refreshDeviceList();
 }
 
 void AndroidDeviceDialog::enableOkayButton()
 {
     AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(m_ui->deviceView->currentIndex().internalPointer());
-    bool enable = node && !node->deviceInfo().serialNumber.isEmpty();
+    bool enable = node && (!node->deviceInfo().serialNumber.isEmpty() || !node->deviceInfo().avdname.isEmpty());
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 

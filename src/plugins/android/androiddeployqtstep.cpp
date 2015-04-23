@@ -191,22 +191,17 @@ bool AndroidDeployQtStep::init()
         return false;
     }
 
-    m_deviceAPILevel = AndroidManager::minimumSDK(target());
+    int deviceAPILevel = AndroidManager::minimumSDK(target());
     AndroidConfigurations::Options options = AndroidConfigurations::None;
     if (androidBuildApkStep->deployAction() == AndroidBuildApkStep::DebugDeployment)
         options = AndroidConfigurations::FilterAndroid5;
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(project(), m_deviceAPILevel, m_targetArch, options);
-    if (info.serialNumber.isEmpty()) // aborted
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(project(), deviceAPILevel, m_targetArch, options);
+    if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
         return false;
 
-    if (info.type == AndroidDeviceInfo::Emulator) {
-        m_avdName = info.serialNumber;
-        m_serialNumber.clear();
-        m_deviceAPILevel = info.sdk;
-    } else {
-        m_avdName.clear();
-        m_serialNumber = info.serialNumber;
-    }
+    m_avdName = info.avdname;
+    m_serialNumber = info.serialNumber;
+
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
 
     ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
@@ -278,7 +273,7 @@ bool AndroidDeployQtStep::init()
 
     m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
-    if (AndroidConfigurations::currentConfig().findAvd(m_deviceAPILevel, m_targetArch).isEmpty())
+    if (AndroidConfigurations::currentConfig().findAvd(m_avdName).isEmpty())
         AndroidConfigurations::currentConfig().startAVDAsync(m_avdName);
     return true;
 }
@@ -400,7 +395,7 @@ void AndroidDeployQtStep::slotSetSerialNumber(const QString &serialNumber)
 void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 {
     if (!m_avdName.isEmpty()) {
-        QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
+        QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_avdName, fi);
         if (serialNumber.isEmpty()) {
             fi.reportResult(false);
             emit finished();
