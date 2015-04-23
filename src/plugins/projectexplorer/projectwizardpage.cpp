@@ -337,6 +337,8 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
 
 ProjectWizardPage::~ProjectWizardPage()
 {
+    disconnect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
+               this, SLOT(projectChanged(int)));
     delete m_model;
     delete m_ui;
 }
