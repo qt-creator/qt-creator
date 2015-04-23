@@ -70,8 +70,6 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
                                                          RunMode runMode,
                                                          QString *errorMessage)
 {
-    Q_UNUSED(runMode);
-
     using namespace CppTools;
     const ProjectInfo projectInfoBeforeBuild = m_tool->projectInfoBeforeBuild();
     QTC_ASSERT(projectInfoBeforeBuild.isValid(), return 0);

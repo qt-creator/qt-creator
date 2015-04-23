@@ -64,7 +64,13 @@ QtcPlugin {
             "clangstaticanalyzerunittests.cpp",
             "clangstaticanalyzerunittests.h",
             "clangstaticanalyzerunittests.qrc",
-            "unit-tests/**/*",
         ]
+    }
+
+    Group {
+        name: "Unit test resources"
+        prefix: "unit-tests/"
+        fileTags: []
+        files: ["**/*"]
     }
 }
