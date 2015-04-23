@@ -126,7 +126,7 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     connect(WinDebugInterface::instance(), SIGNAL(cannotRetrieveDebugOutput()),
             this, SLOT(cannotRetrieveDebugOutput()));
     connect(WinDebugInterface::instance(), SIGNAL(debugOutput(qint64,QString)),
-            this, SLOT(checkDebugOutput(qint64,QString)));
+            this, SLOT(checkDebugOutput(qint64,QString)), Qt::BlockingQueuedConnection);
 #endif
 #ifdef WITH_JOURNALD
     connect(JournaldWatcher::instance(), &JournaldWatcher::journaldOutput,

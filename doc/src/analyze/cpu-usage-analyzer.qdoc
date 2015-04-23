@@ -132,6 +132,14 @@
     data, and the processing delay may grow excessively. You should then lower
     the \uicontrol {Sampling frequency} or the \uicontrol {Stack snapshot size}.
 
+    \section2 Adding Command Line Options For Perf
+
+    You can specify additional command line options to be passed to Perf when
+    recording data in the \uicontrol {Additional arguments} field. You may want
+    to specify \c{--no-delay} or \c{--no-buffering} to reduce the processing delay.
+    However, those options are not supported by all versions of Perf and Perf may
+    not start if an unsupported option is given.
+
     \section1 Analyzing Collected Data
 
     The \uicontrol Timeline view displays a graphical representation of CPU
@@ -248,4 +256,26 @@
     back its own data in a sensible way by checking the output of
     \c {perf report} or \c {perf script} in the recorded Perf data files.
 
+    \section1 Troubleshooting
+
+    The CPU Usage Analyzer might fail to record data for the following reasons:
+
+    \list 1
+        \li The connection between the target device and the host may not be
+            fast enough to transfer the data produced by Perf. Try lowering
+            the \uicontrol {Stack snapshot size} or
+            \uicontrol {Sampling Frequency} settings.
+        \li Perf may be buffering the data forever, never sending it. Add
+            \c {--no-delay} or \c {--no-buffering} to the
+            \uicontrol {Additional arguments} field.
+        \li Some versions of Perf will not start recording unless given a
+            certain minimum sampling frequency. Try with a
+            \uicontrol {Sampling Frequency} of 1000.
+        \li On some devices, Perf support is not very stable and the Linux
+            kernel may randomly fail to record data after some time. Reboot the
+            device and try again.
+    \endlist
+
+    Output from the helper program that processes the data is displayed in the
+    \uicontrol {General Messages} output pane.
 */

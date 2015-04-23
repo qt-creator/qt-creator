@@ -414,16 +414,17 @@ struct Type
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
-        if (fullNamespaceMatch)
-            expectedType.replace('?', context.nameSpace);
-        else
-            expectedType.replace('?', "");
 
         if (isPattern) {
             QString actual = QString::fromLatin1(actualType);
             QString expected = QString::fromLatin1(expectedType);
             return QRegExp(expected).exactMatch(actual);
         }
+
+        if (fullNamespaceMatch)
+            expectedType.replace('?', context.nameSpace);
+        else
+            expectedType.replace('?', "");
 
         if (actualType == expectedType)
             return true;
@@ -4380,24 +4381,6 @@ void tst_Dumpers::dumper_data()
                + Check("v2.0", "[0]", "", "Foo")
                + Check("v2.1.a", "2", "int")
                + Check("v2.3", "[3]", "", "Foo");
-
-
-    QTest::newRow("StdStream")
-            << Data("#include <istream>\n"
-                    "#include <fstream>\n",
-
-                    "using namespace std;\n"
-                    "ifstream is0, is;\n"
-                    "#ifdef Q_OS_WIN\n"
-                    "is.open(\"C:\\\\Program Files\\\\Windows NT\\\\Accessories\\\\wordpad.exe\");\n"
-                    "#else\n"
-                    "is.open(\"/etc/passwd\");\n"
-                    "#endif\n"
-                    "bool ok = is.good();\n"
-                    "unused(&ok, &is, &is0);\n")
-
-               + Check("is", "", "std::ifstream")
-               + Check("ok", "true", "bool");
 
 
     QTest::newRow("StdUnorderedMap")

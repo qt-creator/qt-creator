@@ -69,6 +69,7 @@ const QLatin1String VerboseOutputKey("VerboseOutput");
 const QLatin1String InputFile("InputFile");
 const QLatin1String ProFilePathForInputFile("ProFilePathForInputFile");
 const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
+const QLatin1String InstallFailedInconsistentCertificatesString2("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 
 //////////////////
@@ -490,7 +491,8 @@ void AndroidDeployQtStep::processReadyReadStdOutput()
 
 void AndroidDeployQtStep::stdOutput(const QString &line)
 {
-    if (line.contains(InstallFailedInconsistentCertificatesString))
+    if (line.contains(InstallFailedInconsistentCertificatesString)
+            || line.contains(InstallFailedInconsistentCertificatesString2))
         m_installOk = false;
     emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
 }
@@ -506,7 +508,8 @@ void AndroidDeployQtStep::processReadyReadStdError()
 
 void AndroidDeployQtStep::stdError(const QString &line)
 {
-    if (line.contains(InstallFailedInconsistentCertificatesString))
+    if (line.contains(InstallFailedInconsistentCertificatesString)
+            || line.contains(InstallFailedInconsistentCertificatesString2))
         m_installOk = false;
     emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }

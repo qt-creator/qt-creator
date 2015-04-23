@@ -3021,29 +3021,33 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
 
 void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
+    Node *node = ProjectTree::currentNode();
+    FolderNode *folderNode = node ? node->asFolderNode() : 0;
+
+    QTC_ASSERT(folderNode, return);
 
     QStringList fileNames = QFileDialog::getOpenFileNames(ICore::mainWindow(),
         tr("Add Existing Files"), directoryFor(ProjectTree::currentNode()));
     if (fileNames.isEmpty())
         return;
-    ProjectExplorerPlugin::addExistingFiles(fileNames);
+    ProjectExplorerPlugin::addExistingFiles(fileNames, folderNode);
 }
 
 void ProjectExplorerPluginPrivate::addExistingDirectory()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
+    Node *node = ProjectTree::currentNode();
+    FolderNode *folderNode = node ? node->asFolderNode() : 0;
+
+    QTC_ASSERT(folderNode, return);
 
     SelectableFilesDialogAddDirectory dialog(directoryFor(ProjectTree::currentNode()), QStringList(), ICore::mainWindow());
 
     if (dialog.exec() == QDialog::Accepted)
-        ProjectExplorerPlugin::addExistingFiles(dialog.selectedFiles());
+        ProjectExplorerPlugin::addExistingFiles(dialog.selectedFiles(), folderNode);
 }
 
-void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
+void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths, FolderNode *folderNode)
 {
-    Node *node = ProjectTree::currentNode();
-    FolderNode *folderNode = node ? node->asFolderNode() : 0;
     addExistingFiles(folderNode, filePaths);
 }
 

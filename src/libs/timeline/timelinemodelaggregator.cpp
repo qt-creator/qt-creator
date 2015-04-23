@@ -53,10 +53,6 @@ TimelineModelAggregator::TimelineModelAggregator(TimelineNotesModel *notes, QObj
     : QObject(parent), d(new TimelineModelAggregatorPrivate(this))
 {
     d->notesModel = notes;
-    connect(this, &TimelineModelAggregator::modelsChanged,
-            this, &TimelineModelAggregator::heightChanged);
-    connect(this, &TimelineModelAggregator::stateChanged,
-            this, &TimelineModelAggregator::heightChanged);
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()
@@ -76,6 +72,8 @@ void TimelineModelAggregator::addModel(TimelineModel *m)
     if (d->notesModel)
         d->notesModel->addTimelineModel(m);
     emit modelsChanged();
+    if (m->height() != 0)
+        emit heightChanged();
 }
 
 const TimelineModel *TimelineModelAggregator::model(int modelIndex) const
@@ -98,10 +96,13 @@ TimelineNotesModel *TimelineModelAggregator::notes() const
 
 void TimelineModelAggregator::clear()
 {
+    int prevHeight = height();
     d->modelList.clear();
     if (d->notesModel)
         d->notesModel->clear();
     emit modelsChanged();
+    if (height() != prevHeight)
+        emit heightChanged();
 }
 
 int TimelineModelAggregator::modelOffset(int modelIndex) const

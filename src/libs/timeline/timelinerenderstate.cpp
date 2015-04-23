@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "timelinerenderstate_p.h"
+#include <utils/qtcassert.h>
 
 namespace Timeline {
 
@@ -139,6 +140,8 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
                                            int defaultRowOffset)
 {
     Q_D(TimelineRenderState);
+    QTC_ASSERT(isEmpty(), return);
+
     for (int pass = 0; pass < d->passes.length(); ++pass) {
         const TimelineRenderPass::State *passState = d->passes[pass];
         if (!passState)

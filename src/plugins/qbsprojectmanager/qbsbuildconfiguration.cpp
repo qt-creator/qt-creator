@@ -419,13 +419,15 @@ QList<BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const Kit *k, c
     BuildInfo *info = createBuildInfo(k, BuildConfiguration::Debug);
     //: The name of the debug build configuration created by default for a qbs project.
     info->displayName = tr("Debug");
-    info->buildDirectory = defaultBuildDirectory(projectPath, k, info->displayName);
+    //: Non-ASCII characters in directory suffix may cause build issues.
+    info->buildDirectory = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"));
     result << info;
 
     info = createBuildInfo(k, BuildConfiguration::Release);
     //: The name of the release build configuration created by default for a qbs project.
     info->displayName = tr("Release");
-    info->buildDirectory = defaultBuildDirectory(projectPath, k, info->displayName);
+    //: Non-ASCII characters in directory suffix may cause build issues.
+    info->buildDirectory = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"));
     result << info;
 
     return result;

@@ -151,6 +151,14 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
                   maybeIncludeBorlandExtensions());
     result << CompilerOptionsBuilder::createDefineOptions(pPart->toolchainDefines);
     result << CompilerOptionsBuilder::createDefineOptions(pPart->projectDefines);
+
+    static const QString resourceDir = getResourceDir();
+    if (!resourceDir.isEmpty()) {
+        result << QLatin1String("-nostdlibinc");
+        result << (QLatin1String("-I") + resourceDir);
+        result << QLatin1String("-undef");
+    }
+
     result << CompilerOptionsBuilder::createHeaderPathOptions(pPart->headerPaths, isBlacklisted);
 
     // Inject header file
@@ -163,13 +171,6 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
 
     if (!pPart->projectConfigFile.isEmpty())
         result << QLatin1String("-include") << pPart->projectConfigFile;
-
-    static const QString resourceDir = getResourceDir();
-    if (!resourceDir.isEmpty()) {
-        result << QLatin1String("-nostdlibinc");
-        result << (QLatin1String("-I") + resourceDir);
-        result << QLatin1String("-undef");
-    }
 
     result << QLatin1String("-fmessage-length=0");
     result << QLatin1String("-fdiagnostics-show-note-include-stack");

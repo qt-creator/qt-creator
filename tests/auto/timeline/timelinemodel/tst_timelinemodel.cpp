@@ -227,14 +227,23 @@ void tst_TimelineModel::rowOffset()
 void tst_TimelineModel::height()
 {
     DummyModel dummy;
+    QSignalSpy spy(&dummy, SIGNAL(heightChanged()));
     QCOMPARE(dummy.height(), 0);
     dummy.loadData();
+    QCOMPARE(spy.count(), 1);
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
     dummy.setExpanded(true);
+    QCOMPARE(spy.count(), 2);
     QCOMPARE(dummy.height(), 3 * DefaultRowHeight);
     dummy.setExpandedRowHeight(1, 80);
+    QCOMPARE(spy.count(), 3);
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight + 80);
+    dummy.setHidden(true);
+    QCOMPARE(spy.count(), 4);
+    QCOMPARE(dummy.height(), 0);
     dummy.clear();
+    // When clearing the height can change several times in a row.
+    QVERIFY(spy.count() > 4);
     dummy.loadData();
     dummy.setExpanded(true);
     QCOMPARE(dummy.rowHeight(1), DefaultRowHeight); // Make sure the row height gets reset.

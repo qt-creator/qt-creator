@@ -25126,9 +25126,21 @@ These files are preserved.</source>
         <translation>Отладка</translation>
     </message>
     <message>
+        <source>Debug</source>
+        <comment>Shadow build directory suffix</comment>
+        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
+        <translation>Debug</translation>
+    </message>
+    <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
         <translation>Выпуск</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <comment>Shadow build directory suffix</comment>
+        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -25173,7 +25185,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Keep going</source>
-        <translation>Не сдаваться</translation>
+        <translation>Пропускать ошибки</translation>
     </message>
     <message>
         <source>Properties:</source>
@@ -25217,11 +25229,11 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Install</source>
-        <translation>Установить</translation>
+        <translation>Устанавливать</translation>
     </message>
     <message>
         <source>Clean install root</source>
-        <translation>Очищать корень установки</translation>
+        <translation>Очищать каталог установки</translation>
     </message>
 </context>
 <context>

@@ -868,13 +868,14 @@ void LldbEngine::assignValueInDebugger(WatchItem *,
 
 void LldbEngine::updateWatchItem(WatchItem *)
 {
-    updateLocals();
+    doUpdateLocals(UpdateParameters());
 }
 
 void LldbEngine::updateLocals()
 {
-    UpdateParameters params;
-    doUpdateLocals(params);
+    watchHandler()->resetValueCache();
+    watchHandler()->notifyUpdateStarted();
+    doUpdateLocals(UpdateParameters());
 }
 
 void LldbEngine::doUpdateLocals(UpdateParameters params)
@@ -923,7 +924,6 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     m_lastDebuggableCommand = cmd;
     m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
 
-    watchHandler()->notifyUpdateStarted();
     runCommand(cmd);
 
     reloadRegisters();
