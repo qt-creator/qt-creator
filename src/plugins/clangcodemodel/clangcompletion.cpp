@@ -680,6 +680,7 @@ int ClangCompletionAssistProcessor::startCompletionHelper()
     return startCompletionInternal(fileName, line, column, endOfOperator);
 }
 
+// TODO: Extract duplicated logic from InternalCppCompletionAssistProcessor::startOfOperator
 int ClangCompletionAssistProcessor::startOfOperator(int pos,
                                                     unsigned *kind,
                                                     bool wantFunctionCall) const
@@ -724,8 +725,9 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
             start = pos;
         }
         // Don't complete in comments or strings, but still check for include completion
-        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT) ||
-                 (tk.isLiteral() && (*kind != T_STRING_LITERAL
+        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
+                 || tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT)
+                 || (tk.isLiteral() && (*kind != T_STRING_LITERAL
                                      && *kind != T_ANGLE_STRING_LITERAL
                                      && *kind != T_SLASH))) {
             *kind = T_EOF_SYMBOL;
