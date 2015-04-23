@@ -127,6 +127,7 @@ public:
     QString qmlServerAddress;
     quint16 qmlServerPort;
     QString projectSourceDirectory;
+    QStringList additionalSearchDirectories;
     QString projectBuildDirectory;
     QStringList projectSourceFiles;
 

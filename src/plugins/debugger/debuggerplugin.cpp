@@ -2307,6 +2307,8 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
             str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDirectory)
                 << ')';
         str << '\n';
+        str << "Addtional Search Directories:"
+            << sp.additionalSearchDirectories.join(QLatin1Char(' ')) << '\n';
     }
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':'

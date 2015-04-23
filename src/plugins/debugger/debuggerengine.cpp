@@ -1310,6 +1310,7 @@ QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
     const DebuggerStartParameters &sp = startParameters();
     d->m_fileFinder.setProjectDirectory(sp.projectSourceDirectory);
     d->m_fileFinder.setProjectFiles(sp.projectSourceFiles);
+    d->m_fileFinder.setAdditionalSearchDirectories(sp.additionalSearchDirectories);
     d->m_fileFinder.setSysroot(sp.sysRoot);
 
     return d->m_fileFinder.findFile(fileUrl);

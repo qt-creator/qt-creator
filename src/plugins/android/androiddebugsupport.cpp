@@ -116,6 +116,12 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = target->project()->projectDirectory().toString();
+        Kit *kit = target->kit();
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+        if (version) {
+            const QString qmlQtDir = version->versionInfo().value(QLatin1String("QT_INSTALL_QML"));
+            params.additionalSearchDirectories = QStringList(qmlQtDir);
+        }
         params.projectSourceFiles = target->project()->files(Project::ExcludeGeneratedFiles);
         params.projectBuildDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
     }
