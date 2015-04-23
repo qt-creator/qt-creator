@@ -355,6 +355,7 @@ public:
 
     void reload() override;
     void processOutput(const QString &output) override;
+    void reloadFinished(bool success) override;
 
 private:
     const QString m_id;
@@ -376,16 +377,26 @@ void ShowController::processOutput(const QString &output)
     QTC_ASSERT(m_state != Idle, return);
     if (m_state == GettingDescription) {
         setDescription(gitClient()->extendedShowDescription(m_directory, output));
+    } else if (m_state == GettingDiff) {
+        processDiff(output);
+    }
+}
 
+void ShowController::reloadFinished(bool success)
+{
+    QTC_ASSERT(m_state != Idle, return);
+
+    if (m_state == GettingDescription && success) {
         QStringList args;
         args << QLatin1String("show") << QLatin1String("--format=format:") // omit header, already generated
              << QLatin1String(noColorOption) << QLatin1String(decorateOption) << m_id;
         m_state = GettingDiff;
         runCommand(QList<QStringList>() << addConfigurationArguments(args));
-    } else if (m_state == GettingDiff) {
-        m_state = Idle;
-        processDiff(output);
+        return;
     }
+
+    m_state = Idle;
+    BaseController::reloadFinished(success);
 }
 
 ///////////////////////////////

@@ -76,7 +76,7 @@ protected:
     // inside reload() (for synchronous reload)
     // or later (for asynchronous reload)
     virtual void reload() = 0;
-    void reloadFinished(bool success);
+    virtual void reloadFinished(bool success);
 
     void setDiffFiles(const QList<FileData> &diffFileList,
                       const QString &baseDirectory = QString());
