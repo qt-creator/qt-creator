@@ -227,6 +227,15 @@ bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::Genera
     return true;
 }
 
+bool JsonWizardGenerator::polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
+{
+    for (auto i = files->begin(); i != files->end(); ++i) {
+        if (!i->generator->polish(wizard, &(i->file), errorMessage))
+            return false;
+    }
+    return true;
+}
+
 bool JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {

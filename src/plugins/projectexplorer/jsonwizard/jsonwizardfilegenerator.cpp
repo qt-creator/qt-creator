@@ -199,6 +199,14 @@ bool JsonWizardFileGenerator::postWrite(const JsonWizard *wizard, Core::Generate
     return true;
 }
 
+bool JsonWizardFileGenerator::polish(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
 bool JsonWizardFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(wizard);

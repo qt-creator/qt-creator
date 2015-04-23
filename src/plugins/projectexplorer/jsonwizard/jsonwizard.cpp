@@ -209,12 +209,17 @@ void JsonWizard::accept()
         return;
     }
     emit filesReady(m_files);
+    if (!JsonWizardGenerator::polish(this, &m_files, &errorMessage)) {
+        if (!errorMessage.isEmpty())
+            QMessageBox::warning(this, tr("Failed to polish Files"), errorMessage);
+        return;
+    }
+    emit filesPolished(m_files);
     if (!JsonWizardGenerator::allDone(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Open Files"), errorMessage);
         return;
     }
-
     emit allDone(m_files);
 }
 
