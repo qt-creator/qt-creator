@@ -433,7 +433,7 @@ void SessionManager::closeAllProjects()
     removeProjects(projects());
 }
 
-const QList<Project *> &SessionManager::projects()
+QList<Project *> SessionManager::projects()
 {
     return d->m_projects;
 }
