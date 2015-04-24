@@ -118,6 +118,7 @@ public:
 
         // Processs source
         const Document::Ptr document = createDocument(filePath, source);
+        QVERIFY(document);
         Snapshot snapshot;
         snapshot.insert(document);
 
@@ -1202,7 +1203,6 @@ void tst_CheckSymbols::findField()
     source[position] = ' ';
     BaseTestCase tc(source);
     Use use = tc.findUse(line, column);
-    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QVERIFY(use.isValid());
@@ -1278,6 +1278,26 @@ void tst_CheckSymbols::findField_data()
         "   typedef Foo *pointer;\n"
         "   Temp<pointer> t;\n"
         "   t.p->@bar;\n"
+        "}\n"
+    );
+
+    QTest::newRow("instantiation_of_indirect_typedef") << _(
+        "template<typename _Tp>\n"
+        "struct Indirect { _Tp t; };\n"
+        "\n"
+        "template<typename T>\n"
+        "struct Temp\n"
+        "{\n"
+        "   typedef T MyT;\n"
+        "   typedef Indirect<MyT> indirect;\n"
+        "};\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Foo>::indirect i;\n"
+        "   i.t.@bar;\n"
         "}\n"
     );
 

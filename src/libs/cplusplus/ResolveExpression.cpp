@@ -915,61 +915,47 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
         if (accessOp == T_ARROW) {
             if (PointerType *ptrTy = ty->asPointerType()) {
                 FullySpecifiedType type = ptrTy->elementType();
-                if (LookupScope *binding
-                        = findClassForTemplateParameterInExpressionScope(r.binding(),
-                                                                         type)) {
-                    return binding;
-                }
                 if (LookupScope *binding = findClass(type, scope))
                     return binding;
 
-            } else {
-                LookupScope *binding
-                        = findClassForTemplateParameterInExpressionScope(r.binding(),
-                                                                         ty);
+            } else if (LookupScope *binding = findClass(ty, scope, r.binding())) {
+                // lookup for overloads of operator->
 
-                if (! binding)
-                    binding = findClass(ty, scope, r.binding());
+                const OperatorNameId *arrowOp
+                        = control()->operatorNameId(OperatorNameId::ArrowOp);
+                foreach (const LookupItem &r, binding->find(arrowOp)) {
+                    Symbol *overload = r.declaration();
+                    if (! overload)
+                        continue;
+                    Scope *functionScope = overload->enclosingScope();
 
-                if (binding){
-                    // lookup for overloads of operator->
+                    if (Function *funTy = overload->type()->asFunctionType()) {
+                        FullySpecifiedType retTy = funTy->returnType().simplified();
 
-                    const OperatorNameId *arrowOp
-                            = control()->operatorNameId(OperatorNameId::ArrowOp);
-                    foreach (const LookupItem &r, binding->find(arrowOp)) {
-                        Symbol *overload = r.declaration();
-                        if (! overload)
+                        typeResolver.resolve(&retTy, &functionScope, r.binding());
+
+                        if (! retTy->isPointerType() && ! retTy->isNamedType())
                             continue;
-                        Scope *functionScope = overload->enclosingScope();
 
-                        if (Function *funTy = overload->type()->asFunctionType()) {
-                            FullySpecifiedType retTy = funTy->returnType().simplified();
+                        if (PointerType *ptrTy = retTy->asPointerType())
+                            retTy = ptrTy->elementType();
 
-                            typeResolver.resolve(&retTy, &functionScope, r.binding());
+                        if (LookupScope *retBinding = findClass(retTy, functionScope))
+                            return retBinding;
 
-                            if (! retTy->isPointerType() && ! retTy->isNamedType())
-                                continue;
-
-                            if (PointerType *ptrTy = retTy->asPointerType())
-                                retTy = ptrTy->elementType();
-
-                            if (LookupScope *retBinding = findClass(retTy, functionScope))
+                        if (scope != functionScope) {
+                            if (LookupScope *retBinding = findClass(retTy, scope))
                                 return retBinding;
+                        }
 
-                            if (scope != functionScope) {
-                                if (LookupScope *retBinding = findClass(retTy, scope))
-                                    return retBinding;
-                            }
-
-                            if (LookupScope *origin = binding->instantiationOrigin()) {
-                                foreach (Symbol *originSymbol, origin->symbols()) {
-                                    Scope *originScope = originSymbol->asScope();
-                                    if (originScope && originScope != scope
-                                            && originScope != functionScope) {
-                                        if (LookupScope *retBinding
-                                                = findClass(retTy, originScope))
-                                            return retBinding;
-                                    }
+                        if (LookupScope *origin = binding->instantiationOrigin()) {
+                            foreach (Symbol *originSymbol, origin->symbols()) {
+                                Scope *originScope = originSymbol->asScope();
+                                if (originScope && originScope != scope
+                                        && originScope != functionScope) {
+                                    if (LookupScope *retBinding
+                                            = findClass(retTy, originScope))
+                                        return retBinding;
                                 }
                             }
                         }
@@ -983,12 +969,6 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
                     ty = ptrTy->elementType();
             }
 
-            if (LookupScope *binding
-                    = findClassForTemplateParameterInExpressionScope(r.binding(),
-                                                                     ty)) {
-                return binding;
-            }
-
             LookupScope *enclosingBinding = 0;
             if (LookupScope *binding = r.binding()) {
                 if (binding->instantiationOrigin())
@@ -997,24 +977,6 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
 
             if (LookupScope *binding = findClass(ty, scope, enclosingBinding))
                 return binding;
-        }
-    }
-
-    return 0;
-}
-
-LookupScope *ResolveExpression::findClassForTemplateParameterInExpressionScope(
-        LookupScope *resultBinding,
-        const FullySpecifiedType &ty) const
-{
-    if (resultBinding) {
-        if (LookupScope *origin = resultBinding->instantiationOrigin()) {
-            foreach (Symbol *originSymbol, origin->symbols()) {
-                if (Scope *originScope = originSymbol->asScope()) {
-                    if (LookupScope *retBinding = findClass(ty, originScope))
-                        return retBinding;
-                }
-            }
         }
     }
 

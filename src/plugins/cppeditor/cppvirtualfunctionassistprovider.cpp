@@ -152,8 +152,8 @@ public:
         QTC_ASSERT(m_params.staticClass, return 0);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
 
-        Class *functionsClass = m_finder.findMatchingClassDeclaration(m_params.function,
-                                                                      m_params.snapshot);
+        Class *functionsClass = m_finder.findMatchingClassDeclaration(
+                    m_params.function, m_params.snapshot, &m_params.typeOfExpression->context());
         if (!functionsClass)
             return 0;
 

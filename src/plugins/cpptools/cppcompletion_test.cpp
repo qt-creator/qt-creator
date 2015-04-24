@@ -332,7 +332,6 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
-    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
@@ -2829,6 +2828,28 @@ void CppToolsPlugin::test_completion_data()
     ) << _("t.p->") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
+
+    QTest::newRow("instantiation_of_indirect_typedef") << _(
+        "template<typename _Tp>\n"
+        "struct Indirect { _Tp t; };\n"
+        "\n"
+        "template<typename T>\n"
+        "struct Temp\n"
+        "{\n"
+        "   typedef T MyT;\n"
+        "   typedef Indirect<MyT> indirect;\n"
+        "};\n"
+        "\n"
+        "struct Foo { int bar; };\n"
+        "\n"
+        "void func()\n"
+        "{\n"
+        "   Temp<Foo>::indirect i;\n"
+        "   @\n"
+        "}\n"
+    ) << _("i.t.") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));;
 
     QTest::newRow("pointer_indirect_specialization_double_indirection_with_base") << _(
             "template<typename _Tp>\n"

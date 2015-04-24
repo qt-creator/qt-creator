@@ -38,6 +38,7 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/SimpleLexer.h>
+#include <cplusplus/Templates.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/functionutils.h>

@@ -601,7 +601,7 @@ public:
     QSet<const Declaration *> _alreadyConsideredTypedefs;
 
     Class *_rootClass;
-    const Name *_name; // For debug
+    const Name *_name;
     bool _hasTypedefs;
 };
 
@@ -1118,6 +1118,13 @@ LookupScope *LookupScopePrivate::lookupType_helper(
                     return r;
                 }
             }
+
+            if (_instantiationOrigin) {
+                if (LookupScope *o = _instantiationOrigin->lookupType_helper(
+                            name, processed, /*searchInEnclosingScope =*/ true, origin)) {
+                    return o;
+                }
+            }
         }
 
         if (_parent && searchInEnclosingScope)
@@ -1529,6 +1536,10 @@ void Instantiator::instantiate(LookupScopePrivate *lookupScope,
             if (!clone->enclosingScope()) // Not from the cache but just cloned.
                 clone->setEnclosingScope(s->enclosingScope());
             instantiation->_symbols.append(clone);
+            if (s == instantiation->_rootClass) {
+                clone->setName(instantiation->_name);
+                instantiation->_rootClass = clone->asClass();
+            }
             if (Q_UNLIKELY(debug)) {
                 Overview oo;
                 oo.showFunctionSignatures = true;

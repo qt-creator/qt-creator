@@ -1371,7 +1371,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "template <class T> struct A { virtual void virt() {} };\n"
             "void f(A<int> *l) { l->$@virt(); }\n")
         << (OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1));
+            << OverrideItem(QLatin1String("A<int>::virt"), 1));
 
     /// Check: Static type is nicely resolved, especially for QSharedPointers.
     QTest::newRow("QSharedPointer") << _(

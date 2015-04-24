@@ -125,10 +125,6 @@ protected:
 
 
 private:
-    LookupScope *findClassForTemplateParameterInExpressionScope(
-            LookupScope *resultBinding,
-            const FullySpecifiedType &ty) const;
-
     Scope *_scope;
     const LookupContext& _context;
     Bind bind;

@@ -212,13 +212,15 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     return 0;
 }
 
-Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot)
+Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot,
+                                                  const LookupContext *context)
 {
     if (!declaration->identifier())
         return 0;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
 
+    const bool useLocalContext = !context;
     foreach (const QString &file, fileIterationOrder(declFile, snapshot)) {
         Document::Ptr doc = snapshot.document(file);
         if (!doc) {
@@ -230,9 +232,13 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
                                             declaration->identifier()->size()))
             continue;
 
-        LookupContext context(doc, snapshot);
+        QScopedPointer<LookupContext> localContext;
+        if (useLocalContext) {
+            localContext.reset(new LookupContext(doc, snapshot));
+            context = localContext.data();
+        }
 
-        LookupScope *type = context.lookupType(declaration);
+        LookupScope *type = context->lookupType(declaration);
         if (!type)
             continue;
 
