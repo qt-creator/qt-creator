@@ -79,8 +79,10 @@ QList<LookupItem> TypeResolver::getNamedTypeItems(const Name *name, Scope *scope
     if (namedTypeItems.isEmpty()) {
         if (binding)
             namedTypeItems = binding->lookup(name);
-        if (LookupScope *scopeCon = _context.lookupType(scope))
-            namedTypeItems += scopeCon->lookup(name);
+        if (LookupScope *scopeCon = _context.lookupType(scope)) {
+            if (scopeCon != binding)
+                namedTypeItems += scopeCon->lookup(name);
+        }
     }
 
     return namedTypeItems;
