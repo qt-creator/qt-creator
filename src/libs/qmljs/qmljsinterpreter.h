@@ -1124,6 +1124,15 @@ public:
     const LanguageUtils::FakeMetaMethod &fakeMetaMethod() const;
 };
 
+class QMLJS_EXPORT CustomImportsProvider : public QObject
+{
+    Q_OBJECT
+public:
+    explicit CustomImportsProvider(QObject *parent = 0) : QObject(parent) {}
+    virtual ~CustomImportsProvider() {}
+    virtual QList<Import> imports(ValueOwner *valueOwner, const Document *context) const = 0;
+};
+
 } // namespace QmlJS
 
 #endif // QMLJS_INTERPRETER_H
