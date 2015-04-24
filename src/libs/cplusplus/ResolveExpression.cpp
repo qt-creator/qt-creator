@@ -916,7 +916,6 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
     if (Q_UNLIKELY(debug))
         qDebug() << "In ResolveExpression::baseExpression with" << baseResults.size() << "results...";
     int i = 0;
-    Overview oo;
     TypeResolver typeResolver(_context);
 
     foreach (const LookupItem &r, baseResults) {
