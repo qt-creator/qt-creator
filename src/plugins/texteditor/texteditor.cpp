@@ -3473,8 +3473,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     // draw backgrond to the right of the wrap column before everything else
     qreal lineX = 0;
     QPointF offset(contentOffset());
-    QRect viewportRect = viewport()->rect();
-    QRect er = e->rect();
+    const QRect &viewportRect = viewport()->rect();
+    const QRect &er = e->rect();
 
     const FontSettings &fs = textDocument()->fontSettings();
     const QTextCharFormat &searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
@@ -3828,6 +3828,12 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 QColor color = fs.toTextCharFormat(C_CURRENT_LINE).background().color();
                 // set alpha, otherwise we cannot see block highlighting and find scope underneath
                 color.setAlpha(128);
+                if (!editable && !er.contains(rr.toRect())) {
+                    QRect updateRect = er;
+                    updateRect.setLeft(0);
+                    updateRect.setRight(viewportRect.width() - offset.x());
+                    viewport()->update(updateRect);
+                }
                 painter.fillRect(rr, color);
             }
 
