@@ -54,7 +54,6 @@ AbstractGeneratedFileInfo::AbstractGeneratedFileInfo()
 
 const QString AbstractMobileApp::CFileComment(QLatin1String("//"));
 const QString AbstractMobileApp::ProFileComment(QLatin1Char('#'));
-const QString AbstractMobileApp::DeploymentPriFileName(QLatin1String("deployment.pri"));
 const QString AbstractMobileApp::FileChecksum(QLatin1String("checksum"));
 const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));
 const int AbstractMobileApp::StubVersion = 9;
@@ -93,8 +92,6 @@ QString AbstractMobileApp::path(int fileType) const
         case AppProOrigin:          return originsRootApp + QLatin1String("app.pro");
         case AppProPath:            return outputPathBase();
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
-        case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
-        case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
         default:                    return pathExtended(fileType);
     }
     return QString();
@@ -209,8 +206,6 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
         out << line << endl;
     };
 
-    proFileContent.replace("../shared/" + DeploymentPriFileName.toLatin1(),
-        DeploymentPriFileName.toLatin1());
     return proFileContent;
 }
 
@@ -313,11 +308,6 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
         case AbstractGeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);
             comment = ProFileComment;
-            break;
-        case AbstractGeneratedFileInfo::DeploymentPriFile:
-            data = readBlob(path(DeploymentPriOrigin), errorMessage);
-            comment = ProFileComment;
-            versionAndChecksum = true;
             break;
         default:
             data = generateFileExtended(fileType, &versionAndChecksum,

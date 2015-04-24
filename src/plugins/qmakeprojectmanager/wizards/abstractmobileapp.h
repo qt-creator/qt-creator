@@ -86,8 +86,6 @@ public:
         AppProOrigin,
         AppProPath,
         DesktopOrigin,
-        DeploymentPri,
-        DeploymentPriOrigin,
         ExtendedFile
     };
 
@@ -109,7 +107,6 @@ public:
     QList<AbstractGeneratedFileInfo> fileUpdates(const QString &mainProFile) const;
     bool updateFiles(const QList<AbstractGeneratedFileInfo> &list, QString &error) const;
 
-    static const QString DeploymentPriFileName;
 protected:
     AbstractMobileApp();
     virtual QByteArray generateProFile(QString *errorMessage) const;
