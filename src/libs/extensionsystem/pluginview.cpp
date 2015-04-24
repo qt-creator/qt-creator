@@ -343,6 +343,8 @@ static void queryDependendPlugins(PluginSpec *spec, QSet<PluginSpec *> *dependen
     QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
     while (it.hasNext()) {
         it.next();
+        if (it.key().type != PluginDependency::Required)
+            continue;
         PluginSpec *dep = it.value();
         if (!dependencies->contains(dep)) {
             dependencies->insert(dep);
