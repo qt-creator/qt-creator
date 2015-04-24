@@ -64,6 +64,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     setDisplayName(qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    addMimeType(QLatin1String("text/css")); // for some reason freedesktop thinks css is text/x-csrc
 
     setDocumentCreator([]() { return new TextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
     setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });
