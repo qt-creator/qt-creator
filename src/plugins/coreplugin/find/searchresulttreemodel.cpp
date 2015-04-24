@@ -57,9 +57,21 @@ SearchResultTreeModel::~SearchResultTreeModel()
 
 void SearchResultTreeModel::setShowReplaceUI(bool show)
 {
-    beginResetModel();
     m_showReplaceUI = show;
-    endResetModel();
+    // We cannot send dataChanged for the whole hierarchy in one go,
+    // because all items in a dataChanged must have the same parent.
+    // Send dataChanged for each parent of children individually...
+    QList<QModelIndex> changeQueue;
+    changeQueue.append(QModelIndex());
+    while (!changeQueue.isEmpty()) {
+        const QModelIndex current = changeQueue.takeFirst();
+        int childCount = rowCount(current);
+        if (childCount > 0) {
+            emit dataChanged(index(0, 0, current), index(childCount - 1, 0, current));
+            for (int r = 0; r < childCount; ++r)
+                changeQueue.append(index(r, 0, current));
+        }
+    }
 }
 
 void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor &color)
