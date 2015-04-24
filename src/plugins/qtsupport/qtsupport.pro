@@ -32,9 +32,7 @@ HEADERS += \
     screenshotcropper.h \
     qtconfigwidget.h \
     desktopqtversionfactory.h \
-    simulatorqtversionfactory.h \
     desktopqtversion.h \
-    simulatorqtversion.h \
     winceqtversionfactory.h \
     winceqtversion.h
 
@@ -62,9 +60,7 @@ SOURCES += \
     screenshotcropper.cpp \
     qtconfigwidget.cpp \
     desktopqtversionfactory.cpp \
-    simulatorqtversionfactory.cpp \
     desktopqtversion.cpp \
-    simulatorqtversion.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp
 

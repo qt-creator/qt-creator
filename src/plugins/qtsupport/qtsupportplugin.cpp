@@ -38,7 +38,6 @@
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
 #include "qtversionmanager.h"
-#include "simulatorqtversionfactory.h"
 #include "uicodemodelsupport.h"
 #include "winceqtversionfactory.h"
 
@@ -77,7 +76,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     addAutoReleasedObject(new QtVersionManager);
     addAutoReleasedObject(new DesktopQtVersionFactory);
-    addAutoReleasedObject(new SimulatorQtVersionFactory);
     addAutoReleasedObject(new WinCeQtVersionFactory);
     addAutoReleasedObject(new UiCodeModelManager);
 

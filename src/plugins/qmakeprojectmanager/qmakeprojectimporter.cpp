@@ -296,9 +296,6 @@ Target *QmakeProjectImporter::preferredTarget(const QList<Target *> &possibleTar
         if (t->kit() == KitManager::defaultKit()) {
             activeTarget = t;
             activeTargetPriority = 3;
-        } else if (activeTargetPriority < 2 && version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)) {
-            activeTarget = t;
-            activeTargetPriority = 2;
         } else if (activeTargetPriority < 1 && version && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)) {
             activeTarget = t;
             activeTargetPriority = 1;

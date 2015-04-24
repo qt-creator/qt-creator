@@ -114,8 +114,6 @@ QtcPlugin {
         files: [
             "desktopqtversion.cpp", "desktopqtversion.h",
             "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
-            "simulatorqtversion.cpp", "simulatorqtversion.h",
-            "simulatorqtversionfactory.cpp", "simulatorqtversionfactory.h",
             "winceqtversion.cpp", "winceqtversion.h",
             "winceqtversionfactory.cpp", "winceqtversionfactory.h",
         ]

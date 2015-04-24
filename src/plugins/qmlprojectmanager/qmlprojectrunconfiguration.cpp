@@ -305,8 +305,7 @@ void QmlProjectRunConfiguration::updateEnabled()
 bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *version)
 {
     if (version
-            && (version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT))
+            && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
             && !version->qmlviewerCommand().isEmpty()) {
         return true;
     }

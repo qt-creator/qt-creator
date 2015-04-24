@@ -80,7 +80,6 @@ public:
 
     virtual QString executable() const;
     virtual ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    bool forcedGuiMode() const;
     virtual QString workingDirectory() const;
     virtual QString commandLineArguments() const;
 
@@ -131,7 +130,6 @@ private:
 
     // Cached startup sub project information
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
-    bool m_forcedGuiMode;
     bool m_isUsingDyldImageSuffix;
     QString m_userWorkingDirectory;
     bool m_parseSuccess;

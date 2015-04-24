@@ -463,14 +463,10 @@ bool PuppetCreator::qtIsSupported() const
 {
     QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
 
-    if (currentQtVersion
+    return currentQtVersion
             && currentQtVersion->isValid()
             && nonEarlyQt5Version(currentQtVersion->qtVersion())
-            && (currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || currentQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
-        return true;
-
-    return false;
+            && currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
 }
 
 bool PuppetCreator::checkPuppetVersion(const QString &qmlPuppetPath)

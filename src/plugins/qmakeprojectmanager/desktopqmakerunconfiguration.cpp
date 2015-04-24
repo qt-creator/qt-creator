@@ -101,7 +101,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Deskt
     m_commandLineArguments(source->m_commandLineArguments),
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
-    m_forcedGuiMode(source->m_forcedGuiMode),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_parseSuccess(source->m_parseSuccess),
@@ -162,9 +161,6 @@ void DesktopQmakeRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
-
     QmakeProject *project = static_cast<QmakeProject *>(target()->project());
     connect(project, &QmakeProject::proFileUpdated,
             this, &DesktopQmakeRunConfiguration::proFileUpdated);
@@ -176,8 +172,6 @@ void DesktopQmakeRunConfiguration::ctor()
 
 void DesktopQmakeRunConfiguration::kitChanged()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
     emit runModeChanged(runMode()); // Always emit
 }
 
@@ -249,7 +243,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     QHBoxLayout *innerBox = new QHBoxLayout();
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
     m_useTerminalCheck->setChecked(m_qmakeRunConfiguration->runMode() == ApplicationLauncher::Console);
-    m_useTerminalCheck->setVisible(!m_qmakeRunConfiguration->forcedGuiMode());
     innerBox->addWidget(m_useTerminalCheck);
 
     m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
@@ -380,10 +373,8 @@ void DesktopQmakeRunConfigurationWidget::commandLineArgumentsChanged(const QStri
 
 void DesktopQmakeRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
 {
-    if (!m_ignoreChange) {
-        m_useTerminalCheck->setVisible(!m_qmakeRunConfiguration->forcedGuiMode());
+    if (!m_ignoreChange)
         m_useTerminalCheck->setChecked(runMode == ApplicationLauncher::Console);
-    }
 }
 
 void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
@@ -458,14 +449,7 @@ QString DesktopQmakeRunConfiguration::executable() const
 
 ApplicationLauncher::Mode DesktopQmakeRunConfiguration::runMode() const
 {
-    if (m_forcedGuiMode)
-        return ProjectExplorer::ApplicationLauncher::Gui;
     return m_runMode;
-}
-
-bool DesktopQmakeRunConfiguration::forcedGuiMode() const
-{
-    return m_forcedGuiMode;
 }
 
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const

@@ -196,10 +196,9 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
     const QString installHeaders = qtVersion->qmakeProperty("QT_INSTALL_HEADERS");
 
-    if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)
-            && qtVersion->type() != QLatin1String(Constants::SIMULATORQT)) {
+    if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)) {
         if (reason)
-            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "Only available for Qt for Desktop and Qt for Qt Simulator.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "Only available for Qt for Desktop.");
         return false;
     }
     if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
