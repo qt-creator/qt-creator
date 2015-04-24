@@ -68,7 +68,7 @@ QtSupport::BaseQtVersion *QnxQtVersionFactory::restore(const QString &type, cons
 
 int QnxQtVersionFactory::priority() const
 {
-    return Constants::QNX_QNX_QT_FACTORY_PRIO;
+    return 50;
 }
 
 QtSupport::BaseQtVersion *QnxQtVersionFactory::create(const Utils::FileName &qmakePath,

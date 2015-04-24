@@ -42,11 +42,6 @@
             When you deploy the application to an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
-        \li  \l{Deploying Applications to BlackBerry 10 Devices}
-
-            When you deploy the application to a BlackBerry 10 device, \QC generates a
-            BAR package in the build directory and deploys it to the connected
-            device.
         \li \l{Deploying Applications to Embedded Linux Devices}
 
             When you deploy the application to a generic Linux-based device, \QC
@@ -54,9 +49,7 @@
             can test and debug the application on the device.
         \li  \l{Deploying Applications to QNX Neutrino Devices}
 
-            When you deploy the application to a BlackBerry, \QC  generates a
-            BAR package in the build directory and deploys it to the connected
-            device. When you deploy it to a QNX Neutrino device, \QC copies
+            When you deploy the application to a QNX Neutrino device, \QC copies
             the application files to the connected device. You can test and
             debug the application on the device.
     \endlist

@@ -118,9 +118,7 @@ static QStringList targetOSList(const ProjectExplorer::Abi &abi, const ProjectEx
         os << QLatin1String("bsd") << QLatin1String("unix");
         break;
     case ProjectExplorer::Abi::UnixOS:
-        if (device == QNX_BB_OS_TYPE)
-            os << QLatin1String("blackberry") << QLatin1String("qnx");
-        else if (device == QNX_QNX_OS_TYPE)
+        if (device == QNX_QNX_OS_TYPE)
             os << QLatin1String("qnx");
         else if (abi.osFlavor() == ProjectExplorer::Abi::SolarisUnixFlavor)
             os << QLatin1String("solaris");

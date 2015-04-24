@@ -371,10 +371,6 @@
         \li \uicontrol Analyzer - Errors encountered while running the
             \l{Analyzing Code}{Valgrind code analysis tools}.
 
-        \li \uicontrol {BAR Descriptor} - Errors and warnings encountered when using
-            the BlackBerry 10 BAR descriptor editor to customize the appearance
-            and behavior of an application.
-
         \li \uicontrol {Build System} - Errors and warnings encountered during a
             build.
 

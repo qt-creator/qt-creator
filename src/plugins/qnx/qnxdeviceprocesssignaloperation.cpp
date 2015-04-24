@@ -62,30 +62,3 @@ QString QnxDeviceProcessSignalOperation::interruptProcessByNameCommandLine(
 {
     return signalProcessByNameQnxCommandLine(filePath, 2);
 }
-
-
-BlackBerryDeviceProcessSignalOperation::BlackBerryDeviceProcessSignalOperation(
-        const QSsh::SshConnectionParameters &sshParameters)
-    : RemoteLinux::RemoteLinuxSignalOperation(sshParameters)
-{
-}
-
-static QString signalProcessByNameBlackBerryCommandLine(const QString &filePath, int sig)
-{
-    QString executable = filePath;
-    return QString::fromLatin1("for PID in $(pidin -F \"%a %A\" | grep \"%1\" | awk '/%1/ {print $1}'); "
-        "do "
-            "kill -%2 $PID; "
-        "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(sig);
-}
-
-QString BlackBerryDeviceProcessSignalOperation::killProcessByNameCommandLine(const QString &filePath) const
-{
-    return QString::fromLatin1("%1; %2").arg(signalProcessByNameBlackBerryCommandLine(filePath, 15),
-                                                             signalProcessByNameBlackBerryCommandLine(filePath, 9));
-}
-
-QString BlackBerryDeviceProcessSignalOperation::interruptProcessByNameCommandLine(const QString &filePath) const
-{
-    return signalProcessByNameBlackBerryCommandLine(filePath, 2);
-}

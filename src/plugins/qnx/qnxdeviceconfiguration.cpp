@@ -263,7 +263,7 @@ void QnxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
     const QnxDeviceConfiguration::ConstPtr device =
             sharedFromThis().staticCast<const QnxDeviceConfiguration>();
     if (actionId == Core::Id(DeployQtLibrariesActionId)) {
-        QnxDeployQtLibrariesDialog dialog(device, QnxDeployQtLibrariesDialog::QNX, parent);
+        QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
     } else {
         RemoteLinux::LinuxDevice::executeAction(actionId, parent);

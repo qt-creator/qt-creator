@@ -1,6 +1,6 @@
     \section2 Specifying Run Settings for QNX Devices
 
-    To run and debug an application on a QNX or BlackBerry device, you must
+    To run and debug an application on a QNX device, you must
     create connections from the development PC to the device. Click
     \uicontrol {Manage device configurations} to create a connection. For more
     information, see \l{Connecting QNX Devices}.
@@ -9,10 +9,3 @@
 
     Specifying run settings for QNX Neutrino devices is very similar to
     \l{Specifying Run Settings for Linux-Based Devices}.
-
-    \section2 Specifying Run Settings for Blackberry 10 Devices
-
-    When you run the application on the BlackBerry 10 device, \QC first creates a BAR package
-    using the settings in the Application Descriptor File. The default is to create the
-    BAR package in the build directory. The BAR package is then deployed to the
-    selected device. For more information, see \l{Deploying Applications to BlackBerry 10 Devices}.

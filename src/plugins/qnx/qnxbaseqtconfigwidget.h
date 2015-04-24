@@ -35,26 +35,26 @@
 
 #include <qtsupport/qtconfigwidget.h>
 
+namespace Utils { class PathChooser; }
+
 namespace Qnx {
 namespace Internal {
-namespace Ui { class QnxBaseQtConfigWidget; }
 
-class QnxAbstractQtVersion;
+class QnxQtVersion;
 
 class QnxBaseQtConfigWidget : public QtSupport::QtConfigWidget
 {
     Q_OBJECT
+
 public:
-    explicit QnxBaseQtConfigWidget(QnxAbstractQtVersion *version);
-    ~QnxBaseQtConfigWidget();
+    explicit QnxBaseQtConfigWidget(QnxQtVersion *version);
 
 private slots:
     void updateSdkPath(const QString &path);
 
 private:
-    QnxAbstractQtVersion *m_version;
-
-    Ui::QnxBaseQtConfigWidget *m_ui;
+    QnxQtVersion *m_version;
+    Utils::PathChooser *m_sdkPathChooser;
 };
 
 } // namespace Internal

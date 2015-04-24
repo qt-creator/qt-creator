@@ -130,8 +130,7 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
     if (deviceType !=  ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && deviceType != BareMetal::Constants::BareMetalOsType
             && deviceType != RemoteLinux::Constants::GenericLinuxOsType
-            && deviceType != Qnx::Constants::QNX_QNX_OS_TYPE
-            && deviceType != Qnx::Constants::QNX_BB_OS_TYPE)
+            && deviceType != Qnx::Constants::QNX_QNX_OS_TYPE)
         return results;
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (n != ForceNinja) {

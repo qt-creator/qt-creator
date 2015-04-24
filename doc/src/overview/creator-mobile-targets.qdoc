@@ -56,13 +56,6 @@
             You can connect bare metal devices to the development PC and use \QC
             to debug applications on them with GDB or a hardware debugger.
 
-        \li \l{Connecting BlackBerry 10 Devices}
-
-            \QC enables you to develop, deploy and debug your Qt applications
-            to BlackBerry 10.
-            You need to install the BlackBerry 10 NDK which contains a pre-built Qt.
-            You also need either a BlackBerry 10 device or the simulator.
-
         \li \l{Connecting Embedded Linux Devices}
 
             If you have a tool chain for building applications for embedded
@@ -79,9 +72,8 @@
 
             You can connect QNX devices to the development PC to deploy, run and
             debug applications on them from within \QC. This is currently only
-            supported for BlackBerry Playbook and QNX Neutrino devices, and
-            requires the BlackBerry NDK or the QNX SDK to be installed on the
-            development PC.
+            supported for QNX Neutrino devices, and requires the QNX SDK to be
+            installed on the development PC.
 
         \li \l{Connecting Windows Runtime Devices}
 

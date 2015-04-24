@@ -8,8 +8,6 @@
 
         \li Android
 
-        \li BlackBerry 10
-
         \li Generic remote Linux
 
         \li iOS
@@ -34,11 +32,6 @@
 
         \row
             \li Android
-            \li \image ok
-            \li \image ok
-            \li \image ok
-         \row
-            \li BlackBerry 10
             \li \image ok
             \li \image ok
             \li \image ok
@@ -69,4 +62,6 @@
 
     \note Madde support has been removed from \QC 3.0. To develop for Maemo or Harmattan,
     use \QC 2.8.
+
+    \note BlackBerry 10 support has been removed from \QC 3.5. Use \QC 3.4 instead.
 

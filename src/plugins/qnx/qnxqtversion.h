@@ -34,34 +34,64 @@
 #define QNX_INTERNAL_QNXQTVERSION_H
 
 #include "qnxconstants.h"
-#include "qnxabstractqtversion.h"
+#include "qnxqtversion.h"
+
+#include <qtsupport/baseqtversion.h>
+
+#include <utils/environment.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxQtVersion : public QnxAbstractQtVersion
+class QnxQtVersion : public QtSupport::BaseQtVersion
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxQtVersion)
 public:
     QnxQtVersion();
     QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path,
                  bool isAutoDetected = false,
                  const QString &autoDetectionSource = QString());
-    QnxQtVersion *clone() const;
-    ~QnxQtVersion();
+    QnxQtVersion *clone() const override;
 
-    QString type() const;
+    QString type() const override;
 
-    QString description() const;
+    QString description() const override;
 
-    Core::FeatureSet availableFeatures() const;
-    QString platformName() const;
-    QString platformDisplayName() const;
+    Core::FeatureSet availableFeatures() const override;
+    QString platformName() const override;
+    QString platformDisplayName() const override;
 
-    QString sdkDescription() const;
+    QString qnxHost() const;
+    QString qnxTarget() const;
+
+    QnxArchitecture architecture() const;
+    QString archString() const;
+
+    QVariantMap toMap() const override;
+    void fromMap(const QVariantMap &map) override;
+
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
+
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
+    Utils::Environment qmakeRunEnvironment() const override;
+
+    QtSupport::QtConfigWidget *createConfigurationWidget() const override;
+
+    bool isValid() const;
+    QString invalidReason() const;
+
+    QString sdkPath() const;
+    void setSdkPath(const QString &sdkPath);
 
 private:
+    void updateEnvironment() const;
+
     QList<Utils::EnvironmentItem> environment() const;
+
+    QnxArchitecture m_arch;
+    QString m_sdkPath;
+
+    mutable bool m_environmentUpToDate;
+    mutable QList<Utils::EnvironmentItem> m_qnxEnv;
 };
 
 } // namespace Internal

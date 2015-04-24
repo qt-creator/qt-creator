@@ -33,7 +33,6 @@
 #include "qnxdeployqtlibrariesdialog.h"
 #include "ui_qnxdeployqtlibrariesdialog.h"
 
-#include "blackberryqtversion.h"
 #include "qnxqtversion.h"
 
 #include <projectexplorer/deployablefile.h>
@@ -45,39 +44,32 @@
 #include <QDir>
 #include <QMessageBox>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace QtSupport;
 
-QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(
-        const ProjectExplorer::IDevice::ConstPtr &device, Target target, QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::QnxDeployQtLibrariesDialog)
-    , m_device(device)
-    , m_progressCount(0)
-    , m_state(Inactive)
-    , m_target(target)
+namespace Qnx {
+namespace Internal {
+
+QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
+                                                       QWidget *parent) :
+    QDialog(parent),
+    m_ui(new Ui::QnxDeployQtLibrariesDialog),
+    m_device(device),
+    m_progressCount(0),
+    m_state(Inactive)
 {
     m_ui->setupUi(this);
 
-    QList<QtSupport::BaseQtVersion*> qtVersions = QtSupport::QtVersionManager::validVersions();
-    foreach (QtSupport::BaseQtVersion *qtVersion, qtVersions) {
-        QnxAbstractQtVersion *qnxQt;
-        if (m_target == BB10)
-            qnxQt = dynamic_cast<BlackBerryQtVersion *>(qtVersion);
-        else
-            qnxQt = dynamic_cast<QnxQtVersion *>(qtVersion);
-
+    QList<BaseQtVersion*> qtVersions = QtVersionManager::validVersions();
+    foreach (BaseQtVersion *qtVersion, qtVersions) {
+        QnxQtVersion *qnxQt = dynamic_cast<QnxQtVersion *>(qtVersion);
         if (!qnxQt)
             continue;
 
         m_ui->qtLibraryCombo->addItem(qnxQt->displayName(), qnxQt->uniqueId());
-
     }
 
-    m_ui->basePathLabel->setText(m_target == BB10 ?
-                                     QLatin1String(Constants::QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH) :
-                                     QString());
-    m_ui->remoteDirectory->setText(m_target == BB10 ? QLatin1String("qt") : QLatin1String("/qt"));
+    m_ui->basePathLabel->setText(QString());
+    m_ui->remoteDirectory->setText(QLatin1String("/qt"));
 
     m_uploadService = new RemoteLinux::GenericDirectUploadService(this);
     m_uploadService->setDevice(m_device);
@@ -237,11 +229,7 @@ QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
             m_ui->qtLibraryCombo->itemData(m_ui->qtLibraryCombo->currentIndex()).toInt();
 
 
-    QnxAbstractQtVersion *qtVersion;
-    if (m_target == BB10)
-        qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtVersionManager::version(qtVersionId));
-    else
-        qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtVersionManager::version(qtVersionId));
+    QnxQtVersion *qtVersion = dynamic_cast<QnxQtVersion *>(QtVersionManager::version(qtVersionId));
 
     QTC_ASSERT(qtVersion, return result);
 
@@ -298,11 +286,7 @@ QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
 
 QString QnxDeployQtLibrariesDialog::fullRemoteDirectory() const
 {
-    QString basePath;
-    if (m_target == BB10)
-        basePath = QLatin1String(Constants::QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH);
-
-    return  basePath + m_ui->remoteDirectory->text();
+    return  m_ui->remoteDirectory->text();
 }
 
 void QnxDeployQtLibrariesDialog::checkRemoteDirectoryExistance()
@@ -329,3 +313,6 @@ void QnxDeployQtLibrariesDialog::removeRemoteDirectory()
     const QByteArray cmd = "rm -rf " + fullRemoteDirectory().toLatin1();
     m_processRunner->run(cmd, m_device->sshParameters());
 }
+
+} // namespace Internal
+} // namespace Qnx

@@ -31,7 +31,7 @@
 ****************************************************************************/
 
 #include "qnxutils.h"
-#include "qnxabstractqtversion.h"
+#include "qnxqtversion.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
@@ -68,7 +68,7 @@ QnxArchitecture QnxUtils::cpudirToArch(const QString &cpuDir)
         return UnknownArch;
 }
 
-QStringList QnxUtils::searchPaths(QnxAbstractQtVersion *qtVersion)
+QStringList QnxUtils::searchPaths(QnxQtVersion *qtVersion)
 {
     const QDir pluginDir(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS")));
     const QStringList pluginSubDirs = pluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);

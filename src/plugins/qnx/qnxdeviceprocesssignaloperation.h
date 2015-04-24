@@ -51,19 +51,6 @@ private:
     friend class QnxDeviceConfiguration;
 };
 
-class BlackBerryDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
-{
-    Q_OBJECT
-protected:
-    explicit BlackBerryDeviceProcessSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
-
-private:
-    QString killProcessByNameCommandLine(const QString &filePath) const;
-    QString interruptProcessByNameCommandLine(const QString &filePath) const;
-
-    friend class BlackBerryDeviceConfiguration;
-};
-
 } // namespace Internal
 } // namespace Qnx
 

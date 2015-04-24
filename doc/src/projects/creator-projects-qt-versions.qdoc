@@ -72,9 +72,8 @@
 
                 \image qt-creator-debugging-helpers.png
 
-            \li If the Qt version is for Blackberry or QNX, enter the path
-                to your installed Blackberry NDK or QNX SDK in the
-                \uicontrol {Blackberry Native SDK} or \uicontrol{QNX SDK} field respectively.
+            \li If the Qt version is for QNX, enter the path to your installed QNX SDK in the
+                \uicontrol{QNX SDK} field.
 
         \endlist
 

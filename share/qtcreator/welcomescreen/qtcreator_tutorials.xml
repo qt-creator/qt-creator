@@ -39,7 +39,7 @@
     </tutorial>
     <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Targeting Multiple Mobile Platforms with Qt Creator" isVideo="true" videoUrl="http://www.youtube.com/watch?v=jDRup5z2qz0" videoLength="52:38">
       <description><![CDATA[Using Qt Creator to develop a cross-platform application for mobile devices and other small devices.]]></description>
-      <tags>qt creator,qt quick,qml,c++,android,blackberry,sailfishos</tags>
+      <tags>qt creator,qt quick,qml,c++,android,sailfishos</tags>
     </tutorial>
     <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Step by Step Qt on Android Tutorial" isVideo="true" videoUrl="http://www.youtube.com/watch?v=yhdi6JONtQo" videoLength="1:02:30">
       <description><![CDATA[Using Qt Creator to develop a Qt Quick application for Android devices.]]></description>

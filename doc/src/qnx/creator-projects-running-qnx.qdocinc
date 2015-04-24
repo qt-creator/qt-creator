@@ -7,10 +7,7 @@
         \li Configure the device and specify a connection to it. For more
             information, see \l{Connecting QNX Devices}.
 
-        \li If you are running on a BlackBerry 10 device, create an Application
-            Descriptor File if it does not already exist. For more information, see \l{Deploying Applications to BlackBerry 10 Devices}.
-
-        \li Make sure that your kit has your QNX or BlackBerry 10 device set.
+        \li Make sure that your kit has your QNX device set.
 
         \li Click the \uicontrol Run button.
 
@@ -19,19 +16,13 @@
     \QC uses the compiler specified in the QNX tool chain to build the
     application.
 
-    If you are running on a BlackBerry device, \QC generates a BAR package,
-    installs it on the device, and executes the selected application. The
-    application views are displayed on the device. Standard output is
-    visible in the \QC \uicontrol {Application Output} view.
-
     \note Debugging is currently only fully supported on Linux and OS X.
     It is not possible to insert breakpoints during runtime on Windows.
 
     \section2 Troubleshooting Errors
 
-    For the command-line output to show up in the \uicontrol{Application Output}
-    view when running on a BlackBerry device, \QC needs to be able to establish
-    an SSH connection to the device.
+    For the command-line output to show up in the \uicontrol{Application Output},
+    \QC needs to be able to establish an SSH connection to the device.
     This is only possible if QNX Momentics is not running, and the SSH key
     configured for the device is a 4096-bit key.
 

@@ -11,5 +11,4 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     qmakeprojectmanager \
     qtsupport \
-    remotelinux \
-    texteditor
+    remotelinux

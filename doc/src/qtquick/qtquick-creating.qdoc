@@ -143,8 +143,8 @@
     \endlist
 
     \note The SDK for a particular target platform might install additional
-    templates for that platform. For example, the BlackBerry 10 and QNX templates are installed
-    as part of the BlackBerry 10 NDK, BlackBerry NDK, or QNX SDK.
+    templates for that platform. For example, the QNX templates are installed
+    as part of the QNX SDK.
 
     \QC creates the necessary boilerplate files. Some of the files are
     specific to a particular target platform.

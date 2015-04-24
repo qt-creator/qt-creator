@@ -65,14 +65,8 @@ public:
         Uploading
     };
 
-    enum Target {
-        BB10,
-        QNX
-    };
-
     explicit QnxDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
-                                               Target target = QNX,
-                                               QWidget *parent = 0);
+                                        QWidget *parent = 0);
     ~QnxDeployQtLibrariesDialog();
 
     int execAndDeploy(int qtVersionId, const QString &remoteDirectory);
@@ -109,9 +103,7 @@ private:
     int m_progressCount;
 
     State m_state;
-    Target m_target;
 };
-
 
 } // namespace Internal
 } // namespace Qnx

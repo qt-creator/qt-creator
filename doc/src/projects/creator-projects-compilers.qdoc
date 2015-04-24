@@ -65,8 +65,7 @@
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
-    For QCC, also specify the path to the BlackBerry NDK or the QNX Software
-    Development Platform (SDP).
+    For QCC, also specify the path to the QNX Software Development Platform (SDP).
 
     You specify the compiler to use for each kit in \uicontrol Tools >
     \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.

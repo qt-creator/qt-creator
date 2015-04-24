@@ -32,25 +32,30 @@
 
 #include "qnxqtversion.h"
 
+#include "qnxbaseqtconfigwidget.h"
 #include "qnxconstants.h"
-
 #include "qnxutils.h"
 
 #include <coreplugin/featureprovider.h>
+#include <qtsupport/qtsupportconstants.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <qtsupport/qtsupportconstants.h>
+#include <QDir>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
-QnxQtVersion::QnxQtVersion()
-    : QnxAbstractQtVersion()
-{
-}
+static char SDK_PATH_KEY[] = "SDKPath";
+static char ARCH_KEY[] = "Arch";
 
-QnxQtVersion::QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected, const QString &autoDetectionSource)
-    : QnxAbstractQtVersion(arch, path, isAutoDetected, autoDetectionSource)
+QnxQtVersion::QnxQtVersion() : m_arch(UnknownArch)
+{ }
+
+QnxQtVersion::QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected,
+                           const QString &autoDetectionSource) :
+    QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource),
+    m_arch(arch)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
@@ -58,10 +63,6 @@ QnxQtVersion::QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path, bo
 QnxQtVersion *QnxQtVersion::clone() const
 {
     return new QnxQtVersion(*this);
-}
-
-QnxQtVersion::~QnxQtVersion()
-{
 }
 
 QString QnxQtVersion::type() const
@@ -72,12 +73,12 @@ QString QnxQtVersion::type() const
 QString QnxQtVersion::description() const
 {
     //: Qt Version is meant for QNX
-    return tr("QNX %1").arg(archString());
+    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1").arg(archString());
 }
 
 Core::FeatureSet QnxQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = QnxAbstractQtVersion::availableFeatures();
+    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
     features |= Core::FeatureSet(Constants::QNX_QNX_FEATURE);
     features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
     features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
@@ -91,15 +92,137 @@ QString QnxQtVersion::platformName() const
 
 QString QnxQtVersion::platformDisplayName() const
 {
-    return tr("QNX");
+    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX");
 }
 
-QString QnxQtVersion::sdkDescription() const
+QString QnxQtVersion::qnxHost() const
 {
-    return tr("QNX Software Development Platform:");
+    if (!m_environmentUpToDate)
+        updateEnvironment();
+
+    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+        if (item.name == QLatin1String(Constants::QNX_HOST_KEY))
+            return item.value;
+    }
+
+    return QString();
+}
+
+QString QnxQtVersion::qnxTarget() const
+{
+    if (!m_environmentUpToDate)
+        updateEnvironment();
+
+    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+        if (item.name == QLatin1String(Constants::QNX_TARGET_KEY))
+            return item.value;
+    }
+
+    return QString();
+}
+
+QnxArchitecture QnxQtVersion::architecture() const
+{
+    return m_arch;
+}
+
+QString QnxQtVersion::archString() const
+{
+    switch (m_arch) {
+    case X86:
+        return QLatin1String("x86");
+    case ArmLeV7:
+        return QLatin1String("ARMle-v7");
+    case UnknownArch:
+        return QString();
+    }
+    return QString();
+}
+
+QVariantMap QnxQtVersion::toMap() const
+{
+    QVariantMap result = BaseQtVersion::toMap();
+    result.insert(QLatin1String(SDK_PATH_KEY), sdkPath());
+    result.insert(QLatin1String(ARCH_KEY), m_arch);
+    return result;
+}
+
+void QnxQtVersion::fromMap(const QVariantMap &map)
+{
+    BaseQtVersion::fromMap(map);
+    setSdkPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDK_PATH_KEY)).toString()));
+    m_arch = static_cast<QnxArchitecture>(map.value(QLatin1String(ARCH_KEY), UnknownArch).toInt());
+}
+
+QList<ProjectExplorer::Abi> QnxQtVersion::detectQtAbis() const
+{
+    ensureMkSpecParsed();
+    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+}
+
+void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
+{
+    QtSupport::BaseQtVersion::addToEnvironment(k, env);
+    updateEnvironment();
+    env.modify(m_qnxEnv);
+
+    env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
+}
+
+Utils::Environment QnxQtVersion::qmakeRunEnvironment() const
+{
+    if (!sdkPath().isEmpty())
+        updateEnvironment();
+
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    env.modify(m_qnxEnv);
+
+    return env;
+}
+
+QtSupport::QtConfigWidget *QnxQtVersion::createConfigurationWidget() const
+{
+    return new QnxBaseQtConfigWidget(const_cast<QnxQtVersion *>(this));
+}
+
+bool QnxQtVersion::isValid() const
+{
+    return QtSupport::BaseQtVersion::isValid() && !sdkPath().isEmpty();
+}
+
+QString QnxQtVersion::invalidReason() const
+{
+    if (sdkPath().isEmpty())
+        return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "No SDK path was set up");
+    return QtSupport::BaseQtVersion::invalidReason();
+}
+
+QString QnxQtVersion::sdkPath() const
+{
+    return m_sdkPath;
+}
+
+void QnxQtVersion::setSdkPath(const QString &sdkPath)
+{
+    if (m_sdkPath == sdkPath)
+        return;
+
+    m_sdkPath = sdkPath;
+    m_environmentUpToDate = false;
+}
+
+void QnxQtVersion::updateEnvironment() const
+{
+    if (!m_environmentUpToDate) {
+        m_qnxEnv = environment();
+        m_environmentUpToDate = true;
+    }
 }
 
 QList<Utils::EnvironmentItem> QnxQtVersion::environment() const
 {
     return QnxUtils::qnxEnvironment(sdkPath());
 }
+
+} // namespace Internal
+} // namespace Qnx

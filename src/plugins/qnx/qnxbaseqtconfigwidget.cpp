@@ -31,38 +31,33 @@
 ****************************************************************************/
 
 #include "qnxbaseqtconfigwidget.h"
-#include "ui_qnxbaseqtconfigwidget.h"
 
-#include "qnxabstractqtversion.h"
+#include "qnxqtversion.h"
 
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QFormLayout>
+#include <QHBoxLayout>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
-QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxAbstractQtVersion *version)
-    : QtSupport::QtConfigWidget()
-    , m_version(version)
+QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxQtVersion *version) :
+    m_version(version),
+    m_sdkPathChooser(new Utils::PathChooser)
 {
-    m_ui = new Ui::QnxBaseQtConfigWidget;
-    m_ui->setupUi(this);
+    QTC_ASSERT(version, return);
 
-    m_ui->sdkLabel->setText(version->sdkDescription());
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(m_sdkPathChooser);
 
-    m_ui->sdkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_ui->sdkPath->setHistoryCompleter(QLatin1String("Qnx.Sdk.History"));
-    m_ui->sdkPath->setPath(version->sdkPath());
+    m_sdkPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_sdkPathChooser->setHistoryCompleter(QLatin1String("Qnx.Sdk.History"));
+    m_sdkPathChooser->setPath(version->sdkPath());
 
-    connect(m_ui->sdkPath, SIGNAL(changed(QString)), this, SLOT(updateSdkPath(QString)));
-}
-
-QnxBaseQtConfigWidget::~QnxBaseQtConfigWidget()
-{
-    delete m_ui;
-    m_ui = 0;
+    connect(m_sdkPathChooser, &Utils::PathChooser::changed,
+            this, &QnxBaseQtConfigWidget::updateSdkPath);
 }
 
 void QnxBaseQtConfigWidget::updateSdkPath(const QString &path)
@@ -70,3 +65,6 @@ void QnxBaseQtConfigWidget::updateSdkPath(const QString &path)
     m_version->setSdkPath(path);
     emit changed();
 }
+
+} // namespace Internal
+} // namespace Qnx

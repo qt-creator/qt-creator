@@ -149,7 +149,7 @@ void QnxSettingsWidget::updateInformation()
     m_ui->generateKitsCheckBox->setChecked(config ? config->isActive() : false);
 
     // update information
-    m_ui->configName->setText(config? config->displayName() : QString());
+    m_ui->configName->setText(config ? config->displayName() : QString());
     m_ui->configVersion->setText(config ? config->version().toString() : QString());
     m_ui->configHost->setText(config ? config->qnxHost().toString() : QString());
     m_ui->configTarget->setText(config ? config->qnxTarget().toString() : QString());
@@ -187,8 +187,7 @@ void QnxSettingsWidget::setConfigState(QnxConfiguration *config,
     }
 
     foreach (const ConfigState &configState, m_changedConfigs) {
-        if (configState.config == config
-                && configState.state == stateToRemove)
+        if (configState.config == config && configState.state == stateToRemove)
             m_changedConfigs.removeAll(configState);
     }
 
@@ -218,5 +217,5 @@ void QnxSettingsWidget::applyChanges()
     m_changedConfigs.clear();
 }
 
-}
-}
+} // namespace Internal
+} // namespace Qnx
