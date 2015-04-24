@@ -42,33 +42,17 @@ class QMLDEBUG_EXPORT BaseToolsClient : public QmlDebugClient
 public:
     BaseToolsClient(QmlDebugConnection *client, QLatin1String clientName);
 
-    virtual void setCurrentObjects(const QList<int> &debugIds) = 0;
     virtual void reload(const QHash<QString, QByteArray> &changesHash) = 0;
     virtual bool supportReload() const = 0;
     virtual void setDesignModeBehavior(bool inDesignMode) = 0;
-    virtual void setAnimationSpeed(qreal slowDownFactor) = 0;
-    virtual void setAnimationPaused(bool paused) = 0;
     virtual void changeToSelectTool() = 0;
     virtual void changeToSelectMarqueeTool() = 0;
     virtual void changeToZoomTool() = 0;
     virtual void showAppOnTop(bool showOnTop) = 0;
 
-    virtual void createQmlObject(const QString &qmlText, int parentDebugId,
-                         const QStringList &imports, const QString &filename,
-                         int order) = 0;
-    virtual void destroyQmlObject(int debugId) = 0;
-    virtual void reparentQmlObject(int debugId, int newParent) = 0;
-
-    virtual void applyChangesToQmlFile() = 0;
-    virtual void applyChangesFromQmlFile() = 0;
-
-    virtual QList<int> currentObjects() const = 0;
-
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     virtual void setObjectIdList(
             const QList<ObjectReference> &objectRoots) = 0;
-
-    virtual void clearComponentCache() = 0;
 
 signals:
     void newState(QmlDebug::QmlDebugClient::State status);
@@ -77,12 +61,8 @@ signals:
     void selectToolActivated();
     void selectMarqueeToolActivated();
     void zoomToolActivated();
-    void animationSpeedChanged(qreal slowdownFactor);
-    void animationPausedChanged(bool paused);
     void designModeBehaviorChanged(bool inDesignMode);
-    void showAppOnTopChanged(bool showAppOnTop);
     void reloaded(); // the server has reloaded the document
-    void destroyedObject(int);
 
     void logActivity(QString client, QString message);
 

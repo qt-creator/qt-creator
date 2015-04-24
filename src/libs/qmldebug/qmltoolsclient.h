@@ -41,32 +41,16 @@ class QMLDEBUG_EXPORT QmlToolsClient : public BaseToolsClient
 public:
     explicit QmlToolsClient(QmlDebugConnection *client);
 
-    void setCurrentObjects(const QList<int> &debugIds);
     void reload(const QHash<QString, QByteArray> &changesHash);
     bool supportReload() const { return true; }
     void setDesignModeBehavior(bool inDesignMode);
-    void setAnimationSpeed(qreal slowDownFactor);
-    void setAnimationPaused(bool paused);
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
     void changeToZoomTool();
     void showAppOnTop(bool showOnTop);
 
-    void createQmlObject(const QString &qmlText, int parentDebugId,
-                         const QStringList &imports, const QString &filename,
-                         int order);
-    void destroyQmlObject(int debugId);
-    void reparentQmlObject(int debugId, int newParent);
-
-    void applyChangesToQmlFile();
-    void applyChangesFromQmlFile();
-
-    QList<int> currentObjects() const;
-
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     void setObjectIdList(const QList<ObjectReference> &objectRoots);
-
-    void clearComponentCache();
 
 protected:
     void messageReceived(const QByteArray &);
@@ -77,12 +61,9 @@ private:
              const QString &extra = QString());
 
 private:
-    QList<int> m_currentDebugIds;
     QmlDebugConnection *m_connection;
     int m_requestId;
     int m_reloadQueryId;
-    qreal m_slowDownFactor;
-    int m_destroyObjectQueryId;
 };
 
 } // namespace QmlDebug
