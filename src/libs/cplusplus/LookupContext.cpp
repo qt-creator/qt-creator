@@ -993,7 +993,7 @@ LookupScope *LookupScope::lookupType(const Name *name, Block *block)
                 = nestedBlock->d->lookupType_helper(name,
                                                     &processed,
                                                     /*searchInEnclosingScope = */ true,
-                                                    d)) {
+                                                    nestedBlock->d)) {
             return foundInNestedBlock;
         }
     }
@@ -1338,9 +1338,6 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
         LookupScopePrivate *instantiation = baseTemplateClassReference->allocateChild(templId);
-
-        while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock())
-            origin = origin->_parent;
 
         instantiation->_instantiationOrigin = origin;
 
