@@ -85,7 +85,6 @@ public:
         AppPro,
         AppProOrigin,
         AppProPath,
-        DesktopOrigin,
         ExtendedFile
     };
 
@@ -102,10 +101,6 @@ public:
 #else
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
-
-    static int makeStubVersion(int minor);
-    QList<AbstractGeneratedFileInfo> fileUpdates(const QString &mainProFile) const;
-    bool updateFiles(const QList<AbstractGeneratedFileInfo> &list, QString &error) const;
 
 protected:
     AbstractMobileApp();
@@ -126,33 +121,22 @@ protected:
 
     static const QString CFileComment;
     static const QString ProFileComment;
-    static const QString FileChecksum;
-    static const QString FileStubVersion;
-    static const int StubVersion;
 
     QString m_error;
 
 private:
-    QByteArray generateDesktopFile(QString *errorMessage, int fileType) const;
     QByteArray generateMainCpp(QString *errorMessage) const;
 
-    virtual QByteArray generateFileExtended(int fileType,
-        bool *versionAndCheckSum, QString *comment, QString *errorMessage) const = 0;
+    virtual QByteArray generateFileExtended(int fileType, QString *errorMessage) const = 0;
     virtual QString pathExtended(int fileType) const = 0;
     virtual QString originsRoot() const = 0;
-    virtual QString mainWindowClassName() const = 0;
-    virtual int stubVersionMinor() const = 0;
     virtual bool adaptCurrentMainCppTemplateLine(QString &line) const = 0;
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &commentOutNextLine) const = 0;
-    virtual QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const = 0;
-    virtual QList<DeploymentFolder> deploymentFolders() const = 0;
 
     QString m_projectName;
     QFileInfo m_projectPath;
-    QString m_pngIcon64;
-    QString m_pngIcon80;
 };
 
 } // namespace QmakeProjectManager

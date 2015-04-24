@@ -55,7 +55,6 @@ struct QtQuickAppGeneratedFileInfo : public AbstractGeneratedFileInfo
 class TemplateInfo
 {
 public:
-    TemplateInfo() : stubVersionMinor(9) {}
     QString templateName;
     QString templatePath;
     QString displayName;
@@ -63,11 +62,8 @@ public:
     QString openFile;
     QString featuresRequired;
     QString priority;
-    QString viewerClassName;
-    QString viewerDir;
     QString qrcDeployment;
     QStringList requiredPlugins;
-    int stubVersionMinor;
 };
 
 class QtQuickApp : public AbstractMobileApp
@@ -78,12 +74,6 @@ public:
         MainQmlOrigin,
         MainQrc,
         MainQrcOrigin,
-        AppViewerPri,
-        AppViewerPriOrigin,
-        AppViewerCpp,
-        AppViewerCppOrigin,
-        AppViewerH,
-        AppViewerHOrigin,
         QrcDeployment,
         QrcDeploymentOrigin
     };
@@ -106,24 +96,16 @@ public:
 protected:
     virtual QByteArray generateProFile(QString *errorMessage) const;
 
-    QString appViewerBaseName() const;
     QString qrcDeployment() const;
-    QString fileName(ExtendedFileType type) const;
-    QString appViewerOriginSubDir() const;
 
 private:
-    virtual QByteArray generateFileExtended(int fileType,
-        bool *versionAndCheckSum, QString *comment, QString *errorMessage) const;
+    virtual QByteArray generateFileExtended(int fileType, QString *errorMessage) const;
     virtual QString pathExtended(int fileType) const;
     virtual QString originsRoot() const;
-    virtual QString mainWindowClassName() const;
-    virtual int stubVersionMinor() const;
     virtual bool adaptCurrentMainCppTemplateLine(QString &line) const;
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &commentOutNextLine) const;
-    QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
-    QList<DeploymentFolder> deploymentFolders() const;
 
     QFileInfo m_mainQmlFile;
     TemplateInfo m_templateInfo;

@@ -90,28 +90,6 @@ QmakeBuildConfiguration *enableActiveQmakeBuildConfiguration(Target *t, bool ena
     return bc;
 }
 
-void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &proFile)
-{
-    const QList<AbstractGeneratedFileInfo> updates = app->fileUpdates(proFile);
-    const QString nativeProFile = QDir::toNativeSeparators(proFile);
-    if (!updates.empty()) {
-        const QString title = QmakeManager::tr("Update of Generated Files");
-        QStringList fileNames;
-        foreach (const AbstractGeneratedFileInfo &info, updates)
-            fileNames.append(QDir::toNativeSeparators(info.fileInfo.fileName()));
-        const QString message =
-                QmakeManager::tr("In project<br><br>%1<br><br>The following files are either "
-                               "outdated or have been modified:<br><br>%2<br><br>Do you want "
-                               "Qt Creator to update the files? Any changes will be lost.")
-                .arg(nativeProFile, fileNames.join(QLatin1String(", ")));
-        if (QMessageBox::question(Core::ICore::dialogParent(), title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-            QString error;
-            if (!app->updateFiles(updates, error))
-                QMessageBox::critical(0, title, error);
-        }
-    }
-}
-
 } // namespace
 
 namespace QmakeProjectManager {
@@ -346,8 +324,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_asyncUpdateState(Base),
     m_cancelEvaluate(false),
     m_centralizedFolderWatcher(0),
-    m_activeTarget(0),
-    m_checkForTemplateUpdate(true)
+    m_activeTarget(0)
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
@@ -809,22 +786,6 @@ void QmakeProject::decrementPendingEvaluateFutures()
             if (debug)
                 qDebug()<<"  Setting state to Base";
         }
-
-        if (m_checkForTemplateUpdate) {
-            // Update boiler plate code for subprojects.
-            QtQuickApp qtQuickApp;
-
-            foreach (QmakeProFileNode *node, applicationProFiles(QmakeProject::ExactAndCumulativeParse)) {
-                const QString path = node->path().toString();
-
-                foreach (TemplateInfo info, QtQuickApp::templateInfos()) {
-                    qtQuickApp.setTemplateInfo(info);
-                    updateBoilerPlateCodeFiles(&qtQuickApp, path);
-                }
-            }
-            m_checkForTemplateUpdate = false;
-        }
-
     }
 }
 

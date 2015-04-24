@@ -214,7 +214,6 @@ private:
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher;
 
     ProjectExplorer::Target *m_activeTarget;
-    bool m_checkForTemplateUpdate; // initialized to true, set to false after first parse
 
     friend class Internal::QmakeProjectFile;
     friend class Internal::QmakeProjectConfigWidget;
