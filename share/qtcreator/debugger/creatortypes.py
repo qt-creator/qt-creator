@@ -51,7 +51,7 @@ def readTemplateName(d, value):
     impl = args["_M_impl"]
     start = impl["_M_start"]
     size = impl["_M_finish"] - start
-    for i in range(size):
+    for i in range(int(size)):
         if i > 0:
             name += ", "
         name += extractPointerType(d, d.downcast(start[i]["_type"]))
@@ -73,7 +73,7 @@ def readLiteral(d, value):
     elif typestr == "CPlusPlus::QualifiedNameId":
         return readLiteral(d, value["_base"]) + "::" + readLiteral(d, value["_name"])
     try:
-        return d.extractBlob(value["_chars"], value["_size"]).toBytes()
+        return d.extractBlob(value["_chars"], value["_size"]).toString()
     except:
         return "<unsupported>"
 
