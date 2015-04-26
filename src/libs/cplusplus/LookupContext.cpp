@@ -585,7 +585,6 @@ public:
     QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
 
     // it's an instantiation.
-    const TemplateNameId *_templateId;
     LookupScopePrivate *_instantiationOrigin;
 
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
