@@ -31,11 +31,15 @@
 
 #include "baremetaldevice.h"
 #include "baremetaldeviceconfigurationwidget.h"
-
+#include "defaultgdbserverprovider.h"
+#include "gdbserverprovidermanager.h"
 #include "gdbserverproviderprocess.h"
 
 #include <coreplugin/id.h>
+
+#include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
+
 #include <QCoreApplication>
 
 using namespace ProjectExplorer;
@@ -73,7 +77,17 @@ void BareMetalDevice::setGdbServerProviderId(const QString &id)
 void BareMetalDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    setGdbServerProviderId(map.value(QLatin1String(gdbServerProviderIdKeyC)).toString());
+    QString gdbServerProvider = map.value(QLatin1String(gdbServerProviderIdKeyC)).toString();
+    if (gdbServerProvider.isEmpty()) {
+        const QSsh::SshConnectionParameters sshParams = sshParameters();
+        DefaultGdbServerProvider *newProvider = new DefaultGdbServerProvider;
+        newProvider->setDisplayName(displayName());
+        newProvider->m_host = sshParams.host;
+        newProvider->m_port = sshParams.port;
+        GdbServerProviderManager::instance()->registerProvider(newProvider);
+        gdbServerProvider = newProvider->id();
+    }
+    setGdbServerProviderId(gdbServerProvider);
 }
 
 QVariantMap BareMetalDevice::toMap() const
