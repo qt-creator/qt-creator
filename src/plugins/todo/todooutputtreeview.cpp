@@ -28,7 +28,9 @@
 **
 ****************************************************************************/
 
+
 #include "todooutputtreeview.h"
+#include "todooutputtreeviewdelegate.h"
 #include "constants.h"
 
 #include <coreplugin/icore.h>
@@ -50,6 +52,7 @@ TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
     setSortingEnabled(true);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setSelectionBehavior(QTreeView::SelectRows);
+    setItemDelegate(new TodoOutputTreeViewDelegate(this));
 
     header()->setSectionResizeMode(QHeaderView::Interactive);
     header()->setStretchLastSection(true);

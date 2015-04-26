@@ -43,6 +43,8 @@ QtcPlugin {
         "todooutputpane.h",
         "todooutputtreeview.cpp",
         "todooutputtreeview.h",
+        "todooutputtreeviewdelegate.cpp",
+        "todooutputtreeviewdelegate.h",
         "todoplugin.cpp",
         "todoplugin.h",
         "todoplugin.qrc",
