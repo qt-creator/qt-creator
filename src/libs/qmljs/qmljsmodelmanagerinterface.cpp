@@ -603,7 +603,31 @@ void ModelManagerInterface::removeProjectInfo(ProjectExplorer::Project *project)
     }
 }
 
-ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(QString path) const
+/*!
+    Returns project info with summarized info for \a path
+
+    \note Project pointer will be empty
+ */
+ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(const QString &path) const
+{
+    QList<ProjectInfo> infos = allProjectInfosForPath(path);
+
+    ProjectInfo res;
+    foreach (const ProjectInfo &pInfo, infos) {
+        if (res.qtImportsPath.isEmpty())
+            res.qtImportsPath = pInfo.qtImportsPath;
+        if (res.qtQmlPath.isEmpty())
+            res.qtQmlPath = pInfo.qtQmlPath;
+        for (int i = 0; i < pInfo.importPaths.size(); ++i)
+            res.importPaths.maybeInsert(pInfo.importPaths.at(i));
+    }
+    return res;
+}
+
+/*!
+    Returns list of project infos for \a path
+ */
+QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfosForPath(const QString &path) const
 {
     QList<ProjectExplorer::Project *> projects;
     {
@@ -622,17 +646,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(QSt
     }
     std::sort(infos.begin(), infos.end(), &pInfoLessThanImports);
     infos.append(m_defaultProjectInfo);
-
-    ProjectInfo res;
-    foreach (const ProjectInfo &pInfo, infos) {
-        if (res.qtImportsPath.isEmpty())
-            res.qtImportsPath = pInfo.qtImportsPath;
-        if (res.qtQmlPath.isEmpty())
-            res.qtQmlPath = pInfo.qtQmlPath;
-        for (int i = 0; i < pInfo.importPaths.size(); ++i)
-            res.importPaths.maybeInsert(pInfo.importPaths.at(i));
-    }
-    return res;
+    return infos;
 }
 
 bool ModelManagerInterface::isIdle() const

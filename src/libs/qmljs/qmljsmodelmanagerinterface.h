@@ -177,7 +177,8 @@ public:
     void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
     void updateQrcFile(const QString &path);
-    ProjectInfo projectInfoForPath(QString path) const;
+    ProjectInfo projectInfoForPath(const QString &path) const;
+    QList<ProjectInfo> allProjectInfosForPath(const QString &path) const;
     bool isIdle() const ;
 
     PathsAndLanguages importPaths() const;
