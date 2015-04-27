@@ -33,7 +33,7 @@
 
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QFont>
 
@@ -724,7 +724,7 @@ QString BranchModel::toolTip(const QString &sha) const
     QStringList arguments(QLatin1String("-n1"));
     arguments << sha;
     if (!m_client->synchronousLog(m_workingDirectory, arguments, &output, &errorMessage,
-                                  VcsBasePlugin::SuppressCommandLogging)) {
+                                  VcsCommand::SuppressCommandLogging)) {
         return errorMessage;
     }
     return output;

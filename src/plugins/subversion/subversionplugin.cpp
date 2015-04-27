@@ -586,7 +586,7 @@ void SubversionPlugin::revertAll()
     args << QLatin1String("--recursive") << state.topLevel();
     const SubversionResponse revertResponse
             = runSvn(state.topLevel(), args, m_client->vcsTimeoutS(),
-                     SshPasswordPrompt|ShowStdOutInLogWindow);
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (revertResponse.error)
         QMessageBox::warning(ICore::dialogParent(), title,
                              tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
@@ -626,7 +626,7 @@ void SubversionPlugin::revertCurrentFile()
 
     const SubversionResponse revertResponse
             = runSvn(state.currentFileTopLevel(), args, m_client->vcsTimeoutS(),
-                     SshPasswordPrompt|ShowStdOutInLogWindow);
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
 
     if (!revertResponse.error)
         subVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
@@ -768,7 +768,8 @@ void SubversionPlugin::svnStatus(const QString &workingDir, const QString &relat
     if (!relativePath.isEmpty())
         args.append(relativePath);
     VcsOutputWindow::setRepository(workingDir);
-    runSvn(workingDir, args, m_client->vcsTimeoutS(), ShowStdOutInLogWindow|ShowSuccessMessage);
+    runSvn(workingDir, args, m_client->vcsTimeoutS(),
+           VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
     VcsOutputWindow::clearRepository();
 }
 
@@ -795,7 +796,7 @@ void SubversionPlugin::svnUpdate(const QString &workingDir, const QString &relat
         args.append(relativePath);
         const SubversionResponse response
                 = runSvn(workingDir, args, 10 * m_client->vcsTimeoutS(),
-                         SshPasswordPrompt|ShowStdOutInLogWindow);
+                         VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (!response.error)
         subVersionControl()->emitRepositoryChanged(workingDir);
 }
@@ -834,7 +835,7 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
 
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeoutS(),
-                     SshPasswordPrompt|ForceCLocale, codec);
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ForceCLocale, codec);
     if (response.error)
         return;
 
@@ -999,7 +1000,7 @@ bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileN
          << QLatin1String("--parents") << file;
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeoutS(),
-                     SshPasswordPrompt|ShowStdOutInLogWindow);
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     return !response.error;
 }
 
@@ -1014,7 +1015,7 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
 
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeoutS(),
-                     SshPasswordPrompt|ShowStdOutInLogWindow);
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     return !response.error;
 }
 
@@ -1025,7 +1026,8 @@ bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, c
     args << QDir::toNativeSeparators(from) << QDir::toNativeSeparators(to);
     const SubversionResponse response
             = runSvn(workingDir, args, m_client->vcsTimeoutS(),
-                     SshPasswordPrompt|ShowStdOutInLogWindow|FullySynchronously);
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut
+                     | VcsCommand::FullySynchronously);
     return !response.error;
 }
 
@@ -1052,8 +1054,7 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
     args << QLatin1String(tempUrl.toEncoded()) << directory;
 
     const SubversionResponse response
-            = runSvn(directory, args, 10 * m_client->vcsTimeoutS(),
-                     VcsBasePlugin::SshPasswordPrompt);
+            = runSvn(directory, args, 10 * m_client->vcsTimeoutS(), VcsCommand::SshPasswordPrompt);
     return !response.error;
 
 }

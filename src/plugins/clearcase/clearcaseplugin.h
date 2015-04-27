@@ -36,6 +36,7 @@
 
 #include <coreplugin/id.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QFile>
 #include <QPair>
@@ -119,7 +120,7 @@ class ClearCasePlugin : public VcsBase::VcsBasePlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
 
-    enum { SilentRun = NoOutput | FullySynchronously };
+    enum { SilentRun = VcsBase::VcsCommand::NoOutput | VcsBase::VcsCommand::FullySynchronously };
 
 public:
     ClearCasePlugin();

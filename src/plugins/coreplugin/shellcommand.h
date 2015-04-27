@@ -28,44 +28,28 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_COMMAND_H
-#define VCSBASE_COMMAND_H
+#ifndef CORE_SHELLCOMMAND_H
+#define CORE_SHELLCOMMAND_H
 
-#include "vcsbase_global.h"
+#include "core_global.h"
 
-#include <coreplugin/shellcommand.h>
+#include <utils/shellcommand.h>
 
-namespace VcsBase {
+namespace Core {
 
-class VCSBASE_EXPORT VcsCommand : public Core::ShellCommand
+class CORE_EXPORT ShellCommand : public Utils::ShellCommand
 {
     Q_OBJECT
 
 public:
-    enum VcsRunFlags {
-        SshPasswordPrompt = 0x1000, // Disable terminal on UNIX to force graphical prompt.
-        ExpectRepoChanges = 0x2000, // Expect changes in repository by the command
-    };
+    ShellCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
 
-    VcsCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
+protected:
+    void addTask(QFuture<void> &future);
 
-    const QProcessEnvironment processEnvironment() const;
-
-    Utils::SynchronousProcessResponse runCommand(const Utils::FileName &binary,
-                                                 const QStringList &arguments, int timeoutS,
-                                                 Utils::ExitCodeInterpreter *interpreter = 0);
-
-    bool runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
-                             int timeoutS, QByteArray *outputData, QByteArray *errorData);
-private:
-    unsigned processFlags() const;
-    void emitRepositoryChanged();
-
-    void coreAboutToClose();
-
-    bool m_preventRepositoryChanged;
+    virtual void coreAboutToClose();
 };
 
-} // namespace VcsBase
+} // namespace Core
 
-#endif // VCSBASE_COMMAND_H
+#endif // CORE_SHELLCOMMAND_H

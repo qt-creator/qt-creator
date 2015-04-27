@@ -144,9 +144,9 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
     if (editor)
         d->bindCommandToEditor(cmd, editor);
     if (mode == VcsWindowOutputBind) {
-        cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
+        cmd->addFlags(VcsCommand::ShowStdOut);
         if (editor) // assume that the commands output is the important thing
-            cmd->addFlags(VcsBasePlugin::SilentOutput);
+            cmd->addFlags(VcsCommand::SilentOutput);
     } else if (editor) {
         connect(cmd, &VcsCommand::output, editor, &VcsBaseEditorWidget::setPlainText);
     }
@@ -211,7 +211,7 @@ bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const
     command->addFlags(flags);
     bool result = command->runFullySynchronous(vcsBinary(), args, vcsTimeoutS(), outputData,
                                                errorData ? errorData : &internalErrorData);
-    if (!internalErrorData.isEmpty() && !(flags & VcsBasePlugin::SuppressStdErrInLogWindow))
+    if (!internalErrorData.isEmpty() && !(flags & VcsCommand::SuppressStdErr))
         VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));
     return result;
 }
@@ -394,9 +394,9 @@ bool VcsBaseClient::synchronousPull(const QString &workingDir,
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
-            VcsBasePlugin::SshPasswordPrompt
-            | VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ShowSuccessMessage;
+            VcsCommand::SshPasswordPrompt
+            | VcsCommand::ShowStdOut
+            | VcsCommand::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
     if (ok)
@@ -412,9 +412,9 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
     args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
-            VcsBasePlugin::SshPasswordPrompt
-            | VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ShowSuccessMessage;
+            VcsCommand::SshPasswordPrompt
+            | VcsCommand::ShowStdOut
+            | VcsCommand::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }

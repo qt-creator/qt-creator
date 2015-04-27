@@ -124,7 +124,7 @@ VcsCommand *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPath) co
          args << QLatin1String("--recursive");
      args << QLatin1String("--progress") << repository() << checkoutDir;
      auto command = new VcsCommand(workingDirectory, client->processEnvironment());
-     command->addFlags(VcsBasePlugin::MergeOutputChannels);
+     command->addFlags(VcsCommand::MergeOutputChannels);
      command->addJob(client->vcsBinary(), args, -1);
      return command;
 }

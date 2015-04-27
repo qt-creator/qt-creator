@@ -12,6 +12,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
+    $$PWD/shellcommand.cpp \
     $$PWD/settingsselector.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/textfieldcheckbox.cpp \
@@ -100,6 +101,7 @@ HEADERS += \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
     $$PWD/settingsselector.h \
+    $$PWD/shellcommand.h \
     $$PWD/stringutils.h \
     $$PWD/textfieldcheckbox.h \
     $$PWD/textfieldcombobox.h \

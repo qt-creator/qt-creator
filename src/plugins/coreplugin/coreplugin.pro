@@ -13,6 +13,7 @@ include(../../qtcreatorplugin.pri)
 win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
 SOURCES += corejsextensions.cpp \
     mainwindow.cpp \
+    shellcommand.cpp \
     editmode.cpp \
     iwizardfactory.cpp \
     tabpositionindicator.cpp \
@@ -120,6 +121,7 @@ SOURCES += corejsextensions.cpp \
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
+    shellcommand.h \
     editmode.h \
     iwizardfactory.h \
     tabpositionindicator.h \

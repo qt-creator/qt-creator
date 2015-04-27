@@ -167,24 +167,6 @@ public:
     // Returns the source of editor contents.
     static QString source(Core::IDocument *document);
 
-    // Convenience to synchronously run VCS commands
-    enum RunVcsFlags {
-        ShowStdOutInLogWindow = 0x1, // Append standard output to VCS output window.
-        MergeOutputChannels = 0x2,   // see QProcess: Merge stderr/stdout.
-        SshPasswordPrompt = 0x4,    // Disable terminal on UNIX to force graphical prompt.
-        SuppressStdErrInLogWindow = 0x8, // No standard error output to VCS output window.
-        SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
-        SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
-        ShowSuccessMessage = 0x40,      // Show message about successful completion in VCS output window.
-        ForceCLocale = 0x80,            // Force C-locale for commands whose output is parsed.
-        FullySynchronously = 0x100,     // Suppress local event loop (in case UI actions are
-                                        // triggered by file watchers).
-        ExpectRepoChanges = 0x200,      // Expect changes in repository by the command
-        SilentOutput = 0x400,           // With ShowStdOutInLogWindow - append output silently
-        NoOutput = SuppressStdErrInLogWindow | SuppressFailMessageInLogWindow
-                   | SuppressCommandLogging
-    };
-
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
                                                     const Utils::FileName &binary,
                                                     const QStringList &arguments,

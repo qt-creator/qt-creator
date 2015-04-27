@@ -33,7 +33,7 @@
 #include "gitclient.h"
 
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <utils/qtcassert.h>
 
@@ -164,7 +164,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     if (!(flags & IncludeRemotes))
         arguments << QLatin1String("--not") << QLatin1String("--remotes");
     QString output;
-    if (!client->synchronousLog(repository, arguments, &output, 0, VcsBasePlugin::NoOutput))
+    if (!client->synchronousLog(repository, arguments, &output, 0, VcsCommand::NoOutput))
         return false;
     foreach (const QString &line, output.split(QLatin1Char('\n'))) {
         const int colonPos = line.indexOf(QLatin1Char(':'));

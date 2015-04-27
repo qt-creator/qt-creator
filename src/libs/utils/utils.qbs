@@ -162,6 +162,8 @@ QtcLibrary {
         "settingsselector.cpp",
         "settingsselector.h",
         "settingsutils.h",
+        "shellcommand.cpp",
+        "shellcommand.h",
         "sleep.cpp",
         "sleep.h",
         "statuslabel.cpp",

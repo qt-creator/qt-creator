@@ -91,6 +91,7 @@ QtcPlugin {
             "removefiledialog.cpp", "removefiledialog.h", "removefiledialog.ui",
             "rightpane.cpp", "rightpane.h",
             "settingsdatabase.cpp", "settingsdatabase.h",
+            "shellcommand.cpp", "shellcommand.h",
             "sidebar.cpp", "sidebar.h",
             "sidebarwidget.cpp", "sidebarwidget.h",
             "statusbarmanager.cpp", "statusbarmanager.h",

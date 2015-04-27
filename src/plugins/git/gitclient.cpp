@@ -99,11 +99,11 @@ namespace Internal {
 // Suppress git diff warnings about "LF will be replaced by CRLF..." on Windows.
 static unsigned diffExecutionFlags()
 {
-    return HostOsInfo::isWindowsHost() ? unsigned(VcsBasePlugin::SuppressStdErrInLogWindow) : 0u;
+    return HostOsInfo::isWindowsHost() ? unsigned(VcsCommand::SuppressStdErr) : 0u;
 }
 
-const unsigned silentFlags = unsigned(VcsBasePlugin::SuppressCommandLogging
-                                      | VcsBasePlugin::SuppressStdErrInLogWindow);
+const unsigned silentFlags = unsigned(VcsCommand::SuppressCommandLogging
+                                      | VcsCommand::SuppressStdErr);
 
 /////////////////////////////////////
 
@@ -475,7 +475,7 @@ public:
         ConflictHandler *handler = new ConflictHandler(command->workingDirectory(), abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
-        command->addFlags(VcsBasePlugin::ExpectRepoChanges);
+        command->addFlags(VcsCommand::ExpectRepoChanges);
         connect(command, &VcsCommand::output, handler, &ConflictHandler::readStdOut);
         connect(command, &VcsCommand::errorText, handler, &ConflictHandler::readStdErr);
     }
@@ -965,7 +965,7 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
     QByteArray errorText;
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
     const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, 0,
-                                            VcsBasePlugin::ExpectRepoChanges);
+                                            VcsCommand::ExpectRepoChanges);
     VcsOutputWindow::append(commandOutputFromLocal8Bit(outputText));
     if (rc)
         updateSubmodulesIfNeeded(workingDirectory, true);
@@ -1044,7 +1044,7 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
 
     unsigned flags = 0;
     if (argument == QLatin1String("--hard"))
-        flags |= VcsBasePlugin::ExpectRepoChanges;
+        flags |= VcsCommand::ExpectRepoChanges;
     vcsExec(workingDirectory, arguments, 0, true, flags);
 }
 
@@ -1180,7 +1180,7 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
         arguments << revision;
     arguments << QLatin1String("--") << files;
     const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputText, &errorText,
-                                            VcsBasePlugin::ExpectRepoChanges);
+                                            VcsCommand::ExpectRepoChanges);
     if (!rc) {
         const QString fileArg = files.join(QLatin1String(", "));
         //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
@@ -1392,7 +1392,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory) const
     QByteArray output;
     QStringList arguments;
     arguments << QLatin1String("describe");
-    if (vcsFullySynchronousExec(workingDirectory, arguments, &output, 0, VcsBasePlugin::NoOutput)) {
+    if (vcsFullySynchronousExec(workingDirectory, arguments, &output, 0, VcsCommand::NoOutput)) {
         const QString describeOutput = commandOutputFromLocal8Bit(output.trimmed());
         if (!describeOutput.isEmpty())
             return describeOutput;
@@ -1586,9 +1586,9 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
         arguments << QLatin1String("--keep-index");
     if (!message.isEmpty())
         arguments << message;
-    const unsigned flags = VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ExpectRepoChanges
-            | VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::ShowStdOut
+            | VcsCommand::ExpectRepoChanges
+            | VcsCommand::ShowSuccessMessage;
     const SynchronousProcessResponse response = vcsSynchronousExec(workingDirectory, arguments, flags);
     const bool rc = response.result == SynchronousProcessResponse::Finished;
     if (!rc)
@@ -1961,7 +1961,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     arguments << QLatin1String("submodule") << QLatin1String("update");
 
     VcsCommand *cmd = vcsExec(workingDirectory, arguments, 0, true,
-                              VcsBasePlugin::ExpectRepoChanges);
+                              VcsCommand::ExpectRepoChanges);
     connect(cmd, &VcsCommand::finished, this, &GitClient::finishSubmoduleUpdate);
 }
 
@@ -2160,9 +2160,9 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 {
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String(HEAD) << QLatin1String("refs/heads/*");
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
-            | VcsBasePlugin::SuppressStdErrInLogWindow
-            | VcsBasePlugin::SuppressFailMessageInLogWindow;
+    const unsigned flags = VcsCommand::SshPasswordPrompt
+            | VcsCommand::SuppressStdErr
+            | VcsCommand::SuppressFailMessage;
     const SynchronousProcessResponse resp = vcsSynchronousExec(workingDirectory, arguments, flags);
     QStringList branches;
     branches << tr("<Detached HEAD>");
@@ -2725,10 +2725,10 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
                                           const QString &abortCommand) const
 {
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
-            | VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ExpectRepoChanges
-            | VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::SshPasswordPrompt
+            | VcsCommand::ShowStdOut
+            | VcsCommand::ExpectRepoChanges
+            | VcsCommand::ShowSuccessMessage;
     const SynchronousProcessResponse resp = vcsSynchronousExec(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == SynchronousProcessResponse::Finished;
@@ -2768,7 +2768,7 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     QStringList arguments;
     arguments << abortCommand << QLatin1String("--abort");
     QByteArray stdOut;
-    vcsFullySynchronousExec(workingDir, arguments, &stdOut, 0, VcsBasePlugin::ExpectRepoChanges);
+    vcsFullySynchronousExec(workingDir, arguments, &stdOut, 0, VcsCommand::ExpectRepoChanges);
     VcsOutputWindow::append(commandOutputFromLocal8Bit(stdOut));
 }
 
@@ -2848,9 +2848,9 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
     QStringList args;
     args << QLatin1String("svn") << QLatin1String("fetch");
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
-            | VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::SshPasswordPrompt
+            | VcsCommand::ShowStdOut
+            | VcsCommand::ShowSuccessMessage;
     vcsSynchronousExec(workingDirectory, args, flags);
 }
 
@@ -2999,8 +2999,7 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     arguments << QLatin1String("pop");
     if (!stash.isEmpty())
         arguments << stash;
-    VcsCommand *cmd = vcsExec(workingDirectory, arguments, 0, true,
-                              VcsBasePlugin::ExpectRepoChanges);
+    VcsCommand *cmd = vcsExec(workingDirectory, arguments, 0, true, VcsCommand::ExpectRepoChanges);
     ConflictHandler::attachToCommand(cmd);
 }
 
@@ -3083,9 +3082,8 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
 {
     QDir workingDirectory(directory);
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
-            | VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::SshPasswordPrompt
+            | VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         if (!synchronousInit(workingDirectory.path()))

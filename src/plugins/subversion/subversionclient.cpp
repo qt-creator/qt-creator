@@ -88,7 +88,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
             << QLatin1String("--file") << commitMessageFile;
 
     VcsCommand *cmd = createCommand(repositoryRoot);
-    cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
+    cmd->addFlags(VcsCommand::ShowStdOut);
     QStringList args(vcsCommandString(CommitCommand));
     cmd->addJob(vcsBinary(), args << svnExtraOptions << files);
     return cmd;
@@ -222,7 +222,7 @@ QString DiffController::getDescription() const
     const SubversionResponse logResponse =
             SubversionPlugin::instance()->runSvn(m_workingDirectory, args,
                                                  m_client->vcsTimeoutS(),
-                                                 VcsBasePlugin::SshPasswordPrompt);
+                                                 VcsCommand::SshPasswordPrompt);
 
     if (logResponse.error)
         return QString();

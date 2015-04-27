@@ -28,44 +28,29 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_COMMAND_H
-#define VCSBASE_COMMAND_H
+#include "shellcommand.h"
 
-#include "vcsbase_global.h"
+#include "icore.h"
+#include "progressmanager/progressmanager.h"
 
-#include <coreplugin/shellcommand.h>
+namespace Core {
 
-namespace VcsBase {
-
-class VCSBASE_EXPORT VcsCommand : public Core::ShellCommand
+ShellCommand::ShellCommand(const QString &workingDirectory, const QProcessEnvironment &environment) :
+    Utils::ShellCommand(workingDirectory, environment)
 {
-    Q_OBJECT
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
+            this, &ShellCommand::coreAboutToClose);
+}
 
-public:
-    enum VcsRunFlags {
-        SshPasswordPrompt = 0x1000, // Disable terminal on UNIX to force graphical prompt.
-        ExpectRepoChanges = 0x2000, // Expect changes in repository by the command
-    };
+void ShellCommand::addTask(QFuture<void> &future)
+{
+    const QString name = displayName();
+    Core::ProgressManager::addTask(future, name, Core::Id::fromString(name + QLatin1String(".action")));
+}
 
-    VcsCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
+void ShellCommand::coreAboutToClose()
+{
+    abort();
+}
 
-    const QProcessEnvironment processEnvironment() const;
-
-    Utils::SynchronousProcessResponse runCommand(const Utils::FileName &binary,
-                                                 const QStringList &arguments, int timeoutS,
-                                                 Utils::ExitCodeInterpreter *interpreter = 0);
-
-    bool runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
-                             int timeoutS, QByteArray *outputData, QByteArray *errorData);
-private:
-    unsigned processFlags() const;
-    void emitRepositoryChanged();
-
-    void coreAboutToClose();
-
-    bool m_preventRepositoryChanged;
-};
-
-} // namespace VcsBase
-
-#endif // VCSBASE_COMMAND_H
+} // namespace Core
