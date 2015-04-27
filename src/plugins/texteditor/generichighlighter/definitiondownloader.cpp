@@ -41,8 +41,22 @@
 
 #include <utils/networkaccessmanager.h>
 
-using namespace TextEditor;
-using namespace Internal;
+namespace TextEditor {
+namespace Internal {
+
+static QNetworkReply *getData(const QUrl &url)
+{
+    Utils::NetworkAccessManager *manager = Utils::NetworkAccessManager::instance();
+
+    QNetworkRequest request(url);
+    QNetworkReply *reply = manager->get(request);
+
+    QEventLoop eventLoop;
+    QObject::connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec();
+
+    return reply;
+}
 
 DefinitionDownloader::DefinitionDownloader(const QUrl &url, const QString &localPath) :
     m_url(url), m_localPath(localPath), m_status(Unknown)
@@ -50,12 +64,10 @@ DefinitionDownloader::DefinitionDownloader(const QUrl &url, const QString &local
 
 void DefinitionDownloader::run()
 {
-    Utils::NetworkAccessManager *manager = Utils::NetworkAccessManager::instance();
-
     int currentAttempt = 0;
     const int maxAttempts = 5;
     while (currentAttempt < maxAttempts) {
-        QScopedPointer<QNetworkReply> reply(getData(manager));
+        QScopedPointer<QNetworkReply> reply(getData(m_url));
         if (reply->error() != QNetworkReply::NoError) {
             m_status = NetworkError;
             return;
@@ -70,18 +82,6 @@ void DefinitionDownloader::run()
             return;
         }
     }
-}
-
-QNetworkReply *DefinitionDownloader::getData(QNetworkAccessManager *manager) const
-{
-    QNetworkRequest request(m_url);
-    QNetworkReply *reply = manager->get(request);
-
-    QEventLoop eventLoop;
-    connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
-    eventLoop.exec();
-
-    return reply;
 }
 
 void DefinitionDownloader::saveData(QNetworkReply *reply)
@@ -106,3 +106,6 @@ void DefinitionDownloader::saveData(QNetworkReply *reply)
 
 DefinitionDownloader::Status DefinitionDownloader::status() const
 { return m_status; }
+
+} // namespace Internal
+} // namespace TextEditor

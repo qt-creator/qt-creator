@@ -55,7 +55,6 @@ namespace TextEditor {
 namespace Internal {
 
 class HighlightDefinition;
-class DefinitionDownloader;
 class ManagerProcessor;
 class MultiDefinitionDownloader;
 

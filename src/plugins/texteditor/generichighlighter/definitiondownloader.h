@@ -37,7 +37,6 @@
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
-class QNetworkAccessManager;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -63,7 +62,6 @@ signals:
     void foundReferencedDefinition(const QString &name);
 
 private:
-    QNetworkReply *getData(QNetworkAccessManager *manager) const;
     void saveData(QNetworkReply *reply);
 
     QUrl m_url;
