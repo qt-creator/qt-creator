@@ -273,7 +273,6 @@ private:
     bool m_operateByInstruction;
     bool m_verboseLogPending; //!< Creator verbose log action changed.
     bool m_verboseLog;
-    bool m_notifyEngineShutdownOnTermination;
     bool m_hasDebuggee;
     enum Wow64State {
         wow64Uninitialized,
