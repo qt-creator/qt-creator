@@ -403,9 +403,13 @@ void ExamplesWelcomePage::openProject(const QString &projectFile,
     if (!proFileInfo.exists())
         return;
 
+    QFileInfo pathInfo(proFileInfo.path());
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
-    if (!proFileInfo.isWritable())
+    if (!proFileInfo.isWritable()
+            || !pathInfo.isWritable() /* path of .pro file */
+            || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */) {
         proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, dependencies);
+    }
 
     // don't try to load help and files if loading the help request is being cancelled
     QString errorMessage;
