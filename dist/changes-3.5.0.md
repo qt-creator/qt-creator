@@ -48,6 +48,11 @@ CMake Projects
 
 Qbs Projects
 
+Generic Projects
+
+* Fixed that resource links were removed from UI files
+  (QTCREATORBUG-14275)
+
 QML-Only Projects (.qmlproject)
 
 Debugging
@@ -62,6 +67,8 @@ QML Profiler
 C++ Support
 
 * Added separate icon for structs
+* Fixed *Convert to Stack Variable* refactoring action for empty
+  initializer lists (QTCREATORBUG-14279)
 
 QML Support
 
