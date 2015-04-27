@@ -69,7 +69,7 @@ void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QLayout *layo
     m_checkBox = new QCheckBox(tr("Run in terminal"), parent);
     m_checkBox->setChecked(m_useTerminal);
     layout->addWidget(m_checkBox);
-    connect(m_checkBox, &QAbstractButton::clicked, this, [this] {
+    connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_isForced = true;
         setUseTerminal(true);
     });
