@@ -36,7 +36,6 @@
 #include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
-class QNetworkAccessManager;
 class QNetworkReply;
 class QWidget;
 QT_END_NAMESPACE
