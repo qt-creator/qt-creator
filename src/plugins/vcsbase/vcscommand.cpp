@@ -91,6 +91,7 @@ public:
     VcsCommandPrivate(const QString &workingDirectory, const QProcessEnvironment &environment);
     ~VcsCommandPrivate();
 
+    QString m_displayName;
     const QString m_workingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;
@@ -161,6 +162,28 @@ VcsCommand::~VcsCommand()
     delete d;
 }
 
+QString VcsCommand::displayName() const
+{
+    if (!d->m_displayName.isEmpty())
+        return d->m_displayName;
+    if (!d->m_jobs.isEmpty()) {
+        const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(0);
+        QString result = job.binary.toFileInfo().baseName();
+        result[0] = result.at(0).toTitleCase();
+
+        if (!job.arguments.isEmpty())
+            result += QLatin1Char(' ') + job.arguments.at(0);
+
+        return result;
+    }
+    return tr("Unknown");
+}
+
+void VcsCommand::setDisplayName(const QString &name)
+{
+    d->m_displayName = name;
+}
+
 const QString &VcsCommand::workingDirectory() const
 {
     return d->m_workingDirectory;
@@ -215,13 +238,9 @@ void VcsCommand::execute()
     QFuture<void> task = QtConcurrent::run(&VcsCommand::run, this);
     d->m_watcher.setFuture(task);
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
-    QString binary = d->m_jobs.at(0).binary.toFileInfo().baseName();
-    if (!binary.isEmpty())
-        binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
-    const QString taskName = binary + QLatin1Char(' ') + d->m_jobs.front().arguments.at(0);
 
-    Core::ProgressManager::addTask(task, taskName,
-        Core::Id::fromString(binary + QLatin1String(".action")));
+    const QString name = displayName();
+    Core::ProgressManager::addTask(task, name, Core::Id::fromString(name + QLatin1String(".action")));
 }
 
 void VcsCommand::abort()

@@ -81,6 +81,9 @@ public:
                const QProcessEnvironment &environment);
     ~VcsCommand();
 
+    QString displayName() const;
+    void setDisplayName(const QString &name);
+
     void addJob(const Utils::FileName &binary, const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
     void addJob(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
                 Utils::ExitCodeInterpreter *interpreter = 0);
