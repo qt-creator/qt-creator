@@ -47,9 +47,6 @@ public:
 
     static NetworkAccessManager *instance();
 
-public slots:
-    void getUrl(const QUrl &url);
-
 protected:
     virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData);
 };

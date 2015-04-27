@@ -141,13 +141,6 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent)
 
 }
 
-void NetworkAccessManager::getUrl(const QUrl &url)
-{
-    QNetworkRequest req;
-    req.setUrl(url);
-    get(req);
-}
-
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     QString agentStr = QString::fromLatin1("%1/%2 (QNetworkAccessManager %3; %4; %5; %6 bit)")
