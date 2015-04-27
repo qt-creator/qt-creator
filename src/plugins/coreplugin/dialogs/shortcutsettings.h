@@ -32,8 +32,10 @@
 #define SHORTCUTSETTINGS_H
 
 #include <coreplugin/actionmanager/commandmappings.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QKeySequence>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QKeyEvent;
@@ -55,45 +57,52 @@ struct ShortcutItem
     QTreeWidgetItem *m_item;
 };
 
+class ShortcutSettingsWidget : public CommandMappings
+{
+    Q_OBJECT
 
-class ShortcutSettings : public CommandMappings
+public:
+    ShortcutSettingsWidget(QWidget *parent = 0);
+    ~ShortcutSettingsWidget() override;
+
+    void apply();
+
+protected:
+    bool eventFilter(QObject *o, QEvent *e) override;
+
+    void commandChanged(QTreeWidgetItem *current) override;
+    void targetIdentifierChanged() override;
+    void resetTargetIdentifier() override;
+    void removeTargetIdentifier() override;
+    void importAction() override;
+    void exportAction() override;
+    void defaultAction() override;
+    bool hasConflicts() const override;
+
+private:
+    void initialize();
+    void handleKeyEvent(QKeyEvent *e);
+    void markCollisions(ShortcutItem *);
+    void setKeySequence(const QKeySequence &key);
+    void clear();
+
+    QList<ShortcutItem *> m_scitems;
+    int m_key[4], m_keyNum;
+};
+
+class ShortcutSettings : public IOptionsPage
 {
     Q_OBJECT
 
 public:
     ShortcutSettings(QObject *parent = 0);
 
-    QWidget *widget();
-    void apply();
-    void finish();
-
-protected:
-    bool eventFilter(QObject *o, QEvent *e);
-
-private slots:
-    void commandChanged(QTreeWidgetItem *current);
-    void targetIdentifierChanged();
-    void resetTargetIdentifier();
-    void removeTargetIdentifier();
-    void importAction();
-    void exportAction();
-    void defaultAction();
-    void initialize();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
-    void setKeySequence(const QKeySequence &key);
-    void clear();
-
-    void handleKeyEvent(QKeyEvent *e);
-    int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
-
-    void markCollisions(ShortcutItem *);
-    bool hasConflicts() const;
-
-    QList<ShortcutItem *> m_scitems;
-    int m_key[4], m_keyNum;
-
-    bool m_initialized;
+    QPointer<ShortcutSettingsWidget> m_widget;
 };
 
 } // namespace Internal

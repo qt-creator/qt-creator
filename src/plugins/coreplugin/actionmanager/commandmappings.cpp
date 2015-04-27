@@ -58,15 +58,9 @@ class CommandMappingsPrivate
 {
 public:
     CommandMappingsPrivate(CommandMappings *parent)
-        : q(parent), m_widget(0)
-    {}
-
-    void setupWidget()
+        : q(parent)
     {
-        QTC_CHECK(m_widget == 0);
-        m_widget = new QWidget;
-
-        groupBox = new QGroupBox(m_widget);
+        groupBox = new QGroupBox(parent);
         groupBox->setTitle(CommandMappings::tr("Command Mappings"));
 
         filterEdit = new FancyLineEdit(groupBox);
@@ -89,12 +83,12 @@ public:
         importButton = new QPushButton(CommandMappings::tr("Import..."), groupBox);
         exportButton = new QPushButton(CommandMappings::tr("Export..."), groupBox);
 
-        targetEditGroup = new QGroupBox(CommandMappings::tr("Target Identifier"), m_widget);
+        targetEditGroup = new QGroupBox(CommandMappings::tr("Target Identifier"), parent);
+        targetEditGroup->setEnabled(false);
 
         targetEdit = new FancyLineEdit(targetEditGroup);
         targetEdit->setAutoHideButton(FancyLineEdit::Right, true);
         targetEdit->setPlaceholderText(QString());
-        targetEdit->installEventFilter(q);
         targetEdit->setFiltering(true);
         targetEdit->setValidationFunction([this](FancyLineEdit *, QString *) {
             return !q->hasConflicts();
@@ -121,8 +115,10 @@ public:
         vboxLayout1->addWidget(commandList);
         vboxLayout1->addLayout(hboxLayout1);
 
+        targetLabel = new QLabel(CommandMappings::tr("Target:"));
+
         QHBoxLayout *hboxLayout2 = new QHBoxLayout();
-        hboxLayout2->addWidget(new QLabel(CommandMappings::tr("Target:"), targetEditGroup));
+        hboxLayout2->addWidget(targetLabel);
         hboxLayout2->addWidget(targetEdit);
         hboxLayout2->addWidget(resetButton);
 
@@ -130,39 +126,34 @@ public:
         vboxLayout2->addLayout(hboxLayout2);
         vboxLayout2->addWidget(infoLabel);
 
-        QVBoxLayout *vboxLayout = new QVBoxLayout(m_widget);
+        QVBoxLayout *vboxLayout = new QVBoxLayout(parent);
         vboxLayout->addWidget(groupBox);
         vboxLayout->addWidget(targetEditGroup);
 
-        q->connect(targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
-            SLOT(removeTargetIdentifier()));
-        q->connect(resetButton, SIGNAL(clicked()),
-            SLOT(resetTargetIdentifier()));
-        q->connect(exportButton, SIGNAL(clicked()),
-            SLOT(exportAction()));
-        q->connect(importButton, SIGNAL(clicked()),
-            SLOT(importAction()));
-        q->connect(defaultButton, SIGNAL(clicked()),
-            SLOT(defaultAction()));
-
-        q->initialize();
+        q->connect(targetEdit, &FancyLineEdit::buttonClicked,
+                   q, &CommandMappings::removeTargetIdentifier);
+        q->connect(resetButton, &QPushButton::clicked,
+                   q, &CommandMappings::resetTargetIdentifier);
+        q->connect(exportButton, &QPushButton::clicked,
+                   q, &CommandMappings::exportAction);
+        q->connect(importButton, &QPushButton::clicked,
+                   q, &CommandMappings::importAction);
+        q->connect(defaultButton, &QPushButton::clicked,
+                   q, &CommandMappings::defaultAction);
 
         commandList->sortByColumn(0, Qt::AscendingOrder);
 
-        q->connect(filterEdit, SIGNAL(textChanged(QString)),
-            SLOT(filterChanged(QString)));
-        q->connect(commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            SLOT(commandChanged(QTreeWidgetItem*)));
-        q->connect(targetEdit, SIGNAL(textChanged(QString)),
-            SLOT(targetIdentifierChanged()));
+        q->connect(filterEdit, &FancyLineEdit::textChanged,
+                   q, &CommandMappings::filterChanged);
+        q->connect(commandList, &QTreeWidget::currentItemChanged,
+                   q, &CommandMappings::commandChanged);
+        q->connect(targetEdit, &FancyLineEdit::textChanged,
+                   q, &CommandMappings::targetIdentifierChanged);
 
         new HeaderViewStretcher(commandList->header(), 1);
-
-        q->commandChanged(0);
     }
 
     CommandMappings *q;
-    QPointer<QWidget> m_widget;
 
     QGroupBox *groupBox;
     FancyLineEdit *filterEdit;
@@ -171,27 +162,21 @@ public:
     QPushButton *importButton;
     QPushButton *exportButton;
     QGroupBox *targetEditGroup;
+    QLabel *targetLabel;
     FancyLineEdit *targetEdit;
     QPushButton *resetButton;
 };
 
 } // namespace Internal
 
-CommandMappings::CommandMappings(QObject *parent)
-    : IOptionsPage(parent), d(new Internal::CommandMappingsPrivate(this))
+CommandMappings::CommandMappings(QWidget *parent)
+    : QWidget(parent), d(new Internal::CommandMappingsPrivate(this))
 {
 }
 
 CommandMappings::~CommandMappings()
 {
    delete d;
-}
-
-QWidget *CommandMappings::widget()
-{
-    if (!d->m_widget)
-        d->setupWidget();
-    return d->m_widget;
 }
 
 void CommandMappings::setImportExportEnabled(bool enabled)
@@ -217,7 +202,7 @@ void CommandMappings::setPageTitle(const QString &s)
 
 void CommandMappings::setTargetLabelText(const QString &s)
 {
-    d->targetEdit->setText(s);
+    d->targetLabel->setText(s);
 }
 
 void CommandMappings::setTargetEditTitle(const QString &s)
@@ -228,11 +213,6 @@ void CommandMappings::setTargetEditTitle(const QString &s)
 void CommandMappings::setTargetHeader(const QString &s)
 {
     d->commandList->setHeaderLabels(QStringList() << tr("Command") << tr("Label") << s);
-}
-
-void CommandMappings::finish()
-{
-    delete d->m_widget;
 }
 
 void CommandMappings::commandChanged(QTreeWidgetItem *current)

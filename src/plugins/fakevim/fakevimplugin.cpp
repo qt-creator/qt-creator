@@ -539,7 +539,41 @@ void FakeVimOptionPage::updateVimRcWidgets()
 
 enum { CommandRole = Qt::UserRole };
 
-class FakeVimExCommandsPage : public CommandMappings
+class FakeVimExCommandsWidget : public CommandMappings
+{
+    Q_OBJECT
+
+public:
+    FakeVimExCommandsWidget(FakeVimPluginPrivate *q, QWidget *parent = 0)
+        : CommandMappings(parent), m_q(q)
+    {
+        setPageTitle(Tr::tr("Ex Command Mapping"));
+        setTargetHeader(Tr::tr("Ex Trigger Expression"));
+        setTargetLabelText(Tr::tr("Regular expression:"));
+        setTargetEditTitle(Tr::tr("Ex Command"));
+        targetEdit()->setPlaceholderText(QString());
+        setImportExportEnabled(false);
+        initialize();
+    }
+
+protected:
+    void targetIdentifierChanged() override;
+    void resetTargetIdentifier() override;
+    void removeTargetIdentifier() override;
+    void defaultAction() override;
+
+    void commandChanged(QTreeWidgetItem *current) override;
+
+private:
+    void initialize();
+
+    ExCommandMap &exCommandMap();
+    ExCommandMap &defaultExCommandMap();
+
+    FakeVimPluginPrivate *m_q;
+};
+
+class FakeVimExCommandsPage : public IOptionsPage
 {
     Q_OBJECT
 
@@ -554,34 +588,28 @@ public:
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
-    QWidget *widget();
-    void initialize();
-    ExCommandMap &exCommandMap();
-    ExCommandMap &defaultExCommandMap();
-
-public slots:
-    void commandChanged(QTreeWidgetItem *current);
-    void targetIdentifierChanged();
-    void resetTargetIdentifier();
-    void removeTargetIdentifier();
-    void defaultAction();
+    QWidget *widget() override;
+    void apply() override {}
+    void finish() override;
 
 private:
     FakeVimPluginPrivate *m_q;
+    QPointer<QWidget> m_widget;
 };
 
 QWidget *FakeVimExCommandsPage::widget()
 {
-    QWidget *w = CommandMappings::widget();
-    setPageTitle(Tr::tr("Ex Command Mapping"));
-    setTargetHeader(Tr::tr("Ex Trigger Expression"));
-    setTargetLabelText(Tr::tr("Regular expression:"));
-    setTargetEditTitle(Tr::tr("Ex Command"));
-    setImportExportEnabled(false);
-    return w;
+    if (!m_widget)
+        m_widget = new FakeVimExCommandsWidget(m_q);
+    return m_widget;
 }
 
-void FakeVimExCommandsPage::initialize()
+void FakeVimExCommandsPage::finish()
+{
+    delete m_widget;
+}
+
+void FakeVimExCommandsWidget::initialize()
 {
     QMap<QString, QTreeWidgetItem *> sections;
 
@@ -622,14 +650,14 @@ void FakeVimExCommandsPage::initialize()
     commandChanged(0);
 }
 
-void FakeVimExCommandsPage::commandChanged(QTreeWidgetItem *current)
+void FakeVimExCommandsWidget::commandChanged(QTreeWidgetItem *current)
 {
     CommandMappings::commandChanged(current);
     if (current)
         targetEdit()->setText(current->text(2));
 }
 
-void FakeVimExCommandsPage::targetIdentifierChanged()
+void FakeVimExCommandsWidget::targetIdentifierChanged()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
@@ -646,7 +674,7 @@ void FakeVimExCommandsPage::targetIdentifierChanged()
     setModified(current, regex != defaultExCommandMap()[name].pattern());
 }
 
-void FakeVimExCommandsPage::resetTargetIdentifier()
+void FakeVimExCommandsWidget::resetTargetIdentifier()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
@@ -658,12 +686,12 @@ void FakeVimExCommandsPage::resetTargetIdentifier()
     targetEdit()->setText(regex);
 }
 
-void FakeVimExCommandsPage::removeTargetIdentifier()
+void FakeVimExCommandsWidget::removeTargetIdentifier()
 {
     targetEdit()->clear();
 }
 
-void FakeVimExCommandsPage::defaultAction()
+void FakeVimExCommandsWidget::defaultAction()
 {
     int n = commandList()->topLevelItemCount();
     for (int i = 0; i != n; ++i) {
@@ -987,7 +1015,7 @@ public:
     FakeVimPluginPrivate(FakeVimPlugin *);
     ~FakeVimPluginPrivate();
     friend class FakeVimPlugin;
-    friend class FakeVimExCommandsPage;
+    friend class FakeVimExCommandsWidget;
     friend class FakeVimUserCommandsPage;
     friend class FakeVimUserCommandsModel;
 
@@ -2201,12 +2229,12 @@ void FakeVimPluginPrivate::switchToFile(int n)
     EditorManager::activateEditorForEntry(DocumentModel::entries().at(n));
 }
 
-ExCommandMap &FakeVimExCommandsPage::exCommandMap()
+ExCommandMap &FakeVimExCommandsWidget::exCommandMap()
 {
     return m_q->exCommandMap();
 }
 
-ExCommandMap &FakeVimExCommandsPage::defaultExCommandMap()
+ExCommandMap &FakeVimExCommandsWidget::defaultExCommandMap()
 {
     return m_q->defaultExCommandMap();
 }

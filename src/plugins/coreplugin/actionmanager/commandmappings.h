@@ -31,7 +31,9 @@
 #ifndef COMMANDMAPPINGS_H
 #define COMMANDMAPPINGS_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/core_global.h>
+
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -45,30 +47,31 @@ namespace Core {
 
 namespace Internal { class CommandMappingsPrivate; }
 
-class CORE_EXPORT CommandMappings : public IOptionsPage
+class CORE_EXPORT CommandMappings : public QWidget
 {
     Q_OBJECT
 
 public:
-    CommandMappings(QObject *parent = 0);
+    CommandMappings(QWidget *parent = 0);
     ~CommandMappings();
     virtual bool hasConflicts() const;
 
 protected slots:
-    void commandChanged(QTreeWidgetItem *current);
-    void filterChanged(const QString &f);
-    virtual void importAction() {}
-    virtual void exportAction() {}
-    virtual void defaultAction() = 0;
 
 protected:
-    // IOptionsPage
-    QWidget *widget();
-    virtual void apply() {}
-    virtual void finish();
+    virtual void removeTargetIdentifier() = 0;
+    virtual void resetTargetIdentifier() = 0;
+    virtual void targetIdentifierChanged() = 0;
 
-    virtual void initialize() = 0;
+    virtual void defaultAction() = 0;
+
+    virtual void exportAction() {}
+    virtual void importAction() {}
+
+    void filterChanged(const QString &f);
     bool filter(const QString &filterString, QTreeWidgetItem *item);
+
+    virtual void commandChanged(QTreeWidgetItem *current);
 
     // access to m_page
     void setImportExportEnabled(bool enabled);
