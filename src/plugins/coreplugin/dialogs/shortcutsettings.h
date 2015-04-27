@@ -79,6 +79,8 @@ protected:
     void defaultAction() override;
     bool hasConflicts() const override;
 
+    bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const override;
+
 private:
     void initialize();
     void handleKeyEvent(QKeyEvent *e);

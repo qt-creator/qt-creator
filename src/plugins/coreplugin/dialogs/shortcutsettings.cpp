@@ -39,6 +39,7 @@
 #include <coreplugin/actionmanager/commandsfile.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QKeyEvent>
@@ -213,6 +214,25 @@ bool ShortcutSettingsWidget::hasConflicts() const
                 return true;
     }
     return false;
+}
+
+bool ShortcutSettingsWidget::filterColumn(const QString &filterString, QTreeWidgetItem *item,
+                                          int column) const
+{
+    QString text = item->text(column);
+    if (Utils::HostOsInfo::isMacHost()) {
+        // accept e.g. Cmd+E in the filter. the text shows special fancy characters for Cmd
+        if (column == item->columnCount() - 1) {
+            QKeySequence key = QKeySequence::fromString(text, QKeySequence::NativeText);
+            if (!key.isEmpty()) {
+                text = key.toString(QKeySequence::PortableText);
+                text.replace(QLatin1String("Ctrl"), QLatin1String("Cmd"));
+                text.replace(QLatin1String("Meta"), QLatin1String("Ctrl"));
+                text.replace(QLatin1String("Alt"), QLatin1String("Opt"));
+            }
+        }
+    }
+    return !text.contains(filterString, Qt::CaseInsensitive);
 }
 
 void ShortcutSettingsWidget::setKeySequence(const QKeySequence &key)

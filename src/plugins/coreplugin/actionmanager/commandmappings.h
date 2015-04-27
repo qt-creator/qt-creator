@@ -68,8 +68,9 @@ protected:
     virtual void exportAction() {}
     virtual void importAction() {}
 
+    virtual bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const;
+
     void filterChanged(const QString &f);
-    bool filter(const QString &filterString, QTreeWidgetItem *item);
 
     virtual void commandChanged(QTreeWidgetItem *current);
 
@@ -85,6 +86,8 @@ protected:
     void setModified(QTreeWidgetItem *item, bool modified);
 
 private:
+    bool filter(const QString &filterString, QTreeWidgetItem *item);
+
     friend class Internal::CommandMappingsPrivate;
     Internal::CommandMappingsPrivate *d;
 };
