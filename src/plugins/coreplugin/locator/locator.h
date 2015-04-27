@@ -50,6 +50,7 @@ class LocatorWidget;
 class OpenDocumentsFilter;
 class FileSystemFilter;
 class LocatorSettingsPage;
+class ExternalToolsFilter;
 
 class Locator : public QObject
 {
@@ -97,6 +98,7 @@ private:
     FileSystemFilter *m_fileSystemFilter;
     ExecuteFilter *m_executeFilter;
     CorePlugin *m_corePlugin;
+    ExternalToolsFilter *m_externalToolsFilter;
 };
 
 template <typename S>

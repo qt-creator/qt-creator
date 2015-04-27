@@ -36,6 +36,7 @@
 #include "opendocumentsfilter.h"
 #include "filesystemfilter.h"
 #include "locatorsettingspage.h"
+#include "externaltoolsfilter.h"
 
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/statusbarwidget.h>
@@ -79,10 +80,12 @@ Locator::~Locator()
     m_corePlugin->removeObject(m_fileSystemFilter);
     m_corePlugin->removeObject(m_executeFilter);
     m_corePlugin->removeObject(m_settingsPage);
+    m_corePlugin->removeObject(m_externalToolsFilter);
     delete m_openDocumentsFilter;
     delete m_fileSystemFilter;
     delete m_executeFilter;
     delete m_settingsPage;
+    delete m_externalToolsFilter;
     qDeleteAll(m_customFilters);
 }
 
@@ -121,6 +124,9 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 
     m_executeFilter = new ExecuteFilter();
     m_corePlugin->addObject(m_executeFilter);
+
+    m_externalToolsFilter = new ExternalToolsFilter;
+    m_corePlugin->addObject(m_externalToolsFilter);
 
     m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter(this, m_locatorWidget));
 #ifdef Q_OS_OSX

@@ -259,6 +259,8 @@ QtcPlugin {
             "directoryfilter.ui",
             "executefilter.cpp",
             "executefilter.h",
+            "externaltoolsfilter.cpp",
+            "externaltoolsfilter.h",
             "filesystemfilter.cpp",
             "filesystemfilter.h",
             "filesystemfilter.ui",
