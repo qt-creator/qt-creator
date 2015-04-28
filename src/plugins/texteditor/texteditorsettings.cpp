@@ -117,6 +117,9 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_PARENTHESES, tr("Parentheses"),
                                          tr("Displayed when matching parentheses, square brackets "
                                             "or curly brackets are found.")));
+    formatDescr.append(FormatDescription(C_PARENTHESES_MISMATCH, tr("Mismatched Parentheses"),
+                                         tr("Displayed when mismatched parentheses, "
+                                            "square brackets, or curly brackets are found.")));
     formatDescr.append(FormatDescription(C_CURRENT_LINE, tr("Current Line"),
                                          tr("Line where the cursor is placed in.")));
 

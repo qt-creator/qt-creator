@@ -32,6 +32,7 @@
   <style name="Occurrences.Unused" foreground="#808000"/>
   <style name="Operator" foreground="#cfbfad"/>
   <style name="Parentheses" foreground="#ffff00"  background="#4e4e8f"/>
+  <style name="ParenthesesMismatch" background="#404040"/>
   <style name="Preprocessor" foreground="#409090"/>
   <style name="RemovedLine" foreground="#ff0000"/>
   <style name="SearchResult" foreground="#000000" background="#ffef0b"/>

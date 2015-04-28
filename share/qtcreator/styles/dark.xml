@@ -26,6 +26,7 @@
   <style name="Occurrences.Rename" foreground="#ffaaaa" background="#553636"/>
   <style name="Operator" foreground="#aaaaaa"/>
   <style name="Parentheses" foreground="#ff5555" background="#333333"/>
+  <style name="ParenthesesMismatch" background="#800080"/>
   <style name="Preprocessor" foreground="#5555ff"/>
   <style name="SearchResult" background="#555500"/>
   <style name="SearchScope" background="#222200"/>

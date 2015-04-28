@@ -341,7 +341,6 @@ public:
 
     // parentheses matcher
     bool m_formatRange;
-    QTextCharFormat m_mismatchFormat;
     QTimer m_parenthesesMatchingTimer;
     // end parentheses matcher
 
@@ -660,8 +659,6 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 
     // parentheses matcher
     m_formatRange = true;
-    m_mismatchFormat.setBackground(q->palette().color(QPalette::Base).value() < 128
-                                      ? Qt::darkMagenta : Qt::magenta);
     m_parenthesesMatchingTimer.setSingleShot(true);
     QObject::connect(&m_parenthesesMatchingTimer, &QTimer::timeout,
                      this, &TextEditorWidgetPrivate::_q_matchParentheses);
@@ -5605,12 +5602,14 @@ void TextEditorWidgetPrivate::_q_matchParentheses()
 
     const QTextCharFormat &matchFormat
             = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
+    const QTextCharFormat &mismatchFormat
+            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES_MISMATCH);
     int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
         if (backwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = backwardMatch;
-            sel.format = m_mismatchFormat;
+            sel.format = mismatchFormat;
             extraSelections.append(sel);
         } else {
 
@@ -5634,7 +5633,7 @@ void TextEditorWidgetPrivate::_q_matchParentheses()
         QTextEdit::ExtraSelection sel;
         if (forwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = forwardMatch;
-            sel.format = m_mismatchFormat;
+            sel.format = mismatchFormat;
             extraSelections.append(sel);
         } else {
 

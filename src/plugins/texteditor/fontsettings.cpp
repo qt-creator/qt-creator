@@ -179,7 +179,8 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
             && category != C_OCCURRENCES
             && category != C_OCCURRENCES_RENAME
             && category != C_OCCURRENCES_UNUSED
-            && category != C_SEARCH_RESULT)
+            && category != C_SEARCH_RESULT
+            && category != C_PARENTHESES_MISMATCH)
         tf.setForeground(f.foreground());
     if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
         tf.setBackground(f.background());

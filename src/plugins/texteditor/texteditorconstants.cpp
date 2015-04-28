@@ -46,6 +46,7 @@ const char *nameForStyle(TextStyle style)
     case C_SEARCH_RESULT:       return "SearchResult";
     case C_SEARCH_SCOPE:        return "SearchScope";
     case C_PARENTHESES:         return "Parentheses";
+    case C_PARENTHESES_MISMATCH:return "ParenthesesMismatch";
     case C_CURRENT_LINE:        return "CurrentLine";
     case C_CURRENT_LINE_NUMBER: return "CurrentLineNumber";
     case C_OCCURRENCES:         return "Occurrences";
