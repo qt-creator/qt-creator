@@ -311,7 +311,8 @@ ProStringList QMakeEvaluator::split_value_list(const QString &vals, const ProFil
         switch (unicode) {
         case '"':
         case '\'':
-            quote = unicode;
+            if (!quote)
+                quote = unicode;
             hadWord = true;
             break;
         case ' ':
