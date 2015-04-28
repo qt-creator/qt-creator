@@ -54,21 +54,6 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-class KeySequenceValidator : public FancyLineEdit
-{
-public:
-    KeySequenceValidator(QWidget *parent, CommandMappings *mappings)
-        : FancyLineEdit(parent), m_mappings(mappings)
-    {}
-
-    bool validate(const QString &, QString *) const
-    {
-        return !m_mappings->hasConflicts();
-    }
-
-    CommandMappings *m_mappings;
-};
-
 class CommandMappingsPrivate
 {
 public:
@@ -106,11 +91,14 @@ public:
 
         targetEditGroup = new QGroupBox(CommandMappings::tr("Target Identifier"), m_widget);
 
-        targetEdit = new KeySequenceValidator(targetEditGroup, q);
+        targetEdit = new FancyLineEdit(targetEditGroup);
         targetEdit->setAutoHideButton(FancyLineEdit::Right, true);
         targetEdit->setPlaceholderText(QString());
         targetEdit->installEventFilter(q);
         targetEdit->setFiltering(true);
+        targetEdit->setValidationFunction([this](FancyLineEdit *, QString *) {
+            return !q->hasConflicts();
+        });
 
         resetButton = new QPushButton(targetEditGroup);
         resetButton->setToolTip(CommandMappings::tr("Reset to default."));

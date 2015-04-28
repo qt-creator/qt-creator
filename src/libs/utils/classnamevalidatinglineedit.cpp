@@ -69,6 +69,9 @@ ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
     FancyLineEdit(parent),
     d(new ClassNameValidatingLineEditPrivate)
 {
+    setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
+        return validateClassName(edit, errorMessage);
+    });
     updateRegExp();
 }
 
@@ -104,10 +107,11 @@ void ClassNameValidatingLineEdit::setNamespaceDelimiter(const QString &delimiter
     d->m_namespaceDelimiter = delimiter;
 }
 
-bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
+bool ClassNameValidatingLineEdit::validateClassName(FancyLineEdit *edit, QString *errorMessage) const
 {
     QTC_ASSERT(d->m_nameRegexp.isValid(), return false);
 
+    const QString value = edit->text();
     if (!d->m_namespacesEnabled && value.contains(d->m_namespaceDelimiter)) {
         if (errorMessage)
             *errorMessage = tr("The class name must not contain namespace delimiters.");

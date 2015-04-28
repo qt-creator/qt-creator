@@ -38,6 +38,8 @@
 
 #include <qbs.h>
 
+namespace Utils { class FancyLineEdit; }
+
 namespace QbsProjectManager {
 namespace Internal {
 class QbsProject;
@@ -151,14 +153,17 @@ private slots:
     void changeJobCount(int count);
     void changeInstall(bool install);
     void changeCleanInstallRoot(bool clean);
-    void changeProperties();
+    void applyCachedProperties();
 
     // QML debugging:
     void linkQmlDebuggingLibraryChecked(bool checked);
 
 private:
+    bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
+
     Ui::QbsBuildStepConfigWidget *m_ui;
 
+    QList<QPair<QString, QString> > m_propertyCache;
     QbsBuildStep *m_step;
     QString m_summary;
     bool m_ignoreChange;

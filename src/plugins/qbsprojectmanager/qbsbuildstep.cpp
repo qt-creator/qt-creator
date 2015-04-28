@@ -478,6 +478,11 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     m_ui = new Ui::QbsBuildStepConfigWidget;
     m_ui->setupUi(this);
 
+    m_ui->propertyEdit->setValidationFunction([this](Utils::FancyLineEdit *edit,
+                                                     QString *errorMessage) {
+        return validateProperties(edit, errorMessage);
+    });
+
     connect(m_ui->buildVariantComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(changeBuildVariant(int)));
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
@@ -489,7 +494,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             &QbsBuildStepConfigWidget::changeInstall);
     connect(m_ui->cleanInstallRootCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeCleanInstallRoot);
-    connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
@@ -532,10 +536,9 @@ void QbsBuildStepConfigWidget::updateState()
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
     QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
 
-    QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
-    for (int i = 0; i < propertyList.count(); ++i) {
-        command += QLatin1Char(' ') + propertyList.at(i).first
-                + QLatin1Char(':') + propertyList.at(i).second;
+    for (int i = 0; i < m_propertyCache.count(); ++i) {
+        command += QLatin1Char(' ') + m_propertyCache.at(i).first
+                + QLatin1Char(':') + m_propertyCache.at(i).second;
     }
 
     if (m_step->isQmlDebuggingEnabled())
@@ -635,7 +638,7 @@ void QbsBuildStepConfigWidget::changeCleanInstallRoot(bool clean)
     m_ignoreChange = false;
 }
 
-void QbsBuildStepConfigWidget::changeProperties()
+void QbsBuildStepConfigWidget::applyCachedProperties()
 {
     QVariantMap data;
     QVariantMap tmp = m_step->qbsConfiguration();
@@ -652,9 +655,8 @@ void QbsBuildStepConfigWidget::changeProperties()
         data.insert(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY),
                     tmp.value(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY)));
 
-    QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
-    for (int i = 0; i < propertyList.count(); ++i)
-        data.insert(propertyList.at(i).first, propertyList.at(i).second);
+    for (int i = 0; i < m_propertyCache.count(); ++i)
+        data.insert(m_propertyCache.at(i).first, m_propertyCache.at(i).second);
 
     m_ignoreChange = true;
     m_step->setQbsConfiguration(data);
@@ -675,6 +677,40 @@ void QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     m_ignoreChange = true;
     m_step->setQbsConfiguration(data);
     m_ignoreChange = false;
+}
+
+bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage)
+{
+    Utils::QtcProcess::SplitError err;
+    QStringList argList = Utils::QtcProcess::splitArgs(edit->text(), Utils::HostOsInfo::hostOs(),
+                                                       false, &err);
+    if (err != Utils::QtcProcess::SplitOk) {
+        if (errorMessage)
+            *errorMessage = tr("Could not split properties.");
+        return false;
+    }
+
+    QList<QPair<QString, QString> > properties;
+    foreach (const QString &arg, argList) {
+        int pos = arg.indexOf(QLatin1Char(':'));
+        QString key;
+        QString value;
+        if (pos > 0) {
+            key = arg.left(pos);
+            value = arg.mid(pos + 1);
+            properties.append(qMakePair(key, value));
+        } else {
+            if (errorMessage)
+                *errorMessage = tr("No ':' found in property definition.");
+            return false;
+        }
+    }
+
+    if (m_propertyCache != properties) {
+        m_propertyCache = properties;
+        applyCachedProperties();
+    }
+    return true;
 }
 
 // --------------------------------------------------------------------

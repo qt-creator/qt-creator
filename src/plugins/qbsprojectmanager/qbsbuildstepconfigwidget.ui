@@ -142,7 +142,7 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QbsPropertyLineEdit" name="propertyEdit">
+    <widget class="Utils::FancyLineEdit" name="propertyEdit">
      <property name="toolTip">
       <string>Properties to pass to the project.</string>
      </property>
@@ -254,9 +254,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QbsPropertyLineEdit</class>
+   <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
-   <header location="global">qbsprojectmanager/qbspropertylineedit.h</header>
+   <header location="global">utils/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

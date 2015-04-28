@@ -68,7 +68,7 @@ signals:
     void updateFileName(const QString &t);
 
 protected:
-    bool validate(const QString &value, QString *errorMessage) const;
+    bool validateClassName(FancyLineEdit *edit, QString *errorMessage) const;
     void handleChanged(const QString &t);
     QString fixInputString(const QString &string);
 

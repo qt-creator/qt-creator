@@ -138,8 +138,6 @@ QtcLibrary {
         "projectintropage.cpp",
         "projectintropage.h",
         "projectintropage.ui",
-        "projectnamevalidatinglineedit.cpp",
-        "projectnamevalidatinglineedit.h",
         "proxyaction.cpp",
         "proxyaction.h",
         "proxycredentialsdialog.cpp",

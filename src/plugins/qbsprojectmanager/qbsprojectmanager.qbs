@@ -103,8 +103,6 @@ QtcPlugin {
         "qbsprojectmanagerplugin.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
-        "qbspropertylineedit.cpp",
-        "qbspropertylineedit.h",
         "qbsrunconfiguration.cpp",
         "qbsrunconfiguration.h"
     ]

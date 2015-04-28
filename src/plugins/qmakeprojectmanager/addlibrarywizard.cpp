@@ -195,10 +195,12 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
     m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
     m_libraryDetailsWidget->setupUi(this);
     Utils::PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
-    const auto pathValidator = [libPathChooser](const QString &path, QString *errorMessage) {
-        return validateLibraryPath(path, libPathChooser, errorMessage);
+    const auto pathValidator = [libPathChooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
+        return libPathChooser->defaultValidationFunction()(edit, errorMessage)
+                && validateLibraryPath(libPathChooser->fileName().toString(), libPathChooser,
+                                       errorMessage);
     };
-    libPathChooser->setAdditionalPathValidator(pathValidator);
+    libPathChooser->setValidationFunction(pathValidator);
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 

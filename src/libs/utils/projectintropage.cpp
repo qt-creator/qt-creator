@@ -31,6 +31,7 @@
 #include "projectintropage.h"
 #include "ui_projectintropage.h"
 
+#include "filenamevalidatinglineedit.h"
 #include "wizard.h"
 
 #include <QDir>
@@ -89,6 +90,9 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     hideStatusLabel();
     d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
     d->m_ui.nameLineEdit->setFocus();
+    d->m_ui.nameLineEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorString) {
+        return ProjectIntroPage::validateProjectName(edit->text(), errorString);
+    });
     d->m_ui.projectLabel->setVisible(d->m_forceSubProject);
     d->m_ui.projectComboBox->setVisible(d->m_forceSubProject);
     d->m_ui.pathChooser->setDisabled(d->m_forceSubProject);
@@ -245,6 +249,26 @@ void ProjectIntroPage::setProjectDirectories(const QStringList &directoryList)
 int ProjectIntroPage::projectIndex() const
 {
     return d->m_ui.projectComboBox->currentIndex();
+}
+
+bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMessage /* = 0*/)
+{
+    // Validation is file name + checking for dots
+    if (!FileNameValidatingLineEdit::validateFileName(name, false, errorMessage))
+        return false;
+
+    int pos = FileUtils::indexOfQmakeUnfriendly(name);
+    if (pos >= 0) {
+        if (errorMessage)
+            *errorMessage = tr("Invalid character \"%1\" found.").arg(name.at(pos));
+        return false;
+    }
+    if (name.contains(QLatin1Char('.'))) {
+        if (errorMessage)
+            *errorMessage = tr("Invalid character '.'.");
+        return false;
+    }
+    return true;
 }
 
 void ProjectIntroPage::displayStatusMessage(StatusLabelMode m, const QString &s)

@@ -30,7 +30,6 @@
 
 #include "pathchooser.h"
 
-#include "fancylineedit.h"
 #include "environment.h"
 #include "qtcassert.h"
 
@@ -54,32 +53,6 @@
 */
 
 namespace Utils {
-
-// ------------------ PathValidatingLineEdit
-
-class PathValidatingLineEdit : public FancyLineEdit
-{
-public:
-    explicit PathValidatingLineEdit(PathChooser *chooser, QWidget *parent = 0);
-
-protected:
-    virtual bool validate(const QString &value, QString *errorMessage) const;
-
-private:
-    PathChooser *m_chooser;
-};
-
-PathValidatingLineEdit::PathValidatingLineEdit(PathChooser *chooser, QWidget *parent) :
-    FancyLineEdit(parent),
-    m_chooser(chooser)
-{
-    QTC_ASSERT(chooser, return);
-}
-
-bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
-{
-    return m_chooser->validatePath(value, errorMessage);
-}
 
 // ------------------ BinaryVersionToolTipEventFilter
 // Event filter to be installed on a lineedit used for entering
@@ -176,12 +149,12 @@ private:
 class PathChooserPrivate
 {
 public:
-    PathChooserPrivate(PathChooser *chooser);
+    PathChooserPrivate();
 
     QString expandedPath(const QString &path) const;
 
     QHBoxLayout *m_hLayout;
-    PathValidatingLineEdit *m_lineEdit;
+    FancyLineEdit *m_lineEdit;
 
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
@@ -191,15 +164,13 @@ public:
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter;
     QList<QAbstractButton *> m_buttons;
-    PathChooser::PathValidator m_additionalValidator;
 };
 
-PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
+PathChooserPrivate::PathChooserPrivate() :
     m_hLayout(new QHBoxLayout),
-    m_lineEdit(new PathValidatingLineEdit(chooser)),
+    m_lineEdit(new FancyLineEdit),
     m_acceptingKind(PathChooser::ExistingDirectory),
-    m_binaryVersionToolTipEventFilter(0),
-    m_additionalValidator([](const QString &, QString *) { return true; })
+    m_binaryVersionToolTipEventFilter(0)
 {
 }
 
@@ -232,7 +203,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
 
 PathChooser::PathChooser(QWidget *parent) :
     QWidget(parent),
-    d(new PathChooserPrivate(this))
+    d(new PathChooserPrivate)
 {
     d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -252,6 +223,8 @@ PathChooser::PathChooser(QWidget *parent) :
     setFocusProxy(d->m_lineEdit);
     setFocusPolicy(d->m_lineEdit->focusPolicy());
     setEnvironment(Environment::systemEnvironment());
+
+    d->m_lineEdit->setValidationFunction(defaultValidationFunction());
 }
 
 PathChooser::~PathChooser()
@@ -462,13 +435,14 @@ void PathChooser::triggerChanged()
     d->m_lineEdit->triggerChanged();
 }
 
-void PathChooser::setAdditionalPathValidator(const PathChooser::PathValidator &pathValidator)
+FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
 {
-    d->m_additionalValidator = pathValidator;
+    return std::bind(&PathChooser::validatePath, this, std::placeholders::_1, std::placeholders::_2);
 }
 
-bool PathChooser::validatePath(const QString &path, QString *errorMessage)
+bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
 {
+    const QString path = edit->text();
     QString expandedPath = d->expandedPath(path);
 
     if (path.isEmpty()) {
@@ -586,12 +560,14 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
         ;
     }
 
-    if (!d->m_additionalValidator(path, errorMessage))
-        return false;
-
     if (errorMessage)
         *errorMessage = tr("Full path: <b>%1</b>").arg(QDir::toNativeSeparators(expandedPath));
     return true;
+}
+
+void PathChooser::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
+{
+    d->m_lineEdit->setValidationFunction(fn);
 }
 
 QString PathChooser::label()

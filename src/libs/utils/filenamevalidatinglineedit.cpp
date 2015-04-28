@@ -71,6 +71,10 @@ FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
     m_allowDirectories(false),
     m_forceFirstCapitalLetter(false)
 {
+    setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
+        return validateFileNameExtension(edit->text(), requiredExtensions(), errorMessage)
+                && validateFileName(edit->text(), allowDirectories(), errorMessage);
+    });
 }
 
 bool FileNameValidatingLineEdit::allowDirectories() const
@@ -146,12 +150,6 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         return false;
     }
     return true;
-}
-
-bool  FileNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
-{
-    return validateFileNameExtension(value, requiredExtensions(), errorMessage)
-            && validateFileName(value, allowDirectories(), errorMessage);
 }
 
 QString FileNameValidatingLineEdit::fixInputString(const QString &string)

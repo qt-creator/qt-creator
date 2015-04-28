@@ -36,6 +36,8 @@
 
 #include <QAbstractButton>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QEvent;
 QT_END_NAMESPACE
@@ -127,6 +129,8 @@ public:
 
     //  Validation
 
+    // line edit, (out)errorMessage -> valid?
+    typedef std::function<bool(FancyLineEdit *, QString *)> ValidationFunction;
     enum State { Invalid, DisplayingInitialText, Valid };
 
     State state() const;
@@ -144,6 +148,9 @@ public:
 
     static QColor textColor(const QWidget *w);
     static void setTextColor(QWidget *w, const QColor &c);
+
+    void setValidationFunction(const ValidationFunction &fn);
+    static ValidationFunction defaultValidationFunction();
 
 protected slots:
     // Custom behaviour can be added here.
@@ -167,10 +174,10 @@ private slots:
 protected:
     void resizeEvent(QResizeEvent *e);
 
-    virtual bool validate(const QString &value, QString *errorMessage) const;
     virtual QString fixInputString(const QString &string);
 
 private:
+    static bool validateWithValidator(FancyLineEdit *edit, QString *errorMessage);
     // Unimplemented, to force the user to make a decision on
     // whether to use setHistoryCompleter() or setSpecialCompleter().
     void setCompleter(QCompleter *);

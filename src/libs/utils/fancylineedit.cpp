@@ -98,6 +98,7 @@ public:
     bool m_iconEnabled[2];
 
     HistoryCompleter *m_historyCompleter;
+    FancyLineEdit::ValidationFunction m_validationFunction;
 
     bool m_isFiltering;
     QString m_lastFilterText;
@@ -115,6 +116,7 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
     m_lineEdit(parent),
     m_historyCompleter(0),
+    m_validationFunction(FancyLineEdit::defaultValidationFunction()),
     m_isFiltering(false),
     m_okTextColor(FancyLineEdit::textColor(parent)),
     m_errorTextColor(Qt::red),
@@ -413,12 +415,22 @@ void FancyLineEdit::setTextColor(QWidget *w, const QColor &c)
     w->setPalette(palette);
 }
 
-bool FancyLineEdit::validate(const QString &value, QString *errorMessage) const
+void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
+{
+    d->m_validationFunction = fn;
+}
+
+FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
+{
+    return &FancyLineEdit::validateWithValidator;
+}
+
+bool FancyLineEdit::validateWithValidator(FancyLineEdit *edit, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
-    if (const QValidator *v = validator()) {
-        QString tmp = value;
-        int pos = cursorPosition();
+    if (const QValidator *v = edit->validator()) {
+        QString tmp = edit->text();
+        int pos = edit->cursorPosition();
         return v->validate(tmp, pos) == QValidator::Acceptable;
     }
     return true;
@@ -453,7 +465,7 @@ void FancyLineEdit::onTextChanged(const QString &t)
     const bool isDisplayingInitialText = !d->m_initialText.isEmpty() && t == d->m_initialText;
     const State newState = isDisplayingInitialText ?
                                DisplayingInitialText :
-                               (validate(t, &d->m_errorMessage) ? Valid : Invalid);
+                               (d->m_validationFunction(this, &d->m_errorMessage) ? Valid : Invalid);
     setToolTip(d->m_errorMessage);
     // Changed..figure out if valid changed. DisplayingInitialText is not valid,
     // but should not show error color. Also trigger on the first change.

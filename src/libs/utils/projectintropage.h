@@ -67,6 +67,8 @@ public:
     void setProjectDirectories(const QStringList &directoryList);
     int projectIndex() const;
 
+    static bool validateProjectName(const QString &name, QString *errorMessage /* = 0*/);
+
 signals:
     void activated();
 

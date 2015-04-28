@@ -26,7 +26,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/filesystemwatcher.cpp \
     $$PWD/projectintropage.cpp \
     $$PWD/filenamevalidatinglineedit.cpp \
-    $$PWD/projectnamevalidatinglineedit.cpp \
     $$PWD/codegeneration.cpp \
     $$PWD/newclasswidget.cpp \
     $$PWD/classnamevalidatinglineedit.cpp \
@@ -115,7 +114,6 @@ HEADERS += \
     $$PWD/filesystemwatcher.h \
     $$PWD/projectintropage.h \
     $$PWD/filenamevalidatinglineedit.h \
-    $$PWD/projectnamevalidatinglineedit.h \
     $$PWD/codegeneration.h \
     $$PWD/newclasswidget.h \
     $$PWD/classnamevalidatinglineedit.h \

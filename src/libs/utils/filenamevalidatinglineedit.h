@@ -75,7 +75,6 @@ public:
     void setRequiredExtensions(const QStringList &extensionList);
 
 protected:
-    virtual bool validate(const QString &value, QString *errorMessage) const;
     virtual QString fixInputString(const QString &string);
 
 private:

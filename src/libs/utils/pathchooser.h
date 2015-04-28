@@ -31,11 +31,10 @@
 #ifndef PATHCHOOSER_H
 #define PATHCHOOSER_H
 
+#include "fancylineedit.h"
 #include "fileutils.h"
 
 #include <QWidget>
-
-#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
@@ -110,7 +109,8 @@ public:
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
 
-    bool validatePath(const QString &path, QString *errorMessage = 0);
+    FancyLineEdit::ValidationFunction defaultValidationFunction() const;
+    void setValidationFunction(const FancyLineEdit::ValidationFunction &fn);
 
     /** Return the home directory, which needs some fixing under Windows. */
     static QString homePath();
@@ -140,10 +140,8 @@ public:
 
     void triggerChanged();
 
-    typedef std::function<bool(const QString &, QString *)> PathValidator;
-    void setAdditionalPathValidator(const PathValidator &pathValidator);
-
 private:
+    bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
 
