@@ -45,7 +45,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIcon>
-#include <QScriptEngine>
+#include <QJSEngine>
 #include <QTemporaryFile>
 #include <QTime>
 #include <QXmlStreamAttribute>
@@ -177,7 +177,7 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     errorMessage->clear();
     if (rules.isEmpty())
         return true;
-    QScriptEngine engine;
+    QJSEngine engine;
     foreach (const CustomWizardValidationRule &rule, rules)
     if (!rule.validate(engine, replacementMap)) {
         *errorMessage = rule.message;
@@ -187,7 +187,7 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     return true;
 }
 
-bool CustomWizardValidationRule::validate(QScriptEngine &engine, const QMap<QString, QString> &replacementMap) const
+bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString, QString> &replacementMap) const
 {
     // Apply parameters and evaluate using JavaScript
     QString cond = condition;

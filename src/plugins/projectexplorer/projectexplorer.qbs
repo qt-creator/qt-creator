@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "ProjectExplorer"
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "qml"] }
     Depends { name: "Qt.quick" }
     Depends { name: "Aggregation" }
     Depends { name: "QtcSsh" }

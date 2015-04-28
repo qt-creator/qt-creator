@@ -40,9 +40,7 @@
 #include <QStack>
 #include <QRegExp>
 #include <QDebug>
-
-#include <QScriptEngine>
-#include <QScriptValue>
+#include <QJSEngine>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -94,7 +92,7 @@ private:
     mutable QRegExp m_endifPattern;
 
     QStack<PreprocessStackEntry> m_sectionStack;
-    QScriptEngine m_scriptEngine;
+    QJSEngine m_scriptEngine;
 };
 
 PreprocessContext::PreprocessContext() :
@@ -137,16 +135,15 @@ PreprocessorSection PreprocessContext::preprocessorLine(const QString &in,
     return OtherSection;
 }
 
-// Evaluate an expression within an 'if'/'elsif' to a bool via QScript
-bool evaluateBooleanJavaScriptExpression(QScriptEngine &engine, const QString &expression, bool *result, QString *errorMessage)
+// Evaluate an expression within an 'if'/'elsif' to a bool via QJSEngine
+bool evaluateBooleanJavaScriptExpression(QJSEngine &engine, const QString &expression, bool *result, QString *errorMessage)
 {
     errorMessage->clear();
     *result = false;
-    engine.clearExceptions();
-    const QScriptValue value = engine.evaluate(expression);
-    if (engine.hasUncaughtException()) {
+    const QJSValue value = engine.evaluate(expression);
+    if (value.isError()) {
         *errorMessage = QString::fromLatin1("Error in \"%1\": %2").
-                        arg(expression, engine.uncaughtException().toString());
+                        arg(expression, value.toString());
         return false;
     }
     // Try to convert to bool, be that an int or whatever.

@@ -41,7 +41,7 @@ QT_BEGIN_NAMESPACE
 class QIODevice;
 class QDebug;
 class QTemporaryFile;
-class QScriptEngine;
+class QJSEngine;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -82,7 +82,7 @@ public:
     static bool validateRules(const QList<CustomWizardValidationRule> &rules,
                               const QMap<QString, QString> &replacementMap,
                               QString *errorMessage);
-    bool validate(QScriptEngine &, const QMap<QString, QString> &replacementMap) const;
+    bool validate(QJSEngine &, const QMap<QString, QString> &replacementMap) const;
     QString condition;
     QString message;
 };
