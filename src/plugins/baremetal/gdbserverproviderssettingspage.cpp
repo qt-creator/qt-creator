@@ -67,12 +67,12 @@ public:
         widget = provider ? provider->configurationWidget() : 0;
     }
 
-    Qt::ItemFlags flags() const
+    Qt::ItemFlags flags(int) const override
     {
         return provider ? Qt::ItemIsEnabled|Qt::ItemIsSelectable : Qt::ItemIsEnabled;
     }
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         if (!provider)
             return QVariant();
