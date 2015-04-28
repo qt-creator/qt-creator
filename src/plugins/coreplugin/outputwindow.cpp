@@ -127,6 +127,12 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     redoAction->setEnabled(false);
     cutAction->setEnabled(false);
     copyAction->setEnabled(false);
+
+    m_scrollTimer.setInterval(10);
+    m_scrollTimer.setSingleShot(true);
+    connect(&m_scrollTimer, &QTimer::timeout,
+            this, &OutputWindow::scrollToBottom);
+    m_lastMessage.start();
 }
 
 OutputWindow::~OutputWindow()
@@ -241,7 +247,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
     const QString out = SynchronousProcess::normalizeNewlines(output);
     setMaximumBlockCount(d->maxLineCount);
-    const bool atBottom = isScrollbarAtBottom();
+    const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
 
@@ -281,8 +287,16 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
         }
     }
 
-    if (atBottom)
-        scrollToBottom();
+    if (atBottom) {
+        if (m_lastMessage.elapsed() < 5) {
+            m_scrollTimer.start();
+        } else {
+            m_scrollTimer.stop();
+            scrollToBottom();
+        }
+    }
+
+    m_lastMessage.start();
     enableUndoRedo();
 }
 

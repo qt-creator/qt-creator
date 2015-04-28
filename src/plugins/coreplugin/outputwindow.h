@@ -37,6 +37,8 @@
 #include <utils/outputformat.h>
 
 #include <QPlainTextEdit>
+#include <QTimer>
+#include <QTime>
 
 namespace Utils { class OutputFormatter; }
 
@@ -82,6 +84,8 @@ protected:
     virtual void keyPressEvent(QKeyEvent *ev);
 
 private:
+    QTimer m_scrollTimer;
+    QTime m_lastMessage;
     void enableUndoRedo();
     QString doNewlineEnforcement(const QString &out);
 
