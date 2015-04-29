@@ -283,7 +283,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     const QString qbsFilePath = Utils::HostOsInfo::withExecutableSuffix(!qbsInstallDir.isEmpty()
             ? qbsInstallDir + QLatin1String("/bin/qbs")
             : QCoreApplication::applicationDirPath() + QLatin1String("/qbs"));
-    Utils::QtcProcess::addArg(&commandLine, qbsFilePath);
+    Utils::QtcProcess::addArg(&commandLine, QDir::toNativeSeparators(qbsFilePath));
     const StepProxy stepProxy(buildStep);
     Utils::QtcProcess::addArg(&commandLine, stepProxy.command());
     const QbsBuildConfiguration * const buildConfig = qobject_cast<QbsBuildConfiguration *>(
