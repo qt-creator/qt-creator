@@ -590,7 +590,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     if (!editor->open(&errorString, fn, realFn)) {
         QApplication::restoreOverrideCursor();
         if (errorString.isEmpty())
-            errorString = tr("Could not open \"%1\": Unknown error").arg(realFn);
+            errorString = tr("Could not open \"%1\": Unknown error.").arg(realFn);
         QMessageBox::critical(ICore::mainWindow(), EditorManager::tr("File Error"), errorString);
         delete editor;
         return 0;
