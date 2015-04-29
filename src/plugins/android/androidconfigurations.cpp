@@ -1159,25 +1159,14 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
                                                           Options options)
 {
     QString serialNumber = defaultDevice(project, abi);
-    if (!serialNumber.isEmpty()) {
-        // search for that device
-        foreach (const AndroidDeviceInfo &info, AndroidConfigurations::currentConfig().connectedDevices())
-            if (info.serialNumber == serialNumber
-                    && info.sdk >= apiLevel)
-                return info;
-
-        foreach (const AndroidDeviceInfo &info, AndroidConfigurations::currentConfig().androidVirtualDevices())
-            if (info.serialNumber == serialNumber
-                    && info.sdk >= apiLevel)
-                return info;
-    }
-
-    AndroidDeviceDialog dialog(apiLevel, abi, options, Core::ICore::mainWindow());
+    AndroidDeviceDialog dialog(apiLevel, abi, options, serialNumber, Core::ICore::mainWindow());
     if (dialog.exec() == QDialog::Accepted) {
         AndroidDeviceInfo info = dialog.device();
         if (dialog.saveDeviceSelection()) {
-            if (!info.serialNumber.isEmpty())
-                AndroidConfigurations::setDefaultDevice(project, abi, info.serialNumber);
+            const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?
+                        info.serialNumber : info.avdname;
+            if (!serialNumber.isEmpty())
+                AndroidConfigurations::setDefaultDevice(project, abi, serialNumber);
         }
         return info;
     }

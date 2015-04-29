@@ -36,6 +36,7 @@
 #include <QVector>
 #include <QDialog>
 #include <QFutureWatcher>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -54,7 +55,8 @@ class AndroidDeviceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options opts, QWidget *parent = 0);
+    explicit AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options opts,
+                                 const QString &serialNumber, QWidget *parent = 0);
     ~AndroidDeviceDialog();
 
     AndroidDeviceInfo device();
@@ -74,6 +76,8 @@ private:
                                                      const Utils::Environment &environment);
     void devicesRefreshed();
     void enableOkayButton();
+    void useDefaultDevice();
+    void defaultDeviceClear();
 
     AndroidDeviceModel *m_model;
     Ui::AndroidDeviceDialog *m_ui;
@@ -81,6 +85,8 @@ private:
     int m_apiLevel;
     QString m_abi;
     QString m_avdNameFromAdd;
+    QString m_defaultDevice;
+    QTime m_defaultDeviceTimer;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
     QFutureWatcher<QVector<AndroidDeviceInfo>> m_futureWatcherRefreshDevices;
 };

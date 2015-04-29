@@ -420,12 +420,14 @@ static inline QString msgAdbListDevices()
     return AndroidDeviceDialog::tr("<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>");
 }
 
-AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options options, QWidget *parent) :
+AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options options,
+                                         const QString &serialNumber, QWidget *parent) :
     QDialog(parent),
     m_model(new AndroidDeviceModel(apiLevel, abi, options)),
     m_ui(new Ui::AndroidDeviceDialog),
     m_apiLevel(apiLevel),
-    m_abi(abi)
+    m_abi(abi),
+    m_defaultDevice(serialNumber)
 {
     m_ui->setupUi(this);
     m_ui->deviceView->setModel(m_model);
@@ -466,6 +468,19 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
 
     m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large, this);
     m_progressIndicator->attachToWidget(m_ui->deviceView);
+
+    if (serialNumber.isEmpty()) {
+        m_ui->lookingForDevice->setVisible(false);
+        m_ui->lookingForDeviceCancel->setVisible(false);
+    } else {
+        m_ui->lookingForDevice->setVisible(true);
+        m_ui->lookingForDevice->setText(tr("Looking for default device <b>%1</b>.").arg(serialNumber));
+        m_ui->lookingForDeviceCancel->setVisible(true);
+    }
+
+    connect(m_ui->lookingForDeviceCancel, &QPushButton::clicked,
+            this, &AndroidDeviceDialog::defaultDeviceClear);
+    m_defaultDeviceTimer.start();
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
@@ -523,17 +538,11 @@ void AndroidDeviceDialog::devicesRefreshed()
     m_progressIndicator->hide();
     QString serialNumber;
     AndroidDeviceInfo::AndroidDeviceType deviceType;
-    if (!m_avdNameFromAdd.isEmpty()) {
-        serialNumber = m_avdNameFromAdd;
-        m_avdNameFromAdd.clear();
-        deviceType = AndroidDeviceInfo::Emulator;
-    } else {
-        QModelIndex currentIndex = m_ui->deviceView->currentIndex();
-        if (currentIndex.isValid()) {
-            AndroidDeviceInfo info = m_model->device(currentIndex);
-            deviceType = info.type;
-            serialNumber = deviceType == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
-        }
+    QModelIndex currentIndex = m_ui->deviceView->currentIndex();
+    if (currentIndex.isValid()) { // save currently selected index
+        AndroidDeviceInfo info = m_model->device(currentIndex);
+        deviceType = info.type;
+        serialNumber = deviceType == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
     }
 
     QVector<AndroidDeviceInfo> devices = m_futureWatcherRefreshDevices.result();
@@ -545,7 +554,20 @@ void AndroidDeviceDialog::devicesRefreshed()
 
     // Smartly select a index
     QModelIndex newIndex;
-    if (!serialNumber.isEmpty())
+    if (!m_defaultDevice.isEmpty()) {
+        newIndex = m_model->indexFor(AndroidDeviceInfo::Hardware, m_defaultDevice);
+        if (!newIndex.isValid())
+            newIndex = m_model->indexFor(AndroidDeviceInfo::Emulator, m_defaultDevice);
+        if (!newIndex.isValid()) // not found the default device
+            defaultDeviceClear();
+    }
+
+    if (!newIndex.isValid() && !m_avdNameFromAdd.isEmpty()) {
+        newIndex = m_model->indexFor(AndroidDeviceInfo::Emulator, m_avdNameFromAdd);
+        m_avdNameFromAdd.clear();
+    }
+
+    if (!newIndex.isValid() && !serialNumber.isEmpty())
         newIndex = m_model->indexFor(deviceType, serialNumber);
 
     if (!newIndex.isValid() && !devices.isEmpty()) {
@@ -559,6 +581,26 @@ void AndroidDeviceDialog::devicesRefreshed()
     m_ui->stackedWidget->setCurrentIndex(devices.isEmpty() ? 1 : 0);
 
     m_ui->refreshDevicesButton->setEnabled(true);
+
+    if (!m_defaultDevice.isEmpty()) {
+        int elapsed = m_defaultDeviceTimer.elapsed();
+        if (elapsed > 4000)
+            accept();
+        else
+            QTimer::singleShot(4000 - elapsed, this, &AndroidDeviceDialog::useDefaultDevice);
+    }
+}
+
+void AndroidDeviceDialog::useDefaultDevice()
+{
+    if (m_defaultDevice.isEmpty())
+        return;
+    AndroidDeviceInfo info = m_model->device(m_ui->deviceView->currentIndex());
+    if (info.serialNumber == m_defaultDevice
+            || info.avdname == m_defaultDevice)
+        accept();
+    else // something different is selected
+        defaultDeviceClear();
 }
 
 void AndroidDeviceDialog::createAvd()
@@ -613,4 +655,11 @@ void AndroidDeviceDialog::showHelp()
     QPoint pos = m_ui->missingLabel->pos();
     pos = m_ui->missingLabel->parentWidget()->mapToGlobal(pos);
     QToolTip::showText(pos, msgConnect() + msgAdbListDevices(), this);
+}
+
+void AndroidDeviceDialog::defaultDeviceClear()
+{
+    m_ui->lookingForDevice->setVisible(false);
+    m_ui->lookingForDeviceCancel->setVisible(false);
+    m_defaultDevice.clear();
 }
