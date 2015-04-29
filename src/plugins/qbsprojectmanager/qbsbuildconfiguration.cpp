@@ -301,9 +301,9 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     if (stepProxy.keepGoing())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--keep-going"));
     if (stepProxy.showCommandLines())
-        Utils::QtcProcess::addArg(&commandLine, QStringList()
-                                  << QLatin1String("--command-echo-mode")
-                                  << QLatin1String("command-line"));
+        Utils::QtcProcess::addArgs(&commandLine, QStringList()
+                                   << QLatin1String("--command-echo-mode")
+                                   << QLatin1String("command-line"));
     if (stepProxy.noInstall())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--no-install"));
     if (stepProxy.cleanInstallRoot())
