@@ -50,19 +50,19 @@ class BazaarControl: public Core::IVersionControl
 public:
     explicit BazaarControl(BazaarClient *bazaarClient);
 
-    QString displayName() const;
-    Core::Id id() const;
+    QString displayName() const override;
+    Core::Id id() const override;
 
-    bool managesDirectory(const QString &filename, QString *topLevel = 0) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
-    bool isConfigured() const;
-    bool supportsOperation(Operation operation) const;
-    bool vcsOpen(const QString &fileName);
-    bool vcsAdd(const QString &filename);
-    bool vcsDelete(const QString &filename);
-    bool vcsMove(const QString &from, const QString &to);
-    bool vcsCreateRepository(const QString &directory);
-    bool vcsAnnotate(const QString &file, int line);
+    bool managesDirectory(const QString &filename, QString *topLevel = 0) const override;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
+    bool isConfigured() const override;
+    bool supportsOperation(Operation operation) const override;
+    bool vcsOpen(const QString &fileName) override;
+    bool vcsAdd(const QString &filename) override;
+    bool vcsDelete(const QString &filename) override;
+    bool vcsMove(const QString &from, const QString &to) override;
+    bool vcsCreateRepository(const QString &directory) override;
+    bool vcsAnnotate(const QString &file, int line) override;
 
 public slots:
     // To be connected to the VCSTask's success signal to emit the repository/

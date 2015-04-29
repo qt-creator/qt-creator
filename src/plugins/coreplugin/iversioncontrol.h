@@ -229,18 +229,18 @@ public:
     int fileCount() const { return m_fileCount; }
 
     // IVersionControl interface
-    QString displayName() const { return m_displayName; }
-    Id id() const { return m_id; }
-    bool managesDirectory(const QString &filename, QString *topLevel) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
-    bool isConfigured() const { return true; }
-    bool supportsOperation(Operation) const { return false; }
-    bool vcsOpen(const QString &) { return false; }
-    bool vcsAdd(const QString &) { return false; }
-    bool vcsDelete(const QString &) { return false; }
-    bool vcsMove(const QString &, const QString &) { return false; }
-    bool vcsCreateRepository(const QString &) { return false; }
-    bool vcsAnnotate(const QString &, int) { return false; }
+    QString displayName() const override { return m_displayName; }
+    Id id() const override { return m_id; }
+    bool managesDirectory(const QString &filename, QString *topLevel) const override;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
+    bool isConfigured() const override { return true; }
+    bool supportsOperation(Operation) const override { return false; }
+    bool vcsOpen(const QString &) override { return false; }
+    bool vcsAdd(const QString &) override { return false; }
+    bool vcsDelete(const QString &) override { return false; }
+    bool vcsMove(const QString &, const QString &) override { return false; }
+    bool vcsCreateRepository(const QString &) override { return false; }
+    bool vcsAnnotate(const QString &, int) override { return false; }
 
 private:
     Id m_id;

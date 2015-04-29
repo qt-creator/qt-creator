@@ -45,28 +45,28 @@ class ClearCaseControl : public Core::IVersionControl
     Q_OBJECT
 public:
     explicit ClearCaseControl(ClearCasePlugin *plugin);
-    QString displayName() const;
-    Core::Id id() const;
+    QString displayName() const override;
+    Core::Id id() const override;
 
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const override;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
 
-    bool isConfigured() const;
+    bool isConfigured() const override;
 
-    bool supportsOperation(Operation operation) const;
-    OpenSupportMode openSupportMode(const QString &fileName) const;
-    bool vcsOpen(const QString &fileName);
-    SettingsFlags settingsFlags() const;
-    bool vcsAdd(const QString &fileName);
-    bool vcsDelete(const QString &filename);
-    bool vcsMove(const QString &from, const QString &to);
-    bool vcsCreateRepository(const QString &directory);
+    bool supportsOperation(Operation operation) const override;
+    OpenSupportMode openSupportMode(const QString &fileName) const override;
+    bool vcsOpen(const QString &fileName) override;
+    SettingsFlags settingsFlags() const override;
+    bool vcsAdd(const QString &fileName) override;
+    bool vcsDelete(const QString &filename) override;
+    bool vcsMove(const QString &from, const QString &to) override;
+    bool vcsCreateRepository(const QString &directory) override;
 
-    bool vcsAnnotate(const QString &file, int line);
+    bool vcsAnnotate(const QString &file, int line) override;
 
-    QString vcsOpenText() const;
-    QString vcsMakeWritableText() const;
-    QString vcsTopic(const QString &directory);
+    QString vcsOpenText() const override;
+    QString vcsMakeWritableText() const override;
+    QString vcsTopic(const QString &directory) override;
 
     void emitRepositoryChanged(const QString &);
     void emitFilesChanged(const QStringList &);

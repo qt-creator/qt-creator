@@ -51,19 +51,20 @@ class MercurialControl: public Core::IVersionControl
 public:
     explicit MercurialControl(MercurialClient *mercurialClient);
 
-    QString displayName() const;
-    Core::Id id() const;
-    bool managesDirectory(const QString &filename, QString *topLevel = 0) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
-    bool isConfigured() const;
-    bool supportsOperation(Operation operation) const;
-    bool vcsOpen(const QString &fileName);
-    bool vcsAdd(const QString &filename);
-    bool vcsDelete(const QString &filename);
-    bool vcsMove(const QString &from, const QString &to);
-    bool vcsCreateRepository(const QString &directory);
+    QString displayName() const override;
+    Core::Id id() const override;
+    bool managesDirectory(const QString &filename, QString *topLevel = 0) const override;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
+    bool isConfigured() const override;
+    bool supportsOperation(Operation operation) const override;
+    bool vcsOpen(const QString &fileName) override;
+    bool vcsAdd(const QString &filename) override;
+    bool vcsDelete(const QString &filename) override;
+    bool vcsMove(const QString &from, const QString &to) override;
+    bool vcsCreateRepository(const QString &directory) override;
+    bool vcsAnnotate(const QString &file, int line) override;
+
     bool sccManaged(const QString &filename);
-    bool vcsAnnotate(const QString &file, int line);
 
 public slots:
     // To be connected to the HgTask's success signal to emit the repository/

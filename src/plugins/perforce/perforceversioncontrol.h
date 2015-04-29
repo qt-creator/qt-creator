@@ -44,24 +44,24 @@ class PerforceVersionControl : public Core::IVersionControl
 public:
     explicit PerforceVersionControl(PerforcePlugin *plugin);
 
-    QString displayName() const;
-    Core::Id id() const;
+    QString displayName() const override;
+    Core::Id id() const override;
 
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const override;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
 
-    bool isConfigured() const;
-    bool supportsOperation(Operation operation) const;
-    OpenSupportMode openSupportMode(const QString &fileName) const;
-    bool vcsOpen(const QString &fileName);
-    SettingsFlags settingsFlags() const;
-    bool vcsAdd(const QString &fileName);
-    bool vcsDelete(const QString &filename);
-    bool vcsMove(const QString &from, const QString &to);
-    bool vcsCreateRepository(const QString &directory);
-    bool vcsAnnotate(const QString &file, int line);
-    QString vcsOpenText() const;
-    QString vcsMakeWritableText() const;
+    bool isConfigured() const override;
+    bool supportsOperation(Operation operation) const override;
+    OpenSupportMode openSupportMode(const QString &fileName) const override;
+    bool vcsOpen(const QString &fileName) override;
+    SettingsFlags settingsFlags() const override;
+    bool vcsAdd(const QString &fileName) override;
+    bool vcsDelete(const QString &filename) override;
+    bool vcsMove(const QString &from, const QString &to) override;
+    bool vcsCreateRepository(const QString &directory) override;
+    bool vcsAnnotate(const QString &file, int line) override;
+    QString vcsOpenText() const override;
+    QString vcsMakeWritableText() const override;
 
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
