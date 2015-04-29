@@ -46,6 +46,34 @@ class PathChooser;
 
 namespace ProjectExplorer {
 
+class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    explicit TerminalAspect(RunConfiguration *rc, const QString &key, bool useTerminal = false, bool isForced = false);
+
+    IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
+    IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
+
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
+
+    bool useTerminal() const;
+    void setUseTerminal(bool useTerminal);
+
+signals:
+    void useTerminalChanged(bool);
+
+private:
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+    bool m_useTerminal;
+    bool m_isForced;
+    QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
+    QString m_key;
+};
+
 class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAspect
 {
     Q_OBJECT

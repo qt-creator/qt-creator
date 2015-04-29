@@ -12,7 +12,6 @@ HEADERS += projectexplorer.h \
     configtaskhandler.h \
     environmentaspect.h \
     environmentaspectwidget.h \
-    terminalaspect.h \
     gcctoolchain.h \
     importwidget.h \
     localapplicationrunconfiguration.h \
@@ -165,7 +164,6 @@ SOURCES += projectexplorer.cpp \
     configtaskhandler.cpp \
     environmentaspect.cpp \
     environmentaspectwidget.cpp \
-    terminalaspect.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \
     localapplicationrunconfiguration.cpp \

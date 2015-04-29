@@ -51,6 +51,69 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 /*!
+    \class ProjectExplorer::TerminalAspect
+*/
+
+TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, bool useTerminal, bool isForced)
+    : IRunConfigurationAspect(runConfig), m_useTerminal(useTerminal),
+      m_isForced(isForced), m_checkBox(0), m_key(key)
+{
+    setDisplayName(tr("Terminal"));
+    setId("TerminalAspect");
+}
+
+IRunConfigurationAspect *TerminalAspect::create(RunConfiguration *runConfig) const
+{
+    return new TerminalAspect(runConfig, m_key, false, false);
+}
+
+IRunConfigurationAspect *TerminalAspect::clone(RunConfiguration *runConfig) const
+{
+    return new TerminalAspect(runConfig, m_key, m_useTerminal, m_isForced);
+}
+
+void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+{
+    QTC_CHECK(!m_checkBox);
+    m_checkBox = new QCheckBox(tr("Run in terminal"), parent);
+    m_checkBox->setChecked(m_useTerminal);
+    layout->addRow(QString(), m_checkBox);
+    connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
+        m_isForced = true;
+        setUseTerminal(true);
+    });
+}
+
+void TerminalAspect::fromMap(const QVariantMap &map)
+{
+    if (map.contains(m_key)) {
+        m_useTerminal = map.value(m_key).toBool();
+        m_isForced = true;
+    } else {
+        m_isForced = false;
+    }
+}
+
+void TerminalAspect::toMap(QVariantMap &data) const
+{
+    if (m_isForced)
+        data.insert(m_key, m_useTerminal);
+}
+
+bool TerminalAspect::useTerminal() const
+{
+    return m_useTerminal;
+}
+
+void TerminalAspect::setUseTerminal(bool useTerminal)
+{
+    if (m_useTerminal != useTerminal) {
+        m_useTerminal = useTerminal;
+        emit useTerminalChanged(useTerminal);
+    }
+}
+
+/*!
     \class ProjectExplorer::WorkingDirectoryAspect
 */
 
