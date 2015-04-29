@@ -137,7 +137,9 @@ bool QnxBaseConfiguration::isValid() const
 
 void QnxBaseConfiguration::ctor(const FileName &envScript)
 {
-    QTC_ASSERT(!envScript.isEmpty(), return);
+    if (envScript.isEmpty())
+        return;
+
 #if !defined(WITH_TESTS)
     QTC_ASSERT(envScript.exists(), return);
 #endif
