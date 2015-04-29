@@ -544,25 +544,14 @@ class FakeVimExCommandsWidget : public CommandMappings
     Q_OBJECT
 
 public:
-    FakeVimExCommandsWidget(FakeVimPluginPrivate *q, QWidget *parent = 0)
-        : CommandMappings(parent), m_q(q)
-    {
-        setPageTitle(Tr::tr("Ex Command Mapping"));
-        setTargetHeader(Tr::tr("Ex Trigger Expression"));
-        setTargetLabelText(Tr::tr("Regular expression:"));
-        setTargetEditTitle(Tr::tr("Ex Command"));
-        targetEdit()->setPlaceholderText(QString());
-        setImportExportEnabled(false);
-        initialize();
-    }
+    FakeVimExCommandsWidget(FakeVimPluginPrivate *q, QWidget *parent = 0);
 
 protected:
-    void targetIdentifierChanged() override;
-    void resetTargetIdentifier() override;
-    void removeTargetIdentifier() override;
+    void commandChanged();
+    void resetToDefault();
     void defaultAction() override;
 
-    void commandChanged(QTreeWidgetItem *current) override;
+    void handleCurrentCommandChanged(QTreeWidgetItem *current);
 
 private:
     void initialize();
@@ -571,7 +560,40 @@ private:
     ExCommandMap &defaultExCommandMap();
 
     FakeVimPluginPrivate *m_q;
+    QGroupBox *m_commandBox;
+    Utils::FancyLineEdit *m_commandEdit;
 };
+
+FakeVimExCommandsWidget::FakeVimExCommandsWidget(FakeVimPluginPrivate *q, QWidget *parent)
+    : CommandMappings(parent), m_q(q)
+{
+    setPageTitle(Tr::tr("Ex Command Mapping"));
+    setTargetHeader(Tr::tr("Ex Trigger Expression"));
+    setImportExportEnabled(false);
+
+    connect(this, &FakeVimExCommandsWidget::currentCommandChanged,
+            this, &FakeVimExCommandsWidget::handleCurrentCommandChanged);
+
+    m_commandBox = new QGroupBox(Tr::tr("Ex Command"), this);
+    m_commandBox->setEnabled(false);
+    auto boxLayout = new QHBoxLayout(m_commandBox);
+    m_commandEdit = new Utils::FancyLineEdit(m_commandBox);
+    m_commandEdit->setFiltering(true);
+    m_commandEdit->setPlaceholderText(QString());
+    connect(m_commandEdit, &Utils::FancyLineEdit::textChanged,
+            this, &FakeVimExCommandsWidget::commandChanged);
+    auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
+    resetButton->setToolTip(Tr::tr("Reset to default."));
+    connect(resetButton, &QPushButton::clicked,
+            this, &FakeVimExCommandsWidget::resetToDefault);
+    boxLayout->addWidget(new QLabel(Tr::tr("Regular expression:")));
+    boxLayout->addWidget(m_commandEdit);
+    boxLayout->addWidget(resetButton);
+
+    layout()->addWidget(m_commandBox);
+
+    initialize();
+}
 
 class FakeVimExCommandsPage : public IOptionsPage
 {
@@ -647,24 +669,28 @@ void FakeVimExCommandsWidget::initialize()
             setModified(item, true);
     }
 
-    commandChanged(0);
+    handleCurrentCommandChanged(0);
 }
 
-void FakeVimExCommandsWidget::commandChanged(QTreeWidgetItem *current)
+void FakeVimExCommandsWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
 {
-    CommandMappings::commandChanged(current);
-    if (current)
-        targetEdit()->setText(current->text(2));
+    if (current) {
+        m_commandEdit->setText(current->text(2));
+        m_commandBox->setEnabled(true);
+    } else {
+        m_commandEdit->clear();
+        m_commandBox->setEnabled(false);
+    }
 }
 
-void FakeVimExCommandsWidget::targetIdentifierChanged()
+void FakeVimExCommandsWidget::commandChanged()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
         return;
 
     const QString name =  current->data(0, CommandRole).toString();
-    const QString regex = targetEdit()->text();
+    const QString regex = m_commandEdit->text();
 
     if (current->data(0, Qt::UserRole).isValid()) {
         current->setText(2, regex);
@@ -674,7 +700,7 @@ void FakeVimExCommandsWidget::targetIdentifierChanged()
     setModified(current, regex != defaultExCommandMap()[name].pattern());
 }
 
-void FakeVimExCommandsWidget::resetTargetIdentifier()
+void FakeVimExCommandsWidget::resetToDefault()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
@@ -683,12 +709,7 @@ void FakeVimExCommandsWidget::resetTargetIdentifier()
     QString regex;
     if (defaultExCommandMap().contains(name))
         regex = defaultExCommandMap()[name].pattern();
-    targetEdit()->setText(regex);
-}
-
-void FakeVimExCommandsWidget::removeTargetIdentifier()
-{
-    targetEdit()->clear();
+    m_commandEdit->setText(regex);
 }
 
 void FakeVimExCommandsWidget::defaultAction()
@@ -706,7 +727,7 @@ void FakeVimExCommandsWidget::defaultAction()
             setModified(item, false);
             item->setText(2, regex);
             if (item == commandList()->currentItem())
-                commandChanged(item);
+                currentCommandChanged(item);
         }
     }
 }

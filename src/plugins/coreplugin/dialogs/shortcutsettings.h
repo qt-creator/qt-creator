@@ -36,9 +36,12 @@
 
 #include <QKeySequence>
 #include <QPointer>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
+class QGroupBox;
 class QKeyEvent;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -57,6 +60,31 @@ struct ShortcutItem
     QTreeWidgetItem *m_item;
 };
 
+class ShortcutButton : public QPushButton
+{
+    Q_OBJECT
+public:
+    ShortcutButton(QWidget *parent = 0);
+
+    QSize sizeHint() const;
+
+signals:
+    void keySequenceChanged(const QKeySequence &sequence);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *evt);
+
+private:
+    void updateText();
+    void handleToggleChange(bool toggleState);
+
+    QString m_checkedText;
+    QString m_uncheckedText;
+    mutable int m_preferredWidth = -1;
+    int m_key[4] = { 0, 0, 0, 0 };
+    int m_keyNum = 0;
+};
+
 class ShortcutSettingsWidget : public CommandMappings
 {
     Q_OBJECT
@@ -68,28 +96,25 @@ public:
     void apply();
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e) override;
-
-    void commandChanged(QTreeWidgetItem *current) override;
-    void targetIdentifierChanged() override;
-    void resetTargetIdentifier() override;
-    void removeTargetIdentifier() override;
     void importAction() override;
     void exportAction() override;
     void defaultAction() override;
-    bool hasConflicts() const override;
-
     bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const override;
 
 private:
     void initialize();
-    void handleKeyEvent(QKeyEvent *e);
-    void markCollisions(ShortcutItem *);
+    void handleCurrentCommandChanged(QTreeWidgetItem *current);
+    void resetToDefault();
+    bool validateShortcutEdit() const;
+    bool markCollisions(ShortcutItem *);
     void setKeySequence(const QKeySequence &key);
+    void showConflicts();
     void clear();
 
     QList<ShortcutItem *> m_scitems;
-    int m_key[4], m_keyNum;
+    QGroupBox *m_shortcutBox;
+    Utils::FancyLineEdit *m_shortcutEdit;
+    QLabel *m_warningLabel;
 };
 
 class ShortcutSettings : public IOptionsPage

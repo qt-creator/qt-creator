@@ -82,24 +82,6 @@ public:
         importButton = new QPushButton(CommandMappings::tr("Import..."), groupBox);
         exportButton = new QPushButton(CommandMappings::tr("Export..."), groupBox);
 
-        targetEditGroup = new QGroupBox(CommandMappings::tr("Target Identifier"), parent);
-        targetEditGroup->setEnabled(false);
-
-        targetEdit = new FancyLineEdit(targetEditGroup);
-        targetEdit->setAutoHideButton(FancyLineEdit::Right, true);
-        targetEdit->setPlaceholderText(QString());
-        targetEdit->setFiltering(true);
-        targetEdit->setValidationFunction([this](FancyLineEdit *, QString *) {
-            return !q->hasConflicts();
-        });
-
-        resetButton = new QPushButton(targetEditGroup);
-        resetButton->setToolTip(CommandMappings::tr("Reset to default."));
-        resetButton->setText(CommandMappings::tr("Reset"));
-
-        QLabel *infoLabel = new QLabel(targetEditGroup);
-        infoLabel->setTextFormat(Qt::RichText);
-
         QHBoxLayout *hboxLayout1 = new QHBoxLayout();
         hboxLayout1->addWidget(defaultButton);
         hboxLayout1->addStretch();
@@ -114,25 +96,9 @@ public:
         vboxLayout1->addWidget(commandList);
         vboxLayout1->addLayout(hboxLayout1);
 
-        targetLabel = new QLabel(CommandMappings::tr("Target:"));
-
-        QHBoxLayout *hboxLayout2 = new QHBoxLayout();
-        hboxLayout2->addWidget(targetLabel);
-        hboxLayout2->addWidget(targetEdit);
-        hboxLayout2->addWidget(resetButton);
-
-        QVBoxLayout *vboxLayout2 = new QVBoxLayout(targetEditGroup);
-        vboxLayout2->addLayout(hboxLayout2);
-        vboxLayout2->addWidget(infoLabel);
-
         QVBoxLayout *vboxLayout = new QVBoxLayout(parent);
         vboxLayout->addWidget(groupBox);
-        vboxLayout->addWidget(targetEditGroup);
 
-        q->connect(targetEdit, &FancyLineEdit::buttonClicked,
-                   q, &CommandMappings::removeTargetIdentifier);
-        q->connect(resetButton, &QPushButton::clicked,
-                   q, &CommandMappings::resetTargetIdentifier);
         q->connect(exportButton, &QPushButton::clicked,
                    q, &CommandMappings::exportAction);
         q->connect(importButton, &QPushButton::clicked,
@@ -145,9 +111,7 @@ public:
         q->connect(filterEdit, &FancyLineEdit::textChanged,
                    q, &CommandMappings::filterChanged);
         q->connect(commandList, &QTreeWidget::currentItemChanged,
-                   q, &CommandMappings::commandChanged);
-        q->connect(targetEdit, &FancyLineEdit::textChanged,
-                   q, &CommandMappings::targetIdentifierChanged);
+                   q, &CommandMappings::currentCommandChanged);
 
         new HeaderViewStretcher(commandList->header(), 1);
     }
@@ -160,10 +124,6 @@ public:
     QPushButton *defaultButton;
     QPushButton *importButton;
     QPushButton *exportButton;
-    QGroupBox *targetEditGroup;
-    QLabel *targetLabel;
-    FancyLineEdit *targetEdit;
-    QPushButton *resetButton;
 };
 
 } // namespace Internal
@@ -189,39 +149,14 @@ QTreeWidget *CommandMappings::commandList() const
     return d->commandList;
 }
 
-QLineEdit *CommandMappings::targetEdit() const
-{
-    return d->targetEdit;
-}
-
 void CommandMappings::setPageTitle(const QString &s)
 {
     d->groupBox->setTitle(s);
 }
 
-void CommandMappings::setTargetLabelText(const QString &s)
-{
-    d->targetLabel->setText(s);
-}
-
-void CommandMappings::setTargetEditTitle(const QString &s)
-{
-    d->targetEditGroup->setTitle(s);
-}
-
 void CommandMappings::setTargetHeader(const QString &s)
 {
     d->commandList->setHeaderLabels(QStringList() << tr("Command") << tr("Label") << s);
-}
-
-void CommandMappings::commandChanged(QTreeWidgetItem *current)
-{
-    if (!current || !current->data(0, Qt::UserRole).isValid()) {
-        d->targetEdit->clear();
-        d->targetEditGroup->setEnabled(false);
-        return;
-    }
-    d->targetEditGroup->setEnabled(true);
 }
 
 void CommandMappings::filterChanged(const QString &f)
@@ -230,11 +165,6 @@ void CommandMappings::filterChanged(const QString &f)
         QTreeWidgetItem *item = d->commandList->topLevelItem(i);
         filter(f, item);
     }
-}
-
-bool CommandMappings::hasConflicts() const
-{
-    return true;
 }
 
 bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
@@ -275,7 +205,12 @@ void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
 
 QString CommandMappings::filterText() const
 {
-    return d->filterEdit ? d->filterEdit->text() : QString();
+    return d->filterEdit->text();
+}
+
+void CommandMappings::setFilterText(const QString &text)
+{
+    d->filterEdit->setText(text);
 }
 
 } // namespace Core

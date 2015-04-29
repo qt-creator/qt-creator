@@ -54,15 +54,11 @@ class CORE_EXPORT CommandMappings : public QWidget
 public:
     CommandMappings(QWidget *parent = 0);
     ~CommandMappings();
-    virtual bool hasConflicts() const;
 
-protected slots:
+signals:
+    void currentCommandChanged(QTreeWidgetItem *current);
 
 protected:
-    virtual void removeTargetIdentifier() = 0;
-    virtual void resetTargetIdentifier() = 0;
-    virtual void targetIdentifierChanged() = 0;
-
     virtual void defaultAction() = 0;
 
     virtual void exportAction() {}
@@ -72,16 +68,12 @@ protected:
 
     void filterChanged(const QString &f);
 
-    virtual void commandChanged(QTreeWidgetItem *current);
-
     // access to m_page
     void setImportExportEnabled(bool enabled);
     QTreeWidget *commandList() const;
-    QLineEdit *targetEdit() const;
     QString filterText() const;
+    void setFilterText(const QString &text);
     void setPageTitle(const QString &s);
-    void setTargetLabelText(const QString &s);
-    void setTargetEditTitle(const QString &s);
     void setTargetHeader(const QString &s);
     void setModified(QTreeWidgetItem *item, bool modified);
 
