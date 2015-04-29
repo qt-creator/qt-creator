@@ -175,16 +175,21 @@ Kit::Kit(const QVariantMap &data) :
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     d->m_data.clear(); // remove default values
     const QVariantMap::ConstIterator cend = extra.constEnd();
-    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
-        d->m_data.insert(Id::fromString(it.key()), it.value());
+    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it) {
+        const QString key = it.key();
+        if (!key.isEmpty())
+            d->m_data.insert(Id::fromString(key), it.value());
+    }
 
     QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
     foreach (const QString &mutableInfo, mutableInfoList)
-        d->m_mutable.insert(Id::fromString(mutableInfo));
+        if (!mutableInfo.isEmpty())
+            d->m_mutable.insert(Id::fromString(mutableInfo));
 
     QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
     foreach (const QString &stickyInfo, stickyInfoList)
-        d->m_sticky.insert(Id::fromString(stickyInfo));
+        if (!stickyInfo.isEmpty())
+            d->m_sticky.insert(Id::fromString(stickyInfo));
 }
 
 Kit::~Kit()
