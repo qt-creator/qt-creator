@@ -183,7 +183,7 @@ public:
             } else {
                 AndroidConfig::OpenGl openGl = AndroidConfigurations::currentConfig().getOpenGLEnabled(device.serialNumber);
                 if (openGl == AndroidConfig::OpenGl::Enabled) {
-                    drawTopRight(tr("Open GL enabled"), fm);
+                    drawTopRight(tr("OpenGL enabled"), fm);
                 } else if (openGl == AndroidConfig::OpenGl::Disabled) {
                     QFont font = painter->font();
                     font.setBold(true);
