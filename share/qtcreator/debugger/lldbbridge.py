@@ -1473,9 +1473,9 @@ class Dumper(DumperBase):
             bp.SetIgnoreCount(int(args["ignorecount"]))
             if hasattr(bp, 'SetCondition'):
                 bp.SetCondition(self.hexdecode(args["condition"]))
-            bp.SetEnabled(int(args["enabled"]))
+            bp.SetEnabled(bool(args["enabled"]))
             if hasattr(bp, 'SetOneShot'):
-                bp.SetOneShot(int(args["oneshot"]))
+                bp.SetOneShot(bool(args["oneshot"]))
         self.report('breakpoint-added={%s,modelid="%s"}' % (self.describeBreakpoint(bp), modelId))
 
     def changeBreakpoint(self, args):
@@ -1487,9 +1487,9 @@ class Dumper(DumperBase):
             bp = self.target.FindBreakpointByID(lldbId)
         bp.SetIgnoreCount(int(args["ignorecount"]))
         bp.SetCondition(self.hexdecode(args["condition"]))
-        bp.SetEnabled(int(args["enabled"]))
+        bp.SetEnabled(bool(args["enabled"]))
         if hasattr(bp, 'SetOneShot'):
-            bp.SetOneShot(int(args["oneshot"]))
+            bp.SetOneShot(bool(args["oneshot"]))
         self.report('breakpoint-changed={%s,modelid="%s"}'
               % (self.describeBreakpoint(bp), modelId))
 
