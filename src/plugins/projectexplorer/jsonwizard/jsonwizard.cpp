@@ -211,7 +211,7 @@ void JsonWizard::accept()
     emit filesReady(m_files);
     if (!JsonWizardGenerator::polish(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to polish Files"), errorMessage);
+            QMessageBox::warning(this, tr("Failed to Polish Files"), errorMessage);
         return;
     }
     emit filesPolished(m_files);
