@@ -48,17 +48,11 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
-    BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(Constants::VCS_ID_GIT, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
 
-    const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
-    if (!vc->isConfigured()) {
-        auto configPage = new VcsConfigurationPage;
-        configPage->setVersionControl(vc);
-        addPage(configPage);
-    }
     auto cwp = new CloneWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
@@ -69,7 +63,22 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     // Collect parameters for the clone command.
     const CloneWizardPage *cwp = find<CloneWizardPage>();
     QTC_ASSERT(cwp, return 0);
-    return cwp->createCheckoutJob(checkoutDir);
+
+    const QString baseDirectory = cwp->path();
+    const QString subDirectory = cwp->directory();
+
+    *checkoutDir = Utils::FileName::fromString(baseDirectory + QLatin1Char('/') + subDirectory);
+
+    const QString checkoutBranch = cwp->branch();
+
+    QStringList args;
+    if (!checkoutBranch.isEmpty())
+        args << QLatin1String("--branch") << checkoutBranch;
+    if (cwp->isRecursive())
+        args << QLatin1String("--recursive");
+
+    return createCommandImpl(cwp->repository(), Utils::FileName::fromString(baseDirectory),
+                             subDirectory, args);
 }
 
 } // namespace Internal

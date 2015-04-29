@@ -51,14 +51,8 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CheckoutWizard::CheckoutWizard(const FileName &path, QWidget *parent) :
-    BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(VcsBase::Constants::VCS_ID_SUBVERSION, parent)
 {
-    const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
-    if (!vc->isConfigured()) {
-        auto configPage = new VcsConfigurationPage;
-        configPage->setVersionControl(vc);
-        addPage(configPage);
-    }
     auto cwp = new CheckoutWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
@@ -70,23 +64,16 @@ VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
     const CheckoutWizardPage *cwp = find<CheckoutWizardPage>();
     QTC_ASSERT(cwp, return 0);
 
-    SubversionClient *client = SubversionPlugin::instance()->client();
-    const VcsBaseClientSettings &settings = client->settings();
-    const FileName binary = client->vcsBinary();
-    const QString directory = cwp->directory();
     QStringList args;
-    args << QLatin1String("checkout");
-    args << SubversionClient::addAuthenticationOptions(settings);
-    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION);
     if (cwp->trustServerCert())
         args << QLatin1String("--trust-server-cert");
-    args << cwp->repository() << directory;
+    const QString directory = cwp->directory();
     const QString workingDirectory = cwp->path();
+
     *checkoutDir = FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
 
-    auto command = new VcsCommand(workingDirectory, QProcessEnvironment::systemEnvironment());
-    command->addJob(binary, args, -1);
-    return command;
+    return createCommandImpl(cwp->repository(), Utils::FileName::fromString(workingDirectory),
+                             directory, args);
 }
 
 } // namespace Internal

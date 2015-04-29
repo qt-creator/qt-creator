@@ -33,6 +33,8 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/id.h>
+
 #include <utils/fileutils.h>
 #include <utils/wizard.h>
 
@@ -46,7 +48,7 @@ class VCSBASE_EXPORT BaseCheckoutWizard : public Utils::Wizard
     Q_OBJECT
 
 public:
-    explicit BaseCheckoutWizard(const Utils::FileName &path, QWidget *parent = 0);
+    explicit BaseCheckoutWizard(Core::Id vcsId, QWidget *parent = 0);
 
     void setTitle(const QString &title);
     void setStartedStatus(const QString &title);
@@ -56,6 +58,11 @@ public:
 protected:
     virtual VcsBase::VcsCommand *createCommand(Utils::FileName *checkoutDir) = 0;
 
+    VcsBase::VcsCommand *createCommandImpl(const QString &url,
+                                           const Utils::FileName &baseDirectory,
+                                           const QString &localName,
+                                           const QStringList &extraArgs);
+
 private slots:
     void slotPageChanged(int id);
     void slotTerminated(bool success);
@@ -63,8 +70,9 @@ private slots:
 
 private:
     Utils::ShellCommandPage *m_progressPage;
-    int m_progressPageId;
     Utils::FileName m_checkoutDir;
+    int m_progressPageId;
+    Core::Id m_vcsId;
 };
 
 } // namespace VcsBase

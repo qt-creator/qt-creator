@@ -50,17 +50,11 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
-    BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(Constants::VCS_ID_MERCURIAL, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
 
-    const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
-    if (!vc->isConfigured()) {
-        auto configPage = new VcsConfigurationPage;
-        configPage->setVersionControl(vc);
-        addPage(configPage);
-    }
     auto page = new CloneWizardPage;
     page->setPath(path.toString());
     addPage(page);
@@ -71,17 +65,12 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     const CloneWizardPage *cwp = find<CloneWizardPage>();
     QTC_ASSERT(cwp, return 0);
 
-    const VcsBaseClientSettings &settings = MercurialPlugin::client()->settings();
+    const Utils::FileName path = Utils::FileName::fromString(cwp->path());
+    const QString directory = cwp->directory();
 
-    QString path = cwp->path();
-    QString directory = cwp->directory();
+    *checkoutDir = Utils::FileName::fromString(path.toString() + QLatin1Char('/') + directory);
 
-    QStringList args;
-    args << QLatin1String("clone") << cwp->repository() << directory;
-    *checkoutDir = Utils::FileName::fromString(path + QLatin1Char('/') + directory);
-    auto command = new VcsCommand(path, QProcessEnvironment::systemEnvironment());
-    command->addJob(settings.binaryPath(), args, -1);
-    return command;
+    return createCommandImpl(cwp->repository(), path, directory, QStringList());
 }
 
 } // namespace Internal

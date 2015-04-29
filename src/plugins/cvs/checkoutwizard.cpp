@@ -49,14 +49,8 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
-    BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(Constants::VCS_ID_CVS, parent)
 {
-    const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
-    if (!vc->isConfigured()) {
-        auto configPage = new VcsConfigurationPage;
-        configPage->setVersionControl(vc);
-        addPage(configPage);
-    }
     auto cwp = new CheckoutWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
@@ -69,22 +63,14 @@ VcsCommand *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
     const CheckoutWizardPage *cwp = find<CheckoutWizardPage>();
     QTC_ASSERT(cwp, return 0);
 
-    const CvsSettings settings = CvsPlugin::instance()->client()->settings();
-    const Utils::FileName binary = settings.binaryPath();
-    QStringList args;
+    *checkoutDir = Utils::FileName::fromString(cwp->path() + QLatin1Char('/') + cwp->repository());
 
     // cwp->repository() contains the CVS module to check out only.
     // The CVSROOT (== actual repository) for that module is part of the CVS settings.
     // The checkout will always go into a new subfolder named after the CVS module.
 
-    const QString repository = cwp->repository();
-    args << QLatin1String("checkout") << repository;
-    const QString workingDirectory = cwp->path();
-    *checkoutDir = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + repository);
-
-    auto command = new VcsCommand(workingDirectory, QProcessEnvironment::systemEnvironment());
-    command->addJob(binary, settings.addOptions(args), -1);
-    return command;
+    return createCommandImpl(cwp->repository(), Utils::FileName::fromString(cwp->path()),
+                             cwp->repository(), QStringList());
 }
 
 } // namespace Internal

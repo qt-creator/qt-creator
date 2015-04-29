@@ -48,11 +48,11 @@ public:
     explicit CloneWizardPage(QWidget *parent = 0);
     ~CloneWizardPage();
 
-    VcsBase::VcsCommand *createCheckoutJob(Utils::FileName *checkoutPath) const;
+    QStringList branches(const QString &repository, int *current) override;
+    bool isRecursive() const;
 
 protected:
     QString directoryFromRepository(const QString &r) const override;
-    QStringList branches(const QString &repository, int *current) override;
 
 #ifdef WITH_TESTS
 public:

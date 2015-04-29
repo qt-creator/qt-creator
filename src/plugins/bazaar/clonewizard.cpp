@@ -42,8 +42,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
-
 using namespace VcsBase;
 
 namespace Bazaar {
@@ -54,17 +52,11 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
-    BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(Constants::VCS_ID_BAZAAR, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
 
-    const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
-    if (!vc->isConfigured()) {
-        auto configPage = new VcsConfigurationPage;
-        configPage->setVersionControl(vc);
-        addPage(configPage);
-    }
     auto page = new CloneWizardPage;
     page->setPath(path.toString());
     addPage(page);
@@ -75,7 +67,6 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     const CloneWizardPage *cwp = find<CloneWizardPage>();
     QTC_ASSERT(cwp, return 0);
 
-    const VcsBaseClientSettings &settings = BazaarPlugin::instance()->client()->settings();
     *checkoutDir = Utils::FileName::fromString(cwp->path() + QLatin1Char('/') + cwp->directory());
 
     const CloneOptionsPanel *panel = cwp->cloneOptionsPanel();
@@ -96,14 +87,9 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
         extraOptions += QLatin1String("--no-tree");
     if (!panel->revision().isEmpty())
         extraOptions << QLatin1String("-r") << panel->revision();
-    const BazaarClient *client = BazaarPlugin::instance()->client();
-    QStringList args;
-    args << client->vcsCommandString(BazaarClient::CloneCommand)
-         << extraOptions << cwp->repository() << cwp->directory();
 
-    auto command = new VcsCommand(cwp->path(), client->processEnvironment());
-    command->addJob(settings.binaryPath(), args, -1);
-    return command;
+    return createCommandImpl(cwp->repository(), Utils::FileName::fromString(cwp->path()),
+                             cwp->directory(), extraOptions);
 }
 
 } // namespace Internal

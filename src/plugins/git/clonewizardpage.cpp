@@ -108,27 +108,6 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     return url;
 }
 
-VcsCommand *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPath) const
-{
-     const Internal::GitClient *client = Internal::GitPlugin::instance()->client();
-     const QString workingDirectory = path();
-     const QString checkoutDir = directory();
-     *checkoutPath = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + checkoutDir);
-
-     const QString checkoutBranch = branch();
-
-     QStringList args(QLatin1String("clone"));
-     if (!checkoutBranch.isEmpty())
-         args << QLatin1String("--branch") << checkoutBranch;
-     if (d->recursiveCheckBox->isChecked())
-         args << QLatin1String("--recursive");
-     args << QLatin1String("--progress") << repository() << checkoutDir;
-     auto command = new VcsCommand(workingDirectory, client->processEnvironment());
-     command->addFlags(VcsCommand::MergeOutputChannels);
-     command->addJob(client->vcsBinary(), args, -1);
-     return command;
-}
-
 QStringList CloneWizardPage::branches(const QString &repository, int *current)
 {
     // Run git on remote repository if an URL was specified.
@@ -140,6 +119,11 @@ QStringList CloneWizardPage::branches(const QString &repository, int *current)
      if (!branches.isEmpty())
          *current = 0; // default branch is always returned first!
      return branches;
+}
+
+bool CloneWizardPage::isRecursive() const
+{
+    return d->recursiveCheckBox->isChecked();
 }
 
 } // namespace Git

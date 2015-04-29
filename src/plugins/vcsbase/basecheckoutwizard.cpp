@@ -31,6 +31,10 @@
 #include "basecheckoutwizard.h"
 #include "basecheckoutwizardfactory.h"
 #include "vcscommand.h"
+#include "wizard/vcsconfigurationpage.h"
+
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/shellcommandpage.h>
@@ -46,16 +50,25 @@
 
 namespace VcsBase {
 
-BaseCheckoutWizard::BaseCheckoutWizard(const Utils::FileName &path, QWidget *parent) :
+BaseCheckoutWizard::BaseCheckoutWizard(Core::Id vcsId, QWidget *parent) :
     Utils::Wizard(parent),
     m_progressPage(new Utils::ShellCommandPage),
-    m_progressPageId(-1)
+    m_progressPageId(-1),
+    m_vcsId(vcsId)
 {
-    Q_UNUSED(path);
     connect(this, &QWizard::currentIdChanged, this, &BaseCheckoutWizard::slotPageChanged);
     connect(m_progressPage, &Utils::ShellCommandPage::finished,
             this, &BaseCheckoutWizard::slotTerminated);
     setOption(QWizard::NoBackButtonOnLastPage);
+
+    const Core::IVersionControl *vc =  Core::VcsManager::versionControl(vcsId);
+    QTC_ASSERT(vc, return);
+
+    if (!vc->isConfigured()) {
+        auto configPage = new VcsConfigurationPage;
+        configPage->setVersionControl(vc);
+        addPage(configPage);
+    }
 }
 
 void BaseCheckoutWizard::setTitle(const QString &title)
@@ -95,6 +108,20 @@ Utils::FileName BaseCheckoutWizard::run()
         return m_checkoutDir;
     else
         return Utils::FileName();
+}
+
+VcsCommand *BaseCheckoutWizard::createCommandImpl(const QString &url,
+                                                  const Utils::FileName &baseDirectory,
+                                                  const QString &localName,
+                                                  const QStringList &extraArgs)
+{
+    Core::IVersionControl *vc = Core::VcsManager::versionControl(m_vcsId);
+    QTC_ASSERT(vc, return 0);
+    QTC_ASSERT(vc->isConfigured(), return 0);
+    QTC_ASSERT(vc->supportsOperation(Core::IVersionControl::InitialCheckoutOperation), return 0);
+
+    return static_cast<VcsCommand *>(vc->createInitialCheckoutCommand(url, baseDirectory,
+                                                                      localName, extraArgs));
 }
 
 void BaseCheckoutWizard::reject()
