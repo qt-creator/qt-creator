@@ -95,8 +95,8 @@ void CheckoutProgressWizardPage::start(VcsCommand *command)
     QTC_ASSERT(m_state != Running, return);
     m_command = command;
     command->setProgressiveOutput(true);
-    connect(command, &VcsCommand::output, this, &CheckoutProgressWizardPage::reportStdOut);
-    connect(command, &VcsCommand::errorText, this, &CheckoutProgressWizardPage::reportStdErr);
+    connect(command, &VcsCommand::stdOutText, this, &CheckoutProgressWizardPage::reportStdOut);
+    connect(command, &VcsCommand::stdErrText, this, &CheckoutProgressWizardPage::reportStdErr);
     connect(command, &VcsCommand::finished, this, &CheckoutProgressWizardPage::slotFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_logPlainTextEdit->clear();

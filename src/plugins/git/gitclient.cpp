@@ -152,7 +152,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
 
     m_command = new VcsCommand(m_directory, gitClient()->processEnvironment());
     m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(m_command, &VcsCommand::output, this, &BaseController::processOutput);
+    connect(m_command, &VcsCommand::stdOutText, this, &BaseController::processOutput);
     connect(m_command, &VcsCommand::finished, this, &BaseController::reloadFinished);
     m_command->addFlags(diffExecutionFlags());
 
@@ -476,8 +476,8 @@ public:
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);
-        connect(command, &VcsCommand::output, handler, &ConflictHandler::readStdOut);
-        connect(command, &VcsCommand::errorText, handler, &ConflictHandler::readStdErr);
+        connect(command, &VcsCommand::stdOutText, handler, &ConflictHandler::readStdOut);
+        connect(command, &VcsCommand::stdErrText, handler, &ConflictHandler::readStdErr);
     }
 
     static void handleResponse(const Utils::SynchronousProcessResponse &response,
@@ -1467,7 +1467,7 @@ void GitClient::branchesForCommit(const QString &revision)
     auto controller = qobject_cast<DiffEditorController *>(sender());
     QString workingDirectory = controller->baseDirectory();
     VcsCommand *command = vcsExec(workingDirectory, arguments, 0, false, 0, workingDirectory);
-    connect(command, &VcsCommand::output, controller,
+    connect(command, &VcsCommand::stdOutText, controller,
             &DiffEditorController::informationForCommitReceived);
 }
 

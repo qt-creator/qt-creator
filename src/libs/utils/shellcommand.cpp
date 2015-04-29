@@ -289,9 +289,9 @@ void ShellCommand::run(QFutureInterface<void> &future)
 
     if (!d->m_aborted) {
         if (!d->m_progressiveOutput) {
-            emit output(stdOut);
+            emit stdOutText(stdOut);
             if (!stdErr.isEmpty())
-                emit errorText(stdErr);
+                emit stdErrText(stdErr);
         }
 
         emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
@@ -350,7 +350,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
                               if (!(d->m_flags & SuppressStdErr))
                                   proxy->appendError(text);
                               if (d->m_progressiveOutput)
-                                  emit errorText(text);
+                                  emit stdErrText(text);
                           });
         }
 
@@ -366,7 +366,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
                               if (d->m_flags & ShowStdOut)
                                   proxy->append(text);
                               if (d->m_progressiveOutput) {
-                                  emit output(text);
+                                  emit stdOutText(text);
                                   d->m_hadOutput = true;
                               }
                           });

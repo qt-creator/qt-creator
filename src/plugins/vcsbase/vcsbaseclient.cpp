@@ -148,7 +148,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
         if (editor) // assume that the commands output is the important thing
             cmd->addFlags(VcsCommand::SilentOutput);
     } else if (editor) {
-        connect(cmd, &VcsCommand::output, editor, &VcsBaseEditorWidget::setPlainText);
+        connect(cmd, &VcsCommand::stdOutText, editor, &VcsBaseEditorWidget::setPlainText);
     }
 
     return cmd;
@@ -545,7 +545,7 @@ void VcsBaseClient::emitParsedStatus(const QString &repository, const QStringLis
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
     VcsCommand *cmd = createCommand(repository);
-    connect(cmd, &VcsCommand::output, this, &VcsBaseClient::statusParser);
+    connect(cmd, &VcsCommand::stdOutText, this, &VcsBaseClient::statusParser);
     enqueueJob(cmd, args);
 }
 

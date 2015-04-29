@@ -158,8 +158,8 @@ public slots:
     void cancel();
 
 signals:
-    void output(const QString &);
-    void errorText(const QString &);
+    void stdOutText(const QString &);
+    void stdErrText(const QString &);
     void finished(bool ok, int exitCode, const QVariant &cookie);
     void success(const QVariant &cookie);
 
@@ -170,9 +170,6 @@ protected:
     virtual void addTask(QFuture<void> &future);
 
 private:
-    void bufferedOutput(const QString &text);
-    void bufferedError(const QString &text);
-
     void run(QFutureInterface<void> &future);
     SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
                                               int timeoutS, ExitCodeInterpreter *interpreter = 0);
