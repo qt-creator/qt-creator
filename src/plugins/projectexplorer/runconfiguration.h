@@ -41,6 +41,10 @@
 #include <QPointer>
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QFormLayout;
+QT_END_NAMESPACE
+
 namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
@@ -119,7 +123,7 @@ public:
     virtual IRunConfigurationAspect *create(RunConfiguration *runConfig) const = 0;
     virtual IRunConfigurationAspect *clone(RunConfiguration *runConfig) const;
     virtual RunConfigWidget *createConfigurationWidget(); // Either this...
-    virtual void addToMainConfigurationWidget(QWidget */*parent*/, QLayout */*layout*/) {} // ... or this.
+    virtual void addToMainConfigurationWidget(QWidget */*parent*/, QFormLayout */*layout*/) {} // ... or this.
 
     void setId(Core::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }

@@ -63,12 +63,12 @@ IRunConfigurationAspect *TerminalAspect::clone(RunConfiguration *runConfig) cons
     return new TerminalAspect(runConfig, m_useTerminal, m_isForced);
 }
 
-void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QLayout *layout)
+void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
 {
     QTC_CHECK(!m_checkBox);
     m_checkBox = new QCheckBox(tr("Run in terminal"), parent);
     m_checkBox->setChecked(m_useTerminal);
-    layout->addWidget(m_checkBox);
+    layout->addRow(QString(), m_checkBox);
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_isForced = true;
         setUseTerminal(true);

@@ -128,6 +128,7 @@ QtcPlugin {
             "propertiespanel.cpp", "propertiespanel.h",
             "removetaskhandler.cpp", "removetaskhandler.h",
             "runconfiguration.cpp", "runconfiguration.h",
+            "runconfigurationaspects.cpp", "runconfigurationaspects.h",
             "runconfigurationmodel.cpp", "runconfigurationmodel.h",
             "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",
             "selectablefilesmodel.cpp", "selectablefilesmodel.h",

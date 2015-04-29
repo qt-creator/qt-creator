@@ -100,6 +100,7 @@ HEADERS += projectexplorer.h \
     buildenvironmentwidget.h \
     ldparser.h \
     linuxiccparser.h \
+    runconfigurationaspects.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \
     processparameters.h \
@@ -247,6 +248,7 @@ SOURCES += projectexplorer.cpp \
     buildenvironmentwidget.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
+    runconfigurationaspects.cpp \
     runconfigurationmodel.cpp \
     buildconfigurationmodel.cpp \
     taskhub.cpp \

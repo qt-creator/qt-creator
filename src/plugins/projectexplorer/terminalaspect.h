@@ -49,7 +49,7 @@ public:
     IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
     IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
 
-    void addToMainConfigurationWidget(QWidget *parent, QLayout *layout) override;
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
 
     bool useTerminal() const;
     void setUseTerminal(bool useTerminal);
