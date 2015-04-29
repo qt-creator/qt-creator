@@ -673,11 +673,6 @@ QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture()
     return QtConcurrent::run(&AndroidConfig::androidVirtualDevices, androidToolPath().toString(), androidToolEnvironment());
 }
 
-QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
-{
-    return androidVirtualDevices(androidToolPath().toString(), androidToolEnvironment());
-}
-
 QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &androidTool, const Environment &environment)
 {
     QVector<AndroidDeviceInfo> devices;
@@ -685,7 +680,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
     proc.setProcessEnvironment(environment.toProcessEnvironment());
     proc.start(androidTool,
                QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
-    if (!proc.waitForFinished(10000)) {
+    if (!proc.waitForFinished(20000)) {
         proc.terminate();
         return devices;
     }
