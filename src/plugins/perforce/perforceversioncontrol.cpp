@@ -76,6 +76,7 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
         return supported;
     case CreateRepositoryOperation:
     case SnapshotOperations:
+    case InitialCheckoutOperation:
         break;
     }
     return false;

@@ -83,6 +83,18 @@ QStringList IVersionControl::additionalToolsPath() const
     return QStringList();
 }
 
+ShellCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,
+                                                            const Utils::FileName &baseDirectory,
+                                                            const QString &localName,
+                                                            const QStringList &extraArgs)
+{
+    Q_UNUSED(url);
+    Q_UNUSED(baseDirectory);
+    Q_UNUSED(localName);
+    Q_UNUSED(extraArgs);
+    return 0;
+}
+
 QString IVersionControl::vcsTopic(const QString &topLevel)
 {
     return m_topicCache ? m_topicCache->topic(topLevel) : QString();

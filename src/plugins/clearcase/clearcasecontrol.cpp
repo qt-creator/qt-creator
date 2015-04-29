@@ -80,6 +80,7 @@ bool ClearCaseControl::supportsOperation(Operation operation) const
         break;
     case CreateRepositoryOperation:
     case SnapshotOperations:
+    case Core::IVersionControl::InitialCheckoutOperation:
         rc = false;
         break;
     }

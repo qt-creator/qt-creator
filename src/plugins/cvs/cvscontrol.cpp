@@ -35,8 +35,10 @@
 #include "cvssettings.h"
 
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcscommand.h>
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 
@@ -74,6 +76,7 @@ bool CvsControl::supportsOperation(Operation operation) const
     case AddOperation:
     case DeleteOperation:
     case AnnotateOperation:
+    case InitialCheckoutOperation:
         break;
     case MoveOperation:
     case CreateRepositoryOperation:
@@ -130,6 +133,24 @@ bool CvsControl::vcsAnnotate(const QString &file, int line)
 QString CvsControl::vcsOpenText() const
 {
     return tr("&Edit");
+}
+
+Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
+                                                             const Utils::FileName &baseDirectory,
+                                                             const QString &localName,
+                                                             const QStringList &extraArgs)
+{
+    QTC_ASSERT(localName == url, return 0);
+
+    const CvsSettings settings = CvsPlugin::instance()->client()->settings();
+
+    QStringList args;
+    args << QLatin1String("checkout") << url << extraArgs;
+
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
+                                           QProcessEnvironment::systemEnvironment());
+    command->addJob(m_plugin->client()->vcsBinary(), settings.addOptions(args), -1);
+    return command;
 }
 
 bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) const

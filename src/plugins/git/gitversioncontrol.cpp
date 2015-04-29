@@ -33,8 +33,10 @@
 #include "gitutils.h"
 
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QFileInfo>
+#include <QProcessEnvironment>
 
 namespace Git {
 namespace Internal {
@@ -44,8 +46,7 @@ class GitTopicCache : public Core::IVersionControl::TopicCache
 public:
     GitTopicCache(GitClient *client) :
         m_client(client)
-    {
-    }
+    { }
 
 protected:
     QString trackFile(const QString &repository) override
@@ -66,8 +67,7 @@ private:
 GitVersionControl::GitVersionControl(GitClient *client) :
     Core::IVersionControl(new GitTopicCache(client)),
     m_client(client)
-{
-}
+{ }
 
 QString GitVersionControl::displayName() const
 {
@@ -96,6 +96,7 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case CreateRepositoryOperation:
     case SnapshotOperations:
     case AnnotateOperation:
+    case InitialCheckoutOperation:
         return true;
     }
     return false;
@@ -137,6 +138,19 @@ QString GitVersionControl::vcsTopic(const QString &directory)
     if (!commandInProgress.isEmpty())
         topic += QLatin1String(" (") + commandInProgress + QLatin1Char(')');
     return topic;
+}
+
+Core::ShellCommand *GitVersionControl::createInitialCheckoutCommand(const QString &url,
+                                                                    const Utils::FileName &baseDirectory,
+                                                                    const QString &localName,
+                                                                    const QStringList &extraArgs)
+{
+    QStringList args;
+    args << QLatin1String("clone") << extraArgs << url << localName;
+
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_client->processEnvironment());
+    command->addJob(m_client->vcsBinary(), args, -1);
+    return command;
 }
 
 QStringList GitVersionControl::additionalToolsPath() const

@@ -38,6 +38,7 @@ namespace Bazaar {
 namespace Internal {
 
 class BazaarSettings;
+class BazaarControl;
 
 class BazaarClient : public VcsBase::VcsBaseClient
 {
@@ -70,6 +71,7 @@ protected:
 
 private:
     friend class CloneWizard;
+    friend class BazaarControl;
 };
 
 } // namespace Internal

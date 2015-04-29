@@ -64,6 +64,11 @@ public:
     bool vcsCreateRepository(const QString &directory) override;
     bool vcsAnnotate(const QString &file, int line) override;
 
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FileName &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) override;
+
 public slots:
     // To be connected to the VCSTask's success signal to emit the repository/
     // files changed signals according to the variant's type:

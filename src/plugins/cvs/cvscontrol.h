@@ -63,6 +63,11 @@ public:
 
     QString vcsOpenText() const override;
 
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FileName &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) override;
+
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
 

@@ -31,10 +31,12 @@
 #include "subversioncontrol.h"
 
 #include "subversionclient.h"
+#include "subversionconstants.h"
 #include "subversionplugin.h"
 #include "subversionsettings.h"
 
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsbaseclientsettings.h>
 
 #include <utils/fileutils.h>
 
@@ -97,6 +99,7 @@ bool SubversionControl::supportsOperation(Operation operation) const
     case DeleteOperation:
     case MoveOperation:
     case AnnotateOperation:
+    case InitialCheckoutOperation:
         break;
     case CreateRepositoryOperation:
     case SnapshotOperations:
@@ -151,6 +154,24 @@ bool SubversionControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     m_plugin->vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
+}
+
+Core::ShellCommand *SubversionControl::createInitialCheckoutCommand(const QString &url,
+                                                                    const Utils::FileName &baseDirectory,
+                                                                    const QString &localName,
+                                                                    const QStringList &extraArgs)
+{
+    SubversionClient *client = m_plugin->client();
+
+    QStringList args;
+    args << QLatin1String("checkout");
+    args << SubversionClient::addAuthenticationOptions(client->settings());
+    args << QLatin1String(Subversion::Constants::NON_INTERACTIVE_OPTION);
+    args << extraArgs << url << localName;
+
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), client->processEnvironment());
+    command->addJob(client->vcsBinary(), args, -1);
+    return command;
 }
 
 void SubversionControl::emitRepositoryChanged(const QString &s)

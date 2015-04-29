@@ -33,12 +33,14 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcscommand.h>
 
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
+#include <QProcessEnvironment>
 #include <QVariant>
 #include <QStringList>
 #include <QDir>
@@ -114,6 +116,7 @@ bool MercurialControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::MoveOperation:
     case Core::IVersionControl::CreateRepositoryOperation:
     case Core::IVersionControl::AnnotateOperation:
+    case Core::IVersionControl::InitialCheckoutOperation:
         break;
     case Core::IVersionControl::SnapshotOperations:
         supported = false;
@@ -159,6 +162,19 @@ bool MercurialControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     mercurialClient->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
+}
+
+Core::ShellCommand *MercurialControl::createInitialCheckoutCommand(const QString &url,
+                                                                   const Utils::FileName &baseDirectory,
+                                                                   const QString &localName,
+                                                                   const QStringList &extraArgs)
+{
+    QStringList args;
+    args << QLatin1String("clone") << extraArgs << url << localName;
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
+                                           mercurialClient->processEnvironment());
+    command->addJob(mercurialClient->vcsBinary(), args, -1);
+    return command;
 }
 
 bool MercurialControl::sccManaged(const QString &filename)

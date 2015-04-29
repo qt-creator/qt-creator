@@ -62,6 +62,11 @@ public:
     bool vcsAnnotate(const QString &file, int line) override;
     QString vcsTopic(const QString &directory) override;
 
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FileName &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) override;
+
     QStringList additionalToolsPath() const override;
 
     void emitFilesChanged(const QStringList &);

@@ -34,6 +34,8 @@
 #include "core_global.h"
 #include "id.h"
 
+#include <utils/fileutils.h>
+
 #include <QDateTime>
 #include <QFlags>
 #include <QHash>
@@ -41,6 +43,8 @@
 #include <QString>
 
 namespace Core {
+
+class ShellCommand;
 
 class CORE_EXPORT IVersionControl : public QObject
 {
@@ -56,7 +60,8 @@ public:
         AddOperation, DeleteOperation, MoveOperation,
         CreateRepositoryOperation,
         SnapshotOperations,
-        AnnotateOperation
+        AnnotateOperation,
+        InitialCheckoutOperation
     };
 
     enum OpenSupportMode {
@@ -193,6 +198,17 @@ public:
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
     virtual QStringList additionalToolsPath() const;
+
+    /*!
+     * Return a ShellCommand capable of checking out \a url into \a baseDirectory, where
+     * a new subdirectory with \a localName will be created.
+     *
+     * \a extraArgs are passed on to the command being run.
+     */
+    virtual ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                       const Utils::FileName &baseDirectory,
+                                                       const QString &localName,
+                                                       const QStringList &extraArgs);
 
 signals:
     void repositoryChanged(const QString &repository);
