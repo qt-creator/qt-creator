@@ -1240,6 +1240,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(ICore::instance(), &ICore::coreOpened,
             dd, &ProjectExplorerPluginPrivate::restoreSession);
     connect(ICore::instance(), &ICore::newItemDialogRunningChanged, updateActions);
+    connect(ICore::instance(), &ICore::newItemDialogRunningChanged,
+            dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
 
     dd->updateWelcomePage();
 
