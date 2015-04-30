@@ -289,7 +289,7 @@ bool AddKitOperation::test() const
             || !map.contains(QLatin1String(COUNT))
             || map.value(QLatin1String(COUNT)).toInt() != 0
             || !map.contains(QLatin1String(DEFAULT))
-            || map.value(QLatin1String(DEFAULT)).toInt() != -1)
+            || !map.value(QLatin1String(DEFAULT)).toString().isEmpty())
         return false;
 
     // Fail if TC is not there:
@@ -352,7 +352,7 @@ bool AddKitOperation::test() const
             || !map.contains(QLatin1String(COUNT))
             || map.value(QLatin1String(COUNT)).toInt() != 1
             || !map.contains(QLatin1String(DEFAULT))
-            || map.value(QLatin1String(DEFAULT)).toInt() != 0
+            || map.value(QLatin1String(DEFAULT)).toString() != QLatin1String("testId")
             || !map.contains(QLatin1String("Profile.0")))
         return false;
 
@@ -571,14 +571,9 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
     }
     const QString kit = QString::fromLatin1(PREFIX) + QString::number(count);
 
-    int defaultKit = GetOperation::get(map, QLatin1String(DEFAULT)).toInt(&ok);
-    if (!ok) {
-        std::cerr << "Error: Default kit seems wrong." << std::endl;
-        return QVariantMap();
-    }
-
-    if (defaultKit < 0)
-        defaultKit = 0;
+    QString defaultKit = GetOperation::get(map, QLatin1String(DEFAULT)).toString();
+    if (defaultKit.isEmpty())
+        defaultKit = id;
 
     // remove data:
     QStringList toRemove;
@@ -645,7 +640,7 @@ QVariantMap AddKitOperation::initializeKits()
 {
     QVariantMap map;
     map.insert(QLatin1String(VERSION), 1);
-    map.insert(QLatin1String(DEFAULT), -1);
+    map.insert(QLatin1String(DEFAULT), QString());
     map.insert(QLatin1String(COUNT), 0);
     return map;
 }

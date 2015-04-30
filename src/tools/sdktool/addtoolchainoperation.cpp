@@ -251,7 +251,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair(QStringList() << tc << QLatin1String(ID), QVariant(id.toUtf8()));
+    data << KeyValuePair(QStringList() << tc << QLatin1String(ID), QVariant(id));
     data << KeyValuePair(QStringList() << tc << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
     data << KeyValuePair(QStringList() << tc << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << tc << QLatin1String(PATH), QVariant(path));
