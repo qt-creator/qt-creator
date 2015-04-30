@@ -208,9 +208,9 @@ bool VirtualFunctionAssistProvider::configure(const Parameters &parameters)
     return true;
 }
 
-bool VirtualFunctionAssistProvider::isAsynchronous() const
+IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
 {
-    return true;
+    return AsynchronousWithThread;
 }
 
 bool VirtualFunctionAssistProvider::supportsEditor(Core::Id editorId) const

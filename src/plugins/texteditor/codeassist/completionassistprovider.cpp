@@ -40,9 +40,9 @@ CompletionAssistProvider::CompletionAssistProvider()
 CompletionAssistProvider::~CompletionAssistProvider()
 {}
 
-bool CompletionAssistProvider::isAsynchronous() const
+IAssistProvider::RunType CompletionAssistProvider::runType() const
 {
-    return true;
+    return AsynchronousWithThread;
 }
 
 int CompletionAssistProvider::activationCharSequenceLength() const

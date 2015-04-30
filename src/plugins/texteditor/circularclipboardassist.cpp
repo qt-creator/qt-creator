@@ -108,9 +108,9 @@ public:
     }
 };
 
-bool ClipboardAssistProvider::isAsynchronous() const
+IAssistProvider::RunType ClipboardAssistProvider::runType() const
 {
-    return false;
+    return Synchronous;
 }
 
 bool ClipboardAssistProvider::supportsEditor(Core::Id /*editorId*/) const

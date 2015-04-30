@@ -101,6 +101,7 @@ private:
     QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
     IAssistProvider *m_requestProvider;
+    IAssistProcessor *m_asyncProcessor;
     AssistKind m_assistKind;
     IAssistProposalWidget *m_proposalWidget;
     QScopedPointer<IAssistProposal> m_proposal;
@@ -121,6 +122,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_editorWidget(0)
     , m_requestRunner(0)
     , m_requestProvider(0)
+    , m_asyncProcessor(0)
     , m_assistKind(TextEditor::Completion)
     , m_proposalWidget(0)
     , m_receivedContentWhileWaiting(false)
@@ -230,7 +232,14 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     if (!assistInterface)
         return;
 
-    if (provider->isAsynchronous()) {
+    switch (provider->runType()) {
+    case IAssistProvider::Synchronous: {
+        if (IAssistProposal *newProposal = processor->perform(assistInterface))
+            displayProposal(newProposal, reason);
+        delete processor;
+        break;
+    }
+    case IAssistProvider::AsynchronousWithThread: {
         if (IAssistProposal *newProposal = processor->immediateProposal(assistInterface))
             displayProposal(newProposal, reason);
 
@@ -247,19 +256,41 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         m_requestRunner->setProcessor(processor);
         m_requestRunner->setAssistInterface(assistInterface);
         m_requestRunner->start();
-        return;
+        break;
     }
+    case IAssistProvider::Asynchronous: {
+        processor->setAsyncCompletionAvailableHandler(
+            [this, processor, reason](IAssistProposal *newProposal){
+                if (m_asyncProcessor != processor)
+                    return;
 
-    if (IAssistProposal *newProposal = processor->perform(assistInterface))
-        displayProposal(newProposal, reason);
-    delete processor;
+                invalidateCurrentRequestData();
+                QTC_CHECK(newProposal);
+                displayProposal(newProposal, reason);
+
+                emit q->finished();
+        });
+
+        // If there is a proposal, nothing asynchronous happened...
+        if (IAssistProposal *newProposal = processor->perform(assistInterface)) {
+            displayProposal(newProposal, reason);
+            delete processor;
+        }
+
+        // ...otherwise the async request was triggered
+        m_asyncProcessor = processor;
+        break;
+    }
+    } // switch
 }
 
 void CodeAssistantPrivate::cancelCurrentRequest()
 {
-    m_requestRunner->setDiscardProposal(true);
-    disconnect(m_requestRunner, &ProcessorRunner::finished,
-               this, &CodeAssistantPrivate::proposalComputed);
+    if (m_requestRunner) {
+        m_requestRunner->setDiscardProposal(true);
+        disconnect(m_requestRunner, &ProcessorRunner::finished,
+                   this, &CodeAssistantPrivate::proposalComputed);
+    }
     invalidateCurrentRequestData();
 }
 
@@ -366,11 +397,12 @@ bool CodeAssistantPrivate::isDisplayingProposal() const
 
 bool CodeAssistantPrivate::isWaitingForProposal() const
 {
-    return m_requestRunner != 0;
+    return m_requestRunner != 0 || m_asyncProcessor != 0;
 }
 
 void CodeAssistantPrivate::invalidateCurrentRequestData()
 {
+    m_asyncProcessor = 0;
     m_requestRunner = 0;
     m_requestProvider = 0;
 }
@@ -415,7 +447,7 @@ void CodeAssistantPrivate::notifyChange()
 
 bool CodeAssistantPrivate::hasContext() const
 {
-    return m_requestRunner || m_proposalWidget;
+    return m_requestRunner || m_asyncProcessor || m_proposalWidget;
 }
 
 void CodeAssistantPrivate::destroyContext()

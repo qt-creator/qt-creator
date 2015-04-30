@@ -40,7 +40,7 @@ namespace Internal {
 class ClipboardAssistProvider: public IAssistProvider
 {
 public:
-    bool isAsynchronous() const;
+    IAssistProvider::RunType runType() const Q_DECL_OVERRIDE;
     bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
     IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 };

@@ -51,9 +51,9 @@ namespace Internal {
 // -------------------------
 // CppQuickFixAssistProvider
 // -------------------------
-bool CppQuickFixAssistProvider::isAsynchronous() const
+IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
 {
-    return false;
+    return Synchronous;
 }
 
 bool CppQuickFixAssistProvider::supportsEditor(Core::Id editorId) const

@@ -77,7 +77,7 @@ private:
 class CppQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:
-    bool isAsynchronous() const Q_DECL_OVERRIDE;
+    IAssistProvider::RunType runType() const Q_DECL_OVERRIDE;
     bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
     TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 

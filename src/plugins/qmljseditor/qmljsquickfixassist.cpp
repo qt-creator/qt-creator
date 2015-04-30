@@ -77,9 +77,9 @@ QmlJSQuickFixAssistProvider::QmlJSQuickFixAssistProvider()
 QmlJSQuickFixAssistProvider::~QmlJSQuickFixAssistProvider()
 {}
 
-bool QmlJSQuickFixAssistProvider::isAsynchronous() const
+IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
 {
-    return false;
+    return Synchronous;
 }
 
 bool QmlJSQuickFixAssistProvider::supportsEditor(Core::Id editorId) const

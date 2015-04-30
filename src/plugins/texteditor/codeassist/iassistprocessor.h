@@ -33,6 +33,8 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <functional>
+
 namespace TextEditor {
 
 class IAssistProvider;
@@ -47,6 +49,15 @@ public:
 
     virtual IAssistProposal *immediateProposal(const AssistInterface *) { return 0; }
     virtual IAssistProposal *perform(const AssistInterface *interface) = 0;
+
+    void setAsyncProposalAvailable(IAssistProposal *proposal);
+
+    // Internal, used by CodeAssist
+    using AsyncCompletionsAvailableHandler = std::function<void (IAssistProposal *proposal)>;
+    void setAsyncCompletionAvailableHandler(const AsyncCompletionsAvailableHandler &finalizer);
+
+private:
+    AsyncCompletionsAvailableHandler m_asyncCompletionsAvailableHandler;
 };
 
 } // TextEditor

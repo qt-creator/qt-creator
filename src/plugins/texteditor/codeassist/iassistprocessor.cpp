@@ -47,6 +47,18 @@ IAssistProcessor::IAssistProcessor()
 IAssistProcessor::~IAssistProcessor()
 {}
 
+void IAssistProcessor::setAsyncProposalAvailable(IAssistProposal *proposal)
+{
+    if (m_asyncCompletionsAvailableHandler)
+        m_asyncCompletionsAvailableHandler(proposal);
+}
+
+void IAssistProcessor::setAsyncCompletionAvailableHandler(
+        const IAssistProcessor::AsyncCompletionsAvailableHandler &finalizer)
+{
+    m_asyncCompletionsAvailableHandler = finalizer;
+}
+
 /*!
     \fn IAssistProposal *TextEditor::IAssistProcessor::perform(const AssistInterface *interface)
 
