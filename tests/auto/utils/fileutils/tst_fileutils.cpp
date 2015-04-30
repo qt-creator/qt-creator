@@ -62,12 +62,7 @@ void tst_fileutils::parentDir_data()
     QTest::newRow("//") << "//" << "" << "";
     QTest::newRow("/tmp/dir") << "/tmp/dir" << "/tmp" << "";
     QTest::newRow("relative/path") << "relative/path" << "relative" << "";
-    QTest::newRow("relativepath") << "relativepath" << "."
-#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-                                  << "see QTBUG-23892";
-#else
-                                  << "";
-#endif
+    QTest::newRow("relativepath") << "relativepath" << ".";
 
     // Windows stuff:
 #ifdef Q_OS_WIN
