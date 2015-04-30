@@ -131,6 +131,7 @@ bool RmKitOperation::test() const
                                     QLatin1String("Desktop"), QString(),  QString(),
                                     QLatin1String("{tc-id}"), QLatin1String("{qt-id}"),
                                     QLatin1String("unsupported/mkspec"),
+                                    QStringList(),
                                     KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     map =
             AddKitOperation::addKit(map, tcMap, qtMap, devMap,
@@ -140,6 +141,7 @@ bool RmKitOperation::test() const
                                     QLatin1String("Desktop"), QString(), QString(),
                                     QLatin1String("{tc-id}"), QLatin1String("{qt-id}"),
                                     QLatin1String("unsupported/mkspec2"),
+                                    QStringList(),
                                     KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
 
     QVariantMap result = rmKit(map, QLatin1String("testId"));

@@ -280,7 +280,7 @@ QVariantMap AddToolChainOperation::initializeToolChains()
 
 bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
 {
-    QStringList valueKeys = FindValueOperation::findValue(map, id.toUtf8());
+    QStringList valueKeys = FindValueOperation::findValue(map, id);
 
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
