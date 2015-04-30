@@ -626,6 +626,9 @@ private:
 
         bool found() const { return _found; }
     private:
+        using TypeVisitor::visit;
+        using NameVisitor::visit;
+
         void visit(PointerType *type) override { accept(type->elementType().type()); }
         void visit(ReferenceType *type) override { accept(type->elementType().type()); }
         void visit(NamedType *type) override { accept(type->name()); }
