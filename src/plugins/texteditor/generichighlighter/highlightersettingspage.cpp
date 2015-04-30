@@ -98,11 +98,11 @@ QWidget *HighlighterSettingsPage::widget()
         m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         m_d->m_page->definitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
         m_d->m_page->definitionFilesPath->addButton(tr("Download Definitions..."), this,
-                                                    SLOT(requestAvailableDefinitionsMetaData()));
+                                                    [this] { requestAvailableDefinitionsMetaData(); });
         m_d->m_page->fallbackDefinitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         m_d->m_page->fallbackDefinitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
         m_d->m_page->fallbackDefinitionFilesPath->addButton(tr("Autodetect"), this,
-                                                            SLOT(resetDefinitionsLocation()));
+                                                    [this] { resetDefinitionsLocation(); });
 
         settingsToUI();
 

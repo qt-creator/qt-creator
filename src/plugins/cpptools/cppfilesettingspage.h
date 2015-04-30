@@ -83,12 +83,10 @@ public:
     CppFileSettings settings() const;
     void setSettings(const CppFileSettings &s);
 
-private slots:
-    void slotEdit();
-
 private:
-    inline QString licenseTemplatePath() const;
-    inline void setLicenseTemplatePath(const QString &);
+    void slotEdit();
+    QString licenseTemplatePath() const;
+    void setLicenseTemplatePath(const QString &);
 
     Ui::CppFileSettingsPage *m_ui;
 };

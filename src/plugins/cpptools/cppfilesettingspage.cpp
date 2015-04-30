@@ -278,7 +278,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
     }
     m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
-    m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, SLOT(slotEdit()));
+    m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, [this] { slotEdit(); });
 }
 
 CppFileSettingsWidget::~CppFileSettingsWidget()

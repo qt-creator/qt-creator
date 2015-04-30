@@ -57,8 +57,6 @@ public:
     const HighlighterSettings &highlighterSettings() const;
 
 private slots:
-    void resetDefinitionsLocation();
-    void requestAvailableDefinitionsMetaData();
     void manageDefinitions(const QList<Internal::DefinitionMetaDataPtr> &metaData);
     void showError();
     void ignoreDownloadReply();
@@ -66,6 +64,8 @@ private slots:
     void setDownloadDefinitionsState(bool valid);
 
 private:
+    void resetDefinitionsLocation();
+    void requestAvailableDefinitionsMetaData();
     void settingsFromUI();
     void settingsToUI();
 

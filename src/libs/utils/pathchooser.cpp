@@ -211,13 +211,13 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::changed);
     connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
     connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::slotTextChanged);
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit pathChanged(path()); });
 
     d->m_lineEdit->setMinimumWidth(120);
     d->m_hLayout->addWidget(d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    addButton(browseButtonLabel(), this, SLOT(slotBrowse()));
+    addButton(browseButtonLabel(), this, [this] { slotBrowse(); });
 
     setLayout(d->m_hLayout);
     setFocusProxy(d->m_lineEdit);
@@ -232,16 +232,16 @@ PathChooser::~PathChooser()
     delete d;
 }
 
-void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
+void PathChooser::addButton(const QString &text, QObject *context, const std::function<void ()> &callback)
 {
-    insertButton(d->m_buttons.count(), text, receiver, slotFunc);
+    insertButton(d->m_buttons.count(), text, context, callback);
 }
 
-void PathChooser::insertButton(int index, const QString &text, QObject *receiver, const char *slotFunc)
+void PathChooser::insertButton(int index, const QString &text, QObject *context, const std::function<void ()> &callback)
 {
-    QPushButton *button = new QPushButton;
+    auto button = new QPushButton;
     button->setText(text);
-    connect(button, SIGNAL(clicked()), receiver, slotFunc);
+    connect(button, &QAbstractButton::clicked, context, callback);
     d->m_hLayout->insertWidget(index + 1/*line edit*/, button);
     d->m_buttons.insert(index, button);
 }
@@ -413,11 +413,6 @@ void PathChooser::slotBrowse()
 
     emit browsingFinished();
     triggerChanged();
-}
-
-void PathChooser::slotTextChanged()
-{
-    emit pathChanged(path());
 }
 
 bool PathChooser::isValid() const

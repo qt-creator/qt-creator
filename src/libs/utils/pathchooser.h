@@ -115,8 +115,8 @@ public:
     /** Return the home directory, which needs some fixing under Windows. */
     static QString homePath();
 
-    void addButton(const QString &text, QObject *receiver, const char *slotFunc);
-    void insertButton(int index, const QString &text, QObject *receiver, const char *slotFunc);
+    void addButton(const QString &text, QObject *context, const std::function<void()> &callback);
+    void insertButton(int index, const QString &text, QObject *context, const std::function<void()> &callback);
     QAbstractButton *buttonAtIndex(int index) const;
 
     FancyLineEdit *lineEdit() const;
@@ -144,6 +144,7 @@ private:
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
+    void slotBrowse();
 
 signals:
     void validChanged(bool validState);
@@ -157,10 +158,6 @@ signals:
 public slots:
     void setPath(const QString &);
     void setFileName(const Utils::FileName &);
-
-private slots:
-    void slotBrowse();
-    void slotTextChanged();
 
 private:
     PathChooserPrivate *d;
