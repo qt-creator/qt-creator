@@ -522,6 +522,14 @@ class Dumper(DumperBase):
         except:
             return None
 
+    def isBadPointer(self, value):
+        try:
+            target = value.dereference()
+            target.is_optimized_out # Access test.
+            return False
+        except:
+            return True
+
     def makeValue(self, typeobj, init):
         typename = "::" + self.stripClassTag(str(typeobj));
         # Avoid malloc symbol clash with QVector.

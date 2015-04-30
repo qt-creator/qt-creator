@@ -1040,21 +1040,8 @@ class DumperBase:
             return
 
         typeName = str(value.type)
-        innerType = value.type.target().unqualified()
-        innerTypeName = str(innerType)
 
-        goodPointer = False
-        try:
-            target = value.dereference()
-            str(target) # Dummy access.
-            if self.isLldb and target.GetError().Fail():
-                pass
-            else:
-                goodPointer = True
-        except:
-            pass
-
-        if not goodPointer:
+        if self.isBadPointer(value):
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
             self.putValue(self.cleanAddress(value))
@@ -1063,6 +1050,8 @@ class DumperBase:
             return
 
         displayFormat = self.currentItemFormat(value.type)
+        innerType = value.type.target().unqualified()
+        innerTypeName = str(innerType)
 
         if innerTypeName == "void":
             #warn("VOID POINTER: %s" % displayFormat)
