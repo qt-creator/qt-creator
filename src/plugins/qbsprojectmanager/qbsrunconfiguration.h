@@ -94,7 +94,6 @@ public:
     bool isConsoleApplication() const;
 
 signals:
-    void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void targetInformationChanged();
@@ -111,8 +110,6 @@ private slots:
 private:
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
-    void setCommandLineArguments(const QString &argumentsString);
-    QString rawCommandLineArguments() const;
     QString defaultDisplayName();
     qbs::InstallOptions installOptions() const;
     QString installRoot() const;
@@ -122,7 +119,6 @@ private:
     void updateTarget();
 
     QString m_uniqueProductName;
-    QString m_commandLineArguments;
 
     // Cached startup sub project information
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
@@ -144,11 +140,9 @@ private slots:
     void runConfigurationEnabledChange();
     void workDirectoryEdited();
     void workingDirectoryWasReset();
-    void argumentsEdited(const QString &arguments);
     void environmentWasChanged();
 
     void workingDirectoryChanged(const QString &workingDirectory);
-    void commandLineArgumentsChanged(const QString &args);
     void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void termToggled(bool);
@@ -165,7 +159,6 @@ private:
     QLabel *m_disabledReason;
     QLabel *m_executableLineLabel;
     Utils::PathChooser *m_workingDirectoryEdit;
-    QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
     QLineEdit *m_qmlDebugPort;
