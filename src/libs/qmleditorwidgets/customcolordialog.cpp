@@ -54,14 +54,10 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
 
-    // TODO: The following code should be enabled for OSX
-    // when QTBUG-23205 is fixed
-    if (!HostOsInfo::isMacHost()) {
-        QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
-        dropShadowEffect->setBlurRadius(6);
-        dropShadowEffect->setOffset(2, 2);
-        setGraphicsEffect(dropShadowEffect);
-    }
+    QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
+    dropShadowEffect->setBlurRadius(6);
+    dropShadowEffect->setOffset(2, 2);
+    setGraphicsEffect(dropShadowEffect);
     setAutoFillBackground(true);
 
     m_hueControl = new HueControl(this);

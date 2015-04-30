@@ -419,26 +419,10 @@ void MenuActionContainer::removeMenu(QMenu *menu)
     m_menu->removeAction(menu->menuAction());
 }
 
-static bool menuInMenuBar(const QMenu *menu)
-{
-    foreach (const QWidget *widget, menu->menuAction()->associatedWidgets()) {
-        if (qobject_cast<const QMenuBar *>(widget))
-            return true;
-    }
-    return false;
-}
-
 bool MenuActionContainer::updateInternal()
 {
     if (onAllDisabledBehavior() == Show)
         return true;
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        // work around QTBUG-25544 which makes menus in the menu bar stay at their enabled state at startup
-        // (so menus that are disabled at startup would stay disabled)
-        if (menuInMenuBar(m_menu))
-            return true;
-    }
 
     bool hasitems = false;
     QList<QAction *> actions = m_menu->actions();
