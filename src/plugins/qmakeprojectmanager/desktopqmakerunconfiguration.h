@@ -95,7 +95,6 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const override;
 signals:
-    void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void usingDyldImageSuffixChanged(bool);
@@ -116,14 +115,11 @@ private:
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
-    void setCommandLineArguments(const QString &argumentsString);
-    QString rawCommandLineArguments() const;
     QString defaultDisplayName();
 
     void ctor();
 
     void updateTarget();
-    QString m_commandLineArguments;
     Utils::FileName m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
@@ -151,11 +147,9 @@ private slots:
     void runConfigurationEnabledChange();
     void workDirectoryEdited();
     void workingDirectoryReseted();
-    void argumentsEdited(const QString &arguments);
     void environmentWasChanged();
 
     void workingDirectoryChanged(const QString &workingDirectory);
-    void commandLineArgumentsChanged(const QString &args);
     void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void effectiveTargetInformationChanged();
@@ -173,7 +167,6 @@ private:
     QLabel *m_disabledReason = nullptr;
     QLabel *m_executableLineLabel = nullptr;
     Utils::PathChooser *m_workingDirectoryEdit = nullptr;
-    QLineEdit *m_argumentsLineEdit = nullptr;
     QCheckBox *m_useTerminalCheck = nullptr;
     QCheckBox *m_useQvfbCheck = nullptr;
     QCheckBox *m_usingDyldImageSuffix = nullptr;

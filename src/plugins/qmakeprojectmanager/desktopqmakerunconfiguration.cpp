@@ -37,6 +37,7 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
@@ -66,7 +67,6 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 const char QMAKE_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
-const char COMMAND_LINE_ARGUMENTS_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments";
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 const char USE_TERMINAL_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal";
 const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
@@ -86,7 +86,8 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
     LocalApplicationRunConfiguration(parent, id),
     m_proFilePath(pathFromId(id))
 {
-    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+    addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments")));
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     m_parseSuccess = project->validParse(m_proFilePath);
@@ -97,7 +98,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
 
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, DesktopQmakeRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
-    m_commandLineArguments(source->m_commandLineArguments),
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
@@ -200,10 +200,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     toplayout->addRow(tr("Executable:"), m_executableLineLabel);
 
-    QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
-    m_argumentsLineEdit = new QLineEdit(qmakeRunConfiguration->rawCommandLineArguments(), this);
-    argumentsLabel->setBuddy(m_argumentsLineEdit);
-    toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
+    m_qmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
 
     m_workingDirectoryEdit = new PathChooser(this);
     m_workingDirectoryEdit->setExpectedKind(PathChooser::Directory);
@@ -276,8 +273,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(workingDirectoryReseted()));
 
-    connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(argumentsEdited(QString)));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
     connect(m_useQvfbCheck, SIGNAL(toggled(bool)),
@@ -286,8 +281,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     connect(qmakeRunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
 
-    connect(qmakeRunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
-            this, SLOT(commandLineArgumentsChanged(QString)));
     connect(qmakeRunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)),
             this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(qmakeRunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
@@ -338,13 +331,6 @@ void DesktopQmakeRunConfigurationWidget::workingDirectoryReseted()
     m_qmakeRunConfiguration->setBaseWorkingDirectory(QString());
 }
 
-void DesktopQmakeRunConfigurationWidget::argumentsEdited(const QString &args)
-{
-    m_ignoreChange = true;
-    m_qmakeRunConfiguration->setCommandLineArguments(args);
-    m_ignoreChange = false;
-}
-
 void DesktopQmakeRunConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
@@ -378,13 +364,6 @@ void DesktopQmakeRunConfigurationWidget::workingDirectoryChanged(const QString &
 {
     if (!m_ignoreChange)
         m_workingDirectoryEdit->setPath(workingDirectory);
-}
-
-void DesktopQmakeRunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
-{
-    if (m_ignoreChange)
-        return;
-    m_argumentsLineEdit->setText(args);
 }
 
 void DesktopQmakeRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
@@ -437,7 +416,6 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
-    map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
@@ -449,7 +427,6 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
 bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool()
             ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
@@ -528,12 +505,7 @@ QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 
 QString DesktopQmakeRunConfiguration::commandLineArguments() const
 {
-    return macroExpander()->expandProcessArgs(m_commandLineArguments);
-}
-
-QString DesktopQmakeRunConfiguration::rawCommandLineArguments() const
-{
-    return m_commandLineArguments;
+    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 void DesktopQmakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
@@ -545,12 +517,6 @@ void DesktopQmakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
     const QString &newWorkingDirectory = workingDirectory();
     if (oldWorkingDirectory != newWorkingDirectory)
         emit baseWorkingDirectoryChanged(newWorkingDirectory);
-}
-
-void DesktopQmakeRunConfiguration::setCommandLineArguments(const QString &argumentsString)
-{
-    m_commandLineArguments = argumentsString;
-    emit commandLineArgumentsChanged(argumentsString);
 }
 
 void DesktopQmakeRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
