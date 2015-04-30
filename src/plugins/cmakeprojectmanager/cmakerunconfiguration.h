@@ -81,9 +81,6 @@ public:
 signals:
     void baseWorkingDirectoryChanged(const QString&);
 
-private slots:
-    void setCommandLineArguments(const QString &newText);
-
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
@@ -99,7 +96,6 @@ private:
     QString m_workingDirectory;
     QString m_userWorkingDirectory;
     QString m_title;
-    QString m_arguments;
     bool m_enabled;
 };
 
@@ -110,7 +106,6 @@ public:
     explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
 
 private slots:
-    void setArguments(const QString &args);
     void setWorkingDirectory();
     void resetWorkingDirectory();
     void runInTerminalToggled(bool toggled);

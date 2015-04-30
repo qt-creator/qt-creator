@@ -38,6 +38,7 @@
 #include <coreplugin/helpmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
 #include <utils/pathchooser.h>
@@ -64,7 +65,6 @@ const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
 const char USER_WORKING_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory";
 const char USE_TERMINAL_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UseTerminal";
 const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
-const char ARGUMENTS_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.Arguments";
 
 } // namespace
 
@@ -78,6 +78,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
     m_enabled(true)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new ArgumentsAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.Arguments")));
     ctor();
 }
 
@@ -88,7 +89,6 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfigurati
     m_workingDirectory(source->m_workingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_title(source->m_title),
-    m_arguments(source->m_arguments),
     m_enabled(source->m_enabled)
 {
     ctor();
@@ -135,7 +135,7 @@ QString CMakeRunConfiguration::baseWorkingDirectory() const
 
 QString CMakeRunConfiguration::commandLineArguments() const
 {
-    return macroExpander()->expandProcessArgs(m_arguments);
+    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 QString CMakeRunConfiguration::title() const
@@ -177,7 +177,6 @@ QVariantMap CMakeRunConfiguration::toMap() const
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(TITLE_KEY), m_title);
-    map.insert(QLatin1String(ARGUMENTS_KEY), m_arguments);
 
     return map;
 }
@@ -188,7 +187,6 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? ApplicationLauncher::Console
                                                                     : ApplicationLauncher::Gui;
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
-    m_arguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
 
     return RunConfiguration::fromMap(map);
 }
@@ -208,11 +206,6 @@ QString CMakeRunConfiguration::defaultDisplayName() const
 QWidget *CMakeRunConfiguration::createConfigurationWidget()
 {
     return new CMakeRunConfigurationWidget(this);
-}
-
-void CMakeRunConfiguration::setCommandLineArguments(const QString &newText)
-{
-    m_arguments = newText;
 }
 
 void CMakeRunConfiguration::setEnabled(bool b)
@@ -243,10 +236,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     QFormLayout *fl = new QFormLayout();
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    QLineEdit *argumentsLineEdit = new QLineEdit();
-    argumentsLineEdit->setText(cmakeRunConfiguration->commandLineArguments());
-    connect(argumentsLineEdit, &QLineEdit::textChanged, this, &CMakeRunConfigurationWidget::setArguments);
-    fl->addRow(tr("Arguments:"), argumentsLineEdit);
+
+    cmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
 
     m_workingDirectoryEdit = new Utils::PathChooser();
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
@@ -337,10 +328,6 @@ void CMakeRunConfigurationWidget::environmentWasChanged()
     EnvironmentAspect *aspect = m_cmakeRunConfiguration->extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, return);
     m_workingDirectoryEdit->setEnvironment(aspect->environment());
-}
-void CMakeRunConfigurationWidget::setArguments(const QString &args)
-{
-    m_cmakeRunConfiguration->setCommandLineArguments(args);
 }
 
 // Factory
