@@ -84,6 +84,10 @@ public:
     OverrideItem() : line(0) {}
     OverrideItem(const QString &text, int line = 0) : text(text), line(line) {}
     bool isValid() { return line != 0; }
+    QByteArray toByteArray() const
+    {
+        return "OverrideItem(" + text.toLatin1() + ", " + QByteArray::number(line) + ')';
+    }
 
     QString text;
     int line;
@@ -101,11 +105,14 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 template<> char *toString(const OverrideItem &data)
 {
-    QByteArray ba = "OverrideItem(";
-    ba += data.text.toLatin1() + ", " + QByteArray::number(data.line);
-    ba += ")";
-    return qstrdup(ba.data());
+    return qstrdup(data.toByteArray().data());
 }
+}
+
+QDebug &operator<<(QDebug &d, const OverrideItem &data)
+{
+    d << data.toByteArray();
+    return d;
 }
 QT_END_NAMESPACE
 
