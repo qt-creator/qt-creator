@@ -118,8 +118,6 @@ VcsConfigurationPage::VcsConfigurationPage() : d(new Internal::VcsConfigurationP
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(d->m_configureButton);
 
-    connect(d->m_versionControl, &IVersionControl::configurationChanged,
-            this, &QWizardPage::completeChanged);
     connect(d->m_configureButton, &QAbstractButton::clicked,
             this, &VcsConfigurationPage::openConfiguration);
 }
@@ -145,6 +143,11 @@ void VcsConfigurationPage::setVersionControlId(const QString &id)
 
 void VcsConfigurationPage::initializePage()
 {
+    if (d->m_versionControl) {
+        disconnect(d->m_versionControl, &IVersionControl::configurationChanged,
+                   this, &QWizardPage::completeChanged);
+    }
+
     if (!d->m_versionControlId.isEmpty()) {
         auto jw = qobject_cast<JsonWizard *>(wizard());
         if (!jw) {
@@ -166,6 +169,9 @@ void VcsConfigurationPage::initializePage()
             })).join(QLatin1String(", "))));
         }
     }
+
+    connect(d->m_versionControl, &IVersionControl::configurationChanged,
+            this, &QWizardPage::completeChanged);
 
     d->m_configureButton->setEnabled(d->m_versionControl);
     if (d->m_versionControl)
