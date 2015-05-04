@@ -59,6 +59,12 @@
         \li In the \uicontrol {Qt Quick component set} field, select
             \uicontrol {Qt Quick 2.1}.
 
+            \note This selection determines the set of files that the wizard
+            generates and their contents. The instructions in this tutorial
+            might not apply if you select some other component set, such as Qt
+            Quick 2.4. The wizard indicates which Qt version each component set
+            requires at minimum.
+
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
             and then click \uicontrol{Next}.
 
@@ -90,8 +96,7 @@
     To use the states.png image in your application, you must copy it to the
     project directory (same subdirectory as the QML file) from the examples
     directory in the Qt installation directory. For example:
-    \c {C:\Qt\Qt5.3.0\5.3.0\msvc2010\examples\declarative\animation\states}. The
-    image appears
+    \c {C:\Qt\Examples\Qt-5.4\declarative\animation\states}. The image appears
     in \uicontrol Resources. You can also use any other image or a QML
     type, instead.
 
@@ -104,8 +109,8 @@
 
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 
-        \li In the \uicontrol Navigator, select \uicontrol Text and press \key Delete to
-            delete it.
+        \li In the \uicontrol Navigator, select \uicontrol MouseArea and
+            \uicontrol Text and press \key Delete to delete them.
 
         \li Select \uicontrol Window to edit its properties.
 
@@ -116,13 +121,8 @@
             \li In the \uicontrol Id field, enter \e page, to be able to reference the
                 window from other places.
 
-            \li In the code editor, set the window background color to #343434:
-
-            \quotefromfile transitions/main.qml
-            \skipto Window {
-            \printuntil color
-
-            \li Delete the \c {Qt.quit();} command.
+            \li In the \uicontrol Color field, set the window background color
+                to #343434.
 
         \endlist
 
@@ -139,8 +139,9 @@
 
         \endlist
 
-        \li Double-click the resource file, qml.qrc, in the \uicontrol Projects view
-            to add states.png to the resource file for deployment.
+        \li Right-click the resource file, qml.qrc, in the \uicontrol Projects
+            view, and select \uicontrol {Open in Editor} to add states.png to
+            the resource file for deployment.
 
         \li Click \uicontrol Add and select states.png.
 
@@ -186,9 +187,8 @@
 
         \endlist
 
-        \li In the \uicontrol Navigator, drag and drop the \uicontrol {Mouse Area}
-            from \e page to \e topLeftRect to make it apply only to the
-            rectangle and not to the whole page.
+        \li Drag and drop a \uicontrol {Mouse Area} type from the
+            \uicontrol Library to \e topLeftRect in the \uicontrol Navigator.
 
         \li  Edit the \uicontrol {Mouse Area} properties:
 
@@ -217,9 +217,7 @@
 
             \quotefromfile transitions/main.qml
             \skipto Window {
-            \printuntil onClicked
-            \printuntil }
-            \printuntil }
+            \printuntil mouseArea1
             \printuntil }
 
         \li In the \uicontrol Navigator, copy topLeftRect (by pressing
@@ -274,8 +272,7 @@
 
             \quotefromfile transitions/main.qml
             \skipto Window {
-            \printuntil State2
-            \printuntil }
+            \printuntil mouseArea3
             \printuntil }
             \printuntil }
 
