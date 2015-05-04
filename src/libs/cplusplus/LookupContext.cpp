@@ -1222,16 +1222,19 @@ LookupScopePrivate *LookupScopePrivate::findNestedType(const Name *name, LookupS
         Declaration *decl = typedefit->second;
         if (_alreadyConsideredTypedefs.contains(decl))
             return 0;
+        LookupScopePrivate *binding = 0;
         _alreadyConsideredTypedefs.insert(decl);
         if (const NamedType *namedTy = decl->type()->asNamedType()) {
-            if (LookupScope *e = q->lookupType(namedTy->name()))
-                return e->d;
-            if (origin) {
+            if (LookupScope *e = q->lookupType(namedTy->name())) {
+                binding = e->d;
+            } else if (origin) {
                 if (LookupScope *e = origin->q->lookupType(namedTy->name()))
-                    return e->d;
+                    binding = e->d;
             }
         }
         _alreadyConsideredTypedefs.remove(decl);
+        if (binding)
+            return binding;
     }
 
     auto it = _nestedScopes.find(name);
