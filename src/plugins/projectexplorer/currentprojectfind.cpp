@@ -44,24 +44,10 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
-static Project *currentProject()
-{
-    Project *p = ProjectTree::currentProject();
-    if (p)
-        return p;
-    return SessionManager::startupProject();
-}
-
 CurrentProjectFind::CurrentProjectFind()
 {
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFind::handleProjectChanged);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
-            this, &CurrentProjectFind::handleProjectChanged);
-    connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(handleProjectChanged()));
-    connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(handleProjectChanged()));
 }
 
 QString CurrentProjectFind::id() const
@@ -76,12 +62,12 @@ QString CurrentProjectFind::displayName() const
 
 bool CurrentProjectFind::isEnabled() const
 {
-    return currentProject() != 0 && BaseFileFind::isEnabled();
+    return ProjectTree::currentProject() != 0 && BaseFileFind::isEnabled();
 }
 
 QVariant CurrentProjectFind::additionalParameters() const
 {
-    Project *project = currentProject();
+    Project *project = ProjectTree::currentProject();
     if (project && project->document())
         return qVariantFromValue(project->projectFilePath().toString());
     return QVariant();
@@ -102,7 +88,7 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
 
 QString CurrentProjectFind::label() const
 {
-    Project *p = currentProject();
+    Project *p = ProjectTree::currentProject();
     QTC_ASSERT(p, return QString());
     return tr("Project \"%1\":").arg(p->displayName());
 }

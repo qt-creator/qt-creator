@@ -81,11 +81,11 @@ ProjectTree::ProjectTree(QObject *parent)
             this, &ProjectTree::focusChanged);
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &ProjectTree::updateDefaultLocationForNewFiles);
+            this, &ProjectTree::sessionChanged);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &ProjectTree::updateDefaultLocationForNewFiles);
+            this, &ProjectTree::sessionChanged);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
-            this, &ProjectTree::updateDefaultLocationForNewFiles);
+            this, &ProjectTree::sessionChanged);
 }
 
 void ProjectTree::aboutToShutDown()
@@ -193,7 +193,11 @@ void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
 
 void ProjectTree::updateFromNode(Node *node)
 {
-    Project *project = projectForNode(node);
+    Project *project;
+    if (node)
+        project = projectForNode(node);
+    else
+        project = SessionManager::startupProject();
 
     update(node, project);
     foreach (ProjectTreeWidget *widget, m_projectTreeWidgets)
@@ -236,12 +240,12 @@ void ProjectTree::update(Node *node, Project *project)
 
     if (changedProject) {
         emit currentProjectChanged(m_currentProject);
-        updateDefaultLocationForNewFiles();
+        sessionChanged();
         updateContext();
     }
 }
 
-void ProjectTree::updateDefaultLocationForNewFiles()
+void ProjectTree::sessionChanged()
 {
     if (m_currentProject)
         Core::DocumentManager::setDefaultLocationForNewFiles(m_currentProject->projectDirectory().toString());
@@ -249,6 +253,7 @@ void ProjectTree::updateDefaultLocationForNewFiles()
         Core::DocumentManager::setDefaultLocationForNewFiles(SessionManager::startupProject()->projectDirectory().toString());
     else
         Core::DocumentManager::setDefaultLocationForNewFiles(QString());
+    updateFromFocus();
 }
 
 void ProjectTree::updateContext()

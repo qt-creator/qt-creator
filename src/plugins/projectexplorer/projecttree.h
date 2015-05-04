@@ -130,7 +130,7 @@ public: // for nodes to emit signals, do not call unless you are a node
     void collapseAll();
 
 private:
-    void updateDefaultLocationForNewFiles();
+    void sessionChanged();
     void focusChanged();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
     void documentManagerCurrentFileChanged();

@@ -31,7 +31,6 @@
 #include "currentprojectfilter.h"
 #include "projecttree.h"
 #include "project.h"
-#include "session.h"
 
 #include <utils/algorithm.h>
 
@@ -51,8 +50,6 @@ CurrentProjectFilter::CurrentProjectFilter()
     setIncludedByDefault(false);
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
-            this, &CurrentProjectFilter::currentProjectChanged);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
 }
 
@@ -78,9 +75,6 @@ void CurrentProjectFilter::prepareSearch(const QString &entry)
 void CurrentProjectFilter::currentProjectChanged()
 {
     Project *project = ProjectTree::currentProject();
-    if (!project)
-        project = SessionManager::startupProject();
-
     if (project == m_project)
         return;
     if (m_project)
