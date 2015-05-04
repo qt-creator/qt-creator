@@ -32,6 +32,10 @@
 
 #include "jsonwizardgeneratorfactory.h"
 
+#include "../project.h"
+#include "../projectexplorer.h"
+
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
@@ -223,6 +227,8 @@ void JsonWizard::accept()
         return;
     }
     emit allDone(m_files);
+
+    openFiles(m_files);
 }
 
 void JsonWizard::handleNewPages(int pageId)
@@ -237,6 +243,61 @@ void JsonWizard::handleNewPages(int pageId)
 void JsonWizard::handleError(const QString &message)
 {
     Core::MessageManager::write(message, Core::MessageManager::ModeSwitch);
+}
+
+void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
+{
+    QString errorMessage;
+    bool openedSomething = false;
+    foreach (const JsonWizard::GeneratorFile &f, files) {
+        const Core::GeneratedFile &file = f.file;
+        if (!QFileInfo(file.path()).exists()) {
+            errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                       "\"%1\" does not exist in the file system.")
+                    .arg(QDir::toNativeSeparators(file.path()));
+            break;
+        }
+        if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+            Project *project = ProjectExplorerPlugin::instance()->openProject(file.path(), &errorMessage);
+            if (!project) {
+                if (errorMessage.isEmpty()) {
+                    errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                               "Failed to open \"%1\" as a project.")
+                            .arg(QDir::toNativeSeparators(file.path()));
+                }
+                break;
+            }
+            openedSomething = true;
+        }
+        if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
+            if (!Core::EditorManager::openEditor(file.path(), file.editorId())) {
+                errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                           "Failed to open an editor for \"%1\".")
+                        .arg(QDir::toNativeSeparators(file.path()));
+                break;
+            }
+            openedSomething = true;
+        }
+    }
+
+    const QString path
+            = QDir::toNativeSeparators(m_expander.expand(value(QLatin1String("TargetPath")).toString()));
+
+    // Now try to find the project file and open
+    if (!openedSomething) {
+        errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                   "No file to open found in \"%1\".")
+                .arg(path);
+    }
+
+    if (!errorMessage.isEmpty()) {
+        const QString text = path.isEmpty() ? tr("Failed to open project.")
+                                            : tr("Failed to open project in \"%1\".").arg(path);
+        QMessageBox msgBox(QMessageBox::Warning, tr("Cannot Open Project"), text);
+        msgBox.setDetailedText(errorMessage);
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+    }
 }
 
 } // namespace ProjectExplorer

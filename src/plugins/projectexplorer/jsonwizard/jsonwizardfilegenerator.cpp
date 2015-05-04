@@ -210,25 +210,8 @@ bool JsonWizardFileGenerator::polish(const JsonWizard *wizard, Core::GeneratedFi
 bool JsonWizardFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(wizard);
-    if (file->attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-        Project *project = ProjectExplorerPlugin::instance()->openProject(file->path(), errorMessage);
-        if (!project) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                        "Failed to open \"%1\" as a project.")
-                .arg(QDir::toNativeSeparators(file->path()));
-
-            return false;
-        }
-    }
-    if (file->attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-        if (!Core::EditorManager::openEditor(file->path(), file->editorId())) {
-            if (errorMessage)
-                *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                            "Failed to open an editor for \"%1\".")
-                    .arg(QDir::toNativeSeparators(file->path()));
-            return false;
-        }
-    }
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
     return true;
 }
 

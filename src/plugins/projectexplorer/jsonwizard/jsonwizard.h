@@ -101,6 +101,8 @@ private slots:
     void handleError(const QString &message);
 
 private:
+    void openFiles(const GeneratorFiles &files);
+
     QList<JsonWizardGenerator *> m_generators;
 
     GeneratorFiles m_files;
