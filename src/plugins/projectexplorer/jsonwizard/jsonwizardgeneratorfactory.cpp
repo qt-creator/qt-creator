@@ -32,6 +32,7 @@
 
 #include "jsonwizard.h"
 #include "jsonwizardfilegenerator.h"
+#include "jsonwizardscannergenerator.h"
 
 #include "../editorconfiguration.h"
 #include "../project.h"
@@ -232,7 +233,8 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     return OverwriteOk;
 }
 
-bool JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
+bool JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
+                                      QString *errorMessage)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
         if (!i->generator->formatFile(wizard, &(i->file), errorMessage))
@@ -241,7 +243,8 @@ bool JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::Gene
     return true;
 }
 
-bool JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
+bool JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
+                                     QString *errorMessage)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
         if (!i->generator->writeFile(wizard, &(i->file), errorMessage))
@@ -250,7 +253,8 @@ bool JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::Gener
     return true;
 }
 
-bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
+bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
+                                    QString *errorMessage)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
         if (!i->generator->postWrite(wizard, &(i->file), errorMessage))
@@ -259,7 +263,8 @@ bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::Genera
     return true;
 }
 
-bool JsonWizardGenerator::polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
+bool JsonWizardGenerator::polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
+                                 QString *errorMessage)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
         if (!i->generator->polish(wizard, &(i->file), errorMessage))
@@ -268,7 +273,8 @@ bool JsonWizardGenerator::polish(const JsonWizard *wizard, JsonWizard::Generator
     return true;
 }
 
-bool JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage)
+bool JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
+                                  QString *errorMessage)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
         if (!i->generator->allDone(wizard, &(i->file), errorMessage))
@@ -296,6 +302,7 @@ void JsonWizardGeneratorFactory::setTypeIdsSuffix(const QString &suffix)
 // FileGeneratorFactory:
 // --------------------------------------------------------------------
 
+namespace Internal {
 
 FileGeneratorFactory::FileGeneratorFactory()
 {
@@ -306,14 +313,13 @@ JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &dat
                                                   const QString &path, const QString &platform,
                                                   const QVariantMap &variables)
 {
-    Q_UNUSED(data);
     Q_UNUSED(path);
     Q_UNUSED(platform);
     Q_UNUSED(variables);
 
     QTC_ASSERT(canCreate(typeId), return 0);
 
-    auto *gen = new Internal::JsonWizardFileGenerator();
+    auto gen = new JsonWizardFileGenerator;
     QString errorMessage;
     gen->setup(data, &errorMessage);
 
@@ -328,16 +334,51 @@ JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &dat
 
 bool FileGeneratorFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(errorMessage);
-
     QTC_ASSERT(canCreate(typeId), return false);
 
-    QScopedPointer<Internal::JsonWizardFileGenerator> gen(new Internal::JsonWizardFileGenerator());
-    if (!gen->setup(data, errorMessage))
-        return false;
-
-    return true;
+    QScopedPointer<JsonWizardFileGenerator> gen(new JsonWizardFileGenerator);
+    return gen->setup(data, errorMessage);
 }
 
+// --------------------------------------------------------------------
+// ScannerGeneratorFactory:
+// --------------------------------------------------------------------
+
+ScannerGeneratorFactory::ScannerGeneratorFactory()
+{
+    setTypeIdsSuffix(QLatin1String("Scanner"));
+}
+
+JsonWizardGenerator *ScannerGeneratorFactory::create(Id typeId, const QVariant &data,
+                                                     const QString &path, const QString &platform,
+                                                     const QVariantMap &variables)
+{
+    Q_UNUSED(path);
+    Q_UNUSED(platform);
+    Q_UNUSED(variables);
+
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    auto gen = new JsonWizardScannerGenerator;
+    QString errorMessage;
+    gen->setup(data, &errorMessage);
+
+    if (!errorMessage.isEmpty()) {
+        qWarning() << "ScannerGeneratorFactory setup error:" << errorMessage;
+        delete gen;
+        return 0;
+    }
+
+    return gen;
+}
+
+bool ScannerGeneratorFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+{
+    QTC_ASSERT(canCreate(typeId), return false);
+
+    QScopedPointer<JsonWizardScannerGenerator> gen(new JsonWizardScannerGenerator);
+    return gen->setup(data, errorMessage);
+}
+
+} // namespace Internal
 } // namespace ProjectExplorer

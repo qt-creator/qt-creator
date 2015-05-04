@@ -538,6 +538,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     JsonWizardFactory::registerPageFactory(new SummaryPageFactory);
 
     JsonWizardFactory::registerGeneratorFactory(new FileGeneratorFactory);
+    JsonWizardFactory::registerGeneratorFactory(new ScannerGeneratorFactory);
 
     dd->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(dd->m_proWindow);

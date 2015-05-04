@@ -94,6 +94,8 @@ private:
     QList<Core::Id> m_typeIds;
 };
 
+namespace Internal {
+
 class FileGeneratorFactory : public JsonWizardGeneratorFactory
 {
     Q_OBJECT
@@ -107,6 +109,20 @@ public:
     bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
 };
 
+class ScannerGeneratorFactory : public JsonWizardGeneratorFactory
+{
+    Q_OBJECT
+
+public:
+    ScannerGeneratorFactory();
+
+    JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
+                                const QString &path, const QString &platform,
+                                const QVariantMap &variables);
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+};
+
+} // namespace Internal
 } // namespace ProjectExplorer
 
 #endif // JSONWIZARDGENERATORFACTORY_H
