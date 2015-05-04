@@ -61,7 +61,7 @@ namespace {
 
 class VirtualFunctionHelper {
 public:
-    VirtualFunctionHelper(const TypeOfExpression &typeOfExpression,
+    VirtualFunctionHelper(TypeOfExpression &typeOfExpression,
                           Scope *scope,
                           const Document::Ptr &document,
                           const Snapshot &snapshot,
@@ -85,6 +85,7 @@ private:
     Scope *m_scope;
     const Document::Ptr &m_document;
     const Snapshot &m_snapshot;
+    TypeOfExpression &m_typeOfExpression;
     SymbolFinder *m_finder;
 
     // Determined
@@ -94,7 +95,7 @@ private:
     Class *m_staticClassOfFunctionCallExpression; // Output
 };
 
-VirtualFunctionHelper::VirtualFunctionHelper(const TypeOfExpression &typeOfExpression,
+VirtualFunctionHelper::VirtualFunctionHelper(TypeOfExpression &typeOfExpression,
                                              Scope *scope,
                                              const Document::Ptr &document,
                                              const Snapshot &snapshot,
@@ -103,6 +104,7 @@ VirtualFunctionHelper::VirtualFunctionHelper(const TypeOfExpression &typeOfExpre
     , m_scope(scope)
     , m_document(document)
     , m_snapshot(snapshot)
+    , m_typeOfExpression(typeOfExpression)
     , m_finder(finder)
     , m_baseExpressionAST(0)
     , m_function(0)
@@ -144,10 +146,7 @@ bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function
             if (m_accessTokenKind == T_ARROW) {
                 result = true;
             } else if (m_accessTokenKind == T_DOT) {
-                TypeOfExpression typeOfExpression;
-                typeOfExpression.init(m_document, m_snapshot);
-                typeOfExpression.setExpandTemplates(true);
-                const QList<LookupItem> items = typeOfExpression.reference(
+                const QList<LookupItem> items = m_typeOfExpression.reference(
                             memberAccessAST->base_expression, m_document, m_scope);
                 if (!items.isEmpty()) {
                     const LookupItem item = items.first();
@@ -181,12 +180,9 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
         }
     } else if (MemberAccessAST *memberAccessAST = m_baseExpressionAST->asMemberAccess()) {
         QTC_ASSERT(m_accessTokenKind == T_ARROW || m_accessTokenKind == T_DOT, return result);
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.init(m_document, m_snapshot);
-        typeOfExpression.setExpandTemplates(true);
-        const QList<LookupItem> items = typeOfExpression(memberAccessAST->base_expression,
-                                                         m_expressionDocument, m_scope);
-        ResolveExpression resolveExpression(typeOfExpression.context());
+        const QList<LookupItem> items = m_typeOfExpression(memberAccessAST->base_expression,
+                                                           m_expressionDocument, m_scope);
+        ResolveExpression resolveExpression(m_typeOfExpression.context());
         LookupScope *binding = resolveExpression.baseExpression(items, m_accessTokenKind);
         if (binding) {
             if (Class *klass = binding->rootClass()) {
