@@ -604,7 +604,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
 
             TypeOfExpression exprTyper;
             exprTyper.setExpandTemplates(true);
-            Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
+            Document::Ptr doc = _context.document(QString::fromLocal8Bit(decl->fileName()));
             exprTyper.init(doc, _context.snapshot(), _context.bindings(),
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
 
