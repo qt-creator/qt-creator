@@ -52,6 +52,8 @@ public:
     bool startEngine();
     void stopEngine();
 
+    bool success() const { return m_success; } // For testing.
+
 signals:
     void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
 
@@ -80,6 +82,7 @@ private:
     int m_initialFilesToProcessSize;
     int m_filesAnalyzed;
     int m_filesNotAnalyzed;
+    bool m_success;
 };
 
 } // namespace Internal

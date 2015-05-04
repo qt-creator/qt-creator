@@ -83,10 +83,10 @@ void ClangStaticAnalyzerUnitTests::testProject()
     QVERIFY(projectInfo.isValid());
     AnalyzerManager::selectTool(ClangStaticAnalyzerToolId);
     AnalyzerManager::startTool();
-    if (m_analyzerTool->isRunning()) {
-        QSignalSpy waiter(m_analyzerTool, SIGNAL(finished()));
-        QVERIFY(waiter.wait(30000));
-    }
+    QSignalSpy waiter(m_analyzerTool, SIGNAL(finished(bool)));
+    QVERIFY(waiter.wait(30000));
+    const QList<QVariant> arguments = waiter.takeFirst();
+    QVERIFY(arguments.first().toBool());
     QCOMPARE(m_analyzerTool->diagnostics().count(), expectedDiagCount);
 }
 
