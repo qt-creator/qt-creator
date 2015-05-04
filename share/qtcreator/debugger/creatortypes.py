@@ -56,10 +56,15 @@ def readTemplateName(d, value):
     impl = args["_M_impl"]
     start = impl["_M_start"]
     size = impl["_M_finish"] - start
-    for i in range(int(size)):
-        if i > 0:
-            name += ", "
-        name += extractPointerType(d, d.downcast(start[i]["_type"]))
+    try:
+        d.check(0 <= size and size <= 100)
+        d.checkPointer(start)
+        for i in range(int(size)):
+            if i > 0:
+                name += ", "
+            name += extractPointerType(d, d.downcast(start[i]["_type"]))
+    except:
+        return "<not accessible>"
     name += ">"
     return name
 
