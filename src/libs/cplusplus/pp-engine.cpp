@@ -1640,7 +1640,7 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
         return;
     }
 
-//    qDebug("include [[%s]]", included.toUtf8().constData());
+//    qDebug("include [[%s]]", included.constData());
     Client::IncludeType mode;
     if (includeNext)
         mode = Client::IncludeNext;
