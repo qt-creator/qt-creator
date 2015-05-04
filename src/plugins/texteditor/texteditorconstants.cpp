@@ -110,7 +110,7 @@ TextStyle styleFromName(const char *name)
         if (qstrcmp(name, nameForStyle(TextStyle(i))) == 0)
             return TextStyle(i);
     }
-    return TextStyle();
+    return C_LAST_STYLE_SENTINEL;
 }
 
 } // namespace Constants
