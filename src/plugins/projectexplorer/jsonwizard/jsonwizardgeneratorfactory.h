@@ -53,10 +53,10 @@ public:
                                           const QString &baseDir, const QString &projectDir,
                                           QString *errorMessage) = 0;
     virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
-    virtual bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
-    virtual bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
-    virtual bool polish(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
-    virtual bool allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
+    virtual bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
+    virtual bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
+    virtual bool polish(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
+    virtual bool allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
 
     virtual bool canKeepExistingFiles() const { return true; }
 

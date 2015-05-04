@@ -49,9 +49,6 @@ public:
                                   QString *errorMessage);
 
     bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
-    bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
-    bool polish(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
-    bool allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
 
 private:
     class File {

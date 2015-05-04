@@ -124,6 +124,38 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     return true;
 }
 
+bool JsonWizardGenerator::writeFile(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
+bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
+bool JsonWizardGenerator::polish(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
+bool JsonWizardGenerator::allDone(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
 JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(JsonWizard::GeneratorFiles *files,
                                                                              QString *errorMessage)
 {
