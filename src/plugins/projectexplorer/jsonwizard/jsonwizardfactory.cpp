@@ -396,12 +396,14 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
     for (auto i = m_options.constBegin(); i != m_options.constEnd(); ++i)
         wizard.setValue(i.key(), i.value());
 
+    bool havePage = false;
     foreach (const Page &data, m_pages) {
         QTC_ASSERT(data.isValid(), continue);
 
         if (!JsonWizard::boolFromVariant(data.enabled, wizard.expander()))
             continue;
 
+        havePage = true;
         JsonWizardPageFactory *factory = Utils::findOr(s_pageFactories, 0,
                                                        [&data](JsonWizardPageFactory *f) {
                                                             return f->canCreate(data.typeId);
@@ -436,7 +438,7 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
         wizard.addGenerator(gen);
     }
 
-    if (!m_pages.isEmpty()) {
+    if (havePage) {
         Core::ICore::registerWindow(&wizard, Core::Context("Core.NewJSONWizard"));
         wizard.exec();
     } else {
@@ -475,7 +477,6 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
         return QString();
     }
     return QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", value.toByteArray());
-
 }
 
 void JsonWizardFactory::destroyAllFactories()
