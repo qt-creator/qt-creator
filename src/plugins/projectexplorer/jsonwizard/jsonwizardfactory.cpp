@@ -447,7 +447,9 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
 QList<QVariant> JsonWizardFactory::objectOrList(const QVariant &data, QString *errorMessage)
 {
     QList<QVariant> result;
-    if (data.type() == QVariant::Map)
+    if (data.isNull())
+        *errorMessage = tr("key not found.");
+    else if (data.type() == QVariant::Map)
         result.append(data);
     else if (data.type() == QVariant::List)
         result = data.toList();
