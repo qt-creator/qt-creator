@@ -224,7 +224,7 @@ public:
         SimpleDumperOk = 0x4,     // Internal dumper ran, value set
         SimpleDumperFailed = 0x8, // Internal dumper failed
         SimpleDumperMask = SimpleDumperNotApplicable|SimpleDumperOk|SimpleDumperFailed,
-        ExpandedByDumper = 0x10,
+        ExpandedByRequest = 0x10,
         AdditionalSymbol = 0x20, // Introduced by addSymbol, should not be visible
         Obscured = 0x40,    // Symbol is obscured by (for example) fake container children
         ComplexDumperOk = 0x80,

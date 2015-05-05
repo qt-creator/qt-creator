@@ -160,10 +160,8 @@ bool SymbolGroupValue::ensureExpanded() const
 
     // Set a flag indicating the node was expanded by SymbolGroupValue
     // and not by an explicit request from the watch model.
-    if (m_node->expand(&m_errorMessage)) {
-        m_node->addFlags(SymbolGroupNode::ExpandedByDumper);
+    if (m_node->expand(&m_errorMessage))
         return true;
-    }
     if (SymbolGroupValue::verbose)
         DebugPrint() << "Expand failure of '" << name() << "': " << m_errorMessage;
     return false;
