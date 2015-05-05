@@ -34,6 +34,7 @@
 #include "qtcassert.h"
 #include "theme/theme.h"
 
+#include <QAbstractButton>
 #include <QApplication>
 #include <QLabel>
 #include <QPlainTextEdit>
@@ -101,6 +102,8 @@ void ShellCommandPage::start(ShellCommand *command)
     m_statusLabel->setPalette(QPalette());
     m_state = Running;
     command->execute();
+
+    wizard()->button(QWizard::BackButton)->setEnabled(false);
 }
 
 void ShellCommandPage::slotFinished(bool ok, int exitCode, const QVariant &)
@@ -125,6 +128,7 @@ void ShellCommandPage::slotFinished(bool ok, int exitCode, const QVariant &)
     m_statusLabel->setPalette(palette);
 
     QApplication::restoreOverrideCursor();
+    wizard()->button(QWizard::BackButton)->setEnabled(true);
 
     if (success)
         emit completeChanged();
