@@ -81,6 +81,8 @@ QtcPlugin {
         "images/submit.png",
         "wizard/vcsconfigurationpage.cpp",
         "wizard/vcsconfigurationpage.h",
+        "wizard/vcscommandpage.cpp",
+        "wizard/vcscommandpage.h",
         "wizard/vcsjsextension.cpp",
         "wizard/vcsjsextension.h",
     ]

@@ -37,6 +37,7 @@
 #include "vcsoutputwindow.h"
 #include "vcsprojectcache.h"
 #include "corelistener.h"
+#include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"
 #include "wizard/vcsjsextension.h"
 
@@ -93,6 +94,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     slotSettingsChanged();
 
     JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);
+    JsonWizardFactory::registerPageFactory(new Internal::VcsCommandPageFactory);
 
     JsExpander::registerQObjectForJs(QLatin1String("Vcs"), new VcsJsExtension);
 
