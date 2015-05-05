@@ -50,10 +50,13 @@ public:
 
 public slots:
     void start(const QString &binary,
+               const QString &workingDirectory,
                const QStringList &basicArgs = QStringList(),
                int timeoutMS = -1);
 
     bool isRunning() const;
+
+    bool waitForFinished(int msec = -1);
 
     bool useOverideCursor() const;
     void setUseOverideCursor(bool v);

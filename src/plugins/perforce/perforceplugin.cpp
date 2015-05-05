@@ -865,29 +865,46 @@ bool PerforcePlugin::managesFile(const QString &workingDirectory, const QString 
 
 bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
 {
-    if (!m_settings.isValid())
-        return false;
     // Cached?
     const ManagedDirectoryCache::const_iterator cit = m_managedDirectoryCache.constFind(directory);
-    if (cit != m_managedDirectoryCache.constEnd())
-        return cit.value();
+    if (cit != m_managedDirectoryCache.constEnd()) {
+        const DirectoryCacheEntry &entry = cit.value();
+        setTopLevel(entry.m_topLevel);
+        return entry.m_isManaged;
+    }
+    if (!m_settings.isValid()) {
+        if (m_settings.topLevel().isEmpty() && m_settings.defaultEnv())
+            getTopLevel(directory, true);
+
+        if (!m_settings.isValid())
+            return false;
+    }
     // Determine value and insert into cache
     bool managed = false;
     do {
         // Quick check: Must be at or below top level and not "../../other_path"
         const QString relativeDirArgs = m_settings.relativeToTopLevelArguments(directory);
-        if (!relativeDirArgs.isEmpty() && relativeDirArgs.startsWith(QLatin1String("..")))
-            break;
+        if (!relativeDirArgs.isEmpty() && relativeDirArgs.startsWith(QLatin1String(".."))) {
+            if (!m_settings.defaultEnv())
+                break;
+            else
+                getTopLevel(directory, true);
+        }
         // Is it actually managed by perforce?
         QStringList args;
         args << QLatin1String("fstat") << QLatin1String("-m1") << perforceRelativeFileArguments(relativeDirArgs);
         const PerforceResponse result = runP4Cmd(m_settings.topLevel(), args,
                                                  RunFullySynchronous);
+
+        if (Perforce::Constants::debug)
+            qDebug() << "Perforce result:\n" << result.stdOut << "\n---\n" << result.stdErr
+                     << "\n---\n" << result.message;
+
         managed = result.stdOut.contains(QLatin1String("depotFile"))
                   || result.stdErr.contains(QLatin1String("... - no such file(s)"));
     } while (false);
 
-    m_managedDirectoryCache.insert(directory, managed);
+    m_managedDirectoryCache.insert(directory, DirectoryCacheEntry(managed, m_settings.topLevel()));
     return managed;
 }
 
@@ -1529,14 +1546,17 @@ PerforceVersionControl *PerforcePlugin::perforceVersionControl()
     return static_cast<PerforceVersionControl *>(m_instance->versionControl());
 }
 
-void PerforcePlugin::slotTopLevelFound(const QString &t)
+void PerforcePlugin::setTopLevel(const QString &topLevel)
 {
-    m_settings.setTopLevel(t);
-    const QString msg = tr("Perforce repository: %1").
-                        arg(QDir::toNativeSeparators(t));
+    if (m_settings.topLevel() == topLevel)
+        return;
+
+    m_settings.setTopLevel(topLevel);
+
+    const QString msg = tr("Perforce repository: %1").arg(QDir::toNativeSeparators(topLevel));
     VcsOutputWindow::appendSilently(msg);
     if (Perforce::Constants::debug)
-        qDebug() << "P4: " << t;
+        qDebug() << "P4: " << topLevel;
 }
 
 void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
@@ -1546,7 +1566,7 @@ void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
         qDebug() << errorMessage;
 }
 
-void PerforcePlugin::getTopLevel()
+void PerforcePlugin::getTopLevel(const QString &workingDirectory, bool isSync)
 {
     // Run a new checker
     if (m_instance->m_settings.p4BinaryPath().isEmpty())
@@ -1554,9 +1574,14 @@ void PerforcePlugin::getTopLevel()
     auto checker = new PerforceChecker(m_instance);
     connect(checker, &PerforceChecker::failed, m_instance, &PerforcePlugin::slotTopLevelFailed);
     connect(checker, &PerforceChecker::failed, checker, &QObject::deleteLater);
-    connect(checker, &PerforceChecker::succeeded, m_instance, &PerforcePlugin::slotTopLevelFound);
+    connect(checker, &PerforceChecker::succeeded, m_instance, &PerforcePlugin::setTopLevel);
     connect(checker, &PerforceChecker::succeeded,checker, &QObject::deleteLater);
-    checker->start(settings().p4BinaryPath(), settings().commonP4Arguments(QString()), 30000);
+
+    checker->start(settings().p4BinaryPath(), workingDirectory,
+                   settings().commonP4Arguments(QString()), 30000);
+
+    if (isSync)
+        checker->waitForFinished();
 }
 
 #ifdef WITH_TESTS

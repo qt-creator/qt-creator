@@ -68,7 +68,7 @@ void SettingsPageWidget::slotTest()
 
     setStatusText(tr("Testing..."));
     const Settings s = settings();
-    m_checker->start(s.p4BinaryPath, s.commonP4Arguments(), 10000);
+    m_checker->start(s.p4BinaryPath, QString(), s.commonP4Arguments(), 10000);
 }
 
 void SettingsPageWidget::testSucceeded(const QString &repo)

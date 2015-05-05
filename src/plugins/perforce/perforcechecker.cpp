@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "perforcechecker.h"
+#include "perforceconstants.h"
 
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -69,6 +70,11 @@ bool PerforceChecker::isRunning() const
     return m_process.state() == QProcess::Running;
 }
 
+bool PerforceChecker::waitForFinished(int msec)
+{
+    return m_process.waitForFinished(msec);
+}
+
 void PerforceChecker::resetOverrideCursor()
 {
     if (m_isOverrideCursor) {
@@ -77,7 +83,7 @@ void PerforceChecker::resetOverrideCursor()
     }
 }
 
-void PerforceChecker::start(const QString &binary,
+void PerforceChecker::start(const QString &binary, const QString &workingDirectory,
                             const QStringList &basicArgs,
                             int timeoutMS)
 {
@@ -92,6 +98,10 @@ void PerforceChecker::start(const QString &binary,
     m_binary = binary;
     QStringList args = basicArgs;
     args << QLatin1String("client") << QLatin1String("-o");
+
+    if (!workingDirectory.isEmpty())
+        m_process.setWorkingDirectory(workingDirectory);
+
     m_process.start(m_binary, args);
     m_process.closeWriteChannel();
     // Timeout handling

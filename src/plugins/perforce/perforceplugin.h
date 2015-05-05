@@ -136,7 +136,7 @@ private slots:
     void submitCurrentLog();
     void printPendingChanges();
     void slotSubmitDiff(const QStringList &files);
-    void slotTopLevelFound(const QString &);
+    void setTopLevel(const QString &);
     void slotTopLevelFailed(const QString &);
 
 #ifdef WITH_TESTS
@@ -148,7 +148,19 @@ protected:
 
 
 private:
-    typedef QHash<QString, bool> ManagedDirectoryCache;
+    class DirectoryCacheEntry
+    {
+    public:
+        DirectoryCacheEntry(bool isManaged, const QString &topLevel):
+            m_isManaged(isManaged), m_topLevel(topLevel)
+        {
+        }
+
+        bool m_isManaged;
+        QString m_topLevel;
+    };
+
+    typedef QHash<QString, DirectoryCacheEntry> ManagedDirectoryCache;
 
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       int editorType, const QString &source,
@@ -197,7 +209,8 @@ private:
     bool isCommitEditorOpen() const;
     static QSharedPointer<Utils::TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,
                                                                             QString *errorString);
-    static void getTopLevel();
+
+    static void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
     QString pendingChangesData();
 
     void updateCheckout(const QString &workingDir = QString(),
