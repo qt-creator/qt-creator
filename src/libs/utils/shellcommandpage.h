@@ -62,6 +62,8 @@ public:
 
     void terminate();
 
+    bool handleReject();
+
 signals:
     void finished(bool success);
 

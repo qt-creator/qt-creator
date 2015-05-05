@@ -151,6 +151,15 @@ void ShellCommandPage::terminate()
         m_command->cancel();
 }
 
+bool ShellCommandPage::handleReject()
+{
+    if (!isRunning())
+        return false;
+
+    terminate();
+    return true;
+}
+
 bool ShellCommandPage::isComplete() const
 {
     return m_state == Succeeded;
