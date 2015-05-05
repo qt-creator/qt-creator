@@ -95,6 +95,7 @@ signals:
 
 public slots:
     void accept();
+    void reject();
 
 private slots:
     void handleNewPages(int pageId);

@@ -176,6 +176,10 @@ void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)
 
 void JsonWizard::accept()
 {
+    auto page = qobject_cast<Utils::WizardPage *>(currentPage());
+    if (page && page->handleAccept())
+        return;
+
     Utils::Wizard::accept();
 
     QString errorMessage;
@@ -229,6 +233,15 @@ void JsonWizard::accept()
     emit allDone(m_files);
 
     openFiles(m_files);
+}
+
+void JsonWizard::reject()
+{
+    auto page = qobject_cast<Utils::WizardPage *>(currentPage());
+    if (page && page->handleReject())
+        return;
+
+    Utils::Wizard::reject();
 }
 
 void JsonWizard::handleNewPages(int pageId)

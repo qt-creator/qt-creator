@@ -52,6 +52,9 @@ public:
     void registerFieldWithName(const QString &name, QWidget *widget,
                                const char *property = 0, const char *changedSignal = 0);
 
+    virtual bool handleReject();
+    virtual bool handleAccept();
+
 signals:
     // Emitted when there is something that the developer using this page should be aware of.
     void reportError(const QString &errorMessage);

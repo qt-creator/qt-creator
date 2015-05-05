@@ -70,4 +70,14 @@ void WizardPage::registerFieldWithName(const QString &name, QWidget *widget,
     registerField(name, widget, property, changedSignal);
 }
 
+bool WizardPage::handleReject()
+{
+    return false;
+}
+
+bool WizardPage::handleAccept()
+{
+    return false;
+}
+
 } // namespace Utils
