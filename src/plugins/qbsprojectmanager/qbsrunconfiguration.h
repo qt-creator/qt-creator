@@ -123,7 +123,6 @@ private:
     // Cached startup sub project information
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
     bool m_runModeForced;
-    QString m_userWorkingDirectory;
 
     QbsInstallStep *m_currentInstallStep; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList; // We do not take ownership!
@@ -138,11 +137,6 @@ public:
 
 private slots:
     void runConfigurationEnabledChange();
-    void workDirectoryEdited();
-    void workingDirectoryWasReset();
-    void environmentWasChanged();
-
-    void workingDirectoryChanged(const QString &workingDirectory);
     void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void termToggled(bool);
@@ -158,7 +152,6 @@ private:
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
     QLabel *m_executableLineLabel;
-    Utils::PathChooser *m_workingDirectoryEdit;
     QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
     QLineEdit *m_qmlDebugPort;

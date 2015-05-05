@@ -40,6 +40,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <utils/qtcprocess.h>
@@ -70,7 +71,6 @@ namespace Internal {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 const char USE_TERMINAL_KEY[] = "Qbs.RunConfiguration.UseTerminal";
-const char USER_WORKING_DIRECTORY_KEY[] = "Qbs.RunConfiguration.UserWorkingDirectory";
 
 static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
 
@@ -119,6 +119,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
+    addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
 
     m_runModeForced = false;
     m_runMode = isConsoleApplication() ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
@@ -131,7 +132,6 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *so
     m_uniqueProductName(source->m_uniqueProductName),
     m_runMode(source->m_runMode),
     m_runModeForced(source->m_runModeForced),
-    m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_currentInstallStep(0), // no need to copy this, we will get if from the DC anyway.
     m_currentBuildStepList(0) // ditto
 {
@@ -183,7 +183,6 @@ QVariantMap QbsRunConfiguration::toMap() const
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     if (m_runModeForced)
         map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
-    map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
 }
 
@@ -194,8 +193,6 @@ bool QbsRunConfiguration::fromMap(const QVariantMap &map)
                     ApplicationLauncher::Console : ApplicationLauncher::Gui;
         m_runModeForced = true;
     }
-
-    m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
     return RunConfiguration::fromMap(map);
 }
@@ -272,9 +269,11 @@ QString QbsRunConfiguration::workingDirectory() const
 
 QString QbsRunConfiguration::baseWorkingDirectory() const
 {
+    WorkingDirectoryAspect *aspect = extraAspect<WorkingDirectoryAspect>();
     // if the user overrode us, then return his working directory
-    if (!m_userWorkingDirectory.isEmpty())
-        return m_userWorkingDirectory;
+    QString wd = aspect->unexpandedWorkingDirectory();
+    if (!wd.isEmpty())
+        return wd;
 
     // else what the pro file reader tells us
     const QString exe = executable();
@@ -290,9 +289,10 @@ QString QbsRunConfiguration::commandLineArguments() const
 
 void QbsRunConfiguration::setBaseWorkingDirectory(const QString &wd)
 {
+    WorkingDirectoryAspect *aspect = extraAspect<WorkingDirectoryAspect>();
     const QString &oldWorkingDirectory = workingDirectory();
 
-    m_userWorkingDirectory = wd;
+    aspect->setWorkingDirectory(wd);
 
     const QString &newWorkingDirectory = workingDirectory();
     if (oldWorkingDirectory != newWorkingDirectory)
@@ -404,26 +404,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     toplayout->addRow(tr("Executable:"), m_executableLineLabel);
 
     m_rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-    m_workingDirectoryEdit = new Utils::PathChooser(this);
-    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("Qbs.WorkingDir.History"));
-    m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
-    EnvironmentAspect *aspect = m_rc->extraAspect<EnvironmentAspect>();
-    if (aspect) {
-        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
-        environmentWasChanged();
-    }
-    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
-
-    QToolButton *resetButton = new QToolButton(this);
-    resetButton->setToolTip(tr("Reset to default"));
-    resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
-
-    QHBoxLayout *boxlayout = new QHBoxLayout();
-    boxlayout->setMargin(0);
-    boxlayout->addWidget(m_workingDirectoryEdit);
-    boxlayout->addWidget(resetButton);
-    toplayout->addRow(tr("Working directory:"), boxlayout);
+    m_rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
 
     QHBoxLayout *innerBox = new QHBoxLayout();
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
@@ -434,20 +415,9 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     runConfigurationEnabledChange();
 
-    connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
-            this, SLOT(workDirectoryEdited()));
-
-    connect(resetButton, SIGNAL(clicked()),
-            this, SLOT(workingDirectoryWasReset()));
-
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
-    connect(m_rc, SIGNAL(baseWorkingDirectoryChanged(QString)),
-            this, SLOT(workingDirectoryChanged(QString)));
-
-    connect(m_rc, SIGNAL(commandLineArgumentsChanged(QString)),
-            this, SLOT(commandLineArgumentsChanged(QString)));
     connect(m_rc, SIGNAL(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)),
             this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(m_rc, SIGNAL(targetInformationChanged()),
@@ -455,13 +425,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     connect(m_rc, SIGNAL(enabledChanged()),
             this, SLOT(runConfigurationEnabledChange()));
-}
-
-void QbsRunConfigurationWidget::environmentWasChanged()
-{
-    EnvironmentAspect *aspect = m_rc->extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return);
-    m_workingDirectoryEdit->setEnvironment(aspect->environment());
 }
 
 void QbsRunConfigurationWidget::runConfigurationEnabledChange()
@@ -473,22 +436,6 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
 
     m_useTerminalCheck->setChecked(m_rc->runMode() == ApplicationLauncher::Console);
     targetInformationHasChanged();
-}
-
-void QbsRunConfigurationWidget::workDirectoryEdited()
-{
-    if (m_ignoreChange)
-        return;
-    m_ignoreChange = true;
-    m_rc->setBaseWorkingDirectory(m_workingDirectoryEdit->rawPath());
-    m_ignoreChange = false;
-}
-
-void QbsRunConfigurationWidget::workingDirectoryWasReset()
-{
-    // This emits a signal connected to workingDirectoryChanged()
-    // that sets the m_workingDirectoryEdit
-    m_rc->setBaseWorkingDirectory(QString());
 }
 
 void QbsRunConfigurationWidget::termToggled(bool on)
@@ -503,8 +450,9 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
     m_ignoreChange = true;
     setExecutableLineText(m_rc->executable());
 
-    m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
-    m_workingDirectoryEdit->setBaseFileName(m_rc->target()->project()->projectDirectory());
+    WorkingDirectoryAspect *aspect = m_rc->extraAspect<WorkingDirectoryAspect>();
+    aspect->pathChooser()->setPath(m_rc->baseWorkingDirectory());
+    aspect->pathChooser()->setBaseFileName(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
 
@@ -512,12 +460,6 @@ void QbsRunConfigurationWidget::setExecutableLineText(const QString &text)
 {
     const QString newText = text.isEmpty() ? tr("<unknown>") : text;
     m_executableLineLabel->setText(newText);
-}
-
-void QbsRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
-{
-    if (!m_ignoreChange)
-        m_workingDirectoryEdit->setPath(workingDirectory);
 }
 
 void QbsRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
