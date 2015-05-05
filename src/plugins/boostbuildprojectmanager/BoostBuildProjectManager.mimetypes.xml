@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+<!--
+    Note the use of character groups, i.e. [Jj]amfile, seems to be impossible.
+    Also, Qt Creator at the moment disobeys this rule specified by freedesktop.org:
+    "Applications MUST match globs case-insensitively,
+    except when the case-sensitive attribute is set to true."
+    as per https://codereview.qt-project.org/#change,72567
+-->
+  <mime-type type="text/x-boostbuild-project">
+    <sub-class-of type="text/plain"/>
+    <comment>Boost.Build Project file</comment>
+    <glob pattern="Jamroot"/>
+    <glob pattern="jamroot"/>
+    <glob pattern="Jamroot.jam"/>
+    <glob pattern="jamroot.jam"/>
+    <glob pattern="Jamfile"/>
+    <glob pattern="jamfile"/>
+    <glob pattern="Jamfile.v2"/>
+    <glob pattern="jamfile.v2"/>
+    <glob pattern="Jamfile.jam"/>
+    <glob pattern="jamfile.jam"/>
+  </mime-type>
+  <mime-type type="application/vnd.qtcreator.boostbuild.files">
+    <sub-class-of type="text/plain"/>
+    <comment>Boost.Build Project Files</comment>
+    <glob pattern="Jam*.qtcreator.files"/>
+    <glob pattern="jam*.qtcreator.files"/>
+  </mime-type>
+  <mime-type type="application/vnd.qtcreator.boostbuild.includes">
+    <sub-class-of type="text/plain"/>
+    <comment>Boost.Build Project Includes</comment>
+    <glob pattern="Jam*.qtcreator.includes"/>
+    <glob pattern="jam*.qtcreator.includes"/>
+  </mime-type>
+</mime-info>

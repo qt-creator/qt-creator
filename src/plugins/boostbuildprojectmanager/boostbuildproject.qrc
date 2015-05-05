@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/boostbuildproject">
+        <file>BoostBuildProjectManager.mimetypes.xml</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,19 @@
+{
+    \"Name\" : \"BoostBuildProjectManager\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Vendor\" : \"Mateusz Łoskot\",
+    \"Copyright\" : \"2013 (C) Mateusz Łoskot\",
+    \"License\" : [ \"GNU Lesser General Public License, Version 2.1\",
+                    \"\",
+                    \"This is free software; you can redistribute and/or modify it under the terms\",
+                    \"of the GNU Lesser General Public License, Version 2.1 as published\",
+                    \"by the Free Software Foundation.\",
+                    \"See accompanying fike LICENSE.txt file or\",
+                    \"copy at http://www.gnu.org/licenses/lgpl-2.1-standalone.html for more information.\",
+                    \"\" ],
+    \"Category\" : \"Build Systems\",
+    \"Description\" : \"Qt Creator plugin for Boost.Build\",
+    \"Url\" : \"https://github.com/mloskot/qt-creator-plugin-boostbuild/\",
+    $$dependencyList
+}

@@ -29,6 +29,7 @@ SUBDIRS   = \
     designer \
     resourceeditor \
     genericprojectmanager \
+    boostbuildprojectmanager \
     qmljseditor \
     qmlprojectmanager \
     glsleditor \
