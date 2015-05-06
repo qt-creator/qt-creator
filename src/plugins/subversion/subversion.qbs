@@ -14,10 +14,6 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "checkoutwizard.cpp",
-        "checkoutwizard.h",
-        "checkoutwizardpage.cpp",
-        "checkoutwizardpage.h",
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",

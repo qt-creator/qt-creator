@@ -37,7 +37,6 @@
 #include "subversionclient.h"
 #include "subversionconstants.h"
 #include "subversioncontrol.h"
-#include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcscommand.h>
@@ -259,16 +258,6 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     const auto widgetCreator = []() { return new SubversionEditorWidget; };
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
-
-    auto checkoutWizardFactory = new BaseCheckoutWizardFactory;
-    checkoutWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
-    checkoutWizardFactory->setIcon(QIcon(QLatin1String(":/subversion/images/subversion.png")));
-    checkoutWizardFactory->setDescription(tr("Checks out a Subversion repository and tries to load the contained project."));
-    checkoutWizardFactory->setDisplayName(tr("Subversion Checkout"));
-    checkoutWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
-        return new CheckoutWizard(path, parent);
-    });
-    addAutoReleasedObject(checkoutWizardFactory);
 
     const QString prefix = QLatin1String("svn");
     m_commandLocator = new CommandLocator("Subversion", prefix, prefix);
