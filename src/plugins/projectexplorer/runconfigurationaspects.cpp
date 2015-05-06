@@ -217,7 +217,7 @@ void ArgumentsAspect::setArguments(const QString &arguments)
 
 void ArgumentsAspect::fromMap(const QVariantMap &map)
 {
-    m_arguments = map.value(m_key).toBool();
+    m_arguments = map.value(m_key).toString();
 }
 
 void ArgumentsAspect::toMap(QVariantMap &map) const
