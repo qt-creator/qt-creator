@@ -72,6 +72,7 @@ signals:
 
 public slots:
     void onItemActivated(const QModelIndex &index);
+    void onItemDoubleClicked(const QModelIndex &index);
 
     void onDataUpdate(QSharedPointer<QStandardItem> result);
 

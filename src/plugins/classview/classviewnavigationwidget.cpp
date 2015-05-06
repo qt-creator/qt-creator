@@ -40,6 +40,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QVariant>
 #include <QVBoxLayout>
 
 enum { debug = false };
@@ -102,6 +103,7 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
     treeView->setDragEnabled(true);
     treeView->setDragDropMode(QAbstractItemView::DragOnly);
     treeView->setDefaultDropAction(Qt::MoveAction);
+    treeView->setExpandsOnDoubleClick(false);
     verticalLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(
                                   treeView, Core::ItemViewFind::DarkColored,
                                   Core::ItemViewFind::FetchMoreWhileSearching));
@@ -113,6 +115,9 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
     // connect signal/slots
     // selected item
     connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(onItemActivated(QModelIndex)));
+
+    // double-clicked item
+    connect(treeView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onItemDoubleClicked(QModelIndex)));
 
     // connections to the manager
     Manager *manager = Manager::instance();
@@ -234,6 +239,26 @@ void NavigationWidget::onItemActivated(const QModelIndex &index)
     QList<QVariant> list = treeModel->data(index, Constants::SymbolLocationsRole).toList();
 
     emit requestGotoLocations(list);
+}
+
+/*!
+    Expands/collapses the item given by \a index if it
+    refers to a project file (.pro/.pri)
+*/
+
+void NavigationWidget::onItemDoubleClicked(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+
+    const QVariant iconType = treeModel->data(index, Constants::IconTypeRole);
+    if (!iconType.isValid())
+        return;
+
+    bool ok = false;
+    const int type = iconType.toInt(&ok);
+    if (ok && type == INT_MIN)
+        treeView->setExpanded(index, !treeView->isExpanded(index));
 }
 
 /*!
