@@ -596,9 +596,10 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
 static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList opts;
-    opts += QLatin1String("-x");
 
     switch (fileKind) {
+    case ProjectFile::Unclassified:
+        break;
     case ProjectFile::CHeader:
         if (objcExt)
             opts += QLatin1String("objective-c-header");
@@ -642,6 +643,9 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
         opts += QLatin1String("cuda");
         break;
     }
+
+    if (!opts.isEmpty())
+        opts.prepend(QLatin1String("-x"));
 
     return opts;
 }
