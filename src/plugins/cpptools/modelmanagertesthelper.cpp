@@ -40,6 +40,7 @@
 Q_DECLARE_METATYPE(QSet<QString>)
 
 using namespace CppTools::Internal;
+using namespace CppTools::Tests;
 
 TestProject::TestProject(const QString &name, QObject *parent)
     : m_name (name)
@@ -93,6 +94,14 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QSt
     TestProject *tp = new TestProject(name, this);
     emit projectAdded(tp);
     return tp;
+}
+
+QSet<QString> ModelManagerTestHelper::updateProjectInfo(const CppTools::ProjectInfo &projectInfo)
+{
+    resetRefreshedSourceFiles();
+    CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();
+    QCoreApplication::processEvents();
+    return waitForRefreshedSourceFiles();
 }
 
 void ModelManagerTestHelper::resetRefreshedSourceFiles()

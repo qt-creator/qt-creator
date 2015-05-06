@@ -167,15 +167,6 @@ private:
     const QString &m_filePath;
 };
 
-static QSet<QString> updateProjectInfo(CppModelManager *modelManager, ModelManagerTestHelper *helper,
-                                     const ProjectInfo &projectInfo)
-{
-    helper->resetRefreshedSourceFiles();
-    modelManager->updateProjectInfo(projectInfo).waitForFinished();
-    QCoreApplication::processEvents();
-    return helper->waitForRefreshedSourceFiles();
-}
-
 void waitForProcessedEditorDocument(const QString &filePath)
 {
     CppEditorDocumentHandle *editorDocument
@@ -297,7 +288,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     pi.appendProjectPart(part);
     pi.finish();
 
-    QSet<QString> refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    QSet<QString> refreshedFiles = helper.updateProjectInfo(pi);
     QCOMPARE(refreshedFiles.size(), 1);
     QVERIFY(refreshedFiles.contains(testCpp));
     CPlusPlus::Snapshot snapshot = mm->snapshot();
@@ -315,7 +306,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     pi.appendProjectPart(part);
     pi.finish();
 
-    refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    refreshedFiles = helper.updateProjectInfo(pi);
 
     QCOMPARE(refreshedFiles.size(), 1);
     QVERIFY(refreshedFiles.contains(testCpp));
@@ -376,7 +367,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
         pi.appendProjectPart(part);
         pi.finish();
 
-        refreshedFiles = updateProjectInfo(mm, &helper, pi);
+        refreshedFiles = helper.updateProjectInfo(pi);
         QCOMPARE(refreshedFiles.size(), 3);
 
         QVERIFY(refreshedFiles.contains(testHeader1));
@@ -461,7 +452,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     CPlusPlus::Snapshot snapshot;
     QSet<QString> refreshedFiles;
 
-    refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    refreshedFiles = helper.updateProjectInfo(pi);
 
     QCOMPARE(refreshedFiles.size(), 2);
     QVERIFY(refreshedFiles.contains(testHeader1));
@@ -481,7 +472,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     pi.appendProjectPart(newPart);
     pi.finish();
 
-    refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    refreshedFiles = helper.updateProjectInfo(pi);
 
     // Only the added project file was reparsed
     QCOMPARE(refreshedFiles.size(), 1);
@@ -527,7 +518,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     CPlusPlus::Snapshot snapshot;
     QSet<QString> refreshedFiles;
 
-    refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    refreshedFiles = helper.updateProjectInfo(pi);
 
     QCOMPARE(refreshedFiles.size(), initialProjectFiles.size());
     snapshot = mm->snapshot();
@@ -557,7 +548,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     pi.appendProjectPart(part);
     pi.finish();
 
-    refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    refreshedFiles = helper.updateProjectInfo(pi);
 
     QCOMPARE(refreshedFiles.size(), finalProjectFiles.size());
     snapshot = mm->snapshot();
@@ -610,7 +601,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
                                   << _("foo.cpp")
                                   << _("main.cpp"));
 
-    refreshedFiles = updateProjectInfo(mm, &helper, project1.projectInfo);
+    refreshedFiles = helper.updateProjectInfo(project1.projectInfo);
     QCOMPARE(refreshedFiles, project1.projectFiles.toSet());
     const int snapshotSizeAfterProject1 = mm->snapshot().size();
 
@@ -624,7 +615,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
                                   << _("bar.cpp")
                                   << _("main.cpp"));
 
-    refreshedFiles = updateProjectInfo(mm, &helper, project2.projectInfo);
+    refreshedFiles = helper.updateProjectInfo(project2.projectInfo);
     QCOMPARE(refreshedFiles, project2.projectFiles.toSet());
 
     const int snapshotSizeAfterProject2 = mm->snapshot().size();
@@ -824,7 +815,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     pi.appendProjectPart(part2);
     pi.finish();
 
-    updateProjectInfo(mm, &helper, pi);
+    helper.updateProjectInfo(pi);
     QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
@@ -895,7 +886,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     pi.appendProjectPart(part2);
     pi.finish();
 
-    updateProjectInfo(mm, &helper, pi);
+    helper.updateProjectInfo(pi);
     QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
@@ -977,7 +968,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     pi.appendProjectPart(part2);
     pi.finish();
 
-    updateProjectInfo(mm, &helper, pi);
+    helper.updateProjectInfo(pi);
 
     QCOMPARE(mm->snapshot().size(), 4);
 
@@ -1059,7 +1050,7 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
-    updateProjectInfo(mm, &helper, pi);
+    helper.updateProjectInfo(pi);
 
     // ... and check for updated editor document A
     while (editorDocumentA->processor()->isParserRunning())

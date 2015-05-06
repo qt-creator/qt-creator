@@ -31,6 +31,7 @@
 #ifndef CPPTOOLS_INTERNAL_MODELMANAGERTESTHELPER_H
 #define CPPTOOLS_INTERNAL_MODELMANAGERTESTHELPER_H
 
+#include "cpptools_global.h"
 #include "cppmodelmanager.h"
 
 #include <projectexplorer/project.h>
@@ -38,9 +39,9 @@
 #include <QObject>
 
 namespace CppTools {
-namespace Internal {
+namespace Tests {
 
-class TestProject: public ProjectExplorer::Project
+class CPPTOOLS_EXPORT TestProject: public ProjectExplorer::Project
 {
     Q_OBJECT
 
@@ -67,7 +68,7 @@ private:
     QString m_name;
 };
 
-class ModelManagerTestHelper: public QObject
+class CPPTOOLS_EXPORT ModelManagerTestHelper: public QObject
 {
     Q_OBJECT
 
@@ -80,6 +81,8 @@ public:
     void cleanup();
 
     Project *createProject(const QString &name);
+
+    QSet<QString> updateProjectInfo(const ProjectInfo &projectInfo);
 
     void resetRefreshedSourceFiles();
     QSet<QString> waitForRefreshedSourceFiles();
@@ -99,7 +102,7 @@ private:
     QSet<QString> m_lastRefreshedSourceFiles;
 };
 
-} // namespace Internal
+} // namespace Tests
 } // namespace CppTools
 
 #endif // CPPTOOLS_INTERNAL_MODELMANAGERTESTHELPER_H

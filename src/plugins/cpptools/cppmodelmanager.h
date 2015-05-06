@@ -59,6 +59,9 @@ class WorkingCopy;
 namespace Internal {
 class CppSourceProcessor;
 class CppModelManagerPrivate;
+}
+
+namespace Tests {
 class ModelManagerTestHelper;
 }
 
@@ -177,7 +180,7 @@ public slots:
 
 private slots:
     // This should be executed in the GUI thread.
-    friend class Internal::ModelManagerTestHelper;
+    friend class Tests::ModelManagerTestHelper;
     void onAboutToLoadSession();
     void onAboutToUnloadSession();
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
