@@ -40,6 +40,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 
@@ -79,7 +80,10 @@ bool AndroidPackageInstallationStep::init()
     // addToEnvironment() to not screw up the users run environment.
     env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
     pp->setEnvironment(env);
-    pp->setArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(dirPath));
+    const QString innerQuoted = Utils::QtcProcess::quoteArg(dirPath);
+    const QString outerQuoted = Utils::QtcProcess::quoteArg(QString::fromLatin1("INSTALL_ROOT=") + innerQuoted);
+    pp->setArguments(outerQuoted + QString::fromLatin1(" install"));
+
     pp->resolveAll();
     setOutputParser(new ProjectExplorer::GnuMakeParser());
     ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
