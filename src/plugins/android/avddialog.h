@@ -32,7 +32,9 @@
 #define AVDDIALOG_H
 
 #include "ui_addnewavddialog.h"
+
 #include <QDialog>
+#include <QTimer>
 
 namespace Android {
 class AndroidConfig;
@@ -51,12 +53,17 @@ public:
     QString abi() const;
     int sdcardSize() const;
     bool isValid() const;
+
 private slots:
     void updateApiLevelComboBox();
 private:
+    bool eventFilter(QObject *obj, QEvent *event);
+
     Ui::AddNewAVDDialog m_avdDialog;
     const AndroidConfig *m_config;
     int m_minApiLevel;
+    QTimer m_hideTipTimer;
+    QRegExp m_allowedNameChars;
 };
 }
 }

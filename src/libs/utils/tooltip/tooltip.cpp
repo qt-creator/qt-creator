@@ -180,6 +180,11 @@ bool ToolTip::isVisible()
     return t->m_tip && t->m_tip->isVisible();
 }
 
+QPoint ToolTip::offsetFromPosition()
+{
+    return QPoint(2, HostOsInfo::isWindowsHost() ? 21 : 16);
+}
+
 void ToolTip::showTip()
 {
 #if !defined(QT_NO_EFFECTS) && !defined(Q_OS_MAC)
@@ -249,7 +254,7 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 {
     QRect screen = Internal::screenGeometry(pos, w);
     QPoint p = pos;
-    p += QPoint(2, HostOsInfo::isWindowsHost() ? 21 : 16);
+    p += offsetFromPosition();
     if (p.x() + m_tip->width() > screen.x() + screen.width())
         p.rx() -= 4 + m_tip->width();
     if (p.y() + m_tip->height() > screen.y() + screen.height())

@@ -82,6 +82,8 @@ public:
     static void hide();
     static bool isVisible();
 
+    static QPoint offsetFromPosition();
+
     // Helper to 'pin' (show as real window) a tooltip shown
     // using WidgetContent
     static bool pinToolTip(QWidget *w, QWidget *parent);

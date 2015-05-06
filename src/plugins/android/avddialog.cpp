@@ -30,17 +30,24 @@
 
 #include "avddialog.h"
 #include "androidconfigurations.h"
-#include <coreplugin/coreconstants.h>
 
+#include <coreplugin/coreconstants.h>
+#include <utils/tooltip/tooltip.h>
+
+#include <QKeyEvent>
 #include <QMessageBox>
+#include <QToolTip>
 
 using namespace Android;
 using namespace Android::Internal;
 
 AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidConfig *config, QWidget *parent) :
-    QDialog(parent), m_config(config), m_minApiLevel(minApiLevel)
+    QDialog(parent), m_config(config), m_minApiLevel(minApiLevel),
+    m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
     m_avdDialog.setupUi(this);
+    m_hideTipTimer.setInterval(2000);
+    m_hideTipTimer.setSingleShot(true);
 
     if (targetArch.isEmpty())
         m_avdDialog.abiComboBox->addItems(QStringList()
@@ -51,15 +58,19 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
     else
         m_avdDialog.abiComboBox->addItems(QStringList(targetArch));
 
-    QRegExp rx(QLatin1String("\\S+"));
-    QRegExpValidator v(rx, 0);
-    m_avdDialog.nameLineEdit->setValidator(&v);
+    QRegExpValidator *v = new QRegExpValidator(m_allowedNameChars, this);
+    m_avdDialog.nameLineEdit->setValidator(v);
+    m_avdDialog.nameLineEdit->installEventFilter(this);
+
     m_avdDialog.warningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
 
     updateApiLevelComboBox();
 
     connect(m_avdDialog.abiComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(updateApiLevelComboBox()));
+
+    connect(&m_hideTipTimer, &QTimer::timeout,
+            this, [](){Utils::ToolTip::hide();});
 }
 
 bool AvdDialog::isValid() const
@@ -114,4 +125,22 @@ void AvdDialog::updateApiLevelComboBox()
         m_avdDialog.warningIcon->setVisible(false);
         m_avdDialog.warningText->setVisible(false);
     }
+}
+
+bool AvdDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_avdDialog.nameLineEdit && event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        const QString key = ke->text();
+        if (!key.isEmpty() && !m_allowedNameChars.exactMatch(key)) {
+            QPoint position = m_avdDialog.nameLineEdit->parentWidget()->mapToGlobal(m_avdDialog.nameLineEdit->geometry().bottomLeft());
+            position -= Utils::ToolTip::offsetFromPosition();
+            Utils::ToolTip::show(position, tr("Allowed characters are: a-z A-Z 0-9 and . _ -"), m_avdDialog.nameLineEdit);
+            m_hideTipTimer.start();
+        } else {
+            m_hideTipTimer.stop();
+            Utils::ToolTip::hide();
+        }
+    }
+    return QDialog::eventFilter(obj, event);
 }
