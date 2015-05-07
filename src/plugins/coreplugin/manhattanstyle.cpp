@@ -354,11 +354,6 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
 {
     int ret = QProxyStyle::styleHint(hint, option, widget, returnData);
     switch (hint) {
-    // Make project explorer alternate rows all the way
-    case QStyle::SH_ItemView_PaintAlternatingRowColorsForEmptyArea:
-        if (widget && widget->property("AlternateEmpty").toBool())
-            ret = true;
-        break;
     case QStyle::SH_EtchDisabledText:
         if (panelWidget(widget) || qobject_cast<const QMenu *> (widget) )
             ret = false;
