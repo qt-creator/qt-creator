@@ -30,14 +30,21 @@ General
   (QTCREATORBUG-13845)
 * Fixed appearance on high DPI displays on Windows and Linux
   (QTCREATORBUG-11179)
+* Added locator filter for running external tools
 
 Editing
 
 * Added option to jump directly to specific column in addition to
   line number when opening files through locator or command line
 * Made global file search use multiple threads (QTCREATORBUG-10298)
+* Fixed highlighting of current line in read-only text editors
+  (QTCREATORBUG-10104)
 
 Help
+
+Project Management
+
+* Fixed issues with restoring project tree state (QTCREATORBUG-14304)
 
 QMake Projects
 
@@ -69,10 +76,17 @@ C++ Support
 * Added separate icon for structs
 * Fixed *Convert to Stack Variable* refactoring action for empty
   initializer lists (QTCREATORBUG-14279)
+* Fixed expanding items in class view with double-click
+  (QTCREATORBUG-2536)
 
 QML Support
 
+* Removed Qt Quick 1 wizards
+
 Version Control Systems
+
+* Perforce
+    * Added support for P4CONFIG (QTCREATORBUG-14378)
 
 FakeVim
 
@@ -94,6 +108,12 @@ Android
 * Added warning if emulator is not OpenGL enabled
   (QTCREATORBUG-13615)
 * Fixed listing of Google AVDs (QTCREATORBUG-13980)
+* Fixed that kits were removed from projects when changing NDK path
+  (QTCREATORBUG-14243)
+
+BlackBerry
+
+* Removed support for BlackBerry 10 development
 
 Remote Linux
 
