@@ -990,9 +990,9 @@ QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
     if (!sharedUserFileDir().isEmpty()) {
         const QString sharedPath = sharedUserFileDir() + QLatin1Char('/')
             + makeRelative(pfi.absolutePath());
-        list.append(QDir(sharedPath).entryInfoList(filter, QDir::Files));
+        list.append(QDir(sharedPath).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
     }
-    list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files));
+    list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
 
     foreach (const QFileInfo &fi, list) {
         const FileName path = FileName::fromString(fi.absoluteFilePath());
