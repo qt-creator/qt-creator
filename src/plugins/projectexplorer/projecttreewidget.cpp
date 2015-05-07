@@ -96,15 +96,71 @@ public:
         m_context = new IContext(this);
         m_context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
         m_context->setWidget(this);
+
         ICore::addContextObject(m_context);
+
+        connect(this, &ProjectTreeView::expanded,
+                this, &ProjectTreeView::invalidateSize);
+        connect(this, &ProjectTreeView::collapsed,
+                this, &ProjectTreeView::invalidateSize);
     }
+
+    void invalidateSize()
+    {
+        m_cachedSize = -1;
+    }
+
+    void setModel(QAbstractItemModel *newModel)
+    {
+        // Note: Don't connect to column signals, as we have only one column
+        if (model()) {
+            QAbstractItemModel *m = model();
+            disconnect(m, &QAbstractItemModel::dataChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::layoutChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::modelReset,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::rowsInserted,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::rowsMoved,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::rowsRemoved,
+                    this, &ProjectTreeView::invalidateSize);
+        }
+        if (newModel) {
+            connect(newModel, &QAbstractItemModel::dataChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::layoutChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::modelReset,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::rowsInserted,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::rowsMoved,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::rowsRemoved,
+                    this, &ProjectTreeView::invalidateSize);
+        }
+        Utils::NavigationTreeView::setModel(newModel);
+    }
+
     ~ProjectTreeView()
     {
         ICore::removeContextObject(m_context);
         delete m_context;
     }
 
+    int sizeHintForColumn(int column) const override
+    {
+        if (m_cachedSize < 0)
+            m_cachedSize = Utils::NavigationTreeView::sizeHintForColumn(column);
+
+        return m_cachedSize;
+    }
+
 private:
+    mutable int m_cachedSize = -1;
     IContext *m_context;
 };
 
