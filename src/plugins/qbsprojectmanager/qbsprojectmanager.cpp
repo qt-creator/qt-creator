@@ -46,6 +46,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <QCryptographicHash>
 #include <QVariantMap>
 
 #include <qbs.h>
@@ -194,7 +195,8 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
     const QString name = QString::fromLatin1("qtc_%1_%2").arg(k->fileSystemFriendlyName().left(8),
-            QString::number(k->id().uniqueIdentifier(), 16));
+            QString::fromLatin1(QCryptographicHash::hash(k->id().name(),
+                                                         QCryptographicHash::Sha1).toHex().left(8)));
     qbs::Profile(name, settings()).removeProfile();
     setProfileForKit(name, k);
     addQtProfileFromKit(name, k);
