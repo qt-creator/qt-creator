@@ -222,7 +222,7 @@ void ClangStaticAnalyzerTool::startTool()
     AnalyzerManager::showMode();
 
     Project *project = SessionManager::startupProject();
-    QTC_ASSERT(project, return);
+    QTC_ASSERT(project, emit finished(false); return);
 
     if (dontStartAfterHintForDebugMode(project))
         return;
@@ -231,7 +231,7 @@ void ClangStaticAnalyzerTool::startTool()
     setBusyCursor(true);
     m_diagnosticFilterModel->setProject(project);
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
-    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
+    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), emit finished(false); return);
     m_running = true;
     handleStateUpdate();
 
@@ -284,7 +284,7 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     resetCursorAndProjectInfoBeforeBuild();
     m_running = false;
     handleStateUpdate();
-    emit finished();
+    emit finished(static_cast<ClangStaticAnalyzerRunControl *>(sender())->success());
 }
 
 void ClangStaticAnalyzerTool::setBusyCursor(bool busy)

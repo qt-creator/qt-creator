@@ -57,7 +57,7 @@ public:
     void startTool();
 
 signals:
-    void finished(); // For testing.
+    void finished(bool success); // For testing.
 
 private:
     void onEngineIsStarting();

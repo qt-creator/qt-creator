@@ -233,6 +233,7 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 
 bool ClangStaticAnalyzerRunControl::startEngine()
 {
+    m_success = false;
     emit starting(this);
 
     QTC_ASSERT(m_projectInfo.isValid(), emit finished(); return false);
@@ -291,6 +292,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_runners.clear();
     const int parallelRuns = ClangStaticAnalyzerSettings::instance()->simultaneousProcesses();
     QTC_ASSERT(parallelRuns >= 1, emit finished(); return false);
+    m_success = true;
     while (m_runners.size() < parallelRuns && !m_unitsToProcess.isEmpty())
         analyzeNextFile();
     return true;
@@ -390,6 +392,7 @@ void ClangStaticAnalyzerRunControl::onRunnerFinishedWithFailure(const QString &e
     qCDebug(LOG) << "onRunnerFinishedWithFailure:" << errorMessage << errorDetails;
 
     ++m_filesNotAnalyzed;
+    m_success = false;
     const QString filePath = qobject_cast<ClangStaticAnalyzerRunner *>(sender())->filePath();
     appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage)
                   + QLatin1Char('\n')
