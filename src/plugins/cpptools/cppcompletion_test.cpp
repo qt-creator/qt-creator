@@ -168,6 +168,8 @@ bool isProbablyGlobalCompletion(const QStringList &list)
             + (T_FIRST_OBJC_AT_KEYWORD - T_FIRST_KEYWORD);
 
     return list.size() >= numberOfPrimitivesAndBasicKeywords
+        && list.contains(QLatin1String("override"))
+        && list.contains(QLatin1String("final"))
         && list.contains(QLatin1String("if"))
         && list.contains(QLatin1String("bool"));
 }
@@ -340,25 +342,48 @@ void CppToolsPlugin::test_global_completion_data()
 {
     QTest::addColumn<QByteArray>("code");
     QTest::addColumn<QByteArray>("prefix");
+    QTest::addColumn<QStringList>("requiredCompletionItems");
 
     // Check that special completion after '&' for Qt5 signal/slots does not
     // interfere global completion after '&'
     QTest::newRow("global completion after & in return expression")
          << _("void f() { foo(myObject, @); }\n")
-         << _("&");
+         << _("&")
+         << QStringList();
     QTest::newRow("global completion after & in function argument")
          << _("int f() { return @; }\n")
-         << _("&");
+         << _("&")
+         << QStringList();
+
+    // Check global completion after one line comments
+    const QByteArray codeTemplate = "int myGlobal;\n"
+                                    "<REPLACEMENT>\n"
+                                    "@\n";
+    const QStringList replacements = QStringList()
+            << QLatin1String("// text")
+            << QLatin1String("// text.")
+            << QLatin1String("/// text")
+            << QLatin1String("/// text.")
+               ;
+    foreach (const QString &replacement, replacements) {
+        QByteArray code = codeTemplate;
+        code.replace("<REPLACEMENT>", replacement.toUtf8());
+        const QByteArray tag = _("completion after comment: ") + replacement.toUtf8();
+        QTest::newRow(tag) << code << QByteArray() << QStringList(QLatin1String("myGlobal"));
+    }
 }
 
 void CppToolsPlugin::test_global_completion()
 {
     QFETCH(QByteArray, code);
     QFETCH(QByteArray, prefix);
+    QFETCH(QStringList, requiredCompletionItems);
 
     CompletionTestCase test(code, prefix);
     QVERIFY(test.succeededSoFar());
-    QVERIFY(isProbablyGlobalCompletion(test.getCompletions()));
+    const QStringList completions = test.getCompletions();
+    QVERIFY(isProbablyGlobalCompletion(completions));
+    QVERIFY(completions.toSet().contains(requiredCompletionItems.toSet()));
 }
 
 static void enumTestCase(const QByteArray &tag, const QByteArray &source,

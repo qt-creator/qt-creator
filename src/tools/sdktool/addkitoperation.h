@@ -57,7 +57,7 @@ public:
                               const quint32 &debuggerType, const QString &debugger,
                               const QString &deviceType, const QString &device,
                               const QString &sysRoot, const QString &tc, const QString &qt,
-                              const QString &mkspec, const KeyValuePairList &extra);
+                              const QString &mkspec, const QStringList &env, const KeyValuePairList &extra);
 
     static QVariantMap initializeKits();
 
@@ -69,7 +69,7 @@ public:
                               const quint32 &debuggerType, const QString &debugger,
                               const QString &deviceType, const QString &device,
                               const QString &sysRoot, const QString &tc, const QString &qt,
-                              const QString &mkspec, const KeyValuePairList &extra);
+                              const QString &mkspec, const QStringList &env, const KeyValuePairList &extra);
 
 private:
     QString m_id;
@@ -84,6 +84,7 @@ private:
     QString m_tc;
     QString m_qt;
     QString m_mkspec;
+    QStringList m_env;
     KeyValuePairList m_extra;
 };
 

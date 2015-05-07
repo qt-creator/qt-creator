@@ -61,9 +61,6 @@ namespace {
 class ParseParams
 {
 public:
-    ParseParams() : revision(0) {}
-
-    int revision;
     ProjectPart::HeaderPaths headerPaths;
     WorkingCopy workingCopy;
     QSet<QString> sourceFiles;
@@ -189,7 +186,6 @@ void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
 void index(QFutureInterface<void> &future, const ParseParams params)
 {
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
-    sourceProcessor->setRevision(params.revision);
     sourceProcessor->setHeaderPaths(params.headerPaths);
     sourceProcessor->setWorkingCopy(params.workingCopy);
 
@@ -347,7 +343,6 @@ private:
 } // anonymous namespace
 
 BuiltinIndexingSupport::BuiltinIndexingSupport()
-    : m_revision(0)
 {
     m_synchronizer.setCancelOnWait(true);
 }
@@ -361,7 +356,6 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QSet<QString> &so
     CppModelManager *mgr = CppModelManager::instance();
 
     ParseParams params;
-    params.revision = ++m_revision;
     params.headerPaths = mgr->headerPaths();
     params.workingCopy = mgr->workingCopy();
     params.sourceFiles = sourceFiles;

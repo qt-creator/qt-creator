@@ -329,8 +329,9 @@ void IDevice::fromMap(const QVariantMap &map)
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
     d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
             (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
-    d->sshParameters.options
-            = QSsh::SshConnectionOptions(map.value(QLatin1String(SshOptionsKey)).toInt());
+    const QVariant optionsVariant = map.value(QLatin1String(SshOptionsKey));
+    if (optionsVariant.isValid())  // false for QtC < 3.4
+        d->sshParameters.options = QSsh::SshConnectionOptions(optionsVariant.toInt());
 
     d->freePorts = Utils::PortList::fromString(map.value(QLatin1String(PortsSpecKey),
         QLatin1String("10000-10100")).toString());

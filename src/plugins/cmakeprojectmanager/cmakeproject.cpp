@@ -205,21 +205,31 @@ QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget)
     // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
     // found
     // Get "all" target's working directory
-    QString buildNinjaFile = QDir::fromNativeSeparators(buildTarget.workingDirectory);
-    buildNinjaFile += QLatin1String("/build.ninja");
-    QFile buildNinja(buildNinjaFile);
-    if (buildNinja.exists()) {
-        buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
-        QTextStream stream(&buildNinja);
-        bool cxxFound = false;
-        while (!stream.atEnd()) {
-            QString line = stream.readLine().trimmed();
-            // Look for a build rule which invokes CXX_COMPILER
-            if (line.startsWith(QLatin1String("build"))) {
-                cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
-            } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
-                // Skip past =
-                return line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
+    if (!buildTargets().empty()) {
+        QString buildNinjaFile = QDir::fromNativeSeparators(buildTargets().at(0).workingDirectory);
+        buildNinjaFile += QLatin1String("/build.ninja");
+        QFile buildNinja(buildNinjaFile);
+        if (buildNinja.exists()) {
+            buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
+            QTextStream stream(&buildNinja);
+            bool targetFound = false;
+            bool cxxFound = false;
+            QString targetSearchPattern = QString::fromLatin1("target %1").arg(buildTarget.title);
+
+            while (!stream.atEnd()) {
+                // 1. Look for a block that refers to the current target
+                // 2. Look for a build rule which invokes CXX_COMPILER
+                // 3. Return the FLAGS definition
+                QString line = stream.readLine().trimmed();
+                if (line.startsWith(QLatin1String("#"))) {
+                    if (!line.startsWith(QLatin1String("# Object build statements for"))) continue;
+                    targetFound = line.endsWith(targetSearchPattern);
+                } else if (targetFound && line.startsWith(QLatin1String("build"))) {
+                    cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
+                } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
+                    // Skip past =
+                    return line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
+                }
             }
         }
     }

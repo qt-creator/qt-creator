@@ -54,7 +54,6 @@ public:
 
 private:
     QFutureSynchronizer<void> m_synchronizer;
-    unsigned m_revision;
 };
 
 } // namespace Internal

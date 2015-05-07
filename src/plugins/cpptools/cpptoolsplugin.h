@@ -158,6 +158,7 @@ private slots:
     void test_modelmanager_updateEditorsAfterProjectUpdate();
     void test_modelmanager_precompiled_headers();
     void test_modelmanager_renameIncludes();
+    void test_modelmanager_documentsAndRevisions();
 
     void test_cpplocatorfilters_CppLocatorFilter();
     void test_cpplocatorfilters_CppLocatorFilter_data();

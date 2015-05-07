@@ -232,6 +232,11 @@ CppSourceProcessor *CppModelManager::createSourceProcessor()
 {
     CppModelManager *that = instance();
     return new CppSourceProcessor(that->snapshot(), [that](const Document::Ptr &doc) {
+        const Document::Ptr previousDocument = that->document(doc->fileName());
+        const unsigned newRevision = previousDocument.isNull()
+                ? 1U
+                : previousDocument->revision() + 1;
+        doc->setRevision(newRevision);
         that->emitDocumentUpdated(doc);
         doc->releaseSourceAndAST();
     });

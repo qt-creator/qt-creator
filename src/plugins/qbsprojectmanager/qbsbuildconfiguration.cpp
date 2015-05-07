@@ -283,7 +283,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     const QString qbsFilePath = Utils::HostOsInfo::withExecutableSuffix(!qbsInstallDir.isEmpty()
             ? qbsInstallDir + QLatin1String("/bin/qbs")
             : QCoreApplication::applicationDirPath() + QLatin1String("/qbs"));
-    Utils::QtcProcess::addArg(&commandLine, qbsFilePath);
+    Utils::QtcProcess::addArg(&commandLine, QDir::toNativeSeparators(qbsFilePath));
     const StepProxy stepProxy(buildStep);
     Utils::QtcProcess::addArg(&commandLine, stepProxy.command());
     const QbsBuildConfiguration * const buildConfig = qobject_cast<QbsBuildConfiguration *>(
@@ -301,7 +301,9 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     if (stepProxy.keepGoing())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--keep-going"));
     if (stepProxy.showCommandLines())
-        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--show-command-lines"));
+        Utils::QtcProcess::addArgs(&commandLine, QStringList()
+                                   << QLatin1String("--command-echo-mode")
+                                   << QLatin1String("command-line"));
     if (stepProxy.noInstall())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--no-install"));
     if (stepProxy.cleanInstallRoot())

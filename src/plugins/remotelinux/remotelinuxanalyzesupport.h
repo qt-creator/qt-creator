@@ -34,6 +34,8 @@
 #include "abstractremotelinuxrunsupport.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <utils/outputformat.h>
 
 namespace Analyzer {
@@ -50,7 +52,7 @@ class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxR
 {
     Q_OBJECT
 public:
-    static Analyzer::AnalyzerStartParameters startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig,
+    static Analyzer::AnalyzerStartParameters startParameters(const ProjectExplorer::RunConfiguration *runConfig,
                                                              ProjectExplorer::RunMode runMode);
 
     RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,

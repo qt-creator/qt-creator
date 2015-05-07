@@ -117,7 +117,6 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
       m_documentFinished(documentFinished),
       m_preprocess(this, &m_env),
       m_languageFeatures(LanguageFeatures::defaultFeatures()),
-      m_revision(0),
       m_defaultCodec(Core::EditorManager::defaultTextCodec())
 {
     m_preprocess.setKeepComments(true);
@@ -125,9 +124,6 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
 
 CppSourceProcessor::~CppSourceProcessor()
 { }
-
-void CppSourceProcessor::setRevision(unsigned revision)
-{ m_revision = revision; }
 
 void CppSourceProcessor::setWorkingCopy(const WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
@@ -470,7 +466,6 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     qCDebug(log) << "Parsing:" << absoluteFileName << "contents:" << contents.size() << "bytes";
 
     Document::Ptr document = Document::create(absoluteFileName);
-    document->setRevision(m_revision);
     document->setEditorRevision(editorRevision);
     document->setLanguageFeatures(m_languageFeatures);
     foreach (const QString &include, initialIncludes) {

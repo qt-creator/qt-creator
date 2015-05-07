@@ -302,7 +302,6 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     m_operateByInstruction(true), // Default CDB setting
     m_verboseLogPending(true),
     m_verboseLog(false), // Default CDB setting
-    m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
     m_wow64State(wow64Uninitialized),
     m_elapsedLogTime(0),
@@ -341,7 +340,6 @@ void CdbEngine::init()
     m_verboseLogPending = boolSetting(VerboseLog);
     m_operateByInstruction = true; // Default CDB setting
     m_verboseLog = false; // Default CDB setting
-    m_notifyEngineShutdownOnTermination = false;
     m_hasDebuggee = false;
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
@@ -903,20 +901,10 @@ void CdbEngine::shutdownEngine()
         } else {
             postCommand("q", 0);
         }
-        m_notifyEngineShutdownOnTermination = true;
-        return;
     } else {
         // Remote process. No can do, currently
-        m_notifyEngineShutdownOnTermination = true;
         SynchronousProcess::stopProcess(m_process);
-        return;
     }
-    // Lost debuggee, debugger should quit anytime now
-    if (!m_hasDebuggee) {
-        m_notifyEngineShutdownOnTermination = true;
-        return;
-    }
-    interruptInferior();
 }
 
 void CdbEngine::abortDebugger()
@@ -935,37 +923,12 @@ void CdbEngine::abortDebugger()
 void CdbEngine::processFinished()
 {
     if (debug)
-        qDebug("CdbEngine::processFinished %dms '%s' notify=%d (exit state=%d, ex=%d)",
-               elapsedLogTime(), stateName(state()), m_notifyEngineShutdownOnTermination,
-               m_process.exitStatus(), m_process.exitCode());
+        qDebug("CdbEngine::processFinished %dms '%s' (exit state=%d, ex=%d)",
+               elapsedLogTime(), stateName(state()), m_process.exitStatus(), m_process.exitCode());
 
-    const bool crashed = m_process.exitStatus() == QProcess::CrashExit;
-    if (crashed)
-        showMessage(tr("CDB crashed"), LogError); // not in your life.
-    else
-        showMessage(tr("CDB exited (%1)").arg(m_process.exitCode()), LogMisc);
-
-    if (m_notifyEngineShutdownOnTermination) {
-        if (crashed) {
-            if (debug)
-                qDebug("notifyEngineIll");
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineIll")
-            notifyEngineIll();
-        } else {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineShutdownOk")
-            notifyEngineShutdownOk();
-        }
-    } else {
-        // The QML/CPP engine relies on the standard sequence of InferiorShutDown,etc.
-        // Otherwise, we take a shortcut.
-        if (isSlaveEngine()) {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorExited")
-            notifyInferiorExited();
-        } else {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSpontaneousShutdown")
-            notifyEngineSpontaneousShutdown();
-        }
-    }
+    notifyDebuggerProcessFinished(m_process.exitCode(),
+                                  m_process.exitStatus(),
+                                  QLatin1String("CDB"));
 }
 
 void CdbEngine::detachDebugger()
@@ -3004,6 +2967,11 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
         }
         if (hasFile) {
             const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file);
+            if (!fileName.exists && i == 0 && sourceStepInto) {
+                showMessage(QString::fromLatin1("Step into: Hit frame with no source, "
+                                                "step out..."), LogMisc);
+                return ParseStackStepOut;
+            }
             frames[i].file = fileName.fileName;
             frames[i].usable = fileName.exists;
             if (current == -1 && frames[i].usable)

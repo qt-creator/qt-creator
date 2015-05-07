@@ -65,6 +65,7 @@ private:
 
     friend class DefaultGdbServerProviderConfigWidget;
     friend class DefaultGdbServerProviderFactory;
+    friend class BareMetalDevice;
 };
 
 class DefaultGdbServerProviderFactory : public GdbServerProviderFactory

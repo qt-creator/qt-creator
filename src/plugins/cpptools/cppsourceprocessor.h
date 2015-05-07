@@ -65,7 +65,6 @@ public:
     CppSourceProcessor(const CPlusPlus::Snapshot &snapshot, DocumentCallback documentFinished);
     ~CppSourceProcessor();
 
-    void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
     void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);
@@ -124,7 +123,6 @@ private:
     CPlusPlus::Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
     QSet<QString> m_processed;
-    unsigned m_revision;
     QHash<QString, QString> m_fileNameCache;
     QTextCodec *m_defaultCodec;
 };

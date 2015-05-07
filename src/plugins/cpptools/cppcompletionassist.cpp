@@ -974,8 +974,9 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
             start = pos;
         }
         // Don't complete in comments or strings, but still check for include completion
-        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT) ||
-                 (tk.isLiteral() && (*kind != T_STRING_LITERAL
+        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
+                 || tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT)
+                 || (tk.isLiteral() && (*kind != T_STRING_LITERAL
                                      && *kind != T_ANGLE_STRING_LITERAL
                                      && *kind != T_SLASH
                                      && *kind != T_DOT))) {
@@ -1936,6 +1937,12 @@ void InternalCppCompletionAssistProcessor::addKeywords()
     // primitive type completion items.
     for (int i = T_FIRST_PRIMITIVE; i <= T_LAST_PRIMITIVE; ++i)
         addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+
+    // "Identifiers with special meaning"
+    if (m_interface->languageFeatures().cxx11Enabled) {
+        addCompletionItem(QLatin1String("override"), m_icons.keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String("final"), m_icons.keywordIcon(), KeywordsOrder);
+    }
 }
 
 void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,

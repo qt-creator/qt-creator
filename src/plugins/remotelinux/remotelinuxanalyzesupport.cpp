@@ -74,7 +74,7 @@ public:
 
 using namespace Internal;
 
-AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig,
+AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConfiguration *runConfig,
                                                                    RunMode runMode)
 {
     AnalyzerStartParameters params;
@@ -98,6 +98,8 @@ RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfi
             SLOT(handleRemoteSetupRequested()));
     connect(&d->outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
             this, &RemoteLinuxAnalyzeSupport::remoteIsRunning);
+    connect(engine, &RunControl::finished,
+            this, &RemoteLinuxAnalyzeSupport::handleProfilingFinished);
 }
 
 RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()

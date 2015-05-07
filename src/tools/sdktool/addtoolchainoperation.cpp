@@ -251,7 +251,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair(QStringList() << tc << QLatin1String(ID), QVariant(id.toUtf8()));
+    data << KeyValuePair(QStringList() << tc << QLatin1String(ID), QVariant(id));
     data << KeyValuePair(QStringList() << tc << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
     data << KeyValuePair(QStringList() << tc << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << tc << QLatin1String(PATH), QVariant(path));
@@ -280,7 +280,7 @@ QVariantMap AddToolChainOperation::initializeToolChains()
 
 bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
 {
-    QStringList valueKeys = FindValueOperation::findValue(map, id.toUtf8());
+    QStringList valueKeys = FindValueOperation::findValue(map, id);
 
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {

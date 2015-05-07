@@ -33,11 +33,18 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggerinternalconstants.h"
 #include "debuggerstringutils.h"
 #include "simplifytype.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugin.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
+
 #include <extensionsystem/invoker.h>
 #include <texteditor/textmark.h>
+#include <texteditor/texteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -50,6 +57,7 @@
 #include <QDir>
 #include <QDebug>
 
+using namespace Core;
 using namespace Utils;
 
 namespace Debugger {
@@ -1171,10 +1179,15 @@ void BreakHandler::timerEvent(QTimerEvent *event)
 void Breakpoint::gotoLocation() const
 {
     if (DebuggerEngine *engine = currentEngine()) {
-        if (b->m_params.type == BreakpointByAddress)
+        if (b->m_params.type == BreakpointByAddress) {
             engine->gotoLocation(b->m_params.address);
-        else
-            engine->gotoLocation(Location(b->markerFileName(), b->markerLineNumber(), false));
+        } else {
+            // Don't use gotoLocation as this ends up in disassembly
+            // if OperateByInstruction is on.
+            const QString file = QDir::cleanPath(b->markerFileName());
+            IEditor *editor = EditorManager::openEditor(file);
+            editor->gotoLine(b->markerLineNumber(), 0);
+        }
     }
 }
 

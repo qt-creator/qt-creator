@@ -203,12 +203,9 @@ std::string SymbolGroup::dump(const std::string &iname,
             DebugPrint() << "SymbolGroup::dump(" << iname << '/'
                          << aNode->absoluteFullIName() <<" resolves to " << node->absoluteFullIName()
                          << " expanded=" << node->isExpanded();
-        if (node->isExpanded()) { // Mark expand request by watch model
-            node->clearFlags(SymbolGroupNode::ExpandedByDumper);
-        } else {
-            if (node->canExpand() && !node->expand(errorMessage))
-                return std::string();
-        }
+        if (!node->isExpanded() && node->canExpand() && !node->expand(errorMessage))
+            return std::string();
+        node->addFlags(SymbolGroupNode::ExpandedByRequest);
         // After expansion, run the complex dumpers
         if (p.dumpFlags & DumpParameters::DumpComplexDumpers)
             node->runComplexDumpers(ctx);
@@ -378,8 +375,12 @@ static inline SymbolGroupNode *
 
 bool SymbolGroup::expand(const std::string &nodeName, std::string *errorMessage)
 {
-    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage))
-        return node == m_root ? true : node->expand(errorMessage);
+    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage)) {
+        if (node == m_root)
+            return true;
+        node->addFlags(SymbolGroupNode::ExpandedByRequest);
+        return node->expand(errorMessage);
+    }
     return false;
 }
 
@@ -393,8 +394,12 @@ bool SymbolGroup::collapse(const std::string &nodeName, std::string *errorMessag
 
 bool SymbolGroup::expandRunComplexDumpers(const std::string &nodeName, const SymbolGroupValueContext &ctx, std::string *errorMessage)
 {
-    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage))
-        return node == m_root ? true : node->expandRunComplexDumpers(ctx, errorMessage);
+    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage)) {
+        if (node == m_root)
+            return true;
+        node->addFlags(SymbolGroupNode::ExpandedByRequest);
+        return node->expandRunComplexDumpers(ctx, errorMessage);
+    }
     return false;
 }
 

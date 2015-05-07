@@ -347,8 +347,7 @@ void OutputWindow::grayOutOldContent()
                              (bkgFactor * bkgColor.blue() + fgdFactor * fgdColor.blue()) ));
     d->cursor.mergeCharFormat(format);
 
-    if (!d->cursor.atEnd())
-        d->cursor.movePosition(QTextCursor::End);
+    d->cursor.movePosition(QTextCursor::End);
     d->cursor.setCharFormat(endFormat);
     d->cursor.insertBlock(QTextBlockFormat());
 }

@@ -248,7 +248,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->serverAddressEdit = new QLineEdit(this);
 
     d->localExecutablePathChooser = new PathChooser(this);
-    d->localExecutablePathChooser->setExpectedKind(PathChooser::ExistingCommand);
+    d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     d->localExecutablePathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
 

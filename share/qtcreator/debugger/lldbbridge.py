@@ -365,6 +365,10 @@ class Dumper(DumperBase):
         #self.warn("  -> %s" % result)
         return result
 
+    def isBadPointer(self, value):
+        target = value.dereference()
+        return target.GetError().Fail()
+
     def makeValue(self, type, *args):
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)
