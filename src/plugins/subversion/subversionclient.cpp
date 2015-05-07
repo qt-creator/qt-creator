@@ -234,8 +234,7 @@ void DiffController::postCollectTextualDiffOutput()
 {
     auto command = new VcsCommand(m_workingDirectory, processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
-    connect(command, SIGNAL(output(QString)),
-            this, SLOT(slotTextualDiffOutputReceived(QString)));
+    connect(command, &VcsCommand::output, this, &DiffController::slotTextualDiffOutputReceived);
 //    command->addFlags(diffExecutionFlags());
 
     QStringList args;
