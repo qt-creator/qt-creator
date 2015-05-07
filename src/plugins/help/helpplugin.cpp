@@ -369,24 +369,37 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     factories.insert(QLatin1String("textbrowser"), []() { return new TextBrowserHelpViewer(); });
 
     ViewerFactory factory;
+    // TODO: Visual Studio < 2013 has a bug in std::function's operator bool, which in this case
+    // leads to succeeding boolean checks on factory which should not succeed.
+    // So we may not check against "if (!factory)"
+    bool factoryFound = false;
+
     // check requested backend
     const QString backend = QLatin1String(qgetenv("QTC_HELPVIEWER_BACKEND"));
     if (!backend.isEmpty()) {
-        factory = factories.value(backend);
-        if (!factory)
+        if (!factories.contains(backend)) {
             qWarning("Help viewer backend \"%s\" not found, using default.", qPrintable(backend));
+        } else {
+            factory = factories.value(backend);
+            factoryFound = true;
+        }
     }
     // default setting
 #ifdef QTC_MAC_NATIVE_HELPVIEWER_DEFAULT
-    if (!factory)
+    if (!factoryFound && factories.contains(QLatin1String("native"))) {
         factory = factories.value(QLatin1String("native"));
+        factoryFound = true;
+    }
 #endif
-    if (!factory)
+    if (!factoryFound && factories.contains(QLatin1String("qtwebkit"))) {
         factory = factories.value(QLatin1String("qtwebkit"));
-    if (!factory)
+        factoryFound = true;
+    }
+    if (!factoryFound && factories.contains(QLatin1String("textbrowser"))) {
         factory = factories.value(QLatin1String("textbrowser"));
-
-    QTC_ASSERT(factory, return 0);
+        factoryFound = true;
+    }
+    QTC_ASSERT(factoryFound, return 0);
     HelpViewer *viewer = factory();
 
     // initialize font
