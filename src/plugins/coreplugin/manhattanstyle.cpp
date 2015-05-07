@@ -43,6 +43,7 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QDockWidget>
+#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -372,6 +373,11 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
             if (activationMode.isValid())
                 ret = activationMode.toBool();
         }
+    case QStyle::SH_FormLayoutFieldGrowthPolicy:
+        // The default in QMacStyle, FieldsStayAtSizeHint, is just always the wrong thing
+        // Use the same as on all other shipped styles
+        if (Utils::HostOsInfo::isMacHost())
+            ret = QFormLayout::AllNonFixedFieldsGrow;
     default:
         break;
     }
