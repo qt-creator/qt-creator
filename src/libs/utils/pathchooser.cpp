@@ -53,6 +53,20 @@
     This class has some validation logic for embedding into QWizardPage.
 */
 
+static QString appBundleExpandedPath(const QString &path)
+{
+    if (Utils::HostOsInfo::hostOs() == Utils::OsTypeMac && path.endsWith(QLatin1String(".app"))) {
+        // possibly expand to Foo.app/Contents/MacOS/Foo
+        QFileInfo info(path);
+        if (info.isDir()) {
+            QString exePath = path + QLatin1String("/Contents/MacOS/") + info.completeBaseName();
+            if (QFileInfo(exePath).exists())
+                return exePath;
+        }
+    }
+    return path;
+}
+
 namespace Utils {
 
 // ------------------ PathValidatingLineEdit
@@ -387,20 +401,13 @@ void PathChooser::slotBrowse()
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose Executable")), predefined,
                 d->m_dialogFilter);
-        if (HostOsInfo::hostOs() == OsTypeMac && newPath.endsWith(QLatin1String(".app"))) {
-            // possibly expand to Foo.app/Contents/MacOS/Foo
-            QFileInfo info(newPath);
-            if (info.isDir()) {
-                QString exePath = newPath + QLatin1String("/Contents/MacOS/") + info.completeBaseName();
-                if (QFileInfo(exePath).isExecutable())
-                    newPath = exePath;
-            }
-        }
+        newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose File")), predefined,
                 d->m_dialogFilter);
+        newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
         newPath = QFileDialog::getSaveFileName(this,
