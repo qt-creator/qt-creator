@@ -32,8 +32,11 @@
 #define QMLPROFILERTRACEVIEW_H
 
 #include "qmlprofilermodelmanager.h"
-#include <QWidget>
+
+#include <coreplugin/find/ifindsupport.h>
+
 #include <QTimer>
+#include <QWidget>
 
 namespace QmlProfiler {
 
@@ -81,6 +84,33 @@ signals:
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
+};
+
+class TraceViewFindSupport : public Core::IFindSupport
+{
+    Q_OBJECT
+
+public:
+    TraceViewFindSupport(QmlProfilerTraceView *view, QmlProfilerModelManager *manager);
+
+    bool supportsReplace() const override;
+    Core::FindFlags supportedFindFlags() const override;
+    void resetIncrementalSearch() override;
+    void clearHighlights() override;
+    QString currentFindString() const override;
+    QString completedFindString() const override;
+    Result findIncremental(const QString &txt, Core::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Core::FindFlags findFlags) override;
+
+private:
+    bool find(const QString &txt, Core::FindFlags findFlags, int start, bool *wrapped);
+    bool findOne(const QString &txt, Core::FindFlags findFlags, int start);
+
+    QmlProfilerTraceView *m_view;
+    QmlProfilerModelManager *m_modelManager;
+    int m_incrementalStartPos = -1;
+    bool m_incrementalWrappedState = false;
+    int m_currentPosition = -1;
 };
 
 } // namespace Internal

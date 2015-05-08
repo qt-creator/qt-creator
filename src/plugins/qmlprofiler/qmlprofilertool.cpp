@@ -56,6 +56,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/helpmanager.h>
@@ -109,11 +110,8 @@ public:
     QTime m_recordingElapsedTime;
     QLabel *m_timeLabel;
 
-    // search field
+    // open search
     QToolButton *m_searchButton;
-    QLineEdit *m_searchField;
-    QTimer *m_searchFieldTimer;
-    int m_lastSearchResult;
 
     // save and load actions
     QAction *m_saveQmlTrace;
@@ -132,9 +130,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_clearButton = 0;
     d->m_timeLabel = 0;
     d->m_searchButton = 0;
-    d->m_searchField = 0;
-    d->m_searchFieldTimer = 0;
-    d->m_lastSearchResult = -1;
 
     d->m_profilerState = new QmlProfilerStateManager(this);
     connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
@@ -299,28 +294,10 @@ QWidget *QmlProfilerTool::createWidgets()
 
     d->m_searchButton = new QToolButton;
     d->m_searchButton->setIcon(QIcon(QStringLiteral(":/timeline/ico_zoom.png")));
-    d->m_searchButton->setToolTip(tr("Toggle the event search field."));
-    d->m_searchButton->setCheckable(true);
+    d->m_searchButton->setToolTip(tr("Search timeline event notes."));
     layout->addWidget(d->m_searchButton);
 
-    d->m_searchField = new QLineEdit;
-    d->m_searchField->setToolTip(tr("Find events that have a specific note."));
-    d->m_searchField->hide();
-    layout->addWidget(d->m_searchField);
-
-    connect(d->m_searchButton, &QToolButton::toggled, [this] (bool checked) {
-        d->m_searchField->setVisible(checked);
-        if (checked) {
-            d->m_searchButton->setText(d->m_searchButton->text() + QLatin1Char(':'));
-            d->m_searchField->setFocus();
-            d->m_searchField->selectAll();
-        } else {
-            QString str = d->m_searchButton->text();
-            str.chop(1);
-            d->m_searchButton->setText(str);
-        }
-    });
-    connect(d->m_searchField, &QLineEdit::returnPressed, this, &QmlProfilerTool::findEvent);
+    connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
     layout->addStretch();
     toolbarWidget->setLayout(layout);
@@ -437,43 +414,10 @@ void QmlProfilerTool::updateTimeDisplay()
     d->m_timeLabel->setText(tr("Elapsed: %1").arg(profilerTimeStr));
 }
 
-void QmlProfilerTool::findEvent()
+void QmlProfilerTool::showTimeLineSearch()
 {
-    const QString substr = d->m_searchField->text();
-    QmlProfilerNotesModel *model = d->m_profilerModelManager->notesModel();
-
-    bool found = false;
-    forever {
-        for (int i = d->m_lastSearchResult + 1; i < model->count(); ++i) {
-            if (model->text(i).contains(substr)) {
-                d->m_lastSearchResult = i;
-                found = true;
-                break;
-            }
-        }
-        if (found || d->m_lastSearchResult == -1)
-            break;
-        d->m_lastSearchResult = -1;
-    }
-
-    if (found) {
-        emit selectTimelineElement(model->timelineModel(d->m_lastSearchResult),
-                                   model->timelineIndex(d->m_lastSearchResult));
-        d->m_searchField->setFocus();
-    } else {
-        QPalette p = d->m_searchField->palette();
-        p.setColor(QPalette::Text, Qt::red);
-        d->m_searchField->setPalette(p);
-        if (!d->m_searchFieldTimer) {
-            d->m_searchFieldTimer = new QTimer(this);
-            connect(d->m_searchFieldTimer, &QTimer::timeout, [this] () {
-                d->m_searchField->setPalette(d->m_searchField->parentWidget()->palette());
-            });
-        }
-        if (d->m_searchFieldTimer->isActive())
-            d->m_searchFieldTimer->stop();
-        d->m_searchFieldTimer->start(1500);
-    }
+    d->m_viewContainer->raiseTimeline();
+    Core::FindPlugin::instance()->openFindToolBar(Core::FindPlugin::FindForwardDirection);
 }
 
 void QmlProfilerTool::clearData()

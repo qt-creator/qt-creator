@@ -60,6 +60,8 @@ public:
     bool hasGlobalStats() const;
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
 
+    void raiseTimeline();
+
 public slots:
     void clear();
 

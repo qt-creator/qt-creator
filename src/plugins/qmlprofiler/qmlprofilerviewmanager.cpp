@@ -53,6 +53,7 @@ class QmlProfilerViewManager::QmlProfilerViewManagerPrivate {
 public:
     QmlProfilerViewManagerPrivate(QmlProfilerViewManager *qq) { Q_UNUSED(qq); }
 
+    QDockWidget *timelineDock;
     QmlProfilerTraceView *traceView;
     QmlProfilerEventsWidget *eventsView;
     QV8ProfilerEventsWidget *v8profilerView;
@@ -124,19 +125,19 @@ void QmlProfilerViewManager::createViews()
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (QmlProfilerToolId, d->eventsView);
-    QDockWidget *timelineDock = AnalyzerManager::createDockWidget
+    d->timelineDock = AnalyzerManager::createDockWidget
             (QmlProfilerToolId, d->traceView);
     QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
             (QmlProfilerToolId, d->v8profilerView);
 
     eventsDock->show();
-    timelineDock->show();
+    d->timelineDock->show();
     v8profilerDock->show();
 
-    mw->splitDockWidget(mw->toolBarDockWidget(), timelineDock, Qt::Vertical);
-    mw->tabifyDockWidget(timelineDock, eventsDock);
+    mw->splitDockWidget(mw->toolBarDockWidget(), d->timelineDock, Qt::Vertical);
+    mw->tabifyDockWidget(d->timelineDock, eventsDock);
     mw->tabifyDockWidget(eventsDock, v8profilerDock);
-    timelineDock->raise();
+    d->timelineDock->raise();
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->eventsView);
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
@@ -166,6 +167,12 @@ bool QmlProfilerViewManager::hasGlobalStats() const
 void QmlProfilerViewManager::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
 {
     d->eventsView->getStatisticsInRange(rangeStart, rangeEnd);
+}
+
+void QmlProfilerViewManager::raiseTimeline()
+{
+    d->timelineDock->raise();
+    d->traceView->setFocus();
 }
 
 void QmlProfilerViewManager::clear()

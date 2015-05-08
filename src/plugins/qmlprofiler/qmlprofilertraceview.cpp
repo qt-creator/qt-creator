@@ -45,9 +45,10 @@
 #include "timeline/timelinerenderer.h"
 #include "timeline/timelineoverviewrenderer.h"
 
+#include <aggregation/aggregate.h>
 // Needed for the load&save actions in the context menu
 #include <analyzerbase/ianalyzertool.h>
-
+#include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
 
 #include <QQmlContext>
@@ -61,6 +62,7 @@
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QApplication>
+#include <QTextCursor>
 
 #include <math.h>
 
@@ -112,8 +114,14 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
     d->m_mainView = new QQuickWidget(this);
     d->m_mainView->setResizeMode(QQuickWidget::SizeRootObjectToView);
     d->m_mainView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    setFocusProxy(d->m_mainView);
+
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(d->m_mainView);
+    agg->add(new TraceViewFindSupport(this, modelManager));
 
     groupLayout->addWidget(d->m_mainView);
+    groupLayout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(groupLayout);
 
     d->m_profilerTool = profilerTool;
@@ -122,8 +130,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
     d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
 
-    connect(qobject_cast<QmlProfilerTool *>(profilerTool), &QmlProfilerTool::selectTimelineElement,
-            this, &QmlProfilerTraceView::selectByEventIndex);
     connect(modelManager,SIGNAL(dataAvailable()), d->m_modelProxy,SIGNAL(dataAvailable()));
 
     // external models pushed on top
@@ -305,6 +311,123 @@ void QmlProfilerTraceView::changeEvent(QEvent *e)
         QQuickItem *rootObject = d->m_mainView->rootObject();
         rootObject->setProperty("enabled", isEnabled());
     }
+}
+
+TraceViewFindSupport::TraceViewFindSupport(QmlProfilerTraceView *view,
+                                           QmlProfilerModelManager *manager)
+    : m_view(view), m_modelManager(manager)
+{
+}
+
+bool TraceViewFindSupport::supportsReplace() const
+{
+    return false;
+}
+
+Core::FindFlags TraceViewFindSupport::supportedFindFlags() const
+{
+    return Core::FindBackward | Core::FindCaseSensitively | Core::FindRegularExpression
+            | Core::FindWholeWords;
+}
+
+void TraceViewFindSupport::resetIncrementalSearch()
+{
+    m_incrementalStartPos = -1;
+    m_incrementalWrappedState = false;
+}
+
+void TraceViewFindSupport::clearHighlights()
+{
+}
+
+QString TraceViewFindSupport::currentFindString() const
+{
+    return QString();
+}
+
+QString TraceViewFindSupport::completedFindString() const
+{
+    return QString();
+}
+
+Core::IFindSupport::Result TraceViewFindSupport::findIncremental(const QString &txt,
+                                                                 Core::FindFlags findFlags)
+{
+    if (m_incrementalStartPos < 0)
+        m_incrementalStartPos = qMax(m_currentPosition, 0);
+    bool wrapped = false;
+    bool found = find(txt, findFlags, m_incrementalStartPos, &wrapped);
+    if (wrapped != m_incrementalWrappedState && found) {
+        m_incrementalWrappedState = wrapped;
+        showWrapIndicator(m_view);
+    }
+    return found ? Core::IFindSupport::Found : Core::IFindSupport::NotFound;
+}
+
+Core::IFindSupport::Result TraceViewFindSupport::findStep(const QString &txt,
+                                                          Core::FindFlags findFlags)
+{
+    int start = (findFlags & Core::FindBackward) ? m_currentPosition : m_currentPosition + 1;
+    bool wrapped;
+    bool found = find(txt, findFlags, start, &wrapped);
+    if (wrapped)
+        showWrapIndicator(m_view);
+    if (found) {
+        m_incrementalStartPos = m_currentPosition;
+        m_incrementalWrappedState = false;
+    }
+    return found ? Core::IFindSupport::Found : Core::IFindSupport::NotFound;
+}
+
+// "start" is the model index that is searched first in a forward search, i.e. as if the
+// "cursor" were between start-1 and start
+bool TraceViewFindSupport::find(const QString &txt, Core::FindFlags findFlags, int start,
+                                bool *wrapped)
+{
+    if (wrapped)
+        *wrapped = false;
+    if (!findOne(txt, findFlags, start)) {
+        int secondStart;
+        if (findFlags & Core::FindBackward)
+            secondStart = m_modelManager->notesModel()->count();
+        else
+            secondStart = 0;
+        if (!findOne(txt, findFlags, secondStart))
+            return false;
+        if (wrapped)
+            *wrapped = true;
+    }
+    return true;
+}
+
+// "start" is the model index that is searched first in a forward search, i.e. as if the
+// "cursor" were between start-1 and start
+bool TraceViewFindSupport::findOne(const QString &txt, Core::FindFlags findFlags, int start)
+{
+    bool caseSensitiveSearch = (findFlags & Core::FindCaseSensitively);
+    QRegExp regexp(txt);
+    regexp.setPatternSyntax((findFlags & Core::FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
+    regexp.setCaseSensitivity(caseSensitiveSearch ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    QTextDocument::FindFlags flags;
+    if (caseSensitiveSearch)
+        flags |= QTextDocument::FindCaseSensitively;
+    if (findFlags & Core::FindWholeWords)
+        flags |= QTextDocument::FindWholeWords;
+    bool forwardSearch = !(findFlags & Core::FindBackward);
+    int increment = forwardSearch ? +1 : -1;
+    int current = forwardSearch ? start : start - 1;
+    QmlProfilerNotesModel *model = m_modelManager->notesModel();
+    while (current >= 0 && current < model->count()) {
+        QTextDocument doc(model->text(current)); // for automatic handling of WholeWords option
+        if (!doc.find(regexp, 0, flags).isNull()) {
+            m_currentPosition = current;
+            m_view->selectByEventIndex(model->timelineModel(m_currentPosition),
+                                       model->timelineIndex(m_currentPosition));
+            return true;
+        }
+        current += increment;
+    }
+    return false;
 }
 
 } // namespace Internal
