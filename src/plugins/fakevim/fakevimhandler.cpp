@@ -782,91 +782,89 @@ static QString getProcessOutput(const QString &command, const QString &input)
 
 static const QMap<QString, int> &vimKeyNames()
 {
-    static QMap<QString, int> k;
-    if (!k.isEmpty())
-        return k;
+    static const QMap<QString, int> k = {
+        // FIXME: Should be value of mapleader.
+        { _("LEADER"), Key_Backslash },
 
-    // FIXME: Should be value of mapleader.
-    k.insert(_("LEADER"), Key_Backslash);
+        { _("SPACE"), Key_Space },
+        { _("TAB"), Key_Tab },
+        { _("NL"), Key_Return },
+        { _("NEWLINE"), Key_Return },
+        { _("LINEFEED"), Key_Return },
+        { _("LF"), Key_Return },
+        { _("CR"), Key_Return },
+        { _("RETURN"), Key_Return },
+        { _("ENTER"), Key_Return },
+        { _("BS"), Key_Backspace },
+        { _("BACKSPACE"), Key_Backspace },
+        { _("ESC"), Key_Escape },
+        { _("BAR"), Key_Bar },
+        { _("BSLASH"), Key_Backslash },
+        { _("DEL"), Key_Delete },
+        { _("DELETE"), Key_Delete },
+        { _("KDEL"), Key_Delete },
+        { _("UP"), Key_Up },
+        { _("DOWN"), Key_Down },
+        { _("LEFT"), Key_Left },
+        { _("RIGHT"), Key_Right },
 
-    k.insert(_("SPACE"), Key_Space);
-    k.insert(_("TAB"), Key_Tab);
-    k.insert(_("NL"), Key_Return);
-    k.insert(_("NEWLINE"), Key_Return);
-    k.insert(_("LINEFEED"), Key_Return);
-    k.insert(_("LF"), Key_Return);
-    k.insert(_("CR"), Key_Return);
-    k.insert(_("RETURN"), Key_Return);
-    k.insert(_("ENTER"), Key_Return);
-    k.insert(_("BS"), Key_Backspace);
-    k.insert(_("BACKSPACE"), Key_Backspace);
-    k.insert(_("ESC"), Key_Escape);
-    k.insert(_("BAR"), Key_Bar);
-    k.insert(_("BSLASH"), Key_Backslash);
-    k.insert(_("DEL"), Key_Delete);
-    k.insert(_("DELETE"), Key_Delete);
-    k.insert(_("KDEL"), Key_Delete);
-    k.insert(_("UP"), Key_Up);
-    k.insert(_("DOWN"), Key_Down);
-    k.insert(_("LEFT"), Key_Left);
-    k.insert(_("RIGHT"), Key_Right);
+        { _("LT"), Key_Less },
+        { _("GT"), Key_Greater },
 
-    k.insert(_("LT"), Key_Less);
-    k.insert(_("GT"), Key_Greater);
+        { _("F1"), Key_F1 },
+        { _("F2"), Key_F2 },
+        { _("F3"), Key_F3 },
+        { _("F4"), Key_F4 },
+        { _("F5"), Key_F5 },
+        { _("F6"), Key_F6 },
+        { _("F7"), Key_F7 },
+        { _("F8"), Key_F8 },
+        { _("F9"), Key_F9 },
+        { _("F10"), Key_F10 },
 
-    k.insert(_("F1"), Key_F1);
-    k.insert(_("F2"), Key_F2);
-    k.insert(_("F3"), Key_F3);
-    k.insert(_("F4"), Key_F4);
-    k.insert(_("F5"), Key_F5);
-    k.insert(_("F6"), Key_F6);
-    k.insert(_("F7"), Key_F7);
-    k.insert(_("F8"), Key_F8);
-    k.insert(_("F9"), Key_F9);
-    k.insert(_("F10"), Key_F10);
+        { _("F11"), Key_F11 },
+        { _("F12"), Key_F12 },
+        { _("F13"), Key_F13 },
+        { _("F14"), Key_F14 },
+        { _("F15"), Key_F15 },
+        { _("F16"), Key_F16 },
+        { _("F17"), Key_F17 },
+        { _("F18"), Key_F18 },
+        { _("F19"), Key_F19 },
+        { _("F20"), Key_F20 },
 
-    k.insert(_("F11"), Key_F11);
-    k.insert(_("F12"), Key_F12);
-    k.insert(_("F13"), Key_F13);
-    k.insert(_("F14"), Key_F14);
-    k.insert(_("F15"), Key_F15);
-    k.insert(_("F16"), Key_F16);
-    k.insert(_("F17"), Key_F17);
-    k.insert(_("F18"), Key_F18);
-    k.insert(_("F19"), Key_F19);
-    k.insert(_("F20"), Key_F20);
+        { _("F21"), Key_F21 },
+        { _("F22"), Key_F22 },
+        { _("F23"), Key_F23 },
+        { _("F24"), Key_F24 },
+        { _("F25"), Key_F25 },
+        { _("F26"), Key_F26 },
+        { _("F27"), Key_F27 },
+        { _("F28"), Key_F28 },
+        { _("F29"), Key_F29 },
+        { _("F30"), Key_F30 },
 
-    k.insert(_("F21"), Key_F21);
-    k.insert(_("F22"), Key_F22);
-    k.insert(_("F23"), Key_F23);
-    k.insert(_("F24"), Key_F24);
-    k.insert(_("F25"), Key_F25);
-    k.insert(_("F26"), Key_F26);
-    k.insert(_("F27"), Key_F27);
-    k.insert(_("F28"), Key_F28);
-    k.insert(_("F29"), Key_F29);
-    k.insert(_("F30"), Key_F30);
+        { _("F31"), Key_F31 },
+        { _("F32"), Key_F32 },
+        { _("F33"), Key_F33 },
+        { _("F34"), Key_F34 },
+        { _("F35"), Key_F35 },
 
-    k.insert(_("F31"), Key_F31);
-    k.insert(_("F32"), Key_F32);
-    k.insert(_("F33"), Key_F33);
-    k.insert(_("F34"), Key_F34);
-    k.insert(_("F35"), Key_F35);
+        { _("INSERT"), Key_Insert },
+        { _("INS"), Key_Insert },
+        { _("KINSERT"), Key_Insert },
+        { _("HOME"), Key_Home },
+        { _("END"), Key_End },
+        { _("PAGEUP"), Key_PageUp },
+        { _("PAGEDOWN"), Key_PageDown },
 
-    k.insert(_("INSERT"), Key_Insert);
-    k.insert(_("INS"), Key_Insert);
-    k.insert(_("KINSERT"), Key_Insert);
-    k.insert(_("HOME"), Key_Home);
-    k.insert(_("END"), Key_End);
-    k.insert(_("PAGEUP"), Key_PageUp);
-    k.insert(_("PAGEDOWN"), Key_PageDown);
-
-    k.insert(_("KPLUS"), Key_Plus);
-    k.insert(_("KMINUS"), Key_Minus);
-    k.insert(_("KDIVIDE"), Key_Slash);
-    k.insert(_("KMULTIPLY"), Key_Asterisk);
-    k.insert(_("KENTER"), Key_Enter);
-    k.insert(_("KPOINT"), Key_Period);
+        { _("KPLUS"), Key_Plus },
+        { _("KMINUS"), Key_Minus },
+        { _("KDIVIDE"), Key_Slash },
+        { _("KMULTIPLY"), Key_Asterisk },
+        { _("KENTER"), Key_Enter },
+        { _("KPOINT"), Key_Period }
+    };
 
     return k;
 }
