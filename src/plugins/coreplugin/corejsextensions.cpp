@@ -87,6 +87,21 @@ QString UtilsJsExtension::absoluteFilePath(const QString &in) const
     return fi.absoluteFilePath();
 }
 
+bool UtilsJsExtension::exists(const QString &in) const
+{
+    return QFileInfo::exists(in);
+}
+
+bool UtilsJsExtension::isDirectory(const QString &in) const
+{
+    return QFileInfo(in).isDir();
+}
+
+bool UtilsJsExtension::isFile(const QString &in) const
+{
+    return QFileInfo(in).isFile();
+}
+
 QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 {
     Utils::MimeDatabase mdb;

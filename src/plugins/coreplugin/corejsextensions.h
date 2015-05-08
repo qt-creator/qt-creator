@@ -58,6 +58,11 @@ public:
     Q_INVOKABLE QString path(const QString &in) const;
     Q_INVOKABLE QString absoluteFilePath(const QString &in) const;
 
+    // File checks:
+    Q_INVOKABLE bool exists(const QString &in) const;
+    Q_INVOKABLE bool isDirectory(const QString &in) const;
+    Q_INVOKABLE bool isFile(const QString &in) const;
+
     // MimeDB:
     Q_INVOKABLE QString preferredSuffix(const QString &mimetype) const;
 
