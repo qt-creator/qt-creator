@@ -38,6 +38,7 @@
 #include <utils/stringutils.h>
 #include <utils/textfieldcheckbox.h>
 #include <utils/textfieldcombobox.h>
+#include <utils/theme/theme.h>
 
 #include <QCheckBox>
 #include <QApplication>
@@ -813,7 +814,9 @@ JsonFieldPage::JsonFieldPage(MacroExpander *expander, QWidget *parent) :
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     vLayout->addLayout(m_formLayout);
     m_errorLabel->setVisible(false);
-    m_errorLabel->setStyleSheet(QLatin1String("background: red"));
+    QPalette palette = m_errorLabel->palette();
+    palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError));
+    m_errorLabel->setPalette(palette);
     vLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     vLayout->addWidget(m_errorLabel);
     setLayout(vLayout);
