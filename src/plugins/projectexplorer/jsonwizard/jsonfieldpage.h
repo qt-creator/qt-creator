@@ -71,8 +71,7 @@ public:
         virtual void setEnabled(bool e) { m_widget->setEnabled(e); }
         void setVisible(bool v) { m_widget->setVisible(v); }
 
-        virtual bool validate(Utils::MacroExpander *expander, QString *message)
-        { Q_UNUSED(expander); Q_UNUSED(message); return true; }
+        virtual bool validate(Utils::MacroExpander *expander, QString *message);
 
         void initialize(Utils::MacroExpander *expander);
         virtual void cleanup(Utils::MacroExpander *expander) {  Q_UNUSED(expander); }
@@ -87,6 +86,8 @@ public:
     protected:
         QVariant m_visibleExpression;
         QVariant m_enabledExpression;
+        QVariant m_isCompleteExpando;
+        QString m_isCompleteExpandoMessage;
 
         virtual bool parseData(const QVariant &data, QString *errorMessage) = 0;
         virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander); }

@@ -61,6 +61,8 @@ const char ENABLED_KEY[] = "enabled";
 const char SPAN_KEY[] = "span";
 const char TYPE_KEY[] = "type";
 const char DATA_KEY[] = "data";
+const char IS_COMPLETE_KEY[] = "isComplete";
+const char IS_COMPLETE_MESSAGE_KEY[] = "trIncompleteMessage";
 
 namespace ProjectExplorer {
 
@@ -165,6 +167,8 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     data->m_enabledExpression = tmp.value(QLatin1String(ENABLED_KEY), true);
     data->mandatory = tmp.value(QLatin1String(MANDATORY_KEY), true).toBool();
     data->span = tmp.value(QLatin1String(SPAN_KEY), false).toBool();
+    data->m_isCompleteExpando = tmp.value(QLatin1String(IS_COMPLETE_KEY), true);
+    data->m_isCompleteExpandoMessage = tmp.value(QLatin1String(IS_COMPLETE_MESSAGE_KEY)).toString();
 
     data->displayName = JsonWizardFactory::localizedString(tmp.value(QLatin1String(DISPLAY_NAME_KEY)).toString());
 
@@ -200,6 +204,16 @@ void JsonFieldPage::Field::adjustState(MacroExpander *expander)
 {
     setVisible(JsonWizard::boolFromVariant(m_visibleExpression, expander));
     setEnabled(JsonWizard::boolFromVariant(m_enabledExpression, expander));
+}
+
+bool JsonFieldPage::Field::validate(MacroExpander *expander, QString *message)
+{
+    if (!JsonWizard::boolFromVariant(m_isCompleteExpando, expander)) {
+        if (message)
+            *message = expander->expand(m_isCompleteExpandoMessage);
+        return false;
+    }
+    return true;
 }
 
 void JsonFieldPage::Field::initialize(MacroExpander *expander)
@@ -365,7 +379,9 @@ void JsonFieldPage::LineEditField::setup(JsonFieldPage *page, const QString &nam
 
 bool JsonFieldPage::LineEditField::validate(MacroExpander *expander, QString *message)
 {
-    Q_UNUSED(message);
+    if (!JsonFieldPage::Field::validate(expander, message))
+        return false;
+
     if (m_isValidating)
         return true;
 
@@ -455,8 +471,8 @@ void JsonFieldPage::TextEditField::setup(JsonFieldPage *page, const QString &nam
 
 bool JsonFieldPage::TextEditField::validate(MacroExpander *expander, QString *message)
 {
-    Q_UNUSED(expander);
-    Q_UNUSED(message);
+    if (!JsonFieldPage::Field::validate(expander, message))
+        return false;
 
     QTextEdit *w = static_cast<QTextEdit *>(m_widget);
 
@@ -553,8 +569,9 @@ void JsonFieldPage::PathChooserField::setup(JsonFieldPage *page, const QString &
 
 bool JsonFieldPage::PathChooserField::validate(MacroExpander *expander, QString *message)
 {
-    Q_UNUSED(expander);
-    Q_UNUSED(message);
+    if (!JsonFieldPage::Field::validate(expander, message))
+        return false;
+
     PathChooser *w = static_cast<PathChooser *>(m_widget);
     return w->isValid();
 }
@@ -625,7 +642,9 @@ void JsonFieldPage::CheckBoxField::setup(JsonFieldPage *page, const QString &nam
 
 bool JsonFieldPage::CheckBoxField::validate(MacroExpander *expander, QString *message)
 {
-    Q_UNUSED(message);
+    if (!JsonFieldPage::Field::validate(expander, message))
+        return false;
+
     if (!m_isModified) {
         TextFieldCheckBox *w = static_cast<TextFieldCheckBox *>(m_widget);
         w->setChecked(JsonWizard::boolFromVariant(m_checkedExpression, expander));
@@ -741,8 +760,8 @@ void JsonFieldPage::ComboBoxField::setup(JsonFieldPage *page, const QString &nam
 
 bool JsonFieldPage::ComboBoxField::validate(MacroExpander *expander, QString *message)
 {
-    Q_UNUSED(expander);
-    Q_UNUSED(message);
+    if (!JsonFieldPage::Field::validate(expander, message))
+        return false;
 
     TextFieldComboBox *w = static_cast<TextFieldComboBox *>(m_widget);
     if (!w->isEnabled() && m_disabledIndex >= 0 && m_savedIndex < 0) {
