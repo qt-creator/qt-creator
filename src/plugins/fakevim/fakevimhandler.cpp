@@ -2790,6 +2790,14 @@ bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
 
 EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
 {
+    if (g.passing) {
+        passShortcuts(false);
+        QKeyEvent event(QEvent::KeyPress, input.key(), input.modifiers(), input.text());
+        bool accepted = QApplication::sendEvent(editor()->window(), &event);
+        if (accepted || (!m_textedit && !m_plaintextedit))
+            return EventHandled;
+    }
+
     if (input == Nop)
         return EventHandled;
     else if (g.subsubmode == SearchSubSubMode)
