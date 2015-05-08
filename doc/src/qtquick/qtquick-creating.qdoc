@@ -38,11 +38,10 @@
 
     \list
 
-        \li \uicontrol {Qt Quick Application} creates a Qt Quick application project
-            that can contain both QML and C++ code. The project includes a
-            QDeclarativeView or QQuickView. You can build the application and
-            deploy it to
-            desktop and mobile target platforms.
+        \li \uicontrol {Qt Quick Application} creates a Qt Quick 2 application
+            project that can contain both QML and C++ code. The project includes
+            a QQuickView. You can build the application and deploy it to desktop
+            and mobile target platforms.
 
         \li \uicontrol {Qt Quick UI} creates a Qt Quick UI project with a single QML
             file that contains the main view. You can review Qt Quick UI
@@ -77,19 +76,7 @@
             to use for the project. The Qt Quick imports enable you to use the
             basic QML types to create user interfaces, whereas the Qt Quick
             Controls provide a set of ready-made controls that you can customize
-            by using Qt Quick Controls Styles:
-
-        \list
-
-            \li Select \uicontrol {Qt Quick Controls} or \uicontrol {Qt Quick 2.1}, or
-                later, to develop for platforms that run Qt 5.
-
-            \li Select \uicontrol {Qt Quick 1.1} to develop for platforms that run
-                Qt 4.7.4. To develop for platforms that run Qt 4.7.1, 4.7.2, or
-                4.7.3, you must change the import statement to import Qt Quick
-                1.0.
-
-        \endlist
+            by using Qt Quick Controls Styles.
 
         You can add imports later to combine Qt Quick basic types with Qt Quick
         Controls, Qt Quick Dialogs, and Qt Quick Layouts (available since
