@@ -363,16 +363,18 @@ VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
 
 #define RETURN_FALSE_IF_NOT(check) if (!(check)) return false;
 
-bool VerifyCleanCppModelManager::isClean()
+bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
 {
     CppModelManager *mm = CppModelManager::instance();
     RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
     RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
     RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
     RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
-    RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    if (!testOnlyForCleanedProjects) {
+        RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
+        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
+        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    }
     return true;
 }
 

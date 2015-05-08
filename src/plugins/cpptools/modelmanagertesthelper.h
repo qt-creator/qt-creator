@@ -75,7 +75,8 @@ class CPPTOOLS_EXPORT ModelManagerTestHelper: public QObject
 public:
     typedef ProjectExplorer::Project Project;
 
-    explicit ModelManagerTestHelper(QObject *parent = 0);
+    explicit ModelManagerTestHelper(QObject *parent = 0,
+                                    bool testOnlyForCleanedProjects = true);
     ~ModelManagerTestHelper();
 
     void cleanup();
@@ -99,6 +100,7 @@ public slots:
 private:
     bool m_gcFinished;
     bool m_refreshHappened;
+    bool m_testOnlyForCleanedProjects;
     QSet<QString> m_lastRefreshedSourceFiles;
 };
 

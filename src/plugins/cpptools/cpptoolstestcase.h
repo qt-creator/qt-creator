@@ -161,7 +161,7 @@ class CPPTOOLS_EXPORT VerifyCleanCppModelManager
 public:
     VerifyCleanCppModelManager();
     ~VerifyCleanCppModelManager();
-    static bool isClean();
+    static bool isClean(bool testCleanedProjects = true);
 };
 
 class FileWriterAndRemover

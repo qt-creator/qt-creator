@@ -54,8 +54,10 @@ TestProject::~TestProject()
 {
 }
 
-ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
-    QObject(parent)
+ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent,
+                                               bool testOnlyForCleanedProjects)
+    : QObject(parent)
+    , m_testOnlyForCleanedProjects(testOnlyForCleanedProjects)
 
 {
     CppModelManager *mm = CppModelManager::instance();
@@ -69,13 +71,13 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
             this, &ModelManagerTestHelper::gcFinished);
 
     cleanup();
-    QVERIFY(Tests::VerifyCleanCppModelManager::isClean());
+    QVERIFY(Tests::VerifyCleanCppModelManager::isClean(m_testOnlyForCleanedProjects));
 }
 
 ModelManagerTestHelper::~ModelManagerTestHelper()
 {
     cleanup();
-    QVERIFY(Tests::VerifyCleanCppModelManager::isClean());
+    QVERIFY(Tests::VerifyCleanCppModelManager::isClean(m_testOnlyForCleanedProjects));
 }
 
 void ModelManagerTestHelper::cleanup()
