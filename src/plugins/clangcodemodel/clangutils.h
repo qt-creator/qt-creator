@@ -51,6 +51,10 @@ QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                const QString &fileName = QString());
 QStringList createPCHInclusionOptions(const QString &pchFile);
 
+CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
+bool isProjectPartValid(const CppTools::ProjectPart::Ptr projectPart);
+QString projectFilePathForFile(const QString &filePath);
+
 } // namespace Utils
 } // namespace Clang
 

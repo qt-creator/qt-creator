@@ -40,10 +40,12 @@
 
 namespace CppTools {
 
-class ModelManagerSupport;
+class ModelManagerSupportProvider;
 
-class CPPTOOLS_EXPORT CppCodeModelSettings
+class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
 {
+    Q_OBJECT
+
 public:
     enum PCHUsage {
         PchUse_None = 1,
@@ -56,13 +58,13 @@ public:
     void fromSettings(QSettings *s);
     void toSettings(QSettings *s);
 
-    void setModelManagerSupports(const QList<ModelManagerSupport *> &supporters);
+    void setModelManagerSupportProviders(const QList<ModelManagerSupportProvider *> &supporters);
 
-    QString modelManagerSupportId(const QString &mimeType) const;
-    void setModelManagerSupportId(const QString &mimeType, const QString &supporter);
+    QString modelManagerSupportIdForMimeType(const QString &mimeType) const;
+    void setModelManagerSupportIdForMimeType(const QString &mimeType, const QString &id);
 
-    const QHash<QString, QString> &availableModelManagerSupportersByName() const
-    { return m_availableModelManagerSupportersByName; }
+    const QHash<QString, QString> &availableModelManagerSupportProvidersByName() const
+    { return m_modelManagerSupportsByName; }
 
     QString defaultId() const
     { return m_defaultId; }
@@ -75,12 +77,18 @@ public:
 
     static QStringList supportedMimeTypes();
 
+public: // for tests
+    void emitChanged();
+
+signals:
+    void changed();
+
 private:
     void setIdForMimeType(const QVariant &var, const QString &mimeType);
 
 private:
     QHash<QString, QString> m_modelManagerSupportByMimeType;
-    QHash<QString, QString> m_availableModelManagerSupportersByName;
+    QHash<QString, QString> m_modelManagerSupportsByName;
     QString m_defaultId;
     PCHUsage m_pchUsage;
 };

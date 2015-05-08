@@ -46,7 +46,9 @@ static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.clangeditordocumentparser")
 
 namespace {
 
-QStringList createOptions(const QString &filePath, const CppTools::ProjectPart::Ptr &part)
+QStringList createOptions(const QString &filePath,
+                          const CppTools::ProjectPart::Ptr &part,
+                          bool includeSpellCheck = false)
 {
     using namespace ClangCodeModel;
 
@@ -54,7 +56,9 @@ QStringList createOptions(const QString &filePath, const CppTools::ProjectPart::
     if (part.isNull())
         return options;
 
-    options += QLatin1String("-fspell-checking");
+    if (includeSpellCheck)
+        options += QLatin1String("-fspell-checking");
+
     options += ClangCodeModel::Utils::createClangOptions(part, filePath);
 
     if (Internal::PchInfo::Ptr pchInfo = Internal::PchManager::instance()->pchInfo(part))
@@ -91,7 +95,7 @@ void ClangEditorDocumentParser::update(CppTools::WorkingCopy workingCopy)
     QMutexLocker lock2(&m_mutex);
 
     updateProjectPart();
-    const QStringList options = createOptions(filePath(), projectPart());
+    const QStringList options = createOptions(filePath(), projectPart(), true);
 
     qCDebug(log, "Reparse options (cmd line equivalent): %s",
            commandLine(options, filePath()).toUtf8().constData());

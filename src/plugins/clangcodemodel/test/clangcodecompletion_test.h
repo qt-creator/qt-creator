@@ -28,47 +28,52 @@
 **
 ****************************************************************************/
 
-#include "cppcompletionassist.h"
-#include "cppmodelmanagersupportinternal.h"
-#include "builtineditordocumentprocessor.h"
+#ifndef CLANGCODECOMPLETIONTEST_H
+#define CLANGCODECOMPLETIONTEST_H
 
-#include <QCoreApplication>
+#include <QObject>
 
-using namespace CppTools;
-using namespace CppTools::Internal;
+namespace ClangCodeModel {
+namespace Internal {
+namespace Tests {
 
-QString ModelManagerSupportProviderInternal::id() const
+class ActivateClangModelManagerSupport;
+
+class ClangCodeCompletionTest : public QObject
 {
-    return QLatin1String("CppTools.BuiltinCodeModel");
-}
+    Q_OBJECT
 
-QString ModelManagerSupportProviderInternal::displayName() const
-{
-    return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
-                                       "Qt Creator Built-in");
-}
+public:
+    ClangCodeCompletionTest();
+    ~ClangCodeCompletionTest();
 
-ModelManagerSupport::Ptr ModelManagerSupportProviderInternal::createModelManagerSupport()
-{
-    return ModelManagerSupport::Ptr(new ModelManagerSupportInternal);
-}
+private slots:
+    void initTestCase();
 
-ModelManagerSupportInternal::ModelManagerSupportInternal()
-    : m_completionAssistProvider(new InternalCompletionAssistProvider)
-{
-}
+    void testCompleteDoxygenKeywords();
+    void testCompletePreprocessorKeywords();
+    void testCompleteIncludeDirective();
 
-ModelManagerSupportInternal::~ModelManagerSupportInternal()
-{
-}
+    void testCompleteGlobals();
+    void testCompleteMembers();
+    void testCompleteFunctions();
 
-BaseEditorDocumentProcessor *ModelManagerSupportInternal::editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument)
-{
-    return new BuiltinEditorDocumentProcessor(baseTextDocument);
-}
+    void testProjectDependentCompletion();
+    void testChangingProjectDependentCompletion();
 
-CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
-{
-    return m_completionAssistProvider.data();
-}
+    void testUnsavedFilesTrackingByModifyingIncludedFileInCurrentEditor();
+    void testUnsavedFilesTrackingByModifyingIncludedFileInNotCurrentEditor();
+    void testUnsavedFilesTrackingByModifyingIncludedFileExternally();
+    void testUnsavedFilesTrackingByCompletingUiObject();
+
+    void testUpdateBackendAfterRestart();
+
+private:
+    QScopedPointer<ActivateClangModelManagerSupport> m_activater;
+};
+
+} // namespace Tests
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGCODECOMPLETIONTEST_H

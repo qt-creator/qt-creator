@@ -31,30 +31,62 @@
 #ifndef CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 #define CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 
+#include "clangcompletion.h"
+
 #include <cpptools/cppmodelmanagersupport.h>
 
+#include <QObject>
 #include <QScopedPointer>
+
+namespace Core { class IDocument; }
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ModelManagerSupport: public CppTools::ModelManagerSupport
+class ModelManagerSupportClang:
+        public QObject,
+        public CppTools::ModelManagerSupport
 {
-    Q_DISABLE_COPY(ModelManagerSupport)
+    Q_OBJECT
+    Q_DISABLE_COPY(ModelManagerSupportClang)
 
 public:
-    ModelManagerSupport();
-    virtual ~ModelManagerSupport();
+    ModelManagerSupportClang();
+    ~ModelManagerSupportClang();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
+    CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
+    CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
+                TextEditor::TextDocument *baseTextDocument) override;
 
-    virtual CppTools::CppCompletionAssistProvider *completionAssistProvider();
-    virtual CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::TextDocument *baseTextDocument);
+    IpcCommunicator::Ptr ipcCommunicator();
+
+public: // for tests
+    static ModelManagerSupportClang *instance();
 
 private:
-    QScopedPointer<CppTools::CppCompletionAssistProvider> m_completionAssistProvider;
+    void onEditorOpened(Core::IEditor *editor);
+    void onCurrentEditorChanged(Core::IEditor *newCurrent);
+    void onCppDocumentReloadFinished(bool success);
+    void onCppDocumentContentsChanged();
+
+    void onAbstractEditorSupportContentsUpdated(const QString &filePath, const QByteArray &content);
+    void onAbstractEditorSupportRemoved(const QString &filePath);
+
+    void onProjectPartsUpdated(ProjectExplorer::Project *project);
+    void onProjectPartsRemoved(const QStringList &projectFiles);
+
+    IpcCommunicator::Ptr m_ipcCommunicator;
+    QScopedPointer<ClangCompletionAssistProvider> m_completionAssistProvider;
+    QPointer<Core::IEditor> m_previousCppEditor;
+};
+
+class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider
+{
+public:
+    QString id() const override;
+    QString displayName() const override;
+
+    CppTools::ModelManagerSupport::Ptr createModelManagerSupport() override;
 };
 
 } // namespace Internal

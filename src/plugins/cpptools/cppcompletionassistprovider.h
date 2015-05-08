@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 namespace CPlusPlus { struct LanguageFeatures; }
 
 namespace TextEditor {
-class BaseTextEditor;
+class TextEditorWidget;
 class AssistInterface;
 }
 
@@ -61,7 +61,7 @@ public:
 
     virtual TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
-            QTextDocument *document,
+            const TextEditor::TextEditorWidget *textEditorWidget,
             const CPlusPlus::LanguageFeatures &languageFeatures,
             int position,
             TextEditor::AssistReason reason) const = 0;

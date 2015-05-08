@@ -30,6 +30,8 @@
 
 #include "clangeditordocumentprocessor.h"
 
+#include "clangmodelmanagersupport.h"
+#include "clangutils.h"
 #include "cppcreatemarkers.h"
 #include "diagnostic.h"
 #include "pchinfo.h"
@@ -91,9 +93,13 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 } // anonymous namespace
 
 namespace ClangCodeModel {
+namespace Internal {
 
-ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocument *document)
+ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
+        ModelManagerSupportClang *modelManagerSupport,
+        TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document)
+    , m_modelManagerSupport(modelManagerSupport)
     , m_parser(document->filePath().toString())
     , m_parserRevision(0)
     , m_semanticHighlighter(document)
@@ -122,6 +128,17 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 {
     m_parserWatcher.cancel();
     m_parserWatcher.waitForFinished();
+
+    const CppTools::ProjectPart::Ptr projectPart = m_parser.projectPart();
+    QTC_ASSERT(projectPart, return);
+
+    QString projectFilePath;
+    if (Utils::isProjectPartValid(projectPart))
+        projectFilePath = projectPart->projectFile; // OK, Project Part is still loaded
+
+    QTC_ASSERT(m_modelManagerSupport, return);
+    m_modelManagerSupport->ipcCommunicator()->unregisterFilesForCodeCompletion(
+        {CodeModelBackEnd::FileContainer(filePath(), projectFilePath)});
 }
 
 void ClangEditorDocumentProcessor::run()
@@ -188,4 +205,5 @@ void ClangEditorDocumentProcessor::onParserFinished()
     m_semanticHighlighter.run();
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel

@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 class QVariant;
 QT_END_NAMESPACE
 
-#include <codemodelbackendipc_global.h>
+#include "codemodelbackendipc_global.h"
 
 namespace CodeModelBackEnd {
 

@@ -418,13 +418,20 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 }
 
 AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
-        const QString &filePath, QTextDocument *document,
-        const LanguageFeatures &languageFeatures, int position, AssistReason reason) const
+        const QString &filePath,
+        const TextEditorWidget *textEditorWidget,
+        const LanguageFeatures &languageFeatures,
+        int position,
+        AssistReason reason) const
 {
-    QTC_ASSERT(document, return 0);
+    QTC_ASSERT(textEditorWidget, return 0);
 
     CppModelManager *modelManager = CppModelManager::instance();
-    return new CppCompletionAssistInterface(filePath, document, languageFeatures, position, reason,
+    return new CppCompletionAssistInterface(filePath,
+                                            textEditorWidget,
+                                            languageFeatures,
+                                            position,
+                                            reason,
                                             modelManager->workingCopy());
 }
 
@@ -913,7 +920,7 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
     }
 
     m_model->loadContent(m_completions);
-    return new CppAssistProposal(m_startPosition, m_model.take());
+    return new CppAssistProposal(m_positionForProposal, m_model.take());
 }
 
 IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
@@ -921,7 +928,7 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
 {
     IFunctionHintProposalModel *model =
             new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
-    IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
+    IAssistProposal *proposal = new FunctionHintProposal(m_positionForProposal, model);
     return proposal;
 }
 
@@ -1058,14 +1065,14 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
 {
     if (m_interface->languageFeatures().objCEnabled) {
         if (tryObjCCompletion())
-            return m_startPosition;
+            return m_positionForProposal;
     }
 
     const int startOfName = findStartOfName();
-    m_startPosition = startOfName;
+    m_positionForProposal = startOfName;
     m_model->m_completionOperator = T_EOF_SYMBOL;
 
-    int endOfOperator = m_startPosition;
+    int endOfOperator = m_positionForProposal;
 
     // Skip whitespace preceding this position
     while (m_interface->characterAt(endOfOperator - 1).isSpace())
@@ -1078,14 +1085,14 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
     if (m_model->m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
             addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)), m_icons.keywordIcon());
-        return m_startPosition;
+        return m_positionForProposal;
     }
 
     // Pre-processor completion
     if (m_model->m_completionOperator == T_POUND) {
         completePreprocessor();
-        m_startPosition = startOfName;
-        return m_startPosition;
+        m_positionForProposal = startOfName;
+        return m_positionForProposal;
     }
 
     // Include completion
@@ -1096,8 +1103,8 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
         QTextCursor c(m_interface->textDocument());
         c.setPosition(endOfExpression);
         if (completeInclude(c))
-            m_startPosition = endOfExpression + 1;
-        return m_startPosition;
+            m_positionForProposal = endOfExpression + 1;
+        return m_positionForProposal;
     }
 
     ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
@@ -1112,7 +1119,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
         }
 
         endOfExpression = start;
-        m_startPosition = start + 1;
+        m_positionForProposal = start + 1;
         m_model->m_completionOperator = T_LPAREN;
     }
 
@@ -1133,7 +1140,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
                                                               beforeExpression)) {
                 m_model->m_completionOperator = CompleteQt5SignalOrSlotClassNameTrigger;
             } else { // Ensure global completion
-                startOfExpression = endOfExpression = m_startPosition;
+                startOfExpression = endOfExpression = m_positionForProposal;
                 expression.clear();
                 m_model->m_completionOperator = T_EOF_SYMBOL;
             }
@@ -1155,7 +1162,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();
                 m_model->m_completionOperator = T_EOF_SYMBOL;
-                m_startPosition = startOfName;
+                m_positionForProposal = startOfName;
                 startOfExpression = m_interface->position();
             }
         }
@@ -1226,7 +1233,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     if (m_completions.isEmpty())
         return false;
 
-    m_startPosition = m_interface->position();
+    m_positionForProposal = m_interface->position();
     return true;
 }
 
@@ -1413,7 +1420,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
     if (expression.isEmpty()) {
         if (m_model->m_completionOperator == T_EOF_SYMBOL || m_model->m_completionOperator == T_COLON_COLON) {
             (void) (*m_model->m_typeOfExpression)(expression.toUtf8(), scope);
-            return globalCompletion(scope) ? m_startPosition : -1;
+            return globalCompletion(scope) ? m_positionForProposal : -1;
         }
 
         if (m_model->m_completionOperator == T_SIGNAL || m_model->m_completionOperator == T_SLOT) {
@@ -1458,7 +1465,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
             foreach (const LookupItem &result, results) {
                 if (result.type()->isClassType()) {
                     if (completeConstructorOrFunction(results, endOfExpression, true))
-                        return m_startPosition;
+                        return m_positionForProposal;
 
                     break;
                 }
@@ -1467,7 +1474,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
 
         } else if (m_model->m_completionOperator == CompleteQt5SignalOrSlotClassNameTrigger) {
             // Fallback to global completion if we could not lookup sender/receiver object.
-            return globalCompletion(scope) ? m_startPosition : -1;
+            return globalCompletion(scope) ? m_positionForProposal : -1;
 
         } else {
             return -1; // nothing to do.
@@ -1477,45 +1484,45 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
     switch (m_model->m_completionOperator) {
     case T_LPAREN:
         if (completeConstructorOrFunction(results, endOfExpression, false))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_DOT:
     case T_ARROW:
         if (completeMember(results))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_COLON_COLON:
         if (completeScope(results))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_SIGNAL:
         if (completeQtMethod(results, CompleteQt4Signals))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_SLOT:
         if (completeQtMethod(results, CompleteQt4Slots))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case CompleteQt5SignalOrSlotClassNameTrigger:
         if (completeQtMethodClassName(results, scope) || globalCompletion(scope))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case CompleteQt5SignalTrigger:
         // Fallback to scope completion if "X::" is a namespace and not a class.
         if (completeQtMethod(results, CompleteQt5Signals) || completeScope(results))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case CompleteQt5SlotTrigger:
         // Fallback to scope completion if "X::" is a namespace and not a class.
         if (completeQtMethod(results, CompleteQt5Slots) || completeScope(results))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     default:

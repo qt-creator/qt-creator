@@ -29,7 +29,9 @@
 ****************************************************************************/
 
 #include "clangcompletion.h"
+#include "clangcompletioncontextanalyzer.h"
 #include "clangutils.h"
+#include "completionchunkstotextconverter.h"
 #include "pchmanager.h"
 
 #include <coreplugin/icore.h>
@@ -42,6 +44,7 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
+#include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/cppdoxygen.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
@@ -52,12 +55,12 @@
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
-#include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDirIterator>
@@ -65,16 +68,16 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
+using namespace CodeModelBackEnd;
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
 
-static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
-static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.completion")
-
 namespace {
+
+const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
 
 int activationSequenceChar(const QChar &ch,
                            const QChar &ch2,
@@ -153,32 +156,139 @@ int activationSequenceChar(const QChar &ch,
     return referencePosition;
 }
 
-static QList<CodeCompletionResult> unfilteredCompletion(const ClangCompletionAssistInterface* interface,
-                                                        const QString &fileName,
-                                                        unsigned line, unsigned column,
-                                                        QByteArray modifiedInput = QByteArray(),
-                                                        bool isSignalSlotCompletion = false)
+QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &completions)
 {
-    ClangCompleter::Ptr wrapper = interface->clangWrapper();
-    QMutexLocker lock(wrapper->mutex());
-    //### TODO: check if we're cancelled after we managed to acquire the mutex
+    static CPlusPlus::Icons m_icons; // de-deduplicate
 
-    wrapper->setFileName(fileName);
-    wrapper->setOptions(interface->options());
-    wrapper->setSignalSlotCompletion(isSignalSlotCompletion);
-    UnsavedFiles unsavedFiles = interface->unsavedFiles();
-    if (!modifiedInput.isEmpty())
-        unsavedFiles.insert(fileName, modifiedInput);
+    QList<AssistProposalItem *> result;
 
-    qCDebug(log) << "Starting completion...";
-    QTime t; t.start();
+    bool signalCompletion = false; // TODO
+    bool slotCompletion = false; // TODO
 
-    QList<CodeCompletionResult> result = wrapper->codeCompleteAt(line, column + 1, unsavedFiles);
-    ::Utils::sort(result);
+    const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
+    QHash<QString, ClangAssistProposalItem *> items;
+    foreach (const CodeCompletion &ccr, completions) {
+        if (ccr.text().isEmpty()) // TODO: Make isValid()?
+            continue;
+        if (signalCompletion && ccr.completionKind() != CodeCompletion::SignalCompletionKind)
+            continue;
+        if (slotCompletion && ccr.completionKind() != CodeCompletion::SlotCompletionKind)
+            continue;
 
-    qCDebug(log) << "Completion done in" << t.elapsed() << "ms, with" << result.count() << "items.";
+        const QString txt(ccr.text().toString());
+        ClangAssistProposalItem *item = items.value(txt, 0);
+        if (item) {
+            item->addOverload(ccr);
+        } else {
+            item = new ClangAssistProposalItem;
+            items.insert(txt, item);
+            item->setText(txt);
+            item->setDetail(ccr.hint().toString());
+            item->setOrder(ccr.priority());
+
+            const QString snippet = ccr.snippet().toString();
+            if (!snippet.isEmpty())
+                item->setData(snippet);
+            else
+                item->setData(qVariantFromValue(ccr));
+        }
+
+        // FIXME: show the effective accessebility instead of availability
+        switch (ccr.completionKind()) {
+        case CodeCompletion::ClassCompletionKind:
+        case CodeCompletion::TemplateClassCompletionKind:
+            item->setIcon(m_icons.iconForType(Icons::ClassIconType)); break;
+        case CodeCompletion::EnumerationCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumIconType)); break;
+        case CodeCompletion::EnumeratorCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumeratorIconType)); break;
+
+        case CodeCompletion::ConstructorCompletionKind: // fall through
+        case CodeCompletion::DestructorCompletionKind: // fall through
+        case CodeCompletion::FunctionCompletionKind:
+        case CodeCompletion::TemplateFunctionCompletionKind:
+        case CodeCompletion::ObjCMessageCompletionKind:
+            switch (ccr.availability()) {
+            case CodeCompletion::Available:
+            case CodeCompletion::Deprecated:
+                item->setIcon(m_icons.iconForType(Icons::FuncPublicIconType));
+                break;
+            default:
+                item->setIcon(m_icons.iconForType(Icons::FuncPrivateIconType));
+                break;
+            }
+            break;
+
+        case CodeCompletion::SignalCompletionKind:
+            item->setIcon(m_icons.iconForType(Icons::SignalIconType));
+            break;
+
+        case CodeCompletion::SlotCompletionKind:
+            switch (ccr.availability()) {
+            case CodeCompletion::Available:
+            case CodeCompletion::Deprecated:
+                item->setIcon(m_icons.iconForType(Icons::SlotPublicIconType));
+                break;
+            case CodeCompletion::NotAccessible:
+            case CodeCompletion::NotAvailable:
+                item->setIcon(m_icons.iconForType(Icons::SlotPrivateIconType));
+                break;
+            }
+            break;
+
+        case CodeCompletion::NamespaceCompletionKind: item->setIcon(m_icons.iconForType(Icons::NamespaceIconType)); break;
+        case CodeCompletion::PreProcessorCompletionKind: item->setIcon(m_icons.iconForType(Icons::MacroIconType)); break;
+        case CodeCompletion::VariableCompletionKind:
+            switch (ccr.availability()) {
+            case CodeCompletion::Available:
+            case CodeCompletion::Deprecated:
+                item->setIcon(m_icons.iconForType(Icons::VarPublicIconType));
+                break;
+            default:
+                item->setIcon(m_icons.iconForType(Icons::VarPrivateIconType));
+                break;
+            }
+            break;
+
+        case CodeCompletion::KeywordCompletionKind:
+            item->setIcon(m_icons.iconForType(Icons::KeywordIconType));
+            break;
+
+        case CodeCompletion::ClangSnippetKind:
+            item->setIcon(snippetIcon);
+            break;
+
+        case CodeCompletion::Other:
+            break;
+        }
+    }
+
+    foreach (ClangAssistProposalItem *item, items.values())
+        result.append(item);
 
     return result;
+}
+
+bool isFunctionHintLikeCompletion(CodeCompletion::Kind kind)
+{
+    return kind == CodeCompletion::FunctionCompletionKind
+        || kind == CodeCompletion::ConstructorCompletionKind
+        || kind == CodeCompletion::DestructorCompletionKind
+        || kind == CodeCompletion::SignalCompletionKind
+        || kind == CodeCompletion::SlotCompletionKind;
+}
+
+QVector<CodeCompletion> matchingFunctionCompletions(const QVector<CodeCompletion> completions,
+                                                    const QString &functionName)
+{
+    QVector<CodeCompletion> matching;
+
+    foreach (const CodeCompletion &completion, completions) {
+        if (isFunctionHintLikeCompletion(completion.completionKind())
+                && completion.text().toString() == functionName) {
+            matching.append(completion);
+        }
+    }
+
+    return matching;
 }
 
 } // Anonymous
@@ -189,9 +299,15 @@ namespace Internal {
 // -----------------------------
 // ClangCompletionAssistProvider
 // -----------------------------
-ClangCompletionAssistProvider::ClangCompletionAssistProvider()
-    : m_clangCompletionWrapper(new ClangCompleter)
+ClangCompletionAssistProvider::ClangCompletionAssistProvider(IpcCommunicator::Ptr ipcCommunicator)
+    : m_ipcCommunicator(ipcCommunicator)
 {
+    QTC_CHECK(m_ipcCommunicator);
+}
+
+IAssistProvider::RunType ClangCompletionAssistProvider::runType() const
+{
+    return Asynchronous;
 }
 
 IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
@@ -200,33 +316,25 @@ IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
 }
 
 AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
-        const QString &filePath, QTextDocument *document,
-        const LanguageFeatures &languageFeatures, int position, AssistReason reason) const
+        const QString &filePath,
+        const TextEditorWidget *textEditorWidget,
+        const LanguageFeatures &languageFeatures,
+        int position,
+        AssistReason reason) const
 {
-    CppModelManager *modelManager = CppModelManager::instance();
-    QList<ProjectPart::Ptr> parts = modelManager->projectPart(filePath);
-    if (parts.isEmpty())
-        parts += modelManager->fallbackProjectPart();
-    LanguageFeatures features = languageFeatures;
-    ProjectPart::HeaderPaths headerPaths;
-    QStringList options;
-    PchInfo::Ptr pchInfo;
-    foreach (ProjectPart::Ptr part, parts) {
-        if (part.isNull())
-            continue;
-        options = Utils::createClangOptions(part, filePath);
-        pchInfo = PchManager::instance()->pchInfo(part);
-        if (!pchInfo.isNull())
-            options.append(Utils::createPCHInclusionOptions(pchInfo->fileName()));
-        headerPaths = part->headerPaths;
-        features = part->languageFeatures;
-        break;
-    }
+    Q_UNUSED(languageFeatures);
+    const ProjectPart::Ptr part = Utils::projectPartForFile(filePath);
+    QTC_ASSERT(!part.isNull(), return 0);
 
-    return new ClangCompletionAssistInterface(
-                m_clangCompletionWrapper,
-                document, position, filePath, reason,
-                options, headerPaths, pchInfo, features);
+    const PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(part);
+    return new ClangCompletionAssistInterface(m_ipcCommunicator,
+                                              textEditorWidget,
+                                              position,
+                                              filePath,
+                                              reason,
+                                              part->headerPaths,
+                                              pchInfo,
+                                              part->languageFeatures);
 }
 
 // ------------------------
@@ -273,23 +381,11 @@ private:
 // ----------------------
 // ClangFunctionHintModel
 // ----------------------
-class ClangFunctionHintModel : public IFunctionHintProposalModel
-{
-public:
-    ClangFunctionHintModel(const QList<CodeCompletionResult> functionSymbols)
-        : m_functionSymbols(functionSymbols)
-        , m_currentArg(-1)
-    {}
 
-    virtual void reset() {}
-    virtual int size() const { return m_functionSymbols.size(); }
-    virtual QString text(int index) const;
-    virtual int activeArgument(const QString &prefix) const;
-
-private:
-    QList<CodeCompletionResult> m_functionSymbols;
-    mutable int m_currentArg;
-};
+ClangFunctionHintModel::ClangFunctionHintModel(const CodeCompletions &functionSymbols)
+    : m_functionSymbols(functionSymbols)
+    , m_currentArg(-1)
+{}
 
 QString ClangFunctionHintModel::text(int index) const
 {
@@ -313,7 +409,7 @@ QString ClangFunctionHintModel::text(int index) const
     hintText += prettyMethod.mid(end).toHtmlEscaped());
     return hintText;
 #endif
-    return m_functionSymbols.at(index).hint();
+    return CompletionChunksToTextConverter::convert(m_functionSymbols.at(index).chunks());
 }
 
 int ClangFunctionHintModel::activeArgument(const QString &prefix) const
@@ -341,49 +437,12 @@ int ClangFunctionHintModel::activeArgument(const QString &prefix) const
     return argnr;
 }
 
-class ClangAssistProposalItem : public AssistProposalItem
-{
-public:
-    ClangAssistProposalItem() {}
-
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditorWidget *editorWidget,
-                                        int basePosition) const;
-
-    void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
-
-    bool isOverloaded() const
-    { return !m_overloads.isEmpty(); }
-    void addOverload(const CodeCompletionResult &ccr)
-    { m_overloads.append(ccr); }
-
-    CodeCompletionResult originalItem() const
-    {
-        const QVariant &v = data();
-        if (v.canConvert<CodeCompletionResult>())
-            return v.value<CodeCompletionResult>();
-        else
-            return CodeCompletionResult();
-    }
-
-    bool isCodeCompletionResult() const
-    { return data().canConvert<CodeCompletionResult>(); }
-
-private:
-    unsigned m_completionOperator;
-    mutable QChar m_typedChar;
-    QList<CodeCompletionResult> m_overloads;
-};
-
 /// @return True, because clang always returns priorities for sorting
 bool ClangAssistProposalModel::isSortable(const QString &prefix) const
 {
     Q_UNUSED(prefix)
     return true;
 }
-
-} // namespace Internal
-} // namespace ClangCodeModel
 
 bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
 {
@@ -393,9 +452,9 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
         ok = QString::fromLatin1("(,").contains(typedChar);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
         ok = (typedChar == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
-    else if (!isCodeCompletionResult())
+    else if (!isCodeCompletion())
         ok = (typedChar == QLatin1Char('(')); /* && data().canConvert<CompleteFunctionDeclaration>()*/ //###
-    else if (originalItem().completionKind() == CodeCompletionResult::ObjCMessageCompletionKind)
+    else if (originalItem().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
         ok = QString::fromLatin1(";.,").contains(typedChar);
     else
         ok = QString::fromLatin1(";.,:(").contains(typedChar);
@@ -409,7 +468,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
 void ClangAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget,
                                                      int basePosition) const
 {
-    const CodeCompletionResult ccr = originalItem();
+    const CodeCompletion ccr = originalItem();
 
     QString toInsert = text();
     QString extraChars;
@@ -428,16 +487,16 @@ void ClangAssistProposalItem::applyContextualContent(TextEditorWidget *editorWid
             if (m_typedChar == QLatin1Char('/')) // Eat the slash
                 m_typedChar = QChar();
         }
-    } else if (ccr.isValid()) {
+    } else if (!ccr.text().isEmpty()) {
         const CompletionSettings &completionSettings =
                 TextEditorSettings::instance()->completionSettings();
         const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
 
         if (autoInsertBrackets &&
-                (ccr.completionKind() == CodeCompletionResult::FunctionCompletionKind
-                 || ccr.completionKind() == CodeCompletionResult::DestructorCompletionKind
-                 || ccr.completionKind() == CodeCompletionResult::SignalCompletionKind
-                 || ccr.completionKind() == CodeCompletionResult::SlotCompletionKind)) {
+                (ccr.completionKind() == CodeCompletion::FunctionCompletionKind
+                 || ccr.completionKind() == CodeCompletion::DestructorCompletionKind
+                 || ccr.completionKind() == CodeCompletion::SignalCompletionKind
+                 || ccr.completionKind() == CodeCompletion::SlotCompletionKind)) {
             // When the user typed the opening parenthesis, he'll likely also type the closing one,
             // in which case it would be annoying if we put the cursor after the already automatically
             // inserted closing parenthesis.
@@ -533,35 +592,87 @@ void ClangAssistProposalItem::applyContextualContent(TextEditorWidget *editorWid
         editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
-bool ClangCompletionAssistInterface::objcEnabled() const
+bool ClangAssistProposalItem::isOverloaded() const
 {
-    return m_clangWrapper->objcEnabled();
+    return !m_overloads.isEmpty();
 }
 
-ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::Ptr clangWrapper,
-        QTextDocument *document,
+void ClangAssistProposalItem::addOverload(const CodeCompletion &ccr)
+{
+    m_overloads.append(ccr);
+}
+
+CodeCompletion ClangAssistProposalItem::originalItem() const
+{
+    const QVariant &value = data();
+    if (value.canConvert<CodeCompletion>())
+        return value.value<CodeCompletion>();
+    else
+        return CodeCompletion();
+}
+
+bool ClangAssistProposalItem::isCodeCompletion() const
+{
+    return data().canConvert<CodeCompletion>();
+}
+
+bool ClangCompletionAssistInterface::objcEnabled() const
+{
+    return true; // TODO:
+}
+
+const ProjectPart::HeaderPaths &ClangCompletionAssistInterface::headerPaths() const
+{
+    return m_headerPaths;
+}
+
+LanguageFeatures ClangCompletionAssistInterface::languageFeatures() const
+{
+    return m_languageFeatures;
+}
+
+void ClangCompletionAssistInterface::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
+{
+    m_headerPaths = headerPaths;
+}
+
+const TextEditor::TextEditorWidget *ClangCompletionAssistInterface::textEditorWidget() const
+{
+    return m_textEditorWidget;
+}
+
+ClangCompletionAssistInterface::ClangCompletionAssistInterface(
+        IpcCommunicator::Ptr ipcCommunicator,
+        const TextEditorWidget *textEditorWidget,
         int position,
         const QString &fileName,
         AssistReason reason,
-        const QStringList &options,
-        const QList<ProjectPart::HeaderPath> &headerPaths,
+        const ProjectPart::HeaderPaths &headerPaths,
         const PchInfo::Ptr &pchInfo,
         const LanguageFeatures &features)
-    : AssistInterface(document, position, fileName, reason)
-    , m_clangWrapper(clangWrapper)
-    , m_options(options)
+    : AssistInterface(textEditorWidget->document(), position, fileName, reason)
+    , m_ipcCommunicator(ipcCommunicator)
     , m_headerPaths(headerPaths)
     , m_savedPchPointer(pchInfo)
     , m_languageFeatures(features)
+    , m_textEditorWidget(textEditorWidget)
 {
-    Q_ASSERT(!clangWrapper.isNull());
-
     CppModelManager *mmi = CppModelManager::instance();
     m_unsavedFiles = Utils::createUnsavedFiles(mmi->workingCopy());
 }
 
+IpcCommunicator::Ptr ClangCompletionAssistInterface::ipcCommunicator() const
+{
+    return m_ipcCommunicator;
+}
+
+const UnsavedFiles &ClangCompletionAssistInterface::unsavedFiles() const
+{
+    return m_unsavedFiles;
+}
+
 ClangCompletionAssistProcessor::ClangCompletionAssistProcessor()
-    : m_model(new ClangAssistProposalModel)
+    : m_completionOperator(T_EOF_SYMBOL)
 {
 }
 
@@ -576,108 +687,123 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
     if (interface->reason() != ExplicitlyInvoked && !accepts())
         return 0;
 
-    int index = startCompletionHelper();
-    if (index != -1) {
-        if (m_hintProposal)
-            return m_hintProposal;
+    return startCompletionHelper(); // == 0 if results are calculated asynchronously
+}
 
-        m_model->m_sortable = (m_model->m_completionOperator != T_EOF_SYMBOL);
-        return createContentProposal();
+void ClangCompletionAssistProcessor::asyncCompletionsAvailable(const CodeCompletions &completions)
+{
+    switch (m_sentRequestType) {
+    case CompletionRequestType::NormalCompletion:
+        onCompletionsAvailable(completions);
+        break;
+    case CompletionRequestType::FunctionHintCompletion:
+        onFunctionHintCompletionsAvailable(completions);
+        break;
+    default:
+        QTC_CHECK(!"Unhandled ClangCompletionAssistProcessor::CompletionRequestType");
+        break;
+    }
+}
+
+const TextEditorWidget *ClangCompletionAssistProcessor::textEditorWidget() const
+{
+    return m_interface->textEditorWidget();
+}
+
+/// Seach backwards in the document starting from pos to find the first opening
+/// parenthesis. Nested parenthesis are skipped.
+static int findOpenParen(QTextDocument *document, int start)
+{
+    unsigned parenCount = 1;
+    for (int position = start; position >= 0; --position) {
+        const QChar ch = document->characterAt(position);
+        if (ch == QLatin1Char('(')) {
+            --parenCount;
+            if (parenCount == 0)
+                return position;
+        } else if (ch == QLatin1Char(')')) {
+            ++parenCount;
+        }
+    }
+    return -1;
+}
+
+static QByteArray modifyInput(QTextDocument *doc, int endOfExpression) {
+    int comma = endOfExpression;
+    while (comma > 0) {
+        const QChar ch = doc->characterAt(comma);
+        if (ch == QLatin1Char(','))
+            break;
+        if (ch == QLatin1Char(';') || ch == QLatin1Char('{') || ch == QLatin1Char('}')) {
+            // Safety net: we don't seem to have "connect(pointer, SIGNAL(" as
+            // input, so stop searching.
+            comma = -1;
+            break;
+        }
+        --comma;
+    }
+    if (comma < 0)
+        return QByteArray();
+    const int openBrace = findOpenParen(doc, comma);
+    if (openBrace < 0)
+        return QByteArray();
+
+    QByteArray modifiedInput = doc->toPlainText().toUtf8();
+    const int len = endOfExpression - comma;
+    QByteArray replacement(len - 4, ' ');
+    replacement.append(")->");
+    modifiedInput.replace(comma, len, replacement);
+    modifiedInput.insert(openBrace, '(');
+    return modifiedInput;
+}
+
+IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
+{
+    sendFileContent(Utils::projectFilePathForFile(m_interface->fileName()), QByteArray()); // TODO: Remoe
+
+    ClangCompletionContextAnalyzer analyzer(m_interface.data(), m_interface->languageFeatures());
+    analyzer.analyze();
+    m_completionOperator = analyzer.completionOperator();
+    m_positionForProposal = analyzer.positionForProposal();
+
+    QByteArray modifiedFileContent;
+
+    const ClangCompletionContextAnalyzer::CompletionAction action = analyzer.completionAction();
+    switch (action) {
+    case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
+        if (completeDoxygenKeywords())
+            return createProposal();
+        break;
+    case ClangCompletionContextAnalyzer::CompleteIncludePath:
+        if (completeInclude(analyzer.positionEndOfExpression()))
+            return createProposal();
+        break;
+    case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
+        if (completePreprocessorDirectives())
+            return createProposal();
+        break;
+    case ClangCompletionContextAnalyzer::CompleteSignal:
+    case ClangCompletionContextAnalyzer::CompleteSlot:
+        modifiedFileContent = modifyInput(m_interface->textDocument(),
+                                          analyzer.positionEndOfExpression());
+        // Fall through!
+    case ClangCompletionContextAnalyzer::PassThroughToLibClang: {
+        m_addSnippets = m_completionOperator == T_EOF_SYMBOL;
+        m_sentRequestType = NormalCompletion;
+        sendCompletionRequest(analyzer.positionForClang(), modifiedFileContent);
+        break;
+    }
+    case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen: {
+        m_sentRequestType = FunctionHintCompletion;
+        m_functionName = analyzer.functionName();
+        sendCompletionRequest(analyzer.positionForClang(), QByteArray());
+        break;
+    }
+    default:
+        break;
     }
 
     return 0;
-}
-
-int ClangCompletionAssistProcessor::startCompletionHelper()
-{
-    //### TODO: clean-up this method, some calculated values might not be used anymore.
-
-    Q_ASSERT(m_model);
-
-    const int startOfName = findStartOfName();
-    m_startPosition = startOfName;
-    m_model->m_completionOperator = T_EOF_SYMBOL;
-
-    int endOfOperator = m_startPosition;
-
-    // Skip whitespace preceding this position
-    while (m_interface->characterAt(endOfOperator - 1).isSpace())
-        --endOfOperator;
-
-    const QString fileName = m_interface->fileName();
-
-    int endOfExpression = startOfOperator(endOfOperator,
-                                          &m_model->m_completionOperator,
-                                          /*want function call =*/ true);
-
-    if (m_model->m_completionOperator == T_EOF_SYMBOL) {
-        endOfOperator = m_startPosition;
-    } else if (m_model->m_completionOperator == T_DOXY_COMMENT) {
-        for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
-            addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)),
-                              m_icons.keywordIcon());
-        return m_startPosition;
-    }
-
-    // Pre-processor completion
-    //### TODO: check if clang can do pp completion
-    if (m_model->m_completionOperator == T_POUND) {
-        completePreprocessor();
-        m_startPosition = startOfName;
-        return m_startPosition;
-    }
-
-    // Include completion
-    if (m_model->m_completionOperator == T_STRING_LITERAL
-            || m_model->m_completionOperator == T_ANGLE_STRING_LITERAL
-            || m_model->m_completionOperator == T_SLASH) {
-
-        QTextCursor c(m_interface->textDocument());
-        c.setPosition(endOfExpression);
-        if (completeInclude(c))
-            m_startPosition = startOfName;
-        return m_startPosition;
-    }
-
-    ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
-    QTextCursor tc(m_interface->textDocument());
-
-    if (m_model->m_completionOperator == T_COMMA) {
-        tc.setPosition(endOfExpression);
-        const int start = expressionUnderCursor.startOfFunctionCall(tc);
-        if (start == -1) {
-            m_model->m_completionOperator = T_EOF_SYMBOL;
-            return -1;
-        }
-
-        endOfExpression = start;
-        m_startPosition = start + 1;
-        m_model->m_completionOperator = T_LPAREN;
-    }
-
-    tc.setPosition(endOfExpression);
-
-    if (m_model->m_completionOperator) {
-        const QString expression = expressionUnderCursor(tc);
-
-        if (m_model->m_completionOperator == T_LPAREN) {
-            if (expression.endsWith(QLatin1String("SIGNAL")))
-                m_model->m_completionOperator = T_SIGNAL;
-
-            else if (expression.endsWith(QLatin1String("SLOT")))
-                m_model->m_completionOperator = T_SLOT;
-
-            else if (m_interface->position() != endOfOperator) {
-                // We don't want a function completion when the cursor isn't at the opening brace
-                m_model->m_completionOperator = T_EOF_SYMBOL;
-                m_startPosition = startOfName;
-            }
-        }
-    }
-
-    int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->textDocument(), endOfOperator, &line, &column);
-    return startCompletionInternal(fileName, line, column, endOfOperator);
 }
 
 // TODO: Extract duplicated logic from InternalCppCompletionAssistProcessor::startOfOperator
@@ -857,218 +983,6 @@ bool ClangCompletionAssistProcessor::accepts() const
     return false;
 }
 
-IAssistProposal *ClangCompletionAssistProcessor::createContentProposal()
-{
-    m_model->loadContent(m_completions);
-    return new ClangAssistProposal(m_startPosition, m_model.take());
-}
-
-/// Seach backwards in the document starting from pos to find the first opening
-/// parenthesis. Nested parenthesis are skipped.
-static int findOpenParen(QTextDocument *doc, int start)
-{
-    unsigned parenCount = 1;
-    for (int pos = start; pos >= 0; --pos) {
-        const QChar ch = doc->characterAt(pos);
-        if (ch == QLatin1Char('(')) {
-            --parenCount;
-            if (parenCount == 0)
-                return pos;
-        } else if (ch == QLatin1Char(')')) {
-            ++parenCount;
-        }
-    }
-    return -1;
-}
-
-static QByteArray modifyInput(QTextDocument *doc, int endOfExpression) {
-    int comma = endOfExpression;
-    while (comma > 0) {
-        const QChar ch = doc->characterAt(comma);
-        if (ch == QLatin1Char(','))
-            break;
-        if (ch == QLatin1Char(';') || ch == QLatin1Char('{') || ch == QLatin1Char('}')) {
-            // Safety net: we don't seem to have "connect(pointer, SIGNAL(" as
-            // input, so stop searching.
-            comma = -1;
-            break;
-        }
-        --comma;
-    }
-    if (comma < 0)
-        return QByteArray();
-    const int openBrace = findOpenParen(doc, comma);
-    if (openBrace < 0)
-        return QByteArray();
-
-    QByteArray modifiedInput = doc->toPlainText().toUtf8();
-    const int len = endOfExpression - comma;
-    QByteArray replacement(len - 4, ' ');
-    replacement.append(")->");
-    modifiedInput.replace(comma, len, replacement);
-    modifiedInput.insert(openBrace, '(');
-    return modifiedInput;
-}
-
-int ClangCompletionAssistProcessor::startCompletionInternal(const QString fileName,
-                                                            unsigned line,
-                                                            unsigned column,
-                                                            int endOfExpression)
-{
-    bool signalCompletion = false;
-    bool slotCompletion = false;
-    QByteArray modifiedInput;
-
-    if (m_model->m_completionOperator == T_SIGNAL) {
-        signalCompletion = true;
-        modifiedInput = modifyInput(m_interface->textDocument(), endOfExpression);
-    } else if (m_model->m_completionOperator == T_SLOT) {
-        slotCompletion = true;
-        modifiedInput = modifyInput(m_interface->textDocument(), endOfExpression);
-    } else if (m_model->m_completionOperator == T_LPAREN) {
-        // Find the expression that precedes the current name
-        int index = endOfExpression;
-        while (m_interface->characterAt(index - 1).isSpace())
-            --index;
-
-        QTextCursor tc(m_interface->textDocument());
-        tc.setPosition(index);
-        ExpressionUnderCursor euc(m_interface->languageFeatures());
-        index = euc.startOfFunctionCall(tc);
-        int nameStart = findStartOfName(index);
-        QTextCursor tc2(m_interface->textDocument());
-        tc2.setPosition(nameStart);
-        tc2.setPosition(index, QTextCursor::KeepAnchor);
-        const QString functionName = tc2.selectedText().trimmed();
-        int l = line, c = column;
-        Convenience::convertPosition(m_interface->textDocument(), nameStart, &l, &c);
-
-        qCDebug(log)<<"complete constructor or function @" << line<<":"<<column << "->"<<l<<":"<<c;
-
-        const QList<CodeCompletionResult> completions = unfilteredCompletion(
-                    m_interface.data(), fileName, l, c, QByteArray(), signalCompletion || slotCompletion);
-        QList<CodeCompletionResult> functionCompletions;
-        foreach (const CodeCompletionResult &ccr, completions) {
-            if (ccr.completionKind() == CodeCompletionResult::FunctionCompletionKind
-                    || ccr.completionKind() == CodeCompletionResult::ConstructorCompletionKind
-                    || ccr.completionKind() == CodeCompletionResult::DestructorCompletionKind
-                    || ccr.completionKind() == CodeCompletionResult::SignalCompletionKind
-                    || ccr.completionKind() == CodeCompletionResult::SlotCompletionKind)
-                if (ccr.text() == functionName)
-                    functionCompletions.append(ccr);
-        }
-
-        if (!functionCompletions.isEmpty()) {
-            IFunctionHintProposalModel *model = new ClangFunctionHintModel(functionCompletions);
-            m_hintProposal = new FunctionHintProposal(m_startPosition, model);
-            return m_startPosition;
-        }
-    }
-
-    const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
-    QList<CodeCompletionResult> completions = unfilteredCompletion(
-                m_interface.data(), fileName, line, column, modifiedInput, signalCompletion || slotCompletion);
-    QHash<QString, ClangAssistProposalItem *> items;
-    foreach (const CodeCompletionResult &ccr, completions) {
-        if (!ccr.isValid())
-            continue;
-        if (signalCompletion && ccr.completionKind() != CodeCompletionResult::SignalCompletionKind)
-            continue;
-        if (slotCompletion && ccr.completionKind() != CodeCompletionResult::SlotCompletionKind)
-            continue;
-
-        const QString txt(ccr.text());
-        ClangAssistProposalItem *item = items.value(txt, 0);
-        if (item) {
-            item->addOverload(ccr);
-        } else {
-            item = new ClangAssistProposalItem;
-            items.insert(txt, item);
-            item->setText(txt);
-            item->setDetail(ccr.hint());
-            item->setOrder(ccr.priority());
-
-            const QString snippet = ccr.snippet();
-            if (!snippet.isEmpty())
-                item->setData(snippet);
-            else
-                item->setData(qVariantFromValue(ccr));
-        }
-
-        // FIXME: show the effective accessebility instead of availability
-        switch (ccr.completionKind()) {
-        case CodeCompletionResult::ClassCompletionKind: item->setIcon(m_icons.iconForType(Icons::ClassIconType)); break;
-        case CodeCompletionResult::EnumCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumIconType)); break;
-        case CodeCompletionResult::EnumeratorCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumeratorIconType)); break;
-
-        case CodeCompletionResult::ConstructorCompletionKind: // fall through
-        case CodeCompletionResult::DestructorCompletionKind: // fall through
-        case CodeCompletionResult::FunctionCompletionKind:
-        case CodeCompletionResult::ObjCMessageCompletionKind:
-            switch (ccr.availability()) {
-            case CodeCompletionResult::Available:
-            case CodeCompletionResult::Deprecated:
-                item->setIcon(m_icons.iconForType(Icons::FuncPublicIconType));
-                break;
-            default:
-                item->setIcon(m_icons.iconForType(Icons::FuncPrivateIconType));
-                break;
-            }
-            break;
-
-        case CodeCompletionResult::SignalCompletionKind:
-            item->setIcon(m_icons.iconForType(Icons::SignalIconType));
-            break;
-
-        case CodeCompletionResult::SlotCompletionKind:
-            switch (ccr.availability()) {
-            case CodeCompletionResult::Available:
-            case CodeCompletionResult::Deprecated:
-                item->setIcon(m_icons.iconForType(Icons::SlotPublicIconType));
-                break;
-            case CodeCompletionResult::NotAccessible:
-            case CodeCompletionResult::NotAvailable:
-                item->setIcon(m_icons.iconForType(Icons::SlotPrivateIconType));
-                break;
-            }
-            break;
-
-        case CodeCompletionResult::NamespaceCompletionKind: item->setIcon(m_icons.iconForType(Icons::NamespaceIconType)); break;
-        case CodeCompletionResult::PreProcessorCompletionKind: item->setIcon(m_icons.iconForType(Icons::MacroIconType)); break;
-        case CodeCompletionResult::VariableCompletionKind:
-            switch (ccr.availability()) {
-            case CodeCompletionResult::Available:
-            case CodeCompletionResult::Deprecated:
-                item->setIcon(m_icons.iconForType(Icons::VarPublicIconType));
-                break;
-            default:
-                item->setIcon(m_icons.iconForType(Icons::VarPrivateIconType));
-                break;
-            }
-            break;
-
-        case CodeCompletionResult::KeywordCompletionKind:
-            item->setIcon(m_icons.iconForType(Icons::KeywordIconType));
-            break;
-
-        case CodeCompletionResult::ClangSnippetKind:
-            item->setIcon(snippetIcon);
-            break;
-
-        default:
-            break;
-        }
-    }
-
-    foreach (ClangAssistProposalItem *item, items.values())
-        m_completions.append(item);
-
-    if (m_model->m_completionOperator == T_EOF_SYMBOL)
-        addSnippets();
-
-    return m_startPosition;
-}
-
 /**
  * @brief Creates completion proposals for #include and given cursor
  * @param cursor - cursor placed after opening bracked or quote
@@ -1077,16 +991,16 @@ int ClangCompletionAssistProcessor::startCompletionInternal(const QString fileNa
 bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
 {
     QString directoryPrefix;
-    if (m_model->m_completionOperator == T_SLASH) {
+    if (m_completionOperator == T_SLASH) {
         QTextCursor c = cursor;
         c.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
         QString sel = c.selectedText();
         int startCharPos = sel.indexOf(QLatin1Char('"'));
         if (startCharPos == -1) {
             startCharPos = sel.indexOf(QLatin1Char('<'));
-            m_model->m_completionOperator = T_ANGLE_STRING_LITERAL;
+            m_completionOperator = T_ANGLE_STRING_LITERAL;
         } else {
-            m_model->m_completionOperator = T_STRING_LITERAL;
+            m_completionOperator = T_STRING_LITERAL;
         }
         if (startCharPos != -1)
             directoryPrefix = sel.mid(startCharPos + 1, sel.length() - 1);
@@ -1117,6 +1031,13 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     return !m_completions.isEmpty();
 }
 
+bool ClangCompletionAssistProcessor::completeInclude(int position)
+{
+    QTextCursor textCursor(m_interface->textDocument()); // TODO: Simplify, move into function
+    textCursor.setPosition(position);
+    return completeInclude(textCursor);
+}
+
 /**
  * @brief Adds #include completion proposals using given include path
  * @param realPath - one of directories where compiler searches includes
@@ -1141,13 +1062,13 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
             item->setText(text);
             item->setDetail(hint);
             item->setIcon(m_icons.keywordIcon());
-            item->keepCompletionOperator(m_model->m_completionOperator);
+            item->keepCompletionOperator(m_completionOperator);
             m_completions.append(item);
         }
     }
 }
 
-void ClangCompletionAssistProcessor::completePreprocessor()
+bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 {
     foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
         addCompletionItem(preprocessorCompletion,
@@ -1156,6 +1077,15 @@ void ClangCompletionAssistProcessor::completePreprocessor()
     if (m_interface->objcEnabled())
         addCompletionItem(QLatin1String("import"),
                           m_icons.iconForType(Icons::MacroIconType));
+
+    return !m_completions.isEmpty();
+}
+
+bool ClangCompletionAssistProcessor::completeDoxygenKeywords()
+{
+    for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
+        addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)), m_icons.keywordIcon());
+    return !m_completions.isEmpty();
 }
 
 void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
@@ -1168,6 +1098,74 @@ void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
     item->setIcon(icon);
     item->setOrder(order);
     item->setData(data);
-    item->keepCompletionOperator(m_model->m_completionOperator);
+    item->keepCompletionOperator(m_completionOperator);
     m_completions.append(item);
 }
+
+void ClangCompletionAssistProcessor::sendFileContent(const QString &projectFilePath,
+                                                     const QByteArray &modifiedFileContent)
+{
+    const QString filePath = m_interface->fileName();
+    const QByteArray unsavedContent = modifiedFileContent.isEmpty()
+            ? m_interface->textDocument()->toPlainText().toUtf8()
+            : modifiedFileContent;
+    const bool hasUnsavedContent = true; // TODO
+
+    IpcCommunicator::Ptr ipcCommunicator = m_interface->ipcCommunicator();
+    ipcCommunicator->registerFilesForCodeCompletion(
+        {FileContainer(filePath,
+                       projectFilePath,
+                       Utf8String::fromByteArray(unsavedContent),
+                       hasUnsavedContent)});
+}
+
+void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
+                                                           const QByteArray &modifiedFileContent)
+{
+    int line, column;
+    Convenience::convertPosition(m_interface->textDocument(), position, &line, &column);
+    ++column;
+
+    const QString filePath = m_interface->fileName();
+    const QString projectFilePath = Utils::projectFilePathForFile(filePath);
+    sendFileContent(projectFilePath, modifiedFileContent);
+    m_interface->ipcCommunicator()->completeCode(this, filePath, line, column, projectFilePath);
+}
+
+TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() const
+{
+    ClangAssistProposalModel *model = new ClangAssistProposalModel;
+    model->loadContent(m_completions);
+    return new ClangAssistProposal(m_positionForProposal, model);
+}
+
+void ClangCompletionAssistProcessor::onCompletionsAvailable(const CodeCompletions &completions)
+{
+    QTC_CHECK(m_completions.isEmpty());
+
+    m_completions = toAssistProposalItems(completions);
+    if (m_addSnippets)
+        addSnippets();
+
+    setAsyncProposalAvailable(createProposal());
+}
+
+void ClangCompletionAssistProcessor::onFunctionHintCompletionsAvailable(
+        const CodeCompletions &completions)
+{
+    QTC_CHECK(!m_functionName.isEmpty());
+    const auto relevantCompletions = matchingFunctionCompletions(completions, m_functionName);
+
+    if (!relevantCompletions.isEmpty()) {
+        IFunctionHintProposalModel *model = new ClangFunctionHintModel(relevantCompletions);
+        FunctionHintProposal *proposal = new FunctionHintProposal(m_positionForProposal, model);
+
+        setAsyncProposalAvailable(proposal);
+    } else {
+        QTC_CHECK(!"Function completion failed. Would fallback to global completion here...");
+        // TODO: If we need this, the processor can't be deleted in IpcClient.
+    }
+}
+
+} // namespace Internal
+} // namespace ClangCodeModel

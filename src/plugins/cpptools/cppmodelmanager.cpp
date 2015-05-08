@@ -150,8 +150,10 @@ public:
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Completion & highlighting
-    QHash<QString, ModelManagerSupport *> m_idTocodeModelSupporter;
-    QScopedPointer<ModelManagerSupport> m_modelManagerSupportFallback;
+    ModelManagerSupportProviderInternal m_modelManagerSupportInternalProvider;
+    ModelManagerSupport::Ptr m_modelManagerSupportInternal;
+    QHash<QString, ModelManagerSupportProvider *> m_availableModelManagerSupports;
+    QHash<QString, ModelManagerSupport::Ptr> m_activeModelManagerSupports;
 
     // Indexing
     CppIndexingSupport *m_indexingSupporter;
@@ -329,10 +331,17 @@ CppModelManager::CppModelManager(QObject *parent)
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
                 "QList<CPlusPlus::Document::DiagnosticMessage>");
 
-    d->m_modelManagerSupportFallback.reset(new ModelManagerSupportInternal);
-    CppToolsPlugin::instance()->codeModelSettings()->setDefaultId(
-                d->m_modelManagerSupportFallback->id());
-    addModelManagerSupport(d->m_modelManagerSupportFallback.data());
+    QSharedPointer<CppCodeModelSettings> codeModelSettings
+            = CppToolsPlugin::instance()->codeModelSettings();
+    codeModelSettings->setDefaultId(d->m_modelManagerSupportInternalProvider.id());
+    connect(codeModelSettings.data(), &CppCodeModelSettings::changed,
+            this, &CppModelManager::onCodeModelSettingsChanged);
+
+    d->m_modelManagerSupportInternal
+            = d->m_modelManagerSupportInternalProvider.createModelManagerSupport();
+    d->m_activeModelManagerSupports.insert(d->m_modelManagerSupportInternalProvider.id(),
+                                           d->m_modelManagerSupportInternal);
+    addModelManagerSupportProvider(&d->m_modelManagerSupportInternalProvider);
 
     d->m_internalIndexingSupport = new BuiltinIndexingSupport;
 }
@@ -464,6 +473,11 @@ void CppModelManager::dumpModelManagerConfiguration(const QString &logFileId)
     dumper.dumpWorkingCopy(workingCopy());
     ensureUpdated();
     dumper.dumpMergedEntities(d->m_headerPaths, d->m_definedMacros);
+}
+
+QSet<AbstractEditorSupport *> CppModelManager::abstractEditorSupports() const
+{
+    return d->m_extraEditorSupports;
 }
 
 void CppModelManager::addExtraEditorSupport(AbstractEditorSupport *editorSupport)
@@ -648,6 +662,39 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     }
 }
 
+void CppModelManager::handleAddedModelManagerSupports(const QSet<QString> &supportIds)
+{
+    foreach (const QString &id, supportIds) {
+        ModelManagerSupportProvider * const provider = d->m_availableModelManagerSupports.value(id);
+        if (provider) {
+            QTC_CHECK(!d->m_activeModelManagerSupports.contains(id));
+            d->m_activeModelManagerSupports.insert(id, provider->createModelManagerSupport());
+        }
+    }
+}
+
+QList<ModelManagerSupport::Ptr> CppModelManager::handleRemovedModelManagerSupports(
+        const QSet<QString> &supportIds)
+{
+    QList<ModelManagerSupport::Ptr> removed;
+
+    foreach (const QString &id, supportIds) {
+        const ModelManagerSupport::Ptr support = d->m_activeModelManagerSupports.value(id);
+        d->m_activeModelManagerSupports.remove(id);
+        removed << support;
+    }
+
+    return removed;
+}
+
+void CppModelManager::closeCppEditorDocuments()
+{
+    QList<Core::IDocument *> cppDocumentsToClose;
+    foreach (CppEditorDocumentHandle *cppDocument, cppEditorDocuments())
+        cppDocumentsToClose << cppDocument->processor()->baseTextDocument();
+    QTC_CHECK(Core::EditorManager::closeDocuments(cppDocumentsToClose));
+}
+
 QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() const
 {
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
@@ -661,6 +708,15 @@ void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove
     QSetIterator<QString> i(filesToRemove);
     while (i.hasNext())
         d->m_snapshot.remove(i.next());
+}
+
+static QStringList projectFilePaths(const QSet<ProjectPart::Ptr> &projectParts)
+{
+    QStringList result;
+    QSetIterator<ProjectPart::Ptr> it(projectParts);
+    while (it.hasNext())
+        result << it.next()->projectFile;
+    return result;
 }
 
 class ProjectInfoComparer
@@ -690,6 +746,13 @@ public:
         QSet<QString> removedFilesSet = m_oldSourceFiles;
         removedFilesSet.subtract(m_newSourceFiles);
         return removedFilesSet;
+    }
+
+    QStringList removedProjectParts()
+    {
+        QSet<ProjectPart::Ptr> removed = m_old.projectParts().toSet();
+        removed.subtract(m_new.projectParts().toSet());
+        return projectFilePaths(removed);
     }
 
     /// Returns a list of common files that have a changed timestamp.
@@ -809,6 +872,9 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
                 }
             }
 
+            // Announce removed project parts
+            emit projectPartsRemoved(comparer.removedProjectParts());
+
         // A new project was opened/created, do a full indexing
         } else {
             d->m_dirty = true;
@@ -829,6 +895,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     if (filesRemoved)
         GC();
 
+    // Announce added project parts
     emit projectPartsUpdated(newProjectInfo.project().data());
 
     // Ideally, we would update all the editor documents that depend on the 'filesToReindex'.
@@ -903,14 +970,32 @@ void CppModelManager::delayedGC()
         d->m_delayedGcTimer.start(500);
 }
 
+static QStringList pathsOfAllProjectParts(const ProjectInfo &projectInfo)
+{
+    QStringList projectPaths;
+    foreach (const ProjectPart::Ptr &part, projectInfo.projectParts())
+        projectPaths << part->projectFile;
+    return projectPaths;
+}
+
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
-    do {
+    QStringList projectFilePaths;
+
+    {
         QMutexLocker locker(&d->m_projectMutex);
         d->m_dirty = true;
+
+        // Save paths
+        const ProjectInfo projectInfo = d->m_projectToProjectsInfo.value(project, ProjectInfo());
+        QTC_CHECK(projectInfo.isValid());
+        projectFilePaths = pathsOfAllProjectParts(projectInfo);
+
         d->m_projectToProjectsInfo.remove(project);
         recalculateFileToProjectParts();
-    } while (0);
+    }
+
+    emit projectPartsRemoved(projectFilePaths);
 
     delayedGC();
 }
@@ -935,6 +1020,45 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
             theCppEditorDocument->processor()->run();
         }
     }
+}
+
+static const QSet<QString> activeModelManagerSupportsFromSettings()
+{
+    QSet<QString> result;
+    QSharedPointer<CppCodeModelSettings> codeModelSettings
+            = CppToolsPlugin::instance()->codeModelSettings();
+
+    const QStringList mimeTypes = codeModelSettings->supportedMimeTypes();
+    foreach (const QString &mimeType, mimeTypes) {
+        const QString id = codeModelSettings->modelManagerSupportIdForMimeType(mimeType);
+        if (!id.isEmpty())
+            result << id;
+    }
+
+    return result;
+}
+
+void CppModelManager::onCodeModelSettingsChanged()
+{
+    const QSet<QString> currentCodeModelSupporters = d->m_activeModelManagerSupports.keys().toSet();
+    const QSet<QString> newCodeModelSupporters = activeModelManagerSupportsFromSettings();
+
+    QSet<QString> added = newCodeModelSupporters;
+    added.subtract(currentCodeModelSupporters);
+    added.remove(d->m_modelManagerSupportInternalProvider.id());
+    handleAddedModelManagerSupports(added);
+
+    QSet<QString> removed = currentCodeModelSupporters;
+    removed.subtract(newCodeModelSupporters);
+    removed.remove(d->m_modelManagerSupportInternalProvider.id());
+    const QList<ModelManagerSupport::Ptr> supportsToDelete
+            = handleRemovedModelManagerSupports(removed);
+    QTC_CHECK(removed.size() == supportsToDelete.size());
+
+    if (!added.isEmpty() || !removed.isEmpty())
+        closeCppEditorDocuments();
+
+    // supportsToDelete goes out of scope and deletes the supports
 }
 
 void CppModelManager::onAboutToLoadSession()
@@ -999,11 +1123,8 @@ void CppModelManager::GC()
     foreach (const CppEditorDocumentHandle *editorDocument, cppEditorDocuments())
         filesInEditorSupports << editorDocument->filePath();
 
-    QSetIterator<AbstractEditorSupport *> jt(d->m_extraEditorSupports);
-    while (jt.hasNext()) {
-        AbstractEditorSupport *abstractEditorSupport = jt.next();
+    foreach (AbstractEditorSupport *abstractEditorSupport, abstractEditorSupports())
         filesInEditorSupports << abstractEditorSupport->fileName();
-    }
 
     Snapshot currentSnapshot = snapshot();
     QSet<Utils::FileName> reachableFiles;
@@ -1049,27 +1170,33 @@ void CppModelManager::finishedRefreshingSourceFiles(const QSet<QString> &files)
     emit sourceFilesRefreshed(files);
 }
 
-void CppModelManager::addModelManagerSupport(ModelManagerSupport *modelManagerSupport)
+void CppModelManager::addModelManagerSupportProvider(
+        ModelManagerSupportProvider *modelManagerSupportProvider)
 {
-    Q_ASSERT(modelManagerSupport);
-    d->m_idTocodeModelSupporter[modelManagerSupport->id()] = modelManagerSupport;
+    QTC_ASSERT(modelManagerSupportProvider, return);
+    d->m_availableModelManagerSupports[modelManagerSupportProvider->id()]
+            = modelManagerSupportProvider;
     QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    cms->setModelManagerSupports(d->m_idTocodeModelSupporter.values());
+    cms->setModelManagerSupportProviders(d->m_availableModelManagerSupports.values());
+
+    onCodeModelSettingsChanged();
 }
 
-ModelManagerSupport *CppModelManager::modelManagerSupportForMimeType(const QString &mimeType) const
+ModelManagerSupport::Ptr CppModelManager::modelManagerSupportForMimeType(
+        const QString &mimeType) const
 {
     QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    const QString &id = cms->modelManagerSupportId(mimeType);
-    return d->m_idTocodeModelSupporter.value(id, d->m_modelManagerSupportFallback.data());
+    const QString &id = cms->modelManagerSupportIdForMimeType(mimeType);
+    return d->m_activeModelManagerSupports.value(id, d->m_modelManagerSupportInternal);
 }
 
-CppCompletionAssistProvider *CppModelManager::completionAssistProvider(const QString &mimeType) const
+CppCompletionAssistProvider *CppModelManager::completionAssistProvider(
+        const QString &mimeType) const
 {
     if (mimeType.isEmpty())
         return 0;
 
-    ModelManagerSupport *cms = modelManagerSupportForMimeType(mimeType);
+    ModelManagerSupport::Ptr cms = modelManagerSupportForMimeType(mimeType);
     QTC_ASSERT(cms, return 0);
     return cms->completionAssistProvider();
 }
@@ -1078,7 +1205,7 @@ BaseEditorDocumentProcessor *CppModelManager::editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const
 {
     QTC_ASSERT(baseTextDocument, return 0);
-    ModelManagerSupport *cms = modelManagerSupportForMimeType(baseTextDocument->mimeType());
+    ModelManagerSupport::Ptr cms = modelManagerSupportForMimeType(baseTextDocument->mimeType());
     QTC_ASSERT(cms, return 0);
     return cms->editorDocumentProcessor(baseTextDocument);
 }

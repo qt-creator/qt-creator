@@ -28,43 +28,178 @@
 **
 ****************************************************************************/
 
+#include "clangmodelmanagersupport.h"
+
+#include "constants.h"
 #include "clangcompletion.h"
 #include "clangeditordocumentprocessor.h"
-#include "clangmodelmanagersupport.h"
+#include "clangutils.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/baseeditordocumentparser.h>
+#include <cpptools/editordocumenthandle.h>
+#include <projectexplorer/project.h>
+
+#include <codemodelbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
+#include <codemodelbackendipc/filecontainer.h>
+#include <codemodelbackendipc/projectpartcontainer.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-ModelManagerSupport::ModelManagerSupport()
-    : m_completionAssistProvider(new ClangCompletionAssistProvider)
+static ModelManagerSupportClang *m_instance = 0;
+
+static CppTools::CppModelManager *cppModelManager()
 {
+    return CppTools::CppModelManager::instance();
 }
 
-ModelManagerSupport::~ModelManagerSupport()
+ModelManagerSupportClang::ModelManagerSupportClang()
+    : m_ipcCommunicator(new IpcCommunicator)
+    , m_completionAssistProvider(new ClangCompletionAssistProvider(m_ipcCommunicator))
 {
+    QTC_CHECK(!m_instance);
+    m_instance = this;
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+            this, &ModelManagerSupportClang::onCurrentEditorChanged);
+    connect(editorManager, &Core::EditorManager::editorOpened,
+            this, &ModelManagerSupportClang::onEditorOpened);
+
+    CppTools::CppModelManager *modelManager = cppModelManager();
+    connect(modelManager, &CppTools::CppModelManager::projectPartsUpdated,
+            this, &ModelManagerSupportClang::onProjectPartsUpdated);
+    connect(modelManager, &CppTools::CppModelManager::projectPartsRemoved,
+            this, &ModelManagerSupportClang::onProjectPartsRemoved);
 }
 
-QString ModelManagerSupport::id() const
+ModelManagerSupportClang::~ModelManagerSupportClang()
 {
-    return QLatin1String("ClangCodeMode.ClangCodeMode");
+    m_instance = 0;
 }
 
-QString ModelManagerSupport::displayName() const
+CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssistProvider()
+{
+    return m_completionAssistProvider.data();
+}
+
+CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(
+        TextEditor::TextDocument *baseTextDocument)
+{
+    return new ClangEditorDocumentProcessor(this, baseTextDocument);
+}
+
+void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
+{
+    // If we switch away from a cpp editor, update the backend about
+    // the document's unsaved content.
+    if (m_previousCppEditor && m_previousCppEditor->document()->isModified()) {
+        m_ipcCommunicator->updateUnsavedFileFromCppEditorDocument(
+                                m_previousCppEditor->document()->filePath().toString());
+    }
+
+    // Remember previous editor
+    if (newCurrent && cppModelManager()->isCppEditor(newCurrent))
+        m_previousCppEditor = newCurrent;
+    else
+        m_previousCppEditor.clear();
+}
+
+void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
+{
+    QTC_ASSERT(editor, return);
+    Core::IDocument *document = editor->document();
+    QTC_ASSERT(document, return);
+    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+    QTC_ASSERT(textDocument, return);
+
+    if (cppModelManager()->isCppEditor(editor)) {
+        // Handle externally changed documents
+        connect(textDocument, &Core::IDocument::reloadFinished,
+                this, &ModelManagerSupportClang::onCppDocumentReloadFinished,
+                Qt::UniqueConnection);
+
+        // Handle changes from e.g. refactoring actions
+        connect(textDocument, &TextEditor::TextDocument::contentsChanged,
+                this, &ModelManagerSupportClang::onCppDocumentContentsChanged,
+                Qt::UniqueConnection);
+
+        // TODO: Ensure that not fully loaded documents are updated?
+    }
+}
+
+void ModelManagerSupportClang::onCppDocumentReloadFinished(bool success)
+{
+    if (!success)
+        return;
+
+    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+    m_ipcCommunicator->updateUnsavedFileIfNotCurrentDocument(document);
+}
+
+void ModelManagerSupportClang::onCppDocumentContentsChanged()
+{
+    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+    m_ipcCommunicator->updateUnsavedFileIfNotCurrentDocument(document);
+}
+
+void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                                      const QByteArray &content)
+{
+    QTC_ASSERT(!filePath.isEmpty(), return);
+    m_ipcCommunicator->updateUnsavedFile(filePath, content);
+}
+
+void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &filePath)
+{
+    QTC_ASSERT(!filePath.isEmpty(), return);
+    if (!cppModelManager()->cppEditorDocument(filePath)) {
+        const QString projectFilePath = Utils::projectFilePathForFile(filePath);
+        m_ipcCommunicator->unregisterFilesForCodeCompletion(
+            {CodeModelBackEnd::FileContainer(filePath, projectFilePath)});
+    }
+}
+
+void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(project, return);
+    const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
+    QTC_ASSERT(projectInfo.isValid(), return);
+    m_ipcCommunicator->registerProjectsParts(projectInfo.projectParts());
+}
+
+void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectFiles)
+{
+    m_ipcCommunicator->unregisterProjectPartsForCodeCompletion(projectFiles);
+}
+
+ModelManagerSupportClang *ModelManagerSupportClang::instance()
+{
+    return m_instance;
+}
+
+IpcCommunicator::Ptr ModelManagerSupportClang::ipcCommunicator()
+{
+    return m_ipcCommunicator;
+}
+
+QString ModelManagerSupportProviderClang::id() const
+{
+    return QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID);
+}
+
+QString ModelManagerSupportProviderClang::displayName() const
 {
     //: Display name
     return QCoreApplication::translate("ClangCodeModel::Internal::ModelManagerSupport",
                                        "Clang");
 }
 
-CppTools::CppCompletionAssistProvider *ModelManagerSupport::completionAssistProvider()
+CppTools::ModelManagerSupport::Ptr ModelManagerSupportProviderClang::createModelManagerSupport()
 {
-    return m_completionAssistProvider.data();
-}
-
-CppTools::BaseEditorDocumentProcessor *ModelManagerSupport::editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument)
-{
-    return new ClangEditorDocumentProcessor(baseTextDocument);
+    return CppTools::ModelManagerSupport::Ptr(new ModelManagerSupportClang);
 }

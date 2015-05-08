@@ -38,15 +38,20 @@
 #include <cpptools/semantichighlighter.h>
 
 #include <QFutureWatcher>
+#include <QPointer>
 
 namespace ClangCodeModel {
+namespace Internal {
+
+class ModelManagerSupportClang;
 
 class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcessor
 {
     Q_OBJECT
 
 public:
-    ClangEditorDocumentProcessor(TextEditor::TextDocument *document);
+    ClangEditorDocumentProcessor(ModelManagerSupportClang *modelManagerSupport,
+                                 TextEditor::TextDocument *document);
     ~ClangEditorDocumentProcessor();
 
     // BaseEditorDocumentProcessor interface
@@ -61,6 +66,8 @@ private slots:
     void onParserFinished();
 
 private:
+    QPointer<ModelManagerSupportClang> m_modelManagerSupport;
+
     ClangEditorDocumentParser m_parser;
     QFutureWatcher<void> m_parserWatcher;
     unsigned m_parserRevision;
@@ -69,6 +76,7 @@ private:
     CppTools::BuiltinEditorDocumentProcessor m_builtinProcessor;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel
 
 #endif // CLANGEDITORDOCUMENTPROCESSOR_H

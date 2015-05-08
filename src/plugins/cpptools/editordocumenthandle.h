@@ -51,7 +51,9 @@ public:
     virtual unsigned revision() const = 0;
 
     // For updating if new project info is set
-    virtual BaseEditorDocumentProcessor *processor() = 0;
+    virtual BaseEditorDocumentProcessor *processor() const = 0;
+
+    virtual void resetProcessor() = 0;
 
 private:
     bool m_needsRefresh;

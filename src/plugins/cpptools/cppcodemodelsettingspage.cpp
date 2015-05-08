@@ -71,12 +71,12 @@ void CppCodeModelSettingsWidget::applyToWidget(QComboBox *chooser, const QString
 {
     chooser->clear();
 
-    QStringList names = m_settings->availableModelManagerSupportersByName().keys();
+    QStringList names = m_settings->availableModelManagerSupportProvidersByName().keys();
     Utils::sort(names);
     foreach (const QString &name, names) {
-        const QString &id = m_settings->availableModelManagerSupportersByName()[name];
+        const QString &id = m_settings->availableModelManagerSupportProvidersByName()[name];
         chooser->addItem(name, id);
-        if (id == m_settings->modelManagerSupportId(mimeType))
+        if (id == m_settings->modelManagerSupportIdForMimeType(mimeType))
             chooser->setCurrentIndex(chooser->count() - 1);
     }
     chooser->setEnabled(names.size() > 1);
@@ -109,11 +109,11 @@ void CppCodeModelSettingsWidget::applyToSettings() const
 bool CppCodeModelSettingsWidget::applyToSettings(QComboBox *chooser, const QString &mimeType) const
 {
     QString newId = chooser->itemData(chooser->currentIndex()).toString();
-    QString currentId = m_settings->modelManagerSupportId(mimeType);
+    QString currentId = m_settings->modelManagerSupportIdForMimeType(mimeType);
     if (newId == currentId)
         return false;
 
-    m_settings->setModelManagerSupportId(mimeType, newId);
+    m_settings->setModelManagerSupportIdForMimeType(mimeType, newId);
     return true;
 }
 

@@ -28,47 +28,32 @@
 **
 ****************************************************************************/
 
-#include "cppcompletionassist.h"
-#include "cppmodelmanagersupportinternal.h"
-#include "builtineditordocumentprocessor.h"
+#ifndef CLANGCOMPLETIONCONTEXTANALYZERTEST_H
+#define CLANGCOMPLETIONCONTEXTANALYZERTEST_H
 
-#include <QCoreApplication>
+#include <QObject>
 
-using namespace CppTools;
-using namespace CppTools::Internal;
+namespace ClangCodeModel {
+namespace Internal {
+namespace Tests {
 
-QString ModelManagerSupportProviderInternal::id() const
+class ClangCompletionContextAnalyzerTest : public QObject
 {
-    return QLatin1String("CppTools.BuiltinCodeModel");
-}
+    Q_OBJECT
 
-QString ModelManagerSupportProviderInternal::displayName() const
-{
-    return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
-                                       "Qt Creator Built-in");
-}
+private slots:
+    void testPassThroughToClangAndSignalSlotRecognition();
+    void testPassThroughToClangAndSignalSlotRecognition_data();
 
-ModelManagerSupport::Ptr ModelManagerSupportProviderInternal::createModelManagerSupport()
-{
-    return ModelManagerSupport::Ptr(new ModelManagerSupportInternal);
-}
+    void testSpecialCompletionRecognition();
+    void testSpecialCompletionRecognition_data();
 
-ModelManagerSupportInternal::ModelManagerSupportInternal()
-    : m_completionAssistProvider(new InternalCompletionAssistProvider)
-{
-}
+    void testAvoidSpecialCompletionRecognition();
+    void testAvoidSpecialCompletionRecognition_data();
+};
 
-ModelManagerSupportInternal::~ModelManagerSupportInternal()
-{
-}
+} // namespace Tests
+} // namespace Internal
+} // namespace ClangCodeModel
 
-BaseEditorDocumentProcessor *ModelManagerSupportInternal::editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument)
-{
-    return new BuiltinEditorDocumentProcessor(baseTextDocument);
-}
-
-CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
-{
-    return m_completionAssistProvider.data();
-}
+#endif // CLANGCOMPLETIONCONTEXTANALYZERTEST_H

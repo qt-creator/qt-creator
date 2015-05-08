@@ -46,15 +46,21 @@ public:
     ModelManagerSupportInternal();
     virtual ~ModelManagerSupportInternal();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-
     virtual CppCompletionAssistProvider *completionAssistProvider();
     virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument);
 
 private:
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
+};
+
+class ModelManagerSupportProviderInternal : public ModelManagerSupportProvider
+{
+public:
+    QString id() const override;
+    QString displayName() const override;
+
+    CppTools::ModelManagerSupport::Ptr createModelManagerSupport() override;
 };
 
 } // Internal namespace

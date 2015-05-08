@@ -34,6 +34,11 @@
 #include "pchmanager.h"
 #include "utils.h"
 
+#ifdef WITH_TESTS
+#  include "test/clangcodecompletion_test.h"
+#  include "test/clangcompletioncontextanalyzertest.h"
+#endif
+
 #include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/projectpanelfactory.h>
@@ -73,9 +78,8 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     connect(cppModelManager, &CppTools::CppModelManager::projectPartsUpdated,
             pchManager, &PchManager::onProjectPartsUpdated);
 
-    // Register ModelManagerSupport
-    m_modelManagerSupport.reset(new ModelManagerSupport);
-    cppModelManager->addModelManagerSupport(m_modelManagerSupport.data());
+    // Register ModelManagerSupportProvider
+    cppModelManager->addModelManagerSupportProvider(&m_modelManagerSupportProvider);
 
     return true;
 }
@@ -83,6 +87,17 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 void ClangCodeModelPlugin::extensionsInitialized()
 {
 }
+
+#ifdef WITH_TESTS
+QList<QObject *> ClangCodeModelPlugin::createTestObjects() const
+{
+    return {
+        new Tests::ClangCodeCompletionTest,
+        new Tests::ClangCompletionContextAnalyzerTest
+    };
+}
+#endif
+
 
 } // namespace Internal
 } // namespace Clang

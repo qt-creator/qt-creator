@@ -32,115 +32,166 @@
 #define CPPEDITOR_INTERNAL_CLANGCOMPLETION_H
 
 #include "clangcompleter.h"
-
-#include <cplusplus/Icons.h>
+#include "codemodelbackendipcintegration.h"
 
 #include <cpptools/cppcompletionassistprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppmodelmanager.h>
 
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
-#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/ifunctionhintproposalmodel.h>
+
+#include <codemodelbackendipc/codecompletion.h>
 
 #include <QStringList>
 #include <QTextCursor>
 
 namespace ClangCodeModel {
-
 namespace Internal {
+
+using CodeCompletions = QVector<CodeModelBackEnd::CodeCompletion>;
+
 class ClangAssistProposalModel;
 
 class ClangCompletionAssistProvider : public CppTools::CppCompletionAssistProvider
 {
-public:
-    ClangCompletionAssistProvider();
+    Q_OBJECT
 
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
-    virtual TextEditor::AssistInterface *createAssistInterface(
-            const QString &filePath, QTextDocument *document,
+public:
+    ClangCompletionAssistProvider(IpcCommunicator::Ptr ipcCommunicator);
+
+    IAssistProvider::RunType runType() const override;
+
+    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::AssistInterface *createAssistInterface(
+            const QString &filePath,
+            const TextEditor::TextEditorWidget *textEditorWidget,
             const CPlusPlus::LanguageFeatures &languageFeatures,
-            int position, TextEditor::AssistReason reason) const;
+            int position,
+            TextEditor::AssistReason reason) const override;
 
 private:
-    ClangCodeModel::ClangCompleter::Ptr m_clangCompletionWrapper;
+    IpcCommunicator::Ptr m_ipcCommunicator;
 };
 
-} // namespace Internal
-
-class CLANG_EXPORT ClangCompletionAssistInterface: public TextEditor::AssistInterface
+class ClangAssistProposalItem : public TextEditor::AssistProposalItem
 {
 public:
-    ClangCompletionAssistInterface(ClangCodeModel::ClangCompleter::Ptr clangWrapper,
-                                   QTextDocument *document,
+    ClangAssistProposalItem() {}
+
+    bool prematurelyApplies(const QChar &c) const override;
+    void applyContextualContent(TextEditor::TextEditorWidget *editorWidget, int basePosition) const override;
+
+    void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
+
+    bool isOverloaded() const;
+    void addOverload(const CodeModelBackEnd::CodeCompletion &ccr);
+
+    CodeModelBackEnd::CodeCompletion originalItem() const;
+
+    bool isCodeCompletion() const;
+
+private:
+    unsigned m_completionOperator;
+    mutable QChar m_typedChar;
+    QList<CodeModelBackEnd::CodeCompletion> m_overloads;
+};
+
+class ClangFunctionHintModel : public TextEditor::IFunctionHintProposalModel
+{
+public:
+    ClangFunctionHintModel(const CodeCompletions &functionSymbols);
+
+    void reset() override {}
+    int size() const override { return m_functionSymbols.size(); }
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
+
+private:
+    CodeCompletions m_functionSymbols;
+    mutable int m_currentArg;
+};
+
+class ClangCompletionAssistInterface: public TextEditor::AssistInterface
+{
+public:
+    ClangCompletionAssistInterface(ClangCodeModel::Internal::IpcCommunicator::Ptr ipcCommunicator,
+                                   const TextEditor::TextEditorWidget *textEditorWidget,
                                    int position,
                                    const QString &fileName,
                                    TextEditor::AssistReason reason,
-                                   const QStringList &options,
-                                   const QList<CppTools::ProjectPart::HeaderPath> &headerPaths,
+                                   const CppTools::ProjectPart::HeaderPaths &headerPaths,
                                    const Internal::PchInfo::Ptr &pchInfo,
                                    const CPlusPlus::LanguageFeatures &features);
 
-    ClangCodeModel::ClangCompleter::Ptr clangWrapper() const
-    { return m_clangWrapper; }
-
-    const ClangCodeModel::Internal::UnsavedFiles &unsavedFiles() const
-    { return m_unsavedFiles; }
-
+    ClangCodeModel::Internal::IpcCommunicator::Ptr ipcCommunicator() const;
+    const ClangCodeModel::Internal::UnsavedFiles &unsavedFiles() const;
     bool objcEnabled() const;
+    const CppTools::ProjectPart::HeaderPaths &headerPaths() const;
+    CPlusPlus::LanguageFeatures languageFeatures() const;
+    const TextEditor::TextEditorWidget *textEditorWidget() const;
 
-    const QStringList &options() const
-    { return m_options; }
-
-    const QList<CppTools::ProjectPart::HeaderPath> &headerPaths() const
-    { return m_headerPaths; }
-
-    CPlusPlus::LanguageFeatures languageFeatures() const
-    { return m_languageFeatures; }
+    void setHeaderPaths(const CppTools::ProjectPart::HeaderPaths &headerPaths); // For tests
 
 private:
-    ClangCodeModel::ClangCompleter::Ptr m_clangWrapper;
+    ClangCodeModel::Internal::IpcCommunicator::Ptr m_ipcCommunicator;
     ClangCodeModel::Internal::UnsavedFiles m_unsavedFiles;
     QStringList m_options;
-    QList<CppTools::ProjectPart::HeaderPath> m_headerPaths;
+    CppTools::ProjectPart::HeaderPaths m_headerPaths;
     Internal::PchInfo::Ptr m_savedPchPointer;
     CPlusPlus::LanguageFeatures m_languageFeatures;
+    const TextEditor::TextEditorWidget *m_textEditorWidget;
 };
 
-class CLANG_EXPORT ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
+class ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
 {
     Q_DECLARE_TR_FUNCTIONS(ClangCodeModel::Internal::ClangCompletionAssistProcessor)
 
 public:
     ClangCompletionAssistProcessor();
-    virtual ~ClangCompletionAssistProcessor();
+    ~ClangCompletionAssistProcessor();
 
-    virtual TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface);
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+
+    void asyncCompletionsAvailable(const CodeCompletions &completions);
+
+    const TextEditor::TextEditorWidget *textEditorWidget() const;
 
 private:
-    int startCompletionHelper();
+    TextEditor::IAssistProposal *startCompletionHelper();
     int startOfOperator(int pos, unsigned *kind, bool wantFunctionCall) const;
     int findStartOfName(int pos = -1) const;
     bool accepts() const;
-    TextEditor::IAssistProposal *createContentProposal();
 
-    int startCompletionInternal(const QString fileName,
-                                unsigned line, unsigned column,
-                                int endOfExpression);
+    TextEditor::IAssistProposal *createProposal() const;
 
     bool completeInclude(const QTextCursor &cursor);
+    bool completeInclude(int position);
     void completeIncludePath(const QString &realPath, const QStringList &suffixes);
-    void completePreprocessor();
+    bool completePreprocessorDirectives();
+    bool completeDoxygenKeywords();
     void addCompletionItem(const QString &text,
                            const QIcon &icon = QIcon(),
                            int order = 0,
                            const QVariant &data = QVariant());
 
+    void sendFileContent(const QString &projectFilePath, const QByteArray &modifiedFileContent);
+    void sendCompletionRequest(int position, const QByteArray &modifiedFileContent);
+
+    void onCompletionsAvailable(const CodeCompletions &completions);
+    void onFunctionHintCompletionsAvailable(const CodeCompletions &completions);
+
 private:
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;
-    QScopedPointer<Internal::ClangAssistProposalModel> m_model;
+    unsigned m_completionOperator;
+    enum CompletionRequestType { NormalCompletion, FunctionHintCompletion } m_sentRequestType;
+    QString m_functionName;     // For type == Type::FunctionHintCompletion
+    bool m_addSnippets = false; // For type == Type::NormalCompletion
 };
 
+} // namespace Internal
 } // namespace Clang
 
 #endif // CPPEDITOR_INTERNAL_CLANGCOMPLETION_H

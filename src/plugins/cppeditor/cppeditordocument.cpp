@@ -44,6 +44,7 @@
 
 #include <projectexplorer/session.h>
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -76,12 +77,15 @@ public:
 
     ~CppEditorDocumentHandleImpl() { mm()->unregisterCppEditorDocument(m_registrationFilePath); }
 
-    QString filePath() const { return m_cppEditorDocument->filePath().toString(); }
-    QByteArray contents() const { return m_cppEditorDocument->contentsText(); }
-    unsigned revision() const { return m_cppEditorDocument->contentsRevision(); }
+    QString filePath() const override { return m_cppEditorDocument->filePath().toString(); }
+    QByteArray contents() const override { return m_cppEditorDocument->contentsText(); }
+    unsigned revision() const override { return m_cppEditorDocument->contentsRevision(); }
 
-    CppTools::BaseEditorDocumentProcessor *processor()
+    CppTools::BaseEditorDocumentProcessor *processor() const override
     { return m_cppEditorDocument->processor(); }
+
+    void resetProcessor()
+    { m_cppEditorDocument->resetProcessor(); }
 
 private:
     CppEditor::Internal::CppEditorDocument * const m_cppEditorDocument;

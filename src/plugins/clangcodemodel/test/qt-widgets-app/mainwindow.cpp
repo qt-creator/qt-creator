@@ -28,47 +28,19 @@
 **
 ****************************************************************************/
 
-#include "cppcompletionassist.h"
-#include "cppmodelmanagersupportinternal.h"
-#include "builtineditordocumentprocessor.h"
 
-#include <QCoreApplication>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
-using namespace CppTools;
-using namespace CppTools::Internal;
-
-QString ModelManagerSupportProviderInternal::id() const
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
-    return QLatin1String("CppTools.BuiltinCodeModel");
+    ui->setupUi(this);
+    ui-> /* COMPLETE HERE */
 }
 
-QString ModelManagerSupportProviderInternal::displayName() const
+MainWindow::~MainWindow()
 {
-    return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
-                                       "Qt Creator Built-in");
-}
-
-ModelManagerSupport::Ptr ModelManagerSupportProviderInternal::createModelManagerSupport()
-{
-    return ModelManagerSupport::Ptr(new ModelManagerSupportInternal);
-}
-
-ModelManagerSupportInternal::ModelManagerSupportInternal()
-    : m_completionAssistProvider(new InternalCompletionAssistProvider)
-{
-}
-
-ModelManagerSupportInternal::~ModelManagerSupportInternal()
-{
-}
-
-BaseEditorDocumentProcessor *ModelManagerSupportInternal::editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument)
-{
-    return new BuiltinEditorDocumentProcessor(baseTextDocument);
-}
-
-CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
-{
-    return m_completionAssistProvider.data();
+    delete ui;
 }

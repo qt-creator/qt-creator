@@ -136,7 +136,6 @@ const QStringList &CppToolsPlugin::sourcePrefixes()
     return m_instance->m_fileSettings->sourcePrefixes;
 }
 
-
 bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
@@ -152,6 +151,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
             [=](const QStringList &files) {
         modelManager->updateSourceFiles(files.toSet());
     });
+
+    m_codeModelSettings->fromSettings(ICore::settings());
 
     JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension);
 
@@ -218,7 +219,6 @@ void CppToolsPlugin::extensionsInitialized()
     m_fileSettings->fromSettings(ICore::settings());
     if (!m_fileSettings->applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
-    m_codeModelSettings->fromSettings(ICore::settings());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()

@@ -617,7 +617,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
             features.objCEnabled = cppEditorDocument()->isObjCEnabled();
             return cap->createAssistInterface(
                             textDocument()->filePath().toString(),
-                            document(),
+                            this,
                             features,
                             position(),
                             reason);

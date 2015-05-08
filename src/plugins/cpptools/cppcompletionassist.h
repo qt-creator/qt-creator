@@ -91,7 +91,7 @@ public:
 
     TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
-            QTextDocument *document,
+            const TextEditor::TextEditorWidget *textEditorWidget,
             const CPlusPlus::LanguageFeatures &languageFeatures,
             int position,
             TextEditor::AssistReason reason) const override;
@@ -170,12 +170,12 @@ class CppCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
     CppCompletionAssistInterface(const QString &filePath,
-                                 QTextDocument *textDocument,
+                                 const TextEditor::TextEditorWidget *textEditorWidget,
                                  const CPlusPlus::LanguageFeatures &languageFeatures,
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
-        : TextEditor::AssistInterface(textDocument, position, filePath, reason)
+        : TextEditor::AssistInterface(textEditorWidget->document(), position, filePath, reason)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
         , m_languageFeatures(languageFeatures)

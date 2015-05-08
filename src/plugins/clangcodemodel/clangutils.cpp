@@ -36,8 +36,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/cppprojects.h>
 #include <cpptools/cppworkingcopy.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>
@@ -200,6 +203,29 @@ QStringList createPCHInclusionOptions(const QStringList &pchFiles)
 QStringList createPCHInclusionOptions(const QString &pchFile)
 {
     return createPCHInclusionOptions(QStringList() << pchFile);
+}
+
+ProjectPart::Ptr projectPartForFile(const QString &filePath)
+{
+    if (CppTools::BaseEditorDocumentParser *parser = CppTools::BaseEditorDocumentParser::get(filePath))
+        return parser->projectPart();
+    return ProjectPart::Ptr();
+}
+
+bool isProjectPartValid(const ProjectPart::Ptr projectPart)
+{
+    if (projectPart)
+        return CppModelManager::instance()->projectPartForProjectFile(projectPart->projectFile);
+    return false;
+}
+
+QString projectFilePathForFile(const QString &filePath)
+{
+    const ProjectPart::Ptr projectPart = projectPartForFile(filePath);
+
+    if (isProjectPartValid(projectPart))
+        return projectPart->projectFile; // OK, Project Part is still loaded
+    return QString();
 }
 
 } // namespace Utils

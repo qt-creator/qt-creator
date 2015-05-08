@@ -33,6 +33,7 @@
 
 #include "cpptools_global.h"
 
+#include <QSharedPointer>
 #include <QString>
 
 namespace TextEditor { class TextDocument; }
@@ -45,14 +46,25 @@ class CppCompletionAssistProvider;
 class CPPTOOLS_EXPORT ModelManagerSupport
 {
 public:
-    virtual ~ModelManagerSupport() = 0;
+    using Ptr = QSharedPointer<ModelManagerSupport>;
 
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
+public:
+    virtual ~ModelManagerSupport() = 0;
 
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
     virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;
+};
+
+class CPPTOOLS_EXPORT ModelManagerSupportProvider
+{
+public:
+    virtual ~ModelManagerSupportProvider() {}
+
+    virtual QString id() const = 0;
+    virtual QString displayName() const = 0;
+
+    virtual ModelManagerSupport::Ptr createModelManagerSupport() = 0;
 };
 
 } // CppTools namespace

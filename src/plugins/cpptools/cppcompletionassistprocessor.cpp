@@ -35,7 +35,7 @@
 namespace CppTools {
 
 CppCompletionAssistProcessor::CppCompletionAssistProcessor()
-    : m_startPosition(-1)
+    : m_positionForProposal(-1)
     , m_preprocessorCompletions(QStringList()
           << QLatin1String("define")
           << QLatin1String("error")

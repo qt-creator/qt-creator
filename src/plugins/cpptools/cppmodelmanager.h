@@ -33,6 +33,7 @@
 
 #include "cpptools_global.h"
 
+#include "cppmodelmanagersupport.h"
 #include "cppprojects.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
@@ -53,7 +54,6 @@ class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
-class ModelManagerSupport;
 class WorkingCopy;
 
 namespace Internal {
@@ -114,9 +114,11 @@ public:
 
     bool isCppEditor(Core::IEditor *editor) const;
 
+    QSet<AbstractEditorSupport*> abstractEditorSupports() const;
     void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
     void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
 
+    QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
     CppEditorDocumentHandle *cppEditorDocument(const QString &filePath) const;
     void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);
     void unregisterCppEditorDocument(const QString &filePath);
@@ -132,8 +134,7 @@ public:
 
     void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
-    void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
-    ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
+    void addModelManagerSupportProvider(ModelManagerSupportProvider *modelManagerSupportProvider);
     CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const;
@@ -165,10 +166,8 @@ signals:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QSet<QString> &files);
 
-    /// \brief Emitted after updateProjectInfo function is called on the model-manager.
-    ///
-    /// Other classes can use this to get notified when the \c ProjectExplorer has updated the parts.
     void projectPartsUpdated(ProjectExplorer::Project *project);
+    void projectPartsRemoved(const QStringList &projectFiles);
 
     void globalSnapshotChanged();
 
@@ -188,6 +187,7 @@ private slots:
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onSourceFilesRefreshed() const;
     void onCurrentEditorChanged(Core::IEditor *editor);
+    void onCodeModelSettingsChanged();
     void onCoreAboutToClose();
 
 private:
@@ -199,7 +199,12 @@ private:
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
-    QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
+    void handleAddedModelManagerSupports(const QSet<QString> &supportIds);
+    QList<ModelManagerSupport::Ptr> handleRemovedModelManagerSupports(
+            const QSet<QString> &supportIds);
+    void closeCppEditorDocuments();
+
+    ModelManagerSupport::Ptr modelManagerSupportForMimeType(const QString &mimeType) const;
 
     WorkingCopy buildWorkingCopyList();
 

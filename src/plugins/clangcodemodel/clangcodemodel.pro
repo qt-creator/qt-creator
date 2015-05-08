@@ -14,6 +14,7 @@ unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
 SOURCES += \
     $$PWD/clangcodemodelplugin.cpp \
     $$PWD/clangcompleter.cpp \
+    $$PWD/clangcompletioncontextanalyzer.cpp \
     $$PWD/clangcompletion.cpp \
     $$PWD/clangeditordocumentparser.cpp \
     $$PWD/clangeditordocumentprocessor.cpp \
@@ -21,6 +22,8 @@ SOURCES += \
     $$PWD/clangprojectsettings.cpp \
     $$PWD/clangprojectsettingspropertiespage.cpp \
     $$PWD/clangutils.cpp \
+    $$PWD/codemodelbackendipcintegration.cpp \
+    $$PWD/completionchunkstotextconverter.cpp \
     $$PWD/completionproposalsbuilder.cpp \
     $$PWD/cppcreatemarkers.cpp \
     $$PWD/cxprettyprinter.cpp \
@@ -41,6 +44,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/clangcodemodelplugin.h \
     $$PWD/clangcompleter.h \
+    $$PWD/clangcompletioncontextanalyzer.h \
     $$PWD/clangcompletion.h \
     $$PWD/clangeditordocumentparser.h \
     $$PWD/clangeditordocumentprocessor.h \
@@ -49,6 +53,8 @@ HEADERS += \
     $$PWD/clangprojectsettings.h \
     $$PWD/clangprojectsettingspropertiespage.h \
     $$PWD/clangutils.h \
+    $$PWD/codemodelbackendipcintegration.h \
+    $$PWD/completionchunkstotextconverter.h \
     $$PWD/completionproposalsbuilder.h \
     $$PWD/constants.h \
     $$PWD/cppcreatemarkers.h \
@@ -89,13 +95,24 @@ equals(TEST, 1) {
         $$PWD/test/clang_tests_database.qrc
 
     HEADERS += \
+        $$PWD/test/clangcodecompletion_test.h \
+        $$PWD/test/clangcompletioncontextanalyzertest.h \
         $$PWD/test/completiontesthelper.h
 
     SOURCES += \
+        $$PWD/test/clangcodecompletion_test.cpp \
+        $$PWD/test/clangcompletioncontextanalyzertest.cpp \
         $$PWD/test/clangcompletion_test.cpp \
         $$PWD/test/completiontesthelper.cpp
 
     DISTFILES += \
+        $$PWD/test/mysource.cpp \
+        $$PWD/test/myheader.cpp \
+        $$PWD/test/completionWithProject.cpp \
+        $$PWD/test/memberCompletion.cpp \
+        $$PWD/test/doxygenKeywordsCompletion.cpp \
+        $$PWD/test/preprocessorKeywordsCompletion.cpp \
+        $$PWD/test/includeDirectiveCompletion.cpp \
         $$PWD/test/cxx_regression_1.cpp \
         $$PWD/test/cxx_regression_2.cpp \
         $$PWD/test/cxx_regression_3.cpp \

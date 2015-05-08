@@ -12,6 +12,12 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
+    Depends { name: "CodeModelBackEndIpc" }
+
+    pluginTestDepends: [
+        "CppEditor",
+        "QmakeProjectManager",
+    ]
 
     property bool clangCompletion: true
     property bool clangHighlighting: true
@@ -89,6 +95,10 @@ QtcPlugin {
             "clangcompletion_test.cpp",
             "completiontesthelper.cpp",
             "completiontesthelper.h",
+            "clangcodecompletion_test.cpp",
+            "clangcodecompletion_test.h",
+            "clangcompletioncontextanalyzertest.cpp",
+            "clangcompletioncontextanalyzertest.h",
         ]
     }
 
@@ -97,6 +107,13 @@ QtcPlugin {
         prefix: "test/"
         fileTags: "none"
         files: [
+            "mysource.cpp",
+            "myheader.h",
+            "completionWithProject.cpp",
+            "memberCompletion.cpp",
+            "doxygenKeywordsCompletion.cpp",
+            "preprocessorKeywordsCompletion.cpp",
+            "includeDirectiveCompletion.cpp",
             "cxx_regression_1.cpp",
             "cxx_regression_2.cpp",
             "cxx_regression_3.cpp",
@@ -118,6 +135,8 @@ QtcPlugin {
 
     files: [
         "clang_global.h",
+        "clangcompletioncontextanalyzer.cpp",
+        "clangcompletioncontextanalyzer.h",
         "clangeditordocumentparser.cpp",
         "clangeditordocumentparser.h",
         "clangeditordocumentprocessor.cpp",
@@ -133,6 +152,10 @@ QtcPlugin {
         "clangprojectsettingspropertiespage.ui",
         "clangutils.cpp",
         "clangutils.h",
+        "codemodelbackendipcintegration.cpp",
+        "codemodelbackendipcintegration.h",
+        "completionchunkstotextconverter.cpp",
+        "completionchunkstotextconverter.h",
         "constants.h",
         "cxprettyprinter.cpp",
         "cxprettyprinter.h",

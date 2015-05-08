@@ -55,6 +55,8 @@ static const QLatin1Char kDoubleQuote('"');
 static const QLatin1Char kNewLine('\n');
 static const QLatin1Char kHorizontalTab('\t');
 
+const char CLANG_MODELMANAGERSUPPORT_ID[] = "ClangCodeMode.ClangCodeMode";
+
 }
 }
 
