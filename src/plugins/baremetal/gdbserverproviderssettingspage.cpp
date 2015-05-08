@@ -465,10 +465,11 @@ void GdbServerProvidersSettingsPage::apply()
 
 void GdbServerProvidersSettingsPage::finish()
 {
-    disconnect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
-               m_configWidget.data(), &GdbServerProvidersSettingsWidget::providerSelectionChanged);
+    if (m_configWidget)
+        disconnect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
+                   m_configWidget.data(), &GdbServerProvidersSettingsWidget::providerSelectionChanged);
 
-    delete m_configWidget;
+    delete m_configWidget.data();
 }
 
 } // namespace Internal
