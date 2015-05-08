@@ -13,10 +13,6 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "checkoutwizard.cpp",
-        "checkoutwizard.h",
-        "checkoutwizardpage.cpp",
-        "checkoutwizardpage.h",
         "cvs.qrc",
         "cvsclient.cpp",
         "cvsclient.h",

@@ -9,9 +9,7 @@ HEADERS += annotationhighlighter.h \
     cvssubmiteditor.h \
     cvssettings.h \
     cvsutils.h \
-    cvsconstants.h \
-    checkoutwizard.h  \
-    checkoutwizardpage.h
+    cvsconstants.h
 
 SOURCES += annotationhighlighter.cpp \
     cvsplugin.cpp \
@@ -21,9 +19,7 @@ SOURCES += annotationhighlighter.cpp \
     cvseditor.cpp \
     cvssubmiteditor.cpp \
     cvssettings.cpp \
-    cvsutils.cpp \
-    checkoutwizard.cpp \
-    checkoutwizardpage.cpp
+    cvsutils.cpp
 
 FORMS += settingspage.ui
 

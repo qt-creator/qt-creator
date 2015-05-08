@@ -2,7 +2,4 @@
     <qresource prefix="/trolltech.cvs">
         <file>CVS.mimetypes.xml</file>
     </qresource>
-    <qresource prefix="/cvs">
-        <file>images/cvs.png</file>
-    </qresource>
 </RCC>
