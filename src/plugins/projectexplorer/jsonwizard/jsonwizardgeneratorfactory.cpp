@@ -165,7 +165,9 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
 
     foreach (const JsonWizard::GeneratorFile &f, *files) {
         const QFileInfo fi(f.file.path());
-        if (fi.exists() && !(f.file.attributes() & GeneratedFile::ForceOverwrite))
+        if (fi.exists()
+                && !(f.file.attributes() & GeneratedFile::ForceOverwrite)
+                && !(f.file.attributes() & GeneratedFile::KeepExistingFileAttribute))
             existingFiles.append(f.file.path());
     }
     if (existingFiles.isEmpty())
