@@ -12,7 +12,7 @@
     "options":
     [
         { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
-        { "key": "IsTopLevelProject", "value": "%{JS: ('%{Exists:ProjectExplorer.Profile.Ids}') ? '' : 'yes'}" }
+        { "key": "IsTopLevelProject", "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}'}" }
     ],
 
     "pages":
@@ -50,7 +50,7 @@
                 {
                     "source": "../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
-                    "condition": "%{JS: ('%{VersionControl}%{IsSubproject}' === 'G.Git') ? 'yes' : ''}"
+                    "condition": "%{JS: '%{VersionControl}%{IsSubproject}' === 'G.Git'}"
                 }
             ]
         }

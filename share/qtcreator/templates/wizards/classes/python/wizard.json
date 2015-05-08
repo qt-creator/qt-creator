@@ -43,7 +43,7 @@
                 {
                     "name": "BaseEdit",
                     "type": "LineEdit",
-                    "enabled": "%{JS: ( '%{BaseCB}' === '' ) ? 'yes' : ''}",
+                    "enabled": "%{JS: '%{BaseCB}' === ''}",
                     "mandatory": false,
                     "data": { "trText": "%{BaseCB}" }
                 },
@@ -63,7 +63,7 @@
                     {
                         "checkedValue": "QtCore",
                         "uncheckedValue": "",
-                        "checked": "%{JS: ('%{Base}' !== '' ) ? 'yes' : ''}"
+                        "checked": "%{JS: '%{Base}' !== ''}"
                     }
                 },
                 {
@@ -74,7 +74,7 @@
                     {
                         "checkedValue": "QtWidgets",
                         "uncheckedValue": "",
-                        "checked": "%{JS: ('%{Base}' === 'QWidget') ? 'yes' : ''}"
+                        "checked": "%{JS: '%{Base}' === 'QWidget'}"
                     }
                 },
                 {
@@ -85,7 +85,7 @@
                     {
                         "checkedValue": "QtQuick",
                         "uncheckedValue": "",
-                        "checked": "%{JS: ('%{Base}' === 'QQuickItem') ? 'yes' : ''}"
+                        "checked": "%{JS: '%{Base}' === 'QQuickItem'}"
                     }
                 },
                 {

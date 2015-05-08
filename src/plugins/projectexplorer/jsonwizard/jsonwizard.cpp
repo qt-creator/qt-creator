@@ -155,8 +155,10 @@ QVariant JsonWizard::value(const QString &n) const
 
 bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expander)
 {
-    if (v.type() == QVariant::String)
-        return !expander->expand(v.toString()).isEmpty();
+    if (v.type() == QVariant::String) {
+        const QString tmp = expander->expand(v.toString());
+        return !(tmp.isEmpty() || tmp == QLatin1String("false"));
+    }
     return v.toBool();
 }
 
