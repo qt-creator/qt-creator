@@ -1545,7 +1545,7 @@ class Dumper(DumperBase):
 
     def stackListFrames(self, args):
         def fromNativePath(str):
-            return str.replace(os.path.sep, '/')
+            return str.replace('\\', '/')
 
         limit = int(args['limit'])
         if limit <= 0:
