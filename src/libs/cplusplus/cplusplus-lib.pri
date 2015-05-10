@@ -57,7 +57,6 @@ HEADERS += \
     $$PWD/pp-scanner.h \
     $$PWD/findcdbbreakpoint.h \
     $$PWD/PPToken.h \
-    $$PWD/Dumpers.h \
     $$PWD/cppmodelmanagerbase.h
 
 SOURCES += \
@@ -86,7 +85,6 @@ SOURCES += \
     $$PWD/pp-scanner.cpp \
     $$PWD/findcdbbreakpoint.cpp \
     $$PWD/PPToken.cpp \
-    $$PWD/Dumpers.cpp \
     $$PWD/cppmodelmanagerbase.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc
