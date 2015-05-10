@@ -105,7 +105,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         connect(m_logChangeWidget, &LogChangeWidget::activated,
                 this, &GitSubmitEditorWidget::show);
         logChangeLayout->addWidget(m_logChangeWidget);
-        insertTopWidget(logChangeGroupBox);
+        insertLeftWidget(logChangeGroupBox);
         m_gitSubmitPanelUi.editGroup->hide();
         hideDescription();
     }

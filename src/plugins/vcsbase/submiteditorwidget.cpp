@@ -561,6 +561,11 @@ void SubmitEditorWidget::insertTopWidget(QWidget *w)
     d->m_ui.vboxLayout->insertWidget(0, w);
 }
 
+void SubmitEditorWidget::insertLeftWidget(QWidget *w)
+{
+    d->m_ui.splitter->insertWidget(0, w);
+}
+
 void SubmitEditorWidget::addSubmitButtonMenu(QMenu *menu)
 {
     d->m_submitButton->setMenu(menu);

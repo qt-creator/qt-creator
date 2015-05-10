@@ -122,6 +122,7 @@ protected:
     virtual QString cleanupDescription(const QString &) const;
     virtual QString commitName() const;
     void insertTopWidget(QWidget *w);
+    void insertLeftWidget(QWidget *w);
     void addSubmitButtonMenu(QMenu *menu);
     void hideDescription();
 
