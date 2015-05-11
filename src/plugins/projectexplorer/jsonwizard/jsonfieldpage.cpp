@@ -636,7 +636,7 @@ QWidget *JsonFieldPage::CheckBoxField::widget(const QString &displayName, JsonFi
 void JsonFieldPage::CheckBoxField::setup(JsonFieldPage *page, const QString &name)
 {
     TextFieldCheckBox *w = static_cast<TextFieldCheckBox *>(m_widget);
-    connect(w, &TextFieldCheckBox::clicked, [this]() { m_isModified = true; });
+    connect(w, &TextFieldCheckBox::clicked, [this, page]() { m_isModified = true; page->completeChanged();});
     page->registerFieldWithName(name, w, "text", SIGNAL(textChanged(QString)));
 }
 
