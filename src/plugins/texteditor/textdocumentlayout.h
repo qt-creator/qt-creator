@@ -45,14 +45,14 @@ typedef QVector<Parenthesis> Parentheses;
 
 struct TEXTEDITOR_EXPORT Parenthesis
 {
-    enum Type { Opened, Closed };
+    enum Type : char { Opened, Closed };
 
-    inline Parenthesis() : type(Opened), pos(-1) {}
+    inline Parenthesis() : pos(-1), type(Opened)  {}
     inline Parenthesis(Type t, QChar c, int position)
-        : type(t), chr(c), pos(position) {}
-    Type type;
-    QChar chr;
+        : pos(position), chr(c), type(t) {}
     int pos;
+    QChar chr;
+    Type type;
 };
 
 class TEXTEDITOR_EXPORT CodeFormatterData
