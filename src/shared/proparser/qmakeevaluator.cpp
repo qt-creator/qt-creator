@@ -799,8 +799,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
     forever {
         if (infinite) {
             if (!variable.isEmpty())
-                m_valuemapStack.top()[variable] = ProStringList(ProString(QString::number(index++)));
-            if (index > 1000) {
+                m_valuemapStack.top()[variable] = ProStringList(ProString(QString::number(index)));
+            if (++index > 1000) {
                 evalError(fL1S("Ran into infinite loop (> 1000 iterations)."));
                 break;
             }
