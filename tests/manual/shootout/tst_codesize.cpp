@@ -401,6 +401,62 @@ void tst_CodeSize::codesize_data()
 
     QTest::newRow("std_tie") << s;
     s.clear();
+
+
+    QByteArray mapInitPrefix =
+        "#include <QMap>\n"
+        "#include <QString>\n"
+        "#include <QString>\n"
+        "using namespace Qt;\n"
+        "const QMap<QString, int> &vimKeyNames() {\n";
+
+    QByteArray mapInitData =
+        "        X(\"SPACE\", Key_Space)\n"
+        "        X(\"TAB\", Key_Tab)\n"
+        "        X(\"NL\", Key_Return)\n"
+        "        X(\"NEWLINE\", Key_Return)\n"
+        "        X(\"LINEFEED\", Key_Return)\n"
+        "        X(\"LF\", Key_Return)\n"
+        "        X(\"CR\", Key_Return)\n"
+        "        X(\"RETURN\", Key_Return)\n"
+        "        X(\"ENTER\", Key_Return)\n"
+        "        X(\"BS\", Key_Backspace)\n"
+        "        X(\"BACKSPACE\", Key_Backspace)\n"
+        "        X(\"ESC\", Key_Escape)\n"
+        "        X(\"BAR\", Key_Bar)\n"
+        "        X(\"BSLASH\", Key_Backslash)\n"
+        "        X(\"DEL\", Key_Delete)\n"
+        "        X(\"DELETE\", Key_Delete)\n"
+        "        X(\"KDEL\", Key_Delete)\n"
+        "        X(\"UP\", Key_Up)\n"
+        "        X(\"DOWN\", Key_Down)\n"
+        "        X(\"LEFT\", Key_Left)\n"
+        "        Y(\"RIGHT\", Key_Right)\n";
+
+    c.file = "init_list_qlatin1string";
+    c.gist = "init_list_qlatin1string";
+    c.code = mapInitPrefix +
+        "#define X(a, b) { QLatin1String(a), b },\n"
+        "#define Y(a, b) { QLatin1String(a), b }\n"
+        "    static const QMap<QString, int> k = {\n" + mapInitData + "};\n"
+        "    return k;\n"
+        "}";
+    s.cases.append(c);
+
+    c.file = "init_list_insert";
+    c.gist = "init_list_insert";
+    c.code = mapInitPrefix +
+        "#define X(a, b) k.insert(QLatin1String(a), b);\n"
+        "#define Y(a, b) k.insert(QLatin1String(a), b);\n"
+        "    static QMap<QString, int> k;\n"
+        "    if (k.isEmpty()) {\n" + mapInitData + "\n}\n"
+        "    return k;\n"
+        "}";
+    s.cases.append(c);
+
+    QTest::newRow("map_init") << s;
+    s.clear();
+
 }
 
 int main(int argc, char *argv[])
