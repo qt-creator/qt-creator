@@ -212,17 +212,11 @@ void TimelineRenderer::TimelineRendererPrivate::manageClicked()
 {
     Q_Q(TimelineRenderer);
     if (currentSelection.eventIndex != -1) {
-        if (currentSelection.eventIndex == selectedItem)
-            q->setSelectionLocked(!selectionLocked);
-        else
-            q->setSelectionLocked(true);
-
         // itemPressed() will trigger an update of the events and JavaScript views. Make sure the
         // correct event is already selected when that happens, to prevent confusion.
         q->setSelectedItem(currentSelection.eventIndex);
         emit q->itemPressed(currentSelection.eventIndex);
     } else {
-        q->setSelectionLocked(false);
         q->setSelectedItem(-1);
         emit q->itemPressed(-1);
     }
