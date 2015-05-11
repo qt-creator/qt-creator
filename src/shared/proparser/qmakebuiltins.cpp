@@ -1118,7 +1118,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
     switch (func_t) {
     case T_DEFINED: {
         if (args.count() < 1 || args.count() > 2) {
-            evalError(fL1S("defined(function, [\"test\"|\"replace\"])"
+            evalError(fL1S("defined(function, [\"test\"|\"replace\"|\"var\"])"
                            " requires one or two arguments."));
             return ReturnFalse;
         }
