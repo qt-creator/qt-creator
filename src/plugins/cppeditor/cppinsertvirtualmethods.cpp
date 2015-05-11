@@ -31,6 +31,7 @@
 #include "cppinsertvirtualmethods.h"
 #include "cppquickfixassistant.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -55,6 +56,7 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QTextDocument>
+#include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -97,22 +99,40 @@ public:
     void initData();
     virtual ImplementationMode implementationMode() const;
     virtual bool insertKeywordVirtual() const;
+    virtual bool insertOverrideReplacement() const;
+    virtual QString overrideReplacement() const;
+    int overrideReplacementIndex() const;
+    bool hideReimplementedFunctions() const;
+
     void setHasImplementationFile(bool file);
     void setHasReimplementedFunctions(bool functions);
-    bool hideReimplementedFunctions() const;
+
     virtual bool gather();
+
+    QStringList userAddedOverrideReplacements() const;
+
+protected:
+    void setInsertOverrideReplacement(bool insert);
+    void setOverrideReplacement(const QString &replacements);
 
 private slots:
     void setHideReimplementedFunctions(bool hide);
+
+private:
+    void updateOverrideReplacementsComboBox();
 
 private:
     QTreeView *m_view;
     QCheckBox *m_hideReimplementedFunctions;
     QComboBox *m_insertMode;
     QCheckBox *m_virtualKeyword;
+    QCheckBox *m_overrideReplacementCheckBox;
+    QComboBox *m_overrideReplacementComboBox;
+    QToolButton *m_clearUserAddedReplacementsButton;
     QDialogButtonBox *m_buttons;
     QList<bool> m_expansionStateNormal;
     QList<bool> m_expansionStateReimp;
+    QStringList m_availableOverrideReplacements;
     bool m_hasImplementationFile;
     bool m_hasReimplementedFunctions;
 
@@ -262,6 +282,26 @@ Qt::ItemFlags FunctionItem::flags() const
     return res;
 }
 
+QStringList defaultOverrideReplacements()
+{
+    return {
+        QLatin1String("override"),
+        QLatin1String("Q_DECL_OVERRIDE")
+    };
+}
+
+QStringList sortedAndTrimmedStringListWithoutEmptyElements(const QStringList &list)
+{
+    QStringList result;
+    foreach (const QString &replacement, list) {
+        const QString trimmedReplacement = replacement.trimmed();
+        if (!trimmedReplacement.isEmpty())
+            result << trimmedReplacement;
+    }
+    result.sort();
+    return result;
+}
+
 } // namespace
 
 namespace CppEditor {
@@ -278,6 +318,36 @@ public:
     static void writeInsertVirtualKeyword(bool insert)
     {
         settings()->setValue(insertVirtualKeywordKey(), insert);
+    }
+
+    static bool insertOverrideReplacement()
+    {
+        return settings()->value(insertOverrideReplacementKey(), false).toBool();
+    }
+
+    static void writeInsertOverrideReplacement(bool insert)
+    {
+        settings()->setValue(insertOverrideReplacementKey(), insert);
+    }
+
+    static int overrideReplacementIndex()
+    {
+        return settings()->value(overrideReplacementIndexKey(), 0).toInt();
+    }
+
+    static void writeOverrideReplacementIndex(int index)
+    {
+        settings()->setValue(overrideReplacementIndexKey(), index);
+    }
+
+    static QStringList userAddedOverrideReplacements()
+    {
+        return settings()->value(userAddedOverrideReplacementsKey()).toStringList();
+    }
+
+    static void writeUserAddedOverrideReplacements(const QStringList &additionals)
+    {
+        return settings()->setValue(userAddedOverrideReplacementsKey(), additionals);
     }
 
     static InsertVirtualMethodsDialog::ImplementationMode implementationMode()
@@ -307,6 +377,15 @@ private:
 
     static QString insertVirtualKeywordKey()
     { return QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"); }
+
+    static QString insertOverrideReplacementKey()
+    { return QLatin1String("QuickFix/InsertVirtualMethods/insertOverrideReplacement"); }
+
+    static QString overrideReplacementIndexKey()
+    { return QLatin1String("QuickFix/InsertVirtualMethods/overrideReplacementIndex"); }
+
+    static QString userAddedOverrideReplacementsKey()
+    { return QLatin1String("QuickFix/InsertVirtualMethods/userAddedOverrideReplacements"); }
 
     static QString implementationModeKey()
     { return QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"); }
@@ -713,6 +792,9 @@ public:
         Settings::writeInsertVirtualKeyword(m_factory->insertKeywordVirtual());
         Settings::writeImplementationMode(m_factory->implementationMode());
         Settings::writeHideReimplementedFunctions(m_factory->hideReimplementedFunctions());
+        Settings::writeInsertOverrideReplacement(m_factory->insertOverrideReplacement());
+        Settings::writeOverrideReplacementIndex(m_factory->overrideReplacementIndex());
+        Settings::writeUserAddedOverrideReplacements(m_factory->userAddedOverrideReplacements());
 
         // Insert declarations (and definition if Inside-/OutsideClass)
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -763,6 +845,11 @@ public:
 
                 if (m_factory->insertKeywordVirtual())
                     declaration = QLatin1String("virtual ") + declaration;
+                if (m_factory->insertOverrideReplacement()) {
+                    const QString overrideReplacement = m_factory->overrideReplacement();
+                    if (!overrideReplacement.isEmpty())
+                        declaration += QLatin1Char(' ') + overrideReplacement;
+                }
                 if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeInsideClass)
                     declaration += QLatin1String("\n{\n}\n");
                 else
@@ -912,6 +999,9 @@ InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     , m_hideReimplementedFunctions(0)
     , m_insertMode(0)
     , m_virtualKeyword(0)
+    , m_overrideReplacementCheckBox(0)
+    , m_overrideReplacementComboBox(0)
+    , m_clearUserAddedReplacementsButton(0)
     , m_buttons(0)
     , m_hasImplementationFile(false)
     , m_hasReimplementedFunctions(false)
@@ -948,9 +1038,40 @@ void InsertVirtualMethodsDialog::initGui()
     m_insertMode->addItem(tr("Insert definitions inside class"), ModeInsideClass);
     m_insertMode->addItem(tr("Insert definitions outside class"), ModeOutsideClass);
     m_insertMode->addItem(tr("Insert definitions in implementation file"), ModeImplementationFile);
-    m_virtualKeyword = new QCheckBox(tr("&Add keyword 'virtual' to function declaration"), this);
+    m_virtualKeyword = new QCheckBox(tr("Add \"&virtual\" to function declaration"), this);
+    m_overrideReplacementCheckBox = new QCheckBox(
+                tr("Add \"override\" equivalent to function declaration:"), this);
+    m_overrideReplacementComboBox = new QComboBox(this);
+    QSizePolicy sizePolicy = m_overrideReplacementComboBox->sizePolicy();
+    sizePolicy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_overrideReplacementComboBox->setSizePolicy(sizePolicy);
+    m_overrideReplacementComboBox->setEditable(true);
+    connect(m_overrideReplacementCheckBox, &QCheckBox::clicked,
+            m_overrideReplacementComboBox, &QComboBox::setEnabled);
+
+    QAction *clearUserAddedReplacements = new QAction(this);
+    clearUserAddedReplacements->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAN_PANE)));
+    clearUserAddedReplacements->setText(tr("Clear Added \"override\" Equivalents"));
+    connect(clearUserAddedReplacements, &QAction::triggered, [this]() {
+       m_availableOverrideReplacements = defaultOverrideReplacements();
+       updateOverrideReplacementsComboBox();
+       m_clearUserAddedReplacementsButton->setEnabled(false);
+    });
+    m_clearUserAddedReplacementsButton = new QToolButton(this);
+    m_clearUserAddedReplacementsButton->setDefaultAction(clearUserAddedReplacements);
+
+    QHBoxLayout *overrideWidgetsLayout = new QHBoxLayout(this);
+    overrideWidgetsLayout->setSpacing(0);
+    overrideWidgetsLayout->setMargin(0);
+    overrideWidgetsLayout->addWidget(m_overrideReplacementCheckBox);
+    overrideWidgetsLayout->addWidget(m_overrideReplacementComboBox);
+    overrideWidgetsLayout->addWidget(m_clearUserAddedReplacementsButton);
+    QWidget *overrideWidgets = new QWidget(groupBoxImplementation);
+    overrideWidgets->setLayout(overrideWidgetsLayout);
+
     groupBoxImplementationLayout->addWidget(m_insertMode);
     groupBoxImplementationLayout->addWidget(m_virtualKeyword);
+    groupBoxImplementationLayout->addWidget(overrideWidgets);
     groupBoxImplementationLayout->addStretch(99);
 
     // Bottom button box
@@ -971,6 +1092,9 @@ void InsertVirtualMethodsDialog::initGui()
 void InsertVirtualMethodsDialog::initData()
 {
     m_hideReimplementedFunctions->setChecked(Settings::hideReimplementedFunctions());
+    const QStringList alwaysPresentReplacements = defaultOverrideReplacements();
+    m_availableOverrideReplacements = alwaysPresentReplacements;
+    m_availableOverrideReplacements += Settings::userAddedOverrideReplacements();
 
     m_view->setModel(classFunctionFilterModel);
     m_expansionStateNormal.clear();
@@ -978,6 +1102,15 @@ void InsertVirtualMethodsDialog::initData()
     m_hideReimplementedFunctions->setEnabled(m_hasReimplementedFunctions);
     m_virtualKeyword->setChecked(Settings::insertVirtualKeyword());
     m_insertMode->setCurrentIndex(m_insertMode->findData(Settings::implementationMode()));
+
+    m_overrideReplacementCheckBox->setChecked(Settings::insertOverrideReplacement());
+    updateOverrideReplacementsComboBox();
+    const bool canClear = m_availableOverrideReplacements.size() > alwaysPresentReplacements.size();
+    m_clearUserAddedReplacementsButton->setEnabled(canClear);
+    int overrideReplacementIndex = Settings::overrideReplacementIndex();
+    if (overrideReplacementIndex >= m_overrideReplacementComboBox->count())
+        overrideReplacementIndex = 0;
+    m_overrideReplacementComboBox->setCurrentIndex(overrideReplacementIndex);
 
     setHideReimplementedFunctions(m_hideReimplementedFunctions->isChecked());
 
@@ -1021,6 +1154,27 @@ bool InsertVirtualMethodsDialog::insertKeywordVirtual() const
     return m_virtualKeyword->isChecked();
 }
 
+bool InsertVirtualMethodsDialog::insertOverrideReplacement() const
+{
+    return m_overrideReplacementCheckBox->isChecked();
+}
+
+QString InsertVirtualMethodsDialog::overrideReplacement() const
+{
+    if (m_overrideReplacementComboBox && m_overrideReplacementComboBox->isEnabled())
+        return m_overrideReplacementComboBox->currentText().trimmed();
+    return QString();
+}
+
+int InsertVirtualMethodsDialog::overrideReplacementIndex() const
+{
+    const QStringList all = defaultOverrideReplacements() + userAddedOverrideReplacements();
+    const int replacementPosition = all.indexOf(overrideReplacement());
+    if (replacementPosition >= 0)
+        return replacementPosition;
+    return 0;
+}
+
 void InsertVirtualMethodsDialog::setHasImplementationFile(bool file)
 {
     m_hasImplementationFile = file;
@@ -1035,6 +1189,14 @@ bool InsertVirtualMethodsDialog::hideReimplementedFunctions() const
 {
     // Safty check necessary because of testing class
     return (m_hideReimplementedFunctions && m_hideReimplementedFunctions->isChecked());
+}
+
+QStringList InsertVirtualMethodsDialog::userAddedOverrideReplacements() const
+{
+    QSet<QString> addedReplacements = m_availableOverrideReplacements.toSet();
+    addedReplacements.insert(overrideReplacement());
+    addedReplacements.subtract(defaultOverrideReplacements().toSet());
+    return sortedAndTrimmedStringListWithoutEmptyElements(addedReplacements.toList());
 }
 
 void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
@@ -1055,6 +1217,13 @@ void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
     saveExpansionState();
     model->setHideReimplementedFunctions(hide);
     restoreExpansionState();
+}
+
+void InsertVirtualMethodsDialog::updateOverrideReplacementsComboBox()
+{
+    m_overrideReplacementComboBox->clear();
+    foreach (const QString &replacement, m_availableOverrideReplacements)
+        m_overrideReplacementComboBox->addItem(replacement);
 }
 
 void InsertVirtualMethodsDialog::saveExpansionState()
@@ -1114,25 +1283,31 @@ namespace Tests {
 
 typedef QByteArray _;
 
-/// Fake dialog of InsertVirtualMethodsDialog that does not pop up anything.
+/// Stub dialog of InsertVirtualMethodsDialog that does not pop up anything.
 class InsertVirtualMethodsDialogTest : public InsertVirtualMethodsDialog
 {
 public:
-    InsertVirtualMethodsDialogTest(ImplementationMode mode, bool insertVirtualKeyword,
+    InsertVirtualMethodsDialogTest(ImplementationMode mode,
+                                   bool insertVirtualKeyword,
+                                   bool insertOverrideKeyword,
                                    QWidget *parent = 0)
         : InsertVirtualMethodsDialog(parent)
         , m_implementationMode(mode)
         , m_insertKeywordVirtual(insertVirtualKeyword)
+        , m_insertOverrideReplacement(insertOverrideKeyword)
     {
     }
 
     bool gather() { return true; }
     ImplementationMode implementationMode() const { return m_implementationMode; }
     bool insertKeywordVirtual() const { return m_insertKeywordVirtual; }
+    bool insertOverrideReplacement() const { return m_insertOverrideReplacement; }
+    QString overrideReplacement() const { return QLatin1String("override"); }
 
 private:
     ImplementationMode  m_implementationMode;
     bool m_insertKeywordVirtual;
+    bool m_insertOverrideReplacement;
 };
 
 } // namespace Tests
@@ -1140,19 +1315,20 @@ private:
 InsertVirtualMethods *InsertVirtualMethods::createTestFactory()
 {
     return new InsertVirtualMethods(new Tests::InsertVirtualMethodsDialogTest(
-                                        InsertVirtualMethodsDialog::ModeOutsideClass, true));
+                                        InsertVirtualMethodsDialog::ModeOutsideClass, true, false));
 }
 
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 {
     QTest::addColumn<InsertVirtualMethodsDialog::ImplementationMode>("implementationMode");
     QTest::addColumn<bool>("insertVirtualKeyword");
+    QTest::addColumn<bool>("insertOverrideKeyword");
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
 
     // Check: Insert only declarations
     QTest::newRow("onlyDecl")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1172,9 +1348,9 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "};\n"
     );
 
-    // Check: Insert only declarations vithout virtual keyword
+    // Check: Insert only declarations without virtual keyword but with override
     QTest::newRow("onlyDeclWithoutVirtual")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << false << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << false << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1190,13 +1366,13 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "\n"
         "    // BaseA interface\n"
         "public:\n"
-        "    int virtualFuncA();\n"
+        "    int virtualFuncA() override;\n"
         "};\n"
     );
 
     // Check: Are access specifiers considered
     QTest::newRow("Access")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1254,7 +1430,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Is a base class of a base class considered.
     QTest::newRow("Superclass")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1289,7 +1465,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Do not insert reimplemented functions twice.
     QTest::newRow("SuperclassOverride")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1319,7 +1495,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Insert only declarations for pure virtual function
     QTest::newRow("PureVirtualOnlyDecl")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1341,7 +1517,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Insert pure virtual functions inside class
     QTest::newRow("PureVirtualInside")
-        << InsertVirtualMethodsDialog::ModeInsideClass << true << _(
+        << InsertVirtualMethodsDialog::ModeInsideClass << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1365,7 +1541,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Insert inside class
     QTest::newRow("inside")
-        << InsertVirtualMethodsDialog::ModeInsideClass << true << _(
+        << InsertVirtualMethodsDialog::ModeInsideClass << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1389,7 +1565,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Insert outside class
     QTest::newRow("outside")
-        << InsertVirtualMethodsDialog::ModeOutsideClass << true << _(
+        << InsertVirtualMethodsDialog::ModeOutsideClass << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1414,7 +1590,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: No trigger: all implemented
     QTest::newRow("notrigger_allImplemented")
-        << InsertVirtualMethodsDialog::ModeOutsideClass << true << _(
+        << InsertVirtualMethodsDialog::ModeOutsideClass << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
@@ -1427,7 +1603,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: One pure, one not
     QTest::newRow("Some_Pure")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -1451,7 +1627,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Pure function in derived class
     QTest::newRow("Pure_in_Derived")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -1481,7 +1657,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: One pure function in base class, one in derived
     QTest::newRow("Pure_in_Base_And_Derived")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1514,7 +1690,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: One pure function in base class, two in derived
     QTest::newRow("Pure_in_Base_And_Derived_2")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1553,7 +1729,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Remove final function
     QTest::newRow("final_function_removed")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1585,7 +1761,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 
     // Check: Remove multiple final functions
     QTest::newRow("multiple_final_functions_removed")
-        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a() = 0;\n"
@@ -1640,11 +1816,14 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods()
 {
     QFETCH(InsertVirtualMethodsDialog::ImplementationMode, implementationMode);
     QFETCH(bool, insertVirtualKeyword);
+    QFETCH(bool, insertOverrideKeyword);
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
 
     InsertVirtualMethods factory(
-                new Tests::InsertVirtualMethodsDialogTest(implementationMode, insertVirtualKeyword));
+                new Tests::InsertVirtualMethodsDialogTest(implementationMode,
+                                                          insertVirtualKeyword,
+                                                          insertOverrideKeyword));
     Tests::QuickFixOperationTest(Tests::singleDocument(original, expected), &factory);
 }
 
@@ -1690,7 +1869,9 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
     testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeImplementationFile, true));
+                                     InsertVirtualMethodsDialog::ModeImplementationFile,
+                                     true,
+                                     false));
     Tests::QuickFixOperationTest(testFiles, &factory);
 }
 
@@ -1742,7 +1923,9 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
     testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeImplementationFile, true));
+                                     InsertVirtualMethodsDialog::ModeImplementationFile,
+                                     true,
+                                     false));
     Tests::QuickFixOperationTest(testFiles, &factory);
 }
 #endif // WITH_TESTS
