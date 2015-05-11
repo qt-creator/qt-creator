@@ -38,7 +38,6 @@
 #include "pullorpushdialog.h"
 #include "uncommitdialog.h"
 #include "commiteditor.h"
-#include "clonewizard.h"
 
 #include "ui_revertdialog.h"
 
@@ -180,16 +179,6 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
         []() { return new CommitEditor(&submitEditorParameters); }));
-
-    auto cloneWizardFactory = new BaseCheckoutWizardFactory;
-    cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
-    cloneWizardFactory->setIcon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")));
-    cloneWizardFactory->setDescription(tr("Clones a Bazaar branch and tries to load the contained project."));
-    cloneWizardFactory->setDisplayName(tr("Bazaar Clone (Or Branch)"));
-    cloneWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
-        return new CloneWizard(path, parent);
-    });
-    addAutoReleasedObject(cloneWizardFactory);
 
     const QString prefix = QLatin1String("bzr");
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix);

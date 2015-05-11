@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/bazaar" >
-        <file>images/bazaar.png</file>
-    </qresource>
-</RCC>
