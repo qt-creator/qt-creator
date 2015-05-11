@@ -67,11 +67,7 @@ CheckoutWizard::CheckoutWizard(const FileName &path, QWidget *parent) :
 VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
 {
     // Collect parameters for the checkout command.
-    const CheckoutWizardPage *cwp = 0;
-    foreach (int pageId, pageIds()) {
-        if ((cwp = qobject_cast<const CheckoutWizardPage *>(page(pageId))))
-            break;
-    }
+    const CheckoutWizardPage *cwp = find<CheckoutWizardPage>();
     QTC_ASSERT(cwp, return 0);
 
     SubversionClient *client = SubversionPlugin::instance()->client();

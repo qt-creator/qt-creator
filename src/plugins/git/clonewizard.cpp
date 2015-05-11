@@ -67,12 +67,7 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
 VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     // Collect parameters for the clone command.
-    const CloneWizardPage *cwp = 0;
-    foreach (int pageId, pageIds()) {
-        if ((cwp = qobject_cast<const CloneWizardPage *>(page(pageId))))
-            break;
-    }
-
+    const CloneWizardPage *cwp = find<CloneWizardPage>();
     QTC_ASSERT(cwp, return 0);
     return cwp->createCheckoutJob(checkoutDir);
 }

@@ -39,6 +39,8 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/wizard/vcsconfigurationpage.h>
 
+#include <utils/qtcassert.h>
+
 using namespace VcsBase;
 
 namespace Mercurial {
@@ -66,14 +68,8 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
 
 VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
-    const CloneWizardPage *cwp = 0;
-    foreach (int pageId, pageIds()) {
-        if ((cwp = qobject_cast<const CloneWizardPage *>(page(pageId))))
-            break;
-    }
-
-    if (!cwp)
-        return 0;
+    const CloneWizardPage *cwp = find<CloneWizardPage>();
+    QTC_ASSERT(cwp, return 0);
 
     const VcsBaseClientSettings &settings = MercurialPlugin::client()->settings();
 
