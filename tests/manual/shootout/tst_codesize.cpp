@@ -303,7 +303,11 @@ void tst_CodeSize::codesize_data()
 #ifdef Q_CC_MSVC
     s.cmd = "dumpbin /DISASM /SECTION:.text";
 #else
+# ifdef Q_OS_MAC
+    s.cmd = "otool -t -v";
+# else
     s.cmd = "objdump -D -j.text";
+# endif
 #endif
     s.title = "This 'test' compares different approaches to return something \n"
               "like an immutable string from a function.";
