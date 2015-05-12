@@ -54,9 +54,9 @@ namespace ProjectExplorer {
     \class ProjectExplorer::TerminalAspect
 */
 
-TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, bool useTerminal, bool isForced)
+TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, bool useTerminal, bool userSet)
     : IRunConfigurationAspect(runConfig), m_useTerminal(useTerminal),
-      m_isForced(isForced), m_checkBox(0), m_key(key)
+      m_userSet(userSet), m_checkBox(0), m_key(key)
 {
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");
@@ -69,7 +69,7 @@ IRunConfigurationAspect *TerminalAspect::create(RunConfiguration *runConfig) con
 
 IRunConfigurationAspect *TerminalAspect::clone(RunConfiguration *runConfig) const
 {
-    return new TerminalAspect(runConfig, m_key, m_useTerminal, m_isForced);
+    return new TerminalAspect(runConfig, m_key, m_useTerminal, m_userSet);
 }
 
 void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
@@ -79,7 +79,7 @@ void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *
     m_checkBox->setChecked(m_useTerminal);
     layout->addRow(QString(), m_checkBox);
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
-        m_isForced = true;
+        m_userSet = true;
         setUseTerminal(true);
     });
 }
@@ -88,15 +88,15 @@ void TerminalAspect::fromMap(const QVariantMap &map)
 {
     if (map.contains(m_key)) {
         m_useTerminal = map.value(m_key).toBool();
-        m_isForced = true;
+        m_userSet = true;
     } else {
-        m_isForced = false;
+        m_userSet = false;
     }
 }
 
 void TerminalAspect::toMap(QVariantMap &data) const
 {
-    if (m_isForced)
+    if (m_userSet)
         data.insert(m_key, m_useTerminal);
 }
 

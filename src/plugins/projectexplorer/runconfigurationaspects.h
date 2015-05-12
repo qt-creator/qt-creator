@@ -51,7 +51,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit TerminalAspect(RunConfiguration *rc, const QString &key, bool useTerminal = false, bool isForced = false);
+    explicit TerminalAspect(RunConfiguration *rc, const QString &key, bool useTerminal = false, bool userSet = false);
 
     IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
     IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
@@ -69,7 +69,7 @@ private:
     void toMap(QVariantMap &map) const override;
 
     bool m_useTerminal;
-    bool m_isForced;
+    bool m_userSet;
     QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
     QString m_key;
 };
