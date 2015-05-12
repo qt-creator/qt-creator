@@ -63,7 +63,6 @@ namespace {
 const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
 
 const char USER_WORKING_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory";
-const char USE_TERMINAL_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UseTerminal";
 const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 
 } // namespace
@@ -71,7 +70,6 @@ const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const QString &target,
                                              const QString &workingDirectory, const QString &title) :
     LocalApplicationRunConfiguration(parent, id),
-    m_runMode(ProjectExplorer::ApplicationLauncher::Gui),
     m_buildTarget(target),
     m_workingDirectory(workingDirectory),
     m_title(title),
@@ -79,12 +77,12 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.Arguments")));
+    addExtraAspect(new TerminalAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UseTerminal")));
     ctor();
 }
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
-    m_runMode(source->m_runMode),
     m_buildTarget(source->m_buildTarget),
     m_workingDirectory(source->m_workingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
@@ -110,12 +108,12 @@ QString CMakeRunConfiguration::executable() const
 
 ApplicationLauncher::Mode CMakeRunConfiguration::runMode() const
 {
-    return m_runMode;
+    return extraAspect<TerminalAspect>()->runMode();
 }
 
 void CMakeRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
-    m_runMode = runMode;
+    extraAspect<TerminalAspect>()->setRunMode(runMode);
 }
 
 QString CMakeRunConfiguration::workingDirectory() const
@@ -175,7 +173,6 @@ QVariantMap CMakeRunConfiguration::toMap() const
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
 
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(TITLE_KEY), m_title);
 
     return map;
@@ -184,8 +181,6 @@ QVariantMap CMakeRunConfiguration::toMap() const
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? ApplicationLauncher::Console
-                                                                    : ApplicationLauncher::Gui;
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
 
     return RunConfiguration::fromMap(map);
@@ -263,8 +258,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working directory:"), boxlayout);
 
-    QCheckBox *runInTerminal = new QCheckBox;
-    fl->addRow(tr("Run in Terminal"), runInTerminal);
+    m_cmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
 
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
@@ -282,9 +276,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     connect(resetButton, &QToolButton::clicked,
             this, &CMakeRunConfigurationWidget::resetWorkingDirectory);
-
-    connect(runInTerminal, &QCheckBox::toggled,
-            this, &CMakeRunConfigurationWidget::runInTerminalToggled);
 
     connect(m_cmakeRunConfiguration, &CMakeRunConfiguration::baseWorkingDirectoryChanged,
             this, &CMakeRunConfigurationWidget::workingDirectoryChanged);
@@ -315,12 +306,6 @@ void CMakeRunConfigurationWidget::resetWorkingDirectory()
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
     m_cmakeRunConfiguration->setUserWorkingDirectory(QString());
-}
-
-void CMakeRunConfigurationWidget::runInTerminalToggled(bool toggled)
-{
-    m_cmakeRunConfiguration->setRunMode(toggled ? ApplicationLauncher::Console
-                                                : ApplicationLauncher::Gui);
 }
 
 void CMakeRunConfigurationWidget::environmentWasChanged()
