@@ -42,6 +42,7 @@
 #include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
+#include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
 #include <coreplugin/documentmanager.h>
@@ -585,15 +586,38 @@ QByteArray CppModelManager::codeModelConfiguration() const
     return QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
 }
 
+static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSizeLimit)
+{
+    if (fileSizeLimit == 0)
+        return files;
+
+    QSet<QString> result;
+    QFileInfo fileInfo;
+
+    QSetIterator<QString> i(files);
+    while (i.hasNext()) {
+        const QString filePath = i.next();
+        fileInfo.setFile(filePath);
+        if (skipFileDueToSizeLimit(fileInfo), fileSizeLimit)
+            continue;
+
+        result << filePath;
+    }
+
+    return result;
+}
+
 QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFiles,
                                                  ProgressNotificationMode mode)
 {
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
+    const auto filteredFiles = tooBigFilesRemoved(sourceFiles, fileSizeLimit());
+
     if (d->m_indexingSupporter)
-        d->m_indexingSupporter->refreshSourceFiles(sourceFiles, mode);
-    return d->m_internalIndexingSupport->refreshSourceFiles(sourceFiles, mode);
+        d->m_indexingSupporter->refreshSourceFiles(filteredFiles, mode);
+    return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
 QList<ProjectInfo> CppModelManager::projectInfos() const

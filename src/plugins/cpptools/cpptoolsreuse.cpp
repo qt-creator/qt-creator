@@ -38,6 +38,7 @@
 #include <cplusplus/LookupContext.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
 #include <QSet>
 #include <QStringRef>
 #include <QTextCursor>
@@ -248,6 +249,35 @@ TextEditor::TextEditorWidget::Link linkToSymbol(Symbol *symbol)
         column = 0;
 
     return Link(filename, line, column);
+}
+
+int fileSizeLimit()
+{
+    static const QByteArray fileSizeLimitAsByteArray = qgetenv("QTC_CPP_FILE_SIZE_LIMIT_MB");
+    static int fileSizeLimitAsInt = -1;
+
+    if (fileSizeLimitAsInt == -1) {
+        bool ok;
+        const int limit = fileSizeLimitAsByteArray.toInt(&ok);
+        fileSizeLimitAsInt = ok && limit >= 0 ? limit : 0;
+    }
+
+    return fileSizeLimitAsInt;
+}
+
+bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB)
+{
+    if (limitInMB == 0) // unlimited
+        return false;
+
+    const int fileSizeInMB = fileInfo.size() * 1000 * 1000;
+    if (fileSizeInMB > limitInMB) {
+        qWarning() << "Files to process limited by QTC_CPP_FILE_SIZE_LIMIT_MB, skipping"
+                   << fileInfo.absoluteFilePath();
+        return true;
+    }
+
+    return false;
 }
 
 } // CppTools

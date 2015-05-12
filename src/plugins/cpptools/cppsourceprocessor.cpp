@@ -31,6 +31,7 @@
 #include "cppsourceprocessor.h"
 
 #include "cppmodelmanager.h"
+#include "cpptoolsreuse.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -454,6 +455,10 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
         return;
     }
 
+    const QFileInfo info(absoluteFileName);
+    if (skipFileDueToSizeLimit(info))
+        return; // TODO: Add diagnostic message
+
     // Otherwise get file contents
     unsigned editorRevision = 0;
     QByteArray contents;
@@ -473,7 +478,6 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
         Document::Include inc(include, include, 0, IncludeLocal);
         document->addIncludeFile(inc);
     }
-    const QFileInfo info(absoluteFileName);
     if (info.exists())
         document->setLastModified(info.lastModified());
 
