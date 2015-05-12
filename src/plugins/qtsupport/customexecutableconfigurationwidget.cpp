@@ -33,6 +33,7 @@
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <utils/detailswidget.h>
@@ -45,12 +46,13 @@
 #include <QLabel>
 #include <QLineEdit>
 
+using namespace ProjectExplorer;
 
 namespace QtSupport {
 namespace Internal {
 
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc, ApplyMode mode)
-    : m_ignoreChange(false), m_runConfiguration(rc)
+    : m_ignoreChange(false), m_runConfiguration(rc), m_temporaryTerminalAspect(0)
 {
     QFormLayout *layout = new QFormLayout;
     layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -72,8 +74,15 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in &terminal"), this);
-    layout->addRow(QString(), m_useTerminalCheck);
+    TerminalAspect *terminalAspect = rc->extraAspect<TerminalAspect>();
+    if (mode == InstantApply) {
+        terminalAspect->addToMainConfigurationWidget(this, layout);
+    } else {
+        m_temporaryTerminalAspect = terminalAspect->clone(rc);
+        m_temporaryTerminalAspect->addToMainConfigurationWidget(this, layout);
+        connect(m_temporaryTerminalAspect, &TerminalAspect::useTerminalChanged,
+                this, &CustomExecutableConfigurationWidget::validChanged);
+    }
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -95,16 +104,12 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
                 this, SLOT(argumentsEdited(QString)));
         connect(m_workingDirectory, SIGNAL(changed(QString)),
                 this, SLOT(workingDirectoryEdited()));
-        connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
-                this, SLOT(termToggled(bool)));
     } else {
         connect(m_executableChooser, SIGNAL(changed(QString)),
                 this, SIGNAL(validChanged()));
         connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
                 this, SIGNAL(validChanged()));
         connect(m_workingDirectory, SIGNAL(changed(QString)),
-                this, SIGNAL(validChanged()));
-        connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
                 this, SIGNAL(validChanged()));
     }
 
@@ -121,6 +126,11 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
         connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_runConfiguration->macroExpander());
+}
+
+CustomExecutableConfigurationWidget::~CustomExecutableConfigurationWidget()
+{
+    delete m_temporaryTerminalAspect;
 }
 
 void CustomExecutableConfigurationWidget::environmentWasChanged()
@@ -151,14 +161,6 @@ void CustomExecutableConfigurationWidget::workingDirectoryEdited()
     m_ignoreChange = false;
 }
 
-void CustomExecutableConfigurationWidget::termToggled(bool on)
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setRunMode(on ? ProjectExplorer::ApplicationLauncher::Console
-                                      : ProjectExplorer::ApplicationLauncher::Gui);
-    m_ignoreChange = false;
-}
-
 void CustomExecutableConfigurationWidget::changed()
 {
     // We triggered the change, don't update us
@@ -168,8 +170,6 @@ void CustomExecutableConfigurationWidget::changed()
     m_executableChooser->setPath(m_runConfiguration->rawExecutable());
     m_commandLineArgumentsLineEdit->setText(m_runConfiguration->rawCommandLineArguments());
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
-    m_useTerminalCheck->setChecked(m_runConfiguration->runMode()
-                                   == ProjectExplorer::ApplicationLauncher::Console);
 }
 
 void CustomExecutableConfigurationWidget::apply()
@@ -178,8 +178,7 @@ void CustomExecutableConfigurationWidget::apply()
     m_runConfiguration->setExecutable(m_executableChooser->rawPath());
     m_runConfiguration->setCommandLineArguments(m_commandLineArgumentsLineEdit->text());
     m_runConfiguration->setBaseWorkingDirectory(m_workingDirectory->rawPath());
-    m_runConfiguration->setRunMode(m_useTerminalCheck->isChecked() ? ProjectExplorer::ApplicationLauncher::Console
-                                                                   : ProjectExplorer::ApplicationLauncher::Gui);
+    m_runConfiguration->setRunMode(m_temporaryTerminalAspect->runMode());
     m_ignoreChange = false;
 }
 

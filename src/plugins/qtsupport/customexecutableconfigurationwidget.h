@@ -46,6 +46,10 @@ class DetailsWidget;
 class PathChooser;
 }
 
+namespace ProjectExplorer {
+class TerminalAspect;
+}
+
 namespace QtSupport {
 class CustomExecutableRunConfiguration;
 
@@ -58,6 +62,8 @@ class CustomExecutableConfigurationWidget : public QWidget
 public:
     enum ApplyMode { InstantApply, DelayedApply};
     CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc, ApplyMode mode);
+    ~CustomExecutableConfigurationWidget();
+
     void apply(); // only used for DelayedApply
 
     bool isValid() const;
@@ -70,16 +76,15 @@ private slots:
     void executableEdited();
     void argumentsEdited(const QString &arguments);
     void workingDirectoryEdited();
-    void termToggled(bool);
     void environmentWasChanged();
 
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
+    ProjectExplorer::TerminalAspect *m_temporaryTerminalAspect;
     Utils::PathChooser *m_executableChooser;
     QLineEdit *m_commandLineArgumentsLineEdit;
     Utils::PathChooser *m_workingDirectory;
-    QCheckBox *m_useTerminalCheck;
     Utils::DetailsWidget *m_detailsContainer;
 };
 

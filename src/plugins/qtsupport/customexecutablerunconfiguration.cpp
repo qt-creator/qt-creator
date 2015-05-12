@@ -35,6 +35,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
 
@@ -61,7 +62,6 @@ const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfigur
 const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Executable";
 const char ARGUMENTS_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Arguments";
 const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
-const char USE_TERMINAL_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal";
 }
 
 void CustomExecutableRunConfiguration::ctor()
@@ -72,10 +72,10 @@ void CustomExecutableRunConfiguration::ctor()
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
     LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(Constants::DEFAULT_WORKING_DIR)),
-    m_runMode(ProjectExplorer::ApplicationLauncher::Gui),
     m_dialog(0)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new TerminalAspect(this, QStringLiteral("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal")));
 
     if (!parent->activeBuildConfiguration())
         m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR_ALTERNATE);
@@ -88,7 +88,6 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
-    m_runMode(source->m_runMode),
     m_dialog(0)
 {
     ctor();
@@ -246,7 +245,7 @@ bool CustomExecutableRunConfiguration::isConfigured() const
 
 ApplicationLauncher::Mode CustomExecutableRunConfiguration::runMode() const
 {
-    return m_runMode;
+    return extraAspect<TerminalAspect>()->runMode();
 }
 
 QString CustomExecutableRunConfiguration::workingDirectory() const
@@ -287,8 +286,6 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
     map.insert(QLatin1String(EXECUTABLE_KEY), m_executable);
     map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
-    map.insert(QLatin1String(USE_TERMINAL_KEY),
-               m_runMode == ProjectExplorer::ApplicationLauncher::Console);
     return map;
 }
 
@@ -297,9 +294,6 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_executable = map.value(QLatin1String(EXECUTABLE_KEY)).toString();
     m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool()
-            ? ProjectExplorer::ApplicationLauncher::Console
-            : ProjectExplorer::ApplicationLauncher::Gui;
 
     setDefaultDisplayName(defaultDisplayName());
     return LocalApplicationRunConfiguration::fromMap(map);
@@ -328,7 +322,7 @@ void CustomExecutableRunConfiguration::setBaseWorkingDirectory(const QString &wo
 
 void CustomExecutableRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
-    m_runMode = runMode;
+    extraAspect<TerminalAspect>()->setRunMode(runMode);
     emit changed();
 }
 

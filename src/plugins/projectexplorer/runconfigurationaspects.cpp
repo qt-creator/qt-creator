@@ -80,7 +80,8 @@ void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *
     layout->addRow(QString(), m_checkBox);
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
-        setUseTerminal(true);
+        m_useTerminal = m_checkBox->isChecked();
+        emit useTerminalChanged(m_useTerminal);
     });
 }
 
@@ -121,6 +122,8 @@ ApplicationLauncher::Mode TerminalAspect::runMode() const
 void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
 {
     setUseTerminal(runMode == ApplicationLauncher::Console);
+    if (m_checkBox)
+        m_checkBox->setChecked(m_useTerminal);
 }
 
 /*!
