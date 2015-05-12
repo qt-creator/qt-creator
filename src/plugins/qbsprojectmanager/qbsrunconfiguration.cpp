@@ -70,7 +70,6 @@ namespace QbsProjectManager {
 namespace Internal {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
-const char USE_TERMINAL_KEY[] = "Qbs.RunConfiguration.UseTerminal";
 
 static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
 
@@ -113,7 +112,6 @@ const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &u
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
     m_uniqueProductName(uniqueProductNameFromId(id)),
-    m_runMode(ApplicationLauncher::Gui),
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
 {
@@ -121,8 +119,9 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
     addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
 
-    m_runModeForced = false;
-    m_runMode = isConsoleApplication() ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
+    addExtraAspect(new TerminalAspect(this,
+                                      QStringLiteral("Qbs.RunConfiguration.UseTerminal"),
+                                      isConsoleApplication()));
 
     ctor();
 }
@@ -130,8 +129,6 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
     m_uniqueProductName(source->m_uniqueProductName),
-    m_runMode(source->m_runMode),
-    m_runModeForced(source->m_runModeForced),
     m_currentInstallStep(0), // no need to copy this, we will get if from the DC anyway.
     m_currentBuildStepList(0) // ditto
 {
@@ -162,9 +159,9 @@ void QbsRunConfiguration::ctor()
     QbsProject *project = static_cast<QbsProject *>(target()->project());
     connect(project, &QbsProject::projectParsingStarted, this, &RunConfiguration::enabledChanged);
     connect(project, &QbsProject::projectParsingDone, this, [this](bool success) {
-        if (success && !m_runModeForced)
-            m_runMode = isConsoleApplication() ? ApplicationLauncher::Console
-                                               : ApplicationLauncher::Gui;
+        auto terminalAspect = extraAspect<TerminalAspect>();
+        if (success && !terminalAspect->isUserSet())
+            terminalAspect->setUseTerminal(isConsoleApplication());
         emit enabledChanged();
     });
 
@@ -176,25 +173,6 @@ void QbsRunConfiguration::ctor()
 QWidget *QbsRunConfiguration::createConfigurationWidget()
 {
     return new QbsRunConfigurationWidget(this, 0);
-}
-
-QVariantMap QbsRunConfiguration::toMap() const
-{
-    QVariantMap map(LocalApplicationRunConfiguration::toMap());
-    if (m_runModeForced)
-        map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
-    return map;
-}
-
-bool QbsRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (map.contains(QLatin1String(USE_TERMINAL_KEY))) {
-        m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ?
-                    ApplicationLauncher::Console : ApplicationLauncher::Gui;
-        m_runModeForced = true;
-    }
-
-    return RunConfiguration::fromMap(map);
 }
 
 void QbsRunConfiguration::installStepChanged()
@@ -249,7 +227,7 @@ QString QbsRunConfiguration::executable() const
 
 ApplicationLauncher::Mode QbsRunConfiguration::runMode() const
 {
-    return m_runMode;
+    return extraAspect<TerminalAspect>()->runMode();
 }
 
 bool QbsRunConfiguration::isConsoleApplication() const
@@ -301,12 +279,7 @@ void QbsRunConfiguration::setBaseWorkingDirectory(const QString &wd)
 
 void QbsRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
-    if (m_runMode == runMode)
-        return;
-
-    m_runModeForced = true;
-    m_runMode = runMode;
-    emit runModeChanged(runMode);
+    extraAspect<TerminalAspect>()->setRunMode(runMode);
 }
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
@@ -406,20 +379,10 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     m_rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    QHBoxLayout *innerBox = new QHBoxLayout();
-    m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
-    innerBox->addWidget(m_useTerminalCheck);
-
-    innerBox->addStretch();
-    toplayout->addRow(QString(), innerBox);
+    m_rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
     runConfigurationEnabledChange();
 
-    connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
-            this, SLOT(termToggled(bool)));
-
-    connect(m_rc, SIGNAL(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)),
-            this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(m_rc, SIGNAL(targetInformationChanged()),
             this, SLOT(targetInformationHasChanged()), Qt::QueuedConnection);
 
@@ -434,15 +397,7 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_rc->disabledReason());
 
-    m_useTerminalCheck->setChecked(m_rc->runMode() == ApplicationLauncher::Console);
     targetInformationHasChanged();
-}
-
-void QbsRunConfigurationWidget::termToggled(bool on)
-{
-    m_ignoreChange = true;
-    m_rc->setRunMode(on ? ApplicationLauncher::Console : ApplicationLauncher::Gui);
-    m_ignoreChange = false;
 }
 
 void QbsRunConfigurationWidget::targetInformationHasChanged()
@@ -460,12 +415,6 @@ void QbsRunConfigurationWidget::setExecutableLineText(const QString &text)
 {
     const QString newText = text.isEmpty() ? tr("<unknown>") : text;
     m_executableLineLabel->setText(newText);
-}
-
-void QbsRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
-{
-    if (!m_ignoreChange)
-        m_useTerminalCheck->setChecked(runMode == ApplicationLauncher::Console);
 }
 
 // --------------------------------------------------------------------

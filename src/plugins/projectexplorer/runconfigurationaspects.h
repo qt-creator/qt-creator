@@ -65,6 +65,8 @@ public:
     ApplicationLauncher::Mode runMode() const;
     void setRunMode(ApplicationLauncher::Mode runMode);
 
+    bool isUserSet() const;
+
 signals:
     void useTerminalChanged(bool);
 

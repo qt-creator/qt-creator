@@ -112,6 +112,13 @@ void TerminalAspect::setUseTerminal(bool useTerminal)
         m_useTerminal = useTerminal;
         emit useTerminalChanged(useTerminal);
     }
+    if (m_checkBox)
+        m_checkBox->setChecked(m_useTerminal);
+}
+
+bool TerminalAspect::isUserSet() const
+{
+    return m_userSet;
 }
 
 ApplicationLauncher::Mode TerminalAspect::runMode() const
@@ -122,8 +129,6 @@ ApplicationLauncher::Mode TerminalAspect::runMode() const
 void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
 {
     setUseTerminal(runMode == ApplicationLauncher::Console);
-    if (m_checkBox)
-        m_checkBox->setChecked(m_useTerminal);
 }
 
 /*!

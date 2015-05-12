@@ -82,8 +82,6 @@ public:
     QString workingDirectory() const;
     QString commandLineArguments() const;
 
-    QVariantMap toMap() const;
-
     Utils::OutputFormatter *createOutputFormatter() const;
 
     void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
@@ -95,13 +93,11 @@ public:
 
 signals:
     void baseWorkingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
 protected:
     QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRunConfiguration *source);
-    bool fromMap(const QVariantMap &map);
 
 private slots:
     void installStepChanged();
@@ -121,8 +117,6 @@ private:
     QString m_uniqueProductName;
 
     // Cached startup sub project information
-    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
-    bool m_runModeForced;
 
     QbsInstallStep *m_currentInstallStep; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList; // We do not take ownership!
@@ -137,11 +131,6 @@ public:
 
 private slots:
     void runConfigurationEnabledChange();
-    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
-
-    void termToggled(bool);
-
-private slots:
     void targetInformationHasChanged();
 
 private:
@@ -152,7 +141,6 @@ private:
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
     QLabel *m_executableLineLabel;
-    QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
     QLineEdit *m_qmlDebugPort;
     Utils::DetailsWidget *m_detailsContainer;
