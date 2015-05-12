@@ -37,7 +37,6 @@
 #include "revertdialog.h"
 #include "srcdestdialog.h"
 #include "commiteditor.h"
-#include "clonewizard.h"
 #include "mercurialsettings.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -152,16 +151,6 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
         []() { return new CommitEditor(&submitEditorParameters); }));
-
-    auto cloneWizardFactory = new BaseCheckoutWizardFactory;
-    cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL));
-    cloneWizardFactory->setIcon(QIcon(QLatin1String(":/mercurial/images/hg.png")));
-    cloneWizardFactory->setDescription(tr("Clones a Mercurial repository and tries to load the contained project."));
-    cloneWizardFactory->setDisplayName(tr("Mercurial Clone"));
-    cloneWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
-        return new CloneWizard(path, parent);
-    });
-    addAutoReleasedObject(cloneWizardFactory);
 
     const QString prefix = QLatin1String("hg");
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix);

@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/mercurial" >
-        <file>images/hg.png</file>
-    </qresource>
-</RCC>
