@@ -737,14 +737,15 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         p = pp;
     }
 
-    bool showExpressionActions = (canHandleWatches || state == DebuggerNotReady) && m_type == WatchersType;
+    bool canRemoveWatches = ((canHandleWatches && canInsertWatches) || state == DebuggerNotReady)
+                             && m_type == WatchersType;
 
     QString removeExp = p.data(LocalsExpressionRole).toString();
     QAction actRemoveWatchExpression(removeWatchActionText(removeExp), 0);
-    actRemoveWatchExpression.setEnabled(showExpressionActions && !exp.isEmpty());
+    actRemoveWatchExpression.setEnabled(canRemoveWatches && !exp.isEmpty());
 
     QAction actRemoveAllWatchExpression(tr("Remove All Expression Evaluators"), 0);
-    actRemoveAllWatchExpression.setEnabled(showExpressionActions
+    actRemoveAllWatchExpression.setEnabled(canRemoveWatches
                                            && !handler->watchedExpressions().isEmpty());
 
     QMenu formatMenu(tr("Change Local Display Format..."));
