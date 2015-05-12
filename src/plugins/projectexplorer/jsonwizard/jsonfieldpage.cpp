@@ -55,6 +55,7 @@ using namespace Utils;
 
 const char NAME_KEY[] = "name";
 const char DISPLAY_NAME_KEY[] = "trDisplayName";
+const char TOOLTIP_KEY[] = "trToolTip";
 const char MANDATORY_KEY[] = "mandatory";
 const char VISIBLE_KEY[] = "visible";
 const char ENABLED_KEY[] = "enabled";
@@ -162,6 +163,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
         return 0;
     }
     data->name = name;
+    data->toolTip = tmp.value(QLatin1String(TOOLTIP_KEY)).toString();
 
     data->m_visibleExpression = tmp.value(QLatin1String(VISIBLE_KEY), true);
     data->m_enabledExpression = tmp.value(QLatin1String(ENABLED_KEY), true);
@@ -204,6 +206,8 @@ void JsonFieldPage::Field::adjustState(MacroExpander *expander)
 {
     setVisible(JsonWizard::boolFromVariant(m_visibleExpression, expander));
     setEnabled(JsonWizard::boolFromVariant(m_enabledExpression, expander));
+    QTC_ASSERT(m_widget, return);
+    m_widget->setToolTip(expander->expand(toolTip));
 }
 
 bool JsonFieldPage::Field::validate(MacroExpander *expander, QString *message)

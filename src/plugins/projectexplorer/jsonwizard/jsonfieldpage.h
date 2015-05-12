@@ -80,6 +80,7 @@ public:
 
         QString name;
         QString displayName;
+        QString toolTip;
         bool mandatory;
         bool span;
 
