@@ -32,6 +32,7 @@
 #define RUNCONFIGURATION_ASPECTS_H
 
 #include "runconfiguration.h"
+#include "applicationlauncher.h"
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -60,6 +61,9 @@ public:
 
     bool useTerminal() const;
     void setUseTerminal(bool useTerminal);
+
+    ApplicationLauncher::Mode runMode() const;
+    void setRunMode(ApplicationLauncher::Mode runMode);
 
 signals:
     void useTerminalChanged(bool);
