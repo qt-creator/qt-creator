@@ -1,33 +1,34 @@
-import QtQuick 2.4
-import QtQuick.Controls 1.3
-import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.2
+import QtQuick %{QtQuickVersion}
+import QtQuick.Controls %{QtQuickControlsVersion}
+@if %{QmlUISplit}
+import QtQuick.Dialogs %{QtQuickDialogsVersion}
+@endif
 
 ApplicationWindow {
-    title: qsTr("Hello World")
+    visible: true
     width: 640
     height: 480
-    visible: true
+    title: qsTr("Hello World")
 
     menuBar: MenuBar {
         Menu {
-            title: qsTr("&File")
+            title: qsTr("File")
             MenuItem {
                 text: qsTr("&Open")
-                onTriggered: messageDialog.show(qsTr("Open action triggered"));
+                onTriggered: console.log("Open action triggered");
             }
             MenuItem {
-                text: qsTr("E&xit")
+                text: qsTr("Exit")
                 onTriggered: Qt.quit();
             }
         }
     }
 
+@if %{QmlUISplit}
     MainForm {
         anchors.fill: parent
         button1.onClicked: messageDialog.show(qsTr("Button 1 pressed"))
         button2.onClicked: messageDialog.show(qsTr("Button 2 pressed"))
-        button3.onClicked: messageDialog.show(qsTr("Button 3 pressed"))
     }
 
     MessageDialog {
@@ -39,4 +40,10 @@ ApplicationWindow {
             messageDialog.open();
         }
     }
+@else
+    Label {
+        text: qsTr("Hello World")
+        anchors.centerIn: parent
+    }
+@endif
 }

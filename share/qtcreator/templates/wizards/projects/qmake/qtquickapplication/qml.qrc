@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+@if %{QmlUISplit}
+        <file>MainForm.ui.qml</file>
+@endif
     </qresource>
 </RCC>

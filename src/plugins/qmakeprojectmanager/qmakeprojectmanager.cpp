@@ -38,7 +38,6 @@
 #include "qmakestep.h"
 #include "qmakebuildconfiguration.h"
 #include "addlibrarywizard.h"
-#include "wizards/qtquickapp.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>

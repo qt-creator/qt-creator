@@ -38,8 +38,6 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakebuildconfiguration.h"
 #include "findqmakeprofiles.h"
-#include "wizards/abstractmobileapp.h"
-#include "wizards/qtquickapp.h"
 
 #include <utils/algorithm.h>
 #include <coreplugin/icontext.h>

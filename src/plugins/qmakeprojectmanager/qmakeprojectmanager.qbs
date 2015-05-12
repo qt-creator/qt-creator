@@ -85,8 +85,6 @@ QtcPlugin {
         name: "Wizards"
         prefix: "wizards/"
         files: [
-            "abstractmobileapp.cpp", "abstractmobileapp.h",
-            "abstractmobileappwizard.cpp", "abstractmobileappwizard.h",
             "consoleappwizard.cpp", "consoleappwizard.h",
             "consoleappwizarddialog.cpp", "consoleappwizarddialog.h",
             "filespage.cpp", "filespage.h",
@@ -97,9 +95,6 @@ QtcPlugin {
             "librarywizarddialog.cpp", "librarywizarddialog.h",
             "modulespage.cpp", "modulespage.h",
             "qtprojectparameters.cpp", "qtprojectparameters.h",
-            "qtquickapp.cpp", "qtquickapp.h",
-            "qtquickappwizard.cpp", "qtquickappwizard.h",
-            "qtquickappwizardpages.cpp", "qtquickappwizardpages.h",
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",

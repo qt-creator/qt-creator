@@ -1,6 +1,5 @@
-#include <QApplication>
-#include <QQmlApplicationEngine>
-
+%{Cpp:LicenseTemplate}\
+%{JS: QtSupport.qtIncludes([], ["QWidgets/QApplication", "QQml/QQmlApplicationEngine"])}
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);

@@ -1,8 +1,9 @@
 TEMPLATE = app
 
-QT += qml quick widgets
+QT += qml quick
+CONFIG += c++11
 
-SOURCES += main.cpp
+SOURCES += %{MainCppFileName}
 
 RESOURCES += qml.qrc
 
@@ -10,4 +11,4 @@ RESOURCES += qml.qrc
 QML_IMPORT_PATH =
 
 # Default rules for deployment.
-include(../../shared/qrcdeployment.pri)
+include(deployment.pri)

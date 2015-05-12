@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick %{QtQuickVersion}
 
 Rectangle {
     property alias mouseArea: mouseArea

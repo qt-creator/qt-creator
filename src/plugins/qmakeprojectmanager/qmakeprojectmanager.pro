@@ -31,11 +31,6 @@ HEADERS += \
     wizards/modulespage.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
-    wizards/qtquickapp.h \
-    wizards/qtquickappwizard.h \
-    wizards/qtquickappwizardpages.h \
-    wizards/abstractmobileapp.h \
-    wizards/abstractmobileappwizard.h \
     wizards/subdirsprojectwizard.h \
     wizards/subdirsprojectwizarddialog.h \
     qmakeprojectmanagerconstants.h \
@@ -80,11 +75,6 @@ SOURCES += \
     wizards/modulespage.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \
-    wizards/qtquickapp.cpp \
-    wizards/qtquickappwizard.cpp \
-    wizards/qtquickappwizardpages.cpp \
-    wizards/abstractmobileapp.cpp \
-    wizards/abstractmobileappwizard.cpp \
     wizards/subdirsprojectwizard.cpp \
     wizards/subdirsprojectwizarddialog.cpp \
     makestep.cpp \
