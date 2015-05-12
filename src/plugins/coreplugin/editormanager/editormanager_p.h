@@ -111,6 +111,10 @@ public:
     static bool autoSaveEnabled();
     static void setAutoSaveInterval(int interval);
     static int autoSaveInterval();
+    static void setWarnBeforeOpeningBigFilesEnabled(bool enabled);
+    static bool warnBeforeOpeningBigFilesEnabled();
+    static void setBigFileSizeLimit(int limitInMB);
+    static int bigFileSizeLimit();
 
     static void splitNewWindow(Internal::EditorView *view);
     static void closeView(Internal::EditorView *view);
@@ -188,6 +192,7 @@ private:
     static void setupSaveActions(IDocument *document, QAction *saveAction,
                                  QAction *saveAsAction, QAction *revertToSavedAction);
     static void updateWindowTitle();
+    static bool skipOpeningBigTextFile(const QString &filePath);
 
 private:
     explicit EditorManagerPrivate(QObject *parent);
@@ -250,6 +255,9 @@ private:
 
     bool m_autoSaveEnabled;
     int m_autoSaveInterval;
+
+    bool m_warnBeforeOpeningBigFilesEnabled;
+    int m_bigFileSizeLimitInMB;
 
     QString m_placeholderText;
 };

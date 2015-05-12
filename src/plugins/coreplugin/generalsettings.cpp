@@ -144,8 +144,10 @@ QWidget *GeneralSettings::widget()
         m_page->patchChooser->setPath(PatchTool::patchCommand());
         m_page->autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
         m_page->autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
-        m_page->resetWarningsButton->setEnabled(InfoBar::anyGloballySuppressed()
-                                                || CheckableMessageBox::hasSuppressedQuestions(ICore::settings()));
+        m_page->warnBeforeOpeningBigFiles->setChecked(
+                    EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled());
+        m_page->bigFilesLimitSpinBox->setValue(EditorManagerPrivate::bigFileSizeLimit());
+        m_page->resetWarningsButton->setEnabled(canResetWarnings());
 
         connect(m_page->resetColorButton, SIGNAL(clicked()),
                 this, SLOT(resetInterfaceColor()));
@@ -188,6 +190,9 @@ void GeneralSettings::apply()
     PatchTool::setPatchCommand(m_page->patchChooser->path());
     EditorManagerPrivate::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
     EditorManagerPrivate::setAutoSaveInterval(m_page->autoSaveInterval->value());
+    EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(
+                m_page->warnBeforeOpeningBigFiles->isChecked());
+    EditorManagerPrivate::setBigFileSizeLimit(m_page->bigFilesLimitSpinBox->value());
     m_page->themeWidget->apply();
 }
 
@@ -207,6 +212,7 @@ void GeneralSettings::resetWarnings()
 {
     InfoBar::clearGloballySuppressed();
     CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
+    m_page->warnBeforeOpeningBigFiles->setChecked(true);
     m_page->resetWarningsButton->setEnabled(false);
 }
 
@@ -228,6 +234,13 @@ void GeneralSettings::updatePath()
     QStringList toAdd = VcsManager::additionalToolsPath();
     env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
     m_page->patchChooser->setEnvironment(env);
+}
+
+bool GeneralSettings::canResetWarnings() const
+{
+    return InfoBar::anyGloballySuppressed()
+        || CheckableMessageBox::hasSuppressedQuestions(ICore::settings())
+        || !EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled();
 }
 
 void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
