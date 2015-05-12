@@ -407,8 +407,7 @@ void tst_CodeSize::codesize_data()
         "#include <QMap>\n"
         "#include <QString>\n"
         "#include <QString>\n"
-        "using namespace Qt;\n"
-        "const QMap<QString, int> &vimKeyNames() {\n";
+        "using namespace Qt;\n";
 
     QByteArray mapInitData =
         "        X(\"SPACE\", Key_Space)\n"
@@ -433,26 +432,50 @@ void tst_CodeSize::codesize_data()
         "        X(\"LEFT\", Key_Left)\n"
         "        Y(\"RIGHT\", Key_Right)\n";
 
-    c.file = "init_list_qlatin1string";
-    c.gist = "init_list_qlatin1string";
+    c.file = "init_list_std_map_qlatin1string";
+    c.gist = "init_list_std_map_qlatin1string";
     c.code = mapInitPrefix +
         "#define X(a, b) { QLatin1String(a), b },\n"
         "#define Y(a, b) { QLatin1String(a), b }\n"
+        "const std::map<QString, int> &vimKeyNames() {\n"
+        "    static const std::map<QString, int> k = {\n" + mapInitData + "};\n"
+        "    return k;\n"
+        "}";
+    s.cases.append(c); // Result: 1116 bytes gcc 4.9.1 x86_64
+
+    c.file = "init_list_qmap_qlatin1string";
+    c.gist = "init_list_qmap_qlatin1string";
+    c.code = mapInitPrefix +
+        "#define X(a, b) { QLatin1String(a), b },\n"
+        "#define Y(a, b) { QLatin1String(a), b }\n"
+        "const QMap<QString, int> &vimKeyNames() {\n"
         "    static const QMap<QString, int> k = {\n" + mapInitData + "};\n"
         "    return k;\n"
         "}";
-    s.cases.append(c);
+    s.cases.append(c); // Result: 2953 bytes
 
-    c.file = "init_list_insert";
-    c.gist = "init_list_insert";
+    c.file = "init_list_qmap_qstringliteral";
+    c.gist = "init_list_qmap_qstringliteral";
+    c.code = mapInitPrefix +
+        "#define X(a, b) { QStringLiteral(a), b },\n"
+        "#define Y(a, b) { QStringLiteral(a), b }\n"
+        "const QMap<QString, int> &vimKeyNames() {\n"
+        "    static const QMap<QString, int> k = {\n" + mapInitData + "};\n"
+        "    return k;\n"
+        "}";
+    s.cases.append(c); // Result: 1286 bytes
+
+    c.file = "init_list_qmap_insert";
+    c.gist = "init_list_qmap_insert";
     c.code = mapInitPrefix +
         "#define X(a, b) k.insert(QLatin1String(a), b);\n"
         "#define Y(a, b) k.insert(QLatin1String(a), b);\n"
+        "const QMap<QString, int> &vimKeyNames() {\n"
         "    static QMap<QString, int> k;\n"
         "    if (k.isEmpty()) {\n" + mapInitData + "\n}\n"
         "    return k;\n"
         "}";
-    s.cases.append(c);
+    s.cases.append(c); // Result: 7412 bytes
 
     QTest::newRow("map_init") << s;
     s.clear();
