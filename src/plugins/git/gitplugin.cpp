@@ -39,7 +39,6 @@
 #include "gitversioncontrol.h"
 #include "branchdialog.h"
 #include "remotedialog.h"
-#include "clonewizard.h"
 #include "stashdialog.h"
 #include "settingspage.h"
 #include "logchangedialog.h"
@@ -86,7 +85,6 @@
 #include <QScopedPointer>
 
 #ifdef WITH_TESTS
-#include "clonewizardpage.h"
 #include <QTest>
 #endif
 
@@ -289,16 +287,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new GitSubmitEditor(&submitParameters); }));
-
-    auto cloneWizardFactory = new BaseCheckoutWizardFactory;
-    cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
-    cloneWizardFactory->setIcon(QIcon(QLatin1String(":/git/images/git.png")));
-    cloneWizardFactory->setDescription(tr("Clones a Git repository and tries to load the contained project."));
-    cloneWizardFactory->setDisplayName(tr("Git Repository Clone"));
-    cloneWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
-        return new CloneWizard(path, parent);
-    });
-    addAutoReleasedObject(cloneWizardFactory);
 
     const QString prefix = QLatin1String("git");
     m_commandLocator = new CommandLocator("Git", prefix, prefix);
@@ -1539,27 +1527,6 @@ void GitPlugin::testLogResolving()
     VcsBaseEditorWidget::testLogResolving(editorParameters[1].id, data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");
-}
-
-void GitPlugin::testCloneWizard_directoryFromRepository()
-{
-    CloneWizardPage page;
-    page.testDirectoryFromRepository();
-}
-
-void GitPlugin::testCloneWizard_directoryFromRepository_data()
-{
-    QTest::addColumn<QString>("repository");
-    QTest::addColumn<QString>("localDirectory");
-
-    QTest::newRow("http") << "http://host/qt/qt.git" << "qt";
-    QTest::newRow("without slash") << "user@host:qt.git" << "qt";
-    QTest::newRow("mainline.git") << "git://gitorious.org/gitorious/mainline.git" << "gitorious";
-    QTest::newRow("local repo (Unix)") << "/home/user/qt-creator.git" << "qt-creator";
-    QTest::newRow("local repo (Windows)") << "c:\\repos\\qt-creator.git" << "qt-creator";
-    QTest::newRow("ssh with port") << "ssh://host:29418/qt/qt.git" << "qt";
-    QTest::newRow("invalid chars removed") << "ssh://host/in%va$lid.git" << "in-va-lid";
-    QTest::newRow("leading dashs removed") << "https://gerrit.local/--leadingDash" << "leadingDash";
 }
 #endif
 

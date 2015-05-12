@@ -20,9 +20,6 @@ HEADERS += vcsbase_global.h \
     commonvcssettings.h \
     commonsettingspage.h \
     nicknamedialog.h \
-    basecheckoutwizardfactory.h \
-    basecheckoutwizard.h \
-    basecheckoutwizardpage.h \
     vcsoutputwindow.h \
     cleandialog.h \
     vcsbaseoptionspage.h \
@@ -51,9 +48,6 @@ SOURCES += vcsplugin.cpp \
     commonvcssettings.cpp \
     commonsettingspage.cpp \
     nicknamedialog.cpp \
-    basecheckoutwizardfactory.cpp \
-    basecheckoutwizard.cpp \
-    basecheckoutwizardpage.cpp \
     vcsoutputwindow.cpp \
     cleandialog.cpp \
     vcsbaseoptionspage.cpp \
@@ -68,6 +62,5 @@ RESOURCES += vcsbase.qrc
 
 FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
-    basecheckoutwizardpage.ui \
     cleandialog.ui \
     submiteditorwidget.ui

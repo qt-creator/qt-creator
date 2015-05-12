@@ -16,13 +16,6 @@ QtcPlugin {
     files: [
         "baseannotationhighlighter.cpp",
         "baseannotationhighlighter.h",
-        "basecheckoutwizard.cpp",
-        "basecheckoutwizard.h",
-        "basecheckoutwizardfactory.cpp",
-        "basecheckoutwizardfactory.h",
-        "basecheckoutwizardpage.cpp",
-        "basecheckoutwizardpage.h",
-        "basecheckoutwizardpage.ui",
         "basevcseditorfactory.cpp",
         "basevcseditorfactory.h",
         "basevcssubmiteditorfactory.cpp",
