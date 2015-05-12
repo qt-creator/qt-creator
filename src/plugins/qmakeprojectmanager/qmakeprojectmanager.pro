@@ -19,8 +19,6 @@ HEADERS += \
     profilehoverhandler.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
-    wizards/consoleappwizard.h \
-    wizards/consoleappwizarddialog.h \
     wizards/libraryparameters.h \
     wizards/librarywizard.h \
     wizards/librarywizarddialog.h \
@@ -63,8 +61,6 @@ SOURCES += \
     profilehoverhandler.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
-    wizards/consoleappwizard.cpp \
-    wizards/consoleappwizarddialog.cpp \
     wizards/libraryparameters.cpp \
     wizards/librarywizard.cpp \
     wizards/librarywizarddialog.cpp \

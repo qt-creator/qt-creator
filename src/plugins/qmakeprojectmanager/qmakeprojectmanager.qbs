@@ -85,8 +85,6 @@ QtcPlugin {
         name: "Wizards"
         prefix: "wizards/"
         files: [
-            "consoleappwizard.cpp", "consoleappwizard.h",
-            "consoleappwizarddialog.cpp", "consoleappwizarddialog.h",
             "filespage.cpp", "filespage.h",
             "guiappwizard.cpp", "guiappwizard.h",
             "guiappwizarddialog.cpp", "guiappwizarddialog.h",
