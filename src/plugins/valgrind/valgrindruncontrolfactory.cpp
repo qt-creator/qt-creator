@@ -124,15 +124,14 @@ public:
         resetProjectToGlobalSettings();
     }
 
-    IRunConfigurationAspect *create(RunConfiguration *parent) const
+    ValgrindRunConfigurationAspect *create(RunConfiguration *parent) const override
     {
         return new ValgrindRunConfigurationAspect(parent);
     }
 
-    RunConfigWidget *createConfigurationWidget()
+    RunConfigWidget *createConfigurationWidget() override
     {
         return new AnalyzerRunConfigWidget(this);
-
     }
 };
 
