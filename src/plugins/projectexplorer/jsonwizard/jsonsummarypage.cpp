@@ -197,7 +197,7 @@ void JsonSummaryPage::projectNodeHasChanged()
 void JsonSummaryPage::versionControlHasChanged()
 {
     IVersionControl *vc = currentVersionControl();
-    m_wizard->setProperty("VersionControl", vc ? vc->id().toString() : QString());
+    m_wizard->setProperty("VersionControl", vc ? vc->id().toString() : QLatin1String(""));
 
     updateFileList();
 }
