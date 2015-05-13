@@ -50,7 +50,7 @@
                 {
                     "source": "../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
-                    "condition": "%{JS: '%{VersionControl}%{IsSubproject}' === 'G.Git'}"
+                    "condition": "%{JS: %{IsTopLevelProject} && '%{VersionControl}' === 'G.Git'}"
                 }
             ]
         }
