@@ -975,16 +975,6 @@ void EditorManagerPrivate::readSettings()
     updateAutoSave();
 }
 
-void EditorManagerPrivate::setReloadSetting(IDocument::ReloadSetting behavior)
-{
-    d->m_reloadSetting = behavior;
-}
-
-IDocument::ReloadSetting EditorManagerPrivate::reloadSetting()
-{
-    return d->m_reloadSetting;
-}
-
 void EditorManagerPrivate::setAutoSaveEnabled(bool enabled)
 {
     d->m_autoSaveEnabled = enabled;
@@ -2174,6 +2164,16 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
         }
     }
     menu->setEnabled(anyMatches);
+}
+
+IDocument::ReloadSetting EditorManager::reloadSetting()
+{
+    return d->m_reloadSetting;
+}
+
+void EditorManager::setReloadSetting(IDocument::ReloadSetting behavior)
+{
+     d->m_reloadSetting = behavior;
 }
 
 void EditorManager::saveDocument()

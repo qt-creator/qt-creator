@@ -915,7 +915,7 @@ void DocumentManager::checkForReload()
 
     d->m_blockActivated = true;
 
-    IDocument::ReloadSetting defaultBehavior = EditorManagerPrivate::reloadSetting();
+    IDocument::ReloadSetting defaultBehavior = EditorManager::reloadSetting();
     ReloadPromptAnswer previousReloadAnswer = ReloadCurrent;
     FileDeletedPromptAnswer previousDeletedAnswer = FileDeletedSave;
 

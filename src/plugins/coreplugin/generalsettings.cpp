@@ -114,7 +114,7 @@ QWidget *GeneralSettings::widget()
         fillLanguageBox();
 
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
-        m_page->reloadBehavior->setCurrentIndex(EditorManagerPrivate::reloadSetting());
+        m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
             const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
             const QString currentTerminal = ConsoleProcess::terminalEmulator(ICore::settings(), false);
@@ -176,7 +176,7 @@ void GeneralSettings::apply()
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
-    EditorManagerPrivate::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
+    EditorManager::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
         ConsoleProcess::setTerminalEmulator(ICore::settings(),
                                             m_page->terminalComboBox->lineEdit()->text());

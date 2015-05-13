@@ -107,8 +107,6 @@ public:
 
     static void saveSettings();
     static void readSettings();
-    static void setReloadSetting(IDocument::ReloadSetting behavior);
-    static IDocument::ReloadSetting reloadSetting();
     static void setAutoSaveEnabled(bool enabled);
     static bool autoSaveEnabled();
     static void setAutoSaveInterval(int interval);
