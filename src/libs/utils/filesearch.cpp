@@ -83,7 +83,7 @@ bool openStream(const QString &filePath, QTextCodec *encoding, QTextStream *stre
     return true;
 }
 
-class FileSearch : public std::unary_function<FileIterator::Item, FileSearchResultList>
+class FileSearch
 {
 public:
     FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
@@ -104,7 +104,7 @@ private:
     bool wholeWord;
 };
 
-class FileSearchRegExp : public std::unary_function<FileIterator::Item, FileSearchResultList>
+class FileSearchRegExp
 {
 public:
     FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
@@ -370,8 +370,10 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    RunFileSearch search(future, searchTerm, files,
-                         FileSearch(searchTerm, flags, fileToContentsMap, &future));
+    FileSearch searchFunction(searchTerm, flags, fileToContentsMap, &future);
+    RunFileSearch search(future, searchTerm, files, std::bind(&FileSearch::operator(),
+                                                              &searchFunction,
+                                                              std::placeholders::_1));
     search.run();
 }
 
@@ -381,8 +383,10 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    RunFileSearch search(future, searchTerm, files,
-                         FileSearchRegExp(searchTerm, flags, fileToContentsMap, &future));
+    FileSearchRegExp searchFunction(searchTerm, flags, fileToContentsMap, &future);
+    RunFileSearch search(future, searchTerm, files, std::bind(&FileSearchRegExp::operator(),
+                                                              &searchFunction,
+                                                              std::placeholders::_1));
     search.run();
 }
 
