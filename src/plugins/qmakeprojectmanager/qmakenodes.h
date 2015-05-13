@@ -213,7 +213,6 @@ private:
     Utils::FileName m_projectFilePath;
     QString m_projectDir;
 
-    QMap<QString, QtSupport::UiCodeModelSupport *> m_uiCodeModelSupport;
     Internal::QmakePriFile *m_qmakePriFile;
 
     // Memory is cheap...
