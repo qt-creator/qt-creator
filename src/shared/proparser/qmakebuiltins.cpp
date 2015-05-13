@@ -211,7 +211,7 @@ static QString windowsErrorCode()
                   NULL);
     QString ret = QString::fromWCharArray(string);
     LocalFree((HLOCAL)string);
-    return ret;
+    return ret.trimmed();
 }
 #endif
 
