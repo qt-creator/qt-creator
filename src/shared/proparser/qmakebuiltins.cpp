@@ -1583,7 +1583,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                                   GENERIC_READ, FILE_SHARE_READ,
                                   NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (rHand == INVALID_HANDLE_VALUE) {
-            evalError(fL1S("Cannot open() reference file %1: %2").arg(rfn, windowsErrorCode()));
+            evalError(fL1S("Cannot open reference file %1: %2").arg(rfn, windowsErrorCode()));
             return ReturnFalse;
         }
         FILETIME ft;
@@ -1593,7 +1593,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                                   GENERIC_WRITE, FILE_SHARE_READ,
                                   NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (wHand == INVALID_HANDLE_VALUE) {
-            evalError(fL1S("Cannot open() %1: %2").arg(tfn, windowsErrorCode()));
+            evalError(fL1S("Cannot open %1: %2").arg(tfn, windowsErrorCode()));
             return ReturnFalse;
         }
         SetFileTime(wHand, 0, 0, &ft);
