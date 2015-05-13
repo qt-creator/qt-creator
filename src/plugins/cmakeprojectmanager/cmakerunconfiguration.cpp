@@ -111,11 +111,6 @@ ApplicationLauncher::Mode CMakeRunConfiguration::runMode() const
     return extraAspect<TerminalAspect>()->runMode();
 }
 
-void CMakeRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
-{
-    extraAspect<TerminalAspect>()->setRunMode(runMode);
-}
-
 QString CMakeRunConfiguration::workingDirectory() const
 {
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();

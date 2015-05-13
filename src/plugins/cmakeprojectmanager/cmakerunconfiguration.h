@@ -61,7 +61,6 @@ public:
 
     QString executable() const;
     ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
     QString workingDirectory() const;
     QString commandLineArguments() const;
     QWidget *createConfigurationWidget();
