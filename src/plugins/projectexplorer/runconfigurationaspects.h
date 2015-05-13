@@ -54,8 +54,8 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
 public:
     explicit TerminalAspect(RunConfiguration *rc, const QString &key, bool useTerminal = false, bool userSet = false);
 
-    IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
-    IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
+    TerminalAspect *create(RunConfiguration *runConfig) const override;
+    TerminalAspect *clone(RunConfiguration *runConfig) const override;
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
 
@@ -85,8 +85,8 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAs
 public:
     explicit WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key, const QString &dir = QString());
 
-    IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
-    IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
+    WorkingDirectoryAspect *create(RunConfiguration *runConfig) const override;
+    WorkingDirectoryAspect *clone(RunConfiguration *runConfig) const override;
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
 
@@ -111,8 +111,8 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
 public:
     explicit ArgumentsAspect(RunConfiguration *runConfig, const QString &key, const QString &arguments = QString());
 
-    IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
-    IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
+    ArgumentsAspect *create(RunConfiguration *runConfig) const override;
+    ArgumentsAspect *clone(RunConfiguration *runConfig) const override;
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
 
@@ -137,8 +137,8 @@ class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
 public:
     explicit ExecutableAspect(RunConfiguration *runConfig, const QString &key, const QString &executable = QString());
 
-    IRunConfigurationAspect *create(RunConfiguration *runConfig) const override;
-    IRunConfigurationAspect *clone(RunConfiguration *runConfig) const override;
+    ExecutableAspect *create(RunConfiguration *runConfig) const override;
+    ExecutableAspect *clone(RunConfiguration *runConfig) const override;
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
 

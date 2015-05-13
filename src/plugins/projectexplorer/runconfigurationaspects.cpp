@@ -62,12 +62,12 @@ TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, 
     setId("TerminalAspect");
 }
 
-IRunConfigurationAspect *TerminalAspect::create(RunConfiguration *runConfig) const
+TerminalAspect *TerminalAspect::create(RunConfiguration *runConfig) const
 {
     return new TerminalAspect(runConfig, m_key, false, false);
 }
 
-IRunConfigurationAspect *TerminalAspect::clone(RunConfiguration *runConfig) const
+TerminalAspect *TerminalAspect::clone(RunConfiguration *runConfig) const
 {
     return new TerminalAspect(runConfig, m_key, m_useTerminal, m_userSet);
 }
@@ -134,12 +134,12 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, cons
     setId("WorkingDirectoryAspect");
 }
 
-IRunConfigurationAspect *WorkingDirectoryAspect::create(RunConfiguration *runConfig) const
+WorkingDirectoryAspect *WorkingDirectoryAspect::create(RunConfiguration *runConfig) const
 {
     return new WorkingDirectoryAspect(runConfig, m_key);
 }
 
-IRunConfigurationAspect *WorkingDirectoryAspect::clone(RunConfiguration *runConfig) const
+WorkingDirectoryAspect *WorkingDirectoryAspect::clone(RunConfiguration *runConfig) const
 {
     return new WorkingDirectoryAspect(runConfig, m_key, m_workingDirectory);
 }
@@ -235,12 +235,12 @@ void ArgumentsAspect::toMap(QVariantMap &map) const
     map.insert(m_key, m_arguments);
 }
 
-IRunConfigurationAspect *ArgumentsAspect::create(RunConfiguration *runConfig) const
+ArgumentsAspect *ArgumentsAspect::create(RunConfiguration *runConfig) const
 {
     return new ArgumentsAspect(runConfig, m_key);
 }
 
-IRunConfigurationAspect *ArgumentsAspect::clone(RunConfiguration *runConfig) const
+ArgumentsAspect *ArgumentsAspect::clone(RunConfiguration *runConfig) const
 {
     return new ArgumentsAspect(runConfig, m_key, m_arguments);
 }
@@ -295,12 +295,12 @@ void ExecutableAspect::toMap(QVariantMap &map) const
     map.insert(m_key, m_executable);
 }
 
-IRunConfigurationAspect *ExecutableAspect::create(RunConfiguration *runConfig) const
+ExecutableAspect *ExecutableAspect::create(RunConfiguration *runConfig) const
 {
     return new ExecutableAspect(runConfig, m_key);
 }
 
-IRunConfigurationAspect *ExecutableAspect::clone(RunConfiguration *runConfig) const
+ExecutableAspect *ExecutableAspect::clone(RunConfiguration *runConfig) const
 {
     return new ExecutableAspect(runConfig, m_key, m_executable);
 }
