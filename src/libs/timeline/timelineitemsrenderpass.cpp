@@ -202,7 +202,7 @@ static void updateNodes(int from, int to, const TimelineModel *model,
     for (int i = from; i < to; ++i) {
         qint64 start = qMax(parentState->start(), model->startTime(i));
         qint64 end = qMin(parentState->end(), model->startTime(i) + model->duration(i));
-        if (start >= end)
+        if (start > end)
             continue;
 
         float itemTop = (1.0 - model->relativeHeight(i)) * defaultRowHeight;
@@ -230,7 +230,7 @@ static void updateNodes(int from, int to, const TimelineModel *model,
     for (int i = from; i < to; ++i) {
         qint64 start = qMax(parentState->start(), model->startTime(i));
         qint64 end = qMin(parentState->end(), model->startTime(i) + model->duration(i));
-        if (start >= end)
+        if (start > end)
             continue;
 
         QColor color = model->color(i);
@@ -238,7 +238,8 @@ static void updateNodes(int from, int to, const TimelineModel *model,
         uchar green = color.green();
         uchar blue = color.blue();
 
-        float itemWidth = (end - start) * parentState->scale();
+        float itemWidth = end > start ? (end - start) * parentState->scale() :
+                                        std::numeric_limits<float>::min();
         float itemLeft = (start - parentState->start()) * parentState->scale();
 
         // This has to be the exact same expression as above, to guarantee determinism.

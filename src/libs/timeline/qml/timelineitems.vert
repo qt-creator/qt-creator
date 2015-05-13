@@ -48,7 +48,7 @@ void main()
 
     // Make very narrow events somewhat wider so that they don't collapse into 0 pixels
     float scaledWidth = scale.x * rectSize.x;
-    float shift = sign(scaledWidth) * max(0.0, 3.0 - abs(scaledWidth)) * 0.0005;
+    float shift = sign(rectSize.x) * max(0.0, 3.0 - abs(scaledWidth)) * 0.0005;
     gl_Position.x += shift;
 
     // Ditto for events with very small height
