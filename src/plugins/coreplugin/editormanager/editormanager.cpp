@@ -583,8 +583,12 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     }
 
     EditorManager::EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), fn);
-    if (editorId.isValid())
-        std::stable_partition(factories.begin(), factories.end(), Utils::equal(&IEditorFactory::id, editorId));
+    if (editorId.isValid()) {
+        if (IEditorFactory *factory = findById<IEditorFactory>(editorId)) {
+            factories.removeOne(factory);
+            factories.push_front(factory);
+        }
+    }
 
     IEditor *editor = 0;
     auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
