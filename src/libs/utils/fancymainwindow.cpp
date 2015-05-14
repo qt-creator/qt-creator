@@ -85,7 +85,6 @@ public:
 
 private:
     QPoint m_startPos;
-    QWidget *m_inner;
     TitleBarWidget *m_titleBar;
     QTimer m_timer;
 };
@@ -245,7 +244,7 @@ public:
 };
 
 DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent)
-    : QDockWidget(parent), q(parent), m_inner(inner)
+    : QDockWidget(parent), q(parent)
 {
     setWidget(inner);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
@@ -288,7 +287,7 @@ bool DockWidget::eventFilter(QObject *, QEvent *event)
         int y = me->pos().y();
         int x = me->pos().x();
         int h = m_titleBar->m_floatButton->height();
-        if (!isFloating() && 0 <= x && x < m_inner->width() && 0 <= y && y <= h) {
+        if (!isFloating() && widget() && 0 <= x && x < widget()->width() && 0 <= y && y <= h) {
             m_timer.start();
             m_startPos = mapToGlobal(me->pos());
         }
