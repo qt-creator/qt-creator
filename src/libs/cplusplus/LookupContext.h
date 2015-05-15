@@ -119,6 +119,10 @@ public:
     QSharedPointer<Control> control() const
     { return _control; }
 
+    /// Adds an expression document in order to keep their symbols and names alive
+    void addExpressionDocument(Document::Ptr document)
+    { _expressionDocuments.append(document); }
+
     bool expandTemplates() const
     { return _expandTemplates; }
     void setExpandTemplates(bool expandTemplates)
@@ -185,6 +189,7 @@ private:
 
     Snapshot _snapshot;
     QSharedPointer<Control> _control;
+    QList<Document::Ptr> _expressionDocuments;
     QSet<Namespace *> _processed;
     QList<LookupScope *> _entities;
     LookupScope *_globalNamespace;

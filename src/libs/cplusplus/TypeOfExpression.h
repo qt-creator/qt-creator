@@ -135,7 +135,6 @@ public:
     }
 
 private:
-
     void processEnvironment(Document::Ptr doc, Environment *env,
                             QSet<QString> *processed) const;
 
@@ -148,15 +147,8 @@ private:
     Scope *m_scope;
     LookupContext m_lookupContext;
     mutable QSharedPointer<Environment> m_environment;
-
-    bool m_expandTemplates;
-
-    // FIXME: This is a temporary hack to avoid dangling pointers.
-    // Keep the expression documents and thus all the symbols and
-    // their types alive until they are not needed any more.
-    QList<Document::Ptr> m_documents;
-
     QSet<const Declaration *> m_autoDeclarationsBeingResolved;
+    bool m_expandTemplates;
 };
 
 ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);

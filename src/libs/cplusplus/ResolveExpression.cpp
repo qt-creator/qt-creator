@@ -611,32 +611,14 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             Document::Ptr exprDoc =
                     documentForExpression(exprTyper.preprocessedExpression(initializer));
             exprDoc->check();
+            _context.bindings()->addExpressionDocument(exprDoc);
 
             DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
             if (deduceAuto._block)
                 continue;
 
-            const QList<LookupItem> &typeItems = exprTyper(extractExpressionAST(exprDoc), exprDoc,
-                                                           decl->enclosingScope());
-            if (typeItems.empty())
-                continue;
-
-            Clone cloner(_context.bindings()->control().data());
-
-            for (int n = 0; n < typeItems.size(); ++ n) {
-                FullySpecifiedType newType = cloner.type(typeItems[n].type(), 0);
-                if (n == 0) {
-                    item.setType(newType);
-                    item.setScope(typeItems[n].scope());
-                    item.setBinding(typeItems[n].binding());
-                } else {
-                    LookupItem newItem(item);
-                    newItem.setType(newType);
-                    newItem.setScope(typeItems[n].scope());
-                    newItem.setBinding(typeItems[n].binding());
-                    newCandidates.push_back(newItem);
-                }
-            }
+            newCandidates += exprTyper(extractExpressionAST(exprDoc), exprDoc,
+                                       decl->enclosingScope());
         } else {
             item.setType(item.declaration()->type());
             item.setScope(item.declaration()->enclosingScope());

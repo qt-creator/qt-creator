@@ -105,7 +105,7 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
 
     m_scope = scope;
 
-    m_documents.append(document);
+    m_bindings->addExpressionDocument(document);
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
     Q_ASSERT(!m_bindings.isNull());
     m_lookupContext.setExpandTemplates(m_expandTemplates);
@@ -122,7 +122,7 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
 
     m_scope = scope;
 
-    m_documents.append(document);
+    m_bindings->addExpressionDocument(document);
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
     Q_ASSERT(!m_bindings.isNull());
     m_lookupContext.setExpandTemplates(m_expandTemplates);
