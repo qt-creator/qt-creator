@@ -271,9 +271,19 @@
         \li Some versions of Perf will not start recording unless given a
             certain minimum sampling frequency. Try with a
             \uicontrol {Sampling Frequency} of 1000.
-        \li On some devices, Perf support is not very stable and the Linux
-            kernel may randomly fail to record data after some time. Reboot the
-            device and try again.
+        \li On some devices, for example Boundary Devices i.MX6 Boards, the
+            Perf support is not very stable and the Linux kernel may randomly
+            fail to record data after some time. Perf can use different types
+            of events to trigger samples. You can get a list of available event
+            types by running \c {perf list} on the device and add
+            \c {-e <event type>} to the \uicontrol {Additional arguments} field
+            to change the event type to be used. The choice of event type
+            affects the performance and stability of the sampling.
+            \c {-e cpu-clock} is a safe but relatively slow option as it
+            does not use the hardware performance counters, but drives the
+            sampling from software. After the sampling has failed, reboot the
+            device. The kernel may have disabled important parts of the
+            performance counters system.
     \endlist
 
     Output from the helper program that processes the data is displayed in the
