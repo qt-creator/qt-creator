@@ -463,7 +463,7 @@ QString AndroidDeployQtStep::systemAppProcessFilePath() const
 {
     QProcess proc;
     const QStringList args =
-            QStringList() << QLatin1String("shell")
+            QStringList() << AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("shell")
                           << QLatin1String("readlink -f -s /system/bin/app_process");
     proc.start(m_adbPath, args);
     proc.waitForFinished();
