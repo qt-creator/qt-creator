@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="BV"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuickProject, QtSupport.Wizards.FeatureQtQuick.UiFiles">
-    <displayname>Qt Quick 2.4</displayname>
-    <description>Creates a Qt Quick 2 UI project that contains a .ui.qml file. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. Requires Qt 5.4 or newer.</description>
-</template>

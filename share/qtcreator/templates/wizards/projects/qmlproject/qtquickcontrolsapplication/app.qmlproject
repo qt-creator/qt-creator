@@ -3,8 +3,7 @@
 import QmlProject 1.1
 
 Project {
-// QTC_REPLACE main.qml WITH main
-    mainFile: "main.qml"
+    mainFile: "%{MainQmlFileName}"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {

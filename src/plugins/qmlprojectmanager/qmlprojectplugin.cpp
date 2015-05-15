@@ -32,7 +32,6 @@
 #include "qmlprojectmanager.h"
 #include "qmlproject.h"
 #include "qmlprojectrunconfigurationfactory.h"
-#include "qmlapplicationwizard.h"
 #include "fileformat/qmlprojectfileformat.h"
 
 #include <coreplugin/fileiconprovider.h>
@@ -64,7 +63,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
     addAutoReleasedObject(new Internal::Manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
-    addAutoReleasedObject(new Internal::QmlApplicationWizard);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
     return true;

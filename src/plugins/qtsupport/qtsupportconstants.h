@@ -93,11 +93,6 @@ const char WINDOWS_PHONE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows
 const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
 const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "iOS");
 
-// QML wizard icon
-// both the qmakeprojectmanager and the qmlprojectmanager do have qt quick wizards
-// so we define the icon here
-const char QML_WIZARD_ICON[] = ":/qmlproject/images/qml_wizard.png";
-
 const char ICON_QT_PROJECT[] = ":/qtsupport/images/qt_project.png";
 
 } // namepsace Constants

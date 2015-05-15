@@ -1,0 +1,117 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "QA.QMLB Application",
+    "category": "F.Application",
+    "trDescription": "Creates a Qt Quick 2 UI project.",
+    "trDisplayName": "Qt Quick UI",
+    "trDisplayCategory": "Application",
+    "icon": "../../qmake/qtquickapplication/qml_wizard.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.Controls.1.3", "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQt" ],
+
+    "options":
+    [
+        { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qmlproject')}" },
+        { "key": "MainQmlFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qml')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
+        { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "Creates a Qt Quick UI project." }
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimal required Qt version:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 5.5",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.5',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.4",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.4',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.3",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.3',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "QmlUISplit",
+                    "trDisplayName": "With ui.qml file",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": true,
+                        "uncheckedValue": false,
+                        "checked": false
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "app.qmlproject",
+                    "target": "%{QmlProjectFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "../../qmake/qtquickapplication/main.qml",
+                    "target": "%{ProjectDirectory}/%{MainQmlFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../../qmake/qtquickapplication/MainForm.ui.qml",
+                    "target": "%{ProjectDirectory}/MainForm.ui.qml",
+                    "condition": "%{QmlUISplit}"
+                },
+                {
+                    "source": "../../qmake/git.ignore",
+                    "target": "%{ProjectDirectory}/.gitignore",
+                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
