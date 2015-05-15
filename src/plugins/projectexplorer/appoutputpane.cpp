@@ -517,6 +517,10 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     delete m_runControlTabs[index].window;
     m_runControlTabs.removeAt(index);
     updateCloseActions();
+
+    if (m_runControlTabs.isEmpty())
+        hide();
+
     return true;
 }
 
