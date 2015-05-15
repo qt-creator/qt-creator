@@ -108,7 +108,8 @@ public:
         QVERIFY(ast);
 
         // Open file
-        TextEditor::BaseTextEditor *editor = TextEditor::PlainTextEditorFactory::createPlainTextEditor();
+        QScopedPointer<TextEditor::BaseTextEditor> editor(
+                    TextEditor::PlainTextEditorFactory::createPlainTextEditor());
         QString error;
         editor->open(&error, document->fileName(), document->fileName());
         QVERIFY(error.isEmpty());
