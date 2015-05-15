@@ -291,7 +291,9 @@ ExtensionSystem::IPlugin::ShutdownFlag CppEditorPlugin::aboutToShutdown()
 
 static CppEditorWidget *currentCppEditorWidget()
 {
-    return qobject_cast<CppEditorWidget*>(EditorManager::currentEditor()->widget());
+    if (IEditor *currentEditor = EditorManager::currentEditor())
+        return qobject_cast<CppEditorWidget*>(currentEditor->widget());
+    return 0;
 }
 
 void CppEditorPlugin::switchDeclarationDefinition()
