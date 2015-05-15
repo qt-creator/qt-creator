@@ -682,6 +682,7 @@ void CMakeRunPage::cmakeReadyReadStandardOutput()
 void CMakeRunPage::cmakeReadyReadStandardError()
 {
     QTextCursor cursor(m_output->document());
+    cursor.movePosition(QTextCursor::End);
     QTextCharFormat tf;
 
     QFont font = m_output->font();
