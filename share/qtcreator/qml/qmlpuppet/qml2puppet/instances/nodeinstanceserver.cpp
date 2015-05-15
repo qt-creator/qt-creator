@@ -29,6 +29,43 @@
 ****************************************************************************/
 #include "nodeinstanceserver.h"
 
+#include "servernodeinstance.h"
+#include "objectnodeinstance.h"
+#include "childrenchangeeventfilter.h"
+
+#include "dummycontextobject.h"
+
+
+#include <propertyabstractcontainer.h>
+#include <propertybindingcontainer.h>
+#include <propertyvaluecontainer.h>
+#include <instancecontainer.h>
+
+#include <commondefines.h>
+#include <nodeinstanceclientinterface.h>
+
+#include <createinstancescommand.h>
+#include <changefileurlcommand.h>
+#include <clearscenecommand.h>
+#include <reparentinstancescommand.h>
+#include <changevaluescommand.h>
+#include <changeauxiliarycommand.h>
+#include <changebindingscommand.h>
+#include <changeidscommand.h>
+#include <removeinstancescommand.h>
+#include <removepropertiescommand.h>
+#include <valueschangedcommand.h>
+#include <informationchangedcommand.h>
+#include <pixmapchangedcommand.h>
+#include <changestatecommand.h>
+#include <childrenchangedcommand.h>
+#include <completecomponentcommand.h>
+#include <componentcompletedcommand.h>
+#include <createscenecommand.h>
+#include <changenodesourcecommand.h>
+#include <tokencommand.h>
+#include <removesharedmemorycommand.h>
+
 #include <QDebug>
 #include <QQmlEngine>
 #include <QQmlApplicationEngine>
@@ -47,38 +84,6 @@
 #include <private/qquickview_p.h>
 #include <designersupport.h>
 
-#include "servernodeinstance.h"
-#include "objectnodeinstance.h"
-#include "childrenchangeeventfilter.h"
-#include "propertyabstractcontainer.h"
-#include "propertybindingcontainer.h"
-#include "propertyvaluecontainer.h"
-#include "instancecontainer.h"
-#include "createinstancescommand.h"
-#include "changefileurlcommand.h"
-#include "clearscenecommand.h"
-#include "reparentinstancescommand.h"
-#include "changevaluescommand.h"
-#include "changeauxiliarycommand.h"
-#include "changebindingscommand.h"
-#include "changeidscommand.h"
-#include "removeinstancescommand.h"
-#include "nodeinstanceclientinterface.h"
-#include "removepropertiescommand.h"
-#include "valueschangedcommand.h"
-#include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "commondefines.h"
-#include "changestatecommand.h"
-#include "childrenchangedcommand.h"
-#include "completecomponentcommand.h"
-#include "componentcompletedcommand.h"
-#include "createscenecommand.h"
-#include "changenodesourcecommand.h"
-#include "tokencommand.h"
-#include "removesharedmemorycommand.h"
-
-#include "dummycontextobject.h"
 
 namespace {
     bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
