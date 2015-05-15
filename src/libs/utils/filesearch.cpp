@@ -32,7 +32,8 @@
 #include "runextensions.h"
 
 #include <QCoreApplication>
-#include <QRegExp>
+#include <QMutex>
+#include <QRegularExpression>
 #include <QTextCodec>
 #include <QtConcurrentMap>
 
@@ -113,9 +114,12 @@ public:
     const FileSearchResultList operator()(const FileIterator::Item &item) const;
 
 private:
+    QRegularExpressionMatch doGuardedMatch(const QString &line, int offset) const;
+
     QMap<QString, QString> fileToContentsMap;
     QFutureInterface<FileSearchResultList> *future;
-    QRegExp expression;
+    QRegularExpression expression;
+    mutable QMutex mutex;
 };
 
 FileSearch::FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
@@ -227,9 +231,15 @@ FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::Fin
     QString term = searchTerm;
     if (flags & QTextDocument::FindWholeWords)
         term = QString::fromLatin1("\\b%1\\b").arg(term);
-    const Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively)
-            ? Qt::CaseSensitive : Qt::CaseInsensitive;
-    expression = QRegExp(term, caseSensitivity);
+    const QRegularExpression::PatternOptions patternOptions = (flags & QTextDocument::FindCaseSensitively)
+            ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    expression = QRegularExpression(term, patternOptions);
+}
+
+QRegularExpressionMatch FileSearchRegExp::doGuardedMatch(const QString &line, int offset) const
+{
+    QMutexLocker lock(&mutex);
+    return expression.match(line, offset);
 }
 
 const FileSearchResultList FileSearchRegExp::operator()(const FileIterator::Item &item) const
@@ -245,19 +255,21 @@ const FileSearchResultList FileSearchRegExp::operator()(const FileIterator::Item
     int lineNr = 0;
 
     QString line;
+    QRegularExpressionMatch match;
     while (!stream.atEnd()) {
         ++lineNr;
         line = stream.readLine();
         const QString resultItemText = clippedText(line, MAX_LINE_SIZE);
         int lengthOfLine = line.size();
         int pos = 0;
-        while ((pos = expression.indexIn(line, pos)) != -1) {
+        while ((match = doGuardedMatch(line, pos)).hasMatch()) {
+            pos = match.capturedStart();
             results << FileSearchResult(item.filePath, lineNr, resultItemText,
-                                          pos, expression.matchedLength(),
-                                          expression.capturedTexts());
-            if (expression.matchedLength() == 0)
+                                          pos, match.capturedLength(),
+                                          match.capturedTexts());
+            if (match.capturedLength() == 0)
                 break;
-            pos += expression.matchedLength();
+            pos += match.capturedLength();
             if (pos >= lengthOfLine)
                 break;
         }
