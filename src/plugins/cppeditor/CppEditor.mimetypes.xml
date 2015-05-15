@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/x-csrc">
+      <comment>C source code</comment>
+      <sub-class-of type="text/plain"/>
+      <alias type="text/x-c"/>
+      <glob pattern="*.c" case-sensitive="true"/>
+    </mime-type>
+
     <mime-type type="text/vnd.nvidia.cuda.csrc">
         <sub-class-of type="text/x-csrc"/>
         <comment>NVIDIA CUDA C source code</comment>
