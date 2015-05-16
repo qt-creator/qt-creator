@@ -1913,6 +1913,8 @@ public:
     // changes externally (e.g. by code completion).
     void pullCursor();
 
+    QTextCursor editorCursor() const;
+
     // Values to save when starting FakeVim processing.
     int m_firstVisibleLine;
     QTextCursor m_cursor;
@@ -2404,7 +2406,7 @@ void FakeVimHandler::Private::fixExternalCursor(bool focus)
 
 void FakeVimHandler::Private::fixExternalCursorPosition(bool focus)
 {
-    QTextCursor tc = EDITOR(textCursor());
+    QTextCursor tc = editorCursor();
     if (tc.anchor() < tc.position()) {
         tc.movePosition(focus ? Left : Right, KeepAnchor);
         EDITOR(setTextCursor(tc));
@@ -3220,7 +3222,7 @@ void FakeVimHandler::Private::pullCursor()
     if (visualBlockMode)
         q->requestBlockSelection(&m_cursor);
     else if (editor())
-        m_cursor = EDITOR(textCursor());
+        m_cursor = editorCursor();
 
     // Cursor should be always valid.
     if (m_cursor.isNull())
@@ -3247,6 +3249,13 @@ void FakeVimHandler::Private::pullCursor()
         recordJump(oldCursor.position());
 
     setTargetColumn();
+}
+
+QTextCursor FakeVimHandler::Private::editorCursor() const
+{
+    QTextCursor tc = EDITOR(textCursor());
+    tc.setVisualNavigation(false);
+    return tc;
 }
 
 bool FakeVimHandler::Private::moveToNextParagraph(int count)
@@ -7334,7 +7343,7 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event, QTextCursor &tc)
         return false;
 
     if (accepted)
-        tc = EDITOR(textCursor());
+        tc = editorCursor();
 
     return accepted;
 }
@@ -7658,7 +7667,7 @@ void FakeVimHandler::Private::onCursorPositionChanged()
         // Selecting text with mouse disables the thick cursor so it's more obvious
         // that extra character under cursor is not selected when moving text around or
         // making operations on text outside FakeVim mode.
-        setThinCursor(g.mode == InsertMode || EDITOR(textCursor()).hasSelection());
+        setThinCursor(g.mode == InsertMode || editorCursor().hasSelection());
     }
 }
 
