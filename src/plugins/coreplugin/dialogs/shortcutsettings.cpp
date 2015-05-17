@@ -115,6 +115,7 @@ namespace Internal {
 
 ShortcutButton::ShortcutButton(QWidget *parent)
     : QPushButton(parent)
+    , m_key({{ 0, 0, 0, 0 }})
 {
     setToolTip(tr("Click and type the new key sequence."));
     setCheckable(true);

@@ -38,6 +38,8 @@
 #include <QPointer>
 #include <QPushButton>
 
+#include <array>
+
 QT_BEGIN_NAMESPACE
 class QGroupBox;
 class QKeyEvent;
@@ -81,7 +83,7 @@ private:
     QString m_checkedText;
     QString m_uncheckedText;
     mutable int m_preferredWidth = -1;
-    int m_key[4] = { 0, 0, 0, 0 };
+    std::array<int, 4> m_key;
     int m_keyNum = 0;
 };
 
