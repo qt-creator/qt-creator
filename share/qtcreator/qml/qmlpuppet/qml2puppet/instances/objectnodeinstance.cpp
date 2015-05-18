@@ -174,7 +174,6 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
     m_metaObject = NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
-    m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
