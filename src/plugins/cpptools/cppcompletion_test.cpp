@@ -2940,6 +2940,29 @@ void CppToolsPlugin::test_completion_data()
     ) << _("p.") << (QStringList()
         << QLatin1String("Nested2")
         << QLatin1String("bar"));
+
+    QTest::newRow("simple_decltype_declaration") << _(
+            "struct Foo { int bar; };\n"
+            "Foo foo;\n"
+            "void fun() {\n"
+            "   decltype(foo) s;\n"
+            "   @\n"
+            "}\n"
+    ) << _("s.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
+
+    QTest::newRow("typedefed_decltype_declaration") << _(
+            "struct Foo { int bar; };\n"
+            "Foo foo;\n"
+            "typedef decltype(foo) TypedefedFooWithDecltype;\n"
+            "void fun() {\n"
+            "   TypedefedFooWithDecltype s;\n"
+            "   @\n"
+            "}\n"
+    ) << _("s.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

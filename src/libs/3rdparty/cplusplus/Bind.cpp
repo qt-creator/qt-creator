@@ -1921,9 +1921,22 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         methodKey = methodKeyForInvokableToken(tokenKind(ast->qt_invokable_token));
 
     // unsigned qt_invokable_token = ast->qt_invokable_token;
+    unsigned declTypeStartOfExpression = 0;
+    unsigned declTypeEndOfExpression = 0;
+    bool isTypedef = false;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
+        if (type.isTypedef())
+            isTypedef = true;
+
+        type.setTypedef(isTypedef);
+        if (type.isDecltype()) {
+            if (DecltypeSpecifierAST *decltypeSpec = it->value->asDecltypeSpecifier()) {
+                declTypeStartOfExpression = decltypeSpec->expression->firstToken();
+                declTypeEndOfExpression = decltypeSpec->expression->lastToken();
+            }
+        }
     }
 
     List<Symbol *> **symbolTail = &ast->symbols;
@@ -1982,6 +1995,9 @@ bool Bind::visit(SimpleDeclarationAST *ast)
                 unsigned endOfExpression = initializer->lastToken();
                 decl->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
             }
+        } else if (declTy.isDecltype()) {
+            decl->setInitializer(asStringLiteral(declTypeStartOfExpression,
+                                                 declTypeEndOfExpression));
         }
 
         if (_scope->isClass()) {
@@ -3028,6 +3044,7 @@ bool Bind::visit(TypeofSpecifierAST *ast)
 bool Bind::visit(DecltypeSpecifierAST *ast)
 {
     _type = this->expression(ast->expression);
+    _type.setDecltype(true);
     return false;
 }
 

@@ -40,6 +40,10 @@ class TypeResolver
 public:
     TypeResolver(CreateBindings &factory) : _factory(factory) {}
     void resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding);
+    static QList<LookupItem> resolveDeclInitializer(
+            CreateBindings &factory, const Declaration *decl,
+            const QSet<const Declaration *> &declarationsBeingResolved,
+            const Identifier *id = 0);
 
 private:
     NamedType *getNamedType(FullySpecifiedType& type) const;

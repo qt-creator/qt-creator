@@ -526,48 +526,6 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
     return false;
 }
 
-namespace {
-
-class DeduceAutoCheck : public ASTVisitor
-{
-public:
-    DeduceAutoCheck(const Identifier *id, TranslationUnit *tu)
-        : ASTVisitor(tu), _id(id), _block(false)
-    {
-        accept(tu->ast());
-    }
-
-    virtual bool preVisit(AST *)
-    {
-        if (_block)
-            return false;
-
-        return true;
-    }
-
-    virtual bool visit(SimpleNameAST *ast)
-    {
-        if (ast->name
-                && ast->name->identifier()
-                && strcmp(ast->name->identifier()->chars(), _id->chars()) == 0) {
-            _block = true;
-        }
-
-        return false;
-    }
-
-    virtual bool visit(MemberAccessAST *ast)
-    {
-        accept(ast->base_expression);
-        return false;
-    }
-
-    const Identifier *_id;
-    bool _block;
-};
-
-} // namespace anonymous
-
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
     QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
@@ -581,7 +539,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
         if (item.declaration() == 0)
             continue;
 
-        if (item.type().isAuto()) {
+        if (item.type().isAuto() || item.type().isDecltype()) {
             const Declaration *decl = item.declaration()->asDeclaration();
             if (!decl)
                 continue;
@@ -590,35 +548,10 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (_autoDeclarationsBeingResolved.contains(decl))
                 continue;
 
-            const StringLiteral *initializationString = decl->getInitializer();
-            if (initializationString == 0)
-                continue;
-
-            const QByteArray &initializer =
-                    QByteArray::fromRawData(initializationString->chars(),
-                                            initializationString->size()).trimmed();
-
-            // Skip lambda-function initializers
-            if (initializer.length() > 0 && initializer[0] == '[')
-                continue;
-
-            TypeOfExpression exprTyper;
-            exprTyper.setExpandTemplates(true);
-            Document::Ptr doc = _context.document(QString::fromLocal8Bit(decl->fileName()));
-            exprTyper.init(doc, _context.snapshot(), _context.bindings(),
-                           QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
-
-            Document::Ptr exprDoc =
-                    documentForExpression(exprTyper.preprocessedExpression(initializer));
-            exprDoc->check();
-            _context.bindings()->addExpressionDocument(exprDoc);
-
-            DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
-            if (deduceAuto._block)
-                continue;
-
-            newCandidates += exprTyper(extractExpressionAST(exprDoc), exprDoc,
-                                       decl->enclosingScope());
+            newCandidates +=
+                    TypeResolver::resolveDeclInitializer(*_context.bindings(), decl,
+                                                         _autoDeclarationsBeingResolved << decl,
+                                                         ast->name->identifier());
         } else {
             item.setType(item.declaration()->type());
             item.setScope(item.declaration()->enclosingScope());

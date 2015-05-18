@@ -30,12 +30,55 @@
 
 #include "TypeResolver.h"
 #include "Overview.h"
+#include "TypeOfExpression.h"
 
 #include <QDebug>
 
 static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
 
 namespace CPlusPlus {
+
+namespace {
+
+class DeduceAutoCheck : public ASTVisitor
+{
+public:
+    DeduceAutoCheck(const Identifier *id, TranslationUnit *tu)
+        : ASTVisitor(tu), _id(id), _block(false)
+    {
+        accept(tu->ast());
+    }
+
+    virtual bool preVisit(AST *)
+    {
+        if (_block)
+            return false;
+
+        return true;
+    }
+
+    virtual bool visit(SimpleNameAST *ast)
+    {
+        if (ast->name
+                && ast->name->identifier()
+                && strcmp(ast->name->identifier()->chars(), _id->chars()) == 0) {
+            _block = true;
+        }
+
+        return false;
+    }
+
+    virtual bool visit(MemberAccessAST *ast)
+    {
+        accept(ast->base_expression);
+        return false;
+    }
+
+    const Identifier *_id;
+    bool _block;
+};
+
+} // namespace anonymous
 
 void TypeResolver::resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding)
 {
@@ -115,6 +158,43 @@ QList<LookupItem> TypeResolver::typedefsFromScopeUpToFunctionScope(const Name *n
     return results;
 }
 
+// Resolves auto and decltype initializer string
+QList<LookupItem> TypeResolver::resolveDeclInitializer(
+        CreateBindings &factory, const Declaration *decl,
+        const QSet<const Declaration* > &declarationsBeingResolved,
+        const Identifier *id)
+{
+    const StringLiteral *initializationString = decl->getInitializer();
+    if (initializationString == 0)
+        return QList<LookupItem>();
+
+    const QByteArray &initializer =
+            QByteArray::fromRawData(initializationString->chars(),
+                                    initializationString->size()).trimmed();
+
+    // Skip lambda-function initializers
+    if (initializer.length() > 0 && initializer[0] == '[')
+        return QList<LookupItem>();
+
+    TypeOfExpression exprTyper;
+    exprTyper.setExpandTemplates(true);
+    Document::Ptr doc = factory.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
+    exprTyper.init(doc, factory.snapshot(), factory.sharedFromThis(), declarationsBeingResolved);
+
+    Document::Ptr exprDoc =
+            documentForExpression(exprTyper.preprocessedExpression(initializer));
+    factory.addExpressionDocument(exprDoc);
+    exprDoc->check();
+
+    if (id) {
+        DeduceAutoCheck deduceAuto(id, exprDoc->translationUnit());
+        if (deduceAuto._block)
+            return QList<LookupItem>();
+    }
+
+    return exprTyper(extractExpressionAST(exprDoc), exprDoc, decl->enclosingScope());
+}
+
 bool TypeResolver::isTypedefWithName(const Declaration *declaration, const Name *name)
 {
     if (declaration->isTypedef()) {
@@ -130,7 +210,7 @@ bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpe
 {
     foreach (const LookupItem &it, namedTypeItems) {
         Symbol *declaration = it.declaration();
-        if (!declaration || !declaration->isTypedef())
+        if (!declaration || (!declaration->isTypedef() && !declaration->type().isDecltype()))
             continue;
         if (visited.contains(declaration))
             break;
@@ -145,6 +225,17 @@ bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpe
                         _factory.control()->referenceType(
                             declaration->type(),
                             declaration->type()->asReferenceType()->isRvalueReference()));
+        } else if (declaration->type().isDecltype()) {
+            Declaration *decl = declaration->asDeclaration();
+            const QList<LookupItem> resolved =
+                    resolveDeclInitializer(_factory, decl, QSet<const Declaration* >() << decl);
+            if (!resolved.isEmpty()) {
+                LookupItem item = resolved.first();
+                *type = item.type();
+                *scope = item.scope();
+                _binding = item.binding();
+                return true;
+            }
         } else {
             *type = declaration->type();
         }

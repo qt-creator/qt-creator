@@ -41,6 +41,7 @@
 #include <cplusplus/Control.h>
 #include <cplusplus/Name.h>
 
+#include <QEnableSharedFromThis>
 #include <QSet>
 #include <QMap>
 
@@ -99,7 +100,9 @@ private:
     friend class CreateBindings;
 };
 
-class CPLUSPLUS_EXPORT CreateBindings: protected SymbolVisitor
+class CPLUSPLUS_EXPORT CreateBindings
+        : protected SymbolVisitor
+        , public QEnableSharedFromThis<CreateBindings>
 {
     Q_DISABLE_COPY(CreateBindings)
 
@@ -118,6 +121,9 @@ public:
     /// \internal
     QSharedPointer<Control> control() const
     { return _control; }
+
+    Snapshot &snapshot()
+    { return _snapshot; }
 
     /// Adds an expression document in order to keep their symbols and names alive
     void addExpressionDocument(Document::Ptr document)
