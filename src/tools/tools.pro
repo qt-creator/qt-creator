@@ -1,7 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS = qtpromaker \
-     qmlpuppet \
      ../plugins/cpaster/frontend \
      sdktool \
      valgrindfake \
