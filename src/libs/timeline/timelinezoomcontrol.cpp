@@ -47,6 +47,8 @@ void TimelineZoomControl::clear()
     bool changeRange = (m_rangeStart != -1 || m_rangeEnd != -1);
 
     setWindowLocked(false);
+    if (changeWindow && !m_timer.isActive())
+        emit windowMovingChanged(true);
 
     m_traceStart = m_traceEnd = m_windowStart = m_windowEnd = m_rangeStart = m_rangeEnd = -1;
     if (changeTrace)
@@ -55,6 +57,7 @@ void TimelineZoomControl::clear()
     if (changeWindow) {
         emit windowChanged(-1, -1);
         m_timer.stop();
+        emit windowMovingChanged(false);
     } else {
         QTC_ASSERT(!m_timer.isActive(), m_timer.stop());
     }
@@ -80,7 +83,10 @@ void TimelineZoomControl::setRange(qint64 start, qint64 end)
 {
     Q_ASSERT(start <= end);
     if (m_rangeStart != start || m_rangeEnd != end) {
-        m_timer.stop();
+        if (m_timer.isActive()) {
+            m_timer.stop();
+            emit windowMovingChanged(false);
+        }
         m_rangeStart = start;
         m_rangeEnd = end;
         rebuildWindow();
@@ -136,8 +142,16 @@ void TimelineZoomControl::rebuildWindow()
         m_timer.start(500);
     }
     if (oldWindowStart != m_windowStart || oldWindowEnd != m_windowEnd) {
-        clampRangeToWindow();
+        bool runTimer = m_timer.isActive();
+        if (!runTimer)
+            m_timer.start(std::numeric_limits<int>::max());
+        emit windowMovingChanged(true);
+        clampRangeToWindow(); // can stop the timer
         emit windowChanged(m_windowStart, m_windowEnd);
+        if (!runTimer && m_timer.isActive()) {
+            m_timer.stop();
+            emit windowMovingChanged(false);
+        }
     }
 }
 
@@ -150,6 +164,7 @@ void TimelineZoomControl::moveWindow()
     qint64 offset = (m_rangeEnd - m_windowEnd + m_rangeStart - m_windowStart) / 2;
     if (offset == 0 || (offset < 0 && m_windowStart == m_traceStart) ||
             (offset > 0 && m_windowEnd == m_traceEnd)) {
+        emit windowMovingChanged(false);
         return;
     } else if (offset > rangeDuration()) {
         offset = (offset + rangeDuration()) / 2;

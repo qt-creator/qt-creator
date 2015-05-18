@@ -56,6 +56,7 @@ class TIMELINE_EXPORT TimelineZoomControl : public QObject {
     Q_PROPERTY(qint64 selectionDuration READ selectionDuration NOTIFY selectionChanged)
 
     Q_PROPERTY(bool windowLocked READ windowLocked WRITE setWindowLocked NOTIFY windowLockedChanged)
+    Q_PROPERTY(bool windowMoving READ windowMoving NOTIFY windowMovingChanged)
 
 public:
     static const qint64 MAX_ZOOM_FACTOR = 1 << 10;
@@ -78,6 +79,8 @@ public:
     qint64 selectionDuration() const { return m_selectionEnd - m_selectionStart; }
 
     bool windowLocked() const { return m_windowLocked; }
+    bool windowMoving() const { return m_timer.isActive(); }
+
     virtual void clear();
 
 signals:
@@ -86,6 +89,7 @@ signals:
     void rangeChanged(qint64 start, qint64 end);
     void selectionChanged(qint64 start, qint64 end);
     void windowLockedChanged(bool windowLocked);
+    void windowMovingChanged(bool windowMoving);
 
 public slots:
     void setTrace(qint64 start, qint64 end);
