@@ -41,6 +41,7 @@
 
 #include <QDir>
 #include <QDebug>
+#include <QTimer>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -160,6 +161,13 @@ VcsCommandPage::VcsCommandPage()
 }
 
 void VcsCommandPage::initializePage()
+{
+    // Delay real initialization till after QWizard is done with its setup.
+    // Otherwise QWizard will reset our disabled back button again.
+    QTimer::singleShot(0, this, &VcsCommandPage::delayedInitialize);
+}
+
+void VcsCommandPage::delayedInitialize()
 {
     auto wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);

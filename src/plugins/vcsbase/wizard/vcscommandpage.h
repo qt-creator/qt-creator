@@ -69,6 +69,9 @@ public:
     void setVersionControlId(const QString &id);
     void setRunMessage(const QString &msg);
 
+private slots:
+    void delayedInitialize();
+
 private:
     QString m_vcsId;
     QString m_repository;
