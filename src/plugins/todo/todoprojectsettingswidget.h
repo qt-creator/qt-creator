@@ -1,7 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2015 Dmitry Savchenko
-** Copyright (C) 2015 Vasiliy Sorokin
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -28,9 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-
-#ifndef OPTIONSDIALOG_H
-#define OPTIONSDIALOG_H
+#ifndef TODO_INTERNAL_TODOPROJECTSETTINGSWIDGET_H
+#define TODO_INTERNAL_TODOPROJECTSETTINGSWIDGET_H
 
 #include <QWidget>
 
@@ -38,43 +36,45 @@ QT_BEGIN_NAMESPACE
 class QListWidgetItem;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace Todo {
 namespace Internal {
 
-namespace Ui { class OptionsDialog; }
+namespace Ui {
+class TodoProjectSettingsWidget;
+}
 
-class Settings;
-class Keyword;
-
-class OptionsDialog : public QWidget
+class TodoProjectSettingsWidget : public QWidget
 {
     Q_OBJECT
-public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
 
-    void setSettings(const Settings &settings);
-    Settings settings();
+public:
+    explicit TodoProjectSettingsWidget(ProjectExplorer::Project *project);
+    ~TodoProjectSettingsWidget();
+
+signals:
+    void projectSettingsChanged();
 
 private slots:
-    void addKeywordButtonClicked();
-    void editKeywordButtonClicked();
-    void removeKeywordButtonClicked();
-    void resetKeywordsButtonClicked();
-    void setKeywordsButtonsEnabled();
-    void keywordDoubleClicked(QListWidgetItem *item);
+    void addExcludedPatternButtonClicked();
+    void removeExcludedPatternButtonClicked();
+    void setExcludedPatternsButtonsEnabled();
+    void excludedPatternChanged(QListWidgetItem *item);
 
 private:
-    void uiFromSettings(const Settings &settings);
-    Settings settingsFromUi();
-    void addToKeywordsList(const Keyword &keyword);
-    void editKeyword(QListWidgetItem *item);
-    QSet<QString> keywordNames();
+    QListWidgetItem *addToExcludedPatternsList(const QString &pattern);
+    void loadSettings();
+    void saveSettings();
+    void prepareItem(QListWidgetItem *item) const;
 
-    Ui::OptionsDialog *ui;
+    Ui::TodoProjectSettingsWidget *ui;
+    ProjectExplorer::Project *m_project;
 };
+
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // OPTIONSDIALOG_H
+#endif // TODO_INTERNAL_TODOPROJECTSETTINGSWIDGET_H

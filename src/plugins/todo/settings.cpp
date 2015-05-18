@@ -72,12 +72,12 @@ void Settings::load(QSettings *settings)
         scanningScope).toInt());
 
     KeywordList newKeywords;
-    const int size = settings->beginReadArray(QLatin1String(Constants::KEYWORDS_LIST));
-    if (size > 0) {
+    const int keywordsSize = settings->beginReadArray(QLatin1String(Constants::KEYWORDS_LIST));
+    if (keywordsSize > 0) {
         const QString nameKey = QLatin1String("name");
         const QString colorKey = QLatin1String("color");
         const QString iconResourceKey = QLatin1String("iconResource");
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < keywordsSize; ++i) {
             settings->setArrayIndex(i);
             Keyword keyword;
             keyword.name = settings->value(nameKey).toString();
@@ -129,8 +129,7 @@ void Settings::setDefault()
 bool Settings::equals(const Settings &other) const
 {
     return (keywords == other.keywords)
-        && (scanningScope == other.scanningScope);
-
+            && (scanningScope == other.scanningScope);
 }
 
 bool operator ==(Settings &s1, Settings &s2)

@@ -47,7 +47,7 @@ public:
     explicit CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
 
 protected:
-    void keywordListChanged();
+    void scannerParamsChanged();
 
 private slots:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

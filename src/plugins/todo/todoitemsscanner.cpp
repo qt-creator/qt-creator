@@ -39,25 +39,20 @@ namespace Todo {
 namespace Internal {
 
 TodoItemsScanner::TodoItemsScanner(const KeywordList &keywordList, QObject *parent) :
-    QObject(parent)
+    QObject(parent), m_keywordList(keywordList)
 {
-    setKeywordList(keywordList);
 }
 
-void TodoItemsScanner::setKeywordList(const KeywordList &keywordList)
+void TodoItemsScanner::setParams(const KeywordList &keywordList)
 {
     m_keywordList = keywordList;
-    keywordListChanged();
+    scannerParamsChanged();
 }
 
-// Descendants can override and make a request for full rescan here if needed
-void TodoItemsScanner::keywordListChanged()
-{
-}
 
 // Descendants can use this to process comment lines
 void TodoItemsScanner::processCommentLine(const QString &fileName, const QString &comment,
-    unsigned lineNumber, QList<TodoItem> &outItemList)
+                                          unsigned lineNumber, QList<TodoItem> &outItemList)
 {
     LineParser parser(m_keywordList);
     QList<TodoItem> newItemList = parser.parse(comment);

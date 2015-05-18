@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>299</height>
+    <width>444</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,28 +30,28 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QPushButton" name="addButton">
+         <widget class="QPushButton" name="addKeywordButton">
           <property name="text">
            <string>Add</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="editButton">
+         <widget class="QPushButton" name="editKeywordButton">
           <property name="text">
            <string>Edit</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="removeButton">
+         <widget class="QPushButton" name="removeKeywordButton">
           <property name="text">
            <string>Remove</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="resetButton">
+         <widget class="QPushButton" name="resetKeywordsButton">
           <property name="text">
            <string>Reset</string>
           </property>
@@ -112,7 +112,7 @@
    <sender>keywordsList</sender>
    <signal>itemSelectionChanged()</signal>
    <receiver>Todo::Internal::OptionsDialog</receiver>
-   <slot>setButtonsEnabled()</slot>
+   <slot>setKeywordsButtonsEnabled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>247</x>
@@ -126,6 +126,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>setButtonsEnabled()</slot>
+  <slot>setKeywordsButtonsEnabled()</slot>
  </slots>
 </ui>

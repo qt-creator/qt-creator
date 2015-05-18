@@ -44,12 +44,12 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
-    setButtonsEnabled();
-    connect(ui->addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
-    connect(ui->removeButton, SIGNAL(clicked()), SLOT(removeButtonClicked()));
-    connect(ui->editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
-    connect(ui->resetButton, SIGNAL(clicked()), SLOT(resetButtonClicked()));
-    connect(ui->keywordsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(itemDoubleClicked(QListWidgetItem*)));
+    setKeywordsButtonsEnabled();
+    connect(ui->addKeywordButton, SIGNAL(clicked()), SLOT(addKeywordButtonClicked()));
+    connect(ui->removeKeywordButton, SIGNAL(clicked()), SLOT(removeKeywordButtonClicked()));
+    connect(ui->editKeywordButton, SIGNAL(clicked()), SLOT(editKeywordButtonClicked()));
+    connect(ui->resetKeywordsButton, SIGNAL(clicked()), SLOT(resetKeywordsButtonClicked()));
+    connect(ui->keywordsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(keywordDoubleClicked(QListWidgetItem*)));
 }
 
 OptionsDialog::~OptionsDialog()
@@ -57,9 +57,9 @@ OptionsDialog::~OptionsDialog()
     delete ui;
 }
 
-void OptionsDialog::itemDoubleClicked(QListWidgetItem *item)
+void OptionsDialog::keywordDoubleClicked(QListWidgetItem *item)
 {
-    editItem(item);
+    editKeyword(item);
 }
 
 void OptionsDialog::setSettings(const Settings &settings)
@@ -91,7 +91,7 @@ Settings OptionsDialog::settings()
     return settingsFromUi();
 }
 
-void OptionsDialog::addButtonClicked()
+void OptionsDialog::addKeywordButtonClicked()
 {
     Keyword keyword;
     KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNames(), this);
@@ -101,13 +101,13 @@ void OptionsDialog::addButtonClicked()
     }
 }
 
-void OptionsDialog::editButtonClicked()
+void OptionsDialog::editKeywordButtonClicked()
 {
     QListWidgetItem *item = ui->keywordsList->currentItem();
-    editItem(item);
+    editKeyword(item);
 }
 
-void OptionsDialog::editItem(QListWidgetItem *item)
+void OptionsDialog::editKeyword(QListWidgetItem *item)
 {
     Keyword keyword;
     keyword.name = item->text();
@@ -127,58 +127,58 @@ void OptionsDialog::editItem(QListWidgetItem *item)
     }
 }
 
-void OptionsDialog::removeButtonClicked()
+void OptionsDialog::removeKeywordButtonClicked()
 {
-    ui->keywordsList->takeItem(ui->keywordsList->currentRow());
+    delete ui->keywordsList->takeItem(ui->keywordsList->currentRow());
 }
 
-void OptionsDialog::resetButtonClicked()
+void OptionsDialog::resetKeywordsButtonClicked()
 {
     Settings newSettings;
     newSettings.setDefault();
     uiFromSettings(newSettings);
 }
 
-void OptionsDialog::setButtonsEnabled()
+void OptionsDialog::setKeywordsButtonsEnabled()
 {
     bool isSomethingSelected = ui->keywordsList->selectedItems().count() != 0;
-    ui->removeButton->setEnabled(isSomethingSelected);
-    ui->editButton->setEnabled(isSomethingSelected);
+    ui->removeKeywordButton->setEnabled(isSomethingSelected);
+    ui->editKeywordButton->setEnabled(isSomethingSelected);
 }
 
- void OptionsDialog::uiFromSettings(const Settings &settings)
- {
-     ui->scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
-     ui->scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
+void OptionsDialog::uiFromSettings(const Settings &settings)
+{
+    ui->scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
+    ui->scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
 
-     ui->keywordsList->clear();
-     foreach (const Keyword &keyword, settings.keywords)
-         addToKeywordsList(keyword);
- }
+    ui->keywordsList->clear();
+    foreach (const Keyword &keyword, settings.keywords)
+        addToKeywordsList(keyword);
+}
 
- Settings OptionsDialog::settingsFromUi()
- {
-     Settings settings;
+Settings OptionsDialog::settingsFromUi()
+{
+    Settings settings;
 
-     if (ui->scanInCurrentFileRadioButton->isChecked())
-         settings.scanningScope = ScanningScopeCurrentFile;
-     else
-         settings.scanningScope = ScanningScopeProject;
+    if (ui->scanInCurrentFileRadioButton->isChecked())
+        settings.scanningScope = ScanningScopeCurrentFile;
+    else
+        settings.scanningScope = ScanningScopeProject;
 
-     settings.keywords.clear();
-     for (int i = 0; i < ui->keywordsList->count(); ++i) {
-         QListWidgetItem *item = ui->keywordsList->item(i);
+    settings.keywords.clear();
+    for (int i = 0; i < ui->keywordsList->count(); ++i) {
+        QListWidgetItem *item = ui->keywordsList->item(i);
 
-         Keyword keyword;
-         keyword.name = item->text();
-         keyword.iconResource = item->data(Qt::UserRole).toString();
-         keyword.color = item->backgroundColor();
+        Keyword keyword;
+        keyword.name = item->text();
+        keyword.iconResource = item->data(Qt::UserRole).toString();
+        keyword.color = item->backgroundColor();
 
-         settings.keywords << keyword;
-     }
+        settings.keywords << keyword;
+    }
 
-     return settings;
- }
+    return settings;
+}
 
 } // namespace Internal
 } // namespace Todo

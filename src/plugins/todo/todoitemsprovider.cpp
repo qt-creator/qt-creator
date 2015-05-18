@@ -66,12 +66,19 @@ TodoItemsModel *TodoItemsProvider::todoItemsModel()
 
 void TodoItemsProvider::settingsChanged(const Settings &newSettings)
 {
-    if (newSettings.keywords != m_settings.keywords)
+    if (newSettings.keywords != m_settings.keywords) {
         foreach (TodoItemsScanner *scanner, m_scanners)
-            scanner->setKeywordList(newSettings.keywords);
+            scanner->setParams(newSettings.keywords);
+    }
 
     m_settings = newSettings;
 
+    updateList();
+}
+
+void TodoItemsProvider::projectSettingsChanged(Project *project)
+{
+    Q_UNUSED(project);
     updateList();
 }
 
@@ -84,9 +91,8 @@ void TodoItemsProvider::updateList()
         if (m_currentEditor)
             m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath().toString());
     // Show only items of the startup project if any
-    } else {
-        if (m_startupProject)
-            setItemsListWithinStartupProject();
+    } else if (m_startupProject) {
+        setItemsListWithinStartupProject();
     }
 
     m_itemsModel->todoItemsListUpdated();
@@ -102,19 +108,34 @@ void TodoItemsProvider::createScanners()
     if (QmlJS::ModelManagerInterface::instance())
         m_scanners << new QmlJsTodoItemsScanner(m_settings.keywords, this);
 
-    foreach (TodoItemsScanner *scanner, m_scanners)
+    foreach (TodoItemsScanner *scanner, m_scanners) {
         connect(scanner, SIGNAL(itemsFetched(QString,QList<TodoItem>)), this,
             SLOT(itemsFetched(QString,QList<TodoItem>)), Qt::QueuedConnection);
+    }
 }
 
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
     QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::ExcludeGeneratedFiles));
+
+    QVariantMap settings = m_startupProject->namedSettings(QLatin1String(Constants::SETTINGS_NAME_KEY)).toMap();
+
     while (it.hasNext()) {
         it.next();
-        if (fileNames.contains(it.key()))
-            m_itemsList << it.value();
+        QString fileName = it.key();
+        if (fileNames.contains(fileName)) {
+            bool skip = false;
+            for (const QVariant &pattern : settings[QLatin1String(Constants::EXCLUDES_LIST_KEY)].toList()) {
+                QRegExp re(pattern.toString());
+                if (re.indexIn(fileName) != -1) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip)
+                m_itemsList << it.value();
+        }
     }
 }
 

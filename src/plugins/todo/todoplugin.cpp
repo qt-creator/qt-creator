@@ -35,10 +35,12 @@
 #include "keyword.h"
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
+#include "todoprojectsettingswidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <QtPlugin>
 #include <QFileInfo>
@@ -70,6 +72,23 @@ bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
     createOptionsPage();
     createItemsProvider();
     createTodoOutputPane();
+
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    panelFactory->setPriority(100);
+    panelFactory->setDisplayName(TodoProjectSettingsWidget::tr("To-Do Settings"));
+    panelFactory->setCreateWidgetFunction([this, panelFactory](ProjectExplorer::Project *project) -> QWidget * {
+        auto *panel = new ProjectExplorer::PropertiesPanel;
+        panel->setDisplayName(panelFactory->displayName());
+        auto *widget = new TodoProjectSettingsWidget(project);
+        connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,
+                m_todoItemsProvider, [this, project](){m_todoItemsProvider->projectSettingsChanged(project);});
+        panel->setWidget(widget);
+        auto *panelsWidget = new ProjectExplorer::PanelsWidget();
+        panelsWidget->addPropertiesPanel(panel);
+        panelsWidget->setFocusProxy(widget);
+        return panelsWidget;
+    });
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     return true;
 }

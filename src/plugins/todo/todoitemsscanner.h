@@ -37,6 +37,10 @@
 
 #include <QObject>
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace Todo {
 namespace Internal {
 
@@ -48,7 +52,7 @@ class TodoItemsScanner : public QObject
 
 public:
     explicit TodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
-    void setKeywordList(const KeywordList &keywordList);
+    void setParams(const KeywordList &keywordList);
 
 signals:
     void itemsFetched(const QString &fileName, const QList<TodoItem> &items);
@@ -56,9 +60,11 @@ signals:
 protected:
     KeywordList m_keywordList;
 
-    virtual void keywordListChanged();
-    void processCommentLine(const QString &fileName, const QString &comment, unsigned lineNumber,
-        QList<TodoItem> &outItemList);
+    // Descendants can override and make a request for full rescan here if needed
+    virtual void scannerParamsChanged() = 0;
+
+    void processCommentLine(const QString &fileName, const QString &comment,
+                            unsigned lineNumber, QList<TodoItem> &outItemList);
 };
 
 }

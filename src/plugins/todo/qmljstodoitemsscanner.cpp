@@ -44,19 +44,22 @@ QmlJsTodoItemsScanner::QmlJsTodoItemsScanner(const KeywordList &keywordList, QOb
     QmlJS::ModelManagerInterface *model = QmlJS::ModelManagerInterface::instance();
     connect(model, &QmlJS::ModelManagerInterface::documentUpdated,
             this, &QmlJsTodoItemsScanner::documentUpdated, Qt::DirectConnection);
+
+    setParams(keywordList);
 }
 
 bool QmlJsTodoItemsScanner::shouldProcessFile(const QString &fileName)
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
+    foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos()) {
         if (info.sourceFiles.contains(fileName))
             return true;
+    }
 
     return false;
 }
 
-void QmlJsTodoItemsScanner::keywordListChanged()
+void QmlJsTodoItemsScanner::scannerParamsChanged()
 {
     // We need to rescan everything known to the code model
     // TODO: It would be nice to only tokenize the source files, not update the code model entirely.
@@ -81,7 +84,6 @@ void QmlJsTodoItemsScanner::processDocument(QmlJS::Document::Ptr doc)
     QList<TodoItem> itemList;
 
     foreach (const QmlJS::AST::SourceLocation &sourceLocation, doc->engine()->comments()) {
-
         QString source = doc->source().mid(sourceLocation.begin(), sourceLocation.length).trimmed();
 
         // Process every line

@@ -54,6 +54,8 @@ const char ITEMS_DISPLAY_PLACE[] = "ItemsDisplayPlace";
 const char KEYWORDS_LIST[] = "Keywords";
 const char OUTPUT_PANE_TEXT_WIDTH[] = "OutputPaneTextColumnWidth";
 const char OUTPUT_PANE_FILE_WIDTH[] = "OutputPaneFileColumnWidth";
+const char SETTINGS_NAME_KEY[] = "TodoProjectSettings";
+const char EXCLUDES_LIST_KEY[] = "ExcludesList";
 
 // TODO Output TreeWidget columns
 enum OutputColumnIndex {

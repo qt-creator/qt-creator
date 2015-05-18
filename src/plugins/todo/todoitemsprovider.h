@@ -57,6 +57,7 @@ public:
 
 public slots:
     void settingsChanged(const Settings &newSettings);
+    void projectSettingsChanged(ProjectExplorer::Project *project);
 
 signals:
     void itemsUpdated();

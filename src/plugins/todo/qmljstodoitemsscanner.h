@@ -48,7 +48,7 @@ public:
 
 protected:
     bool shouldProcessFile(const QString &fileName);
-    void keywordListChanged();
+    void scannerParamsChanged() override;
 
 private slots:
     void documentUpdated(QmlJS::Document::Ptr doc);

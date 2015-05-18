@@ -46,9 +46,11 @@ CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject
 
     connect(modelManager, &CppTools::CppModelManager::documentUpdated,
             this, &CppTodoItemsScanner::documentUpdated, Qt::DirectConnection);
+
+    setParams(keywordList);
 }
 
-void CppTodoItemsScanner::keywordListChanged()
+void CppTodoItemsScanner::scannerParamsChanged()
 {
     // We need to rescan everything known to the code model
     // TODO: It would be nice to only tokenize the source files, not update the code model entirely.
@@ -72,7 +74,6 @@ void CppTodoItemsScanner::documentUpdated(CPlusPlus::Document::Ptr doc)
 void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
 {
     QList<TodoItem> itemList;
-
     CPlusPlus::TranslationUnit *translationUnit = doc->translationUnit();
 
     for (unsigned i = 0; i < translationUnit->commentCount(); ++i) {

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Todo::Internal::TodoProjectSettingsWidget</class>
+ <widget class="QWidget" name="Todo::Internal::TodoProjectSettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>814</width>
+    <height>330</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+    <widget class="QGroupBox" name="excludedPatternsBox">
+    <property name="title">
+     <string>Excluded Files</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QListWidget" name="excludedPatternsList">
+       <property name="toolTip">
+        <string>Regular expressions for file paths to be excluded from scanning.</string>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QPushButton" name="addExcludedPatternButton">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="removeExcludedPatternButton">
+         <property name="text">
+          <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+    </widget>
+    </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+     <connection>
+      <sender>excludedPatternsList</sender>
+      <signal>itemSelectionChanged()</signal>
+      <receiver>Todo::Internal::TodoProjectSettingsWidget</receiver>
+      <slot>setExcludedPatternsButtonsEnabled()</slot>
+      <hints>
+       <hint type="sourcelabel">
+        <x>170</x>
+        <y>381</y>
+       </hint>
+       <hint type="destinationlabel">
+        <x>221</x>
+        <y>240</y>
+       </hint>
+      </hints>
+     </connection>
+ </connections>
+ <slots>
+  <slot>setExcludedPatternsButtonsEnabled()</slot>
+ </slots>
+</ui>
