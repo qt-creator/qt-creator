@@ -166,13 +166,6 @@ void DesktopQmakeRunConfiguration::ctor()
             this, &DesktopQmakeRunConfiguration::proFileUpdated);
     connect(project, &QmakeProject::proFilesEvaluated,
             this, &DesktopQmakeRunConfiguration::proFileEvaluated);
-    connect(target(), &Target::kitChanged,
-            this, &DesktopQmakeRunConfiguration::kitChanged);
-}
-
-void DesktopQmakeRunConfiguration::kitChanged()
-{
-    emit runModeChanged(runMode()); // Always emit
 }
 
 //////
