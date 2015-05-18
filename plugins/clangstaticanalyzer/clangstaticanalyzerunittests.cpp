@@ -66,6 +66,7 @@ void ClangStaticAnalyzerUnitTests::initTestCase()
         QSKIP("No clang suitable for analyzing found");
 
     m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));
+    QVERIFY(m_tmpDir->isValid());
 }
 
 void ClangStaticAnalyzerUnitTests::cleanupTestCase()
@@ -96,14 +97,14 @@ void ClangStaticAnalyzerUnitTests::testProject_data()
     QTest::addColumn<int>("expectedDiagCount");
 
     QTest::newRow("simple qbs project")
-            << QString(m_tmpDir->path() + QLatin1String("/simple/simple.qbs")) << 1;
+            << QString(m_tmpDir->absolutePath("simple/simple.qbs")) << 1;
     QTest::newRow("simple qmake project")
-            << QString(m_tmpDir->path() + QLatin1String("/simple/simple.pro")) << 1;
+            << QString(m_tmpDir->absolutePath("simple/simple.pro")) << 1;
 
     QTest::newRow("qt-widgets-app qbs project")
-            << QString(m_tmpDir->path() + QLatin1String("/qt-widgets-app/qt-widgets-app.qbs")) << 0;
+            << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.qbs")) << 0;
     QTest::newRow("qt-widgets-app qmake project")
-            << QString(m_tmpDir->path() + QLatin1String("/qt-widgets-app/qt-widgets-app.pro")) << 0;
+            << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.pro")) << 0;
 }
 
 } // namespace Internal
