@@ -38,6 +38,8 @@ def main():
     workingDir = tempDir()
     # we need a Qt >= 4.8
     analyzerTargets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC
+    if platform.system() in ('Windows', 'Microsoft') and JIRA.isBugStillOpen(14307):
+        analyzerTargets &= ~Targets.DESKTOP_480_DEFAULT & ~Targets.DESKTOP_541_GCC
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
