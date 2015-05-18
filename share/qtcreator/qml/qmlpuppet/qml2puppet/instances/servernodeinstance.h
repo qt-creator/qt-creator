@@ -172,10 +172,8 @@ private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 
     void setPropertyVariant(const PropertyName &name, const QVariant &value);
-    void setPropertyDynamicVariant(const PropertyName &name, const TypeName &typeName, const QVariant &value);
 
     void setPropertyBinding(const PropertyName &name, const QString &expression);
-    void setPropertyDynamicBinding(const PropertyName &name, const TypeName &typeName, const QString &expression);
 
     void resetProperty(const PropertyName &name);
     void refreshProperty(const PropertyName &name);

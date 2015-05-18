@@ -110,7 +110,13 @@ static QQmlPropertyCache *cacheForObject(QObject *object, QQmlEngine *engine)
     return QQmlEnginePrivate::get(engine)->cache(object);
 }
 
-NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
+void NodeInstanceMetaObject::registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
+{
+    // we just create one and the ownership goes automatically to the object in nodeinstance see init method
+    getNodeInstanceMetaObject(nodeInstance);
+}
+
+NodeInstanceMetaObject* NodeInstanceMetaObject::getNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
 {
     //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
     QObjectPrivate *op = QObjectPrivate::get(nodeInstance->object());
@@ -118,6 +124,7 @@ NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(con
     if (nodeInstanceMetaObjectList.contains(parent))
         return static_cast<NodeInstanceMetaObject *>(parent);
 
+    // we just create one and the ownership goes automatically to the object in nodeinstance see init method
     return new NodeInstanceMetaObject(nodeInstance, nodeInstance->nodeInstanceServer()->engine());
 }
 
@@ -175,7 +182,12 @@ NodeInstanceMetaObject::~NodeInstanceMetaObject()
     nodeInstanceMetaObjectList.remove(this);
 }
 
-void NodeInstanceMetaObject::createNewProperty(const QString &name)
+void NodeInstanceMetaObject::createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name)
+{
+    getNodeInstanceMetaObject(nodeInstance)->createNewDynamicProperty(name);
+}
+
+void NodeInstanceMetaObject::createNewDynamicProperty(const QString &name)
 {
     int id = m_type->createProperty(name.toUtf8());
     copyTypeMetaObject();

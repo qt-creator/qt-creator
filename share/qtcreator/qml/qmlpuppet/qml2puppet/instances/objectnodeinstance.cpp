@@ -31,6 +31,7 @@
 #include "objectnodeinstance.h"
 
 #include <enumeration.h>
+#include <nodeinstancemetaobject.h>
 
 #include <QEvent>
 #include <QQmlContext>
@@ -106,7 +107,6 @@ namespace Internal {
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_object(object),
-      m_metaObject(0),
       m_instanceId(-1),
       m_deleteHeldInstance(true),
       m_isInLayoutable(false)
@@ -145,7 +145,6 @@ void ObjectNodeInstance::destroy()
         }
     }
 
-    m_metaObject = 0;
     m_instanceId = -1;
 }
 
@@ -171,14 +170,9 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
     m_nodeInstanceServer = server;
 }
 
-void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
-{
-    m_metaObject = NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance);
-}
-
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    initializePropertyWatcher(objectNodeInstance);
+    NodeInstanceMetaObject::registerNodeInstanceMetaObject(objectNodeInstance);
 }
 
 void ObjectNodeInstance::setId(const QString &id)
@@ -1400,16 +1394,6 @@ QSizeF ObjectNodeInstance::size() const
 int ObjectNodeInstance::penWidth() const
 {
     return 0;
-}
-
-void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
-{
-    if (m_metaObject == 0) {
-        qWarning() << "ObjectNodeInstance.createDynamicProperty: No Metaobject.";
-        return;
-    }
-
-    m_metaObject->createNewProperty(name);
 }
 
 bool ObjectNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &/*target*/, const PropertyName &/*propertyName*/, const QVariant &/*value*/)

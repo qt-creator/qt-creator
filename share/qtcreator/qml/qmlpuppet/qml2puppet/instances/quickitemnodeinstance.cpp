@@ -32,6 +32,7 @@
 
 #include "qt5nodeinstanceserver.h"
 
+#include <QQmlProperty>
 #include <QQmlExpression>
 #include <QQuickView>
 #include <cmath>

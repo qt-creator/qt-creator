@@ -32,7 +32,6 @@
 #define OBJECTNODEINSTANCE_H
 
 #include "nodeinstanceserver.h"
-#include "nodeinstancemetaobject.h"
 
 #include <QPainter>
 #include <QSharedPointer>
@@ -84,7 +83,6 @@ public:
 
     NodeInstanceServer *nodeInstanceServer() const;
     void setNodeInstanceServer(NodeInstanceServer *server);
-    virtual void initializePropertyWatcher(const Pointer &objectNodeInstance);
     virtual void initialize(const Pointer &objectNodeInstance);
     virtual QImage renderImage() const;
     virtual QImage renderPreviewImage(const QSize &previewImageSize) const;
@@ -142,7 +140,6 @@ public:
     virtual QList<ServerNodeInstance> childItems() const;
     virtual QList<QQuickItem*> allItemsRecursive() const;
 
-    void createDynamicProperty(const QString &PropertyName, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);
     bool deleteHeldInstance() const;
 
@@ -216,7 +213,6 @@ private:
     PropertyName m_parentProperty;
 
     QPointer<QObject> m_object;
-    NodeInstanceMetaObject *m_metaObject;
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;

@@ -322,20 +322,8 @@ void ServerNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
 }
 
-void ServerNodeInstance::setPropertyDynamicVariant(const PropertyName &name, const TypeName &typeName, const QVariant &value)
-{
-    m_nodeInstance->createDynamicProperty(name, typeName);
-    m_nodeInstance->setPropertyVariant(name, value);
-}
-
 void ServerNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    m_nodeInstance->setPropertyBinding(name, expression);
-}
-
-void ServerNodeInstance::setPropertyDynamicBinding(const PropertyName &name, const TypeName &typeName, const QString &expression)
-{
-    m_nodeInstance->createDynamicProperty(name, typeName);
     m_nodeInstance->setPropertyBinding(name, expression);
 }
 
