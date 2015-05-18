@@ -137,6 +137,9 @@ def qdump__CPlusPlus__Symbol(d, value):
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__Class(d, value):
+    qdump__CPlusPlus__Symbol(d, value)
+
 def qdump__CPlusPlus__IntegerType(d, value):
     d.putValue(value["_kind"])
     d.putPlainChildren(value)
