@@ -146,7 +146,7 @@ Core::ShellCommand *GitVersionControl::createInitialCheckoutCommand(const QStrin
                                                                     const QStringList &extraArgs)
 {
     QStringList args;
-    args << QLatin1String("clone") << extraArgs << url << localName;
+    args << QLatin1String("clone") << QLatin1String("--progress") << extraArgs << url << localName;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_client->processEnvironment());
     command->addJob(m_client->vcsBinary(), args, -1);
