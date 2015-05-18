@@ -62,7 +62,7 @@ public:
      */
     void init(Document::Ptr thisDocument,
               const Snapshot &snapshot,
-              QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>(),
+              CreateBindings::Ptr bindings = CreateBindings::Ptr(),
               const QSet<const Declaration *> &autoDeclarationsBeingResolved
                 = QSet<const Declaration *>());
 
@@ -142,7 +142,7 @@ private:
 private:
     Document::Ptr m_thisDocument;
     Snapshot m_snapshot;
-    QSharedPointer<CreateBindings> m_bindings;
+    CreateBindings::Ptr m_bindings;
     ExpressionAST *m_ast;
     Scope *m_scope;
     LookupContext m_lookupContext;

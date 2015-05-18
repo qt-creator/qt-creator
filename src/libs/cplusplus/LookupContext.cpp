@@ -162,7 +162,7 @@ LookupContext::LookupContext(Document::Ptr thisDocument,
 LookupContext::LookupContext(Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
                              const Snapshot &snapshot,
-                             QSharedPointer<CreateBindings> bindings)
+                             CreateBindings::Ptr bindings)
     : _expressionDocument(expressionDocument)
     , _thisDocument(thisDocument)
     , _snapshot(snapshot)

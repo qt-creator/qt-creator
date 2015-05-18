@@ -107,6 +107,8 @@ class CPLUSPLUS_EXPORT CreateBindings
     Q_DISABLE_COPY(CreateBindings)
 
 public:
+    typedef QSharedPointer<CreateBindings> Ptr;
+
     CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot);
     virtual ~CreateBindings();
 
@@ -214,7 +216,7 @@ public:
     LookupContext(Document::Ptr expressionDocument,
                   Document::Ptr thisDocument,
                   const Snapshot &snapshot,
-                  QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>());
+                  CreateBindings::Ptr bindings = CreateBindings::Ptr());
 
     LookupContext(const LookupContext &other);
     LookupContext &operator = (const LookupContext &other);
@@ -236,7 +238,7 @@ public:
     LookupScope *lookupParent(Symbol *symbol) const;
 
     /// \internal
-    QSharedPointer<CreateBindings> bindings() const
+    CreateBindings::Ptr bindings() const
     { return _bindings; }
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
@@ -264,7 +266,7 @@ private:
     Snapshot _snapshot;
 
     // Bindings
-    QSharedPointer<CreateBindings> _bindings;
+    CreateBindings::Ptr _bindings;
 
     bool m_expandTemplates;
 };
