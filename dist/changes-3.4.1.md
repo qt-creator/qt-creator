@@ -22,6 +22,8 @@ Project Management
 
 * Fixed adding static libraries with `Add Library` wizard
   (QTCREATORBUG-14382)
+* Fixed broken documentation link in session manager
+  (QTCREATORBUG-14459)
 
 CMake Projects
 
@@ -36,6 +38,11 @@ Debugging
 * CDB
     * Fixed that stepping into frame without source would step out
       instead (QTCREATORBUG-9677)
+
+QML Profiler
+
+* Fixed that events with no duration were not visible
+  (QTCREATORBUG-14446)
 
 C++ Support
 
