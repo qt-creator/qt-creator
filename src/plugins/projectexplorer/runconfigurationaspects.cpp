@@ -228,9 +228,12 @@ QString ArgumentsAspect::unexpandedArguments() const
 
 void ArgumentsAspect::setArguments(const QString &arguments)
 {
-    m_arguments = arguments;
-    if (m_chooser)
-        m_chooser->setText(m_arguments);
+    if (arguments != m_arguments) {
+        m_arguments = arguments;
+        emit argumentsChanged(arguments);
+    }
+    if (m_chooser->text() != arguments)
+        m_chooser->setText(arguments);
 }
 
 void ArgumentsAspect::fromMap(const QVariantMap &map)
@@ -258,6 +261,7 @@ void ArgumentsAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout 
     QTC_CHECK(!m_chooser);
     m_chooser = new FancyLineEdit(parent);
     m_chooser->setHistoryCompleter(m_key);
+    m_chooser->setText(m_arguments);
 
     connect(m_chooser, &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
 

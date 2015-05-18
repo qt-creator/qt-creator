@@ -60,7 +60,6 @@ namespace {
 const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
 
 const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Executable";
-const char ARGUMENTS_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Arguments";
 const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
 }
 
@@ -75,8 +74,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     m_dialog(0)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new ArgumentsAspect(this, QStringLiteral("ProjectExplorer.CustomExecutableRunConfiguration.Arguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal")));
-
     if (!parent->activeBuildConfiguration())
         m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR_ALTERNATE);
     ctor();
@@ -87,7 +86,6 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     LocalApplicationRunConfiguration(parent, source),
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
-    m_cmdArguments(source->m_cmdArguments),
     m_dialog(0)
 {
     ctor();
@@ -264,12 +262,7 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 
 QString CustomExecutableRunConfiguration::commandLineArguments() const
 {
-    return macroExpander()->expandProcessArgs(m_cmdArguments);
-}
-
-QString CustomExecutableRunConfiguration::rawCommandLineArguments() const
-{
-    return m_cmdArguments;
+    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 QString CustomExecutableRunConfiguration::defaultDisplayName() const
@@ -284,7 +277,6 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
 {
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(EXECUTABLE_KEY), m_executable);
-    map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     return map;
 }
@@ -292,7 +284,6 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
 bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_executable = map.value(QLatin1String(EXECUTABLE_KEY)).toString();
-    m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
 
     setDefaultDisplayName(defaultDisplayName());
@@ -310,7 +301,7 @@ void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
 
 void CustomExecutableRunConfiguration::setCommandLineArguments(const QString &commandLineArguments)
 {
-    m_cmdArguments = commandLineArguments;
+    extraAspect<ArgumentsAspect>()->setArguments(commandLineArguments);
     emit changed();
 }
 

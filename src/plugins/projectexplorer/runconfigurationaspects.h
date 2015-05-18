@@ -123,12 +123,15 @@ public:
 
     void setArguments(const QString &arguments);
 
+signals:
+    void argumentsChanged(const QString &arguments);
+
 private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
     QString m_arguments;
-    Utils::FancyLineEdit *m_chooser;
+    QPointer<Utils::FancyLineEdit> m_chooser;
     QString m_key;
 };
 

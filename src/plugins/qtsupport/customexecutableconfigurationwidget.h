@@ -47,6 +47,7 @@ class PathChooser;
 }
 
 namespace ProjectExplorer {
+class ArgumentsAspect;
 class TerminalAspect;
 }
 
@@ -74,16 +75,15 @@ private slots:
     void changed();
 
     void executableEdited();
-    void argumentsEdited(const QString &arguments);
     void workingDirectoryEdited();
     void environmentWasChanged();
 
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
+    ProjectExplorer::ArgumentsAspect *m_temporaryArgumentsAspect;
     ProjectExplorer::TerminalAspect *m_temporaryTerminalAspect;
     Utils::PathChooser *m_executableChooser;
-    QLineEdit *m_commandLineArgumentsLineEdit;
     Utils::PathChooser *m_workingDirectory;
     Utils::DetailsWidget *m_detailsContainer;
 };

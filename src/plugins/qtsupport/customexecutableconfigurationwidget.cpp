@@ -36,6 +36,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -52,7 +53,10 @@ namespace QtSupport {
 namespace Internal {
 
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc, ApplyMode mode)
-    : m_ignoreChange(false), m_runConfiguration(rc), m_temporaryTerminalAspect(0)
+    : m_ignoreChange(false),
+      m_runConfiguration(rc),
+      m_temporaryArgumentsAspect(0),
+      m_temporaryTerminalAspect(0)
 {
     QFormLayout *layout = new QFormLayout;
     layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -63,9 +67,15 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
     layout->addRow(tr("Executable:"), m_executableChooser);
 
-    m_commandLineArgumentsLineEdit = new QLineEdit(this);
-    m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
-    layout->addRow(tr("Arguments:"), m_commandLineArgumentsLineEdit);
+    ArgumentsAspect *argumentsAspect = rc->extraAspect<ArgumentsAspect>();
+    if (mode == InstantApply) {
+        argumentsAspect->addToMainConfigurationWidget(this, layout);
+    } else {
+        m_temporaryArgumentsAspect = argumentsAspect->clone(rc);
+        m_temporaryArgumentsAspect->addToMainConfigurationWidget(this, layout);
+        connect(m_temporaryArgumentsAspect, &ArgumentsAspect::argumentsChanged,
+                this, &CustomExecutableConfigurationWidget::validChanged);
+    }
 
     m_workingDirectory = new Utils::PathChooser(this);
     m_workingDirectory->setHistoryCompleter(QLatin1String("Qt.WorkingDir.History"));
@@ -100,14 +110,10 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     if (mode == InstantApply) {
         connect(m_executableChooser, SIGNAL(changed(QString)),
                 this, SLOT(executableEdited()));
-        connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
-                this, SLOT(argumentsEdited(QString)));
         connect(m_workingDirectory, SIGNAL(changed(QString)),
                 this, SLOT(workingDirectoryEdited()));
     } else {
         connect(m_executableChooser, SIGNAL(changed(QString)),
-                this, SIGNAL(validChanged()));
-        connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
                 this, SIGNAL(validChanged()));
         connect(m_workingDirectory, SIGNAL(changed(QString)),
                 this, SIGNAL(validChanged()));
@@ -130,6 +136,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
 CustomExecutableConfigurationWidget::~CustomExecutableConfigurationWidget()
 {
+    delete m_temporaryArgumentsAspect;
     delete m_temporaryTerminalAspect;
 }
 
@@ -148,12 +155,7 @@ void CustomExecutableConfigurationWidget::executableEdited()
     m_runConfiguration->setExecutable(m_executableChooser->rawPath());
     m_ignoreChange = false;
 }
-void CustomExecutableConfigurationWidget::argumentsEdited(const QString &arguments)
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setCommandLineArguments(arguments);
-    m_ignoreChange = false;
-}
+
 void CustomExecutableConfigurationWidget::workingDirectoryEdited()
 {
     m_ignoreChange = true;
@@ -168,7 +170,6 @@ void CustomExecutableConfigurationWidget::changed()
         return;
 
     m_executableChooser->setPath(m_runConfiguration->rawExecutable());
-    m_commandLineArgumentsLineEdit->setText(m_runConfiguration->rawCommandLineArguments());
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
 }
 
@@ -176,7 +177,7 @@ void CustomExecutableConfigurationWidget::apply()
 {
     m_ignoreChange = true;
     m_runConfiguration->setExecutable(m_executableChooser->rawPath());
-    m_runConfiguration->setCommandLineArguments(m_commandLineArgumentsLineEdit->text());
+    m_runConfiguration->setCommandLineArguments(m_temporaryArgumentsAspect->unexpandedArguments());
     m_runConfiguration->setBaseWorkingDirectory(m_workingDirectory->rawPath());
     m_runConfiguration->setRunMode(m_temporaryTerminalAspect->runMode());
     m_ignoreChange = false;

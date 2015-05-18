@@ -94,7 +94,6 @@ private:
     void setExecutable(const QString &executable);
     QString rawExecutable() const;
     void setCommandLineArguments(const QString &commandLineArguments);
-    QString rawCommandLineArguments() const;
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
@@ -103,7 +102,6 @@ private:
 
     QString m_executable;
     QString m_workingDirectory;
-    QString m_cmdArguments;
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
     QWidget *m_dialog;
 };
