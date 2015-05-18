@@ -100,11 +100,13 @@ void TestResultsPane::createToolButtons()
     m_runAll = new QToolButton(m_treeView);
     m_runAll->setIcon(QIcon(QLatin1String(":/images/run.png")));
     m_runAll->setToolTip(tr("Run All Tests"));
+    m_runAll->setEnabled(false);
     connect(m_runAll, &QToolButton::clicked, this, &TestResultsPane::onRunAllTriggered);
 
     m_runSelected = new QToolButton(m_treeView);
     m_runSelected->setIcon(QIcon(QLatin1String(":/images/runselected.png")));
     m_runSelected->setToolTip(tr("Run Selected Tests"));
+    m_runSelected->setEnabled(false);
     connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
 
     m_stopTestRun = new QToolButton(m_treeView);
