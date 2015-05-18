@@ -128,7 +128,6 @@ bool TypeResolver::isTypedefWithName(const Declaration *declaration, const Name 
 bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpecifiedType *type,
                                Scope **scope, QSet<Symbol *> &visited)
 {
-    bool foundTypedef = false;
     foreach (const LookupItem &it, namedTypeItems) {
         Symbol *declaration = it.declaration();
         if (!declaration || !declaration->isTypedef())
@@ -152,11 +151,10 @@ bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpe
 
         *scope = it.scope();
         _binding = it.binding();
-        foundTypedef = true;
-        break;
+        return true;
     }
 
-    return foundTypedef;
+    return false;
 }
 
 } // namespace CPlusPlus
