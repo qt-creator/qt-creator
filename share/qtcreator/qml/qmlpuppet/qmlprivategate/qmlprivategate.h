@@ -31,9 +31,11 @@
 #ifndef QMLPRIVATEGATE_H
 #define QMLPRIVATEGATE_H
 
+#include "nodeinstanceglobal.h"
+
 #include <QObject>
-//#include <QPointer>
-//#include <qqml.h>
+#include <QString>
+#include <QQmlContext>
 
 class QQmlContext;
 
@@ -45,11 +47,31 @@ class ObjectNodeInstance;
 typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
 typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
 
+class ComponentCompleteDisabler
+{
+public:
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
+    ComponentCompleteDisabler();
+
+    ~ComponentCompleteDisabler();
+#else
+    ComponentCompleteDisabler()
+    {
+    //nothing not available yet
+    }
+#endif
+};
+
 namespace QmlPrivateGate {
     void readPropertyValue(QObject *object, const QByteArray &propertyName, QQmlContext *qmlContext, bool *ok);
     void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
     void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
-
+    QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);
+    void tweakObjects(QObject *object);
+    bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName);
+    PropertyNameList propertyNameListForWritableProperties(QObject *object,
+                                                           const PropertyName &baseName = PropertyName(),
+                                                           QObjectList *inspectedObjects = new QObjectList());
 
 } // namespace QmlPrivateGate
 } // namespace Internal
