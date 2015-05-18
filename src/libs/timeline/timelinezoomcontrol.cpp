@@ -100,7 +100,8 @@ void TimelineZoomControl::rebuildWindow()
         m_windowStart = m_traceStart;
         m_windowEnd = m_traceEnd;
     } else if (windowDuration() / shownDuration > MAX_ZOOM_FACTOR ||
-               windowDuration() / shownDuration * 2 < MAX_ZOOM_FACTOR) {
+               windowDuration() / shownDuration * 2 < MAX_ZOOM_FACTOR ||
+               m_rangeStart < m_windowStart || m_rangeEnd > m_windowEnd) {
         qint64 keep = shownDuration * MAX_ZOOM_FACTOR / 2 - shownDuration;
         m_windowStart = m_rangeStart - keep;
         if (m_windowStart < m_traceStart) {
