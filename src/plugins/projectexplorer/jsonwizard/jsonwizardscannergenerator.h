@@ -55,6 +55,7 @@ private:
     bool matchesSubdirectoryPattern(const QString &path);
 
     QString m_binaryPattern;
+    QString m_firstProjectOnly;
     QList<QRegularExpression> m_subDirectoryExpressions;
 };
 

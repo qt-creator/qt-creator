@@ -40,6 +40,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
@@ -77,6 +78,8 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
         m_subDirectoryExpressions << regexp;
     }
 
+    m_firstProjectOnly = gen.value(QLatin1String("firstProjectOnly"), QLatin1String("true")).toString();
+
     return true;
 }
 
@@ -103,25 +106,24 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
         }
     }
 
+    bool onlyFirst = JsonWizard::boolFromVariant(m_firstProjectOnly, expander);
+
     result = scan(project.absolutePath(), project);
 
     QList<IProjectManager *> projectManagers
             = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
+    int projectCount = 0;
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
 
         Utils::MimeType mt = mdb.mimeTypeForFile(relPath);
         if (mt.isValid()) {
-            bool foundProjectManager = false;
-            foreach (IProjectManager *manager, projectManagers) {
-                if (mt.matchesName(manager->mimeType())) {
-                    foundProjectManager = true;
-                    break;
-                }
-            }
-            if (foundProjectManager)
+            bool found = Utils::anyOf(projectManagers, [mt](IProjectManager *m) {
+                return mt.matchesName(m->mimeType());
+            });
+            if (found && !(onlyFirst && projectCount++))
                 it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
         }
     }
