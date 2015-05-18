@@ -56,6 +56,9 @@ QML Support
 
 Platform Specific
 
+OS X
+* Fixed broken library paths for qbs executables (QTCREATORBUG-14432)
+
 BareMetal
 
 * Fixed issues when moving from Qt Creator 3.3 to Qt Creator 3.4
