@@ -45,7 +45,7 @@ namespace Internal {
 
 CustomWidgetWizard::CustomWidgetWizard()
 {
-    setId(QLatin1String("P.Qt4CustomWidget"));
+    setId("P.Qt4CustomWidget");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
              ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));

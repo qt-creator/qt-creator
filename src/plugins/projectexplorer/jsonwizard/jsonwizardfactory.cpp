@@ -514,7 +514,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         *errorMessage = tr("No id set.");
         return false;
     }
-    setId(strVal);
+    setId(Core::Id::fromString(strVal));
 
     strVal = data.value(QLatin1String(CATEGORY_KEY)).toString();
     if (strVal.isEmpty()) {

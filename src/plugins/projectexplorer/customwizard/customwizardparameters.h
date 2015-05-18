@@ -114,7 +114,7 @@ public:
                       QString *errorMessage);
     ParseResult parse(const QString &configFileFullPath, QString *errorMessage);
 
-    QString id;
+    Core::Id id;
     QString directory;
     QString klass;
     QList<CustomWizardFile> files;

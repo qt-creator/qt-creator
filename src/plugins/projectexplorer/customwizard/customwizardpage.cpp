@@ -255,7 +255,7 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
         pathChooser->setExpectedKind(PathChooser::Command);
     else if (expectedKind == QLatin1String("any"))
         pathChooser->setExpectedKind(PathChooser::Any);
-    pathChooser->setHistoryCompleter(QString::fromLatin1("PE.Custom.") + m_parameters->id + QLatin1Char('.') + field.name);
+    pathChooser->setHistoryCompleter(QString::fromLatin1("PE.Custom.") + m_parameters->id.toString() + QLatin1Char('.') + field.name);
 
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()

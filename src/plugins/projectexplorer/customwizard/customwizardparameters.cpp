@@ -583,7 +583,11 @@ CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPa
                 case ParseWithinWizard:
                     if (!booleanAttributeValue(reader, wizardEnabledAttributeC, true))
                         return ParseDisabled;
-                    id = attributeValue(reader, idAttributeC);
+                    {
+                        const QString idString = attributeValue(reader, idAttributeC);
+                        if (!idString.isEmpty())
+                            id = Core::Id::fromString(idString);
+                    }
                     category = attributeValue(reader, categoryAttributeC);
                     kind = kindAttribute(reader);
                     requiredFeatures = readRequiredFeatures(reader);

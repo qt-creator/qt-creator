@@ -138,7 +138,7 @@ void FormEditorPlugin::initializeTemplates()
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizard->setDisplayName(tr("Qt Designer Form Class"));
-    wizard->setId(QLatin1String("C.FormClass"));
+    wizard->setId("C.FormClass");
     wizard->setDescription(tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
                                        "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
     addAutoReleasedObject(wizard);

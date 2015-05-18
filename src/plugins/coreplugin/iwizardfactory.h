@@ -61,7 +61,7 @@ public:
 
     IWizardFactory() : m_kind(FileWizard) { }
 
-    QString id() const { return m_id; }
+    Id id() const { return m_id; }
     WizardKind kind() const { return m_kind; }
     QIcon icon() const { return m_icon; }
     QString description() const { return m_description; }
@@ -72,7 +72,7 @@ public:
     FeatureSet requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
 
-    void setId(const QString &id) { m_id = id; }
+    void setId(const Id id) { m_id = id; }
     void setWizardKind(WizardKind kind) { m_kind = kind; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setDescription(const QString &description) { m_description = description; }
@@ -108,7 +108,7 @@ private:
     QIcon m_icon;
     QString m_description;
     QString m_displayName;
-    QString m_id;
+    Id m_id;
     QString m_category;
     QString m_displayCategory;
     FeatureSet m_requiredFeatures;

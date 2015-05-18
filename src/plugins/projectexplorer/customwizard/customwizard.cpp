@@ -407,7 +407,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
                 if (CustomWizard *w = createWizard(parameters))
                     rc.push_back(w);
                 else
-                    qWarning("Custom wizard factory function failed for %s", qPrintable(parameters->id));
+                    qWarning("Custom wizard factory function failed for %s", qPrintable(parameters->id.toString()));
                 break;
             case CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)

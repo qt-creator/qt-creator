@@ -244,7 +244,7 @@ static bool wizardFactoryLessThan(const IWizardFactory *f1, const IWizardFactory
 {
     if (const int cc = f1->category().compare(f2->category()))
         return cc < 0;
-    return f1->id().compare(f2->id()) < 0;
+    return f1->id().toString().compare(f2->id().toString()) < 0;
 }
 
 void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,

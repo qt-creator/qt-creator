@@ -43,7 +43,7 @@ namespace Internal {
 
 SubdirsProjectWizard::SubdirsProjectWizard()
 {
-    setId(QLatin1String("U.Qt4Subdirs"));
+    setId("U.Qt4Subdirs");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));

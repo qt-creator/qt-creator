@@ -47,7 +47,7 @@ namespace Internal {
 
 LibraryWizard::LibraryWizard()
 {
-    setId(QLatin1String("H.Qt4Library"));
+    setId("H.Qt4Library");
     setCategory(QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY_DISPLAY));

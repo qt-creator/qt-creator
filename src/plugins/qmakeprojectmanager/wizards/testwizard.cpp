@@ -47,7 +47,7 @@ namespace Internal {
 
 TestWizard::TestWizard()
 {
-    setId(QLatin1String("L.Qt4Test"));
+    setId("L.Qt4Test");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
              ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));

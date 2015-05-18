@@ -74,7 +74,7 @@ namespace Internal {
 
 GuiAppWizard::GuiAppWizard()
 {
-    setId(QLatin1String("C.Qt4Gui"));
+    setId("C.Qt4Gui");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
                ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
