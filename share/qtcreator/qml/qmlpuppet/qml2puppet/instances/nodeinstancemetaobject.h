@@ -51,14 +51,12 @@ struct MetaPropertyData;
 class NodeInstanceMetaObject : public QQmlVMEMetaObject
 {
 public:
-    static NodeInstanceMetaObject *createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);
-    static NodeInstanceMetaObject *createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QQmlEngine *engine);
+    static NodeInstanceMetaObject *createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
     ~NodeInstanceMetaObject();
     void createNewProperty(const QString &name);
 
 protected:
     NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);
-    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QQmlEngine *engine);
 
     int openMetaCall(QMetaObject::Call _c, int _id, void **_a);
     int metaCall(QMetaObject::Call _c, int _id, void **_a);
@@ -84,7 +82,6 @@ private:
     void init(QObject *, QQmlEngine *engine);
 
     ObjectNodeInstanceWeakPointer m_nodeInstance;
-    PropertyName m_prefix;
     QPointer<QQmlContext> m_context;
     QQmlOpenMetaObjectType *m_type;
     QScopedPointer<MetaPropertyData> m_data;

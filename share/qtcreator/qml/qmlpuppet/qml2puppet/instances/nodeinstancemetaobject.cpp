@@ -110,7 +110,7 @@ static QQmlPropertyCache *cacheForObject(QObject *object, QQmlEngine *engine)
     return QQmlEnginePrivate::get(engine)->cache(object);
 }
 
-NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine)
+NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
 {
     //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
     QObjectPrivate *op = QObjectPrivate::get(nodeInstance->object());
@@ -118,18 +118,7 @@ NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(con
     if (nodeInstanceMetaObjectList.contains(parent))
         return static_cast<NodeInstanceMetaObject *>(parent);
 
-    return new NodeInstanceMetaObject(nodeInstance, engine);
-}
-
-NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QQmlEngine *engine)
-{
-    //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
-    QObjectPrivate *op = QObjectPrivate::get(nodeInstance->object());
-    QDynamicMetaObjectData *parent = op->metaObject;
-    if (nodeInstanceMetaObjectList.contains(parent))
-        return static_cast<NodeInstanceMetaObject *>(parent);
-
-    return new NodeInstanceMetaObject(nodeInstance, object, prefix, engine);
+    return new NodeInstanceMetaObject(nodeInstance, nodeInstance->nodeInstanceServer()->engine());
 }
 
 void NodeInstanceMetaObject::init(QObject *object, QQmlEngine *engine)
@@ -176,18 +165,6 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
 
 }
 
-NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QQmlEngine *engine)
-    : QQmlVMEMetaObject(object, cacheForObject(object, engine), vMEMetaDataForObject(object)),
-      m_nodeInstance(nodeInstance),
-      m_prefix(prefix),
-      m_context(engine->contextForObject(object)),
-
-      m_data(new MetaPropertyData),
-      m_cache(0)
-{
-      init(object, engine);
-}
-
 NodeInstanceMetaObject::~NodeInstanceMetaObject()
 {
     if (cache->count() > 1) // qml is crashing because the property cache is not removed from the engine
@@ -205,7 +182,6 @@ void NodeInstanceMetaObject::createNewProperty(const QString &name)
     setValue(id, QVariant());
     Q_ASSERT(id >= 0);
     Q_UNUSED(id);
-
 
     //Updating cache
     QQmlPropertyCache *oldParent = m_cache->parent();
@@ -348,9 +324,9 @@ void NodeInstanceMetaObject::notifyPropertyChange(int id)
 
     if (objectNodeInstance && objectNodeInstance->nodeInstanceServer()) {
         if (id < propertyOffset()) {
-            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), m_prefix + propertyById.name());
+            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), propertyById.name());
         } else {
-            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), m_prefix + name(id - propertyOffset()));
+            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), name(id - propertyOffset()));
         }
     }
 }
