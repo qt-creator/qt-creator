@@ -11,6 +11,7 @@ General
 
 * Fixed that disabling some plugins could disable the plugin
   management UI for most plugins
+* Fixed auto-expansion of first set of search results (QTCREATORBUG-14320)
 
 Editing
 
