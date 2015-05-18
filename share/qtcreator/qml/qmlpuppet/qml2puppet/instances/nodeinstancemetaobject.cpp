@@ -190,7 +190,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
 
 NodeInstanceMetaObject::~NodeInstanceMetaObject()
 {
-    if (cache->count() > 1) // qml is chrashing because the property cache is not removed from the engine
+    if (cache->count() > 1) // qml is crashing because the property cache is not removed from the engine
         cache->release();
     else
     m_type->release();
