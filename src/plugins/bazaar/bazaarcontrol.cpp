@@ -148,8 +148,9 @@ Core::ShellCommand *BazaarControl::createInitialCheckoutCommand(const QString &u
     args << m_bazaarClient->vcsCommandString(BazaarClient::CloneCommand)
          << extraArgs << url << localName;
 
-    auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
-                                           m_bazaarClient->processEnvironment());
+    QProcessEnvironment env = m_bazaarClient->processEnvironment();
+    env.insert(QLatin1String("BZR_PROGRESS_BAR"), QLatin1String("text"));
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), env);
     command->addJob(m_bazaarClient->vcsBinary(), args, -1);
     return command;
 }
