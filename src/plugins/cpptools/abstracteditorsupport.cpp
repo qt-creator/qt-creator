@@ -53,6 +53,11 @@ void AbstractEditorSupport::updateDocument()
     m_modelmanager->updateSourceFiles(QSet<QString>() << fileName());
 }
 
+void AbstractEditorSupport::notifyAboutUpdatedContents() const
+{
+    m_modelmanager->emitAbstractEditorSupportContentsUpdated(fileName(), contents());
+}
+
 QString AbstractEditorSupport::licenseTemplate(const QString &file, const QString &className)
 {
     return Internal::CppFileSettings::licenseTemplate(file, className);

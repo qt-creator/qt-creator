@@ -111,6 +111,9 @@ public:
     bool replaceDocument(Document::Ptr newDoc);
 
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void emitAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                  const QByteArray &contents);
+    void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     bool isCppEditor(Core::IEditor *editor) const;
 
@@ -172,6 +175,9 @@ signals:
     void globalSnapshotChanged();
 
     void gcFinished(); // Needed for tests.
+
+    void abstractEditorSupportContentsUpdated(const QString &filePath, const QByteArray &contents);
+    void abstractEditorSupportRemoved(const QString &filePath);
 
 public slots:
     void updateModifiedSourceFiles();
