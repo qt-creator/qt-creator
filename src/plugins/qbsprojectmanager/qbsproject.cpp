@@ -603,10 +603,11 @@ void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
         connect(m_qbsProjectParser, SIGNAL(done(bool)), this, SLOT(handleQbsParsingDone(bool)));
 }
 
-bool QbsProject::fromMap(const QVariantMap &map)
+Project::RestoreResult QbsProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (!Project::fromMap(map))
-        return false;
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result != RestoreResult::Ok)
+        return result;
 
     Kit *defaultKit = KitManager::defaultKit();
     if (!activeTarget() && defaultKit) {
@@ -617,7 +618,7 @@ bool QbsProject::fromMap(const QVariantMap &map)
         addTarget(t);
     }
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 void QbsProject::generateErrors(const qbs::ErrorInfo &e)

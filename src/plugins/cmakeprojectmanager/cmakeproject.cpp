@@ -506,16 +506,17 @@ QStringList CMakeProject::files(FilesMode fileMode) const
     return m_files;
 }
 
-bool CMakeProject::fromMap(const QVariantMap &map)
+Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (!Project::fromMap(map))
-        return false;
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result != RestoreResult::Ok)
+        return result;
 
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
         CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, projectDirectory().toString(), Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
-            return false;
+            return RestoreResult::UserAbort;
         Kit *k = copw.kit();
         Target *t = new Target(this, k);
         CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
@@ -542,8 +543,10 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
         CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-        if (!activeBC)
-            return false;
+        if (!activeBC) {
+            *errorMessage = tr("Internal Error: No build configuration found in settings file.");
+            return RestoreResult::Error;
+        }
         QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory().toString()));
         QFileInfo cbpFileFi(cbpFile);
 
@@ -557,7 +560,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
             CMakeBuildInfo info(activeBC);
             CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info);
             if (copw.exec() != QDialog::Accepted)
-                return false;
+                return RestoreResult::UserAbort;
             else
                 activeBC->setUseNinja(copw.useNinja());
         }
@@ -573,7 +576,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged(ProjectExplorer::Target*)));
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 bool CMakeProject::setupTarget(Target *t)

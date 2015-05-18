@@ -312,15 +312,15 @@ void Project::saveSettings()
         d->m_accessor->saveSettings(toMap(), Core::ICore::mainWindow());
 }
 
-bool Project::restoreSettings()
+Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
     if (!d->m_accessor)
         d->m_accessor = new Internal::UserFileAccessor(this);
     QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::mainWindow()));
-    bool ok = fromMap(map);
-    if (ok)
+    RestoreResult result = fromMap(map, errorMessage);
+    if (result == RestoreResult::Ok)
         emit settingsLoaded();
-    return ok;
+    return result;
 }
 
 
@@ -364,7 +364,7 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
 }
 
 
-bool Project::fromMap(const QVariantMap &map)
+Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
@@ -385,8 +385,9 @@ bool Project::fromMap(const QVariantMap &map)
     for (int i = 0; i < maxI; ++i) {
         const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
         if (!map.contains(key)) {
-            qWarning() << key << "was not found in data.";
-            return false;
+            if (errorMessage)
+                *errorMessage = tr("Target key %1 was not found in project settings.").arg(key);
+            return RestoreResult::Error;
         }
         QVariantMap targetMap = map.value(key).toMap();
 
@@ -399,7 +400,7 @@ bool Project::fromMap(const QVariantMap &map)
             setActiveTarget(t);
     }
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 EditorConfiguration *Project::editorConfiguration() const

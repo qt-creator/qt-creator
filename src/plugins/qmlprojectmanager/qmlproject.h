@@ -102,7 +102,7 @@ private slots:
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
 
 protected:
-    bool fromMap(const QVariantMap &map);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
 
 private:
     // plain format

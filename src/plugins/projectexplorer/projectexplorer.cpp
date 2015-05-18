@@ -1725,14 +1725,16 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                     foundProjectManager = true;
                     QString tmp;
                     if (Project *pro = manager->openProject(filePath, &tmp)) {
-                        if (pro->restoreSettings()) {
+                        QString restoreError;
+                        Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
+                        if (restoreResult == Project::RestoreResult::Ok) {
                             connect(pro, &Project::fileListChanged,
                                     m_instance, &ProjectExplorerPlugin::fileListChanged);
                             SessionManager::addProject(pro);
                             openedPro += pro;
                         } else {
-                            appendError(errorString, tr("Failed opening project \"%1\": Settings could not be restored.")
-                                        .arg(QDir::toNativeSeparators(fileName)));
+                            if (restoreResult == Project::RestoreResult::Error)
+                                appendError(errorString, restoreError);
                             delete pro;
                         }
                     }

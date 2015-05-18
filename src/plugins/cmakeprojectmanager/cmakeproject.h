@@ -118,7 +118,7 @@ signals:
     void buildTargetsChanged();
 
 protected:
-    bool fromMap(const QVariantMap &map);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     bool setupTarget(ProjectExplorer::Target *t);
 
     // called by CMakeBuildSettingsWidget

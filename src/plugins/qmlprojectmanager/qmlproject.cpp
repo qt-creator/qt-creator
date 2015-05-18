@@ -343,10 +343,11 @@ QStringList QmlProject::files(FilesMode) const
     return files();
 }
 
-bool QmlProject::fromMap(const QVariantMap &map)
+Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (!Project::fromMap(map))
-        return false;
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result == RestoreResult::Ok)
+        return result;
 
     // refresh first - project information is used e.g. to decide the default RC's
     refresh(Everything);
@@ -407,7 +408,7 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     onActiveTargetChanged(activeTarget());
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 } // namespace QmlProjectManager

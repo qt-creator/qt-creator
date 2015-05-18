@@ -418,10 +418,11 @@ QStringList GenericProject::buildTargets() const
     return targets;
 }
 
-bool GenericProject::fromMap(const QVariantMap &map)
+Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (!Project::fromMap(map))
-        return false;
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result != RestoreResult::Ok)
+        return result;
 
     Kit *defaultKit = KitManager::defaultKit();
     if (!activeTarget() && defaultKit)
@@ -439,7 +440,7 @@ bool GenericProject::fromMap(const QVariantMap &map)
     }
 
     refresh(Everything);
-    return true;
+    return RestoreResult::Ok;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

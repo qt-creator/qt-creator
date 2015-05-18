@@ -105,7 +105,8 @@ public:
     Target *restoreTarget(const QVariantMap &data);
 
     void saveSettings();
-    bool restoreSettings();
+    enum class RestoreResult { Ok, Error, UserAbort };
+    RestoreResult restoreSettings(QString *errorMessage);
 
     virtual ProjectNode *rootProjectNode() const = 0;
 
@@ -168,7 +169,7 @@ signals:
     void projectLanguagesUpdated();
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     virtual bool setupTarget(Target *t);
 
     void setId(Core::Id id);

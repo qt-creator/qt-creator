@@ -153,7 +153,7 @@ public slots:
     void scheduleAsyncUpdateLater() { scheduleAsyncUpdate(); }
 
 protected:
-    bool fromMap(const QVariantMap &map);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
 
 private slots:
     void asyncUpdate();

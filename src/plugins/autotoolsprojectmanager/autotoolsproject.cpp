@@ -140,10 +140,11 @@ QStringList AutotoolsProject::files(FilesMode fileMode) const
 
 // This function, is called at the very beginning, to
 // restore the settings if there are some stored.
-bool AutotoolsProject::fromMap(const QVariantMap &map)
+Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (!Project::fromMap(map))
-        return false;
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result != RestoreResult::Ok)
+        return result;
 
     connect(m_fileWatcher, &Utils::FileSystemWatcher::fileChanged,
             this, &AutotoolsProject::onFileChanged);
@@ -155,7 +156,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     if (!activeTarget() && defaultKit)
         addTarget(createTarget(defaultKit));
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 void AutotoolsProject::loadProjectTree()
