@@ -106,9 +106,7 @@ Project *androidProject(const Utils::FileName &fileName)
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
     : QStackedWidget(),
       m_dirty(false),
-      m_stayClean(false),
-      m_setAppName(false),
-      m_appNameInStringsXml(false)
+      m_stayClean(false)
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
 
@@ -226,6 +224,9 @@ void AndroidManifestEditorWidget::initializePage()
         m_appNameLineEdit = new QLineEdit(applicationGroupBox);
         formLayout->addRow(tr("Application name:"), m_appNameLineEdit);
 
+        m_activityNameLineEdit = new QLineEdit(applicationGroupBox);
+        formLayout->addRow(tr("Activity name:"), m_activityNameLineEdit);
+
         m_targetLineEdit = new QComboBox(applicationGroupBox);
         m_targetLineEdit->setEditable(true);
         m_targetLineEdit->setDuplicatesEnabled(true);
@@ -260,7 +261,9 @@ void AndroidManifestEditorWidget::initializePage()
         applicationGroupBox->setLayout(formLayout);
 
         connect(m_appNameLineEdit, SIGNAL(textEdited(QString)),
-                this, SLOT(setAppName()));
+                this, SLOT(setDirty()));
+        connect(m_activityNameLineEdit, SIGNAL(textEdited(QString)),
+                this, SLOT(setDirty()));
         connect(m_targetLineEdit, SIGNAL(currentTextChanged(QString)),
                 this, SLOT(setDirty()));
 
@@ -534,8 +537,7 @@ bool AndroidManifestEditorWidget::isModified() const
     return m_dirty
             || !m_hIconPath.isEmpty()
             || !m_mIconPath.isEmpty()
-            || !m_lIconPath.isEmpty()
-            || m_setAppName;
+            || !m_lIconPath.isEmpty();
 }
 
 AndroidManifestEditorWidget::EditorPage AndroidManifestEditorWidget::activePage() const
@@ -572,31 +574,6 @@ void AndroidManifestEditorWidget::preSave()
 {
     if (activePage() != Source)
         syncToEditor();
-
-    if (m_setAppName && m_appNameInStringsXml) {
-        QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
-        QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
-        QFile f(fileName);
-        if (f.open(QIODevice::ReadOnly)) {
-            QDomDocument doc;
-            if (doc.setContent(f.readAll())) {
-                QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("string"));
-                while (!metadataElem.isNull()) {
-                    if (metadataElem.attribute(QLatin1String("name")) == QLatin1String("app_name")) {
-                        metadataElem.removeChild(metadataElem.firstChild());
-                        metadataElem.appendChild(doc.createTextNode(m_appNameLineEdit->text()));
-                        break;
-                    }
-                    metadataElem = metadataElem.nextSiblingElement(QLatin1String("string"));
-                }
-
-                f.close();
-                f.open(QIODevice::WriteOnly);
-                f.write(doc.toByteArray((4)));
-            }
-        }
-        m_setAppName = false;
-    }
 
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     if (!m_lIconPath.isEmpty()) {
@@ -774,30 +751,15 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
 
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
-    QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
 
     QDomElement applicationElement = manifest.firstChildElement(QLatin1String("application"));
+    m_appNameLineEdit->setText(applicationElement.attribute(QLatin1String("android:label")));
 
-    QFile f(fileName);
-    if (f.exists() && f.open(QIODevice::ReadOnly)) {
-        QDomDocument doc;
-        if (doc.setContent(&f)) {
-            QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("string"));
-            while (!metadataElem.isNull()) {
-                if (metadataElem.attribute(QLatin1String("name")) == QLatin1String("app_name")) {
-                    m_appNameLineEdit->setText(metadataElem.text());
-                    break;
-                }
-                metadataElem = metadataElem.nextSiblingElement(QLatin1String("string"));
-            }
-        }
-        m_appNameInStringsXml = true;
-    } else {
-        m_appNameLineEdit->setText(applicationElement.attribute(QLatin1String("android:label")));
-        m_appNameInStringsXml = false;
-    }
+    QDomElement activityElem = applicationElement.firstChildElement(QLatin1String("activity"));
+    m_activityNameLineEdit->setText(activityElem.attribute(QLatin1String("android:label")));
 
-    QDomElement metadataElem = applicationElement.firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
+    QDomElement metadataElem = activityElem.firstChildElement(QLatin1String("meta-data"));
+
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
             m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
@@ -1011,13 +973,8 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
     writer.writeStartElement(reader.name().toString());
 
     QXmlStreamAttributes attributes = reader.attributes();
-    QStringList keys;
-    QStringList values;
-    if (!m_appNameInStringsXml) {
-        keys << QLatin1String("android:label");
-        values << m_appNameLineEdit->text();
-        m_setAppName = false;
-    }
+    QStringList keys = { QLatin1String("android:label") };
+    QStringList values = { m_appNameLineEdit->text() };
     bool ensureIconAttribute =  !m_lIconPath.isEmpty()
             || !m_mIconPath.isEmpty()
             || !m_hIconPath.isEmpty();
@@ -1051,7 +1008,14 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
 void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
     Q_ASSERT(reader.isStartElement());
-    writer.writeCurrentToken(reader);
+
+    writer.writeStartElement(reader.name().toString());
+    QXmlStreamAttributes attributes = reader.attributes();
+    QStringList keys = { QLatin1String("android:label") };
+    QStringList values = { m_activityNameLineEdit->text() };
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    writer.writeAttributes(result);
+
     reader.readNext();
 
     bool found = false;
@@ -1334,12 +1298,6 @@ void AndroidManifestEditorWidget::removePermission()
     if (idx.isValid())
         m_permissionsModel->removePermission(idx.row());
     updateAddRemovePermissionButtons();
-    setDirty(true);
-}
-
-void AndroidManifestEditorWidget::setAppName()
-{
-    m_setAppName = true;
     setDirty(true);
 }
 

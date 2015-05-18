@@ -125,7 +125,6 @@ private slots:
     void addPermission();
     void removePermission();
     void updateAddRemovePermissionButtons();
-    void setAppName();
     void setPackageName();
     void updateInfoBar();
     void updateSdkVersions();
@@ -161,8 +160,6 @@ private:
 
     bool m_dirty; // indicates that we need to call syncToEditor()
     bool m_stayClean;
-    bool m_setAppName;
-    bool m_appNameInStringsXml;
     int m_errorLine;
     int m_errorColumn;
 
@@ -176,6 +173,7 @@ private:
 
     // Application
     QLineEdit *m_appNameLineEdit;
+    QLineEdit *m_activityNameLineEdit;
     QComboBox *m_targetLineEdit;
     QToolButton *m_lIconButton;
     QToolButton *m_mIconButton;
