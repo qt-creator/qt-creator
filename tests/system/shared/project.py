@@ -113,7 +113,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
                                   "toolTip?='Full path: *'}")
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
-                                    "type='Utils::ProjectNameValidatingLineEdit'}")
+                                    "type='Utils::FancyLineEdit'}")
     if projectName == None:
         projectName = projectNameEdit.text
     else:
