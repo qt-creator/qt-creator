@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "timelinezoomcontrol.h"
+#include <utils/qtcassert.h>
 
 namespace Timeline {
 
@@ -41,9 +42,26 @@ TimelineZoomControl::TimelineZoomControl(QObject *parent) : QObject(parent),
 
 void TimelineZoomControl::clear()
 {
-    m_timer.stop();
+    bool changeTrace = (m_traceStart != -1 || m_traceEnd != -1);
+    bool changeWindow = (m_windowStart != -1 || m_windowEnd != -1);
+    bool changeRange = (m_rangeStart != -1 || m_rangeEnd != -1);
+
     setWindowLocked(false);
-    setTrace(-1, -1); // automatically sets window and range
+
+    m_traceStart = m_traceEnd = m_windowStart = m_windowEnd = m_rangeStart = m_rangeEnd = -1;
+    if (changeTrace)
+        emit traceChanged(-1, -1);
+
+    if (changeWindow) {
+        emit windowChanged(-1, -1);
+        m_timer.stop();
+    } else {
+        QTC_ASSERT(!m_timer.isActive(), m_timer.stop());
+    }
+
+    if (changeRange)
+        emit rangeChanged(-1, -1);
+
     setSelection(-1, -1);
 }
 
