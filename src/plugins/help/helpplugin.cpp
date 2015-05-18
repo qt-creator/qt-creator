@@ -233,7 +233,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(remoteHelpFilter, SIGNAL(linkActivated(QUrl)), this,
         SLOT(showLinkInHelpMode(QUrl)));
 
-    QDesktopServices::setUrlHandler(QLatin1String("qthelp"), this, "handleHelpRequest");
+    QDesktopServices::setUrlHandler(QLatin1String("qthelp"), HelpManager::instance(), "handleHelpRequest");
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
             this, SLOT(modeChanged(Core::IMode*,Core::IMode*)));
 
