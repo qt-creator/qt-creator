@@ -68,7 +68,6 @@ namespace Internal {
 
 const char QMAKE_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
-const char USE_TERMINAL_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal";
 const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
 const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath";
 const char USER_WORKING_DIRECTORY_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory";
@@ -88,6 +87,7 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments")));
+    addExtraAspect(new TerminalAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal")));
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     m_parseSuccess = project->validParse(m_proFilePath);
@@ -99,7 +99,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, DesktopQmakeRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
     m_proFilePath(source->m_proFilePath),
-    m_runMode(source->m_runMode),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
@@ -142,6 +141,12 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool su
         LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
         QTC_ASSERT(aspect, return);
         aspect->buildEnvironmentHasChanged();
+    }
+
+    TerminalAspect *terminalAspect = extraAspect<TerminalAspect>();
+    if (terminalAspect && !terminalAspect->isUserSet()) {
+        terminalAspect->setUseTerminal(pro->variableValue(ConfigVar).contains(QLatin1String("console"))
+                                       && !pro->variableValue(QtVar).contains(QLatin1String("testlib")));
     }
 }
 
@@ -224,15 +229,13 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     boxlayout->addWidget(resetButton);
     toplayout->addRow(tr("Working directory:"), boxlayout);
 
-    QHBoxLayout *innerBox = new QHBoxLayout();
-    m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
-    m_useTerminalCheck->setChecked(m_qmakeRunConfiguration->runMode() == ApplicationLauncher::Console);
-    innerBox->addWidget(m_useTerminalCheck);
+    m_qmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
     m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
     m_useQvfbCheck->setToolTip(tr("Check this option to run the application on a Qt Virtual Framebuffer."));
     m_useQvfbCheck->setChecked(m_qmakeRunConfiguration->runMode() == ApplicationLauncher::Console);
     m_useQvfbCheck->setVisible(false);
+    QHBoxLayout *innerBox = new QHBoxLayout();
     innerBox->addWidget(m_useQvfbCheck);
     innerBox->addStretch();
     toplayout->addRow(QString(), innerBox);
@@ -273,16 +276,12 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(workingDirectoryReseted()));
 
-    connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
-            this, SLOT(termToggled(bool)));
     connect(m_useQvfbCheck, SIGNAL(toggled(bool)),
             this, SLOT(qvfbToggled(bool)));
 
     connect(qmakeRunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
 
-    connect(qmakeRunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)),
-            this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(qmakeRunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
             this, SLOT(usingDyldImageSuffixChanged(bool)));
     connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingLibrarySearchPathChanged,
@@ -331,14 +330,6 @@ void DesktopQmakeRunConfigurationWidget::workingDirectoryReseted()
     m_qmakeRunConfiguration->setBaseWorkingDirectory(QString());
 }
 
-void DesktopQmakeRunConfigurationWidget::termToggled(bool on)
-{
-    m_ignoreChange = true;
-    m_qmakeRunConfiguration->setRunMode(on ? ApplicationLauncher::Console
-                                           : ApplicationLauncher::Gui);
-    m_ignoreChange = false;
-}
-
 void DesktopQmakeRunConfigurationWidget::qvfbToggled(bool on)
 {
     Q_UNUSED(on);
@@ -364,12 +355,6 @@ void DesktopQmakeRunConfigurationWidget::workingDirectoryChanged(const QString &
 {
     if (!m_ignoreChange)
         m_workingDirectoryEdit->setPath(workingDirectory);
-}
-
-void DesktopQmakeRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
-{
-    if (!m_ignoreChange)
-        m_useTerminalCheck->setChecked(runMode == ApplicationLauncher::Console);
 }
 
 void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
@@ -417,7 +402,6 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USE_LIBRARY_SEARCH_PATH), m_isUsingLibrarySearchPath);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
@@ -428,8 +412,6 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool()
-            ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
 
@@ -450,7 +432,7 @@ QString DesktopQmakeRunConfiguration::executable() const
 
 ApplicationLauncher::Mode DesktopQmakeRunConfiguration::runMode() const
 {
-    return m_runMode;
+    return extraAspect<TerminalAspect>()->runMode();
 }
 
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
@@ -517,12 +499,6 @@ void DesktopQmakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
     const QString &newWorkingDirectory = workingDirectory();
     if (oldWorkingDirectory != newWorkingDirectory)
         emit baseWorkingDirectoryChanged(newWorkingDirectory);
-}
-
-void DesktopQmakeRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
-{
-    m_runMode = runMode;
-    emit runModeChanged(runMode);
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
@@ -645,11 +621,6 @@ bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id)
 RunConfiguration *DesktopQmakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     DesktopQmakeRunConfiguration *rc = new DesktopQmakeRunConfiguration(parent, id);
-    const QmakeProFileNode *node = static_cast<QmakeProject *>(parent->project())->rootQmakeProjectNode()->findProFileFor(rc->proFilePath());
-    if (node) // should always be found
-        rc->setRunMode(node->variableValue(ConfigVar).contains(QLatin1String("console"))
-                       && !node->variableValue(QtVar).contains(QLatin1String("testlib"))
-                       ? ApplicationLauncher::Console : ApplicationLauncher::Gui);
     return rc;
 }
 

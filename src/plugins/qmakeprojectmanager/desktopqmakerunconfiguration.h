@@ -91,12 +91,10 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const override;
 
-    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
-
     void addToBaseEnvironment(Utils::Environment &env) const override;
+
 signals:
     void baseWorkingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void usingDyldImageSuffixChanged(bool);
     void usingLibrarySearchPathChanged(bool);
 
@@ -123,7 +121,6 @@ private:
     Utils::FileName m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
-    ProjectExplorer::ApplicationLauncher::Mode m_runMode = ProjectExplorer::ApplicationLauncher::Gui;
     bool m_isUsingDyldImageSuffix = false;
     bool m_isUsingLibrarySearchPath = true;
     QString m_userWorkingDirectory;
@@ -150,10 +147,8 @@ private slots:
     void environmentWasChanged();
 
     void workingDirectoryChanged(const QString &workingDirectory);
-    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void effectiveTargetInformationChanged();
-    void termToggled(bool);
     void qvfbToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
@@ -167,12 +162,11 @@ private:
     QLabel *m_disabledReason = nullptr;
     QLabel *m_executableLineLabel = nullptr;
     Utils::PathChooser *m_workingDirectoryEdit = nullptr;
-    QCheckBox *m_useTerminalCheck = nullptr;
     QCheckBox *m_useQvfbCheck = nullptr;
     QCheckBox *m_usingDyldImageSuffix = nullptr;
     QCheckBox *m_usingLibrarySearchPath = nullptr;
     QLineEdit *m_qmlDebugPort = nullptr;
-    Utils::DetailsWidget *m_detailsContainer;
+    Utils::DetailsWidget *m_detailsContainer = nullptr;
     bool m_isShown = false;
 };
 
