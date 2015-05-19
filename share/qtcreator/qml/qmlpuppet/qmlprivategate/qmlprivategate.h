@@ -97,6 +97,7 @@ public:
     void disableNativeTextRendering(QQuickItem *item);
     void disableTextCursor(QQuickItem *item);
     void disableTransition(QObject *object);
+    void disableBehaivour(QObject *object);
 
 } // namespace QmlPrivateGate
 } // namespace Internal

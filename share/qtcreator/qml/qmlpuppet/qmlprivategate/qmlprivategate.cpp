@@ -42,8 +42,9 @@
 
 #include <private/qobject_p.h>
 #include <private/qqmltimer_p.h>
-#include <private/qquicktransition_p.h>
 #include <private/qquickanimation_p.h>
+#include <private/qquicktransition_p.h>
+#include <private/qquickbehavior_p.h>
 #include <private/qquicktext_p.h>
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
@@ -562,6 +563,13 @@ void disableTransition(QObject *object)
     Q_ASSERT(transition);
     transition->setToState("invalidState");
     transition->setFromState("invalidState");
+}
+
+void disableBehaivour(QObject *object)
+{
+    QQuickBehavior* behavior = qobject_cast<QQuickBehavior*>(object);
+    Q_ASSERT(behavior);
+    behavior->setEnabled(false);
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()

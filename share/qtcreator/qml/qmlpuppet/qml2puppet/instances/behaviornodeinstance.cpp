@@ -30,7 +30,7 @@
 
 #include "behaviornodeinstance.h"
 
-#include <private/qquickbehavior_p.h>
+#include <qmlprivategate.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -43,15 +43,11 @@ BehaviorNodeInstance::BehaviorNodeInstance(QObject *object)
 
 BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(QObject *object)
 {
-    QQuickBehavior* behavior = qobject_cast<QQuickBehavior*>(object);
-
-    Q_ASSERT(behavior);
-
-    Pointer instance(new BehaviorNodeInstance(behavior));
+    Pointer instance(new BehaviorNodeInstance(object));
 
     instance->populateResetHashes();
 
-    behavior->setEnabled(false);
+    QmlPrivateGate::disableBehaivour(object);
 
     return instance;
 }
