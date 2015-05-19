@@ -1,7 +1,7 @@
 {
     "version": 1,
     "kind": "project",
-    "id": "QA.QMLB Application",
+    "id": "QA.QtQuickUi",
     "category": "F.Application",
     "trDescription": "Creates a Qt Quick 2 UI project.",
     "trDisplayName": "Qt Quick UI",

@@ -1,7 +1,7 @@
 {
     "version": 1,
     "kind": "project",
-    "id": "U.QtQuickControlsApplication",
+    "id": "V.QtQuickControlsApplication",
     "category": "F.Application",
     "trDescription": "Creates a deployable Qt Quick 2 application using Qt Quick Controls.",
     "trDisplayName": "Qt Quick Controls Application",
