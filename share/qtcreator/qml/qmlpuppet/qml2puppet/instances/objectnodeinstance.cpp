@@ -529,68 +529,14 @@ void ObjectNodeInstance::refreshProperty(const PropertyName &name)
     property.write(oldValue);
 }
 
-bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &name, bool *hasChanged) const
+bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged) const
 {
-    if (QmlPrivateGate::isPropertyBlackListed(name))
-        return false;
-
-    QQmlProperty property(object(), name, context());
-
-    bool hasBinding = QQmlPropertyPrivate::binding(property);
-
-    if (hasChanged) {
-        *hasChanged = hasBinding != m_hasBindingHash.value(name, false);
-        if (*hasChanged)
-            m_hasBindingHash.insert(name, hasBinding);
-    }
-
-    return QQmlPropertyPrivate::binding(property);
+    return QmlPrivateGate::hasBindingForProperty(object(), propertyName, hasChanged);
 }
 
 void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
 {
-    QQmlProperty property(object(), propertyName, context());
-
-    if (!property.isValid())
-        return;
-
-    QVariant oldValue = property.read();
-    if (oldValue.type() == QVariant::Url) {
-        QUrl url = oldValue.toUrl();
-        QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer())
-            nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), propertyName, path);
-    }
-
-
-    QQmlAbstractBinding *binding = QQmlPropertyPrivate::binding(property);
-    if (binding && !(hasValidResetBinding(propertyName) && resetBinding(propertyName) == binding)) {
-        binding->setEnabled(false, 0);
-        binding->destroy();
-    }
-
-
-    if (hasValidResetBinding(propertyName)) {
-        QQmlAbstractBinding *binding = resetBinding(propertyName);
-        QQmlPropertyPrivate::setBinding(property, binding, QQmlPropertyPrivate::DontRemoveBinding);
-        binding->update();
-    } else if (property.isResettable()) {
-        property.reset();
-    } else if (property.propertyTypeCategory() == QQmlProperty::List) {
-        QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
-
-        if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
-            qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
-            return;
-        }
-
-        list.clear();
-    } else if (property.isWritable()) {
-        if (property.read() == resetValue(propertyName))
-            return;
-
-        property.write(resetValue(propertyName));
-    }
+    QmlPrivateGate::doResetProperty(object(), propertyName);
 }
 
 QVariant ObjectNodeInstance::property(const PropertyName &name) const
@@ -860,38 +806,17 @@ void ObjectNodeInstance::deactivateState()
 
 void ObjectNodeInstance::populateResetHashes()
 {
-    PropertyNameList propertyNameList = QmlPrivateGate::propertyNameListForWritableProperties(object());
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object(), propertyName, QQmlEngine::contextForObject(object()));
-
-        QQmlAbstractBinding::Pointer binding = QQmlAbstractBinding::getPointer(QQmlPropertyPrivate::binding(property));
-        if (binding) {
-            m_resetBindingHash.insert(propertyName, binding);
-        } else if (property.isWritable()) {
-            m_resetValueHash.insert(propertyName, property.read());
-        }
-    }
-
-    m_resetValueHash.insert("Layout.rowSpan", 1);
-    m_resetValueHash.insert("Layout.columnSpan", 1);
-    m_resetValueHash.insert("Layout.fillHeight", false);
-    m_resetValueHash.insert("Layout.fillWidth", false);
-}
-
-QQmlAbstractBinding *ObjectNodeInstance::resetBinding(const PropertyName &propertyName) const
-{
-    return m_resetBindingHash.value(propertyName).data();
+    QmlPrivateGate::registerCustomData(object(), context());
 }
 
 bool ObjectNodeInstance::hasValidResetBinding(const PropertyName &propertyName) const
 {
-    return m_resetBindingHash.contains(propertyName) &&  m_resetBindingHash.value(propertyName).data();
+    return QmlPrivateGate::hasValidResetBinding(object(), propertyName);
 }
 
 QVariant ObjectNodeInstance::resetValue(const PropertyName &propertyName) const
 {
-    return m_resetValueHash.value(propertyName);
+    return QmlPrivateGate::getResetValue(object(), propertyName);
 }
 
 QImage ObjectNodeInstance::renderImage() const

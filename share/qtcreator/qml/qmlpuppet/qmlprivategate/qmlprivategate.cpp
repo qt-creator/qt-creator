@@ -31,6 +31,7 @@
 #include "qmlprivategate.h"
 
 #include "metaobject.h"
+#include "designercustomobjectdata.h"
 
 #include <objectnodeinstance.h>
 
@@ -444,6 +445,31 @@ QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
 bool hasFullImplementedListInterface(const QQmlListReference &list)
 {
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
+}
+
+void registerCustomData(QObject *object, QQmlContext *context)
+{
+    DesignerCustomObjectData::registerData(object, context);
+}
+
+QVariant getResetValue(QObject *object, const PropertyName &propertyName)
+{
+    return DesignerCustomObjectData::getResetValue(object, propertyName);
+}
+
+void doResetProperty(QObject *object, const PropertyName &propertyName)
+{
+    DesignerCustomObjectData::doResetProperty(object, propertyName);
+}
+
+bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
+{
+    return DesignerCustomObjectData::hasValidResetBinding(object, propertyName);
+}
+
+bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged)
+{
+    return DesignerCustomObjectData::hasBindingForProperty(object, propertyName, hasChanged);
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()

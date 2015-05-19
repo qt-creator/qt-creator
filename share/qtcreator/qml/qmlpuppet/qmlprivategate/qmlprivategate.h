@@ -35,6 +35,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariant>
 #include <QQmlContext>
 #include <QQmlListReference>
 
@@ -77,6 +78,12 @@ public:
                                       const PropertyName &baseName = PropertyName(),
                                       QObjectList *inspectedObjects = 0);
     bool hasFullImplementedListInterface(const QQmlListReference &list);
+
+    void registerCustomData(QObject *object, QQmlContext *context);
+    QVariant getResetValue(QObject *object, const PropertyName &propertyName);
+    void doResetProperty(QObject *object, const PropertyName &propertyName);
+    bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
+    bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged);
 
 } // namespace QmlPrivateGate
 } // namespace Internal

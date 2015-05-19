@@ -150,7 +150,6 @@ public:
 
     void populateResetHashes();
     bool hasValidResetBinding(const PropertyName &propertyName) const;
-    QQmlAbstractBinding *resetBinding(const PropertyName &propertyName) const;
     QVariant resetValue(const PropertyName &propertyName) const;
 
     QObject *object() const;
@@ -163,7 +162,7 @@ public:
     void setInLayoutable(bool isInLayoutable);
     virtual void refreshLayoutable();
 
-    bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = 0) const;
+    bool hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged = 0) const;
 
     QQmlContext *context() const;
     QQmlEngine *engine() const;
@@ -199,9 +198,6 @@ protected:
     static QVariant enumationValue(const Enumeration &enumeration);
 
 private:
-    QHash<PropertyName, QVariant> m_resetValueHash;
-    QHash<PropertyName, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
-    mutable QHash<PropertyName, bool> m_hasBindingHash;
     QString m_id;
 
     QPointer<NodeInstanceServer> m_nodeInstanceServer;
