@@ -65,13 +65,60 @@ static void addToPropertyNameListIfNotBlackListed(PropertyNameList *propertyName
         propertyNameList->append(propertyName);
 }
 
+PropertyNameList allPropertyNames(QObject *object,
+                                  const PropertyName &baseName,
+                                  QObjectList *inspectedObjects)
+{
+    PropertyNameList propertyNameList;
+
+    QObjectList localObjectList;
+
+    if (inspectedObjects == 0)
+        inspectedObjects = &localObjectList;
+
+
+    if (inspectedObjects->contains(object))
+        return propertyNameList;
+
+    inspectedObjects->append(object);
+
+
+    const QMetaObject *metaObject = object->metaObject();
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QQmlProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
+        if (declarativeProperty.isValid() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
+            if (declarativeProperty.name() != "parent") {
+                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(allPropertyNames(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
+            }
+        } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
+            QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
+            valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
+            propertyNameList.append(allPropertyNames(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
+        } else  {
+            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
 PropertyNameList propertyNameListForWritableProperties(QObject *object,
                                                        const PropertyName &baseName,
                                                        QObjectList *inspectedObjects)
 {
     PropertyNameList propertyNameList;
 
-    if (inspectedObjects == 0 || inspectedObjects->contains(object))
+    QObjectList localObjectList;
+
+    if (inspectedObjects == 0)
+        inspectedObjects = &localObjectList;
+
+
+    if (inspectedObjects->contains(object))
         return propertyNameList;
 
     inspectedObjects->append(object);

@@ -71,7 +71,11 @@ namespace QmlPrivateGate {
     bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName);
     PropertyNameList propertyNameListForWritableProperties(QObject *object,
                                                            const PropertyName &baseName = PropertyName(),
-                                                           QObjectList *inspectedObjects = new QObjectList());
+                                                           QObjectList *inspectedObjects = 0);
+    PropertyNameList allPropertyNames(QObject *object,
+                                      const PropertyName &baseName = PropertyName(),
+                                      QObjectList *inspectedObjects = 0);
+
 
 } // namespace QmlPrivateGate
 } // namespace Internal
