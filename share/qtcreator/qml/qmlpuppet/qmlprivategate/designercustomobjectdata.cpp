@@ -45,9 +45,8 @@ namespace QmlPrivateGate {
 
 QHash<QObject *, DesignerCustomObjectData*> m_objectToDataHash;
 
-DesignerCustomObjectData::DesignerCustomObjectData(QObject *object, QQmlContext *context)
+DesignerCustomObjectData::DesignerCustomObjectData(QObject *object)
     : m_object(object)
-    , m_context(context)
 {
     if (object)
         populateResetHashes();
@@ -58,9 +57,9 @@ DesignerCustomObjectData::DesignerCustomObjectData(QObject *object, QQmlContext 
         });
 }
 
-void DesignerCustomObjectData::registerData(QObject *object, QQmlContext *context)
+void DesignerCustomObjectData::registerData(QObject *object)
 {
-    new DesignerCustomObjectData(object, context);
+    new DesignerCustomObjectData(object);
 }
 
 DesignerCustomObjectData *DesignerCustomObjectData::get(QObject *object)
@@ -78,12 +77,12 @@ QVariant DesignerCustomObjectData::getResetValue(QObject *object, const Property
     return QVariant();
 }
 
-void DesignerCustomObjectData::doResetProperty(QObject *object, const PropertyName &propertyName)
+void DesignerCustomObjectData::doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
     DesignerCustomObjectData* data = get(object);
 
     if (data)
-        data->doResetProperty(propertyName);
+        data->doResetProperty(context, propertyName);
 }
 
 bool DesignerCustomObjectData::hasValidResetBinding(QObject *object, const PropertyName &propertyName)
@@ -96,14 +95,22 @@ bool DesignerCustomObjectData::hasValidResetBinding(QObject *object, const Prope
     return false;
 }
 
-bool DesignerCustomObjectData::hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged)
+bool DesignerCustomObjectData::hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged)
 {
     DesignerCustomObjectData* data = get(object);
 
     if (data)
-        return data->hasBindingForProperty(propertyName, hasChanged);
+        return data->hasBindingForProperty(context, propertyName, hasChanged);
 
     return false;
+}
+
+void DesignerCustomObjectData::setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression)
+{
+    DesignerCustomObjectData* data = get(object);
+
+    if (data)
+        data->setPropertyBinding(context, propertyName, expression);
 }
 
 void DesignerCustomObjectData::populateResetHashes()
@@ -127,11 +134,6 @@ void DesignerCustomObjectData::populateResetHashes()
     m_resetValueHash.insert("Layout.fillWidth", false);
 }
 
-QQmlContext *DesignerCustomObjectData::context() const
-{
-    return m_context;
-}
-
 QObject *DesignerCustomObjectData::object() const
 {
     return m_object;
@@ -142,9 +144,9 @@ QVariant DesignerCustomObjectData::getResetValue(const PropertyName &propertyNam
     return m_resetValueHash.value(propertyName);
 }
 
-void DesignerCustomObjectData::doResetProperty(const PropertyName &propertyName)
+void DesignerCustomObjectData::doResetProperty(QQmlContext *context, const PropertyName &propertyName)
 {
-    QQmlProperty property(object(), propertyName, context());
+    QQmlProperty property(object(), propertyName, context);
 
     if (!property.isValid())
         return;
@@ -200,12 +202,12 @@ QQmlAbstractBinding *DesignerCustomObjectData::getResetBinding(const PropertyNam
     return m_resetBindingHash.value(propertyName).data();
 }
 
-bool DesignerCustomObjectData::hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged) const
+bool DesignerCustomObjectData::hasBindingForProperty(QQmlContext *context, const PropertyName &propertyName, bool *hasChanged) const
 {
     if (QmlPrivateGate::isPropertyBlackListed(propertyName))
         return false;
 
-    QQmlProperty property(object(), propertyName, context());
+    QQmlProperty property(object(), propertyName, context);
 
     bool hasBinding = QQmlPropertyPrivate::binding(property);
 
@@ -216,6 +218,31 @@ bool DesignerCustomObjectData::hasBindingForProperty(const PropertyName &propert
     }
 
     return QQmlPropertyPrivate::binding(property);
+}
+
+void DesignerCustomObjectData::setPropertyBinding(QQmlContext *context, const PropertyName &propertyName, const QString &expression)
+{
+    QQmlProperty property(object(), propertyName, context);
+
+    if (!property.isValid())
+        return;
+
+    if (property.isProperty()) {
+        QQmlBinding *binding = new QQmlBinding(expression, object(), context);
+        binding->setTarget(property);
+        binding->setNotifyOnValueChanged(true);
+        QQmlAbstractBinding *oldBinding = QQmlPropertyPrivate::setBinding(property, binding);
+        if (oldBinding && !hasValidResetBinding(propertyName))
+            oldBinding->destroy();
+        binding->update();
+        if (binding->hasError()) {
+            if (property.property().userType() == QVariant::String)
+                property.write(QVariant(QString("#%1#").arg(expression)));
+        }
+
+    } else {
+        qWarning() << Q_FUNC_INFO << ": Cannot set binding for property" << propertyName << ": property is unknown for type";
+    }
 }
 
 

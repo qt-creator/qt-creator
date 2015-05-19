@@ -82,11 +82,12 @@ public:
                                       QObjectList *inspectedObjects = 0);
     bool hasFullImplementedListInterface(const QQmlListReference &list);
 
-    void registerCustomData(QObject *object, QQmlContext *context);
+    void registerCustomData(QObject *object);
     QVariant getResetValue(QObject *object, const PropertyName &propertyName);
-    void doResetProperty(QObject *object, const PropertyName &propertyName);
+    void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName);
     bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
-    bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged);
+    bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged);
+    void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression);
 
     void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 

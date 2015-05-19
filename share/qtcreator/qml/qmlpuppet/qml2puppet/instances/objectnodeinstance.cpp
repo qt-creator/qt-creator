@@ -451,28 +451,7 @@ void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QStr
     if (!isSimpleExpression(expression))
         return;
 
-    QQmlProperty property(object(), name, context());
-
-    if (!property.isValid())
-        return;
-
-    if (property.isProperty()) {
-        QQmlBinding *binding = new QQmlBinding(expression, object(), context());
-        binding->setTarget(property);
-        binding->setNotifyOnValueChanged(true);
-        QQmlAbstractBinding *oldBinding = QQmlPropertyPrivate::setBinding(property, binding);
-        if (oldBinding && !hasValidResetBinding(name))
-            oldBinding->destroy();
-        binding->update();
-        if (binding->hasError()) {
-            //qDebug() <<" ObjectNodeInstance.setPropertyBinding has Error: " << object() << name << expression << binding->error(engine()).toString();
-            if (property.property().userType() == QVariant::String)
-                property.write(QVariant(QString("#%1#").arg(expression)));
-        }
-
-    } else {
-        qWarning() << "ObjectNodeInstance.setPropertyBinding: Cannot set binding for property" << name << ": property is unknown for type";
-    }
+    QmlPrivateGate::setPropertyBinding(object(), context(), name, expression);
 }
 
 void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
@@ -531,12 +510,12 @@ void ObjectNodeInstance::refreshProperty(const PropertyName &name)
 
 bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged) const
 {
-    return QmlPrivateGate::hasBindingForProperty(object(), propertyName, hasChanged);
+    return QmlPrivateGate::hasBindingForProperty(object(), context(), propertyName, hasChanged);
 }
 
 void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
 {
-    QmlPrivateGate::doResetProperty(object(), propertyName);
+    QmlPrivateGate::doResetProperty(object(), context(), propertyName);
 }
 
 QVariant ObjectNodeInstance::property(const PropertyName &name) const
@@ -806,7 +785,7 @@ void ObjectNodeInstance::deactivateState()
 
 void ObjectNodeInstance::populateResetHashes()
 {
-    QmlPrivateGate::registerCustomData(object(), context());
+    QmlPrivateGate::registerCustomData(object());
 }
 
 bool ObjectNodeInstance::hasValidResetBinding(const PropertyName &propertyName) const

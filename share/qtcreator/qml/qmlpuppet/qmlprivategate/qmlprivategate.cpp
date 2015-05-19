@@ -448,9 +448,9 @@ bool hasFullImplementedListInterface(const QQmlListReference &list)
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
 }
 
-void registerCustomData(QObject *object, QQmlContext *context)
+void registerCustomData(QObject *object)
 {
-    DesignerCustomObjectData::registerData(object, context);
+    DesignerCustomObjectData::registerData(object);
 }
 
 QVariant getResetValue(QObject *object, const PropertyName &propertyName)
@@ -458,9 +458,9 @@ QVariant getResetValue(QObject *object, const PropertyName &propertyName)
     return DesignerCustomObjectData::getResetValue(object, propertyName);
 }
 
-void doResetProperty(QObject *object, const PropertyName &propertyName)
+void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
-    DesignerCustomObjectData::doResetProperty(object, propertyName);
+    DesignerCustomObjectData::doResetProperty(object, context, propertyName);
 }
 
 bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
@@ -468,9 +468,14 @@ bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
     return DesignerCustomObjectData::hasValidResetBinding(object, propertyName);
 }
 
-bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged)
+bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged)
 {
-    return DesignerCustomObjectData::hasBindingForProperty(object, propertyName, hasChanged);
+    return DesignerCustomObjectData::hasBindingForProperty(object, context, propertyName, hasChanged);
+}
+
+void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression)
+{
+    DesignerCustomObjectData::setPropertyBinding(object, context, propertyName, expression);
 }
 
 void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer)

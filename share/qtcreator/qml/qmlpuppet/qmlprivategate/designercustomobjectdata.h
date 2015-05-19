@@ -51,30 +51,29 @@ namespace QmlPrivateGate {
 class DesignerCustomObjectData
 {
 public:
-    static void registerData(QObject *object, QQmlContext *context);
+    static void registerData(QObject *object);
     static DesignerCustomObjectData *get(QObject *object);
     static QVariant getResetValue(QObject *object, const PropertyName &propertyName);
-    static void doResetProperty(QObject *object, const PropertyName &propertyName);
+    static void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName);
     static bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
-    static bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged);
+    static bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged);
+    static void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression);
 
 private:
-    DesignerCustomObjectData(QObject *object, QQmlContext *context);
+    DesignerCustomObjectData(QObject *object);
     void populateResetHashes();
     QObject *object() const;
-    QQmlContext *context() const;
     QVariant getResetValue(const PropertyName &propertyName) const;
-    void doResetProperty(const PropertyName &propertyName);
+    void doResetProperty(QQmlContext *context, const PropertyName &propertyName);
     bool hasValidResetBinding(const PropertyName &propertyName) const;
     QQmlAbstractBinding *getResetBinding(const PropertyName &propertyName) const;
-    bool hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged) const;
+    bool hasBindingForProperty(QQmlContext *context, const PropertyName &propertyName, bool *hasChanged) const;
+    void setPropertyBinding(QQmlContext *context, const PropertyName &propertyName, const QString &expression);
 
     QObject *m_object;
-    QQmlContext *m_context;
     QHash<PropertyName, QVariant> m_resetValueHash;
     QHash<PropertyName, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
     mutable QHash<PropertyName, bool> m_hasBindingHash;
-
 };
 
 } // namespace QmlPrivateGate
