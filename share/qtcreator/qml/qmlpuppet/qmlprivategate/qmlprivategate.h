@@ -36,6 +36,7 @@
 #include <QObject>
 #include <QString>
 #include <QQmlContext>
+#include <QQmlListReference>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -75,6 +76,7 @@ public:
     PropertyNameList allPropertyNames(QObject *object,
                                       const PropertyName &baseName = PropertyName(),
                                       QObjectList *inspectedObjects = 0);
+    bool hasFullImplementedListInterface(const QQmlListReference &list);
 
 } // namespace QmlPrivateGate
 } // namespace Internal

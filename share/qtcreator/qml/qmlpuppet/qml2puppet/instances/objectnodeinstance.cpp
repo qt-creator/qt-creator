@@ -279,16 +279,11 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static bool hasFullImplementedListInterface(const QQmlListReference &list)
-{
-    return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
-}
-
 static void removeObjectFromList(const QQmlProperty &property, QObject *objectToBeRemoved, QQmlEngine * engine)
 {
     QQmlListReference listReference(property.object(), property.name().toUtf8(), engine);
 
-    if (!hasFullImplementedListInterface(listReference)) {
+    if (!QmlPrivateGate::hasFullImplementedListInterface(listReference)) {
         qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
         return;
     }
@@ -338,7 +333,7 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     if (isList(property)) {
         QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
-        if (!hasFullImplementedListInterface(list)) {
+        if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
             qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
             return;
         }
@@ -485,7 +480,7 @@ void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
     QObjectList objectList;
     QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
-    if (!hasFullImplementedListInterface(list)) {
+    if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
         qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
         return;
     }
@@ -584,7 +579,7 @@ void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
     } else if (property.propertyTypeCategory() == QQmlProperty::List) {
         QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
-        if (!hasFullImplementedListInterface(list)) {
+        if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
             qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
             return;
         }

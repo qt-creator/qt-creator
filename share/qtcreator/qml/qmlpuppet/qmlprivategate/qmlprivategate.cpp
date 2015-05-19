@@ -441,6 +441,11 @@ QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
     return object;
 }
 
+bool hasFullImplementedListInterface(const QQmlListReference &list)
+{
+    return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
+}
+
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
     DesignerSupport::disableComponentComplete();
