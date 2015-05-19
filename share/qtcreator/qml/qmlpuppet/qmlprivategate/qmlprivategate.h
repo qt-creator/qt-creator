@@ -37,10 +37,7 @@
 #include <QString>
 #include <QQmlContext>
 
-class QQmlContext;
-
 namespace QmlDesigner {
-
 namespace Internal {
 
 class ObjectNodeInstance;
