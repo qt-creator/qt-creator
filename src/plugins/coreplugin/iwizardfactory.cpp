@@ -29,8 +29,11 @@
 ****************************************************************************/
 
 #include "iwizardfactory.h"
-#include <coreplugin/icore.h>
-#include <coreplugin/featureprovider.h>
+
+#include "actionmanager/actionmanager.h"
+#include "documentmanager.h"
+#include "icore.h"
+#include "featureprovider.h"
 
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
@@ -38,7 +41,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QStringList>
+#include <QAction>
 
 /*!
     \class Core::IWizardFactory
@@ -169,6 +172,11 @@ template <class Predicate>
     return rc;
 }
 
+static Id actionId(const IWizardFactory *factory)
+{
+    return factory->id().withPrefix("Wizard.Impl.");
+}
+
 QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 {
     if (!s_areFactoriesLoaded) {
@@ -190,6 +198,15 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
                     delete newFactory;
                     continue;
                 }
+
+                QTC_ASSERT(!newFactory->m_action, continue);
+                newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
+                ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
+
+                connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
+                    QString path = newFactory->runPath(QString());
+                    newFactory->runWizard(path, ICore::dialogParent(), QString(), QVariantMap());
+                });
 
                 sanityCheck.insert(newFactory->id(), newFactory);
                 s_allFactories << newFactory;
@@ -213,6 +230,27 @@ private:
 QList<IWizardFactory*> IWizardFactory::wizardFactoriesOfKind(WizardKind kind)
 {
     return findWizardFactories(WizardKindPredicate(kind));
+}
+
+QString IWizardFactory::runPath(const QString &defaultPath)
+{
+    QString path = defaultPath;
+    if (path.isEmpty()) {
+        switch (kind()) {
+        case IWizardFactory::ProjectWizard:
+            // Project wizards: Check for projects directory or
+            // use last visited directory of file dialog. Never start
+            // at current.
+            path = DocumentManager::useProjectsDirectory() ?
+                       DocumentManager::projectsDirectory() :
+                       DocumentManager::fileDialogLastVisitedDirectory();
+            break;
+        default:
+            path = DocumentManager::fileDialogInitialDirectory();
+            break;
+        }
+    }
+    return path;
 }
 
 bool IWizardFactory::isAvailable(const QString &platformName) const
@@ -274,6 +312,17 @@ void IWizardFactory::destroyFeatureProvider()
     s_providerList.clear();
 }
 
+void IWizardFactory::clearWizardFactories()
+{
+    foreach (IWizardFactory *factory, s_allFactories)
+        ActionManager::unregisterAction(factory->m_action, actionId(factory));
+
+    qDeleteAll(s_allFactories);
+    s_allFactories.clear();
+
+    s_areFactoriesLoaded = false;
+}
+
 FeatureSet IWizardFactory::pluginFeatures() const
 {
     static FeatureSet plugins;
@@ -291,6 +340,5 @@ FeatureSet IWizardFactory::pluginFeatures() const
 
 void IWizardFactory::initialize()
 {
-    connect(ICore::instance(), &ICore::coreAboutToClose,
-            ICore::instance(), []() { qDeleteAll(s_allFactories); s_allFactories.clear(); });
+    connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
 }

@@ -32,7 +32,6 @@
 #include "ui_newdialog.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -452,22 +451,7 @@ void NewDialog::okButtonClicked()
 
         IWizardFactory *wizard = currentWizardFactory();
         QTC_ASSERT(wizard, accept(); return);
-        QString path = m_defaultLocation;
-        if (path.isEmpty()) {
-            switch (wizard->kind()) {
-            case IWizardFactory::ProjectWizard:
-                // Project wizards: Check for projects directory or
-                // use last visited directory of file dialog. Never start
-                // at current.
-                path = DocumentManager::useProjectsDirectory() ?
-                           DocumentManager::projectsDirectory() :
-                           DocumentManager::fileDialogLastVisitedDirectory();
-                break;
-            default:
-                path = DocumentManager::fileDialogInitialDirectory();
-                break;
-            }
-        }
+        QString path = wizard->runPath(m_defaultLocation);
         wizard->runWizard(path, ICore::dialogParent(), selectedPlatform(), m_extraVariables);
 
         close();

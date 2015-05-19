@@ -40,6 +40,8 @@
 
 #include <functional>
 
+QT_FORWARD_DECLARE_CLASS(QAction)
+
 namespace Core {
 
 namespace Internal { class CorePlugin; }
@@ -84,6 +86,8 @@ public:
     void addRequiredFeature(const Feature &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
 
+    QString runPath(const QString &defaultPath);
+
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables) = 0;
 
     bool isAvailable(const QString &platformName) const;
@@ -108,6 +112,9 @@ private:
     static void initialize();
     static void destroyFeatureProvider();
 
+    static void clearWizardFactories();
+
+    QAction *m_action = 0;
     IWizardFactory::WizardKind m_kind;
     QIcon m_icon;
     QString m_description;
