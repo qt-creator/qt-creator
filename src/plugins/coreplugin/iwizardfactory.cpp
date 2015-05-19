@@ -341,4 +341,9 @@ FeatureSet IWizardFactory::pluginFeatures() const
 void IWizardFactory::initialize()
 {
     connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
+
+    auto resetAction = new QAction(tr("Reload All Wizards"), ActionManager::instance());
+    ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
+
+    connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
 }
