@@ -38,6 +38,7 @@
 #include <QVariant>
 #include <QQmlContext>
 #include <QQmlListReference>
+#include <QQuickItem>
 
 namespace QmlDesigner {
 
@@ -93,6 +94,8 @@ public:
     void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 
     bool objectWasDeleted(QObject *object);
+    void disableNativeTextRendering(QQuickItem *item);
+    void disableTextCursor(QQuickItem *item);
 
 } // namespace QmlPrivateGate
 } // namespace Internal

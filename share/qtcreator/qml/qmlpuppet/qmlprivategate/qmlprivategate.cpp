@@ -41,9 +41,12 @@
 #include <QFileInfo>
 
 #include <private/qobject_p.h>
+#include <private/qqmltimer_p.h>
 #include <private/qquicktransition_p.h>
 #include <private/qquickanimation_p.h>
-#include <private/qqmltimer_p.h>
+#include <private/qquicktext_p.h>
+#include <private/qquicktextinput_p.h>
+#include <private/qquicktextedit_p.h>
 
 #include <designersupport.h>
 
@@ -512,6 +515,7 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
     }
 }
 
+
 void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
     DesignerCustomObjectData::keepBindingFromGettingDeleted(object, context, propertyName);
@@ -522,6 +526,34 @@ bool objectWasDeleted(QObject *object)
     return QObjectPrivate::get(object)->wasDeleted;
 }
 
+void disableNativeTextRendering(QQuickItem *item)
+{
+    QQuickText *text = qobject_cast<QQuickText*>(item);
+    if (text)
+        text->setRenderType(QQuickText::QtRendering);
+
+    QQuickTextInput *textInput = qobject_cast<QQuickTextInput*>(item);
+    if (textInput)
+        textInput->setRenderType(QQuickTextInput::QtRendering);
+
+    QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
+    if (textEdit)
+        textEdit->setRenderType(QQuickTextEdit::QtRendering);
+}
+
+void disableTextCursor(QQuickItem *item)
+{
+    foreach (QQuickItem *childItem, item->childItems())
+        disableTextCursor(childItem);
+
+    QQuickTextInput *textInput = qobject_cast<QQuickTextInput*>(item);
+    if (textInput)
+        textInput->setCursorVisible(false);
+
+    QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
+    if (textEdit)
+        textEdit->setCursorVisible(false);
+}
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
