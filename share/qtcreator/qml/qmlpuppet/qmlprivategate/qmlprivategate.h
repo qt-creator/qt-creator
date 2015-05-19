@@ -67,6 +67,7 @@ namespace QmlPrivateGate {
     void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
     void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
     QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);
+    QObject *createComponent(const QUrl &componentUrl, QQmlContext *context);
     void tweakObjects(QObject *object);
     bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName);
     PropertyNameList propertyNameListForWritableProperties(QObject *object,

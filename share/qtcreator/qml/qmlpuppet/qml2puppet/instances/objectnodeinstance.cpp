@@ -820,22 +820,7 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
 
 QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
-    Q_UNUSED(disableComponentComplete)
-
-    QQmlComponent component(context->engine(), componentUrl);
-
-    QObject *object = component.beginCreate(context);
-    QmlPrivateGate::tweakObjects(object);
-    component.completeCreate();
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
-
-    if (component.isError()) {
-        qWarning() << "Error in:" << Q_FUNC_INFO << componentUrl;
-        foreach (const QQmlError &error, component.errors())
-            qWarning() << error;
-    }
-    return object;
+    return QmlPrivateGate::createComponent(componentUrl, context);
 }
 
 QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)

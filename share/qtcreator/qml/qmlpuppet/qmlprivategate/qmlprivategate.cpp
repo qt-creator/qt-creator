@@ -370,7 +370,27 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
     return object;
 }
 
+QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
+{
+    ComponentCompleteDisabler disableComponentComplete;
+    Q_UNUSED(disableComponentComplete)
+
+    QQmlComponent component(context->engine(), componentUrl);
+
+    QObject *object = component.beginCreate(context);
+    QmlPrivateGate::tweakObjects(object);
+    component.completeCreate();
+    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+
+    if (component.isError()) {
+        qWarning() << "Error in:" << Q_FUNC_INFO << componentUrl;
+        foreach (const QQmlError &error, component.errors())
+            qWarning() << error;
+    }
+    return object;
 }
+
+} // namespace QmlPrivateGate
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
@@ -382,6 +402,5 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
     DesignerSupport::enableComponentComplete();
 }
 
-// namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner
