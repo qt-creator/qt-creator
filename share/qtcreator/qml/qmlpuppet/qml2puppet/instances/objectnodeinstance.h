@@ -203,7 +203,6 @@ protected:
 private:
     QHash<PropertyName, QVariant> m_resetValueHash;
     QHash<PropertyName, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
-    QHash<PropertyName, ServerNodeInstance> m_modelAbstractPropertyHash;
     mutable QHash<PropertyName, bool> m_hasBindingHash;
     QString m_id;
 

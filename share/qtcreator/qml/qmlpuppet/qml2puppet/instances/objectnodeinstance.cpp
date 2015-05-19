@@ -554,8 +554,6 @@ bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &name, bool *h
 
 void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
 {
-    m_modelAbstractPropertyHash.remove(propertyName);
-
     QQmlProperty property(object(), propertyName, context());
 
     if (!property.isValid())
@@ -604,9 +602,6 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
 {
     if (ignoredProperties().contains(name))
         return QVariant();
-
-    if (m_modelAbstractPropertyHash.contains(name))
-        return QVariant::fromValue(m_modelAbstractPropertyHash.value(name));
 
     // TODO: handle model nodes
 
