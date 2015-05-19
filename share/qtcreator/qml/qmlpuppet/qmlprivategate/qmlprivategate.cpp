@@ -313,15 +313,6 @@ static bool isCrashingType(QQmlType *type)
     return false;
 }
 
-void readPropertyValue(QObject *, const QByteArray &, QQmlContext *, bool *)
-{
-#if QT_VERSION >= 0x056000
-    DesignerSupport::readPropertyValue(object, propertyName, qmlContext, ok);
-#else
-    //DesignerSupport::readPropertyValue(object, propertyName, qmlContext, ok); //### Move to Qt
-#endif
-}
-
 void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name)
 {
     MetaObject::getNodeInstanceMetaObject(nodeInstance)->createNewDynamicProperty(name);

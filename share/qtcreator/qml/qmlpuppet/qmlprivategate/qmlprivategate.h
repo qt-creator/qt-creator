@@ -67,7 +67,6 @@ public:
 #endif
 };
 
-    void readPropertyValue(QObject *object, const QByteArray &propertyName, QQmlContext *qmlContext, bool *ok);
     void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
     void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
     QVariant fixResourcePaths(const QVariant &value);
