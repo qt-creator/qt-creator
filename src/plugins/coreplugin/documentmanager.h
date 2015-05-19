@@ -143,9 +143,6 @@ public:
        lead to any editors to reload or any other editor manager actions. */
     static void notifyFilesChangedInternally(const QStringList &files);
 
-public slots:
-    static void executeOpenWithMenuAction(QAction *action);
-
 signals:
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */

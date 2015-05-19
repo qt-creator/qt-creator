@@ -726,9 +726,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_openWithMenu = openWith->menu();
     dd->m_openWithMenu->setTitle(tr("Open With"));
 
-    connect(dd->m_openWithMenu, &QMenu::triggered,
-            DocumentManager::instance(), &DocumentManager::executeOpenWithMenuAction);
-
     //
     // Separators
     //

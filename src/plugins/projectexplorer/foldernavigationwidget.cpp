@@ -403,7 +403,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         TextEditor::FindInFiles::findOnFileSystem(m_fileSystemModel->filePath(current));
         return;
     }
-    Core::DocumentManager::executeOpenWithMenuAction(action);
 }
 
 void FolderNavigationWidget::setHiddenFilesFilter(bool filter)

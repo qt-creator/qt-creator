@@ -103,14 +103,6 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this, SLOT(renameCurrentFile()));
     m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"), this, SLOT(copyCurrentResourcePath()));
 
-    // Below we need QueuedConnection because otherwise, if this qrc file
-    // is inside of the qrc file, crashes happen when using "Open With" on it.
-    // (That is because this editor instance is deleted in executeOpenWithMenuAction
-    // in that case.)
-    connect(m_openWithMenu, SIGNAL(triggered(QAction*)),
-            Core::DocumentManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)),
-            Qt::QueuedConnection);
-
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), m_resourceDocument, SLOT(dirtyChanged(bool)));
     connect(m_resourceEditor, SIGNAL(undoStackChanged(bool,bool)),
             this, SLOT(onUndoStackChanged(bool,bool)));

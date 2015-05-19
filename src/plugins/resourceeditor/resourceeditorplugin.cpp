@@ -190,8 +190,6 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     folderContextMenu->menu()->insertMenu(
                 folderContextMenu->insertLocation(ProjectExplorer::Constants::G_FOLDER_FILES),
                 m_openWithMenu);
-    connect(m_openWithMenu, &QMenu::triggered,
-            Core::DocumentManager::instance(), &Core::DocumentManager::executeOpenWithMenuAction);
 
     m_copyPath = new Utils::ParameterAction(QString(), tr("Copy path \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
