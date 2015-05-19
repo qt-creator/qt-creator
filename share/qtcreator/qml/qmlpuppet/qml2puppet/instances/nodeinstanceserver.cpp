@@ -80,9 +80,9 @@
 #include <QQmlContext>
 #include <qqmllist.h>
 #include <QAbstractAnimation>
-#include <private/qabstractanimation_p.h>
 #include <QMutableVectorIterator>
-#include <private/qquickview_p.h>
+#include <QQuickView>
+
 #include <designersupport.h>
 
 
@@ -256,8 +256,8 @@ void NodeInstanceServer::stopRenderTimer()
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
     initializeView();
-    QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
-    QUnifiedTimer::instance()->setSlowModeEnabled(true);
+
+    Internal::QmlPrivateGate::stopUnifiedTimer();
 
     setupScene(command);
     refreshBindings();

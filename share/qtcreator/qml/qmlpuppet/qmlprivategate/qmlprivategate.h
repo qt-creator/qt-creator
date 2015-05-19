@@ -98,6 +98,7 @@ public:
     void disableTextCursor(QQuickItem *item);
     void disableTransition(QObject *object);
     void disableBehaivour(QObject *object);
+    void stopUnifiedTimer();
 
 } // namespace QmlPrivateGate
 } // namespace Internal

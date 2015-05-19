@@ -40,6 +40,7 @@
 #include <QQmlComponent>
 #include <QFileInfo>
 
+#include <private/qabstractanimation_p.h>
 #include <private/qobject_p.h>
 #include <private/qqmltimer_p.h>
 #include <private/qquickanimation_p.h>
@@ -570,6 +571,12 @@ void disableBehaivour(QObject *object)
     QQuickBehavior* behavior = qobject_cast<QQuickBehavior*>(object);
     Q_ASSERT(behavior);
     behavior->setEnabled(false);
+}
+
+void stopUnifiedTimer()
+{
+    QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
+    QUnifiedTimer::instance()->setSlowModeEnabled(true);
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
