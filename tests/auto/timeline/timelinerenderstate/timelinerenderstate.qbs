@@ -3,11 +3,11 @@ import QtcFunctions
 import "../timelineautotest.qbs" as TimelineAutotest
 
 TimelineAutotest {
-    name: "TimelineRenderPass autotest"
+    name: "TimelineRenderState autotest"
     Group {
         name: "Test sources"
         files: [
-            "tst_timelinerenderpass.cpp"
+            "tst_timelinerenderstate.cpp"
         ]
     }
 }
