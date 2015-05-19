@@ -49,10 +49,8 @@ class CORE_EXPORT IWizardFactory
 public:
     enum WizardKind {
         FileWizard = 0x01,
-        ClassWizard = 0x02,
-        ProjectWizard = 0x04
+        ProjectWizard = 0x02
     };
-    Q_DECLARE_FLAGS(WizardKinds, WizardKind)
     enum WizardFlag {
         PlatformIndependent = 0x01,
         ForceCapitalLetterForFileName = 0x02
@@ -120,7 +118,6 @@ private:
 
 } // namespace Core
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizardFactory::WizardKinds)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizardFactory::WizardFlags)
 
 #endif // IWIZARDFACTORY_H

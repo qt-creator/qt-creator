@@ -451,12 +451,8 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
 static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r)
 {
     const QStringRef value = r.attributes().value(QLatin1String(kindAttributeC));
-    if (!value.isEmpty()) {
-        if (value == QLatin1String("file"))
-            return IWizardFactory::FileWizard;
-        if (value == QLatin1String("class"))
-            return IWizardFactory::ClassWizard;
-    }
+    if (value == QLatin1String("file") || value == QLatin1String("class"))
+        return IWizardFactory::FileWizard;
     return IWizardFactory::ProjectWizard;
 }
 

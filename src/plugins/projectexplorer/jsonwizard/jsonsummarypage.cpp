@@ -67,8 +67,6 @@ static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
     const QString kindStr = wiz->stringValue(QLatin1String("kind"));
     if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_PROJECT))
         kind = IWizardFactory::ProjectWizard;
-    else if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_CLASS))
-        kind = IWizardFactory::ClassWizard;
     else if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_FILE))
         kind = IWizardFactory::FileWizard;
     else

@@ -31,7 +31,7 @@
 ****************************************************************************/
 
 Custom class wizard example configuration file. -->
-<wizard version="1" kind="class" id="A.ListModel" category="B.CustomClasses">
+<wizard version="1" kind="file" id="A.ListModel" category="B.CustomClasses">
     <description>Creates a QAbstractListModel implementation.</description>
     <description xml:lang="de">Erzeugt eine Implementierung von QAbstractListModel.</description>
     <displayname>QAbstractListModel implementation</displayname>;

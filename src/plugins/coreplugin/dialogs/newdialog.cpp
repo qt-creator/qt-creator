@@ -261,12 +261,12 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
     projectKindItem->setData(IWizardFactory::ProjectWizard, Qt::UserRole);
     projectKindItem->setFlags(0); // disable item to prevent focus
-    QStandardItem *filesClassesKindItem = new QStandardItem(tr("Files and Classes"));
-    filesClassesKindItem->setData(IWizardFactory::FileWizard, Qt::UserRole);
-    filesClassesKindItem->setFlags(0); // disable item to prevent focus
+    QStandardItem *filesKindItem = new QStandardItem(tr("Files and Classes"));
+    filesKindItem->setData(IWizardFactory::FileWizard, Qt::UserRole);
+    filesKindItem->setFlags(0); // disable item to prevent focus
 
     parentItem->appendRow(projectKindItem);
-    parentItem->appendRow(filesClassesKindItem);
+    parentItem->appendRow(filesKindItem);
 
     if (m_dummyIcon.isNull())
         m_dummyIcon = QIcon(QLatin1String(Core::Constants::ICON_NEWFILE));
@@ -290,10 +290,9 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
         case IWizardFactory::ProjectWizard:
             kindItem = projectKindItem;
             break;
-        case IWizardFactory::ClassWizard:
         case IWizardFactory::FileWizard:
         default:
-            kindItem = filesClassesKindItem;
+            kindItem = filesKindItem;
             break;
         }
         addItem(kindItem, factory);

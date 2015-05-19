@@ -387,8 +387,6 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
     QString kindStr = QLatin1String(Core::Constants::WIZARD_KIND_UNKNOWN);
     if (kind() == IWizardFactory::FileWizard)
         kindStr = QLatin1String(Core::Constants::WIZARD_KIND_FILE);
-    else if (kind() == IWizardFactory::ClassWizard)
-        kindStr = QLatin1String(Core::Constants::WIZARD_KIND_CLASS);
     else if (kind() == IWizardFactory::ProjectWizard)
         kindStr = QLatin1String(Core::Constants::WIZARD_KIND_PROJECT);
     wizard.setValue(QStringLiteral("kind"), kindStr);
@@ -503,9 +501,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         return false;
     }
     IWizardFactory::WizardKind kind = IWizardFactory::ProjectWizard;
-    if (strVal == QLatin1String("class"))
-        kind = IWizardFactory::ClassWizard;
-    if (strVal == QLatin1String("file"))
+    if (strVal == QLatin1String("file") || strVal == QLatin1String("class"))
         kind = IWizardFactory::FileWizard;
     setWizardKind(kind);
 

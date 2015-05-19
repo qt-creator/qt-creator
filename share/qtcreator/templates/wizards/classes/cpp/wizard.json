@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "class",
+    "kind": "file",
     "id": "A.Class",
     "category": "O.C++",
     "trDescription": "Creates a C++ header and a source file for a new class that you can add to a C++ project.",

@@ -528,7 +528,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(IWizardFactory::ProjectWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(IWizardFactory::FileWizard));
-    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(IWizardFactory::ClassWizard));
 
     // For JsonWizard:
     JsonWizardFactory::registerPageFactory(new FieldPageFactory);
@@ -2995,8 +2994,7 @@ void ProjectExplorerPluginPrivate::addNewFile()
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
     }
     ICore::showNewItemDialog(tr("New File", "Title of dialog"),
-                               IWizardFactory::wizardFactoriesOfKind(IWizardFactory::FileWizard)
-                               + IWizardFactory::wizardFactoriesOfKind(IWizardFactory::ClassWizard),
+                               IWizardFactory::wizardFactoriesOfKind(IWizardFactory::FileWizard),
                                location, map);
 }
 

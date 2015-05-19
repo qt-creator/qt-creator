@@ -130,7 +130,7 @@
     \row
     \li Core::IWizard::WizardKind
     \li kind
-    \li Enumeration value that indicates the type of the wizard (project, class, file).
+    \li Enumeration value that indicates the type of the wizard (project or file).
 
     \row
     \li QIcon
