@@ -10191,14 +10191,6 @@ This feature is only available for GDB.</source>
         <translation>Программа CDB не указана.</translation>
     </message>
     <message>
-        <source>CDB crashed</source>
-        <translation>CDB завершился крахом</translation>
-    </message>
-    <message>
-        <source>CDB exited (%1)</source>
-        <translation>CDB завершился (%1)</translation>
-    </message>
-    <message>
         <source>Unable to add expression</source>
         <translation>Не удалось добавить выражение</translation>
     </message>
@@ -19671,6 +19663,10 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>CMake Project file</source>
         <translation>Файл проекта CMake</translation>
+    </message>
+    <message>
+        <source>C source code</source>
+        <translation>Файл исходных текстов C</translation>
     </message>
     <message>
         <source>C header</source>
