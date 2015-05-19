@@ -1913,7 +1913,8 @@ bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
 
     foreach (const LookupItem &lookupItem, results) {
         Class *klass = classFromLookupItem(lookupItem, context);
-        QTC_ASSERT(klass, continue);
+        if (!klass)
+            continue;
         const Name *name = minimalName(klass, cursorScope, context);
         QTC_ASSERT(name, continue);
 
