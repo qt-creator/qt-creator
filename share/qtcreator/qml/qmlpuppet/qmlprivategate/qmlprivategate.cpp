@@ -390,8 +390,6 @@ QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
     return object;
 }
 
-} // namespace QmlPrivateGate
-
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
     DesignerSupport::disableComponentComplete();
@@ -402,5 +400,6 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
     DesignerSupport::enableComponentComplete();
 }
 
+} // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner

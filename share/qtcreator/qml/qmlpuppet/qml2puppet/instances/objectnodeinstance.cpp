@@ -746,7 +746,7 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
 QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
+    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent *component = new QQmlComponent(context->engine());
@@ -797,7 +797,7 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
 
 QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
+    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
 
     Q_UNUSED(disableComponentComplete)
 
@@ -825,7 +825,7 @@ QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlConte
 
 QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
+    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine());

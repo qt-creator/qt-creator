@@ -47,6 +47,8 @@ class ObjectNodeInstance;
 typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
 typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
 
+namespace QmlPrivateGate {
+
 class ComponentCompleteDisabler
 {
 public:
@@ -62,7 +64,6 @@ public:
 #endif
 };
 
-namespace QmlPrivateGate {
     void readPropertyValue(QObject *object, const QByteArray &propertyName, QQmlContext *qmlContext, bool *ok);
     void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
     void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
