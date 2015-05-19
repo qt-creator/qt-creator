@@ -31,7 +31,7 @@
 #include "objectnodeinstance.h"
 
 #include <enumeration.h>
-#include <nodeinstancemetaobject.h>
+#include <qmlprivategate.h>
 
 #include <QEvent>
 #include <QQmlContext>
@@ -172,7 +172,7 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
 
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    NodeInstanceMetaObject::registerNodeInstanceMetaObject(objectNodeInstance);
+    QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance);
 }
 
 void ObjectNodeInstance::setId(const QString &id)

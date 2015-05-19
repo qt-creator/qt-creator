@@ -35,8 +35,6 @@
 
 #include "dummycontextobject.h"
 
-#include <nodeinstancemetaobject.h>
-
 #include <propertyabstractcontainer.h>
 #include <propertybindingcontainer.h>
 #include <propertyvaluecontainer.h>
@@ -44,6 +42,8 @@
 
 #include <commondefines.h>
 #include <nodeinstanceclientinterface.h>
+
+#include <qmlprivategate.h>
 
 #include <createinstancescommand.h>
 #include <changefileurlcommand.h>
@@ -830,12 +830,12 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
             bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
             if (!stateBindingWasUpdated) {
                 if (bindingContainer.isDynamic())
-                    Internal::NodeInstanceMetaObject::createNewDynamicProperty(instance.internalInstance(), name);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
                 instance.setPropertyBinding(name, expression);
             }
         } else {
             if (bindingContainer.isDynamic())
-                Internal::NodeInstanceMetaObject::createNewDynamicProperty(instance.internalInstance(), name);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
             instance.setPropertyBinding(name, expression);
         }
     }
@@ -862,12 +862,12 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
             if (!stateValueWasUpdated) {
                 if (valueContainer.isDynamic())
-                    Internal::NodeInstanceMetaObject::createNewDynamicProperty(instance.internalInstance(), name);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
                 instance.setPropertyVariant(name, value);
             }
         } else { //base state
             if (valueContainer.isDynamic())
-                Internal::NodeInstanceMetaObject::createNewDynamicProperty(instance.internalInstance(), name);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
             instance.setPropertyVariant(name, value);
         }
 

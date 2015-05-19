@@ -24,6 +24,7 @@ include (../commands/commands.pri)
 include (../container/container.pri)
 include (../interfaces/interfaces.pri)
 include (../types/types.pri)
+include (../qmlprivategate/qmlprivategate.pri)
 
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 !isEmpty(QT_BREAKPAD_ROOT_PATH) {

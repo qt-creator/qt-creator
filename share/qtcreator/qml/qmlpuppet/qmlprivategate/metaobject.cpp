@@ -28,9 +28,9 @@
 **
 ****************************************************************************/
 
-#include "nodeinstancemetaobject.h"
+#include "metaobject.h"
 
-#include "objectnodeinstance.h"
+#include <objectnodeinstance.h>
 #include <QSharedPointer>
 #include <QMetaProperty>
 #include <qnumeric.h>
@@ -40,7 +40,10 @@
 #include <private/qqmlpropertycache_p.h>
 
 namespace QmlDesigner {
+
 namespace Internal {
+
+namespace QmlPrivateGate {
 
 static QHash<QDynamicMetaObjectData *, bool> nodeInstanceMetaObjectList;
 
@@ -110,25 +113,19 @@ static QQmlPropertyCache *cacheForObject(QObject *object, QQmlEngine *engine)
     return QQmlEnginePrivate::get(engine)->cache(object);
 }
 
-void NodeInstanceMetaObject::registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
-{
-    // we just create one and the ownership goes automatically to the object in nodeinstance see init method
-    getNodeInstanceMetaObject(nodeInstance);
-}
-
-NodeInstanceMetaObject* NodeInstanceMetaObject::getNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
+MetaObject* MetaObject::getNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
 {
     //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
     QObjectPrivate *op = QObjectPrivate::get(nodeInstance->object());
     QDynamicMetaObjectData *parent = op->metaObject;
     if (nodeInstanceMetaObjectList.contains(parent))
-        return static_cast<NodeInstanceMetaObject *>(parent);
+        return static_cast<MetaObject *>(parent);
 
     // we just create one and the ownership goes automatically to the object in nodeinstance see init method
-    return new NodeInstanceMetaObject(nodeInstance, nodeInstance->nodeInstanceServer()->engine());
+    return new MetaObject(nodeInstance, nodeInstance->nodeInstanceServer()->engine());
 }
 
-void NodeInstanceMetaObject::init(QObject *object, QQmlEngine *engine)
+void MetaObject::init(QObject *object, QQmlEngine *engine)
 {
     //Creating QQmlOpenMetaObjectType
     m_type = new QQmlOpenMetaObjectType(metaObjectParent(), engine);
@@ -152,7 +149,7 @@ void NodeInstanceMetaObject::init(QObject *object, QQmlEngine *engine)
     hasAssignedMetaObjectData = true;
 }
 
-NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QQmlEngine *engine)
+MetaObject::MetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QQmlEngine *engine)
     : QQmlVMEMetaObject(nodeInstance->object(), cacheForObject(nodeInstance->object(), engine), vMEMetaDataForObject(nodeInstance->object())),
       m_nodeInstance(nodeInstance),
       m_context(engine->contextForObject(nodeInstance->object())),
@@ -172,7 +169,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
 
 }
 
-NodeInstanceMetaObject::~NodeInstanceMetaObject()
+MetaObject::~MetaObject()
 {
     if (cache->count() > 1) // qml is crashing because the property cache is not removed from the engine
         cache->release();
@@ -182,12 +179,7 @@ NodeInstanceMetaObject::~NodeInstanceMetaObject()
     nodeInstanceMetaObjectList.remove(this);
 }
 
-void NodeInstanceMetaObject::createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name)
-{
-    getNodeInstanceMetaObject(nodeInstance)->createNewDynamicProperty(name);
-}
-
-void NodeInstanceMetaObject::createNewDynamicProperty(const QString &name)
+void MetaObject::createNewDynamicProperty(const QString &name)
 {
     int id = m_type->createProperty(name.toUtf8());
     copyTypeMetaObject();
@@ -204,7 +196,7 @@ void NodeInstanceMetaObject::createNewDynamicProperty(const QString &name)
     Q_ASSERT(property.isValid());
 }
 
-void NodeInstanceMetaObject::setValue(int id, const QVariant &value)
+void MetaObject::setValue(int id, const QVariant &value)
 {
     QPair<QVariant, bool> &prop = m_data->getDataRef(id);
     prop.first = propertyWriteValue(id, value);
@@ -212,12 +204,12 @@ void NodeInstanceMetaObject::setValue(int id, const QVariant &value)
     QMetaObject::activate(myObject(), id + m_type->signalOffset(), 0);
 }
 
-QVariant NodeInstanceMetaObject::propertyWriteValue(int, const QVariant &value)
+QVariant MetaObject::propertyWriteValue(int, const QVariant &value)
 {
     return value;
 }
 
-const QAbstractDynamicMetaObject *NodeInstanceMetaObject::dynamicMetaObjectParent() const
+const QAbstractDynamicMetaObject *MetaObject::dynamicMetaObjectParent() const
 {
     if (QQmlVMEMetaObject::parent.isT1())
         return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
@@ -225,7 +217,7 @@ const QAbstractDynamicMetaObject *NodeInstanceMetaObject::dynamicMetaObjectParen
         return 0;
 }
 
-const QMetaObject *NodeInstanceMetaObject::metaObjectParent() const
+const QMetaObject *MetaObject::metaObjectParent() const
 {
     if (QQmlVMEMetaObject::parent.isT1())
         return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
@@ -233,12 +225,12 @@ const QMetaObject *NodeInstanceMetaObject::metaObjectParent() const
     return QQmlVMEMetaObject::parent.asT2();
 }
 
-int NodeInstanceMetaObject::propertyOffset() const
+int MetaObject::propertyOffset() const
 {
     return cache->propertyOffset();
 }
 
-int NodeInstanceMetaObject::openMetaCall(QMetaObject::Call call, int id, void **a)
+int MetaObject::openMetaCall(QMetaObject::Call call, int id, void **a)
 {
     if ((call == QMetaObject::ReadProperty || call == QMetaObject::WriteProperty)
             && id >= m_type->propertyOffset()) {
@@ -266,7 +258,7 @@ int NodeInstanceMetaObject::openMetaCall(QMetaObject::Call call, int id, void **
     }
 }
 
-int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
+int MetaObject::metaCall(QMetaObject::Call call, int id, void **a)
 {
     int metaCallReturnValue = -1;
 
@@ -329,7 +321,7 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
     return metaCallReturnValue;
 }
 
-void NodeInstanceMetaObject::notifyPropertyChange(int id)
+void MetaObject::notifyPropertyChange(int id)
 {
     ObjectNodeInstance::Pointer objectNodeInstance = m_nodeInstance.toStrongRef();
     const QMetaProperty propertyById = property(id);
@@ -343,20 +335,23 @@ void NodeInstanceMetaObject::notifyPropertyChange(int id)
     }
 }
 
-int NodeInstanceMetaObject::count() const
+int MetaObject::count() const
 {
     return m_type->propertyCount();
 }
 
-QByteArray NodeInstanceMetaObject::name(int idx) const
+QByteArray MetaObject::name(int idx) const
 {
     return m_type->propertyName(idx);
 }
 
-void NodeInstanceMetaObject::copyTypeMetaObject()
+void MetaObject::copyTypeMetaObject()
 {
     *static_cast<QMetaObject *>(this) = *m_type->metaObject();
 }
 
+} // namespace QmlPrivateGate
+
 } // namespace Internal
+
 } // namespace QmlDesigner
