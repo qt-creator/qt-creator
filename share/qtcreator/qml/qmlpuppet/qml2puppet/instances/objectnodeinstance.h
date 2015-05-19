@@ -152,7 +152,6 @@ public:
     bool hasValidResetBinding(const PropertyName &propertyName) const;
     QQmlAbstractBinding *resetBinding(const PropertyName &propertyName) const;
     QVariant resetValue(const PropertyName &propertyName) const;
-    void setResetValue(const PropertyName &propertyName, const QVariant &value);
 
     QObject *object() const;
     virtual QQuickItem *contentItem() const;

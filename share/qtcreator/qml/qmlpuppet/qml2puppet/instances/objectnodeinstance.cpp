@@ -899,11 +899,6 @@ QVariant ObjectNodeInstance::resetValue(const PropertyName &propertyName) const
     return m_resetValueHash.value(propertyName);
 }
 
-void ObjectNodeInstance::setResetValue(const PropertyName &propertyName, const QVariant &value)
-{
-    m_resetValueHash.insert(propertyName, value);
-}
-
 QImage ObjectNodeInstance::renderImage() const
 {
     return QImage();
