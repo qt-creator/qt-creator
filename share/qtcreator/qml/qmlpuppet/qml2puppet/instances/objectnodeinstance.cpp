@@ -44,15 +44,11 @@
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
 #include <QQuickItem>
+#include <QQmlExpression>
 #include <QQmlParserStatus>
 #include <QTextDocument>
 #include <QLibraryInfo>
 
-#include <private/qqmlbinding_p.h>
-#include <private/qqmlmetatype_p.h>
-#include <private/qqmlvaluetype_p.h>
-#include <private/qqmlengine_p.h>
-#include <private/qqmlexpression_p.h>
 #include <designersupport.h>
 
 static bool isSimpleExpression(const QString &expression)
