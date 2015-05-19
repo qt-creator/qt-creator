@@ -41,7 +41,6 @@ QtcPlugin {
         "uncommitdialog.cpp",
         "uncommitdialog.h",
         "uncommitdialog.ui",
-        "images/bazaar.png",
     ]
 }
 
