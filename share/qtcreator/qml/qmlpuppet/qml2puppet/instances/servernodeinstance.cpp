@@ -50,7 +50,6 @@
 #include <QSet>
 #include <QDebug>
 #include <QQuickItem>
-#include <private/qqmlengine_p.h>
 
 #include <QQmlEngine>
 
