@@ -263,7 +263,7 @@ void ArgumentsAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout 
     m_chooser->setHistoryCompleter(m_key);
     m_chooser->setText(m_arguments);
 
-    connect(m_chooser, &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
+    connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
 
     layout->addRow(tr("Command line arguments:"), m_chooser);
 }
