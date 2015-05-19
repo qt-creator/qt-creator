@@ -6,7 +6,7 @@
     "trDescription": "Creates a deployable Qt Quick 2 application.",
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application",
-    "icon": "../../../global/guiapplication.png",
+    "icon": "qml_wizard.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.2.4", "Plugin.QmakeProjectManager", "QtSupport.Wizards.FeatureQt" ],
 
     "options":
