@@ -30,6 +30,7 @@
 
 #include <timeline/timelinerenderstate.h>
 #include <QtTest>
+#include <QSGSimpleRectNode>
 
 using namespace Timeline;
 
@@ -53,7 +54,7 @@ public:
 
 QSGGeometryNode *createNode()
 {
-    QSGGeometryNode *node = new QSGGeometryNode;
+    QSGGeometryNode *node = new QSGSimpleRectNode;
     node->setFlag(QSGNode::OwnedByParent, false);
     return node;
 }
