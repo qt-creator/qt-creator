@@ -302,7 +302,7 @@ static bool isCrashingType(QQmlType *type)
     return false;
 }
 
-void readPropertyValue(QObject *object, const QByteArray &propertyName, QQmlContext *qmlContext, bool *ok)
+void readPropertyValue(QObject *, const QByteArray &, QQmlContext *, bool *)
 {
 #if QT_VERSION >= 0x056000
     DesignerSupport::readPropertyValue(object, propertyName, qmlContext, ok);
@@ -336,7 +336,7 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
     } else if (type) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)) // TODO remove hack later if we only support >= 5.2
         if ( type->isComposite()) {
-             object = ObjectNodeInstance::createComponent(type->sourceUrl(), context);
+             object = createComponent(type->sourceUrl(), context);
         } else
 #endif
         {
