@@ -90,7 +90,10 @@ public:
 
     Pointer parentInstance() const;
 
-    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty);
+    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
+                          const PropertyName &oldParentProperty,
+                          const ObjectNodeInstance::Pointer &newParentInstance,
+                          const PropertyName &newParentProperty);
 
     virtual void setId(const QString &id);
     virtual QString id() const;
@@ -167,10 +170,17 @@ public:
     QQmlContext *context() const;
     QQmlEngine *engine() const;
 
-    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value);
-    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression);
-    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue);
+    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target,
+                                    const PropertyName &propertyName,
+                                    const QVariant &value);
 
+    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target,
+                                    const PropertyName &propertyName,
+                                    const QString &expression);
+
+    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target,
+                                    const PropertyName &propertyName,
+                                    const QVariant &resetValue);
 
     bool isValid() const;
     bool isRootNodeInstance() const;
