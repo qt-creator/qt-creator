@@ -673,7 +673,7 @@ void JsonFieldPage::CheckBoxField::initializeData(MacroExpander *expander)
 // --------------------------------------------------------------------
 
 JsonFieldPage::ComboBoxField::ComboBoxField() :
-    m_index(-1), m_disabledIndex(-1), m_savedIndex(-1), m_currentIndex(-1)
+    m_index(-1), m_disabledIndex(-1), m_savedIndex(-1)
 { }
 
 QPair<QString, QString> parseComboBoxItem(const QVariant &item, QString *errorMessage)
@@ -792,10 +792,7 @@ void JsonFieldPage::ComboBoxField::initializeData(MacroExpander *expander)
     w->setItems(tmpItems, tmpData);
     w->setInsertPolicy(QComboBox::NoInsert);
 
-    if (m_currentIndex >= 0)
-        w->setCurrentIndex(m_currentIndex);
-    else
-        w->setCurrentIndex(m_index);
+    w->setCurrentIndex(m_index);
 }
 
 // --------------------------------------------------------------------
@@ -839,7 +836,6 @@ bool JsonFieldPage::setup(const QVariant &data)
         f->createWidget(this);
         m_fields.append(f);
     }
-
     return true;
 }
 

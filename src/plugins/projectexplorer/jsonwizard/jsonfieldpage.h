@@ -239,7 +239,6 @@ public:
         int m_disabledIndex;
 
         mutable int m_savedIndex;
-        int m_currentIndex;
     };
 
     JsonFieldPage(Utils::MacroExpander *expander, QWidget *parent = 0);
