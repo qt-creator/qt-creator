@@ -1,6 +1,10 @@
 TEMPLATE = app
 
+@if %{UseQApplication}
 QT += qml quick widgets
+@else
+QT += qml quick
+@endif
 
 SOURCES += %{MainCppFileName}
 

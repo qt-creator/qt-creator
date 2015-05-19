@@ -84,6 +84,17 @@
                         "uncheckedValue": false,
                         "checked": true
                     }
+                },
+                {
+                    "name": "UseQApplication",
+                    "trDisplayName": "Enable native styling. Requires dependency on the QtWidgets module.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": true,
+                        "uncheckedValue": false,
+                        "checked": true
+                    }
                 }
             ]
         },
