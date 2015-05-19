@@ -49,8 +49,6 @@
 #include <QTextDocument>
 #include <QLibraryInfo>
 
-#include <designersupport.h>
-
 static bool isSimpleExpression(const QString &expression)
 {
     if (expression.startsWith(QStringLiteral("{")))
