@@ -598,7 +598,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) const
 {
     const TestTreeItem *unnamed = unnamedQuickTests();
-    for (int row = 0, count = unnamed->childCount(); row < count; ++row) {
+    const int count = unnamed ? unnamed->childCount() : 0;
+    for (int row = 0; row < count; ++row) {
         const TestTreeItem *child = unnamed->child(row);
         if (qmlFile == child->filePath())
             return child->mainFile();
