@@ -58,8 +58,7 @@ public:
     PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
 
 protected:
-    PositionerNodeInstance(QQuickBasePositioner *item);
-    QQuickBasePositioner *positioner() const;
+    PositionerNodeInstance(QQuickItem *item);
 };
 
 } // namespace Internal

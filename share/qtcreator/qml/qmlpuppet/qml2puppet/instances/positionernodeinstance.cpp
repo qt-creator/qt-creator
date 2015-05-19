@@ -28,12 +28,12 @@
 **
 ****************************************************************************/
 #include "positionernodeinstance.h"
-#include <private/qquickpositioners_p.h>
+#include <QQuickItem>
 
 namespace QmlDesigner {
 namespace Internal {
 
-PositionerNodeInstance::PositionerNodeInstance(QQuickBasePositioner *item)
+PositionerNodeInstance::PositionerNodeInstance(QQuickItem *item)
     : QuickItemNodeInstance(item)
 {
 }
@@ -55,7 +55,7 @@ bool PositionerNodeInstance::isResizable() const
 
 PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
 {
-    QQuickBasePositioner *positioner = qobject_cast<QQuickBasePositioner*>(object);
+    QQuickItem *positioner = qobject_cast<QQuickItem*>(object);
 
     Q_ASSERT(positioner);
 
@@ -71,15 +71,9 @@ PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
     return instance;
 }
 
-QQuickBasePositioner *PositionerNodeInstance::positioner() const
-{
-    Q_ASSERT(qobject_cast<QQuickBasePositioner*>(object()));
-    return static_cast<QQuickBasePositioner*>(object());
-}
-
 void PositionerNodeInstance::refreshLayoutable()
 {
-    bool success = QMetaObject::invokeMethod(positioner(), "prePositioning");
+    bool success = QMetaObject::invokeMethod(object(), "prePositioning");
     Q_ASSERT(success);
     Q_UNUSED(success)
 }
