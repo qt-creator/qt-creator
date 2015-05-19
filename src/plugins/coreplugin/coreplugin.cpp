@@ -211,6 +211,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
                              [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
 
+    // Make sure all wizards are there when the user might access the keyboard shortcuts:
+    connect(ICore::instance(), &ICore::optionsDialogRequested, []() { IWizardFactory::allWizardFactories(); });
+
     return success;
 }
 
@@ -233,6 +236,7 @@ bool CorePlugin::delayedInitialize()
 {
     HelpManager::setupHelpManager();
     m_locator->delayedInitialize();
+    IWizardFactory::allWizardFactories(); // scan for all wizard factories
     return true;
 }
 
