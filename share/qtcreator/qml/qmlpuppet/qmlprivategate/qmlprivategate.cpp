@@ -40,9 +40,11 @@
 #include <QQmlComponent>
 #include <QFileInfo>
 
+#include <private/qobject_p.h>
 #include <private/qquicktransition_p.h>
 #include <private/qquickanimation_p.h>
 #include <private/qqmltimer_p.h>
+
 #include <designersupport.h>
 
 namespace QmlDesigner {
@@ -514,6 +516,12 @@ void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const 
 {
     DesignerCustomObjectData::keepBindingFromGettingDeleted(object, context, propertyName);
 }
+
+bool objectWasDeleted(QObject *object)
+{
+    return QObjectPrivate::get(object)->wasDeleted;
+}
+
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {

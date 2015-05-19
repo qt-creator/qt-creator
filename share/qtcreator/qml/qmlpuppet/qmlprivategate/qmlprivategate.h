@@ -92,6 +92,8 @@ public:
 
     void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 
+    bool objectWasDeleted(QObject *object);
+
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner

@@ -714,7 +714,7 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
 
 QObject *ObjectNodeInstance::object() const
 {
-        if (!m_object.isNull() && !QObjectPrivate::get(m_object.data())->wasDeleted)
+        if (!m_object.isNull() && !QmlPrivateGate::objectWasDeleted(m_object.data()))
             return m_object.data();
         return 0;
 }
