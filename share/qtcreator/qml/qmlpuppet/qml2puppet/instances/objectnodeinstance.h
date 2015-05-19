@@ -184,8 +184,6 @@ public:
 
     virtual void setNodeSource(const QString &source);
 
-    static QVariant fixResourcePaths(const QVariant &value);
-
     virtual void updateAllDirtyNodesRecursive();
 
     virtual PropertyNameList ignoredProperties() const;

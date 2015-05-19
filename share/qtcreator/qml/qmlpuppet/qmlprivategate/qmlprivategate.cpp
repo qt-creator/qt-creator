@@ -36,6 +36,7 @@
 
 #include <QQuickItem>
 #include <QQmlComponent>
+#include <QFileInfo>
 
 #include <private/qquicktransition_p.h>
 #include <private/qquickanimation_p.h>
@@ -233,7 +234,7 @@ static void fixResourcePathsForObject(QObject *object)
         QQmlProperty property(object, propertyName, QQmlEngine::contextForObject(object));
 
         const QVariant value  = property.read();
-        const QVariant fixedValue = ObjectNodeInstance::fixResourcePaths(value);
+        const QVariant fixedValue = fixResourcePaths(value);
         if (value != fixedValue) {
             property.write(fixedValue);
         }
@@ -369,6 +370,56 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
 
     return object;
 }
+
+QVariant fixResourcePaths(const QVariant &value)
+{
+    if (value.type() == QVariant::Url)
+    {
+        const QUrl url = value.toUrl();
+        if (url.scheme() == QLatin1String("qrc")) {
+            const QString path = QLatin1String("qrc:") +  url.path();
+            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
+            if (!qrcSearchPath.isEmpty()) {
+                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+                foreach (const QString &qrcPath, searchPaths) {
+                    const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
+                    if (qrcDefintion.count() == 2) {
+                        QString fixedPath = path;
+                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
+                        if (QFileInfo(fixedPath).exists()) {
+                            fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
+                            fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                            return QUrl(fixedPath);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (value.type() == QVariant::String) {
+        const QString str = value.toString();
+        if (str.contains(QLatin1String("qrc:"))) {
+            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
+            if (!qrcSearchPath.isEmpty()) {
+                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+                foreach (const QString &qrcPath, searchPaths) {
+                    const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
+                    if (qrcDefintion.count() == 2) {
+                        QString fixedPath = str;
+                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
+                        if (QFileInfo(fixedPath).exists()) {
+                            fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
+                            fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                            return fixedPath;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return value;
+}
+
 
 QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
 {

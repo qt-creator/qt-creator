@@ -872,7 +872,7 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
         }
 
         if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
-            rootContext()->setContextProperty(name, Internal::ObjectNodeInstance::fixResourcePaths(value));
+            rootContext()->setContextProperty(name, Internal::QmlPrivateGate::fixResourcePaths(value));
     }
 }
 

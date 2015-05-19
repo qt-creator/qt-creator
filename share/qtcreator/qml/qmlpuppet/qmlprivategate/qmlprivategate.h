@@ -67,6 +67,7 @@ public:
     void readPropertyValue(QObject *object, const QByteArray &propertyName, QQmlContext *qmlContext, bool *ok);
     void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
     void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
+    QVariant fixResourcePaths(const QVariant &value);
     QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);
     QObject *createComponent(const QUrl &componentUrl, QQmlContext *context);
     void tweakObjects(QObject *object);
@@ -77,7 +78,6 @@ public:
     PropertyNameList allPropertyNames(QObject *object,
                                       const PropertyName &baseName = PropertyName(),
                                       QObjectList *inspectedObjects = 0);
-
 
 } // namespace QmlPrivateGate
 } // namespace Internal
