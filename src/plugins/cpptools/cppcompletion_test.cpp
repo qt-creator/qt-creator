@@ -333,7 +333,6 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
-    QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 

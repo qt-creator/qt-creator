@@ -1103,7 +1103,7 @@ LookupScope *LookupScopePrivate::lookupType_helper(
 
             foreach (Symbol *s, _symbols) {
                 if (Class *klass = s->asClass()) {
-                    if (klass->identifier() && klass->identifier()->match(name->identifier()))
+                    if (klass->name() && klass->name()->match(name))
                         return q;
                 }
             }
