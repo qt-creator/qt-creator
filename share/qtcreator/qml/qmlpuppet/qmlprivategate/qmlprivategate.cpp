@@ -47,6 +47,7 @@
 #include <private/qquicktext_p.h>
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
+#include <private/qquicktransition_p.h>
 
 #include <designersupport.h>
 
@@ -553,6 +554,14 @@ void disableTextCursor(QQuickItem *item)
     QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
     if (textEdit)
         textEdit->setCursorVisible(false);
+}
+
+void disableTransition(QObject *object)
+{
+    QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
+    Q_ASSERT(transition);
+    transition->setToState("invalidState");
+    transition->setFromState("invalidState");
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()

@@ -29,28 +29,23 @@
 ****************************************************************************/
 
 #include "qmltransitionnodeinstance.h"
-#include <private/qquicktransition_p.h>
+
+#include <qmlprivategate.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-QmlTransitionNodeInstance::QmlTransitionNodeInstance(QQuickTransition *transition)
+QmlTransitionNodeInstance::QmlTransitionNodeInstance(QObject *transition)
     : ObjectNodeInstance(transition)
 {
 }
 
 QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(QObject *object)
 {
-     QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
-
-     Q_ASSERT(transition);
-
-     Pointer instance(new QmlTransitionNodeInstance(transition));
+     Pointer instance(new QmlTransitionNodeInstance(object));
 
      instance->populateResetHashes();
-
-     transition->setToState("invalidState");
-     transition->setFromState("invalidState");
+     QmlPrivateGate::disableTransition(object);
 
      return instance;
 }
@@ -65,10 +60,5 @@ PropertyNameList QmlTransitionNodeInstance::ignoredProperties() const
     return PropertyNameList() << "from" << "to";
 }
 
-QQuickTransition *QmlTransitionNodeInstance::qmlTransition() const
-{
-    Q_ASSERT(qobject_cast<QQuickTransition*>(object()));
-    return static_cast<QQuickTransition*>(object());
-}
 }
 }

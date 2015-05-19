@@ -33,10 +33,6 @@
 
 #include "objectnodeinstance.h"
 
-QT_BEGIN_NAMESPACE
-class QQuickTransition;
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 namespace Internal {
 
@@ -52,11 +48,8 @@ public:
 
     PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
 
-protected:
-    QQuickTransition *qmlTransition() const;
-
 private:
-    QmlTransitionNodeInstance(QQuickTransition *transition);
+    QmlTransitionNodeInstance(QObject *transition);
 };
 }
 }

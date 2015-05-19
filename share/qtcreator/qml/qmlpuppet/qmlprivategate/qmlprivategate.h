@@ -96,6 +96,7 @@ public:
     bool objectWasDeleted(QObject *object);
     void disableNativeTextRendering(QQuickItem *item);
     void disableTextCursor(QQuickItem *item);
+    void disableTransition(QObject *object);
 
 } // namespace QmlPrivateGate
 } // namespace Internal
