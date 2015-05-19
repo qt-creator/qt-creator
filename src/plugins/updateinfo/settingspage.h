@@ -32,10 +32,13 @@
 #define SETTINGSPAGE_H
 
 #include "ui_settingspage.h"
+#include "updateinfoplugin.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
+
+namespace Utils { class ProgressIndicator; }
 
 namespace UpdateInfo {
 namespace Internal {
@@ -54,7 +57,14 @@ public:
     void finish();
 
 private:
+    void newUpdatesAvailable(bool available);
+    void checkRunningChanged(bool running);
+    void updateLastCheckDate();
+    void updateNextCheckDate();
+    UpdateInfoPlugin::CheckUpdateInterval currentCheckInterval() const;
+
     QPointer<QWidget> m_widget;
+    QPointer<Utils::ProgressIndicator> m_progressIndicator;
     Ui::SettingsWidget m_ui;
     UpdateInfoPlugin *m_plugin;
 };

@@ -52,6 +52,7 @@ SUBDIRS   = \
     qmakeandroidsupport \
     winrt \
     qmlprofiler \
+    updateinfo \
     welcome
 
 DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)

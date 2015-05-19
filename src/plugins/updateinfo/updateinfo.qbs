@@ -14,8 +14,6 @@ QtcPlugin {
     pluginJsonReplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
-        "updateinfobutton.cpp",
-        "updateinfobutton.h",
         "updateinfoplugin.cpp",
         "updateinfoplugin.h",
         "settingspage.cpp",

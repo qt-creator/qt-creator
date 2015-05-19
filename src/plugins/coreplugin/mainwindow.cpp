@@ -453,6 +453,7 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_HELP);
     ac->appendGroup(Constants::G_HELP_SUPPORT);
     ac->appendGroup(Constants::G_HELP_ABOUT);
+    ac->appendGroup(Constants::G_HELP_UPDATES);
 }
 
 void MainWindow::registerDefaultActions()

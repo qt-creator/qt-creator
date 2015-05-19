@@ -182,6 +182,7 @@ const char G_WINDOW_OTHER[]        = "QtCreator.Group.Window.Other";
 const char G_HELP_HELP[]           = "QtCreator.Group.Help.Help";
 const char G_HELP_SUPPORT[]        = "QtCreator.Group.Help.Supprt";
 const char G_HELP_ABOUT[]          = "QtCreator.Group.Help.About";
+const char G_HELP_UPDATES[]        = "QtCreator.Group.Help.Updates";
 
 const char ICON_MINUS[]              = ":/core/images/minus.png";
 const char ICON_PLUS[]               = ":/core/images/plus.png";
