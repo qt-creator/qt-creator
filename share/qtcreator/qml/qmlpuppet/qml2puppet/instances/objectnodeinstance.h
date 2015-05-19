@@ -40,7 +40,6 @@
 #include "enumeration.h"
 
 QT_BEGIN_NAMESPACE
-class QGraphicsItem;
 class QQmlContext;
 class QQmlEngine;
 class QQmlProperty;
