@@ -58,6 +58,7 @@ public:
     static bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
     static bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged);
     static void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression);
+    static void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName);
 
 private:
     DesignerCustomObjectData(QObject *object);
@@ -69,6 +70,7 @@ private:
     QQmlAbstractBinding *getResetBinding(const PropertyName &propertyName) const;
     bool hasBindingForProperty(QQmlContext *context, const PropertyName &propertyName, bool *hasChanged) const;
     void setPropertyBinding(QQmlContext *context, const PropertyName &propertyName, const QString &expression);
+    void keepBindingFromGettingDeleted(QQmlContext *context, const PropertyName &propertyName);
 
     QObject *m_object;
     QHash<PropertyName, QVariant> m_resetValueHash;

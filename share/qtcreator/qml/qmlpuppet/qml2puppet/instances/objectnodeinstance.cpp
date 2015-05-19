@@ -425,8 +425,8 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
             nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
     }
 
-    if (hasValidResetBinding(name)) { //####
-        QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor | QQmlPropertyPrivate::DontRemoveBinding);
+    if (hasValidResetBinding(name)) {
+        QmlPrivateGate::keepBindingFromGettingDeleted(object(), context(), name);
     }
 
     bool isWritten = property.write(convertSpecialCharacter(adjustedValue));

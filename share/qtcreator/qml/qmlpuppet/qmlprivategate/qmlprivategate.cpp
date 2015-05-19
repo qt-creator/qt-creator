@@ -510,6 +510,11 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
     }
 }
 
+void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName)
+{
+    DesignerCustomObjectData::keepBindingFromGettingDeleted(object, context, propertyName);
+}
+
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
     DesignerSupport::disableComponentComplete();

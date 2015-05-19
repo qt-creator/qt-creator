@@ -88,6 +88,7 @@ public:
     bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
     bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged);
     void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression);
+    void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName);
 
     void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 

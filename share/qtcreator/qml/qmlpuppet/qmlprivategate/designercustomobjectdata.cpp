@@ -113,6 +113,14 @@ void DesignerCustomObjectData::setPropertyBinding(QObject *object, QQmlContext *
         data->setPropertyBinding(context, propertyName, expression);
 }
 
+void DesignerCustomObjectData::keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName)
+{
+    DesignerCustomObjectData* data = get(object);
+
+    if (data)
+        data->keepBindingFromGettingDeleted(context, propertyName);
+}
+
 void DesignerCustomObjectData::populateResetHashes()
 {
     PropertyNameList propertyNameList = QmlPrivateGate::propertyNameListForWritableProperties(object());
@@ -243,6 +251,13 @@ void DesignerCustomObjectData::setPropertyBinding(QQmlContext *context, const Pr
     } else {
         qWarning() << Q_FUNC_INFO << ": Cannot set binding for property" << propertyName << ": property is unknown for type";
     }
+}
+
+void DesignerCustomObjectData::keepBindingFromGettingDeleted(QQmlContext *context, const PropertyName &propertyName)
+{
+    QQmlProperty property(object(), propertyName, context);
+    QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor
+                                    | QQmlPropertyPrivate::DontRemoveBinding);
 }
 
 
