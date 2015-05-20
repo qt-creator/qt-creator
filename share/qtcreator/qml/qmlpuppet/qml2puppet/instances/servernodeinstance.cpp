@@ -53,6 +53,9 @@
 
 #include <QQmlEngine>
 
+#include <private/qqmlmetatype_p.h>
+#include <private/qqmlengine_p.h>
+
 /*!
   \class QmlDesigner::NodeInstance
   \ingroup CoreInstance
