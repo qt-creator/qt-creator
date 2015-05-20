@@ -53,6 +53,7 @@
 #include <private/qqmltimer_p.h>
 
 #include <private/qquickstategroup_p.h>
+#include <private/qquickpropertychanges_p.h>
 #include <private/qquickstateoperations_p.h>
 
 
@@ -659,6 +660,98 @@ bool resetStateProperty(QObject *state, QObject *target, const PropertyName &pro
 }
 
 } //namespace States
+
+namespace PropertyChanges {
+
+void detachFromState(QObject *propertyChanges)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return;
+
+    propertyChange->detachFromState();
+}
+
+void attachToState(QObject *propertyChanges)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return;
+
+    propertyChange->attachToState();
+}
+
+QObject *targetObject(QObject *propertyChanges)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return 0;
+
+    return propertyChange->object();
+}
+
+void removeProperty(QObject *propertyChanges, const PropertyName &propertyName)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return;
+
+    propertyChange->removeProperty(propertyName);
+}
+
+QVariant getProperty(QObject *propertyChanges, const PropertyName &propertyName)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return QVariant();
+
+    return propertyChange->property(propertyName);
+}
+
+void changeValue(QObject *propertyChanges, const PropertyName &propertyName, const QVariant &value)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return;
+
+    propertyChange->changeValue(propertyName, value);
+}
+
+void changeExpression(QObject *propertyChanges, const PropertyName &propertyName, const QString &expression)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return;
+
+    propertyChange->changeExpression(propertyName, expression);
+}
+
+QObject *stateObject(QObject *propertyChanges)
+{
+    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
+
+    if (!propertyChange)
+        return 0;
+
+    return propertyChange->state();
+}
+
+bool isNormalProperty(const PropertyName &propertyName)
+{
+    QMetaObject metaObject = QQuickPropertyChanges::staticMetaObject;
+
+    return (metaObject.indexOfProperty(propertyName) > 0); // 'restoreEntryValues', 'explicit'
+}
+
+
+} // namespace PropertyChanges
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {

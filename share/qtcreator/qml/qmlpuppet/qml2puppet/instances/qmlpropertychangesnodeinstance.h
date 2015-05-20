@@ -31,8 +31,6 @@
 #define QMLPROPERTYCHANGESNODEINSTANCE_H
 
 #include "objectnodeinstance.h"
-#include <private/qquickstateoperations_p.h>
-#include <private/qquickpropertychanges_p.h>
 
 #include <QPair>
 #include <QWeakPointer>
@@ -59,8 +57,7 @@ public:
     void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) Q_DECL_OVERRIDE;
 
 protected:
-    QmlPropertyChangesNodeInstance(QQuickPropertyChanges *object);
-    QQuickPropertyChanges *changesObject() const;
+    QmlPropertyChangesNodeInstance(QObject *object);
 };
 
 } // namespace Internal

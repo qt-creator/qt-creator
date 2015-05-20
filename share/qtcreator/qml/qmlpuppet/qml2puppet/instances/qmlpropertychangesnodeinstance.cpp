@@ -30,32 +30,25 @@
 
 #include "qmlpropertychangesnodeinstance.h"
 #include "qmlstatenodeinstance.h"
+
+#include <qmlprivategate.h>
+
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QQmlExpression>
-#include <private/qqmlbinding_p.h>
 #include <QMutableListIterator>
-
-
-#include <private/qquickstate_p_p.h>
-#include <private/qquickpropertychanges_p.h>
-#include <private/qqmlproperty_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-QmlPropertyChangesNodeInstance::QmlPropertyChangesNodeInstance(QQuickPropertyChanges *propertyChangesObject) :
+QmlPropertyChangesNodeInstance::QmlPropertyChangesNodeInstance(QObject *propertyChangesObject) :
         ObjectNodeInstance(propertyChangesObject)
 {
 }
 
 QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(QObject *object)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(object);
-
-    Q_ASSERT(propertyChange);
-
-    Pointer instance(new QmlPropertyChangesNodeInstance(propertyChange));
+    Pointer instance(new QmlPropertyChangesNodeInstance(object));
 
     instance->populateResetHashes();
 
@@ -64,14 +57,14 @@ QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(Q
 
 void QmlPropertyChangesNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
-    QMetaObject metaObject = QQuickPropertyChanges::staticMetaObject;
-
-    if (metaObject.indexOfProperty(name) > 0) { // 'restoreEntryValues', 'explicit'
+    if (QmlPrivateGate::PropertyChanges::isNormalProperty(name)) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyVariant(name, value);
     } else {
-        changesObject()->changeValue(name, value);
-        QObject *targetObject = changesObject()->object();
-        if (targetObject && nodeInstanceServer()->activeStateInstance().isWrappingThisObject(changesObject()->state())) {
+        QmlPrivateGate::PropertyChanges::changeValue(object(), name, value);
+        QObject *targetObject = QmlPrivateGate::PropertyChanges::targetObject(object());
+        if (targetObject
+                && nodeInstanceServer()->activeStateInstance().
+                isWrappingThisObject(QmlPrivateGate::PropertyChanges::stateObject(object()))) {
             if (nodeInstanceServer()->hasInstanceForObject(targetObject)) {
                 ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
                 targetInstance.setPropertyVariant(name, value);
@@ -82,39 +75,31 @@ void QmlPropertyChangesNodeInstance::setPropertyVariant(const PropertyName &name
 
 void QmlPropertyChangesNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    QMetaObject metaObject = QQuickPropertyChanges::staticMetaObject;
-
-    if (metaObject.indexOfProperty(name) > 0) { // 'restoreEntryValues', 'explicit'
+    if (QmlPrivateGate::PropertyChanges::isNormalProperty(name)) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyBinding(name, expression);
     } else {
-        changesObject()->changeExpression(name, expression);
+        QmlPrivateGate::PropertyChanges::changeExpression(object(), name, expression);
     }
 }
 
 QVariant QmlPropertyChangesNodeInstance::property(const PropertyName &name) const
 {
-    return changesObject()->property(name);
+    return QmlPrivateGate::PropertyChanges::getProperty(object(), name);
 }
 
 void QmlPropertyChangesNodeInstance::resetProperty(const PropertyName &name)
 {
-    changesObject()->removeProperty(name);
+    QmlPrivateGate::PropertyChanges::removeProperty(object(), name);
 }
 
 
 void QmlPropertyChangesNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
-    changesObject()->detachFromState();
+    QmlPrivateGate::PropertyChanges::detachFromState(object());
 
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
-    changesObject()->attachToState();
-}
-
-QQuickPropertyChanges *QmlPropertyChangesNodeInstance::changesObject() const
-{
-    Q_ASSERT(qobject_cast<QQuickPropertyChanges*>(object()));
-    return static_cast<QQuickPropertyChanges*>(object());
+    QmlPrivateGate::PropertyChanges::attachToState(object());
 }
 
 } // namespace Internal

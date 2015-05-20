@@ -113,6 +113,21 @@ public:
 
     } //namespace States
 
+    namespace PropertyChanges {
+
+    void detachFromState(QObject *propertyChanges);
+    void attachToState(QObject *propertyChanges);
+    QObject *targetObject(QObject *propertyChanges);
+    void removeProperty(QObject *propertyChanges, const PropertyName &propertyName);
+    QVariant getProperty(QObject *propertyChanges, const PropertyName &propertyName);
+    void changeValue(QObject *propertyChanges, const PropertyName &propertyName, const QVariant &value);
+    void changeExpression(QObject *propertyChanges, const PropertyName &propertyName, const QString &expression);
+    QObject *stateObject(QObject *propertyChanges);
+    bool isNormalProperty(const PropertyName &propertyName);
+
+    } // namespace PropertyChanges
+
+
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner
