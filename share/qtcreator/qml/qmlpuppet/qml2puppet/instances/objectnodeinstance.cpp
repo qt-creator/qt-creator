@@ -125,8 +125,14 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
     m_nodeInstanceServer = server;
 }
 
+void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
+{
+    m_signalSpy.setObjectNodeInstance(objectNodeInstance);
+}
+
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
+    initializePropertyWatcher(objectNodeInstance);
     QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance);
 }
 

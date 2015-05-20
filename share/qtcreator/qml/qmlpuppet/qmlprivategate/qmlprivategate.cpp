@@ -42,14 +42,14 @@
 
 #include <private/qabstractanimation_p.h>
 #include <private/qobject_p.h>
-#include <private/qqmltimer_p.h>
-#include <private/qquickanimation_p.h>
-#include <private/qquicktransition_p.h>
 #include <private/qquickbehavior_p.h>
 #include <private/qquicktext_p.h>
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
 #include <private/qquicktransition_p.h>
+#include <private/qquickanimation_p.h>
+#include <private/qqmlmetatype_p.h>
+#include <private/qqmltimer_p.h>
 
 #include <designersupport.h>
 
@@ -568,6 +568,16 @@ void stopUnifiedTimer()
 {
     QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
     QUnifiedTimer::instance()->setSlowModeEnabled(true);
+}
+
+bool isPropertyQObject(const QMetaProperty &metaProperty)
+{
+    return QQmlMetaType::isQObject(metaProperty.userType());
+}
+
+QObject *readQObjectProperty(const QMetaProperty &metaProperty, QObject *object)
+{
+    return QQmlMetaType::toQObject(metaProperty.read(object));
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()

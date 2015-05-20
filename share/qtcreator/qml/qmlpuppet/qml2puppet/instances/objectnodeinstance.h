@@ -32,6 +32,7 @@
 #define OBJECTNODEINSTANCE_H
 
 #include "nodeinstanceserver.h"
+#include "nodeinstancesignalspy.h"
 
 #include <QPainter>
 #include <QSharedPointer>
@@ -206,6 +207,7 @@ protected:
     static QObject *parentObject(QObject *object);
     static QVariant enumationValue(const Enumeration &enumeration);
 
+    void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
 private:
     QString m_id;
 
@@ -213,6 +215,9 @@ private:
     PropertyName m_parentProperty;
 
     QPointer<QObject> m_object;
+
+    NodeInstanceSignalSpy m_signalSpy;
+
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;

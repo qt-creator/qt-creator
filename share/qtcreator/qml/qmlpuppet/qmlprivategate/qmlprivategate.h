@@ -86,6 +86,7 @@ public:
     QVariant getResetValue(QObject *object, const PropertyName &propertyName);
     void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName);
     bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
+
     bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged);
     void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression);
     void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName);
@@ -98,6 +99,9 @@ public:
     void disableTransition(QObject *object);
     void disableBehaivour(QObject *object);
     void stopUnifiedTimer();
+    bool isPropertyQObject(const QMetaProperty &metaProperty);
+    QObject *readQObjectProperty(const QMetaProperty &metaProperty, QObject *object);
+
 
 } // namespace QmlPrivateGate
 } // namespace Internal
