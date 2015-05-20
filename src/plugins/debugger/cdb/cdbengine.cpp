@@ -1831,29 +1831,20 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
         watchHandler()->notifyUpdateFinished();
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
-        WatchHandler *handler = watchHandler();
+
+        GdbMi data;
+        data.fromString(response.extensionReply);
+        QTC_ASSERT(data.type() == GdbMi::List, return);
+        data.m_name = "data";
+
+        GdbMi partial;
+        partial.m_name = "partial";
+        partial.m_data = QByteArray::number(newFrame ? 0 : 1);
+
         GdbMi all;
-        all.fromString(response.extensionReply);
-        QTC_ASSERT(all.type() == GdbMi::List, return);
-
-        QSet<QByteArray> toDelete;
-        if (newFrame) {
-            foreach (WatchItem *item, handler->model()->itemsAtLevel<WatchItem *>(2))
-                toDelete.insert(item->iname);
-        }
-
-        foreach (const GdbMi &child, all.children()) {
-            WatchItem *item = new WatchItem(child);
-            handler->insertItem(item);
-            toDelete.remove(item->iname);
-        }
-
-        handler->purgeOutdatedItems(toDelete);
-
-        if (newFrame) {
-            emit stackFrameCompleted();
-            DebuggerToolTipManager::updateEngine(this);
-        }
+        all.m_children.push_back(data);
+        all.m_children.push_back(partial);
+        updateLocalsView(all);
     } else {
         showMessage(QString::fromLatin1(response.errorMessage), LogWarning);
     }
