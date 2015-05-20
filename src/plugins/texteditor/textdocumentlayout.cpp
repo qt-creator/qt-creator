@@ -498,7 +498,7 @@ void TextDocumentLayout::setFoldingIndent(const QTextBlock &block, int indent)
         if (TextBlockUserData *userData = testUserData(block))
             userData->setFoldingIndent(0);
     } else {
-        userData(block)->setFoldingIndent(qMax(0,indent));
+        userData(block)->setFoldingIndent(indent);
     }
 }
 

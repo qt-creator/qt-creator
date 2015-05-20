@@ -66,13 +66,13 @@ class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
 public:
 
     inline TextBlockUserData()
-        : m_folded(false),
-          m_ifdefedOut(false),
-          m_foldingIndent(0),
-          m_lexerState(0),
-          m_foldingStartIncluded(false),
-          m_foldingEndIncluded(false),
-          m_codeFormatterData(0)
+        : m_foldingIndent(0)
+        , m_folded(false)
+        , m_ifdefedOut(false)
+        , m_lexerState(0)
+        , m_foldingStartIncluded(false)
+        , m_foldingEndIncluded(false)
+        , m_codeFormatterData(0)
     {}
     ~TextBlockUserData();
 
@@ -138,9 +138,9 @@ public:
 
 private:
     TextMarks m_marks;
+    int m_foldingIndent : 16;
     uint m_folded : 1;
     uint m_ifdefedOut : 1;
-    uint m_foldingIndent : 16;
     uint m_lexerState : 8;
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
