@@ -676,27 +676,38 @@ JsonFieldPage::ComboBoxField::ComboBoxField() :
     m_index(-1), m_disabledIndex(-1), m_savedIndex(-1)
 { }
 
-QPair<QString, QString> parseComboBoxItem(const QVariant &item, QString *errorMessage)
+struct ComboBoxItem {
+    ComboBoxItem(const QString &k = QString(), const QString &v = QString(), const QVariant &c = true) :
+        key(k), value(v), condition(c)
+    { }
+
+    QString key;
+    QString value;
+    QVariant condition;
+};
+
+ComboBoxItem parseComboBoxItem(const QVariant &item, QString *errorMessage)
 {
     if (item.type() == QVariant::List) {
         *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                      "No lists allowed inside ComboBox items list.");
-        return qMakePair(QString(), QString());
+        return ComboBoxItem();
     } else if (item.type() == QVariant::Map) {
         QVariantMap tmp = item.toMap();
         QString key = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trKey"), QString()).toString());
         QString value = tmp.value(QLatin1String("value"), QString()).toString();
+        QVariant condition = tmp.value(QLatin1String("condition"), true);
         if (key.isNull() || key.isEmpty()) {
             *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                          "No \"key\" found in ComboBox items.");
-            return qMakePair(QString(), QString());
+            return ComboBoxItem();
         }
         if (value.isNull())
             value = key;
-        return qMakePair(key, value);
+        return ComboBoxItem(key, value, condition);
     } else {
         QString keyvalue = item.toString();
-        return qMakePair(keyvalue, keyvalue);
+        return ComboBoxItem(keyvalue, keyvalue);
     }
 }
 
@@ -737,11 +748,22 @@ bool JsonFieldPage::ComboBoxField::parseData(const QVariant &data, QString *erro
     }
 
     foreach (const QVariant &i, value.toList()) {
-        QPair<QString, QString> keyValue = parseComboBoxItem(i, errorMessage);
-        if (keyValue.first.isNull())
+        ComboBoxItem keyValue = parseComboBoxItem(i, errorMessage);
+        if (keyValue.key.isNull())
             return false; // an error happened...
-        m_itemList.append(keyValue.first);
-        m_itemDataList.append(keyValue.second);
+        m_itemList.append(keyValue.key);
+        m_itemDataList.append(keyValue.value);
+        m_itemConditionList.append(keyValue.condition);
+    }
+
+    if (m_itemConditionList.count() != m_itemDataList.count()
+            || m_itemConditionList.count() != m_itemList.count()) {
+        m_itemConditionList.clear();
+        m_itemDataList.clear();
+        m_itemList.clear();
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
+                                                    "Internal Error: ComboBox items lists got confused.");
+        return false;
     }
 
     return true;
@@ -789,10 +811,23 @@ void JsonFieldPage::ComboBoxField::initializeData(MacroExpander *expander)
     QStringList tmpData
             = Utils::transform(m_itemDataList,
                                [expander](const QString &i) { return expander->expand(i); });
+    QList<bool> tmpConditions
+            = Utils::transform(m_itemConditionList,
+                               [expander](const QVariant &v) { return JsonWizard::boolFromVariant(v, expander); });
+
+    int index = m_index;
+    for (int i = tmpConditions.count() - 1; i >= 0; --i) {
+        if (!tmpConditions.at(i)) {
+            tmpItems.removeAt(i);
+            tmpData.removeAt(i);
+            if (i <= index)
+                --index;
+        }
+    }
     w->setItems(tmpItems, tmpData);
     w->setInsertPolicy(QComboBox::NoInsert);
 
-    w->setCurrentIndex(m_index);
+    w->setCurrentIndex(index);
 }
 
 // --------------------------------------------------------------------

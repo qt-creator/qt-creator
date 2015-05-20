@@ -235,6 +235,7 @@ public:
 
         QStringList m_itemList;
         QStringList m_itemDataList;
+        QVariantList m_itemConditionList;
         int m_index;
         int m_disabledIndex;
 
