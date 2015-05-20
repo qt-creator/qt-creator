@@ -753,6 +753,32 @@ bool isNormalProperty(const PropertyName &propertyName)
 
 } // namespace PropertyChanges
 
+bool isSubclassOf(QObject *object, const QByteArray &superTypeName)
+{
+    if (object == 0)
+        return false;
+
+    const QMetaObject *metaObject = object->metaObject();
+
+    while (metaObject) {
+         QQmlType *qmlType =  QQmlMetaType::qmlType(metaObject);
+         if (qmlType && qmlType->qmlTypeName() == superTypeName) // ignore version numbers
+             return true;
+
+         if (metaObject->className() == superTypeName)
+             return true;
+
+         metaObject = metaObject->superClass();
+    }
+
+    return false;
+}
+
+void getPropertyCache(QObject *object, QQmlEngine *engine)
+{
+    QQmlEnginePrivate::get(engine)->cache(object->metaObject());
+}
+
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
     DesignerSupport::disableComponentComplete();

@@ -46,15 +46,14 @@
 #include "nodeinstanceserver.h"
 #include "instancecontainer.h"
 
+#include <qmlprivategate.h>
+
 #include <QHash>
 #include <QSet>
 #include <QDebug>
 #include <QQuickItem>
 
 #include <QQmlEngine>
-
-#include <private/qqmlmetatype_p.h>
-#include <private/qqmlengine_p.h>
 
 /*!
   \class QmlDesigner::NodeInstance
@@ -129,23 +128,7 @@ bool ServerNodeInstance::isRootNodeInstance() const
 
 bool ServerNodeInstance::isSubclassOf(QObject *object, const QByteArray &superTypeName)
 {
-    if (object == 0)
-        return false;
-
-    const QMetaObject *metaObject = object->metaObject();
-
-    while (metaObject) {
-         QQmlType *qmlType =  QQmlMetaType::qmlType(metaObject);
-         if (qmlType && qmlType->qmlTypeName() == superTypeName) // ignore version numbers
-             return true;
-
-         if (metaObject->className() == superTypeName)
-             return true;
-
-         metaObject = metaObject->superClass();
-    }
-
-    return false;
+    return  Internal::QmlPrivateGate::isSubclassOf(object, superTypeName);
 }
 
 void ServerNodeInstance::setNodeSource(const QString &source)
@@ -242,8 +225,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         }
    }
 
-
-    QQmlEnginePrivate::get(nodeInstanceServer->engine())->cache(object->metaObject());
+    Internal::QmlPrivateGate::getPropertyCache(object, nodeInstanceServer->engine());
 
     ServerNodeInstance instance(createInstance(object));
 
