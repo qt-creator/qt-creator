@@ -141,7 +141,7 @@
                     "target": "%{ProjectDirectory}/deployment.pri"
                 },
                 {
-                    "source": "../git.ignore",
+                    "source": "../../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
                     "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
                 }

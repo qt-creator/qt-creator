@@ -48,7 +48,7 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "../git.ignore",
+                    "source": "../../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
                     "condition": "%{JS: %{IsTopLevelProject} && '%{VersionControl}' === 'G.Git'}"
                 }

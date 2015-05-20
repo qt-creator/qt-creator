@@ -107,7 +107,7 @@
                     "condition": "%{QmlUISplit}"
                 },
                 {
-                    "source": "../../qmake/git.ignore",
+                    "source": "../../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
                     "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
                 }
