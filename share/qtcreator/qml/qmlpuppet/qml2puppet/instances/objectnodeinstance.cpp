@@ -425,7 +425,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
             nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
     }
 
-    if (hasValidResetBinding(name)) {
+    if (hasValidResetBinding(name)) { //####
         QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor | QQmlPropertyPrivate::DontRemoveBinding);
     }
 
@@ -852,38 +852,6 @@ QObject *ObjectNodeInstance::parentObject(QObject *object)
     return object->parent();
 }
 
-void ObjectNodeInstance::doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer)
-{
-    if (object) {
-        QQuickItem *item = qobject_cast<QQuickItem*>(object);
-
-        if (item && DesignerSupport::isComponentComplete(item))
-            return;
-
-        QList<QObject*> childList = object->children();
-
-        if (item) {
-            foreach (QQuickItem *childItem, item->childItems()) {
-                if (!childList.contains(childItem))
-                    childList.append(childItem);
-            }
-        }
-
-        foreach (QObject *child, childList) {
-            if (!nodeInstanceServer->hasInstanceForObject(child))
-                doComponentCompleteRecursive(child, nodeInstanceServer);
-        }
-
-        if (item) {
-            static_cast<QQmlParserStatus*>(item)->componentComplete();
-        } else {
-            QQmlParserStatus *qmlParserStatus = dynamic_cast< QQmlParserStatus*>(object);
-            if (qmlParserStatus)
-                qmlParserStatus->componentComplete();
-        }
-    }
-}
-
 ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const
 {
     QObject *parentHolder = parent();
@@ -942,7 +910,7 @@ bool ObjectNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &/
 
 void ObjectNodeInstance::doComponentComplete()
 {
-    doComponentCompleteRecursive(object(), nodeInstanceServer());
+    QmlPrivateGate::doComponentCompleteRecursive(object(), nodeInstanceServer());
 }
 
 bool ObjectNodeInstance::isRootNodeInstance() const

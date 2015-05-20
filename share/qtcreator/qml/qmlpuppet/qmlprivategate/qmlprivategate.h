@@ -40,6 +40,9 @@
 #include <QQmlListReference>
 
 namespace QmlDesigner {
+
+class NodeInstanceServer;
+
 namespace Internal {
 
 class ObjectNodeInstance;
@@ -84,6 +87,8 @@ public:
     void doResetProperty(QObject *object, const PropertyName &propertyName);
     bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
     bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged);
+
+    void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 
 } // namespace QmlPrivateGate
 } // namespace Internal

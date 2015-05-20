@@ -34,6 +34,7 @@
 #include "designercustomobjectdata.h"
 
 #include <objectnodeinstance.h>
+#include <nodeinstanceserver.h>
 
 #include <QQuickItem>
 #include <QQmlComponent>
@@ -470,6 +471,38 @@ bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
 bool hasBindingForProperty(QObject *object, const PropertyName &propertyName, bool *hasChanged)
 {
     return DesignerCustomObjectData::hasBindingForProperty(object, propertyName, hasChanged);
+}
+
+void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer)
+{
+    if (object) {
+        QQuickItem *item = qobject_cast<QQuickItem*>(object);
+
+        if (item && DesignerSupport::isComponentComplete(item))
+            return;
+
+        QList<QObject*> childList = object->children();
+
+        if (item) {
+            foreach (QQuickItem *childItem, item->childItems()) {
+                if (!childList.contains(childItem))
+                    childList.append(childItem);
+            }
+        }
+
+        foreach (QObject *child, childList) {
+            if (!nodeInstanceServer->hasInstanceForObject(child))
+                doComponentCompleteRecursive(child, nodeInstanceServer);
+        }
+
+        if (item) {
+            static_cast<QQmlParserStatus*>(item)->componentComplete();
+        } else {
+            QQmlParserStatus *qmlParserStatus = dynamic_cast< QQmlParserStatus*>(object);
+            if (qmlParserStatus)
+                qmlParserStatus->componentComplete();
+        }
+    }
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
