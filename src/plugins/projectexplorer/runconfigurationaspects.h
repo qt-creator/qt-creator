@@ -57,7 +57,7 @@ public:
     TerminalAspect *create(RunConfiguration *runConfig) const override;
     TerminalAspect *clone(RunConfiguration *runConfig) const override;
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
     bool useTerminal() const;
     void setUseTerminal(bool useTerminal);
@@ -90,7 +90,7 @@ public:
     WorkingDirectoryAspect *create(RunConfiguration *runConfig) const override;
     WorkingDirectoryAspect *clone(RunConfiguration *runConfig) const override;
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
     QString workingDirectory() const;
     QString unexpandedWorkingDirectory() const;
@@ -116,7 +116,7 @@ public:
     ArgumentsAspect *create(RunConfiguration *runConfig) const override;
     ArgumentsAspect *clone(RunConfiguration *runConfig) const override;
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
     QString arguments() const;
     QString unexpandedArguments() const;
@@ -145,7 +145,7 @@ public:
     ExecutableAspect *create(RunConfiguration *runConfig) const override;
     ExecutableAspect *clone(RunConfiguration *runConfig) const override;
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout) override;
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
     QString executable() const;
     QString unexpandedExecutable() const;
