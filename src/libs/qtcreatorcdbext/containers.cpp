@@ -989,7 +989,7 @@ static inline AbstractSymbolGroupNodePtrVector qMap5Nodes(const SymbolGroupValue
         return AbstractSymbolGroupNodePtrVector();
     if (SymbolGroupValue::verbose > 1)
         nodeTree->debug(DebugPrint(), debugQMap5Node);
-    VectorIndexType i = 0;
+    int i = 0;
     // Finally convert them into real nodes 'QHashNode<K,V> (potentially expensive)
     AbstractSymbolGroupNodePtrVector result;
     result.reserve(count);
