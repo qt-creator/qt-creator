@@ -32,11 +32,6 @@
 
 #include "objectnodeinstance.h"
 
-QT_BEGIN_NAMESPACE
-class QQuickState;
-class QQuickStateGroup;
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 namespace Internal {
@@ -61,13 +56,7 @@ public:
 
 
 protected:
-
-    QmlStateNodeInstance(QQuickState *object);
-
-    bool isStateActive() const;
-
-    QQuickState *stateObject() const;
-    QQuickStateGroup *stateGroup() const;
+    QmlStateNodeInstance(QObject *object);
 };
 
 } // namespace Internal

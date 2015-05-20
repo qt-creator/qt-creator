@@ -37,10 +37,6 @@
 #include <QPair>
 #include <QWeakPointer>
 
-QT_BEGIN_NAMESPACE
-class QQuickProperty;
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 namespace Internal {

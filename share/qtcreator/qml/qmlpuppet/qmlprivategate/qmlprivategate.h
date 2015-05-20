@@ -102,6 +102,16 @@ public:
     bool isPropertyQObject(const QMetaProperty &metaProperty);
     QObject *readQObjectProperty(const QMetaProperty &metaProperty, QObject *object);
 
+    namespace States {
+
+    bool isStateActive(QObject *object, QQmlContext *context);
+    void activateState(QObject *object, QQmlContext *context);
+    void deactivateState(QObject *object);
+    bool changeValueInRevertList(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant &value);
+    bool updateStateBinding(QObject *state, QObject *target, const PropertyName &propertyName, const QString &expression);
+    bool resetStateProperty(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant &);
+
+    } //namespace States
 
 } // namespace QmlPrivateGate
 } // namespace Internal

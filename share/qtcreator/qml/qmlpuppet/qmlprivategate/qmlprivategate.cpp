@@ -47,9 +47,14 @@
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
 #include <private/qquicktransition_p.h>
+
 #include <private/qquickanimation_p.h>
 #include <private/qqmlmetatype_p.h>
 #include <private/qqmltimer_p.h>
+
+#include <private/qquickstategroup_p.h>
+#include <private/qquickstateoperations_p.h>
+
 
 #include <designersupport.h>
 
@@ -579,6 +584,81 @@ QObject *readQObjectProperty(const QMetaProperty &metaProperty, QObject *object)
 {
     return QQmlMetaType::toQObject(metaProperty.read(object));
 }
+
+namespace States {
+
+bool isStateActive(QObject *object, QQmlContext *context)
+{
+    QQuickState *stateObject  = qobject_cast<QQuickState*>(object);
+
+    if (!stateObject)
+        return false;
+
+    QQuickStateGroup *stateGroup = stateObject->stateGroup();
+
+    QQmlProperty property(object, "name", context);
+
+    return stateObject && stateGroup && stateGroup->state() == property.read();
+}
+
+void activateState(QObject *object, QQmlContext *context)
+{
+    QQuickState *stateObject  = qobject_cast<QQuickState*>(object);
+
+    if (!stateObject)
+        return;
+
+    QQuickStateGroup *stateGroup = stateObject->stateGroup();
+
+    QQmlProperty property(object, "name", context);
+
+    stateGroup->setState(property.read().toString());
+}
+
+void deactivateState(QObject *object)
+{
+    QQuickState *stateObject  = qobject_cast<QQuickState*>(object);
+
+    if (!stateObject)
+        return;
+
+    QQuickStateGroup *stateGroup = stateObject->stateGroup();
+
+    if (stateGroup)
+        stateGroup->setState(QString());
+}
+
+bool changeValueInRevertList(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant &value)
+{
+    QQuickState *stateObject  = qobject_cast<QQuickState*>(state);
+
+    if (!stateObject)
+        return false;
+
+    return stateObject->changeValueInRevertList(target, QString::fromUtf8(propertyName), value);
+}
+
+bool updateStateBinding(QObject *state, QObject *target, const PropertyName &propertyName, const QString &expression)
+{
+    QQuickState *stateObject  = qobject_cast<QQuickState*>(state);
+
+    if (!stateObject)
+        return false;
+
+    return stateObject->changeValueInRevertList(target, QString::fromUtf8(propertyName), expression);
+}
+
+bool resetStateProperty(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant & /* resetValue */)
+{
+    QQuickState *stateObject  = qobject_cast<QQuickState*>(state);
+
+    if (!stateObject)
+        return false;
+
+    return stateObject->removeEntryFromRevertList(target, QString::fromUtf8(propertyName));
+}
+
+} //namespace States
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
