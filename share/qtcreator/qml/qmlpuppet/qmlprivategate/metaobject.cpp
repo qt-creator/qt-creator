@@ -30,7 +30,6 @@
 
 #include "metaobject.h"
 
-#include <objectnodeinstance.h>
 #include <QSharedPointer>
 #include <QMetaProperty>
 #include <qnumeric.h>
@@ -114,16 +113,16 @@ static QQmlPropertyCache *cacheForObject(QObject *object, QQmlEngine *engine)
     return QQmlEnginePrivate::get(engine)->cache(object);
 }
 
-MetaObject* MetaObject::getNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
+MetaObject* MetaObject::getNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
 {
-    //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
-    QObjectPrivate *op = QObjectPrivate::get(nodeInstance->object());
+    //Avoid setting up multiple MetaObjects on the same QObject
+    QObjectPrivate *op = QObjectPrivate::get(object);
     QDynamicMetaObjectData *parent = op->metaObject;
     if (nodeInstanceMetaObjectList.contains(parent))
         return static_cast<MetaObject *>(parent);
 
     // we just create one and the ownership goes automatically to the object in nodeinstance see init method
-    return new MetaObject(nodeInstance, nodeInstance->nodeInstanceServer()->engine());
+    return new MetaObject(object, engine);
 }
 
 void MetaObject::init(QObject *object, QQmlEngine *engine)
@@ -150,16 +149,15 @@ void MetaObject::init(QObject *object, QQmlEngine *engine)
     hasAssignedMetaObjectData = true;
 }
 
-MetaObject::MetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QQmlEngine *engine)
-    : QQmlVMEMetaObject(nodeInstance->object(), cacheForObject(nodeInstance->object(), engine), vMEMetaDataForObject(nodeInstance->object())),
-      m_nodeInstance(nodeInstance),
-      m_context(engine->contextForObject(nodeInstance->object())),
+MetaObject::MetaObject(QObject *object, QQmlEngine *engine)
+    : QQmlVMEMetaObject(object, cacheForObject(object, engine), vMEMetaDataForObject(object)),
+      m_context(engine->contextForObject(object)),
       m_data(new MetaPropertyData),
       m_cache(0)
 {
-    init(nodeInstance->object(), engine);
+    init(object, engine);
 
-    QQmlData *ddata = QQmlData::get(nodeInstance->object(), false);
+    QQmlData *ddata = QQmlData::get(object, false);
 
     //Assign cache to object
     if (ddata && ddata->propertyCache) {
@@ -291,8 +289,6 @@ int MetaObject::metaCall(QMetaObject::Call call, int id, void **a)
         oldValue = propertyById.read(myObject());
     }
 
-    ObjectNodeInstance::Pointer objectNodeInstance = m_nodeInstance.toStrongRef();
-
     QAbstractDynamicMetaObject *directParent = parent();
     if (directParent && id < directParent->propertyOffset()) {
         metaCallReturnValue = directParent->metaCall(call, id, a);
@@ -300,6 +296,7 @@ int MetaObject::metaCall(QMetaObject::Call call, int id, void **a)
         openMetaCall(call, id, a);
     }
 
+    /*
     if ((call == QMetaObject::WriteProperty || call == QMetaObject::ReadProperty) && metaCallReturnValue < 0) {
         if (objectNodeInstance
                 && objectNodeInstance->nodeInstanceServer()
@@ -313,6 +310,7 @@ int MetaObject::metaCall(QMetaObject::Call call, int id, void **a)
                 metaCallReturnValue = contextDummyObject->qt_metacall(call, properyIndex, a);
         }
     }
+    */
 
     if (call == QMetaObject::WriteProperty
             && !propertyById.hasNotifySignal()
@@ -324,17 +322,14 @@ int MetaObject::metaCall(QMetaObject::Call call, int id, void **a)
 
 void MetaObject::notifyPropertyChange(int id)
 {
-    ObjectNodeInstance::Pointer objectNodeInstance = m_nodeInstance.toStrongRef();
     const QMetaProperty propertyById = property(id);
 
-    if (objectNodeInstance && objectNodeInstance->nodeInstanceServer()) {
-        if (id < propertyOffset()) {
-            if (notifyPropertyChangeCallBack)
-                notifyPropertyChangeCallBack(myObject(), propertyById.name());
-        } else {
-            if (notifyPropertyChangeCallBack)
-                notifyPropertyChangeCallBack(myObject(), name(id - propertyOffset()));
-        }
+    if (id < propertyOffset()) {
+        if (notifyPropertyChangeCallBack)
+            notifyPropertyChangeCallBack(myObject(), propertyById.name());
+    } else {
+        if (notifyPropertyChangeCallBack)
+            notifyPropertyChangeCallBack(myObject(), name(id - propertyOffset()));
     }
 }
 

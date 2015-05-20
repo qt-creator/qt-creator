@@ -42,14 +42,10 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-class ObjectNodeInstance;
-typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
-typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
-
 namespace QmlPrivateGate {
 
-void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
-void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
+void createNewDynamicProperty(QObject *object, QQmlEngine *engine, const QString &name);
+void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine);
 
 struct MetaPropertyData;
 
@@ -61,8 +57,8 @@ public:
     static void registerNotifyPropertyChangeCallBack(void (*callback)(QObject*, const PropertyName &propertyName));
 
 protected:
-    MetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);
-    static MetaObject* getNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
+    MetaObject(QObject *object, QQmlEngine *engine);
+    static MetaObject* getNodeInstanceMetaObject(QObject *object, QQmlEngine *engine);
 
     void createNewDynamicProperty(const QString &name);
     int openMetaCall(QMetaObject::Call _c, int _id, void **_a);
@@ -88,15 +84,15 @@ protected:
 private:
     void init(QObject *, QQmlEngine *engine);
 
-    ObjectNodeInstanceWeakPointer m_nodeInstance;
     QPointer<QQmlContext> m_context;
     QQmlOpenMetaObjectType *m_type;
     QScopedPointer<MetaPropertyData> m_data;
     //QAbstractDynamicMetaObject *m_parent;
     QQmlPropertyCache *m_cache;
 
-    friend void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
-    friend void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
+
+    friend void createNewDynamicProperty(QObject *object, QQmlEngine *engine, const QString &name);
+    friend void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine);
 };
 
 } // namespace QmlPrivateGate

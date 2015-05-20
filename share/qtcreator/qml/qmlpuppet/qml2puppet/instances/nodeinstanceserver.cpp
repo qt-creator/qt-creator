@@ -842,12 +842,12 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
             bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
             if (!stateBindingWasUpdated) {
                 if (bindingContainer.isDynamic())
-                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
                 instance.setPropertyBinding(name, expression);
             }
         } else {
             if (bindingContainer.isDynamic())
-                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
             instance.setPropertyBinding(name, expression);
         }
     }
@@ -874,12 +874,12 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
             if (!stateValueWasUpdated) {
                 if (valueContainer.isDynamic())
-                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
                 instance.setPropertyVariant(name, value);
             }
         } else { //base state
             if (valueContainer.isDynamic())
-                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance(), name);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
             instance.setPropertyVariant(name, value);
         }
 

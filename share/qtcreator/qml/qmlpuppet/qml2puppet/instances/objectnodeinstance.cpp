@@ -133,7 +133,7 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
     initializePropertyWatcher(objectNodeInstance);
-    QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance);
+    QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance->object(), objectNodeInstance->nodeInstanceServer()->engine());
 }
 
 void ObjectNodeInstance::setId(const QString &id)

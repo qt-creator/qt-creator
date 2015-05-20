@@ -319,15 +319,15 @@ static bool isCrashingType(QQmlType *type)
     return false;
 }
 
-void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name)
+void createNewDynamicProperty(QObject *object,  QQmlEngine *engine, const QString &name)
 {
-    MetaObject::getNodeInstanceMetaObject(nodeInstance)->createNewDynamicProperty(name);
+    MetaObject::getNodeInstanceMetaObject(object, engine)->createNewDynamicProperty(name);
 }
 
-void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance)
+void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
 {
     // we just create one and the ownership goes automatically to the object in nodeinstance see init method
-    MetaObject::getNodeInstanceMetaObject(nodeInstance);
+    MetaObject::getNodeInstanceMetaObject(object, engine);
 }
 
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)

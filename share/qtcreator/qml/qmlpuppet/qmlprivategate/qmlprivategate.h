@@ -67,8 +67,8 @@ public:
 #endif
 };
 
-    void createNewDynamicProperty(const ObjectNodeInstancePointer &nodeInstance, const QString &name);
-    void registerNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
+    void createNewDynamicProperty(QObject *object, QQmlEngine *engine, const QString &name);
+    void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine);
     QVariant fixResourcePaths(const QVariant &value);
     QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);
     QObject *createComponent(const QUrl &componentUrl, QQmlContext *context);
