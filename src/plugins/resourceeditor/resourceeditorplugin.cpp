@@ -37,7 +37,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -346,7 +345,7 @@ void ResourceEditorPlugin::updateContextActions(Node *node, Project *)
     m_removeNonExisting->setVisible(isResourceNode);
 
     if (isResourceNode)
-        Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, node->path().toString());
+        Core::EditorManager::populateOpenWithMenu(m_openWithMenu, node->path().toString());
     else
         m_openWithMenu->clear();
     m_openWithMenu->menuAction()->setVisible(!m_openWithMenu->actions().isEmpty());

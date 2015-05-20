@@ -686,6 +686,48 @@ IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const QString &fil
     return editor;
 }
 
+IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Core::Id editorId)
+{
+    // close any open editors that have this file open
+    // remember the views to open new editors in there
+    QList<EditorView *> views;
+    QList<IEditor *> editorsOpenForFile
+            = DocumentModel::editorsForFilePath(fileName);
+    foreach (IEditor *openEditor, editorsOpenForFile) {
+        EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
+        if (view && view->currentEditor() == openEditor) // visible
+            views.append(view);
+    }
+    if (!EditorManager::closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+        return 0;
+
+    IEditor *openedEditor = 0;
+    if (views.isEmpty()) {
+        openedEditor = EditorManager::openEditor(fileName, editorId);
+    } else {
+        if (EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
+            if (views.removeOne(currentView))
+                views.prepend(currentView); // open editor in current view first
+        }
+        EditorManager::OpenEditorFlags flags;
+        foreach (EditorView *view, views) {
+            IEditor *editor = EditorManagerPrivate::openEditor(view, fileName, editorId, flags);
+            if (!openedEditor && editor)
+                openedEditor = editor;
+            // Do not change the current editor after opening the first one. That
+            // * prevents multiple updates of focus etc which are not necessary
+            // * lets us control which editor is made current by putting the current editor view
+            //   to the front (if that was in the list in the first place)
+            flags |= EditorManager::DoNotChangeCurrentEditor;
+            // do not try to open more editors if this one failed, or editor type does not
+            // support duplication anyhow
+            if (!editor || !editor->duplicateSupported())
+                break;
+        }
+    }
+    return openedEditor;
+}
+
 IEditor *EditorManagerPrivate::activateEditorForDocument(EditorView *view, IDocument *document,
                                                          EditorManager::OpenEditorFlags flags)
 {
@@ -2087,7 +2129,51 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     QMenu *openWith = contextMenu->addMenu(tr("Open With"));
     openWith->setEnabled(enabled);
     if (enabled)
-        DocumentManager::populateOpenWithMenu(openWith, entry->fileName().toString());
+        populateOpenWithMenu(openWith, entry->fileName().toString());
+}
+
+void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
+{
+    typedef QList<IEditorFactory*> EditorFactoryList;
+    typedef QList<IExternalEditor*> ExternalEditorList;
+
+    menu->clear();
+
+    bool anyMatches = false;
+
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+    if (mt.isValid()) {
+        const EditorFactoryList factories = editorFactories(mt, false);
+        const ExternalEditorList extEditors = externalEditors(mt, false);
+        anyMatches = !factories.empty() || !extEditors.empty();
+        if (anyMatches) {
+            // Add all suitable editors
+            foreach (IEditorFactory *editorFactory, factories) {
+                Core::Id editorId = editorFactory->id();
+                // Add action to open with this very editor factory
+                QString const actionTitle = editorFactory->displayName();
+                QAction *action = menu->addAction(actionTitle);
+                // Below we need QueuedConnection because otherwise, if a qrc file
+                // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
+                // crashes happen, because the editor instance is deleted by openEditorWith
+                // while the menu is still being processed.
+                connect(action, &QAction::triggered, d,
+                        [fileName, editorId]() {
+                            EditorManagerPrivate::openEditorWith(fileName, editorId);
+                        }, Qt::QueuedConnection);
+            }
+            // Add all suitable external editors
+            foreach (IExternalEditor *externalEditor, extEditors) {
+                QAction *action = menu->addAction(externalEditor->displayName());
+                Core::Id editorId = externalEditor->id();
+                connect(action, &QAction::triggered, [fileName, editorId]() {
+                    EditorManager::openExternalEditor(fileName, editorId);
+                });
+            }
+        }
+    }
+    menu->setEnabled(anyMatches);
 }
 
 void EditorManager::saveDocument()

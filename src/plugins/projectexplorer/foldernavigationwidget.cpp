@@ -37,7 +37,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/coreconstants.h>
@@ -365,8 +364,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     // open with...
     if (hasCurrentItem && !isDirectory) {
         QMenu *openWith = menu.addMenu(tr("Open With"));
-        Core::DocumentManager::populateOpenWithMenu(openWith,
-                                                m_fileSystemModel->filePath(current));
+        Core::EditorManager::populateOpenWithMenu(openWith,
+                                                  m_fileSystemModel->filePath(current));
     }
 
     // Open file dialog to choose a path starting from current

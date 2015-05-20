@@ -39,7 +39,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
@@ -280,7 +279,7 @@ void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 
 void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
 {
-    Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, fileName);
+    Core::EditorManager::populateOpenWithMenu(m_openWithMenu, fileName);
     m_currentFileName = fileName;
     m_renameAction->setEnabled(!document()->isFileReadOnly());
     m_contextMenu->popup(globalPoint);

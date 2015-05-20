@@ -2944,7 +2944,8 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(actions.contains(Rename));
 
-            DocumentManager::populateOpenWithMenu(m_openWithMenu, ProjectTree::currentNode()->path().toString());
+            EditorManager::populateOpenWithMenu(m_openWithMenu,
+                                                ProjectTree::currentNode()->path().toString());
         }
 
         if (actions.contains(HidePathActions)) {
