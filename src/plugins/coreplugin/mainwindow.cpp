@@ -843,7 +843,7 @@ void MainWindow::openFileWith()
         if (isExternal)
             EditorManager::openExternalEditor(fileName, editorId);
         else
-            EditorManager::openEditor(fileName, editorId);
+            EditorManagerPrivate::openEditorWith(fileName, editorId);
     }
 }
 
