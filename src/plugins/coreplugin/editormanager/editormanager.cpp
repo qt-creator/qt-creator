@@ -583,6 +583,16 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     }
 
     EditorManager::EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), fn);
+    if (factories.isEmpty()) {
+        Utils::MimeDatabase mdb;
+        Utils::MimeType mimeType = mdb.mimeTypeForFile(fn);
+        QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
+                           tr("Could not open \"%1\": Cannot open files of type \"%2\".")
+                           .arg(realFn).arg(mimeType.name()),
+                           QMessageBox::Ok, ICore::dialogParent());
+        msgbox.exec();
+        return 0;
+    }
     if (editorId.isValid()) {
         if (IEditorFactory *factory = findById<IEditorFactory>(editorId)) {
             factories.removeOne(factory);
