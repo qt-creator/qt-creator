@@ -1265,6 +1265,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         foreach (Breakpoint bp, breakHandler()->engineBreakpoints(this))
             bp.notifyBreakpointReleased();
         DebuggerToolTipManager::deregisterEngine(this);
+        d->m_memoryAgent.handleDebuggerFinished();
     }
 
     showMessage(msg, LogDebug);

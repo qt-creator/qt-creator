@@ -88,8 +88,6 @@ MemoryAgent::MemoryAgent(DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
     QTC_CHECK(engine);
-    connect(engine, &DebuggerEngine::stateChanged,
-            this, &MemoryAgent::engineStateChanged);
     connect(engine, &DebuggerEngine::stackFrameCompleted,
             this, &MemoryAgent::updateContents);
 }
@@ -254,19 +252,13 @@ bool MemoryAgent::hasVisibleEditor() const
     return false;
 }
 
-void MemoryAgent::engineStateChanged(Debugger::DebuggerState s)
+void MemoryAgent::handleDebuggerFinished()
 {
-    switch (s) {
-    case DebuggerFinished:
-        closeViews();
-        foreach (const QPointer<IEditor> &editor, m_editors)
-            if (editor) { // Prevent triggering updates, etc.
-                MemoryView::setBinEditorReadOnly(editor->widget(), true);
-                editor->widget()->disconnect(this);
-            }
-        break;
-    default:
-        break;
+    foreach (const QPointer<IEditor> &editor, m_editors) {
+        if (editor) { // Prevent triggering updates, etc.
+            MemoryView::setBinEditorReadOnly(editor->widget(), true);
+            editor->widget()->disconnect(this);
+        }
     }
 }
 

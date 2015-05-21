@@ -101,6 +101,7 @@ public slots:
     void updateContents();
     void closeEditors();
     void closeViews();
+    void handleDebuggerFinished();
 
 private slots:
     void fetchLazyData(quint64 block);
@@ -108,7 +109,6 @@ private slots:
     void handleDataChanged(quint64 address, const QByteArray &data);
     void handleWatchpointRequest(quint64 address, uint size);
     void updateMemoryView(quint64 address, quint64 length);
-    void engineStateChanged(Debugger::DebuggerState s);
 
 private:
     void connectBinEditorWidget(QWidget *w);
