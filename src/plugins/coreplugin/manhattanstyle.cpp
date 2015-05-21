@@ -315,19 +315,6 @@ void ManhattanStyle::polish(QPalette &pal)
     QProxyStyle::polish(pal);
 }
 
-QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
-{
-    QIcon icon;
-    switch (standardIcon) {
-    case QStyle::SP_TitleBarCloseButton:
-    case QStyle::SP_ToolBarHorizontalExtensionButton:
-        return QIcon(standardPixmap(standardIcon, option, widget));
-    default:
-        icon = baseStyle()->standardIcon(standardIcon, option, widget);
-    }
-    return icon;
-}
-
 QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                        const QWidget *widget) const
 {
