@@ -1490,7 +1490,7 @@ void MiniProjectTargetSelector::mousePressEvent(QMouseEvent *e)
 
 void MiniProjectTargetSelector::updateActionAndSummary()
 {
-    QString projectName;
+    QString projectName = QLatin1String(" ");
     QString fileName; // contains the path if projectName is not unique
     QString targetName;
     QString targetToolTipText;
