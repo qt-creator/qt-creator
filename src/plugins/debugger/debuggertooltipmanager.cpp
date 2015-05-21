@@ -678,9 +678,8 @@ DebuggerToolTipContext::DebuggerToolTipContext()
 
 static bool filesMatch(const QString &file1, const QString &file2)
 {
-    QFileInfo f1(file1);
-    QFileInfo f2(file2);
-    return f1.canonicalFilePath() == f2.canonicalFilePath();
+    return FileName::fromString(QFileInfo(file1).canonicalFilePath())
+            == FileName::fromString(QFileInfo(file2).canonicalFilePath());
 }
 
 bool DebuggerToolTipContext::matchesFrame(const StackFrame &frame) const
