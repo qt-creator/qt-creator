@@ -2104,7 +2104,7 @@ Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instan
 
         subst.bind(cloner.name(name, &subst), ty);
     }
-    return cloner.symbol(specialization, &subst);
+    return cloner.symbol(specialization->declaration(), &subst);
 }
 
 } // namespace CPlusPlus
