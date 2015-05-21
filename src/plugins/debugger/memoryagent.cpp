@@ -88,10 +88,10 @@ MemoryAgent::MemoryAgent(DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
     QTC_CHECK(engine);
-    connect(engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
-            this, SLOT(engineStateChanged(Debugger::DebuggerState)));
-    connect(engine, SIGNAL(stackFrameCompleted()), this,
-            SLOT(updateContents()));
+    connect(engine, &DebuggerEngine::stateChanged,
+            this, &MemoryAgent::engineStateChanged);
+    connect(engine, &DebuggerEngine::stackFrameCompleted,
+            this, &MemoryAgent::updateContents);
 }
 
 MemoryAgent::~MemoryAgent()
