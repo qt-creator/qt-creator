@@ -964,13 +964,16 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             }
 
             // instantiate function template
-            if (name->isTemplateNameId() && s->isTemplate() && s->asTemplate()->declaration()
-                    && s->asTemplate()->declaration()->isFunction()) {
-                const TemplateNameId *instantiation = name->asTemplateNameId();
-                Template *specialization = s->asTemplate();
-                Symbol *instantiatedFunctionTemplate = instantiateTemplateFunction(instantiation,
-                                                                                   specialization);
-                item.setType(instantiatedFunctionTemplate->type()); // override the type.
+            if (const TemplateNameId *instantiation = name->asTemplateNameId()) {
+                if (Template *specialization = s->asTemplate()) {
+                    if (const Symbol *decl = specialization->declaration()) {
+                        if (decl->isFunction()) {
+                            Symbol *instantiatedFunctionTemplate =
+                                    instantiateTemplateFunction(instantiation, specialization);
+                            item.setType(instantiatedFunctionTemplate->type()); // override the type
+                        }
+                    }
+                }
             }
 
             result->append(item);
