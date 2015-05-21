@@ -34,6 +34,7 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 
@@ -334,6 +335,19 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
         break;
     }
     return pixmap;
+}
+
+QIcon ManhattanStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
+{
+    QIcon icon = QProxyStyle::standardIcon(standardIcon, option, widget);
+    if (standardIcon == QStyle::SP_ComputerIcon) {
+        // Ubuntu has in some versions a 16x16 icon, see QTCREATORBUG-12832
+        const QList<QSize> &sizes = icon.availableSizes();
+        if (Utils::allOf(sizes, [](const QSize &size) { return size.width() < 32;})) {
+            icon = QIcon(QLatin1String(":/core/images/Desktop.png"));
+        }
+    }
+    return icon;
 }
 
 int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,

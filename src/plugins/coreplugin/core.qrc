@@ -112,5 +112,6 @@
         <file>images/info@2x.png</file>
         <file>images/dark_fileicon.png</file>
         <file>images/dark_foldericon.png</file>
+        <file>images/Desktop.png</file>
     </qresource>
 </RCC>
