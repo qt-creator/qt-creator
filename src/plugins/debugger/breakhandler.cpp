@@ -1329,11 +1329,12 @@ BreakpointItem::~BreakpointItem()
 
 void BreakpointItem::destroyMarker()
 {
-    BreakpointMarker *m = m_marker;
-    QTC_ASSERT(m, return);
-    m->m_bp = 0;
-    m_marker = 0;
-    delete m;
+    if (m_marker) {
+        BreakpointMarker *m = m_marker;
+        m->m_bp = 0;
+        m_marker = 0;
+        delete m;
+    }
 }
 
 QString BreakpointItem::markerFileName() const
