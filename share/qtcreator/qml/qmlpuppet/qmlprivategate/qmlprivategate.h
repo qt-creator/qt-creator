@@ -127,8 +127,11 @@ public:
 
     } // namespace PropertyChanges
 
+
     bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
     void getPropertyCache(QObject *object, QQmlEngine *engine);
+
+    void registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &));
 
 } // namespace QmlPrivateGate
 } // namespace Internal

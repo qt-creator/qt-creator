@@ -58,6 +58,7 @@ class MetaObject : public QQmlVMEMetaObject
 public:
     ~MetaObject();
 
+    static void registerNotifyPropertyChangeCallBack(void (*callback)(QObject*, const PropertyName &propertyName));
 
 protected:
     MetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);

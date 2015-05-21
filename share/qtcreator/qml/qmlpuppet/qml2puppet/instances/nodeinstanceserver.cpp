@@ -110,6 +110,16 @@ namespace {
 
 namespace QmlDesigner {
 
+static NodeInstanceServer *nodeInstanceServerInstance = 0;
+
+static void notifyPropertyChangeCallBackFunction(QObject *object, const PropertyName &propertyName)
+{
+    qint32 id = nodeInstanceServerInstance->instanceForObject(object).instanceId();
+    nodeInstanceServerInstance->notifyPropertyChange(id, propertyName);
+}
+
+static void (*notifyPropertyChangeCallBackPointer)(QObject *, const PropertyName &) = &notifyPropertyChangeCallBackFunction;
+
 NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     NodeInstanceServerInterface(),
     m_childrenChangeEventFilter(new Internal::ChildrenChangeEventFilter(this)),
@@ -122,6 +132,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
+    nodeInstanceServerInstance = this;
+    Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
 }
 
 NodeInstanceServer::~NodeInstanceServer()

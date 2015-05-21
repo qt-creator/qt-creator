@@ -779,6 +779,11 @@ void getPropertyCache(QObject *object, QQmlEngine *engine)
     QQmlEnginePrivate::get(engine)->cache(object->metaObject());
 }
 
+void registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &))
+{
+    MetaObject::registerNotifyPropertyChangeCallBack(callback);
+}
+
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
     DesignerSupport::disableComponentComplete();

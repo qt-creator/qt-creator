@@ -46,6 +46,7 @@ namespace Internal {
 namespace QmlPrivateGate {
 
 static QHash<QDynamicMetaObjectData *, bool> nodeInstanceMetaObjectList;
+static void (*notifyPropertyChangeCallBack)(QObject*, const PropertyName &propertyName) = 0;
 
 struct MetaPropertyData {
     inline QPair<QVariant, bool> &getDataRef(int idx) {
@@ -328,9 +329,11 @@ void MetaObject::notifyPropertyChange(int id)
 
     if (objectNodeInstance && objectNodeInstance->nodeInstanceServer()) {
         if (id < propertyOffset()) {
-            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), propertyById.name());
+            if (notifyPropertyChangeCallBack)
+                notifyPropertyChangeCallBack(myObject(), propertyById.name());
         } else {
-            objectNodeInstance->nodeInstanceServer()->notifyPropertyChange(objectNodeInstance->instanceId(), name(id - propertyOffset()));
+            if (notifyPropertyChangeCallBack)
+                notifyPropertyChangeCallBack(myObject(), name(id - propertyOffset()));
         }
     }
 }
@@ -348,6 +351,11 @@ QByteArray MetaObject::name(int idx) const
 void MetaObject::copyTypeMetaObject()
 {
     *static_cast<QMetaObject *>(this) = *m_type->metaObject();
+}
+
+void MetaObject::registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &))
+{
+    notifyPropertyChangeCallBack = callback;
 }
 
 } // namespace QmlPrivateGate
