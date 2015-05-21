@@ -45,6 +45,7 @@ const char C_RESOURCE_MIMETYPE[] = "application/vnd.qt.xml.resource";
 const char C_ADD_PREFIX[] = "ResourceEditor.AddPrefix";
 const char C_REMOVE_PREFIX[] = "ResourceEditor.RemovePrefix";
 const char C_RENAME_PREFIX[] = "ResourceEditor.RenamePrefix";
+const char C_REMOVE_NON_EXISTING[] = "RessourceEditor.RemoveNonExistign";
 
 const char C_REMOVE_FILE[] = "ResourceEditor.RemoveFile";
 const char C_RENAME_FILE[] = "ResourceEditor.RenameFile";

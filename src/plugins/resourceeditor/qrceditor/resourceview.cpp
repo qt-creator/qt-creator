@@ -348,6 +348,11 @@ QModelIndex ResourceView::addPrefix()
     return idx;
 }
 
+QList<QModelIndex> ResourceView::nonExistingFiles()
+{
+    return m_qrcModel->nonExistingFiles();
+}
+
 void ResourceView::refresh()
 {
     m_qrcModel->refresh();

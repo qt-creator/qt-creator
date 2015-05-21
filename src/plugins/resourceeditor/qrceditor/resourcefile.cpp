@@ -653,6 +653,25 @@ QString ResourceModel::errorMessage() const
     return m_resource_file.errorMessage();
 }
 
+QList<QModelIndex> ResourceModel::nonExistingFiles() const
+{
+    QList<QModelIndex> files;
+    QFileInfo fi;
+    int prefixCount = rowCount(QModelIndex());
+    for (int i = 0; i < prefixCount; ++i) {
+        QModelIndex prefix = index(i, 0, QModelIndex());
+        int fileCount = rowCount(prefix);
+        for (int j = 0; j < fileCount; ++j) {
+            QModelIndex fileIndex = index(j, 0, prefix);
+            QString fileName = file(fileIndex);
+            fi.setFile(fileName);
+            if (!fi.exists())
+                files << fileIndex;
+        }
+    }
+    return files;
+}
+
 Qt::ItemFlags ResourceModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QAbstractItemModel::flags(index);

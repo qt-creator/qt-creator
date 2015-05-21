@@ -54,6 +54,8 @@ QrcEditor::QrcEditor(QWidget *parent)
     layout->addWidget(m_treeview);
 
     connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(onRemove()));
+    connect(m_ui.removeNonExistingButton, &QPushButton::clicked,
+            this, &QrcEditor::onRemoveNonExisting);
 
     // 'Add' button with menu
     QMenu *addMenu = new QMenu(this);
@@ -399,6 +401,16 @@ void QrcEditor::onRemove()
     const QModelIndex afterDeletionModelIndex
             = m_treeview->model()->index(afterDeletionArrayIndex, 0, afterDeletionParent);
     m_treeview->setCurrentIndex(afterDeletionModelIndex);
+    updateHistoryControls();
+}
+
+// Slot for 'Remove missing files' button
+void QrcEditor::onRemoveNonExisting()
+{
+    QList<QModelIndex> toRemove = m_treeview->nonExistingFiles();
+
+    QUndoCommand * const removeCommand = new RemoveMultipleEntryCommand(m_treeview, toRemove);
+    m_history.push(removeCommand);
     updateHistoryControls();
 }
 

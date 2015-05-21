@@ -111,6 +111,7 @@ public:
     void removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex);
     QStringList fileNamesToAdd();
     QModelIndex addPrefix();
+    QList<QModelIndex> nonExistingFiles();
 
     void refresh();
 

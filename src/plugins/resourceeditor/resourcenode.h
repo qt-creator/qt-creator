@@ -58,6 +58,7 @@ public:
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
     bool showInSimpleTree() const;
+    bool removeNonExistingFiles();
 
 private:
     Internal::ResourceFileWatcher *m_document;

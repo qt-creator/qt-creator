@@ -74,6 +74,7 @@ private slots:
     void removePrefixContextMenu();
     void renameFileContextMenu();
     void removeFileContextMenu();
+    void removeNonExisting();
 
     void openEditorContextMenu();
 
@@ -97,6 +98,7 @@ private:
     QAction *m_addPrefix;
     QAction *m_removePrefix;
     QAction *m_renamePrefix;
+    QAction *m_removeNonExisting;
 
     QAction *m_renameResourceFile;
     QAction *m_removeResourceFile;

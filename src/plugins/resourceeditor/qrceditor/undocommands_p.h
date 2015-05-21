@@ -120,6 +120,24 @@ private:
 };
 
 /*!
+    \class RemoveMultipleEntryCommand
+
+    Removes multiple \l QModelIndex including all children from a \l ResourceView.
+*/
+class RemoveMultipleEntryCommand : public QUndoCommand
+{
+    std::vector<QUndoCommand *> m_subCommands;
+public:
+    // list must be in view order
+    RemoveMultipleEntryCommand(ResourceView *view, const QList<QModelIndex> &list);
+    ~RemoveMultipleEntryCommand();
+private:
+    void redo() override;
+    void undo() override;
+};
+
+
+/*!
     \class AddFilesCommand
 
     Adds a list of files to a given prefix node.

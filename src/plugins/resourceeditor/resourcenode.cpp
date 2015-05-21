@@ -256,6 +256,29 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
     return false;
 }
 
+bool ResourceTopLevelNode::removeNonExistingFiles()
+{
+    ResourceFile file(path().toString());
+    if (!file.load())
+        return false;
+
+    QFileInfo fi;
+
+    for (int i = 0; i < file.prefixCount(); ++i) {
+        int fileCount = file.fileCount(i);
+        for (int j = fileCount -1; j >= 0; --j) {
+            fi.setFile(file.file(i, j));
+            if (!fi.exists())
+                file.removeFile(i, j);
+        }
+    }
+
+    Core::DocumentManager::expectFileChange(path().toString());
+    file.save();
+    Core::DocumentManager::unexpectFileChange(path().toString());
+    return true;
+}
+
 ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")

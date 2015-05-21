@@ -153,6 +153,36 @@ void RemoveEntryCommand::freeEntry()
     m_entry = 0;
 }
 
+RemoveMultipleEntryCommand::RemoveMultipleEntryCommand(ResourceView *view, const QList<QModelIndex> &list)
+{
+    m_subCommands.reserve(list.size());
+    for (const QModelIndex &index : list)
+        m_subCommands.push_back(new RemoveEntryCommand(view, index));
+}
+
+RemoveMultipleEntryCommand::~RemoveMultipleEntryCommand()
+{
+    qDeleteAll(m_subCommands);
+}
+
+void RemoveMultipleEntryCommand::redo()
+{
+    auto it = m_subCommands.rbegin();
+    auto end = m_subCommands.rend();
+
+    for (; it != end; ++it)
+        (*it)->redo();
+}
+
+void RemoveMultipleEntryCommand::undo()
+{
+    auto it = m_subCommands.begin();
+    auto end = m_subCommands.end();
+
+    for (; it != end; ++it)
+        (*it)->undo();
+}
+
 AddFilesCommand::AddFilesCommand(ResourceView *view, int prefixIndex, int cursorFileIndex,
         const QStringList &fileNames)
         : ViewCommand(view), m_prefixIndex(prefixIndex), m_cursorFileIndex(cursorFileIndex),

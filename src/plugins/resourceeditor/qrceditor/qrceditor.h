@@ -86,6 +86,7 @@ private slots:
     void onPrefixChanged(const QString &prefix);
     void onLanguageChanged(const QString &language);
     void onRemove();
+    void onRemoveNonExisting();
     void onAddFiles();
     void onAddPrefix();
 

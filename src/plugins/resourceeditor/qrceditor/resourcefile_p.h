@@ -217,6 +217,8 @@ public:
 
     QString errorMessage() const;
 
+    QList<QModelIndex> nonExistingFiles() const;
+
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
