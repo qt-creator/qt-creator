@@ -289,7 +289,9 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             if (elementName == _("bindingType") ||
                     elementName == _("cacheEventType") ||
                     elementName == _("sgEventType") ||
-                    elementName == _("memoryEventType")) {
+                    elementName == _("memoryEventType") ||
+                    elementName == _("mouseEvent") ||
+                    elementName == _("keyEvent")) {
                 event.detailType = readData.toInt();
                 break;
             }
@@ -485,16 +487,29 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         if (!event.data.isEmpty())
             stream.writeTextElement(_("details"), event.data);
 
-        if (event.rangeType == Binding)
+        if (event.rangeType == Binding) {
             stream.writeTextElement(_("bindingType"), QString::number(event.detailType));
-        if (event.message == Event && event.detailType == AnimationFrame)
-            stream.writeTextElement(_("animationFrame"), QString::number(event.detailType));
-        if (event.message == PixmapCacheEvent)
+        } else if (event.message == Event) {
+            switch (event.detailType) {
+            case AnimationFrame:
+                stream.writeTextElement(_("animationFrame"), QString::number(event.detailType));
+                break;
+            case Key:
+                stream.writeTextElement(_("keyEvent"), QString::number(event.detailType));
+                break;
+            case Mouse:
+                stream.writeTextElement(_("mouseEvent"), QString::number(event.detailType));
+                break;
+            default:
+                break;
+            }
+        } else if (event.message == PixmapCacheEvent) {
             stream.writeTextElement(_("cacheEventType"), QString::number(event.detailType));
-        if (event.message == SceneGraphFrame)
+        } else if (event.message == SceneGraphFrame) {
             stream.writeTextElement(_("sgEventType"), QString::number(event.detailType));
-        if (event.message == MemoryAllocation)
+        } else if (event.message == MemoryAllocation) {
             stream.writeTextElement(_("memoryEventType"), QString::number(event.detailType));
+        }
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventData
