@@ -968,8 +968,12 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 if (Template *specialization = s->asTemplate()) {
                     if (const Symbol *decl = specialization->declaration()) {
                         if (decl->isFunction()) {
+                            Clone cloner(_control.data());
+                            Subst subst(_control.data());
+                            initializeSubst(cloner, subst, binding, scope,
+                                            specialization, instantiation);
                             Symbol *instantiatedFunctionTemplate =
-                                    instantiateTemplateFunction(instantiation, specialization);
+                                    cloner.symbol(specialization->declaration(), &subst);
                             item.setType(instantiatedFunctionTemplate->type()); // override the type
                         }
                     }
@@ -1374,36 +1378,9 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
 
             Subst subst(_control.data());
             if (_factory->expandTemplates()) {
-                const TemplateNameId *templSpecId
-                        = templateSpecialization->name()->asTemplateNameId();
-                const unsigned templSpecArgumentCount = templSpecId ?
-                            templSpecId->templateArgumentCount() : 0;
                 Clone cloner(_control.data());
-                for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
-                    const TypenameArgument *tParam
-                            = templateSpecialization->templateParameterAt(i)->asTypenameArgument();
-                    if (!tParam)
-                        continue;
-                    const Name *name = tParam->name();
-                    if (!name)
-                        continue;
-
-                    FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
-                                templId->templateArgumentAt(i):
-                                cloner.type(tParam->type(), &subst);
-
-                    TypeResolver typeResolver(*_factory);
-                    Scope *scope = 0;
-                    typeResolver.resolve(&ty, &scope, origin ? origin->q : 0);
-                    if (i < templSpecArgumentCount
-                            && templSpecId->templateArgumentAt(i)->isPointerType()) {
-                        if (PointerType *pointerType = ty->asPointerType())
-                            ty = pointerType->elementType();
-                    }
-
-                    subst.bind(cloner.name(name, &subst), ty);
-                }
-
+                _factory->initializeSubst(cloner, subst, origin ? origin->q : 0, 0,
+                                          templateSpecialization, templId);
                 Instantiator instantiator(cloner, subst);
                 instantiator.instantiate(reference, instantiation, true);
             } else {
@@ -2081,14 +2058,18 @@ bool CreateBindings::visit(ObjCMethod *)
     return false;
 }
 
-Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instantiation,
-                                                    Template *specialization) const
+void CreateBindings::initializeSubst(Clone &cloner,
+                                     Subst &subst,
+                                     LookupScope *origin,
+                                     Scope *scope,
+                                     Template *specialization,
+                                     const TemplateNameId *instantiation)
 {
     const unsigned argumentCountOfInitialization = instantiation->templateArgumentCount();
     const unsigned argumentCountOfSpecialization = specialization->templateParameterCount();
 
-    Clone cloner(_control.data());
-    Subst subst(_control.data());
+    const TemplateNameId *templSpecId = specialization->name()->asTemplateNameId();
+    const unsigned templSpecArgumentCount = templSpecId ? templSpecId->templateArgumentCount() : 0;
     for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
         const TypenameArgument *tParam
                 = specialization->templateParameterAt(i)->asTypenameArgument();
@@ -2102,9 +2083,16 @@ Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instan
                     instantiation->templateArgumentAt(i):
                     cloner.type(tParam->type(), &subst);
 
+        TypeResolver typeResolver(*this);
+        Scope *resolveScope = scope;
+        typeResolver.resolve(&ty, &resolveScope, origin);
+        if (i < templSpecArgumentCount && templSpecId->templateArgumentAt(i)->isPointerType()) {
+            if (PointerType *pointerType = ty->asPointerType())
+                ty = pointerType->elementType();
+        }
+
         subst.bind(cloner.name(name, &subst), ty);
     }
-    return cloner.symbol(specialization->declaration(), &subst);
 }
 
 } // namespace CPlusPlus

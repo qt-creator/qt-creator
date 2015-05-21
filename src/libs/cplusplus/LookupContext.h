@@ -150,6 +150,9 @@ public:
     /// \internal
     LookupScope *allocLookupScope(LookupScope *parent, const Name *name);
 
+    void initializeSubst(Clone &cloner, Subst &subst, LookupScope *origin, Scope *scope,
+                         Template *specialization, const TemplateNameId *instantiation);
+
 protected:
     using SymbolVisitor::visit;
 
@@ -192,9 +195,6 @@ protected:
     virtual bool visit(ObjCMethod *);
 
 private:
-    Symbol *instantiateTemplateFunction(const TemplateNameId *instantiation,
-                                        Template *specialization) const;
-
     Snapshot _snapshot;
     QSharedPointer<Control> _control;
     QList<Document::Ptr> _expressionDocuments;
