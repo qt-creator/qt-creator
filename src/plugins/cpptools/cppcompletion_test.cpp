@@ -2917,6 +2917,87 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
 
+    QTest::newRow("template_using_instantiation") << _(
+            "template<typename _Tp>\n"
+            "using T = _Tp;\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    T<Foo> p;\n"
+            "    @\n"
+            "}\n"
+    ) << _("p.") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("nested_template_using_instantiation") << _(
+            "struct Parent {\n"
+            "    template<typename _Tp>\n"
+            "    using T = _Tp;\n"
+            "};\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    Parent::T<Foo> p;\n"
+            "    @;\n"
+            "}\n"
+     ) << _("p.") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("nested_template_using_instantiation_in_template_class") << _(
+            "template<typename ParentT>\n"
+            "struct Parent {\n"
+            "    template<typename _Tp>\n"
+            "    using T = _Tp;\n"
+            "};\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    Parent<Foo>::T<Foo> p;\n"
+            "    @;\n"
+            "}\n"
+     ) << _("p.") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("recursive_nested_template_using_instantiation") << _(
+            "struct Foo { int bar; };\n"
+            "\n"
+            "struct A { typedef Foo value_type; };\n"
+            "\n"
+            "template<typename T>\n"
+            "struct Traits\n"
+            "{\n"
+            "    typedef Foo value_type;\n"
+            "\n"
+            "    template<typename _Tp>\n"
+            "    using U = T;\n"
+            "};\n"
+            "\n"
+            "template<typename T>\n"
+            "struct Temp\n"
+            "{\n"
+            "    typedef Traits<T> TraitsT;\n"
+            "    typedef typename T::value_type value_type;\n"
+            "    typedef typename TraitsT::template U<Foo> rebind;\n"
+            "};\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    typename Temp<typename Temp<A>::rebind>::value_type p;\n"
+            "    @\n"
+            "}\n"
+    ) << _("p.") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
     QTest::newRow("qualified_name_in_nested_type") << _(
             "template<typename _Tp>\n"
             "struct Temp {\n"

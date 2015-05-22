@@ -210,6 +210,10 @@ bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpe
 {
     foreach (const LookupItem &it, namedTypeItems) {
         Symbol *declaration = it.declaration();
+        if (!declaration)
+            continue;
+        if (Template *specialization = declaration->asTemplate())
+            declaration = specialization->declaration();
         if (!declaration || (!declaration->isTypedef() && !declaration->type().isDecltype()))
             continue;
         if (visited.contains(declaration))
@@ -237,7 +241,7 @@ bool TypeResolver::findTypedef(const QList<LookupItem> &namedTypeItems, FullySpe
                 return true;
             }
         } else {
-            *type = declaration->type();
+            *type = it.type();
         }
 
         *scope = it.scope();
