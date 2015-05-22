@@ -73,6 +73,7 @@ static const char CATEGORY_KEY[] = "category";
 static const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
 static const char DISPLAY_NAME_KEY[] = "trDisplayName";
 static const char ICON_KEY[] = "icon";
+static const char IMAGE_KEY[] = "image";
 static const char DESCRIPTION_KEY[] = "trDescription";
 static const char REQUIRED_FEATURES_KEY[] = "featuresRequired";
 static const char SUGGESTED_FEATURES_KEY[] = "featuresSuggested";
@@ -523,10 +524,20 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     if (!strVal.isEmpty()) {
         strVal = baseDir.absoluteFilePath(strVal);
         if (!QFileInfo::exists(strVal)) {
-            *errorMessage = tr("Icon \"%1\" not found.").arg(strVal);
+            *errorMessage = tr("Icon file \"%1\" not found.").arg(QDir::toNativeSeparators(strVal));
             return false;
         }
         setIcon(QIcon(strVal));
+    }
+
+    strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
+    if (!strVal.isEmpty()) {
+        strVal = baseDir.absoluteFilePath(strVal);
+        if (!QFileInfo::exists(strVal)) {
+            *errorMessage = tr("Image file \"%1\" not found.").arg(QDir::toNativeSeparators(strVal));
+            return false;
+        }
+        setDescriptionImage(strVal);
     }
 
     setRequiredFeatures(Core::FeatureSet::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
