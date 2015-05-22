@@ -637,7 +637,6 @@ public:
     void releaseEngine();
 
     void saveSessionData(QXmlStreamWriter &w) const;
-    void handleStackFrameCompleted(const QString &frameFile, const QString &frameFunction);
 
     void positionShow(const TextEditorWidget *editorWidget);
 

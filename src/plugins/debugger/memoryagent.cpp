@@ -75,7 +75,8 @@ namespace Internal {
        (m_view).
     \endlist
 
-    Views are updated on the  DebuggerEngine::stackFrameCompleted signal.
+    Views are asked to update themselves directly by the owning
+    DebuggerEngine.
     An exception are views of class Debugger::RegisterMemoryView tracking the
     content pointed to by a register (eg stack pointer, instruction pointer).
     They are connected to the set/changed signals of
