@@ -188,10 +188,8 @@ Symbol *CloneSymbol::cloneSymbol(Symbol *symbol, Subst *subst)
 
     SymbolSubstPair symbolSubstPair = std::make_pair(symbol, subst);
     auto it = _cache.find(symbolSubstPair);
-    if (it != _cache.end()) {
-        if (it->second->enclosingScope() == symbol->enclosingScope())
-            return it->second;
-    }
+    if (it != _cache.end())
+        return it->second;
 
     Symbol *r = 0;
     std::swap(_subst, subst);
