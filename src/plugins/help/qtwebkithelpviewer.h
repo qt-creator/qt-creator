@@ -110,8 +110,6 @@ public:
     void scaleUp();
     void scaleDown();
 
-    void setOpenInNewPageActionVisible(bool visible);
-
 public slots:
     void copy();
 
@@ -134,7 +132,6 @@ private:
     bool eventFilter(QObject *obj, QEvent *event);
 
     QtWebKitHelpViewer *m_parent;
-    bool m_openInNewPageActionVisible;
 };
 
 class HelpPage : public QWebPage
