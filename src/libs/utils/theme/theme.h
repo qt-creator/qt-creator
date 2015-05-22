@@ -58,7 +58,6 @@ public:
     ~Theme();
 
     enum Color {
-        InvalidColor,
         BackgroundColorAlternate,
         BackgroundColorDark,
         BackgroundColorHover,

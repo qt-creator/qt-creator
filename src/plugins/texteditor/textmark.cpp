@@ -227,7 +227,7 @@ bool TextMarkRegistry::remove(TextMark *mark)
 
 Theme::Color TextMarkRegistry::categoryColor(Id category)
 {
-    return m_colors.contains(category) ? m_colors[category] : Theme::InvalidColor;
+    return m_colors.value(category, Theme::ProjectExplorer_TaskWarn_TextMarkColor);
 }
 
 void TextMarkRegistry::setCategoryColor(Id category, Theme::Color color)
