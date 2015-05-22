@@ -233,7 +233,6 @@ QtcPlugin {
         files: [
             "BuildSettings.png",
             "CodeStyleSettings.png",
-            "Desktop.png",
             "DeviceConnected.png",
             "DeviceDisconnected.png",
             "DeviceReadyToUse.png",
