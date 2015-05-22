@@ -127,6 +127,7 @@ private:
     QString m_buildDirectory;
     QString m_avdName;
     QString m_apkPath;
+    QString m_appProcess;
 
     QString m_targetArch;
     bool m_uninstallPreviousPackage;

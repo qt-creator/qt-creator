@@ -48,6 +48,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -201,6 +202,14 @@ bool AndroidDeployQtStep::init()
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
+    m_appProcess = QLatin1String("readlink -f -s /system/bin/app_process");
+    if (info.cpuAbi.contains(QLatin1String("arm64-v8a"))) {
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+        if (tc && tc->targetAbi().wordWidth() == 64)
+            m_appProcess += QLatin1String("64");
+        else
+            m_appProcess += QLatin1String("32");
+    }
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
 
@@ -464,7 +473,7 @@ QString AndroidDeployQtStep::systemAppProcessFilePath() const
     QProcess proc;
     const QStringList args =
             QStringList() << AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("shell")
-                          << QLatin1String("readlink -f -s /system/bin/app_process");
+                          << m_appProcess;
     proc.start(m_adbPath, args);
     proc.waitForFinished();
     return QString::fromUtf8(proc.readAll()).trimmed();
