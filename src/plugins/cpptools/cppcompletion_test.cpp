@@ -3212,6 +3212,29 @@ void CppToolsPlugin::test_completion_data()
     ) << _("s.") << (QStringList()
             << QLatin1String("Foo")
             << QLatin1String("bar"));
+
+    QTest::newRow("nested_instantiation_typedefed_decltype_declaration_of_template_function") << _(
+            "template <typename T, typename D = T>\n"
+            "struct Temp\n"
+            "{\n"
+            "    struct Nested\n"
+            "    {\n"
+            "        template<typename U> static T* __test(...);\n"
+            "        typedef decltype(__test<D>(0)) type;\n"
+            "    };\n"
+            "};\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    Temp<Foo>::Nested::type s;\n"
+            "    @\n"
+            "}\n"
+    ) << _("s.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
+
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
