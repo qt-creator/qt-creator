@@ -65,6 +65,8 @@ public:
 
     static const QByteArray SshConnectionService;
 
+    static QList<QByteArray> commonCapabilities(const QList<QByteArray> &myCapabilities,
+                                                const QList<QByteArray> &serverCapabilities);
     static QByteArray findBestMatch(const QList<QByteArray> &myCapabilities,
         const QList<QByteArray> &serverCapabilities);
 };

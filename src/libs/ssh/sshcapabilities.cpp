@@ -89,13 +89,17 @@ const QList<QByteArray> SshCapabilities::CompressionAlgorithms
 
 const QByteArray SshCapabilities::SshConnectionService("ssh-connection");
 
-QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilities,
-    const QList<QByteArray> &serverCapabilities)
+QList<QByteArray> SshCapabilities::commonCapabilities(const QList<QByteArray> &myCapabilities,
+                                               const QList<QByteArray> &serverCapabilities)
 {
+    QList<QByteArray> capabilities;
     foreach (const QByteArray &myCapability, myCapabilities) {
         if (serverCapabilities.contains(myCapability))
-            return myCapability;
+            capabilities << myCapability;
     }
+
+    if (!capabilities.isEmpty())
+        return capabilities;
 
     throw SshServerException(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
         "Server and client capabilities do not match.",
@@ -104,6 +108,13 @@ QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilitie
             "Client list was: %1.\nServer list was %2.")
             .arg(QString::fromLocal8Bit(listAsByteArray(myCapabilities).data()))
             .arg(QString::fromLocal8Bit(listAsByteArray(serverCapabilities).data())));
+
+}
+
+QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilities,
+    const QList<QByteArray> &serverCapabilities)
+{
+    return commonCapabilities(myCapabilities, serverCapabilities).first();
 }
 
 } // namespace Internal
