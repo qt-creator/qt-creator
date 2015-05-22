@@ -27,27 +27,41 @@
     is not sufficient for your case, you can write wizards in code.
 
     A wizard in Qt Creator is an instance of a class implementing
-    the Core::IWizard interface that is registered with ExtensionSystem::PluginManager.
+    the Core::IWizardFactory interface that is registered with
+    ExtensionSystem::PluginManager.
 
     Implementing wizards requires:
     \list
     \li Deciding on a base class:
        \list
-       \li Core::IWizard is a very generic interface that does
+       \li Core::IWizardFactory is a very generic interface that does
            not make any assumption about what the wizard does and
            what its UI looks like.
 
-       \li Core::BaseFileWizard should be used for wizards that
+       \li Core::BaseFileWizardFactory should be used for wizards that
            generate files using a UI based on Utils::Wizard.
        \endlist
 
     \li Providing a set of parameters that determine how the wizard shows up
         in the list of wizards in the  \uicontrol{New File or Project} dialog.
 
-        When deriving from Core::IWizard, virtual functions returning the
-        values have to be implemented.
+        When deriving from Core::IWizardFactory, the constructor has to call
+        the following setters provided by the base class:
 
-        When deriving from Core::BaseFileWizard, a parameter class
+        \list
+        \li \c setId
+        \li \c setWizardKind
+        \li \c setIcon
+        \li \c setDescription
+        \li \c setDisplayName
+        \li \c setCategory
+        \li \c setDisplayCategory
+        \li \c setDescriptionImage
+        \li \c setRequiredFeatures
+        \li \c setFlags
+        \endlist
+
+        When deriving from Core::BaseFileWizardFactory, a parameter class
         Core::BaseFileWizardParameters needs to be passed to the constructor,
         on which the parameters can be set. This allows for easy creation
         of several wizard instances with slightly different parameters.
@@ -60,11 +74,11 @@
 
     \li Implementing the wizard functionality
 
-        When deriving from Core::BaseFileWizard, a list of Core::GeneratedFile
+        When deriving from Core::BaseFileWizardFactory, a list of Core::GeneratedFile
         needs to be populated with the files and their contents.
         \note The files are not actually written to the disk. This will be
-        done by Core::BaseFileWizard after performing overwrite checks and prompting
-        the user accordingly.
+        done by Core::BaseFileWizardFactory after performing overwrite checks and
+        prompting the user accordingly.
 
     \endlist
 
@@ -76,13 +90,13 @@
     \li Description
 
     \row
-    \li Core::IWizard
+    \li Core::IWizardFactory
     \li Qt Creator wizard interface, implementations of which are registered with
         ExtensionSystem::PluginManager.
 
     \row
-    \li Core::BaseFileWizard
-    \li Inherits Core::IWizard and provides a base class for generating files with a UI
+    \li Core::BaseFileWizardFactory
+    \li Inherits Core::IWizardFactory and provides a base class for generating files with a UI
         based on QWizard.
 
     \row
@@ -128,7 +142,7 @@
     \li Description
 
     \row
-    \li Core::IWizard::WizardKind
+    \li Core::IWizardFactory::WizardKind
     \li kind
     \li Enumeration value that indicates the type of the wizard (project or file).
 
