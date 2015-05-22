@@ -122,7 +122,7 @@ VcsBase_FileModified_TextColor=ff0000ee
 VcsBase_FileDeleted_TextColor=ffee0000
 VcsBase_FileRenamed_TextColor=ffd77d00
 
-Bookmark_TextMarkColor=800000ff
+Bookmarks_TextMarkColor=800000ff
 
 ProjectExplorer_TaskError_TextMarkColor=80800000
 ProjectExplorer_TaskWarn_TextMarkColor=80ffff00
