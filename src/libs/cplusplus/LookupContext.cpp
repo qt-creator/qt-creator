@@ -967,7 +967,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             if (const TemplateNameId *instantiation = name->asTemplateNameId()) {
                 if (Template *specialization = s->asTemplate()) {
                     if (const Symbol *decl = specialization->declaration()) {
-                        if (decl->isFunction()) {
+                        if (decl->isFunction() || decl->isDeclaration()) {
                             Clone cloner(_control.data());
                             Subst subst(_control.data());
                             initializeSubst(cloner, subst, binding, scope,

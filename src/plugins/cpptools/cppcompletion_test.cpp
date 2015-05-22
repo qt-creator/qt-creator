@@ -2984,6 +2984,21 @@ void CppToolsPlugin::test_completion_data()
     ) << _("s.") << (QStringList()
             << QLatin1String("Foo")
             << QLatin1String("bar"));
+
+    QTest::newRow("typedefed_decltype_of_template_function") << _(
+            "template<typename T>\n"
+            "static T f();\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void fun()\n"
+            "{\n"
+            "    decltype(f<Foo>()) s;\n"
+            "    @\n"
+            "}\n"
+    ) << _("s.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
