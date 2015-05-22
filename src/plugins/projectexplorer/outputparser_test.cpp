@@ -37,6 +37,13 @@
 
 namespace ProjectExplorer {
 
+static inline QByteArray msgFileComparisonFail(const Utils::FileName &f1, const Utils::FileName &f2)
+{
+    const QString result = QLatin1Char('"') + f1.toUserOutput()
+        + QLatin1String("\" != \"") + f2.toUserOutput() + QLatin1Char('"');
+    return result.toLocal8Bit();
+}
+
 OutputParserTester::OutputParserTester() :
     m_debug(false)
 { }
@@ -83,7 +90,8 @@ void OutputParserTester::testParsing(const QString &lines,
         for (int i = 0; i < tasks.size(); ++i) {
             QCOMPARE(m_receivedTasks.at(i).category, tasks.at(i).category);
             QCOMPARE(m_receivedTasks.at(i).description, tasks.at(i).description);
-            QCOMPARE(m_receivedTasks.at(i).file, tasks.at(i).file);
+            QVERIFY2(m_receivedTasks.at(i).file == tasks.at(i).file,
+                     msgFileComparisonFail(m_receivedTasks.at(i).file, tasks.at(i).file));
             QCOMPARE(m_receivedTasks.at(i).line, tasks.at(i).line);
             QCOMPARE(static_cast<int>(m_receivedTasks.at(i).type), static_cast<int>(tasks.at(i).type));
         }
@@ -103,7 +111,8 @@ void OutputParserTester::testTaskMangling(const Task &input,
     if (m_receivedTasks.size() == 1) {
         QCOMPARE(m_receivedTasks.at(0).category, output.category);
         QCOMPARE(m_receivedTasks.at(0).description, output.description);
-        QCOMPARE(m_receivedTasks.at(0).file, output.file);
+        QVERIFY2(m_receivedTasks.at(0).file == output.file,
+                 msgFileComparisonFail(m_receivedTasks.at(0).file, output.file));
         QCOMPARE(m_receivedTasks.at(0).line, output.line);
         QCOMPARE(m_receivedTasks.at(0).type, output.type);
     }
