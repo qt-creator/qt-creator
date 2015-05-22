@@ -356,9 +356,9 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
     containing valid configuration files and parse them into wizards.
 */
 
-QList<CustomWizard*> CustomWizard::createWizards()
+QList<Core::IWizardFactory *> CustomWizard::createWizards()
 {
-    QList<CustomWizard*> rc;
+    QList<Core::IWizardFactory *> rc;
     QString errorMessage;
     QString verboseLog;
     const QString templateDirName = Core::ICore::resourcePath() +

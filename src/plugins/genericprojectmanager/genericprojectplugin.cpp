@@ -70,8 +70,9 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(new Manager);
     addAutoReleasedObject(new ProjectFilesFactory);
     addAutoReleasedObject(new GenericMakeStepFactory);
-    addAutoReleasedObject(new GenericProjectWizard);
     addAutoReleasedObject(new GenericBuildConfigurationFactory);
+
+    IWizardFactory::registerFactoryCreator([]() { return QList<IWizardFactory *>() << new GenericProjectWizard; });
 
     ActionContainer *mproject =
             ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);

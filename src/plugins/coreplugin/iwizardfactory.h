@@ -38,6 +38,8 @@
 #include <QObject>
 #include <QString>
 
+#include <functional>
+
 namespace Core {
 
 namespace Internal { class CorePlugin; }
@@ -87,6 +89,9 @@ public:
     bool isAvailable(const QString &platformName) const;
     QStringList supportedPlatforms() const;
 
+    typedef std::function<QList<IWizardFactory *>()> FactoryCreator;
+    static void registerFactoryCreator(const FactoryCreator &creator);
+
     // Utility to find all registered wizards
     static QList<IWizardFactory*> allWizardFactories();
     // Utility to find all registered wizards of a certain kind
@@ -100,6 +105,7 @@ protected:
     FeatureSet pluginFeatures() const;
 
 private:
+    static void initialize();
     static void destroyFeatureProvider();
 
     IWizardFactory::WizardKind m_kind;

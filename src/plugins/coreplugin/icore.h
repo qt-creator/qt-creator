@@ -123,15 +123,12 @@ public:
     };
     static void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None);
 
-    static void emitNewItemsDialogRequested();
-
 public slots:
     static void saveSettings();
 
 signals:
     void coreAboutToOpen();
     void coreOpened();
-    void newItemsDialogRequested();
     void newItemDialogRunningChanged();
     void saveSettingsRequested();
     void optionsDialogRequested();

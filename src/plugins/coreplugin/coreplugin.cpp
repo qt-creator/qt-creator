@@ -185,6 +185,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         InfoBar::initializeGloballySuppressed();
     }
 
+    IWizardFactory::initialize();
+
     // Make sure we respect the process's umask when creating new files
     SaveFile::initializeUmask();
 

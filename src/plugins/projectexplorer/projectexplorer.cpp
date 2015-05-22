@@ -284,7 +284,6 @@ public:
     void slotUpdateRunActions();
 
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
-    void loadCustomWizards();
 
     void updateWelcomePage();
 
@@ -490,8 +489,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new TaskHub);
 
-    connect(ICore::instance(), &ICore::newItemsDialogRequested,
-            dd, &ProjectExplorerPluginPrivate::loadCustomWizards);
+    IWizardFactory::registerFactoryCreator([]() -> QList<IWizardFactory *> {
+        QList<IWizardFactory *> result;
+        result << CustomWizard::createWizards();
+        result << JsonWizardFactory::createWizardFactories();
+        return result;
+    });
 
     dd->m_welcomePage = new ProjectWelcomePage;
     connect(dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
@@ -1502,20 +1505,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     DeviceManager::instance()->load();
     ToolChainManager::restoreToolChains();
     dd->m_kitManager->restoreKits();
-}
-
-void ProjectExplorerPluginPrivate::loadCustomWizards()
-{
-    // Add custom wizards, for which other plugins might have registered
-    // class factories
-    static bool firstTime = true;
-    if (firstTime) {
-        firstTime = false;
-        foreach (IWizardFactory *cpw, CustomWizard::createWizards())
-            m_instance->addAutoReleasedObject(cpw);
-        foreach (IWizardFactory *cpw, JsonWizardFactory::createWizardFactories())
-            m_instance->addAutoReleasedObject(cpw);
-    }
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()

@@ -533,11 +533,6 @@ void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
     m_mainwindow->openFiles(arguments, flags);
 }
 
-void ICore::emitNewItemsDialogRequested()
-{
-    emit m_instance->newItemsDialogRequested();
-}
-
 void ICore::saveSettings()
 {
     emit m_instance->saveSettingsRequested();

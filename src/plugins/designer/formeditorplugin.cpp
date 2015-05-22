@@ -85,7 +85,21 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
 
-    initializeTemplates();
+#ifdef CPP_ENABLED
+    IWizardFactory::registerFactoryCreator(
+                []() -> QList<IWizardFactory *> {
+                    IWizardFactory *wizard = new FormClassWizard;
+                    wizard->setWizardKind(IWizardFactory::FileWizard);
+                    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+                    wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+                    wizard->setDisplayName(tr("Qt Designer Form Class"));
+                    wizard->setId("C.FormClass");
+                    wizard->setDescription(tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
+                    "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
+
+                    return QList<IWizardFactory *>() << wizard;
+                });
+#endif
 
     ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);
     addAutoReleasedObject(new FormEditorFactory);
@@ -129,21 +143,6 @@ void FormEditorPlugin::extensionsInitialized()
 // PRIVATE functions
 //
 ////////////////////////////////////////////////////
-
-void FormEditorPlugin::initializeTemplates()
-{
-#ifdef CPP_ENABLED
-    IWizardFactory *wizard = new FormClassWizard;
-    wizard->setWizardKind(IWizardFactory::FileWizard);
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    wizard->setDisplayName(tr("Qt Designer Form Class"));
-    wizard->setId("C.FormClass");
-    wizard->setDescription(tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
-                                       "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
-    addAutoReleasedObject(wizard);
-#endif
-}
 
 // Find out current existing editor file
 static QString currentFile()

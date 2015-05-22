@@ -205,13 +205,13 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     return p;
 }
 
-QList<JsonWizardFactory *> JsonWizardFactory::createWizardFactories()
+QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 {
     QString errorMessage;
     QString verboseLog;
     const QString wizardFileName = QLatin1String(WIZARD_FILE);
 
-    QList <JsonWizardFactory *> result;
+    QList <Core::IWizardFactory *> result;
     foreach (const Utils::FileName &path, searchPaths()) {
         if (path.isEmpty())
             continue;

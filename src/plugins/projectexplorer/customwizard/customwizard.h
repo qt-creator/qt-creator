@@ -102,7 +102,7 @@ public:
 
     // Create all wizards. As other plugins might register factories for derived
     // classes, call it in extensionsInitialized().
-    static QList<CustomWizard*> createWizards();
+    static QList<IWizardFactory *> createWizards();
 
     static void setVerbose(int);
     static int verbose();

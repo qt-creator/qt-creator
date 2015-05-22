@@ -147,16 +147,18 @@
 
 using namespace Core;
 
+
 namespace {
 static QList<IFeatureProvider *> s_providerList;
+QList<IWizardFactory *> s_allFactories;
+QList<IWizardFactory::FactoryCreator> s_factoryCreators;
+bool s_areFactoriesLoaded = false;
 }
 
 /* A utility to find all wizards supporting a view mode and matching a predicate */
 template <class Predicate>
     QList<IWizardFactory*> findWizardFactories(Predicate predicate)
 {
-    // Hack: Trigger delayed creation of wizards
-    ICore::emitNewItemsDialogRequested();
     // Filter all wizards
     const QList<IWizardFactory*> allFactories = IWizardFactory::allWizardFactories();
     QList<IWizardFactory*> rc;
@@ -169,9 +171,33 @@ template <class Predicate>
 
 QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 {
-    // Hack: Trigger delayed creation of wizards
-    ICore::emitNewItemsDialogRequested();
-    return ExtensionSystem::PluginManager::getObjects<IWizardFactory>();
+    if (!s_areFactoriesLoaded) {
+        QTC_ASSERT(s_allFactories.isEmpty(), return s_allFactories);
+
+        s_areFactoriesLoaded = true;
+
+        QHash<Id, IWizardFactory *> sanityCheck;
+        foreach (const FactoryCreator &fc, s_factoryCreators) {
+            QList<IWizardFactory *> tmp = fc();
+            foreach (IWizardFactory *newFactory, tmp) {
+                QTC_ASSERT(newFactory, continue);
+                IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
+
+                QTC_ASSERT(existingFactory != newFactory, continue);
+                if (existingFactory) {
+                    qWarning("%s", qPrintable(tr("Factory with id=\"%1\" already registered. Deleting.")
+                                              .arg(existingFactory->id().toString())));
+                    delete newFactory;
+                    continue;
+                }
+
+                sanityCheck.insert(newFactory->id(), newFactory);
+                s_allFactories << newFactory;
+            }
+        }
+    }
+
+    return s_allFactories;
 }
 
 // Utility to find all registered wizards of a certain kind
@@ -209,6 +235,11 @@ QStringList IWizardFactory::supportedPlatforms() const
     }
 
     return stringList;
+}
+
+void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator &creator)
+{
+    s_factoryCreators << creator;
 }
 
 QStringList IWizardFactory::allAvailablePlatforms()
@@ -256,4 +287,10 @@ FeatureSet IWizardFactory::pluginFeatures() const
         plugins = FeatureSet::fromStringList(list);
     }
     return plugins;
+}
+
+void IWizardFactory::initialize()
+{
+    connect(ICore::instance(), &ICore::coreAboutToClose,
+            ICore::instance(), []() { qDeleteAll(s_allFactories); s_allFactories.clear(); });
 }
