@@ -128,3 +128,7 @@ void FindAllFilesVisitor::visitFolderNode(FolderNode *folderNode)
     foreach (const FileNode *fileNode, folderNode->fileNodes())
         m_filePaths.append(fileNode->path());
 }
+
+NodesVisitor::~NodesVisitor()
+{
+}

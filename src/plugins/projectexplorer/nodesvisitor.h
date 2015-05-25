@@ -45,9 +45,9 @@ class SessionNode;
 class ProjectNode;
 class FolderNode;
 
-class NodesVisitor {
+class PROJECTEXPLORER_EXPORT NodesVisitor {
 public:
-    virtual ~NodesVisitor() {}
+    virtual ~NodesVisitor();
 
     virtual void visitSessionNode(SessionNode *) {}
     virtual void visitProjectNode(ProjectNode *) {}
