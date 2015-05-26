@@ -46,7 +46,7 @@ class JsonWizard;
 class PROJECTEXPLORER_EXPORT JsonWizardPageFactory
 {
 public:
-    virtual ~JsonWizardPageFactory() { }
+    virtual ~JsonWizardPageFactory();
 
     bool canCreate(Core::Id typeId) const { return m_typeIds.contains(typeId); }
     QList<Core::Id> supportedIds() const { return m_typeIds; }

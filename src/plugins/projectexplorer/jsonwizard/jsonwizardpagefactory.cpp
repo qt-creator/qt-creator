@@ -40,6 +40,9 @@ namespace ProjectExplorer {
 // JsonWizardPageFactory:
 // --------------------------------------------------------------------
 
+JsonWizardPageFactory::~JsonWizardPageFactory()
+{ }
+
 void JsonWizardPageFactory::setTypeIdsSuffixes(const QStringList &suffixes)
 {
     m_typeIds = Utils::transform(suffixes, [](const QString &suffix) {
