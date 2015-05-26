@@ -33,7 +33,7 @@ QtcPlugin {
             "buildconfiguration.cpp", "buildconfiguration.h",
             "buildconfigurationmodel.cpp", "buildconfigurationmodel.h",
             "buildenvironmentwidget.cpp", "buildenvironmentwidget.h",
-            "buildinfo.h",
+            "buildinfo.cpp", "buildinfo.h",
             "buildmanager.cpp", "buildmanager.h",
             "buildprogress.cpp", "buildprogress.h",
             "buildsettingspropertiespage.cpp", "buildsettingspropertiespage.h",

@@ -160,6 +160,7 @@ SOURCES += projectexplorer.cpp \
     abi.cpp \
     abiwidget.cpp \
     ansifilterparser.cpp \
+    buildinfo.cpp \
     clangparser.cpp \
     configtaskhandler.cpp \
     environmentaspect.cpp \

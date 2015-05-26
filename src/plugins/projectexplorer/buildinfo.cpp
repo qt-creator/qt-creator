@@ -28,47 +28,9 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDINFO_H
-#define BUILDINFO_H
+#include "buildinfo.h"
 
-#include "projectexplorer_export.h"
+using namespace ProjectExplorer;
 
-#include "task.h"
-
-#include <coreplugin/id.h>
-#include <utils/fileutils.h>
-
-namespace ProjectExplorer {
-
-class IBuildConfigurationFactory;
-
-class PROJECTEXPLORER_EXPORT BuildInfo
-{
-public:
-    BuildInfo(const IBuildConfigurationFactory *f) : m_factory(f) { }
-    virtual ~BuildInfo();
-
-    const IBuildConfigurationFactory *factory() const { return m_factory; }
-
-    QString displayName;
-    QString typeName;
-    Utils::FileName buildDirectory;
-    Core::Id kitId;
-
-    virtual QList<Task> reportIssues(const QString &projectPath,
-                                     const QString &buildDir) const
-    {
-        Q_UNUSED(projectPath);
-        Q_UNUSED(buildDir);
-        return QList<Task>();
-    }
-
-private:
-    const IBuildConfigurationFactory *m_factory;
-
-    friend class IBuildConfigurationFactory;
-};
-
-} // namespace ProjectExplorer
-
-#endif // BUILDINFO_H
+BuildInfo::~BuildInfo()
+{ }
