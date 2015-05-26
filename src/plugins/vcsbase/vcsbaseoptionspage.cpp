@@ -56,6 +56,9 @@ VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) : Core::IOptionsPage(par
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
 }
 
+VcsBaseOptionsPage::~VcsBaseOptionsPage()
+{ }
+
 VcsClientOptionsPageWidget::VcsClientOptionsPageWidget(QWidget *parent) : QWidget(parent)
 { }
 
