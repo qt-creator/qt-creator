@@ -1093,6 +1093,10 @@
 
             for (Container::const_iterator it = c.begin(); it != c.end(); ++it)
             \endcode
+
+        \li Do not inline virtual destructors in exported classes. This leads to duplicated vtables
+            in dependent plugins and this can also break RTTI. See
+            \l {https://bugreports.qt.io/browse/QTBUG-45582}{QTBUG-45582}.
     \endlist
 
     \section2 Esthetics
