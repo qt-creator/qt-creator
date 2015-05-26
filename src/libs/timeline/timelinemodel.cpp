@@ -586,8 +586,10 @@ void TimelineModel::clear()
     d->endTimes.clear();
     if (hadRowHeights)
         emit expandedRowHeightChanged(-1, -1);
-    if (!wasEmpty)
+    if (!wasEmpty) {
         emit emptyChanged();
+        emit heightChanged();
+    }
 }
 
 int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const
