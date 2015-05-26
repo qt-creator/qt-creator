@@ -38,12 +38,14 @@
 
 namespace Botan {
 class DH_PrivateKey;
+class ECDH_PrivateKey;
 class HashFunction;
 }
 
 namespace QSsh {
 namespace Internal {
 
+class SshKeyExchangeInit;
 class SshSendFacility;
 class SshIncomingPacket;
 
@@ -70,6 +72,8 @@ public:
     QByteArray hMacAlgoServerToClient() const { return m_s2cHMacAlgo; }
 
 private:
+    QByteArray hashAlgoForKexAlgo() const;
+    void determineHashingAlgorithm(const SshKeyExchangeInit &kexInit, bool serverToClient);
     void checkHostKey(const QByteArray &hostKey);
     Q_NORETURN void throwHostKeyException();
 
@@ -77,6 +81,8 @@ private:
     QByteArray m_clientKexInitPayload;
     QByteArray m_serverKexInitPayload;
     QScopedPointer<Botan::DH_PrivateKey> m_dhKey;
+    QScopedPointer<Botan::ECDH_PrivateKey> m_ecdhKey;
+    QByteArray m_kexAlgoName;
     QByteArray m_k;
     QByteArray m_h;
     QByteArray m_serverHostKeyAlgo;

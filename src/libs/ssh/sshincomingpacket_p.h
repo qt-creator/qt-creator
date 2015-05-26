@@ -63,7 +63,9 @@ struct SshKeyExchangeReply
 {
     QByteArray k_s;
     QList<Botan::BigInt> parameters; // DSS: p, q, g, y. RSA: e, n.
-    Botan::BigInt f;
+    Botan::BigInt f; // For DH only.
+    QByteArray q_s; // For ECDH only.
+    QByteArray q; // For ECDH only.
     QByteArray signatureBlob;
 };
 

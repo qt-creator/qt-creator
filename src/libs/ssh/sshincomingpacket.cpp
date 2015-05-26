@@ -30,6 +30,7 @@
 
 #include "sshincomingpacket_p.h"
 
+#include "sshbotanconversions_p.h"
 #include "sshcapabilities_p.h"
 
 namespace QSsh {
@@ -175,35 +176,51 @@ SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray 
 
     try {
         SshKeyExchangeReply replyData;
-        quint32 offset = TypeOffset + 1;
-        const quint32 k_sLength
-            = SshPacketParser::asUint32(m_data, &offset);
-        if (offset + k_sLength > currentDataSize())
-            throw SshPacketParseException();
-        replyData.k_s = m_data.mid(offset - 4, k_sLength + 4);
-        if (SshPacketParser::asString(m_data, &offset) != pubKeyAlgo)
+        quint32 topLevelOffset = TypeOffset + 1;
+        replyData.k_s = SshPacketParser::asString(m_data, &topLevelOffset);
+        quint32 k_sOffset = 0;
+        if (SshPacketParser::asString(replyData.k_s, &k_sOffset) != pubKeyAlgo)
             throw SshPacketParseException();
 
-        // DSS: p and q, RSA: e and n
-        replyData.parameters << SshPacketParser::asBigInt(m_data, &offset);
-        replyData.parameters << SshPacketParser::asBigInt(m_data, &offset);
+        if (pubKeyAlgo == SshCapabilities::PubKeyDss || pubKeyAlgo == SshCapabilities::PubKeyRsa) {
 
-        // g and y
-        if (pubKeyAlgo == SshCapabilities::PubKeyDss) {
-            replyData.parameters << SshPacketParser::asBigInt(m_data, &offset);
-            replyData.parameters << SshPacketParser::asBigInt(m_data, &offset);
+            // DSS: p and q, RSA: e and n
+            replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
+            replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
+
+            // g and y
+            if (pubKeyAlgo == SshCapabilities::PubKeyDss) {
+                replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
+                replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
+            }
+
+            replyData.f = SshPacketParser::asBigInt(m_data, &topLevelOffset);
+        } else {
+            Q_ASSERT(pubKeyAlgo == SshCapabilities::PubKeyEcdsa);
+            if (SshPacketParser::asString(replyData.k_s, &k_sOffset) != pubKeyAlgo.mid(11)) // Without "ecdsa-sha2-" prefix.
+                throw SshPacketParseException();
+            replyData.q = SshPacketParser::asString(replyData.k_s, &k_sOffset);
+            replyData.q_s = SshPacketParser::asString(m_data, &topLevelOffset);
         }
-
-        replyData.f = SshPacketParser::asBigInt(m_data, &offset);
-        offset += 4;
-        if (SshPacketParser::asString(m_data, &offset) != pubKeyAlgo)
+        const QByteArray fullSignature = SshPacketParser::asString(m_data, &topLevelOffset);
+        quint32 sigOffset = 0;
+        if (SshPacketParser::asString(fullSignature, &sigOffset) != pubKeyAlgo)
             throw SshPacketParseException();
-        replyData.signatureBlob = SshPacketParser::asString(m_data, &offset);
+        replyData.signatureBlob = SshPacketParser::asString(fullSignature, &sigOffset);
+        if (pubKeyAlgo == SshCapabilities::PubKeyEcdsa) {
+            // Botan's PK_Verifier wants the signature in this format.
+            quint32 blobOffset = 0;
+            const Botan::BigInt r = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
+            const Botan::BigInt s = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
+            replyData.signatureBlob = convertByteArray(Botan::BigInt::encode(r));
+            replyData.signatureBlob += convertByteArray(Botan::BigInt::encode(s));
+        }
+        replyData.k_s.prepend(m_data.mid(TypeOffset + 1, 4));
         return replyData;
     } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
             "Key exchange failed: "
-            "Server sent invalid SSH_MSG_KEXDH_REPLY packet.");
+            "Server sent invalid key exchange reply packet.");
     }
 }
 

@@ -56,10 +56,18 @@ inline QByteArray convertByteArray(const Botan::SecureVector<Botan::byte> &v)
 
 inline const char *botanKeyExchangeAlgoName(const QByteArray &rfcAlgoName)
 {
-    Q_ASSERT(rfcAlgoName == SshCapabilities::DiffieHellmanGroup1Sha1
-        || rfcAlgoName == SshCapabilities::DiffieHellmanGroup14Sha1);
-    return rfcAlgoName == SshCapabilities::DiffieHellmanGroup1Sha1
-        ? "modp/ietf/1024" : "modp/ietf/2048";
+    if (rfcAlgoName == SshCapabilities::DiffieHellmanGroup1Sha1)
+        return "modp/ietf/1024";
+    if (rfcAlgoName == SshCapabilities::DiffieHellmanGroup14Sha1)
+        return "modp/ietf/2048";
+    if (rfcAlgoName == SshCapabilities::EcdhNistp256)
+        return "secp256r1";
+    if (rfcAlgoName == SshCapabilities::EcdhNistp384)
+        return "secp384r1";
+    if (rfcAlgoName == SshCapabilities::EcdhNistp521)
+        return "secp521r1";
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected key exchange algorithm \"%1\"")
+                             .arg(QString::fromLatin1(rfcAlgoName)));
 }
 
 inline const char *botanCryptAlgoName(const QByteArray &rfcAlgoName)
@@ -84,21 +92,28 @@ inline const char *botanCryptAlgoName(const QByteArray &rfcAlgoName)
 
 inline const char *botanEmsaAlgoName(const QByteArray &rfcAlgoName)
 {
-    Q_ASSERT(rfcAlgoName == SshCapabilities::PubKeyDss
-        || rfcAlgoName == SshCapabilities::PubKeyRsa);
-    return rfcAlgoName == SshCapabilities::PubKeyDss
-        ? "EMSA1(SHA-1)" : "EMSA3(SHA-1)";
+    if (rfcAlgoName == SshCapabilities::PubKeyDss)
+        return "EMSA1(SHA-1)";
+    if (rfcAlgoName == SshCapabilities::PubKeyRsa)
+        return "EMSA3(SHA-1)";
+    if (rfcAlgoName == SshCapabilities::PubKeyEcdsa)
+        return "EMSA1_BSI(SHA-256)";
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected host key algorithm \"%1\"")
+                             .arg(QString::fromLatin1(rfcAlgoName)));
 }
-
-inline const char *botanSha1Name() { return "SHA-1"; }
 
 inline const char *botanHMacAlgoName(const QByteArray &rfcAlgoName)
 {
-    Q_ASSERT(rfcAlgoName == SshCapabilities::HMacSha1
-             || rfcAlgoName == SshCapabilities::HMacSha256);
     if (rfcAlgoName == SshCapabilities::HMacSha1)
-        return botanSha1Name();
-    return "SHA-256";
+        return "SHA-1";
+    if (rfcAlgoName == SshCapabilities::HMacSha256)
+        return "SHA-256";
+    if (rfcAlgoName == SshCapabilities::HMacSha384)
+        return "SHA-384";
+    if (rfcAlgoName == SshCapabilities::HMacSha512)
+        return "SHA-512";
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected hashing algorithm \"%1\"")
+                             .arg(QString::fromLatin1(rfcAlgoName)));
 }
 
 inline quint32 botanHMacKeyLen(const QByteArray &rfcAlgoName)

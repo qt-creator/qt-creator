@@ -89,6 +89,11 @@ void SshOutgoingPacket::generateKeyDhInitPacket(const Botan::BigInt &e)
     init(SSH_MSG_KEXDH_INIT).appendMpInt(e).finalize();
 }
 
+void SshOutgoingPacket::generateKeyEcdhInitPacket(const QByteArray &clientQ)
+{
+    init(SSH_MSG_KEX_ECDH_INIT).appendString(clientQ).finalize();
+}
+
 void SshOutgoingPacket::generateNewKeysPacket()
 {
     init(SSH_MSG_NEWKEYS).finalize();

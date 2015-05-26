@@ -42,10 +42,15 @@ class SshCapabilities
 public:
     static const QByteArray DiffieHellmanGroup1Sha1;
     static const QByteArray DiffieHellmanGroup14Sha1;
+    static const QByteArray EcdhKexNamePrefix;
+    static const QByteArray EcdhNistp256;
+    static const QByteArray EcdhNistp384;
+    static const QByteArray EcdhNistp521; // sic
     static const QList<QByteArray> KeyExchangeMethods;
 
     static const QByteArray PubKeyDss;
     static const QByteArray PubKeyRsa;
+    static const QByteArray PubKeyEcdsa;
     static const QList<QByteArray> PublicKeyAlgorithms;
 
     static const QByteArray CryptAlgo3DesCbc;
@@ -59,6 +64,8 @@ public:
     static const QByteArray HMacSha1;
     static const QByteArray HMacSha196;
     static const QByteArray HMacSha256;
+    static const QByteArray HMacSha384;
+    static const QByteArray HMacSha512;
     static const QList<QByteArray> MacAlgorithms;
 
     static const QList<QByteArray> CompressionAlgorithms;

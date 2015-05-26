@@ -113,44 +113,64 @@ bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
     qDebug("First packet follows: %d", kexInitParams.firstKexPacketFollows);
 #endif
 
-    const QByteArray &keyAlgo
-        = SshCapabilities::findBestMatch(SshCapabilities::KeyExchangeMethods,
-              kexInitParams.keyAlgorithms.names);
-    m_serverHostKeyAlgo
-        = SshCapabilities::findBestMatch(SshCapabilities::PublicKeyAlgorithms,
-              kexInitParams.serverHostKeyAlgorithms.names);
+    m_kexAlgoName = SshCapabilities::findBestMatch(SshCapabilities::KeyExchangeMethods,
+                                                   kexInitParams.keyAlgorithms.names);
+    const QList<QByteArray> &commonHostKeyAlgos
+            = SshCapabilities::commonCapabilities(SshCapabilities::PublicKeyAlgorithms,
+                                                  kexInitParams.serverHostKeyAlgorithms.names);
+    const bool ecdh = m_kexAlgoName.startsWith(SshCapabilities::EcdhKexNamePrefix);
+    foreach (const QByteArray &possibleHostKeyAlgo, commonHostKeyAlgos) {
+        if (ecdh && possibleHostKeyAlgo == SshCapabilities::PubKeyEcdsa) {
+            m_serverHostKeyAlgo = possibleHostKeyAlgo;
+            break;
+        }
+        if (!ecdh && (possibleHostKeyAlgo == SshCapabilities::PubKeyDss
+                      || possibleHostKeyAlgo == SshCapabilities::PubKeyRsa)) {
+            m_serverHostKeyAlgo = possibleHostKeyAlgo;
+            break;
+        }
+    }
+    if (m_serverHostKeyAlgo.isEmpty()) {
+        throw SshServerException(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
+            "Invalid combination of key exchange and host key algorithms.",
+            QCoreApplication::translate("SshConnection",
+                "No matching host key algorithm available for key exchange algorithm '%1'.")
+                .arg(QString::fromLatin1(m_kexAlgoName)));
+    }
+    determineHashingAlgorithm(kexInitParams, true);
+    determineHashingAlgorithm(kexInitParams, false);
+
     m_encryptionAlgo
         = SshCapabilities::findBestMatch(SshCapabilities::EncryptionAlgorithms,
               kexInitParams.encryptionAlgorithmsClientToServer.names);
     m_decryptionAlgo
         = SshCapabilities::findBestMatch(SshCapabilities::EncryptionAlgorithms,
               kexInitParams.encryptionAlgorithmsServerToClient.names);
-    m_c2sHMacAlgo
-        = SshCapabilities::findBestMatch(SshCapabilities::MacAlgorithms,
-              kexInitParams.macAlgorithmsClientToServer.names);
-    m_s2cHMacAlgo
-        = SshCapabilities::findBestMatch(SshCapabilities::MacAlgorithms,
-              kexInitParams.macAlgorithmsServerToClient.names);
     SshCapabilities::findBestMatch(SshCapabilities::CompressionAlgorithms,
         kexInitParams.compressionAlgorithmsClientToServer.names);
     SshCapabilities::findBestMatch(SshCapabilities::CompressionAlgorithms,
         kexInitParams.compressionAlgorithmsServerToClient.names);
 
     AutoSeeded_RNG rng;
-    m_dhKey.reset(new DH_PrivateKey(rng,
-        DL_Group(botanKeyExchangeAlgoName(keyAlgo))));
+    if (ecdh) {
+        m_ecdhKey.reset(new ECDH_PrivateKey(rng, EC_Group(botanKeyExchangeAlgoName(m_kexAlgoName))));
+        m_sendFacility.sendKeyEcdhInitPacket(convertByteArray(m_ecdhKey->public_value()));
+    } else {
+        m_dhKey.reset(new DH_PrivateKey(rng, DL_Group(botanKeyExchangeAlgoName(m_kexAlgoName))));
+        m_sendFacility.sendKeyDhInitPacket(m_dhKey->get_y());
+    }
 
     m_serverKexInitPayload = serverKexInit.payLoad();
-    m_sendFacility.sendKeyDhInitPacket(m_dhKey->get_y());
     return kexInitParams.firstKexPacketFollows;
 }
 
 void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     const QByteArray &clientId)
 {
+
     const SshKeyExchangeReply &reply
         = dhReply.extractKeyExchangeReply(m_serverHostKeyAlgo);
-    if (reply.f <= 0 || reply.f >= m_dhKey->group_p()) {
+    if (m_dhKey && (reply.f <= 0 || reply.f >= m_dhKey->group_p())) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
             "Server sent invalid f.");
     }
@@ -160,19 +180,28 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     concatenatedData += AbstractSshPacket::encodeString(m_clientKexInitPayload);
     concatenatedData += AbstractSshPacket::encodeString(m_serverKexInitPayload);
     concatenatedData += reply.k_s;
-    concatenatedData += AbstractSshPacket::encodeMpInt(m_dhKey->get_y());
-    concatenatedData += AbstractSshPacket::encodeMpInt(reply.f);
-    DH_KA_Operation dhOp(*m_dhKey);
-    SecureVector<byte> encodedF = BigInt::encode(reply.f);
-    SecureVector<byte> encodedK = dhOp.agree(encodedF, encodedF.size());
+    SecureVector<byte> encodedK;
+    if (m_dhKey) {
+        concatenatedData += AbstractSshPacket::encodeMpInt(m_dhKey->get_y());
+        concatenatedData += AbstractSshPacket::encodeMpInt(reply.f);
+        DH_KA_Operation dhOp(*m_dhKey);
+        SecureVector<byte> encodedF = BigInt::encode(reply.f);
+        encodedK = dhOp.agree(encodedF, encodedF.size());
+    } else {
+        Q_ASSERT(m_ecdhKey);
+        concatenatedData // Q_C.
+                += AbstractSshPacket::encodeString(convertByteArray(m_ecdhKey->public_value()));
+        concatenatedData += AbstractSshPacket::encodeString(reply.q_s);
+        ECDH_KA_Operation ecdhOp(*m_ecdhKey);
+        encodedK = ecdhOp.agree(convertByteArray(reply.q_s), reply.q_s.count());
+    }
     const BigInt k = BigInt::decode(encodedK);
     m_k = AbstractSshPacket::encodeMpInt(k); // Roundtrip, as Botan encodes BigInts somewhat differently.
     concatenatedData += m_k;
 
-    m_hash.reset(get_hash(botanSha1Name()));
-    const SecureVector<byte> &hashResult
-        = m_hash->process(convertByteArray(concatenatedData),
-                        concatenatedData.size());
+    m_hash.reset(get_hash(botanHMacAlgoName(hashAlgoForKexAlgo())));
+    const SecureVector<byte> &hashResult = m_hash->process(convertByteArray(concatenatedData),
+                                                           concatenatedData.size());
     m_h = convertByteArray(hashResult);
 
 #ifdef CREATOR_SSH_DEBUG
@@ -199,22 +228,69 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         RSA_PublicKey * const rsaKey
             = new RSA_PublicKey(reply.parameters.at(1), reply.parameters.at(0));
         sigKey.reset(rsaKey);
+    } else if (m_serverHostKeyAlgo == SshCapabilities::PubKeyEcdsa) {
+        const PointGFp point = OS2ECP(convertByteArray(reply.q), reply.q.count(),
+                                      m_ecdhKey->domain().get_curve());
+        ECDSA_PublicKey * const ecdsaKey = new ECDSA_PublicKey(m_ecdhKey->domain(), point);
+        sigKey.reset(ecdsaKey);
     } else {
-        Q_ASSERT(!"Impossible: Neither DSS nor RSA!");
+        Q_ASSERT(!"Impossible: Neither DSS nor RSA nor ECDSA!");
     }
+
     const byte * const botanH = convertByteArray(m_h);
-    const Botan::byte * const botanSig
-        = convertByteArray(reply.signatureBlob);
+    const Botan::byte * const botanSig = convertByteArray(reply.signatureBlob);
     PK_Verifier verifier(*sigKey, botanEmsaAlgoName(m_serverHostKeyAlgo));
-    if (!verifier.verify_message(botanH, m_h.size(), botanSig,
-        reply.signatureBlob.size())) {
+    if (!verifier.verify_message(botanH, m_h.size(), botanSig, reply.signatureBlob.size())) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
-            "Invalid signature in SSH_MSG_KEXDH_REPLY packet.");
+            "Invalid signature in key exchange reply packet.");
     }
 
     checkHostKey(reply.k_s);
 
     m_sendFacility.sendNewKeysPacket();
+    m_dhKey.reset(nullptr);
+    m_ecdhKey.reset(nullptr);
+}
+
+QByteArray SshKeyExchange::hashAlgoForKexAlgo() const
+{
+    if (m_kexAlgoName == SshCapabilities::EcdhNistp256)
+        return SshCapabilities::HMacSha256;
+    if (m_kexAlgoName == SshCapabilities::EcdhNistp384)
+        return SshCapabilities::HMacSha384;
+    if (m_kexAlgoName == SshCapabilities::EcdhNistp521)
+        return SshCapabilities::HMacSha512;
+    return SshCapabilities::HMacSha1;
+}
+
+void SshKeyExchange::determineHashingAlgorithm(const SshKeyExchangeInit &kexInit,
+                                               bool serverToClient)
+{
+    QByteArray * const algo = serverToClient ? &m_s2cHMacAlgo : &m_c2sHMacAlgo;
+    const QList<QByteArray> &serverCapabilities = serverToClient
+            ? kexInit.macAlgorithmsServerToClient.names
+            : kexInit.macAlgorithmsClientToServer.names;
+    const QList<QByteArray> commonAlgos = SshCapabilities::commonCapabilities(
+                SshCapabilities::MacAlgorithms, serverCapabilities);
+    const QByteArray hashAlgo = hashAlgoForKexAlgo();
+    foreach (const QByteArray &potentialAlgo, commonAlgos) {
+        if (potentialAlgo == hashAlgo
+                || !m_kexAlgoName.startsWith(SshCapabilities::EcdhKexNamePrefix)) {
+            *algo = potentialAlgo;
+            break;
+        }
+    }
+
+    if (algo->isEmpty()) {
+        throw SshServerException(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
+            "Invalid combination of key exchange and hashing algorithms.",
+            QCoreApplication::translate("SshConnection",
+                "Server requested invalid combination of key exchange and hashing algorithms. "
+                "Key exchange algorithm list was: %1.\nHashing algorithm list was %2.")
+                .arg(QString::fromLocal8Bit(kexInit.keyAlgorithms.names.join(", ")))
+                .arg(QString::fromLocal8Bit(serverCapabilities.join(", "))));
+
+    }
 }
 
 void SshKeyExchange::checkHostKey(const QByteArray &hostKey)

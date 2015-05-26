@@ -85,6 +85,12 @@ void SshSendFacility::sendKeyDhInitPacket(const Botan::BigInt &e)
     sendPacket();
 }
 
+void SshSendFacility::sendKeyEcdhInitPacket(const QByteArray &clientQ)
+{
+    m_outgoingPacket.generateKeyEcdhInitPacket(clientQ);
+    sendPacket();
+}
+
 void SshSendFacility::sendNewKeysPacket()
 {
     m_outgoingPacket.generateNewKeysPacket();

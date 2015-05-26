@@ -50,6 +50,7 @@ public:
 
     QByteArray generateKeyExchangeInitPacket(); // Returns payload.
     void generateKeyDhInitPacket(const Botan::BigInt &e);
+    void generateKeyEcdhInitPacket(const QByteArray &clientQ);
     void generateNewKeysPacket();
     void generateDisconnectPacket(SshErrorCode reason,
         const QByteArray &reasonString);

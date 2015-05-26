@@ -52,15 +52,24 @@ namespace {
 
 const QByteArray SshCapabilities::DiffieHellmanGroup1Sha1("diffie-hellman-group1-sha1");
 const QByteArray SshCapabilities::DiffieHellmanGroup14Sha1("diffie-hellman-group14-sha1");
-const QList<QByteArray> SshCapabilities::KeyExchangeMethods
-    = QList<QByteArray>() << SshCapabilities::DiffieHellmanGroup1Sha1
-          << SshCapabilities::DiffieHellmanGroup14Sha1;
+const QByteArray SshCapabilities::EcdhKexNamePrefix("ecdh-sha2-nistp");
+const QByteArray SshCapabilities::EcdhNistp256 = EcdhKexNamePrefix + "256";
+const QByteArray SshCapabilities::EcdhNistp384 = EcdhKexNamePrefix + "384";
+const QByteArray SshCapabilities::EcdhNistp521 = EcdhKexNamePrefix + "521";
+const QList<QByteArray> SshCapabilities::KeyExchangeMethods = QList<QByteArray>()
+        << SshCapabilities::EcdhNistp256
+        << SshCapabilities::EcdhNistp384
+        << SshCapabilities::EcdhNistp521
+        << SshCapabilities::DiffieHellmanGroup1Sha1
+        << SshCapabilities::DiffieHellmanGroup14Sha1;
 
 const QByteArray SshCapabilities::PubKeyDss("ssh-dss");
 const QByteArray SshCapabilities::PubKeyRsa("ssh-rsa");
-const QList<QByteArray> SshCapabilities::PublicKeyAlgorithms
-    = QList<QByteArray>() << SshCapabilities::PubKeyRsa
-          << SshCapabilities::PubKeyDss;
+const QByteArray SshCapabilities::PubKeyEcdsa("ecdsa-sha2-nistp256");
+const QList<QByteArray> SshCapabilities::PublicKeyAlgorithms = QList<QByteArray>()
+        << SshCapabilities::PubKeyEcdsa
+        << SshCapabilities::PubKeyRsa
+        << SshCapabilities::PubKeyDss;
 
 const QByteArray SshCapabilities::CryptAlgo3DesCbc("3des-cbc");
 const QByteArray SshCapabilities::CryptAlgo3DesCtr("3des-ctr");
@@ -79,9 +88,13 @@ const QList<QByteArray> SshCapabilities::EncryptionAlgorithms
 const QByteArray SshCapabilities::HMacSha1("hmac-sha1");
 const QByteArray SshCapabilities::HMacSha196("hmac-sha1-96");
 const QByteArray SshCapabilities::HMacSha256("hmac-sha2-256");
+const QByteArray SshCapabilities::HMacSha384("hmac-sha2-384");
+const QByteArray SshCapabilities::HMacSha512("hmac-sha2-512");
 const QList<QByteArray> SshCapabilities::MacAlgorithms
     = QList<QByteArray>() /* << SshCapabilities::HMacSha196 */
-        << SshCapabilities::HMacSha256 // Recommended as per RFC 6668
+        << SshCapabilities::HMacSha256
+        << SshCapabilities::HMacSha384
+        << SshCapabilities::HMacSha512
         << SshCapabilities::HMacSha1;
 
 const QList<QByteArray> SshCapabilities::CompressionAlgorithms

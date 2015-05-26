@@ -57,6 +57,7 @@ public:
 
     QByteArray sendKeyExchangeInitPacket();
     void sendKeyDhInitPacket(const Botan::BigInt &e);
+    void sendKeyEcdhInitPacket(const QByteArray &clientQ);
     void sendNewKeysPacket();
     void sendDisconnectPacket(SshErrorCode reason,
         const QByteArray &reasonString);
