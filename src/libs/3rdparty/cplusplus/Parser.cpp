@@ -42,6 +42,7 @@
 #define CPLUSPLUS_NO_DEBUG_RULE
 #define MAX_EXPRESSION_DEPTH 100
 #define MAX_STATEMENT_DEPTH 100
+#define MAX_INITIALIZER_CLAUSE_DEPTH 2000
 
 using namespace CPlusPlus;
 
@@ -2785,6 +2786,8 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
 
+    _initializerClauseDepth.push(1);
+
     if (parseInitializerClause0x(expression)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
         (*expression_list_ptr)->value = expression;
@@ -2793,7 +2796,11 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         if (_languageFeatures.cxx11Enabled && LA() == T_DOT_DOT_DOT && (LA(2) == T_COMMA || LA(2) == T_RBRACE || LA(2) == T_RPAREN))
             consumeToken(); // ### create an argument pack
 
-        while (LA() == T_COMMA && LA(2) != T_RBRACE) {
+        for (++_initializerClauseDepth.top();
+                LA() == T_COMMA
+                    && LA(2) != T_RBRACE
+                    && _initializerClauseDepth.top() <= MAX_INITIALIZER_CLAUSE_DEPTH;
+             ++_initializerClauseDepth.top()) {
             consumeToken(); // consume T_COMMA
 
             if (parseInitializerClause0x(expression)) {
@@ -2808,7 +2815,11 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         }
     }
 
-    return true;
+    const bool result = _initializerClauseDepth.top() <= MAX_INITIALIZER_CLAUSE_DEPTH;
+    _initializerClauseDepth.pop();
+    if (!result)
+        warning(cursor(), "Reached parse limit for initializer clause");
+    return result;
 }
 
 bool Parser::parseBracedInitList0x(ExpressionAST *&node)

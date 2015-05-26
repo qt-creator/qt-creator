@@ -294,11 +294,6 @@ void QtWebKitHelpWidget::scaleDown()
     setZoomFactor(qMax(qreal(0.0), zoomFactor() - qreal(0.1)));
 }
 
-void QtWebKitHelpWidget::setOpenInNewPageActionVisible(bool visible)
-{
-    m_openInNewPageActionVisible = visible;
-}
-
 // -- public slots
 
 void QtWebKitHelpWidget::copy()
@@ -567,7 +562,7 @@ void QtWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 
 void QtWebKitHelpViewer::setOpenInNewPageActionVisible(bool visible)
 {
-    m_webView->setOpenInNewPageActionVisible(visible);
+    m_webView->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(visible);
 }
 
 bool QtWebKitHelpViewer::findText(const QString &text, FindFlags flags,

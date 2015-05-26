@@ -93,7 +93,7 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     m_tools << new Uncrustify::Uncrustify(this);
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(QLatin1String("Beautifier"));
+    menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
     for (int i = 0, total = m_tools.count(); i < total; ++i) {

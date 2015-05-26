@@ -35,7 +35,8 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-static const char FILE_POS_PATTERN[] = "(cl|LINK|.+) : ";
+// As of MSVC 2015: "foo.cpp(42) :" -> "foo.cpp(42):"
+static const char FILE_POS_PATTERN[] = "(cl|LINK|.+[^ ]) ?: ";
 static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
 
 static QPair<Utils::FileName, int> parseFileName(const QString &input)
@@ -224,6 +225,16 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
 
     QTest::newRow("labeled error")
             << QString::fromLatin1("qmlstandalone\\main.cpp(54) : error C4716: 'findUnresolvedModule' : must return a value") << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("C4716: 'findUnresolvedModule' : must return a value"),
+                        Utils::FileName::fromUserInput(QLatin1String("qmlstandalone\\main.cpp")), 54,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("labeled error-2015")
+            << QString::fromLatin1("qmlstandalone\\main.cpp(54): error C4716: 'findUnresolvedModule' : must return a value") << OutputParserTester::STDOUT
             << QString() << QString()
             << (QList<Task>()
                 << Task(Task::Error,

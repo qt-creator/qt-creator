@@ -27,6 +27,7 @@
 #include "TranslationUnit.h"
 #include "MemoryPool.h"
 #include <map>
+#include <stack>
 
 namespace CPlusPlus {
 
@@ -321,6 +322,7 @@ private:
     bool _inExpressionStatement: 1;
     int _expressionDepth;
     int _statementDepth;
+    std::stack<int> _initializerClauseDepth;
 
     MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;

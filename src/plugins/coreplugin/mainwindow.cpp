@@ -670,7 +670,8 @@ void MainWindow::registerDefaultActions()
 
     // Show Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
-                                        tr(Constants::TR_SHOW_SIDEBAR), this);
+                                        QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR),
+                                        this);
     m_toggleSideBarAction->setCheckable(true);
     cmd = ActionManager::registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR);
     cmd->setAttribute(Command::CA_UpdateText);

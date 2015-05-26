@@ -61,6 +61,8 @@ void DummyModel::loadData()
 {
     for (int i = 0; i < 10; ++i)
         insert(i, 1, 1);
+
+    insert(5, 0, 10);
 }
 
 float DummyModel::relativeHeight(int index) const
@@ -95,7 +97,7 @@ void tst_TimelineItemsRenderPass::update()
     result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
-    result = inst->update(&renderer, &parentState, 0, 2, 8, true, 1);
+    result = inst->update(&renderer, &parentState, 0, 2, 9, true, 1);
     QVERIFY(result != nullState);
     QCOMPARE(result->expandedOverlay(), nullNode);
     QCOMPARE(result->expandedOverlay(), nullNode);
@@ -106,10 +108,10 @@ void tst_TimelineItemsRenderPass::update()
     QSGGeometryNode *node = static_cast<QSGGeometryNode *>(result->expandedRows()[0]->firstChild());
     QSGMaterial *material1 = node->material();
     QVERIFY(material1 != 0);
-    QCOMPARE(node->geometry()->vertexCount(), 26);
+    QCOMPARE(node->geometry()->vertexCount(), 30);
     node = static_cast<QSGGeometryNode *>(result->collapsedRows()[0]->firstChild());
     QSGMaterial *material2 = node->material();
-    QCOMPARE(node->geometry()->vertexCount(), 26);
+    QCOMPARE(node->geometry()->vertexCount(), 30);
     QVERIFY(material2 != 0);
     QCOMPARE(material1->type(), material2->type());
     QSGMaterialShader *shader1 = material1->createShader();
@@ -121,17 +123,20 @@ void tst_TimelineItemsRenderPass::update()
     delete shader1;
     delete shader2;
 
-    result = inst->update(&renderer, &parentState, result, 0, 10, true, 1);
+    result = inst->update(&renderer, &parentState, result, 0, 11, true, 1);
     QVERIFY(result != nullState);
     QCOMPARE(result->expandedOverlay(), nullNode);
     QCOMPARE(result->expandedOverlay(), nullNode);
     QCOMPARE(result->expandedRows().count(), 1);
     QCOMPARE(result->collapsedRows().count(), 1);
-    QCOMPARE(result->expandedRows()[0]->childCount(), 2);
-    QCOMPARE(result->collapsedRows()[0]->childCount(), 2);
-    node = static_cast<QSGGeometryNode *>(result->expandedRows()[0]->lastChild());
+
+    // 0-sized node starting at 8 may also be added. We don't test for this one.
+    QVERIFY(result->expandedRows()[0]->childCount() > 1);
+    QVERIFY(result->collapsedRows()[0]->childCount() > 1);
+
+    node = static_cast<QSGGeometryNode *>(result->expandedRows()[0]->childAtIndex(1));
     QCOMPARE(node->geometry()->vertexCount(), 8);
-    node = static_cast<QSGGeometryNode *>(result->collapsedRows()[0]->lastChild());
+    node = static_cast<QSGGeometryNode *>(result->collapsedRows()[0]->childAtIndex(1));
     QCOMPARE(node->geometry()->vertexCount(), 8);
 
     model.setExpanded(true);

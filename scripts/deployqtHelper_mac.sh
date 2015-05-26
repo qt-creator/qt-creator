@@ -83,6 +83,8 @@ if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
         qml2puppetArgument="-executable=$qml2puppetapp"
     fi
 
+    qbsapp="$1/Contents/MacOS/qbs"
+
     echo "- Running macdeployqt ($(which macdeployqt))"
 
     macdeployqt "$1" \
@@ -91,6 +93,14 @@ if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$1/Contents/Resources/ios/iostool" \
         "-executable=$1/Contents/Resources/ios/iossim" \
         "-executable=$1/Contents/Resources/ios/iossim_1_8_2" \
+        "-executable=$1/Contents/MacOS/buildoutputparser" \
+        "-executable=$qbsapp" \
+        "-executable=$qbsapp-config" \
+        "-executable=$qbsapp-config-ui" \
+        "-executable=$qbsapp-qmltypes" \
+        "-executable=$qbsapp-setup-android" \
+        "-executable=$qbsapp-setup-qt" \
+        "-executable=$qbsapp-setup-toolchains" \
         "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
 
 fi

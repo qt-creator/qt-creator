@@ -53,6 +53,7 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
+#include <QCoreApplication>
 #include <QHBoxLayout>
 #include <QHelpEngine>
 #include <QHelpSearchEngine>
@@ -131,15 +132,18 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
     if (style != SideBarWidget) {
         m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
-                                            tr(Core::Constants::TR_SHOW_SIDEBAR), toolBar);
+                                            QCoreApplication::translate("Core", Core::Constants::TR_SHOW_SIDEBAR),
+                                            toolBar);
         m_toggleSideBarAction->setCheckable(true);
         m_toggleSideBarAction->setChecked(false);
         cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
                                                   Core::Constants::TOGGLE_SIDEBAR, context);
         connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction,
                 [this](bool checked) {
-                    m_toggleSideBarAction->setText(checked ? tr(Core::Constants::TR_HIDE_SIDEBAR)
-                                                           : tr(Core::Constants::TR_SHOW_SIDEBAR));
+                    m_toggleSideBarAction->setText(
+                        QCoreApplication::translate("Core",
+                                                    checked ? Core::Constants::TR_HIDE_SIDEBAR
+                                                            : Core::Constants::TR_SHOW_SIDEBAR));
                 });
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));

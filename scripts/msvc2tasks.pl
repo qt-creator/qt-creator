@@ -16,7 +16,7 @@ while (my $line = <STDIN> ) {
     chomp($line);
     # --- extract file name based matching:
     # c:\foo.cpp(395) : warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
-    if ($line =~ /^([^(]+)\((\d+)\) : warning (C\d+:.*)$/) {
+    if ($line =~ /^([^(]+)\((\d+)\) ?: warning (C\d+:.*)$/) {
         my $fileName = $1;
         my $lineNumber = $2;
         my $text = $3;

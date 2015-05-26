@@ -59,7 +59,7 @@ def main():
                 in commitDetails, "Text file in details view?")
     test.verify("src/plugins/find/images/expand.png                 |  Bin 0 -> 931 bytes"
                 in commitDetails, "Binary file in details view?")
-    test.verify("1675 files changed, 229938 insertions(+)" in commitDetails,
+    test.verify(" files changed, 229938 insertions(+)" in commitDetails,
                 "Summary in details view?")
     clickButton(waitForObject(":Select a Git Commit.Show_QPushButton"))
     changedEdit = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")

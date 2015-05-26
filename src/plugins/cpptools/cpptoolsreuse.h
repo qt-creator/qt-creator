@@ -39,6 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class QChar;
+class QFileInfo;
 class QStringRef;
 class QTextCursor;
 QT_END_NAMESPACE
@@ -73,6 +74,9 @@ const CPlusPlus::Macro CPPTOOLS_EXPORT *findCanonicalMacro(const QTextCursor &cu
 
 QString CPPTOOLS_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = 0);
 void CPPTOOLS_EXPORT switchHeaderSource();
+
+int fileSizeLimit();
+bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB = fileSizeLimit());
 
 } // CppTools
 

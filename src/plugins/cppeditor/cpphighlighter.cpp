@@ -114,7 +114,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     const unsigned firstNonSpace = tokens.first().utf16charsBegin();
 
     Parentheses parentheses;
-    parentheses.reserve(20); // assume wizard level ;-)
+    parentheses.reserve(5);
 
     bool expectPreprocessorKeyword = false;
     bool onlyHighlightComments = false;

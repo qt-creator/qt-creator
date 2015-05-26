@@ -40,6 +40,7 @@
 #include "id.h"
 #include "imode.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QSettings>
 
@@ -222,9 +223,9 @@ void NavigationWidget::updateToggleText()
     d->m_toggleSideBarAction->setEnabled(haveData && NavigationWidgetPlaceHolder::m_current);
 
     if (isShown())
-        d->m_toggleSideBarAction->setToolTip(tr(Constants::TR_HIDE_SIDEBAR));
+        d->m_toggleSideBarAction->setToolTip(QCoreApplication::translate("Core", Constants::TR_HIDE_SIDEBAR));
     else
-        d->m_toggleSideBarAction->setToolTip(tr(Constants::TR_SHOW_SIDEBAR));
+        d->m_toggleSideBarAction->setToolTip(QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR));
 }
 
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)

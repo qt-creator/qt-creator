@@ -1185,11 +1185,14 @@ void Breakpoint::gotoLocation() const
         if (b->m_params.type == BreakpointByAddress) {
             engine->gotoLocation(b->m_params.address);
         } else {
-            // Don't use gotoLocation as this ends up in disassembly
-            // if OperateByInstruction is on.
+            // Don't use gotoLocation unconditionally as this ends up in
+            // disassembly if OperateByInstruction is on. But fallback
+            // to disassembly if we can't open the file.
             const QString file = QDir::cleanPath(b->markerFileName());
-            IEditor *editor = EditorManager::openEditor(file);
-            editor->gotoLine(b->markerLineNumber(), 0);
+            if (IEditor *editor = EditorManager::openEditor(file))
+                editor->gotoLine(b->markerLineNumber(), 0);
+            else
+                engine->openDisassemblerView(Location(b->m_response.address));
         }
     }
 }
@@ -1329,11 +1332,12 @@ BreakpointItem::~BreakpointItem()
 
 void BreakpointItem::destroyMarker()
 {
-    BreakpointMarker *m = m_marker;
-    QTC_ASSERT(m, return);
-    m->m_bp = 0;
-    m_marker = 0;
-    delete m;
+    if (m_marker) {
+        BreakpointMarker *m = m_marker;
+        m->m_bp = 0;
+        m_marker = 0;
+        delete m;
+    }
 }
 
 QString BreakpointItem::markerFileName() const

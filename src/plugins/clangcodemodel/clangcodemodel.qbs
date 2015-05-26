@@ -53,7 +53,7 @@ QtcPlugin {
     property string llvmIncludeDir: QtcProcessOutputReader.readOutput(llvmConfig, ["--includedir"])
     property string llvmLibDir: QtcProcessOutputReader.readOutput(llvmConfig, ["--libdir"])
     property string llvmVersion: QtcProcessOutputReader.readOutput(llvmConfig, ["--version"])
-        .replace(/(\d+\.\d+).*/, "$1")
+        .replace(/(\d+\.\d+\.\d+).*/, "$1")
 
     cpp.includePaths: base.concat(llvmIncludeDir)
     cpp.libraryPaths: base.concat(llvmLibDir)

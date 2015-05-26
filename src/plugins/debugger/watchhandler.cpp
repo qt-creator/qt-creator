@@ -1241,15 +1241,15 @@ void WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::insertItem(WatchItem *item)
 {
-    WatchItem *existing = findItem(item->iname);
-    if (existing)
+    WatchItem *parent = findItem(parentName(item->iname));
+    QTC_ASSERT(parent, return);
+
+    if (WatchItem *existing = parent->findItem(item->iname))
         takeItem(existing);
 
     //item->walkTree([item](TreeItem *sub) { sub->sortChildren(&watchItemSorter); });
     item->sortChildren(&watchItemSorter);
 
-    WatchItem *parent = findItem(parentName(item->iname));
-    QTC_ASSERT(parent, return);
     const int row = findInsertPosition(parent->children(), item);
     parent->insertChild(row, item);
 
