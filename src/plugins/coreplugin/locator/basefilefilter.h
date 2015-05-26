@@ -45,9 +45,9 @@ class CORE_EXPORT BaseFileFilter : public ILocatorFilter
     Q_OBJECT
 
 public:
-    class Iterator {
+    class CORE_EXPORT Iterator {
     public:
-        virtual ~Iterator() { }
+        virtual ~Iterator();
         virtual void toFront() = 0;
         virtual bool hasNext() const = 0;
         virtual QString next() = 0;

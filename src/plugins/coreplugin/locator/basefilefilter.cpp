@@ -72,6 +72,9 @@ public:
 } // Internal
 } // Core
 
+BaseFileFilter::Iterator::~Iterator()
+{}
+
 BaseFileFilter::BaseFileFilter()
   : d(new Internal::BaseFileFilterPrivate)
 {
