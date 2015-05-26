@@ -2930,10 +2930,11 @@ VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
     QTC_ASSERT(!arguments.isEmpty(), return 0);
 
     QString abortCommand = arguments.at(0);
-    // Git might request an editor, so this must be done asynchronously
-    VcsCommand *command = vcsExec(workingDirectory, arguments, 0, true, 0, workingDirectory);
-    // ... and without timeout
-    command->setDefaultTimeoutS(0);
+    // Git might request an editor, so this must be done asynchronously and without timeout
+    VcsCommand *command = createCommand(workingDirectory, 0, VcsWindowOutputBind);
+    command->setCookie(workingDirectory);
+    command->addJob(vcsBinary(), arguments, 0);
+    command->execute();
     ConflictHandler::attachToCommand(command, abortCommand);
 
     return command;
