@@ -588,7 +588,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         Utils::MimeType mimeType = mdb.mimeTypeForFile(fn);
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
                            tr("Could not open \"%1\": Cannot open files of type \"%2\".")
-                           .arg(realFn).arg(mimeType.name()),
+                           .arg(FileName::fromString(realFn).toUserOutput()).arg(mimeType.name()),
                            QMessageBox::Ok, ICore::dialogParent());
         msgbox.exec();
         return 0;
@@ -618,8 +618,10 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         overrideCursor.reset();
         delete editor;
 
-        if (errorString.isEmpty())
-            errorString = tr("Could not open \"%1\": Unknown error.").arg(realFn);
+        if (errorString.isEmpty()) {
+            errorString = tr("Could not open \"%1\": Unknown error.")
+                    .arg(FileName::fromString(realFn).toUserOutput());
+        }
 
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"), errorString, QMessageBox::Open | QMessageBox::Cancel, ICore::mainWindow());
 
