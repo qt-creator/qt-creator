@@ -121,8 +121,6 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
 
     connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(slotAboutToRemoveProject(ProjectExplorer::Project*)));
-    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(editorsClosed(QList<Core::IEditor*>)));
 }
 
 EditorConfiguration::~EditorConfiguration()
@@ -263,6 +261,9 @@ void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
             switchSettings(widget);
     }
     d->m_editors.append(textEditor);
+    connect(textEditor, &BaseTextEditor::destroyed, this, [this, textEditor]() {
+        d->m_editors.removeOne(textEditor);
+    });
 }
 
 void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
@@ -394,13 +395,6 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
 
     foreach (BaseTextEditor *editor, d->m_editors)
         deconfigureEditor(editor);
-}
-
-void EditorConfiguration::editorsClosed(const QList<Core::IEditor*> &closedEditors)
-{
-    Utils::erase(d->m_editors, [&closedEditors](Core::IEditor *editor) {
-        return closedEditors.contains(editor);
-    });
 }
 
 TabSettings actualTabSettings(const QString &fileName,

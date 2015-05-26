@@ -111,7 +111,6 @@ private slots:
     void setTextCodec(QTextCodec *textCodec);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
-    void editorsClosed(const QList<Core::IEditor*> &closedEditors);
 private:
     void switchSettings(TextEditor::TextEditorWidget *baseTextEditor) const;
 
