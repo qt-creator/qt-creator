@@ -58,7 +58,7 @@ unsigned int Task::s_nextId = 1;
     \sa ProjectExplorer::TaskHub
 */
 
-Task::Task() : taskId(0), type(Unknown), line(-1)
+Task::Task() : taskId(0), type(Unknown), line(-1), movedLine(-1)
 { }
 
 Task::Task(TaskType type_, const QString &description_,
