@@ -1005,6 +1005,11 @@
             };
             \endcode
 
+        \li Stick to integral types, arrays of integral types, and structs thereof
+            for static declarations in headers.
+            For example, \c {static float i[SIZE_CONSTANT];} will not be optimized
+            and copied in every plugin in most cases, it would be good to avoid it.
+
         \li Anything that has a constructor or needs to run code to be
             initialized cannot be used as global object in library code,
             since it is undefined when that constructor or code will be run
