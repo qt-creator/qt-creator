@@ -498,7 +498,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     if (strVal != QLatin1String("class")
             && strVal != QLatin1String("file")
             && strVal != QLatin1String("project")) {
-        *errorMessage = tr("\"kind\" value \"%1\" is not \"class\", \"file\" or \"project\".").arg(strVal);
+        *errorMessage = tr("\"kind\" value \"%1\" is not \"class\" (deprecated!), \"file\" or \"project\".").arg(strVal);
         return false;
     }
     IWizardFactory::WizardKind kind = IWizardFactory::ProjectWizard;
