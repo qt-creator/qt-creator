@@ -1183,8 +1183,9 @@ bool CheckSymbols::isTemplateClass(Symbol *symbol) const
     if (symbol) {
         if (Template *templ = symbol->asTemplate()) {
             if (Symbol *declaration = templ->declaration()) {
-                if (declaration->isClass() || declaration->isForwardClassDeclaration())
-                    return true;
+                return declaration->isClass()
+                        || declaration->isForwardClassDeclaration()
+                        || declaration->isTypedef();
             }
         }
     }

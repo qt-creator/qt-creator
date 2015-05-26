@@ -994,6 +994,14 @@ void tst_CheckSymbols::test_checksymbols_data()
                 << Use(10, 13, 3, Highlighting::LocalUse)
                 );
 
+    QTest::newRow("template_alias")
+            << _("template<class T>\n"
+                 "using Foo = Bar;\n")
+            << (QList<Use>()
+                << Use(1, 16, 1, Highlighting::TypeUse)
+                << Use(2, 7, 3, Highlighting::TypeUse)
+                );
+
     QTest::newRow("using_inside_different_namespace_QTCREATORBUG7978")
         << _("class My" TEST_UNICODE_IDENTIFIER "Type { int " TEST_UNICODE_IDENTIFIER "Member; };\n"
              "void f(My" TEST_UNICODE_IDENTIFIER "Type var" TEST_UNICODE_IDENTIFIER ")\n"
