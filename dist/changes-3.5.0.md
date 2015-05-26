@@ -17,6 +17,8 @@ General
   plugin manager. Disabling plugins is now only a hint; if another
   (enabled) plugin needs it, it is implicitly enabled. Before, the
   other plugin was implicitly disabled.
+* Improved keyboard shortcut settings. Made shortcut input field
+  freely editable and added separate `record` button.
 * Added support for `~` as shortcut for user's home directory to
   path input fields
 * Added filtering to About Plugins
@@ -36,6 +38,8 @@ Editing
 
 * Added option to jump directly to specific column in addition to
   line number when opening files through locator or command line
+* Added *Remove missing files* action to QRC editor
+  (QTCREATORBUG-13941)
 * Made global file search use multiple threads (QTCREATORBUG-10298)
 * Fixed highlighting of current line in read-only text editors
   (QTCREATORBUG-10104)
@@ -68,6 +72,7 @@ Analyzer
 
 QML Profiler
 
+* Removed support for V8
 * Made saving and loading trace data asynchronous to avoid
   locking up UI (QTCREATORBUG-11822)
 
@@ -78,10 +83,15 @@ C++ Support
   initializer lists (QTCREATORBUG-14279)
 * Fixed expanding items in class view with double-click
   (QTCREATORBUG-2536)
+* Fixed code folding issues after missing closing braces
 
 QML Support
 
 * Removed Qt Quick 1 wizards
+
+Qt Quick Designer
+
+* Removed Qt Quick 1 support
 
 Version Control Systems
 
@@ -91,6 +101,10 @@ Version Control Systems
 FakeVim
 
 * Added support for `C-r{register}`
+
+Todo
+
+* Added option to excluding file patterns from parsing
 
 Platform Specific
 
@@ -105,17 +119,30 @@ Linux
 Android
 
 * Made it possible to create AVD without SD card (QTCREATORBUG-13590)
+* Improved handling of invalid names when creating AVD
+  (QTCREATORBUG-13589)
+* Added 5.1 to known versions
 * Added warning if emulator is not OpenGL enabled
   (QTCREATORBUG-13615)
+* Added input field for activity name in Android manifest editor
+  (QTCREATORBUG-13958)
+* Fixed handling of external file changes in Android manifest editor
 * Fixed listing of Google AVDs (QTCREATORBUG-13980)
 * Fixed that kits were removed from projects when changing NDK path
   (QTCREATORBUG-14243)
+* Fixed copying application data with spaces in path
+  (QTCREATORBUG-13868)
+* Fixed that sometimes the wrong AVD was deployed to
+  (QTCREATORBUG-13095)
 
 BlackBerry
 
 * Removed support for BlackBerry 10 development
 
 Remote Linux
+
+* Added support for ECDH key exchange for SSH connections
+  (QTCREATORBUG-14025)
 
 BareMetal
 
