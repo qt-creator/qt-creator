@@ -29,9 +29,7 @@ SOURCES += \
     qmlprofilertracefile.cpp \
     qmlprofilertraceview.cpp \
     qmlprofilertreeview.cpp \
-    qmlprofilerviewmanager.cpp \
-    qv8profilerdatamodel.cpp \
-    qv8profilereventview.cpp
+    qmlprofilerviewmanager.cpp
 
 HEADERS += \
     abstractqmlprofilerrunner.h \
@@ -62,9 +60,7 @@ HEADERS += \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \
     qmlprofilertreeview.h \
-    qmlprofilerviewmanager.h \
-    qv8profilerdatamodel.h \
-    qv8profilereventview.h
+    qmlprofilerviewmanager.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

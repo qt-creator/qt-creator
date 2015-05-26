@@ -42,7 +42,6 @@
 namespace QmlProfiler {
 class QmlProfilerModelManager;
 class QmlProfilerDataModel;
-class QV8ProfilerDataModel;
 class QmlProfilerNotesModel;
 
 namespace Internal {
@@ -118,7 +117,6 @@ public:
     QmlProfilerDataState::State state() const;
     QmlProfilerTraceTime *traceTime() const;
     QmlProfilerDataModel *qmlModel() const;
-    QV8ProfilerDataModel *v8Model() const;
     QmlProfilerNotesModel *notesModel() const;
 
     bool isEmpty() const;
@@ -150,8 +148,6 @@ public slots:
                      qint64 startTime, qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
-    void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
-                    double totalTime, double selfTime);
 
     void complete();
     void modelProcessingDone();

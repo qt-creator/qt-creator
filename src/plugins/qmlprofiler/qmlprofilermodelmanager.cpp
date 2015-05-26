@@ -31,7 +31,6 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerdatamodel.h"
-#include "qv8profilerdatamodel.h"
 #include "qmlprofilertracefile.h"
 #include "qmlprofilernotesmodel.h"
 
@@ -173,7 +172,6 @@ public:
     QmlProfilerModelManager *q;
 
     QmlProfilerDataModel *model;
-    QV8ProfilerDataModel *v8Model;
     QmlProfilerNotesModel *notesModel;
 
     QmlProfilerDataState *dataState;
@@ -198,7 +196,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->totalWeight = 0;
     d->features = 0;
     d->model = new QmlProfilerDataModel(finder, this);
-    d->v8Model = new QV8ProfilerDataModel(finder, this);
     d->dataState = new QmlProfilerDataState(this, this);
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
@@ -220,11 +217,6 @@ QmlProfilerDataModel *QmlProfilerModelManager::qmlModel() const
     return d->model;
 }
 
-QV8ProfilerDataModel *QmlProfilerModelManager::v8Model() const
-{
-    return d->v8Model;
-}
-
 QmlProfilerNotesModel *QmlProfilerModelManager::notesModel() const
 {
     return d->notesModel;
@@ -232,7 +224,7 @@ QmlProfilerNotesModel *QmlProfilerModelManager::notesModel() const
 
 bool QmlProfilerModelManager::isEmpty() const
 {
-    return d->model->isEmpty() && d->v8Model->isEmpty();
+    return d->model->isEmpty();
 }
 
 int QmlProfilerModelManager::count() const
@@ -324,12 +316,6 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
                           ndata1, ndata2, ndata3, ndata4, ndata5);
 }
 
-void QmlProfilerModelManager::addV8Event(int depth, const QString &function, const QString &filename,
-                                         int lineNumber, double totalTime, double selfTime)
-{
-    d->v8Model->addV8Event(depth, function, filename, lineNumber,totalTime, selfTime);
-}
-
 void QmlProfilerModelManager::complete()
 {
     switch (state()) {
@@ -343,7 +329,6 @@ void QmlProfilerModelManager::complete()
         d->traceTime->increaseEndTime(d->model->lastTimeMark());
         setState(QmlProfilerDataState::ProcessingData);
         d->model->complete();
-        d->v8Model->complete();
         break;
     case QmlProfilerDataState::Empty:
         setState(QmlProfilerDataState::Done);
@@ -359,7 +344,7 @@ void QmlProfilerModelManager::complete()
 void QmlProfilerModelManager::modelProcessingDone()
 {
     Q_ASSERT(state() == QmlProfilerDataState::ProcessingData);
-    if (d->model->processingDone() && d->v8Model->processingDone())
+    if (d->model->processingDone())
         complete();
 }
 
@@ -379,7 +364,6 @@ void QmlProfilerModelManager::save(const QString &filename)
         QmlProfilerFileWriter writer;
         writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
                             traceTime()->duration());
-        writer.setV8DataModel(d->v8Model);
         writer.setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
         writer.setNotes(d->model->getEventNotes());
         writer.setFuture(&future);
@@ -420,7 +404,6 @@ void QmlProfilerModelManager::load()
         QmlProfilerFileReader reader;
         reader.setFuture(&future);
         connect(&reader, &QmlProfilerFileReader::error, this, &QmlProfilerModelManager::error);
-        reader.setV8DataModel(d->v8Model);
         reader.setQmlDataModel(d->model);
         reader.load(file);
         file->close();
@@ -453,7 +436,6 @@ void QmlProfilerModelManager::clear()
     d->progress = 0;
     d->previousProgress = 0;
     d->model->clear();
-    d->v8Model->clear();
     d->traceTime->clear();
     d->notesModel->clear();
 

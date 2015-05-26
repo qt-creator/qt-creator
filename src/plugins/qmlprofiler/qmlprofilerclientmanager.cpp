@@ -34,7 +34,6 @@
 
 #include <qmldebug/qmldebugclient.h>
 #include <qmldebug/qmlprofilertraceclient.h>
-#include <qmldebug/qv8profilerclient.h>
 
 #include <utils/qtcassert.h>
 #include <QPointer>
@@ -56,7 +55,6 @@ public:
 
     QmlDebugConnection *connection;
     QPointer<QmlProfilerTraceClient> qmlclientplugin;
-    QPointer<QV8ProfilerClient> v8clientplugin;
 
     QTimer connectionTimer;
     int connectionAttempts;
@@ -70,7 +68,6 @@ public:
     QString ostDevice;
     QString sysroot;
 
-    bool v8DataReady;
     bool qmlDataReady;
 
     QmlProfilerModelManager *modelManager;
@@ -85,7 +82,6 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
 
     d->connection = 0;
     d->connectionAttempts = 0;
-    d->v8DataReady = false;
     d->qmlDataReady = false;
 
     d->modelManager = 0;
@@ -98,8 +94,6 @@ QmlProfilerClientManager::~QmlProfilerClientManager()
 {
     delete d->connection;
     delete d->qmlclientplugin.data();
-    delete d->v8clientplugin.data();
-
     delete d;
 }
 
@@ -131,8 +125,6 @@ void QmlProfilerClientManager::clearBufferedData()
 {
     if (d->qmlclientplugin)
         d->qmlclientplugin.data()->clearData();
-    if (d->v8clientplugin)
-        d->v8clientplugin.data()->clearData();
 }
 
 void QmlProfilerClientManager::discardPendingData()
@@ -165,8 +157,6 @@ void QmlProfilerClientManager::enableServices()
     delete d->qmlclientplugin.data();
     d->qmlclientplugin = new QmlProfilerTraceClient(d->connection,
                                                     d->profilerState->recordingFeatures());
-    delete d->v8clientplugin.data();
-    d->v8clientplugin = new QV8ProfilerClient(d->connection);
     connectClientSignals();
 }
 
@@ -196,15 +186,6 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
                 d->qmlclientplugin.data(), SLOT(setFeatures(quint64)));
     }
-    if (d->v8clientplugin) {
-        connect(d->v8clientplugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
-        connect(d->v8clientplugin.data(),
-                SIGNAL(v8range(int,QString,QString,int,double,double)),
-                d->modelManager,
-                SLOT(addV8Event(int,QString,QString,int,double,double)));
-        connect(d->v8clientplugin.data(), SIGNAL(enabledChanged()),
-                d->v8clientplugin.data(), SLOT(sendRecordingStatus()));
-    }
 }
 
 void QmlProfilerClientManager::disconnectClientSignals()
@@ -229,15 +210,6 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    d->profilerState, SLOT(setServerRecording(bool)));
         disconnect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
                    d->qmlclientplugin.data(), SLOT(setFeatures(quint64)));
-    }
-    if (d->v8clientplugin) {
-        disconnect(d->v8clientplugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
-        disconnect(d->v8clientplugin.data(),
-                   SIGNAL(v8range(int,QString,QString,int,double,double)),
-                   d->modelManager,
-                   SLOT(addV8Event(int,QString,QString,int,double,double)));
-        disconnect(d->v8clientplugin.data(), SIGNAL(enabledChanged()),
-                   d->v8clientplugin.data(), SLOT(sendRecordingStatus()));
     }
 }
 
@@ -341,35 +313,15 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
     d->qmlDataReady = true;
-    if (!d->v8clientplugin ||
-            d->v8clientplugin.data()->state() != QmlDebugClient::Enabled ||
-            d->v8DataReady) {
-        emit dataReadyForProcessing();
-        // once complete is sent, reset the flags
-        d->qmlDataReady = false;
-        d->v8DataReady = false;
-    }
-}
-
-void QmlProfilerClientManager::v8Complete()
-{
-    d->v8DataReady = true;
-    if (!d->qmlclientplugin ||
-            d->qmlclientplugin.data()->state() != QmlDebugClient::Enabled ||
-            d->qmlDataReady) {
-        emit dataReadyForProcessing();
-        // once complete is sent, reset the flags
-        d->v8DataReady = false;
-        d->qmlDataReady = false;
-    }
+    emit dataReadyForProcessing();
+    // once complete is sent, reset the flags
+    d->qmlDataReady = false;
 }
 
 void QmlProfilerClientManager::stopClientsRecording()
 {
     if (d->qmlclientplugin)
         d->qmlclientplugin.data()->setRecording(false);
-    if (d->v8clientplugin)
-        d->v8clientplugin.data()->setRecording(false);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -419,17 +371,13 @@ void QmlProfilerClientManager::clientRecordingChanged()
     if (d->profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
         if (d->qmlclientplugin)
             d->qmlclientplugin.data()->setRecording(d->profilerState->clientRecording());
-        if (d->v8clientplugin)
-            d->v8clientplugin.data()->setRecording(d->profilerState->clientRecording());
     }
 }
 
 void QmlProfilerClientManager::serverRecordingChanged()
 {
-    if (d->profilerState->serverRecording()) {
-        d->v8DataReady = false;
+    if (d->profilerState->serverRecording())
         d->qmlDataReady = false;
-    }
 }
 
 } // namespace Internal

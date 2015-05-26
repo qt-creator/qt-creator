@@ -40,7 +40,6 @@
 #include <qmldebug/qmlprofilereventtypes.h>
 
 #include "qmlprofilerdatamodel.h"
-#include "qv8profilerdatamodel.h"
 
 QT_FORWARD_DECLARE_CLASS(QIODevice)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
@@ -56,7 +55,6 @@ class QmlProfilerFileReader : public QObject
 public:
     explicit QmlProfilerFileReader(QObject *parent = 0);
 
-    void setV8DataModel(QV8ProfilerDataModel *dataModel);
     void setQmlDataModel(QmlProfilerDataModel *dataModel);
     void setFuture(QFutureInterface<void> *future);
 
@@ -72,7 +70,6 @@ private:
     void progress(QIODevice *device);
     bool isCanceled() const;
 
-    QV8ProfilerDataModel *m_v8Model;
     QmlProfilerDataModel *m_qmlModel;
     QFutureInterface<void> *m_future;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
@@ -89,7 +86,6 @@ public:
     explicit QmlProfilerFileWriter(QObject *parent = 0);
 
     void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
-    void setV8DataModel(QV8ProfilerDataModel *dataModel);
     void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
                       const QVector<QmlProfilerDataModel::QmlEventData> &events);
     void setNotes(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes);
@@ -103,7 +99,6 @@ private:
     bool isCanceled() const;
 
     qint64 m_startTime, m_endTime, m_measuredTime;
-    QV8ProfilerDataModel *m_v8Model;
     QFutureInterface<void> *m_future;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;

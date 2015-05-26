@@ -122,14 +122,8 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 
 QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
     QObject(parent),
-    m_v8Model(0),
     m_future(0)
 {
-}
-
-void QmlProfilerFileReader::setV8DataModel(QV8ProfilerDataModel *dataModel)
-{
-    m_v8Model = dataModel;
 }
 
 void QmlProfilerFileReader::setQmlDataModel(QmlProfilerDataModel *dataModel)
@@ -187,12 +181,6 @@ bool QmlProfilerFileReader::load(QIODevice *device)
 
             if (elementName == _("noteData")) {
                 loadNoteData(stream);
-                break;
-            }
-
-            if (elementName == _("v8profile")) {
-                if (m_v8Model)
-                    m_v8Model->load(stream, m_future);
                 break;
             }
 
@@ -465,7 +453,6 @@ QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :
     m_startTime(0),
     m_endTime(0),
     m_measuredTime(0),
-    m_v8Model(0),
     m_future(0)
 {
 }
@@ -475,11 +462,6 @@ void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint6
     m_startTime = startTime;
     m_endTime = endTime;
     m_measuredTime = measuredTime;
-}
-
-void QmlProfilerFileWriter::setV8DataModel(QV8ProfilerDataModel *dataModel)
-{
-    m_v8Model = dataModel;
 }
 
 void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
@@ -503,8 +485,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 {
     if (m_future) {
         m_future->setProgressRange(0,
-            qMax(m_qmlEvents.size() + m_ranges.size() + m_notes.size()
-                 + m_v8Model->numberOfV8Events(), 1));
+            qMax(m_qmlEvents.size() + m_ranges.size() + m_notes.size(), 1));
         m_future->setProgressValue(0);
         m_newProgressValue = 0;
     }
@@ -646,7 +627,6 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
     if (isCanceled())
         return;
-    m_v8Model->save(stream, m_future);
 
     stream.writeEndElement(); // trace
     stream.writeEndDocument();

@@ -36,7 +36,6 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatewidget.h"
-#include "qv8profilereventview.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -56,7 +55,6 @@ public:
     QDockWidget *timelineDock;
     QmlProfilerTraceView *traceView;
     QmlProfilerEventsWidget *eventsView;
-    QV8ProfilerEventsWidget *v8profilerView;
     QmlProfilerStateManager *profilerState;
     QmlProfilerModelManager *profilerModelManager;
     QmlProfilerTool *profilerTool;
@@ -71,7 +69,6 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     setObjectName(QLatin1String("QML Profiler View Manager"));
     d->traceView = 0;
     d->eventsView = 0;
-    d->v8profilerView = 0;
     d->profilerState = profilerState;
     d->profilerModelManager = modelManager;
     d->profilerTool = profilerTool;
@@ -109,39 +106,20 @@ void QmlProfilerViewManager::createViews()
     connect(d->eventsView, SIGNAL(typeSelected(int)), d->traceView, SLOT(selectByTypeId(int)));
     connect(d->traceView, SIGNAL(typeSelected(int)), d->eventsView, SLOT(selectByTypeId(int)));
 
-    d->v8profilerView = new QV8ProfilerEventsWidget(mw, d->profilerTool, this,
-                                                    d->profilerModelManager);
-    d->v8profilerView->setWindowTitle(tr("V8"));
-    connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
-            SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
-    connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            d->traceView, SLOT(selectBySourceLocation(QString,int,int)));
-    connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
-    connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
-
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (QmlProfilerToolId, d->eventsView);
     d->timelineDock = AnalyzerManager::createDockWidget
             (QmlProfilerToolId, d->traceView);
-    QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
-            (QmlProfilerToolId, d->v8profilerView);
 
     eventsDock->show();
     d->timelineDock->show();
-    v8profilerDock->show();
 
     mw->splitDockWidget(mw->toolBarDockWidget(), d->timelineDock, Qt::Vertical);
     mw->tabifyDockWidget(d->timelineDock, eventsDock);
-    mw->tabifyDockWidget(eventsDock, v8profilerDock);
     d->timelineDock->raise();
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->eventsView);
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
-    new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->v8profilerView);
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const
@@ -179,7 +157,6 @@ void QmlProfilerViewManager::clear()
 {
     d->traceView->clear();
     d->eventsView->clear();
-    d->v8profilerView->clear();
 }
 
 } // namespace Internal
