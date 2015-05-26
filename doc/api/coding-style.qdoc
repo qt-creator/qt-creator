@@ -1239,7 +1239,7 @@
                 int value() const;
 
                 QScopedPointer<BarPrivate> d;
-                //std::auto_ptr<BarPrivate> d;
+                //std::unique_ptr<BarPrivate> d;
             };
 
             ############### bar.cpp
