@@ -76,10 +76,6 @@ public:
 
     static bool qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
-protected:
-    static bool showModulesPageForApplications();
-    static bool showModulesPageForLibraries();
-
 private:
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 };

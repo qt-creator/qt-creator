@@ -48,7 +48,6 @@ class LibraryWizardDialog : public BaseQmakeProjectWizardDialog
 public:
     LibraryWizardDialog(const QString &templateName,
                         const QIcon &icon,
-                        bool showModulesPage,
                         QWidget *parent,
                         const Core::WizardDialogParameters &parameters);
 

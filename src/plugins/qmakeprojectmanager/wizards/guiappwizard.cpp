@@ -88,9 +88,7 @@ GuiAppWizard::GuiAppWizard()
 
 Core::BaseFileWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(),
-                                                        showModulesPageForApplications(),
-                                                        parent, parameters);
+    GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(), parent, parameters);
     dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(parameters.defaultPath()));
     // Order! suffixes first to generate files correctly
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());

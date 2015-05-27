@@ -121,16 +121,6 @@ bool QtWizard::lowerCaseFiles()
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
-bool QtWizard::showModulesPageForApplications()
-{
-    return false;
-}
-
-bool QtWizard::showModulesPageForLibraries()
-{
-    return true;
-}
-
 // ------------ CustomQmakeProjectWizard
 CustomQmakeProjectWizard::CustomQmakeProjectWizard()
 {

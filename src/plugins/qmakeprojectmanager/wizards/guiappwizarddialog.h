@@ -61,7 +61,6 @@ class GuiAppWizardDialog : public BaseQmakeProjectWizardDialog
 public:
     explicit GuiAppWizardDialog(const QString &templateName,
                                 const QIcon &icon,
-                                bool showModulesPage,
                                 QWidget *parent,
                                 const Core::WizardDialogParameters &parameters);
 

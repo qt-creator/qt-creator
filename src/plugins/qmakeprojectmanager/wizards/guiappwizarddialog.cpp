@@ -47,10 +47,9 @@ GuiAppParameters::GuiAppParameters()
 
 GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
                                        const QIcon &icon,
-                                       bool showModulesPage,
                                        QWidget *parent,
                                        const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(showModulesPage, parent, parameters),
+    BaseQmakeProjectWizardDialog(false, parent, parameters),
     m_filesPage(new FilesPage)
 {
     setWindowIcon(icon);

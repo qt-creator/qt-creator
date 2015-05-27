@@ -131,10 +131,9 @@ QtProjectParameters::Type LibraryIntroPage::type() const
 // ------------------- LibraryWizardDialog
 LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          const QIcon &icon,
-                                         bool showModulesPage,
                                          QWidget *parent,
                                          const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent, parameters),
+    BaseQmakeProjectWizardDialog(true, new LibraryIntroPage, -1, parent, parameters),
     m_filesPage(new FilesPage),
     m_pluginBaseClassesInitialized(false),
     m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1)
