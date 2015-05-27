@@ -159,24 +159,38 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
     m_chooser->setHistoryCompleter(m_key);
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
-    connect(m_chooser, &PathChooser::pathChanged, this, &WorkingDirectoryAspect::setWorkingDirectory);
+    connect(m_chooser.data(), &PathChooser::pathChanged,
+            this, &WorkingDirectoryAspect::setWorkingDirectory);
 
     auto resetButton = new QToolButton(parent);
     resetButton->setToolTip(tr("Reset to default"));
     resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
-    connect(resetButton, &QAbstractButton::clicked, this, [this] { m_chooser->setPath(QString()); });
+    connect(resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
     if (auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>()) {
-        connect(envAspect, &EnvironmentAspect::environmentChanged, this, [this, envAspect] {
-            m_chooser->setEnvironment(envAspect->environment());
-        });
-        m_chooser->setEnvironment(envAspect->environment());
+        connect(envAspect, &EnvironmentAspect::environmentChanged,
+                this, &WorkingDirectoryAspect::updateEnvironment);
+        updateEnvironment();
     }
 
     auto hbox = new QHBoxLayout;
     hbox->addWidget(m_chooser);
     hbox->addWidget(resetButton);
     layout->addRow(tr("Working directory:"), hbox);
+}
+
+void WorkingDirectoryAspect::updateEnvironment()
+{
+    auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
+    QTC_ASSERT(envAspect, return);
+    QTC_ASSERT(m_chooser, return);
+    m_chooser->setEnvironment(envAspect->environment());
+}
+
+void WorkingDirectoryAspect::resetPath()
+{
+    QTC_ASSERT(m_chooser, return);
+    m_chooser->setPath(QString());
 }
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
@@ -202,6 +216,11 @@ QString WorkingDirectoryAspect::unexpandedWorkingDirectory() const
 void WorkingDirectoryAspect::setWorkingDirectory(const QString &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
+}
+
+PathChooser *WorkingDirectoryAspect::pathChooser() const
+{
+    return m_chooser;
 }
 
 

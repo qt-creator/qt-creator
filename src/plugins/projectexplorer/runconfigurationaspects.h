@@ -95,14 +95,17 @@ public:
     QString workingDirectory() const;
     QString unexpandedWorkingDirectory() const;
     void setWorkingDirectory(const QString &workingDirectory);
-    Utils::PathChooser *pathChooser() const { return m_chooser; }
+    Utils::PathChooser *pathChooser() const;
 
 private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
+    void resetPath();
+    void updateEnvironment();
+
     QString m_workingDirectory;
-    Utils::PathChooser *m_chooser;
+    QPointer<Utils::PathChooser> m_chooser;
     QString m_key;
 };
 
