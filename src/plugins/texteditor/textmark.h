@@ -81,6 +81,7 @@ public:
     virtual void dragToLine(int lineNumber);
 
     static Utils::Theme::Color categoryColor(Core::Id category);
+    static bool categoryHasColor(Core::Id category);
     static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
     void setIcon(const QIcon &icon);
     // call this if the icon has changed.

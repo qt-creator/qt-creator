@@ -59,6 +59,7 @@ public:
     void add(TextMark *mark);
     bool remove(TextMark *mark);
     Utils::Theme::Color categoryColor(Core::Id category);
+    bool categoryHasColor(Core::Id category);
     void setCategoryColor(Core::Id category, Utils::Theme::Color color);
 private slots:
     void editorOpened(Core::IEditor *editor);

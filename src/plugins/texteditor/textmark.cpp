@@ -122,6 +122,11 @@ Theme::Color TextMark::categoryColor(Id category)
     return TextEditorPlugin::baseTextMarkRegistry()->categoryColor(category);
 }
 
+bool TextMark::categoryHasColor(Id category)
+{
+    return TextEditorPlugin::baseTextMarkRegistry()->categoryHasColor(category);
+}
+
 void TextMark::setCategoryColor(Id category, Theme::Color color)
 {
     TextEditorPlugin::baseTextMarkRegistry()->setCategoryColor(category, color);
@@ -228,6 +233,11 @@ bool TextMarkRegistry::remove(TextMark *mark)
 Theme::Color TextMarkRegistry::categoryColor(Id category)
 {
     return m_colors.value(category, Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+}
+
+bool TextMarkRegistry::categoryHasColor(Id category)
+{
+    return m_colors.contains(category);
 }
 
 void TextMarkRegistry::setCategoryColor(Id category, Theme::Color color)
