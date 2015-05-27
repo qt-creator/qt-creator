@@ -65,7 +65,7 @@ static const char WIZARD_PATH[] = "templates/wizards";
 static const char WIZARD_FILE[] = "wizard.json";
 
 static const char VERSION_KEY[] = "version";
-static const char DISABLED_KEY[] = "disabled";
+static const char ENABLED_EXPRESSION_KEY[] = "enabled";
 
 static const char KIND_KEY[] = "kind";
 static const char ID_KEY[] = "id";
@@ -84,7 +84,6 @@ static const char DATA_KEY[] = "data";
 static const char PAGE_SUB_TITLE_KEY[] = "trSubTitle";
 static const char PAGE_SHORT_TITLE_KEY[] = "trShortTitle";
 static const char PAGE_INDEX_KEY[] = "index";
-static const char PAGE_ENABLED_EXPRESSION_KEY[] = "enabled";
 static const char OPTIONS_KEY[] = "options";
 static const char PLATFORM_INDEPENDENT_KEY[] = "platformIndependent";
 
@@ -188,7 +187,7 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
         return p;
     }
 
-    QVariant enabled = data.value(QLatin1String(PAGE_ENABLED_EXPRESSION_KEY), true);
+    QVariant enabled = data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true);
 
     QVariant subData = data.value(QLatin1String(DATA_KEY));
     if (!factory->validateData(typeId, subData, errorMessage))
@@ -278,8 +277,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                     continue;
                 }
 
-                bool isDisabled = data.value(QLatin1String(DISABLED_KEY), false).toBool();
-                if (isDisabled) {
+                if (!data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true).toBool()) {
                     verboseLog.append(tr("* Wizard is disabled.\n"));
                     continue;
                 }
