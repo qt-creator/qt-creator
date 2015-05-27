@@ -133,12 +133,9 @@ QString JsonWizard::stringValue(const QString &n) const
     if (v.type() == QVariant::String)
         return m_expander.expand(v.toString());
 
-    if (v.type() == QVariant::StringList) {
-        QStringList tmp = Utils::transform(v.toStringList(), [this](const QString &i) -> QString {
-            return m_expander.expand(i).replace(QLatin1Char('\''), QLatin1String("\\'"));
-        });
-        return QString(QString(QLatin1Char('\'')) + tmp.join(QLatin1String("', '")) + QString(QLatin1Char('\'')));
-    }
+    if (v.type() == QVariant::StringList)
+        return stringListToArrayString(v.toStringList(), &m_expander);
+
     return v.toString();
 }
 
@@ -164,6 +161,24 @@ bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expand
         return !(tmp.isEmpty() || tmp == QLatin1String("false"));
     }
     return v.toBool();
+}
+
+QString JsonWizard::stringListToArrayString(const QStringList &list, const Utils::MacroExpander *expander)
+{
+    // Todo: Handle ' embedded in the strings better.
+    if (list.isEmpty())
+        return QString();
+
+    QStringList tmp = Utils::transform(list, [expander](const QString &i) {
+        return expander->expand(i).replace(QLatin1Char('\''), QLatin1String("\\'"));
+    });
+
+    QString result;
+    result.append(QLatin1Char('\''));
+    result.append(tmp.join(QLatin1String("', '")));
+    result.append(QLatin1Char('\''));
+
+    return result;
 }
 
 void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)

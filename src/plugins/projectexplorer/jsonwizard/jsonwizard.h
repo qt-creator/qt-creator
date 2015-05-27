@@ -79,6 +79,8 @@ public:
     void setValue(const QString &key, const QVariant &value);
 
     static bool boolFromVariant(const QVariant &v, Utils::MacroExpander *expander);
+    static QString stringListToArrayString(const QStringList &list,
+                                           const Utils::MacroExpander *expander);
 
     void removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a);
 
