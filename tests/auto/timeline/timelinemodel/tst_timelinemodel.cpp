@@ -227,25 +227,43 @@ void tst_TimelineModel::rowOffset()
 void tst_TimelineModel::height()
 {
     DummyModel dummy;
-    QSignalSpy spy(&dummy, SIGNAL(heightChanged()));
+    int heightAfterLastSignal = 0;
+    int heightChangedSignals = 0;
+    connect(&dummy, &Timeline::TimelineModel::heightChanged, [&](){
+        QVERIFY(dummy.height() != heightAfterLastSignal);
+        ++heightChangedSignals;
+        heightAfterLastSignal = dummy.height();
+    });
     QCOMPARE(dummy.height(), 0);
+
     dummy.loadData();
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(heightChangedSignals, 1);
+    QCOMPARE(heightAfterLastSignal, dummy.height());
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
+
     dummy.setExpanded(true);
-    QCOMPARE(spy.count(), 2);
+    QCOMPARE(heightChangedSignals, 2);
+    QCOMPARE(heightAfterLastSignal, dummy.height());
     QCOMPARE(dummy.height(), 3 * DefaultRowHeight);
+
     dummy.setExpandedRowHeight(1, 80);
-    QCOMPARE(spy.count(), 3);
+    QCOMPARE(heightChangedSignals, 3);
+    QCOMPARE(heightAfterLastSignal, dummy.height());
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight + 80);
+
     dummy.setHidden(true);
-    QCOMPARE(spy.count(), 4);
+    QCOMPARE(heightChangedSignals, 4);
+    QCOMPARE(heightAfterLastSignal, dummy.height());
     QCOMPARE(dummy.height(), 0);
+
     dummy.clear();
     // When clearing the height can change several times in a row.
-    QVERIFY(spy.count() > 4);
+    QVERIFY(heightChangedSignals > 4);
+    QCOMPARE(heightAfterLastSignal, dummy.height());
+
     dummy.loadData();
     dummy.setExpanded(true);
+    QCOMPARE(heightAfterLastSignal, dummy.height());
     QCOMPARE(dummy.rowHeight(1), DefaultRowHeight); // Make sure the row height gets reset.
 }
 
