@@ -96,7 +96,7 @@ void QmlProfilerBaseModel::detailsDone()
     emit changed();
     d->processingDone = true;
     d->modelManager->modelProxyCountUpdated(d->modelId, isEmpty() ? 0 : 1, 1);
-    d->modelManager->modelProcessingDone();
+    d->modelManager->complete();
 }
 
 }

@@ -341,13 +341,6 @@ void QmlProfilerModelManager::complete()
     }
 }
 
-void QmlProfilerModelManager::modelProcessingDone()
-{
-    Q_ASSERT(state() == QmlProfilerDataState::ProcessingData);
-    if (d->model->processingDone())
-        complete();
-}
-
 void QmlProfilerModelManager::save(const QString &filename)
 {
     QFile *file = new QFile(filename);

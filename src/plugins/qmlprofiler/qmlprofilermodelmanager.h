@@ -150,7 +150,6 @@ public slots:
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
 
     void complete();
-    void modelProcessingDone();
 
     void save(const QString &filename);
     void load(const QString &filename);
