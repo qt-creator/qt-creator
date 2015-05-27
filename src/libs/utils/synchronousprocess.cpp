@@ -270,7 +270,7 @@ SynchronousProcess::~SynchronousProcess()
 
 void SynchronousProcess::setTimeoutS(int timeoutS)
 {
-    if (timeoutS >= 0)
+    if (timeoutS > 0)
         d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
         d->m_maxHangTimerCount = INT_MAX;
@@ -599,7 +599,8 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
     bool finished = false;
     bool hasData = false;
     do {
-        finished = p.state() == QProcess::NotRunning || p.waitForFinished(timeoutS * 1000);
+        finished = p.state() == QProcess::NotRunning
+                || p.waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1);
         hasData = false;
         // First check 'stdout'
         if (p.bytesAvailable()) { // applies to readChannel() only
