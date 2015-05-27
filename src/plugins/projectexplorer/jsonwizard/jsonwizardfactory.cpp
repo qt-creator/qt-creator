@@ -277,11 +277,6 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                     continue;
                 }
 
-                if (!data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true).toBool()) {
-                    verboseLog.append(tr("* Wizard is disabled.\n"));
-                    continue;
-                }
-
                 JsonWizardFactory *factory = createWizardFactory(data, current, &errorMessage);
                 if (!factory) {
                     verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
@@ -476,6 +471,18 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
     return QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", value.toByteArray());
 }
 
+bool JsonWizardFactory::isAvailable(const QString &platformName) const
+{
+    if (!IWizardFactory::isAvailable(platformName)) // check for required features
+        return false;
+
+    Utils::MacroExpander expander;
+    expander.registerVariable("Platform", tr("The platform selected for the wizard."),
+                              [platformName]() { return platformName; });
+
+    return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
+}
+
 void JsonWizardFactory::destroyAllFactories()
 {
     qDeleteAll(s_pageFactories);
@@ -491,6 +498,8 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     errorMessage->clear();
 
     m_wizardDir = baseDir.absolutePath();
+
+    m_enabledExpression = data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true);
 
     QString strVal = data.value(QLatin1String(KIND_KEY)).toString();
     if (strVal != QLatin1String("class")

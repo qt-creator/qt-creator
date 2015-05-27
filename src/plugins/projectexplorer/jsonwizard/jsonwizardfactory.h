@@ -92,6 +92,8 @@ public:
     static QList<QVariant> objectOrList(const QVariant &data, QString *errorMessage);
     static QString localizedString(const QVariant &value);
 
+    bool isAvailable(const QString &platformName) const override;
+
 private:
     // Create all wizards. As other plugins might register factories for derived
     // classes. Called when the new file dialog is shown for the first time.
@@ -106,6 +108,7 @@ private:
     static void destroyAllFactories();
     bool initialize(const QVariantMap &data, const QDir &baseDir, QString *errorMessage);
 
+    QVariant m_enabledExpression;
     QString m_wizardDir;
     QList<Generator> m_generators;
 

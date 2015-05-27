@@ -90,7 +90,7 @@ public:
 
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables) = 0;
 
-    bool isAvailable(const QString &platformName) const;
+    virtual bool isAvailable(const QString &platformName) const;
     QStringList supportedPlatforms() const;
 
     typedef std::function<QList<IWizardFactory *>()> FactoryCreator;
