@@ -416,6 +416,7 @@ namespace Internal {
 
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
+QObject *createDebuggerRunControlFactory(QObject *parent);
 
 static QToolButton *toolButton(QAction *action)
 {
@@ -954,7 +955,6 @@ public slots:
 
 public:
     DebuggerMainWindow *m_mainWindow;
-    DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
     Id m_previousMode;
     QList<DebuggerRunParameters> m_scheduledStarts;
@@ -2597,9 +2597,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_mainWindow->addStagedMenuEntries();
 
-    // Register factory of DebuggerRunControl.
-    m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_plugin);
-    m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
+    m_plugin->addAutoReleasedObject(createDebuggerRunControlFactory(m_plugin));
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);

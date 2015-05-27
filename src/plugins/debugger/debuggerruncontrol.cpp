@@ -279,6 +279,26 @@ void DebuggerRunControl::abortDebugger()
 //
 ////////////////////////////////////////////////////////////////////////
 
+namespace Internal {
+
+class DebuggerRunControlFactory
+    : public ProjectExplorer::IRunControlFactory
+{
+public:
+    explicit DebuggerRunControlFactory(QObject *parent);
+
+    ProjectExplorer::RunControl *create(
+        ProjectExplorer::RunConfiguration *runConfig,
+        ProjectExplorer::RunMode mode,
+        QString *errorMessage);
+
+    bool canRun(ProjectExplorer::RunConfiguration *runConfig,
+        ProjectExplorer::RunMode mode) const;
+
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(
+            ProjectExplorer::RunConfiguration *rc);
+};
+
 DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {}
@@ -288,8 +308,6 @@ bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfig, RunMode mode
     return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
 }
-
-namespace Internal {
 
 bool fillParametersFromLocalRunConfiguration
     (DebuggerRunParameters *sp, const RunConfiguration *runConfig, QString *errorMessage)
@@ -362,8 +380,6 @@ bool fillParametersFromLocalRunConfiguration
     return true;
 }
 
-} // namespace Internal
-
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
@@ -382,7 +398,7 @@ RunControl *DebuggerRunControlFactory::create
         sp.breakOnMain = true;
 
     sp.runConfiguration = runConfiguration;
-    return doCreate(sp, errorMessage);
+    return createDebuggerRunControl(sp, errorMessage);
 }
 
 IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
@@ -390,13 +406,14 @@ IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect
     return new DebuggerRunConfigurationAspect(rc);
 }
 
-DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp, QString *errorMessage)
+QObject *createDebuggerRunControlFactory(QObject *parent)
 {
-    return DebuggerRunControlFactory::doCreate(sp, errorMessage);
+    return new DebuggerRunControlFactory(parent);
 }
 
-DebuggerRunControl *DebuggerRunControlFactory::doCreate
-    (const DebuggerStartParameters &sp, QString *errorMessage)
+} // namespace Internal
+
+DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp, QString *errorMessage)
 {
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);

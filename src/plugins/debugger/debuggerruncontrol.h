@@ -36,17 +36,16 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer { class Kit;  }
-
 namespace Debugger {
 
 class RemoteSetupResult;
 class DebuggerStartParameters;
+class DebuggerRunControl;
 
-namespace Internal {
-class DebuggerEngine;
-class DebuggerRunParameters;
-}
+DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
+                                                             QString *errorMessage);
+
+namespace Internal { class DebuggerEngine; }
 
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
@@ -83,37 +82,16 @@ signals:
 
 private:
     void handleFinished();
-    friend class DebuggerRunControlFactory;
+
+    friend DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
+                                                        QString *errorMessage);
+
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                        Internal::DebuggerEngine *engine);
 
     Internal::DebuggerEngine *m_engine;
     bool m_running;
 };
-
-class DEBUGGER_EXPORT DebuggerRunControlFactory
-    : public ProjectExplorer::IRunControlFactory
-{
-public:
-    explicit DebuggerRunControlFactory(QObject *parent);
-
-    // FIXME: Used by qmljsinspector.cpp:469
-    ProjectExplorer::RunControl *create(
-        ProjectExplorer::RunConfiguration *runConfig,
-        ProjectExplorer::RunMode mode,
-        QString *errorMessage);
-
-    bool canRun(ProjectExplorer::RunConfiguration *runConfig,
-        ProjectExplorer::RunMode mode) const;
-
-    static DebuggerRunControl *doCreate(const DebuggerStartParameters &sp, QString *errorMessage);
-
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(
-            ProjectExplorer::RunConfiguration *rc);
-};
-
-DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
-                                                             QString *errorMessage);
 
 } // namespace Debugger
 
