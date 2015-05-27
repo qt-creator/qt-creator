@@ -188,7 +188,7 @@ void MemcheckWithGdbRunControl::startDebugger()
     sp.runConfiguration = rc;
 
     QString errorMessage;
-    RunControl *gdbRunControl = Debugger::DebuggerRunControlFactory::doCreate(sp, &errorMessage);
+    RunControl *gdbRunControl = Debugger::createDebuggerRunControl(sp, &errorMessage);
     QTC_ASSERT(gdbRunControl, return);
     connect(gdbRunControl, &RunControl::finished,
             gdbRunControl, &RunControl::deleteLater);

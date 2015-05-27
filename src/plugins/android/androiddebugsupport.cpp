@@ -126,8 +126,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.projectBuildDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
     }
 
-    DebuggerRunControl * const debuggerRunControl
-        = DebuggerRunControlFactory::doCreate(params, errorMessage);
+    DebuggerRunControl * const debuggerRunControl = createDebuggerRunControl(params, errorMessage);
     new AndroidDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }

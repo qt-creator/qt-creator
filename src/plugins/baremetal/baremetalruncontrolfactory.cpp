@@ -157,7 +157,7 @@ RunControl *BareMetalRunControlFactory::create(
         sp.remoteSetupNeeded = true;
 
     sp.runConfiguration = rc;
-    DebuggerRunControl *runControl = DebuggerRunControlFactory::doCreate(sp, errorMessage);
+    DebuggerRunControl *runControl = createDebuggerRunControl(sp, errorMessage);
     if (runControl && sp.remoteSetupNeeded) {
         const auto debugSupport = new BareMetalDebugSupport(dev, runControl);
         Q_UNUSED(debugSupport);

@@ -170,8 +170,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             params.startMode = AttachToRemoteServer;
     }
 
-    DebuggerRunControl * const debuggerRunControl
-        = DebuggerRunControlFactory::doCreate(params, errorMessage);
+    DebuggerRunControl * const debuggerRunControl = createDebuggerRunControl(params, errorMessage);
     if (debuggerRunControl)
         new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;

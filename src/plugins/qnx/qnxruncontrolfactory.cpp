@@ -180,7 +180,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         return new QnxRunControl(rc);
     case DebugRunMode: {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
-        DebuggerRunControl * const runControl = DebuggerRunControlFactory::doCreate(params, errorMessage);
+        DebuggerRunControl * const runControl = createDebuggerRunControl(params, errorMessage);
         if (!runControl)
             return 0;
 

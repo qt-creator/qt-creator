@@ -107,8 +107,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         if (mode == DebugRunModeWithBreakOnMain)
             params.breakOnMain = true;
         params.runConfiguration = runConfig;
-        DebuggerRunControl * const runControl
-                = DebuggerRunControlFactory::doCreate(params, errorMessage);
+        DebuggerRunControl * const runControl = createDebuggerRunControl(params, errorMessage);
         if (!runControl)
             return 0;
         LinuxDeviceDebugSupport * const debugSupport =
