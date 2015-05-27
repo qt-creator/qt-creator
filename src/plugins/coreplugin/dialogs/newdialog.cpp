@@ -89,7 +89,7 @@ public:
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
         Core::IWizardFactory *wizard = factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
         if (wizard)
-            return m_platform.isEmpty() || wizard->isAvailable(m_platform);
+            return wizard->isAvailable(m_platform);
 
         return true;
     }

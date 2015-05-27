@@ -325,7 +325,7 @@ FeatureSet KitManager::availableFeatures(const QString &platform)
     FeatureSet features;
     foreach (const Kit *k, kits()) {
         QSet<QString> kitPlatforms = k->availablePlatforms();
-        if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform))
+        if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform) || platform.isEmpty())
             features |= k->availableFeatures();
     }
     return features;
