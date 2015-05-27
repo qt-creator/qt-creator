@@ -133,7 +133,7 @@ private slots:
         qApp->quit();
     }
 
-    void handleError(SshError error)
+    void handleError(QSsh::SshError error)
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: Received error %d, but no test was running.", error);
