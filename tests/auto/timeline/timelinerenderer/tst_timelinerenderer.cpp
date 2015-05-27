@@ -148,19 +148,23 @@ void tst_TimelineRenderer::mouseEvents()
     model.setExpanded(true);
     testMouseEvents(&renderer, 1, 1);
     QCOMPARE(renderer.selectedItem(), 3);
-    QCOMPARE(renderer.selectionLocked(), false); // toggle the locked status by clicking same item
+    QCOMPARE(renderer.selectionLocked(), true); // Don't toggle locked status by clicking same item
+    renderer.setSelectionLocked(false);
     testMouseEvents(&renderer, 1, 1);
     QCOMPARE(renderer.selectedItem(), 3);
-    QCOMPARE(renderer.selectionLocked(), true);
+    QCOMPARE(renderer.selectionLocked(), false);
+    renderer.setSelectionLocked(true);
     testMouseEvents(&renderer, 1, 40);
     QCOMPARE(renderer.selectedItem(), -1);
-    QCOMPARE(renderer.selectionLocked(), false); // unset locked by clicking empty space
+    QCOMPARE(renderer.selectionLocked(), true); // Don't unset locked by clicking empty space
+    renderer.setSelectionLocked(false);
     testMouseEvents(&renderer, 1, 400);
     QCOMPARE(renderer.selectedItem(), -1);
     QCOMPARE(renderer.selectionLocked(), false);
     testMouseEvents(&renderer, 10, 1);
     QCOMPARE(renderer.selectedItem(), 19);
-    QCOMPARE(renderer.selectionLocked(), true);
+    QCOMPARE(renderer.selectionLocked(), false);
+    renderer.setSelectionLocked(true);
 
     renderer.selectNextFromSelectionId(4);
     QCOMPARE(renderer.selectedItem(), 8);
