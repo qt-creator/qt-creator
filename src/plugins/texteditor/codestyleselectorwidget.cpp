@@ -125,6 +125,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
     if (editor)
         layout->addWidget(editor);
     layout->addWidget(m_buttons);
+    resize(850, 600);
 
     connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotDisplayNameChanged()));
     connect(m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
