@@ -107,6 +107,7 @@ public:
 
 protected:
     FeatureSet pluginFeatures() const;
+    FeatureSet availableFeatures(const QString &platformName) const;
 
 private:
     static void initialize();

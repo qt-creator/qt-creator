@@ -255,12 +255,7 @@ QString IWizardFactory::runPath(const QString &defaultPath)
 
 bool IWizardFactory::isAvailable(const QString &platformName) const
 {
-    FeatureSet availableFeatures = pluginFeatures();
-
-    foreach (const IFeatureProvider *featureManager, s_providerList)
-        availableFeatures |= featureManager->availableFeatures(platformName);
-
-    return availableFeatures.contains(requiredFeatures());
+    return availableFeatures(platformName).contains(requiredFeatures());
 }
 
 QStringList IWizardFactory::supportedPlatforms() const
@@ -336,6 +331,16 @@ FeatureSet IWizardFactory::pluginFeatures() const
         plugins = FeatureSet::fromStringList(list);
     }
     return plugins;
+}
+
+FeatureSet IWizardFactory::availableFeatures(const QString &platformName) const
+{
+    FeatureSet availableFeatures = pluginFeatures();
+
+    foreach (const IFeatureProvider *featureManager, s_providerList)
+        availableFeatures |= featureManager->availableFeatures(platformName);
+
+    return availableFeatures;
 }
 
 void IWizardFactory::initialize()
