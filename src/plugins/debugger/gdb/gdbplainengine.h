@@ -43,7 +43,7 @@ class GdbPlainEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbPlainEngine(const DebuggerStartParameters &startParameters);
+    explicit GdbPlainEngine(const DebuggerRunParameters &runParameters);
 
 private:
     void handleExecRun(const DebuggerResponse &response);

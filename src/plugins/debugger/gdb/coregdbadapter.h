@@ -43,7 +43,7 @@ class GdbCoreEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbCoreEngine(const DebuggerStartParameters &startParameters);
+    explicit GdbCoreEngine(const DebuggerRunParameters &runParameters);
     ~GdbCoreEngine();
 
     struct CoreInfo

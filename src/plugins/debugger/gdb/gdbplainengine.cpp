@@ -47,7 +47,7 @@ namespace Internal {
 
 #define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
-GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
+GdbPlainEngine::GdbPlainEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters)
 {
     // Output
@@ -58,8 +58,8 @@ GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
 void GdbPlainEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (!startParameters().processArgs.isEmpty()) {
-        QString args = startParameters().processArgs;
+    if (!runParameters().processArgs.isEmpty()) {
+        QString args = runParameters().processArgs;
         postCommand("-exec-arguments " + toLocalEncoding(args));
     }
     postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
@@ -83,7 +83,7 @@ void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 
 void GdbPlainEngine::runEngine()
 {
-    if (startParameters().useContinueInsteadOfRun)
+    if (runParameters().useContinueInsteadOfRun)
         postCommand("-exec-continue", GdbEngine::RunRequest, CB(handleExecuteContinue));
     else
         postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
@@ -126,10 +126,10 @@ void GdbPlainEngine::setupEngine()
     }
     gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
 
-    if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc->setWorkingDirectory(startParameters().workingDirectory);
-    if (startParameters().environment.size())
-        m_gdbProc->setEnvironment(startParameters().environment.toStringList());
+    if (!runParameters().workingDirectory.isEmpty())
+        m_gdbProc->setWorkingDirectory(runParameters().workingDirectory);
+    if (runParameters().environment.size())
+        m_gdbProc->setEnvironment(runParameters().environment.toStringList());
 
     startGdb(gdbArgs);
 }
@@ -153,7 +153,7 @@ void GdbPlainEngine::shutdownEngine()
 
 QByteArray GdbPlainEngine::execFilePath() const
 {
-    return QFileInfo(startParameters().executable)
+    return QFileInfo(runParameters().executable)
             .absoluteFilePath().toLocal8Bit();
 }
 

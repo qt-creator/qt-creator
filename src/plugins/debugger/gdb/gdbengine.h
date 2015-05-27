@@ -67,7 +67,7 @@ class GdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit GdbEngine(const DebuggerStartParameters &startParameters);
+    explicit GdbEngine(const DebuggerRunParameters &runParameters);
     ~GdbEngine();
 
 private: ////////// General Interface //////////

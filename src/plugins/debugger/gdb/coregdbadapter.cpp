@@ -56,7 +56,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbCoreEngine::GdbCoreEngine(const DebuggerStartParameters &startParameters)
+GdbCoreEngine::GdbCoreEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters),
       m_coreUnpackProcess(0)
 {}
@@ -82,9 +82,9 @@ void GdbCoreEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
-    const DebuggerStartParameters &sp = startParameters();
-    m_executable = sp.executable;
-    QFileInfo fi(sp.coreFile);
+    const DebuggerRunParameters &rp = runParameters();
+    m_executable = rp.executable;
+    QFileInfo fi(rp.coreFile);
     m_coreName = fi.absoluteFilePath();
 
     unpackCoreIfNeeded();
@@ -178,7 +178,7 @@ void GdbCoreEngine::continueSetupEngine()
     }
     if (isCore && m_executable.isEmpty()) {
         GdbCoreEngine::CoreInfo cinfo = readExecutableNameFromCore(
-                                            startParameters().debuggerCommand,
+                                            runParameters().debuggerCommand,
                                             coreFileName());
 
         if (cinfo.isCore) {
@@ -253,7 +253,7 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
         postCommand("p 5", NoFlags, CB(handleRoundTrip));
         return;
     }
-    showStatusMessage(tr("Attach to core \"%1\" failed:").arg(startParameters().coreFile)
+    showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile)
         + QLatin1Char('\n') + QString::fromLocal8Bit(response.data["msg"].data()));
     notifyEngineIll();
 }

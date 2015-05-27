@@ -59,7 +59,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters)
+GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters), m_startAttempted(false)
 {
     if (HostOsInfo::isWindowsHost())
@@ -79,23 +79,23 @@ void GdbRemoteServerEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
-    if (!startParameters().serverStartScript.isEmpty()) {
+    if (!runParameters().serverStartScript.isEmpty()) {
 
         // Provide script information about the environment
         QString arglist;
-        QtcProcess::addArg(&arglist, startParameters().serverStartScript);
-        QtcProcess::addArg(&arglist, startParameters().executable);
-        QtcProcess::addArg(&arglist, startParameters().remoteChannel);
+        QtcProcess::addArg(&arglist, runParameters().serverStartScript);
+        QtcProcess::addArg(&arglist, runParameters().executable);
+        QtcProcess::addArg(&arglist, runParameters().remoteChannel);
 
         m_uploadProc.start(_("/bin/sh ") + arglist);
         m_uploadProc.waitForStarted();
     }
-    if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc->setWorkingDirectory(startParameters().workingDirectory);
-    if (startParameters().environment.size())
-        m_gdbProc->setEnvironment(startParameters().environment.toStringList());
+    if (!runParameters().workingDirectory.isEmpty())
+        m_gdbProc->setWorkingDirectory(runParameters().workingDirectory);
+    if (runParameters().environment.size())
+        m_gdbProc->setEnvironment(runParameters().environment.toStringList());
 
-    if (startParameters().remoteSetupNeeded)
+    if (runParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
     else
         startGdb();
@@ -166,21 +166,21 @@ void GdbRemoteServerEngine::uploadProcFinished()
 void GdbRemoteServerEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    const DebuggerStartParameters &sp = startParameters();
+    const DebuggerRunParameters &rp = runParameters();
     QString executableFileName;
-    if (!sp.executable.isEmpty()) {
-        QFileInfo fi(sp.executable);
+    if (!rp.executable.isEmpty()) {
+        QFileInfo fi(rp.executable);
         executableFileName = fi.absoluteFilePath();
     }
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-    const QString args = isMasterEngine() ? startParameters().processArgs
-                          : masterEngine()->startParameters().processArgs;
+    const QString args = isMasterEngine() ? runParameters().processArgs
+                          : masterEngine()->runParameters().processArgs;
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
-    const QString solibSearchPath = sp.solibSearchPath.join(HostOsInfo::pathListSeparator());
+    const QString solibSearchPath = rp.solibSearchPath.join(HostOsInfo::pathListSeparator());
     if (!solibSearchPath.isEmpty())
         postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
 
@@ -250,7 +250,7 @@ void GdbRemoteServerEngine::handleFileExecAndSymbols(const DebuggerResponse &res
 
 void GdbRemoteServerEngine::callTargetRemote()
 {
-    QByteArray rawChannel = startParameters().remoteChannel.toLatin1();
+    QByteArray rawChannel = runParameters().remoteChannel.toLatin1();
     QByteArray channel = rawChannel;
 
     // Don't touch channels with explicitly set protocols.
@@ -268,7 +268,7 @@ void GdbRemoteServerEngine::callTargetRemote()
 
     if (m_isQnxGdb)
         postCommand("target qnx " + channel, NoFlags, CB(handleTargetQnx));
-    else if (startParameters().multiProcess)
+    else if (runParameters().multiProcess)
         postCommand("target extended-remote " + channel, NoFlags, CB(handleTargetExtendedRemote));
     else
         postCommand("target remote " + channel, NoFlags, CB(handleTargetRemote));
@@ -306,12 +306,12 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
                 postCommand(cmd.toLatin1());
         }
-        if (startParameters().attachPID > 0) { // attach to pid if valid
+        if (runParameters().attachPID > 0) { // attach to pid if valid
             // gdb server will stop the remote application itself.
-            postCommand("attach " + QByteArray::number(startParameters().attachPID),
+            postCommand("attach " + QByteArray::number(runParameters().attachPID),
                         NoFlags, CB(handleTargetExtendedAttach));
         } else {
-            postCommand("-gdb-set remote exec-file " + startParameters().remoteExecutable.toLatin1(),
+            postCommand("-gdb-set remote exec-file " + runParameters().remoteExecutable.toLatin1(),
                         NoFlags, CB(handleTargetExtendedAttach));
         }
     } else {
@@ -343,8 +343,8 @@ void GdbRemoteServerEngine::handleTargetQnx(const DebuggerResponse &response)
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
-        const qint64 pid = isMasterEngine() ? startParameters().attachPID : masterEngine()->startParameters().attachPID;
-        const QString remoteExecutable = isMasterEngine() ? startParameters().remoteExecutable : masterEngine()->startParameters().remoteExecutable;
+        const qint64 pid = isMasterEngine() ? runParameters().attachPID : masterEngine()->runParameters().attachPID;
+        const QString remoteExecutable = isMasterEngine() ? runParameters().remoteExecutable : masterEngine()->runParameters().remoteExecutable;
         if (pid > -1)
             postCommand("attach " + QByteArray::number(pid), NoFlags, CB(handleAttach));
         else if (!remoteExecutable.isEmpty())
@@ -372,7 +372,7 @@ void GdbRemoteServerEngine::handleAttach(const DebuggerResponse &response)
     }
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
+            notifyInferiorSetupFailed(msgPtraceError(runParameters().startMode));
             break;
         }
         // if msg != "ptrace: ..." fall through
@@ -405,7 +405,7 @@ void GdbRemoteServerEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    const QString remoteExecutable = startParameters().remoteExecutable;
+    const QString remoteExecutable = runParameters().remoteExecutable;
     if (!remoteExecutable.isEmpty()) {
         postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
     } else {
@@ -468,9 +468,9 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     (const QByteArray &serverChannel, int inferiorPid)
 {
     // Currently only used by Android support.
-    startParameters().attachPID = inferiorPid;
-    startParameters().remoteChannel = QString::fromLatin1(serverChannel);
-    startParameters().multiProcess = true;
+    runParameters().attachPID = inferiorPid;
+    runParameters().remoteChannel = QString::fromLatin1(serverChannel);
+    runParameters().multiProcess = true;
     showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
     m_startAttempted = true;
     startGdb();

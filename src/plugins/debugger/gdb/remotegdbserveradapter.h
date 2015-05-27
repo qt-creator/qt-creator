@@ -41,7 +41,7 @@ class GdbRemoteServerEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbRemoteServerEngine(const DebuggerStartParameters &startParameters);
+    explicit GdbRemoteServerEngine(const DebuggerRunParameters &runParameters);
 
 private:
     void setupEngine();

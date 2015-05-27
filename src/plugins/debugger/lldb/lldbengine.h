@@ -63,7 +63,7 @@ class LldbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit LldbEngine(const DebuggerStartParameters &startParameters);
+    explicit LldbEngine(const DebuggerRunParameters &runParameters);
     ~LldbEngine();
 
 private:

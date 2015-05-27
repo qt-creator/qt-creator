@@ -50,13 +50,11 @@ namespace Core { class Id; }
 namespace ProjectExplorer { class Kit; }
 
 namespace Debugger {
-class DebuggerStartParameters;
-
 namespace Internal {
 
 class AttachCoreDialogPrivate;
 class AttachToQmlPortDialogPrivate;
-class ProcessListFilterModel;
+class DebuggerRunParameters;
 class StartApplicationParameters;
 class StartApplicationDialogPrivate;
 class StartRemoteEngineDialogPrivate;
@@ -87,7 +85,7 @@ public:
     explicit StartApplicationDialog(QWidget *parent);
     ~StartApplicationDialog();
 
-    static bool run(QWidget *parent, DebuggerStartParameters *sp);
+    static bool run(QWidget *parent, DebuggerRunParameters *rp);
 
 private slots:
     void historyIndexChanged(int);

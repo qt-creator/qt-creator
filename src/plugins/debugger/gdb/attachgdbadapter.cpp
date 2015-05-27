@@ -47,7 +47,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbAttachEngine::GdbAttachEngine(const DebuggerStartParameters &startParameters)
+GdbAttachEngine::GdbAttachEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters)
 {
 }
@@ -57,10 +57,10 @@ void GdbAttachEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
-    if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc->setWorkingDirectory(startParameters().workingDirectory);
-    if (startParameters().environment.size())
-        m_gdbProc->setEnvironment(startParameters().environment.toStringList());
+    if (!runParameters().workingDirectory.isEmpty())
+        m_gdbProc->setWorkingDirectory(runParameters().workingDirectory);
+    if (runParameters().environment.size())
+        m_gdbProc->setEnvironment(runParameters().environment.toStringList());
 
     startGdb();
 }
@@ -76,7 +76,7 @@ void GdbAttachEngine::setupInferior()
 void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    const qint64 pid = startParameters().attachPID;
+    const qint64 pid = runParameters().attachPID;
     postCommand("attach " + QByteArray::number(pid), NoFlags,
                 [this](const DebuggerResponse &r) { handleAttach(r); });
     showStatusMessage(tr("Attached to process %1.").arg(inferiorPid()));
@@ -100,13 +100,13 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
             // InferiorStopOk, e.g. for "Attach to running application".
             // The *stopped came in between sending the 'attach' and
             // receiving its '^done'.
-            if (startParameters().continueAfterAttach)
+            if (runParameters().continueAfterAttach)
                 continueInferiorInternal();
         }
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            QString msg = msgPtraceError(startParameters().startMode);
+            QString msg = msgPtraceError(runParameters().startMode);
             showStatusMessage(tr("Failed to attach to application: %1").arg(msg));
             Core::AsynchronousMessageBox::warning(tr("Debugger Error"), msg);
             notifyEngineIll();
@@ -122,7 +122,7 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
 
 void GdbAttachEngine::interruptInferior2()
 {
-    interruptLocalInferior(startParameters().attachPID);
+    interruptLocalInferior(runParameters().attachPID);
 }
 
 void GdbAttachEngine::shutdownEngine()

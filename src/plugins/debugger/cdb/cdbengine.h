@@ -73,7 +73,7 @@ public:
     typedef QSharedPointer<CdbCommand> CdbCommandPtr;
     typedef std::function<void(const CdbResponse &)> CommandHandler;
 
-    CdbEngine(const DebuggerStartParameters &sp);
+    CdbEngine(const DebuggerRunParameters &sp);
     ~CdbEngine();
 
     // Factory function that returns 0 if the debug engine library cannot be found.
@@ -187,7 +187,7 @@ private:
     };
 
 
-    bool startConsole(const DebuggerStartParameters &sp, QString *errorMessage);
+    bool startConsole(const DebuggerRunParameters &sp, QString *errorMessage);
     void init();
     unsigned examineStopReason(const GdbMi &stopReason, QString *message,
                                QString *exceptionBoxMessage,
@@ -196,7 +196,7 @@ private:
     bool commandsPending() const;
     void handleExtensionMessage(char t, int token, const QByteArray &what, const QByteArray &message);
     bool doSetupEngine(QString *errorMessage);
-    bool launchCDB(const DebuggerStartParameters &sp, QString *errorMessage);
+    bool launchCDB(const DebuggerRunParameters &sp, QString *errorMessage);
     void handleSessionAccessible(unsigned long cdbExState);
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QByteArray &message);

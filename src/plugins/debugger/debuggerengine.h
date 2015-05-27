@@ -33,6 +33,9 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerstartparameters.h"
+
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QObject>
 #include <QProcess>
@@ -43,16 +46,13 @@ class QPoint;
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace TextEditor { class TextEditorWidget; }
 namespace Core { class IOptionsPage; }
 
 namespace Debugger {
 
 class DebuggerRunControl;
-class DebuggerStartParameters;
 class RemoteSetupResult;
 
-DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
 namespace Internal {
@@ -79,6 +79,34 @@ class DebuggerToolTipContext;
 class MemoryViewSetupData;
 class Terminal;
 class ThreadId;
+
+class DebuggerRunParameters : public DebuggerStartParameters
+{
+public:
+    DebuggerRunParameters();
+
+    void operator=(const DebuggerStartParameters &sp);
+
+    QString coreFile;
+    QString overrideStartScript; // Used in attach to core and remote debugging
+    QString startMessage; // First status message shown.
+    DebuggerEngineType cppEngineType;
+    QByteArray remoteSourcesDir;
+    QString remoteMountPoint;
+    QMap<QString, QString> sourcePathMap;
+    QString debugInfoLocation; // Gdb "set-debug-file-directory".
+    QStringList debugSourceLocation; // Gdb "directory"
+    QString serverStartScript;
+    QString localMountDir;
+    ProjectExplorer::IDevice::ConstPtr device;
+    bool isSnapshot; // Set if created internally.
+
+    // Used by AttachCrashedExternal.
+    QString crashParameter;
+
+    // For Debugger testing.
+    int testCase;
+};
 
 class Location
 {
@@ -133,11 +161,11 @@ class DebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit DebuggerEngine(const DebuggerStartParameters &sp);
+    explicit DebuggerEngine(const DebuggerRunParameters &sp);
     virtual ~DebuggerEngine();
 
-    const DebuggerStartParameters &startParameters() const;
-    DebuggerStartParameters &startParameters();
+    const DebuggerRunParameters &runParameters() const;
+    DebuggerRunParameters &runParameters();
 
     virtual bool setToolTipExpression(const Internal::DebuggerToolTipContext &);
 
@@ -366,7 +394,7 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
-    static void validateExecutable(DebuggerStartParameters *sp);
+    static void validateExecutable(DebuggerRunParameters *sp);
 
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
@@ -389,6 +417,16 @@ private:
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;
 };
+
+DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QString *errorMessage);
+
+bool fillParametersFromKit(DebuggerRunParameters *r, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
+
+bool fillParametersFromLocalRunConfiguration(DebuggerRunParameters *rp,
+    const ProjectExplorer::RunConfiguration *runConfig, QString *errorMessage = 0);
+
+DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp);
+
 
 } // namespace Internal
 } // namespace Debugger

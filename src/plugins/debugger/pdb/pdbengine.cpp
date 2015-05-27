@@ -66,7 +66,7 @@ using namespace Core;
 namespace Debugger {
 namespace Internal {
 
-PdbEngine::PdbEngine(const DebuggerStartParameters &startParameters)
+PdbEngine::PdbEngine(const DebuggerRunParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
     setObjectName(QLatin1String("PdbEngine"));
@@ -162,12 +162,12 @@ void PdbEngine::setupInferior()
 
 QString PdbEngine::mainPythonFile() const
 {
-    return QFileInfo(startParameters().processArgs).absoluteFilePath();
+    return QFileInfo(runParameters().processArgs).absoluteFilePath();
 }
 
 QString PdbEngine::pythonInterpreter() const
 {
-    return startParameters().executable;
+    return runParameters().executable;
 }
 
 void PdbEngine::runEngine()
@@ -615,7 +615,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
                 || frame.file.endsWith(QLatin1String(".js"))
                 || frame.file.endsWith(QLatin1String(".qml"))) {
             frame.language = QmlLanguage;
-            frame.fixQmlFrame(startParameters());
+            frame.fixQmlFrame(runParameters());
         }
         frames.append(frame);
     }
@@ -683,7 +683,7 @@ bool PdbEngine::hasCapability(unsigned cap) const
               | ShowModuleSymbolsCapability);
 }
 
-DebuggerEngine *createPdbEngine(const DebuggerStartParameters &startParameters)
+DebuggerEngine *createPdbEngine(const DebuggerRunParameters &startParameters)
 {
     return new PdbEngine(startParameters);
 }

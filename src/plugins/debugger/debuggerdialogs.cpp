@@ -358,9 +358,9 @@ void StartApplicationDialog::updateState()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okEnabled);
 }
 
-bool StartApplicationDialog::run(QWidget *parent, DebuggerStartParameters *sp)
+bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp)
 {
-    const bool attachRemote = sp->startMode == AttachToRemoteServer;
+    const bool attachRemote = rp->startMode == AttachToRemoteServer;
     const QString settingsGroup = QLatin1String("DebugMode");
     const QString arrayName = QLatin1String("StartApplication");
 
@@ -411,29 +411,29 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerStartParameters *sp)
 
     Kit *kit = dialog.d->kitChooser->currentKit();
     QTC_ASSERT(kit, return false);
-    bool res = DebuggerRunControlFactory::fillParametersFromKit(sp, kit);
+    bool res = fillParametersFromKit(rp, kit);
     QTC_ASSERT(res, return false);
 
-    sp->executable = newParameters.localExecutable;
+    rp->executable = newParameters.localExecutable;
     const QString inputAddress = dialog.d->serverAddressEdit->text();
     if (!inputAddress.isEmpty())
-        sp->remoteChannel = inputAddress;
+        rp->remoteChannel = inputAddress;
     else
-        sp->remoteChannel = sp->connParams.host;
-    sp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
-    sp->displayName = newParameters.displayName();
-    sp->workingDirectory = newParameters.workingDirectory;
-    sp->useTerminal = newParameters.runInTerminal;
+        rp->remoteChannel = rp->connParams.host;
+    rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
+    rp->displayName = newParameters.displayName();
+    rp->workingDirectory = newParameters.workingDirectory;
+    rp->useTerminal = newParameters.runInTerminal;
     if (!newParameters.processArgs.isEmpty())
-        sp->processArgs = newParameters.processArgs;
-    sp->breakOnMain = newParameters.breakAtMain;
-    sp->serverStartScript = newParameters.serverStartScript;
-    sp->debugInfoLocation = newParameters.debugInfoLocation;
+        rp->processArgs = newParameters.processArgs;
+    rp->breakOnMain = newParameters.breakAtMain;
+    rp->serverStartScript = newParameters.serverStartScript;
+    rp->debugInfoLocation = newParameters.debugInfoLocation;
 
     IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
-        sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
+        rp->startMode = isLocal ? StartExternal : StartRemoteProcess;
     return true;
 }
 

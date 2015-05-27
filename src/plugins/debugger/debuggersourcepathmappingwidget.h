@@ -46,11 +46,9 @@ QT_END_NAMESPACE
 namespace Utils { class PathChooser; }
 
 namespace Debugger {
-
-class DebuggerStartParameters;
-
 namespace Internal {
 
+class DebuggerRunParameters;
 class SourcePathMappingModel;
 
 class DebuggerSourcePathMappingWidget : public QGroupBox
@@ -67,7 +65,7 @@ public:
 
     /* Merge settings for an installed Qt (unless another setting
      * is already in the map. */
-    static SourcePathMap mergePlatformQtPath(const DebuggerStartParameters &sp,
+    static SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp,
                                              const SourcePathMap &in);
 
 private slots:

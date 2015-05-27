@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 #include "stackframe.h"
-#include "debuggerstartparameters.h"
 
+#include "debuggerengine.h"
 #include "watchutils.h"
 
 #include <QDebug>
@@ -134,7 +134,7 @@ QString StackFrame::toToolTip() const
 }
 
 // Try to resolve files of a QML stack (resource files).
-void StackFrame::fixQmlFrame(const DebuggerStartParameters &sp)
+void StackFrame::fixQmlFrame(const DebuggerRunParameters &rp)
 {
     if (language != QmlLanguage)
         return;
@@ -146,8 +146,8 @@ void StackFrame::fixQmlFrame(const DebuggerStartParameters &sp)
     if (!file.startsWith(QLatin1String("qrc:/")))
         return;
     const QString relativeFile = file.right(file.size() - 5);
-    if (!sp.projectSourceDirectory.isEmpty()) {
-        const QFileInfo pFi(sp.projectSourceDirectory + QLatin1Char('/') + relativeFile);
+    if (!rp.projectSourceDirectory.isEmpty()) {
+        const QFileInfo pFi(rp.projectSourceDirectory + QLatin1Char('/') + relativeFile);
         if (pFi.isFile()) {
             file = pFi.absoluteFilePath();
             usable = true;

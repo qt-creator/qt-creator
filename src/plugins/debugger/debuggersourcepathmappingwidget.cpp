@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 #include "debuggersourcepathmappingwidget.h"
-#include "debuggerstartparameters.h"
+#include "debuggerengine.h"
 
 #include <coreplugin/variablechooser.h>
 
@@ -438,7 +438,7 @@ static QString findQtInstallPath(const FileName &qmakePath)
 /* Merge settings for an installed Qt (unless another setting
  * is already in the map. */
 DebuggerSourcePathMappingWidget::SourcePathMap
-    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerStartParameters &sp,
+    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerRunParameters &sp,
                                                          const SourcePathMap &in)
 {
     const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.environment);

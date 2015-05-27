@@ -94,7 +94,7 @@ enum { debug = 0 };
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DebuggerStartParameters
+// DebuggerRunParameters
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -109,7 +109,7 @@ QDebug operator<<(QDebug d, DebuggerState state)
     return d << DebuggerEngine::stateName(state);
 }
 
-QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
+QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
 {
     QDebug nospace = str.nospace();
     nospace << "executable=" << sp.executable
@@ -166,11 +166,11 @@ class DebuggerEnginePrivate : public QObject
     Q_OBJECT
 
 public:
-    DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerStartParameters &sp)
+    DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerRunParameters &sp)
       : m_engine(engine),
         m_masterEngine(0),
         m_runControl(0),
-        m_startParameters(sp),
+        m_runParameters(sp),
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
@@ -195,7 +195,7 @@ public:
 
         Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
-            [this]() { return m_startParameters.executable; });
+            [this]() { return m_runParameters.executable; });
     }
 
 public slots:
@@ -298,7 +298,7 @@ public:
     DebuggerEngine *m_masterEngine; // Not owned
     DebuggerRunControl *m_runControl;  // Not owned.
 
-    DebuggerStartParameters m_startParameters;
+    DebuggerRunParameters m_runParameters;
 
     // The current state.
     DebuggerState m_state;
@@ -342,7 +342,7 @@ public:
 //
 //////////////////////////////////////////////////////////////////////
 
-DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters)
+DebuggerEngine::DebuggerEngine(const DebuggerRunParameters &startParameters)
   : d(new DebuggerEnginePrivate(this, startParameters))
 {}
 
@@ -543,13 +543,13 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_runControl = runControl;
 
-    d->m_inferiorPid = d->m_startParameters.attachPID > 0
-        ? d->m_startParameters.attachPID : 0;
+    d->m_inferiorPid = d->m_runParameters.attachPID > 0
+        ? d->m_runParameters.attachPID : 0;
     if (d->m_inferiorPid)
         d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
 
-    if (!d->m_startParameters.environment.size())
-        d->m_startParameters.environment = Utils::Environment();
+    if (!d->m_runParameters.environment.size())
+        d->m_runParameters.environment = Utils::Environment();
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
@@ -641,14 +641,14 @@ void DebuggerEngine::handleFinished()
     watchHandler()->cleanup();
 }
 
-const DebuggerStartParameters &DebuggerEngine::startParameters() const
+const DebuggerRunParameters &DebuggerEngine::runParameters() const
 {
-    return d->m_startParameters;
+    return d->m_runParameters;
 }
 
-DebuggerStartParameters &DebuggerEngine::startParameters()
+DebuggerRunParameters &DebuggerEngine::runParameters()
 {
-    return d->m_startParameters;
+    return d->m_runParameters;
 }
 
 DebuggerState DebuggerEngine::state() const
@@ -751,7 +751,7 @@ void DebuggerEnginePrivate::doSetupEngine()
 {
     m_engine->showMessage(_("CALL: SETUP ENGINE"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
-    m_engine->validateExecutable(&m_startParameters);
+    m_engine->validateExecutable(&m_runParameters);
     m_engine->setupEngine();
 }
 
@@ -895,20 +895,20 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
             d->setRemoteSetupState(RemoteSetupSucceeded);
 
         if (result.gdbServerPort != InvalidPid) {
-            QString &rc = d->m_startParameters.remoteChannel;
+            QString &rc = d->m_runParameters.remoteChannel;
             const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
             if (sepIndex != -1) {
                 rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
                            QString::number(result.gdbServerPort));
             }
-        } else if (result.inferiorPid != InvalidPid && startParameters().startMode == AttachExternal) {
+        } else if (result.inferiorPid != InvalidPid && runParameters().startMode == AttachExternal) {
             // e.g. iOS Simulator
-            startParameters().attachPID = result.inferiorPid;
+            runParameters().attachPID = result.inferiorPid;
         }
 
         if (result.qmlServerPort != InvalidPort) {
-            d->m_startParameters.qmlServerPort = result.qmlServerPort;
-            d->m_startParameters.processArgs.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
+            d->m_runParameters.qmlServerPort = result.qmlServerPort;
+            d->m_runParameters.processArgs.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
         }
 
     } else {
@@ -1308,11 +1308,11 @@ DebuggerEngine *DebuggerEngine::masterEngine() const
 QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
 {
     // make sure file finder is properly initialized
-    const DebuggerStartParameters &sp = startParameters();
-    d->m_fileFinder.setProjectDirectory(sp.projectSourceDirectory);
-    d->m_fileFinder.setProjectFiles(sp.projectSourceFiles);
-    d->m_fileFinder.setAdditionalSearchDirectories(sp.additionalSearchDirectories);
-    d->m_fileFinder.setSysroot(sp.sysRoot);
+    const DebuggerRunParameters &rp = runParameters();
+    d->m_fileFinder.setProjectDirectory(rp.projectSourceDirectory);
+    d->m_fileFinder.setProjectFiles(rp.projectSourceFiles);
+    d->m_fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
+    d->m_fileFinder.setSysroot(rp.sysRoot);
 
     return d->m_fileFinder.findFile(fileUrl);
 }
@@ -1362,9 +1362,9 @@ void DebuggerEngine::notifyInferiorPid(qint64 pid)
     d->m_inferiorPid = pid;
     if (pid) {
         showMessage(tr("Taking notice of pid %1").arg(pid));
-        if (d->m_startParameters.startMode == StartInternal
-            || d->m_startParameters.startMode == StartExternal
-            || d->m_startParameters.startMode == AttachExternal)
+        if (d->m_runParameters.startMode == StartInternal
+            || d->m_runParameters.startMode == StartExternal
+            || d->m_runParameters.startMode == AttachExternal)
         QTimer::singleShot(0, d, SLOT(raiseApplication()));
     }
 }
@@ -1793,7 +1793,7 @@ void DebuggerEngine::setStateDebugging(bool on)
     d->m_isStateDebugging = on;
 }
 
-void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
+void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
 {
     if (sp->skipExecutableValidation)
         return;
@@ -1978,6 +1978,17 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 
     if (!partial)
         emit stackFrameCompleted();
+}
+
+DebuggerRunParameters::DebuggerRunParameters()
+    : cppEngineType(NoEngineType),
+      isSnapshot(false),
+      testCase(0)
+{}
+
+void DebuggerRunParameters::operator=(const DebuggerStartParameters &sp)
+{
+    DebuggerStartParameters::operator=(sp);
 }
 
 } // namespace Internal

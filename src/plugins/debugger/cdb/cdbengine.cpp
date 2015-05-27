@@ -187,7 +187,7 @@ Q_DECLARE_METATYPE(Debugger::Internal::MemoryChangeCookie)
 namespace Debugger {
 namespace Internal {
 
-static inline bool isCreatorConsole(const DebuggerStartParameters &sp)
+static inline bool isCreatorConsole(const DebuggerRunParameters &sp)
 {
     return !boolSetting(UseCdbConsole) && sp.useTerminal
            && (sp.startMode == StartInternal || sp.startMode == StartExternal);
@@ -267,7 +267,7 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &sp, QString *errorMessage)
 {
     if (HostOsInfo::isWindowsHost()) {
         if (validMode(sp.startMode))
@@ -289,7 +289,7 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 #define QT_CREATOR_CDB_EXT "qtcreatorcdbext"
 
-CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
+CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
     DebuggerEngine(sp),
     m_tokenPrefix("<token>"),
     m_effectiveStartMode(NoStartMode),
@@ -472,7 +472,7 @@ int CdbEngine::elapsedLogTime() const
 }
 
 // Start the console stub with the sub process. Continue in consoleStubProcessStarted.
-bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMessage)
+bool CdbEngine::startConsole(const DebuggerRunParameters &sp, QString *errorMessage)
 {
     if (debug)
         qDebug("startConsole %s", qPrintable(sp.executable));
@@ -513,7 +513,7 @@ void CdbEngine::consoleStubProcessStarted()
     if (debug)
         qDebug("consoleStubProcessStarted() PID=%lld", m_consoleStub->applicationPID());
     // Attach to console process.
-    DebuggerStartParameters attachParameters = startParameters();
+    DebuggerRunParameters attachParameters = runParameters();
     attachParameters.executable.clear();
     attachParameters.processArgs.clear();
     attachParameters.attachPID = m_consoleStub->applicationPID();
@@ -560,12 +560,12 @@ void CdbEngine::setupEngine()
     // CDB in theory has a command line option '-2' that launches a
     // console, too, but that immediately closes when the debuggee quits.
     // Use the Creator stub instead.
-    const DebuggerStartParameters &sp = startParameters();
-    const bool launchConsole = isCreatorConsole(sp);
-    m_effectiveStartMode = launchConsole ? AttachExternal : sp.startMode;
+    const DebuggerRunParameters &rp = runParameters();
+    const bool launchConsole = isCreatorConsole(rp);
+    m_effectiveStartMode = launchConsole ? AttachExternal : rp.startMode;
     const bool ok = launchConsole ?
-                startConsole(startParameters(), &errorMessage) :
-                launchCDB(startParameters(), &errorMessage);
+                startConsole(runParameters(), &errorMessage) :
+                launchCDB(runParameters(), &errorMessage);
     if (debug)
         qDebug("<setupEngine ok=%d", ok);
     if (!ok) {
@@ -593,7 +593,7 @@ void CdbEngine::setupEngine()
     wh->addTypeFormats("QImage *", imageFormats);
 }
 
-bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessage)
+bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage)
 {
     if (debug)
         qDebug("launchCDB startMode=%d", sp.startMode);
@@ -662,7 +662,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         if (sp.startMode == AttachCrashedExternal) {
             arguments << QLatin1String("-e") << sp.crashParameter << QLatin1String("-g");
         } else {
-            if (isCreatorConsole(startParameters()))
+            if (isCreatorConsole(runParameters()))
                 arguments << QLatin1String("-pr") << QLatin1String("-pb");
         }
         break;
@@ -725,13 +725,13 @@ void CdbEngine::setupInferior()
 {
     if (debug)
         qDebug("setupInferior");
-    const DebuggerStartParameters &sp = startParameters();
-    if (!sp.commandsAfterConnect.isEmpty())
-        postCommand(sp.commandsAfterConnect, 0);
+    const DebuggerRunParameters &rp = runParameters();
+    if (!rp.commandsAfterConnect.isEmpty())
+        postCommand(rp.commandsAfterConnect, 0);
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     attemptBreakpointSynchronization();
-    if (sp.breakOnMain) {
+    if (rp.breakOnMain) {
         const BreakpointParameters bp(BreakpointAtMain);
         postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
                                             BreakpointModelId(quint16(-1)), true), 0,
@@ -790,7 +790,7 @@ void CdbEngine::runEngine()
     // Break functions: each function must be fully qualified,
     // else the debugger will slow down considerably.
     if (boolSetting(CdbBreakOnCrtDbgReport)) {
-        const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
+        const QByteArray module = msvcRunTime(runParameters().toolChainAbi.osFlavor());
         const QByteArray debugModule = module + 'D';
         const QByteArray wideFunc = QByteArray(CdbOptionsPage::crtDbgReport).append('W');
         postBuiltinCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, module), 0,
@@ -814,7 +814,7 @@ void CdbEngine::runEngine()
         postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::fatal", 0,
                            CB(handleBreakInsert));
     }
-    if (startParameters().startMode == AttachCore) {
+    if (runParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyEngineRunOkAndInferiorUnrunnable();
         processStop(*m_coreStopReason, false);
@@ -843,7 +843,7 @@ void CdbEngine::shutdownInferior()
     }
 
     if (m_accessible) { // except console.
-        if (startParameters().startMode == AttachExternal || startParameters().startMode == AttachCrashedExternal)
+        if (runParameters().startMode == AttachExternal || runParameters().startMode == AttachCrashedExternal)
             detachDebugger();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownOk")
         notifyInferiorShutdownOk();
@@ -892,7 +892,7 @@ void CdbEngine::shutdownEngine()
     // Go for kill if there are commands pending.
     if (m_accessible && !commandsPending()) {
         // detach (except console): Wait for debugger to finish.
-        if (startParameters().startMode == AttachExternal || startParameters().startMode == AttachCrashedExternal)
+        if (runParameters().startMode == AttachExternal || runParameters().startMode == AttachCrashedExternal)
             detachDebugger();
         // Remote requires a bit more force to quit.
         if (m_effectiveStartMode == AttachToRemoteServer) {
@@ -1130,13 +1130,13 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
 
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed();  return;);
-    m_signalOperation = startParameters().device->signalOperation();
+    m_signalOperation = runParameters().device->signalOperation();
     m_specialStopMode = sm;
     QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &CdbEngine::handleDoInterruptInferior);
 
-    m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
+    m_signalOperation->setDebuggerCommand(runParameters().debuggerCommand);
     m_signalOperation->interruptProcess(inferiorPid());
 }
 
@@ -1199,7 +1199,7 @@ void CdbEngine::jumpToAddress(quint64 address)
     QByteArray registerCmd;
     ByteArrayInputStream str(registerCmd);
     // PC-register depending on 64/32bit.
-    str << "r " << (startParameters().toolChainAbi.wordWidth() == 64 ? "rip" : "eip") << '=';
+    str << "r " << (runParameters().toolChainAbi.wordWidth() == 64 ? "rip" : "eip") << '=';
     str.setHexPrefix(true);
     str.setIntegerBase(16);
     str << address;
@@ -1755,7 +1755,7 @@ void CdbEngine::handlePid(const CdbResponse &response)
     // Fails for core dumps.
     if (response.success)
         notifyInferiorPid(response.extensionReply.toULongLong());
-    if (response.success || startParameters().startMode == AttachCore) {
+    if (response.success || runParameters().startMode == AttachCore) {
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupOk")
         notifyInferiorSetupOk();
     }  else {
@@ -2083,7 +2083,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
         notifyEngineSetupOk();
         // Store stop reason to be handled in runEngine().
-        if (startParameters().startMode == AttachCore) {
+        if (runParameters().startMode == AttachCore) {
             m_coreStopReason.reset(new GdbMi);
             m_coreStopReason->fromString(messageBA);
         }
@@ -2117,7 +2117,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     }
     // Notify about state and send off command sequence to get stack, etc.
     if (stopFlags & StopNotifyStop) {
-        if (startParameters().startMode != AttachCore) {
+        if (runParameters().startMode != AttachCore) {
             if (state() == InferiorStopRequested) {
                 STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
                         notifyInferiorStopOk();
@@ -3003,7 +3003,7 @@ void CdbEngine::handleAdditionalQmlStack(const CdbResponse &response)
             break;
         }
         for (int i = 0; i < qmlFrameCount; ++i)
-            qmlFrames[i].fixQmlFrame(startParameters());
+            qmlFrames[i].fixQmlFrame(runParameters());
         stackHandler()->prependFrames(qmlFrames);
     } while (false);
     if (!errorMessage.isEmpty())
@@ -3012,9 +3012,9 @@ void CdbEngine::handleAdditionalQmlStack(const CdbResponse &response)
 
 void CdbEngine::mergeStartParametersSourcePathMap()
 {
-    const DebuggerStartParameters &sp = startParameters();
-    QMap<QString, QString>::const_iterator end = sp.sourcePathMap.end();
-    for (QMap<QString, QString>::const_iterator it = sp.sourcePathMap.begin(); it != end; ++it) {
+    const DebuggerRunParameters &rp = runParameters();
+    QMap<QString, QString>::const_iterator end = rp.sourcePathMap.end();
+    for (QMap<QString, QString>::const_iterator it = rp.sourcePathMap.begin(); it != end; ++it) {
         SourcePathMapping spm(QDir::toNativeSeparators(it.key()), QDir::toNativeSeparators(it.value()));
         if (!m_sourcePathMappings.contains(spm))
             m_sourcePathMappings.push_back(spm);

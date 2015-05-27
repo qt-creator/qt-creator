@@ -133,9 +133,9 @@ SnapshotHandler::~SnapshotHandler()
 {
     for (int i = m_snapshots.size(); --i >= 0; ) {
         if (DebuggerEngine *engine = at(i)) {
-            const DebuggerStartParameters &sp = engine->startParameters();
-            if (sp.isSnapshot && !sp.coreFile.isEmpty())
-                QFile::remove(sp.coreFile);
+            const DebuggerRunParameters &rp = engine->runParameters();
+            if (rp.isSnapshot && !rp.coreFile.isEmpty())
+                QFile::remove(rp.coreFile);
         }
     }
 }
@@ -164,15 +164,15 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     if (!engine)
         return QLatin1String("<finished>");
 
-    const DebuggerStartParameters &sp = engine->startParameters();
+    const DebuggerRunParameters &rp = engine->runParameters();
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
         case 0:
-            return sp.displayName;
+            return rp.displayName;
         case 1:
-            return sp.coreFile.isEmpty() ? sp.executable : sp.coreFile;
+            return rp.coreFile.isEmpty() ? rp.executable : rp.coreFile;
         }
         return QVariant();
 

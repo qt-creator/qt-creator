@@ -60,7 +60,7 @@ enum { debug = 0 };
         } \
     } while (0)
 
-DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
+DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp,
                                    QString *errorMessage)
 {
     QmlCppEngine *newEngine = new QmlCppEngine(sp, errorMessage);
@@ -77,12 +77,12 @@ DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
 //
 ////////////////////////////////////////////////////////////////////////
 
-QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp, QString *errorMessage)
-    : DebuggerEngine(sp)
+QmlCppEngine::QmlCppEngine(const DebuggerRunParameters &rp, QString *errorMessage)
+    : DebuggerEngine(rp)
 {
     setObjectName(QLatin1String("QmlCppEngine"));
-    m_qmlEngine = new QmlEngine(sp, this);
-    m_cppEngine = DebuggerRunControlFactory::createEngine(sp.cppEngineType, sp, errorMessage);
+    m_qmlEngine = new QmlEngine(rp, this);
+    m_cppEngine = createEngine(rp.cppEngineType, rp, errorMessage);
     if (!m_cppEngine) {
         *errorMessage = tr("The slave debugging engine required for combined QML/C++-Debugging could not be created: %1").arg(*errorMessage);
         return;
@@ -386,7 +386,7 @@ void QmlCppEngine::setupEngine()
     m_qmlEngine->setupSlaveEngine();
     m_cppEngine->setupSlaveEngine();
 
-    if (startParameters().remoteSetupNeeded)
+    if (runParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
 }
 

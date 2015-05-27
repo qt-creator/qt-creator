@@ -41,10 +41,12 @@ namespace ProjectExplorer { class Kit;  }
 namespace Debugger {
 
 class RemoteSetupResult;
-
-namespace Internal { class DebuggerEngine; }
-
 class DebuggerStartParameters;
+
+namespace Internal {
+class DebuggerEngine;
+class DebuggerRunParameters;
+}
 
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
@@ -104,23 +106,14 @@ public:
     bool canRun(ProjectExplorer::RunConfiguration *runConfig,
         ProjectExplorer::RunMode mode) const;
 
-    static Internal::DebuggerEngine *createEngine(DebuggerEngineType et,
-        const DebuggerStartParameters &sp,
-        QString *errorMessage);
-
-    static bool fillParametersFromKit(DebuggerStartParameters *sp,
-         const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
-
-    static bool fillParametersFromLocalRunConfiguration(DebuggerStartParameters *sp,
-         const ProjectExplorer::RunConfiguration *runConfig, QString *errorMessage = 0);
-
-    static DebuggerRunControl *createAndScheduleRun(const DebuggerStartParameters &sp);
-
     static DebuggerRunControl *doCreate(const DebuggerStartParameters &sp, QString *errorMessage);
 
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(
             ProjectExplorer::RunConfiguration *rc);
 };
+
+DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
+                                                             QString *errorMessage);
 
 } // namespace Debugger
 

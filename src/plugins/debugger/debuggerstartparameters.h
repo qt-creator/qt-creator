@@ -38,7 +38,6 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
 #include <QVector>
@@ -74,9 +73,7 @@ class DEBUGGER_EXPORT DebuggerStartParameters
 public:
     DebuggerStartParameters()
       : masterEngineType(NoEngineType),
-        cppEngineType(NoEngineType),
         runConfiguration(0),
-        isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
         breakOnMain(false),
@@ -90,26 +87,19 @@ public:
         startMode(NoStartMode),
         closeMode(KillAtClose),
         useCtrlCStub(false),
-        skipExecutableValidation(false),
-        testCase(0)
+        skipExecutableValidation(false)
     {}
 
     DebuggerEngineType masterEngineType;
-    DebuggerEngineType cppEngineType;
     QString sysRoot;
     QString deviceSymbolsRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
-    ProjectExplorer::IDevice::ConstPtr device;
     QPointer<ProjectExplorer::RunConfiguration> runConfiguration;
 
     QString platform;
     QString executable;
     QString displayName; // Used in the Snapshots view.
-    QString startMessage; // First status message shown.
-    QString coreFile;
-    QString overrideStartScript; // Used in attach to core and remote debugging
-    bool isSnapshot; // Set if created internally.
     QString processArgs;
     Utils::Environment environment;
     QString workingDirectory;
@@ -119,9 +109,6 @@ public:
     bool continueAfterAttach;
     bool multiProcess;
     DebuggerLanguages languages;
-
-    // Used by AttachCrashedExternal.
-    QString crashParameter;
 
     // Used by Qml debugging.
     QString qmlServerAddress;
@@ -133,15 +120,8 @@ public:
 
     // Used by remote debugging.
     QString remoteChannel;
-    QString serverStartScript;
-    QString debugInfoLocation; // Gdb "set-debug-file-directory".
-    QStringList debugSourceLocation; // Gdb "directory"
-    QByteArray remoteSourcesDir;
-    QString remoteMountPoint;
-    QString localMountDir;
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded;
-    QMap<QString, QString> sourcePathMap;
 
     // Used by baremetal plugin
     QByteArray commandsForReset; // commands used for resetting the inferior
@@ -161,9 +141,6 @@ public:
 
     // Used by Android to avoid false positives on warnOnRelease
     bool skipExecutableValidation;
-
-    // For Debugger testing.
-    int testCase;
 };
 
 } // namespace Debugger

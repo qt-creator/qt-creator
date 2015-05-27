@@ -85,7 +85,7 @@ static int &currentToken()
 //
 ///////////////////////////////////////////////////////////////////////
 
-LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
+LldbEngine::LldbEngine(const DebuggerRunParameters &startParameters)
     : DebuggerEngine(startParameters), m_continueAtNextSpontaneousStop(false)
 {
     m_lastAgentId = 0;
@@ -156,7 +156,7 @@ void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     m_lldbProc.kill();
-    if (startParameters().useTerminal)
+    if (runParameters().useTerminal)
         m_stubProc.stop();
     notifyEngineShutdownOk();
 }
@@ -178,11 +178,11 @@ void LldbEngine::abortDebugger()
 bool LldbEngine::prepareCommand()
 {
     if (HostOsInfo::isWindowsHost()) {
-        DebuggerStartParameters &sp = startParameters();
+        DebuggerRunParameters &rp = runParameters();
         QtcProcess::SplitError perr;
-        sp.processArgs = QtcProcess::prepareArgs(sp.processArgs, &perr,
+        rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
                                                  HostOsInfo::hostOs(),
-                    &sp.environment, &sp.workingDirectory).toWindowsArgs();
+                    &rp.environment, &rp.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -195,7 +195,7 @@ bool LldbEngine::prepareCommand()
 
 void LldbEngine::setupEngine()
 {
-    if (startParameters().useTerminal) {
+    if (runParameters().useTerminal) {
         QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
         showMessage(_("TRYING TO START ADAPTER"));
 
@@ -210,9 +210,9 @@ void LldbEngine::setupEngine()
             return;
         }
 
-        m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
+        m_stubProc.setWorkingDirectory(runParameters().workingDirectory);
         // Set environment + dumper preload.
-        m_stubProc.setEnvironment(startParameters().environment);
+        m_stubProc.setEnvironment(runParameters().environment);
 
         connect(&m_stubProc, &ConsoleProcess::processError, this, &LldbEngine::stubError);
         connect(&m_stubProc, &ConsoleProcess::processStarted, this, &LldbEngine::stubStarted);
@@ -220,8 +220,8 @@ void LldbEngine::setupEngine()
         // FIXME: Starting the stub implies starting the inferior. This is
         // fairly unclean as far as the state machine and error reporting go.
 
-        if (!m_stubProc.start(startParameters().executable,
-                             startParameters().processArgs)) {
+        if (!m_stubProc.start(runParameters().executable,
+                             runParameters().processArgs)) {
             // Error message for user is delivered via a signal.
             //handleAdapterStartFailed(QString());
             notifyEngineSetupFailed();
@@ -230,7 +230,7 @@ void LldbEngine::setupEngine()
 
     } else {
         QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-        if (startParameters().remoteSetupNeeded)
+        if (runParameters().remoteSetupNeeded)
             notifyEngineRequestRemoteSetup();
         else
             startLldb();
@@ -239,7 +239,7 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::startLldb()
 {
-    m_lldbCmd = startParameters().debuggerCommand;
+    m_lldbCmd = runParameters().debuggerCommand;
     connect(&m_lldbProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &LldbEngine::handleLldbError);
     connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -253,9 +253,9 @@ void LldbEngine::startLldb()
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
     showMessage(_("STARTING LLDB: ") + m_lldbCmd);
-    m_lldbProc.setEnvironment(startParameters().environment.toStringList());
-    if (!startParameters().workingDirectory.isEmpty())
-        m_lldbProc.setWorkingDirectory(startParameters().workingDirectory);
+    m_lldbProc.setEnvironment(runParameters().environment.toStringList());
+    if (!runParameters().workingDirectory.isEmpty())
+        m_lldbProc.setWorkingDirectory(runParameters().workingDirectory);
 
     m_lldbProc.start(m_lldbCmd);
 
@@ -310,18 +310,18 @@ void LldbEngine::setupInferior()
 // FIXME: splitting of setupInferior() necessary to support LLDB <= 310 - revert asap
 void LldbEngine::setupInferiorStage2()
 {
-    const DebuggerStartParameters &sp = startParameters();
+    const DebuggerRunParameters &rp = runParameters();
 
     QString executable;
     QtcProcess::Arguments args;
-    QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),
-                               sp.processArgs, &executable, &args);
+    QtcProcess::prepareCommand(QFileInfo(rp.executable).absoluteFilePath(),
+                               rp.processArgs, &executable, &args);
 
     DebuggerCommand cmd("setupInferior");
     cmd.arg("executable", executable);
-    cmd.arg("breakOnMain", sp.breakOnMain);
-    cmd.arg("useTerminal", sp.useTerminal);
-    cmd.arg("startMode", sp.startMode);
+    cmd.arg("breakOnMain", rp.breakOnMain);
+    cmd.arg("useTerminal", rp.useTerminal);
+    cmd.arg("startMode", rp.startMode);
 
     cmd.beginList("bkpts");
     foreach (Breakpoint bp, breakHandler()->unclaimedBreakpoints()) {
@@ -345,7 +345,7 @@ void LldbEngine::setupInferiorStage2()
         cmd.arg(arg.toUtf8().toHex());
     cmd.endList();
 
-    if (sp.useTerminal) {
+    if (rp.useTerminal) {
         QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
         const qint64 attachedPID = m_stubProc.applicationPID();
         const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
@@ -357,20 +357,20 @@ void LldbEngine::setupInferiorStage2()
 
     } else {
 
-        cmd.arg("startMode", sp.startMode);
+        cmd.arg("startMode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
-        // enum values), and thus we assume that if the sp.attachPID is valid we really have to attach
-        QTC_CHECK(sp.attachPID <= 0 || (sp.startMode == AttachCrashedExternal
-                                    || sp.startMode == AttachExternal));
-        cmd.arg("attachPid", sp.attachPID);
-        cmd.arg("sysRoot", sp.deviceSymbolsRoot.isEmpty() ? sp.sysRoot : sp.deviceSymbolsRoot);
-        cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
-                                   || sp.startMode == AttachToRemoteServer)
-                                  ? sp.remoteChannel : QString()));
-        cmd.arg("platform", sp.platform);
-        QTC_CHECK(!sp.continueAfterAttach || (sp.startMode == AttachToRemoteProcess
-                                              || sp.startMode == AttachExternal
-                                              || sp.startMode == AttachToRemoteServer));
+        // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
+        QTC_CHECK(rp.attachPID <= 0 || (rp.startMode == AttachCrashedExternal
+                                    || rp.startMode == AttachExternal));
+        cmd.arg("attachPid", rp.attachPID);
+        cmd.arg("sysRoot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot : rp.deviceSymbolsRoot);
+        cmd.arg("remoteChannel", ((rp.startMode == AttachToRemoteProcess
+                                   || rp.startMode == AttachToRemoteServer)
+                                  ? rp.remoteChannel : QString()));
+        cmd.arg("platform", rp.platform);
+        QTC_CHECK(!rp.continueAfterAttach || (rp.startMode == AttachToRemoteProcess
+                                              || rp.startMode == AttachExternal
+                                              || rp.startMode == AttachToRemoteServer));
         m_continueAtNextSpontaneousStop = false;
     }
 
@@ -379,12 +379,12 @@ void LldbEngine::setupInferiorStage2()
 
 void LldbEngine::runEngine()
 {
-    const DebuggerStartParameters &sp = startParameters();
+    const DebuggerRunParameters &rp = runParameters();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state(); return);
     showStatusMessage(tr("Running requested..."), 5000);
     DebuggerCommand cmd("runEngine");
-    if (sp.startMode == AttachCore) {
-        cmd.arg("coreFile", sp.coreFile);
+    if (rp.startMode == AttachCore) {
+        cmd.arg("coreFile", rp.coreFile);
         cmd.arg("continuation", "updateAll");
     }
     runCommand(cmd);
@@ -597,10 +597,10 @@ bool LldbEngine::stateAcceptsBreakpointChanges() const
 
 bool LldbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    if (startParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachCore)
         return false;
     // We handle QML breakpoint unless specifically disabled.
-    if (isNativeMixedEnabled() && !(startParameters().languages & QmlLanguage))
+    if (isNativeMixedEnabled() && !(runParameters().languages & QmlLanguage))
         return true;
     return bp.parameters().isCppBreakpoint();
 }
@@ -1025,7 +1025,7 @@ void LldbEngine::refreshStack(const GdbMi &stack)
                 || frame.file.endsWith(QLatin1String(".js"))
                 || frame.file.endsWith(QLatin1String(".qml"))) {
             frame.language = QmlLanguage;
-            frame.fixQmlFrame(startParameters());
+            frame.fixQmlFrame(runParameters());
         }
         frames.append(frame);
     }
@@ -1114,7 +1114,7 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
     else if (newState == "inferiorsetupfailed")
         notifyInferiorSetupFailed();
     else if (newState == "enginerunandinferiorrunok") {
-        if (startParameters().continueAfterAttach)
+        if (runParameters().continueAfterAttach)
             m_continueAtNextSpontaneousStop = true;
         notifyEngineRunAndInferiorRunOk();
     } else if (newState == "enginerunandinferiorstopok")
@@ -1249,14 +1249,14 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | MemoryAddressCapability))
         return true;
 
-    if (startParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachCore)
         return false;
 
     //return cap == SnapshotCapability;
     return false;
 }
 
-DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
+DebuggerEngine *createLldbEngine(const DebuggerRunParameters &startParameters)
 {
     return new LldbEngine(startParameters);
 }

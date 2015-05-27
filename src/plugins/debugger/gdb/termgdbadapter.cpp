@@ -52,7 +52,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbTermEngine::GdbTermEngine(const DebuggerStartParameters &startParameters)
+GdbTermEngine::GdbTermEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters)
 {
 #ifdef Q_OS_WIN
@@ -86,9 +86,9 @@ void GdbTermEngine::setupEngine()
     if (!prepareCommand())
         return;
 
-    m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
+    m_stubProc.setWorkingDirectory(runParameters().workingDirectory);
     // Set environment + dumper preload.
-    m_stubProc.setEnvironment(startParameters().environment);
+    m_stubProc.setEnvironment(runParameters().environment);
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &GdbTermEngine::stubError);
@@ -99,8 +99,8 @@ void GdbTermEngine::setupEngine()
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
 
-    if (!m_stubProc.start(startParameters().executable,
-                         startParameters().processArgs)) {
+    if (!m_stubProc.start(runParameters().executable,
+                         runParameters().processArgs)) {
         // Error message for user is delivered via a signal.
         handleAdapterStartFailed(QString());
         return;
@@ -148,7 +148,7 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning:
-        if (startParameters().toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+        if (runParameters().toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             QString errorMessage;
             // Resume thread that was suspended by console stub process (see stub code).
             const qint64 mainThreadId = m_stubProc.applicationMainThreadID();
@@ -170,7 +170,7 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            showMessage(msgPtraceError(startParameters().startMode));
+            showMessage(msgPtraceError(runParameters().startMode));
             notifyEngineRunFailed();
             break;
         }

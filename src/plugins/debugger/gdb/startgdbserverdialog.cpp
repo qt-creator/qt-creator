@@ -30,11 +30,11 @@
 
 #include "startgdbserverdialog.h"
 
+#include <debugger/debuggerengine.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -212,17 +212,17 @@ void GdbServerStarter::attach(int port)
         return;
     }
 
-    DebuggerStartParameters sp;
-    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, d->kit);
+    DebuggerRunParameters rp;
+    bool res = fillParametersFromKit(&rp, d->kit);
     QTC_ASSERT(res, return);
-    sp.masterEngineType = GdbEngineType;
-    sp.connParams.port = port;
-    sp.remoteChannel = sp.connParams.host + QLatin1Char(':') + QString::number(sp.connParams.port);
-    sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);
-    sp.executable = localExecutable;
-    sp.startMode = AttachToRemoteServer;
-    sp.closeMode = KillAtClose;
-    DebuggerRunControlFactory::createAndScheduleRun(sp);
+    rp.masterEngineType = GdbEngineType;
+    rp.connParams.port = port;
+    rp.remoteChannel = rp.connParams.host + QLatin1Char(':') + QString::number(rp.connParams.port);
+    rp.displayName = tr("Remote: \"%1:%2\"").arg(rp.connParams.host).arg(port);
+    rp.executable = localExecutable;
+    rp.startMode = AttachToRemoteServer;
+    rp.closeMode = KillAtClose;
+    createAndScheduleRun(rp);
 }
 
 void GdbServerStarter::handleProcessClosed(int status)

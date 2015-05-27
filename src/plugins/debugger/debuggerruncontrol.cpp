@@ -69,12 +69,12 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *error);
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp);
-DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp);
-DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp, QString *error);
-DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &sp, QString *error);
+DebuggerEngine *createGdbEngine(const DebuggerRunParameters &sp);
+DebuggerEngine *createPdbEngine(const DebuggerRunParameters &sp);
+DebuggerEngine *createQmlEngine(const DebuggerRunParameters &sp);
+DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp, QString *error);
+DebuggerEngine *createLldbEngine(const DebuggerRunParameters &sp);
 
 } // namespace Internal
 
@@ -131,22 +131,22 @@ DebuggerRunControl::~DebuggerRunControl()
 QString DebuggerRunControl::displayName() const
 {
     QTC_ASSERT(m_engine, return QString());
-    return m_engine->startParameters().displayName;
+    return m_engine->runParameters().displayName;
 }
 
 void DebuggerRunControl::start()
 {
     QTC_ASSERT(m_engine, return);
     // User canceled input dialog asking for executable when working on library project.
-    if (m_engine->startParameters().startMode == StartInternal
-        && m_engine->startParameters().executable.isEmpty()) {
+    if (m_engine->runParameters().startMode == StartInternal
+        && m_engine->runParameters().executable.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
         emit started();
         emit finished();
         return;
     }
 
-    if (m_engine->startParameters().startMode == StartInternal) {
+    if (m_engine->runParameters().startMode == StartInternal) {
         QStringList unhandledIds;
         foreach (Breakpoint bp, breakHandler()->allBreakpoints()) {
             if (bp.isEnabled() && !m_engine->acceptsBreakpoint(bp))
@@ -250,7 +250,7 @@ bool DebuggerRunControl::isRunning() const
 
 DebuggerStartParameters &DebuggerRunControl::startParameters()
 {
-    return m_engine->startParameters();
+    return m_engine->runParameters();
 }
 
 void DebuggerRunControl::notifyInferiorIll()
@@ -289,8 +289,10 @@ bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfig, RunMode mode
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
 }
 
-bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
-    (DebuggerStartParameters *sp, const RunConfiguration *runConfig, QString *errorMessage)
+namespace Internal {
+
+bool fillParametersFromLocalRunConfiguration
+    (DebuggerRunParameters *sp, const RunConfiguration *runConfig, QString *errorMessage)
 {
     QTC_ASSERT(runConfig, return false);
     EnvironmentAspect *environmentAspect = runConfig->extraAspect<EnvironmentAspect>();
@@ -360,6 +362,8 @@ bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
     return true;
 }
 
+} // namespace Internal
+
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
@@ -367,7 +371,7 @@ RunControl *DebuggerRunControlFactory::create
 
     // We cover only local setup here. Remote setups are handled by the
     // RunControl factories in the target specific plugins.
-    DebuggerStartParameters sp;
+    DebuggerRunParameters sp;
     bool res = fillParametersFromLocalRunConfiguration(&sp, runConfiguration, errorMessage);
     if (sp.startMode == NoStartMode)
         return 0;
@@ -381,78 +385,86 @@ RunControl *DebuggerRunControlFactory::create
     return doCreate(sp, errorMessage);
 }
 
+IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
+{
+    return new DebuggerRunConfigurationAspect(rc);
+}
+
+DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp, QString *errorMessage)
+{
+    return DebuggerRunControlFactory::doCreate(sp, errorMessage);
+}
+
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
-    (const DebuggerStartParameters &sp0, QString *errorMessage)
+    (const DebuggerStartParameters &sp, QString *errorMessage)
 {
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    DebuggerStartParameters sp = sp0;
+    DebuggerRunParameters rp;
+    rp = sp;
     if (!boolSetting(AutoEnrichParameters)) {
-        const QString sysroot = sp.sysRoot;
-        if (sp.debugInfoLocation.isEmpty())
-            sp.debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");
-        if (sp.debugSourceLocation.isEmpty()) {
+        const QString sysroot = rp.sysRoot;
+        if (rp.debugInfoLocation.isEmpty())
+            rp.debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");
+        if (rp.debugSourceLocation.isEmpty()) {
             QString base = sysroot + QLatin1String("/usr/src/debug/");
-            sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
-            sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
-            sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
+            rp.debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
+            rp.debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
+            rp.debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
         }
     }
 
-    if (sp.masterEngineType == NoEngineType) {
-        if (sp.executable.endsWith(_(".py"))
-                || sp.executable == _("/usr/bin/python")
-                || sp.executable == _("/usr/bin/python3")) {
-            sp.masterEngineType = PdbEngineType;
+    if (rp.masterEngineType == NoEngineType) {
+        if (rp.executable.endsWith(_(".py"))
+                || rp.executable == _("/usr/bin/python")
+                || rp.executable == _("/usr/bin/python3")) {
+            rp.masterEngineType = PdbEngineType;
         } else {
-            if (RunConfiguration *rc = sp.runConfiguration) {
+            if (RunConfiguration *rc = rp.runConfiguration) {
                 DebuggerRunConfigurationAspect *aspect
                         = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
                 if (const Target *target = rc->target())
-                    if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, target->kit(), errorMessage))
+                    if (!fillParametersFromKit(&rp, target->kit(), errorMessage))
                         return 0;
-                const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
-                const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
+                const bool useCppDebugger = aspect->useCppDebugger() && (rp.languages & CppLanguage);
+                const bool useQmlDebugger = aspect->useQmlDebugger() && (rp.languages & QmlLanguage);
                 if (useQmlDebugger) {
                     if (useCppDebugger)
-                        sp.masterEngineType = QmlCppEngineType;
+                        rp.masterEngineType = QmlCppEngineType;
                     else
-                        sp.masterEngineType = QmlEngineType;
+                        rp.masterEngineType = QmlEngineType;
                 } else {
-                    sp.masterEngineType = sp.cppEngineType;
+                    rp.masterEngineType = rp.cppEngineType;
                 }
             } else {
-                sp.masterEngineType = sp.cppEngineType;
+                rp.masterEngineType = rp.cppEngineType;
             }
         }
     }
 
     QString error;
-    DebuggerEngine *engine = createEngine(sp.masterEngineType, sp, &error);
+    DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, &error);
     if (!engine) {
         Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), error);
         if (errorMessage)
             *errorMessage = error;
         return 0;
     }
-    return new DebuggerRunControl(sp.runConfiguration, engine);
+    return new DebuggerRunControl(rp.runConfiguration, engine);
 }
 
-IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
-{
-    return new DebuggerRunConfigurationAspect(rc);
-}
+namespace Internal {
 
-DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun(const DebuggerStartParameters &sp)
+DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp)
 {
     QString errorMessage;
-    DebuggerRunControl *rc = doCreate(sp, &errorMessage);
+    DebuggerRunControl *rc = createDebuggerRunControl(rp, &errorMessage);
     if (!rc) {
         ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;
     }
-    Internal::showMessage(sp.startMessage, 0);
+    Internal::showMessage(rp.startMessage, 0);
     ProjectExplorerPlugin::startRunControl(rc, DebugRunMode);
     return rc;
 }
@@ -465,7 +477,7 @@ static QString executableForPid(qint64 pid)
     return QString();
 }
 
-bool DebuggerRunControlFactory::fillParametersFromKit(DebuggerStartParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
+bool fillParametersFromKit(DebuggerRunParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
 {
     if (!kit) {
         // This code can only be reached when starting via the command line
@@ -547,8 +559,8 @@ bool DebuggerRunControlFactory::fillParametersFromKit(DebuggerStartParameters *s
     return true;
 }
 
-DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
-    const DebuggerStartParameters &sp, QString *errorMessage)
+DebuggerEngine *createEngine(DebuggerEngineType et,
+    const DebuggerRunParameters &sp, QString *errorMessage)
 {
     switch (et) {
     case GdbEngineType:
@@ -571,4 +583,5 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
     return 0;
 }
 
+} // namespace Internal
 } // namespace Debugger

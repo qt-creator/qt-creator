@@ -261,7 +261,7 @@ ConsoleManagerInterface *qmlConsoleManager()
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEngine *masterEngine)
+QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngine *masterEngine)
   : DebuggerEngine(startParameters)
   , m_adapter(this)
   , m_inspectorAdapter(&m_adapter, this)
@@ -409,7 +409,7 @@ void QmlEngine::beginConnection(quint16 port)
 
     QTC_ASSERT(state() == EngineRunRequested, return);
 
-    QString host =  startParameters().qmlServerAddress;
+    QString host =  runParameters().qmlServerAddress;
     // Use localhost as default
     if (host.isEmpty())
         host = QLatin1String("localhost");
@@ -425,8 +425,8 @@ void QmlEngine::beginConnection(quint16 port)
      * the connection will be closed again (instead of returning the "connection refused"
      * error that we expect).
      */
-    if (startParameters().qmlServerPort > 0)
-        port = startParameters().qmlServerPort;
+    if (runParameters().qmlServerPort > 0)
+        port = runParameters().qmlServerPort;
 
     m_adapter.beginConnectionTcp(host, port);
 }
@@ -575,9 +575,9 @@ void QmlEngine::runEngine()
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
     if (!isSlaveEngine()) {
-        if (startParameters().startMode == AttachToRemoteServer)
+        if (runParameters().startMode == AttachToRemoteServer)
             m_noDebugOutputTimer.start();
-        else if (startParameters().startMode == AttachToRemoteProcess)
+        else if (runParameters().startMode == AttachToRemoteProcess)
             beginConnection();
         else
             startApplicationLauncher();
@@ -590,13 +590,13 @@ void QmlEngine::startApplicationLauncher()
 {
     if (!m_applicationLauncher.isRunning()) {
         appendMessage(tr("Starting %1 %2").arg(
-                          QDir::toNativeSeparators(startParameters().executable),
-                          startParameters().processArgs)
+                          QDir::toNativeSeparators(runParameters().executable),
+                          runParameters().processArgs)
                       + QLatin1Char('\n')
                      , Utils::NormalMessageFormat);
         m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
-                                    startParameters().executable,
-                                    startParameters().processArgs);
+                                    runParameters().executable,
+                                    runParameters().processArgs);
     }
 }
 
@@ -615,7 +615,7 @@ void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 
     if (result.success) {
         if (result.qmlServerPort != InvalidPort)
-            startParameters().qmlServerPort = result.qmlServerPort;
+            runParameters().qmlServerPort = result.qmlServerPort;
 
         notifyEngineSetupOk();
 
@@ -638,7 +638,7 @@ void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel,
     bool ok = false;
     quint16 qmlPort = serverChannel.toUInt(&ok);
     if (ok)
-        startParameters().qmlServerPort = qmlPort;
+        runParameters().qmlServerPort = qmlPort;
     else
         qWarning() << tr("QML debugging port not set: Unable to convert %1 to unsigned int.").arg(QString::fromLatin1(serverChannel));
 
@@ -684,12 +684,12 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    if (startParameters().remoteSetupNeeded) {
+    if (runParameters().remoteSetupNeeded) {
         // we need to get the port first
         notifyEngineRequestRemoteSetup();
     } else {
-        m_applicationLauncher.setEnvironment(startParameters().environment);
-        m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
+        m_applicationLauncher.setEnvironment(runParameters().environment);
+        m_applicationLauncher.setWorkingDirectory(runParameters().workingDirectory);
 
         // We can't do this in the constructore because runControl() isn't yet defined
         connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -1234,7 +1234,7 @@ bool QmlEngine::evaluateScript(const QString &expression)
 
 QString QmlEngine::qmlImportPath() const
 {
-    return startParameters().environment.value(QLatin1String("QML_IMPORT_PATH"));
+    return runParameters().environment.value(QLatin1String("QML_IMPORT_PATH"));
 }
 
 void QmlEngine::logMessage(const QString &service, LogDirection direction, const QString &message)
@@ -1353,7 +1353,7 @@ bool QmlEngine::adjustBreakpointLineAndColumn(
     return success;
 }
 
-DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
+DebuggerEngine *createQmlEngine(const DebuggerRunParameters &sp)
 {
     return new QmlEngine(sp);
 }

@@ -222,7 +222,7 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
+GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
   : DebuggerEngine(startParameters)
 {
     setObjectName(_("GdbEngine"));
@@ -272,7 +272,7 @@ GdbEngine::~GdbEngine()
 
 DebuggerStartMode GdbEngine::startMode() const
 {
-    return startParameters().startMode;
+    return runParameters().startMode;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -825,12 +825,12 @@ void GdbEngine::interruptInferior()
         if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
             QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
             QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
-            m_signalOperation = startParameters().device->signalOperation();
+            m_signalOperation = runParameters().device->signalOperation();
             QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
             connect(m_signalOperation.data(), SIGNAL(finished(QString)),
                     SLOT(handleInterruptDeviceInferior(QString)));
 
-            m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
+            m_signalOperation->setDebuggerCommand(runParameters().debuggerCommand);
             m_signalOperation->interruptProcess(inferiorPid());
         } else {
             interruptInferior2();
@@ -1165,11 +1165,11 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         //  (response->resultClass == ResultDone && (cmd.flags & RunRequest));
 
     if (!isExpectedResult) {
-        const DebuggerStartParameters &sp = startParameters();
-        Abi abi = sp.toolChainAbi;
+        const DebuggerRunParameters &rp = runParameters();
+        Abi abi = rp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
-            && (sp.startMode == AttachExternal || sp.useTerminal))
+            && (rp.startMode == AttachExternal || rp.useTerminal))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
@@ -1377,7 +1377,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     // Ignore signals from the process stub.
-    if (startParameters().useTerminal
+    if (runParameters().useTerminal
             && data["reason"].data() == "signal-received"
             && data["signal-name"].data() == "SIGSTOP"
             && (func.endsWith("/ld-linux.so.2")
@@ -1476,8 +1476,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // This is gdb 7+'s initial *stopped in response to attach that
         // appears before the ^done is seen.
         notifyEngineRunAndInferiorStopOk();
-        const DebuggerStartParameters &sp = startParameters();
-        if (sp.useTerminal)
+        const DebuggerRunParameters &rp = runParameters();
+        if (rp.useTerminal)
             continueInferiorInternal();
         return;
     } else {
@@ -1598,12 +1598,12 @@ void GdbEngine::handleStop2(const GdbMi &data)
     // dState changed from InferiorStopRequested(13) to InferiorStopOk(14).
 
     const QByteArray reason = data["reason"].data();
-    const DebuggerStartParameters &sp = startParameters();
+    const DebuggerRunParameters &rp = runParameters();
 
     bool isStopperThread = false;
 
-    if (sp.toolChainAbi.os() == Abi::WindowsOS
-            && sp.useTerminal
+    if (rp.toolChainAbi.os() == Abi::WindowsOS
+            && rp.useTerminal
             && reason == "signal-received"
             && data["signal-name"].data() == "SIGTRAP")
     {
@@ -1653,7 +1653,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             QByteArray meaning = data["signal-meaning"].data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name == stopSignal(sp.toolChainAbi) || sp.expectedSignals.contains(name)) {
+            if (name == stopSignal(rp.toolChainAbi) || rp.expectedSignals.contains(name)) {
                 showMessage(_(name + " CONSIDERED HARMLESS. CONTINUING."));
             } else {
                 showMessage(_("HANDLING SIGNAL " + name));
@@ -1723,7 +1723,7 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
         else
             postCommand("set target-async off", ConsoleCommand);
 
-        if (startParameters().multiProcess)
+        if (runParameters().multiProcess)
             postCommand("set detach-on-fork off", ConsoleCommand);
         //postCommand("set build-id-verbose 2", ConsoleCommand);
     }
@@ -1824,7 +1824,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     if (!boolSetting(AutoEnrichParameters))
         return cleanFilePath;
 
-    const QString sysroot = startParameters().sysRoot;
+    const QString sysroot = runParameters().sysRoot;
     if (QFileInfo(cleanFilePath).isReadable())
         return cleanFilePath;
     if (!sysroot.isEmpty() && fileName.startsWith(QLatin1Char('/'))) {
@@ -1864,7 +1864,7 @@ void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
     m_commandsToRunOnTemporaryBreak.clear();
-    switch (startParameters().closeMode) {
+    switch (runParameters().closeMode) {
         case KillAtClose:
         case KillAndExitMonitorAtClose:
             postCommand("kill", NeedsStop | LosesChild, CB(handleInferiorShutdown));
@@ -1912,7 +1912,7 @@ void GdbEngine::notifyAdapterShutdownOk()
     m_commandsDoneCallback = 0;
     switch (m_gdbProc->state()) {
     case QProcess::Running: {
-        if (startParameters().closeMode == KillAndExitMonitorAtClose)
+        if (runParameters().closeMode == KillAndExitMonitorAtClose)
             postCommand("monitor exit");
         DebuggerCommand cmd("exitGdb");
         cmd.flags = GdbEngine::ExitRequest;
@@ -2020,11 +2020,11 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | ResetInferiorCapability))
         return true;
 
-    if (startParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachCore)
         return false;
 
     // FIXME: Remove in case we have gdb 7.x on Mac.
-    if (startParameters().toolChainAbi.os() == Abi::MacOS)
+    if (runParameters().toolChainAbi.os() == Abi::MacOS)
         return false;
 
     return cap == SnapshotCapability;
@@ -2441,7 +2441,7 @@ QByteArray GdbEngine::breakpointLocation(const BreakpointParameters &data)
     if (data.type == BreakpointAtCatch)
         return "__cxa_begin_catch";
     if (data.type == BreakpointAtMain) {
-        const Abi abi = startParameters().toolChainAbi;
+        const Abi abi = runParameters().toolChainAbi;
         return (abi.os() == Abi::WindowsOS) ? "qMain" : "main";
     }
     if (data.type == BreakpointByFunction)
@@ -2719,10 +2719,10 @@ bool GdbEngine::stateAcceptsBreakpointChanges() const
 
 bool GdbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    if (startParameters().startMode == AttachCore)
+    if (runParameters().startMode == AttachCore)
         return false;
     // We handle QML breakpoint unless specifically
-    if (isNativeMixedEnabled() && !(startParameters().languages & QmlLanguage))
+    if (isNativeMixedEnabled() && !(runParameters().languages & QmlLanguage))
         return true;
     return bp.parameters().isCppBreakpoint();
 }
@@ -3291,7 +3291,7 @@ void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
     qmlFrames.reserve(qmlFrameCount);
     for (int i = 0; i < qmlFrameCount; ++i) {
         StackFrame frame = parseStackFrame(stackMi.childAt(i), i);
-        frame.fixQmlFrame(startParameters());
+        frame.fixQmlFrame(runParameters());
         qmlFrames.append(frame);
     }
     stackHandler()->prependFrames(qmlFrames);
@@ -3338,7 +3338,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
             || frame.file.endsWith(QLatin1String(".qml"))) {
         frame.file = QFile::decodeName(frameMi["file"].data());
         frame.language = QmlLanguage;
-        frame.fixQmlFrame(startParameters());
+        frame.fixQmlFrame(runParameters());
     }
     return frame;
 }
@@ -3516,9 +3516,9 @@ void GdbEngine::createSnapshot()
 void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile)
 {
     if (response.resultClass == ResultDone) {
-        DebuggerStartParameters sp = startParameters();
-        sp.startMode = AttachCore;
-        sp.coreFile = coreFile;
+        DebuggerRunParameters rp = runParameters();
+        rp.startMode = AttachCore;
+        rp.coreFile = coreFile;
         //snapshot.setDate(QDateTime::currentDateTime());
         StackFrames frames = stackHandler()->frames();
         QString function = _("<unknown>");
@@ -3526,9 +3526,9 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
             const StackFrame &frame = frames.at(0);
             function = frame.function + _(":") + QString::number(frame.line);
         }
-        sp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
-        sp.isSnapshot = true;
-        DebuggerRunControlFactory::createAndScheduleRun(sp);
+        rp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
+        rp.isSnapshot = true;
+        createAndScheduleRun(rp);
     } else {
         QByteArray msg = response.data["msg"].data();
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),
@@ -4041,7 +4041,7 @@ bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, Disassembl
 
 // Binary/configuration check logic.
 
-static QString gdbBinary(const DebuggerStartParameters &sp)
+static QString gdbBinary(const DebuggerRunParameters &sp)
 {
     // 1) Environment.
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
@@ -4051,7 +4051,7 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
     return sp.debuggerCommand;
 }
 
-static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerStartParameters &sp,
+static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
                                                        const SourcePathMap &in)
 {
     // Do not overwrite user settings.
@@ -4075,12 +4075,12 @@ void GdbEngine::startGdb(const QStringList &args)
 
     m_gdbProc->disconnect(); // From any previous runs
 
-    const DebuggerStartParameters &sp = startParameters();
-    m_gdb = gdbBinary(sp);
+    const DebuggerRunParameters &rp = runParameters();
+    m_gdb = gdbBinary(rp);
     if (m_gdb.isEmpty()) {
         handleGdbStartFailed();
         handleAdapterStartFailed(
-            msgNoGdbBinaryForToolChain(sp.toolChainAbi),
+            msgNoGdbBinaryForToolChain(rp.toolChainAbi),
             Constants::DEBUGGER_COMMON_SETTINGS_ID);
         return;
     }
@@ -4179,17 +4179,17 @@ void GdbEngine::startGdb(const QStringList &args)
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = sp.executable;
+    module.modulePath = rp.executable;
     module.moduleName = QLatin1String("<executable>");
     modulesHandler()->updateModule(module);
 
     // Apply source path mappings from global options.
     //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
     const SourcePathMap sourcePathMap =
-        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp,
+        DebuggerSourcePathMappingWidget::mergePlatformQtPath(rp,
                 Internal::globalDebuggerOptions()->sourcePathMap);
     const SourcePathMap completeSourcePathMap =
-            mergeStartParametersSourcePathMap(sp, sourcePathMap);
+            mergeStartParametersSourcePathMap(rp, sourcePathMap);
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
          it != cend;
          ++it) {
@@ -4198,14 +4198,14 @@ void GdbEngine::startGdb(const QStringList &args)
     }
 
     // Spaces just will not work.
-    foreach (const QString &src, sp.debugSourceLocation) {
+    foreach (const QString &src, rp.debugSourceLocation) {
         if (QDir(src).exists())
             postCommand("directory " + src.toLocal8Bit());
         else
             showMessage(_("# directory does not exist: ") + src, LogInput);
     }
 
-    const QByteArray sysroot = sp.sysRoot.toLocal8Bit();
+    const QByteArray sysroot = rp.sysRoot.toLocal8Bit();
     if (!sysroot.isEmpty()) {
         postCommand("set sysroot " + sysroot);
         // sysroot is not enough to correctly locate the sources, so explicitly
@@ -4267,7 +4267,7 @@ void GdbEngine::handleGdbStartFailed()
 
 void GdbEngine::loadInitScript()
 {
-    const QString script = startParameters().overrideStartScript;
+    const QString script = runParameters().overrideStartScript;
     if (!script.isEmpty()) {
         if (QFileInfo(script).isReadable()) {
             postCommand("source " + script.toLocal8Bit());
@@ -4339,8 +4339,8 @@ void GdbEngine::abortDebugger()
 
 void GdbEngine::resetInferior()
 {
-    if (!startParameters().commandsForReset.isEmpty()) {
-        QByteArray commands = globalMacroExpander()->expand(startParameters().commandsForReset);
+    if (!runParameters().commandsForReset.isEmpty()) {
+        QByteArray commands = globalMacroExpander()->expand(runParameters().commandsForReset);
         foreach (QByteArray command, commands.split('\n')) {
             command = command.trimmed();
             if (!command.isEmpty()) {
@@ -4383,26 +4383,26 @@ void GdbEngine::notifyInferiorSetupFailed()
 
 void GdbEngine::handleInferiorPrepared()
 {
-    const DebuggerStartParameters &sp = startParameters();
+    const DebuggerRunParameters &rp = runParameters();
 
     CHECK_STATE(InferiorSetupRequested);
 
-    if (!sp.commandsAfterConnect.isEmpty()) {
-        QByteArray commands = globalMacroExpander()->expand(sp.commandsAfterConnect);
+    if (!rp.commandsAfterConnect.isEmpty()) {
+        QByteArray commands = globalMacroExpander()->expand(rp.commandsAfterConnect);
         foreach (QByteArray command, commands.split('\n')) {
             postCommand(command);
         }
     }
 
     //postCommand("set follow-exec-mode new");
-    if (sp.breakOnMain) {
+    if (rp.breakOnMain) {
         QByteArray cmd = "tbreak ";
-        cmd += sp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main";
+        cmd += rp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main";
         postCommand(cmd);
     }
 
     // Initial attempt to set breakpoints.
-    if (sp.startMode != AttachCore) {
+    if (rp.startMode != AttachCore) {
         showStatusMessage(tr("Setting breakpoints..."));
         showMessage(tr("Setting breakpoints..."));
         attemptBreakpointSynchronization();
@@ -4420,7 +4420,7 @@ void GdbEngine::finishInferiorSetup()
 {
     CHECK_STATE(InferiorSetupRequested);
 
-    if (startParameters().startMode == AttachCore) {
+    if (runParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.
     } else {
         if (boolSetting(BreakOnAbort))
@@ -4443,7 +4443,7 @@ void GdbEngine::finishInferiorSetup()
 void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
-        const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
+        const QByteArray debugInfoLocation = runParameters().debugInfoLocation.toLocal8Bit();
         if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
             const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
             if (curDebugInfoLocations.isEmpty()) {
@@ -4547,14 +4547,14 @@ bool GdbEngine::isHiddenBreakpoint(const BreakpointResponseId &id) const
 
 bool GdbEngine::usesExecInterrupt() const
 {
-    DebuggerStartMode mode = startParameters().startMode;
+    DebuggerStartMode mode = runParameters().startMode;
     return (mode == AttachToRemoteServer || mode == AttachToRemoteProcess)
         && boolSetting(TargetAsync);
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
 {
-    if (!m_testCases.contains(testCase) && startParameters().testCase != testCase)
+    if (!m_testCases.contains(testCase) && runParameters().testCase != testCase)
         return;
 
     int token = currentToken() + 1;
@@ -4592,11 +4592,11 @@ void GdbEngine::write(const QByteArray &data)
 bool GdbEngine::prepareCommand()
 {
     if (HostOsInfo::isWindowsHost()) {
-        DebuggerStartParameters &sp = startParameters();
+        DebuggerRunParameters &rp = runParameters();
         QtcProcess::SplitError perr;
-        sp.processArgs = QtcProcess::prepareArgs(sp.processArgs, &perr,
+        rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
                                                  HostOsInfo::hostOs(),
-                    &sp.environment, &sp.workingDirectory).toWindowsArgs();
+                    &rp.environment, &rp.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -4671,20 +4671,20 @@ void GdbEngine::debugLastCommand()
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
+DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
 {
-    switch (sp.startMode) {
+    switch (rp.startMode) {
     case AttachCore:
-        return new GdbCoreEngine(sp);
+        return new GdbCoreEngine(rp);
     case StartRemoteProcess:
     case AttachToRemoteServer:
-        return new GdbRemoteServerEngine(sp);
+        return new GdbRemoteServerEngine(rp);
     case AttachExternal:
-        return new GdbAttachEngine(sp);
+        return new GdbAttachEngine(rp);
     default:
-        if (sp.useTerminal)
-            return new GdbTermEngine(sp);
-        return new GdbPlainEngine(sp);
+        if (rp.useTerminal)
+            return new GdbTermEngine(rp);
+        return new GdbPlainEngine(rp);
     }
 }
 

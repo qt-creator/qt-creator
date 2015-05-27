@@ -41,10 +41,9 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Debugger {
-
-class DebuggerStartParameters;
-
 namespace Internal {
+
+class DebuggerRunParameters;
 
 class StackFrame
 {
@@ -54,7 +53,7 @@ public:
     bool isUsable() const;
     QString toToolTip() const;
     QString toString() const;
-    void fixQmlFrame(const DebuggerStartParameters &sp);
+    void fixQmlFrame(const DebuggerRunParameters &rp);
 
 public:
     DebuggerLanguage language;

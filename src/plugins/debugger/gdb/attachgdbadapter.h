@@ -48,7 +48,7 @@ class GdbAttachEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbAttachEngine(const DebuggerStartParameters &startParameters);
+    explicit GdbAttachEngine(const DebuggerRunParameters &runParameters);
 
 private:
     void setupEngine();
