@@ -87,7 +87,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
 #ifdef CPP_ENABLED
     IWizardFactory::registerFactoryCreator(
-                []() -> QList<IWizardFactory *> {
+                [this]() -> QList<IWizardFactory *> {
                     IWizardFactory *wizard = new FormClassWizard;
                     wizard->setWizardKind(IWizardFactory::FileWizard);
                     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
