@@ -8,7 +8,7 @@
     "trDisplayCategory": "General",
     "icon": "../../global/genericfilewizard.png",
     "platformIndependent": true,
-    "featuresRequired": [ "Plugin.TextEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('TextEditor') >= 0}",
 
     "pages" :
     [

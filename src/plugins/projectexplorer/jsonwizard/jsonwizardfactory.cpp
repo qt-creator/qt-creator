@@ -371,6 +371,9 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
     tmp.remove(pluginFeatures());
     wizard.setValue(QStringLiteral("PreferredFeatures"), tmp.toStringList());
 
+    wizard.setValue(QStringLiteral("Features"), availableFeatures(platform).toStringList());
+    wizard.setValue(QStringLiteral("Plugins"), pluginFeatures().toStringList());
+
     // Add data to wizard:
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
         wizard.setProperty(i.key().toUtf8(), i.value());
@@ -477,8 +480,13 @@ bool JsonWizardFactory::isAvailable(const QString &platformName) const
         return false;
 
     Utils::MacroExpander expander;
+    Utils::MacroExpander *e = &expander;
     expander.registerVariable("Platform", tr("The platform selected for the wizard."),
                               [platformName]() { return platformName; });
+    expander.registerVariable("Features", tr("The features available to this wizard."),
+                              [this, e, platformName]() { return JsonWizard::stringListToArrayString(availableFeatures(platformName).toStringList(), e); });
+    expander.registerVariable("Plugins", tr("The plugins loaded."),
+                              [this, e]() { return JsonWizard::stringListToArrayString(pluginFeatures().toStringList(), e); });
 
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
 }

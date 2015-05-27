@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Designer Form",
     "trDisplayCategory": "Qt",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.Designer" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Designer') >= 0}",
 
     "options": [
         { "key": "UiClass", "value": "%{JS: QtSupport.uiClassName([ %{FormContents} ].join('\\n'))}" },

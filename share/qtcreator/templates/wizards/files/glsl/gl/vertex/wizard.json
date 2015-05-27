@@ -8,7 +8,7 @@
     "trDisplayCategory": "GLSL",
     "icon": "../../../../global/genericfilewizard.png",
     "platformIndependent": true,
-    "featuresRequired": [ "Plugin.GLSLEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('GLSLEditor') >= 0}",
 
     "pages" :
     [

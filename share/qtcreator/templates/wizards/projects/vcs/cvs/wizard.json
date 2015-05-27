@@ -7,7 +7,7 @@
     "trDisplayName": "CVS Checkout",
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
-    "featuresRequired": [ "Plugin.CVS" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('CVS') >= 0}",
 
     "options":
     [

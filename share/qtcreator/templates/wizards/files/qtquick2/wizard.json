@@ -7,7 +7,7 @@
     "trDisplayName": "QML File (Qt Quick 2)",
     "trDisplayCategory": "Qt",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.QmlJSEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
 
     "pages" :
     [

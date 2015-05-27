@@ -7,7 +7,7 @@
     "trDisplayName": "C++ Source File",
     "trDisplayCategory": "C++",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.CppEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
 
     "pages" :
     [

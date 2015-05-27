@@ -7,7 +7,8 @@
     "trDisplayName": "QtQuick UI File",
     "trDisplayCategory": "Qt",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.QmlJSEditor", "QtSupport.Wizards.FeatureQtQuick.UiFiles" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.UiFiles" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
 
     "options" : [
         { "key": "QmlFile", "value": "%{Class}.%{JS: Util.preferredSuffix('text/x-qml')}" },

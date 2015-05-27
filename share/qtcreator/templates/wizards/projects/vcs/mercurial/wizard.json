@@ -7,7 +7,7 @@
     "trDisplayName": "Mercurial Clone",
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
-    "featuresRequired": [ "Plugin.Mercurial" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Mercurial') >= 0}",
 
     "options":
     [

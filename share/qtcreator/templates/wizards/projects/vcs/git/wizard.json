@@ -7,7 +7,7 @@
     "trDisplayName": "Git Clone",
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
-    "featuresRequired": [ "Plugin.Git" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Git') >= 0}",
 
     "options":
     [

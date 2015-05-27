@@ -7,7 +7,8 @@
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application",
     "icon": "qml_wizard.png",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.2.4", "Plugin.QmakeProjectManager", "QtSupport.Wizards.FeatureQt" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.2.4", "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "${JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
 
     "options":
     [

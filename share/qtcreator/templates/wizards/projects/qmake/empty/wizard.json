@@ -7,8 +7,8 @@
     "trDisplayName": "Empty qmake Project",
     "trDisplayCategory": "Other Project",
     "icon": "../../../global/guiapplication.png",
-    "featuresRequired": [ "Plugin.QmakeProjectManager", "QtSupport.Wizards.FeatureQt" ],
-
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
     "options":
     [
         { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },

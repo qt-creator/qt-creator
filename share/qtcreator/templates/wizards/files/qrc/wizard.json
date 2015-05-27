@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Resource File",
     "trDisplayCategory": "Qt",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.ResourceEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('ResourceEditor') >= 0}",
 
     "pages" :
     [

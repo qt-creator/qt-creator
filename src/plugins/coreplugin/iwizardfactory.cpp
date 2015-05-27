@@ -326,7 +326,7 @@ FeatureSet IWizardFactory::pluginFeatures() const
         // Implicitly create a feature for each plugin loaded:
         foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
             if (s->state() == ExtensionSystem::PluginSpec::Running)
-                list.append(QString::fromLatin1("Plugin.") + s->name());
+                list.append(s->name());
         }
         plugins = FeatureSet::fromStringList(list);
     }

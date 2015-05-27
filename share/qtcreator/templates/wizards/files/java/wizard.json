@@ -7,7 +7,7 @@
     "trDisplayName": "Java File",
     "trDisplayCategory": "Java",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.Android" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Android') >= 0}",
 
     "options": [ { "key": "ClassName", "value": "%{JS: '%{FileName}'.charAt(0).toUpperCase() + '%{FileName}'.substr(1)}" } ],
 

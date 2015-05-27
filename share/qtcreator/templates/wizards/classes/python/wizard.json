@@ -7,7 +7,7 @@
     "trDisplayName": "Python Class",
     "trDisplayCategory": "Python",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.PythonEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
 
     "options":
     [

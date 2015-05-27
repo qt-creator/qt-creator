@@ -7,7 +7,7 @@
     "trDisplayName": "JS File",
     "trDisplayCategory": "Qt",
     "icon": "../../global/genericfilewizard.png",
-    "featuresRequired": [ "Plugin.QmlJSEditor" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
 
     "pages" :
     [
