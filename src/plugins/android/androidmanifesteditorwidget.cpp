@@ -554,19 +554,20 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 
     if (page == Source) {
         syncToEditor();
-        setFocus();
     } else {
         if (!syncToWidgets())
             return false;
-// TODO?
-//        QWidget *fw = m_overlayWidget->focusWidget();
-//        if (fw && fw != m_overlayWidget)
-//            fw->setFocus();
-//        else
-//            m_packageNameLineEdit->setFocus();
     }
 
     setCurrentIndex(page);
+
+    QWidget *cw = currentWidget();
+    if (cw) {
+        if (cw->focusWidget())
+            cw->focusWidget()->setFocus();
+        else
+            cw->setFocus();
+    }
     return true;
 }
 
