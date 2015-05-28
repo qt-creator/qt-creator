@@ -182,8 +182,9 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeI
     JsonProjectPage *page = new JsonProjectPage;
 
     QVariantMap tmp = data.isNull() ? QVariantMap() : data.toMap();
-    QString description = tmp.value(QLatin1String("trDescription")).toString();
-    page->setDescription(description);
+    QString description
+            = tmp.value(QLatin1String("trDescription"), QLatin1String("%{trDescription}")).toString();
+    page->setDescription(wizard->expander()->expand(description));
 
     return page;
 }

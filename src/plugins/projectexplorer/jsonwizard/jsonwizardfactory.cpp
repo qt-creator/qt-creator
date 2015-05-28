@@ -388,6 +388,12 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
         kindStr = QLatin1String(Core::Constants::WIZARD_KIND_PROJECT);
     wizard.setValue(QStringLiteral("kind"), kindStr);
 
+    wizard.setValue(QStringLiteral("trDescription"), description());
+    wizard.setValue(QStringLiteral("trDisplayName"), displayName());
+    wizard.setValue(QStringLiteral("trCategory"), displayCategory());
+    wizard.setValue(QStringLiteral("category"), category());
+    wizard.setValue(QStringLiteral("id"), id().toString());
+
     for (auto i = m_options.constBegin(); i != m_options.constEnd(); ++i)
         wizard.setValue(i.key(), i.value());
 

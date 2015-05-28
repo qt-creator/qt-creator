@@ -25,8 +25,7 @@
         {
             "trDisplayName": "Project Location",
             "trShortTitle": "Location",
-            "typeId": "Project",
-            "data": { "trDescription": "Creates a Qt Quick UI project using Qt Quick Controls." }
+            "typeId": "Project"
         },
         {
             "trDisplayName": "Define Project Details",

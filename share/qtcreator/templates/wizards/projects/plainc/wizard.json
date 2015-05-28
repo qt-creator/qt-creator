@@ -24,8 +24,7 @@
         {
             "trDisplayName": "Project Location",
             "trShortTitle": "Location",
-            "typeId": "Project",
-            "data": { "trDescription": "This wizard creates an empty .pro file." }
+            "typeId": "Project"
         },
         {
             "trDisplayName": "Define Build System",
