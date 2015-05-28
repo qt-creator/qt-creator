@@ -1641,7 +1641,7 @@ void LookupScopePrivate::addUsing(LookupScope *u)
 
 void LookupScopePrivate::addNestedType(const Name *alias, LookupScope *e)
 {
-    _nestedScopes[alias] = e ? e->d : 0;
+    _nestedScopes[alias] = e->d;
 }
 
 LookupScope *LookupScopePrivate::findOrCreateType(
