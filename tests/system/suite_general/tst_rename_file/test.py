@@ -55,12 +55,7 @@ def main():
         previous = filenames[-1]
         for filename in filenames:
             tempFiletype = filetype
-            if previous in ("test", "TEST"):
-                if tempFiletype in ("Headers", "Sources", "QML"):
-                    tempFiletype = "Sources"
-                else: # then it must be Resources
-                    tempFiletype = "Other files"
-            elif filetype == "QML" and previous[-4:] != ".qml":
+            if previous in ("test", "TEST") or filetype == "QML" and previous[-4:] != ".qml":
                 tempFiletype = "Other files"
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
