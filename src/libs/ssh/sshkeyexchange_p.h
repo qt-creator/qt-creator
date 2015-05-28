@@ -45,7 +45,7 @@ class HashFunction;
 namespace QSsh {
 namespace Internal {
 
-class SshKeyExchangeInit;
+struct SshKeyExchangeInit;
 class SshSendFacility;
 class SshIncomingPacket;
 
