@@ -122,6 +122,8 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
     connect(m_textEditorWidget->document(), SIGNAL(contentsChanged()),
             this, SLOT(startParseCheck()));
+    connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::reloadFinished,
+            this, &AndroidManifestEditorWidget::updateAfterFileLoad);
 }
 
 void AndroidManifestEditorWidget::initializePage()
@@ -501,11 +503,15 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
 bool AndroidManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool result = m_textEditorWidget->open(errorString, fileName, realFileName);
-
     updateSdkVersions();
+    updateAfterFileLoad(result);
+    return result;
+}
 
-    if (!result)
-        return result;
+void AndroidManifestEditorWidget::updateAfterFileLoad(bool success)
+{
+    if (!success)
+        return;
 
     QString error;
     int errorLine;
@@ -515,13 +521,12 @@ bool AndroidManifestEditorWidget::open(QString *errorString, const QString &file
         if (checkDocument(doc, &error, &errorLine, &errorColumn)) {
             if (activePage() != Source)
                 syncToWidgets(doc);
-            return true;
+            return;
         }
     }
     // some error occurred
     updateInfoBar(error, errorLine, errorColumn);
     setActivePage(Source);
-    return true;
 }
 
 void AndroidManifestEditorWidget::setDirty(bool dirty)

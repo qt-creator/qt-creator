@@ -135,6 +135,7 @@ private:
     bool syncToWidgets();
     void syncToWidgets(const QDomDocument &doc);
     void syncToEditor();
+    void updateAfterFileLoad(bool success);
 
     bool checkDocument(const QDomDocument &doc, QString *errorMessage,
                        int *errorLine, int *errorColumn);
