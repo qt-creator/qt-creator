@@ -1,4 +1,4 @@
-@if '%{Stateless}'
+@if %{Stateless}
 .pragma library
 
 @endif

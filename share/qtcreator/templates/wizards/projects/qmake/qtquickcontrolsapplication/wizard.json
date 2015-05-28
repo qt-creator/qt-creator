@@ -81,8 +81,6 @@
                     "type": "CheckBox",
                     "data":
                     {
-                        "checkedValue": true,
-                        "uncheckedValue": false,
                         "checked": true
                     }
                 },
@@ -92,8 +90,6 @@
                     "type": "CheckBox",
                     "data":
                     {
-                        "checkedValue": true,
-                        "uncheckedValue": false,
                         "checked": true
                     }
                 }

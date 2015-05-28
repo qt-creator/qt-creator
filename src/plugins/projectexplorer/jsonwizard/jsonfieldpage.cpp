@@ -617,8 +617,8 @@ bool JsonFieldPage::CheckBoxField::parseData(const QVariant &data, QString *erro
 
     QVariantMap tmp = data.toMap();
 
-    m_checkedValue = tmp.value(QLatin1String("checkedValue"), QLatin1String("0")).toString();
-    m_uncheckedValue = tmp.value(QLatin1String("uncheckedValue"), QLatin1String("1")).toString();
+    m_checkedValue = tmp.value(QLatin1String("checkedValue"), true).toString();
+    m_uncheckedValue = tmp.value(QLatin1String("uncheckedValue"), false).toString();
     if (m_checkedValue == m_uncheckedValue) {
         *errorMessage= QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                    "CheckBox values for checked and unchecked state are identical.");
