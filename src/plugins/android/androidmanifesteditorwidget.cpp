@@ -597,9 +597,11 @@ void AndroidManifestEditorWidget::postSave()
 {
     const Utils::FileName docPath = m_textEditorWidget->textDocument()->filePath();
     ProjectExplorer::Project *project = androidProject(docPath);
-    if (Target *target = project->activeTarget()) {
-        AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
-        androidQtSupport->manifestSaved(target);
+    if (project) {
+        if (Target *target = project->activeTarget()) {
+            AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
+            androidQtSupport->manifestSaved(target);
+        }
     }
 }
 
