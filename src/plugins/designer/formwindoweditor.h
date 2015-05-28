@@ -54,7 +54,6 @@ public:
     FormWindowEditor();
     ~FormWindowEditor();
 
-    void finalizeInitialization();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QWidget *toolBar();
     bool isDesignModePreferred() const;

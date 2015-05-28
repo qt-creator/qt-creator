@@ -39,11 +39,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QBuffer>
-#include <QDebug>
-#include <QDesignerFormWindowInterface>
-#include <QFileInfo>
-
 namespace Designer {
 
 using namespace Internal;
@@ -58,49 +53,9 @@ FormWindowEditor::~FormWindowEditor()
 {
 }
 
-void FormWindowEditor::finalizeInitialization()
-{
-    // Revert to saved/load externally modified files.
-    connect(formWindowFile(), &FormWindowFile::reloadRequested,
-            [this](QString *errorString, const QString &fileName) {
-                open(errorString, fileName, fileName);
-    });
-}
-
 bool FormWindowEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "FormWindowEditor::open" << fileName;
-
-    auto document = qobject_cast<FormWindowFile *>(textDocument());
-    QDesignerFormWindowInterface *form = document->formWindow();
-    QTC_ASSERT(form, return false);
-
-    if (fileName.isEmpty())
-        return true;
-
-    const QFileInfo fi(fileName);
-    const QString absfileName = fi.absoluteFilePath();
-
-    QString contents;
-    if (document->read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
-        return false;
-
-    form->setFileName(absfileName);
-    const QByteArray contentsBA = contents.toUtf8();
-    QBuffer str;
-    str.setData(contentsBA);
-    str.open(QIODevice::ReadOnly);
-    if (!form->setContents(&str, errorString))
-        return false;
-    form->setDirty(fileName != realFileName);
-
-    document->syncXmlFromFormWindow();
-    document->setFilePath(Utils::FileName::fromString(absfileName));
-    document->setShouldAutoSave(false);
-    document->resourceHandler()->updateResources(true);
-
-    return true;
+    return formWindowFile()->open(errorString, fileName, realFileName);
 }
 
 QWidget *FormWindowEditor::toolBar()

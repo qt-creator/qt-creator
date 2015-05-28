@@ -52,6 +52,8 @@ public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
     ~FormWindowFile() { }
 
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+
     // IDocument
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     bool setContents(const QByteArray &contents);
@@ -71,10 +73,6 @@ public:
     void syncXmlFromFormWindow();
     QString formWindowContents() const;
     ResourceHandler *resourceHandler() const;
-
-signals:
-    // Internal
-    void reloadRequested(QString *errorString, const QString &);
 
 public slots:
     void setFilePath(const Utils::FileName &);
