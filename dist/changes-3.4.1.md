@@ -19,6 +19,11 @@ Editing
 * Fixed that the completion popup could become huge
   (QTCREATORBUG-14331)
 
+Help
+
+* Fixed that manually registered documentation vanished on restart
+  on Windows (QTCREATORBUG-14249)
+
 Project Management
 
 * Fixed adding static libraries with `Add Library` wizard
@@ -54,6 +59,8 @@ C++ Support
 QML Support
 
 * Fixed completion for QtQml and QtQml.Models (QTCREATORBUG-13780)
+* Fixed that dragging items from QML overview onto editor removed the
+  items (QTCREATORBUG-14496)
 
 Platform Specific
 
