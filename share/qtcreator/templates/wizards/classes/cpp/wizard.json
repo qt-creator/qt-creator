@@ -16,7 +16,7 @@
         { "key": "SrcPath", "value": "%{Path}/%{SrcFileName}" },
         { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
         { "key": "Base", "value": "%{JS: ( '%{BaseCB}' === '' ) ? '%{BaseEdit}' : '%{BaseCB}'}" },
-        { "key": "isQObject", "value": "%{JS: '%{Base}' === 'QObject' || '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow' || '%{Base}' === 'QDeclarativeItem' || '%{Base}' === 'QQuickItem' }" },
+        { "key": "isQObject", "value": "%{JS: [ 'QObject', 'QWidget', 'QMainWindow', 'QDeclarativeItem', 'QQuickItem'].indexOf('%{Base}') >= 0 }" },
         { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
         { "key": "SharedDataInit", "value": "%{JS: ('%{IncludeQSharedData}') ? 'data(new %{CN}Data)' : '' }" }
     ],

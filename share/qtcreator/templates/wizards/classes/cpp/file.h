@@ -24,7 +24,7 @@ class %{CN} : public %{Base}
 class %{CN}
 @endif
 {
-@if '%{isQObject}'
+@if %{isQObject}
      Q_OBJECT
 @endif
 public:
