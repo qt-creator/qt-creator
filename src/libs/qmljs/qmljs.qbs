@@ -8,6 +8,7 @@ QtcLibrary {
     ])
     cpp.optimization: "fast"
 
+    Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
     Depends { name: "LanguageUtils" }
     Depends { name: "CPlusPlus" }
