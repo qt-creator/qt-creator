@@ -202,6 +202,8 @@ void AndroidManifestEditorWidget::initializePage()
 
         packageGroupBox->setLayout(formLayout);
 
+        updateSdkVersions();
+
         connect(m_packageNameLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(setPackageName()));
         connect(m_versionCode, SIGNAL(valueChanged(int)),
@@ -503,7 +505,6 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
 bool AndroidManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool result = m_textEditorWidget->open(errorString, fileName, realFileName);
-    updateSdkVersions();
     updateAfterFileLoad(result);
     return result;
 }
