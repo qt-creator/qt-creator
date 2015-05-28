@@ -85,7 +85,7 @@ static int idealThreadCount()
     // we don't need them all here
     int cores = 1;
 #  if defined(Q_OS_BSD4)
-    // FreeBSD, OpenBSD, NetBSD, BSD/OS, Mac OS X
+    // FreeBSD, OpenBSD, NetBSD, BSD/OS, OS X
     size_t len = sizeof(cores);
     int mib[2];
     mib[0] = CTL_HW;
