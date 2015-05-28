@@ -255,6 +255,9 @@ QString IWizardFactory::runPath(const QString &defaultPath)
 
 bool IWizardFactory::isAvailable(const QString &platformName) const
 {
+    if (platformName.isEmpty())
+        return true;
+
     return availableFeatures(platformName).contains(requiredFeatures());
 }
 
