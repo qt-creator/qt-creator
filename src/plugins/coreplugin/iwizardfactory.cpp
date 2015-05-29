@@ -318,6 +318,8 @@ void IWizardFactory::destroyFeatureProvider()
 
 void IWizardFactory::clearWizardFactories()
 {
+    QTC_ASSERT(!ICore::isNewItemDialogRunning(), return);
+
     foreach (IWizardFactory *factory, s_allFactories)
         ActionManager::unregisterAction(factory->m_action, actionId(factory));
 
@@ -360,4 +362,6 @@ void IWizardFactory::initialize()
     ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
 
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
+    connect(ICore::instance(), &ICore::newItemDialogRunningChanged, resetAction,
+            [resetAction]() { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
 }
