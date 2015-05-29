@@ -224,20 +224,15 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui->templatesView->setModel(m_filterProxyModel);
     m_ui->templatesView->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
 
-    connect(m_ui->templateCategoryView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentCategoryChanged(QModelIndex)));
+    connect(m_ui->templateCategoryView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &NewDialog::currentCategoryChanged);
 
-    connect(m_ui->templatesView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentItemChanged(QModelIndex)));
+    connect(m_ui->templatesView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &NewDialog::currentItemChanged);
 
-    connect(m_ui->templatesView,
-            SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(okButtonClicked()));
-
-    connect(m_okButton, SIGNAL(clicked()), this, SLOT(okButtonClicked()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->templatesView, &QListView::doubleClicked, this, &NewDialog::accept);
+    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &NewDialog::accept);
+    connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &NewDialog::reject);
 
     connect(m_ui->comboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(setSelectedPlatform(QString)));
 }
@@ -453,18 +448,16 @@ void NewDialog::saveState()
         m_lastCategory = currentItem->data(Qt::UserRole).toString();
 }
 
-void NewDialog::okButtonClicked()
+void NewDialog::accept()
 {
-    if (m_ui->templatesView->currentIndex().isValid()) {
-        hide();
-        saveState();
+    saveState();
+    QDialog::accept();
 
+    if (m_ui->templatesView->currentIndex().isValid()) {
         IWizardFactory *wizard = currentWizardFactory();
         QTC_ASSERT(wizard, accept(); return);
         QString path = wizard->runPath(m_defaultLocation);
         wizard->runWizard(path, ICore::dialogParent(), selectedPlatform(), m_extraVariables);
-
-        close();
     }
 }
 

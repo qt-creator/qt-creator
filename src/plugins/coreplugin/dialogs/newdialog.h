@@ -75,7 +75,7 @@ protected:
 private slots:
     void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
-    void okButtonClicked();
+    void accept();
     void reject();
     void updateOkButton();
     void setSelectedPlatform(const QString &platform);
