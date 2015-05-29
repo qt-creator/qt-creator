@@ -34,6 +34,8 @@
 #include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QSysInfo>
 #include <QApplication>
 
@@ -283,6 +285,7 @@
     specified by \a additionalContexts changed.
 */
 
+#include "dialogs/newdialog.h"
 #include "mainwindow.h"
 #include "documentmanager.h"
 
@@ -301,6 +304,7 @@ namespace Core {
 // The Core Singleton
 static ICore *m_instance = 0;
 static MainWindow *m_mainwindow;
+static bool m_isNewItemDialogRunning = false;
 
 ICore *ICore::instance()
 {
@@ -309,7 +313,7 @@ ICore *ICore::instance()
 
 bool ICore::isNewItemDialogRunning()
 {
-    return m_mainwindow->isNewItemDialogRunning();
+    return m_isNewItemDialogRunning;
 }
 
 ICore::ICore(MainWindow *mainwindow)
@@ -334,7 +338,14 @@ void ICore::showNewItemDialog(const QString &title,
                               const QString &defaultLocation,
                               const QVariantMap &extraVariables)
 {
-    m_mainwindow->showNewItemDialog(title, factories, defaultLocation, extraVariables);
+    QTC_ASSERT(!m_isNewItemDialogRunning, return);
+    auto newDialog = new NewDialog(dialogParent());
+    connect(newDialog, &QObject::destroyed, &ICore::newItemDialogClosed);
+    newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
+    newDialog->setWindowTitle(title);
+    newDialog->showDialog();
+
+    newItemDialogOpened();
 }
 
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
@@ -539,6 +550,18 @@ void ICore::saveSettings()
 
     ICore::settings(QSettings::SystemScope)->sync();
     ICore::settings(QSettings::UserScope)->sync();
+}
+
+void ICore::newItemDialogOpened()
+{
+    m_isNewItemDialogRunning = true;
+    emit instance()->newItemDialogRunningChanged();
+}
+
+void ICore::newItemDialogClosed()
+{
+    m_isNewItemDialogRunning = false;
+    emit instance()->newItemDialogRunningChanged();
 }
 
 } // namespace Core

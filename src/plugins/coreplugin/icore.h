@@ -136,6 +136,10 @@ signals:
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const QList<Core::IContext *> &context, const Core::Context &additionalContexts);
     void themeChanged();
+
+private:
+    static void newItemDialogOpened();
+    static void newItemDialogClosed();
 };
 
 } // namespace Core

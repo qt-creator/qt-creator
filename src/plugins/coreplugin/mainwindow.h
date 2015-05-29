@@ -33,7 +33,6 @@
 
 #include "icontext.h"
 #include "icore.h"
-#include "dialogs/newdialog.h"
 
 #include <utils/appmainwindow.h>
 #include <utils/fileutils.h>
@@ -109,20 +108,12 @@ public:
 
     void setOverrideColor(const QColor &color);
 
-    bool isNewItemDialogRunning() const;
-
 signals:
     void newItemDialogRunningChanged();
 
 public slots:
-    void newFile();
     void openFileWith();
     void exit();
-
-    void showNewItemDialog(const QString &title,
-                           const QList<IWizardFactory *> &factories,
-                           const QString &defaultLocation = QString(),
-                           const QVariantMap &extraVariables = QVariantMap());
 
     bool showOptionsDialog(Id page = Id(), QWidget *parent = 0);
 
@@ -177,7 +168,6 @@ private:
     RightPaneWidget *m_rightPaneWidget;
     StatusBarWidget *m_outputView;
     VersionDialog *m_versionDialog;
-    QPointer<NewDialog> m_newDialog;
 
     QList<IContext *> m_activeContext;
 
