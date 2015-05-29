@@ -173,56 +173,12 @@ void SavedAction::setSettingsGroup(const QString &group)
     m_settingsGroup = group;
 }
 
-QString SavedAction::textPattern() const
-{
-    return m_textPattern;
-}
-
-void SavedAction::setTextPattern(const QString &value)
-{
-    m_textPattern = value;
-}
-
 QString SavedAction::toString() const
 {
     return QLatin1String("value: ") + m_value.toString()
         + QLatin1String("  defaultvalue: ") + m_defaultValue.toString()
         + QLatin1String("  settingskey: ") + m_settingsGroup
         + QLatin1Char('/') + m_settingsKey;
-}
-
-/*!
-    Adjust the \c text() of the underlying action.
-
-    This can be used to update the item shortly before e.g. a menu is shown.
-
-    If the item's \c textPattern() is empty the \a text will be used
-    verbatim.
-
-    Otherwise, the behaviour depends on \a text: if it is non-empty,
-    \c QString(textPattern()).arg(text), otherwise, \c textPattern()
-    with the "%1" placeholder removed will be used.
-
-    \sa textPattern(), setTextPattern()
-*/
-QAction *SavedAction::updatedAction(const QString &text0)
-{
-    QString text = text0;
-    bool enabled = true;
-    if (!m_textPattern.isEmpty()) {
-        if (text.isEmpty()) {
-            text = m_textPattern;
-            text.remove(QLatin1String("\"%1\""));
-            text.remove(QLatin1String("%1"));
-            enabled = false;
-        } else {
-            text = m_textPattern.arg(text0);
-        }
-    }
-    this->setEnabled(enabled);
-    this->setData(text0);
-    this->setText(text);
-    return this;
 }
 
 /*

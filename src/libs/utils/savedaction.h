@@ -56,7 +56,6 @@ public:
     QVariant defaultValue() const;
     Q_SLOT void setDefaultValue(const QVariant &value);
 
-    QAction *updatedAction(const QString &newText);
     Q_SLOT void trigger(const QVariant &data);
 
     // used for persistency
@@ -73,9 +72,6 @@ public:
     void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
     void disconnectWidget();
     Q_SLOT void apply(QSettings *settings);
-
-    QString textPattern() const;
-    Q_SLOT void setTextPattern(const QString &value);
 
     QString toString() const;
 
@@ -96,8 +92,6 @@ private:
     QVariant m_defaultValue;
     QString m_settingsKey;
     QString m_settingsGroup;
-    QString m_textPattern;
-    QString m_textData;
     QWidget *m_widget;
     ApplyMode m_applyMode;
 };
