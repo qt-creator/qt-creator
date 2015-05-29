@@ -42,6 +42,7 @@ QT_END_NAMESPACE
 namespace ResourceEditor {
 namespace Internal {
 
+class RelativeResourceModel;
 class ResourceEditorPlugin;
 class ResourceEditorW;
 class QrcEditor;
@@ -53,8 +54,9 @@ class ResourceEditorDocument
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 
 public:
-    ResourceEditorDocument(ResourceEditorW *parent = 0);
+    ResourceEditorDocument(QObject *parent = 0);
 
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     //IDocument
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString plainText() const;
@@ -68,12 +70,18 @@ public:
     void setFilePath(const Utils::FileName &newName);
     void setBlockDirtyChanged(bool value);
 
-public slots:
-    void dirtyChanged(bool);
+    RelativeResourceModel *model() const;
+    void setShouldAutoSave(bool save);
+
+signals:
+    void loaded(bool success);
 
 private:
-    bool m_blockDirtyChanged;
-    ResourceEditorW *m_parent;
+    void dirtyChanged(bool);
+
+    RelativeResourceModel *m_model;
+    bool m_blockDirtyChanged = false;
+    bool m_shouldAutoSave = false;
 };
 
 class ResourceEditorW : public Core::IEditor
@@ -91,11 +99,8 @@ public:
     Core::IDocument *document() { return m_resourceDocument; }
     QWidget *toolBar();
 
-    void setSuggestedFileName(const QString &fileName);
-
 private slots:
     void onUndoStackChanged(bool canUndo, bool canRedo);
-    void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void showContextMenu(const QPoint &globalPoint, const QString &fileName);
     void openCurrentFile();
     void openFile(const QString &fileName);
@@ -106,11 +111,9 @@ private:
     const QString m_extension;
     const QString m_fileFilter;
     QString m_displayName;
-    QString m_suggestedName;
     QrcEditor *m_resourceEditor;
     ResourceEditorDocument *m_resourceDocument;
     ResourceEditorPlugin *m_plugin;
-    bool m_shouldAutoSave;
     QMenu *m_contextMenu;
     QMenu *m_openWithMenu;
     QString m_currentFileName;

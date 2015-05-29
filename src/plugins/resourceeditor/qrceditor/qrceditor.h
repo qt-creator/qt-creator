@@ -44,20 +44,10 @@ class QrcEditor : public QWidget
     Q_OBJECT
 
 public:
-    QrcEditor(QWidget *parent = 0);
+    QrcEditor(RelativeResourceModel *model, QWidget *parent = 0);
     virtual ~QrcEditor();
 
-    bool load(const QString &fileName);
-    bool save();
-    QString contents() const;
-    QTreeView *treeView() { return m_treeview; }
-    QString errorMessage() const { return m_treeview->errorMessage(); }
-
-    bool isDirty();
-    void setDirty(bool dirty);
-
-    QString fileName() const;
-    void setFileName(const QString &fileName);
+    void loaded(bool success);
 
     void setResourceDragEnabled(bool e);
     bool resourceDragEnabled() const;
@@ -70,7 +60,6 @@ public:
     QString currentResourcePath() const;
 
 signals:
-    void dirtyChanged(bool dirty);
     void itemActivated(const QString &fileName);
     void showContextMenu(const QPoint &globalPos, const QString &fileName);
 

@@ -280,6 +280,55 @@ private:
     QIcon m_prefixIcon;
 };
 
+/*!
+    \class EntryBackup
+
+    Holds the backup of a tree node including children.
+*/
+class EntryBackup
+{
+protected:
+    ResourceModel *m_model;
+    int m_prefixIndex;
+    QString m_name;
+
+    EntryBackup(ResourceModel &model, int prefixIndex, const QString &name)
+            : m_model(&model), m_prefixIndex(prefixIndex), m_name(name) { }
+
+public:
+    virtual void restore() const = 0;
+    virtual ~EntryBackup() { }
+};
+
+class RelativeResourceModel : public ResourceModel
+{
+public:
+    RelativeResourceModel(QObject *parent = 0);
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+    {
+        if (!index.isValid())
+            return QVariant();
+/*
+        void const * const internalPointer = index.internalPointer();
+
+        if ((role == Qt::DisplayRole) && (internalPointer != NULL))
+            return ResourceModel::data(index, Qt::ToolTipRole);
+*/
+        return ResourceModel::data(index, role);
+    }
+
+    void setResourceDragEnabled(bool e) { m_resourceDragEnabled = e; }
+    bool resourceDragEnabled() const { return m_resourceDragEnabled; }
+
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    EntryBackup * removeEntry(const QModelIndex &index);
+
+private:
+    bool m_resourceDragEnabled;
+};
+
 } // namespace Internal
 } // namespace ResourceEditor
 

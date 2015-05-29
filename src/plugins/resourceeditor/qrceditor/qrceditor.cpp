@@ -31,6 +31,9 @@
 #include "qrceditor.h"
 #include "undocommands_p.h"
 
+#include <aggregation/aggregate.h>
+#include <coreplugin/find/itemviewfind.h>
+
 #include <QDebug>
 #include <QScopedPointer>
 #include <QMenu>
@@ -40,9 +43,9 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-QrcEditor::QrcEditor(QWidget *parent)
+QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
   : QWidget(parent),
-    m_treeview(new ResourceView(&m_history)),
+    m_treeview(new ResourceView(model, &m_history)),
     m_addFileAction(0)
 {
     m_ui.setupUi(this);
@@ -66,7 +69,6 @@ QrcEditor::QrcEditor(QWidget *parent)
     connect(m_treeview, SIGNAL(removeItem()), this, SLOT(onRemove()));
     connect(m_treeview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateCurrent()));
-    connect(m_treeview, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
     connect(m_treeview, SIGNAL(itemActivated(QString)),
             this, SIGNAL(itemActivated(QString)));
     connect(m_treeview, SIGNAL(showContextMenu(QPoint,QString)),
@@ -97,6 +99,11 @@ QrcEditor::QrcEditor(QWidget *parent)
 
     connect(&m_history, SIGNAL(canRedoChanged(bool)), this, SLOT(updateHistoryControls()));
     connect(&m_history, SIGNAL(canUndoChanged(bool)), this, SLOT(updateHistoryControls()));
+
+    Aggregation::Aggregate * agg = new Aggregation::Aggregate;
+    agg->add(m_treeview);
+    agg->add(new Core::ItemViewFind(m_treeview));
+
     updateHistoryControls();
     updateCurrent();
 }
@@ -105,52 +112,19 @@ QrcEditor::~QrcEditor()
 {
 }
 
-QString QrcEditor::fileName() const
+void QrcEditor::loaded(bool success)
 {
-    return m_treeview->fileName();
-}
-
-void QrcEditor::setFileName(const QString &fileName)
-{
-    m_treeview->setFileName(fileName);
-}
-
-bool QrcEditor::load(const QString &fileName)
-{
-    const bool success = m_treeview->load(fileName);
-    if (success) {
-        // Set "focus"
-        m_treeview->setCurrentIndex(m_treeview->model()->index(0,0));
-
-        // Expand prefix nodes
-        m_treeview->expandAll();
-    }
-    return success;
+    if (!success)
+        return;
+    // Set "focus"
+    m_treeview->setCurrentIndex(m_treeview->model()->index(0,0));
+    // Expand prefix nodes
+    m_treeview->expandAll();
 }
 
 void QrcEditor::refresh()
 {
     m_treeview->refresh();
-}
-
-bool QrcEditor::save()
-{
-    return m_treeview->save();
-}
-
-QString QrcEditor::contents() const
-{
-    return m_treeview->contents();
-}
-
-bool QrcEditor::isDirty()
-{
-    return m_treeview->isDirty();
-}
-
-void QrcEditor::setDirty(bool dirty)
-{
-    m_treeview->setDirty(dirty);
 }
 
 // Propagates a change of selection in the tree

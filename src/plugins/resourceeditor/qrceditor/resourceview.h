@@ -47,26 +47,6 @@ QT_END_NAMESPACE
 namespace ResourceEditor {
 namespace Internal {
 
-/*!
-    \class EntryBackup
-
-    Holds the backup of a tree node including children.
-*/
-class EntryBackup
-{
-protected:
-    ResourceModel *m_model;
-    int m_prefixIndex;
-    QString m_name;
-
-    EntryBackup(ResourceModel &model, int prefixIndex, const QString &name)
-            : m_model(&model), m_prefixIndex(prefixIndex), m_name(name) { }
-
-public:
-    virtual void restore() const = 0;
-    virtual ~EntryBackup() { }
-};
-
 class RelativeResourceModel;
 
 class ResourceView : public Utils::TreeView
@@ -80,18 +60,10 @@ public:
         LanguageProperty
     };
 
-    explicit ResourceView(QUndoStack *history, QWidget *parent = 0);
+    explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = 0);
     ~ResourceView();
 
-    bool load(const QString &fileName);
-    bool save();
-    QString contents() const;
-    QString errorMessage() const;
     QString fileName() const;
-    void setFileName(const QString &fileName);
-
-    bool isDirty() const;
-    void setDirty(bool dirty);
 
     bool isPrefix(const QModelIndex &index) const;
 
@@ -126,7 +98,6 @@ protected:
 
 signals:
     void removeItem();
-    void dirtyChanged(bool b);
     void itemActivated(const QString &fileName);
     void showContextMenu(const QPoint &globalPos, const QString &fileName);
 
