@@ -43,7 +43,7 @@
 #include <QSpinBox>
 #include <QTextEdit>
 
-using namespace Utils;
+namespace Utils {
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -229,37 +229,50 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     QTC_ASSERT(!m_widget,
         qDebug() << "ALREADY CONNECTED: " << widget << m_widget << toString(); return);
     m_widget = widget;
-    m_applyMode = applyMode;
 
-    if (QCheckBox *button = qobject_cast<QCheckBox *>(widget)) {
+    if (auto button = qobject_cast<QCheckBox *>(widget)) {
         if (!m_dialogText.isEmpty())
             button->setText(m_dialogText);
         button->setChecked(m_value.toBool());
-        connect(button, &QCheckBox::clicked,
-                this, &SavedAction::checkableButtonClicked);
-    } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(button, &QCheckBox::clicked,
+                    this, [this, button] { setValue(button->isChecked()); });
+        }
+    } else if (auto spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
-        connect(spinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-                this, &SavedAction::spinBoxValueChanged);
-    } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(spinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+                    this, [this, spinBox]() { setValue(spinBox->value()); });
+        }
+    } else if (auto lineEdit = qobject_cast<QLineEdit *>(widget)) {
         lineEdit->setText(m_value.toString());
-        connect(lineEdit, &QLineEdit::editingFinished,
-                this, &SavedAction::lineEditEditingFinished);
-    } else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(lineEdit, &QLineEdit::editingFinished,
+                    this, [this, lineEdit] { setValue(lineEdit->text()); });
+        }
+
+    } else if (auto pathChooser = qobject_cast<PathChooser *>(widget)) {
         pathChooser->setPath(m_value.toString());
-        connect(pathChooser, &PathChooser::editingFinished,
-                this, &SavedAction::pathChooserEditingFinished);
-        connect(pathChooser, &PathChooser::browsingFinished,
-                this, &SavedAction::pathChooserEditingFinished);
-    } else if (QGroupBox *groupBox = qobject_cast<QGroupBox *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            auto finished = [this, pathChooser] { setValue(pathChooser->path()); };
+            connect(pathChooser, &PathChooser::editingFinished, this, finished);
+            connect(pathChooser, &PathChooser::browsingFinished, this, finished);
+        }
+    } else if (auto groupBox = qobject_cast<QGroupBox *>(widget)) {
         if (!groupBox->isCheckable())
             qDebug() << "connectWidget to non-checkable group box" << widget << toString();
         groupBox->setChecked(m_value.toBool());
-        connect(groupBox, &QGroupBox::toggled, this, &SavedAction::groupBoxToggled);
-    } else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(groupBox, &QGroupBox::toggled,
+                    this, [this, groupBox] { setValue(QVariant(groupBox->isChecked())); });
+        }
+    } else if (auto textEdit = qobject_cast<QTextEdit *>(widget)) {
         textEdit->setPlainText(m_value.toString());
-        connect(textEdit, &QTextEdit::textChanged, this, &SavedAction::textEditTextChanged);
-    } else if (PathListEditor *editor = qobject_cast<PathListEditor *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(textEdit, &QTextEdit::textChanged,
+                    this, [this, textEdit] { setValue(textEdit->toPlainText()); });
+        }
+    } else if (auto editor = qobject_cast<PathListEditor *>(widget)) {
         editor->setPathList(m_value.toStringList());
     } else {
         qDebug() << "Cannot connect widget " << widget << toString();
@@ -282,62 +295,22 @@ void SavedAction::disconnectWidget()
 
 void SavedAction::apply(QSettings *s)
 {
-    if (QCheckBox *button = qobject_cast<QCheckBox *>(m_widget))
+    if (auto button = qobject_cast<QCheckBox *>(m_widget))
         setValue(button->isChecked());
-    else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(m_widget))
+    else if (auto lineEdit = qobject_cast<QLineEdit *>(m_widget))
         setValue(lineEdit->text());
-    else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(m_widget))
+    else if (auto spinBox = qobject_cast<QSpinBox *>(m_widget))
         setValue(spinBox->value());
-    else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
+    else if (auto pathChooser = qobject_cast<PathChooser *>(m_widget))
         setValue(pathChooser->path());
-    else if (const QGroupBox *groupBox = qobject_cast<QGroupBox *>(m_widget))
+    else if (auto groupBox = qobject_cast<QGroupBox *>(m_widget))
         setValue(groupBox->isChecked());
-    else if (const QTextEdit *textEdit = qobject_cast<QTextEdit *>(m_widget))
+    else if (auto textEdit = qobject_cast<QTextEdit *>(m_widget))
         setValue(textEdit->toPlainText());
-    else if (const PathListEditor *editor = qobject_cast<PathListEditor *>(m_widget))
+    else if (auto editor = qobject_cast<PathListEditor *>(m_widget))
         setValue(editor->pathList());
     if (s)
        writeSettings(s);
-}
-
-void SavedAction::checkableButtonClicked(bool)
-{
-    QCheckBox *button = qobject_cast<QCheckBox *>(sender());
-    QTC_ASSERT(button, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(button->isChecked());
-}
-
-void SavedAction::lineEditEditingFinished()
-{
-    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
-    QTC_ASSERT(lineEdit, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(lineEdit->text());
-}
-
-void SavedAction::spinBoxValueChanged(int value)
-{
-    QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
-    QTC_ASSERT(spinBox, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(value);
-}
-
-void SavedAction::pathChooserEditingFinished()
-{
-    PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
-    QTC_ASSERT(pathChooser, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(pathChooser->path());
-}
-
-void SavedAction::textEditTextChanged()
-{
-    QTextEdit *textEdit = qobject_cast<QTextEdit *>(sender());
-    QTC_ASSERT(textEdit, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(textEdit->toPlainText());
 }
 
 /*
@@ -358,13 +331,6 @@ QString SavedAction::dialogText() const
 void SavedAction::setDialogText(const QString &dialogText)
 {
     m_dialogText = dialogText;
-}
-
-
-void SavedAction::groupBoxToggled(bool checked)
-{
-    if (m_applyMode == ImmediateApply)
-        setValue(QVariant(checked));
 }
 
 void SavedAction::actionTriggered(bool)
@@ -410,3 +376,4 @@ void SavedActionSet::finish()
         action->disconnectWidget();
 }
 
+} // namespace Utils

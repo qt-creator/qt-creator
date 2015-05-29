@@ -82,13 +82,7 @@ signals:
     void valueChanged(const QVariant &newValue);
 
 private:
-    void checkableButtonClicked(bool);
-    void lineEditEditingFinished();
-    void pathChooserEditingFinished();
     void actionTriggered(bool);
-    void spinBoxValueChanged(int);
-    void groupBoxToggled(bool checked);
-    void textEditTextChanged();
 
     QVariant m_value;
     QVariant m_defaultValue;
@@ -96,7 +90,6 @@ private:
     QString m_settingsGroup;
     QString m_dialogText;
     QWidget *m_widget;
-    ApplyMode m_applyMode;
 };
 
 class QTCREATOR_UTILS_EXPORT SavedActionSet
