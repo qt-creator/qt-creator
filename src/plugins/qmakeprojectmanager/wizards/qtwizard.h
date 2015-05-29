@@ -77,7 +77,8 @@ public:
     static bool qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+                           QString *errorMessage) const override;
 };
 
 // A custom wizard with an additional Qt 4 target page
@@ -89,8 +90,10 @@ public:
     CustomQmakeProjectWizard();
 
 private:
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
-    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
+    Core::BaseFileWizard *create(QWidget *parent,
+                                 const Core::WizardDialogParameters &parameters) const override;
+    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l,
+                           QString *errorMessage) const override;
 
 private:
     enum { targetPageId = 1 };
@@ -106,14 +109,15 @@ class BaseQmakeProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDi
 {
     Q_OBJECT
 protected:
-    explicit BaseQmakeProjectWizardDialog(bool showModulesPage,
-                                        Utils::ProjectIntroPage *introPage,
-                                        int introId,
-                                        QWidget *parent,
-                                        const Core::WizardDialogParameters &parameters);
+    explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                          bool showModulesPage,
+                                          Utils::ProjectIntroPage *introPage,
+                                          int introId, QWidget *parent,
+                                          const Core::WizardDialogParameters &parameters);
 public:
-    explicit BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
-                                        const Core::WizardDialogParameters &parameters);
+    explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                          bool showModulesPage, QWidget *parent,
+                                          const Core::WizardDialogParameters &parameters);
     ~BaseQmakeProjectWizardDialog();
 
     int addModulesPage(int id = -1);

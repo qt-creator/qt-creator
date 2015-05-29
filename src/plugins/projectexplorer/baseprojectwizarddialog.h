@@ -48,11 +48,13 @@ class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Core::BaseFileWiza
     Q_OBJECT
 
 protected:
-    explicit BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage, int introId,
+    explicit BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                     Utils::ProjectIntroPage *introPage, int introId,
                                      QWidget *parent, const Core::WizardDialogParameters &parameters);
 
 public:
-    explicit BaseProjectWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
+    explicit BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent,
+                                     const Core::WizardDialogParameters &parameters);
 
     virtual ~BaseProjectWizardDialog();
 

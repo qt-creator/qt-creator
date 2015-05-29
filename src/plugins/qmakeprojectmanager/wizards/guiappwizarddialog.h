@@ -59,7 +59,7 @@ class GuiAppWizardDialog : public BaseQmakeProjectWizardDialog
     Q_OBJECT
 
 public:
-    explicit GuiAppWizardDialog(const QString &templateName,
+    explicit GuiAppWizardDialog(const Core::BaseFileWizardFactory *factory, const QString &templateName,
                                 const QIcon &icon,
                                 QWidget *parent,
                                 const Core::WizardDialogParameters &parameters);

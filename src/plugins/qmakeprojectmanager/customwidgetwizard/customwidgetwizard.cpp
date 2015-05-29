@@ -57,10 +57,8 @@ CustomWidgetWizard::CustomWidgetWizard()
 
 Core::BaseFileWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(displayName(),
-                                                                icon(),
-                                                                parent,
-                                                                parameters);
+    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(this, displayName(),
+                                                                icon(), parent, parameters);
     rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(parameters.defaultPath()));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;

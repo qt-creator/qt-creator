@@ -46,12 +46,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
-#include <QSharedData>
-#include <QEventLoop>
-#include <QScopedPointer>
-
-#include <QMessageBox>
-#include <QWizard>
 #include <QIcon>
 
 enum { debugWizard = 0 };
@@ -65,101 +59,6 @@ static int indexOfFile(const GeneratedFiles &f, const QString &path)
         if (f.at(i).path() == path)
             return i;
     return -1;
-}
-
-/*!
-    \class Core::Internal::WizardEventLoop
-    \brief The WizardEventLoop class implements a special event
-    loop that runs a QWizard and terminates if the page changes.
-
-    Used by Core::BaseFileWizard to intercept the change from the standard wizard pages
-    to the extension pages (as the latter require the list of Core::GeneratedFile generated).
-
-    Synopsis:
-    \code
-    Wizard wizard(parent);
-    WizardEventLoop::WizardResult wr;
-    do {
-        wr = WizardEventLoop::execWizardPage(wizard);
-    } while (wr == WizardEventLoop::PageChanged);
-    \endcode
-
-    \sa Core::GeneratedFile, Core::BaseFileWizardParameters, Core::BaseFileWizard, Core::StandardFileWizard
-*/
-
-class WizardEventLoop : public QEventLoop
-{
-    Q_OBJECT
-    WizardEventLoop(QObject *parent);
-
-public:
-    enum WizardResult { Accepted, Rejected , PageChanged };
-
-    static WizardResult execWizardPage(QWizard &w);
-
-private slots:
-    void pageChanged(int);
-    void accepted();
-    void rejected();
-
-private:
-    WizardResult execWizardPageI();
-
-    WizardResult m_result;
-};
-
-WizardEventLoop::WizardEventLoop(QObject *parent) :
-    QEventLoop(parent),
-    m_result(Rejected)
-{
-}
-
-WizardEventLoop::WizardResult WizardEventLoop::execWizardPage(QWizard &wizard)
-{
-    /* Install ourselves on the wizard. Main trick is here to connect
-     * to the page changed signal and quit() on it. */
-    WizardEventLoop *eventLoop = wizard.findChild<WizardEventLoop *>();
-    if (!eventLoop) {
-        eventLoop = new WizardEventLoop(&wizard);
-        connect(&wizard, SIGNAL(currentIdChanged(int)), eventLoop, SLOT(pageChanged(int)));
-        connect(&wizard, SIGNAL(accepted()), eventLoop, SLOT(accepted()));
-        connect(&wizard, SIGNAL(rejected()), eventLoop, SLOT(rejected()));
-        wizard.setWindowFlags(wizard.windowFlags());
-        wizard.show();
-    }
-    const WizardResult result = eventLoop->execWizardPageI();
-    // Quitting?
-    if (result != PageChanged)
-        delete eventLoop;
-    if (debugWizard)
-        qDebug() << "WizardEventLoop::runWizard" << wizard.pageIds() << " returns " << result;
-
-    return result;
-}
-
-WizardEventLoop::WizardResult WizardEventLoop::execWizardPageI()
-{
-    m_result = Rejected;
-    exec();
-    return m_result;
-}
-
-void WizardEventLoop::pageChanged(int /*page*/)
-{
-    m_result = PageChanged;
-    quit(); // !
-}
-
-void WizardEventLoop::accepted()
-{
-    m_result = Accepted;
-    quit();
-}
-
-void WizardEventLoop::rejected()
-{
-    m_result = Rejected;
-    quit();
 }
 
 /*!
@@ -186,27 +85,6 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget
 {
     QTC_ASSERT(!path.isEmpty(), return 0);
 
-    QString errorMessage;
-    // Compile extension pages, purge out unused ones
-    QList<IFileWizardExtension *> extensionList = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
-    WizardPageList  allExtensionPages;
-    for (auto it = extensionList.begin(); it !=  extensionList.end(); ) {
-        const WizardPageList extensionPages = (*it)->extensionPages(this);
-        if (extensionPages.empty()) {
-            it = extensionList.erase(it);
-        } else {
-            allExtensionPages += extensionPages;
-            ++it;
-        }
-    }
-
-    if (debugWizard)
-        qDebug() << Q_FUNC_INFO <<  path << parent << "exs" <<  extensionList.size() << allExtensionPages.size();
-
-    QWizardPage *firstExtensionPage = 0;
-    if (!allExtensionPages.empty())
-        firstExtensionPage = allExtensionPages.front();
-
     // Create dialog and run it. Ensure that the dialog is deleted when
     // leaving the func, but not before the IFileWizardExtension::process
     // has been called
@@ -216,92 +94,12 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget
     if (flags().testFlag(ForceCapitalLetterForFileName))
         dialogParameterFlags |= WizardDialogParameters::ForceCapitalLetterForFileName;
 
-    const QScopedPointer<QWizard> wizard(create(parent, WizardDialogParameters(path,
-                                                                               allExtensionPages,
-                                                                               platform,
-                                                                               requiredFeatures(),
-                                                                               dialogParameterFlags,
-                                                                               extraValues)));
-    QTC_ASSERT(!wizard.isNull(), return 0);
-    ICore::registerWindow(wizard.data(), Context("Core.NewWizard"));
-
-    GeneratedFiles files;
-    // Run the wizard: Call generate files on switching to the first extension
-    // page is OR after 'Accepted' if there are no extension pages
-    while (true) {
-        const WizardEventLoop::WizardResult wr = WizardEventLoop::execWizardPage(*wizard);
-        if (wr == WizardEventLoop::Rejected) {
-            files.clear();
-            break;
-        }
-        const bool accepted = wr == WizardEventLoop::Accepted;
-        const bool firstExtensionPageHit = wr == WizardEventLoop::PageChanged
-                                           && wizard->page(wizard->currentId()) == firstExtensionPage;
-        const bool needGenerateFiles = firstExtensionPageHit || (accepted && allExtensionPages.empty());
-        if (needGenerateFiles) {
-            QString errorMessage;
-            files = generateFiles(wizard.data(), &errorMessage);
-            if (files.empty()) {
-                QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
-                break;
-            }
-        }
-        if (firstExtensionPageHit)
-            foreach (IFileWizardExtension *ex, extensionList)
-                ex->firstExtensionPageShown(files, extraValues);
-        if (accepted)
-            break;
-    }
-    if (files.empty())
-        return 0;
-    // Compile result list and prompt for overwrite
-    switch (promptOverwrite(&files, &errorMessage)) {
-    case OverwriteCanceled:
-        return 0;
-    case OverwriteError:
-        QMessageBox::critical(0, tr("Existing files"), errorMessage);
-        return 0;
-    case OverwriteOk:
-        break;
-    }
-
-    foreach (IFileWizardExtension *ex, extensionList) {
-        for (int i = 0; i < files.count(); i++) {
-            ex->applyCodeStyle(&files[i]);
-        }
-    }
-
-    // Write
-    if (!writeFiles(files, &errorMessage)) {
-        QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-        return 0;
-    }
-
-    bool removeOpenProjectAttribute = false;
-    // Run the extensions
-    foreach (IFileWizardExtension *ex, extensionList) {
-        bool remove;
-        if (!ex->processFiles(files, &remove, &errorMessage)) {
-            if (!errorMessage.isEmpty())
-                QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-            return 0;
-        }
-        removeOpenProjectAttribute |= remove;
-    }
-
-    if (removeOpenProjectAttribute) {
-        for (int i = 0; i < files.count(); i++) {
-            if (files[i].attributes() & GeneratedFile::OpenProjectAttribute)
-                files[i].setAttributes(GeneratedFile::OpenEditorAttribute);
-        }
-    }
-
-    // Post generation handler
-    if (!postGenerateFiles(wizard.data(), files, &errorMessage))
-        if (!errorMessage.isEmpty())
-            QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
-
-    return 0;
+    Utils::Wizard *wizard = create(parent, WizardDialogParameters(path, platform,
+                                                                  requiredFeatures(),
+                                                                  dialogParameterFlags,
+                                                                  extraValues));
+    QTC_CHECK(wizard);
+    return wizard;
 }
 
 /*!
@@ -326,7 +124,7 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget
     Re-implement (calling the base implementation) to create files with CustomGeneratorAttribute set.
 */
 
-bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *errorMessage)
+bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *errorMessage) const
 {
     const GeneratedFile::Attributes noWriteAttributes
         = GeneratedFile::CustomGeneratorAttribute|GeneratedFile::KeepExistingFileAttribute;
@@ -343,7 +141,8 @@ bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *err
     The default implementation opens editors with the newly generated files.
 */
 
-bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage)
+bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l,
+                                              QString *errorMessage) const
 {
     return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
 }
@@ -500,9 +299,6 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
     files from path and name.
 
     \sa Core::GeneratedFile, Core::BaseFileWizardParameters, Core::BaseFileWizard
-    \sa Core::Internal::WizardEventLoop
 */
 
 } // namespace Core
-
-#include "basefilewizardfactory.moc"

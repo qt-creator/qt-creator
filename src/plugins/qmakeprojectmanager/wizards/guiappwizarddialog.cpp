@@ -45,11 +45,11 @@ GuiAppParameters::GuiAppParameters()
 {
 }
 
-GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
-                                       const QIcon &icon,
-                                       QWidget *parent,
+GuiAppWizardDialog::GuiAppWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                       const QString &templateName,
+                                       const QIcon &icon, QWidget *parent,
                                        const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(false, parent, parameters),
+    BaseQmakeProjectWizardDialog(factory, false, parent, parameters),
     m_filesPage(new FilesPage)
 {
     setWindowIcon(icon);
@@ -68,7 +68,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
     m_filesPage->setClassTypeComboVisible(false);
     addPage(m_filesPage);
 
-    addExtensionPages(parameters.extensionPages());
+    addExtensionPages(extensionPages());
 }
 
 void GuiAppWizardDialog::setBaseClasses(const QStringList &baseClasses)

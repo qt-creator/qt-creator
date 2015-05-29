@@ -257,6 +257,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
             ICore::validateNewDialogIsRunning();
             wizard->deleteLater();
         });
+        wizard->show();
         Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
     } else {
         s_isWizardRunning = false;

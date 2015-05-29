@@ -138,7 +138,7 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
 Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &p) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return 0);
-    Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
+    Core::BaseFileWizard *wizard = new Core::BaseFileWizard(this, p.extraValues(), parent);
 
     d->m_context->reset();
     CustomWizardPage *customPage = new CustomWizardPage(d->m_context, parameters());
@@ -147,7 +147,7 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
         wizard->setPage(parameters()->firstPageId, customPage);
     else
         wizard->addPage(customPage);
-    foreach (QWizardPage *ep, p.extensionPages())
+    foreach (QWizardPage *ep, wizard->extensionPages())
         wizard->addPage(ep);
     if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
@@ -243,7 +243,7 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     return generateWizardFiles(errorMessage);
 }
 
-bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage)
+bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage) const
 {
     if (!Core::BaseFileWizardFactory::writeFiles(files, errorMessage))
         return false;
@@ -461,16 +461,16 @@ CustomProjectWizard::CustomProjectWizard()
 Core::BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
                                      const Core::WizardDialogParameters &parameters) const
 {
-    BaseProjectWizardDialog *projectDialog = new BaseProjectWizardDialog(parent, parameters);
+    BaseProjectWizardDialog *projectDialog = new BaseProjectWizardDialog(this, parent, parameters);
     initProjectWizardDialog(projectDialog,
                             parameters.defaultPath(),
-                            parameters.extensionPages());
+                            projectDialog->extensionPages());
     return projectDialog;
 }
 
 void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
                                                   const QString &defaultPath,
-                                                  const WizardPageList &extensionPages) const
+                                                  const QList<QWizardPage *> &extensionPages) const
 {
     const CustomWizardParametersPtr pa = parameters();
     QTC_ASSERT(!pa.isNull(), return);
@@ -532,7 +532,7 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
 }
 
-bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
+bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) const
 {
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::postGenerateFiles()";

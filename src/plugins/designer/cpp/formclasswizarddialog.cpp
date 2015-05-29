@@ -40,9 +40,9 @@ namespace Designer {
 namespace Internal {
 
 // ----------------- FormClassWizardDialog
-FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPages,
+FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *factory,
                                              QWidget *parent) :
-    Core::BaseFileWizard(parent),
+    Core::BaseFileWizard(factory, QVariantMap(), parent),
     m_formPage(new FormTemplateWizardPage),
     m_classPage(new FormClassWizardPage)
 {
@@ -51,7 +51,7 @@ FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPage
     setPage(FormPageId, m_formPage);
     setPage(ClassPageId, m_classPage);
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, extensionPages())
         addPage(p);
 }
 

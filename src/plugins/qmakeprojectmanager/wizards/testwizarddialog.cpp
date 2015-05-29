@@ -49,11 +49,12 @@ TestWizardParameters::TestWizardParameters() :
 {
 }
 
-TestWizardDialog::TestWizardDialog(const QString &templateName,
+TestWizardDialog::TestWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                   const QString &templateName,
                                    const QIcon &icon,
                                    QWidget *parent,
                                    const Core::WizardDialogParameters &parameters)  :
-    BaseQmakeProjectWizardDialog(true, parent, parameters),
+    BaseQmakeProjectWizardDialog(factory, true, parent, parameters),
     m_testPage(new TestWizardPage)
 {
     setIntroDescription(tr("This wizard generates a Qt Unit Test "
@@ -65,7 +66,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
         addTargetSetupPage();
     addModulesPage();
     m_testPageId = addPage(m_testPage);
-    addExtensionPages(parameters.extensionPages());
+    addExtensionPages(extensionPages());
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }
 

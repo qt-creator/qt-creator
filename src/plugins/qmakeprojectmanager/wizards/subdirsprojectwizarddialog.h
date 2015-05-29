@@ -42,7 +42,7 @@ class SubdirsProjectWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 public:
-    explicit SubdirsProjectWizardDialog(const QString &templateName,
+    explicit SubdirsProjectWizardDialog(const Core::BaseFileWizardFactory *factory, const QString &templateName,
                                     const QIcon &icon,
                                     QWidget *parent,
                                     const Core::WizardDialogParameters &parameters);

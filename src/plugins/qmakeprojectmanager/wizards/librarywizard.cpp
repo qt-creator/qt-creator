@@ -61,7 +61,7 @@ LibraryWizard::LibraryWizard()
 
 Core::BaseFileWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    LibraryWizardDialog *dialog = new LibraryWizardDialog(displayName(), icon(), parent, parameters);
+    LibraryWizardDialog *dialog = new LibraryWizardDialog(this, displayName(), icon(), parent, parameters);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(parameters.defaultPath()));
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());

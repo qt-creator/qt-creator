@@ -54,9 +54,11 @@ SubdirsProjectWizard::SubdirsProjectWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-Core::BaseFileWizard *SubdirsProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *SubdirsProjectWizard::create(QWidget *parent,
+                                                   const Core::WizardDialogParameters &parameters) const
 {
-    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(displayName(), icon(), parent, parameters);
+    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(this, displayName(), icon(),
+                                                                        parent, parameters);
 
     dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(parameters.defaultPath()));
     const QString buttonText = dialog->wizardStyle() == QWizard::MacStyle
@@ -79,7 +81,8 @@ Core::GeneratedFiles SubdirsProjectWizard::generateFiles(const QWizard *w,
     return Core::GeneratedFiles() << profile;
 }
 
-bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &files, QString *errorMessage)
+bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &files,
+                                             QString *errorMessage) const
 {
     const SubdirsProjectWizardDialog *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     if (QtWizard::qt4ProjectPostGenerateFiles(wizard, files, errorMessage)) {

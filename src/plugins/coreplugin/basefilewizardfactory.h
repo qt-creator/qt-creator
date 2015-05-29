@@ -62,12 +62,10 @@ public:
     };
     Q_DECLARE_FLAGS(DialogParameterFlags, DialogParameterEnum)
 
-    explicit WizardDialogParameters(const QString &defaultPath, const WizardPageList &extensionPages,
-                                    const QString &platform, const FeatureSet &requiredFeatures,
-                                    DialogParameterFlags flags,
+    explicit WizardDialogParameters(const QString &defaultPath, const QString &platform,
+                                    const FeatureSet &requiredFeatures, DialogParameterFlags flags,
                                     QVariantMap extraValues)
         : m_defaultPath(defaultPath),
-          m_extensionPages(extensionPages),
           m_selectedPlatform(platform),
           m_requiredFeatures(requiredFeatures),
           m_parameterFlags(flags),
@@ -76,9 +74,6 @@ public:
 
     QString defaultPath() const
     { return m_defaultPath; }
-
-    WizardPageList extensionPages() const
-    { return m_extensionPages; }
 
     QString selectedPlatform() const
     { return m_selectedPlatform; }
@@ -94,7 +89,6 @@ public:
 
 private:
     QString m_defaultPath;
-    WizardPageList m_extensionPages;
     QString m_selectedPlatform;
     FeatureSet m_requiredFeatures;
     DialogParameterFlags m_parameterFlags;
@@ -105,20 +99,20 @@ class CORE_EXPORT BaseFileWizardFactory : public IWizardFactory
 {
     Q_OBJECT
 
+    friend class BaseFileWizard;
+
 public:
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
 
 protected:
-    typedef QList<QWizardPage *> WizardPageList;
-
     virtual BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const = 0;
 
     virtual GeneratedFiles generateFiles(const QWizard *w,
                                          QString *errorMessage) const = 0;
 
-    virtual bool writeFiles(const GeneratedFiles &files, QString *errorMessage);
+    virtual bool writeFiles(const GeneratedFiles &files, QString *errorMessage) const;
 
-    virtual bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage);
+    virtual bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage) const;
 
     static QString preferredSuffix(const QString &mimeType);
 

@@ -49,8 +49,7 @@ class FormClassWizardDialog : public Core::BaseFileWizard
 public:
     typedef QList<QWizardPage *> WizardPageList;
 
-    explicit FormClassWizardDialog(const WizardPageList &extensionPages,
-                                   QWidget *parent = 0);
+    explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = 0);
 
     QString path() const;
 

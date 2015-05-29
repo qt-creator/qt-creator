@@ -47,7 +47,7 @@ class GenericProjectWizardDialog : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    explicit GenericProjectWizardDialog(QWidget *parent = 0);
+    explicit GenericProjectWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = 0);
 
     QString path() const;
     void setPath(const QString &path);
@@ -69,8 +69,9 @@ public:
 
 protected:
     Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+                           QString *errorMessage) const override;
 };
 
 } // namespace Internal

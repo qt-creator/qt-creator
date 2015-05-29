@@ -83,7 +83,7 @@ QString QtWizard::profileSuffix()
     return preferredSuffix(QLatin1String(Constants::PROFILE_MIMETYPE));
 }
 
-bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const
 {
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
@@ -129,24 +129,27 @@ CustomQmakeProjectWizard::CustomQmakeProjectWizard()
 Core::BaseFileWizard *CustomQmakeProjectWizard::create(QWidget *parent,
                                           const Core::WizardDialogParameters &parameters) const
 {
-    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, parameters);
+    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(this, false, parent,
+                                                                            parameters);
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(targetPageId);
 
-    initProjectWizardDialog(wizard, parameters.defaultPath(), parameters.extensionPages());
+    initProjectWizardDialog(wizard, parameters.defaultPath(), wizard->extensionPages());
     return wizard;
 }
 
-bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+                                                 QString *errorMessage) const
 {
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
 
 // ----------------- BaseQmakeProjectWizardDialog
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
-                                                       const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                           bool showModulesPage, QWidget *parent,
+                                                           const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
     m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
@@ -155,11 +158,12 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage,
     init(showModulesPage);
 }
 
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage,
-                                                       Utils::ProjectIntroPage *introPage,
-                                                       int introId, QWidget *parent,
-                                                       const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                           bool showModulesPage,
+                                                           Utils::ProjectIntroPage *introPage,
+                                                           int introId, QWidget *parent,
+                                                           const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
     m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))

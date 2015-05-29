@@ -46,7 +46,7 @@ class LibraryWizardDialog : public BaseQmakeProjectWizardDialog
     Q_OBJECT
 
 public:
-    LibraryWizardDialog(const QString &templateName,
+    LibraryWizardDialog(const Core::BaseFileWizardFactory *factory, const QString &templateName,
                         const QIcon &icon,
                         QWidget *parent,
                         const Core::WizardDialogParameters &parameters);

@@ -42,11 +42,11 @@ namespace Internal {
 
 enum { IntroPageId = 0};
 
-CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
-                                                   const QIcon &icon,
-                                                   QWidget *parent,
+CustomWidgetWizardDialog::CustomWidgetWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                   const QString &templateName,
+                                                   const QIcon &icon, QWidget *parent,
                                                    const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(false, parent, parameters),
+    BaseQmakeProjectWizardDialog(factory, false, parent, parameters),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
     m_pluginPage(new CustomWidgetPluginWizardPage)
 {
@@ -61,7 +61,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);
 
-    addExtensionPages(parameters.extensionPages());
+    addExtensionPages(extensionPages());
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }
 

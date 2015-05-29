@@ -64,9 +64,10 @@ BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectInt
 {
 }
 
-BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent,
+BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                 QWidget *parent,
                                                  const Core::WizardDialogParameters &parameters) :
-    Core::BaseFileWizard(parent),
+    Core::BaseFileWizard(factory, parameters.extraValues(), parent),
     d(new BaseProjectWizardDialogPrivate(new Utils::ProjectIntroPage))
 {
     setPath(parameters.defaultPath());
@@ -75,10 +76,11 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent,
     init();
 }
 
-BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage, int introId,
+BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                 Utils::ProjectIntroPage *introPage, int introId,
                                                  QWidget *parent,
                                                  const Core::WizardDialogParameters &parameters) :
-    Core::BaseFileWizard(parent),
+    Core::BaseFileWizard(factory, parameters.extraValues(), parent),
     d(new BaseProjectWizardDialogPrivate(introPage, introId))
 {
     setPath(parameters.defaultPath());

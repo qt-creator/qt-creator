@@ -60,8 +60,9 @@ static const char *const ConfigFileTemplate =
 //
 //////////////////////////////////////////////////////////////////////////////
 
-GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent) :
-    Core::BaseFileWizard(parent)
+GenericProjectWizardDialog::GenericProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                       QWidget *parent) :
+    Core::BaseFileWizard(factory, QVariantMap(), parent)
 {
     setWindowTitle(tr("Import Existing Project"));
 
@@ -129,13 +130,14 @@ GenericProjectWizard::GenericProjectWizard()
     setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
-Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent,
+                                                   const Core::WizardDialogParameters &parameters) const
 {
-    GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(parent);
+    GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(this, parent);
 
     wizard->setPath(parameters.defaultPath());
 
-    foreach (QWizardPage *p, parameters.extensionPages())
+    foreach (QWizardPage *p, wizard->extensionPages())
         wizard->addPage(p);
 
     return wizard;
@@ -200,7 +202,8 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+                                             QString *errorMessage) const
 {
     Q_UNUSED(w);
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);

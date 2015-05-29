@@ -47,8 +47,8 @@ class CustomWidgetWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 public:
-    explicit CustomWidgetWizardDialog(const QString &templateName,
-                                      const QIcon &icon,
+    explicit CustomWidgetWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                      const QString &templateName, const QIcon &icon,
                                       QWidget *parent,
                                       const Core::WizardDialogParameters &parameters);
 

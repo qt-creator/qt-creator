@@ -34,11 +34,11 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateName,
-                                               const QIcon &icon,
-                                               QWidget *parent,
-                                               const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(false, parent, parameters)
+SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                       const QString &templateName,
+                                                       const QIcon &icon, QWidget *parent,
+                                                       const Core::WizardDialogParameters &parameters) :
+    BaseQmakeProjectWizardDialog(factory, false, parent, parameters)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -49,7 +49,7 @@ SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateNa
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
 
-    addExtensionPages(parameters.extensionPages());
+    addExtensionPages(extensionPages());
 }
 
 QtProjectParameters SubdirsProjectWizardDialog::parameters() const

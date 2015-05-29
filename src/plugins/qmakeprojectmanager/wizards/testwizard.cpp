@@ -62,7 +62,7 @@ TestWizard::TestWizard()
 
 Core::BaseFileWizard *TestWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), parent, parameters);
+    TestWizardDialog *dialog = new TestWizardDialog(this, displayName(), icon(), parent, parameters);
     dialog->setProjectName(TestWizardDialog::uniqueProjectName(parameters.defaultPath()));
     return dialog;
 }

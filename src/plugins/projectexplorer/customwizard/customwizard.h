@@ -115,7 +115,7 @@ protected:
     Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;
     // Create replacement map as static base fields + QWizard fields
     FieldReplacementMap replacementMap(const QWizard *w) const;
-    bool writeFiles(const Core::GeneratedFiles &files, QString *errorMessage);
+    bool writeFiles(const Core::GeneratedFiles &files, QString *errorMessage) const override;
 
     CustomWizardParametersPtr parameters() const;
     CustomWizardContextPtr context() const;
@@ -147,10 +147,10 @@ signals:
     void projectLocationChanged(const QString &path);
 
 protected:
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const override;
 
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,
-                                 const WizardPageList &extensionPages) const;
+                                 const QList<QWizardPage *> &extensionPages) const;
 
 private slots:
     void projectParametersChanged(const QString &project, const QString &path);

@@ -129,11 +129,12 @@ QtProjectParameters::Type LibraryIntroPage::type() const
 }
 
 // ------------------- LibraryWizardDialog
-LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
+LibraryWizardDialog::LibraryWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                         const QString &templateName,
                                          const QIcon &icon,
                                          QWidget *parent,
                                          const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(true, new LibraryIntroPage, -1, parent, parameters),
+    BaseQmakeProjectWizardDialog(factory, true, new LibraryIntroPage, -1, parent, parameters),
     m_filesPage(new FilesPage),
     m_pluginBaseClassesInitialized(false),
     m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1)
@@ -179,7 +180,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 
-    addExtensionPages(parameters.extensionPages());
+    addExtensionPages(extensionPages());
 }
 
 void LibraryWizardDialog::setSuffixes(const QString &header, const QString &source,  const QString &form)
