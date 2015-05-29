@@ -38,7 +38,6 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -159,16 +158,15 @@ bool s_areFactoriesLoaded = false;
 }
 
 /* A utility to find all wizards supporting a view mode and matching a predicate */
-template <class Predicate>
-    QList<IWizardFactory*> findWizardFactories(Predicate predicate)
+QList<IWizardFactory*> findWizardFactories(const std::function<bool(IWizardFactory*)> &predicate)
 {
-    // Filter all wizards
-    const QList<IWizardFactory*> allFactories = IWizardFactory::allWizardFactories();
-    QList<IWizardFactory*> rc;
-    const QList<IWizardFactory*>::const_iterator cend = allFactories.constEnd();
-    for (QList<IWizardFactory*>::const_iterator it = allFactories.constBegin(); it != cend; ++it)
-        if (predicate(*(*it)))
+    const QList<IWizardFactory *> allFactories = IWizardFactory::allWizardFactories();
+    QList<IWizardFactory *> rc;
+    auto cend = allFactories.constEnd();
+    for (auto it = allFactories.constBegin(); it != cend; ++it) {
+        if (predicate(*it))
             rc.push_back(*it);
+    }
     return rc;
 }
 
@@ -218,18 +216,9 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 }
 
 // Utility to find all registered wizards of a certain kind
-
-class WizardKindPredicate {
-public:
-    WizardKindPredicate(IWizardFactory::WizardKind kind) : m_kind(kind) {}
-    bool operator()(const IWizardFactory &w) const { return w.kind() == m_kind; }
-private:
-    const IWizardFactory::WizardKind m_kind;
-};
-
 QList<IWizardFactory*> IWizardFactory::wizardFactoriesOfKind(WizardKind kind)
 {
-    return findWizardFactories(WizardKindPredicate(kind));
+    return findWizardFactories([kind](IWizardFactory *f) { return f->kind() == kind; });
 }
 
 QString IWizardFactory::runPath(const QString &defaultPath)
