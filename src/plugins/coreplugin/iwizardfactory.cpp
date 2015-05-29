@@ -39,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/wizard.h>
 
 #include <QAction>
 
@@ -243,15 +244,25 @@ QString IWizardFactory::runPath(const QString &defaultPath)
     return path;
 }
 
-void IWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables)
+Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables)
 {
     s_isWizardRunning = true;
     ICore::validateNewDialogIsRunning();
 
-    runWizardImpl(path, parent, platform, variables);
+    Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables);
 
-    s_isWizardRunning = false;
-    ICore::validateNewDialogIsRunning();
+    if (wizard) {
+        connect(wizard, &Utils::Wizard::finished, [wizard]() {
+            s_isWizardRunning = false;
+            ICore::validateNewDialogIsRunning();
+            wizard->deleteLater();
+        });
+        Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
+    } else {
+        s_isWizardRunning = false;
+        ICore::validateNewDialogIsRunning();
+    }
+    return wizard;
 }
 
 bool IWizardFactory::isAvailable(const QString &platformName) const

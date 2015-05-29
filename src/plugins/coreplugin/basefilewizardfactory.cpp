@@ -180,9 +180,11 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
+Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
+                                                    const QString &platform,
+                                                    const QVariantMap &extraValues)
 {
-    QTC_ASSERT(!path.isEmpty(), return);
+    QTC_ASSERT(!path.isEmpty(), return 0);
 
     QString errorMessage;
     // Compile extension pages, purge out unused ones
@@ -220,7 +222,7 @@ void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, 
                                                                                requiredFeatures(),
                                                                                dialogParameterFlags,
                                                                                extraValues)));
-    QTC_ASSERT(!wizard.isNull(), return);
+    QTC_ASSERT(!wizard.isNull(), return 0);
     ICore::registerWindow(wizard.data(), Context("Core.NewWizard"));
 
     GeneratedFiles files;
@@ -251,14 +253,14 @@ void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, 
             break;
     }
     if (files.empty())
-        return;
+        return 0;
     // Compile result list and prompt for overwrite
     switch (promptOverwrite(&files, &errorMessage)) {
     case OverwriteCanceled:
-        return;
+        return 0;
     case OverwriteError:
         QMessageBox::critical(0, tr("Existing files"), errorMessage);
-        return;
+        return 0;
     case OverwriteOk:
         break;
     }
@@ -272,7 +274,7 @@ void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, 
     // Write
     if (!writeFiles(files, &errorMessage)) {
         QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-        return;
+        return 0;
     }
 
     bool removeOpenProjectAttribute = false;
@@ -282,7 +284,7 @@ void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, 
         if (!ex->processFiles(files, &remove, &errorMessage)) {
             if (!errorMessage.isEmpty())
                 QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-            return;
+            return 0;
         }
         removeOpenProjectAttribute |= remove;
     }
@@ -298,6 +300,8 @@ void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, 
     if (!postGenerateFiles(wizard.data(), files, &errorMessage))
         if (!errorMessage.isEmpty())
             QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
+
+    return 0;
 }
 
 /*!

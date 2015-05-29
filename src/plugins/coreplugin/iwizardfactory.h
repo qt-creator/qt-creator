@@ -42,6 +42,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
+namespace Utils { class Wizard; }
+
 namespace Core {
 
 namespace Internal { class CorePlugin; }
@@ -89,8 +91,8 @@ public:
     QString runPath(const QString &defaultPath);
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform,
-                           const QVariantMap &variables);
+    virtual Utils::Wizard *runWizard(const QString &path, QWidget *parent, const QString &platform,
+                                     const QVariantMap &variables);
 
     virtual bool isAvailable(const QString &platformName) const;
     QStringList supportedPlatforms() const;
@@ -113,8 +115,8 @@ protected:
     FeatureSet pluginFeatures() const;
     FeatureSet availableFeatures(const QString &platformName) const;
 
-    virtual void runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
-                               const QVariantMap &variables) = 0;
+    virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+                                         const QVariantMap &variables) = 0;
 
 private:
     static void initialize();

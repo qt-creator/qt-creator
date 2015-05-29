@@ -93,8 +93,8 @@ public:
     bool isAvailable(const QString &platformName) const override;
 
 private:
-    void runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
-                   const QVariantMap &variables);
+    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+                                 const QVariantMap &variables) override;
 
     // Create all wizards. As other plugins might register factories for derived
     // classes. Called when the new file dialog is shown for the first time.

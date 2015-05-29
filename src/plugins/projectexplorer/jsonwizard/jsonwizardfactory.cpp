@@ -356,52 +356,53 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
 JsonWizardFactory::~JsonWizardFactory()
 { }
 
-void JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
-                                  const QVariantMap &variables)
+Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
+                                                const QString &platform,
+                                                const QVariantMap &variables)
 {
-    JsonWizard wizard(parent);
-    wizard.setWindowIcon(icon());
-    wizard.setWindowTitle(displayName());
+    auto wizard = new JsonWizard(parent);
+    wizard->setWindowIcon(icon());
+    wizard->setWindowTitle(displayName());
 
-    wizard.setValue(QStringLiteral("WizardDir"), m_wizardDir);
+    wizard->setValue(QStringLiteral("WizardDir"), m_wizardDir);
     Core::FeatureSet tmp = requiredFeatures();
     tmp.remove(pluginFeatures());
-    wizard.setValue(QStringLiteral("RequiredFeatures"), tmp.toStringList());
+    wizard->setValue(QStringLiteral("RequiredFeatures"), tmp.toStringList());
     tmp = m_preferredFeatures;
     tmp.remove(pluginFeatures());
-    wizard.setValue(QStringLiteral("PreferredFeatures"), tmp.toStringList());
+    wizard->setValue(QStringLiteral("PreferredFeatures"), tmp.toStringList());
 
-    wizard.setValue(QStringLiteral("Features"), availableFeatures(platform).toStringList());
-    wizard.setValue(QStringLiteral("Plugins"), pluginFeatures().toStringList());
+    wizard->setValue(QStringLiteral("Features"), availableFeatures(platform).toStringList());
+    wizard->setValue(QStringLiteral("Plugins"), pluginFeatures().toStringList());
 
     // Add data to wizard:
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
-        wizard.setProperty(i.key().toUtf8(), i.value());
+        wizard->setValue(i.key(), i.value());
 
-    wizard.setValue(QStringLiteral("InitialPath"), path);
-    wizard.setValue(QStringLiteral("Platform"), platform);
+    wizard->setValue(QStringLiteral("InitialPath"), path);
+    wizard->setValue(QStringLiteral("Platform"), platform);
 
     QString kindStr = QLatin1String(Core::Constants::WIZARD_KIND_UNKNOWN);
     if (kind() == IWizardFactory::FileWizard)
         kindStr = QLatin1String(Core::Constants::WIZARD_KIND_FILE);
     else if (kind() == IWizardFactory::ProjectWizard)
         kindStr = QLatin1String(Core::Constants::WIZARD_KIND_PROJECT);
-    wizard.setValue(QStringLiteral("kind"), kindStr);
+    wizard->setValue(QStringLiteral("kind"), kindStr);
 
-    wizard.setValue(QStringLiteral("trDescription"), description());
-    wizard.setValue(QStringLiteral("trDisplayName"), displayName());
-    wizard.setValue(QStringLiteral("trCategory"), displayCategory());
-    wizard.setValue(QStringLiteral("category"), category());
-    wizard.setValue(QStringLiteral("id"), id().toString());
+    wizard->setValue(QStringLiteral("trDescription"), description());
+    wizard->setValue(QStringLiteral("trDisplayName"), displayName());
+    wizard->setValue(QStringLiteral("trCategory"), displayCategory());
+    wizard->setValue(QStringLiteral("category"), category());
+    wizard->setValue(QStringLiteral("id"), id().toString());
 
     for (auto i = m_options.constBegin(); i != m_options.constEnd(); ++i)
-        wizard.setValue(i.key(), i.value());
+        wizard->setValue(i.key(), i.value());
 
     bool havePage = false;
     foreach (const Page &data, m_pages) {
         QTC_ASSERT(data.isValid(), continue);
 
-        if (!JsonWizard::boolFromVariant(data.enabled, wizard.expander()))
+        if (!JsonWizard::boolFromVariant(data.enabled, wizard->expander()))
             continue;
 
         havePage = true;
@@ -410,7 +411,7 @@ void JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent, cons
                                                             return f->canCreate(data.typeId);
                                                        });
         QTC_ASSERT(factory, continue);
-        Utils::WizardPage *page = factory->create(&wizard, data.typeId, data.data);
+        Utils::WizardPage *page = factory->create(wizard, data.typeId, data.data);
         QTC_ASSERT(page, continue);
 
         page->setTitle(data.title);
@@ -418,11 +419,11 @@ void JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent, cons
         page->setProperty(Utils::SHORT_TITLE_PROPERTY, data.shortTitle);
 
         if (data.index >= 0) {
-            wizard.setPage(data.index, page);
-            if (wizard.page(data.index) != page) // Failed to set page!
+            wizard->setPage(data.index, page);
+            if (wizard->page(data.index) != page) // Failed to set page!
                 delete page;
         } else {
-            wizard.addPage(page);
+            wizard->addPage(page);
         }
     }
 
@@ -436,15 +437,17 @@ void JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent, cons
         JsonWizardGenerator *gen = factory->create(data.typeId, data.data, path, platform, variables);
         QTC_ASSERT(gen, continue);
 
-        wizard.addGenerator(gen);
+        wizard->addGenerator(gen);
     }
 
-    if (havePage) {
-        Core::ICore::registerWindow(&wizard, Core::Context("Core.NewJSONWizard"));
-        wizard.exec();
-    } else {
-        wizard.accept();
+    if (!havePage) {
+        wizard->accept();
+        wizard->deleteLater();
+        return 0;
     }
+
+    wizard->show();
+    return wizard;
 }
 
 QList<QVariant> JsonWizardFactory::objectOrList(const QVariant &data, QString *errorMessage)

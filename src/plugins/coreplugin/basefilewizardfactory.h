@@ -129,7 +129,8 @@ protected:
 
 private:
     // IWizard
-    void runWizardImpl(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
+    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+                                 const QVariantMap &extraValues) override;
 };
 
 } // namespace Core
