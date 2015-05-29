@@ -32,13 +32,11 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = map(lambda x: 2 ** x , range(9))
+    ALL_TARGETS = map(lambda x: 2 ** x , range(7))
 
     (DESKTOP_474_GCC,
      DESKTOP_480_DEFAULT,
      SIMULATOR,
-     MAEMO5,
-     HARMATTAN,
      EMBEDDED_LINUX,
      DESKTOP_521_DEFAULT,
      DESKTOP_531_DEFAULT,
@@ -46,8 +44,7 @@ class Targets:
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.MAEMO5
-                          & ~Targets.HARMATTAN & ~Targets.EMBEDDED_LINUX)
+        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':
             desktopTargets &= ~Targets.DESKTOP_541_GCC
         return desktopTargets
@@ -61,12 +58,8 @@ class Targets:
                 return "Desktop 480 MSVC2010"
             else:
                 return "Desktop 480 GCC"
-        elif target == Targets.MAEMO5:
-            return "Fremantle"
         elif target == Targets.SIMULATOR:
             return "Qt Simulator"
-        elif target == Targets.HARMATTAN:
-            return "Harmattan"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
         elif target == Targets.DESKTOP_521_DEFAULT:

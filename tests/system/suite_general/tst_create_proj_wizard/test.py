@@ -49,10 +49,7 @@ def main():
     test.compare("Projects", str(projects.data()))
     comboBox = findObject(":New.comboBox_QComboBox")
     targets = zip(*kits.values())[0]
-    maddeTargets = Targets.getTargetsAsStrings([Targets.MAEMO5, Targets.HARMATTAN])
-    maddeInTargets = len(set(targets) & set(maddeTargets)) > 0
     test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
-    test.verify(not maddeInTargets, "Verify there are no leftovers of Madde")
     test.compare(comboBox.currentText, "Desktop Templates")
     selectFromCombo(comboBox, "All Templates")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
@@ -84,11 +81,6 @@ def main():
                 if counter < len(quickCombinations) - 1:
                     displayedPlatforms = __createProject__(category, template)
             continue
-        try:
-            waitForObject("{name='mainQmlFileGroupBox' title='Main HTML File' type='QGroupBox' visible='1'}", 1000)
-            clickButton(waitForObject(":Next_QPushButton"))
-        except LookupError:
-            pass
         verifyKitCheckboxes(kits, displayedPlatforms)
         clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
     invokeMenuItem("File", "Exit")

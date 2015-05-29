@@ -380,20 +380,15 @@ def getConfiguredKits():
     iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
     for kit, qtVersion in kitsWithQtVersionName.iteritems():
-        if kit in ('Fremantle', 'Harmattan') and qtVersion == 'None':
-            test.log("Found Kit '%s' with unassigned Qt version (disabled Madde plugin)" % kit)
+        if kit in ('Fremantle', 'Harmattan'):
+            test.verify(qtVersion == 'None',
+                        "The outdated kit '%s' should not have a Qt version" % kit)
         elif qtVersion in qtVersionNames:
             result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
         else:
             test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
                       % (qtVersion, kit))
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    # adjust device name(s) to match getStringForTarget() - some differ from time to time
-    for targetName in result.keys():
-        targetInfo = result[targetName]
-        if targetInfo[0] == "Maemo":
-            result.update({targetName:
-                           (Targets.getStringForTarget(Targets.MAEMO5), targetInfo[1])})
     test.log("Configured kits: %s" % str(result))
     return result
 

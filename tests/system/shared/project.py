@@ -394,9 +394,6 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
             available.remove(Targets.EMBEDDED_LINUX)
         elif platform.system() == 'Darwin':
             available.remove(Targets.DESKTOP_541_GCC)
-    for target in filter(lambda x: x in available,
-                         (Targets.MAEMO5, Targets.HARMATTAN)):
-        available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
@@ -624,14 +621,9 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.extend([Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
-        if 'MeeGo/Harmattan' in supports:
-            result.append(Targets.HARMATTAN)
-        if 'Maemo/Fremantle' in supports:
-            result.append(Targets.MAEMO5)
         if not ("BlackBerry" in templateName or re.search("custom Qt Creator plugin", text)) and (version == None or version < "5.0"):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
-        # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
         result = list(Targets.ALL_TARGETS)
         result.remove(Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':
