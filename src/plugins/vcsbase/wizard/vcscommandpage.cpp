@@ -106,7 +106,7 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
 
     QString em;
     if (data.type() != QVariant::Map)
-        em = tr("\"data\" is no json object in \"VcsCommand\" page.");
+        em = tr("\"data\" is no JSON object in \"VcsCommand\" page.");
 
     if (em.isEmpty()) {
         const QVariantMap tmp = data.toMap();
