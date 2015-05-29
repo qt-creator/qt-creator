@@ -48,7 +48,6 @@
 
 Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
-
 namespace {
 
 const int ICON_SIZE = 22;
@@ -188,6 +187,7 @@ Q_DECLARE_METATYPE(WizardFactoryContainer)
 using namespace Core;
 using namespace Core::Internal;
 
+bool NewDialog::m_isRunning = false;
 QString NewDialog::m_lastCategory = QString();
 
 NewDialog::NewDialog(QWidget *parent) :
@@ -195,6 +195,10 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui(new Ui::NewDialog),
     m_okButton(0)
 {
+    QTC_CHECK(!m_isRunning);
+
+    m_isRunning = true;
+
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowFlags(windowFlags());
     setAttribute(Qt::WA_DeleteOnClose);
@@ -332,6 +336,11 @@ QString NewDialog::selectedPlatform() const
     return m_ui->comboBox->itemData(index).toString();
 }
 
+bool NewDialog::isRunning()
+{
+    return m_isRunning;
+}
+
 bool NewDialog::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
@@ -346,6 +355,9 @@ bool NewDialog::event(QEvent *event)
 
 NewDialog::~NewDialog()
 {
+    QTC_CHECK(m_isRunning);
+    m_isRunning = false;
+
     delete m_ui;
 }
 

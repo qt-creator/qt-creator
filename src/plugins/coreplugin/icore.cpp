@@ -304,7 +304,6 @@ namespace Core {
 // The Core Singleton
 static ICore *m_instance = 0;
 static MainWindow *m_mainwindow;
-static bool m_isNewItemDialogRunning = false;
 
 ICore *ICore::instance()
 {
@@ -313,7 +312,7 @@ ICore *ICore::instance()
 
 bool ICore::isNewItemDialogRunning()
 {
-    return m_isNewItemDialogRunning;
+    return NewDialog::isRunning();
 }
 
 ICore::ICore(MainWindow *mainwindow)
@@ -338,14 +337,14 @@ void ICore::showNewItemDialog(const QString &title,
                               const QString &defaultLocation,
                               const QVariantMap &extraVariables)
 {
-    QTC_ASSERT(!m_isNewItemDialogRunning, return);
+    QTC_ASSERT(!isNewItemDialogRunning(), return);
     auto newDialog = new NewDialog(dialogParent());
-    connect(newDialog, &QObject::destroyed, &ICore::newItemDialogClosed);
+    connect(newDialog, &QObject::destroyed, &ICore::validateNewDialogIsRunning);
     newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
     newDialog->setWindowTitle(title);
     newDialog->showDialog();
 
-    newItemDialogOpened();
+    validateNewDialogIsRunning();
 }
 
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
@@ -552,15 +551,12 @@ void ICore::saveSettings()
     ICore::settings(QSettings::UserScope)->sync();
 }
 
-void ICore::newItemDialogOpened()
+void ICore::validateNewDialogIsRunning()
 {
-    m_isNewItemDialogRunning = true;
-    emit instance()->newItemDialogRunningChanged();
-}
-
-void ICore::newItemDialogClosed()
-{
-    m_isNewItemDialogRunning = false;
+    static bool wasRunning = false;
+    if (wasRunning == isNewItemDialogRunning())
+        return;
+    wasRunning = isNewItemDialogRunning();
     emit instance()->newItemDialogRunningChanged();
 }
 

@@ -60,12 +60,14 @@ class NewDialog : public QDialog
 
 public:
     explicit NewDialog(QWidget *parent);
-    virtual ~NewDialog();
+    ~NewDialog();
 
     void setWizardFactories(QList<IWizardFactory*> factories, const QString &defaultLocation, const QVariantMap &extraVariables);
 
     void showDialog();
     QString selectedPlatform() const;
+
+    static bool isRunning();
 
 protected:
     bool event(QEvent *);
@@ -84,6 +86,7 @@ private:
     void saveState();
 
     static QString m_lastCategory;
+    static bool m_isRunning;
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;

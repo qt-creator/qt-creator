@@ -138,6 +138,7 @@ signals:
     void themeChanged();
 
 private:
+    static void validateNewDialogIsRunning();
     static void newItemDialogOpened();
     static void newItemDialogClosed();
 };
