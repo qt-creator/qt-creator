@@ -84,6 +84,8 @@ public:
 
     void removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a);
 
+    QHash<QString, QVariant> variables() const override;
+
 signals:
     void preGenerateFiles(); // emitted before files are generated (can happen several times!)
     void postGenerateFiles(const JsonWizard::GeneratorFiles &files); // emitted after commitToFileList was called.
@@ -104,6 +106,8 @@ private slots:
     void handleError(const QString &message);
 
 private:
+    QString stringify(const QVariant &v) const override;
+    QString evaluate(const QVariant &v) const override ;
     void openFiles(const GeneratorFiles &files);
 
     QList<JsonWizardGenerator *> m_generators;

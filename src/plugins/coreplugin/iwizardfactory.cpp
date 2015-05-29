@@ -155,6 +155,7 @@ namespace {
 static QList<IFeatureProvider *> s_providerList;
 QList<IWizardFactory *> s_allFactories;
 QList<IWizardFactory::FactoryCreator> s_factoryCreators;
+QAction *s_inspectWizardAction = 0;
 bool s_areFactoriesLoaded = false;
 bool s_isWizardRunning = false;
 }
@@ -256,11 +257,15 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
     if (wizard) {
         // Connect while wizard exists:
         connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
+        connect(s_inspectWizardAction, &QAction::triggered,
+                wizard, [wizard]() { wizard->showVariables(); });
         connect(wizard, &Utils::Wizard::finished, [wizard]() {
             s_isWizardRunning = false;
+            s_inspectWizardAction->setEnabled(false);
             ICore::validateNewDialogIsRunning();
             wizard->deleteLater();
         });
+        s_inspectWizardAction->setEnabled(true);
         wizard->show();
         Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
     } else {
@@ -380,4 +385,7 @@ void IWizardFactory::initialize()
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
     connect(ICore::instance(), &ICore::newItemDialogRunningChanged, resetAction,
             [resetAction]() { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
+
+    s_inspectWizardAction = new QAction(tr("Inspect Wizard State"), ActionManager::instance());
+    ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
 }

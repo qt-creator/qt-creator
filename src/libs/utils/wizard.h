@@ -72,12 +72,20 @@ public:
     // will return true for all fields registered via Utils::WizardPage::registerFieldWithName(...)
     bool hasField(const QString &name) const;
     void registerFieldName(const QString &name);
+    QSet<QString> fieldNames() const;
+
+    virtual QHash<QString, QVariant> variables() const;
+
+public slots:
+    void showVariables();
 
 signals:
     void nextClicked(); /* workaround for QWizard behavior where page->initialize is
                          * called before currentIdChanged */
 
 protected:
+    virtual QString stringify(const QVariant &v) const;
+    virtual QString evaluate(const QVariant &v) const;
     bool event(QEvent *event);
 
 private slots:

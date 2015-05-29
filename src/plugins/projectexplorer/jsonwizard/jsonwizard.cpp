@@ -189,6 +189,16 @@ void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)
     }
 }
 
+QHash<QString, QVariant> JsonWizard::variables() const
+{
+    QHash<QString, QVariant> result = Wizard::variables();
+    foreach (const QByteArray &p, dynamicPropertyNames()) {
+        QString key = QString::fromUtf8(p);
+        result.insert(key, value(key));
+    }
+    return result;
+}
+
 void JsonWizard::accept()
 {
     auto page = qobject_cast<Utils::WizardPage *>(currentPage());
@@ -271,6 +281,18 @@ void JsonWizard::handleNewPages(int pageId)
 void JsonWizard::handleError(const QString &message)
 {
     Core::MessageManager::write(message, Core::MessageManager::ModeSwitch);
+}
+
+QString JsonWizard::stringify(const QVariant &v) const
+{
+    if (v.type() == QVariant::StringList)
+        return stringListToArrayString(v.toStringList(), &m_expander);
+    return Wizard::stringify(v);
+}
+
+QString JsonWizard::evaluate(const QVariant &v) const
+{
+    return m_expander.expand(stringify(v));
 }
 
 void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)

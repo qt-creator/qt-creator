@@ -30,15 +30,19 @@
 
 #include "wizard.h"
 
+#include "algorithm.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "wizardpage.h"
 
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QHash>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMap>
+#include <QScrollArea>
 #include <QVBoxLayout>
 #include <QVariant>
 
@@ -391,6 +395,79 @@ void Wizard::registerFieldName(const QString &name)
 {
     QTC_ASSERT(!hasField(name), return);
     d_ptr->m_fieldNames.insert(name);
+}
+
+QSet<QString> Wizard::fieldNames() const
+{
+    return d_ptr->m_fieldNames;
+}
+
+QHash<QString, QVariant> Wizard::variables() const
+{
+    QHash<QString, QVariant> result;
+    foreach (const QString &f, fieldNames()) {
+        result.insert(f, field(f));
+    }
+    return result;
+}
+
+QString typeOf(const QVariant &v)
+{
+    QString result;
+    switch (v.type()) {
+    case QVariant::Map:
+        result = QLatin1String("Object");
+        break;
+    default:
+        result = QLatin1String(v.typeName());
+    }
+    return result;
+}
+
+void Wizard::showVariables()
+{
+    QString result = QLatin1String("<table>\n  <tr><td>Key</td><td>Type</td><td>Value</td><td>Eval</td></tr>\n");
+    QHash<QString, QVariant> vars = variables();
+    QList<QString> keys = vars.keys();
+    sort(keys);
+    foreach (const QString &key, keys) {
+        const QVariant &v = vars.value(key);
+        result += QLatin1String("  <tr><td>")
+                + key + QLatin1String("</td><td>")
+                + typeOf(v) + QLatin1String("</td><td>")
+                + stringify(v) + QLatin1String("</td><td>")
+                + evaluate(v) + QLatin1String("</td></tr>\n");
+    }
+
+    result += QLatin1String("</table>");
+
+    auto dialog = new QDialog(this);
+    dialog->setMinimumSize(800, 600);
+    auto layout = new QVBoxLayout(dialog);
+    auto scrollArea = new QScrollArea;
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok, Qt::Horizontal);
+
+    auto label = new QLabel(result);
+    label->setWordWrap(true);
+    scrollArea->setWidget(label);
+
+    layout->addWidget(scrollArea);
+    layout->addWidget(buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    connect(dialog, &QDialog::finished, dialog, &QObject::deleteLater);
+
+    dialog->show();
+}
+
+QString Wizard::stringify(const QVariant &v) const
+{
+    return v.toString();
+}
+
+QString Wizard::evaluate(const QVariant &v) const
+{
+    return stringify(v);
 }
 
 bool Wizard::event(QEvent *event)
