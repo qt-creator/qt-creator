@@ -180,7 +180,7 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-void BaseFileWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
+void BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
 {
     QTC_ASSERT(!path.isEmpty(), return);
 

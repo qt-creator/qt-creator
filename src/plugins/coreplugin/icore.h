@@ -59,6 +59,8 @@ class CORE_EXPORT ICore : public QObject
     Q_OBJECT
 
     friend class Internal::MainWindow;
+    friend class IWizardFactory;
+
     explicit ICore(Internal::MainWindow *mw);
     ~ICore();
 

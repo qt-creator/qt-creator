@@ -106,9 +106,6 @@ class CORE_EXPORT BaseFileWizardFactory : public IWizardFactory
     Q_OBJECT
 
 public:
-    // IWizard
-    void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
-
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
 
 protected:
@@ -129,6 +126,10 @@ protected:
     OverwriteResult promptOverwrite(GeneratedFiles *files,
                                     QString *errorMessage) const;
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
+
+private:
+    // IWizard
+    void runWizardImpl(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 };
 
 } // namespace Core

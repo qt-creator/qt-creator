@@ -286,6 +286,7 @@
 */
 
 #include "dialogs/newdialog.h"
+#include "iwizardfactory.h"
 #include "mainwindow.h"
 #include "documentmanager.h"
 
@@ -312,7 +313,7 @@ ICore *ICore::instance()
 
 bool ICore::isNewItemDialogRunning()
 {
-    return NewDialog::isRunning();
+    return NewDialog::isRunning() || IWizardFactory::isWizardRunning();
 }
 
 ICore::ICore(MainWindow *mainwindow)

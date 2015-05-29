@@ -155,6 +155,7 @@ static QList<IFeatureProvider *> s_providerList;
 QList<IWizardFactory *> s_allFactories;
 QList<IWizardFactory::FactoryCreator> s_factoryCreators;
 bool s_areFactoriesLoaded = false;
+bool s_isWizardRunning = false;
 }
 
 /* A utility to find all wizards supporting a view mode and matching a predicate */
@@ -242,6 +243,17 @@ QString IWizardFactory::runPath(const QString &defaultPath)
     return path;
 }
 
+void IWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables)
+{
+    s_isWizardRunning = true;
+    ICore::validateNewDialogIsRunning();
+
+    runWizardImpl(path, parent, platform, variables);
+
+    s_isWizardRunning = false;
+    ICore::validateNewDialogIsRunning();
+}
+
 bool IWizardFactory::isAvailable(const QString &platformName) const
 {
     if (platformName.isEmpty())
@@ -291,6 +303,11 @@ void IWizardFactory::registerFeatureProvider(IFeatureProvider *provider)
 {
     QTC_ASSERT(!s_providerList.contains(provider), return);
     s_providerList.append(provider);
+}
+
+bool IWizardFactory::isWizardRunning()
+{
+    return s_isWizardRunning;
 }
 
 void IWizardFactory::destroyFeatureProvider()

@@ -356,7 +356,7 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
 JsonWizardFactory::~JsonWizardFactory()
 { }
 
-void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform,
+void JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
                                   const QVariantMap &variables)
 {
     JsonWizard wizard(parent);

@@ -88,7 +88,9 @@ public:
 
     QString runPath(const QString &defaultPath);
 
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables) = 0;
+    // Does bookkeeping and the calls runWizardImpl. Please implement that.
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform,
+                           const QVariantMap &variables);
 
     virtual bool isAvailable(const QString &platformName) const;
     QStringList supportedPlatforms() const;
@@ -105,9 +107,14 @@ public:
 
     static void registerFeatureProvider(IFeatureProvider *provider);
 
+    static bool isWizardRunning();
+
 protected:
     FeatureSet pluginFeatures() const;
     FeatureSet availableFeatures(const QString &platformName) const;
+
+    virtual void runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+                               const QVariantMap &variables) = 0;
 
 private:
     static void initialize();
