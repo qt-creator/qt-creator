@@ -13,11 +13,11 @@
 #include "b2projectnode.h"
 #include "b2project.h"
 #include "b2utility.h"
-// Qt Creator
+
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
 #include <utils/qtcassert.h>
-// Qt
+
 #include <QFutureInterface>
 #include <QHash>
 #include <QList>
@@ -30,8 +30,8 @@ namespace Internal {
 
 ProjectNode::ProjectNode(Project* project, Core::IDocument* projectFile)
     : ProjectExplorer::ProjectNode(projectFile->filePath())
-    , project_(project)
-    , projectFile_(projectFile)
+    , m_project(project)
+    , m_projectFile(projectFile)
 {
     // TODO: setDisplayName(QFileInfo(projectFile->filePath()).completeBaseName());
 }
@@ -108,15 +108,15 @@ void ProjectNode::refresh(QSet<QString> oldFileList)
     // Only do this once, at first run.
     if (oldFileList.isEmpty()) {
         using ProjectExplorer::FileNode;
-        FileNode* projectFileNode = new FileNode(project_->projectFilePath()
+        FileNode* projectFileNode = new FileNode(m_project->projectFilePath()
                                                , ProjectExplorer::ProjectFileType
                                                , Constants::FileNotGenerated);
 
-        FileNode* filesFileNode = new FileNode(Utils::FileName::fromString(project_->filesFilePath())
+        FileNode* filesFileNode = new FileNode(Utils::FileName::fromString(m_project->filesFilePath())
                                              , ProjectExplorer::ProjectFileType
                                              , Constants::FileNotGenerated);
 
-        FileNode* includesFileNode = new FileNode(Utils::FileName::fromString(project_->includesFilePath())
+        FileNode* includesFileNode = new FileNode(Utils::FileName::fromString(m_project->includesFilePath())
                                              , ProjectExplorer::ProjectFileType
                                              , Constants::FileNotGenerated);
 
@@ -124,12 +124,12 @@ void ProjectNode::refresh(QSet<QString> oldFileList)
             << projectFileNode << filesFileNode << includesFileNode);
     }
 
-    oldFileList.remove(project_->filesFilePath());
-    oldFileList.remove(project_->includesFilePath());
+    oldFileList.remove(m_project->filesFilePath());
+    oldFileList.remove(m_project->includesFilePath());
 
-    QSet<QString> newFileList = project_->files().toSet();
-    newFileList.remove(project_->filesFilePath());
-    newFileList.remove(project_->includesFilePath());
+    QSet<QString> newFileList = m_project->files().toSet();
+    newFileList.remove(m_project->filesFilePath());
+    newFileList.remove(m_project->includesFilePath());
 
     // Calculate set of added and removed files
     QSet<QString> removed = oldFileList;

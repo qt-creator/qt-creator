@@ -19,8 +19,7 @@
 #include "b2projectmanagerconstants.h"
 #include "b2projectnode.h"
 #include "b2utility.h"
-// Qt Creator
-#include <app/app_version.h>
+
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/generatedfile.h>
@@ -38,7 +37,7 @@
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <utils/fileutils.h>
 #include <utils/QtConcurrentTools>
-// Qt
+
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -47,13 +46,13 @@ namespace BoostBuildProjectManager {
 namespace Internal {
 
 Project::Project(ProjectManager* manager, QString const& fileName)
-    : manager_(manager)
-    , filePath_(fileName)
-    , projectFile_(new ProjectFile(this, filePath_)) // enables projectDirectory()
-    , projectNode_(new ProjectNode(this, projectFile_))
+    : m_manager(manager)
+    , m_filePath(fileName)
+    , m_projectFile(new ProjectFile(this, m_filePath)) // enables projectDirectory()
+    , m_projectNode(new ProjectNode(this, m_projectFile))
 {
-    Q_ASSERT(manager_);
-    Q_ASSERT(!filePath_.isEmpty());
+    Q_ASSERT(m_manager);
+    Q_ASSERT(!m_filePath.isEmpty());
 
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -61,17 +60,17 @@ Project::Project(ProjectManager* manager, QString const& fileName)
     setId(Constants::PROJECT_ID);
 #endif
 
-    QFileInfo const projectFileInfo(filePath_);
+    QFileInfo const projectFileInfo(m_filePath);
     QDir const projectDir(projectFileInfo.dir());
-    projectName_ = defaultProjectName(filePath_);
-    filesFilePath_ = QFileInfo(projectDir
-        , filePath_ + QLatin1String(Constants::EXT_JAMFILE_FILES)).absoluteFilePath();
-    includesFilePath_ = QFileInfo(projectDir
-        , filePath_ + QLatin1String(Constants::EXT_JAMFILE_INCLUDES)).absoluteFilePath();
+    m_projectName = defaultProjectName(m_filePath);
+    m_filesFilePath = QFileInfo(projectDir
+        , m_filePath + QLatin1String(Constants::EXT_JAMFILE_FILES)).absoluteFilePath();
+    m_includesFilePath = QFileInfo(projectDir
+        , m_filePath + QLatin1String(Constants::EXT_JAMFILE_INCLUDES)).absoluteFilePath();
 
-    projectNode_->setDisplayName(displayName());
+    m_projectNode->setDisplayName(displayName());
 
-    manager_->registerProject(this);
+    m_manager->registerProject(this);
 
     // TODO: Add file watchers
     //projectFileWatcher_->addPath(projectFilePath);
@@ -82,13 +81,13 @@ Project::Project(ProjectManager* manager, QString const& fileName)
 
 Project::~Project()
 {
-    manager_->unregisterProject(this);
-    delete projectNode_;
+    m_manager->unregisterProject(this);
+    delete m_projectNode;
 }
 
 QString Project::displayName() const
 {
-    return projectName_;
+    return m_projectName;
 }
 
 #if defined(IDE_VERSION_MAJOR) && (IDE_VERSION_MAJOR == 3 && IDE_VERSION_MINOR == 0)
@@ -100,17 +99,17 @@ Core::Id Project::id() const
 
 Core::IDocument* Project::document() const
 {
-    return projectFile_;
+    return m_projectFile;
 }
 
 ProjectExplorer::IProjectManager* Project::projectManager() const
 {
-    return manager_;
+    return m_manager;
 }
 
 ProjectExplorer::ProjectNode* Project::rootProjectNode() const
 {
-    return projectNode_;
+    return m_projectNode;
 }
 
 QStringList Project::files(FilesMode fileMode) const
@@ -118,7 +117,7 @@ QStringList Project::files(FilesMode fileMode) const
     // TODO: handle ExcludeGeneratedFiles, but what files exactly?
     //       *.qtcreator.files, *.qtcreator.includes and *.user?
     Q_UNUSED(fileMode);
-    return files_;
+    return m_files;
 }
 
 QStringList Project::files() const
@@ -128,14 +127,14 @@ QStringList Project::files() const
 
 QString Project::filesFilePath() const
 {
-    Q_ASSERT(!filesFilePath_.isEmpty());
-    return filesFilePath_;
+    Q_ASSERT(!m_filesFilePath.isEmpty());
+    return m_filesFilePath;
 }
 
 QString Project::includesFilePath() const
 {
-    Q_ASSERT(!includesFilePath_.isEmpty());
-    return includesFilePath_;
+    Q_ASSERT(!m_includesFilePath.isEmpty());
+    return m_includesFilePath;
 }
 
 bool Project::needsConfiguration() const
@@ -173,9 +172,9 @@ QString Project::defaultWorkingDirectory(QString const& top)
 
 void Project::setProjectName(QString const& name)
 {
-    if (projectName_ != name) {
-        projectName_ = name;
-        projectNode_->setDisplayName(projectName_);
+    if (m_projectName != name) {
+        m_projectName = name;
+        m_projectNode->setDisplayName(m_projectName);
         // TODO: signal?
     }
 }
@@ -183,7 +182,7 @@ void Project::setProjectName(QString const& name)
 QVariantMap Project::toMap() const
 {
     QVariantMap map(ProjectExplorer::Project::toMap());
-    map.insert(QLatin1String(Constants::P_KEY_PROJECTNAME), projectName_);
+    map.insert(QLatin1String(Constants::P_KEY_PROJECTNAME), m_projectName);
     return map;
 }
 
@@ -192,14 +191,14 @@ QVariantMap Project::toMap() const
 bool Project::fromMap(QVariantMap const& map)
 {
     BBPM_QDEBUG(displayName());
-    QTC_ASSERT(projectNode_, return false);
+    QTC_ASSERT(m_projectNode, return false);
 
     if (!ProjectExplorer::Project::fromMap(map))
         return false;
 
     QVariantMap extraValues(map);
     if (!extraValues.contains(BBPM_C(P_KEY_PROJECTNAME)))
-        extraValues.insert(BBPM_C(P_KEY_PROJECTNAME), projectName_);
+        extraValues.insert(BBPM_C(P_KEY_PROJECTNAME), m_projectName);
     setProjectName(map.value(BBPM_C(P_KEY_PROJECTNAME)).toString());
 
     // Check required auxiliary files, run wizard of necessary
@@ -264,14 +263,14 @@ void Project::refresh()
     QTC_ASSERT(QFileInfo(includesFilePath()).exists(), return);
 
     QSet<QString> oldFileList;
-    oldFileList = files_.toSet();
+    oldFileList = m_files.toSet();
 
     // Parse project:
     // The manager does not parse Jamfile files.
     // Only generates and parses list of source files in Jamfile.${JAMFILE_FILES_EXT}
     QString const projectPath(projectDirectory().toString());
-    filesRaw_ = Utility::readLines(filesFilePath());
-    files_ = Utility::makeAbsolutePaths(projectPath, filesRaw_);
+    m_filesRaw = Utility::readLines(filesFilePath());
+    m_files = Utility::makeAbsolutePaths(projectPath, m_filesRaw);
 
     QStringList includePaths =
         Utility::makeAbsolutePaths(projectPath,
@@ -279,7 +278,7 @@ void Project::refresh()
 
     emit fileListChanged();
 
-    projectNode_->refresh(oldFileList);
+    m_projectNode->refresh(oldFileList);
 
     // TODO: Does it make sense to move this to separate asynchronous task?
     // TODO: extract updateCppCodeModel
@@ -292,13 +291,13 @@ void Project::refresh()
         //builder.setDefines(); // TODO: waiting for Jamfile parser
         builder.setIncludePaths(QStringList() << projectDirectory().toString() << includePaths);
 
-        const QList<Core::Id> languages = builder.createProjectPartsForFiles(files_);
+        const QList<Core::Id> languages = builder.createProjectPartsForFiles(m_files);
         foreach (Core::Id language, languages)
             setProjectLanguage(language, true);
 
-        cppModelFuture_.cancel();
+        m_cppModelFuture.cancel();
         pinfo.finish();
-        cppModelFuture_ = modelmanager->updateProjectInfo(pinfo);
+        m_cppModelFuture = modelmanager->updateProjectInfo(pinfo);
     }
 }
 

@@ -13,9 +13,9 @@
 #include "b2projectmanagerconstants.h"
 #include "b2project.h"
 #include "b2utility.h"
-// Qt Creator
+
 #include <projectexplorer/iprojectmanager.h>
-// Qt
+
 #include <QFileInfo>
 #include <QString>
 
@@ -51,13 +51,13 @@ ProjectManager::openProject(QString const& fileName, QString* errorString)
 void ProjectManager::registerProject(Project* project)
 {
     Q_ASSERT(project);
-    projects_.append(project);
+    m_projects.append(project);
 }
 
 void ProjectManager::unregisterProject(Project* project)
 {
     Q_ASSERT(project);
-    projects_.removeAll(project);
+    m_projects.removeAll(project);
 }
 
 } // namespace Internal

@@ -12,15 +12,12 @@
 #ifndef BBPROJECT_HPP
 #define BBPROJECT_HPP
 
-// Qt Creator
-#include <app/app_version.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/project.h>
 #include <utils/fileutils.h>
-// Qt
-#include <QString>
+
 #include <QFuture>
-#include <QFutureInterface>
+#include <QString>
 
 namespace BoostBuildProjectManager {
 namespace Internal {
@@ -38,9 +35,6 @@ public:
     Project(ProjectManager* manager, QString const& fileName);
     ~Project();
 
-#if defined(IDE_VERSION_MAJOR) && (IDE_VERSION_MAJOR == 3 && IDE_VERSION_MINOR == 0)
-    Core::Id id() const;
-#endif
     QString displayName() const;
     Core::IDocument* document() const;
     ProjectExplorer::IProjectManager* projectManager() const;
@@ -61,43 +55,38 @@ public:
     static QString defaultWorkingDirectory(QString const& top);
 
 protected:
-
-     QVariantMap toMap() const;
-
-    // Deserializes all project data from the map object
-    // Calls the base ProjectExplorer::Project::fromMap function first.
+    QVariantMap toMap() const;
     bool fromMap(QVariantMap const& map);
 
 private:
-
     void setProjectName(QString const& name);
 
     // Corresponding project manager passed to the constructor
-    ProjectManager* manager_;
+    ProjectManager *m_manager;
 
     // By default, name of directory with Jamfile.
     // Boost.Build treats each Jamfile is a separate project,
     // where hierarchy of Jamfiles makes hierarchy of projects.
-    QString projectName_;
+    QString m_projectName;
 
     // Jamfile passed to the constructor (Jamroot, Jamfile, Jamfile.v2).
-    QString filePath_;
+    QString m_filePath;
 
     // Auxiliary file Jamfile.${JAMFILE_FILES_EXT} with list of source files.
     // Role of this file is similar to the .files file in the GenericProjectManager,
     // hence managing of this file is implemented in very similar manner.
-    QString filesFilePath_;
-    QStringList files_;
-    QStringList filesRaw_;
-    QHash<QString, QString> entriesRaw_;
+    QString m_filesFilePath;
+    QStringList m_files;
+    QStringList m_filesRaw;
+    QHash<QString, QString> m_entriesRaw;
 
     // Auxiliary file Jamfile.${JAMFILE_INCLUDES_EXT} with list of source files.
-    QString includesFilePath_;
+    QString m_includesFilePath;
 
-    ProjectFile* projectFile_;
-    ProjectNode* projectNode_;
+    ProjectFile *m_projectFile;
+    ProjectNode *m_projectNode;
 
-    QFuture<void> cppModelFuture_;
+    QFuture<void> m_cppModelFuture;
 };
 
 } // namespace Internal

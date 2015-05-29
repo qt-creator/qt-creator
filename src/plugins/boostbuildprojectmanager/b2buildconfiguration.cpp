@@ -70,7 +70,7 @@ BuildConfiguration::BuildConfiguration(Target* parent, Core::Id const id)
 QVariantMap BuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
-    map.insert(QLatin1String(Constants::BC_KEY_WORKDIR), workingDirectory_.toString());
+    map.insert(QLatin1String(Constants::BC_KEY_WORKDIR), m_workingDirectory.toString());
     return map;
 }
 
@@ -111,8 +111,8 @@ BuildConfiguration::buildType() const
 
 Utils::FileName BuildConfiguration::workingDirectory() const
 {
-    Q_ASSERT(!workingDirectory_.isEmpty());
-    return workingDirectory_;
+    Q_ASSERT(!m_workingDirectory.isEmpty());
+    return m_workingDirectory;
 }
 
 void BuildConfiguration::setWorkingDirectory(Utils::FileName const& dir)
@@ -121,20 +121,20 @@ void BuildConfiguration::setWorkingDirectory(Utils::FileName const& dir)
         if (Target* t = target()) {
             QString const dwd
                 = Project::defaultWorkingDirectory(t->project()->projectDirectory().toString());
-            workingDirectory_ = Utils::FileName::fromString(dwd);
+            m_workingDirectory = Utils::FileName::fromString(dwd);
         }
     } else {
-        workingDirectory_ = dir;
+        m_workingDirectory = dir;
     }
 
-    Q_ASSERT(!workingDirectory_.isEmpty());
+    Q_ASSERT(!m_workingDirectory.isEmpty());
     emitWorkingDirectoryChanged();
 }
 
 void BuildConfiguration::emitWorkingDirectoryChanged()
 {
-    if (workingDirectory() != lastEmmitedWorkingDirectory_) {
-        lastEmmitedWorkingDirectory_= workingDirectory();
+    if (workingDirectory() != m_lastEmmitedWorkingDirectory) {
+        m_lastEmmitedWorkingDirectory= workingDirectory();
         emit workingDirectoryChanged();
     }
 }
@@ -332,8 +332,8 @@ BuildConfigurationFactory::defaultWorkingDirectory(QString const& top)
 }
 
 BuildSettingsWidget::BuildSettingsWidget(BuildConfiguration* bc)
-    : bc_(bc)
-    , buildPathChooser_(0)
+    : m_bc(bc)
+    , m_buildPathChooser(0)
 {
     setDisplayName(tr("Boost.Build Manager"));
 
@@ -341,28 +341,28 @@ BuildSettingsWidget::BuildSettingsWidget(BuildConfiguration* bc)
     fl->setContentsMargins(0, -1, 0, -1);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    QString const projectPath(bc_->target()->project()->projectDirectory().toString());
+    QString const projectPath(m_bc->target()->project()->projectDirectory().toString());
 
     // Working directory
-    workPathChooser_ = new Utils::PathChooser(this);
-    workPathChooser_->setEnabled(true);
-    workPathChooser_->setEnvironment(bc_->environment());
-    workPathChooser_->setBaseDirectory(projectPath);
-    workPathChooser_->setPath(bc_->workingDirectory().toString());
-    fl->addRow(tr("Run Boost.Build in:"), workPathChooser_);
+    m_workPathChooser = new Utils::PathChooser(this);
+    m_workPathChooser->setEnabled(true);
+    m_workPathChooser->setEnvironment(m_bc->environment());
+    m_workPathChooser->setBaseDirectory(projectPath);
+    m_workPathChooser->setPath(m_bc->workingDirectory().toString());
+    fl->addRow(tr("Run Boost.Build in:"), m_workPathChooser);
 
     // Build directory
-    buildPathChooser_ = new Utils::PathChooser(this);
-    buildPathChooser_->setEnabled(true);
-    buildPathChooser_->setEnvironment(bc_->environment());
-    buildPathChooser_->setBaseDirectory(projectPath);
-    buildPathChooser_->setPath(bc_->rawBuildDirectory().toString());
-    fl->addRow(tr("Set build directory to:"), buildPathChooser_);
+    m_buildPathChooser = new Utils::PathChooser(this);
+    m_buildPathChooser->setEnabled(true);
+    m_buildPathChooser->setEnvironment(m_bc->environment());
+    m_buildPathChooser->setBaseDirectory(projectPath);
+    m_buildPathChooser->setPath(m_bc->rawBuildDirectory().toString());
+    fl->addRow(tr("Set build directory to:"), m_buildPathChooser);
 
-    connect(workPathChooser_, SIGNAL(changed(QString))
+    connect(m_workPathChooser, SIGNAL(changed(QString))
           , this, SLOT(workingDirectoryChanged()));
 
-    connect(buildPathChooser_, SIGNAL(changed(QString))
+    connect(m_buildPathChooser, SIGNAL(changed(QString))
           , this, SLOT(buildDirectoryChanged()));
 
     connect(bc, SIGNAL(environmentChanged())
@@ -371,20 +371,20 @@ BuildSettingsWidget::BuildSettingsWidget(BuildConfiguration* bc)
 
 void BuildSettingsWidget::buildDirectoryChanged()
 {
-    QTC_ASSERT(bc_, return);
-    bc_->setBuildDirectory(Utils::FileName::fromString(buildPathChooser_->rawPath()));
+    QTC_ASSERT(m_bc, return);
+    m_bc->setBuildDirectory(Utils::FileName::fromString(m_buildPathChooser->rawPath()));
 }
 
 void BuildSettingsWidget::workingDirectoryChanged()
 {
-    QTC_ASSERT(bc_, return);
-    bc_->setWorkingDirectory(Utils::FileName::fromString(workPathChooser_->rawPath()));
+    QTC_ASSERT(m_bc, return);
+    m_bc->setWorkingDirectory(Utils::FileName::fromString(m_workPathChooser->rawPath()));
 }
 
 void BuildSettingsWidget::environmentHasChanged()
 {
-    Q_ASSERT(buildPathChooser_);
-    buildPathChooser_->setEnvironment(bc_->environment());
+    Q_ASSERT(m_buildPathChooser);
+    m_buildPathChooser->setEnvironment(m_bc->environment());
 }
 
 } // namespace Internal

@@ -15,7 +15,7 @@
 #include "b2projectmanagerconstants.h"
 #include "b2utility.h"
 #include "filesselectionwizardpage.h"
-// Qt Creator
+
 #include <coreplugin/iwizardfactory.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/customwizard/customwizard.h>
@@ -23,7 +23,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/mimetypes/mimedatabase.h>
-// Qt
+
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
@@ -37,12 +37,12 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 OpenProjectWizard::OpenProjectWizard(Project const* const project)
-    : project_(project)
-    , projectOpened_(false)
+    : m_project(project)
+    , m_projectOpened(false)
 {
     // Project instance has been created, but it's only partially initialised and
     // rest of the initialization takes place after this wizard completes.
-    Q_ASSERT(project_);
+    Q_ASSERT(m_project);
 
     setDisplayName(tr("Open %1 Project").arg(BBPM_C(BOOSTBUILD)));
     setId(BBPM_C(PROJECT_WIZARD_ID));
@@ -58,21 +58,21 @@ bool OpenProjectWizard::run(QString const& platform, QVariantMap const& extraVal
     // Project name should be passed by caller, but,
     // since we have Project instance handy, double-check.
     if (!extraValuesCopy.contains(BBPM_C(P_KEY_PROJECTNAME)))
-        extraValuesCopy.insert(BBPM_C(P_KEY_PROJECTNAME), project_->displayName());
+        extraValuesCopy.insert(BBPM_C(P_KEY_PROJECTNAME), m_project->displayName());
 
-    projectOpened_ = false;
-    outputValues_.clear();
+    m_projectOpened = false;
+    m_outputValues.clear();
 
-    runWizard(project_->projectFilePath().toString(), 0, platform, extraValuesCopy);
+    runWizard(m_project->projectFilePath().toString(), 0, platform, extraValuesCopy);
 
-    return projectOpened_;
+    return m_projectOpened;
 }
 
 Core::BaseFileWizard *OpenProjectWizard::create(QWidget* parent, Core::WizardDialogParameters const& parameters) const
 {
     OpenProjectWizardDialog* wizard(new OpenProjectWizardDialog(parent
         , parameters.defaultPath(), parameters.extraValues()
-        , const_cast<OpenProjectWizard*>(this)->outputValues_));
+        , const_cast<OpenProjectWizard*>(this)->m_outputValues));
 
     foreach (QWizardPage* p, parameters.extensionPages())
         wizard->addPage(p);
@@ -84,7 +84,7 @@ Core::GeneratedFiles
 OpenProjectWizard::generateFiles(QWizard const* wizard, QString* errorMessage) const
 {
     Q_UNUSED(errorMessage)
-    Q_ASSERT(project_);
+    Q_ASSERT(m_project);
 
     OpenProjectWizardDialog const* openWizard
         = qobject_cast<OpenProjectWizardDialog const*>(wizard);
@@ -121,10 +121,10 @@ OpenProjectWizard::generateFiles(QWizard const* wizard, QString* errorMessage) c
     QStringList sources = openWizard->selectedFiles();
     Utility::makeRelativePaths(projectDir.absolutePath(), sources);
 
-    Core::GeneratedFile generatedFilesFile(project_->filesFilePath());
+    Core::GeneratedFile generatedFilesFile(m_project->filesFilePath());
     generatedFilesFile.setContents(sources.join(QLatin1String("\n")));
 
-    Core::GeneratedFile generatedIncludesFile(project_->includesFilePath());
+    Core::GeneratedFile generatedIncludesFile(m_project->includesFilePath());
     generatedIncludesFile.setContents(includePaths.join(QLatin1String("\n")));
 
     Core::GeneratedFiles files;
@@ -139,10 +139,10 @@ OpenProjectWizard::postGenerateFiles(QWizard const* wizard
 {
     Q_UNUSED(wizard);
 
-    projectOpened_
+    m_projectOpened
         = ProjectExplorer::CustomProjectWizard::postGenerateOpen(files, errorMessage);
 
-    return projectOpened_;
+    return m_projectOpened;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -150,20 +150,20 @@ OpenProjectWizardDialog::OpenProjectWizardDialog(QWidget* parent
     , QString const& projectFile
     , QVariantMap const& extraValues, QVariantMap& outputValues)
     : Core::BaseFileWizard(parent)
-    , outputValues_(outputValues)
-    , extraValues_(extraValues)
-    , projectFile_(projectFile)
+    , m_outputValues(outputValues)
+    , m_extraValues(extraValues)
+    , m_projectFile(projectFile)
 {
     setWindowTitle(tr("Open %1 Project").arg(BBPM_C(BOOSTBUILD)));
 
-    pathsPage_ = new PathsSelectionWizardPage(this);
-    pathsPage_->setTitle(tr("Project Name and Paths"));
-    int const pathsPageId = addPage(pathsPage_);
+    m_pathsPage = new PathsSelectionWizardPage(this);
+    m_pathsPage->setTitle(tr("Project Name and Paths"));
+    int const pathsPageId = addPage(m_pathsPage);
     wizardProgress()->item(pathsPageId)->setTitle(tr("Location"));
 
-    filesPage_ = new FilesSelectionWizardPage(this);
-    filesPage_->setTitle(tr("File Selection"));
-    int const filesPageId = addPage(filesPage_);
+    m_filesPage = new FilesSelectionWizardPage(this);
+    m_filesPage->setTitle(tr("File Selection"));
+    int const filesPageId = addPage(m_filesPage);
     wizardProgress()->item(filesPageId)->setTitle(tr("Files"));
 }
 
@@ -178,38 +178,38 @@ QString OpenProjectWizardDialog::path() const
 
 QString OpenProjectWizardDialog::projectFile() const
 {
-    return projectFile_;
+    return m_projectFile;
 }
 
 QString OpenProjectWizardDialog::projectName() const
 {
-    return pathsPage_->projectName();
+    return m_pathsPage->projectName();
 }
 
 QString OpenProjectWizardDialog::defaultProjectName() const
 {
-    return extraValues_.value(BBPM_C(P_KEY_PROJECTNAME)).toString();
+    return m_extraValues.value(BBPM_C(P_KEY_PROJECTNAME)).toString();
 }
 
 QStringList OpenProjectWizardDialog::selectedFiles() const
 {
-    return filesPage_->selectedFiles();
+    return m_filesPage->selectedFiles();
 }
 
 QStringList OpenProjectWizardDialog::selectedPaths() const
 {
-    return filesPage_->selectedPaths();
+    return m_filesPage->selectedPaths();
 }
 
 void OpenProjectWizardDialog::setProjectName(QString const& name)
 {
-    outputValues_.insert(QLatin1String(Constants::P_KEY_PROJECTNAME), name);
+    m_outputValues.insert(QLatin1String(Constants::P_KEY_PROJECTNAME), name);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 PathsSelectionWizardPage::PathsSelectionWizardPage(OpenProjectWizardDialog* wizard)
     : QWizardPage(wizard)
-    , wizard_(wizard)
+    , m_wizard(wizard)
 {
     QFormLayout *fl = new QFormLayout();
     setLayout(fl);
@@ -221,18 +221,18 @@ PathsSelectionWizardPage::PathsSelectionWizardPage(OpenProjectWizardDialog* wiza
     QLineEdit* pathLine = new QLineEdit(this);
     pathLine->setReadOnly(true);
     pathLine->setDisabled(true);
-    pathLine->setText(wizard_->projectFile());
+    pathLine->setText(m_wizard->projectFile());
     fl->addRow(pathLine);
 
-    QString projectName(Utility::parseJamfileProjectName(wizard_->projectFile()));
+    QString projectName(Utility::parseJamfileProjectName(m_wizard->projectFile()));
     if (projectName.isEmpty())
-        projectName = wizard_->defaultProjectName();
+        projectName = m_wizard->defaultProjectName();
 
-    nameLineEdit_ = new QLineEdit(this);
-    connect(nameLineEdit_, &QLineEdit::textChanged
-          , wizard_, &OpenProjectWizardDialog::setProjectName);
-    nameLineEdit_->setText(projectName);
-    fl->addRow(tr("Project name:"), nameLineEdit_);
+    m_nameLineEdit = new QLineEdit(this);
+    connect(m_nameLineEdit, &QLineEdit::textChanged
+          , m_wizard, &OpenProjectWizardDialog::setProjectName);
+    m_nameLineEdit->setText(projectName);
+    fl->addRow(tr("Project name:"), m_nameLineEdit);
 
     QLabel* defaultsLabel = new QLabel(this);
     defaultsLabel->setText(tr("Default Boost.Build runtime locations:"));
@@ -241,13 +241,13 @@ PathsSelectionWizardPage::PathsSelectionWizardPage(OpenProjectWizardDialog* wiza
     QLineEdit* workingLine = new QLineEdit(this);
     workingLine->setReadOnly(true);
     workingLine->setDisabled(true);
-    workingLine->setText(Project::defaultWorkingDirectory(wizard_->projectFile()));
+    workingLine->setText(Project::defaultWorkingDirectory(m_wizard->projectFile()));
     fl->addRow(tr("Working directory:"), workingLine);
 
     QLineEdit* buildLine = new QLineEdit(this);
     buildLine->setReadOnly(true);
     buildLine->setDisabled(true);
-    buildLine->setText(Project::defaultBuildDirectory(wizard_->projectFile()));
+    buildLine->setText(Project::defaultBuildDirectory(m_wizard->projectFile()));
     fl->addRow(tr("Build directory:"), buildLine);
 
     // TODO: indicate if we can find Boost.Build executable?
@@ -265,7 +265,7 @@ PathsSelectionWizardPage::PathsSelectionWizardPage(OpenProjectWizardDialog* wiza
 
 QString PathsSelectionWizardPage::projectName() const
 {
-    return nameLineEdit_->text();
+    return m_nameLineEdit->text();
 }
 
 } // namespace Internal

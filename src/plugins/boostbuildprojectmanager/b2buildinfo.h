@@ -13,11 +13,10 @@
 #define BBBUILDINFO_HPP
 
 #include "b2buildconfiguration.h"
-// Qt Creator
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <utils/fileutils.h>
-// Qt
 
 namespace BoostBuildProjectManager {
 namespace Internal {

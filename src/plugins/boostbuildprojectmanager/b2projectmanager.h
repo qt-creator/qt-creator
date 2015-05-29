@@ -12,15 +12,12 @@
 #ifndef BBPROJECTMANAGER_HPP
 #define BBPROJECTMANAGER_HPP
 
-// Qt Creator
 #include <projectexplorer/iprojectmanager.h>
-// Qt
+
 #include <QList>
 #include <QString>
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace BoostBuildProjectManager {
 namespace Internal {
@@ -45,7 +42,7 @@ public:
     void unregisterProject(Project* project);
 
 private:
-    QList<Project*> projects_;
+    QList<Project*> m_projects;
 };
 
 } // namespace Internal

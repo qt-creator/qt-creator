@@ -21,7 +21,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/mimetypes/mimedatabase.h>
-// Qt
+
 #include <QAction>
 #include <QMessageBox>
 #include <QMainWindow>
@@ -29,7 +29,8 @@
 
 #include <QtPlugin>
 
-namespace BoostBuildProjectManager { namespace Internal {
+namespace BoostBuildProjectManager {
+namespace Internal {
 
 BoostBuildPlugin::BoostBuildPlugin()
 {
@@ -80,4 +81,5 @@ ExtensionSystem::IPlugin::ShutdownFlag BoostBuildPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-}}
+} // namespace Internal
+} // namespace BoostBuildProjectManager

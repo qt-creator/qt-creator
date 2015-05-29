@@ -13,14 +13,14 @@
 #ifndef BBOPENPROJECTWIZARD_HPP
 #define BBOPENPROJECTWIZARD_HPP
 
-// Qt Creator
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
 #include <coreplugin/generatedfile.h>
 #include <utils/wizard.h>
-// Qt
+
 #include <QString>
 #include <QStringList>
+
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 class QLabel;
@@ -28,9 +28,7 @@ class QTreeView;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace BoostBuildProjectManager {
 namespace Internal {
@@ -57,7 +55,7 @@ public:
 
     bool run(QString const& platform, QVariantMap const& extraValues);
 
-    QVariantMap outputValues() const { return outputValues_; }
+    QVariantMap outputValues() const { return m_outputValues; }
 
 protected:
 
@@ -72,9 +70,9 @@ protected:
         , Core::GeneratedFiles const& files, QString* errorMessage);
 
 private:
-    Project const* const project_;
-    QVariantMap outputValues_;
-    bool projectOpened_;
+    Project const* const m_project;
+    QVariantMap m_outputValues;
+    bool m_projectOpened;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -98,11 +96,11 @@ public slots:
     void setProjectName(QString const& name);
 
 private:
-    QVariantMap& outputValues_;
-    QVariantMap extraValues_;
-    QString projectFile_;
-    PathsSelectionWizardPage* pathsPage_;
-    FilesSelectionWizardPage* filesPage_;
+    QVariantMap &m_outputValues;
+    QVariantMap m_extraValues;
+    QString m_projectFile;
+    PathsSelectionWizardPage *m_pathsPage;
+    FilesSelectionWizardPage *m_filesPage;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -117,8 +115,8 @@ public:
     void setProjectName(QString const& name);
 
 private:
-    OpenProjectWizardDialog* wizard_;
-    QLineEdit* nameLineEdit_;
+    OpenProjectWizardDialog *m_wizard;
+    QLineEdit *m_nameLineEdit;
 };
 
 } // namespace Internal

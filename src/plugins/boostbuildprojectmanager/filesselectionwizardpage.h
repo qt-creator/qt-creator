@@ -44,9 +44,7 @@ class QTreeView;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace BoostBuildProjectManager {
 namespace Internal {
@@ -91,8 +89,8 @@ private:
 
     QPushButton *m_applyFilterButton;
 
-    QLabel* m_baseDirLabel;
-    Utils::PathChooser* m_baseDirChooser;
+    QLabel *m_baseDirLabel;
+    Utils::PathChooser *m_baseDirChooser;
     QString m_lastBaseDir;
 
     QTreeView *m_view;

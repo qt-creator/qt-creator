@@ -38,7 +38,7 @@ public:
     bool reload(QString* errorString, ReloadFlag flag, ChangeType type);
 
 private:
-    Project* project_;
+    Project *m_project;
 };
 
 } // namespace Internal

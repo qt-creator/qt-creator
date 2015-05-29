@@ -13,22 +13,17 @@
 #ifndef BBPROJECTNODE_HPP
 #define BBPROJECTNODE_HPP
 
-// Qt Creator
 #include <projectexplorer/projectnodes.h>
-// Qt
+
 #include <QFutureInterface>
 #include <QList>
 #include <QSet>
 #include <QString>
 #include <QStringList>
 
-namespace Core {
-class IDocument;
-}
+namespace Core { class IDocument; }
 
-namespace ProjectExplorer {
-class RunConfiguration;
-}
+namespace ProjectExplorer { class RunConfiguration; }
 
 namespace BoostBuildProjectManager {
 namespace Internal {
@@ -40,7 +35,6 @@ class Project;
 // No special operations (addFiles(), removeFiles(), renameFile(), etc.) are offered.
 class ProjectNode : public ProjectExplorer::ProjectNode
 {
-
 public:
     ProjectNode(Project* project, Core::IDocument* projectFile);
 
@@ -58,7 +52,6 @@ public:
     void refresh(QSet<QString> oldFileList);
 
 private:
-
     ProjectExplorer::FolderNode*
     createFolderByName(QStringList const& components, int end);
 
@@ -67,8 +60,8 @@ private:
 
     void removeEmptySubFolders(FolderNode* parent, FolderNode* subParent);
 
-    Project* project_;
-    Core::IDocument* projectFile_;
+    Project *m_project;
+    Core::IDocument *m_projectFile;
 };
 
 } // namespace Internal

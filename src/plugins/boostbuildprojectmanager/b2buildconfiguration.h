@@ -12,11 +12,10 @@
 #ifndef BBBUILDCONFIGURATION_HPP
 #define BBBUILDCONFIGURATION_HPP
 
-// Qt Creator
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/namedwidget.h>
 #include <utils/fileutils.h>
-// Qt
+
 #include <QList>
 #include <QString>
 #include <QVariantMap>
@@ -65,8 +64,8 @@ private slots:
     void emitWorkingDirectoryChanged();
 
 private:
-    Utils::FileName workingDirectory_;
-    Utils::FileName lastEmmitedWorkingDirectory_;
+    Utils::FileName m_workingDirectory;
+    Utils::FileName m_lastEmmitedWorkingDirectory;
 };
 
 class BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
@@ -127,9 +126,9 @@ private slots:
     void workingDirectoryChanged();
 
 private:
-    BuildConfiguration* bc_;
-    Utils::PathChooser* workPathChooser_;
-    Utils::PathChooser* buildPathChooser_;
+    BuildConfiguration *m_bc;
+    Utils::PathChooser *m_workPathChooser;
+    Utils::PathChooser *m_buildPathChooser;
 };
 
 } // namespace Internal

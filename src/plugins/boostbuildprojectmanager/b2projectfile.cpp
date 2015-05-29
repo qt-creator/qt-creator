@@ -19,7 +19,7 @@ namespace Internal {
 
 ProjectFile::ProjectFile(Project* project, QString const& fileName)
     : Core::IDocument(project)
-    , project_(project)
+    , m_project(project)
 {
     Q_ASSERT(!fileName.isEmpty());
 
