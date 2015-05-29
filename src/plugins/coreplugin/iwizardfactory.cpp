@@ -338,7 +338,7 @@ FeatureSet IWizardFactory::pluginFeatures() const
 
 FeatureSet IWizardFactory::availableFeatures(const QString &platformName) const
 {
-    FeatureSet availableFeatures = pluginFeatures();
+    FeatureSet availableFeatures;
 
     foreach (const IFeatureProvider *featureManager, s_providerList)
         availableFeatures |= featureManager->availableFeatures(platformName);
