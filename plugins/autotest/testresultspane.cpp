@@ -185,23 +185,20 @@ void TestResultsPane::clearContents()
 
 void TestResultsPane::visibilityChanged(bool visible)
 {
+    if (visible == m_wasVisibleBefore)
+        return;
     if (visible) {
-        if (m_wasVisibleBefore)
-            return;
         connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
                 this, &TestResultsPane::onTestTreeModelChanged);
         // make sure run/run all are in correct state
         onTestTreeModelChanged();
-        m_wasVisibleBefore = true;
         TestTreeModel::instance()->enableParsing();
     } else {
-        if (!m_wasVisibleBefore)
-            return;
         disconnect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
                    this, &TestResultsPane::onTestTreeModelChanged);
-        m_wasVisibleBefore = false;
         TestTreeModel::instance()->disableParsing();
     }
+    m_wasVisibleBefore = visible;
 }
 
 void TestResultsPane::setFocus()
