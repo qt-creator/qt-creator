@@ -75,8 +75,6 @@ FORMS += \
     qnxsettingswidget.ui \
     qnxdeployqtlibrariesdialog.ui
 
-QT += gui-private
-DEFINES += QNX_ZIP_FILE_SUPPORT
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
