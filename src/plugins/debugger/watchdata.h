@@ -126,7 +126,6 @@ public:
     bool            wantsChildren;
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
-    qint32          sortId;
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 };

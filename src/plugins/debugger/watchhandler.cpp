@@ -271,8 +271,6 @@ public:
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
-    void reinsertAllData();
-    void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize(bool includeInspectData = false);
 
@@ -333,11 +331,11 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         this, &WatchModel::updateStarted);
 
     connect(action(SortStructMembers), &SavedAction::valueChanged,
-        this, &WatchModel::reinsertAllData);
+        m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowStdNamespace), &SavedAction::valueChanged,
-        this, &WatchModel::reinsertAllData);
+        m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowQtNamespace), &SavedAction::valueChanged,
-        this, &WatchModel::reinsertAllData);
+        m_engine, &DebuggerEngine::updateAll);
 }
 
 void WatchModel::reinitialize(bool includeInspectData)
@@ -367,14 +365,6 @@ WatchItem *WatchItem::findItem(const QByteArray &iname)
             return witem->findItem(iname);
     }
     return 0;
-}
-
-void WatchModel::reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data)
-{
-    data->append(*item); // Slices intentionally.
-    data->back().setAllUnneeded();
-    foreach (TreeItem *child, item->children())
-        reinsertAllDataHelper(static_cast<WatchItem *>(child), data);
 }
 
 static QByteArray parentName(const QByteArray &iname)
@@ -1125,78 +1115,6 @@ DisplayFormats WatchItem::typeFormatList() const
     return formats;
 }
 
-// Determine sort order of watch items by sort order or alphabetical inames
-// according to setting 'SortStructMembers'. We need a map key for insertBulkData
-// and a predicate for finding the insertion position of a single item.
-
-// Set this before using any of the below according to action
-static bool sortWatchDataAlphabetically = true;
-
-static bool watchDataLessThan(const QByteArray &iname1, int sortId1,
-    const QByteArray &iname2, int sortId2)
-{
-    if (!sortWatchDataAlphabetically)
-        return sortId1 < sortId2;
-    // Get positions of last part of iname 'local.this.i1" -> "i1"
-    int cmpPos1 = iname1.lastIndexOf('.');
-    if (cmpPos1 == -1)
-        cmpPos1 = 0;
-    else
-        cmpPos1++;
-    int cmpPos2 = iname2.lastIndexOf('.');
-    if (cmpPos2 == -1)
-        cmpPos2 = 0;
-    else
-        cmpPos2++;
-    // Are we looking at an array with numerical inames 'local.this.i1.0" ->
-    // Go by sort id.
-    if (cmpPos1 < iname1.size() && cmpPos2 < iname2.size()
-            && isdigit(iname1.at(cmpPos1)) && isdigit(iname2.at(cmpPos2)))
-        return sortId1 < sortId2;
-    // Alphabetically
-    return qstrcmp(iname1.constData() + cmpPos1, iname2.constData() + cmpPos2) < 0;
-}
-
-bool watchItemSorter(const TreeItem *item1, const TreeItem *item2)
-{
-    const WatchItem *it1 = static_cast<const WatchItem *>(item1);
-    const WatchItem *it2 = static_cast<const WatchItem *>(item2);
-    return watchDataLessThan(it1->iname, it1->sortId, it2->iname, it2->sortId);
-}
-
-static int findInsertPosition(const QVector<TreeItem *> &list, const WatchItem *item)
-{
-    sortWatchDataAlphabetically = boolSetting(SortStructMembers);
-    const auto it = qLowerBound(list.begin(), list.end(), item, watchItemSorter);
-    return it - list.begin();
-}
-
-void WatchModel::reinsertAllData()
-{
-    QList<WatchData> list;
-    foreach (TreeItem *child, rootItem()->children())
-        reinsertAllDataHelper(static_cast<WatchItem *>(child), &list);
-
-    reinitialize(true);
-
-    for (int i = 0, n = list.size(); i != n; ++i) {
-        const WatchData &data = list.at(i);
-        QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
-        // Add new entry.
-        WatchItem *parent = findItem(parentName(data.iname));
-        QTC_ASSERT(parent, return);
-        WatchItem *newItem = new WatchItem(data);
-        newItem->sortChildren(&watchItemSorter);
-        const int row = findInsertPosition(parent->children(), newItem);
-        parent->insertChild(row, newItem);
-        if (m_expandedINames.contains(parent->iname)) {
-            emit inameIsExpanded(parent->iname);
-            emit itemIsExpanded(indexForItem(parent));
-        }
-        showEditValue(newItem); // FIXME: Needed?
-    }
-}
-
 int WatchItem::requestedFormat() const
 {
     int format = theIndividualFormats.value(iname, AutomaticFormat);
@@ -1244,14 +1162,13 @@ void WatchModel::insertItem(WatchItem *item)
     WatchItem *parent = findItem(parentName(item->iname));
     QTC_ASSERT(parent, return);
 
-    if (WatchItem *existing = parent->findItem(item->iname))
+    if (WatchItem *existing = parent->findItem(item->iname)) {
+        int row = parent->children().indexOf(existing);
         takeItem(existing);
-
-    //item->walkTree([item](TreeItem *sub) { sub->sortChildren(&watchItemSorter); });
-    item->sortChildren(&watchItemSorter);
-
-    const int row = findInsertPosition(parent->children(), item);
-    parent->insertChild(row, item);
+        parent->insertChild(row, item);
+    } else {
+        parent->appendChild(item);
+    }
 
     item->walkTree([this](TreeItem *sub) { showEditValue(static_cast<WatchItem *>(sub)); });
 }
@@ -1572,7 +1489,7 @@ void WatchModel::setTypeFormat(const QByteArray &type0, int format)
     else
         theTypeFormats[type] = format;
     saveFormats();
-    reinsertAllData();
+    m_engine->updateAll();
 }
 
 void WatchModel::setIndividualFormat(const QByteArray &iname, int format)

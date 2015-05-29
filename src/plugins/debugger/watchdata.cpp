@@ -131,8 +131,7 @@ WatchData::WatchData() :
     elided(0),
     wantsChildren(false),
     valueEnabled(true),
-    valueEditable(true),
-    sortId(0)
+    valueEditable(true)
 {
 }
 
@@ -275,7 +274,6 @@ QString WatchData::toString() const
     str << QLatin1Char('{');
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
-    str << "sortId=\"" << sortId << doubleQuoteComma;
     if (!name.isEmpty() && name != QLatin1String(iname))
         str << "name=\"" << name << doubleQuoteComma;
     if (address) {
@@ -492,7 +490,6 @@ void decodeArrayHelper(std::function<void(const WatchData &)> itemHandler, const
     const QByteArray exp = "*(" + gdbQuoteTypes(tmplate.type) + "*)0x";
     for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
         data = tmplate;
-        data.sortId = i;
         data.iname += QByteArray::number(i);
         data.name = QString::fromLatin1("[%1]").arg(i);
         data.value = decodeItemHelper(p[i]);
@@ -610,7 +607,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
         for (int i = 0, n = int(children.children().size()); i != n; ++i) {
             const GdbMi &child = children.children().at(i);
             WatchData data1 = childtemplate;
-            data1.sortId = i;
             GdbMi name = child["name"];
             if (name.isValid())
                 data1.name = QString::fromLatin1(name.data());
