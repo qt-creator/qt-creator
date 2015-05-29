@@ -329,6 +329,13 @@ void IWizardFactory::clearWizardFactories()
     s_areFactoriesLoaded = false;
 }
 
+void IWizardFactory::updateActions()
+{
+    bool isRunning = ICore::isNewItemDialogRunning();
+    foreach (IWizardFactory *factory, s_allFactories)
+        factory->m_action->setEnabled(!isRunning);
+}
+
 FeatureSet IWizardFactory::pluginFeatures() const
 {
     static FeatureSet plugins;
@@ -357,6 +364,7 @@ FeatureSet IWizardFactory::availableFeatures(const QString &platformName) const
 void IWizardFactory::initialize()
 {
     connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
+    connect(ICore::instance(), &ICore::newItemDialogRunningChanged, &IWizardFactory::updateActions);
 
     auto resetAction = new QAction(tr("Reload All Wizards"), ActionManager::instance());
     ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
