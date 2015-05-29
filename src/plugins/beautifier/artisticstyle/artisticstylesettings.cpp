@@ -42,7 +42,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
-#include <QTextDocument> // Qt::escape() in Qt 4
 #include <QXmlStreamWriter>
 
 namespace Beautifier {

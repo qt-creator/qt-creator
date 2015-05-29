@@ -41,7 +41,6 @@
 #include <QString>
 #include <QPushButton>
 #include <QTreeView>
-#include <QTextDocument> // for Qt::escape
 #include <QVBoxLayout>
 #include <QKeyEvent>
 

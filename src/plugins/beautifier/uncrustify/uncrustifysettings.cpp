@@ -40,7 +40,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
-#include <QTextDocument> // Qt::escape() in Qt 4
 #include <QXmlStreamWriter>
 
 namespace Beautifier {
@@ -150,7 +149,6 @@ void UncrustifySettings::createDocumentationFile() const
         while (++i < totalLines) {
             const QString &subline = lines.at(i);
             if (line.startsWith(QLatin1Char('#')) || subline.trimmed().isEmpty()) {
-                //TODO As soon as Qt 4 support is dropped, use toHtmlEscaped().
                 const QString text = QLatin1String("<p><span class=\"option\">") + keyword
                         + QLatin1String("</span> <span class=\"param\">") + options
                         + QLatin1String("</span></p><p>")
