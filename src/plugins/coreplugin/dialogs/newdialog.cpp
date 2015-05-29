@@ -278,10 +278,8 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
         m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
     }
 
-    if (!availablePlatforms.isEmpty())
-        m_ui->comboBox->setCurrentIndex(1); //First Platform
-    else
-        m_ui->comboBox->setDisabled(true);
+    m_ui->comboBox->setCurrentIndex(0); // "All templates"
+    m_ui->comboBox->setEnabled(!availablePlatforms.isEmpty());
 
     foreach (IWizardFactory *factory, factories) {
         QStandardItem *kindItem;
