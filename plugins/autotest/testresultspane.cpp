@@ -190,6 +190,8 @@ void TestResultsPane::visibilityChanged(bool visible)
             return;
         connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
                 this, &TestResultsPane::onTestTreeModelChanged);
+        // make sure run/run all are in correct state
+        onTestTreeModelChanged();
         m_wasVisibleBefore = true;
         TestTreeModel::instance()->enableParsing();
     } else {
