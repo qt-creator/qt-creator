@@ -874,6 +874,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("partialVariable", params.partialVariable);
+    cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
 
     cmd.beginList("watchers");
 

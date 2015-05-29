@@ -1145,9 +1145,11 @@ class Dumper(DumperBase):
                 self.put('iname="%s",' % self.currentIName)
                 self.put('name="[%s]",' % child.name)
                 self.putItem(child)
-        for i in xrange(m, n):
-        #for i in range(n):
-            child = value.GetChildAtIndex(i)
+
+        children = [value.GetChildAtIndex(i) for i in xrange(m, n)]
+        if self.sortStructMembers:
+            children.sort(key = lambda child: str(child.GetName()))
+        for child in children:
             # Only needed in the QVariant4 test.
             if int(child.GetLoadAddress()) == 0xffffffffffffffff:
                 typeClass = child.GetType().GetTypeClass()
@@ -1655,6 +1657,7 @@ class Dumper(DumperBase):
         self.reportToken(args)
         self.expandedINames = set(args.get('expanded', []))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
+        self.sortStructMembers = bool(args.get("sortStructMembers", True));
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))

@@ -262,6 +262,8 @@ class Dumper(DumperBase):
         self.autoDerefPointers = int(args.get("autoderef", "0"))
         self.partialUpdate = int(args.get("partial", "0"))
         self.fallbackQtVersion = 0x50200
+        self.sortStructMembers = bool(args.get("sortStructMembers", True))
+
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         #warn("WATCHERS: %s" % self.watchers)
@@ -399,6 +401,7 @@ class Dumper(DumperBase):
                 # Don't bother. It's only supplementary information anyway.
                 pass
 
+        locals.sort(key = lambda item: item.name)
         for item in locals:
             value = self.downcast(item.value) if self.useDynamicType else item.value
             with OutputSafer(self):
@@ -1143,6 +1146,9 @@ class Dumper(DumperBase):
 
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
+            if self.sortStructMembers:
+                fields.sort(key = lambda field:
+                    '[' + field.name if field.is_base_class else field.name)
 
             #warn("TYPE: %s" % value.type)
             #warn("FIELDS: %s" % fields)
