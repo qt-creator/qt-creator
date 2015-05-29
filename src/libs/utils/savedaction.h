@@ -75,11 +75,13 @@ public:
 
     QString toString() const;
 
+    QString dialogText() const;
+    void setDialogText(const QString &dialogText);
+
 signals:
     void valueChanged(const QVariant &newValue);
 
 private:
-    void uncheckableButtonClicked();
     void checkableButtonClicked(bool);
     void lineEditEditingFinished();
     void pathChooserEditingFinished();
@@ -92,6 +94,7 @@ private:
     QVariant m_defaultValue;
     QString m_settingsKey;
     QString m_settingsGroup;
+    QString m_dialogText;
     QWidget *m_widget;
     ApplyMode m_applyMode;
 };

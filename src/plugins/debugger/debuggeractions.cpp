@@ -261,6 +261,8 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowStandardNamespace"));
     item->setText(tr("Show \"std::\" Namespace in Types"));
+    item->setDialogText(tr("Show \"std::\" namespace in types"));
+    item->setToolTip(tr("Shows \"std::\" prefix for types from the standard library."));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -269,6 +271,9 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowQtNamespace"));
     item->setText(tr("Show Qt's Namespace in Types"));
+    item->setDialogText(tr("Show Qt's namespace in types"));
+    item->setToolTip(tr("Shows Qt namespace prefix for Qt types. This is only "
+                        "relevant if Qt was configured with \"-qtnamespace\"."));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -277,6 +282,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SortStructMembers"));
     item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
+    item->setDialogText(tr("Sort members of classes and structs alphabetically"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -295,7 +301,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
-    item->setText(tr("Use Code Model"));
+    item->setDialogText(tr("Use code model"));
     item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "
       "for variable scope information. This might result in slightly faster "
       "debugger operation but may fail for optimized code."));
@@ -306,6 +312,8 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowThreadNames"));
+    item->setToolTip(tr("Displays names of QThread based threads."));
+    item->setDialogText(tr("Display thread names"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setValue(false);

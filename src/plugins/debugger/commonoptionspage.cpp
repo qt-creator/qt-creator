@@ -377,23 +377,9 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
             + QLatin1String("</p></body></html>"));
 
         auto checkBoxUseCodeModel = new QCheckBox(debuggingHelperGroupBox);
-        checkBoxUseCodeModel->setText(tr("Use code model"));
-        checkBoxUseCodeModel->setToolTip(action(UseCodeModel)->toolTip());
-        checkBoxUseCodeModel->setToolTip(tr("Makes use of Qt Creator's code model "
-            "to find out if a variable has already been assigned a "
-            "value at the point the debugger interrupts."));
-
         auto checkBoxShowThreadNames = new QCheckBox(debuggingHelperGroupBox);
-        checkBoxShowThreadNames->setToolTip(tr("Displays names of QThread based threads."));
-        checkBoxShowThreadNames->setText(tr("Display thread names"));
-
-        auto checkBoxShowStdNamespace  = new QCheckBox(m_widget);
-        checkBoxShowStdNamespace->setToolTip(tr("Shows \"std::\" prefix for types from the standard library."));
-        checkBoxShowStdNamespace->setText(tr("Show \"std::\" namespace for types"));
-
+        auto checkBoxShowStdNamespace = new QCheckBox(m_widget);
         auto checkBoxShowQtNamespace = new QCheckBox(m_widget);
-        checkBoxShowQtNamespace->setToolTip(tr("Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with '-qtnamespace'."));
-        checkBoxShowQtNamespace->setText(tr("Qt's namespace for types"));
 
         auto spinBoxMaximalStringLength = new QSpinBox(m_widget);
         spinBoxMaximalStringLength->setSpecialValueText(tr("<unlimited>"));

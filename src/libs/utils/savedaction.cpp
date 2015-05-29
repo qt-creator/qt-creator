@@ -37,7 +37,7 @@
 #include <QDebug>
 #include <QSettings>
 
-#include <QAbstractButton>
+#include <QCheckBox>
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QSpinBox>
@@ -234,15 +234,12 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     m_widget = widget;
     m_applyMode = applyMode;
 
-    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget)) {
-        if (button->isCheckable()) {
-            button->setChecked(m_value.toBool());
-            connect(button, &QAbstractButton::clicked,
-                    this, &SavedAction::checkableButtonClicked);
-        } else {
-            connect(button, &QAbstractButton::clicked,
-                    this, &SavedAction::uncheckableButtonClicked);
-        }
+    if (QCheckBox *button = qobject_cast<QCheckBox *>(widget)) {
+        if (!m_dialogText.isEmpty())
+            button->setText(m_dialogText);
+        button->setChecked(m_value.toBool());
+        connect(button, &QCheckBox::clicked,
+                this, &SavedAction::checkableButtonClicked);
     } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
         //qDebug() << "SETTING VALUE" << spinBox->value();
@@ -272,6 +269,10 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     } else {
         qDebug() << "Cannot connect widget " << widget << toString();
     }
+
+    // Copy tooltip, but only if there's nothing explcitly set on the widget yet.
+    if (widget->toolTip().isEmpty())
+        widget->setToolTip(toolTip());
 }
 
 /*
@@ -286,7 +287,7 @@ void SavedAction::disconnectWidget()
 
 void SavedAction::apply(QSettings *s)
 {
-    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(m_widget))
+    if (QCheckBox *button = qobject_cast<QCheckBox *>(m_widget))
         setValue(button->isChecked());
     else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(m_widget))
         setValue(lineEdit->text());
@@ -304,17 +305,9 @@ void SavedAction::apply(QSettings *s)
        writeSettings(s);
 }
 
-void SavedAction::uncheckableButtonClicked()
-{
-    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
-    QTC_ASSERT(button, return);
-    //qDebug() << "UNCHECKABLE BUTTON: " << sender();
-    QAction::trigger();
-}
-
 void SavedAction::checkableButtonClicked(bool)
 {
-    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
+    QCheckBox *button = qobject_cast<QCheckBox *>(sender());
     QTC_ASSERT(button, return);
     //qDebug() << "CHECKABLE BUTTON: " << sender();
     if (m_applyMode == ImmediateApply)
@@ -352,6 +345,27 @@ void SavedAction::textEditTextChanged()
     if (m_applyMode == ImmediateApply)
         setValue(textEdit->toPlainText());
 }
+
+/*
+    Default text to be used in labels if this SavedAction is
+    used in a settings dialog.
+
+    This typically is similar to the text this SavedAction shows
+    when used in menus, but differs in capitalization.
+
+
+    \sa text()
+*/
+QString SavedAction::dialogText() const
+{
+    return m_dialogText;
+}
+
+void SavedAction::setDialogText(const QString &dialogText)
+{
+    m_dialogText = dialogText;
+}
+
 
 void SavedAction::groupBoxToggled(bool checked)
 {
