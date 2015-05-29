@@ -34,6 +34,17 @@
 
 #include <coreplugin/idocument.h>
 
+QT_BEGIN_NAMESPACE
+class QGraphicsItem;
+class QMovie;
+class QPixmap;
+
+#ifndef QT_NO_SVG
+class QGraphicsSvgItem;
+#endif
+
+QT_END_NAMESPACE
+
 namespace ImageViewer {
 namespace Internal {
 
@@ -44,8 +55,17 @@ class ImageViewerFile : public Core::IDocument
     Q_OBJECT
 
 public:
-    explicit ImageViewerFile(ImageViewer *parent = 0);
+    enum ImageType {
+        TypeInvalid,
+        TypeSvg,
+        TypeMovie,
+        TypePixmap
+    };
 
+    ImageViewerFile();
+    ~ImageViewerFile();
+
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     bool setContents(const QByteArray &contents);
 
@@ -58,8 +78,28 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
+    bool isPaused() const;
+    void setPaused(bool paused);
+
+    QGraphicsItem *createGraphicsItem() const;
+    ImageType type() const;
+
+    void updateVisibility();
+
+signals:
+    void imageSizeChanged(const QSize &size);
+    void isPausedChanged(bool paused);
+
 private:
-    ImageViewer *m_editor;
+    void cleanUp();
+
+    ImageType m_type = TypeInvalid;
+#ifndef QT_NO_SVG
+    mutable QGraphicsSvgItem *m_tempSvgItem = 0;
+#endif
+    QMovie *m_movie = 0;
+    QPixmap *m_pixmap = 0;
+    bool m_isPaused = false;
 };
 
 } // namespace Internal

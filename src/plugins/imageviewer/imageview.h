@@ -45,18 +45,18 @@
 namespace ImageViewer {
 namespace Internal {
 
+class ImageViewerFile;
+
 class ImageView : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    ImageView(QWidget *parent = 0);
+    ImageView(ImageViewerFile *file);
     ~ImageView();
 
-    bool openFile(QString fileName);
-    bool isAnimated() const;
-    bool isPaused() const;
-    void setPaused(bool paused);
+    void reset();
+    void createScene();
 
 signals:
     void scaleFactorChanged(qreal factor);
@@ -72,9 +72,6 @@ public slots:
 
 private slots:
     void emitScaleFactor();
-    void doScale(qreal factor);
-    void updatePixmap(const QRect &rect);
-    void pixmapResized(const QSize &size);
 
 protected:
     void drawBackground(QPainter *p, const QRectF &rect);
@@ -83,7 +80,14 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
-    struct ImageViewPrivate *d;
+    void doScale(qreal factor);
+
+    ImageViewerFile *m_file;
+    QGraphicsItem *m_imageItem = 0;
+    QGraphicsRectItem *m_backgroundItem = 0;
+    QGraphicsRectItem *m_outlineItem = 0;
+    bool m_showBackground = false;
+    bool m_showOutline = true;
 };
 
 } // namespace Internal

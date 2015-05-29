@@ -59,6 +59,8 @@ public:
     Core::IDocument *document();
     QWidget *toolBar();
 
+    IEditor *duplicate();
+
 public slots:
     void imageSizeUpdated(const QSize &size);
     void scaleFactorUpdate(qreal factor);
@@ -75,11 +77,10 @@ private slots:
     void playToggled();
 
 private:
+    ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent = 0);
+    void ctor();
+    void updatePauseAction();
 
-    bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
-    void setPaused(bool paused);
-
-private:
     struct ImageViewerPrivate *d;
 };
 

@@ -54,21 +54,53 @@ namespace Internal {
 struct ImageViewerPrivate
 {
     QString displayName;
-    ImageViewerFile *file;
+    QSharedPointer<ImageViewerFile> file;
     ImageView *imageView;
     QWidget *toolbar;
     Ui::ImageViewerToolbar ui_toolbar;
 };
 
+/*!
+    Tries to change the \a button icon to the icon specified by \a name
+    from the current theme. Returns \c true if icon is updated, \c false
+    otherwise.
+*/
+static bool updateButtonIconByTheme(QAbstractButton *button, const QString &name)
+{
+    QTC_ASSERT(button, return false);
+    QTC_ASSERT(!name.isEmpty(), return false);
+
+    if (QIcon::hasThemeIcon(name)) {
+        button->setIcon(QIcon::fromTheme(name));
+        return true;
+    }
+
+    return false;
+}
+
 ImageViewer::ImageViewer(QWidget *parent)
     : IEditor(parent),
     d(new ImageViewerPrivate)
 {
-    d->file = new ImageViewerFile(this);
-    d->imageView = new ImageView();
+    d->file.reset(new ImageViewerFile);
+    ctor();
+}
+
+ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent)
+    : IEditor(parent),
+      d(new ImageViewerPrivate)
+{
+    d->file = document;
+    ctor();
+}
+
+void ImageViewer::ctor()
+{
+    d->imageView = new ImageView(d->file.data());
 
     setContext(Core::Context(Constants::IMAGEVIEWER_ID));
     setWidget(d->imageView);
+    setDuplicateSupported(true);
 
     // toolbar
     d->toolbar = new QWidget();
@@ -108,8 +140,14 @@ ImageViewer::ImageViewer(QWidget *parent)
             d->imageView, SLOT(setViewOutline(bool)));
     connect(d->ui_toolbar.toolButtonPlayPause, &Core::CommandButton::clicked,
             this, &ImageViewer::playToggled);
-    connect(d->imageView, SIGNAL(imageSizeChanged(QSize)),
-            this, SLOT(imageSizeUpdated(QSize)));
+    connect(d->file.data(), &ImageViewerFile::imageSizeChanged,
+            this, &ImageViewer::imageSizeUpdated);
+    connect(d->file.data(), &ImageViewerFile::aboutToReload,
+            d->imageView, &ImageView::reset);
+    connect(d->file.data(), &ImageViewerFile::reloadFinished,
+            d->imageView, &ImageView::createScene);
+    connect(d->file.data(), &ImageViewerFile::isPausedChanged,
+            this, &ImageViewer::updatePauseAction);
     connect(d->imageView, SIGNAL(scaleFactorChanged(qreal)),
             this, SLOT(scaleFactorUpdate(qreal)));
 }
@@ -123,25 +161,27 @@ ImageViewer::~ImageViewer()
 
 bool ImageViewer::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    if (!d->imageView->openFile(realFileName)) {
-        *errorString = tr("Cannot open image file %1.").arg(QDir::toNativeSeparators(realFileName));
+    if (!d->file->open(errorString, fileName, realFileName))
         return false;
-    }
-    d->file->setFilePath(Utils::FileName::fromString(fileName));
-    d->ui_toolbar.toolButtonPlayPause->setVisible(d->imageView->isAnimated());
-    setPaused(!d->imageView->isAnimated());
-    // d_ptr->file->setMimeType
+    d->imageView->createScene();
     return true;
 }
 
 Core::IDocument *ImageViewer::document()
 {
-    return d->file;
+    return d->file.data();
 }
 
 QWidget *ImageViewer::toolBar()
 {
     return d->toolbar;
+}
+
+Core::IEditor *ImageViewer::duplicate()
+{
+    auto other = new ImageViewer(d->file);
+    other->d->imageView->createScene();
+    return other;
 }
 
 void ImageViewer::imageSizeUpdated(const QSize &size)
@@ -156,25 +196,6 @@ void ImageViewer::scaleFactorUpdate(qreal factor)
 {
     const QString info = QString::number(factor * 100, 'f', 2) + QLatin1Char('%');
     d->ui_toolbar.labelInfo->setText(info);
-}
-
-/*!
-    Tries to change the \a button icon to the icon specified by \a name
-    from the current theme. Returns \c true if icon is updated, \c false
-    otherwise.
-*/
-
-bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString &name)
-{
-    QTC_ASSERT(button, return false);
-    QTC_ASSERT(!name.isEmpty(), return false);
-
-    if (QIcon::hasThemeIcon(name)) {
-        button->setIcon(QIcon::fromTheme(name));
-        return true;
-    }
-
-    return false;
 }
 
 void ImageViewer::switchViewBackground()
@@ -214,19 +235,21 @@ void ImageViewer::togglePlay()
 
 void ImageViewer::playToggled()
 {
-    bool paused = d->imageView->isPaused();
-    setPaused(!paused);
+    d->file->setPaused(!d->file->isPaused());
 }
 
-void ImageViewer::setPaused(bool paused)
+void ImageViewer::updatePauseAction()
 {
-    d->imageView->setPaused(paused);
-    if (paused) {
-        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
-    } else {
-        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+    bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
+    d->ui_toolbar.toolButtonPlayPause->setVisible(isMovie);
+    if (isMovie) {
+        if (d->file->isPaused()) {
+            d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
+        } else {
+            d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+        }
     }
 }
 

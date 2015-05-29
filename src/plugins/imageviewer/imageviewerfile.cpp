@@ -33,19 +33,111 @@
 #include "imageviewer.h"
 #include "imageviewerconstants.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
+#include <QGraphicsPixmapItem>
+#ifndef QT_NO_SVG
+#include <QGraphicsSvgItem>
+#endif
+#include <QImageReader>
+#include <QMovie>
+#include <QPainter>
+#include <QPixmap>
 
 namespace ImageViewer {
 namespace Internal {
 
-ImageViewerFile::ImageViewerFile(ImageViewer *parent)
-    : Core::IDocument(parent)
+class MovieItem : public QObject, public QGraphicsPixmapItem
+{
+public:
+    MovieItem(QMovie *movie)
+        : m_movie(movie)
+    {
+        setPixmap(m_movie->currentPixmap());
+        connect(m_movie, &QMovie::updated, this, [this](const QRectF &rect) {
+            update(rect);
+        });
+    }
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+    {
+        const bool smoothTransform = painter->worldTransform().m11() < 1;
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, smoothTransform);
+        painter->drawPixmap(offset(), m_movie->currentPixmap());
+    }
+
+private:
+    QMovie *m_movie;
+};
+
+ImageViewerFile::ImageViewerFile()
 {
     setId(Constants::IMAGEVIEWER_ID);
-    m_editor = parent;
     connect(this, &ImageViewerFile::mimeTypeChanged, this, &ImageViewerFile::changed);
+}
+
+ImageViewerFile::~ImageViewerFile()
+{
+    cleanUp();
+}
+
+bool ImageViewerFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
+{
+    QTC_CHECK(fileName == realFileName); // does not support auto save
+
+    cleanUp();
+    m_type = TypeInvalid;
+
+    QByteArray format = QImageReader::imageFormat(fileName);
+    // if it is impossible to recognize a file format - file will not be open correctly
+    if (format.isEmpty()) {
+        if (errorString)
+            *errorString = tr("Image format not supported.");
+        return false;
+    }
+
+#ifndef QT_NO_SVG
+    if (format.startsWith("svg")) {
+        m_type = TypeSvg;
+        m_tempSvgItem = new QGraphicsSvgItem(fileName);
+        QRectF bound = m_tempSvgItem->boundingRect();
+        if (bound.width() == 0 && bound.height() == 0) {
+            if (errorString)
+                *errorString = tr("Failed to read SVG image.");
+            return false;
+        }
+        emit imageSizeChanged(QSize());
+    } else
+#endif
+    if (QMovie::supportedFormats().contains(format)) {
+        m_type = TypeMovie;
+        m_movie = new QMovie(fileName, QByteArray(), this);
+        m_movie->setCacheMode(QMovie::CacheAll);
+        connect(m_movie, &QMovie::finished, m_movie, &QMovie::start);
+        connect(m_movie, &QMovie::resized, this, &ImageViewerFile::imageSizeChanged);
+        m_movie->start();
+        m_isPaused = false; // force update
+        setPaused(true);
+    } else {
+        m_type = TypePixmap;
+        m_pixmap = new QPixmap(fileName);
+        if (m_pixmap->isNull()) {
+            if (errorString)
+                *errorString = tr("Failed to read image.");
+            delete m_pixmap;
+            return false;
+        }
+        emit imageSizeChanged(m_pixmap->size());
+    }
+
+    setFilePath(Utils::FileName::fromString(fileName));
+    Utils::MimeDatabase mdb;
+    setMimeType(mdb.mimeTypeForFile(fileName).name());
+    return true;
 }
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -67,7 +159,83 @@ bool ImageViewerFile::reload(QString *errorString,
         emit changed();
         return true;
     }
-    return m_editor->open(errorString, filePath().toString(), filePath().toString());
+    emit aboutToReload();
+    bool success = open(errorString, filePath().toString(), filePath().toString());
+    emit reloadFinished(success);
+    return success;
+}
+
+bool ImageViewerFile::isPaused() const
+{
+    return m_isPaused;
+}
+
+void ImageViewerFile::setPaused(bool paused)
+{
+    if (!m_movie || m_isPaused == paused)
+        return;
+    m_isPaused = paused;
+    m_movie->setPaused(paused);
+    emit isPausedChanged(m_isPaused);
+}
+
+QGraphicsItem *ImageViewerFile::createGraphicsItem() const
+{
+    QGraphicsItem *val = 0;
+    switch (m_type) {
+    case TypeInvalid:
+        break;
+    case TypeSvg:
+#ifndef QT_NO_SVG
+        if (m_tempSvgItem) {
+            val = m_tempSvgItem;
+            m_tempSvgItem = 0;
+        } else {
+            val = new QGraphicsSvgItem(filePath().toString());
+        }
+#endif
+        break;
+    case TypeMovie:
+        val = new MovieItem(m_movie);
+        break;
+    case TypePixmap: {
+        auto pixmapItem = new QGraphicsPixmapItem(*m_pixmap);
+        pixmapItem->setTransformationMode(Qt::SmoothTransformation);
+        val = pixmapItem;
+        break;
+    }
+    default:
+        break;
+    }
+    return val;
+}
+
+ImageViewerFile::ImageType ImageViewerFile::type() const
+{
+    return m_type;
+}
+
+void ImageViewerFile::updateVisibility()
+{
+    if (!m_movie || m_isPaused)
+        return;
+    bool visible = false;
+    foreach (Core::IEditor *editor, Core::DocumentModel::editorsForDocument(this)) {
+        if (editor->widget()->isVisible()) {
+            visible = true;
+            break;
+        }
+    }
+    m_movie->setPaused(!visible);
+}
+
+void ImageViewerFile::cleanUp()
+{
+    delete m_pixmap;
+    delete m_movie;
+#ifndef QT_NO_SVG
+    delete m_tempSvgItem;
+#endif
 }
 
 bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)
