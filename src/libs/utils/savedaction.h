@@ -51,27 +51,27 @@ public:
     SavedAction(QObject *parent = 0);
 
     QVariant value() const;
-    Q_SLOT void setValue(const QVariant &value, bool doemit = true);
+    void setValue(const QVariant &value, bool doemit = true);
 
     QVariant defaultValue() const;
-    Q_SLOT void setDefaultValue(const QVariant &value);
+    void setDefaultValue(const QVariant &value);
 
-    Q_SLOT void trigger(const QVariant &data);
+    void trigger(const QVariant &data);
 
     // used for persistency
     QString settingsKey() const;
-    Q_SLOT void setSettingsKey(const QString &key);
-    Q_SLOT void setSettingsKey(const QString &group, const QString &key);
+    void setSettingsKey(const QString &key);
+    void setSettingsKey(const QString &group, const QString &key);
 
     QString settingsGroup() const;
-    Q_SLOT void setSettingsGroup(const QString &group);
+    void setSettingsGroup(const QString &group);
 
     virtual void readSettings(const QSettings *settings);
-    Q_SLOT virtual void writeSettings(QSettings *settings);
+    virtual void writeSettings(QSettings *settings);
 
     void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
     void disconnectWidget();
-    Q_SLOT void apply(QSettings *settings);
+    void apply(QSettings *settings);
 
     QString toString() const;
 

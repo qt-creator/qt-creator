@@ -75,7 +75,7 @@ void RegisterPostMortemAction::registerNow(const QVariant &value)
 
 RegisterPostMortemAction::RegisterPostMortemAction(QObject *parent) : Utils::SavedAction(parent)
 {
-    connect(this, SIGNAL(valueChanged(QVariant)), SLOT(registerNow(QVariant)));
+    connect(this, &SavedAction::valueChanged, this, &RegisterPostMortemAction::registerNow);
 }
 
 void RegisterPostMortemAction::readSettings(const QSettings *)

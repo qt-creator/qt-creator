@@ -38,14 +38,13 @@ namespace Internal {
 
 class RegisterPostMortemAction : public Utils::SavedAction
 {
-    Q_OBJECT
-
-private:
-    Q_SLOT void registerNow(const QVariant &value);
 public:
     RegisterPostMortemAction(QObject *parent = 0);
-    void readSettings(const QSettings *settings = 0);
-    Q_SLOT virtual void writeSettings(QSettings *) {}
+    void readSettings(const QSettings *settings = 0) override;
+    void writeSettings(QSettings *) override {}
+
+private:
+    void registerNow(const QVariant &value);
 };
 
 } // namespace Internal

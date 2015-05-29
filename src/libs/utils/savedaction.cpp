@@ -196,8 +196,6 @@ void SavedAction::readSettings(const QSettings *settings)
     if (isCheckable() && !var.isValid())
         var = false;
     setValue(var);
-    //qDebug() << "READING: " << var.isValid() << m_settingsKey << " -> " << m_value
-    //    << " (default: " << m_defaultValue << ")" << var;
 }
 
 /*
@@ -212,7 +210,6 @@ void SavedAction::writeSettings(QSettings *settings)
         return;
     settings->beginGroup(m_settingsGroup);
     settings->setValue(m_settingsKey, m_value);
-    //qDebug() << "WRITING: " << m_settingsKey << " -> " << toString();
     settings->endGroup();
 }
 
@@ -242,12 +239,10 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
                 this, &SavedAction::checkableButtonClicked);
     } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
-        //qDebug() << "SETTING VALUE" << spinBox->value();
         connect(spinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
                 this, &SavedAction::spinBoxValueChanged);
     } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
         lineEdit->setText(m_value.toString());
-        //qDebug() << "SETTING TEXT" << lineEdit->text();
         connect(lineEdit, &QLineEdit::editingFinished,
                 this, &SavedAction::lineEditEditingFinished);
     } else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(widget)) {
@@ -309,7 +304,6 @@ void SavedAction::checkableButtonClicked(bool)
 {
     QCheckBox *button = qobject_cast<QCheckBox *>(sender());
     QTC_ASSERT(button, return);
-    //qDebug() << "CHECKABLE BUTTON: " << sender();
     if (m_applyMode == ImmediateApply)
         setValue(button->isChecked());
 }
