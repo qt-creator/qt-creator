@@ -37,10 +37,6 @@
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace Todo {
 namespace Internal {
 

@@ -101,6 +101,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QRadioButton" name="scanInSubprojectRadioButton">
+        <property name="text">
+         <string>Scan the current subproject</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

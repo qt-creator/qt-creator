@@ -150,6 +150,7 @@ void OptionsDialog::uiFromSettings(const Settings &settings)
 {
     ui->scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
     ui->scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
+    ui->scanInSubprojectRadioButton->setChecked(settings.scanningScope == ScanningScopeSubProject);
 
     ui->keywordsList->clear();
     foreach (const Keyword &keyword, settings.keywords)
@@ -162,6 +163,8 @@ Settings OptionsDialog::settingsFromUi()
 
     if (ui->scanInCurrentFileRadioButton->isChecked())
         settings.scanningScope = ScanningScopeCurrentFile;
+    else if (ui->scanInSubprojectRadioButton->isChecked())
+        settings.scanningScope = ScanningScopeSubProject;
     else
         settings.scanningScope = ScanningScopeProject;
 

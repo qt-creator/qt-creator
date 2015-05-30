@@ -36,7 +36,10 @@
 #include "todoitemsmodel.h"
 #include "todoitemsscanner.h"
 
+#include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/session.h>
@@ -90,6 +93,10 @@ void TodoItemsProvider::updateList()
     if (m_settings.scanningScope == ScanningScopeCurrentFile) {
         if (m_currentEditor)
             m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath().toString());
+    // Show only items of the current sub-project
+    } else if (m_settings.scanningScope == ScanningScopeSubProject) {
+        if (m_startupProject)
+            setItemsListWithinSubproject();
     // Show only items of the startup project if any
     } else if (m_startupProject) {
         setItemsListWithinStartupProject();
@@ -139,6 +146,34 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
     }
 }
 
+void TodoItemsProvider::setItemsListWithinSubproject()
+{
+    // TODO prefer current editor as source of sub-project
+    Node *node = ProjectTree::currentNode();
+    if (node) {
+        ProjectNode *projectNode = node->projectNode();
+        if (projectNode) {
+
+            FindAllFilesVisitor filesVisitor;
+            projectNode->accept(&filesVisitor);
+
+            // files must be both in the current subproject and the startup-project.
+            QSet<Utils::FileName> subprojectFileNames =
+                    QSet<Utils::FileName>::fromList(filesVisitor.filePaths());
+            QSet<QString> fileNames = QSet<QString>::fromList(
+                        m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+            QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
+            while (it.hasNext()) {
+                it.next();
+                if (subprojectFileNames.contains(Utils::FileName::fromString(it.key()))
+                        && fileNames.contains(it.key())) {
+                    m_itemsList << it.value();
+                }
+            }
+        }
+    }
+}
+
 void TodoItemsProvider::itemsFetched(const QString &fileName, const QList<TodoItem> &items)
 {
     // Replace old items with new ones
@@ -161,8 +196,10 @@ void TodoItemsProvider::projectsFilesChanged()
 void TodoItemsProvider::currentEditorChanged(Core::IEditor *editor)
 {
     m_currentEditor = editor;
-    if (m_settings.scanningScope == ScanningScopeCurrentFile)
+    if (m_settings.scanningScope == ScanningScopeCurrentFile
+            || m_settings.scanningScope == ScanningScopeSubProject) {
         updateList();
+    }
 }
 
 void TodoItemsProvider::updateListTimeoutElapsed()

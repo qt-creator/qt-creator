@@ -72,7 +72,8 @@ QList<QWidget*> TodoOutputPane::toolBarWidgets() const
     return QList<QWidget*>()
         << m_spacer
         << m_currentFileButton
-        << m_wholeProjectButton;
+        << m_wholeProjectButton
+        << m_subProjectButton;
 }
 
 QString TodoOutputPane::displayName() const
@@ -144,6 +145,8 @@ void TodoOutputPane::setScanningScope(ScanningScope scanningScope)
 {
     if (scanningScope == ScanningScopeCurrentFile)
         m_currentFileButton->setChecked(true);
+    else if (scanningScope == ScanningScopeSubProject)
+        m_subProjectButton->setChecked(true);
     else if (scanningScope == ScanningScopeProject)
         m_wholeProjectButton->setChecked(true);
     else
@@ -154,6 +157,8 @@ void TodoOutputPane::scopeButtonClicked(QAbstractButton* button)
 {
     if (button == m_currentFileButton)
         emit scanningScopeChanged(ScanningScopeCurrentFile);
+    else if (button == m_subProjectButton)
+        emit scanningScopeChanged(ScanningScopeSubProject);
     else if (button == m_wholeProjectButton)
         emit scanningScopeChanged(ScanningScopeProject);
     setBadgeNumber(m_todoItemsModel->rowCount());
@@ -205,9 +210,15 @@ void TodoOutputPane::createScopeButtons()
     m_wholeProjectButton->setText(tr("Active Project"));
     m_wholeProjectButton->setToolTip(tr("Scan the whole active project."));
 
+    m_subProjectButton = new QToolButton();
+    m_subProjectButton->setCheckable(true);
+    m_subProjectButton->setText(tr("Subproject"));
+    m_subProjectButton->setToolTip(tr("Scan the current subproject."));
+
     m_scopeButtons = new QButtonGroup();
     m_scopeButtons->addButton(m_wholeProjectButton);
     m_scopeButtons->addButton(m_currentFileButton);
+    m_scopeButtons->addButton(m_subProjectButton);
     connect(m_scopeButtons, static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonClicked),
             this, &TodoOutputPane::scopeButtonClicked);
 
@@ -219,6 +230,7 @@ void TodoOutputPane::freeScopeButtons()
 {
     delete m_currentFileButton;
     delete m_wholeProjectButton;
+    delete m_subProjectButton;
     delete m_scopeButtons;
     delete m_spacer;
 }

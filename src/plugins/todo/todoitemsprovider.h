@@ -86,6 +86,7 @@ private:
     void updateList();
     void createScanners();
     void setItemsListWithinStartupProject();
+    void setItemsListWithinSubproject();
 
 private slots:
     void itemsFetched(const QString &fileName, const QList<TodoItem> &items);

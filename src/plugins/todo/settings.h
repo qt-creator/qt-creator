@@ -41,7 +41,8 @@ namespace Internal {
 
 enum ScanningScope {
     ScanningScopeCurrentFile,
-    ScanningScopeProject
+    ScanningScopeProject,
+    ScanningScopeSubProject
 };
 
 class Settings {

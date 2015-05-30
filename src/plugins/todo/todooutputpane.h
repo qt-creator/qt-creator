@@ -88,6 +88,7 @@ private:
     TodoOutputTreeView *m_todoTreeView;
     QToolButton *m_currentFileButton;
     QToolButton *m_wholeProjectButton;
+    QToolButton *m_subProjectButton;
     QWidget *m_spacer;
     QButtonGroup *m_scopeButtons;
     QList<TodoItem> *items;
