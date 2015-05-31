@@ -33,12 +33,14 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
-#ifdef Q_CC_MSVC
+#ifdef Q_OS_WIN
 #include <utils/environment.h>
+#ifdef Q_CC_MSVC
 #include <utils/qtcprocess.h>
 #include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 #endif // Q_CC_MSVC
+#endif // Q_OS_WIN
 
 #include <QtTest>
 #include <math.h>
