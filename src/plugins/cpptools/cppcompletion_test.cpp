@@ -2637,6 +2637,21 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("i")
         << QLatin1String("s"));
 
+    QTest::newRow("partial_specialization_templated_argument") << _(
+            "template<class T> struct t {};\n"
+            "\n"
+            "template<class> struct s { float f; };\n"
+            "template<class X> struct s<t<X>> { int i; };\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "    s<t<char>> var;\n"
+            "    @\n"
+            "}\n"
+    ) << _("var.") << (QStringList()
+        << QLatin1String("i")
+        << QLatin1String("s"));
+
     QTest::newRow("auto_declaration_in_if_condition") << _(
             "struct Foo { int bar; };\n"
             "void fun() {\n"

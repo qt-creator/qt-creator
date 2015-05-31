@@ -1215,6 +1215,13 @@ LookupScopePrivate *LookupScopePrivate::findSpecialization(
 
                 if (specializationTemplateArgument == initializationTemplateArgument)
                     return cit->second;
+
+                if (const NamedType *specName = specializationTemplateArgument->asNamedType()) {
+                    if (const NamedType *initName = initializationTemplateArgument->asNamedType()) {
+                        if (specName->name()->identifier() == initName->name()->identifier())
+                            return cit->second;
+                    }
+                }
             }
         }
     }
