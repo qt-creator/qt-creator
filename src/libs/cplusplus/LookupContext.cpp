@@ -1212,6 +1212,9 @@ LookupScopePrivate *LookupScopePrivate::findSpecialization(
                         }
                     }
                 }
+
+                if (specializationTemplateArgument == initializationTemplateArgument)
+                    return cit->second;
             }
         }
     }
