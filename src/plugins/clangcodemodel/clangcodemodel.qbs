@@ -1,6 +1,6 @@
 import qbs
 import qbs.File
-import qbs.Process
+import QtcClangInstallation as Clang
 import QtcProcessOutputReader
 
 QtcPlugin {
@@ -13,56 +13,22 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
-    property string llvmInstallDirFromEnv: qbs.getEnv("LLVM_INSTALL_DIR")
-
     property bool clangCompletion: true
     property bool clangHighlighting: true
     property bool clangIndexing: false
 
-    property string llvmConfig: {
-        var llvmConfigVariants = [
-            "llvm-config", "llvm-config-3.2", "llvm-config-3.3", "llvm-config-3.4",
-            "llvm-config-3.5", "llvm-config-3.6", "llvm-config-4.0", "llvm-config-4.1"
-        ];
+    property string llvmConfig: Clang.llvmConfig(qbs)
+    property string llvmIncludeDir: Clang.includeDir(llvmConfig, QtcProcessOutputReader)
+    property string llvmLibDir: Clang.libDir(llvmConfig, QtcProcessOutputReader)
+    property string llvmLibs: Clang.libraries(qbs.targetOS)
+    property string llvmVersion: Clang.version(llvmConfig, QtcProcessOutputReader)
 
-        // Prefer llvm-config* from LLVM_INSTALL_DIR
-        if (llvmInstallDirFromEnv) {
-            for (var i = 0; i < llvmConfigVariants.length; ++i) {
-                var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i];
-                if (File.exists(variant))
-                    return variant;
-            }
-        }
-
-        // Find llvm-config* in PATH
-        var pathListString = qbs.getEnv("PATH");
-        var separator = qbs.hostOS.contains("windows") ? ";" : ":";
-        var pathList = pathListString.split(separator);
-        for (var i = 0; i < llvmConfigVariants.length; ++i) {
-            for (var j = 0; j < pathList.length; ++j) {
-                var variant = pathList[j] + "/" + llvmConfigVariants[i];
-                if (File.exists(variant))
-                    return variant;
-            }
-        }
-
-        return undefined;
-    }
     condition: llvmConfig
-
-    property string llvmIncludeDir: QtcProcessOutputReader.readOutput(llvmConfig, ["--includedir"])
-    property string llvmLibDir: QtcProcessOutputReader.readOutput(llvmConfig, ["--libdir"])
-    property string llvmVersion: QtcProcessOutputReader.readOutput(llvmConfig, ["--version"])
-        .replace(/(\d+\.\d+\.\d+).*/, "$1")
 
     cpp.includePaths: base.concat(llvmIncludeDir)
     cpp.libraryPaths: base.concat(llvmLibDir)
     cpp.rpaths: cpp.libraryPaths
-
-    property string llvmLib: "clang"
-    property stringList additionalLibraries: qbs.targetOS.contains("windows")
-                                             ? ["advapi32", "shell32"] : []
-    cpp.dynamicLibraries: base.concat(llvmLib).concat(additionalLibraries)
+    cpp.dynamicLibraries: base.concat(llvmLibs)
 
     cpp.defines: {
         var defines = base;

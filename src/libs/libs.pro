@@ -13,7 +13,9 @@ SUBDIRS   = \
     qmleditorwidgets \
     glsl \
     ssh \
-    timeline
+    timeline \
+    sqlite \
+    codemodelbackendipc
 
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =

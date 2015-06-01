@@ -1,5 +1,5 @@
 include(../../qtcreatorplugin.pri)
-include(clang_installation.pri)
+include(../../shared/clang/clang_installation.pri)
 
 message("Building ClangCodeModel plugin with Clang from $$LLVM_INSTALL_DIR")
 message("  INCLUDEPATH += $$LLVM_INCLUDEPATH")

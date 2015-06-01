@@ -117,6 +117,7 @@ tmp/
 *.dll
 *.exe
 /bin/buildoutputparser
+/bin/codemodelbackend
 /bin/cpaster
 /bin/cplusplus-ast2png
 /bin/cplusplus-frontend
