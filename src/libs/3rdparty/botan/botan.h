@@ -16,6 +16,9 @@
 #include <botan/dh.h>
 #include <botan/dl_group.h>
 #include <botan/dsa.h>
+#include <botan/ec_group.h>
+#include <botan/ecdh.h>
+#include <botan/ecdsa.h>
 #include <botan/hmac.h>
 #include <botan/init.h>
 #include <botan/lookup.h>
