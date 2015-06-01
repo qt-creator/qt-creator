@@ -82,7 +82,7 @@ public:
     void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                            QAction *submitAction = 0, QAction *diffAction = 0);
 
-    ~VcsBaseSubmitEditor();
+    ~VcsBaseSubmitEditor() override;
 
     // A utility routine to be called when closing a submit editor.
     // Runs checks on the message and prompts according to configuration.
@@ -114,10 +114,10 @@ public:
     void setCheckScriptWorkingDirectory(const QString &);
 
     // Core::IEditor
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IDocument *document();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    Core::IDocument *document() override;
 
-    QWidget *toolBar();
+    QWidget *toolBar() override;
 
     QStringList checkedFiles() const;
 

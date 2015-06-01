@@ -53,7 +53,7 @@ class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
     Q_OBJECT
 public:
     SelectableTextEditorWidget(Core::Id id, QWidget *parent = 0);
-    ~SelectableTextEditorWidget();
+    ~SelectableTextEditorWidget() override;
     void setSelections(const QMap<int, QList<DiffSelection> > &selections);
 
 private:
@@ -61,7 +61,7 @@ private:
                     const QTextBlock &block,
                     const QPointF &offset,
                     const QVector<QTextLayout::FormatRange> &selections,
-                    const QRect &clipRect) const;
+                    const QRect &clipRect) const override;
 
     // block number, list of ranges
     // DiffSelection.start - can be -1 (continues from the previous line)

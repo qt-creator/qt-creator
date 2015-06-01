@@ -54,15 +54,15 @@ class AndroidManifestEditor : public Core::IEditor
 public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    QWidget *toolBar();
-    AndroidManifestEditorWidget *widget() const;
-    Core::IDocument *document();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    QWidget *toolBar() override;
+    AndroidManifestEditorWidget *widget() const override;
+    Core::IDocument *document() override;
     TextEditor::TextEditorWidget *textEditor() const;
 
-    int currentLine() const;
-    int currentColumn() const;
-    void gotoLine(int line, int column = 0, bool centerLine = true) { textEditor()->gotoLine(line, column, centerLine); }
+    int currentLine() const override;
+    int currentColumn() const override;
+    void gotoLine(int line, int column = 0, bool centerLine = true)  override;
 
 private slots:
     void changeEditorPage(QAction *action);

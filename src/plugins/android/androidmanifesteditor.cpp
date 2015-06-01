@@ -101,6 +101,11 @@ int AndroidManifestEditor::currentColumn() const
     return cursor.position() - cursor.block().position() + 1;
 }
 
+void AndroidManifestEditor::gotoLine(int line, int column, bool centerLine)
+{
+    textEditor()->gotoLine(line, column, centerLine);
+}
+
 void AndroidManifestEditor::changeEditorPage(QAction *action)
 {
     if (!widget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {

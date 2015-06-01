@@ -93,17 +93,17 @@ class DescriptionEditorWidget : public TextEditorWidget
     Q_OBJECT
 public:
     DescriptionEditorWidget(QWidget *parent = 0);
-    virtual QSize sizeHint() const;
+    virtual QSize sizeHint() const override;
 
 signals:
     void requestBranchList();
 
 protected:
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
 
-    void setDisplaySettings(const DisplaySettings &ds);
-    void setMarginSettings(const MarginSettings &ms);
+    void setDisplaySettings(const DisplaySettings &ds) override;
+    void setMarginSettings(const MarginSettings &ms) override;
 
     bool findContentsUnderCursor(const QTextCursor &cursor);
     void highlightCurrentContents();

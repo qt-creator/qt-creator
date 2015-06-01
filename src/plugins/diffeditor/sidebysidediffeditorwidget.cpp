@@ -104,7 +104,7 @@ public:
     void restoreState();
 
 public slots:
-    void setDisplaySettings(const DisplaySettings &ds);
+    void setDisplaySettings(const DisplaySettings &ds) override;
 
 signals:
     void jumpToOriginalFileRequested(int diffFileIndex,
@@ -115,21 +115,21 @@ signals:
                               int chunkIndex);
 
 protected:
-    virtual int extraAreaWidth(int *markWidthPtr = 0) const {
+    int extraAreaWidth(int *markWidthPtr = 0) const override {
         return SelectableTextEditorWidget::extraAreaWidth(markWidthPtr);
     }
-    void applyFontSettings();
+    void applyFontSettings() override;
 
-    virtual QString lineNumber(int blockNumber) const;
-    virtual int lineNumberDigits() const;
-    virtual bool selectionVisible(int blockNumber) const;
-    virtual bool replacementVisible(int blockNumber) const;
-    QColor replacementPenColor(int blockNumber) const;
-    virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
-    void mouseDoubleClickEvent(QMouseEvent *e);
-    void contextMenuEvent(QContextMenuEvent *e);
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void scrollContentsBy(int dx, int dy);
+    QString lineNumber(int blockNumber) const override;
+    int lineNumberDigits() const override;
+    bool selectionVisible(int blockNumber) const override;
+    bool replacementVisible(int blockNumber) const override;
+    QColor replacementPenColor(int blockNumber) const override;
+    QString plainTextFromSelection(const QTextCursor &cursor) const override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    void paintEvent(QPaintEvent *e) override;
+    void scrollContentsBy(int dx, int dy) override;
 
 private:
     void paintSeparator(QPainter &painter, QColor &color, const QString &text,

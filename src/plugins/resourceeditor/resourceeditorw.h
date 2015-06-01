@@ -92,12 +92,12 @@ public:
     ResourceEditorW(const Core::Context &context,
                    ResourceEditorPlugin *plugin,
                    QWidget *parent = 0);
-    ~ResourceEditorW();
+    ~ResourceEditorW() override;
 
     // IEditor
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IDocument *document() { return m_resourceDocument; }
-    QWidget *toolBar();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    Core::IDocument *document() override { return m_resourceDocument; }
+    QWidget *toolBar() override;
 
 private slots:
     void onUndoStackChanged(bool canUndo, bool canRedo);

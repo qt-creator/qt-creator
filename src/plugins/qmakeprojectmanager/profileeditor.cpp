@@ -65,8 +65,8 @@ public:
 
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                            bool inNextSplit = false);
-    void contextMenuEvent(QContextMenuEvent *);
+                            bool inNextSplit = false) override;
+    void contextMenuEvent(QContextMenuEvent *) override;
 };
 
 static bool isValidFileNameChar(const QChar &c)

@@ -51,7 +51,7 @@ class PlainTextEditorWidget : public TextEditorWidget
 {
 public:
     PlainTextEditorWidget() {}
-    void finalizeInitialization()
+    void finalizeInitialization() override
     {
         textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     }

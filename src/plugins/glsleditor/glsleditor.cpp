@@ -122,7 +122,7 @@ public:
 
     QSet<QString> identifiers() const;
 
-    AssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const;
+    AssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const override;
 
 private:
     void updateDocumentNow();

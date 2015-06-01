@@ -74,13 +74,13 @@ signals:
     void currentDiffFileIndexChanged(int index);
 
 public slots:
-    void setDisplaySettings(const TextEditor::DisplaySettings &ds);
+    void setDisplaySettings(const TextEditor::DisplaySettings &ds) override;
 
 protected:
-    void mouseDoubleClickEvent(QMouseEvent *e);
-    void contextMenuEvent(QContextMenuEvent *e);
-    QString lineNumber(int blockNumber) const;
-    int lineNumberDigits() const;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    QString lineNumber(int blockNumber) const override;
+    int lineNumberDigits() const override;
 
 private slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);

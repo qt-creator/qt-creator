@@ -132,7 +132,7 @@ public:
     static Core::IEditor* locateEditorByTag(const QString &tag);
     static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
                              const QString &revision = QString());
-    void finalizeInitialization();
+    void finalizeInitialization() override;
 signals:
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
@@ -161,7 +161,7 @@ protected:
     virtual QString fileNameForLine(int line) const;
 
 public:
-    void finalizeInitialization();
+    void finalizeInitialization() override;
     // FIXME: Consolidate these into finalizeInitialization
     void setDescribeSlot(QObject *describeReceiver, const char *describeSlot);
     // void
@@ -169,7 +169,7 @@ public:
     //
     void setParameters(const VcsBaseEditorParameters *parameters);
 
-    ~VcsBaseEditorWidget();
+    ~VcsBaseEditorWidget() override;
 
     /* Force read-only: Make it a read-only, temporary file.
      * Should be set to true by version control views. It is not on
@@ -230,11 +230,11 @@ public slots:
     void reportCommandFinished(bool ok, int exitCode, const QVariant &data);
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent *e);
-    void keyPressEvent(QKeyEvent *);
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *) override;
 
 private slots:
     void slotActivateAnnotation();

@@ -65,7 +65,7 @@ class CppEditorWidget : public TextEditor::TextEditorWidget
 
 public:
     CppEditorWidget();
-    ~CppEditorWidget();
+    ~CppEditorWidget() override;
 
     CppEditorDocument *cppEditorDocument() const;
     CppTools::CppEditorOutline *outline() const;

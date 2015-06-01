@@ -67,14 +67,14 @@ class QmlJSEditorWidget : public TextEditor::TextEditorWidget
 public:
     QmlJSEditorWidget();
 
-    void finalizeInitialization();
+    void finalizeInitialization() override;
 
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();
 
     TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-                                                        TextEditor::AssistReason reason) const;
+                           TextEditor::AssistReason reason) const override;
 
     void inspectElementUnderCursor() const;
 
@@ -103,18 +103,18 @@ private slots:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *e);
-    bool event(QEvent *e);
-    void wheelEvent(QWheelEvent *event);
-    void resizeEvent(QResizeEvent *event);
-    void scrollContentsBy(int dx, int dy);
-    void applyFontSettings();
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    bool event(QEvent *e) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void scrollContentsBy(int dx, int dy) override;
+    void applyFontSettings() override;
     void createToolBar();
     TextEditor::TextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
                                                       bool resolveTarget = true,
-                                                      bool inNextSplit = false);
-    QString foldReplacementText(const QTextBlock &block) const;
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
+                                                      bool inNextSplit = false) override;
+    QString foldReplacementText(const QTextBlock &block) const override;
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 private:
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
@@ -151,7 +151,7 @@ class QmlJSEditor : public TextEditor::BaseTextEditor
 public:
     QmlJSEditor();
 
-    bool isDesignModePreferred() const;
+    bool isDesignModePreferred() const override;
 };
 
 class QmlJSEditorFactory : public TextEditor::TextEditorFactory

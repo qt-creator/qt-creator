@@ -45,9 +45,10 @@ public:
     BazaarEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const;
-    QString changeUnderCursor(const QTextCursor &cursor) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
+    QSet<QString> annotationChanges() const override;
+    QString changeUnderCursor(const QTextCursor &cursor) const override;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
+            const QSet<QString> &changes) const override;
 
     mutable QRegExp m_changesetId;
     mutable QRegExp m_exactChangesetId;

@@ -46,11 +46,12 @@ public:
     PerforceEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const;
-    QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
-    QString findDiffFile(const QString &f) const;
-    QStringList annotationPreviousVersions(const QString &v) const;
+    QSet<QString> annotationChanges() const override;
+    QString changeUnderCursor(const QTextCursor &) const override;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
+            const QSet<QString> &changes) const override;
+    QString findDiffFile(const QString &f) const override;
+    QStringList annotationPreviousVersions(const QString &v) const override;
 
     mutable QRegExp m_changeNumberPattern;
 };

@@ -60,16 +60,16 @@ class DiffEditor : public Core::IEditor
 
 public:
     DiffEditor(DiffEditorDocument *doc);
-    ~DiffEditor();
+    ~DiffEditor() override;
 
-    Core::IEditor *duplicate();
+    Core::IEditor *duplicate() override;
 
     bool open(QString *errorString,
               const QString &fileName,
-              const QString &realFileName);
-    Core::IDocument *document();
+              const QString &realFileName) override;
+    Core::IDocument *document() override;
 
-    QWidget *toolBar();
+    QWidget *toolBar() override;
 
 private slots:
     void documentHasChanged();

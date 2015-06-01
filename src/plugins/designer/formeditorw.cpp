@@ -120,7 +120,7 @@ class DesignerXmlEditorWidget : public TextEditor::TextEditorWidget
 public:
     DesignerXmlEditorWidget() {}
 
-    void finalizeInitialization()
+    void finalizeInitialization() override
     {
         setReadOnly(true);
     }

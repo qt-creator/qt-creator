@@ -51,8 +51,8 @@ public:
 
     void setStatusList(const QList<StatusFilePair> &statusOutput);
 
-    QByteArray fileContents() const;
-    bool setFileContents(const QByteArray &contents);
+    QByteArray fileContents() const override;
+    bool setFileContents(const QByteArray &contents) override;
 };
 
 } // namespace Internal

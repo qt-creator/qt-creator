@@ -149,21 +149,21 @@ public:
     void addContext(Core::Id id);
 
     // IEditor
-    Core::IDocument *document();
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    Core::IDocument *document() override;
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
 
-    IEditor *duplicate();
+    IEditor *duplicate() override;
 
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
-    QWidget *toolBar();
+    QByteArray saveState() const override;
+    bool restoreState(const QByteArray &state) override;
+    QWidget *toolBar() override;
 
-    QString contextHelpId() const; // from IContext
-    void setContextHelpId(const QString &id);
+    QString contextHelpId() const override; // from IContext
+    void setContextHelpId(const QString &id) override;
 
-    int currentLine() const;
-    int currentColumn() const;
-    void gotoLine(int line, int column = 0, bool centerLine = true);
+    int currentLine() const override;
+    int currentColumn() const override;
+    void gotoLine(int line, int column = 0, bool centerLine = true) override;
 
     /*! Returns the amount of visible columns (in characters) in the editor */
     int columnCount() const;
@@ -205,7 +205,7 @@ class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
 
 public:
     TextEditorWidget(QWidget *parent = 0);
-    ~TextEditorWidget();
+    ~TextEditorWidget() override;
 
     void setTextDocument(const QSharedPointer<TextDocument> &doc);
     TextDocument *textDocument() const;
@@ -488,34 +488,34 @@ signals:
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
-    bool event(QEvent *e);
-    void inputMethodEvent(QInputMethodEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-    void wheelEvent(QWheelEvent *e);
-    void changeEvent(QEvent *e);
-    void focusInEvent(QFocusEvent *e);
-    void focusOutEvent(QFocusEvent *e);
-    void showEvent(QShowEvent *);
-    bool viewportEvent(QEvent *event);
-    void resizeEvent(QResizeEvent *);
-    void paintEvent(QPaintEvent *);
+    bool event(QEvent *e) override;
+    void inputMethodEvent(QInputMethodEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
+    void wheelEvent(QWheelEvent *e) override;
+    void changeEvent(QEvent *e) override;
+    void focusInEvent(QFocusEvent *e) override;
+    void focusOutEvent(QFocusEvent *e) override;
+    void showEvent(QShowEvent *) override;
+    bool viewportEvent(QEvent *event) override;
+    void resizeEvent(QResizeEvent *) override;
+    void paintEvent(QPaintEvent *) override;
     virtual void paintBlock(QPainter *painter,
                             const QTextBlock &block,
                             const QPointF &offset,
                             const QVector<QTextLayout::FormatRange> &selections,
                             const QRect &clipRect) const;
-    void timerEvent(QTimerEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseDoubleClickEvent(QMouseEvent *);
-    void leaveEvent(QEvent *);
-    void keyReleaseEvent(QKeyEvent *);
-    void dragEnterEvent(QDragEnterEvent *e);
+    void timerEvent(QTimerEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+    void leaveEvent(QEvent *) override;
+    void keyReleaseEvent(QKeyEvent *) override;
+    void dragEnterEvent(QDragEnterEvent *e) override;
 
-    QMimeData *createMimeDataFromSelection() const;
-    bool canInsertFromMimeData(const QMimeData *source) const;
-    void insertFromMimeData(const QMimeData *source);
+    QMimeData *createMimeDataFromSelection() const override;
+    bool canInsertFromMimeData(const QMimeData *source) const override;
+    void insertFromMimeData(const QMimeData *source) override;
 
     virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
     static QString convertToPlainText(const QString &txt);

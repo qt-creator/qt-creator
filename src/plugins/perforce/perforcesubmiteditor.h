@@ -65,8 +65,8 @@ public:
     static QString fileFromChangeLine(const QString &line);
 
 protected:
-    QByteArray fileContents() const;
-    bool setFileContents(const QByteArray &contents);
+    QByteArray fileContents() const override;
+    bool setFileContents(const QByteArray &contents) override;
 
 private:
     inline PerforceSubmitEditorWidget *submitEditorWidget();

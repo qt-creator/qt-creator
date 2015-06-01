@@ -53,13 +53,13 @@ class ImageViewer : public Core::IEditor
 
 public:
     explicit ImageViewer(QWidget *parent = 0);
-    ~ImageViewer();
+    ~ImageViewer() override;
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IDocument *document();
-    QWidget *toolBar();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    Core::IDocument *document() override;
+    QWidget *toolBar() override;
 
-    IEditor *duplicate();
+    IEditor *duplicate() override;
 
 public slots:
     void imageSizeUpdated(const QSize &size);

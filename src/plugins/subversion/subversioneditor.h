@@ -46,10 +46,11 @@ public:
     SubversionEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const;
-    QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
-    QStringList annotationPreviousVersions(const QString &) const;
+    QSet<QString> annotationChanges() const override;
+    QString changeUnderCursor(const QTextCursor &) const override;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
+            const QSet<QString> &changes) const override;
+    QStringList annotationPreviousVersions(const QString &) const override;
 
     QRegularExpression m_changeNumberPattern;
     QRegularExpression m_revisionNumberPattern;

@@ -47,8 +47,8 @@ class CMakeEditor : public TextEditor::BaseTextEditor
 public:
     CMakeEditor();
 
-    void finalizeInitialization();
-    QString contextHelpId() const;
+    void finalizeInitialization() override;
+    QString contextHelpId() const override;
 
     friend class CMakeEditorWidget;
 };

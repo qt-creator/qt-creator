@@ -404,18 +404,18 @@ public:
         updateCursorPosition(widget->cursorPosition());
     }
 
-    ~BinEditor()
+    ~BinEditor() override
     {
         delete m_widget;
     }
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) {
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override {
         QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
         return m_file->open(errorString, fileName);
     }
-    IDocument *document() { return m_file; }
+    IDocument *document() override { return m_file; }
 
-    QWidget *toolBar() { return m_toolBar; }
+    QWidget *toolBar() override { return m_toolBar; }
 
 private slots:
     void updateCursorPosition(int position) {

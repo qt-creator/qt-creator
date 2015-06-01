@@ -45,11 +45,12 @@ public:
     MercurialEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const;
-    QString changeUnderCursor(const QTextCursor &cursor) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
-    QString decorateVersion(const QString &revision) const;
-    QStringList annotationPreviousVersions(const QString &revision) const;
+    QSet<QString> annotationChanges() const override;
+    QString changeUnderCursor(const QTextCursor &cursor) const override;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
+            const QSet<QString> &changes) const override;
+    QString decorateVersion(const QString &revision) const override;
+    QStringList annotationPreviousVersions(const QString &revision) const override;
 
     mutable QRegExp exactIdentifier12;
     mutable QRegExp exactIdentifier40;

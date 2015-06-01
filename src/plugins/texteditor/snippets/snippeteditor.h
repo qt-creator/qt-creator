@@ -47,9 +47,9 @@ signals:
     void snippetContentChanged();
 
 protected:
-    virtual void focusOutEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event) override;
 
-    virtual int extraAreaWidth(int * /* markWidthPtr */ = 0) const { return 0; }
+    virtual int extraAreaWidth(int * /* markWidthPtr */ = 0) const override { return 0; }
 };
 
 } // namespace TextEditor

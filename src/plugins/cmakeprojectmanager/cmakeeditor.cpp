@@ -148,8 +148,8 @@ public:
 
 private:
     bool save(const QString &fileName = QString());
-    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
-    void contextMenuEvent(QContextMenuEvent *e);
+    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
 };
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)

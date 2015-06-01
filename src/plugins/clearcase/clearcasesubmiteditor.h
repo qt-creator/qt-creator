@@ -54,7 +54,7 @@ public:
     void setIsUcm(bool isUcm);
 
 protected:
-    QByteArray fileContents() const;
+    QByteArray fileContents() const override;
 
 };
 

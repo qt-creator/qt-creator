@@ -52,7 +52,7 @@ class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
     Q_OBJECT
 public:
     explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
-    ~GitSubmitEditor();
+    ~GitSubmitEditor() override;
 
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
