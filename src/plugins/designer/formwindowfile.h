@@ -84,12 +84,12 @@ private slots:
 
 private:
     QString m_suggestedName;
-    bool m_shouldAutoSave;
+    bool m_shouldAutoSave = false;
     // Might actually go out of scope before the IEditor due
     // to deleting the WidgetHost which owns it.
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    bool m_isModified;
-    ResourceHandler *m_resourceHandler;
+    bool m_isModified = false;
+    ResourceHandler *m_resourceHandler = nullptr;
 };
 
 } // namespace Internal

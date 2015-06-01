@@ -57,7 +57,7 @@ public:
 
 private:
     QDesignerOptionsPageInterface *m_designerPage;
-    bool m_initialized;
+    bool m_initialized = false;
     QPointer<QWidget> m_widget;
 };
 
@@ -72,7 +72,7 @@ public:
     bool matches(const QString &searchKeyWord) const override;
 
 private:
-    mutable bool m_initialized;
+    mutable bool m_initialized = false;
     mutable QStringList m_keywords;
 };
 

@@ -70,8 +70,8 @@ private:
 
     QDesignerFormWindowInterface * const m_form;
     QStringList m_originalUiQrcPaths;
-    bool m_initialized;
-    bool m_handlingResources;
+    bool m_initialized = false;
+    bool m_handlingResources = false;
 };
 
 } // namespace Internal

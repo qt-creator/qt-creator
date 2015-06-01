@@ -42,11 +42,10 @@ namespace Internal {
 class EditorData
 {
 public:
-    EditorData() : formWindowEditor(0), widgetHost(0) {}
     operator bool() const { return formWindowEditor != 0; }
 
-    FormWindowEditor *formWindowEditor;
-    SharedTools::WidgetHost *widgetHost;
+    FormWindowEditor *formWindowEditor = nullptr;
+    SharedTools::WidgetHost *widgetHost = nullptr;
 };
 
 } // namespace Internal

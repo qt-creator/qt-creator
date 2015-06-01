@@ -83,9 +83,7 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 // ------------ ResourceHandler
 ResourceHandler::ResourceHandler(QDesignerFormWindowInterface *fw) :
     QObject(fw),
-    m_form(fw),
-    m_initialized(false),
-    m_handlingResources(false)
+    m_form(fw)
 {
 }
 

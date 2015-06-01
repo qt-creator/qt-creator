@@ -39,7 +39,7 @@
 using namespace Designer::Internal;
 
 SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    m_designerPage(designerPage), m_initialized(false)
+    m_designerPage(designerPage)
 {
     setId(Core::Id::fromString(m_designerPage->name()));
     setDisplayName(m_designerPage->name());
@@ -72,7 +72,7 @@ void SettingsPage::finish()
 }
 
 SettingsPageProvider::SettingsPageProvider(QObject *parent)
-    : IOptionsPageProvider(parent), m_initialized(false)
+    : IOptionsPageProvider(parent)
 {
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",
