@@ -701,7 +701,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
             properties.append(qMakePair(key, value));
         } else {
             if (errorMessage)
-                *errorMessage = tr("No ':' found in property definition.");
+                *errorMessage = tr("No \":\" found in property definition.");
             return false;
         }
     }

@@ -265,7 +265,7 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
     }
     if (name.contains(QLatin1Char('.'))) {
         if (errorMessage)
-            *errorMessage = tr("Invalid character '.'.");
+            *errorMessage = tr("Invalid character \".\".");
         return false;
     }
     return true;

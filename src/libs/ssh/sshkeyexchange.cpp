@@ -134,7 +134,7 @@ bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
         throw SshServerException(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
             "Invalid combination of key exchange and host key algorithms.",
             QCoreApplication::translate("SshConnection",
-                "No matching host key algorithm available for key exchange algorithm '%1'.")
+                "No matching host key algorithm available for key exchange algorithm \"%1\".")
                 .arg(QString::fromLatin1(m_kexAlgoName)));
     }
     determineHashingAlgorithm(kexInitParams, true);
