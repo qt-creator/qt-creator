@@ -487,7 +487,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);
-    connect(m_newAction, &QAction::triggered, this, []() {
+    connect(m_newAction, &QAction::triggered, this, [this]() {
         ICore::showNewItemDialog(tr("New File or Project", "Title of dialog"),
                                  IWizardFactory::allWizardFactories(), QString());
     });
