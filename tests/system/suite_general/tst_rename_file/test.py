@@ -61,7 +61,7 @@ def main():
                        previous, filename)
             # QTCREATORBUG-13176 does update the navigator async
             progressBarWait()
-            if filetype == "Headers":   # QTCREATORBUG-13204
+            if tempFiletype == "Headers":   # QTCREATORBUG-13204
                 verifyRenamedIncludes(templateDir, "main.cpp", previous, filename)
                 verifyRenamedIncludes(templateDir, "utility.cpp", previous, filename)
             previous = filename
