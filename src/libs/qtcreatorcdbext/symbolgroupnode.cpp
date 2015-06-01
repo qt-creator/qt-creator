@@ -167,7 +167,12 @@ bool AbstractSymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor,
     case SymbolGroupNodeVisitor::VisitSkipChildren:
         break;
     case SymbolGroupNodeVisitor::VisitContinue: {
-        const AbstractSymbolGroupNodePtrVector &c = children();
+        AbstractSymbolGroupNodePtrVector c = children();
+        if (visitor.sortChildrenAlphabetically()) {
+            std::sort(c.begin(), c.end(), [](AbstractSymbolGroupNode *a, AbstractSymbolGroupNode *b) {
+                return a->name() < b->name();
+            });
+        }
         const unsigned childCount = unsigned(c.size());
         for (unsigned i = 0; i < childCount; ++i)
             if (c.at(i)->accept(visitor, fullIname, i, childDepth))

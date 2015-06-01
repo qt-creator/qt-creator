@@ -80,11 +80,13 @@ struct DumpParameters
     enum DumpFlags
     {
         DumpHumanReadable = 0x1,
-        DumpComplexDumpers = 0x2
+        DumpComplexDumpers = 0x2,
+        DumpAlphabeticallySorted = 0x4
     };
 
     DumpParameters();
     bool humanReadable() const {  return dumpFlags & DumpHumanReadable; }
+    bool isAlphabeticallySorted() const {  return (dumpFlags & DumpAlphabeticallySorted) != 0; }
     // Helper to decode format option arguments.
     static FormatMap decodeFormatArgument(const std::string &f, bool isHex);
 
@@ -398,6 +400,7 @@ protected:
                               unsigned child, unsigned depth) = 0;
     // Helper for formatting output.
     virtual void childrenVisited(const AbstractSymbolGroupNode * /* node */, unsigned /* depth */) {}
+    virtual bool sortChildrenAlphabetically() const { return false; }
 };
 
 class DebugSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
@@ -440,6 +443,7 @@ protected:
                               const std::string &fullIname,
                               unsigned child, unsigned depth);
     virtual void childrenVisited(const AbstractSymbolGroupNode *  node, unsigned depth);
+    bool sortChildrenAlphabetically() const override { return m_parameters.isAlphabeticallySorted(); }
 
 private:
     std::ostream &m_os;

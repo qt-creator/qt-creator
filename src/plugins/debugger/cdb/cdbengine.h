@@ -248,6 +248,7 @@ private:
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
     void updateLocals(bool forNewStackFrame);
+    void updateAll() override;
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);

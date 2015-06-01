@@ -124,13 +124,14 @@ static const CommandDescription commandDescriptions[] = {
  "-c complex dumpers"},
 {"locals",
  "Prints local variables of symbol group in GDBMI or debug format",
- "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d]\n[-e expand-list] [-u uninitialized-list]\n"
+ "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-a] [-c] [-h] [-d]\n[-e expand-list] [-u uninitialized-list]\n"
  "[-W] [-w watch-iname watch-expression] <frame-number> [iname]\n"
  "-h human-readable output\n"
  "-v increase verboseness of dumping\n"
  "-d debug output\n"
  "-f debug_filter\n"
  "-c complex dumpers\n"
+ "-a sort alphabetically\n"
  "-e expand-list        Comma-separated list of inames to be expanded beforehand\n"
  "-u uninitialized-list Comma-separated list of uninitialized inames\n"
  "-I formatmap          map of 'hex-encoded-iname=typecode'\n"
@@ -371,6 +372,9 @@ DumpCommandParameters::ParseOptionResult DumpCommandParameters::parseOption(Stri
         break;
     case 'c':
         dumpParameters.dumpFlags |= DumpParameters::DumpComplexDumpers;
+        break;
+    case 'a':
+        dumpParameters.dumpFlags |= DumpParameters::DumpAlphabeticallySorted;
         break;
     case 'f':
         if (options->size() < 2)

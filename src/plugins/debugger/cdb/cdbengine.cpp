@@ -992,6 +992,8 @@ void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
         str << blankSeparator << "-v";
     if (boolSetting(UseDebuggingHelpers))
         str << blankSeparator << "-c";
+    if (boolSetting(SortStructMembers))
+        str << blankSeparator << "-a";
     const QByteArray typeFormats = watchHandler()->typeFormatRequests();
     if (!typeFormats.isEmpty())
         str << blankSeparator << "-T " << typeFormats;
@@ -1471,6 +1473,11 @@ void CdbEngine::updateLocals(bool newFrame)
     watchHandler()->notifyUpdateStarted();
     postExtensionCommand("locals", arguments, 0,
                          [this, newFrame](const CdbResponse &r) { handleLocals(r, newFrame); });
+}
+
+void CdbEngine::updateAll()
+{
+    updateLocals(true);
 }
 
 void CdbEngine::selectThread(ThreadId threadId)
