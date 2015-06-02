@@ -196,7 +196,7 @@ public:
 
 public:
     QDesignerFormEditorInterface *m_formeditor;
-    QDesignerIntegrationInterface *m_integration;
+    QtCreatorIntegration *m_integration;
     QDesignerFormWindowManagerInterface *m_fwm;
     FormEditorW::InitializationStage m_initStage;
 
@@ -386,8 +386,9 @@ void FormEditorData::fullInit()
     m_integration = new QtCreatorIntegration(m_formeditor, m_instance);
     m_formeditor->setIntegration(m_integration);
     // Connect Qt Designer help request to HelpManager.
-    QObject::connect(m_integration, SIGNAL(creatorHelpRequested(QUrl)),
-        HelpManager::instance(), SLOT(handleHelpRequest(QUrl)));
+    QObject::connect(m_integration, &QtCreatorIntegration::creatorHelpRequested,
+                     HelpManager::instance(),
+                     [](const QUrl &url) { HelpManager::instance()->handleHelpRequest(url, HelpManager::HelpModeAlways); });
 
     /**
      * This will initialize our TabOrder, Signals and slots and Buddy editors.
@@ -740,9 +741,11 @@ void FormEditorData::critical(const QString &errorMessage)
 // Apply the command shortcut to the action and connects to the command's keySequenceChanged signal
 void FormEditorData::bindShortcut(Command *command, QAction *action)
 {
+    typedef void (QSignalMapper::*SignalMapperVoidSlot)();
+
     m_commandToDesignerAction.insert(command, action);
-    QObject::connect(command, SIGNAL(keySequenceChanged()),
-                     &m_shortcutMapper, SLOT(map()));
+    QObject::connect(command, &Command::keySequenceChanged,
+                     &m_shortcutMapper, static_cast<SignalMapperVoidSlot>(&QSignalMapper::map));
     m_shortcutMapper.setMapping(command, command);
     updateShortcut(command);
 }

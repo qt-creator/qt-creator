@@ -61,15 +61,15 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
     setCodec(QTextCodec::codecForName("UTF-8"));
-    connect(m_formWindow->core()->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
-            this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
-    connect(m_formWindow->commandHistory(), SIGNAL(indexChanged(int)),
-            this, SLOT(setShouldAutoSave()));
-    connect(m_formWindow, SIGNAL(changed()), SLOT(updateIsModified()));
+    connect(m_formWindow->core()->formWindowManager(), &QDesignerFormWindowManagerInterface::formWindowRemoved,
+            this, &FormWindowFile::slotFormWindowRemoved);
+    connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
+            this, &FormWindowFile::setShouldAutoSave);
+    connect(m_formWindow.data(), &QDesignerFormWindowInterface::changed, this, &FormWindowFile::updateIsModified);
 
     m_resourceHandler = new ResourceHandler(form);
-    connect(this, SIGNAL(filePathChanged(Utils::FileName,Utils::FileName)),
-            m_resourceHandler, SLOT(updateResources()));
+    connect(this, &FormWindowFile::filePathChanged,
+            m_resourceHandler, &ResourceHandler::updateResources);
 }
 
 bool FormWindowFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
@@ -102,7 +102,7 @@ bool FormWindowFile::open(QString *errorString, const QString &fileName, const Q
     syncXmlFromFormWindow();
     setFilePath(Utils::FileName::fromString(absfileName));
     setShouldAutoSave(false);
-    resourceHandler()->updateResources(true);
+    resourceHandler()->updateProjectResources();
 
     return true;
 }

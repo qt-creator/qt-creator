@@ -97,10 +97,10 @@ void ResourceHandler::ensureInitialized()
     m_initialized = true;
     ProjectTree *tree = ProjectTree::instance();
 
-    connect(tree, SIGNAL(filesAdded()), this, SLOT(updateResources()));
-    connect(tree, SIGNAL(filesRemoved()), this, SLOT(updateResources()));
-    connect(tree, SIGNAL(foldersAdded()), this, SLOT(updateResources()));
-    connect(tree, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
+    connect(tree, &ProjectTree::filesAdded, this, &ResourceHandler::updateResources);
+    connect(tree, &ProjectTree::filesRemoved, this, &ResourceHandler::updateResources);
+    connect(tree, &ProjectTree::foldersAdded, this, &ResourceHandler::updateResources);
+    connect(tree, &ProjectTree::foldersRemoved, this, &ResourceHandler::updateResources);
     m_originalUiQrcPaths = m_form->activeResourceFilePaths();
     if (Designer::Constants::Internal::debug)
         qDebug() << "ResourceHandler::ensureInitialized() origPaths=" << m_originalUiQrcPaths;
@@ -111,7 +111,7 @@ ResourceHandler::~ResourceHandler()
 
 }
 
-void ResourceHandler::updateResources(bool updateProjectResources)
+void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
 {
     if (m_handlingResources)
         return;

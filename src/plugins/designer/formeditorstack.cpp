@@ -63,10 +63,10 @@ void FormEditorStack::add(const EditorData &data)
 {
     if (m_designerCore == 0) { // Initialize first time here
         m_designerCore = data.widgetHost->formWindow()->core();
-        connect(m_designerCore->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
-                this, SLOT(updateFormWindowSelectionHandles()));
-        connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
-                this, SLOT(modeAboutToChange(Core::IMode*)));
+        connect(m_designerCore->formWindowManager(), &QDesignerFormWindowManagerInterface::activeFormWindowChanged,
+                this, &FormEditorStack::updateFormWindowSelectionHandles);
+        connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeAboutToChange,
+                this, &FormEditorStack::modeAboutToChange);
     }
 
     if (Designer::Constants::Internal::debug)
@@ -77,11 +77,11 @@ void FormEditorStack::add(const EditorData &data)
     // Editors are normally removed by listening to EditorManager::editorsClosed.
     // However, in the case opening a file fails, EditorManager just deletes the editor, which
     // is caught by the destroyed() signal.
-    connect(data.formWindowEditor, SIGNAL(destroyed(QObject*)),
-            this, SLOT(removeFormWindowEditor(QObject*)));
+    connect(data.formWindowEditor, &FormWindowEditor::destroyed,
+            this, &FormEditorStack::removeFormWindowEditor);
 
-    connect(data.widgetHost, SIGNAL(formWindowSizeChanged(int,int)),
-            this, SLOT(formSizeChanged(int,int)));
+    connect(data.widgetHost, &SharedTools::WidgetHost::formWindowSizeChanged,
+            this, &FormEditorStack::formSizeChanged);
 
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormEditorStack::add" << data.widgetHost << m_formEditors.size();

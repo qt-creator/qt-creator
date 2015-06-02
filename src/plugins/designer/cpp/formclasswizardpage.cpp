@@ -59,7 +59,7 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     m_ui->newClassWidget->setAllowDirectories(true);
     m_ui->newClassWidget->setClassTypeComboVisible(false);
 
-    connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
+    connect(m_ui->newClassWidget, &Utils::NewClassWidget::validChanged, this, &FormClassWizardPage::slotValidChanged);
 
     initFileGenerationSettings();
 

@@ -73,8 +73,8 @@ void WidgetHost::setFormWindow(QDesignerFormWindowInterface *fw)
     m_formWindow->setAutoFillBackground(true);
     m_formWindow->setBackgroundRole(QPalette::Background);
 
-    connect(m_formResizer, SIGNAL(formWindowSizeChanged(QRect,QRect)),
-            this, SLOT(fwSizeWasChanged(QRect,QRect)));
+    connect(m_formResizer, &Internal::FormResizer::formWindowSizeChanged,
+            this, &WidgetHost::fwSizeWasChanged);
 }
 
 QSize WidgetHost::formWindowSize() const

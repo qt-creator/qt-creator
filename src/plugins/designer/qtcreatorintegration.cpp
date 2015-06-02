@@ -97,8 +97,8 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     connect(this, &QtCreatorIntegration::helpRequested,
             this, &QtCreatorIntegration::slotDesignerHelpRequested);
     slotSyncSettingsToDesigner();
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(slotSyncSettingsToDesigner()));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &QtCreatorIntegration::slotSyncSettingsToDesigner);
 }
 
 void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, const QString &document)

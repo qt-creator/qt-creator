@@ -65,7 +65,7 @@ FormResizer::FormResizer(QWidget *parent) :
     m_handles.reserve(SizeHandleRect::Left);
     for (int i = SizeHandleRect::LeftTop; i <= SizeHandleRect::Left; ++i) {
         SizeHandleRect *shr = new SizeHandleRect(this, static_cast<SizeHandleRect::Direction>(i), this);
-        connect(shr, SIGNAL(mouseButtonReleased(QRect,QRect)), this, SIGNAL(formWindowSizeChanged(QRect,QRect)));
+        connect(shr, &SizeHandleRect::mouseButtonReleased, this, &FormResizer::formWindowSizeChanged);
         m_handles.push_back(shr);
     }
     setState(SelectionHandleActive);
@@ -147,7 +147,7 @@ void FormResizer::setFormWindow(QDesignerFormWindowInterface *fw)
     if (m_formWindow)
         layout->addWidget(m_formWindow);
     mainContainerChanged();
-     connect(fw, SIGNAL(mainContainerChanged(QWidget*)), this, SLOT(mainContainerChanged()));
+     connect(fw, &QDesignerFormWindowInterface::mainContainerChanged, this, &FormResizer::mainContainerChanged);
 }
 
 void FormResizer::resizeEvent(QResizeEvent *event)

@@ -61,10 +61,13 @@ public:
     virtual ~ResourceHandler();
 
 public slots:
-    void updateResources(bool updateProjectResources = false);
+    void updateResources()        { updateResourcesHelper(false); }
+    void updateProjectResources() { updateResourcesHelper(true); }
 
 private:
     void ensureInitialized();
+    void updateResourcesHelper(bool updateProjectResources);
+
     QDesignerFormWindowInterface * const m_form;
     QStringList m_originalUiQrcPaths;
     bool m_initialized;
