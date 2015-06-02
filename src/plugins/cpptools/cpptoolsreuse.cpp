@@ -30,6 +30,8 @@
 
 #include "cpptoolsreuse.h"
 
+#include "cpptoolsplugin.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <texteditor/convenience.h>
@@ -249,6 +251,11 @@ TextEditor::TextEditorWidget::Link linkToSymbol(Symbol *symbol)
         column = 0;
 
     return Link(filename, line, column);
+}
+
+QSharedPointer<CppCodeModelSettings> codeModelSettings()
+{
+    return CppTools::Internal::CppToolsPlugin::instance()->codeModelSettings();
 }
 
 int fileSizeLimit()

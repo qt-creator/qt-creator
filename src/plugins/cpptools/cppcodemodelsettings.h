@@ -28,8 +28,10 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INTERNAL_CPPCODEMODELSETTINGS_H
-#define CPPTOOLS_INTERNAL_CPPCODEMODELSETTINGS_H
+#ifndef CPPTOOLS_CPPCODEMODELSETTINGS_H
+#define CPPTOOLS_CPPCODEMODELSETTINGS_H
+
+#include "cpptools_global.h"
 
 #include <QHash>
 #include <QList>
@@ -40,9 +42,7 @@ namespace CppTools {
 
 class ModelManagerSupport;
 
-namespace Internal {
-
-class CppCodeModelSettings
+class CPPTOOLS_EXPORT CppCodeModelSettings
 {
 public:
     enum PCHUsage {
@@ -73,6 +73,8 @@ public:
     PCHUsage pchUsage() const { return m_pchUsage; }
     void setPCHUsage(PCHUsage pchUsage) { m_pchUsage = pchUsage; }
 
+    static QStringList supportedMimeTypes();
+
 private:
     void setIdForMimeType(const QVariant &var, const QString &mimeType);
 
@@ -83,7 +85,6 @@ private:
     PCHUsage m_pchUsage;
 };
 
-} // namespace Internal
 } // namespace CppTools
 
-#endif // CPPTOOLS_INTERNAL_CPPCODEMODELSETTINGS_H
+#endif // CPPTOOLS_CPPCODEMODELSETTINGS_H

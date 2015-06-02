@@ -48,11 +48,11 @@ namespace Utils { class FileName; }
 namespace CppTools {
 
 class CppToolsSettings;
+class CppCodeModelSettings;
 
 namespace Internal {
 
 struct CppFileSettings;
-class CppCodeModelSettings;
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
