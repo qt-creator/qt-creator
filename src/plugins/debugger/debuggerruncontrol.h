@@ -83,8 +83,8 @@ signals:
 private:
     void handleFinished();
 
-    friend DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
-                                                        QString *errorMessage);
+    friend DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(
+            const DebuggerStartParameters &sp, QString *errorMessage);
 
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                        Internal::DebuggerEngine *engine);
