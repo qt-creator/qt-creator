@@ -47,11 +47,11 @@ class FormEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     FormEditorPlugin();
-    ~FormEditorPlugin();
+    ~FormEditorPlugin() override;
 
     //Plugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    void extensionsInitialized() override;
 
 private slots:
 #ifdef WITH_TESTS

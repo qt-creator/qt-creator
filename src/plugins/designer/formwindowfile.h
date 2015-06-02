@@ -50,19 +50,19 @@ class FormWindowFile : public TextEditor::TextDocument
 
 public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
-    ~FormWindowFile() { }
+    ~FormWindowFile() override { }
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
 
     // IDocument
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    bool setContents(const QByteArray &contents);
-    bool shouldAutoSave() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool setContents(const QByteArray &contents) override;
+    bool shouldAutoSave() const override;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
     // Internal
     void setSuggestedFileName(const QString &fileName);
@@ -75,7 +75,7 @@ public:
     ResourceHandler *resourceHandler() const;
 
 public slots:
-    void setFilePath(const Utils::FileName &);
+    void setFilePath(const Utils::FileName &) override;
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void updateIsModified();
 

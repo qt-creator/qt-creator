@@ -52,11 +52,11 @@ class DESIGNER_EXPORT FormWindowEditor : public TextEditor::BaseTextEditor
 
 public:
     FormWindowEditor();
-    ~FormWindowEditor();
+    ~FormWindowEditor() override;
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    QWidget *toolBar();
-    bool isDesignModePreferred() const;
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    QWidget *toolBar() override;
+    bool isDesignModePreferred() const override;
 
     // For uic code model support
     QString contents() const;

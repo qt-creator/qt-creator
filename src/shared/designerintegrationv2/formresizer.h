@@ -77,7 +77,7 @@ signals:
     void formWindowSizeChanged(const QRect &oldGeo, const QRect &newGeo);
 
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void mainContainerChanged();

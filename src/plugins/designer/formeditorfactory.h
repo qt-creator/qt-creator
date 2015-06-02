@@ -43,7 +43,7 @@ class FormEditorFactory : public Core::IEditorFactory
 public:
     FormEditorFactory();
 
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

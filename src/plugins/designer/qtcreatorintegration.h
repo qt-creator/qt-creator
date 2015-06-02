@@ -46,7 +46,7 @@ class QtCreatorIntegration : public QDesignerIntegration
 public:
     explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
 
-    QWidget *containerWindow(QWidget *widget) const;
+    QWidget *containerWindow(QWidget *widget) const override;
 
     bool supportsToSlotNavigation() { return true; }
 
@@ -54,7 +54,7 @@ signals:
     void creatorHelpRequested(const QUrl &url);
 
 public slots:
-    void updateSelection();
+    void updateSelection() override;
 
 private slots:
     void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);

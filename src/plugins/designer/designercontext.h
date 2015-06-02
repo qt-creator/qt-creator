@@ -43,7 +43,7 @@ public:
                              QWidget *widget,
                              QObject *parent = 0);
 
-    virtual QString contextHelpId() const;
+    QString contextHelpId() const override;
 };
 
 } // namespace Internal

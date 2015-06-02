@@ -47,9 +47,9 @@ class FormPageFactory : public ProjectExplorer::JsonWizardPageFactory
 public:
     FormPageFactory();
 
-    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId, const QVariant &data);
+    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId, const QVariant &data) override;
 
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 // A wizard page embedding Qt Designer's QDesignerNewFormWidgetInterface
@@ -64,8 +64,8 @@ class FormTemplateWizardPage : public Utils::WizardPage
 public:
     explicit FormTemplateWizardPage(QWidget * parent = 0);
 
-    virtual bool isComplete () const;
-    virtual bool validatePage();
+    bool isComplete () const override;
+    bool validatePage() override;
 
     QString templateContents() const { return  m_templateContents; }
 
