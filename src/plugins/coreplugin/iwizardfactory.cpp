@@ -204,8 +204,10 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
                 ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
 
                 connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
-                    QString path = newFactory->runPath(QString());
-                    newFactory->runWizard(path, ICore::dialogParent(), QString(), QVariantMap());
+                    if (!ICore::isNewItemDialogRunning()) {
+                        QString path = newFactory->runPath(QString());
+                        newFactory->runWizard(path, ICore::dialogParent(), QString(), QVariantMap());
+                    }
                 });
 
                 sanityCheck.insert(newFactory->id(), newFactory);
@@ -252,6 +254,8 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
     Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables);
 
     if (wizard) {
+        // Connect while wizard exists:
+        connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
         connect(wizard, &Utils::Wizard::finished, [wizard]() {
             s_isWizardRunning = false;
             ICore::validateNewDialogIsRunning();
@@ -341,13 +345,6 @@ void IWizardFactory::clearWizardFactories()
     s_areFactoriesLoaded = false;
 }
 
-void IWizardFactory::updateActions()
-{
-    bool isRunning = ICore::isNewItemDialogRunning();
-    foreach (IWizardFactory *factory, s_allFactories)
-        factory->m_action->setEnabled(!isRunning);
-}
-
 FeatureSet IWizardFactory::pluginFeatures() const
 {
     static FeatureSet plugins;
@@ -376,7 +373,6 @@ FeatureSet IWizardFactory::availableFeatures(const QString &platformName) const
 void IWizardFactory::initialize()
 {
     connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
-    connect(ICore::instance(), &ICore::newItemDialogRunningChanged, &IWizardFactory::updateActions);
 
     auto resetAction = new QAction(tr("Reload All Wizards"), ActionManager::instance());
     ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");

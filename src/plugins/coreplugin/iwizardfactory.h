@@ -123,7 +123,6 @@ private:
     static void destroyFeatureProvider();
 
     static void clearWizardFactories();
-    static void updateActions();
 
     QAction *m_action = 0;
     IWizardFactory::WizardKind m_kind;
