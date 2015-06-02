@@ -42,7 +42,7 @@ namespace Internal {
 class EditorData
 {
 public:
-    operator bool() const { return formWindowEditor != 0; }
+    explicit operator bool() const { return formWindowEditor != 0; }
 
     FormWindowEditor *formWindowEditor = nullptr;
     SharedTools::WidgetHost *widgetHost = nullptr;

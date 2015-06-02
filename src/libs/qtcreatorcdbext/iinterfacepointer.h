@@ -51,7 +51,7 @@ public:
     inline IInterface *operator->() const { return m_instance; }
     inline IInterface *data() const { return m_instance; }
     inline bool isNull() const   { return m_instance == 0; }
-    inline operator bool() const { return !isNull(); }
+    explicit inline operator bool() const { return !isNull(); }
     inline HRESULT hr() const { return m_hr; }
 
     // This is for creating a IDebugClient from scratch. Not matches by a constructor,

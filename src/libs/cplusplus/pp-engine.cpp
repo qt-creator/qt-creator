@@ -297,7 +297,7 @@ public:
         trivial.utf16charOffset = last->utf16charOffset;
     }
 
-    inline operator bool() const
+    inline explicit operator bool() const
     { return first != last; }
 
     inline bool isValid() const

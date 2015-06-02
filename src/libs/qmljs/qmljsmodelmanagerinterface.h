@@ -78,7 +78,7 @@ public:
             , tryQmlDump(false), qmlDumpHasRelocatableFlag(true)
         { }
 
-        operator bool() const
+        explicit operator bool() const
         { return ! project.isNull(); }
 
         bool isValid() const

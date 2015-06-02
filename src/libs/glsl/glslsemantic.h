@@ -56,7 +56,7 @@ public:
             return true;
         }
 
-        operator bool() const { return isValid(); }
+        explicit operator bool() const { return isValid(); }
 
         const Type *type;
         bool isConstant;

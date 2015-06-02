@@ -511,7 +511,7 @@ public:
         ExtensionSystem::PluginManager::addObject(watch);
     }
 
-    operator bool() { return m_watched; }
+    explicit operator bool() { return m_watched; }
     bool operator !() { return !m_watched; }
     T &operator*() { return *m_watched; }
     T *operator->() { return m_watched; }

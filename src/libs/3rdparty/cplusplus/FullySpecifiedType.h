@@ -33,7 +33,7 @@ public:
     ~FullySpecifiedType();
 
     bool isValid() const;
-    operator bool() const;
+    explicit operator bool() const;
 
     Type *type() const;
     void setType(Type *type);

@@ -63,7 +63,7 @@ public:
     explicit SymbolGroupValue(SymbolGroupNode *node, const SymbolGroupValueContext &c);
     SymbolGroupValue();
 
-    operator bool() const { return isValid(); }
+    explicit operator bool() const { return isValid(); }
     bool isValid() const;
 
     // Access children by name or index (0-based)
