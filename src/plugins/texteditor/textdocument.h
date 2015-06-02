@@ -117,7 +117,7 @@ public:
     void setDefaultPath(const QString &defaultPath);
     void setSuggestedFileName(const QString &suggestedFileName);
 
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual bool reload(QString *errorString);
 
     bool setPlainText(const QString &text);
@@ -138,6 +138,8 @@ public slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 signals:
+    void aboutToOpen(const QString &fileName, const QString &realFileName);
+    void openFinishedSuccessfully();
     void contentsChanged();
     void tabSettingsChanged();
     void fontSettingsChanged();
@@ -146,6 +148,7 @@ protected slots:
     virtual void applyFontSettings();
 
 private:
+    bool openImpl(QString *errorString, const QString &fileName, const QString &realFileName);
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
 

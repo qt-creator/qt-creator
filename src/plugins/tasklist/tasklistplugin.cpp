@@ -177,7 +177,7 @@ IDocument *TaskListPlugin::openTasks(const QString &base, const QString &fileNam
     file->setBaseDir(base);
 
     QString errorString;
-    if (!file->open(&errorString, fileName)) {
+    if (!file->open(&errorString, fileName, fileName)) {
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
         delete file;
         return 0;

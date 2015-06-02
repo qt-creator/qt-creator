@@ -44,6 +44,7 @@
 #include <texteditor/generichighlighter/highlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QApplication>
 #include <QDir>
@@ -559,6 +560,19 @@ void TextDocument::checkPermissions()
 
 bool TextDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
+    emit aboutToOpen(fileName, realFileName);
+    bool success = openImpl(errorString, fileName, realFileName);
+    if (success) {
+        Utils::MimeDatabase mdb;
+        setMimeType(mdb.mimeTypeForFile(fileName).name());
+        emit openFinishedSuccessfully();
+        return true;
+    }
+    return false;
+}
+
+bool TextDocument::openImpl(QString *errorString, const QString &fileName, const QString &realFileName)
+{
     QStringList content;
 
     ReadResult readResult = Utils::TextFileFormat::ReadIOError;
@@ -620,7 +634,7 @@ bool TextDocument::reload(QString *errorString)
     if (documentLayout)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
-    bool success = open(errorString, filePath().toString(), filePath().toString());
+    bool success = openImpl(errorString, filePath().toString(), filePath().toString());
 
     if (documentLayout)
         documentLayout->documentReloaded(marks, this); // re-adds text marks

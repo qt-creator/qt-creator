@@ -56,8 +56,8 @@ class ResourceEditorDocument
 public:
     ResourceEditorDocument(QObject *parent = 0);
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     //IDocument
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString plainText() const;
     bool setContents(const QByteArray &contents);
@@ -95,7 +95,6 @@ public:
     ~ResourceEditorW() override;
 
     // IEditor
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
     Core::IDocument *document() override { return m_resourceDocument; }
     QWidget *toolBar() override;
 

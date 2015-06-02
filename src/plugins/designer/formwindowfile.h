@@ -52,9 +52,9 @@ public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
     ~FormWindowFile() override { }
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
-
     // IDocument
+    bool open(QString *errorString, const QString &fileName,
+              const QString &realFileName) override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;

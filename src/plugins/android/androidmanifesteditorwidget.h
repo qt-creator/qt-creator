@@ -96,8 +96,6 @@ public:
 
     explicit AndroidManifestEditorWidget();
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-
     bool isModified() const;
 
     EditorPage activePage() const;
@@ -135,7 +133,7 @@ private:
     bool syncToWidgets();
     void syncToWidgets(const QDomDocument &doc);
     void syncToEditor();
-    void updateAfterFileLoad(bool success);
+    void updateAfterFileLoad();
 
     bool checkDocument(const QDomDocument &doc, QString *errorMessage,
                        int *errorLine, int *errorColumn);

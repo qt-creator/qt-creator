@@ -118,6 +118,26 @@ Id IDocument::id() const
 }
 
 /*!
+ * Used to load a file if this document is part of an IEditor implementation, when the editor
+ * is opened.
+ * If the editor is opened from an auto save file, \a realFileName is the name of the auto save
+ * that should be loaded, and \a fileName is the file name of the resulting file.
+ * In that case, the contents of the auto save file should be loaded, the file name of the
+ * IDocument should be set to \a fileName, and the document state be set to modified.
+ * If the editor is opened from a regular file, \a fileName and \a realFileName are the same.
+ * Use \a errorString to return an error message, if this document can not handle the
+ * file contents.
+ * Returns true on success, false if an error occurred.
+ */
+bool IDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
+{
+    Q_UNUSED(errorString)
+    Q_UNUSED(fileName)
+    Q_UNUSED(realFileName)
+    return false;
+}
+
+/*!
     Used for example by EditorManager::openEditorWithContents() to set the contents
     of this document.
     Returns if setting the contents was successful.

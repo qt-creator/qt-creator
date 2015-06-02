@@ -85,6 +85,9 @@ public:
     void setId(Id id);
     Id id() const;
 
+    // required to be re-implemented for documents of IEditors
+    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);
 

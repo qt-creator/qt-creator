@@ -54,7 +54,6 @@ class AndroidManifestEditor : public Core::IEditor
 public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
     QWidget *toolBar() override;
     AndroidManifestEditorWidget *widget() const override;
     Core::IDocument *document() override;

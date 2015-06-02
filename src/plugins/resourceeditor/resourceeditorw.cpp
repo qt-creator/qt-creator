@@ -120,11 +120,6 @@ ResourceEditorW::~ResourceEditorW()
     delete m_toolBar;
 }
 
-bool ResourceEditorW::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    return m_resourceDocument->open(errorString, fileName, realFileName);
-}
-
 bool ResourceEditorDocument::open(QString *errorString, const QString &fileName,
                                   const QString &realFileName)
 {

@@ -54,7 +54,6 @@ public:
     FormWindowEditor();
     ~FormWindowEditor() override;
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
     QWidget *toolBar() override;
     bool isDesignModePreferred() const override;
 

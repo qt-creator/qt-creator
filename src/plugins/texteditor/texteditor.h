@@ -150,7 +150,6 @@ public:
 
     // IEditor
     Core::IDocument *document() override;
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
 
     IEditor *duplicate() override;
 
@@ -211,8 +210,9 @@ public:
     TextDocument *textDocument() const;
     QSharedPointer<TextDocument> textDocumentPtr() const;
 
+    virtual void aboutToOpen(const QString &fileName, const QString &realFileName);
+    virtual void openFinishedSuccessfully();
     // IEditor
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0, bool centerLine = true);

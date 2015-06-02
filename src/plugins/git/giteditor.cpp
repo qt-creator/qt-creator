@@ -295,8 +295,9 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
     });
 }
 
-bool GitEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void GitEditorWidget::aboutToOpen(const QString &fileName, const QString &realFileName)
 {
+    Q_UNUSED(realFileName)
     Core::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
@@ -306,7 +307,6 @@ bool GitEditorWidget::open(QString *errorString, const QString &fileName, const 
         textDocument()->setCodec(
                     GitPlugin::instance()->client()->encoding(gitPath, "i18n.commitEncoding"));
     }
-    return VcsBaseEditorWidget::open(errorString, fileName, realFileName);
 }
 
 QString GitEditorWidget::decorateVersion(const QString &revision) const

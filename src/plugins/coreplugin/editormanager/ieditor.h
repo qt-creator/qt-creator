@@ -51,7 +51,6 @@ public:
     bool duplicateSupported() const;
     void setDuplicateSupported(bool duplicateSupported);
 
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
     virtual IDocument *document() = 0;
 
     virtual IEditor *duplicate() { return 0; }

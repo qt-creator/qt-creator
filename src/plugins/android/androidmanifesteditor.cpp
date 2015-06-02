@@ -65,11 +65,6 @@ AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editor
     setWidget(editorWidget);
 }
 
-bool AndroidManifestEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    return widget()->open(errorString, fileName, realFileName);
-}
-
 QWidget *AndroidManifestEditor::toolBar()
 {
     return m_toolBar;

@@ -612,7 +612,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         }
 
         QString errorString;
-        if (editor->open(&errorString, fn, realFn))
+        if (editor->document()->open(&errorString, fn, realFn))
             break;
 
         overrideCursor.reset();

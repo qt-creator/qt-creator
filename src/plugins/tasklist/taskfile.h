@@ -55,7 +55,7 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
-    bool open(QString *errorString, const QString &fileName);
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     QString baseDir() const;
     void setBaseDir(const QString &base);

@@ -265,7 +265,14 @@ public:
         }
     }
 
-    bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName)
+    {
+        QTC_CHECK(fileName == realFileName); // The bineditor can do no autosaving
+        return openImpl(errorString, fileName);
+    }
+
+    bool openImpl(QString *errorString, const QString &fileName, quint64 offset = 0)
+    {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
@@ -326,7 +333,7 @@ private slots:
 
     void provideNewRange(quint64 offset)
     {
-        open(0, filePath().toString(), offset);
+        openImpl(0, filePath().toString(), offset);
     }
 
 public:
@@ -356,7 +363,7 @@ public:
             emit aboutToReload();
             int cPos = m_widget->cursorPosition();
             m_widget->clear();
-            const bool success = open(errorString, filePath().toString());
+            const bool success = openImpl(errorString, filePath().toString());
             m_widget->setCursorPosition(cPos);
             emit reloadFinished(success);
             return success;
@@ -409,10 +416,6 @@ public:
         delete m_widget;
     }
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override {
-        QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
-        return m_file->open(errorString, fileName);
-    }
     IDocument *document() override { return m_file; }
 
     QWidget *toolBar() override { return m_toolBar; }

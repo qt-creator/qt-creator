@@ -87,11 +87,13 @@ public:
     void updateVisibility();
 
 signals:
+    void openFinished(bool success);
     void imageSizeChanged(const QSize &size);
     void isPausedChanged(bool paused);
 
 private:
     void cleanUp();
+    bool openImpl(QString *errorString, const QString &fileName);
 
     ImageType m_type = TypeInvalid;
 #ifndef QT_NO_SVG

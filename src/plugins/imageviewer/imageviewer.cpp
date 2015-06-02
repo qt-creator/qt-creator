@@ -142,6 +142,8 @@ void ImageViewer::ctor()
             this, &ImageViewer::playToggled);
     connect(d->file.data(), &ImageViewerFile::imageSizeChanged,
             this, &ImageViewer::imageSizeUpdated);
+    connect(d->file.data(), &ImageViewerFile::openFinished,
+            d->imageView, &ImageView::createScene);
     connect(d->file.data(), &ImageViewerFile::aboutToReload,
             d->imageView, &ImageView::reset);
     connect(d->file.data(), &ImageViewerFile::reloadFinished,
@@ -157,14 +159,6 @@ ImageViewer::~ImageViewer()
     delete d->imageView;
     delete d->toolbar;
     delete d;
-}
-
-bool ImageViewer::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (!d->file->open(errorString, fileName, realFileName))
-        return false;
-    d->imageView->createScene();
-    return true;
 }
 
 Core::IDocument *ImageViewer::document()

@@ -235,12 +235,14 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    return open(errorString, filePath().toString());
+    return open(errorString, filePath().toString(), filePath().toString());
 }
 
-bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
+bool DiffEditorDocument::open(QString *errorString, const QString &fileName,
+                              const QString &realFileName)
 {
     QTC_ASSERT(errorString, return false);
+    QTC_ASSERT(fileName == realFileName, return false); // does not support autosave
     beginReload();
     QString patch;
     if (read(fileName, &patch, errorString) != TextFileFormat::ReadSuccess)

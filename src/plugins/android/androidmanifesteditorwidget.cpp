@@ -123,6 +123,8 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
     connect(m_textEditorWidget->document(), SIGNAL(contentsChanged()),
             this, SLOT(startParseCheck()));
     connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::reloadFinished,
+            this, [this](bool success) { if (success) updateAfterFileLoad(); });
+    connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::openFinishedSuccessfully,
             this, &AndroidManifestEditorWidget::updateAfterFileLoad);
 }
 
@@ -502,18 +504,8 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
     m_targetLineEdit->addItems(items);
 }
 
-bool AndroidManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void AndroidManifestEditorWidget::updateAfterFileLoad()
 {
-    bool result = m_textEditorWidget->open(errorString, fileName, realFileName);
-    updateAfterFileLoad(result);
-    return result;
-}
-
-void AndroidManifestEditorWidget::updateAfterFileLoad(bool success)
-{
-    if (!success)
-        return;
-
     QString error;
     int errorLine;
     int errorColumn;

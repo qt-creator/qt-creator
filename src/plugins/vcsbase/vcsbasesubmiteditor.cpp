@@ -362,24 +362,6 @@ void VcsBaseSubmitEditor::slotDescriptionChanged()
 {
 }
 
-bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (fileName.isEmpty())
-        return false;
-
-    FileReader reader;
-    if (!reader.fetch(realFileName, QIODevice::Text, errorString))
-        return false;
-
-    const QString text = QString::fromLocal8Bit(reader.data());
-    if (!setFileContents(text.toUtf8()))
-        return false;
-
-    d->m_file->setFilePath(FileName::fromString(fileName));
-    d->m_file->setModified(fileName != realFileName);
-    return true;
-}
-
 Core::IDocument *VcsBaseSubmitEditor::document()
 {
     return d->m_file;

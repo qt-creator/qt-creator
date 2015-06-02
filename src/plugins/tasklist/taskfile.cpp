@@ -94,11 +94,12 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
         deleteLater();
         return true;
     }
-    return open(errorString, filePath().toString());
+    return open(errorString, filePath().toString(), filePath().toString());
 }
 
-bool TaskFile::open(QString *errorString, const QString &fileName)
+bool TaskFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
+    Q_UNUSED(realFileName)
     setFilePath(Utils::FileName::fromString(fileName));
     return TaskListPlugin::loadFile(errorString, m_baseDir, fileName);
 }

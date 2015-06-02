@@ -681,6 +681,10 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 
     updateCannotDecodeInfo();
 
+    QObject::connect(m_document.data(), &TextDocument::aboutToOpen,
+                     q, &TextEditorWidget::aboutToOpen);
+    QObject::connect(m_document.data(), &TextDocument::openFinishedSuccessfully,
+                     q, &TextEditorWidget::openFinishedSuccessfully);
     connect(m_fileEncodingLabel, &LineColumnLabel::clicked,
             q, &TextEditorWidget::selectEncoding);
     connect(m_document->document(), &QTextDocument::modificationChanged,
@@ -972,17 +976,6 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
     }
 }
 
-bool TextEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (d->m_document->open(errorString, fileName, realFileName)) {
-        moveCursor(QTextCursor::Start);
-        d->updateCannotDecodeInfo();
-        updateTextCodecLabel();
-        return true;
-    }
-    return false;
-}
-
 /*
   Collapses the first comment in a file, if there is only whitespace above
   */
@@ -1012,6 +1005,19 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
 TextDocument *TextEditorWidget::textDocument() const
 {
     return d->m_document.data();
+}
+
+void TextEditorWidget::aboutToOpen(const QString &fileName, const QString &realFileName)
+{
+    Q_UNUSED(fileName)
+    Q_UNUSED(realFileName)
+}
+
+void TextEditorWidget::openFinishedSuccessfully()
+{
+    moveCursor(QTextCursor::Start);
+    d->updateCannotDecodeInfo();
+    updateTextCodecLabel();
 }
 
 TextDocumentPtr TextEditorWidget::textDocumentPtr() const
@@ -7140,15 +7146,6 @@ AssistInterface *TextEditorWidget::createAssistInterface(AssistKind kind,
 QString TextEditorWidget::foldReplacementText(const QTextBlock &) const
 {
     return QLatin1String("...");
-}
-
-bool BaseTextEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (!editorWidget()->open(errorString, fileName, realFileName))
-        return false;
-    Utils::MimeDatabase mdb;
-    textDocument()->setMimeType(mdb.mimeTypeForFile(fileName).name());
-    return true;
 }
 
 QByteArray BaseTextEditor::saveState() const

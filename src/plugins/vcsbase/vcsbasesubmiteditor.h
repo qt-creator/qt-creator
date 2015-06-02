@@ -113,8 +113,6 @@ public:
     QString checkScriptWorkingDirectory() const;
     void setCheckScriptWorkingDirectory(const QString &);
 
-    // Core::IEditor
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
     Core::IDocument *document() override;
 
     QWidget *toolBar() override;

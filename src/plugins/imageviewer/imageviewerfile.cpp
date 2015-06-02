@@ -88,7 +88,13 @@ ImageViewerFile::~ImageViewerFile()
 bool ImageViewerFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     QTC_CHECK(fileName == realFileName); // does not support auto save
+    bool success = openImpl(errorString, fileName);
+    emit openFinished(success);
+    return success;
+}
 
+bool ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
+{
     cleanUp();
     m_type = TypeInvalid;
 
@@ -160,7 +166,7 @@ bool ImageViewerFile::reload(QString *errorString,
         return true;
     }
     emit aboutToReload();
-    bool success = open(errorString, filePath().toString(), filePath().toString());
+    bool success = openImpl(errorString, filePath().toString());
     emit reloadFinished(success);
     return success;
 }

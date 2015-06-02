@@ -62,7 +62,7 @@ private:
     void init() override;
     void resetChange(const QByteArray &resetType);
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
+    void aboutToOpen(const QString &fileName, const QString &realFileName) override;
     QSet<QString> annotationChanges() const override;
     QString changeUnderCursor(const QTextCursor &) const override;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const override;

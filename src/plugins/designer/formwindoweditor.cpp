@@ -53,11 +53,6 @@ FormWindowEditor::~FormWindowEditor()
 {
 }
 
-bool FormWindowEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    return formWindowFile()->open(errorString, fileName, realFileName);
-}
-
 QWidget *FormWindowEditor::toolBar()
 {
     return 0;

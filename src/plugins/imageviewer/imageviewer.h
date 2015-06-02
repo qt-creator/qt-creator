@@ -55,7 +55,6 @@ public:
     explicit ImageViewer(QWidget *parent = 0);
     ~ImageViewer() override;
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) override;
     Core::IDocument *document() override;
     QWidget *toolBar() override;
 

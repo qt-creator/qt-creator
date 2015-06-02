@@ -364,14 +364,6 @@ Core::IEditor *DiffEditor::duplicate()
     return editor;
 }
 
-bool DiffEditor::open(QString *errorString,
-                      const QString &fileName,
-                      const QString &realFileName)
-{
-    Q_UNUSED(realFileName)
-    return m_document->open(errorString, fileName);
-}
-
 Core::IDocument *DiffEditor::document()
 {
     return m_document.data();
