@@ -100,7 +100,7 @@ Debugger_WatchItem_ValueNormal=text
 Debugger_WatchItem_ValueInvalid=textDisabled
 Debugger_WatchItem_ValueChanged=ffbf0303
 
-Debugger_Breakpoint_TextMarkColor=60ff2020
+Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_BackgroundColorNormal=normalBackground
 Welcome_Button_BorderColorNormal=0
@@ -128,10 +128,10 @@ VcsBase_FileModified_TextColor=ff8ee0ff
 VcsBase_FileDeleted_TextColor=fffff6c6c
 VcsBase_FileRenamed_TextColor=ffffa500
 
-Bookmarks_TextMarkColor=804040ff
+Bookmarks_TextMarkColor=ff8080ff
 
-ProjectExplorer_TaskError_TextMarkColor=a0ff4040
-ProjectExplorer_TaskWarn_TextMarkColor=80ffff20
+ProjectExplorer_TaskError_TextMarkColor=ffff4040
+ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
 
 [Flags]
 ComboBoxDrawTextShadow=false
