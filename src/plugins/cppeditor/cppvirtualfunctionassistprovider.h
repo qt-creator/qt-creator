@@ -63,9 +63,9 @@ public:
     Parameters params() const { return m_params; }
     void clearParams() { m_params = Parameters(); }
 
-    IAssistProvider::RunType runType() const Q_DECL_OVERRIDE;
-    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
+    IAssistProvider::RunType runType() const override;
+    bool supportsEditor(Core::Id editorId) const override;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 
 private:
     Parameters m_params;

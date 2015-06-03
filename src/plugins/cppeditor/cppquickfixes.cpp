@@ -4017,7 +4017,7 @@ public:
                 : QuickFixFactory::tr("Convert to Pointer"));
     }
 
-    void perform() Q_DECL_OVERRIDE
+    void perform() override
     {
         ChangeSet changes;
 

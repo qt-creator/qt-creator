@@ -89,7 +89,7 @@ protected:
         return GenericProposalWidget::eventFilter(o, e);
     }
 
-    void showProposal(const QString &prefix) Q_DECL_OVERRIDE
+    void showProposal(const QString &prefix) override
     {
         GenericProposalModel *proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
@@ -112,9 +112,9 @@ public:
         , m_openInSplit(openInSplit)
     {}
 
-    bool isFragile() const Q_DECL_OVERRIDE { return true; }
+    bool isFragile() const override { return true; }
 
-    IAssistProposalWidget *createWidget() const Q_DECL_OVERRIDE
+    IAssistProposalWidget *createWidget() const override
     { return new VirtualFunctionProposalWidget(m_openInSplit); }
 
 private:
@@ -128,7 +128,7 @@ public:
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const AssistInterface *) Q_DECL_OVERRIDE
+    IAssistProposal *immediateProposal(const AssistInterface *) override
     {
         QTC_ASSERT(m_params.function, return 0);
 
@@ -144,7 +144,7 @@ public:
         return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const AssistInterface *assistInterface) Q_DECL_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *assistInterface) override
     {
         delete assistInterface;
 

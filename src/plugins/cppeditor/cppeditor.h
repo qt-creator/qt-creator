@@ -79,14 +79,14 @@ public:
 
     TextEditor::AssistInterface *createAssistInterface(
             TextEditor::AssistKind kind,
-            TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
+            TextEditor::AssistReason reason) const override;
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
 public slots:
-    void paste() Q_DECL_OVERRIDE;
-    void cut() Q_DECL_OVERRIDE;
-    void selectAll() Q_DECL_OVERRIDE;
+    void paste() override;
+    void cut() override;
+    void selectAll() override;
 
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget();
@@ -96,18 +96,18 @@ public slots:
     void renameUsages(const QString &replacement = QString());
 
 protected:
-    bool event(QEvent *e) Q_DECL_OVERRIDE;
-    void contextMenuEvent(QContextMenuEvent *) Q_DECL_OVERRIDE;
-    void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+    bool event(QEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *) override;
+    void keyPressEvent(QKeyEvent *e) override;
     bool handleStringSplitting(QKeyEvent *e) const;
 
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                    bool inNextSplit = false) Q_DECL_OVERRIDE;
+                    bool inNextSplit = false) override;
 
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) Q_DECL_OVERRIDE;
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 protected slots:
-    void slotCodeStyleSettingsChanged(const QVariant &) Q_DECL_OVERRIDE;
+    void slotCodeStyleSettingsChanged(const QVariant &) override;
 
 private slots:
     void updateFunctionDeclDefLink();
@@ -131,8 +131,8 @@ private slots:
     void processKeyNormally(QKeyEvent *e);
 
 private:
-    void finalizeInitialization() Q_DECL_OVERRIDE;
-    void finalizeInitializationAfterDuplication(TextEditorWidget *other) Q_DECL_OVERRIDE;
+    void finalizeInitialization() override;
+    void finalizeInitializationAfterDuplication(TextEditorWidget *other) override;
 
     unsigned documentRevision() const;
 
