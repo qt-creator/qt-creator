@@ -931,18 +931,18 @@ public:
         : m_provider(const_cast<FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    bool implicitlyApplies() const Q_DECL_OVERRIDE
+    bool implicitlyApplies() const override
     {
         return false;
     }
 
-    bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE
+    bool prematurelyApplies(const QChar &c) const override
     {
         m_provider->appendNeedle(c);
         return text() == m_provider->needle();
     }
 
-    void applyContextualContent(TextEditorWidget *, int) const Q_DECL_OVERRIDE
+    void applyContextualContent(TextEditorWidget *, int) const override
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
@@ -962,7 +962,7 @@ public:
         loadContent(items);
     }
 
-    bool supportsPrefixExpansion() const Q_DECL_OVERRIDE
+    bool supportsPrefixExpansion() const override
     {
         return false;
     }
@@ -975,7 +975,7 @@ public:
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *interface) override
     {
         const QString &needle = m_provider->needle();
 
