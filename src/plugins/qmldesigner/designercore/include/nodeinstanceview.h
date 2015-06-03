@@ -85,44 +85,44 @@ public:
     explicit NodeInstanceView(QObject *parent = 0, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
     ~NodeInstanceView();
 
-    void modelAttached(Model *model) Q_DECL_OVERRIDE;
-    void modelAboutToBeDetached(Model *model) Q_DECL_OVERRIDE;
-    void nodeCreated(const ModelNode &createdNode) Q_DECL_OVERRIDE;
-    void nodeAboutToBeRemoved(const ModelNode &removedNode) Q_DECL_OVERRIDE;
-    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) Q_DECL_OVERRIDE;
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) Q_DECL_OVERRIDE;
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList) Q_DECL_OVERRIDE;
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) Q_DECL_OVERRIDE;
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) Q_DECL_OVERRIDE;
-    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, PropertyChangeFlags propertyChange) Q_DECL_OVERRIDE;
+    void modelAttached(Model *model) override;
+    void modelAboutToBeDetached(Model *model) override;
+    void nodeCreated(const ModelNode &createdNode) override;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) override;
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) override;
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList) override;
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, PropertyChangeFlags propertyChange) override;
     void nodeAboutToBeReparented(const ModelNode &node,
                                  const NodeAbstractProperty &newPropertyParent,
                                  const NodeAbstractProperty &oldPropertyParent,
-                                 AbstractView::PropertyChangeFlags propertyChange) Q_DECL_OVERRIDE;
+                                 AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
-                        AbstractView::PropertyChangeFlags propertyChange) Q_DECL_OVERRIDE;
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) Q_DECL_OVERRIDE;
-    void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl) Q_DECL_OVERRIDE;
-    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) Q_DECL_OVERRIDE;
-    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) Q_DECL_OVERRIDE;
-    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList) Q_DECL_OVERRIDE;
-    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) Q_DECL_OVERRIDE;
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) Q_DECL_OVERRIDE;
-    void instancesCompleted(const QVector<ModelNode> &completedNodeList) Q_DECL_OVERRIDE;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) Q_DECL_OVERRIDE;
-    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) Q_DECL_OVERRIDE;
-    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) Q_DECL_OVERRIDE;
-    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) Q_DECL_OVERRIDE;
-    void instancesChildrenChanged(const QVector<ModelNode> &nodeList) Q_DECL_OVERRIDE;
-    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) Q_DECL_OVERRIDE;
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) Q_DECL_OVERRIDE;
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) Q_DECL_OVERRIDE;
-    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) Q_DECL_OVERRIDE;
+                        AbstractView::PropertyChangeFlags propertyChange) override;
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl) override;
+    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) override;
+    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList) override;
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) override;
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+    void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;
+    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) override;
+    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) override;
+    void instancesChildrenChanged(const QVector<ModelNode> &nodeList) override;
+    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) override;
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
 
 
-    void rewriterBeginTransaction() Q_DECL_OVERRIDE;
-    void rewriterEndTransaction() Q_DECL_OVERRIDE;
+    void rewriterBeginTransaction() override;
+    void rewriterEndTransaction() override;
 
     void currentStateChanged(const ModelNode &node);
 

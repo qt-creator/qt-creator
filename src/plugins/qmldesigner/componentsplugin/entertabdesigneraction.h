@@ -40,10 +40,10 @@ class EnterTabDesignerAction : public AbstractActionGroup
 public:
     EnterTabDesignerAction();
 
-    QByteArray category() const Q_DECL_OVERRIDE;
-    QByteArray menuId() const Q_DECL_OVERRIDE;
-    int priority() const Q_DECL_OVERRIDE;
-    void updateContext() Q_DECL_OVERRIDE;
+    QByteArray category() const override;
+    QByteArray menuId() const override;
+    int priority() const override;
+    void updateContext() override;
 
 protected:
     bool isVisible(const SelectionContext &selectionContext) const;

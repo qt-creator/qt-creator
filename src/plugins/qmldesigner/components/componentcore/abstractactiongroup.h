@@ -46,12 +46,12 @@ public:
 
     virtual bool isVisible(const SelectionContext &m_selectionState) const = 0;
     virtual bool isEnabled(const SelectionContext &m_selectionState) const = 0;
-    ActionInterface::Type type() const Q_DECL_OVERRIDE;
-    QAction *action() const Q_DECL_OVERRIDE;
+    ActionInterface::Type type() const override;
+    QAction *action() const override;
     QMenu *menu() const;
     SelectionContext selectionContext() const;
 
-    virtual void currentContextChanged(const SelectionContext &selectionContext) Q_DECL_OVERRIDE;
+    virtual void currentContextChanged(const SelectionContext &selectionContext) override;
     virtual void updateContext();
 
 private:

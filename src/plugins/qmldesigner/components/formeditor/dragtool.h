@@ -49,36 +49,36 @@ public:
     DragTool(FormEditorView *editorView);
     virtual ~DragTool();
 
-    void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
+    void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
+    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
 
-    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
+    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
 
-    void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
-    void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
-    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
-    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
+    void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) override;
+    void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) override;
+    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) override;
+    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) override;
 
-    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
-    void keyReleaseEvent(QKeyEvent *keyEvent) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *keyEvent) override;
 
-    void itemsAboutToRemoved(const QList<FormEditorItem*> &itemList) Q_DECL_OVERRIDE;
+    void itemsAboutToRemoved(const QList<FormEditorItem*> &itemList) override;
 
-    void selectedItemsChanged(const QList<FormEditorItem*> &itemList) Q_DECL_OVERRIDE;
-    void instancesParentChanged(const QList<FormEditorItem *> &itemList) Q_DECL_OVERRIDE;
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) Q_DECL_OVERRIDE;
+    void selectedItemsChanged(const QList<FormEditorItem*> &itemList) override;
+    void instancesParentChanged(const QList<FormEditorItem *> &itemList) override;
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
     void updateMoveManipulator();
 
     void beginWithPoint(const QPointF &beginPoint);
 
-    void clear() Q_DECL_OVERRIDE;
+    void clear() override;
 
-    void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) Q_DECL_OVERRIDE;
+    void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) override;
 
-    void instancesCompleted(const QList<FormEditorItem*> &itemList) Q_DECL_OVERRIDE;
+    void instancesCompleted(const QList<FormEditorItem*> &itemList) override;
 
     void clearMoveDelay();
 
