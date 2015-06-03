@@ -61,7 +61,7 @@ public:
     void setCommentExpression(const QRegExp &rx);
 
 protected:
-    void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
+    void highlightBlock(const QString &text) override;
 
 private:
     QRegExp m_expressionKeyword;
@@ -80,8 +80,8 @@ public:
     void setCommentExpression(const QRegExp &rx);
 
 protected:
-    bool eventFilter(QObject *object, QEvent *event) Q_DECL_OVERRIDE;
-    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+    bool eventFilter(QObject *object, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void insertCompleterText(const QString &text);

@@ -65,9 +65,9 @@ class ArtisticStyleOptionsPage : public Core::IOptionsPage
 
 public:
     explicit ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent = 0);
-    QWidget *widget() Q_DECL_OVERRIDE;
-    void apply() Q_DECL_OVERRIDE;
-    void finish() Q_DECL_OVERRIDE;
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<ArtisticStyleOptionsPageWidget> m_widget;

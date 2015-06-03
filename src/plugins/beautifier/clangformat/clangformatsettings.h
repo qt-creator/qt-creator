@@ -45,9 +45,9 @@ class ClangFormatSettings : public AbstractSettings
 public:
     explicit ClangFormatSettings();
 
-    QString documentationFilePath() const Q_DECL_OVERRIDE;
-    void createDocumentationFile() const Q_DECL_OVERRIDE;
-    QStringList completerWords() Q_DECL_OVERRIDE;
+    QString documentationFilePath() const override;
+    void createDocumentationFile() const override;
+    QStringList completerWords() override;
 
     bool usePredefinedStyle() const;
     void setUsePredefinedStyle(bool usePredefinedStyle);

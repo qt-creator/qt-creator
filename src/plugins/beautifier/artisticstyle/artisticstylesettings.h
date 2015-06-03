@@ -52,7 +52,7 @@ public:
 
     ArtisticStyleSettings();
 
-    void updateVersion() Q_DECL_OVERRIDE;
+    void updateVersion() override;
 
     bool useOtherFiles() const;
     void setUseOtherFiles(bool useOtherFiles);
@@ -66,8 +66,8 @@ public:
     QString customStyle() const;
     void setCustomStyle(const QString &customStyle);
 
-    QString documentationFilePath() const Q_DECL_OVERRIDE;
-    void createDocumentationFile() const Q_DECL_OVERRIDE;
+    QString documentationFilePath() const override;
+    void createDocumentationFile() const override;
 
 private slots:
     void helperSetVersion();

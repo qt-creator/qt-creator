@@ -53,9 +53,9 @@ class ClangFormat : public BeautifierAbstractTool
 public:
     explicit ClangFormat(BeautifierPlugin *parent = 0);
     virtual ~ClangFormat();
-    bool initialize() Q_DECL_OVERRIDE;
-    void updateActions(Core::IEditor *editor) Q_DECL_OVERRIDE;
-    QList<QObject *> autoReleaseObjects() Q_DECL_OVERRIDE;
+    bool initialize() override;
+    void updateActions(Core::IEditor *editor) override;
+    QList<QObject *> autoReleaseObjects() override;
 
 private slots:
     void formatFile();

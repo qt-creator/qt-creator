@@ -55,8 +55,8 @@ public:
     QString customStyle() const;
     void setCustomStyle(const QString &customStyle);
 
-    QString documentationFilePath() const Q_DECL_OVERRIDE;
-    void createDocumentationFile() const Q_DECL_OVERRIDE;
+    QString documentationFilePath() const override;
+    void createDocumentationFile() const override;
 };
 
 } // namespace Uncrustify

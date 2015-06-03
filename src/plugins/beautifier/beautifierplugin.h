@@ -73,9 +73,9 @@ class BeautifierPlugin : public ExtensionSystem::IPlugin
 public:
     BeautifierPlugin();
     ~BeautifierPlugin();
-    bool initialize(const QStringList &arguments, QString *errorString) Q_DECL_OVERRIDE;
-    void extensionsInitialized() Q_DECL_OVERRIDE;
-    ShutdownFlag aboutToShutdown() Q_DECL_OVERRIDE;
+    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     QString format(const QString &text, const Command &command, const QString &fileName,
                    bool *timeout = 0);
