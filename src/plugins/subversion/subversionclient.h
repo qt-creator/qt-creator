@@ -65,7 +65,7 @@ public:
     void log(const QString &workingDir,
              const QStringList &files = QStringList(),
              const QStringList &extraOptions = QStringList(),
-             bool enableAnnotationContextMenu = false) Q_DECL_OVERRIDE;
+             bool enableAnnotationContextMenu = false) override;
 
     void describe(const QString &workingDirectory, int changeNumber, const QString &title);
     QString findTopLevelForFile(const QFileInfo &file) const;
