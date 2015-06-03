@@ -144,7 +144,7 @@ public:
     void startRemoteTool();
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
-            ProjectExplorer::RunConfiguration *runConfiguration) Q_DECL_OVERRIDE;
+            ProjectExplorer::RunConfiguration *runConfiguration) override;
 };
 
 } // namespace Internal

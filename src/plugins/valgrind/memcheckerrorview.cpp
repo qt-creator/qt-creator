@@ -76,7 +76,7 @@ public:
 private:
     QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex,
                                  QWidget *parent) const;
-    QString textualRepresentation() const Q_DECL_OVERRIDE;
+    QString textualRepresentation() const override;
 };
 
 static QString makeFrameName(const Frame &frame, const QString &relativeTo,

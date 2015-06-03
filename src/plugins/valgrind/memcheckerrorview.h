@@ -60,7 +60,7 @@ private slots:
     void suppressError();
 
 private:
-    QList<QAction *> customActions() const Q_DECL_OVERRIDE;
+    QList<QAction *> customActions() const override;
 
     QAction *m_suppressAction;
     QString m_defaultSuppFile;

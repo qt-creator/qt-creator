@@ -59,9 +59,9 @@ signals:
     void suppressionCount(const QString &name, qint64 count);
 
 protected:
-    QString progressTitle() const Q_DECL_OVERRIDE;
-    QStringList toolArguments() const Q_DECL_OVERRIDE;
-    ValgrindRunner *runner() Q_DECL_OVERRIDE;
+    QString progressTitle() const override;
+    QStringList toolArguments() const override;
+    ValgrindRunner *runner() override;
 
 protected:
     XmlProtocol::ThreadedParser m_parser;
@@ -77,7 +77,7 @@ public:
                               ProjectExplorer::RunConfiguration *runConfiguration);
 
 protected:
-    QStringList toolArguments() const Q_DECL_OVERRIDE;
+    QStringList toolArguments() const override;
     void startDebugger();
     void appendLog(const QByteArray &data);
 };
