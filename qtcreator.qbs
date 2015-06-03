@@ -1,6 +1,7 @@
 import qbs 1.0
 
 Project {
+    name: "Qt Creator"
     minimumQbsVersion: "1.4"
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '3'
@@ -56,6 +57,7 @@ Project {
         "QT_NO_CAST_FROM_ASCII"
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
     qbsSearchPaths: "qbs"
+    property bool enableQbsJavaSupport: false
 
     references: [
         "src/src.qbs",

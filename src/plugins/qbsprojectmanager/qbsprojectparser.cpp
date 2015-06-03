@@ -100,6 +100,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     const qbs::Preferences prefs(QbsManager::settings(), profileName);
     params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
     params.setPluginPaths(prefs.pluginPaths(pluginsBaseDirectory()));
+    params.setLibexecPath(libExecDirectory());
 
     m_qbsSetupProjectJob = m_project.setupProject(params, QbsManager::logSink(), 0);
 
@@ -161,6 +162,14 @@ QString QbsProjectParser::resourcesBaseDirectory() const
     if (!qbsInstallDir.isEmpty())
         return qbsInstallDir;
     return Core::ICore::resourcePath() + QLatin1String("/qbs");
+}
+
+QString QbsProjectParser::libExecDirectory() const
+{
+    const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
+    if (!qbsInstallDir.isEmpty())
+        return qbsInstallDir + QLatin1String("/libexec");
+    return Core::ICore::libexecPath();
 }
 
 QString QbsProjectParser::pluginsBaseDirectory() const
