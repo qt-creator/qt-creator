@@ -109,8 +109,8 @@ class NoKitPage : public QWizardPage
     Q_OBJECT
 public:
     NoKitPage(CMakeOpenProjectWizard *cmakeWizard);
-    bool isComplete() const Q_DECL_OVERRIDE;
-    void initializePage() Q_DECL_OVERRIDE;
+    bool isComplete() const override;
+    void initializePage() override;
 private slots:
     void kitsChanged();
     void showOptions();

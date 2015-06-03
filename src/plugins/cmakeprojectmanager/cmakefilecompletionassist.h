@@ -45,7 +45,7 @@ public:
     CMakeFileCompletionAssist();
 
     // IAssistProcessor interface
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 };
 
 class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider

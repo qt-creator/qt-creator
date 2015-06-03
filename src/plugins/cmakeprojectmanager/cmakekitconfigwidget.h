@@ -54,12 +54,12 @@ public:
     virtual ~CMakeKitConfigWidget();
 
     // KitConfigWidget interface
-    QString displayName() const Q_DECL_OVERRIDE;
-    void makeReadOnly() Q_DECL_OVERRIDE;
-    void refresh() Q_DECL_OVERRIDE;
-    QWidget *mainWidget() const Q_DECL_OVERRIDE;
-    QWidget *buttonWidget() const Q_DECL_OVERRIDE;
-    QString toolTip() const Q_DECL_OVERRIDE;
+    QString displayName() const override;
+    void makeReadOnly() override;
+    void refresh() override;
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString toolTip() const override;
 
 private:
     int indexOf(const Core::Id &id);

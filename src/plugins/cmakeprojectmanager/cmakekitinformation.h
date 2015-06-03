@@ -51,12 +51,12 @@ public:
     static Core::Id defaultValue();
 
     // KitInformation interface
-    QVariant defaultValue(ProjectExplorer::Kit *) const Q_DECL_OVERRIDE;
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const Q_DECL_OVERRIDE;
-    void setup(ProjectExplorer::Kit *k) Q_DECL_OVERRIDE;
-    void fix(ProjectExplorer::Kit *k) Q_DECL_OVERRIDE;
-    virtual ItemList toUserOutput(const ProjectExplorer::Kit *k) const Q_DECL_OVERRIDE;
-    virtual ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const Q_DECL_OVERRIDE;
+    QVariant defaultValue(ProjectExplorer::Kit *) const override;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
+    void setup(ProjectExplorer::Kit *k) override;
+    void fix(ProjectExplorer::Kit *k) override;
+    virtual ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+    virtual ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 };
 
 } // namespace CMakeProjectManager
