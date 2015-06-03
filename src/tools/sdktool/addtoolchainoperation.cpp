@@ -281,6 +281,8 @@ QVariantMap AddToolChainOperation::initializeToolChains()
 bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
 {
     QStringList valueKeys = FindValueOperation::findValue(map, id);
+    // support old settings using QByteArray for id's
+    valueKeys.append(FindValueOperation::findValue(map, id.toUtf8()));
 
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
