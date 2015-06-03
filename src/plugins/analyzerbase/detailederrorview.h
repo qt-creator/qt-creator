@@ -110,7 +110,7 @@ protected:
     void resizeEvent(QResizeEvent *e);
 
 private:
-    void contextMenuEvent(QContextMenuEvent *e) Q_DECL_OVERRIDE;
+    void contextMenuEvent(QContextMenuEvent *e) override;
 
     int currentRow() const;
     void setCurrentRow(int row);
