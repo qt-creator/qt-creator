@@ -44,15 +44,15 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
-    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) override;
 
-    void activateState() Q_DECL_OVERRIDE;
-    void deactivateState() Q_DECL_OVERRIDE;
+    void activateState() override;
+    void deactivateState() override;
 
-    bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value) Q_DECL_OVERRIDE;
-    bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression) Q_DECL_OVERRIDE;
-    bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue) Q_DECL_OVERRIDE;
+    bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value) override;
+    bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression) override;
+    bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue) override;
 
 
 protected:

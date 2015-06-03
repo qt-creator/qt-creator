@@ -61,7 +61,7 @@ public:
     using Qt5NodeInstanceServer::createInstances;
 
 protected:
-    void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
+    void collectItemChangesAndSendChangeCommands() override;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
 };

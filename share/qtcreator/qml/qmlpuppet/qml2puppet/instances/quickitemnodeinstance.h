@@ -52,55 +52,55 @@ public:
     static Pointer create(QObject *objectToBeWrapped);
     static void createEffectItem(bool createEffectItem);
 
-    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance) Q_DECL_OVERRIDE;
+    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance) override;
 
-    QQuickItem *contentItem() const Q_DECL_OVERRIDE;
-    bool hasContent() const Q_DECL_OVERRIDE;
+    QQuickItem *contentItem() const override;
+    bool hasContent() const override;
 
-    QRectF contentItemBoundingBox() const Q_DECL_OVERRIDE;
-    QRectF boundingRect() const Q_DECL_OVERRIDE;
-    QTransform contentTransform() const Q_DECL_OVERRIDE;
-    QTransform sceneTransform() const Q_DECL_OVERRIDE;
-    double opacity() const Q_DECL_OVERRIDE;
-    double rotation() const Q_DECL_OVERRIDE;
-    double scale() const Q_DECL_OVERRIDE;
-    QPointF transformOriginPoint() const Q_DECL_OVERRIDE;
-    double zValue() const Q_DECL_OVERRIDE;
-    QPointF position() const Q_DECL_OVERRIDE;
-    QSizeF size() const Q_DECL_OVERRIDE;
-    QTransform transform() const Q_DECL_OVERRIDE;
-    QTransform contentItemTransform() const Q_DECL_OVERRIDE;
-    int penWidth() const Q_DECL_OVERRIDE;
+    QRectF contentItemBoundingBox() const override;
+    QRectF boundingRect() const override;
+    QTransform contentTransform() const override;
+    QTransform sceneTransform() const override;
+    double opacity() const override;
+    double rotation() const override;
+    double scale() const override;
+    QPointF transformOriginPoint() const override;
+    double zValue() const override;
+    QPointF position() const override;
+    QSizeF size() const override;
+    QTransform transform() const override;
+    QTransform contentItemTransform() const override;
+    int penWidth() const override;
 
-    QImage renderImage() const Q_DECL_OVERRIDE;
-    QImage renderPreviewImage(const QSize &previewImageSize) const Q_DECL_OVERRIDE;
+    QImage renderImage() const override;
+    QImage renderPreviewImage(const QSize &previewImageSize) const override;
 
-    void updateAllDirtyNodesRecursive() Q_DECL_OVERRIDE;
+    void updateAllDirtyNodesRecursive() override;
 
 
-    QObject *parent() const Q_DECL_OVERRIDE;
-    QList<ServerNodeInstance> childItems() const Q_DECL_OVERRIDE;
+    QObject *parent() const override;
+    QList<ServerNodeInstance> childItems() const override;
 
-    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) Q_DECL_OVERRIDE;
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) override;
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
-    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
-    QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
-    void resetProperty(const PropertyName &name) Q_DECL_OVERRIDE;
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) override;
+    QVariant property(const PropertyName &name) const override;
+    void resetProperty(const PropertyName &name) override;
 
-    bool isAnchoredByChildren() const Q_DECL_OVERRIDE;
-    bool hasAnchor(const PropertyName &name) const Q_DECL_OVERRIDE;
-    QPair<PropertyName, ServerNodeInstance> anchor(const PropertyName &name) const Q_DECL_OVERRIDE;
-    bool isAnchoredBySibling() const Q_DECL_OVERRIDE;
-    bool isResizable() const Q_DECL_OVERRIDE;
-    bool isMovable() const Q_DECL_OVERRIDE;
-    bool isQuickItem() const Q_DECL_OVERRIDE;
+    bool isAnchoredByChildren() const override;
+    bool hasAnchor(const PropertyName &name) const override;
+    QPair<PropertyName, ServerNodeInstance> anchor(const PropertyName &name) const override;
+    bool isAnchoredBySibling() const override;
+    bool isResizable() const override;
+    bool isMovable() const override;
+    bool isQuickItem() const override;
 
-    QList<ServerNodeInstance> stateInstances() const Q_DECL_OVERRIDE;
+    QList<ServerNodeInstance> stateInstances() const override;
 
-    void doComponentComplete() Q_DECL_OVERRIDE;
+    void doComponentComplete() override;
 
-    QList<QQuickItem*> allItemsRecursive() const Q_DECL_OVERRIDE;
+    QList<QQuickItem*> allItemsRecursive() const override;
 
 protected:
     explicit QuickItemNodeInstance(QQuickItem*);

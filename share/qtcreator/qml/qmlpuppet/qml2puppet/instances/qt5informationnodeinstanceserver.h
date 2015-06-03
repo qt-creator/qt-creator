@@ -42,15 +42,15 @@ class Qt5InformationNodeInstanceServer : public Qt5NodeInstanceServer
 public:
     explicit Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
-    void reparentInstances(const ReparentInstancesCommand &command) Q_DECL_OVERRIDE;
-    void clearScene(const ClearSceneCommand &command) Q_DECL_OVERRIDE;
-    void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
-    void completeComponent(const CompleteComponentCommand &command) Q_DECL_OVERRIDE;
-    void token(const TokenCommand &command) Q_DECL_OVERRIDE;
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command) Q_DECL_OVERRIDE;
+    void reparentInstances(const ReparentInstancesCommand &command) override;
+    void clearScene(const ClearSceneCommand &command) override;
+    void createScene(const CreateSceneCommand &command) override;
+    void completeComponent(const CompleteComponentCommand &command) override;
+    void token(const TokenCommand &command) override;
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
 
 protected:
-    void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
+    void collectItemChangesAndSendChangeCommands() override;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;

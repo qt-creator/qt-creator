@@ -46,16 +46,16 @@ public:
 
     static Pointer create();
 
-    QRectF boundingRect() const Q_DECL_OVERRIDE;
-    QPointF position() const Q_DECL_OVERRIDE;
-    QSizeF size() const Q_DECL_OVERRIDE;
-    QTransform transform() const Q_DECL_OVERRIDE;
-    double opacity() const Q_DECL_OVERRIDE;
+    QRectF boundingRect() const override;
+    QPointF position() const override;
+    QSizeF size() const override;
+    QTransform transform() const override;
+    double opacity() const override;
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
-    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
-    void setId(const QString &id) Q_DECL_OVERRIDE;
-    QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) override;
+    void setId(const QString &id) override;
+    QVariant property(const PropertyName &name) const override;
 
     void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
 

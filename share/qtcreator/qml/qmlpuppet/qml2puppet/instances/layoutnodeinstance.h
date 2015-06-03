@@ -45,13 +45,13 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    bool isLayoutable() const Q_DECL_OVERRIDE;
+    bool isLayoutable() const override;
 
-    bool isResizable() const Q_DECL_OVERRIDE;
+    bool isResizable() const override;
 
-    void refreshLayoutable() Q_DECL_OVERRIDE;
+    void refreshLayoutable() override;
 
-    PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
+    PropertyNameList ignoredProperties() const override;
 
 protected:
     LayoutNodeInstance(QQuickItem *item);

@@ -44,9 +44,9 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    bool isTransition() const Q_DECL_OVERRIDE;
+    bool isTransition() const override;
 
-    PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
+    PropertyNameList ignoredProperties() const override;
 
 private:
     QmlTransitionNodeInstance(QObject *transition);
