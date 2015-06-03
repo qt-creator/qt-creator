@@ -135,7 +135,7 @@ public:
         , order(order)
     {}
 
-    void operator()(const Value *base, const QString &name, const Value *value) Q_DECL_OVERRIDE
+    void operator()(const Value *base, const QString &name, const Value *value) override
     {
         Q_UNUSED(base)
         QVariant data;
@@ -163,7 +163,7 @@ public:
         , afterOn(afterOn)
     {}
 
-    void operator ()(const Value *base, const QString &name, const Value *) Q_DECL_OVERRIDE
+    void operator ()(const Value *base, const QString &name, const Value *) override
     {
         const CppComponentValue *qmlBase = value_cast<CppComponentValue>(base);
 
@@ -245,34 +245,34 @@ private:
         (*_propertyProcessor)(_currentObject, name, value);
     }
 
-    bool processProperty(const QString &name, const Value *value, const PropertyInfo &) Q_DECL_OVERRIDE
+    bool processProperty(const QString &name, const Value *value, const PropertyInfo &) override
     {
         process(name, value);
         return true;
     }
 
-    bool processEnumerator(const QString &name, const Value *value) Q_DECL_OVERRIDE
+    bool processEnumerator(const QString &name, const Value *value) override
     {
         if (! _globalCompletion)
             process(name, value);
         return true;
     }
 
-    bool processSignal(const QString &name, const Value *value) Q_DECL_OVERRIDE
+    bool processSignal(const QString &name, const Value *value) override
     {
         if (_globalCompletion)
             process(name, value);
         return true;
     }
 
-    bool processSlot(const QString &name, const Value *value) Q_DECL_OVERRIDE
+    bool processSlot(const QString &name, const Value *value) override
     {
         if (_enumerateSlots)
             process(name, value);
         return true;
     }
 
-    bool processGeneratedSlot(const QString &name, const Value *value) Q_DECL_OVERRIDE
+    bool processGeneratedSlot(const QString &name, const Value *value) override
     {
         if (_enumerateGeneratedSlots || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
             // ### FIXME: add support for attached properties.
@@ -403,10 +403,10 @@ public:
         , m_isVariadic(isVariadic)
     {}
 
-    void reset() Q_DECL_OVERRIDE {}
-    int size() const Q_DECL_OVERRIDE { return 1; }
-    QString text(int index) const Q_DECL_OVERRIDE;
-    int activeArgument(const QString &prefix) const Q_DECL_OVERRIDE;
+    void reset() override {}
+    int size() const override { return 1; }
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
     QString m_functionName;

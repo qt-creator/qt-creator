@@ -57,9 +57,9 @@ namespace Internal {
 class QmlJSAssistProposalItem : public TextEditor::AssistProposalItem
 {
 public:
-    bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const override;
     void applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
-                                int basePosition) const Q_DECL_OVERRIDE;
+                                int basePosition) const override;
 };
 
 
@@ -71,9 +71,9 @@ public:
         loadContent(items);
     }
 
-    void filter(const QString &prefix) Q_DECL_OVERRIDE;
-    void sort(const QString &prefix) Q_DECL_OVERRIDE;
-    bool keepPerfectMatch(TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
+    void filter(const QString &prefix) override;
+    void sort(const QString &prefix) override;
+    bool keepPerfectMatch(TextEditor::AssistReason reason) const override;
 };
 
 
@@ -82,12 +82,12 @@ class QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvide
     Q_OBJECT
 
 public:
-    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const override;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 
-    int activationCharSequenceLength() const Q_DECL_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const Q_DECL_OVERRIDE;
-    bool isContinuationChar(const QChar &c) const Q_DECL_OVERRIDE;
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
+    bool isContinuationChar(const QChar &c) const override;
 };
 
 
@@ -97,7 +97,7 @@ public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
