@@ -57,11 +57,11 @@ public:
 
     void delayedInitialization();
 protected:
-    QHash<QString, QmlJS::Dialect> languageForSuffix() const Q_DECL_OVERRIDE;
-    void writeMessageInternal(const QString &msg) const Q_DECL_OVERRIDE;
-    WorkingCopy workingCopyInternal() const Q_DECL_OVERRIDE;
-    void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const Q_DECL_OVERRIDE;
-    ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const Q_DECL_OVERRIDE;
+    QHash<QString, QmlJS::Dialect> languageForSuffix() const override;
+    void writeMessageInternal(const QString &msg) const override;
+    WorkingCopy workingCopyInternal() const override;
+    void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const override;
+    ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const override;
 private slots:
     void updateDefaultProjectInfo();
 private:
