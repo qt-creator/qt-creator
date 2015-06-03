@@ -67,43 +67,43 @@ public:
     void disableQmlDesignerUiFileChecks();
 
 protected:
-    bool preVisit(AST::Node *ast) Q_DECL_OVERRIDE;
-    void postVisit(AST::Node *ast) Q_DECL_OVERRIDE;
+    bool preVisit(AST::Node *ast) override;
+    void postVisit(AST::Node *ast) override;
 
-    bool visit(AST::UiProgram *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectDefinition *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectBinding *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiScriptBinding *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiArrayBinding *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiPublicMember *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::IdentifierExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::FieldMemberExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::FunctionDeclaration *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::FunctionExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectInitializer *) Q_DECL_OVERRIDE;
+    bool visit(AST::UiProgram *ast) override;
+    bool visit(AST::UiObjectDefinition *ast) override;
+    bool visit(AST::UiObjectBinding *ast) override;
+    bool visit(AST::UiScriptBinding *ast) override;
+    bool visit(AST::UiArrayBinding *ast) override;
+    bool visit(AST::UiPublicMember *ast) override;
+    bool visit(AST::IdentifierExpression *ast) override;
+    bool visit(AST::FieldMemberExpression *ast) override;
+    bool visit(AST::FunctionDeclaration *ast) override;
+    bool visit(AST::FunctionExpression *ast) override;
+    bool visit(AST::UiObjectInitializer *) override;
 
-    bool visit(AST::BinaryExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::Block *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::WithStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::VoidExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::Expression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::ExpressionStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::IfStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::ForStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::LocalForStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::WhileStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::DoWhileStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::CaseBlock *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::NewExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::NewMemberExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::CallExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::StatementList *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::ReturnStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::ThrowStatement *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::DeleteExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::TypeOfExpression *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::BinaryExpression *ast) override;
+    bool visit(AST::Block *ast) override;
+    bool visit(AST::WithStatement *ast) override;
+    bool visit(AST::VoidExpression *ast) override;
+    bool visit(AST::Expression *ast) override;
+    bool visit(AST::ExpressionStatement *ast) override;
+    bool visit(AST::IfStatement *ast) override;
+    bool visit(AST::ForStatement *ast) override;
+    bool visit(AST::LocalForStatement *ast) override;
+    bool visit(AST::WhileStatement *ast) override;
+    bool visit(AST::DoWhileStatement *ast) override;
+    bool visit(AST::CaseBlock *ast) override;
+    bool visit(AST::NewExpression *ast) override;
+    bool visit(AST::NewMemberExpression *ast) override;
+    bool visit(AST::CallExpression *ast) override;
+    bool visit(AST::StatementList *ast) override;
+    bool visit(AST::ReturnStatement *ast) override;
+    bool visit(AST::ThrowStatement *ast) override;
+    bool visit(AST::DeleteExpression *ast) override;
+    bool visit(AST::TypeOfExpression *ast) override;
 
-    void endVisit(QmlJS::AST::UiObjectInitializer *) Q_DECL_OVERRIDE;
+    void endVisit(QmlJS::AST::UiObjectInitializer *) override;
 
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,

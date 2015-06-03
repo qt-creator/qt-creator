@@ -49,13 +49,13 @@ protected:
 
     using Visitor::visit;
 
-    bool preVisit(AST::Node *node) Q_DECL_OVERRIDE;
-    bool visit(AST::UiPublicMember *node) Q_DECL_OVERRIDE;
-    bool visit(AST::UiScriptBinding *node) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectDefinition *node) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectBinding *node) Q_DECL_OVERRIDE;
-    bool visit(AST::FunctionDeclaration *node) Q_DECL_OVERRIDE;
-    bool visit(AST::FunctionExpression *node) Q_DECL_OVERRIDE;
+    bool preVisit(AST::Node *node) override;
+    bool visit(AST::UiPublicMember *node) override;
+    bool visit(AST::UiScriptBinding *node) override;
+    bool visit(AST::UiObjectDefinition *node) override;
+    bool visit(AST::UiObjectBinding *node) override;
+    bool visit(AST::FunctionDeclaration *node) override;
+    bool visit(AST::FunctionExpression *node) override;
 
 private:
     bool containsOffset(AST::SourceLocation start, AST::SourceLocation end);

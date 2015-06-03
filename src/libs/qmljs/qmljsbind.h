@@ -70,21 +70,21 @@ protected:
 
     void accept(AST::Node *node);
 
-    bool visit(AST::UiProgram *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::Program *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiProgram *ast) override;
+    bool visit(AST::Program *ast) override;
 
     // Ui
-    bool visit(AST::UiImport *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiPublicMember *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectDefinition *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiObjectBinding *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiScriptBinding *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::UiArrayBinding *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiImport *ast) override;
+    bool visit(AST::UiPublicMember *ast) override;
+    bool visit(AST::UiObjectDefinition *ast) override;
+    bool visit(AST::UiObjectBinding *ast) override;
+    bool visit(AST::UiScriptBinding *ast) override;
+    bool visit(AST::UiArrayBinding *ast) override;
 
     // QML/JS
-    bool visit(AST::FunctionDeclaration *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::FunctionExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::VariableDeclaration *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::FunctionDeclaration *ast) override;
+    bool visit(AST::FunctionExpression *ast) override;
+    bool visit(AST::VariableDeclaration *ast) override;
 
     ObjectValue *switchObjectValue(ObjectValue *newObjectValue);
     ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);

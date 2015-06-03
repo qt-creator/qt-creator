@@ -325,8 +325,8 @@ public:
     void setIndentSize(int size);
 
 protected:
-    void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const Q_DECL_OVERRIDE;
-    void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const Q_DECL_OVERRIDE;
+    void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const override;
+    void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const override;
 
 private:
     int m_indentSize;

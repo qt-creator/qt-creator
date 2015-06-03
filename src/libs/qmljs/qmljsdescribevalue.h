@@ -49,17 +49,17 @@ public:
     virtual ~DescribeValueVisitor();
 
     QString operator()(const Value *value);
-    void visit(const NullValue *) Q_DECL_OVERRIDE;
-    void visit(const UndefinedValue *) Q_DECL_OVERRIDE;
-    void visit(const UnknownValue *) Q_DECL_OVERRIDE;
-    void visit(const NumberValue *) Q_DECL_OVERRIDE;
-    void visit(const BooleanValue *) Q_DECL_OVERRIDE;
-    void visit(const StringValue *) Q_DECL_OVERRIDE;
-    void visit(const ObjectValue *) Q_DECL_OVERRIDE;
-    void visit(const FunctionValue *) Q_DECL_OVERRIDE;
-    void visit(const Reference *) Q_DECL_OVERRIDE;
-    void visit(const ColorValue *) Q_DECL_OVERRIDE;
-    void visit(const AnchorLineValue *) Q_DECL_OVERRIDE;
+    void visit(const NullValue *) override;
+    void visit(const UndefinedValue *) override;
+    void visit(const UnknownValue *) override;
+    void visit(const NumberValue *) override;
+    void visit(const BooleanValue *) override;
+    void visit(const StringValue *) override;
+    void visit(const ObjectValue *) override;
+    void visit(const FunctionValue *) override;
+    void visit(const Reference *) override;
+    void visit(const ColorValue *) override;
+    void visit(const AnchorLineValue *) override;
     QString description() const;
     void basicDump(const char *baseName, const Value *value, bool opensContext);
     void dumpNewline();

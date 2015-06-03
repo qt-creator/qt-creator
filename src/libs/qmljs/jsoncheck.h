@@ -54,16 +54,16 @@ public:
     QList<StaticAnalysis::Message> operator()(Utils::JsonSchema *schema);
 
 private:
-    bool preVisit(AST::Node *) Q_DECL_OVERRIDE;
-    void postVisit(AST::Node *) Q_DECL_OVERRIDE;
+    bool preVisit(AST::Node *) override;
+    void postVisit(AST::Node *) override;
 
-    bool visit(AST::ObjectLiteral *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::ArrayLiteral *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::NullExpression *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::TrueLiteral *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::FalseLiteral *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::NumericLiteral *ast) Q_DECL_OVERRIDE;
-    bool visit(AST::StringLiteral *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::ObjectLiteral *ast) override;
+    bool visit(AST::ArrayLiteral *ast) override;
+    bool visit(AST::NullExpression *ast) override;
+    bool visit(AST::TrueLiteral *ast) override;
+    bool visit(AST::FalseLiteral *ast) override;
+    bool visit(AST::NumericLiteral *ast) override;
+    bool visit(AST::StringLiteral *ast) override;
 
     struct AnalysisData
     {

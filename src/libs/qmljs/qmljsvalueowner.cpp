@@ -54,7 +54,7 @@ public:
     QtObjectPrototypeReference(ValueOwner *owner)
         : Reference(owner)
     {}
-    const QtObjectPrototypeReference *asQtObjectPrototypeReference() const Q_DECL_OVERRIDE
+    const QtObjectPrototypeReference *asQtObjectPrototypeReference() const override
     {
         return this;
     }

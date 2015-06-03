@@ -122,9 +122,9 @@ public:
     SimpleReaderNode::Ptr readFromSource(const QString &source);
 
 protected:
-    void elementStart(const QString &name) Q_DECL_OVERRIDE;
-    void elementEnd() Q_DECL_OVERRIDE;
-    void propertyDefinition(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void elementStart(const QString &name) override;
+    void elementEnd() override;
+    void propertyDefinition(const QString &name, const QVariant &value) override;
 
 private:
     SimpleReaderNode::Ptr m_rootNode;

@@ -334,61 +334,61 @@ template <> Q_INLINE_TEMPLATE const ASTSignal *value_cast(const Value *v)
 class QMLJS_EXPORT NullValue: public Value
 {
 public:
-    const NullValue *asNullValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const NullValue *asNullValue() const override;
+    void accept(ValueVisitor *visitor) const override;
 };
 
 class QMLJS_EXPORT UndefinedValue: public Value
 {
 public:
-    const UndefinedValue *asUndefinedValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const UndefinedValue *asUndefinedValue() const override;
+    void accept(ValueVisitor *visitor) const override;
 };
 
 class QMLJS_EXPORT UnknownValue: public Value
 {
 public:
-    const UnknownValue *asUnknownValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *) const Q_DECL_OVERRIDE;
+    const UnknownValue *asUnknownValue() const override;
+    void accept(ValueVisitor *) const override;
 };
 
 class QMLJS_EXPORT NumberValue: public Value
 {
 public:
-    const NumberValue *asNumberValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const NumberValue *asNumberValue() const override;
+    void accept(ValueVisitor *visitor) const override;
 };
 
 class QMLJS_EXPORT RealValue: public NumberValue
 {
 public:
-    const RealValue *asRealValue() const Q_DECL_OVERRIDE;
+    const RealValue *asRealValue() const override;
 };
 
 class QMLJS_EXPORT IntValue: public NumberValue
 {
 public:
-    const IntValue *asIntValue() const Q_DECL_OVERRIDE;
+    const IntValue *asIntValue() const override;
 };
 
 class QMLJS_EXPORT BooleanValue: public Value
 {
 public:
-    const BooleanValue *asBooleanValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const BooleanValue *asBooleanValue() const override;
+    void accept(ValueVisitor *visitor) const override;
 };
 
 class QMLJS_EXPORT StringValue: public Value
 {
 public:
-    const StringValue *asStringValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const StringValue *asStringValue() const override;
+    void accept(ValueVisitor *visitor) const override;
 };
 
 class QMLJS_EXPORT UrlValue: public StringValue
 {
 public:
-    const UrlValue *asUrlValue() const Q_DECL_OVERRIDE;
+    const UrlValue *asUrlValue() const override;
 };
 
 class PropertyInfo {
@@ -456,8 +456,8 @@ public:
     ValueOwner *valueOwner() const;
 
     // Value interface
-    const Reference *asReference() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *) const Q_DECL_OVERRIDE;
+    const Reference *asReference() const override;
+    void accept(ValueVisitor *) const override;
 
 private:
     virtual const Value *value(ReferenceContext *referenceContext) const;
@@ -470,16 +470,16 @@ class QMLJS_EXPORT ColorValue: public Value
 {
 public:
     // Value interface
-    const ColorValue *asColorValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *) const Q_DECL_OVERRIDE;
+    const ColorValue *asColorValue() const override;
+    void accept(ValueVisitor *) const override;
 };
 
 class QMLJS_EXPORT AnchorLineValue: public Value
 {
 public:
     // Value interface
-    const AnchorLineValue *asAnchorLineValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *) const Q_DECL_OVERRIDE;
+    const AnchorLineValue *asAnchorLineValue() const override;
+    void accept(ValueVisitor *) const override;
 };
 
 class QMLJS_EXPORT PropertyData {
@@ -526,8 +526,8 @@ public:
     { return lookupMember(name, context.data(), foundInObject, examinePrototypes); }
 
     // Value interface
-    const ObjectValue *asObjectValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const ObjectValue *asObjectValue() const override;
+    void accept(ValueVisitor *visitor) const override;
     QString originId() const
     { return m_originId; }
 
@@ -579,7 +579,7 @@ public:
     QmlEnumValue(const CppComponentValue *owner, int index);
     ~QmlEnumValue();
 
-    const QmlEnumValue *asQmlEnumValue() const Q_DECL_OVERRIDE;
+    const QmlEnumValue *asQmlEnumValue() const override;
 
     QString name() const;
     QStringList keys() const;
@@ -602,9 +602,9 @@ public:
                    ValueOwner *valueOwner, const QString &originId);
     ~CppComponentValue();
 
-    const CppComponentValue *asCppComponentValue() const Q_DECL_OVERRIDE;
+    const CppComponentValue *asCppComponentValue() const override;
 
-    void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
+    void processMembers(MemberProcessor *processor) const override;
     const Value *valueForCppName(const QString &typeName) const;
 
     using ObjectValue::prototype;
@@ -673,8 +673,8 @@ public:
     virtual const Value *argument(int index) const;
 
     // Value interface
-    const FunctionValue *asFunctionValue() const Q_DECL_OVERRIDE;
-    void accept(ValueVisitor *visitor) const Q_DECL_OVERRIDE;
+    const FunctionValue *asFunctionValue() const override;
+    void accept(ValueVisitor *visitor) const override;
 };
 
 class QMLJS_EXPORT Function: public FunctionValue
@@ -689,13 +689,13 @@ public:
     void setOptionalNamedArgumentCount(int count);
 
     // FunctionValue interface
-    const Value *returnValue() const Q_DECL_OVERRIDE;
-    int namedArgumentCount() const Q_DECL_OVERRIDE;
-    int optionalNamedArgumentCount() const Q_DECL_OVERRIDE;
-    const Value *argument(int index) const Q_DECL_OVERRIDE;
-    QString argumentName(int index) const Q_DECL_OVERRIDE;
-    bool isVariadic() const Q_DECL_OVERRIDE;
-    const Function *asFunction() const Q_DECL_OVERRIDE;
+    const Value *returnValue() const override;
+    int namedArgumentCount() const override;
+    int optionalNamedArgumentCount() const override;
+    const Value *argument(int index) const override;
+    QString argumentName(int index) const override;
+    bool isVariadic() const override;
+    const Function *asFunction() const override;
 
 private:
     ValueList m_arguments;
@@ -787,13 +787,13 @@ public:
 protected:
     const Value *switchResult(const Value *value);
 
-    void visit(const NullValue *) Q_DECL_OVERRIDE;
-    void visit(const UndefinedValue *) Q_DECL_OVERRIDE;
-    void visit(const NumberValue *) Q_DECL_OVERRIDE;
-    void visit(const BooleanValue *) Q_DECL_OVERRIDE;
-    void visit(const StringValue *) Q_DECL_OVERRIDE;
-    void visit(const ObjectValue *) Q_DECL_OVERRIDE;
-    void visit(const FunctionValue *) Q_DECL_OVERRIDE;
+    void visit(const NullValue *) override;
+    void visit(const UndefinedValue *) override;
+    void visit(const NumberValue *) override;
+    void visit(const BooleanValue *) override;
+    void visit(const StringValue *) override;
+    void visit(const ObjectValue *) override;
+    void visit(const FunctionValue *) override;
 
 private:
     ValueOwner *m_valueOwner;
@@ -810,13 +810,13 @@ public:
 protected:
     const Value *switchResult(const Value *value);
 
-    void visit(const NullValue *) Q_DECL_OVERRIDE;
-    void visit(const UndefinedValue *) Q_DECL_OVERRIDE;
-    void visit(const NumberValue *) Q_DECL_OVERRIDE;
-    void visit(const BooleanValue *) Q_DECL_OVERRIDE;
-    void visit(const StringValue *) Q_DECL_OVERRIDE;
-    void visit(const ObjectValue *) Q_DECL_OVERRIDE;
-    void visit(const FunctionValue *) Q_DECL_OVERRIDE;
+    void visit(const NullValue *) override;
+    void visit(const UndefinedValue *) override;
+    void visit(const NumberValue *) override;
+    void visit(const BooleanValue *) override;
+    void visit(const StringValue *) override;
+    void visit(const ObjectValue *) override;
+    void visit(const FunctionValue *) override;
 
 private:
     ValueOwner *m_valueOwner;
@@ -833,13 +833,13 @@ public:
 protected:
     const Value *switchResult(const Value *value);
 
-    void visit(const NullValue *) Q_DECL_OVERRIDE;
-    void visit(const UndefinedValue *) Q_DECL_OVERRIDE;
-    void visit(const NumberValue *) Q_DECL_OVERRIDE;
-    void visit(const BooleanValue *) Q_DECL_OVERRIDE;
-    void visit(const StringValue *) Q_DECL_OVERRIDE;
-    void visit(const ObjectValue *) Q_DECL_OVERRIDE;
-    void visit(const FunctionValue *) Q_DECL_OVERRIDE;
+    void visit(const NullValue *) override;
+    void visit(const UndefinedValue *) override;
+    void visit(const NumberValue *) override;
+    void visit(const BooleanValue *) override;
+    void visit(const StringValue *) override;
+    void visit(const ObjectValue *) override;
+    void visit(const FunctionValue *) override;
 
 private:
     ValueOwner *m_valueOwner;
@@ -854,15 +854,15 @@ public:
     QString operator()(const Value *value);
 
 protected:
-    void visit(const NullValue *) Q_DECL_OVERRIDE;
-    void visit(const UndefinedValue *) Q_DECL_OVERRIDE;
-    void visit(const NumberValue *) Q_DECL_OVERRIDE;
-    void visit(const BooleanValue *) Q_DECL_OVERRIDE;
-    void visit(const StringValue *) Q_DECL_OVERRIDE;
-    void visit(const ObjectValue *object) Q_DECL_OVERRIDE;
-    void visit(const FunctionValue *object) Q_DECL_OVERRIDE;
-    void visit(const ColorValue *) Q_DECL_OVERRIDE;
-    void visit(const AnchorLineValue *) Q_DECL_OVERRIDE;
+    void visit(const NullValue *) override;
+    void visit(const UndefinedValue *) override;
+    void visit(const NumberValue *) override;
+    void visit(const BooleanValue *) override;
+    void visit(const StringValue *) override;
+    void visit(const ObjectValue *object) override;
+    void visit(const FunctionValue *object) override;
+    void visit(const ColorValue *) override;
+    void visit(const AnchorLineValue *) override;
 };
 
 // internal
@@ -872,13 +872,13 @@ public:
     QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, const Document *doc, ValueOwner *valueOwner);
     ~QmlPrototypeReference();
 
-    const QmlPrototypeReference *asQmlPrototypeReference() const Q_DECL_OVERRIDE;
+    const QmlPrototypeReference *asQmlPrototypeReference() const override;
 
     AST::UiQualifiedId *qmlTypeName() const;
     const Document *document() const;
 
 private:
-    const Value *value(ReferenceContext *referenceContext) const Q_DECL_OVERRIDE;
+    const Value *value(ReferenceContext *referenceContext) const override;
 
     AST::UiQualifiedId *m_qmlTypeName;
     const Document *m_doc;
@@ -892,11 +892,11 @@ class QMLJS_EXPORT ASTVariableReference: public Reference
 public:
     ASTVariableReference(AST::VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner);
     ~ASTVariableReference();
-    const ASTVariableReference *asAstVariableReference() const Q_DECL_OVERRIDE;
+    const ASTVariableReference *asAstVariableReference() const override;
     const AST::VariableDeclaration *ast() const;
 private:
-    const Value *value(ReferenceContext *referenceContext) const Q_DECL_OVERRIDE;
-    bool getSourceLocation(QString *fileName, int *line, int *column) const Q_DECL_OVERRIDE;
+    const Value *value(ReferenceContext *referenceContext) const override;
+    bool getSourceLocation(QString *fileName, int *line, int *column) const override;
 };
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
@@ -912,12 +912,12 @@ public:
 
     AST::FunctionExpression *ast() const;
 
-    int namedArgumentCount() const Q_DECL_OVERRIDE;
-    QString argumentName(int index) const Q_DECL_OVERRIDE;
-    bool isVariadic() const Q_DECL_OVERRIDE;
-    const ASTFunctionValue *asAstFunctionValue() const Q_DECL_OVERRIDE;
+    int namedArgumentCount() const override;
+    QString argumentName(int index) const override;
+    bool isVariadic() const override;
+    const ASTFunctionValue *asAstFunctionValue() const override;
 
-    bool getSourceLocation(QString *fileName, int *line, int *column) const Q_DECL_OVERRIDE;
+    bool getSourceLocation(QString *fileName, int *line, int *column) const override;
 };
 
 class QMLJS_EXPORT ASTPropertyReference: public Reference
@@ -930,15 +930,15 @@ public:
     ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
     ~ASTPropertyReference();
 
-    const ASTPropertyReference *asAstPropertyReference() const Q_DECL_OVERRIDE;
+    const ASTPropertyReference *asAstPropertyReference() const override;
 
     AST::UiPublicMember *ast() const { return m_ast; }
     QString onChangedSlotName() const { return m_onChangedSlotName; }
 
-    bool getSourceLocation(QString *fileName, int *line, int *column) const Q_DECL_OVERRIDE;
+    bool getSourceLocation(QString *fileName, int *line, int *column) const override;
 
 private:
-    const Value *value(ReferenceContext *referenceContext) const Q_DECL_OVERRIDE;
+    const Value *value(ReferenceContext *referenceContext) const override;
 };
 
 class QMLJS_EXPORT ASTSignal: public FunctionValue
@@ -952,19 +952,19 @@ public:
     ASTSignal(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
     ~ASTSignal();
 
-    const ASTSignal *asAstSignal() const Q_DECL_OVERRIDE;
+    const ASTSignal *asAstSignal() const override;
 
     AST::UiPublicMember *ast() const { return m_ast; }
     QString slotName() const { return m_slotName; }
     const ObjectValue *bodyScope() const { return m_bodyScope; }
 
     // FunctionValue interface
-    int namedArgumentCount() const Q_DECL_OVERRIDE;
-    const Value *argument(int index) const Q_DECL_OVERRIDE;
-    QString argumentName(int index) const Q_DECL_OVERRIDE;
+    int namedArgumentCount() const override;
+    const Value *argument(int index) const override;
+    QString argumentName(int index) const override;
 
     // Value interface
-    bool getSourceLocation(QString *fileName, int *line, int *column) const Q_DECL_OVERRIDE;
+    bool getSourceLocation(QString *fileName, int *line, int *column) const override;
 };
 
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue
@@ -983,10 +983,10 @@ public:
                    ValueOwner *valueOwner);
     ~ASTObjectValue();
 
-    const ASTObjectValue *asAstObjectValue() const Q_DECL_OVERRIDE;
+    const ASTObjectValue *asAstObjectValue() const override;
 
-    bool getSourceLocation(QString *fileName, int *line, int *column) const Q_DECL_OVERRIDE;
-    void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
+    bool getSourceLocation(QString *fileName, int *line, int *column) const override;
+    void processMembers(MemberProcessor *processor) const override;
 
     QString defaultPropertyName() const;
 
@@ -1059,9 +1059,9 @@ public:
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
-                                      bool examinePrototypes = true) const Q_DECL_OVERRIDE;
-    void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
-    const TypeScope *asTypeScope() const Q_DECL_OVERRIDE;
+                                      bool examinePrototypes = true) const override;
+    void processMembers(MemberProcessor *processor) const override;
+    const TypeScope *asTypeScope() const override;
 private:
     const Imports *m_imports;
 };
@@ -1073,9 +1073,9 @@ public:
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
-                                      bool examinePrototypes = true) const Q_DECL_OVERRIDE;
-    void processMembers(MemberProcessor *processor) const Q_DECL_OVERRIDE;
-    const JSImportScope *asJSImportScope() const Q_DECL_OVERRIDE;
+                                      bool examinePrototypes = true) const override;
+    void processMembers(MemberProcessor *processor) const override;
+    const JSImportScope *asJSImportScope() const override;
 private:
     const Imports *m_imports;
 };
