@@ -52,9 +52,9 @@ public:
     GenericProposalModel();
     ~GenericProposalModel();
 
-    void reset() Q_DECL_OVERRIDE;
-    int size() const Q_DECL_OVERRIDE;
-    QString text(int index) const Q_DECL_OVERRIDE;
+    void reset() override;
+    int size() const override;
+    QString text(int index) const override;
 
     virtual QIcon icon(int index) const;
     virtual QString detail(int index) const;

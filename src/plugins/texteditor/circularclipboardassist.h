@@ -40,9 +40,9 @@ namespace Internal {
 class ClipboardAssistProvider: public IAssistProvider
 {
 public:
-    IAssistProvider::RunType runType() const Q_DECL_OVERRIDE;
-    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
-    IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
+    IAssistProvider::RunType runType() const override;
+    bool supportsEditor(Core::Id editorId) const override;
+    IAssistProcessor *createProcessor() const override;
 };
 
 } // namespace Internal

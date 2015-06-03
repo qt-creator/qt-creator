@@ -44,7 +44,7 @@ public:
     ~QuickFixAssistProcessor();
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE;
+    IAssistProposal *perform(const AssistInterface *interface) override;
 
     const QuickFixAssistProvider *m_provider;
 };

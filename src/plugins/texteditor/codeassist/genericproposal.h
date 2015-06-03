@@ -46,12 +46,12 @@ public:
     GenericProposal(int cursorPos, const QList<AssistProposalItem *> &items);
     ~GenericProposal();
 
-    bool isFragile() const Q_DECL_OVERRIDE;
-    int basePosition() const Q_DECL_OVERRIDE;
-    bool isCorrective() const Q_DECL_OVERRIDE;
-    void makeCorrection(TextEditorWidget *editorWidget) Q_DECL_OVERRIDE;
-    IAssistProposalModel *model() const Q_DECL_OVERRIDE;
-    IAssistProposalWidget *createWidget() const Q_DECL_OVERRIDE;
+    bool isFragile() const override;
+    int basePosition() const override;
+    bool isCorrective() const override;
+    void makeCorrection(TextEditorWidget *editorWidget) override;
+    IAssistProposalModel *model() const override;
+    IAssistProposalWidget *createWidget() const override;
 
 protected:
     void moveBasePosition(int length);

@@ -62,8 +62,8 @@ public:
     KeywordsAssistProposalItem(bool isFunction);
     ~KeywordsAssistProposalItem();
 
-    bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE;
-    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const Q_DECL_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const override;
+    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const override;
 private:
     bool m_isFunction;
 };
@@ -74,10 +74,10 @@ public:
     KeywordsFunctionHintModel(const QStringList &functionSymbols);
     ~KeywordsFunctionHintModel();
 
-    void reset() Q_DECL_OVERRIDE;
-    int size() const Q_DECL_OVERRIDE;
-    QString text(int index) const Q_DECL_OVERRIDE;
-    int activeArgument(const QString &prefix) const Q_DECL_OVERRIDE;
+    void reset() override;
+    int size() const override;
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
     QStringList m_functionSymbols;
@@ -89,7 +89,7 @@ public:
     KeywordsCompletionAssistProcessor(Keywords keywords);
     ~KeywordsCompletionAssistProcessor();
 
-    IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE;
+    IAssistProposal *perform(const AssistInterface *interface) override;
     QChar startOfCommentChar() const;
 
 protected:

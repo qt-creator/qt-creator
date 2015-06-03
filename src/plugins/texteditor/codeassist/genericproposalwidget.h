@@ -50,17 +50,17 @@ public:
     GenericProposalWidget();
     ~GenericProposalWidget();
 
-    void setAssistant(CodeAssistant *assistant) Q_DECL_OVERRIDE;
-    void setReason(AssistReason reason) Q_DECL_OVERRIDE;
-    void setKind(AssistKind kind) Q_DECL_OVERRIDE;
-    void setUnderlyingWidget(const QWidget *underlyingWidget) Q_DECL_OVERRIDE;
-    void setModel(IAssistProposalModel *model) Q_DECL_OVERRIDE;
-    void setDisplayRect(const QRect &rect) Q_DECL_OVERRIDE;
-    void setIsSynchronized(bool isSync) Q_DECL_OVERRIDE;
+    void setAssistant(CodeAssistant *assistant) override;
+    void setReason(AssistReason reason) override;
+    void setKind(AssistKind kind) override;
+    void setUnderlyingWidget(const QWidget *underlyingWidget) override;
+    void setModel(IAssistProposalModel *model) override;
+    void setDisplayRect(const QRect &rect) override;
+    void setIsSynchronized(bool isSync) override;
 
-    void showProposal(const QString &prefix) Q_DECL_OVERRIDE;
-    void updateProposal(const QString &prefix) Q_DECL_OVERRIDE;
-    void closeProposal() Q_DECL_OVERRIDE;
+    void showProposal(const QString &prefix) override;
+    void updateProposal(const QString &prefix) override;
+    void closeProposal() override;
 
 private:
     bool updateAndCheck(const QString &prefix);
