@@ -43,9 +43,9 @@ public:
     QbsProfilesSettingsPage(QObject *parent = 0);
 
 private:
-    QWidget *widget() Q_DECL_OVERRIDE;
-    void apply() Q_DECL_OVERRIDE;
-    void finish() Q_DECL_OVERRIDE;
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     QbsProfilesSettingsWidget *m_widget;
 };
