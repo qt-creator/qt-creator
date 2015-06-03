@@ -51,7 +51,7 @@ public:
 public:
     ClangEditorDocumentParser(const QString &filePath);
 
-    void update(CppTools::WorkingCopy workingCopy) Q_DECL_OVERRIDE;
+    void update(CppTools::WorkingCopy workingCopy) override;
 
     QList<Diagnostic> diagnostics() const;
     QList<SemanticMarker::Range> ifdefedOutBlocks() const;

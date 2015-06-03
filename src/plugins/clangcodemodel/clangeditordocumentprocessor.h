@@ -50,12 +50,12 @@ public:
     ~ClangEditorDocumentProcessor();
 
     // BaseEditorDocumentProcessor interface
-    void run() Q_DECL_OVERRIDE;
-    void semanticRehighlight(bool force) Q_DECL_OVERRIDE;
-    CppTools::SemanticInfo recalculateSemanticInfo() Q_DECL_OVERRIDE;
-    CppTools::BaseEditorDocumentParser *parser() Q_DECL_OVERRIDE;
-    CPlusPlus::Snapshot snapshot() Q_DECL_OVERRIDE;
-    bool isParserRunning() const Q_DECL_OVERRIDE;
+    void run() override;
+    void semanticRehighlight(bool force) override;
+    CppTools::SemanticInfo recalculateSemanticInfo() override;
+    CppTools::BaseEditorDocumentParser *parser() override;
+    CPlusPlus::Snapshot snapshot() override;
+    bool isParserRunning() const override;
 
 private slots:
     void onParserFinished();
