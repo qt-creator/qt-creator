@@ -50,16 +50,16 @@ public:
     virtual Qt::ItemFlags sectionBodyFlags(int section, int row, int column) const = 0;
     virtual Qt::ItemFlags sectionHeaderFlags(int section) const = 0;
     virtual int sectionCount() const = 0;
-    QSize span(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    QSize span(const QModelIndex &index) const override;
 
     int inSectionBody(int row) const;
     int modelToSectionRow(int row) const;
     int sectionHeader(int row) const;
 
 protected:
-    int rowCount(const QModelIndex &index) const Q_DECL_OVERRIDE;
-    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
-    Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    int rowCount(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 };
 
 } // namespace ThemeEditor

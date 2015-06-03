@@ -57,15 +57,15 @@ public:
 
     ThemeSettingsTableModel(QObject *parent = 0);
 
-    bool setData(const QModelIndex &index, const QVariant &value, int role) Q_DECL_OVERRIDE;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
-    int columnCount(const QModelIndex &index) const Q_DECL_OVERRIDE;
-    int sectionRowCount(int section) const Q_DECL_OVERRIDE;
-    QVariant sectionBodyData(int section, int row, int column, int role) const Q_DECL_OVERRIDE;
-    QVariant sectionHeaderData(int section, int role) const Q_DECL_OVERRIDE;
-    Qt::ItemFlags sectionBodyFlags(int section, int row, int column) const Q_DECL_OVERRIDE;
-    Qt::ItemFlags sectionHeaderFlags(int section) const Q_DECL_OVERRIDE;
-    int sectionCount() const Q_DECL_OVERRIDE;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    int columnCount(const QModelIndex &index) const override;
+    int sectionRowCount(int section) const override;
+    QVariant sectionBodyData(int section, int row, int column, int role) const override;
+    QVariant sectionHeaderData(int section, int role) const override;
+    Qt::ItemFlags sectionBodyFlags(int section, int row, int column) const override;
+    Qt::ItemFlags sectionHeaderFlags(int section) const override;
+    int sectionCount() const override;
 
     ThemeColors::Ptr colors() const { return m_colors; }
 
