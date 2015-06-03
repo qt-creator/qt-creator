@@ -128,10 +128,14 @@ QString JsonWizard::stringValue(const QString &n) const
         return QString();
 
     if (v.type() == QVariant::Bool)
-        return v.toBool() ? QString::fromLatin1("true") : QString();
+        return v.toBool() ? QString::fromLatin1("true") : QString::fromLatin1("false");
 
-    if (v.type() == QVariant::String)
-        return m_expander.expand(v.toString());
+    if (v.type() == QVariant::String) {
+        QString tmp = m_expander.expand(v.toString());
+        if (tmp.isEmpty())
+            tmp = QString::fromLatin1(""); // Make sure isNull() is *not* true.
+        return tmp;
+    }
 
     if (v.type() == QVariant::StringList)
         return stringListToArrayString(v.toStringList(), &m_expander);
