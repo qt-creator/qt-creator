@@ -55,8 +55,7 @@ public:
 public slots:
     void triggerCommit(const JsonWizard::GeneratorFiles &files);
     void addToProject(const JsonWizard::GeneratorFiles &files);
-    void projectNodeHasChanged();
-    void versionControlHasChanged();
+    void summarySettingsHaveChanged();
 
 private:
     void updateFileList();

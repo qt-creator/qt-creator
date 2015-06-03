@@ -47,6 +47,11 @@
 
 using namespace Core;
 
+static char KEY_SELECTED_PROJECT[] = "SelectedProject";
+static char KEY_SELECTED_NODE[] = "SelectedFolderNode";
+static char KEY_IS_SUBPROJECT[] = "IsSubproject";
+static char KEY_VERSIONCONTROL[] = "VersionControl";
+
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------
@@ -83,19 +88,19 @@ JsonSummaryPage::JsonSummaryPage(QWidget *parent) :
     m_wizard(0)
 {
     connect(this, &Internal::ProjectWizardPage::projectNodeChanged,
-            this, &JsonSummaryPage::projectNodeHasChanged);
+            this, &JsonSummaryPage::summarySettingsHaveChanged);
     connect(this, &Internal::ProjectWizardPage::versionControlChanged,
-            this, &JsonSummaryPage::versionControlHasChanged);
+            this, &JsonSummaryPage::summarySettingsHaveChanged);
 }
 
 void JsonSummaryPage::initializePage()
 {
     m_wizard = qobject_cast<JsonWizard *>(wizard());
 
-    m_wizard->setProperty("SelectedProject", QVariant());
-    m_wizard->setProperty("SelectedFolderNode", QVariant());
-    m_wizard->setProperty("IsSubproject", QString());
-    m_wizard->setProperty("VersionControl", QString());
+    m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant());
+    m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant());
+    m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), false);
+    m_wizard->setValue(QLatin1String(KEY_VERSIONCONTROL), QString());
 
     connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::triggerCommit);
     connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::addToProject);
@@ -125,6 +130,9 @@ void JsonSummaryPage::initializePage()
                           isProject ? AddSubProject : AddNewFile);
 
     initializeVersionControls();
+
+    // Do a new try at initialization, now that we have real values set up:
+    summarySettingsHaveChanged();
 }
 
 bool JsonSummaryPage::validatePage()
@@ -187,17 +195,12 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
     return;
 }
 
-void JsonSummaryPage::projectNodeHasChanged()
-{
-    updateProjectData(currentNode());
-}
-
-void JsonSummaryPage::versionControlHasChanged()
+void JsonSummaryPage::summarySettingsHaveChanged()
 {
     IVersionControl *vc = currentVersionControl();
-    m_wizard->setProperty("VersionControl", vc ? vc->id().toString() : QLatin1String(""));
+    m_wizard->setValue(QLatin1String(KEY_VERSIONCONTROL), vc ? vc->id().toString() : QString());
 
-    updateFileList();
+    updateProjectData(currentNode());
 }
 
 void JsonSummaryPage::updateFileList()
@@ -212,9 +215,9 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
 {
     Project *project = SessionManager::projectForNode(node);
 
-    m_wizard->setProperty("SelectedProject", QVariant::fromValue(project));
-    m_wizard->setProperty("SelectedFolderNode", QVariant::fromValue(node));
-    m_wizard->setProperty("IsSubproject", node ? QLatin1String("yes") : QString());
+    m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant::fromValue(project));
+    m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant::fromValue(node));
+    m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), node ? true : false);
 
     updateFileList();
 }
