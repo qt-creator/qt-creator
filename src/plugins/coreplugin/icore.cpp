@@ -488,7 +488,11 @@ QWidget *ICore::mainWindow()
 QWidget *ICore::dialogParent()
 {
     QWidget *active = QApplication::activeModalWidget();
-    return active ? active : m_mainwindow;
+    if (!active)
+        active = QApplication::activeWindow();
+    if (!active)
+        active = m_mainwindow;
+    return active;
 }
 
 QStatusBar *ICore::statusBar()
