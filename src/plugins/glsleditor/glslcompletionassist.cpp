@@ -177,10 +177,10 @@ public:
         , m_currentArg(-1)
     {}
 
-    void reset() Q_DECL_OVERRIDE {}
-    int size() const Q_DECL_OVERRIDE { return m_items.size(); }
-    QString text(int index) const Q_DECL_OVERRIDE;
-    int activeArgument(const QString &prefix) const Q_DECL_OVERRIDE;
+    void reset() override {}
+    int size() const override { return m_items.size(); }
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
     QVector<GLSL::Function *> m_items;

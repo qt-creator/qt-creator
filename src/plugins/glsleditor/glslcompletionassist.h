@@ -91,11 +91,11 @@ class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
     Q_OBJECT
 
 public:
-    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const override;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 
-    int activationCharSequenceLength() const Q_DECL_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const Q_DECL_OVERRIDE;
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
 };
 
 class GlslCompletionAssistProcessor : public TextEditor::IAssistProcessor
@@ -104,7 +104,7 @@ public:
     GlslCompletionAssistProcessor();
     ~GlslCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
