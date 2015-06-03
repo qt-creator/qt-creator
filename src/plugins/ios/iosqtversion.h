@@ -46,20 +46,20 @@ public:
     IosQtVersion(const Utils::FileName &path, bool isAutodetected = false,
                  const QString &autodetectionSource = QString());
 
-    IosQtVersion *clone() const Q_DECL_OVERRIDE;
-    QString type() const Q_DECL_OVERRIDE;
-    bool isValid() const Q_DECL_OVERRIDE;
-    QString invalidReason() const Q_DECL_OVERRIDE;
+    IosQtVersion *clone() const override;
+    QString type() const override;
+    bool isValid() const override;
+    QString invalidReason() const override;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const Q_DECL_OVERRIDE;
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
-    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const Q_DECL_OVERRIDE;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
 
-    Core::FeatureSet availableFeatures() const Q_DECL_OVERRIDE;
-    QString platformName() const Q_DECL_OVERRIDE;
-    QString platformDisplayName() const Q_DECL_OVERRIDE;
+    Core::FeatureSet availableFeatures() const override;
+    QString platformName() const override;
+    QString platformDisplayName() const override;
 
-    QString description() const Q_DECL_OVERRIDE;
+    QString description() const override;
 };
 
 } // namespace Internal

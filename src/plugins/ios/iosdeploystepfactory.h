@@ -41,20 +41,20 @@ class IosDeployStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit IosDeployStepFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const Q_DECL_OVERRIDE;
-    QString displayNameForId(Core::Id id) const Q_DECL_OVERRIDE;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
+    QString displayNameForId(Core::Id id) const override;
 
     bool canCreate(ProjectExplorer::BuildStepList *parent,
-                   Core::Id id) const Q_DECL_OVERRIDE;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) Q_DECL_OVERRIDE;
+                   Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
 
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const Q_DECL_OVERRIDE;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) Q_DECL_OVERRIDE;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
 
     bool canClone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *product) const Q_DECL_OVERRIDE;
+                  ProjectExplorer::BuildStep *product) const override;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product) Q_DECL_OVERRIDE;
+                                      ProjectExplorer::BuildStep *product) override;
 };
 
 } // namespace Internal

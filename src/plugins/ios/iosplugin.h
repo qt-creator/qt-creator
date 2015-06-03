@@ -42,8 +42,8 @@ class IosPlugin : public ExtensionSystem::IPlugin
 public:
     IosPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) Q_DECL_OVERRIDE;
-    void extensionsInitialized() Q_DECL_OVERRIDE;
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
 private slots:
     void kitsRestored();
 };

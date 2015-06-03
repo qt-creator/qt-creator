@@ -41,13 +41,13 @@ class IosSimulatorFactory : public ProjectExplorer::IDeviceFactory
 public:
     IosSimulatorFactory();
 
-    QString displayNameForId(Core::Id type) const Q_DECL_OVERRIDE;
-    QList<Core::Id> availableCreationIds() const Q_DECL_OVERRIDE;
+    QString displayNameForId(Core::Id type) const override;
+    QList<Core::Id> availableCreationIds() const override;
 
-    bool canCreate() const Q_DECL_OVERRIDE;
-    ProjectExplorer::IDevice::Ptr create(Core::Id id) const Q_DECL_OVERRIDE;
-    bool canRestore(const QVariantMap &map) const Q_DECL_OVERRIDE;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const Q_DECL_OVERRIDE;
+    bool canCreate() const override;
+    ProjectExplorer::IDevice::Ptr create(Core::Id id) const override;
+    bool canRestore(const QVariantMap &map) const override;
+    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

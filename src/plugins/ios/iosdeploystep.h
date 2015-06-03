@@ -68,10 +68,10 @@ public:
 
     ~IosDeployStep();
 
-    bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
-    QVariantMap toMap() const Q_DECL_OVERRIDE;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    void run(QFutureInterface<bool> &fi) Q_DECL_OVERRIDE;
+    void run(QFutureInterface<bool> &fi) override;
     void cleanup();
     void cancel();
 signals:
@@ -90,10 +90,10 @@ private slots:
 private:
     IosDeployStep(ProjectExplorer::BuildStepList *bc,
         IosDeployStep *other);
-    bool init() Q_DECL_OVERRIDE;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() Q_DECL_OVERRIDE;
-    bool immutable() const Q_DECL_OVERRIDE { return true; }
-    bool runInGuiThread() const Q_DECL_OVERRIDE { return true; }
+    bool init() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override { return true; }
+    bool runInGuiThread() const override { return true; }
     ProjectExplorer::IDevice::ConstPtr device() const;
     IosDevice::ConstPtr iosdevice() const;
     IosSimulator::ConstPtr iossimulator() const;

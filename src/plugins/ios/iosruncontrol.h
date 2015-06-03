@@ -47,10 +47,10 @@ public:
     ~IosRunControl();
 
 
-    void start() Q_DECL_OVERRIDE;
-    StopResult stop() Q_DECL_OVERRIDE;
-    bool isRunning() const Q_DECL_OVERRIDE;
-    QString displayName() const Q_DECL_OVERRIDE;
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
+    QString displayName() const override;
 
 private slots:
     void handleRemoteProcessFinished(bool cleanEnd);

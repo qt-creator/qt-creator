@@ -56,8 +56,8 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const Utils::FileName &path);
 
-    QWidget *createConfigurationWidget() Q_DECL_OVERRIDE;
-    Utils::OutputFormatter *createOutputFormatter() const Q_DECL_OVERRIDE;
+    QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
     IosDeployStep *deployStep() const;
 
     QStringList commandLineArguments();
@@ -70,8 +70,8 @@ public:
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
 
-    bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
-    QVariantMap toMap() const Q_DECL_OVERRIDE;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);

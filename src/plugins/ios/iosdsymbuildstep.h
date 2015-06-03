@@ -49,11 +49,11 @@ class IosPresetBuildStep : public ProjectExplorer::AbstractProcessStep
 public:
     ~IosPresetBuildStep();
 
-    bool init() Q_DECL_OVERRIDE;
-    void run(QFutureInterface<bool> &fi) Q_DECL_OVERRIDE;
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() Q_DECL_OVERRIDE;
-    bool immutable() const Q_DECL_OVERRIDE;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     void setArguments(const QStringList &args);
     QStringList arguments() const;
     QStringList defaultArguments() const;
@@ -64,12 +64,12 @@ public:
     void setClean(bool clean);
     bool isDefault() const;
 
-    QVariantMap toMap() const Q_DECL_OVERRIDE;
+    QVariantMap toMap() const override;
 protected:
     IosPresetBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
     virtual bool completeSetup();
     virtual bool completeSetupWithStep(ProjectExplorer::BuildStep *bs);
-    bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
+    bool fromMap(const QVariantMap &map) override;
     virtual QStringList defaultCleanCmdList() const = 0;
     virtual QStringList defaultCmdList() const = 0;
 private:
@@ -85,8 +85,8 @@ class IosPresetBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWi
 public:
     IosPresetBuildStepConfigWidget(IosPresetBuildStep *buildStep);
     ~IosPresetBuildStepConfigWidget();
-    QString displayName() const Q_DECL_OVERRIDE;
-    QString summaryText() const Q_DECL_OVERRIDE;
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private slots:
     void commandChanged();
@@ -107,14 +107,14 @@ class IosPresetBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit IosPresetBuildStepFactory(QObject *parent = 0);
 
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) Q_DECL_OVERRIDE;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
     bool canClone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *source) const Q_DECL_OVERRIDE;
+                  ProjectExplorer::BuildStep *source) const override;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source) Q_DECL_OVERRIDE;
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const Q_DECL_OVERRIDE;
+                                      ProjectExplorer::BuildStep *source) override;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map) Q_DECL_OVERRIDE;
+                                        const QVariantMap &map) override;
 
 protected:
     virtual IosPresetBuildStep *createPresetStep(ProjectExplorer::BuildStepList *parent,
@@ -126,8 +126,8 @@ class IosDsymBuildStep : public IosPresetBuildStep
     Q_OBJECT
     friend class IosDsymBuildStepFactory;
 protected:
-    QStringList defaultCleanCmdList() const Q_DECL_OVERRIDE;
-    QStringList defaultCmdList() const Q_DECL_OVERRIDE;
+    QStringList defaultCleanCmdList() const override;
+    QStringList defaultCmdList() const override;
     IosDsymBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
 };
 
@@ -135,11 +135,11 @@ class IosDsymBuildStepFactory : public IosPresetBuildStepFactory
 {
     Q_OBJECT
 public:
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const Q_DECL_OVERRIDE;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const Q_DECL_OVERRIDE;
-    QString displayNameForId(Core::Id id) const Q_DECL_OVERRIDE;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const override;
+    QString displayNameForId(Core::Id id) const override;
     IosPresetBuildStep *createPresetStep(ProjectExplorer::BuildStepList *parent,
-                                         const Core::Id id) const Q_DECL_OVERRIDE;
+                                         const Core::Id id) const override;
 };
 
 } // namespace Internal

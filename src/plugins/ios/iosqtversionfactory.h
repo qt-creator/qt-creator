@@ -40,13 +40,13 @@ class IosQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     explicit IosQtVersionFactory(QObject *parent = 0);
 
-    bool canRestore(const QString &type) Q_DECL_OVERRIDE;
-    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) Q_DECL_OVERRIDE;
+    bool canRestore(const QString &type) override;
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;
 
-    int priority() const Q_DECL_OVERRIDE;
+    int priority() const override;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false,
-                                     const QString &autoDetectionSource = QString()) Q_DECL_OVERRIDE;
+                                     const QString &autoDetectionSource = QString()) override;
 };
 
 } // namespace Internal
