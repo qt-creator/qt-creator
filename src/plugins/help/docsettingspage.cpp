@@ -103,7 +103,7 @@ void DocSettingsPage::addDocumentation()
         }
 
         addItem(nameSpace, file, true/*user managed*/);
-        m_filesToRegister.insert(nameSpace, QDir::toNativeSeparators(filePath));
+        m_filesToRegister.insert(nameSpace, filePath);
         m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
 
         // If the files to unregister contains the namespace, grab a copy of all paths added and try to

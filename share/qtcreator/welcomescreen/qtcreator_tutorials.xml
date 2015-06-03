@@ -105,7 +105,7 @@
       <description><![CDATA[Monitoring the performance of a Qt Quick application.]]></description>
     <tags>qt quick,qt creator,qml profiler</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/ddays14.png" difficulty="" projectPath="" name="Introducing Qt 3D 2.0 (3D Rendering & Visualisation)" isVideo="true" videoUrl="https://www.youtube.com/watch?v=WbLBgpancME" videoLength="1:01:24">
+    <tutorial imageUrl="images/icons/ddays14.png" difficulty="" projectPath="" name="Introducing Qt 3D 2.0 (3D Rendering &amp; Visualization)" isVideo="true" videoUrl="https://www.youtube.com/watch?v=WbLBgpancME" videoLength="1:01:24">
       <description><![CDATA[Rendering and visualization in Qt 3D.]]></description>
       <tags>qt,3d</tags>
     </tutorial>

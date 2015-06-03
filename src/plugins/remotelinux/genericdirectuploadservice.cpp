@@ -31,6 +31,7 @@
 
 #include <projectexplorer/deployablefile.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <ssh/sftpchannel.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
@@ -184,7 +185,8 @@ void GenericDirectUploadService::handleUploadFinished(SftpJobId jobId, const QSt
 
         // This is done for Windows.
         if (df.isExecutable()) {
-            const QString command = QLatin1String("chmod a+x ") + df.remoteFilePath();
+            const QString command = QLatin1String("chmod a+x ")
+                    + Utils::QtcProcess::quoteArgUnix(df.remoteFilePath());
             d->chmodProc = connection()->createRemoteProcess(command.toUtf8());
             connect(d->chmodProc.data(), SIGNAL(closed(int)), SLOT(handleChmodFinished(int)));
             connect(d->chmodProc.data(), SIGNAL(readyReadStandardOutput()),
@@ -263,8 +265,9 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
         const QString remoteFilePath = df.remoteDirectory() + QLatin1Char('/')  + fi.fileName();
         if (fi.isSymLink()) {
              const QString target = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
-             const QString command = QLatin1String("ln -sf ") + target + QLatin1Char(' ')
-                 + remoteFilePath;
+             const QStringList args = QStringList() << QLatin1String("ln") << QLatin1String("-sf")
+                                                    << target << remoteFilePath;
+             const QString command = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
 
              // See comment in SftpChannel::createLink as to why we can't use it.
              d->lnProc = connection()->createRemoteProcess(command.toUtf8());
@@ -370,7 +373,8 @@ void GenericDirectUploadService::uploadNextFile()
     QFileInfo fi = df.localFilePath().toFileInfo();
     if (fi.isDir())
         dirToCreate += QLatin1Char('/') + fi.fileName();
-    const QString command = QLatin1String("mkdir -p ") + dirToCreate;
+    const QString command = QLatin1String("mkdir -p ")
+            + Utils::QtcProcess::quoteArgUnix(dirToCreate);
     d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
     connect(d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
     connect(d->mkdirProc.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdOutData()));

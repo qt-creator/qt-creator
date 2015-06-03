@@ -225,6 +225,7 @@ static const char *const variableKeywords[] = {
     "UI_HEADERS_DIR",
     "UI_SOURCES_DIR",
     "VERSION",
+    "VERSION_PE_HEADER",
     "VER_MAJ",
     "VER_MIN",
     "VER_PAT",
