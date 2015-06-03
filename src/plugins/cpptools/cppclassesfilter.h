@@ -48,8 +48,8 @@ public:
     ~CppClassesFilter();
 
 protected:
-    IndexItem::ItemType matchTypes() const Q_DECL_OVERRIDE { return IndexItem::Class; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) Q_DECL_OVERRIDE;
+    IndexItem::ItemType matchTypes() const override { return IndexItem::Class; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
 };
 
 } // namespace CppTools

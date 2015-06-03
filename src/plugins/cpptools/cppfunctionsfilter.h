@@ -47,8 +47,8 @@ public:
     ~CppFunctionsFilter();
 
 protected:
-    IndexItem::ItemType matchTypes() const Q_DECL_OVERRIDE { return IndexItem::Function; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) Q_DECL_OVERRIDE;
+    IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
 };
 
 } // namespace Internal

@@ -49,7 +49,7 @@ class CPPTOOLS_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentPar
 public:
     BuiltinEditorDocumentParser(const QString &filePath);
 
-    void update(WorkingCopy workingCopy) Q_DECL_OVERRIDE;
+    void update(WorkingCopy workingCopy) override;
     void releaseResources();
 
     CPlusPlus::Document::Ptr document() const;

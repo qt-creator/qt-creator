@@ -74,8 +74,8 @@ public:
         m_typeOfExpression->setExpandTemplates(true);
     }
 
-    bool isSortable(const QString &prefix) const Q_DECL_OVERRIDE;
-    TextEditor::AssistProposalItem *proposalItem(int index) const Q_DECL_OVERRIDE;
+    bool isSortable(const QString &prefix) const override;
+    TextEditor::AssistProposalItem *proposalItem(int index) const override;
 
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
@@ -87,14 +87,14 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 
     TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document,
             const CPlusPlus::LanguageFeatures &languageFeatures,
             int position,
-            TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
+            TextEditor::AssistReason reason) const override;
 };
 
 class InternalCppCompletionAssistProcessor : public CppCompletionAssistProcessor
@@ -103,7 +103,7 @@ public:
     InternalCppCompletionAssistProcessor();
     ~InternalCppCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal();

@@ -54,10 +54,10 @@ class CPPTOOLS_EXPORT CppCompletionAssistProvider : public TextEditor::Completio
     Q_OBJECT
 
 public:
-    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
-    int activationCharSequenceLength() const Q_DECL_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const Q_DECL_OVERRIDE;
-    bool isContinuationChar(const QChar &c) const Q_DECL_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const override;
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
+    bool isContinuationChar(const QChar &c) const override;
 
     virtual TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,

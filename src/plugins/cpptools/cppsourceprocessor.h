@@ -93,22 +93,22 @@ private:
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
     // Client interface
-    void macroAdded(const CPlusPlus::Macro &macro) Q_DECL_OVERRIDE;
+    void macroAdded(const CPlusPlus::Macro &macro) override;
     void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                    unsigned line, const CPlusPlus::Macro &macro) Q_DECL_OVERRIDE;
+                                    unsigned line, const CPlusPlus::Macro &macro) override;
     void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
-                                    const CPlusPlus::ByteArrayRef &name) Q_DECL_OVERRIDE;
+                                    const CPlusPlus::ByteArrayRef &name) override;
     void notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
-                              unsigned line, const CPlusPlus::Macro &macro) Q_DECL_OVERRIDE;
+                              unsigned line, const CPlusPlus::Macro &macro) override;
     void startExpandingMacro(unsigned bytesOffset, unsigned utf16charOffset,
                              unsigned line, const CPlusPlus::Macro &macro,
-                             const QVector<CPlusPlus::MacroArgumentReference> &actuals) Q_DECL_OVERRIDE;
-    void stopExpandingMacro(unsigned bytesOffset, const CPlusPlus::Macro &macro) Q_DECL_OVERRIDE;
-    void markAsIncludeGuard(const QByteArray &macroName) Q_DECL_OVERRIDE;
-    void startSkippingBlocks(unsigned utf16charsOffset) Q_DECL_OVERRIDE;
-    void stopSkippingBlocks(unsigned utf16charsOffset) Q_DECL_OVERRIDE;
+                             const QVector<CPlusPlus::MacroArgumentReference> &actuals) override;
+    void stopExpandingMacro(unsigned bytesOffset, const CPlusPlus::Macro &macro) override;
+    void markAsIncludeGuard(const QByteArray &macroName) override;
+    void startSkippingBlocks(unsigned utf16charsOffset) override;
+    void stopSkippingBlocks(unsigned utf16charsOffset) override;
     void sourceNeeded(unsigned line, const QString &fileName, IncludeType type,
-                      const QStringList &initialIncludes) Q_DECL_OVERRIDE;
+                      const QStringList &initialIncludes) override;
 
 private:
     CPlusPlus::Snapshot m_snapshot;
