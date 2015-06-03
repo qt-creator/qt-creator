@@ -267,8 +267,8 @@ public:
     bool startService(const QString &service, ServiceSocket &fd);
     void stopService(ServiceSocket fd);
     void startDeviceLookup(int timeout);
-    bool connectToPort(quint16 port, ServiceSocket *fd) Q_DECL_OVERRIDE;
-    int qmljsDebugPort() const Q_DECL_OVERRIDE;
+    bool connectToPort(quint16 port, ServiceSocket *fd) override;
+    int qmljsDebugPort() const override;
     void addError(const QString &msg);
     bool writeAll(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
     bool sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
@@ -342,7 +342,7 @@ public:
     void deviceCallbackReturned();
     bool installApp();
     bool runApp();
-    int qmljsDebugPort() const Q_DECL_OVERRIDE;
+    int qmljsDebugPort() const override;
     am_res_t appTransferCallback(CFDictionaryRef dict);
     am_res_t appInstallCallback(CFDictionaryRef dict);
     void reportProgress2(int progress, const QString &status);

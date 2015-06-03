@@ -127,7 +127,7 @@ class SingleRelayServer: public RelayServer
 public:
     SingleRelayServer(IosTool *parent, int serverFileDescriptor);
 protected:
-    void newRelayConnection() Q_DECL_OVERRIDE;
+    void newRelayConnection() override;
 private:
     int m_serverFileDescriptor;
 };
@@ -138,7 +138,7 @@ public:
     GenericRelayServer(IosTool *parent, int remotePort,
                        Ios::DeviceSession *deviceSession);
 protected:
-    void newRelayConnection() Q_DECL_OVERRIDE;
+    void newRelayConnection() override;
 private:
     int m_remotePort;
     Ios::DeviceSession *m_deviceSession;
