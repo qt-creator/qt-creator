@@ -49,7 +49,7 @@ ConnectionServer::ConnectionServer(const QString &connectionName)
 
     connect(&localServer, &QLocalServer::newConnection, this, &ConnectionServer::handleNewConnection);
     std::atexit(&ConnectionServer::removeServer);
-#if defined(Q_OS_LINUX)
+#if defined(_GLIBCXX_HAVE_AT_QUICK_EXIT)
     std::at_quick_exit(&ConnectionServer::removeServer);
 #endif
     std::set_terminate(&ConnectionServer::removeServer);
