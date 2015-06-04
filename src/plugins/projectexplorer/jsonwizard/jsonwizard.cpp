@@ -127,9 +127,6 @@ QString JsonWizard::stringValue(const QString &n) const
     if (!v.isValid())
         return QString();
 
-    if (v.type() == QVariant::Bool)
-        return v.toBool() ? QString::fromLatin1("true") : QString::fromLatin1("false");
-
     if (v.type() == QVariant::String) {
         QString tmp = m_expander.expand(v.toString());
         if (tmp.isEmpty())
