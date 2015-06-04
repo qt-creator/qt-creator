@@ -143,7 +143,7 @@ public:
 
 public:
     ModelManagerInterface(QObject *parent = 0);
-    virtual ~ModelManagerInterface();
+    ~ModelManagerInterface() override;
 
     static Dialect guessLanguageOfFile(const QString &fileName);
     static QStringList globPatternsForLanguages(const QList<Dialect> languages);

@@ -53,7 +53,7 @@ class QMLJSTOOLS_EXPORT ModelManager: public QmlJS::ModelManagerInterface
 
 public:
     ModelManager(QObject *parent = 0);
-    ~ModelManager();
+    ~ModelManager() override;
 
     void delayedInitialization();
 protected:
