@@ -1986,7 +1986,7 @@ DebuggerRunParameters::DebuggerRunParameters()
       testCase(0)
 {}
 
-void DebuggerRunParameters::operator=(const DebuggerStartParameters &sp)
+void DebuggerRunParameters::initialize(const DebuggerStartParameters &sp)
 {
     DebuggerStartParameters::operator=(sp);
 }

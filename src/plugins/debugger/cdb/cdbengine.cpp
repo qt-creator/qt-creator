@@ -267,11 +267,11 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &sp, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QString *errorMessage)
 {
     if (HostOsInfo::isWindowsHost()) {
-        if (validMode(sp.startMode))
-            return new CdbEngine(sp);
+        if (validMode(rp.startMode))
+            return new CdbEngine(rp);
         *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
     } else {
         *errorMessage = QString::fromLatin1("Unsupported debug mode");

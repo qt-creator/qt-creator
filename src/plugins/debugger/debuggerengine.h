@@ -85,7 +85,7 @@ class DebuggerRunParameters : public DebuggerStartParameters
 public:
     DebuggerRunParameters();
 
-    void operator=(const DebuggerStartParameters &sp);
+    void initialize(const DebuggerStartParameters &sp);
 
     QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
@@ -420,7 +420,7 @@ private:
 
 DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QString *errorMessage);
 
-bool fillParametersFromKit(DebuggerRunParameters *r, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
+bool fillParametersFromKit(DebuggerRunParameters *rp, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
 
 bool fillParametersFromLocalRunConfiguration(DebuggerRunParameters *rp,
     const ProjectExplorer::RunConfiguration *runConfig, QString *errorMessage = 0);

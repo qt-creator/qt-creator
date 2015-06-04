@@ -42,6 +42,11 @@ class RemoteSetupResult;
 class DebuggerStartParameters;
 class DebuggerRunControl;
 
+namespace Internal {
+class DebuggerRunParameters;
+DebuggerRunControl *createDebuggerRunControlInternal(const DebuggerRunParameters &, QString *);
+}
+
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              QString *errorMessage);
 
@@ -83,8 +88,8 @@ signals:
 private:
     void handleFinished();
 
-    friend DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(
-            const DebuggerStartParameters &sp, QString *errorMessage);
+    friend DebuggerRunControl *Debugger::Internal::createDebuggerRunControlInternal(
+            const Internal::DebuggerRunParameters &rp, QString *errorMessage);
 
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                        Internal::DebuggerEngine *engine);
