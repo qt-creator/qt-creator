@@ -967,6 +967,7 @@ void TreeModel::setRootItem(TreeItem *item)
     delete m_root;
     m_root = item;
     item->setModel(this);
+    emit layoutChanged();
 }
 
 void TreeModel::setHeader(const QStringList &displays)
