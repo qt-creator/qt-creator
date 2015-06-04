@@ -11,8 +11,6 @@ include(ipcsource/codemodelbackendclangipc-source.pri)
 include(../../../qtcreator.pri)
 include(../../shared/clang/clang_installation.pri)
 
-requires(!isEmpty(LLVM_INSTALL_DIR))
-
 LIBS += -L$$OUT_PWD/../codemodelbackendipc/lib/qtcreator -lCodemodelbackendipc -lSqlite
 LIBS += $$LLVM_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH

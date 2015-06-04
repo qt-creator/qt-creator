@@ -6,8 +6,7 @@ SUBDIRS = qtpromaker \
      valgrindfake \
      3rdparty \
      qml2puppet \
-     buildoutputparser \
-     codemodelbackend
+     buildoutputparser
 
 win32 {
     SUBDIRS += qtcdebugger \
@@ -17,6 +16,11 @@ win32 {
 
 mac {
     SUBDIRS += iostool
+}
+
+isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
+!isEmpty(LLVM_INSTALL_DIR) {
+    SUBDIRS += codemodelbackend
 }
 
 BUILD_CPLUSPLUS_TOOLS = $$(BUILD_CPLUSPLUS_TOOLS)
