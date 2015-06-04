@@ -34,10 +34,10 @@
 #include <coreplugin/id.h>
 
 #include <QMap>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
-class QVariant;
 class QDataStream;
 QT_END_NAMESPACE
 

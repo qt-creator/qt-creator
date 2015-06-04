@@ -39,7 +39,7 @@
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
-#include <utils/fileutils.h>
+#include <utils/dropsupport.h>
 #include <utils/qtcassert.h>
 
 #include <QSet>
@@ -260,12 +260,12 @@ Qt::DropActions CppIncludeHierarchyModel::supportedDragActions() const
 
 QStringList CppIncludeHierarchyModel::mimeTypes() const
 {
-    return Utils::FileDropSupport::mimeTypesForFilePaths();
+    return Utils::DropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) const
 {
-    auto data = new Utils::FileDropMimeData;
+    auto data = new Utils::DropMimeData;
     foreach (const QModelIndex &index, indexes) {
         const TextEditor::TextEditorWidget::Link link
                 = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();

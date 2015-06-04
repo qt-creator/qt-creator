@@ -79,6 +79,7 @@
 #include <coreplugin/find/basetextfind.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
+#include <utils/dropsupport.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -7319,7 +7320,7 @@ void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
     if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
         return;
 
-    auto data = new FileDropMimeData;
+    auto data = new DropMimeData;
     data->addFile(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
     auto drag = new QDrag(this);
     drag->setMimeData(data);

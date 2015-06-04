@@ -46,6 +46,7 @@
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/theme/theme.h>
+#include <utils/dropsupport.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
@@ -420,12 +421,12 @@ Qt::DropActions BookmarkManager::supportedDragActions() const
 
 QStringList BookmarkManager::mimeTypes() const
 {
-    return FileDropSupport::mimeTypesForFilePaths();
+    return DropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
 {
-    auto data = new FileDropMimeData;
+    auto data = new DropMimeData;
     foreach (const QModelIndex &index, indexes) {
         if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
             continue;

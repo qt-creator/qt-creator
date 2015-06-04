@@ -37,12 +37,12 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariant>
 
 #include <functional>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QVariant;
 class QProcessEnvironment;
 QT_END_NAMESPACE
 

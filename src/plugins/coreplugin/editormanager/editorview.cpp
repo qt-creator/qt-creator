@@ -135,16 +135,18 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, 0);
 
-    auto dropSupport = new FileDropSupport(this, [this](QDropEvent *event) -> bool {
+    auto dropSupport = new DropSupport(this, [this](QDropEvent *event, DropSupport *dropSupport) -> bool {
         // do not accept move events except from other editor views (i.e. their tool bars)
         // otherwise e.g. item views that support moving items within themselves would
         // also "move" the item into the editor view, i.e. the item would be removed from the
         // item view
         if (!qobject_cast<EditorToolBar*>(event->source()))
             event->setDropAction(Qt::CopyAction);
+        if (event->type() == QDropEvent::DragEnter && !dropSupport->isFileDrop(event))
+            return false; // do not accept drops without files
         return event->source() != m_toolBar; // do not accept drops on ourselves
     });
-    connect(dropSupport, &FileDropSupport::filesDropped,
+    connect(dropSupport, &DropSupport::filesDropped,
             this, &EditorView::openDroppedFiles);
 
     updateNavigatorActions();
@@ -375,11 +377,11 @@ void EditorView::closeSplit()
     EditorManagerPrivate::updateActions();
 }
 
-void EditorView::openDroppedFiles(const QList<FileDropSupport::FileSpec> &files)
+void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     const int count = files.size();
     for (int i = 0; i < count; ++i) {
-        const FileDropSupport::FileSpec spec = files.at(i);
+        const DropSupport::FileSpec spec = files.at(i);
         EditorManagerPrivate::openEditorAt(this, spec.filePath, spec.line, spec.column, Id(),
                                   i < count - 1 ? EditorManager::DoNotChangeCurrentEditor
                                                   | EditorManager::DoNotMakeVisible

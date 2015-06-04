@@ -37,6 +37,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/algorithm.h>
+#include <utils/dropsupport.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -313,7 +314,7 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
     // We claim that everything is editable
     // That's slightly wrong
     // We control the only view, and that one does the checks
-    Qt::ItemFlags f = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    Qt::ItemFlags f = Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsDragEnabled;
     if (Node *node = nodeForIndex(index)) {
         if (node == m_rootNode)
             return 0; // no flags for session node...
@@ -321,8 +322,6 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
             // either folder or file node
             if (node->supportedActions(node).contains(Rename))
                 f = f | Qt::ItemIsEditable;
-            if (node->asFileNode())
-                f = f | Qt::ItemIsDragEnabled;
         }
     }
     return f;
@@ -490,16 +489,17 @@ Qt::DropActions FlatModel::supportedDragActions() const
 
 QStringList FlatModel::mimeTypes() const
 {
-    return Utils::FileDropSupport::mimeTypesForFilePaths();
+    return Utils::DropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
 {
-    auto data = new Utils::FileDropMimeData;
+    auto data = new Utils::DropMimeData;
     foreach (const QModelIndex &index, indexes) {
         Node *node = nodeForIndex(index);
         if (node->asFileNode())
             data->addFile(node->path().toString());
+        data->addValue(QVariant::fromValue(node));
     }
     return data;
 }
