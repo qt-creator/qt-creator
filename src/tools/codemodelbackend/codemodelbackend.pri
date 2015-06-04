@@ -10,6 +10,7 @@ TEMPLATE = app
 include(ipcsource/codemodelbackendclangipc-source.pri)
 include(../../../qtcreator.pri)
 include(../../shared/clang/clang_installation.pri)
+include(../../rpath.pri)
 
 LIBS += -L$$OUT_PWD/../codemodelbackendipc/lib/qtcreator -lCodemodelbackendipc -lSqlite
 LIBS += $$LLVM_LIBS
@@ -19,3 +20,4 @@ INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/codemodelbackendipc
 INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/sqlite
 
 SOURCES += codemodelbackendmain.cpp
+
