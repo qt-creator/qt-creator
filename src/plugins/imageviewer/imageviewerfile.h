@@ -63,20 +63,21 @@ public:
     };
 
     ImageViewerFile();
-    ~ImageViewerFile();
+    ~ImageViewerFile() override;
 
-    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    bool setContents(const QByteArray &contents);
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override;
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool setContents(const QByteArray &contents) override;
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
     bool isPaused() const;
     void setPaused(bool paused);

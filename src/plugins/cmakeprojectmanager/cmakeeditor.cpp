@@ -240,8 +240,8 @@ class CMakeDocument : public TextDocument
 public:
     CMakeDocument();
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 };
 
 CMakeDocument::CMakeDocument()

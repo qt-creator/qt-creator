@@ -239,7 +239,7 @@ public:
             this, SLOT(provideNewRange(quint64)));
     }
 
-    bool setContents(const QByteArray &contents)
+    bool setContents(const QByteArray &contents) override
     {
         if (!contents.isEmpty())
             return false;
@@ -247,13 +247,13 @@ public:
         return true;
     }
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
     {
         Q_UNUSED(state)
         return type == TypeRemoved ? BehaviorSilent : BehaviorAsk;
     }
 
-    bool save(QString *errorString, const QString &fn, bool autoSave)
+    bool save(QString *errorString, const QString &fn, bool autoSave) override
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
         const FileName fileNameToUse = fn.isEmpty() ? filePath() : FileName::fromString(fn);
@@ -265,7 +265,8 @@ public:
         }
     }
 
-    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName)
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override
     {
         QTC_CHECK(fileName == realFileName); // The bineditor can do no autosaving
         return openImpl(errorString, fileName);
@@ -338,23 +339,26 @@ private slots:
 
 public:
 
-    QString defaultPath() const { return QString(); }
+    QString defaultPath() const override { return QString(); }
 
-    QString suggestedFileName() const { return QString(); }
+    QString suggestedFileName() const override { return QString(); }
 
-    bool isModified() const { return isTemporary()/*e.g. memory view*/ ? false
-                                                                       : m_widget->isModified(); }
+    bool isModified() const override
+    {
+        return isTemporary()/*e.g. memory view*/ ? false
+                                                 : m_widget->isModified();
+    }
 
-    bool isFileReadOnly() const {
+    bool isFileReadOnly() const override {
         const FileName fn = filePath();
         if (fn.isEmpty())
             return false;
         return !fn.toFileInfo().isWritable();
     }
 
-    bool isSaveAsAllowed() const { return true; }
+    bool isSaveAsAllowed() const override { return true; }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) {
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override {
         if (flag == FlagIgnore)
             return true;
         if (type == TypePermissions) {

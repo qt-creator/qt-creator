@@ -170,12 +170,12 @@ class ProFileDocument : public TextDocument
 {
 public:
     ProFileDocument();
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
     // qmake project files doesn't support UTF8-BOM
     // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
-    bool supportsUtf8Bom() { return false; }
+    bool supportsUtf8Bom() override { return false; }
 };
 
 ProFileDocument::ProFileDocument()

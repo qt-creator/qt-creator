@@ -42,13 +42,15 @@ class AndroidManifestDocument : public TextEditor::TextDocument
 {
 public:
     explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget);
-    bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
+    bool save(QString *errorString, const QString &fileName = QString(),
+              bool autoSave = false) override;
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
+
 private:
     AndroidManifestEditorWidget *m_editorWidget;
 };

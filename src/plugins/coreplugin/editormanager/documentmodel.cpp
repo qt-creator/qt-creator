@@ -116,12 +116,12 @@ private:
 class RestoredDocument : public IDocument
 {
 public:
-    bool save(QString *, const QString &, bool) { return false; }
-    QString defaultPath() const { return filePath().toFileInfo().absolutePath(); }
-    QString suggestedFileName() const { return filePath().fileName(); }
-    bool isModified() const { return false; }
-    bool isSaveAsAllowed() const { return false; }
-    bool reload(QString *, ReloadFlag, ChangeType) { return true; }
+    bool save(QString *, const QString &, bool) override { return false; }
+    QString defaultPath() const override { return filePath().toFileInfo().absolutePath(); }
+    QString suggestedFileName() const override { return filePath().fileName(); }
+    bool isModified() const override { return false; }
+    bool isSaveAsAllowed() const override { return false; }
+    bool reload(QString *, ReloadFlag, ChangeType) override { return true; }
 };
 
 DocumentModelPrivate::DocumentModelPrivate() :

@@ -86,7 +86,7 @@ public:
     };
 
     IDocument(QObject *parent = 0);
-    virtual ~IDocument();
+    ~IDocument() override;
 
     void setId(Id id);
     Id id() const;

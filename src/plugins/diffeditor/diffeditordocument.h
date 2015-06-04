@@ -68,16 +68,17 @@ public:
     void setIgnoreWhitespace(bool ignore);
     bool ignoreWhitespace() const;
 
-    bool setContents(const QByteArray &contents);
-    QString defaultPath() const;
-    QString suggestedFileName() const Q_DECL_OVERRIDE;
+    bool setContents(const QByteArray &contents) override;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
-    bool isModified() const { return false; }
-    bool isSaveAsAllowed() const { return true; }
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    bool isModified() const override { return false; }
+    bool isSaveAsAllowed() const override { return true; }
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     void reload();
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override;
 
     QString plainText() const;
 

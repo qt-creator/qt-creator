@@ -50,7 +50,7 @@ class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::TextDocument
     Q_OBJECT
 public:
     QmlJSEditorDocument();
-    ~QmlJSEditorDocument();
+    ~QmlJSEditorDocument() override;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     bool isSemanticInfoOutdated() const;
@@ -63,8 +63,8 @@ signals:
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
 
 protected:
-    void applyFontSettings();
-    void triggerPendingUpdates();
+    void applyFontSettings() override;
+    void triggerPendingUpdates() override;
 
 private:
     friend class Internal::QmlJSEditorDocumentPrivate; // sending signals

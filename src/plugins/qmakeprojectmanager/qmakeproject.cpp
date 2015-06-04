@@ -100,16 +100,16 @@ class QmakeProjectFile : public Core::IDocument
 public:
     QmakeProjectFile(const QString &filePath, QObject *parent = 0);
 
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 };
 
 /// Watches folders for QmakePriFile nodes

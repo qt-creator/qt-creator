@@ -53,10 +53,9 @@ class CppEditorDocument : public TextEditor::TextDocument
 
 public:
     explicit CppEditorDocument();
-    ~CppEditorDocument();
 
     bool isObjCEnabled() const;
-    TextEditor::CompletionAssistProvider *completionAssistProvider() const;
+    TextEditor::CompletionAssistProvider *completionAssistProvider() const override;
 
     void semanticRehighlight();
     CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
@@ -80,7 +79,7 @@ public slots:
     void scheduleProcessDocument();
 
 protected:
-    void applyFontSettings();
+    void applyFontSettings() override;
 
 private slots:
     void invalidateFormatterCache();

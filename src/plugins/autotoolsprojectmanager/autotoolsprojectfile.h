@@ -57,12 +57,12 @@ class AutotoolsProjectFile : public Core::IDocument
 public:
     AutotoolsProjectFile(AutotoolsProject *project, const QString &fileName);
 
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
 private:
     AutotoolsProject *m_project;

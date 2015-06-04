@@ -47,10 +47,6 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, const Utils::FileName &fileNa
     setFilePath(fileName);
 }
 
-QmlProjectFile::~QmlProjectFile()
-{
-}
-
 bool QmlProjectFile::save(QString *, const QString &, bool)
 {
     return false;

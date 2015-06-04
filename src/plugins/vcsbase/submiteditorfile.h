@@ -47,16 +47,17 @@ public:
     explicit SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters,
                               VcsBaseSubmitEditor *parent = 0);
 
-    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
-    bool setContents(const QByteArray &contents);
-    QString defaultPath() const { return QString(); }
-    QString suggestedFileName() const { return QString(); }
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override;
+    bool setContents(const QByteArray &contents) override;
+    QString defaultPath() const override { return QString(); }
+    QString suggestedFileName() const override { return QString(); }
 
-    bool isModified() const { return m_modified; }
-    bool isSaveAsAllowed() const { return false; }
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    bool isModified() const override { return m_modified; }
+    bool isSaveAsAllowed() const override { return false; }
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
     void setModified(bool modified = true);
 

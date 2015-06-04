@@ -46,9 +46,6 @@ TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent)
     setId("TaskList.TaskFile");
 }
 
-TaskFile::~TaskFile()
-{ }
-
 bool TaskFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     Q_UNUSED(errorString)

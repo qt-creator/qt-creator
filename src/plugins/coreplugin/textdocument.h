@@ -47,7 +47,7 @@ public:
     typedef Utils::TextFileFormat::ReadResult ReadResult;
 
     explicit BaseTextDocument(QObject *parent = 0);
-    virtual ~BaseTextDocument();
+    ~BaseTextDocument() override;
 
     Utils::TextFileFormat format() const;
     const QTextCodec *codec() const;

@@ -44,9 +44,6 @@ QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDo
     setFilePath(Utils::FileName::fromString(fileName));
 }
 
-QbsProjectFile::~QbsProjectFile()
-{ }
-
 bool QbsProjectFile::save(QString *, const QString &, bool)
 {
     return false;

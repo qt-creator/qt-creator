@@ -66,7 +66,7 @@ class TEXTEDITOR_EXPORT TextDocument : public Core::BaseTextDocument
 
 public:
     explicit TextDocument(Core::Id id = Core::Id());
-    virtual ~TextDocument();
+    ~TextDocument() override;
 
     static QMap<QString, QString> openedTextDocumentContents();
     static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
@@ -101,23 +101,24 @@ public:
     void removeMarkFromMarksCache(TextMark *mark);
 
     // IDocument implementation.
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    bool setContents(const QByteArray &contents);
-    bool shouldAutoSave() const;
-    bool isFileReadOnly() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
-    void checkPermissions();
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void setFilePath(const Utils::FileName &newName);
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool setContents(const QByteArray &contents) override;
+    bool shouldAutoSave() const override;
+    bool isFileReadOnly() const override;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
+    void checkPermissions() override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    void setFilePath(const Utils::FileName &newName) override;
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
     void setDefaultPath(const QString &defaultPath);
     void setSuggestedFileName(const QString &suggestedFileName);
 
-    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override;
     virtual bool reload(QString *errorString);
 
     bool setPlainText(const QString &text);

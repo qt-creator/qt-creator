@@ -58,8 +58,8 @@ class JavaDocument : public TextEditor::TextDocument
 {
 public:
     JavaDocument();
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 };
 
 

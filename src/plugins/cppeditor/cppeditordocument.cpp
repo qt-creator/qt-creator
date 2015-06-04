@@ -120,10 +120,6 @@ CppEditorDocument::CppEditorDocument()
     // See also onFilePathChanged() for more initialization
 }
 
-CppEditorDocument::~CppEditorDocument()
-{
-}
-
 bool CppEditorDocument::isObjCEnabled() const
 {
     return m_isObjCEnabled;

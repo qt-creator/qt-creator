@@ -57,17 +57,18 @@ public:
     ResourceEditorDocument(QObject *parent = 0);
 
     //IDocument
-    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override;
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     QString plainText() const;
-    bool setContents(const QByteArray &contents);
-    bool shouldAutoSave() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    void setFilePath(const Utils::FileName &newName);
+    bool setContents(const QByteArray &contents) override;
+    bool shouldAutoSave() const override;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
+    void setFilePath(const Utils::FileName &newName) override;
     void setBlockDirtyChanged(bool value);
 
     RelativeResourceModel *model() const;

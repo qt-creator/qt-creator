@@ -45,18 +45,17 @@ class QmlProjectFile : public Core::IDocument
 
 public:
     QmlProjectFile(QmlProject *parent, const Utils::FileName &fileName);
-    virtual ~QmlProjectFile();
 
-    virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
-    virtual QString defaultPath() const;
-    virtual QString suggestedFileName() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
-    virtual bool isModified() const;
-    virtual bool isSaveAsAllowed() const;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
 private:
     QmlProject *m_project;
