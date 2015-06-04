@@ -203,7 +203,6 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         connect(client, SIGNAL(logActivity(QString,QString)),
                 m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
         connect(client, SIGNAL(reloaded()), SLOT(onReloaded()));
-        connect(client, SIGNAL(destroyedObject(int)), SLOT(onDestroyedObject(int)));
 
         // register actions here
         // because there can be multiple QmlEngines
@@ -362,11 +361,6 @@ void QmlInspectorAdapter::enableTools(const bool enable)
 void QmlInspectorAdapter::onReloaded()
 {
     m_agent->reloadEngines();
-}
-
-void QmlInspectorAdapter::onDestroyedObject(int objectDebugId)
-{
-    m_agent->fetchObject(m_agent->parentIdForObject(objectDebugId));
 }
 
 void QmlInspectorAdapter::onEngineStateChanged(const DebuggerState state)
