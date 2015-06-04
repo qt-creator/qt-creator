@@ -68,6 +68,7 @@ BaseFileWizard::BaseFileWizard(const BaseFileWizardFactory *factory,
 
 void BaseFileWizard::initializePage(int id)
 {
+    Wizard::initializePage(id);
     if (page(id) == m_firstExtensionPage) {
         generateFileList();
 
