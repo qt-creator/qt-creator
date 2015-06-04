@@ -58,13 +58,15 @@ public:
 
 private slots:
     void formatFile();
+    void formatSelectedText();
 
 private:
     BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile;
+    QAction *m_formatRange;
     UncrustifySettings *m_settings;
     QString configurationFile() const;
-    Command command(const QString &cfgFile) const;
+    Command command(const QString &cfgFile, bool fragment = false) const;
 };
 
 } // namespace Uncrustify

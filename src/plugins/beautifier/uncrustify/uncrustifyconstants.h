@@ -37,6 +37,7 @@ namespace Uncrustify {
 
 const char DISPLAY_NAME[]          = "Uncrustify";
 const char ACTION_FORMATFILE[]     = "Uncrustify.FormatFile";
+const char ACTION_FORMATSELECTED[] = "Uncrustify.FormatSelectedText";
 const char MENU_ID[]               = "Uncrustify.Menu";
 const char OPTION_ID[]             = "Uncrustify";
 const char SETTINGS_NAME[]         = "uncrustify";

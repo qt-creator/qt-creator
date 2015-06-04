@@ -46,11 +46,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <diffeditor/differ.h>
+#include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <utils/QtConcurrentTools>
 
 #include <QAction>
@@ -219,24 +221,28 @@ QString BeautifierPlugin::format(const QString &text, const Command &command,
     return QString();
 }
 
-void BeautifierPlugin::formatCurrentFile(const Command &command)
+void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
 {
-    TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-    if (!widget)
-        return;
+    QTC_ASSERT(startPos <= endPos, return);
 
-    const QString sourceData = widget->toPlainText();
-    if (sourceData.isEmpty())
-        return;
+    if (TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget()) {
+        if (const TextDocument *doc = widget->textDocument()) {
+            const QString sourceData = (startPos < 0)
+                    ? widget->toPlainText()
+                    : Convenience::textAt(widget->textCursor(), startPos, (endPos - startPos));
+            if (sourceData.isEmpty())
+                return;
+            const FormatTask task = FormatTask(widget, doc->filePath().toString(), sourceData,
+                                               command, startPos, endPos);
 
-    QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
-    connect(widget->textDocument(), &TextDocument::contentsChanged,
-            watcher, &QFutureWatcher<FormatTask>::cancel);
-    connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
-    m_asyncFormatMapper->setMapping(watcher, watcher);
-    const QString filePath = widget->textDocument()->filePath().toString();
-    watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this,
-                                         FormatTask(widget, filePath, sourceData, command)));
+            QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
+            connect(doc, &TextDocument::contentsChanged,
+                    watcher, &QFutureWatcher<FormatTask>::cancel);
+            connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
+            m_asyncFormatMapper->setMapping(watcher, watcher);
+            watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this, task));
+        }
+    }
 }
 
 void BeautifierPlugin::formatAsync(QFutureInterface<FormatTask> &future, FormatTask task)
@@ -268,6 +274,11 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
         return;
     }
 
+    if (task.formattedData.isEmpty()) {
+        showError(tr("Could not format file %1.").arg(task.filePath));
+        return;
+    }
+
     QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
         showError(tr("File %1 was closed.").arg(task.filePath));
@@ -275,9 +286,13 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     }
 
     const QString sourceData = textEditor->toPlainText();
-    const QString formattedData = task.formattedData;
-    if ((sourceData == formattedData) || formattedData.isEmpty())
+    const QString formattedData = (task.startPos < 0)
+            ? task.formattedData
+            : QString(sourceData).replace(task.startPos, (task.endPos - task.startPos),
+                                          task.formattedData);
+    if (sourceData == formattedData)
         return;
+
 
     // Since QTextCursor does not work properly with folded blocks, all blocks must be unfolded.
     // To restore the current state at the end, keep track of which block is folded.
