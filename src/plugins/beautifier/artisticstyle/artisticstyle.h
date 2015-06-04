@@ -32,7 +32,7 @@
 #define BEAUTIFIER_ARTISTICSTYLE_H
 
 #include "../beautifierabstracttool.h"
-
+#include "../command.h"
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
@@ -63,6 +63,8 @@ private:
     BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile;
     ArtisticStyleSettings *m_settings;
+    QString configurationFile() const;
+    Command command(const QString &cfgFile) const;
 };
 
 } // namespace ArtisticStyle

@@ -102,7 +102,19 @@ QList<QObject *> Uncrustify::autoReleaseObjects()
 
 void Uncrustify::formatFile()
 {
-    QString cfgFileName;
+    const QString cfgFileName = configurationFile();
+    if (cfgFileName.isEmpty()) {
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
+                                        QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
+    } else {
+        m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
+    }
+}
+
+QString Uncrustify::configurationFile() const
+{
+    if (m_settings->useCustomStyle())
+        return m_settings->styleFileName(m_settings->customStyle());
 
     if (m_settings->useOtherFiles()) {
         if (const ProjectExplorer::Project *project
@@ -113,38 +125,33 @@ void Uncrustify::formatFile()
                 if (!file.endsWith(QLatin1String("cfg")))
                     continue;
                 const QFileInfo fi(file);
-                if (fi.isReadable() && fi.fileName() == QLatin1String("uncrustify.cfg")) {
-                    cfgFileName = file;
-                    break;
-                }
+                if (fi.isReadable() && fi.fileName() == QLatin1String("uncrustify.cfg"))
+                    return file;
             }
         }
     }
 
-    if (cfgFileName.isEmpty() && m_settings->useHomeFile()) {
+    if (m_settings->useHomeFile()) {
         const QString file = QDir::home().filePath(QLatin1String("uncrustify.cfg"));
         if (QFile::exists(file))
-            cfgFileName = file;
+            return file;
     }
 
-    if (m_settings->useCustomStyle())
-        cfgFileName = m_settings->styleFileName(m_settings->customStyle());
+    return QString();
+}
 
-    if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
-    } else {
-        Command command;
-        command.setExecutable(m_settings->command());
-        command.setProcessing(Command::PipeProcessing);
-        command.addOption(QLatin1String("-l"));
-        command.addOption(QLatin1String("cpp"));
-        command.addOption(QLatin1String("-L"));
-        command.addOption(QLatin1String("1-2"));
-        command.addOption(QLatin1String("-c"));
-        command.addOption(cfgFileName);
-        m_beautifierPlugin->formatCurrentFile(command);
-    }
+Command Uncrustify::command(const QString &cfgFile) const
+{
+    Command command;
+    command.setExecutable(m_settings->command());
+    command.setProcessing(Command::PipeProcessing);
+    command.addOption(QLatin1String("-l"));
+    command.addOption(QLatin1String("cpp"));
+    command.addOption(QLatin1String("-L"));
+    command.addOption(QLatin1String("1-2"));
+    command.addOption(QLatin1String("-c"));
+    command.addOption(cfgFile);
+    return command;
 }
 
 } // namespace Uncrustify
