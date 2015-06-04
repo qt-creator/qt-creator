@@ -178,6 +178,9 @@ const char FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.FollowSymbol
 const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 const char JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.JumpToFileUnderCursorInNextSplit";
 
+const char SCROLL_BAR_SEARCH_RESULT[] = "TextEditor.ScrollBarSearchResult";
+const char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
+
 const char *nameForStyle(TextStyle style);
 TextStyle styleFromName(const char *name);
 

@@ -130,6 +130,9 @@ VcsBase_FileRenamed_TextColor=ffffa500
 
 Bookmarks_TextMarkColor=ff8080ff
 
+TextEditor_SearchResult_ScrollBarColor=ff00c000
+TextEditor_CurrentLine_ScrollBarColor=ffffffff
+
 ProjectExplorer_TaskError_TextMarkColor=ffff4040
 ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
 

@@ -46,6 +46,7 @@ static const char autoFoldFirstCommentKey[] = "AutoFoldFirstComment";
 static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
 static const char openLinksInNextSplitKey[] = "OpenLinksInNextSplitKey";
 static const char displayFileEncodingKey[] = "DisplayFileEncoding";
+static const char scrollBarHighlightsKey[] = "ScrollBarHighlights";
 static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
@@ -64,7 +65,8 @@ DisplaySettings::DisplaySettings() :
     m_centerCursorOnScroll(false),
     m_openLinksInNextSplit(false),
     m_forceOpenLinksInNextSplit(false),
-    m_displayFileEncoding(false)
+    m_displayFileEncoding(false),
+    m_scrollBarHighlights(true)
 {
 }
 
@@ -87,6 +89,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll);
     s->setValue(QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit);
     s->setValue(QLatin1String(displayFileEncodingKey), m_displayFileEncoding);
+    s->setValue(QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights);
     s->endGroup();
 }
 
@@ -112,6 +115,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_centerCursorOnScroll = s->value(group + QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
     m_openLinksInNextSplit = s->value(group + QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
     m_displayFileEncoding = s->value(group + QLatin1String(displayFileEncodingKey), m_displayFileEncoding).toBool();
+    m_scrollBarHighlights = s->value(group + QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -130,6 +134,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_openLinksInNextSplit == ds.m_openLinksInNextSplit
         && m_forceOpenLinksInNextSplit == ds.m_forceOpenLinksInNextSplit
         && m_displayFileEncoding == ds.m_displayFileEncoding
+        && m_scrollBarHighlights == ds.m_scrollBarHighlights
         ;
 }
 

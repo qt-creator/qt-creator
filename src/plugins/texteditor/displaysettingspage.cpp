@@ -122,6 +122,7 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_centerCursorOnScroll = d->m_page->centerOnScroll->isChecked();
     displaySettings.m_openLinksInNextSplit = d->m_page->openLinksInNextSplit->isChecked();
     displaySettings.m_displayFileEncoding = d->m_page->displayFileEncoding->isChecked();
+    displaySettings.m_scrollBarHighlights = d->m_page->scrollBarHighlights->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -143,6 +144,7 @@ void DisplaySettingsPage::settingsToUI()
     d->m_page->centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
     d->m_page->openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
     d->m_page->displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
+    d->m_page->scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const

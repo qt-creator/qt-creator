@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>501</width>
-    <height>323</height>
+    <height>331</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
@@ -80,34 +80,10 @@
       <string>Display</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="highlightMatchingParentheses">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="displayFoldingMarkers">
         <property name="text">
-         <string>&amp;Highlight matching parentheses</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="markTextChanges">
-        <property name="text">
-         <string>Mark &amp;text changes</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="visualizeWhitespace">
-        <property name="toolTip">
-         <string>Shows tabs and spaces.</string>
-        </property>
-        <property name="text">
-         <string>&amp;Visualize whitespace</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="highlightBlocks">
-        <property name="text">
-         <string>Highlight &amp;blocks</string>
+         <string>Display &amp;folding markers</string>
         </property>
        </widget>
       </item>
@@ -118,17 +94,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="displayFoldingMarkers">
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="highlightBlocks">
         <property name="text">
-         <string>Display &amp;folding markers</string>
+         <string>Highlight &amp;blocks</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="highlightCurrentLine">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="autoFoldFirstComment">
         <property name="text">
-         <string>Highlight current &amp;line</string>
+         <string>Auto-fold first &amp;comment</string>
         </property>
        </widget>
       </item>
@@ -139,17 +115,17 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="highlightCurrentLine">
+        <property name="text">
+         <string>Highlight current &amp;line</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QCheckBox" name="displayLineNumbers">
         <property name="text">
          <string>Display line &amp;numbers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="autoFoldFirstComment">
-        <property name="text">
-         <string>Auto-fold first &amp;comment</string>
         </property>
        </widget>
       </item>
@@ -164,6 +140,37 @@
        <widget class="QCheckBox" name="displayFileEncoding">
         <property name="text">
          <string>Display file encoding</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="visualizeWhitespace">
+        <property name="toolTip">
+         <string>Shows tabs and spaces.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Visualize whitespace</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="highlightMatchingParentheses">
+        <property name="text">
+         <string>&amp;Highlight matching parentheses</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="markTextChanges">
+        <property name="text">
+         <string>Mark &amp;text changes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="scrollBarHighlights">
+        <property name="text">
+         <string>Highlight search results on the scrollbar</string>
         </property>
        </widget>
       </item>
