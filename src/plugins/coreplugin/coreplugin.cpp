@@ -211,6 +211,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
                              [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
 
+    expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QStringLiteral(""); });
+
     // Make sure all wizards are there when the user might access the keyboard shortcuts:
     connect(ICore::instance(), &ICore::optionsDialogRequested, []() { IWizardFactory::allWizardFactories(); });
 
