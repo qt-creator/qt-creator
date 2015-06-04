@@ -69,6 +69,10 @@ ModelManagerSupportClang::ModelManagerSupportClang()
             this, &ModelManagerSupportClang::onEditorOpened);
 
     CppTools::CppModelManager *modelManager = cppModelManager();
+    connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
+            this, &ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated);
+    connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportRemoved,
+            this, &ModelManagerSupportClang::onAbstractEditorSupportRemoved);
     connect(modelManager, &CppTools::CppModelManager::projectPartsUpdated,
             this, &ModelManagerSupportClang::onProjectPartsUpdated);
     connect(modelManager, &CppTools::CppModelManager::projectPartsRemoved,
