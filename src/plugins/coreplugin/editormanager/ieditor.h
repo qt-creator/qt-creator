@@ -46,7 +46,6 @@ class CORE_EXPORT IEditor : public IContext
 
 public:
     IEditor(QObject *parent = 0);
-    virtual ~IEditor() {}
 
     bool duplicateSupported() const;
     void setDuplicateSupported(bool duplicateSupported);
