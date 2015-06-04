@@ -85,6 +85,7 @@ private:
     QAction *m_zoomAction;
     QAction *m_closeAction;
     QAction *m_toggleFullScreenAction;
+    bool m_shutdown = false;
 };
 
 } // Internal

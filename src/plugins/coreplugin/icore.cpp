@@ -340,7 +340,7 @@ void ICore::showNewItemDialog(const QString &title,
 {
     QTC_ASSERT(!isNewItemDialogRunning(), return);
     auto newDialog = new NewDialog(dialogParent());
-    connect(newDialog, &QObject::destroyed, &ICore::validateNewDialogIsRunning);
+    connect(newDialog, &QObject::destroyed, m_instance, &ICore::validateNewDialogIsRunning);
     newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
     newDialog->setWindowTitle(title);
     newDialog->showDialog();

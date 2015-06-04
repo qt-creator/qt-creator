@@ -339,8 +339,6 @@ void IWizardFactory::destroyFeatureProvider()
 
 void IWizardFactory::clearWizardFactories()
 {
-    QTC_ASSERT(!ICore::isNewItemDialogRunning(), return);
-
     foreach (IWizardFactory *factory, s_allFactories)
         ActionManager::unregisterAction(factory->m_action, actionId(factory));
 
