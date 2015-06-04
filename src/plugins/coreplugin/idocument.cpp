@@ -118,6 +118,19 @@ Id IDocument::id() const
 }
 
 /*!
+    \enum IDocument::OpenResult
+    The OpenResult enum describes whether a file was successfully opened.
+
+    \value Success
+           The file was read successfully and can be handled by this document type.
+    \value ReadError
+           The file could not be opened for reading, either because it does not exist or
+           because of missing permissions.
+    \value CannotHandle
+           This document type could not handle the file content.
+*/
+
+/*!
  * Used to load a file if this document is part of an IEditor implementation, when the editor
  * is opened.
  * If the editor is opened from an auto save file, \a realFileName is the name of the auto save
@@ -127,14 +140,14 @@ Id IDocument::id() const
  * If the editor is opened from a regular file, \a fileName and \a realFileName are the same.
  * Use \a errorString to return an error message, if this document can not handle the
  * file contents.
- * Returns true on success, false if an error occurred.
+ * Returns whether the file was opened and read successfully.
  */
-bool IDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
+IDocument::OpenResult IDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(fileName)
     Q_UNUSED(realFileName)
-    return false;
+    return OpenResult::CannotHandle;
 }
 
 /*!

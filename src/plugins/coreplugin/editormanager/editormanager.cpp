@@ -612,11 +612,24 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         }
 
         QString errorString;
-        if (editor->document()->open(&errorString, fn, realFn))
+        IDocument::OpenResult openResult = editor->document()->open(&errorString, fn, realFn);
+        if (openResult == IDocument::OpenResult::Success)
             break;
 
         overrideCursor.reset();
         delete editor;
+
+        if (openResult == IDocument::OpenResult::ReadError) {
+            QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
+                               tr("Could not open \"%1\" for reading. "
+                                  "Either the file does not exist or you do not have "
+                                  "the permissions to open it.")
+                               .arg(FileName::fromString(realFn).toUserOutput()),
+                               QMessageBox::Ok, ICore::dialogParent());
+            msgbox.exec();
+            return 0;
+        }
+        QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
 
         if (errorString.isEmpty()) {
             errorString = tr("Could not open \"%1\": Unknown error.")

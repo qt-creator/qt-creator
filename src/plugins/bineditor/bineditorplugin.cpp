@@ -265,13 +265,13 @@ public:
         }
     }
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName)
+    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName)
     {
         QTC_CHECK(fileName == realFileName); // The bineditor can do no autosaving
         return openImpl(errorString, fileName);
     }
 
-    bool openImpl(QString *errorString, const QString &fileName, quint64 offset = 0)
+    OpenResult openImpl(QString *errorString, const QString &fileName, quint64 offset = 0)
     {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
@@ -283,7 +283,7 @@ public:
                     *errorString = msg;
                 else
                     QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
-                return false;
+                return OpenResult::CannotHandle;
             }
             if (size > INT_MAX) {
                 QString msg = tr("The file is too big for the Binary Editor (max. 2GB).");
@@ -291,13 +291,13 @@ public:
                     *errorString = msg;
                 else
                     QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
-                return false;
+                return OpenResult::CannotHandle;
             }
             if (offset >= size)
-                return false;
+                return OpenResult::CannotHandle;
             setFilePath(FileName::fromString(fileName));
             m_widget->setSizes(offset, file.size());
-            return true;
+            return OpenResult::Success;
         }
         QString errStr = tr("Cannot open %1: %2").arg(
                 QDir::toNativeSeparators(fileName), file.errorString());
@@ -305,7 +305,7 @@ public:
             *errorString = errStr;
         else
             QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errStr);
-        return false;
+        return OpenResult::ReadError;
     }
 
 private slots:
@@ -363,7 +363,7 @@ public:
             emit aboutToReload();
             int cPos = m_widget->cursorPosition();
             m_widget->clear();
-            const bool success = openImpl(errorString, filePath().toString());
+            const bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
             m_widget->setCursorPosition(cPos);
             emit reloadFinished(success);
             return success;

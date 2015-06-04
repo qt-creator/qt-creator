@@ -113,19 +113,19 @@ ResourceFile::~ResourceFile()
     clearPrefixList();
 }
 
-bool ResourceFile::load()
+Core::IDocument::OpenResult ResourceFile::load()
 {
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
         m_error_message = tr("The file name is empty.");
-        return false;
+        return Core::IDocument::OpenResult::ReadError;
     }
 
     QFile file(m_file_name);
     if (!file.open(QIODevice::ReadOnly)) {
         m_error_message = file.errorString();
-        return false;
+        return Core::IDocument::OpenResult::ReadError;
     }
     QByteArray data = file.readAll();
     // Detect line ending style
@@ -143,13 +143,13 @@ bool ResourceFile::load()
     if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
         m_error_message = tr("XML error on line %1, col %2: %3")
                     .arg(error_line).arg(error_col).arg(error_msg);
-        return false;
+        return Core::IDocument::OpenResult::CannotHandle;
     }
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
         m_error_message = tr("The <RCC> root element is missing.");
-        return false;
+        return Core::IDocument::OpenResult::CannotHandle;
     }
 
     QDomElement relt = root.firstChildElement(QLatin1String("qresource"));
@@ -181,7 +181,7 @@ bool ResourceFile::load()
         }
     }
 
-    return true;
+    return Core::IDocument::OpenResult::Success;
 }
 
 QString ResourceFile::contents() const
@@ -1068,11 +1068,11 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
     return index(file_idx, 0, prefix_model_idx);
 }
 
-bool ResourceModel::reload()
+Core::IDocument::OpenResult ResourceModel::reload()
 {
     beginResetModel();
-    const bool result = m_resource_file.load();
-    if (result)
+    Core::IDocument::OpenResult result = m_resource_file.load();
+    if (result == Core::IDocument::OpenResult::Success)
         setDirty(false);
     endResetModel();
     return result;

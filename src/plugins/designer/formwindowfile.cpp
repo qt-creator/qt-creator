@@ -70,23 +70,27 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             m_resourceHandler, &ResourceHandler::updateResources);
 }
 
-bool FormWindowFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult FormWindowFile::open(QString *errorString, const QString &fileName,
+                                                 const QString &realFileName)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowFile::open" << fileName;
 
     QDesignerFormWindowInterface *form = formWindow();
-    QTC_ASSERT(form, return false);
+    QTC_ASSERT(form, return OpenResult::CannotHandle);
 
     if (fileName.isEmpty())
-        return true;
+        return OpenResult::ReadError;
 
     const QFileInfo fi(fileName);
     const QString absfileName = fi.absoluteFilePath();
 
     QString contents;
-    if (read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
-        return false;
+    Utils::TextFileFormat::ReadResult readResult = read(absfileName, &contents, errorString);
+    if (readResult == Utils::TextFileFormat::ReadEncodingError)
+        return OpenResult::CannotHandle;
+    else if (readResult != Utils::TextFileFormat::ReadSuccess)
+        return OpenResult::ReadError;
 
     form->setFileName(absfileName);
     const QByteArray contentsBA = contents.toUtf8();
@@ -94,7 +98,7 @@ bool FormWindowFile::open(QString *errorString, const QString &fileName, const Q
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
     if (!form->setContents(&str, errorString))
-        return false;
+        return OpenResult::CannotHandle;
     form->setDirty(fileName != realFileName);
 
     syncXmlFromFormWindow();
@@ -102,7 +106,7 @@ bool FormWindowFile::open(QString *errorString, const QString &fileName, const Q
     setShouldAutoSave(false);
     resourceHandler()->updateProjectResources();
 
-    return true;
+    return OpenResult::Success;
 }
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
@@ -209,7 +213,8 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         emit changed();
     } else {
         emit aboutToReload();
-        const bool success = open(errorString, filePath().toString(), filePath().toString());
+        const bool success
+                = (open(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success);
         emit reloadFinished(success);
         return success;
     }

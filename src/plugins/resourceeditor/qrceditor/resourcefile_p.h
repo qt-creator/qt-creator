@@ -38,6 +38,7 @@
 #include <QStringList>
 #include <QIcon>
 
+#include <coreplugin/idocument.h>
 #include <utils/textfileformat.h>
 
 namespace ResourceEditor {
@@ -137,7 +138,7 @@ public:
 
     void setFileName(const QString &file_name) { m_file_name = file_name; }
     QString fileName() const { return m_file_name; }
-    bool load();
+    Core::IDocument::OpenResult load();
     bool save();
     QString contents() const;
     QString errorMessage() const { return m_error_message; }
@@ -255,7 +256,7 @@ private:
     bool renameFile(const QString &fileName, const QString &newFileName);
 
 public:
-    virtual bool reload();
+    virtual Core::IDocument::OpenResult reload();
     virtual bool save();
     QString contents() const { return m_resource_file.contents(); }
 

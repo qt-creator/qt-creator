@@ -139,7 +139,7 @@ void ResourceTopLevelNode::update()
     QMap<QPair<QString, QString>, QList<ProjectExplorer::FileNode *> > filesToAdd;
 
     ResourceFile file(path().toString());
-    if (file.load()) {
+    if (file.load() == Core::IDocument::OpenResult::Success) {
         QSet<QPair<QString, QString > > prefixes;
 
         int prfxcount = file.prefixCount();

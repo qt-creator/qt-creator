@@ -85,25 +85,29 @@ ImageViewerFile::~ImageViewerFile()
     cleanUp();
 }
 
-bool ImageViewerFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult ImageViewerFile::open(QString *errorString, const QString &fileName,
+                                                  const QString &realFileName)
 {
     QTC_CHECK(fileName == realFileName); // does not support auto save
-    bool success = openImpl(errorString, fileName);
-    emit openFinished(success);
+    OpenResult success = openImpl(errorString, fileName);
+    emit openFinished(success == OpenResult::Success);
     return success;
 }
 
-bool ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
+Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
 {
     cleanUp();
     m_type = TypeInvalid;
+
+    if (!QFileInfo(fileName).isReadable())
+        return OpenResult::ReadError;
 
     QByteArray format = QImageReader::imageFormat(fileName);
     // if it is impossible to recognize a file format - file will not be open correctly
     if (format.isEmpty()) {
         if (errorString)
             *errorString = tr("Image format not supported.");
-        return false;
+        return OpenResult::CannotHandle;
     }
 
 #ifndef QT_NO_SVG
@@ -114,7 +118,7 @@ bool ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
         if (bound.width() == 0 && bound.height() == 0) {
             if (errorString)
                 *errorString = tr("Failed to read SVG image.");
-            return false;
+            return OpenResult::CannotHandle;
         }
         emit imageSizeChanged(QSize());
     } else
@@ -135,7 +139,7 @@ bool ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
             if (errorString)
                 *errorString = tr("Failed to read image.");
             delete m_pixmap;
-            return false;
+            return OpenResult::CannotHandle;
         }
         emit imageSizeChanged(m_pixmap->size());
     }
@@ -143,7 +147,7 @@ bool ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
     setFilePath(Utils::FileName::fromString(fileName));
     Utils::MimeDatabase mdb;
     setMimeType(mdb.mimeTypeForFile(fileName).name());
-    return true;
+    return OpenResult::Success;
 }
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -166,7 +170,7 @@ bool ImageViewerFile::reload(QString *errorString,
         return true;
     }
     emit aboutToReload();
-    bool success = openImpl(errorString, filePath().toString());
+    bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
     emit reloadFinished(success);
     return success;
 }

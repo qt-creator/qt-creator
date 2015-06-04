@@ -57,7 +57,7 @@ public:
     ResourceEditorDocument(QObject *parent = 0);
 
     //IDocument
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString plainText() const;
     bool setContents(const QByteArray &contents);

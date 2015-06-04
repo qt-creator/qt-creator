@@ -57,22 +57,23 @@ SubmitEditorFile::SubmitEditorFile(const VcsBaseSubmitEditorParameters *paramete
     setTemporary(true);
 }
 
-bool SubmitEditorFile::open(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const QString &fileName,
+                                                   const QString &realFileName)
 {
     if (fileName.isEmpty())
-        return false;
+        return OpenResult::ReadError;
 
     FileReader reader;
     if (!reader.fetch(realFileName, QIODevice::Text, errorString))
-        return false;
+        return OpenResult::ReadError;
 
     const QString text = QString::fromLocal8Bit(reader.data());
     if (!m_editor->setFileContents(text.toUtf8()))
-        return false;
+        return OpenResult::CannotHandle;
 
     setFilePath(FileName::fromString(fileName));
     setModified(fileName != realFileName);
-    return true;
+    return OpenResult::Success;
 }
 
 bool SubmitEditorFile::setContents(const QByteArray &contents)

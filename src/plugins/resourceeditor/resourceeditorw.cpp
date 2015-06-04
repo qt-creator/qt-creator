@@ -120,8 +120,9 @@ ResourceEditorW::~ResourceEditorW()
     delete m_toolBar;
 }
 
-bool ResourceEditorDocument::open(QString *errorString, const QString &fileName,
-                                  const QString &realFileName)
+Core::IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
+                                                         const QString &fileName,
+                                                         const QString &realFileName)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << fileName;
@@ -130,11 +131,12 @@ bool ResourceEditorDocument::open(QString *errorString, const QString &fileName,
 
     m_model->setFileName(realFileName);
 
-    if (!m_model->reload()) {
+    OpenResult openResult = m_model->reload();
+    if (openResult != OpenResult::Success) {
         *errorString = m_model->errorMessage();
         setBlockDirtyChanged(false);
         emit loaded(false);
-        return false;
+        return openResult;
     }
 
     setFilePath(FileName::fromString(fileName));
@@ -143,7 +145,7 @@ bool ResourceEditorDocument::open(QString *errorString, const QString &fileName,
     m_shouldAutoSave = false;
 
     emit loaded(true);
-    return true;
+    return OpenResult::Success;
 }
 
 bool ResourceEditorDocument::save(QString *errorString, const QString &name, bool autoSave)
@@ -194,7 +196,7 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
 
     const QString originalFileName = m_model->fileName();
     m_model->setFileName(saver.fileName());
-    const bool success = m_model->reload();
+    const bool success = (m_model->reload() == OpenResult::Success);
     m_model->setFileName(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
@@ -253,7 +255,7 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
     } else {
         emit aboutToReload();
         QString fn = filePath().toString();
-        const bool success = open(errorString, fn, fn);
+        const bool success = (open(errorString, fn, fn) == OpenResult::Success);
         emit reloadFinished(success);
         return success;
     }

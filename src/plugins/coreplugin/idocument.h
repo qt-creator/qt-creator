@@ -50,6 +50,12 @@ class CORE_EXPORT IDocument : public QObject
     Q_OBJECT
 
 public:
+    enum class OpenResult {
+        Success,
+        ReadError,
+        CannotHandle
+    };
+
     // This enum must match the indexes of the reloadBehavior widget
     // in generalsettings.ui
     enum ReloadSetting {
@@ -86,7 +92,7 @@ public:
     Id id() const;
 
     // required to be re-implemented for documents of IEditors
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    virtual OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);

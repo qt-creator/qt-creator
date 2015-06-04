@@ -235,18 +235,20 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    return open(errorString, filePath().toString(), filePath().toString());
+    return open(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success;
 }
 
-bool DiffEditorDocument::open(QString *errorString, const QString &fileName,
+Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const QString &fileName,
                               const QString &realFileName)
 {
-    QTC_ASSERT(errorString, return false);
-    QTC_ASSERT(fileName == realFileName, return false); // does not support autosave
+    QTC_CHECK(fileName == realFileName); // does not support autosave
     beginReload();
     QString patch;
-    if (read(fileName, &patch, errorString) != TextFileFormat::ReadSuccess)
-        return false;
+    ReadResult readResult = read(fileName, &patch, errorString);
+    if (readResult == TextFileFormat::ReadEncodingError)
+        return OpenResult::CannotHandle;
+    else if (readResult != TextFileFormat::ReadSuccess)
+        return OpenResult::ReadError;
 
     bool ok = false;
     QList<FileData> fileDataList = DiffUtils::readPatch(patch, &ok);
@@ -262,7 +264,7 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName,
         setDiffFiles(fileDataList, fi.absolutePath());
     }
     endReload(ok);
-    return ok;
+    return ok ? OpenResult::Success : OpenResult::CannotHandle;
 }
 
 QString DiffEditorDocument::suggestedFileName() const

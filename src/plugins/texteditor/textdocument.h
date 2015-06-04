@@ -117,7 +117,7 @@ public:
     void setDefaultPath(const QString &defaultPath);
     void setSuggestedFileName(const QString &suggestedFileName);
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual bool reload(QString *errorString);
 
     bool setPlainText(const QString &text);
@@ -148,7 +148,7 @@ protected slots:
     virtual void applyFontSettings();
 
 private:
-    bool openImpl(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult openImpl(QString *errorString, const QString &fileName, const QString &realFileName);
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
 

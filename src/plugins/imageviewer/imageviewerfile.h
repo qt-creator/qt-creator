@@ -65,7 +65,7 @@ public:
     ImageViewerFile();
     ~ImageViewerFile();
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     bool setContents(const QByteArray &contents);
 
@@ -93,7 +93,7 @@ signals:
 
 private:
     void cleanUp();
-    bool openImpl(QString *errorString, const QString &fileName);
+    OpenResult openImpl(QString *errorString, const QString &fileName);
 
     ImageType m_type = TypeInvalid;
 #ifndef QT_NO_SVG

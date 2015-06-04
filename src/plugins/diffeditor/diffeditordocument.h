@@ -77,7 +77,7 @@ public:
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     void reload();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     QString plainText() const;
 

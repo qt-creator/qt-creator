@@ -558,20 +558,21 @@ void TextDocument::checkPermissions()
         emit changed();
 }
 
-bool TextDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult TextDocument::open(QString *errorString, const QString &fileName,
+                                               const QString &realFileName)
 {
     emit aboutToOpen(fileName, realFileName);
-    bool success = openImpl(errorString, fileName, realFileName);
-    if (success) {
+    OpenResult success = openImpl(errorString, fileName, realFileName);
+    if (success == OpenResult::Success) {
         Utils::MimeDatabase mdb;
         setMimeType(mdb.mimeTypeForFile(fileName).name());
         emit openFinishedSuccessfully();
-        return true;
     }
-    return false;
+    return success;
 }
 
-bool TextDocument::openImpl(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const QString &fileName,
+                                                   const QString &realFileName)
 {
     QStringList content;
 
@@ -608,14 +609,15 @@ bool TextDocument::openImpl(QString *errorString, const QString &fileName, const
         }
         TextDocumentLayout *documentLayout =
             qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
-        QTC_ASSERT(documentLayout, return true);
+        QTC_ASSERT(documentLayout, return OpenResult::CannotHandle);
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
         d->updateRevisions();
         d->m_document.setModified(fileName != realFileName);
         setFilePath(Utils::FileName::fromUserInput(fi.absoluteFilePath()));
     }
-    return readResult == Utils::TextFileFormat::ReadSuccess
-           || readResult == Utils::TextFileFormat::ReadEncodingError;
+    if (readResult == Utils::TextFileFormat::ReadIOError)
+        return OpenResult::ReadError;
+    return OpenResult::Success;
 }
 
 bool TextDocument::reload(QString *errorString, QTextCodec *codec)
@@ -634,7 +636,7 @@ bool TextDocument::reload(QString *errorString)
     if (documentLayout)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
-    bool success = openImpl(errorString, filePath().toString(), filePath().toString());
+    bool success = (openImpl(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success);
 
     if (documentLayout)
         documentLayout->documentReloaded(marks, this); // re-adds text marks
