@@ -81,33 +81,31 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
 {
     if (!m_engine->isMasterEngine())
         m_engine = m_engine->masterEngine();
-    connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
-            SLOT(onEngineStateChanged(Debugger::DebuggerState)));
-    connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
-            SLOT(onObjectFetched(QmlDebug::ObjectReference)));
-    connect(m_agent, SIGNAL(jumpToObjectDefinition(QmlDebug::FileReference,int)),
-            SLOT(jumpToObjectDefinitionInEditor(QmlDebug::FileReference,int)));
+    connect(m_engine, &DebuggerEngine::stateChanged,
+            this, &QmlInspectorAdapter::onEngineStateChanged);
+    connect(m_agent, &QmlInspectorAgent::objectFetched,
+            this, &QmlInspectorAdapter::onObjectFetched);
+    connect(m_agent, &QmlInspectorAgent::jumpToObjectDefinition,
+            this, &QmlInspectorAdapter::jumpToObjectDefinitionInEditor);
 
     QmlDebugConnection *connection = m_debugAdapter->connection();
-    DeclarativeEngineDebugClient *engineClient1
-            = new DeclarativeEngineDebugClient(connection);
-    connect(engineClient1, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(clientStateChanged(QmlDebug::QmlDebugClient::State)));
-    connect(engineClient1, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(engineClientStateChanged(QmlDebug::QmlDebugClient::State)));
+    auto engineClient1 = new DeclarativeEngineDebugClient(connection);
+    connect(engineClient1, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAdapter::clientStateChanged);
+    connect(engineClient1, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAdapter::engineClientStateChanged);
 
-    QmlEngineDebugClient *engineClient2 = new QmlEngineDebugClient(connection);
-    connect(engineClient2, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(clientStateChanged(QmlDebug::QmlDebugClient::State)));
-    connect(engineClient2, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(engineClientStateChanged(QmlDebug::QmlDebugClient::State)));
+    auto engineClient2 = new QmlEngineDebugClient(connection);
+    connect(engineClient2, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAdapter::clientStateChanged);
+    connect(engineClient2, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAdapter::engineClientStateChanged);
 
-    DeclarativeEngineDebugClientV2 *engineClient3
-            = new DeclarativeEngineDebugClientV2(connection);
-    connect(engineClient3, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(clientStateChanged(QmlDebug::QmlDebugClient::State)));
-    connect(engineClient3, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(engineClientStateChanged(QmlDebug::QmlDebugClient::State)));
+    auto engineClient3 = new DeclarativeEngineDebugClientV2(connection);
+    connect(engineClient3, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAdapter::clientStateChanged);
+    connect(engineClient3, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAdapter::engineClientStateChanged);
 
     m_engineClients.insert(engineClient1->name(), engineClient1);
     m_engineClients.insert(engineClient2->name(), engineClient2);
@@ -120,17 +118,17 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     if (engineClient3->state() == QmlDebugClient::Enabled)
         setActiveEngineClient(engineClient3);
 
-    DeclarativeToolsClient *toolsClient1 = new DeclarativeToolsClient(connection);
-    connect(toolsClient1, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(clientStateChanged(QmlDebug::QmlDebugClient::State)));
-    connect(toolsClient1, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(toolsClientStateChanged(QmlDebug::QmlDebugClient::State)));
+    auto toolsClient1 = new DeclarativeToolsClient(connection);
+    connect(toolsClient1, &BaseToolsClient::newState,
+            this, &QmlInspectorAdapter::clientStateChanged);
+    connect(toolsClient1, &BaseToolsClient::newState,
+            this, &QmlInspectorAdapter::toolsClientStateChanged);
 
-    QmlToolsClient *toolsClient2 = new QmlToolsClient(connection);
+    auto toolsClient2 = new QmlToolsClient(connection);
     connect(toolsClient2, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
             this, SLOT(clientStateChanged(QmlDebug::QmlDebugClient::State)));
-    connect(toolsClient2, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(toolsClientStateChanged(QmlDebug::QmlDebugClient::State)));
+    connect(toolsClient2, &BaseToolsClient::newState,
+            this, &QmlInspectorAdapter::toolsClientStateChanged);
 
     // toolbar
     m_selectAction->setObjectName(QLatin1String("QML Select Action"));
@@ -142,12 +140,12 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     m_zoomAction->setEnabled(false);
     m_showAppOnTopAction->setEnabled(false);
 
-    connect(m_selectAction, SIGNAL(triggered(bool)),
-            SLOT(onSelectActionTriggered(bool)));
-    connect(m_zoomAction, SIGNAL(triggered(bool)),
-            SLOT(onZoomActionTriggered(bool)));
-    connect(m_showAppOnTopAction, SIGNAL(triggered(bool)),
-            SLOT(onShowAppOnTopChanged(bool)));
+    connect(m_selectAction, &QAction::triggered,
+            this, &QmlInspectorAdapter::onSelectActionTriggered);
+    connect(m_zoomAction, &QAction::triggered,
+            this, &QmlInspectorAdapter::onZoomActionTriggered);
+    connect(m_showAppOnTopAction, &QAction::triggered,
+            this, &QmlInspectorAdapter::onShowAppOnTopChanged);
 }
 
 QmlInspectorAdapter::~QmlInspectorAdapter()
@@ -198,11 +196,11 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
     if (state == QmlDebugClient::Enabled) {
         m_toolsClient = client;
 
-        connect(client, SIGNAL(currentObjectsChanged(QList<int>)),
-                SLOT(selectObjectsFromToolsClient(QList<int>)));
-        connect(client, SIGNAL(logActivity(QString,QString)),
-                m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
-        connect(client, SIGNAL(reloaded()), SLOT(onReloaded()));
+        connect(client, &BaseToolsClient::currentObjectsChanged,
+                this, &QmlInspectorAdapter::selectObjectsFromToolsClient);
+        connect(client, &BaseToolsClient::logActivity,
+                m_debugAdapter, &QmlAdapter::logServiceActivity);
+        connect(client, &BaseToolsClient::reloaded, this, &QmlInspectorAdapter::onReloaded);
 
         // register actions here
         // because there can be multiple QmlEngines

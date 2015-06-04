@@ -69,7 +69,7 @@ public:
 signals:
     void expressionResult();
 
-private slots:
+private:
     void onEngineStateChanged(const Debugger::DebuggerState);
 
     void clientStateChanged(QmlDebug::QmlDebugClient::State state);
@@ -85,7 +85,6 @@ private slots:
     void onReloaded();
     void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource, int debugId = -1);
 
-private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
     void showConnectionStateMessage(const QString &message);
