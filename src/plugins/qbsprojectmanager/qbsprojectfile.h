@@ -46,7 +46,6 @@ public:
     QbsProjectFile(QbsProject *parent, QString fileName);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
-    bool isReadOnly() const;
 
     QString defaultPath() const override;
     QString suggestedFileName() const override;

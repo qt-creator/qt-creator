@@ -49,11 +49,6 @@ bool QbsProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-bool QbsProjectFile::isReadOnly() const
-{
-    return true;
-}
-
 QString QbsProjectFile::defaultPath() const
 {
     return QString();
