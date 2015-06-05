@@ -39,6 +39,7 @@
 #include <debugger/debuggerprotocol.h>
 
 #include <utils/consoleprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QPointer>
 #include <QProcess>
@@ -183,7 +184,7 @@ private:
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;
-    QProcess m_lldbProc;
+    Utils::QtcProcess m_lldbProc;
     QString m_lldbCmd;
 
     // FIXME: Make generic.

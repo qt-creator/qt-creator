@@ -253,11 +253,12 @@ void LldbEngine::startLldb()
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
     showMessage(_("STARTING LLDB: ") + m_lldbCmd);
-    m_lldbProc.setEnvironment(runParameters().environment.toStringList());
+    m_lldbProc.setEnvironment(runParameters().environment);
     if (!runParameters().workingDirectory.isEmpty())
         m_lldbProc.setWorkingDirectory(runParameters().workingDirectory);
 
-    m_lldbProc.start(m_lldbCmd);
+    m_lldbProc.setCommand(m_lldbCmd, QString());
+    m_lldbProc.start();
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start LLDB \"%1\": %2")
