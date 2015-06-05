@@ -1324,10 +1324,14 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
                 // we found full specialization
                 reference = cit->second;
             } else {
-                LookupScopePrivate *specializationWithPointer
-                        = findSpecialization(templId, specializations, origin);
-                if (specializationWithPointer)
-                    reference = specializationWithPointer;
+                if (LookupScopePrivate *specialization =
+                        findSpecialization(templId, specializations, origin)) {
+                    reference = specialization;
+                    if (Q_UNLIKELY(debug)) {
+                        Overview oo;
+                        qDebug() << "picked specialization" << oo(specialization->_name);
+                    }
+                }
             }
             // let's instantiation be instantiation
             nonConstTemplId->setIsSpecialization(false);
