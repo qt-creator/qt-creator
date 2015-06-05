@@ -1168,7 +1168,9 @@ static LookupScopePrivate *findSpecializationWithMatchingTemplateArgument(
 }
 
 LookupScopePrivate *LookupScopePrivate::findSpecialization(
-        const TemplateNameId *templId, const TemplateNameIdTable &specializations, LookupScopePrivate *origin)
+        const TemplateNameId *templId,
+        const TemplateNameIdTable &specializations,
+        LookupScopePrivate *origin)
 {
     // we go through all specialization and try to find that one with template argument as pointer
     for (TemplateNameIdTable::const_iterator cit = specializations.begin();
@@ -1176,51 +1178,47 @@ LookupScopePrivate *LookupScopePrivate::findSpecialization(
         const TemplateNameId *specializationNameId = cit->first;
         const unsigned specializationTemplateArgumentCount
                 = specializationNameId->templateArgumentCount();
-        const unsigned initializationTemplateArgumentCount
-                = templId->templateArgumentCount();
+        const unsigned initializationTemplateArgumentCount = templId->templateArgumentCount();
         // for now it works only when we have the same number of arguments in specialization
         // and initialization(in future it should be more clever)
-        if (specializationTemplateArgumentCount == initializationTemplateArgumentCount) {
-            for (unsigned i = 0; i < initializationTemplateArgumentCount; ++i) {
-                const FullySpecifiedType &specializationTemplateArgument
-                        = specializationNameId->templateArgumentAt(i);
-                FullySpecifiedType initializationTemplateArgument
-                        = templId->templateArgumentAt(i);
-                TypeResolver typeResolver(*_factory);
-                Scope *scope = 0;
-                typeResolver.resolve(&initializationTemplateArgument, &scope, origin ? origin->q : 0);
-                PointerType *specPointer
-                        = specializationTemplateArgument.type()->asPointerType();
-                // specialization and initialization argument have to be a pointer
-                // additionally type of pointer argument of specialization has to be namedType
-                if (specPointer && initializationTemplateArgument.type()->isPointerType()
-                        && specPointer->elementType().type()->isNamedType()) {
-                    return cit->second;
-                }
+        if (specializationTemplateArgumentCount != initializationTemplateArgumentCount)
+            continue;
+        for (unsigned i = 0; i < initializationTemplateArgumentCount; ++i) {
+            const FullySpecifiedType &specializationTemplateArgument
+                    = specializationNameId->templateArgumentAt(i);
+            FullySpecifiedType initializationTemplateArgument = templId->templateArgumentAt(i);
+            TypeResolver typeResolver(*_factory);
+            Scope *scope = 0;
+            typeResolver.resolve(&initializationTemplateArgument, &scope, origin ? origin->q : 0);
+            PointerType *specPointer = specializationTemplateArgument.type()->asPointerType();
+            // specialization and initialization argument have to be a pointer
+            // additionally type of pointer argument of specialization has to be namedType
+            if (specPointer && initializationTemplateArgument.type()->isPointerType()
+                    && specPointer->elementType().type()->isNamedType()) {
+                return cit->second;
+            }
 
-                ArrayType *specArray
-                        = specializationTemplateArgument.type()->asArrayType();
-                if (specArray && initializationTemplateArgument.type()->isArrayType()) {
-                    if (const NamedType *argumentNamedType
-                            = specArray->elementType().type()->asNamedType()) {
-                        if (const Name *argumentName = argumentNamedType->name()) {
-                            if (LookupScopePrivate *reference
-                                    = findSpecializationWithMatchingTemplateArgument(
-                                            argumentName, cit->second)) {
-                                return reference;
-                            }
+            ArrayType *specArray = specializationTemplateArgument.type()->asArrayType();
+            if (specArray && initializationTemplateArgument.type()->isArrayType()) {
+                if (const NamedType *argumentNamedType
+                        = specArray->elementType().type()->asNamedType()) {
+                    if (const Name *argumentName = argumentNamedType->name()) {
+                        if (LookupScopePrivate *reference
+                                = findSpecializationWithMatchingTemplateArgument(
+                                    argumentName, cit->second)) {
+                            return reference;
                         }
                     }
                 }
+            }
 
-                if (specializationTemplateArgument == initializationTemplateArgument)
-                    return cit->second;
+            if (specializationTemplateArgument == initializationTemplateArgument)
+                return cit->second;
 
-                if (const NamedType *specName = specializationTemplateArgument->asNamedType()) {
-                    if (const NamedType *initName = initializationTemplateArgument->asNamedType()) {
-                        if (specName->name()->identifier() == initName->name()->identifier())
-                            return cit->second;
-                    }
+            if (const NamedType *specName = specializationTemplateArgument->asNamedType()) {
+                if (const NamedType *initName = initializationTemplateArgument->asNamedType()) {
+                    if (specName->name()->identifier() == initName->name()->identifier())
+                        return cit->second;
                 }
             }
         }
