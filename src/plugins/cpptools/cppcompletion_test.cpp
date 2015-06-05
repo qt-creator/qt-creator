@@ -1306,21 +1306,28 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Template1"));
 
     QTest::newRow("template_specialization_with_pointer") << _(
-            "template <typename T>\n"
-            "struct Template\n"
+            "template <typename T> struct Temp { T variable; };\n"
+            "template <typename T> struct Temp<T *> { T *pointer; };\n"
+            "void func()\n"
             "{\n"
-            "    T variable;\n"
-            "};\n"
-            "template <typename T>\n"
-            "struct Template<T *>\n"
-            "{\n"
-            "    T *pointer;\n"
-            "};\n"
-            "Template<int*> templ;\n"
-            "@\n"
+            "    Temp<int*> templ;\n"
+            "    @\n"
+            "}"
         ) << _("templ.") << (QStringList()
-            << QLatin1String("Template")
+            << QLatin1String("Temp")
             << QLatin1String("pointer"));
+
+    QTest::newRow("template_specialization_with_reference") << _(
+            "template <typename T> struct Temp { T variable; };\n"
+            "template <typename T> struct Temp<T &> { T reference; };\n"
+            "void func()\n"
+            "{\n"
+            "    Temp<int&> templ;\n"
+            "    @\n"
+            "}"
+        ) << _("templ.") << (QStringList()
+            << QLatin1String("Temp")
+            << QLatin1String("reference"));
 
     QTest::newRow("typedef_using_templates1") << _(
             "namespace NS1\n"
@@ -2637,6 +2644,22 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("i")
         << QLatin1String("s"));
 
+    QTest::newRow("partial_specialization_with_pointer") << _(
+            "struct b {};\n"
+            "struct a : b {};\n"
+            "template<class X, class Y> struct s { float f; };\n"
+            "template<class X> struct s<X, b*> { int i; };\n"
+            "template<class X> struct s<X, a*> { char j; };\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "    s<int, a*> var;\n"
+            "    @\n"
+            "}\n"
+    ) << _("var.") << (QStringList()
+        << QLatin1String("j")
+        << QLatin1String("s"));
+
     QTest::newRow("partial_specialization_templated_argument") << _(
             "template<class T> struct t {};\n"
             "\n"
@@ -2651,6 +2674,20 @@ void CppToolsPlugin::test_completion_data()
     ) << _("var.") << (QStringList()
         << QLatin1String("i")
         << QLatin1String("s"));
+
+    QTest::newRow("specialization_multiple_arguments") << _(
+            "class false_type {};\n"
+            "class true_type {};\n"
+            "template<class T1, class T2> class and_type { false_type f; };\n"
+            "template<> class and_type<true_type, true_type> { true_type t; };\n"
+            "void func()\n"
+            "{\n"
+            "    and_type<true_type, false_type> a;\n"
+            "    @;\n"
+            "}\n"
+     ) << _("a.") << (QStringList()
+        << QLatin1String("f")
+        << QLatin1String("and_type"));
 
     QTest::newRow("auto_declaration_in_if_condition") << _(
             "struct Foo { int bar; };\n"
