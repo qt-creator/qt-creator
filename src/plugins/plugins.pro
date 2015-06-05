@@ -69,7 +69,7 @@ exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
 
 # prefer qmake variable set on command line over env var
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
-!isEmpty(LLVM_INSTALL_DIR) {
+exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangcodemodel
 }
 
