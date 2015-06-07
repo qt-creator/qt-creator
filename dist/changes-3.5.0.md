@@ -84,6 +84,19 @@ C++ Support
 * Fixed expanding items in class view with double-click
   (QTCREATORBUG-2536)
 * Fixed code folding issues after missing closing braces
+* Fixed resolving of decltype (QTCREATORBUG-14483)
+* Fixed resolving of template using alias
+  For example: `template<class T> using U = Temp<T>` (QTCREATORBUG-14480)
+* Fixed some issues related to template lookup (QTCREATORBUG-14141,
+  QTCREATORBUG-14218, QTCREATORBUG-14237)
+* Fixed resolving of partial and full template specialization (QTCREATORBUG-14034)
+* Partially fixed STL containers (QTCREATORBUG-8937, QTCREATORBUG-8922)
+    * GCC implementation of `std::map`, `std::unique_ptr` (and other pointer wrappers)
+      and `std::vector` are known to work
+    * Known limitations:
+        * MSVC implementation is not supported
+        * types that contain a typedef for `pointer` are not supported
+          (For example: `std::unique_ptr<std::string>`)
 
 QML Support
 
