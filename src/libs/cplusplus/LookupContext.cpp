@@ -970,8 +970,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                         if (decl->isFunction() || decl->isDeclaration()) {
                             Clone cloner(_control.data());
                             Subst subst(_control.data());
-                            initializeSubst(cloner, subst, binding, scope,
-                                            specialization, instantiation);
+                            initializeSubst(cloner, subst, binding, specialization, instantiation);
                             Symbol *instantiatedFunctionTemplate =
                                     cloner.symbol(specialization->declaration(), &subst);
                             item.setType(instantiatedFunctionTemplate->type()); // override the type
@@ -1410,7 +1409,7 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
             Subst subst(_control.data());
             if (_factory->expandTemplates()) {
                 Clone cloner(_control.data());
-                _factory->initializeSubst(cloner, subst, origin ? origin->q : 0, 0,
+                _factory->initializeSubst(cloner, subst, origin ? origin->q : 0,
                                           templateSpecialization, templId);
                 Instantiator instantiator(cloner, subst);
                 instantiator.instantiate(reference, instantiation, true);
@@ -2092,7 +2091,6 @@ bool CreateBindings::visit(ObjCMethod *)
 void CreateBindings::initializeSubst(Clone &cloner,
                                      Subst &subst,
                                      LookupScope *origin,
-                                     Scope *scope,
                                      Template *specialization,
                                      const TemplateNameId *instantiation)
 {
@@ -2115,7 +2113,7 @@ void CreateBindings::initializeSubst(Clone &cloner,
                     cloner.type(tParam->type(), &subst);
 
         TypeResolver typeResolver(*this);
-        Scope *resolveScope = scope;
+        Scope *resolveScope = specialization->enclosingScope();
         typeResolver.resolve(&ty, &resolveScope, origin);
         if (i < templSpecArgumentCount && templSpecId->templateArgumentAt(i)->isPointerType()) {
             if (PointerType *pointerType = ty->asPointerType())

@@ -150,7 +150,7 @@ public:
     /// \internal
     LookupScope *allocLookupScope(LookupScope *parent, const Name *name);
 
-    void initializeSubst(Clone &cloner, Subst &subst, LookupScope *origin, Scope *scope,
+    void initializeSubst(Clone &cloner, Subst &subst, LookupScope *origin,
                          Template *specialization, const TemplateNameId *instantiation);
 
 protected:
