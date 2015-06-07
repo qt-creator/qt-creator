@@ -996,10 +996,11 @@ void tst_CheckSymbols::test_checksymbols_data()
 
     QTest::newRow("template_alias")
             << _("template<class T>\n"
-                 "using Foo = Bar;\n")
+                 "using Foo = Bar<T>;\n")
             << (QList<Use>()
                 << Use(1, 16, 1, Highlighting::TypeUse)
                 << Use(2, 7, 3, Highlighting::TypeUse)
+                << Use(2, 17, 1, Highlighting::TypeUse)
                 );
 
     QTest::newRow("using_inside_different_namespace_QTCREATORBUG7978")

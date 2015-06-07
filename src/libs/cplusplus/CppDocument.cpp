@@ -177,7 +177,7 @@ protected:
     virtual bool visit(Template *symbol)
     {
         if (Symbol *decl = symbol->declaration()) {
-            if (decl->isFunction() || decl->isClass())
+            if (decl->isFunction() || decl->isClass() || decl->isDeclaration())
                 return process(symbol);
         }
         return true;

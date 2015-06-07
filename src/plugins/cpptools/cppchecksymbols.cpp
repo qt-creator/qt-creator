@@ -423,12 +423,8 @@ Scope *CheckSymbols::enclosingScope() const
                 return funDef->symbol;
 
         } else if (TemplateDeclarationAST *templateDeclaration = ast->asTemplateDeclaration()) {
-            if (DeclarationAST *decl = templateDeclaration->declaration) {
-                if (FunctionDefinitionAST *funDef = decl->asFunctionDefinition()) {
-                    if (funDef->symbol)
-                        return funDef->symbol;
-                }
-            }
+            if (templateDeclaration->symbol)
+                return templateDeclaration->symbol;
 
         } else if (CompoundStatementAST *blockStmt = ast->asCompoundStatement()) {
             if (blockStmt->symbol)

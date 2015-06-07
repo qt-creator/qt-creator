@@ -967,6 +967,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "struct $Foo {};\n"
         "auto foo() -> @Foo {}\n"
     );
+
+    QTest::newRow("template_alias") << _(
+        "template<class $T>\n"
+        "using Foo = Bar<@T>;\n"
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
