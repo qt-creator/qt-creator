@@ -569,7 +569,7 @@ private:
 
     LookupScopePrivate *nestedType(const Name *name, LookupScopePrivate *origin);
 
-    LookupScopePrivate *findSpecialization(const TemplateNameId *templId,
+    LookupScopePrivate *findSpecialization(const Template *baseTemplate, const TemplateNameId *templId,
                                            const TemplateNameIdTable &specializations,
                                            LookupScopePrivate *origin);
 
@@ -1201,28 +1201,25 @@ static bool matchTypes(const FullySpecifiedType &instantiation,
 }
 
 LookupScopePrivate *LookupScopePrivate::findSpecialization(
+        const Template *baseTemplate,
         const TemplateNameId *templId,
         const TemplateNameIdTable &specializations,
         LookupScopePrivate *origin)
 {
+    Clone cloner(_factory->control().data());
     for (TemplateNameIdTable::const_iterator cit = specializations.begin();
          cit != specializations.end(); ++cit) {
         const TemplateNameId *specializationNameId = cit->first;
         const unsigned specializationTemplateArgumentCount
                 = specializationNameId->templateArgumentCount();
-        const unsigned initializationTemplateArgumentCount = templId->templateArgumentCount();
-        // for now it works only when we have the same number of arguments in specialization
-        // and initialization(in future it should be more clever)
-        if (specializationTemplateArgumentCount != initializationTemplateArgumentCount)
-            continue;
+        Subst subst(_factory->control().data());
         bool match = true;
-        for (unsigned i = 0; i < initializationTemplateArgumentCount && match; ++i) {
+        for (unsigned i = 0; i < specializationTemplateArgumentCount && match; ++i) {
             const FullySpecifiedType &specializationTemplateArgument
                     = specializationNameId->templateArgumentAt(i);
-            FullySpecifiedType initializationTemplateArgument = templId->templateArgumentAt(i);
-            TypeResolver typeResolver(*_factory);
-            Scope *scope = 0;
-            typeResolver.resolve(&initializationTemplateArgument, &scope, origin ? origin->q : 0);
+            FullySpecifiedType initializationTemplateArgument =
+                    _factory->resolveTemplateArgument(cloner, subst, origin ? origin->q : 0,
+                                                      baseTemplate, templId, i);
             // specialization and initialization argument have to be a pointer
             // additionally type of pointer argument of specialization has to be namedType
             if (findTemplateArgument(dereference(specializationTemplateArgument), cit->second)) {
@@ -1340,8 +1337,17 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
                 // we found full specialization
                 reference = cit->second;
             } else {
+                Template *baseTemplate = 0;
+                foreach (Symbol *s, reference->_symbols) {
+                    if (Class *clazz = s->asClass())
+                        baseTemplate = clazz->enclosingTemplate();
+                    else if (ForwardClassDeclaration *forward = s->asForwardClassDeclaration())
+                        baseTemplate = forward->enclosingTemplate();
+                    if (baseTemplate)
+                        break;
+                }
                 if (LookupScopePrivate *specialization =
-                        findSpecialization(templId, specializations, origin)) {
+                        findSpecialization(baseTemplate, templId, specializations, origin)) {
                     reference = specialization;
                     if (Q_UNLIKELY(debug)) {
                         Overview oo;
@@ -2088,40 +2094,50 @@ bool CreateBindings::visit(ObjCMethod *)
     return false;
 }
 
+FullySpecifiedType CreateBindings::resolveTemplateArgument(Clone &cloner,
+                                                           Subst &subst,
+                                                           LookupScope *origin,
+                                                           const Template *specialization,
+                                                           const TemplateNameId *instantiation,
+                                                           unsigned index)
+{
+    FullySpecifiedType ty;
+
+    const TypenameArgument *tParam
+            = specialization->templateParameterAt(index)->asTypenameArgument();
+    if (!tParam)
+        return ty;
+
+    if (index < instantiation->templateArgumentCount())
+        ty = instantiation->templateArgumentAt(index);
+    else
+        ty = cloner.type(tParam->type(), &subst);
+
+    TypeResolver typeResolver(*this);
+    Scope *resolveScope = specialization->enclosingScope();
+    typeResolver.resolve(&ty, &resolveScope, origin);
+    const TemplateNameId *templSpecId = specialization->name()->asTemplateNameId();
+    const unsigned templSpecArgumentCount = templSpecId ? templSpecId->templateArgumentCount() : 0;
+    if (index < templSpecArgumentCount && templSpecId->templateArgumentAt(index)->isPointerType()) {
+        if (PointerType *pointerType = ty->asPointerType())
+            ty = pointerType->elementType();
+    }
+
+    if (const Name *name = tParam->name())
+        subst.bind(cloner.name(name, &subst), ty);
+    return ty;
+}
+
 void CreateBindings::initializeSubst(Clone &cloner,
                                      Subst &subst,
                                      LookupScope *origin,
-                                     Template *specialization,
+                                     const Template *specialization,
                                      const TemplateNameId *instantiation)
 {
-    const unsigned argumentCountOfInitialization = instantiation->templateArgumentCount();
     const unsigned argumentCountOfSpecialization = specialization->templateParameterCount();
 
-    const TemplateNameId *templSpecId = specialization->name()->asTemplateNameId();
-    const unsigned templSpecArgumentCount = templSpecId ? templSpecId->templateArgumentCount() : 0;
-    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
-        const TypenameArgument *tParam
-                = specialization->templateParameterAt(i)->asTypenameArgument();
-        if (!tParam)
-            continue;
-        const Name *name = tParam->name();
-        if (!name)
-            continue;
-
-        FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
-                    instantiation->templateArgumentAt(i):
-                    cloner.type(tParam->type(), &subst);
-
-        TypeResolver typeResolver(*this);
-        Scope *resolveScope = specialization->enclosingScope();
-        typeResolver.resolve(&ty, &resolveScope, origin);
-        if (i < templSpecArgumentCount && templSpecId->templateArgumentAt(i)->isPointerType()) {
-            if (PointerType *pointerType = ty->asPointerType())
-                ty = pointerType->elementType();
-        }
-
-        subst.bind(cloner.name(name, &subst), ty);
-    }
+    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i)
+        resolveTemplateArgument(cloner, subst, origin, specialization, instantiation, i);
 }
 
 } // namespace CPlusPlus

@@ -2689,6 +2689,19 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("f")
         << QLatin1String("and_type"));
 
+    QTest::newRow("specialization_with_default_value") << _(
+            "class Foo {};\n"
+            "template<class T1 = Foo> class Temp;\n"
+            "template<> class Temp<Foo> { int var; };\n"
+            "void func()\n"
+            "{\n"
+            "    Temp<> t;\n"
+            "    @\n"
+            "}\n"
+     ) << _("t.") << (QStringList()
+        << QLatin1String("var")
+        << QLatin1String("Temp"));
+
     QTest::newRow("auto_declaration_in_if_condition") << _(
             "struct Foo { int bar; };\n"
             "void fun() {\n"
