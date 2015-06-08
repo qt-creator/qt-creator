@@ -109,7 +109,6 @@ QtcPlugin {
             "coregdbadapter.cpp", "coregdbadapter.h",
             "gdbengine.cpp", "gdbengine.h",
             "gdboptionspage.cpp", "gdboptionspage.h",
-            "gdbprocess.cpp", "gdbprocess.h",
             "gdbplainengine.cpp", "gdbplainengine.h",
             "remotegdbserveradapter.cpp", "remotegdbserveradapter.h",
             "startgdbserverdialog.cpp", "startgdbserverdialog.h",

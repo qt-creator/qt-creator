@@ -32,7 +32,6 @@
 #define DEBUGGER_ATTACHGDBADAPTER_H
 
 #include "gdbengine.h"
-#include "gdbprocess.h"
 
 namespace Debugger {
 namespace Internal {

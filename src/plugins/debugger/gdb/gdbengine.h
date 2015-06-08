@@ -41,6 +41,7 @@
 #include <coreplugin/id.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/qtcprocess.h>
 
 #include <QProcess>
 #include <QTextCodec>
@@ -474,7 +475,9 @@ protected:
     bool prepareCommand();
     void interruptLocalInferior(qint64 pid);
 
-    GdbProcess *m_gdbProc;
+protected:
+    Utils::QtcProcess m_gdbProc;
+    QString m_errorString;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 

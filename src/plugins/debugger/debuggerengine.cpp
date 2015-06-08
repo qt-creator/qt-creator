@@ -551,6 +551,9 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     if (!d->m_runParameters.environment.size())
         d->m_runParameters.environment = Utils::Environment();
 
+    if (isNativeMixedActive())
+        d->m_runParameters.environment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
+
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,

@@ -29,7 +29,6 @@
 ****************************************************************************/
 
 #include "gdbplainengine.h"
-#include "gdbprocess.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
@@ -127,9 +126,10 @@ void GdbPlainEngine::setupEngine()
     gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
 
     if (!runParameters().workingDirectory.isEmpty())
-        m_gdbProc->setWorkingDirectory(runParameters().workingDirectory);
-    if (runParameters().environment.size())
-        m_gdbProc->setEnvironment(runParameters().environment.toStringList());
+        m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
+    Utils::Environment env = runParameters().environment;
+    if (env.size())
+        m_gdbProc.setEnvironment(env);
 
     startGdb(gdbArgs);
 }

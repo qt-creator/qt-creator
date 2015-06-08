@@ -30,13 +30,12 @@
 
 #include "remotegdbserveradapter.h"
 
-#include "gdbprocess.h"
-
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
+#include <debugger/procinterrupt.h>
 
 #include <coreplugin/messagebox.h>
 
@@ -63,7 +62,7 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &startP
     : GdbEngine(startParameters), m_startAttempted(false)
 {
     if (HostOsInfo::isWindowsHost())
-        m_gdbProc->setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
+        m_gdbProc.setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
 
     connect(&m_uploadProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &GdbRemoteServerEngine::uploadProcError);
@@ -91,9 +90,9 @@ void GdbRemoteServerEngine::setupEngine()
         m_uploadProc.waitForStarted();
     }
     if (!runParameters().workingDirectory.isEmpty())
-        m_gdbProc->setWorkingDirectory(runParameters().workingDirectory);
+        m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
     if (runParameters().environment.size())
-        m_gdbProc->setEnvironment(runParameters().environment.toStringList());
+        m_gdbProc.setEnvironment(runParameters().environment);
 
     if (runParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
@@ -435,9 +434,10 @@ void GdbRemoteServerEngine::interruptInferior2()
         postCommand("-exec-interrupt", GdbEngine::Immediate,
             CB(handleInterruptInferior));
     } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
-        m_gdbProc->winInterruptByCtrlC();
+        m_gdbProc.interrupt();
     } else {
-        bool ok = m_gdbProc->interrupt();
+        long pid = Utils::qPidToPid(m_gdbProc.pid());
+        bool ok = interruptProcess(pid, GdbEngineType, &m_errorString);
         if (!ok) {
             // FIXME: Extra state needed?
             showMessage(_("NOTE: INFERIOR STOP NOT POSSIBLE"));

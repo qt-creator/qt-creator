@@ -6,7 +6,6 @@ HEADERS += \
     $$PWD/termgdbadapter.h \
     $$PWD/remotegdbserveradapter.h \
     $$PWD/gdbplainengine.h \
-    $$PWD/gdbprocess.h \
     $$PWD/startgdbserverdialog.h
 
 SOURCES += \
@@ -16,6 +15,5 @@ SOURCES += \
     $$PWD/coregdbadapter.cpp \
     $$PWD/termgdbadapter.cpp \
     $$PWD/remotegdbserveradapter.cpp \
-    $$PWD/gdbprocess.cpp \
     $$PWD/gdbplainengine.cpp \
     $$PWD/startgdbserverdialog.cpp
