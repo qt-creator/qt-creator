@@ -93,30 +93,33 @@ const QProcessEnvironment VcsCommand::processEnvironment() const
 
 Utils::SynchronousProcessResponse VcsCommand::runCommand(const Utils::FileName &binary,
                                                          const QStringList &arguments, int timeoutS,
+                                                         const QString &workingDirectory,
                                                          Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response
-            = Core::ShellCommand::runCommand(binary, arguments, timeoutS, interpreter);
-    emitRepositoryChanged();
+            = Core::ShellCommand::runCommand(binary, arguments, timeoutS, workingDirectory,
+                                             interpreter);
+    emitRepositoryChanged(workingDirectory);
     return response;
 }
 
 bool VcsCommand::runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
-                                     int timeoutS, QByteArray *outputData, QByteArray *errorData)
+                                     int timeoutS, QByteArray *outputData, QByteArray *errorData,
+                                     const QString &workingDirectory)
 {
     bool result = Core::ShellCommand::runFullySynchronous(binary, arguments, timeoutS,
-                                                          outputData, errorData);
-    emitRepositoryChanged();
+                                                          outputData, errorData, workingDirectory);
+    emitRepositoryChanged(workingDirectory);
     return result;
 }
 
-void VcsCommand::emitRepositoryChanged()
+void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)
 {
     if (m_preventRepositoryChanged || !(flags() & VcsCommand::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    Core::VcsManager::emitRepositoryChanged(defaultWorkingDirectory());
+    Core::VcsManager::emitRepositoryChanged(workDirectory(workingDirectory));
 }
 
 unsigned VcsCommand::processFlags() const

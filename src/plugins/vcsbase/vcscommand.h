@@ -53,13 +53,15 @@ public:
 
     Utils::SynchronousProcessResponse runCommand(const Utils::FileName &binary,
                                                  const QStringList &arguments, int timeoutS,
+                                                 const QString &workDirectory = QString(),
                                                  Utils::ExitCodeInterpreter *interpreter = 0);
 
     bool runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
-                             int timeoutS, QByteArray *outputData, QByteArray *errorData);
+                             int timeoutS, QByteArray *outputData, QByteArray *errorData,
+                             const QString &workingDirectory = QString());
 private:
     unsigned processFlags() const;
-    void emitRepositoryChanged();
+    void emitRepositoryChanged(const QString &workingDirectory);
 
     void coreAboutToClose();
 

@@ -155,9 +155,10 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 }
 
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
+                                   const QString &workingDirectory,
                                    Utils::ExitCodeInterpreter *interpreter)
 {
-    cmd->addJob(vcsBinary(), args, vcsTimeoutS(), interpreter);
+    cmd->addJob(vcsBinary(), args, vcsTimeoutS(), workingDirectory, interpreter);
     cmd->execute();
 }
 
@@ -470,7 +471,7 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
     VcsCommand *command = createCommand(workingDir, editor);
     command->setCodec(codec);
-    enqueueJob(command, args, exitCodeInterpreter(DiffCommand, command));
+    enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand, command));
 }
 
 void VcsBaseClient::log(const QString &workingDir, const QStringList &files,

@@ -115,14 +115,15 @@ public:
 
 
     ShellCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
-    ~ShellCommand();
+    ~ShellCommand() override;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    void addJob(const FileName &binary, const QStringList &arguments, ExitCodeInterpreter *interpreter = 0);
+    void addJob(const FileName &binary, const QStringList &arguments,
+                const QString &workingDirectory = QString(), ExitCodeInterpreter *interpreter = 0);
     void addJob(const FileName &binary, const QStringList &arguments, int timeoutS,
-                ExitCodeInterpreter *interpreter = 0);
+                const QString &workingDirectory = QString(), ExitCodeInterpreter *interpreter = 0);
     void execute();
     void abort();
     bool lastExecutionSuccess() const;
@@ -149,10 +150,13 @@ public:
     void setOutputProxyFactory(const std::function<OutputProxy *()> &factory);
 
     virtual SynchronousProcessResponse runCommand(const FileName &binary, const QStringList &arguments,
-                                                  int timeoutS, ExitCodeInterpreter *interpreter = 0);
+                                                  int timeoutS,
+                                                  const QString &workingDirectory = QString(),
+                                                  ExitCodeInterpreter *interpreter = 0);
     // Make sure to not pass through the event loop at all:
     virtual bool runFullySynchronous(const FileName &binary, const QStringList &arguments,
-                                     int timeoutS, QByteArray *outputData, QByteArray *errorData);
+                                     int timeoutS, QByteArray *outputData, QByteArray *errorData,
+                                     const QString &workingDirectory = QString());
 
 public slots:
     void cancel();
@@ -168,11 +172,13 @@ signals:
 protected:
     virtual unsigned processFlags() const;
     virtual void addTask(QFuture<void> &future);
+    QString workDirectory(const QString &wd) const;
 
 private:
     void run(QFutureInterface<void> &future);
     SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
-                                              int timeoutS, ExitCodeInterpreter *interpreter = 0);
+                                              int timeoutS, const QString &workingDirectory,
+                                              ExitCodeInterpreter *interpreter = 0);
 
     class Internal::ShellCommandPrivate *const d;
 };
