@@ -1,76 +1,72 @@
 include(../../qtcreatorplugin.pri)
 include(../../shared/clang/clang_installation.pri)
 
-message("Building ClangCodeModel plugin with Clang from $$LLVM_INSTALL_DIR")
-message("  INCLUDEPATH += $$LLVM_INCLUDEPATH")
-message("  LIBS += $$LLVM_LIBS")
-
 LIBS += $$LLVM_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 DEFINES += CLANGCODEMODEL_LIBRARY
 
+# The following defines are used to determine the clang include path for intrinsics
+DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
+DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
+
 unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
-
-contains(DEFINES, CLANG_COMPLETION) {
-    HEADERS += clangcompletion.h clangcompleter.h completionproposalsbuilder.h
-    SOURCES += clangcompletion.cpp clangcompleter.cpp completionproposalsbuilder.cpp
-}
-
-contains(DEFINES, CLANG_HIGHLIGHTING) {
-    HEADERS += cppcreatemarkers.h
-    SOURCES += cppcreatemarkers.cpp
-}
 
 SOURCES += \
     $$PWD/clangcodemodelplugin.cpp \
+    $$PWD/clangcompleter.cpp \
+    $$PWD/clangcompletion.cpp \
     $$PWD/clangeditordocumentparser.cpp \
     $$PWD/clangeditordocumentprocessor.cpp \
-    $$PWD/sourcemarker.cpp \
-    $$PWD/symbol.cpp \
-    $$PWD/sourcelocation.cpp \
-    $$PWD/unit.cpp \
-    $$PWD/utils.cpp \
-    $$PWD/utils_p.cpp \
-    $$PWD/semanticmarker.cpp \
+    $$PWD/clangmodelmanagersupport.cpp \
+    $$PWD/clangprojectsettings.cpp \
+    $$PWD/clangprojectsettingspropertiespage.cpp \
+    $$PWD/clangutils.cpp \
+    $$PWD/completionproposalsbuilder.cpp \
+    $$PWD/cppcreatemarkers.cpp \
+    $$PWD/cxprettyprinter.cpp \
     $$PWD/diagnostic.cpp \
-    $$PWD/unsavedfiledata.cpp \
     $$PWD/fastindexer.cpp \
     $$PWD/pchinfo.cpp \
     $$PWD/pchmanager.cpp \
-    $$PWD/clangprojectsettings.cpp \
-    $$PWD/clangprojectsettingspropertiespage.cpp \
     $$PWD/raii/scopedclangoptions.cpp \
-    $$PWD/clangmodelmanagersupport.cpp
+    $$PWD/semanticmarker.cpp \
+    $$PWD/sourcelocation.cpp \
+    $$PWD/sourcemarker.cpp \
+    $$PWD/symbol.cpp \
+    $$PWD/unit.cpp \
+    $$PWD/unsavedfiledata.cpp \
+    $$PWD/utils.cpp \
+    $$PWD/utils_p.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelplugin.h \
+    $$PWD/clangcompleter.h \
+    $$PWD/clangcompletion.h \
     $$PWD/clangeditordocumentparser.h \
     $$PWD/clangeditordocumentprocessor.h \
     $$PWD/clang_global.h \
-    $$PWD/sourcemarker.h \
+    $$PWD/clangmodelmanagersupport.h \
+    $$PWD/clangprojectsettings.h \
+    $$PWD/clangprojectsettingspropertiespage.h \
+    $$PWD/clangutils.h \
+    $$PWD/completionproposalsbuilder.h \
     $$PWD/constants.h \
-    $$PWD/symbol.h \
+    $$PWD/cppcreatemarkers.h \
+    $$PWD/cxprettyprinter.h \
     $$PWD/cxraii.h \
-    $$PWD/sourcelocation.h \
-    $$PWD/unit.h \
-    $$PWD/utils.h \
-    $$PWD/utils_p.h \
-    $$PWD/semanticmarker.h \
     $$PWD/diagnostic.h \
-    $$PWD/unsavedfiledata.h \
     $$PWD/fastindexer.h \
     $$PWD/pchinfo.h \
     $$PWD/pchmanager.h \
-    $$PWD/clangprojectsettings.h \
-    $$PWD/clangprojectsettingspropertiespage.h \
     $$PWD/raii/scopedclangoptions.h \
-    $$PWD/clangmodelmanagersupport.h
-
-HEADERS += clangutils.h \
-    cxprettyprinter.h
-
-SOURCES += clangutils.cpp \
-    cxprettyprinter.cpp
+    $$PWD/semanticmarker.h \
+    $$PWD/sourcelocation.h \
+    $$PWD/sourcemarker.h \
+    $$PWD/symbol.h \
+    $$PWD/unit.h \
+    $$PWD/unsavedfiledata.h \
+    $$PWD/utils.h \
+    $$PWD/utils_p.h
 
 contains(DEFINES, CLANG_INDEXING) {
     HEADERS += \
@@ -86,6 +82,8 @@ contains(DEFINES, CLANG_INDEXING) {
 #        $$PWD/dependencygraph.cpp \
 }
 
+FORMS += $$PWD/clangprojectsettingspropertiespage.ui
+
 equals(TEST, 1) {
     RESOURCES += \
         $$PWD/test/clang_tests_database.qrc
@@ -94,8 +92,8 @@ equals(TEST, 1) {
         $$PWD/test/completiontesthelper.h
 
     SOURCES += \
-        $$PWD/test/completiontesthelper.cpp \
-        $$PWD/test/clangcompletion_test.cpp
+        $$PWD/test/clangcompletion_test.cpp \
+        $$PWD/test/completiontesthelper.cpp
 
     DISTFILES += \
         $$PWD/test/cxx_regression_1.cpp \
@@ -110,13 +108,11 @@ equals(TEST, 1) {
         $$PWD/test/cxx_snippets_1.cpp \
         $$PWD/test/cxx_snippets_2.cpp \
         $$PWD/test/cxx_snippets_3.cpp \
-        test/cxx_snippets_4.cpp \
-        test/objc_messages_1.mm \
-        test/objc_messages_2.mm \
-        test/objc_messages_3.mm
+        $$PWD/test/cxx_snippets_4.cpp \
+        $$PWD/test/objc_messages_1.mm \
+        $$PWD/test/objc_messages_2.mm \
+        $$PWD/test/objc_messages_3.mm
 }
-
-FORMS += $$PWD/clangprojectsettingspropertiespage.ui
 
 macx {
     LIBCLANG_VERSION=3.3

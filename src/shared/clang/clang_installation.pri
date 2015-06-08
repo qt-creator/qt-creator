@@ -1,39 +1,29 @@
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 LLVM_INSTALL_DIR = $$clean_path($$LLVM_INSTALL_DIR)
+isEmpty(LLVM_INSTALL_DIR): error("No LLVM_INSTALL_DIR provided")
+!exists($$LLVM_INSTALL_DIR): error("LLVM_INSTALL_DIR does not exist: $$LLVM_INSTALL_DIR")
 
-DEFINES += CLANG_COMPLETION
-DEFINES += CLANG_HIGHLIGHTING
-#DEFINES += CLANG_INDEXING
+defineReplace(findLLVMVersionFromLibDir) {
+    libdir = $$1
+    version_dirs = $$files($$libdir/clang/*)
+    for (version_dir, version_dirs) {
+        fileName = $$basename(version_dir)
+        version = $$find(fileName, ^(\\d+\\.\\d+\\.\\d+)$)
+        !isEmpty(version): return($$version)
+    }
+}
 
-defineReplace(findLLVMConfig) {
-    LLVM_CONFIG_VARIANTS = \
-        llvm-config llvm-config-3.2 llvm-config-3.3 llvm-config-3.4 \
-        llvm-config-3.5 llvm-config-3.6 llvm-config-4.0 llvm-config-4.1
-
-    # Prefer llvm-config* from LLVM_INSTALL_DIR
-    !isEmpty(LLVM_INSTALL_DIR) {
-        for(variant, LLVM_CONFIG_VARIANTS) {
-            variant=$$LLVM_INSTALL_DIR/bin/$$variant
-            exists($$variant) {
-                return($$variant)
-            }
+defineReplace(findClangLibInLibDir) {
+    libdir = $$1
+    exists ($${libdir}/libclang.*) {
+        #message("LLVM was build with autotools")
+        return("clang")
+    } else {
+        exists ($${libdir}/liblibclang.*) {
+            #message("LLVM was build with CMake")
+            return("libclang")
         }
     }
-
-    # Find llvm-config* in PATH
-    ENV_PATH = $$(PATH)
-    ENV_PATH = $$split(ENV_PATH, $$QMAKE_DIRLIST_SEP)
-    for(variant, LLVM_CONFIG_VARIANTS) {
-        for(path, ENV_PATH) {
-            subvariant = $$path/$$variant
-            exists($$subvariant) {
-                return($$subvariant)
-            }
-        }
-    }
-
-    # Fallback
-    return(llvm-config)
 }
 
 defineReplace(findClangOnWindows) {
@@ -48,54 +38,41 @@ defineReplace(findClangOnWindows) {
             }
         }
     }
-    error("Cannot find clang shared library at $${LLVM_INSTALL_DIR}")
 }
 
 win32 {
     LLVM_INCLUDEPATH = "$$LLVM_INSTALL_DIR/include"
-    CLANG_LIB_PATH = $$findClangOnWindows()
-    CLANG_LIB = clang
-    !exists("$${CLANG_LIB_PATH}/clang.*"):CLANG_LIB = libclang
+    LLVM_LIBDIR = $$findClangOnWindows()
+    isEmpty(LLVM_LIBDIR): error("Cannot find clang shared library at $${LLVM_INSTALL_DIR}")
+    LLVM_VERSION = $$findLLVMVersionFromLibDir($$LLVM_LIBDIR)
 
-    LLVM_LIBS = -L"$${CLANG_LIB_PATH}" -l$${CLANG_LIB}
+    clang_lib = clang
+    !exists("$${LLVM_LIBDIR}/clang.*"): clang_lib = libclang
+
+    LLVM_LIBS = -L"$${LLVM_LIBDIR}" -l$${clang_lib}
     LLVM_LIBS += -ladvapi32 -lshell32
-    LLVM_VERSION = 3.4
 }
 
 unix {
-    LLVM_CONFIG = $$findLLVMConfig()
-
-    LLVM_VERSION = $$system($$LLVM_CONFIG --version 2>/dev/null)
-    LLVM_VERSION = $$replace(LLVM_VERSION, ^(\\d+\\.\\d+\\.\\d+).*$, \\1)
-    message("... version $$LLVM_VERSION")
-
-    LLVM_INCLUDEPATH = $$system($$LLVM_CONFIG --includedir 2>/dev/null)
-    isEmpty(LLVM_INCLUDEPATH):LLVM_INCLUDEPATH=$$LLVM_INSTALL_DIR/include
-    LLVM_LIBDIR = $$system($$LLVM_CONFIG --libdir 2>/dev/null)
-    isEmpty(LLVM_LIBDIR):LLVM_LIBDIR=$$LLVM_INSTALL_DIR/lib
-
-    exists ($${LLVM_LIBDIR}/libclang.*) {
-        #message("LLVM was build with autotools")
-        CLANG_LIB = clang
+    llvm_config = $$LLVM_INSTALL_DIR/bin/llvm-config
+    exists($$llvm_config) {
+        #message("llvm-config found, querying it for paths and version")
+        LLVM_LIBDIR = $$system($$llvm_config --libdir 2>/dev/null)
+        LLVM_INCLUDEPATH = $$system($$llvm_config --includedir 2>/dev/null)
+        output = $$system($$llvm_config --version 2>/dev/null)
+        LLVM_VERSION = $$replace(output, ^(\\d+\\.\\d+\\.\\d+)$, \\1)
     } else {
-        exists ($${LLVM_LIBDIR}/liblibclang.*) {
-            #message("LLVM was build with CMake")
-            CLANG_LIB = libclang
-        } else {
-            exists ($${LLVM_INSTALL_DIR}/lib/libclang.*) {
-                #message("libclang placed separately from LLVM")
-                CLANG_LIB = clang
-                LLVM_LIBDIR = $${LLVM_INSTALL_DIR}/lib
-                LLVM_INCLUDEPATH=$${LLVM_INSTALL_DIR}/include
-            } else {
-                error("Cannot find Clang shared library!")
-            }
-        }
+        #message("llvm-config not found, concluding paths and version from LLVM_INSTALL_DIR")
+        LLVM_INCLUDEPATH = $$LLVM_INSTALL_DIR/include
+        LLVM_LIBDIR = $$LLVM_INSTALL_DIR/lib
+        LLVM_VERSION = $$findLLVMVersionFromLibDir($$LLVM_LIBDIR)
     }
 
-    LLVM_LIBS = -L$${LLVM_LIBDIR}
-    LLVM_LIBS += -l$${CLANG_LIB}
-}
+    !exists($$LLVM_INCLUDEPATH): error("Cannot detect include dir for clang, candidate: $$LLVM_INCLUDEPATH")
+    !exists($$LLVM_LIBDIR): error("Cannot detect lib dir for clang, candidate: $$LLVM_LIBDIR")
+    isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
+    clang_lib = $$findClangLibInLibDir($$LLVM_LIBDIR)
+    isEmpty(clang_lib): error("Cannot find Clang shared library in $$LLVM_LIBDIR")
 
-DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
-DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
+    LLVM_LIBS = -L$${LLVM_LIBDIR} -l$${clang_lib}
+}
