@@ -56,6 +56,14 @@ static char VCSCOMMAND_DIR[] = "baseDirectory";
 static char VCSCOMMAND_EXTRA_ARGS[] = "extraArguments";
 static char VCSCOMMAND_CHECKOUTNAME[] = "checkoutName";
 
+static char VCSCOMMAND_JOBS[] = "extraJobs";
+static char JOB_SKIP_EMPTY[] = "skipIfEmpty";
+static char JOB_WORK_DIRECTORY[] = "directory";
+static char JOB_COMMAND[] = "command";
+static char JOB_ARGUMENTS[] = "arguments";
+static char JOB_TIME_OUT[] = "timeoutFactor";
+static char JOB_ENABLED[] = "enabled";
+
 // ----------------------------------------------------------------------
 // VcsCommandPageFactory:
 // ----------------------------------------------------------------------
@@ -96,6 +104,38 @@ Utils::WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId,
                           tmp.value(QLatin1String(VCSCOMMAND_DIR)).toString(),
                           tmp.value(QLatin1String(VCSCOMMAND_CHECKOUTNAME)).toString(),
                           args);
+
+    foreach (const QVariant &value, tmp.value(QLatin1String(VCSCOMMAND_JOBS)).toList()) {
+        const QVariantMap job = value.toMap();
+        const bool skipEmpty = job.value(QLatin1String(JOB_SKIP_EMPTY), true).toBool();
+        const QString workDir = job.value(QLatin1String(JOB_WORK_DIRECTORY)).toString();
+
+        const QString cmdString = job.value(QLatin1String(JOB_COMMAND)).toString();
+        QTC_ASSERT(!cmdString.isEmpty(), continue);
+
+        QStringList command;
+        command << cmdString;
+
+        const QVariant &jobArgVar = job.value(QLatin1String(JOB_ARGUMENTS));
+        QStringList jobArgs;
+        if (!jobArgVar.isNull()) {
+            if (jobArgVar.type() == QVariant::List)
+                jobArgs = Utils::transform(jobArgVar.toList(), &QVariant::toString);
+            else
+                jobArgs << jobArgVar.toString();
+        }
+
+        bool ok;
+        int timeoutFactor = job.value(QLatin1String(JOB_TIME_OUT), 1).toInt(&ok);
+        if (!ok)
+            timeoutFactor = 1;
+
+        command << jobArgs;
+
+        const QVariant condition = job.value(QLatin1String(JOB_ENABLED), true);
+
+        page->appendJob(skipEmpty, workDir, command, condition, timeoutFactor);
+    }
 
     return page;
 }
@@ -142,6 +182,28 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
         if (!extra.isNull() && extra.type() != QVariant::String && extra.type() != QVariant::List) {
             em = tr("\"%1\" in \"data\" section of \"VcsCommand\" page has unexpected type (unset, String or List).")
                     .arg(QLatin1String(VCSCOMMAND_EXTRA_ARGS));
+        }
+
+        const QVariant jobs = tmp.value(QLatin1String(VCSCOMMAND_JOBS));
+        if (!jobs.isNull() && extra.type() != QVariant::List) {
+            em = tr("\"%1\" in \"data\" section of \"VcsCommand\" page has unexpected type (unset or List).")
+                    .arg(QLatin1String(VCSCOMMAND_JOBS));
+        }
+
+        foreach (const QVariant &j, jobs.toList()) {
+            if (j.isNull()) {
+                em = tr("Job in \"VcsCommand\" page is empty.");
+                break;
+            }
+            if (j.type() != QVariant::Map) {
+                em = tr("Job in \"VcsCommand\" page is not an object.");
+                break;
+            }
+            const QVariantMap &details = j.toMap();
+            if (details.value(QLatin1String(JOB_COMMAND)).isNull()) {
+                em = tr("Job in \"VcsCommand\" page has no \"%1\" set.").arg(QLatin1String(JOB_COMMAND));
+                break;
+            }
         }
     }
 
@@ -234,6 +296,30 @@ void VcsCommandPage::delayedInitialize()
     ShellCommand *command
             = vc->createInitialCheckoutCommand(repo, Utils::FileName::fromString(base),
                                                name, extraArgs);
+
+    foreach (const JobData &job, m_additionalJobs) {
+        QTC_ASSERT(!job.job.isEmpty(), continue);
+
+        if (!JsonWizard::boolFromVariant(job.condition, wiz->expander()))
+            continue;
+
+        QString commandString = wiz->expander()->expand(job.job.at(0));
+        if (commandString.isEmpty())
+            continue;
+
+        QStringList args;
+        for (int i = 1; i < job.job.count(); ++i) {
+            const QString tmp = wiz->expander()->expand(job.job.at(i));
+            if (tmp.isEmpty() && job.skipEmptyArguments)
+                continue;
+            args << tmp;
+        }
+
+        const QString dir = wiz->expander()->expand(job.workDirectory);
+        const int timeoutS = command->defaultTimeoutS() * job.timeOutFactor;
+        command->addJob(Utils::FileName::fromUserInput(commandString), args, timeoutS, dir);
+    }
+
     start(command);
 }
 
@@ -246,9 +332,10 @@ void VcsCommandPage::setCheckoutData(const QString &repo, const QString &baseDir
     m_arguments = args;
 }
 
-void VcsCommandPage::appendJob(bool skip, const QStringList &command)
+void VcsCommandPage::appendJob(bool skipEmpty, const QString &workDir, const QStringList &command,
+                               const QVariant &condition, int timeoutFactor)
 {
-    m_additionalJobs.append(JobData(skip, command));
+    m_additionalJobs.append(JobData(skipEmpty, workDir, command, condition, timeoutFactor));
 }
 
 void VcsCommandPage::setVersionControlId(const QString &id)
