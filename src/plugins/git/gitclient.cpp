@@ -472,7 +472,7 @@ class ConflictHandler : public QObject
     Q_OBJECT
 public:
     static void attachToCommand(VcsCommand *command, const QString &abortCommand = QString()) {
-        ConflictHandler *handler = new ConflictHandler(command->workingDirectory(), abortCommand);
+        ConflictHandler *handler = new ConflictHandler(command->defaultWorkingDirectory(), abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);

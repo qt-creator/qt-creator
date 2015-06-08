@@ -47,7 +47,7 @@ public:
         ExpectRepoChanges = 0x2000, // Expect changes in repository by the command
     };
 
-    VcsCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
+    VcsCommand(const QString &defaultWorkingDirectory, const QProcessEnvironment &environment);
 
     const QProcessEnvironment processEnvironment() const;
 

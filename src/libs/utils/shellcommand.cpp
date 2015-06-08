@@ -73,21 +73,23 @@ class ShellCommandPrivate
 {
 public:
     struct Job {
-        explicit Job(const Utils::FileName &b, const QStringList &a, int t,
+        explicit Job(const QString &wd, const Utils::FileName &b, const QStringList &a, int t,
                      Utils::ExitCodeInterpreter *interpreter = 0);
 
+        QString workingDirectory;
         Utils::FileName binary;
         QStringList arguments;
         int timeoutS;
         Utils::ExitCodeInterpreter *exitCodeInterpreter;
     };
 
-    ShellCommandPrivate(const QString &workingDirectory, const QProcessEnvironment &environment);
+    ShellCommandPrivate(const QString &defaultWorkingDirectory,
+                        const QProcessEnvironment &environment);
     ~ShellCommandPrivate();
 
     std::function<OutputProxy *()> m_proxyFactory = []() { return new OutputProxy; };
     QString m_displayName;
-    const QString m_workingDirectory;
+    const QString m_defaultWorkingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;
     int m_defaultTimeoutS;
@@ -105,9 +107,9 @@ public:
     int m_lastExecExitCode;
 };
 
-ShellCommandPrivate::ShellCommandPrivate(const QString &workingDirectory,
+ShellCommandPrivate::ShellCommandPrivate(const QString &defaultWorkingDirectory,
                                          const QProcessEnvironment &environment) :
-    m_workingDirectory(workingDirectory),
+    m_defaultWorkingDirectory(defaultWorkingDirectory),
     m_environment(environment),
     m_defaultTimeoutS(10),
     m_flags(0),
@@ -125,8 +127,9 @@ ShellCommandPrivate::~ShellCommandPrivate()
     delete m_progressParser;
 }
 
-ShellCommandPrivate::Job::Job(const Utils::FileName &b, const QStringList &a,
+ShellCommandPrivate::Job::Job(const QString &wd, const Utils::FileName &b, const QStringList &a,
                               int t, Utils::ExitCodeInterpreter *interpreter) :
+    workingDirectory(wd),
     binary(b),
     arguments(a),
     timeoutS(t),
@@ -171,9 +174,9 @@ void ShellCommand::setDisplayName(const QString &name)
     d->m_displayName = name;
 }
 
-const QString &ShellCommand::workingDirectory() const
+const QString &ShellCommand::defaultWorkingDirectory() const
 {
-    return d->m_workingDirectory;
+    return d->m_defaultWorkingDirectory;
 }
 
 const QProcessEnvironment ShellCommand::processEnvironment() const
@@ -210,7 +213,8 @@ void ShellCommand::addJob(const Utils::FileName &binary, const QStringList &argu
 void ShellCommand::addJob(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
                           Utils::ExitCodeInterpreter *interpreter)
 {
-    d->m_jobs.push_back(Internal::ShellCommandPrivate::Job(binary, arguments, timeoutS, interpreter));
+    d->m_jobs.push_back(Internal::ShellCommandPrivate::Job(d->m_defaultWorkingDirectory, binary,
+                                                           arguments, timeoutS, interpreter));
 }
 
 void ShellCommand::execute()
@@ -320,7 +324,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
     QSharedPointer<OutputProxy> proxy(d->m_proxyFactory());
 
     if (!(d->m_flags & SuppressCommandLogging))
-        proxy->appendCommand(d->m_workingDirectory, binary, arguments);
+        proxy->appendCommand(d->m_defaultWorkingDirectory, binary, arguments);
 
     if (d->m_flags & FullySynchronously) {
         response = runSynchronous(binary, arguments, timeoutS, interpreter);
@@ -328,8 +332,8 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
         Utils::SynchronousProcess process;
         process.setExitCodeInterpreter(interpreter);
         connect(this, &ShellCommand::terminate, &process, &Utils::SynchronousProcess::terminate);
-        if (!d->m_workingDirectory.isEmpty())
-            process.setWorkingDirectory(d->m_workingDirectory);
+        if (!d->m_defaultWorkingDirectory.isEmpty())
+            process.setWorkingDirectory(d->m_defaultWorkingDirectory);
 
         process.setProcessEnvironment(processEnvironment());
         process.setTimeoutS(timeoutS);
@@ -402,8 +406,8 @@ Utils::SynchronousProcessResponse ShellCommand::runSynchronous(const Utils::File
 
     // Set up process
     QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags());
-    if (!d->m_workingDirectory.isEmpty())
-        process->setWorkingDirectory(d->m_workingDirectory);
+    if (!d->m_defaultWorkingDirectory.isEmpty())
+        process->setWorkingDirectory(d->m_defaultWorkingDirectory);
     process->setProcessEnvironment(processEnvironment());
     if (d->m_flags & MergeOutputChannels)
         process->setProcessChannelMode(QProcess::MergedChannels);
@@ -463,10 +467,10 @@ bool ShellCommand::runFullySynchronous(const Utils::FileName &binary, const QStr
     QScopedPointer<OutputProxy> proxy(d->m_proxyFactory());
 
     if (!(d->m_flags & SuppressCommandLogging))
-        proxy->appendCommand(d->m_workingDirectory, binary, arguments);
+        proxy->appendCommand(d->m_defaultWorkingDirectory, binary, arguments);
 
     QProcess process;
-    process.setWorkingDirectory(d->m_workingDirectory);
+    process.setWorkingDirectory(d->m_defaultWorkingDirectory);
     process.setProcessEnvironment(d->m_environment);
 
     process.start(binary.toString(), arguments);

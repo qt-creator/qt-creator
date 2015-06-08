@@ -116,7 +116,7 @@ void VcsCommand::emitRepositoryChanged()
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    Core::VcsManager::emitRepositoryChanged(workingDirectory());
+    Core::VcsManager::emitRepositoryChanged(defaultWorkingDirectory());
 }
 
 unsigned VcsCommand::processFlags() const

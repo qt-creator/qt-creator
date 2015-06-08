@@ -128,7 +128,7 @@ public:
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
-    const QString &workingDirectory() const;
+    const QString &defaultWorkingDirectory() const;
     virtual const QProcessEnvironment processEnvironment() const;
 
     int defaultTimeoutS() const;
