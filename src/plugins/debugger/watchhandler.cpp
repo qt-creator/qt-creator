@@ -1193,6 +1193,12 @@ void WatchHandler::removeAllData(bool includeInspectData)
     m_model->reinitialize(includeInspectData);
 }
 
+/*!
+  If a displayed item differs from the cached entry it is considered
+  "new", and correspondingly marked in red. Calling \c resetValueCache()
+  stores the currently displayed items in the cache, effectively
+  marking the value as known, and consequently painted black.
+ */
 void WatchHandler::resetValueCache()
 {
     m_model->m_valueCache.clear();
