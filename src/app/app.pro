@@ -5,6 +5,7 @@ TEMPLATE = app
 CONFIG += qtc_runnable
 TARGET = $$IDE_APP_TARGET
 DESTDIR = $$IDE_APP_PATH
+QT -= testlib
 
 HEADERS += ../tools/qtcreatorcrashhandler/crashhandlersetup.h
 SOURCES += main.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
