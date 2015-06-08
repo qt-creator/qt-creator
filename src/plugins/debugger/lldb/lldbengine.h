@@ -87,7 +87,7 @@ private:
     void shutdownEngine();
     void abortDebugger();
 
-    bool setToolTipExpression(const DebuggerToolTipContext &);
+    bool canHandleToolTip(const DebuggerToolTipContext &) const;
 
     void continueInferior();
     void interruptInferior();
@@ -122,7 +122,6 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchItem(WatchItem *item);
     void setRegisterValue(const QByteArray &name, const QString &value);
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
@@ -142,9 +141,8 @@ private:
     void readLldbStandardError();
     void handleResponse(const QByteArray &data);
     void updateAll();
-    void updateLocals();
     void createFullBacktrace();
-    void doUpdateLocals(UpdateParameters params);
+    void doUpdateLocals(const UpdateParameters &params);
     void handleContinuation(const GdbMi &data);
 
     void refreshAll(const GdbMi &all);

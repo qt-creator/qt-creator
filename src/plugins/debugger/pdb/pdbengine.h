@@ -66,7 +66,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(const DebuggerToolTipContext &);
+    bool canHandleToolTip(const DebuggerToolTipContext &) const;
 
     void continueInferior();
     void interruptInferior();
@@ -96,7 +96,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchItem(WatchItem *item);
+    void updateWatchData(const QByteArray &iname);
 
     QString mainPythonFile() const;
     QString pythonInterpreter() const;

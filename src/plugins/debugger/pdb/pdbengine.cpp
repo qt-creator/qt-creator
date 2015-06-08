@@ -378,16 +378,9 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
     Internal::showModuleSymbols(moduleName, syms);
 }
 
-bool PdbEngine::setToolTipExpression(const DebuggerToolTipContext &ctx)
+bool PdbEngine::canHandleToolTip(const DebuggerToolTipContext &) const
 {
-    if (state() != InferiorStopOk)
-        return false;
-
-    DebuggerCommand cmd("evaluateTooltip");
-    ctx.appendFormatRequest(&cmd);
-    watchHandler()->appendFormatRequests(&cmd);
-    runCommand(cmd);
-    return true;
+    return state() == InferiorStopOk;
 }
 
 void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, const QVariant &value)
@@ -401,9 +394,9 @@ void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, co
     updateLocals();
 }
 
-void PdbEngine::updateWatchItem(WatchItem *item)
+void PdbEngine::updateWatchData(const QByteArray &iname)
 {
-    Q_UNUSED(item);
+    Q_UNUSED(iname);
     updateAll();
 }
 

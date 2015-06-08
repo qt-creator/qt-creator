@@ -125,14 +125,6 @@ private:
     void parseWatchData(const GdbMi &input);
 };
 
-class UpdateParameters
-{
-public:
-    UpdateParameters() {}
-
-    QByteArray partialVariable;
-};
-
 class WatchModelBase : public Utils::TreeModel
 {
     Q_OBJECT
@@ -216,7 +208,6 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
 Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormats)
 
 #endif // DEBUGGER_WATCHHANDLER_H

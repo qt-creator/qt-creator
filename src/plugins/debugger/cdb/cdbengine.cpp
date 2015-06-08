@@ -414,7 +414,7 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
+bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
 {
     Q_UNUSED(context);
     // Tooltips matching local variables are already handled in the

@@ -108,6 +108,14 @@ public:
     int testCase;
 };
 
+class UpdateParameters
+{
+public:
+    UpdateParameters() {}
+
+    QByteArray partialVariable;
+};
+
 class Location
 {
 public:
@@ -167,10 +175,9 @@ public:
     const DebuggerRunParameters &runParameters() const;
     DebuggerRunParameters &runParameters();
 
-    virtual bool setToolTipExpression(const Internal::DebuggerToolTipContext &);
-
-    virtual void updateWatchItem(WatchItem *) {}
-    virtual void watchDataSelected(const QByteArray &iname);
+    virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    virtual void updateWatchData(const QByteArray &iname);
+    virtual void selectWatchData(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);
 
@@ -218,6 +225,7 @@ public:
 
     virtual void createSnapshot();
     virtual void updateAll();
+    virtual void updateLocals();
 
     virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual void attemptBreakpointSynchronization();
@@ -282,7 +290,7 @@ public:
     DebuggerEngine *masterEngine() const;
     virtual DebuggerEngine *cppEngine() { return 0; }
 
-    virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
+    virtual bool canDisplayTooltip() const;
 
     virtual void notifyInferiorIll();
 
@@ -377,6 +385,8 @@ protected:
     virtual void frameUp();
     virtual void frameDown();
 
+    virtual void doUpdateLocals(const UpdateParameters &params);
+
     void setTargetState(DebuggerState state);
     void setMasterEngine(DebuggerEngine *masterEngine);
 
@@ -431,6 +441,7 @@ DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp);
 } // namespace Internal
 } // namespace Debugger
 
+Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
 Q_DECLARE_METATYPE(Debugger::Internal::ContextData)
 
 #endif // DEBUGGER_DEBUGGERENGINE_H

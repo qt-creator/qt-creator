@@ -89,9 +89,6 @@ public:
 
     void insertBreakpoint(Breakpoint bp);
 
-signals:
-    void tooltipRequested(const DebuggerToolTipContext &context);
-
 private slots:
     void disconnected();
     void documentUpdated(QmlJS::Document::Ptr doc);
@@ -128,7 +125,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(const DebuggerToolTipContext &);
+    bool canHandleToolTip(const DebuggerToolTipContext &) const;
 
     void continueInferior();
     void interruptInferior();
@@ -157,8 +154,8 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchItem(WatchItem *item);
-    void watchDataSelected(const QByteArray &iname);
+    void updateWatchData(const QByteArray &iname);
+    void selectWatchData(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScript(const QString &expression);
 

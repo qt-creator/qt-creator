@@ -961,7 +961,7 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
 
 void WatchTreeView::rowActivated(const QModelIndex &index)
 {
-    currentEngine()->watchDataSelected(index.data(LocalsINameRole).toByteArray());
+    currentEngine()->selectWatchData(index.data(LocalsINameRole).toByteArray());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)

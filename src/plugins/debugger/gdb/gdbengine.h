@@ -381,7 +381,6 @@ protected:
     //
     // Watch specific stuff
     //
-    virtual bool setToolTipExpression(const DebuggerToolTipContext &);
     virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
 
@@ -396,7 +395,6 @@ protected:
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const DebuggerResponse &response);
 
-    void updateWatchItem(WatchItem *item);
     void showToolTip();
 
     void handleVarAssign(const DebuggerResponse &response);
@@ -407,9 +405,8 @@ protected:
     Q_SLOT void createFullBacktrace();
     void handleCreateFullBacktrace(const DebuggerResponse &response);
 
-    void updateLocals();
-        void doUpdateLocals(const UpdateParameters &parameters);
-        void handleStackFramePython(const DebuggerResponse &response);
+    void doUpdateLocals(const UpdateParameters &parameters);
+    void handleStackFrame(const DebuggerResponse &response);
 
     void setLocals(const QList<GdbMi> &locals);
 

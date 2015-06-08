@@ -1221,8 +1221,9 @@ static void slotTooltipOverrideRequested
             tooltip->context.mousePosition = point;
             m_tooltips.push_back(tooltip);
             tooltip->setState(PendingUnshown);
-            *handled = engine->setToolTipExpression(context);
-            if (!*handled) {
+            if (engine->canHandleToolTip(context)) {
+                engine->updateWatchData(context.iname);
+            } else {
                 ToolTip::show(point, DebuggerToolTipManager::tr("Expression too complex"),
                               Internal::mainWindow());
                 tooltip->destroy();

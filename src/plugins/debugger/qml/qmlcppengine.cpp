@@ -102,29 +102,28 @@ bool QmlCppEngine::canDisplayTooltip() const
     return m_cppEngine->canDisplayTooltip() || m_qmlEngine->canDisplayTooltip();
 }
 
-bool QmlCppEngine::setToolTipExpression(const DebuggerToolTipContext &ctx)
+bool QmlCppEngine::canHandleToolTip(const DebuggerToolTipContext &ctx) const
 {
     bool success = false;
     if (ctx.isCppEditor)
-        success = m_cppEngine->setToolTipExpression(ctx);
+        success = m_cppEngine->canHandleToolTip(ctx);
     else
-        success = m_qmlEngine->setToolTipExpression(ctx);
+        success = m_qmlEngine->canHandleToolTip(ctx);
     return success;
 }
 
-void QmlCppEngine::updateWatchItem(WatchItem *item)
+void QmlCppEngine::updateWatchData(const QByteArray &iname)
 {
-    if (item->isInspect())
-        m_qmlEngine->updateWatchItem(item);
+    if (iname.startsWith("inspect."))
+        m_qmlEngine->updateWatchData(iname);
     else
-        m_activeEngine->updateWatchItem(item);
+        m_activeEngine->updateWatchData(iname);
 }
 
-void QmlCppEngine::watchDataSelected(const QByteArray &iname)
+void QmlCppEngine::selectWatchData(const QByteArray &iname)
 {
-    const WatchItem *item = watchHandler()->findItem(iname);
-    if (item && item->isInspect())
-        m_qmlEngine->watchDataSelected(iname);
+    if (iname.startsWith("inspect."))
+        m_qmlEngine->selectWatchData(iname);
 }
 
 void QmlCppEngine::watchPoint(const QPoint &point)

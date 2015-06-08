@@ -78,7 +78,7 @@ public:
 
     // Factory function that returns 0 if the debug engine library cannot be found.
 
-    virtual bool setToolTipExpression(const DebuggerToolTipContext &context);
+    virtual bool canHandleToolTip(const DebuggerToolTipContext &context) const;
 
     virtual DebuggerEngine *cppEngine() { return this; }
 

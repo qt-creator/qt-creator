@@ -973,12 +973,11 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool QmlEngine::setToolTipExpression(const DebuggerToolTipContext &context)
+bool QmlEngine::canHandleToolTip(const DebuggerToolTipContext &) const
 {
     // This is processed by QML inspector, which has dependencies to
     // the qml js editor. Makes life easier.
     // FIXME: Except that there isn't any attached.
-    emit tooltipRequested(context);
     return true;
 }
 
@@ -999,11 +998,12 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     }
 }
 
-void QmlEngine::updateWatchItem(WatchItem *item)
+void QmlEngine::updateWatchData(const QByteArray &iname)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //showStatusMessage(tr("Stopped."), 5000);
-
+    const WatchItem *item = watchHandler()->findItem(iname);
+    QTC_ASSERT(item, return);
     if (item->isInspect()) {
         m_inspectorAdapter.agent()->updateWatchData(*item);
     } else {
@@ -1018,7 +1018,7 @@ void QmlEngine::updateWatchItem(WatchItem *item)
     }
 }
 
-void QmlEngine::watchDataSelected(const QByteArray &iname)
+void QmlEngine::selectWatchData(const QByteArray &iname)
 {
     const WatchItem *item = watchHandler()->findItem(iname);
     if (item && item->isInspect())

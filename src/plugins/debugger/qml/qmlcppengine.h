@@ -47,9 +47,9 @@ public:
     ~QmlCppEngine();
 
     bool canDisplayTooltip() const;
-    bool setToolTipExpression(const DebuggerToolTipContext &);
-    void updateWatchItem(WatchItem *item);
-    void watchDataSelected(const QByteArray &iname);
+    bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    void updateWatchData(const QByteArray &iname);
+    void selectWatchData(const QByteArray &iname);
 
     void watchPoint(const QPoint &);
     void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);

@@ -3695,24 +3695,6 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Tooltip specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-bool GdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
-{
-    if (state() != InferiorStopOk || !context.isCppEditor)
-        return false;
-
-    UpdateParameters params;
-    params.partialVariable = context.iname;
-    doUpdateLocals(params);
-    return true;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-//
 // Watch specific stuff
 //
 //////////////////////////////////////////////////////////////////////
@@ -3723,25 +3705,11 @@ void GdbEngine::reloadLocals()
     updateLocals();
 }
 
-void GdbEngine::updateWatchItem(WatchItem *item)
-{
-    UpdateParameters params;
-    params.partialVariable = item->iname;
-    doUpdateLocals(params);
-}
-
 void GdbEngine::handleVarAssign(const DebuggerResponse &)
 {
     // Everything might have changed, force re-evaluation.
     setTokenBarrier();
     updateLocals();
-}
-
-void GdbEngine::updateLocals()
-{
-    watchHandler()->resetValueCache();
-    watchHandler()->notifyUpdateStarted();
-    doUpdateLocals(UpdateParameters());
 }
 
 void GdbEngine::assignValueInDebugger(WatchItem *item,
@@ -4744,14 +4712,14 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialVariable", params.partialVariable);
     cmd.flags = Discardable;
-    cmd.callback = [this, params](const DebuggerResponse &r) { handleStackFramePython(r); };
+    cmd.callback = [this, params](const DebuggerResponse &r) { handleStackFrame(r); };
     runCommand(cmd);
 
     cmd.arg("passExceptions", true);
     m_lastDebuggableCommand = cmd;
 }
 
-void GdbEngine::handleStackFramePython(const DebuggerResponse &response)
+void GdbEngine::handleStackFrame(const DebuggerResponse &response)
 {
     watchHandler()->notifyUpdateFinished();
     if (response.resultClass == ResultDone) {

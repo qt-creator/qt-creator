@@ -1179,9 +1179,11 @@ class Dumper(DumperBase):
         shadowed = {}
         ids = {} # Filter out duplicates entries at the same address.
 
-        if isPartial:
-            values = [frame.FindVariable(partialVariable)]
-        else:
+        # FIXME: Implement shortcut for partial updates.
+        #if isPartial:
+        #    values = [frame.FindVariable(partialVariable)]
+        #else:
+        if True:
             values = list(frame.GetVariables(True, True, False, False))
             values.reverse() # To get shadowed vars numbered backwards.
 

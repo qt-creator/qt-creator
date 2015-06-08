@@ -814,19 +814,9 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool LldbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
+bool LldbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
 {
-    if (state() != InferiorStopOk || !context.isCppEditor) {
-        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
-        // " OR NOT A CPPEDITOR";
-        return false;
-    }
-
-    UpdateParameters params;
-    params.partialVariable = context.iname;
-    doUpdateLocals(params);
-
-    return true;
+   return state() == InferiorStopOk && context.isCppEditor;
 }
 
 void LldbEngine::updateAll()
@@ -867,19 +857,7 @@ void LldbEngine::assignValueInDebugger(WatchItem *,
     runCommand(cmd);
 }
 
-void LldbEngine::updateWatchItem(WatchItem *)
-{
-    doUpdateLocals(UpdateParameters());
-}
-
-void LldbEngine::updateLocals()
-{
-    watchHandler()->resetValueCache();
-    watchHandler()->notifyUpdateStarted();
-    doUpdateLocals(UpdateParameters());
-}
-
-void LldbEngine::doUpdateLocals(UpdateParameters params)
+void LldbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     if (stackHandler()->stackSize() == 0) {
         showMessage(_("SKIPPING LOCALS DUE TO EMPTY STACK"));

@@ -98,6 +98,17 @@ enum { debug = 0 };
 //
 ///////////////////////////////////////////////////////////////////////
 
+DebuggerRunParameters::DebuggerRunParameters()
+    : cppEngineType(NoEngineType),
+      isSnapshot(false),
+      testCase(0)
+{}
+
+void DebuggerRunParameters::initialize(const DebuggerStartParameters &sp)
+{
+    DebuggerStartParameters::operator=(sp);
+}
+
 // VariableManager Prefix
 const char PrefixDebugExecutable[]  = "DebuggedExecutable";
 
@@ -400,6 +411,10 @@ void DebuggerEngine::frameDown()
 {
     int currentIndex = stackHandler()->currentIndex();
     activateFrame(qMax(currentIndex - 1, 0));
+}
+
+void DebuggerEngine::doUpdateLocals(const UpdateParameters &)
+{
 }
 
 void DebuggerEngine::setTargetState(DebuggerState state)
@@ -1308,6 +1323,11 @@ DebuggerEngine *DebuggerEngine::masterEngine() const
     return d->m_masterEngine;
 }
 
+bool DebuggerEngine::canDisplayTooltip() const
+{
+    return state() == InferiorStopOk;
+}
+
 QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
 {
     // make sure file finder is properly initialized
@@ -1449,12 +1469,7 @@ Terminal *DebuggerEngine::terminal() const
     return &d->m_terminal;
 }
 
-bool DebuggerEngine::setToolTipExpression(const DebuggerToolTipContext &)
-{
-    return false;
-}
-
-void DebuggerEngine::watchDataSelected(const QByteArray &)
+void DebuggerEngine::selectWatchData(const QByteArray &)
 {
 }
 
@@ -1539,6 +1554,13 @@ void DebuggerEngine::setQtNamespace(const QByteArray &ns)
 
 void DebuggerEngine::createSnapshot()
 {
+}
+
+void DebuggerEngine::updateLocals()
+{
+    watchHandler()->resetValueCache();
+    watchHandler()->notifyUpdateStarted();
+    doUpdateLocals(UpdateParameters());
 }
 
 void DebuggerEngine::updateAll()
@@ -1983,15 +2005,16 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
         emit stackFrameCompleted();
 }
 
-DebuggerRunParameters::DebuggerRunParameters()
-    : cppEngineType(NoEngineType),
-      isSnapshot(false),
-      testCase(0)
-{}
-
-void DebuggerRunParameters::initialize(const DebuggerStartParameters &sp)
+bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
 {
-    DebuggerStartParameters::operator=(sp);
+    return state() == InferiorStopOk && context.isCppEditor;
+}
+
+void DebuggerEngine::updateWatchData(const QByteArray &iname)
+{
+    UpdateParameters params;
+    params.partialVariable = iname;
+    doUpdateLocals(params);
 }
 
 } // namespace Internal
