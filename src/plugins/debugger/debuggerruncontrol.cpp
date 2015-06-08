@@ -281,33 +281,27 @@ void DebuggerRunControl::abortDebugger()
 
 namespace Internal {
 
-class DebuggerRunControlFactory
-    : public ProjectExplorer::IRunControlFactory
+class DebuggerRunControlFactory : public IRunControlFactory
 {
 public:
-    explicit DebuggerRunControlFactory(QObject *parent);
+    explicit DebuggerRunControlFactory(QObject *parent)
+        : IRunControlFactory(parent)
+    {}
 
-    ProjectExplorer::RunControl *create(
-        ProjectExplorer::RunConfiguration *runConfig,
-        ProjectExplorer::RunMode mode,
-        QString *errorMessage);
+    RunControl *create(RunConfiguration *runConfig,
+                       RunMode mode, QString *errorMessage) override;
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfig,
-        ProjectExplorer::RunMode mode) const;
+    bool canRun(RunConfiguration *runConfig, RunMode mode) const override
+    {
+        return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
+                && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
+    }
 
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(
-            ProjectExplorer::RunConfiguration *rc);
+    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
+    {
+        return new DebuggerRunConfigurationAspect(rc);
+    }
 };
-
-DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent)
-    : IRunControlFactory(parent)
-{}
-
-bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfig, RunMode mode) const
-{
-    return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
-            && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
-}
 
 bool fillParametersFromLocalRunConfiguration
     (DebuggerRunParameters *sp, const RunConfiguration *runConfig, QString *errorMessage)
@@ -399,11 +393,6 @@ RunControl *DebuggerRunControlFactory::create
 
     sp.runConfiguration = runConfiguration;
     return createDebuggerRunControl(sp, errorMessage);
-}
-
-IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
-{
-    return new DebuggerRunConfigurationAspect(rc);
 }
 
 QObject *createDebuggerRunControlFactory(QObject *parent)
