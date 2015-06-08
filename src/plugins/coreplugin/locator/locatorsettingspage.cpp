@@ -36,14 +36,132 @@
 #include "directoryfilter.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/categorysortfiltermodel.h>
+#include <utils/headerviewstretcher.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 
 #include <QCoreApplication>
 
-Q_DECLARE_METATYPE(Core::ILocatorFilter*)
+using namespace Utils;
+
+static const int SortRole = Qt::UserRole + 1;
+
+namespace Core {
+namespace Internal {
+
+enum FilterItemColumn
+{
+    FilterName = 0,
+    FilterPrefix,
+    FilterIncludedByDefault
+};
+
+class FilterItem : public TreeItem
+{
+public:
+    FilterItem(ILocatorFilter *filter);
+
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
+    bool setData(int column, const QVariant &data, int role) override;
+
+    ILocatorFilter *filter() const;
+
+private:
+    ILocatorFilter *m_filter;
+};
+
+class CategoryItem : public TreeItem
+{
+public:
+    CategoryItem(const QString &name, int order);
+    QVariant data(int column, int role) const override;
+
+private:
+    int m_order;
+};
+
+} // Internal
+} // Core
 
 using namespace Core;
 using namespace Core::Internal;
+
+FilterItem::FilterItem(ILocatorFilter *filter)
+    : m_filter(filter)
+{
+    setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+}
+
+QVariant FilterItem::data(int column, int role) const
+{
+    switch (column) {
+    case FilterName:
+        if (role == Qt::DisplayRole || role == SortRole)
+            return m_filter->displayName();
+        break;
+    case FilterPrefix:
+        if (role == Qt::DisplayRole || role == SortRole || role == Qt::EditRole)
+            return m_filter->shortcutString();
+        break;
+    case FilterIncludedByDefault:
+        if (role == Qt::CheckStateRole || role == SortRole || role == Qt::EditRole)
+            return m_filter->isIncludedByDefault() ? Qt::Checked : Qt::Unchecked;
+        break;
+    default:
+        break;
+    }
+    return QVariant();
+}
+
+Qt::ItemFlags FilterItem::flags(int column) const
+{
+    if (column == FilterPrefix) {
+        return TreeItem::flags(column) | Qt::ItemIsEditable;
+    } else if (column == FilterIncludedByDefault) {
+        return TreeItem::flags(column) | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+    }
+    return TreeItem::flags(column);
+}
+
+bool FilterItem::setData(int column, const QVariant &data, int role)
+{
+    switch (column) {
+    case FilterName:
+        break;
+    case FilterPrefix:
+        if (role == Qt::EditRole && data.canConvert<QString>()) {
+            m_filter->setShortcutString(data.toString());
+            return true;
+        }
+        break;
+    case FilterIncludedByDefault:
+        if (role == Qt::CheckStateRole && data.canConvert<bool>()) {
+            m_filter->setIncludedByDefault(data.toBool());
+            return true;
+        }
+    }
+    return false;
+}
+
+ILocatorFilter *FilterItem::filter() const
+{
+    return m_filter;
+}
+
+CategoryItem::CategoryItem(const QString &name, int order)
+    : TreeItem(QStringList(name)),
+      m_order(order)
+{
+}
+
+QVariant CategoryItem::data(int column, int role) const
+{
+    if (role == SortRole)
+        return m_order;
+    return TreeItem::data(column, role);
+}
 
 LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
     : m_plugin(plugin), m_widget(0)
@@ -58,25 +176,49 @@ LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
 QWidget *LocatorSettingsPage::widget()
 {
     if (!m_widget) {
+        m_filters = m_plugin->filters();
+        m_customFilters = m_plugin->customFilters();
+
         m_widget = new QWidget;
         m_ui.setupUi(m_widget);
         m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
-        connect(m_ui.filterList, &QListWidget::currentItemChanged,
+
+        m_ui.filterEdit->setFiltering(true);
+
+        m_ui.filterList->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_ui.filterList->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_ui.filterList->setSortingEnabled(true);
+        m_ui.filterList->setUniformRowHeights(true);
+        m_ui.filterList->setActivationMode(Utils::DoubleClickActivation);
+
+        m_model = new TreeModel(m_ui.filterList);
+        initializeModel();
+        m_proxyModel = new CategorySortFilterModel(m_ui.filterList);
+        m_proxyModel->setSourceModel(m_model);
+        m_proxyModel->setSortRole(SortRole);
+        m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        m_proxyModel->setFilterKeyColumn(-1/*all*/);
+        m_ui.filterList->setModel(m_proxyModel);
+        m_ui.filterList->expandAll();
+
+        new HeaderViewStretcher(m_ui.filterList->header(), FilterName);
+        m_ui.filterList->header()->setSortIndicator(FilterName, Qt::AscendingOrder);
+
+        connect(m_ui.filterEdit, &FancyLineEdit::filterChanged,
+                this, &LocatorSettingsPage::setFilter);
+        connect(m_ui.filterList->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &LocatorSettingsPage::updateButtonStates);
-        connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem*)),
-                this, SLOT(configureFilter(QListWidgetItem*)));
-        connect(m_ui.editButton, SIGNAL(clicked()),
-                this, SLOT(configureFilter()));
+        connect(m_ui.filterList, &Utils::TreeView::activated,
+                this, &LocatorSettingsPage::configureFilter);
+        connect(m_ui.editButton, &QPushButton::clicked,
+                this, [this]() { configureFilter(m_ui.filterList->currentIndex()); });
         connect(m_ui.addButton, &QPushButton::clicked,
                 this, &LocatorSettingsPage::addCustomFilter);
         connect(m_ui.removeButton, &QPushButton::clicked,
                 this, &LocatorSettingsPage::removeCustomFilter);
 
         m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
-        m_filters = m_plugin->filters();
-        m_customFilters = m_plugin->customFilters();
         saveFilterStates();
-        updateFilterList();
     }
     return m_widget;
 }
@@ -121,6 +263,12 @@ void LocatorSettingsPage::requestRefresh()
         m_plugin->refresh(m_refreshFilters);
 }
 
+void LocatorSettingsPage::setFilter(const QString &text)
+{
+    m_proxyModel->setFilterFixedString(text);
+    m_ui.filterList->expandAll();
+}
+
 void LocatorSettingsPage::saveFilterStates()
 {
     m_filterStates.clear();
@@ -134,49 +282,60 @@ void LocatorSettingsPage::restoreFilterStates()
         filter->restoreState(m_filterStates.value(filter));
 }
 
-void LocatorSettingsPage::updateFilterList()
+void LocatorSettingsPage::initializeModel()
 {
-    m_ui.filterList->clear();
-    foreach (ILocatorFilter *filter, m_filters) {
-        if (filter->isHidden())
-            continue;
+    m_model->setHeader(QStringList({ tr("Name"), tr("Prefix"), tr("Default") }));
+    m_model->setHeaderToolTip(QStringList({
+        QString(),
+        ILocatorFilter::msgPrefixToolTip(),
+        ILocatorFilter::msgIncludeByDefaultToolTip()
+    }));
+    m_model->clear();
+    QSet<ILocatorFilter *> customFilterSet = m_customFilters.toSet();
+    auto builtIn = new CategoryItem(tr("Built-in"), 0/*order*/);
+    foreach (ILocatorFilter *filter, m_filters)
+        if (!filter->isHidden() && !customFilterSet.contains(filter))
+            builtIn->appendChild(new FilterItem(filter));
+    m_customFilterRoot = new CategoryItem(tr("Custom"), 1/*order*/);
+    foreach (ILocatorFilter *customFilter, m_customFilters)
+        m_customFilterRoot->appendChild(new FilterItem(customFilter));
 
-        QString title;
-        if (filter->isIncludedByDefault())
-            title = filter->displayName();
-        else
-            title = tr("%1 (prefix: %2)").arg(filter->displayName()).arg(filter->shortcutString());
-        QListWidgetItem *item = new QListWidgetItem(title);
-        item->setData(Qt::UserRole, qVariantFromValue(filter));
-        m_ui.filterList->addItem(item);
-    }
-    if (m_ui.filterList->count() > 0)
-        m_ui.filterList->setCurrentRow(0);
+    m_model->rootItem()->appendChild(builtIn);
+    m_model->rootItem()->appendChild(m_customFilterRoot);
 }
 
 void LocatorSettingsPage::updateButtonStates()
 {
-    QListWidgetItem *item = m_ui.filterList->currentItem();
-    ILocatorFilter *filter = (item ? item->data(Qt::UserRole).value<ILocatorFilter *>() : 0);
+    const QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
+    bool selected = currentIndex.isValid();
+    ILocatorFilter *filter = 0;
+    if (selected) {
+        auto item = dynamic_cast<FilterItem *>(m_model->itemForIndex(currentIndex));
+        if (item)
+            filter = item->filter();
+    }
     m_ui.editButton->setEnabled(filter && filter->isConfigurable());
     m_ui.removeButton->setEnabled(filter && m_customFilters.contains(filter));
 }
 
-void LocatorSettingsPage::configureFilter(QListWidgetItem *item)
+void LocatorSettingsPage::configureFilter(const QModelIndex &proxyIndex)
 {
-    if (!item)
-        item = m_ui.filterList->currentItem();
+    const QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
+    QTC_ASSERT(index.isValid(), return);
+    auto item = dynamic_cast<FilterItem *>(m_model->itemForIndex(index));
     QTC_ASSERT(item, return);
-    ILocatorFilter *filter = item->data(Qt::UserRole).value<ILocatorFilter *>();
-    QTC_ASSERT(filter, return);
-
-    if (!filter->isConfigurable())
-        return;
+    ILocatorFilter *filter = item->filter();
+    QTC_ASSERT(filter->isConfigurable(), return);
+    bool includedByDefault = filter->isIncludedByDefault();
+    QString shortcutString = filter->shortcutString();
     bool needsRefresh = false;
     filter->openConfigDialog(m_widget, needsRefresh);
     if (needsRefresh && !m_refreshFilters.contains(filter))
         m_refreshFilters.append(filter);
-    updateFilterList();
+    if (filter->isIncludedByDefault() != includedByDefault)
+        item->updateColumn(FilterIncludedByDefault);
+    if (filter->shortcutString() != shortcutString)
+        item->updateColumn(FilterPrefix);
 }
 
 void LocatorSettingsPage::addCustomFilter()
@@ -189,16 +348,19 @@ void LocatorSettingsPage::addCustomFilter()
         m_addedFilters.append(filter);
         m_customFilters.append(filter);
         m_refreshFilters.append(filter);
-        updateFilterList();
+        m_customFilterRoot->appendChild(new FilterItem(filter));
     }
 }
 
 void LocatorSettingsPage::removeCustomFilter()
 {
-    QListWidgetItem *item = m_ui.filterList->currentItem();
+    QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
+    QTC_ASSERT(currentIndex.isValid(), return);
+    auto item = dynamic_cast<FilterItem *>(m_model->itemForIndex(currentIndex));
     QTC_ASSERT(item, return);
-    ILocatorFilter *filter = item->data(Qt::UserRole).value<ILocatorFilter *>();
+    ILocatorFilter *filter = item->filter();
     QTC_ASSERT(m_customFilters.contains(filter), return);
+    delete m_model->takeItem(item);
     m_filters.removeAll(filter);
     m_customFilters.removeAll(filter);
     m_refreshFilters.removeAll(filter);
@@ -208,5 +370,4 @@ void LocatorSettingsPage::removeCustomFilter()
     } else {
         m_removedFilters.append(filter);
     }
-    updateFilterList();
 }

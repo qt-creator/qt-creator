@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>367</width>
-    <height>242</height>
+    <width>411</width>
+    <height>287</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,13 +15,12 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QListWidget" name="filterList">
-     <property name="font">
-      <font/>
-     </property>
-    </widget>
+    <widget class="Utils::FancyLineEdit" name="filterEdit"/>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="0">
+    <widget class="Utils::TreeView" name="filterList"/>
+   </item>
+   <item row="1" column="1">
     <layout class="QVBoxLayout">
      <item>
       <widget class="QPushButton" name="addButton">
@@ -65,7 +64,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="refreshIntervalLabel">
@@ -116,6 +115,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::TreeView</class>
+   <extends>QTreeView</extends>
+   <header location="global">utils/itemviews.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

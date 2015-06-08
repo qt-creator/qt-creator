@@ -30,6 +30,7 @@
 
 #include "filesystemfilter.h"
 #include "locatorwidget.h"
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
@@ -171,15 +172,19 @@ bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     Ui::FileSystemFilterOptions ui;
     QDialog dialog(parent);
     ui.setupUi(&dialog);
-
+    dialog.setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
+    ui.prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
+    ui.prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
+    ui.includeByDefault->setText(msgIncludeByDefault());
+    ui.includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
     ui.hiddenFilesFlag->setChecked(m_includeHidden);
-    ui.limitCheck->setChecked(!isIncludedByDefault());
+    ui.includeByDefault->setChecked(isIncludedByDefault());
     ui.shortcutEdit->setText(shortcutString());
 
     if (dialog.exec() == QDialog::Accepted) {
         m_includeHidden = ui.hiddenFilesFlag->isChecked();
         setShortcutString(ui.shortcutEdit->text().trimmed());
-        setIncludedByDefault(!ui.limitCheck->isChecked());
+        setIncludedByDefault(ui.includeByDefault->isChecked());
         return true;
     }
     return false;

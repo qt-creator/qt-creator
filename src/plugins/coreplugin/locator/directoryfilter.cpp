@@ -30,6 +30,7 @@
 
 #include "directoryfilter.h"
 
+#include <coreplugin/coreconstants.h>
 #include <utils/filesearch.h>
 
 #include <QFileDialog>
@@ -95,7 +96,11 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     QDialog dialog(parent);
     m_dialog = &dialog;
     m_ui.setupUi(&dialog);
-    dialog.setWindowTitle(tr("Filter Configuration"));
+    dialog.setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
+    m_ui.prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
+    m_ui.prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
+    m_ui.defaultFlag->setText(ILocatorFilter::msgIncludeByDefault());
+    m_ui.defaultFlag->setText(ILocatorFilter::msgIncludeByDefaultToolTip());
     connect(m_ui.addButton, &QPushButton::clicked,
             this, &DirectoryFilter::addDirectory, Qt::DirectConnection);
     connect(m_ui.editButton, &QPushButton::clicked,
@@ -110,7 +115,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui.directoryList->addItems(m_directories);
     m_ui.fileTypeEdit->setText(m_filters.join(QLatin1Char(',')));
     m_ui.shortcutEdit->setText(shortcutString());
-    m_ui.defaultFlag->setChecked(!isIncludedByDefault());
+    m_ui.defaultFlag->setChecked(isIncludedByDefault());
     updateOptionButtons();
     if (dialog.exec() == QDialog::Accepted) {
         QMutexLocker locker(&m_lock);
@@ -130,7 +135,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         }
         m_filters = m_ui.fileTypeEdit->text().trimmed().split(QLatin1Char(','));
         setShortcutString(m_ui.shortcutEdit->text().trimmed());
-        setIncludedByDefault(!m_ui.defaultFlag->isChecked());
+        setIncludedByDefault(m_ui.defaultFlag->isChecked());
         if (directoriesChanged || oldFilters != m_filters)
             needsRefresh = true;
         success = true;

@@ -30,8 +30,11 @@
 
 #include "ilocatorfilter.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -92,17 +95,20 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     Q_UNUSED(needsRefresh)
 
     QDialog dialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
-    dialog.setWindowTitle(tr("Filter Configuration"));
+    dialog.setWindowTitle(msgConfigureDialogTitle());
 
     QVBoxLayout *vlayout = new QVBoxLayout(&dialog);
     QHBoxLayout *hlayout = new QHBoxLayout;
     QLineEdit *shortcutEdit = new QLineEdit(shortcutString());
-    QCheckBox *limitCheck = new QCheckBox(tr("Limit to prefix"));
-    limitCheck->setChecked(!isIncludedByDefault());
+    QCheckBox *includeByDefault = new QCheckBox(msgIncludeByDefault());
+    includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
+    includeByDefault->setChecked(isIncludedByDefault());
 
-    hlayout->addWidget(new QLabel(tr("Prefix:")));
+    auto prefixLabel = new QLabel(msgPrefixLabel());
+    prefixLabel->setToolTip(msgPrefixToolTip());
+    hlayout->addWidget(prefixLabel);
     hlayout->addWidget(shortcutEdit);
-    hlayout->addWidget(limitCheck);
+    hlayout->addWidget(includeByDefault);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Cancel);
@@ -115,7 +121,7 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 
     if (dialog.exec() == QDialog::Accepted) {
         setShortcutString(shortcutEdit->text().trimmed());
-        setIncludedByDefault(!limitCheck->isChecked());
+        setIncludedByDefault(includeByDefault->isChecked());
         return true;
     }
 
@@ -141,6 +147,31 @@ QString ILocatorFilter::trimWildcards(const QString &str)
 Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
 {
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
+}
+
+QString ILocatorFilter::msgConfigureDialogTitle()
+{
+    return tr("Filter Configuration");
+}
+
+QString ILocatorFilter::msgPrefixLabel()
+{
+    return tr("Prefix:");
+}
+
+QString ILocatorFilter::msgPrefixToolTip()
+{
+    return tr("Type the prefix followed by a space and search term to restrict search to the filter.");
+}
+
+QString ILocatorFilter::msgIncludeByDefault()
+{
+    return tr("Include by default");
+}
+
+QString ILocatorFilter::msgIncludeByDefaultToolTip()
+{
+    return tr("Include the filter when not using a prefix for searches.");
 }
 
 bool ILocatorFilter::isConfigurable() const

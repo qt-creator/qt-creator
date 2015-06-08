@@ -41,8 +41,13 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
     , m_filter(filter)
 {
     m_ui.setupUi(this);
+    setWindowTitle(Core::ILocatorFilter::msgConfigureDialogTitle());
+    m_ui.prefixLabel->setText(Core::ILocatorFilter::msgPrefixLabel());
+    m_ui.prefixLabel->setToolTip(Core::ILocatorFilter::msgPrefixToolTip());
+    m_ui.includeByDefault->setText(Core::ILocatorFilter::msgIncludeByDefault());
+    m_ui.includeByDefault->setToolTip(Core::ILocatorFilter::msgIncludeByDefaultToolTip());
     m_ui.shortcutEdit->setText(m_filter->shortcutString());
-    m_ui.limitCheck->setChecked(!m_filter->isIncludedByDefault());
+    m_ui.includeByDefault->setChecked(m_filter->isIncludedByDefault());
     foreach (const QString &url, m_filter->remoteUrls()) {
         QListWidgetItem *item = new QListWidgetItem(url);
         m_ui.listWidget->addItem(item);
@@ -162,7 +167,7 @@ bool RemoteHelpFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     if (optionsDialog.exec() == QDialog::Accepted) {
         QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
         m_remoteUrls.clear();
-        setIncludedByDefault(!optionsDialog.m_ui.limitCheck->isChecked());
+        setIncludedByDefault(optionsDialog.m_ui.includeByDefault->isChecked());
         setShortcutString(optionsDialog.m_ui.shortcutEdit->text().trimmed());
         for (int i = 0; i < optionsDialog.m_ui.listWidget->count(); ++i)
             m_remoteUrls.append(optionsDialog.m_ui.listWidget->item(i)->text());

@@ -40,7 +40,15 @@
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
+class QSortFilterProxyModel;
 QT_END_NAMESPACE
+
+namespace Utils {
+
+class TreeModel;
+class TreeItem;
+
+} // Utils
 
 namespace Core {
 
@@ -63,19 +71,23 @@ public:
 
 private slots:
     void updateButtonStates();
-    void configureFilter(QListWidgetItem *item = 0);
+    void configureFilter(const QModelIndex &proxyIndex);
     void addCustomFilter();
     void removeCustomFilter();
 
 private:
-    void updateFilterList();
+    void initializeModel();
     void saveFilterStates();
     void restoreFilterStates();
     void requestRefresh();
+    void setFilter(const QString &text);
 
     Ui::LocatorSettingsWidget m_ui;
     Locator *m_plugin;
     QPointer<QWidget> m_widget;
+    Utils::TreeModel *m_model;
+    QSortFilterProxyModel *m_proxyModel;
+    Utils::TreeItem *m_customFilterRoot;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_addedFilters;
     QList<ILocatorFilter *> m_removedFilters;

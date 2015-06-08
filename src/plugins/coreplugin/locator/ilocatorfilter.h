@@ -100,6 +100,7 @@ public:
 
     /* String to type to use this filter exclusively. */
     QString shortcutString() const;
+    void setShortcutString(const QString &shortcut);
 
     /* Called on the main thread before matchesFor is called in a separate thread.
        Can be used to perform actions that need to be done in the main thread before actually
@@ -135,6 +136,7 @@ public:
 
     /* Is this filter used also when the shortcutString is not used? */
     bool isIncludedByDefault() const;
+    void setIncludedByDefault(bool includedByDefault);
 
     /* Returns whether the filter should be hidden from configuration and menus. */
     bool isHidden() const;
@@ -145,13 +147,17 @@ public:
     static QString trimWildcards(const QString &str);
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
 
+    static QString msgConfigureDialogTitle();
+    static QString msgPrefixLabel();
+    static QString msgPrefixToolTip();
+    static QString msgIncludeByDefault();
+    static QString msgIncludeByDefaultToolTip();
+
 public slots:
     /* Enable or disable the filter. */
     void setEnabled(bool enabled);
 
 protected:
-    void setShortcutString(const QString &shortcut);
-    void setIncludedByDefault(bool includedByDefault);
     void setHidden(bool hidden);
     void setId(Id id);
     void setPriority(Priority priority);
