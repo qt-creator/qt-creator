@@ -125,8 +125,8 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
             this, &QmlInspectorAdapter::toolsClientStateChanged);
 
     auto toolsClient2 = new QmlToolsClient(connection);
-    connect(toolsClient2, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-            this, SLOT(clientStateChanged(QmlDebug::QmlDebugClient::State)));
+    connect(toolsClient2, &BaseToolsClient::newState,
+            this, &QmlInspectorAdapter::clientStateChanged);
     connect(toolsClient2, &BaseToolsClient::newState,
             this, &QmlInspectorAdapter::toolsClientStateChanged);
 
