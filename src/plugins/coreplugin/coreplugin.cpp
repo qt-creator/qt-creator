@@ -39,6 +39,7 @@
 #include "iwizardfactory.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/locator/locator.h>
@@ -206,6 +207,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                []() { return QDate::currentDate().toString(Qt::DefaultLocaleShortDate); });
     expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
                                []() { return QTime::currentTime().toString(Qt::DefaultLocaleShortDate); });
+    expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
+                               []() { return DocumentManager::projectsDirectory(); });
+    expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
+                               []() { return DocumentManager::fileDialogLastVisitedDirectory(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
