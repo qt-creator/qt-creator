@@ -138,32 +138,6 @@ private:
     QString m_key;
 };
 
-class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
-{
-    Q_OBJECT
-
-public:
-    explicit ExecutableAspect(RunConfiguration *runConfig, const QString &key, const QString &executable = QString());
-
-    ExecutableAspect *create(RunConfiguration *runConfig) const override;
-    ExecutableAspect *clone(RunConfiguration *runConfig) const override;
-
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
-
-    QString executable() const;
-    QString unexpandedExecutable() const;
-
-    void setExectuable(const QString &executable);
-
-private:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
-    QString m_executable;
-    Utils::FancyLineEdit *m_chooser;
-    QString m_key;
-};
-
 } // namespace ProjectExplorer
 
 #endif // RUNCONFIGURATION_ASPECTS_H
