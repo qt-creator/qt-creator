@@ -90,7 +90,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/theme/theme.cpp \
     $$PWD/progressindicator.cpp \
     $$PWD/fadingindicator.cpp \
-    $$PWD/overridecursor.cpp
+    $$PWD/overridecursor.cpp \
+    $$PWD/categorysortfiltermodel.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -192,7 +193,8 @@ HEADERS += \
     $$PWD/progressindicator.h \
     $$PWD/fadingindicator.h \
     $$PWD/executeondestruction.h \
-    $$PWD/overridecursor.h
+    $$PWD/overridecursor.h \
+    $$PWD/categorysortfiltermodel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

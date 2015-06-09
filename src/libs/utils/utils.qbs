@@ -41,6 +41,8 @@ QtcLibrary {
         "bracematcher.h",
         "buildablehelperlibrary.cpp",
         "buildablehelperlibrary.h",
+        "categorysortfiltermodel.cpp",
+        "categorysortfiltermodel.h",
         "changeset.cpp",
         "changeset.h",
         "checkablemessagebox.cpp",

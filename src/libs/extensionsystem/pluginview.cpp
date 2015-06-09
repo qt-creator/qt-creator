@@ -35,6 +35,7 @@
 #include "plugincollection.h"
 
 #include <utils/algorithm.h>
+#include <utils/categorysortfiltermodel.h>
 #include <utils/itemviews.h>
 #include <utils/treemodel.h>
 
@@ -277,36 +278,6 @@ public:
     PluginView *m_view; // Not owned.
 };
 
-class SortFilterModel : public QSortFilterProxyModel
-{
-public:
-    SortFilterModel(QObject *parent) : QSortFilterProxyModel(parent) {}
-
-protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
-    {
-        if (!source_parent.isValid()) {
-            // category items should be visible if any of its children match
-            const QRegExp &regexp = filterRegExp();
-            const QModelIndex &categoryIndex = sourceModel()->index(source_row, 0, source_parent);
-            if (regexp.indexIn(sourceModel()->data(categoryIndex, filterRole()).toString()) != -1)
-                return true;
-            const int rowCount = sourceModel()->rowCount(categoryIndex);
-            const int columnCount = sourceModel()->columnCount(categoryIndex);
-            for (int row = 0; row < rowCount; ++row) {
-                for (int column = 0; column < columnCount; ++column) {
-                    if (regexp.indexIn(sourceModel()->data(
-                                           sourceModel()->index(row, column, categoryIndex),
-                                           filterRole()).toString()) != -1)
-                        return true;
-                }
-            }
-            return false;
-        }
-        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
-    }
-};
-
 } // Internal
 
 using namespace ExtensionSystem::Internal;
@@ -334,7 +305,7 @@ PluginView::PluginView(QWidget *parent)
     m_model = new TreeModel(this);
     m_model->setHeader(QStringList() << tr("Name") << tr("Load") << tr("Version") << tr("Vendor"));
 
-    m_sortModel = new SortFilterModel(this);
+    m_sortModel = new CategorySortFilterModel(this);
     m_sortModel->setSourceModel(m_model);
     m_sortModel->setSortRole(SortRole);
     m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
