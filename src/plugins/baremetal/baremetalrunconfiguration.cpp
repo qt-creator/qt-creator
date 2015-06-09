@@ -72,10 +72,12 @@ void BareMetalRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
 
-    connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(kitChanged()),
-            this, SLOT(handleBuildSystemDataUpdated())); // Handles device changes, etc.
+    connect(target(), &Target::deploymentDataChanged,
+            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target(), &Target::applicationTargetsChanged,
+            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target(), &Target::kitChanged,
+            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
 bool BareMetalRunConfiguration::isEnabled() const

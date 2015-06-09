@@ -60,12 +60,12 @@ GdbServerProviderChooser::GdbServerProviderChooser(
     layout->addWidget(m_manageButton);
     setFocusProxy(m_manageButton);
 
-    connect(m_chooser, SIGNAL(currentIndexChanged(int)),
-            SLOT(currentIndexChanged(int)));
-    connect(m_manageButton, SIGNAL(clicked()),
-            SLOT(manageButtonClicked()));
-    connect(GdbServerProviderManager::instance(), SIGNAL(providersChanged()),
-            SLOT(populate()));
+    connect(m_chooser.data(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &GdbServerProviderChooser::currentIndexChanged);
+    connect(m_manageButton.data(), &QAbstractButton::clicked,
+            this, &GdbServerProviderChooser::manageButtonClicked);
+    connect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
+            this, &GdbServerProviderChooser::populate);
 }
 
 QString GdbServerProviderChooser::currentProviderId() const

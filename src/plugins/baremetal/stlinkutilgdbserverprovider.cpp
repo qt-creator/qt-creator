@@ -297,18 +297,25 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     connect(m_executableFileChooser.data(), &Utils::PathChooser::changed,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_verboseLevelSpinBox, SIGNAL(valueChanged(int)), SIGNAL(dirty()));
-    connect(m_extendedModeCheckBox, SIGNAL(clicked()), SIGNAL(dirty()));
-    connect(m_resetBoardCheckBox, SIGNAL(clicked()), SIGNAL(dirty()));
-    connect(m_transportLayerComboBox, SIGNAL(currentIndexChanged(int)), SIGNAL(dirty()));
+    connect(m_verboseLevelSpinBox.data(),
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &GdbServerProviderConfigWidget::dirty);
+    connect(m_extendedModeCheckBox.data(), &QAbstractButton::clicked,
+            this, &GdbServerProviderConfigWidget::dirty);
+    connect(m_resetBoardCheckBox.data(), &QAbstractButton::clicked,
+            this, &GdbServerProviderConfigWidget::dirty);
+    connect(m_transportLayerComboBox.data(),
+            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_initCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_startupModeComboBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(startupModeChanged()));
+    connect(m_startupModeComboBox.data(),
+            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &StLinkUtilGdbServerProviderConfigWidget::startupModeChanged);
 }
 
 

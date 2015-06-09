@@ -308,8 +308,8 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
     connect(m_resetCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_startupModeComboBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(startupModeChanged()));
+    connect(m_startupModeComboBox.data(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &OpenOcdGdbServerProviderConfigWidget::startupModeChanged);
 }
 
 void OpenOcdGdbServerProviderConfigWidget::startupModeChanged()

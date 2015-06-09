@@ -47,7 +47,7 @@ BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareM
     m_commands = new QPlainTextEdit(this);
     fl->addRow(tr("GDB commands:"), m_commands);
     m_commands->setPlainText(m_step.gdbCommands());
-    connect(m_commands, SIGNAL(textChanged()), SLOT(update()));
+    connect(m_commands, &QPlainTextEdit::textChanged, this, &BareMetalGdbCommandsDeployStepWidget::update);
 }
 
 void BareMetalGdbCommandsDeployStepWidget::update()

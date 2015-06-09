@@ -76,7 +76,8 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
     mainLayout->setMargin(0);
     addGenericWidgets(mainLayout);
 
-    connect(d->runConfiguration, SIGNAL(enabledChanged()),SLOT(runConfigurationEnabledChange()));
+    connect(d->runConfiguration, &ProjectExplorer::RunConfiguration::enabledChanged,
+            this, &BareMetalRunConfigurationWidget::runConfigurationEnabledChange);
     runConfigurationEnabledChange();
 }
 
@@ -121,11 +122,12 @@ void BareMetalRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
     d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
     d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
-    connect(&d->argsLineEdit, SIGNAL(textEdited(QString)), SLOT(argumentsEdited(QString)));
-    connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(&d->workingDirLineEdit, SIGNAL(textEdited(QString)),
-        SLOT(handleWorkingDirectoryChanged()));
+    connect(&d->argsLineEdit, &QLineEdit::textEdited,
+            this, &BareMetalRunConfigurationWidget::argumentsEdited);
+    connect(d->runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
+            this, &BareMetalRunConfigurationWidget::updateTargetInformation);
+    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
+            this, &BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged);
 }
 
 void BareMetalRunConfigurationWidget::argumentsEdited(const QString &args)
