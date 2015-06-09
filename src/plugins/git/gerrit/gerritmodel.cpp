@@ -268,16 +268,15 @@ QueryContext::QueryContext(const QStringList &queries,
     , m_currentQuery(0)
     , m_baseArguments(p->baseCommandArguments())
 {
-    connect(&m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(readyReadStandardError()));
-    connect(&m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(readyReadStandardOutput()));
-    connect(&m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(processFinished(int,QProcess::ExitStatus)));
-    connect(&m_process, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(processError(QProcess::ProcessError)));
-    connect(&m_watcher, &QFutureWatcherBase::canceled,
-            this, &QueryContext::terminate);
+    connect(&m_process, &QProcess::readyReadStandardError,
+            this, &QueryContext::readyReadStandardError);
+    connect(&m_process, &QProcess::readyReadStandardOutput,
+            this, &QueryContext::readyReadStandardOutput);
+    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &QueryContext::processFinished);
+    connect(&m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &QueryContext::processError);
+    connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::instance()->
                                     client()->processEnvironment());
@@ -292,7 +291,7 @@ QueryContext::QueryContext(const QStringList &queries,
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
+    connect(&m_timer, &QTimer::timeout, this, &QueryContext::timeout);
 }
 
 QueryContext::~QueryContext()
@@ -396,7 +395,8 @@ void QueryContext::timeout()
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
     QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
     box.addButton(tr("Keep Running"), QMessageBox::NoRole);
-    connect(&m_process, SIGNAL(finished(int)), &box, SLOT(reject()));
+    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            &box, &QDialog::reject);
     box.exec();
     if (m_process.state() != QProcess::Running)
         return;
@@ -542,10 +542,8 @@ void GerritModel::refresh(const QString &query)
     }
 
     m_query = new QueryContext(queries, m_parameters, this);
-    connect(m_query, SIGNAL(queryFinished(QByteArray)),
-            this, SLOT(queryFinished(QByteArray)));
-    connect(m_query, SIGNAL(finished()),
-            this, SLOT(queriesFinished()));
+    connect(m_query, &QueryContext::queryFinished, this, &GerritModel::queryFinished);
+    connect(m_query, &QueryContext::finished, this, &GerritModel::queriesFinished);
     emit refreshStateChanged(true);
     m_query->start();
 }

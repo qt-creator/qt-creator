@@ -70,21 +70,18 @@ public:
     void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);
 
-public slots:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void updateActions(bool hasTopLevel);
 
-signals:
+private:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
 
-private slots:
     void openView();
     void push();
 
-private:
     QString findLocalRepository(QString project, const QString &branch) const;
     void fetch(const QSharedPointer<GerritChange> &change, int mode);
 

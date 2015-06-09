@@ -84,7 +84,7 @@ QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
     , m_errorTextColor(Qt::red)
 {
     setFiltering(true);
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(setValid()));
+    connect(this, &QLineEdit::textChanged, this, &QueryValidatingLineEdit::setValid);
 }
 
 void QueryValidatingLineEdit::setTextColor(const QColor &c)
@@ -147,11 +147,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_filterLineEdit->setFixedWidth(300);
     m_filterLineEdit->setFiltering(true);
     filterLayout->addWidget(m_filterLineEdit);
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
-            m_filterModel, SLOT(setFilterFixedString(QString)));
-    connect(m_queryLineEdit, SIGNAL(returnPressed()),
-            this, SLOT(slotRefresh()));
-    connect(m_model, SIGNAL(queryError()), m_queryLineEdit, SLOT(setInvalid()));
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::slotRefresh);
+    connect(m_model, &GerritModel::queryError, m_queryLineEdit, &QueryValidatingLineEdit::setInvalid);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     changesLayout->addLayout(filterLayout);
     changesLayout->addWidget(m_treeView);
@@ -169,10 +168,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_treeView->setActivationMode(Utils::DoubleClickActivation);
 
     QItemSelectionModel *selectionModel = m_treeView->selectionModel();
-    connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotCurrentChanged()));
-    connect(m_treeView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(slotActivated(QModelIndex)));
+    connect(selectionModel, &QItemSelectionModel::currentChanged,
+            this, &GerritDialog::slotCurrentChanged);
+    connect(m_treeView, &QAbstractItemView::activated,
+            this, &GerritDialog::slotActivated);
 
     QGroupBox *detailsGroup = new QGroupBox(tr("Details"));
     QVBoxLayout *detailsLayout = new QVBoxLayout(detailsGroup);
@@ -188,17 +187,17 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     repoPathLayout->addWidget(m_repositoryChooser);
     detailsLayout->addLayout(repoPathLayout);
 
-    m_displayButton = addActionButton(tr("&Show"), SLOT(slotFetchDisplay()));
-    m_cherryPickButton = addActionButton(tr("Cherry &Pick"), SLOT(slotFetchCherryPick()));
-    m_checkoutButton = addActionButton(tr("&Checkout"), SLOT(slotFetchCheckout()));
-    m_refreshButton = addActionButton(tr("&Refresh"), SLOT(slotRefresh()));
+    m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
+    m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
+    m_checkoutButton = addActionButton(tr("&Checkout"), [this]() { slotFetchCheckout(); });
+    m_refreshButton = addActionButton(tr("&Refresh"), [this]() { slotRefresh(); });
 
-    connect(m_model, SIGNAL(refreshStateChanged(bool)),
-            m_refreshButton, SLOT(setDisabled(bool)));
-    connect(m_model, SIGNAL(refreshStateChanged(bool)),
-            this, SLOT(slotRefreshStateChanged(bool)));
-    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_model, &GerritModel::refreshStateChanged,
+            m_refreshButton, &QWidget::setDisabled);
+    connect(m_model, &GerritModel::refreshStateChanged,
+            this, &GerritDialog::slotRefreshStateChanged);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
     splitter->addWidget(changesGroup);
@@ -227,10 +226,11 @@ void GerritDialog::setCurrentPath(const QString &path)
     m_repositoryChooser->setPath(path);
 }
 
-QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)
+QPushButton *GerritDialog::addActionButton(const QString &text,
+                                           const std::function<void()> &buttonSlot)
 {
     QPushButton *button = m_buttonBox->addButton(text, QDialogButtonBox::ActionRole);
-    connect(button, SIGNAL(clicked()), this, buttonSlot);
+    connect(button, &QPushButton::clicked, this, buttonSlot);
     return button;
 }
 

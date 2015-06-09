@@ -153,16 +153,15 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_parameters(p)
     , m_state(FetchState)
 {
-    connect(&m_process, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(processError(QProcess::ProcessError)));
-    connect(&m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(processFinished(int,QProcess::ExitStatus)));
-    connect(&m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(processReadyReadStandardError()));
-    connect(&m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(processReadyReadStandardOutput()));
-    connect(&m_watcher, &QFutureWatcher<void>::canceled,
-            this, &FetchContext::terminate);
+    connect(&m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &FetchContext::processError);
+    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &FetchContext::processFinished);
+    connect(&m_process, &QProcess::readyReadStandardError,
+            this, &FetchContext::processReadyReadStandardError);
+    connect(&m_process, &QProcess::readyReadStandardOutput,
+            this, &FetchContext::processReadyReadStandardOutput);
+    connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &FetchContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setWorkingDirectory(repository);
     m_process.setProcessEnvironment(gitClient()->processEnvironment());
@@ -298,14 +297,14 @@ bool GerritPlugin::initialize(ActionContainer *ac)
 
     m_gerritCommand =
         ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW);
-    connect(openViewAction, SIGNAL(triggered()), this, SLOT(openView()));
+    connect(openViewAction, &QAction::triggered, this, &GerritPlugin::openView);
     ac->addAction(m_gerritCommand);
 
     QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
 
     m_pushToGerritCommand =
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
-    connect(pushAction, SIGNAL(triggered()), this, SLOT(push()));
+    connect(pushAction, &QAction::triggered, this, [this]() { push(); });
     ac->addAction(m_pushToGerritCommand);
 
     GitPlugin::instance()->addAutoReleasedObject(new GerritOptionsPage(m_parameters));
@@ -377,15 +376,11 @@ void GerritPlugin::openView()
         }
         GerritDialog *gd = new GerritDialog(m_parameters, ICore::mainWindow());
         gd->setModal(false);
-        connect(gd, SIGNAL(fetchDisplay(QSharedPointer<Gerrit::Internal::GerritChange>)),
-                this, SLOT(fetchDisplay(QSharedPointer<Gerrit::Internal::GerritChange>)));
-        connect(gd, SIGNAL(fetchCherryPick(QSharedPointer<Gerrit::Internal::GerritChange>)),
-                this, SLOT(fetchCherryPick(QSharedPointer<Gerrit::Internal::GerritChange>)));
-        connect(gd, SIGNAL(fetchCheckout(QSharedPointer<Gerrit::Internal::GerritChange>)),
-                this, SLOT(fetchCheckout(QSharedPointer<Gerrit::Internal::GerritChange>)));
-        connect(this, SIGNAL(fetchStarted(QSharedPointer<Gerrit::Internal::GerritChange>)),
-                gd, SLOT(fetchStarted(QSharedPointer<Gerrit::Internal::GerritChange>)));
-        connect(this, SIGNAL(fetchFinished()), gd, SLOT(fetchFinished()));
+        connect(gd, &GerritDialog::fetchDisplay, this, &GerritPlugin::fetchDisplay);
+        connect(gd, &GerritDialog::fetchCherryPick, this, &GerritPlugin::fetchCherryPick);
+        connect(gd, &GerritDialog::fetchCheckout, this, &GerritPlugin::fetchCheckout);
+        connect(this, &GerritPlugin::fetchStarted, gd, &GerritDialog::fetchStarted);
+        connect(this, &GerritPlugin::fetchFinished, gd, &GerritDialog::fetchFinished);
         m_dialog = gd;
     }
     if (!m_dialog->isVisible())
@@ -518,7 +513,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 
     FetchContext *fc = new FetchContext(change, repository, git,
                                         m_parameters, FetchMode(mode), this);
-    connect(fc, SIGNAL(destroyed(QObject*)), this, SIGNAL(fetchFinished()));
+    connect(fc, &QObject::destroyed, this, &GerritPlugin::fetchFinished);
     emit fetchStarted(change);
     fc->start();
 }

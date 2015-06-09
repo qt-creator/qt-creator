@@ -90,7 +90,7 @@ private slots:
 
 private:
     QModelIndex currentIndex() const;
-    QPushButton *addActionButton(const QString &text, const char *buttonSlot);
+    QPushButton *addActionButton(const QString &text, const std::function<void()> &buttonSlot);
     void updateCompletions(const QString &query);
     void updateButtons();
 
