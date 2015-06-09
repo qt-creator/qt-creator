@@ -53010,7 +53010,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
     <message>
         <source>Find in This Directory...</source>
-        <translation>Trouvé dans le répertoire...</translation>
+        <translation>Trouver dans le répertoire...</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
