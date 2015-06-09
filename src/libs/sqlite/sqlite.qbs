@@ -13,7 +13,7 @@ QtcLibrary {
         "SQLITE_ENABLE_COLUMN_METADATA"
     ])
     cpp.optimization: "fast"
-    cpp.dynamicLibraries: base.concat("dl")
+    cpp.dynamicLibraries: base.concat(qbs.targetOS.contains("unix") ? ["dl"] : [])
 
 
     Group {
