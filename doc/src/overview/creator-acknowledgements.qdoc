@@ -131,5 +131,20 @@
         The source code of ANGLE is part of the Qt libraries.
         \br\br
 
+        \li \b{SQLite, an embedded database. Version 3.8.10.2}\br\br
+
+        The author or authors of this code dedicate any and all copyright
+        interest in this code to the public domain. We make this dedication
+        for the benefit of the public at large and to the detriment of our
+        heirs and successors. We intend this dedication to be an overt act
+        of relinquishment in perpetuity of all present and future rights to
+        this code under copyright law.\br\br
+
+        The source code of SQLite library can be found here:
+        \list
+        \li  QtCreator/src/libs/3rdparty/sqlite
+        \li  \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/sqlite}
+        \endlist
+
      \endlist
 */
