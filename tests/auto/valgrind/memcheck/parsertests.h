@@ -59,12 +59,12 @@ public:
     explicit Recorder(Valgrind::XmlProtocol::Parser *parser, QObject *parent = 0)
     : QObject(parent)
     {
-        connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-                this, SLOT(error(Valgrind::XmlProtocol::Error)));
-        connect(parser, SIGNAL(errorCount(qint64, qint64)),
-                this, SLOT(errorCount(qint64, qint64)));
-        connect(parser, SIGNAL(suppressionCount(QString, qint64)),
-                this, SLOT(suppressionCount(QString, qint64)));
+        connect(parser, &Valgrind::XmlProtocol::Parser::error,
+                this, &Recorder::error);
+        connect(parser, &Valgrind::XmlProtocol::Parser::errorCount,
+                this, &Recorder::errorCount);
+        connect(parser, &Valgrind::XmlProtocol::Parser::suppressionCount,
+                this, &Recorder::suppressionCount);
     }
 
     QList<Valgrind::XmlProtocol::Error> errors;
@@ -98,16 +98,16 @@ public:
         : QObject()
         , m_errorReceived(false)
     {
-        connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-                this, SLOT(error(Valgrind::XmlProtocol::Error)));
-        connect(parser, SIGNAL(internalError(QString)),
-                this, SLOT(internalError(QString)));
-        connect(parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
-                this, SLOT(status(Valgrind::XmlProtocol::Status)));
-        connect(runner, SIGNAL(logMessageReceived(QByteArray)),
-                this, SLOT(logMessageReceived(QByteArray)));
-        connect(runner, SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
-                this, SLOT(processErrorReceived(QString)));
+        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::error,
+                this, &RunnerDumper::error);
+        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::internalError,
+                this, &RunnerDumper::internalError);
+        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::status,
+                this, &RunnerDumper::status);
+        connect(runner, &Valgrind::Memcheck::MemcheckRunner::logMessageReceived,
+                this, &RunnerDumper::logMessageReceived);
+        connect(runner, &Valgrind::ValgrindRunner::processErrorReceived,
+                this, &RunnerDumper::processErrorReceived);
     }
 
 public slots:

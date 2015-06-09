@@ -136,16 +136,16 @@ void TestRunner::init()
     m_runner = new MemcheckRunner;
     m_runner->setValgrindExecutable(QLatin1String("valgrind"));
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(m_runner, SIGNAL(logMessageReceived(QByteArray)),
-            this, SLOT(logMessageReceived(QByteArray)));
-    connect(m_runner, SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
-            this, SLOT(internalError(QString)));
+    connect(m_runner, &MemcheckRunner::logMessageReceived,
+            this, &TestRunner::logMessageReceived);
+    connect(m_runner, &ValgrindRunner::processErrorReceived,
+            this, &TestRunner::internalError);
     Q_ASSERT(!m_parser);
     m_parser = new ThreadedParser;
-    connect(m_parser, SIGNAL(internalError(QString)),
-            this, SLOT(internalError(QString)));
-    connect(m_parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-            this, SLOT(error(Valgrind::XmlProtocol::Error)));
+    connect(m_parser, &ThreadedParser::internalError,
+            this, &TestRunner::internalError);
+    connect(m_parser, &ThreadedParser::error,
+            this, &TestRunner::error);
 
     m_runner->setParser(m_parser);
 }

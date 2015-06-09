@@ -66,11 +66,12 @@ int main(int argc, char *argv[])
     runner.setParser(&parser);
 
     ModelDemo demo(&runner);
-    runner.connect(&runner, SIGNAL(finished()), &demo, SLOT(finished()));
+    QObject::connect(&runner, &ValgrindRunner::finished,
+                     &demo, &ModelDemo::finished);
     ErrorListModel model;
-    parser.connect(&parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-                   &model, SLOT(addError(Valgrind::XmlProtocol::Error)),
-                   Qt::QueuedConnection);
+    QObject::connect(&parser, &ThreadedParser::error,
+                     &model, &ErrorListModel::addError,
+                     Qt::QueuedConnection);
 
     QTreeView errorview;
     errorview.setSelectionMode(QAbstractItemView::SingleSelection);
@@ -85,8 +86,8 @@ int main(int argc, char *argv[])
     stackView.setModel(&stackModel);
     stackView.show();
 
-    errorview.connect(errorview.selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-                      &demo, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+    QObject::connect(errorview.selectionModel(), &QItemSelectionModel::selectionChanged,
+                     &demo, &ModelDemo::selectionChanged);
 
 
     runner.start();
