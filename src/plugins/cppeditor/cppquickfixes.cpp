@@ -57,6 +57,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -66,6 +67,7 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QInputDialog>
+#include <QPushButton>
 #include <QSharedPointer>
 #include <QStack>
 #include <QTextCursor>
@@ -3148,9 +3150,14 @@ public:
     ExtractFunctionOptions() : access(InsertionPointLocator::Public)
     {}
 
+    static bool isValidFunctionName(const QString &name)
+    {
+        return !name.isEmpty() && isValidIdentifier(name);
+    }
+
     bool hasValidFunctionName() const
     {
-        return !funcName.isEmpty() && isValidIdentifier(funcName);
+        return isValidFunctionName(funcName);
     }
 
     QString funcName;
@@ -3332,7 +3339,10 @@ public:
                                                        "Extract Function Refactoring"));
         auto layout = new QFormLayout(&dlg);
 
-        auto funcNameEdit = new QLineEdit;
+        auto funcNameEdit = new Utils::FancyLineEdit;
+        funcNameEdit->setValidationFunction([this](Utils::FancyLineEdit *edit, QString *) {
+            return ExtractFunctionOptions::isValidFunctionName(edit->text());
+        });
         layout->addRow(QCoreApplication::translate("QuickFix::ExtractFunction",
                                                    "Function name"), funcNameEdit);
 
@@ -3361,21 +3371,17 @@ public:
         auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         QObject::connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
         QObject::connect(buttonBox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+        QPushButton *ok = buttonBox->button(QDialogButtonBox::Ok);
+        ok->setEnabled(false);
+        QObject::connect(funcNameEdit, &Utils::FancyLineEdit::validChanged,
+                         ok, &QPushButton::setEnabled);
         layout->addWidget(buttonBox);
 
         if (dlg.exec() == QDialog::Accepted) {
             ExtractFunctionOptions options;
-            options.funcName = funcNameEdit->text().trimmed();
+            options.funcName = funcNameEdit->text();
             options.access = static_cast<InsertionPointLocator::AccessSpec>(accessCombo->
                                                                            currentData().toInt());
-            if (!options.hasValidFunctionName()) {
-                Core::AsynchronousMessageBox::critical(
-                            QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                        "Extract Function Refactoring"),
-                            QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                        "Invalid function name"));
-                return ExtractFunctionOptions();
-            }
             return options;
         }
         return ExtractFunctionOptions();
