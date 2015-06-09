@@ -109,9 +109,9 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         f.openInEditor = tmp.value(QLatin1String("openInEditor"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
 
-        if (f.source.isEmpty()) {
+        if (f.source.isEmpty() && f.target.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "No source given for file in file list.");
+                                                        "Source and target are both empty.");
             return false;
         }
 
@@ -139,31 +139,38 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
         if (!JsonWizard::boolFromVariant(f.condition, expander))
             continue;
 
+        const bool keepExisting = f.source.isEmpty();
+        const QString targetPath = project.absoluteFilePath(expander->expand(f.target));
+        const QString sourcePath
+                = keepExisting ? targetPath : wizard.absoluteFilePath(expander->expand(f.source));
+        const bool isBinary = JsonWizard::boolFromVariant(f.isBinary, expander);
+
         // Read contents of source file
-        const QString src = wizard.absoluteFilePath(expander->expand(f.source));
         const QFile::OpenMode openMode
-                = JsonWizard::boolFromVariant(f.isBinary, expander)
+                = JsonWizard::boolFromVariant(isBinary, expander)
                 ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
 
         Utils::FileReader reader;
-        if (!reader.fetch(src, openMode, errorMessage))
+        if (!reader.fetch(sourcePath, openMode, errorMessage))
             return Core::GeneratedFiles();
 
         // Generate file information:
         Core::GeneratedFile gf;
-        gf.setPath(project.absoluteFilePath(expander->expand(f.target)));
+        gf.setPath(targetPath);
 
-        if (JsonWizard::boolFromVariant(f.isBinary, expander)) {
-            gf.setBinary(true);
-            gf.setBinaryContents(reader.data());
-        } else {
-            // TODO: Document that input files are UTF8 encoded!
-            gf.setBinary(false);
-            gf.setContents(processTextFileContents(expander, QString::fromUtf8(reader.data()), errorMessage));
-            if (!errorMessage->isEmpty()) {
-                *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
-                        .arg(src, *errorMessage);
-                return Core::GeneratedFiles();
+        if (!keepExisting) {
+            if (isBinary) {
+                gf.setBinary(true);
+                gf.setBinaryContents(reader.data());
+            } else {
+                // TODO: Document that input files are UTF8 encoded!
+                gf.setBinary(false);
+                gf.setContents(processTextFileContents(expander, QString::fromUtf8(reader.data()), errorMessage));
+                if (!errorMessage->isEmpty()) {
+                    *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
+                            .arg(sourcePath, *errorMessage);
+                    return Core::GeneratedFiles();
+                }
             }
         }
 
@@ -174,6 +181,10 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
             attributes |= Core::GeneratedFile::OpenProjectAttribute;
         if (JsonWizard::boolFromVariant(f.overwrite, expander))
             attributes |= Core::GeneratedFile::ForceOverwrite;
+
+        if (keepExisting)
+            attributes |= Core::GeneratedFile::KeepExistingFileAttribute;
+
         gf.setAttributes(attributes);
         result.append(gf);
     }
