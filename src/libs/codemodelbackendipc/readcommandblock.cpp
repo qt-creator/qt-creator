@@ -95,15 +95,13 @@ void ReadCommandBlock::resetCounter()
 
 bool ReadCommandBlock::isTheWholeCommandReadable(QDataStream &in)
 {
-    const qint64 bytesAvailable = ioDevice->bytesAvailable();
-
-    if (bytesAvailable == 0)
+    if (ioDevice->bytesAvailable() == 0)
         return false;
 
     if (blockSize == 0)
         in >> blockSize;
 
-    if (bytesAvailable < blockSize)
+    if (ioDevice->bytesAvailable() < blockSize)
         return false;
 
     blockSize = 0;
