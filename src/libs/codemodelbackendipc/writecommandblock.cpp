@@ -56,7 +56,7 @@ void WriteCommandBlock::write(const QVariant &command)
     out << command;
 
     out.device()->seek(0);
-    out << qint32(block.size());
+    out << qint32(block.size() - sizeof(qint32));
 
     ++commandCounter;
 
