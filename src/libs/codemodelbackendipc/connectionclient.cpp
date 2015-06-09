@@ -95,22 +95,10 @@ bool ConnectionClient::isConnected() const
     return localSocket.state() == QLocalSocket::ConnectedState;
 }
 
-void ConnectionClient::waitUntilSocketIsFlushed() const
-{
-    // Avoid to call QAbstractSocket::waitForBytesWritten(), which is known to
-    // be unreliable on Windows. Instead, call processEvents() to actually send
-    // the data.
-    while (localSocket.bytesToWrite() > 0) {
-        QCoreApplication::processEvents();
-        QThread::msleep(20);
-    }
-}
-
 void ConnectionClient::sendEndCommand()
 {
     serverProxy_.end();
     localSocket.flush();
-    waitUntilSocketIsFlushed();
 }
 
 void ConnectionClient::resetProcessAliveTimer()
