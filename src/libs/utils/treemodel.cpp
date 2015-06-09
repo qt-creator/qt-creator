@@ -1027,23 +1027,24 @@ void TreeModel::clear()
    \note The item is not destroyed, ownership is effectively passed to the caller.
    */
 
-void TreeModel::takeItem(TreeItem *item)
+TreeItem *TreeModel::takeItem(TreeItem *item)
 {
 #if USE_MODEL_TEST
     (void) new ModelTest(this, this);
 #endif
 
-    QTC_ASSERT(item, return);
+    QTC_ASSERT(item, return item);
     TreeItem *parent = item->parent();
-    QTC_ASSERT(parent, return);
+    QTC_ASSERT(parent, return item);
     int pos = parent->m_children.indexOf(item);
-    QTC_ASSERT(pos != -1, return);
+    QTC_ASSERT(pos != -1, return item);
 
     QModelIndex idx = indexForItem(parent);
     beginRemoveRows(idx, pos, pos);
     item->m_parent = 0;
     parent->m_children.removeAt(pos);
     endRemoveRows();
+    return item;
 }
 
 //

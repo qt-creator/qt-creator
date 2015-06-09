@@ -291,7 +291,7 @@ public:
         return Utils::findOrDefault(itemsAtLevel<T>(level, start), f);
     }
 
-    void takeItem(TreeItem *item); // item is not destroyed.
+    TreeItem *takeItem(TreeItem *item); // item is not destroyed.
 
 signals:
     void requestExpansion(QModelIndex);

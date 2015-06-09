@@ -165,8 +165,7 @@ void DebuggerItemModel::removeCurrentDebugger()
     QVariant id = m_currentTreeItem->m_item.id();
     DebuggerTreeItem *treeItem = m_currentTreeItem;
     m_currentTreeItem = 0;
-    takeItem(treeItem);
-    delete treeItem;
+    delete takeItem(treeItem);
     m_removedItems.append(id);
 }
 

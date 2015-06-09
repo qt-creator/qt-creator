@@ -259,8 +259,7 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
     TreeItem *parent = m_model.rootItem()->child(tc->isAutoDetected() ? 0 : 1);
     foreach (ToolChainTreeItem *item, m_model.itemsAtLevel<ToolChainTreeItem *>(1, parent)) {
         if (item->toolChain == tc) {
-            m_model.takeItem(item);
-            delete item;
+            delete m_model.takeItem(item);
             break;
         }
     }

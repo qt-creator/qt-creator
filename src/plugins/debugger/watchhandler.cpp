@@ -1251,8 +1251,7 @@ void WatchHandler::removeItemByIName(const QByteArray &iname)
         theWatcherNames.remove(item->exp);
         saveWatchers();
     }
-    m_model->takeItem(item);
-    delete item;
+    delete m_model->takeItem(item);
     updateWatchersWindow();
 }
 

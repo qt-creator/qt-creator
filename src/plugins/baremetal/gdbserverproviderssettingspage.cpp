@@ -265,8 +265,7 @@ void GdbServerProviderModel::removeProvider(GdbServerProvider *provider)
     }
 
     n = findNode(rootItem()->children(), provider);
-    takeItem(n);
-    delete n;
+    delete takeItem(n);
 
     emit providerStateChanged();
 }

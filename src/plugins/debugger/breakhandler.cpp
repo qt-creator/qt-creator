@@ -412,8 +412,7 @@ void BreakHandler::deletionHelper(BreakpointModelId id)
 {
     Breakpoint b = breakpointById(id);
     QTC_ASSERT(b, return);
-    takeItem(b.b);
-    delete b.b;
+    delete takeItem(b.b);
 }
 
 Breakpoint BreakHandler::findWatchpoint(const BreakpointParameters &params) const
@@ -1235,8 +1234,7 @@ void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id)
     Breakpoint b = breakpointById(id);
     QTC_ASSERT(b, return);
     BreakpointParameters params = b.parameters();
-    takeItem(b.b);
-    delete b.b;
+    delete takeItem(b.b);
     appendBreakpoint(params);
 }
 
