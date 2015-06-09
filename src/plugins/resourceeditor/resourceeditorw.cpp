@@ -31,8 +31,8 @@
 #include "resourceeditorw.h"
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
-#include "resourcefile_p.h"
 
+#include <resourceeditor/qrceditor/resourcefile_p.h>
 #include <resourceeditor/qrceditor/qrceditor.h>
 
 #include <coreplugin/icore.h>
