@@ -211,6 +211,14 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                []() { return DocumentManager::projectsDirectory(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
                                []() { return DocumentManager::fileDialogLastVisitedDirectory(); });
+    expander->registerVariable("HostOs:isWindows", tr("Is Qt Creator running on Windows?"),
+                               []() { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });
+    expander->registerVariable("HostOs:isOSX", tr("Is Qt Creator running on OS X?"),
+                               []() { return QVariant(Utils::HostOsInfo::isMacHost()).toString(); });
+    expander->registerVariable("HostOs:isLinux", tr("Is Qt Creator running on Linux?"),
+                               []() { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
+    expander->registerVariable("HostOs:isUnix", tr("Is Qt Creator running on any unix-based platform?"),
+                               []() { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
