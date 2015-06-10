@@ -1,10 +1,6 @@
-include(../../../qtcreator.pri)
+include(../../qtcreatortool.pri)
 
 TARGET = qtcreator_crash_handler
-DESTDIR = $$IDE_LIBEXEC_PATH
-
-CONFIG -= app_bundle
-TEMPLATE = app
 
 SOURCES += \
     main.cpp \
@@ -32,6 +28,3 @@ HEADERS += \
 
 FORMS += \
     crashhandlerdialog.ui
-
-target.path = $$QTC_PREFIX/bin
-INSTALLS += target

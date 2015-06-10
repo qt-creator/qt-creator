@@ -1,11 +1,7 @@
 QTC_LIB_DEPENDS += \
     utils
 
-include(../../../qtcreator.pri)
-include(../../rpath.pri)
-
-CONFIG += console
-CONFIG -= app_bundle
+include(../../qtcreatortool.pri)
 
 QT -= gui test
 
@@ -50,9 +46,5 @@ HEADERS += \
     rmtoolchainoperation.h \
     settings.h \
 
-DESTDIR=$$IDE_LIBEXEC_PATH
 macx:DEFINES += "DATA_PATH=\"\\\".\\\"\""
 else:DEFINES += "DATA_PATH=\"\\\"../share/qtcreator\\\"\""
-
-target.path  = $$QTC_PREFIX/bin # FIXME: libexec, more or less
-INSTALLS += target

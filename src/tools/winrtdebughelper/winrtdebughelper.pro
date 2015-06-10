@@ -1,10 +1,8 @@
-CONFIG          += warn_on console
-CONFIG          -= qt app_bundle
+CONFIG          += warn_on
+CONFIG          -= qt
 
-include(../../../qtcreator.pri)
+include(../../qtcreatortool.pri)
 
-TEMPLATE = app
-DESTDIR = $$IDE_LIBEXEC_PATH
 SOURCES = winrtdebughelper.cpp
 
 build_all:!build_pass {
@@ -13,5 +11,3 @@ build_all:!build_pass {
 }
 
 TARGET = winrtdebughelper
-target.path = $$QTC_PREFIX/bin # FIXME: libexec, more or less
-INSTALLS += target
