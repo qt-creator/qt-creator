@@ -195,29 +195,29 @@ Utf8String::operator QString() const
     return toString();
 }
 
-const Utf8String operator +(const Utf8String &first, const Utf8String &second)
+const Utf8String operator+(const Utf8String &first, const Utf8String &second)
 {
     return Utf8String(first.byteArray + second.byteArray);
 }
 
 
-bool operator !=(const Utf8String &first, const Utf8String &second)
+bool operator!=(const Utf8String &first, const Utf8String &second)
 {
     return first.byteArray != second.byteArray;
 }
 
 
-bool operator ==(const Utf8String &first, const Utf8String &second)
+bool operator==(const Utf8String &first, const Utf8String &second)
 {
     return first.byteArray == second.byteArray;
 }
 
-bool operator ==(const Utf8String &first, const char *second)
+bool operator==(const Utf8String &first, const char *second)
 {
     return first.byteArray == second;
 }
 
-bool operator <(const Utf8String &first, const Utf8String &second)
+bool operator<(const Utf8String &first, const Utf8String &second)
 {
     if (first.byteSize() == second.byteSize())
         return first.byteArray < second.byteArray;

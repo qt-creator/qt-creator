@@ -56,7 +56,7 @@ CXCodeCompleteResults *ClangCodeCompleteResults::data() const
     return cxCodeCompleteResults;
 }
 
-ClangCodeCompleteResults &ClangCodeCompleteResults::operator =(ClangCodeCompleteResults &&clangCodeCompleteResults)
+ClangCodeCompleteResults &ClangCodeCompleteResults::operator=(ClangCodeCompleteResults &&clangCodeCompleteResults)
 {
     swap(cxCodeCompleteResults, clangCodeCompleteResults.cxCodeCompleteResults);
 

@@ -43,9 +43,9 @@ class CMBIPC_EXPORT ProjectPartsDoNotExistCommand
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const ProjectPartsDoNotExistCommand &command);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, ProjectPartsDoNotExistCommand &command);
-    friend CMBIPC_EXPORT bool operator == (const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
-    friend CMBIPC_EXPORT bool operator < (const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
-    friend CMBIPC_EXPORT QDebug operator <<(QDebug debug, const ProjectPartsDoNotExistCommand &command);
+    friend CMBIPC_EXPORT bool operator==(const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
+    friend CMBIPC_EXPORT bool operator<(const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistCommand &command);
     friend void PrintTo(const ProjectPartsDoNotExistCommand &command, ::std::ostream* os);
 public:
     ProjectPartsDoNotExistCommand() = default;
@@ -59,10 +59,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const ProjectPartsDoNotExistCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, ProjectPartsDoNotExistCommand &command);
-CMBIPC_EXPORT bool operator == (const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
-CMBIPC_EXPORT bool operator < (const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
+CMBIPC_EXPORT bool operator==(const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
+CMBIPC_EXPORT bool operator<(const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const ProjectPartsDoNotExistCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistCommand &command);
 void PrintTo(const ProjectPartsDoNotExistCommand &command, ::std::ostream* os);
 
 } // namespace CodeModelBackEnd

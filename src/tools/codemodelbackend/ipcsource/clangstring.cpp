@@ -49,7 +49,7 @@ bool ClangString::isNull() const
     return cxString.data == nullptr;
 }
 
-ClangString &ClangString::operator =(ClangString &&clangString)
+ClangString &ClangString::operator=(ClangString &&clangString)
 {
     cxString = std::move(clangString.cxString);
     clangString.cxString.data = nullptr;

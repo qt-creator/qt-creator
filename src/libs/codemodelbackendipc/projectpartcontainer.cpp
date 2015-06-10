@@ -72,17 +72,17 @@ QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container)
     return in;
 }
 
-bool operator == (const ProjectPartContainer &first, const ProjectPartContainer &second)
+bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
 {
     return first.projectPartId_ == second.projectPartId_;
 }
 
-bool operator < (const ProjectPartContainer &first, const ProjectPartContainer &second)
+bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second)
 {
     return first.projectPartId_ < second.projectPartId_;
 }
 
-QDebug operator <<(QDebug debug, const ProjectPartContainer &container)
+QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
 {
     debug.nospace() << "ProjectPartContainer("
                     << container.projectPartId()

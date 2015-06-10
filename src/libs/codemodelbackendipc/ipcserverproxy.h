@@ -54,7 +54,7 @@ class CMBIPC_EXPORT IpcServerProxy : public IpcServerInterface
 public:
     IpcServerProxy(IpcClientInterface *client, QIODevice *ioDevice);
     IpcServerProxy(const IpcServerProxy&) = delete;
-    IpcServerProxy &operator =(const IpcServerProxy&) = delete;
+    IpcServerProxy &operator=(const IpcServerProxy&) = delete;
 
     void end() override;
     void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command) override;

@@ -41,9 +41,9 @@ class CMBIPC_EXPORT TranslationUnitDoesNotExistCommand
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistCommand &command);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistCommand &command);
-    friend CMBIPC_EXPORT bool operator == (const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
-    friend CMBIPC_EXPORT bool operator < (const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
-    friend CMBIPC_EXPORT QDebug operator <<(QDebug debug, const TranslationUnitDoesNotExistCommand &command);
+    friend CMBIPC_EXPORT bool operator==(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
+    friend CMBIPC_EXPORT bool operator<(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistCommand &command);
     friend void PrintTo(const TranslationUnitDoesNotExistCommand &command, ::std::ostream* os);
 public:
     TranslationUnitDoesNotExistCommand() = default;
@@ -60,10 +60,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistCommand &command);
-CMBIPC_EXPORT bool operator == (const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
-CMBIPC_EXPORT bool operator < (const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
+CMBIPC_EXPORT bool operator==(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
+CMBIPC_EXPORT bool operator<(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const TranslationUnitDoesNotExistCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistCommand &command);
 void PrintTo(const TranslationUnitDoesNotExistCommand &command, ::std::ostream* os);
 
 } // namespace CodeModelBackEnd

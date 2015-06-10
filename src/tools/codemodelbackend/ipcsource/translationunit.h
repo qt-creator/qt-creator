@@ -65,10 +65,10 @@ public:
     ~TranslationUnit();
 
     TranslationUnit(const TranslationUnit &cxTranslationUnit);
-    TranslationUnit &operator =(const TranslationUnit &cxTranslationUnit);
+    TranslationUnit &operator=(const TranslationUnit &cxTranslationUnit);
 
     TranslationUnit(TranslationUnit &&cxTranslationUnit);
-    TranslationUnit &operator =(TranslationUnit &&cxTranslationUnit);
+    TranslationUnit &operator=(TranslationUnit &&cxTranslationUnit);
 
     bool isNull() const;
 
@@ -96,7 +96,7 @@ private:
     mutable std::shared_ptr<TranslationUnitData> d;
 };
 
-bool operator ==(const TranslationUnit &first, const TranslationUnit &second);
+bool operator==(const TranslationUnit &first, const TranslationUnit &second);
 
 } // namespace CodeModelBackEnd
 

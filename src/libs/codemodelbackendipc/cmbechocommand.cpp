@@ -63,17 +63,17 @@ QDataStream &operator>>(QDataStream &in, EchoCommand &command)
     return in;
 }
 
-bool operator == (const EchoCommand &first, const EchoCommand &second)
+bool operator==(const EchoCommand &first, const EchoCommand &second)
 {
     return first.command_ == second.command_;
 }
 
-bool operator < (const EchoCommand &first, const EchoCommand &second)
+bool operator<(const EchoCommand &first, const EchoCommand &second)
 {
     return first.command_ < second.command_;
 }
 
-QDebug operator <<(QDebug debug, const EchoCommand &command)
+QDebug operator<<(QDebug debug, const EchoCommand &command)
 {
     return debug.nospace() << "EchoCommand(" << command.command() << ")";
 }

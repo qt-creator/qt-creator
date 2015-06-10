@@ -53,10 +53,10 @@ class CMBIPC_EXPORT IpcClientProxy : public IpcClientInterface
 public:
     explicit IpcClientProxy(IpcServerInterface *server, QIODevice *ioDevice);
     IpcClientProxy(const IpcClientProxy&) = delete;
-    const IpcClientProxy &operator =(const IpcClientProxy&) = delete;
+    const IpcClientProxy &operator=(const IpcClientProxy&) = delete;
 
     IpcClientProxy(IpcClientProxy&&other);
-    IpcClientProxy &operator =(IpcClientProxy&&other);
+    IpcClientProxy &operator=(IpcClientProxy&&other);
 
     void alive() override;
     void echo(const EchoCommand &command) override;

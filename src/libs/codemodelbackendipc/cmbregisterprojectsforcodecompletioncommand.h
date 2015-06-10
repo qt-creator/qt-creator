@@ -42,8 +42,8 @@ class CMBIPC_EXPORT RegisterProjectPartsForCodeCompletionCommand
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForCodeCompletionCommand &command);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForCodeCompletionCommand &command);
-    friend CMBIPC_EXPORT bool operator == (const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
-    friend CMBIPC_EXPORT bool operator < (const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
+    friend CMBIPC_EXPORT bool operator==(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
+    friend CMBIPC_EXPORT bool operator<(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
     friend void PrintTo(const RegisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os);
 public:
     RegisterProjectPartsForCodeCompletionCommand() = default;
@@ -57,10 +57,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForCodeCompletionCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForCodeCompletionCommand &command);
-CMBIPC_EXPORT bool operator == (const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
-CMBIPC_EXPORT bool operator < (const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
+CMBIPC_EXPORT bool operator==(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
+CMBIPC_EXPORT bool operator<(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command);
 void PrintTo(const RegisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os);
 } // namespace CodeModelBackEnd
 

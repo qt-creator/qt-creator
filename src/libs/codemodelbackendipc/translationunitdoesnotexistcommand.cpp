@@ -77,17 +77,17 @@ QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistCommand &com
     return in;
 }
 
-bool operator == (const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second)
+bool operator==(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second)
 {
     return first.fileContainer_ == second.fileContainer_;
 }
 
-bool operator < (const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second)
+bool operator<(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second)
 {
     return first.fileContainer_ < second.fileContainer_;
 }
 
-QDebug operator <<(QDebug debug, const TranslationUnitDoesNotExistCommand &command)
+QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistCommand &command)
 {
     debug.nospace() << "TranslationUnitDoesNotExistCommand(";
 

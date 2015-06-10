@@ -48,17 +48,17 @@ QDataStream &operator>>(QDataStream &in, EndCommand &/*command*/)
     return in;
 }
 
-bool operator == (const EndCommand &/*first*/, const EndCommand &/*second*/)
+bool operator==(const EndCommand &/*first*/, const EndCommand &/*second*/)
 {
     return true;
 }
 
-bool operator < (const EndCommand &/*first*/, const EndCommand &/*second*/)
+bool operator<(const EndCommand &/*first*/, const EndCommand &/*second*/)
 {
     return true;
 }
 
-QDebug operator <<(QDebug debug, const EndCommand &/*command*/)
+QDebug operator<<(QDebug debug, const EndCommand &/*command*/)
 {
     return debug.nospace() << "EndCommand()";
 }

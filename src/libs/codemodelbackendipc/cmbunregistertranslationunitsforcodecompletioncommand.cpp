@@ -65,17 +65,17 @@ QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForCodeComple
     return in;
 }
 
-bool operator == (const UnregisterTranslationUnitsForCodeCompletionCommand &first, const UnregisterTranslationUnitsForCodeCompletionCommand &second)
+bool operator==(const UnregisterTranslationUnitsForCodeCompletionCommand &first, const UnregisterTranslationUnitsForCodeCompletionCommand &second)
 {
     return first.fileContainers_ == second.fileContainers_;
 }
 
-bool operator < (const UnregisterTranslationUnitsForCodeCompletionCommand &first, const UnregisterTranslationUnitsForCodeCompletionCommand &second)
+bool operator<(const UnregisterTranslationUnitsForCodeCompletionCommand &first, const UnregisterTranslationUnitsForCodeCompletionCommand &second)
 {
     return first.fileContainers_ < second.fileContainers_;
 }
 
-QDebug operator <<(QDebug debug, const UnregisterTranslationUnitsForCodeCompletionCommand &command)
+QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForCodeCompletionCommand &command)
 {
     debug.nospace() << "UnregisterTranslationUnitsForCodeCompletionCommand(";
 

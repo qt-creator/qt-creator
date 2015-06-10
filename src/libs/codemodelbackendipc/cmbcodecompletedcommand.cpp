@@ -70,18 +70,18 @@ QDataStream &operator>>(QDataStream &in, CodeCompletedCommand &command)
     return in;
 }
 
-bool operator == (const CodeCompletedCommand &first, const CodeCompletedCommand &second)
+bool operator==(const CodeCompletedCommand &first, const CodeCompletedCommand &second)
 {
     return first.ticketNumber_ == second.ticketNumber_
             && first.codeCompletions_ == second.codeCompletions_;
 }
 
-bool operator < (const CodeCompletedCommand &first, const CodeCompletedCommand &second)
+bool operator<(const CodeCompletedCommand &first, const CodeCompletedCommand &second)
 {
     return first.ticketNumber_ < second.ticketNumber_;
 }
 
-QDebug operator <<(QDebug debug, const CodeCompletedCommand &command)
+QDebug operator<<(QDebug debug, const CodeCompletedCommand &command)
 {
     debug.nospace() << "CodeCompletedCommand(";
 

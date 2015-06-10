@@ -44,10 +44,10 @@ public:
     ~ClangString();
 
     ClangString(const ClangString &clangString) = delete;
-    const ClangString &operator =(const ClangString &clangString) = delete;
+    const ClangString &operator=(const ClangString &clangString) = delete;
 
     ClangString(ClangString &&clangString);
-    ClangString &operator =(ClangString &&clangString);
+    ClangString &operator=(ClangString &&clangString);
 
     operator Utf8String() const;
 

@@ -96,7 +96,7 @@ QDataStream &operator>>(QDataStream &in, CompleteCodeCommand &command)
     return in;
 }
 
-bool operator == (const CompleteCodeCommand &first, const CompleteCodeCommand &second)
+bool operator==(const CompleteCodeCommand &first, const CompleteCodeCommand &second)
 {
     return first.ticketNumber_ == second.ticketNumber_
             && first.filePath_ == second.filePath_
@@ -105,7 +105,7 @@ bool operator == (const CompleteCodeCommand &first, const CompleteCodeCommand &s
             && first.column_ == second.column_;
 }
 
-bool operator < (const CompleteCodeCommand &first, const CompleteCodeCommand &second)
+bool operator<(const CompleteCodeCommand &first, const CompleteCodeCommand &second)
 {
     return first.ticketNumber_ < second.ticketNumber_
             && first.filePath_ < second.filePath_
@@ -114,7 +114,7 @@ bool operator < (const CompleteCodeCommand &first, const CompleteCodeCommand &se
             && first.column_ < second.column_;
 }
 
-QDebug operator <<(QDebug debug, const CompleteCodeCommand &command)
+QDebug operator<<(QDebug debug, const CompleteCodeCommand &command)
 {
     debug.nospace() << "CompleteCodeCommand(";
 

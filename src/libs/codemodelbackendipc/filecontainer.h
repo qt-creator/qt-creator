@@ -43,8 +43,8 @@ class CMBIPC_EXPORT FileContainer
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FileContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FileContainer &container);
-    friend CMBIPC_EXPORT bool operator == (const FileContainer &first, const FileContainer &second);
-    friend CMBIPC_EXPORT bool operator < (const FileContainer &first, const FileContainer &second);
+    friend CMBIPC_EXPORT bool operator==(const FileContainer &first, const FileContainer &second);
+    friend CMBIPC_EXPORT bool operator<(const FileContainer &first, const FileContainer &second);
 public:
     FileContainer() = default;
     FileContainer(const Utf8String &filePath,
@@ -66,10 +66,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FileContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FileContainer &container);
-CMBIPC_EXPORT bool operator == (const FileContainer &first, const FileContainer &second);
-CMBIPC_EXPORT bool operator < (const FileContainer &first, const FileContainer &second);
+CMBIPC_EXPORT bool operator==(const FileContainer &first, const FileContainer &second);
+CMBIPC_EXPORT bool operator<(const FileContainer &first, const FileContainer &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const FileContainer &container);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 void PrintTo(const FileContainer &container, ::std::ostream* os);
 
 } // namespace CodeModelBackEnd

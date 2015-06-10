@@ -63,17 +63,17 @@ QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletion
     return in;
 }
 
-bool operator == (const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
+bool operator==(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
 {
     return first.filePaths_ == second.filePaths_;
 }
 
-bool operator < (const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
+bool operator<(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
 {
     return first.filePaths_ < second.filePaths_;
 }
 
-QDebug operator <<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCommand &command)
+QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCommand &command)
 {
     debug.nospace() << "UnregisterProjectPartsForCodeCompletionCommand(";
 

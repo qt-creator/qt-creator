@@ -45,10 +45,10 @@ public:
     CodeCompletionsExtractor(CXCodeCompleteResults *cxCodeCompleteResults);
 
     CodeCompletionsExtractor(CodeCompletionsExtractor&) = delete;
-    CodeCompletionsExtractor &operator =(CodeCompletionsExtractor&) = delete;
+    CodeCompletionsExtractor &operator=(CodeCompletionsExtractor&) = delete;
 
     CodeCompletionsExtractor(CodeCompletionsExtractor&&) = delete;
-    CodeCompletionsExtractor &operator =(CodeCompletionsExtractor&&) = delete;
+    CodeCompletionsExtractor &operator=(CodeCompletionsExtractor&&) = delete;
 
     bool next();
     bool peek(const Utf8String &name);

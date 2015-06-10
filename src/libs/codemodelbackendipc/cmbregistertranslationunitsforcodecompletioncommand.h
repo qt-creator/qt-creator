@@ -42,8 +42,8 @@ class CMBIPC_EXPORT RegisterTranslationUnitForCodeCompletionCommand
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionCommand &command);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionCommand &command);
-    friend CMBIPC_EXPORT bool operator == (const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
-    friend CMBIPC_EXPORT bool operator < (const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
+    friend CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
+    friend CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
     friend void PrintTo(const RegisterTranslationUnitForCodeCompletionCommand &command, ::std::ostream* os);
 public:
     RegisterTranslationUnitForCodeCompletionCommand() = default;
@@ -57,10 +57,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionCommand &command);
-CMBIPC_EXPORT bool operator == (const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
-CMBIPC_EXPORT bool operator < (const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
+CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
+CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const RegisterTranslationUnitForCodeCompletionCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionCommand &command);
 void PrintTo(const RegisterTranslationUnitForCodeCompletionCommand &command, ::std::ostream* os);
 } // namespace CodeModelBackEnd
 

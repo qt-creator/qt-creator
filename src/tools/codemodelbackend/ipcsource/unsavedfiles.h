@@ -55,10 +55,10 @@ public:
     ~UnsavedFiles();
 
     UnsavedFiles(const UnsavedFiles &unsavedFiles);
-    UnsavedFiles &operator =(const UnsavedFiles &unsavedFiles);
+    UnsavedFiles &operator=(const UnsavedFiles &unsavedFiles);
 
     UnsavedFiles(UnsavedFiles &&unsavedFiles);
-    UnsavedFiles &operator =(UnsavedFiles &&unsavedFiles);
+    UnsavedFiles &operator=(UnsavedFiles &&unsavedFiles);
 
     void createOrUpdate(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);

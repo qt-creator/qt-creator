@@ -67,14 +67,14 @@ UnsavedFiles::UnsavedFiles()
 UnsavedFiles::~UnsavedFiles() = default;
 
 UnsavedFiles::UnsavedFiles(const UnsavedFiles &) = default;
-UnsavedFiles &UnsavedFiles::operator =(const UnsavedFiles &) = default;
+UnsavedFiles &UnsavedFiles::operator=(const UnsavedFiles &) = default;
 
 UnsavedFiles::UnsavedFiles(UnsavedFiles &&other)
     : d(std::move(other.d))
 {
 }
 
-UnsavedFiles &UnsavedFiles::operator =(UnsavedFiles &&other)
+UnsavedFiles &UnsavedFiles::operator=(UnsavedFiles &&other)
 {
     d = std::move(other.d);
 

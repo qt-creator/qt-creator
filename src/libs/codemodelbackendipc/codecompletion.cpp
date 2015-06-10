@@ -162,13 +162,13 @@ QDataStream &operator>>(QDataStream &in, CodeCompletion &command)
     return in;
 }
 
-bool operator == (const CodeCompletion &first, const CodeCompletion &second)
+bool operator==(const CodeCompletion &first, const CodeCompletion &second)
 {
     return first.text_ == second.text_
             && first.completionKind_ == second.completionKind_;
 }
 
-bool operator < (const CodeCompletion &first, const CodeCompletion &second)
+bool operator<(const CodeCompletion &first, const CodeCompletion &second)
 {
     return first.text_ < second.text_;
 }
@@ -209,7 +209,7 @@ static const char *availabilityToString(CodeCompletion::Availability availabilit
     return nullptr;
 }
 
-QDebug operator <<(QDebug debug, const CodeCompletion &command)
+QDebug operator<<(QDebug debug, const CodeCompletion &command)
 {
     debug.nospace() << "CodeCompletion(";
 

@@ -41,9 +41,9 @@ namespace CodeModelBackEnd {
 
 class CMBIPC_EXPORT CodeCompletionChunk
 {
-    friend CMBIPC_EXPORT QDataStream &operator <<(QDataStream &out, const CodeCompletionChunk &chunk);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk);
-    friend CMBIPC_EXPORT bool operator == (const CodeCompletionChunk &first, const CodeCompletionChunk &second);
+    friend CMBIPC_EXPORT bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second);
 
 public:
     enum Kind : quint32 {
@@ -89,11 +89,11 @@ private:
 
 };
 
-CMBIPC_EXPORT QDataStream &operator <<(QDataStream &out, const CodeCompletionChunk &chunk);
-CMBIPC_EXPORT QDataStream &operator >>(QDataStream &in, CodeCompletionChunk &chunk);
-CMBIPC_EXPORT bool operator ==(const CodeCompletionChunk &first, const CodeCompletionChunk &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk);
+CMBIPC_EXPORT bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const CodeCompletionChunk &chunk);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk);
 
 void PrintTo(const CodeCompletionChunk &chunk, ::std::ostream* os);
 void PrintTo(const CodeCompletionChunk::Kind &kind, ::std::ostream* os);

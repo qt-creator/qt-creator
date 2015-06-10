@@ -43,12 +43,12 @@ class SQLITE_EXPORT Utf8String
 {
     friend class Utf8StringVector;
 
-    friend SQLITE_EXPORT const Utf8String operator +(const Utf8String &first, const Utf8String &second);
+    friend SQLITE_EXPORT const Utf8String operator+(const Utf8String &first, const Utf8String &second);
 
-    friend SQLITE_EXPORT bool operator !=(const Utf8String &first, const Utf8String &second);
-    friend SQLITE_EXPORT bool operator ==(const Utf8String &first, const Utf8String &second);
-    friend SQLITE_EXPORT bool operator ==(const Utf8String &first, const char *second);
-    friend SQLITE_EXPORT bool operator <(const Utf8String &first, const Utf8String &second);
+    friend SQLITE_EXPORT bool operator!=(const Utf8String &first, const Utf8String &second);
+    friend SQLITE_EXPORT bool operator==(const Utf8String &first, const Utf8String &second);
+    friend SQLITE_EXPORT bool operator==(const Utf8String &first, const char *second);
+    friend SQLITE_EXPORT bool operator<(const Utf8String &first, const Utf8String &second);
 
     friend SQLITE_EXPORT QDataStream &operator<<(QDataStream &datastream, const Utf8String &text);
     friend SQLITE_EXPORT QDataStream &operator>>(QDataStream &datastream, Utf8String &text);
@@ -103,12 +103,12 @@ private:
     QByteArray byteArray;
 };
 
-SQLITE_EXPORT const Utf8String operator +(const Utf8String &first, const Utf8String &second);
+SQLITE_EXPORT const Utf8String operator+(const Utf8String &first, const Utf8String &second);
 
-SQLITE_EXPORT bool operator !=(const Utf8String &first, const Utf8String &second);
-SQLITE_EXPORT bool operator ==(const Utf8String &first, const Utf8String &second);
-SQLITE_EXPORT bool operator ==(const Utf8String &first, const char *second);
-SQLITE_EXPORT bool operator <(const Utf8String &first, const Utf8String &second);
+SQLITE_EXPORT bool operator!=(const Utf8String &first, const Utf8String &second);
+SQLITE_EXPORT bool operator==(const Utf8String &first, const Utf8String &second);
+SQLITE_EXPORT bool operator==(const Utf8String &first, const char *second);
+SQLITE_EXPORT bool operator<(const Utf8String &first, const Utf8String &second);
 
 SQLITE_EXPORT QDataStream &operator<<(QDataStream &datastream, const Utf8String &text);
 SQLITE_EXPORT QDataStream &operator>>(QDataStream &datastream, Utf8String &text);

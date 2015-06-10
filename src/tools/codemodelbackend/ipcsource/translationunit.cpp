@@ -207,21 +207,21 @@ CXUnsavedFile *TranslationUnit::cxUnsavedFiles() const
 TranslationUnit::~TranslationUnit() = default;
 
 TranslationUnit::TranslationUnit(const TranslationUnit &) = default;
-TranslationUnit &TranslationUnit::operator =(const TranslationUnit &) = default;
+TranslationUnit &TranslationUnit::operator=(const TranslationUnit &) = default;
 
 TranslationUnit::TranslationUnit(TranslationUnit &&other)
     : d(std::move(other.d))
 {
 }
 
-TranslationUnit &TranslationUnit::operator =(TranslationUnit &&other)
+TranslationUnit &TranslationUnit::operator=(TranslationUnit &&other)
 {
     d = std::move(other.d);
 
     return *this;
 }
 
-bool operator ==(const TranslationUnit &first, const TranslationUnit &second)
+bool operator==(const TranslationUnit &first, const TranslationUnit &second)
 {
     return first.filePath() == second.filePath() && first.projectPartId() == second.projectPartId();
 }

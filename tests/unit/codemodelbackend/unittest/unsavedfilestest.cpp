@@ -47,7 +47,7 @@ using ::testing::Gt;
 
 namespace {
 
-bool operator ==(const CodeModelBackEnd::FileContainer &fileContainer, const CXUnsavedFile &cxUnsavedFile)
+bool operator==(const CodeModelBackEnd::FileContainer &fileContainer, const CXUnsavedFile &cxUnsavedFile)
 {
     return fileContainer.filePath() == Utf8String::fromUtf8(cxUnsavedFile.Filename)
             && fileContainer.unsavedFileContent() == Utf8String(cxUnsavedFile.Contents, cxUnsavedFile.Length);

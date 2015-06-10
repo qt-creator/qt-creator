@@ -64,7 +64,7 @@ IpcClientProxy::IpcClientProxy(IpcClientProxy &&other)
 
 }
 
-IpcClientProxy &IpcClientProxy::operator =(IpcClientProxy &&other)
+IpcClientProxy &IpcClientProxy::operator=(IpcClientProxy &&other)
 {
     writeCommandBlock = std::move(other.writeCommandBlock);
     readCommandBlock = std::move(other.readCommandBlock);

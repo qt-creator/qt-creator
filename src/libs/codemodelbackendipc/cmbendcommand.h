@@ -43,10 +43,10 @@ class CMBIPC_EXPORT EndCommand
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EndCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EndCommand &command);
-CMBIPC_EXPORT bool operator == (const EndCommand &first, const EndCommand &second);
-CMBIPC_EXPORT bool operator < (const EndCommand &first, const EndCommand &second);
+CMBIPC_EXPORT bool operator==(const EndCommand &first, const EndCommand &second);
+CMBIPC_EXPORT bool operator<(const EndCommand &first, const EndCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const EndCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndCommand &command);
 void PrintTo(const EndCommand &command, ::std::ostream* os);
 }
 

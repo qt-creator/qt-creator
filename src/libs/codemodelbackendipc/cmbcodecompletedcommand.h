@@ -42,9 +42,9 @@ class CMBIPC_EXPORT CodeCompletedCommand
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedCommand &command);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletedCommand &command);
-    friend CMBIPC_EXPORT bool operator == (const CodeCompletedCommand &first, const CodeCompletedCommand &second);
-    friend CMBIPC_EXPORT bool operator < (const CodeCompletedCommand &first, const CodeCompletedCommand &second);
-    friend CMBIPC_EXPORT QDebug operator <<(QDebug debug, const CodeCompletedCommand &command);
+    friend CMBIPC_EXPORT bool operator==(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
+    friend CMBIPC_EXPORT bool operator<(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedCommand &command);
     friend void PrintTo(const CodeCompletedCommand &command, ::std::ostream* os);
 public:
     CodeCompletedCommand() = default;
@@ -61,10 +61,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletedCommand &command);
-CMBIPC_EXPORT bool operator == (const CodeCompletedCommand &first, const CodeCompletedCommand &second);
-CMBIPC_EXPORT bool operator < (const CodeCompletedCommand &first, const CodeCompletedCommand &second);
+CMBIPC_EXPORT bool operator==(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
+CMBIPC_EXPORT bool operator<(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const CodeCompletedCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedCommand &command);
 void PrintTo(const CodeCompletedCommand &command, ::std::ostream* os);
 
 } // namespace CodeModelBackEnd

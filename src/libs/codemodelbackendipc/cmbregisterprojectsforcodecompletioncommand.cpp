@@ -62,17 +62,17 @@ QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForCodeCompletionCo
     return in;
 }
 
-bool operator == (const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
+bool operator==(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
 {
     return first.projectContainers_ == second.projectContainers_;
 }
 
-bool operator < (const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
+bool operator<(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
 {
     return first.projectContainers_ < second.projectContainers_;
 }
 
-QDebug operator <<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command)
+QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command)
 {
     debug.nospace() << "RegisterProjectPartsForCodeCompletion(";
 

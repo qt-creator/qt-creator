@@ -36,12 +36,12 @@
 
 namespace CodeModelBackEnd {
 
-bool operator ==(const FileContainer &fileContainer, const TranslationUnit &translationUnit)
+bool operator==(const FileContainer &fileContainer, const TranslationUnit &translationUnit)
 {
     return fileContainer.filePath() == translationUnit.filePath() && fileContainer.projectPartId() == translationUnit.projectPartId();
 }
 
-bool operator ==(const TranslationUnit &translationUnit, const FileContainer &fileContainer)
+bool operator==(const TranslationUnit &translationUnit, const FileContainer &fileContainer)
 {
     return fileContainer == translationUnit;
 }

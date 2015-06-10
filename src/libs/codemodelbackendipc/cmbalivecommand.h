@@ -43,10 +43,10 @@ class CMBIPC_EXPORT AliveCommand
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const AliveCommand &command);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, AliveCommand &command);
-CMBIPC_EXPORT bool operator  == (const AliveCommand &first, const AliveCommand &second);
-CMBIPC_EXPORT bool operator < (const AliveCommand &first, const AliveCommand &second);
+CMBIPC_EXPORT bool operator==(const AliveCommand &first, const AliveCommand &second);
+CMBIPC_EXPORT bool operator<(const AliveCommand &first, const AliveCommand &second);
 
-CMBIPC_EXPORT QDebug operator <<(QDebug debug, const AliveCommand &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const AliveCommand &command);
 
 }
 

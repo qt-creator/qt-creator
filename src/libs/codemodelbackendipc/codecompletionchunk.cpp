@@ -72,7 +72,7 @@ quint32 &CodeCompletionChunk::kindAsInt()
     return reinterpret_cast<quint32&>(kind_);
 }
 
-QDataStream &operator <<(QDataStream &out, const CodeCompletionChunk &chunk)
+QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
 {
     out << chunk.kind_;
     out << chunk.text_;
@@ -83,7 +83,7 @@ QDataStream &operator <<(QDataStream &out, const CodeCompletionChunk &chunk)
     return out;
 }
 
-QDataStream &operator >>(QDataStream &in, CodeCompletionChunk &chunk)
+QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk)
 {
     in >> chunk.kindAsInt();
     in >> chunk.text_;
@@ -94,7 +94,7 @@ QDataStream &operator >>(QDataStream &in, CodeCompletionChunk &chunk)
     return in;
 }
 
-bool operator ==(const CodeCompletionChunk &first, const CodeCompletionChunk &second)
+bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second)
 {
     return first.kind() == second.kind()
             && first.text() == second.text()
@@ -131,7 +131,7 @@ static const char *completionChunkKindToString(CodeCompletionChunk::Kind kind)
     return nullptr;
 }
 
-QDebug operator <<(QDebug debug, const CodeCompletionChunk &chunk)
+QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk)
 {
     debug.nospace() << "CodeCompletionChunk(";
     debug.nospace() << completionChunkKindToString(chunk.kind()) << ", ";

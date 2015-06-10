@@ -53,10 +53,10 @@ public:
     ~ProjectPart();
 
     ProjectPart(const ProjectPart &project);
-    ProjectPart &operator =(const ProjectPart &project);
+    ProjectPart &operator=(const ProjectPart &project);
 
     ProjectPart(ProjectPart &&project);
-    ProjectPart &operator =(ProjectPart &&project);
+    ProjectPart &operator=(ProjectPart &&project);
 
     void clearProjectPartId();
 
@@ -78,7 +78,7 @@ private:
     std::shared_ptr<ProjectPartData> d;
 };
 
-bool operator ==(const ProjectPart &first, const ProjectPart &second);
+bool operator==(const ProjectPart &first, const ProjectPart &second);
 
 } // namespace CodeModelBackEnd
 

@@ -45,10 +45,10 @@ public:
     ~ClangCodeCompleteResults();
 
     ClangCodeCompleteResults(const ClangCodeCompleteResults &ClangCodeCompleteResults) = delete;
-    const ClangCodeCompleteResults &operator =(const ClangCodeCompleteResults &ClangCodeCompleteResults) = delete;
+    const ClangCodeCompleteResults &operator=(const ClangCodeCompleteResults &ClangCodeCompleteResults) = delete;
 
     ClangCodeCompleteResults(ClangCodeCompleteResults &&ClangCodeCompleteResults);
-    ClangCodeCompleteResults &operator =(ClangCodeCompleteResults &&ClangCodeCompleteResults);
+    ClangCodeCompleteResults &operator=(ClangCodeCompleteResults &&ClangCodeCompleteResults);
 
     bool isNull() const;
 

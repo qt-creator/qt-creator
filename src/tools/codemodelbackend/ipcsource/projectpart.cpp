@@ -84,14 +84,14 @@ ProjectPart::ProjectPart(const ProjectPartContainer &projectContainer)
 
 ProjectPart::~ProjectPart() = default;
 ProjectPart::ProjectPart(const ProjectPart &) = default;
-ProjectPart &ProjectPart::operator =(const ProjectPart &) = default;
+ProjectPart &ProjectPart::operator=(const ProjectPart &) = default;
 
 ProjectPart::ProjectPart(ProjectPart &&other)
     : d(std::move(other.d))
 {
 }
 
-ProjectPart &ProjectPart::operator =(ProjectPart &&other)
+ProjectPart &ProjectPart::operator=(ProjectPart &&other)
 {
     d = std::move(other.d);
 
@@ -149,7 +149,7 @@ void ProjectPart::updateLastChangeTimePoint()
     d->lastChangeTimePoint = std::chrono::steady_clock::now();
 }
 
-bool operator ==(const ProjectPart &first, const ProjectPart &second)
+bool operator==(const ProjectPart &first, const ProjectPart &second)
 {
     return first.projectPartId() == second.projectPartId();
 }

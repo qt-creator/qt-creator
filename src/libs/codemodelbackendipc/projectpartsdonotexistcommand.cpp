@@ -63,17 +63,17 @@ QDataStream &operator>>(QDataStream &in, ProjectPartsDoNotExistCommand &command)
     return in;
 }
 
-bool operator == (const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second)
+bool operator==(const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second)
 {
     return first.projectPartIds_ == second.projectPartIds_;
 }
 
-bool operator < (const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second)
+bool operator<(const ProjectPartsDoNotExistCommand &first, const ProjectPartsDoNotExistCommand &second)
 {
     return first.projectPartIds_ < second.projectPartIds_;
 }
 
-QDebug operator <<(QDebug debug, const ProjectPartsDoNotExistCommand &command)
+QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistCommand &command)
 {
     debug.nospace() << "ProjectPartDoesNotExistCommand(";
 

@@ -43,8 +43,8 @@ class CMBIPC_EXPORT ProjectPartContainer
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container);
-    friend CMBIPC_EXPORT bool operator == (const ProjectPartContainer &first, const ProjectPartContainer &second);
-    friend CMBIPC_EXPORT bool operator < (const ProjectPartContainer &first, const ProjectPartContainer &second);
+    friend CMBIPC_EXPORT bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second);
+    friend CMBIPC_EXPORT bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second);
 public:
     ProjectPartContainer() = default;
     ProjectPartContainer(const Utf8String &projectPartId,
@@ -60,10 +60,10 @@ private:
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container);
-CMBIPC_EXPORT bool operator == (const ProjectPartContainer &first, const ProjectPartContainer &second);
-CMBIPC_EXPORT bool operator < (const ProjectPartContainer &first, const ProjectPartContainer &second);
+CMBIPC_EXPORT bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second);
+CMBIPC_EXPORT bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second);
 
-QDebug operator <<(QDebug debug, const ProjectPartContainer &container);
+QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
 void PrintTo(const ProjectPartContainer &container, ::std::ostream* os);
 
 } // namespace CodeModelBackEnd
