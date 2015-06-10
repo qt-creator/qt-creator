@@ -88,7 +88,7 @@ extern "C" void signalHandler(int signal)
 }
 #endif // BUILD_CRASH_HANDLER
 
-void setupCrashHandler()
+CrashHandlerSetup::CrashHandlerSetup()
 {
 #ifdef BUILD_CRASH_HANDLER
     if (qgetenv("QTC_USE_CRASH_HANDLER").isEmpty())
@@ -138,7 +138,7 @@ void setupCrashHandler()
 #endif // BUILD_CRASH_HANDLER
 }
 
-void cleanupCrashHandler()
+CrashHandlerSetup::~CrashHandlerSetup()
 {
 #ifdef BUILD_CRASH_HANDLER
     delete[] crashHandlerPathC;

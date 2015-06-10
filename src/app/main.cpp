@@ -317,7 +317,7 @@ int main(int argc, char **argv)
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
-    setupCrashHandler(); // Display a backtrace once a serious signal is delivered.
+    CrashHandlerSetup setupCrashHandler; // Display a backtrace once a serious signal is delivered.
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
@@ -518,7 +518,5 @@ int main(int argc, char **argv)
     // shutdown plugin manager on the exit
     QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
 
-    const int r = app.exec();
-    cleanupCrashHandler();
-    return r;
+    return app.exec();
 }

@@ -31,7 +31,11 @@
 #ifndef CRASHHANDLERSETUP_H
 #define CRASHHANDLERSETUP_H
 
-void setupCrashHandler();
-void cleanupCrashHandler();
+class CrashHandlerSetup
+{
+public:
+    CrashHandlerSetup();
+    ~CrashHandlerSetup();
+};
 
 #endif // CRASHHANDLERSETUP_H
