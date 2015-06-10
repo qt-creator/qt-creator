@@ -74,10 +74,11 @@ public:
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void updateActions(bool hasTopLevel);
 
-private:
+signals:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
 
+private:
     void openView();
     void push();
 
