@@ -71,7 +71,7 @@ static bool addFilesToResource(const Utils::FileName &resourceFile,
         *notAdded = filePaths;
 
     ResourceFile file(resourceFile.toString());
-    if (!file.load())
+    if (file.load() != Core::IDocument::OpenResult::Success)
         return false;
 
     int index = file.indexOfPrefix(prefix, lang);
@@ -226,7 +226,7 @@ bool ResourceTopLevelNode::removeFiles(const QStringList &filePaths, QStringList
 bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
 {
     ResourceFile file(path().toString());
-    if (!file.load())
+    if (file.load() != Core::IDocument::OpenResult::Success)
         return false;
     int index = file.addPrefix(prefix, lang);
     if (index == -1)
@@ -241,7 +241,7 @@ bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
 bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &lang)
 {
     ResourceFile file(path().toString());
-    if (!file.load())
+    if (file.load() != Core::IDocument::OpenResult::Success)
         return false;
     for (int i = 0; i < file.prefixCount(); ++i) {
         if (file.prefix(i) == prefix
@@ -259,7 +259,7 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
 bool ResourceTopLevelNode::removeNonExistingFiles()
 {
     ResourceFile file(path().toString());
-    if (!file.load())
+    if (file.load() != Core::IDocument::OpenResult::Success)
         return false;
 
     QFileInfo fi;
@@ -352,7 +352,7 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
     if (notRemoved)
         *notRemoved = filePaths;
     ResourceFile file(m_topLevelNode->path().toString());
-    if (!file.load())
+    if (file.load() != Core::IDocument::OpenResult::Success)
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
@@ -376,7 +376,7 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
 bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     ResourceFile file(m_topLevelNode->path().toString());
-    if (!file.load())
+    if (file.load() != Core::IDocument::OpenResult::Success)
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
@@ -398,7 +398,7 @@ bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newF
 bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang)
 {
     ResourceFile file(m_topLevelNode->path().toString());
-    if (!file.load())
+    if (file.load() == Core::IDocument::OpenResult::Success)
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
