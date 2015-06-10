@@ -1273,7 +1273,7 @@ void CdbEngine::assignValueInDebugger(WatchItem *w, const QString &expr, const Q
     postCommand(cmd, 0);
     // Update all locals in case we change a union or something pointed to
     // that affects other variables, too.
-    updateLocals(false);
+    updateLocals();
 }
 
 void CdbEngine::handleThreads(const CdbResponse &response)
@@ -1403,10 +1403,10 @@ void CdbEngine::activateFrame(int index)
                qPrintable(frame.file), frame.line);
     stackHandler()->setCurrentIndex(index);
     gotoLocation(frame);
-    updateLocals(true);
+    updateLocals();
 }
 
-void CdbEngine::updateLocals(bool newFrame)
+void CdbEngine::updateLocals()
 {
     typedef QHash<QByteArray, int> WatcherHash;
 
@@ -1420,8 +1420,7 @@ void CdbEngine::updateLocals(bool newFrame)
         watchHandler()->removeAllData();
         return;
     }
-    if (newFrame)
-        watchHandler()->resetValueCache();
+    watchHandler()->resetValueCache();
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
      * and cause errors as it seems to go 'stale' when switching threads.
@@ -1472,12 +1471,12 @@ void CdbEngine::updateLocals(bool newFrame)
     str << blankSeparator << frameIndex;
     watchHandler()->notifyUpdateStarted();
     postExtensionCommand("locals", arguments, 0,
-                         [this, newFrame](const CdbResponse &r) { handleLocals(r, newFrame); });
+                         [this](const CdbResponse &r) { handleLocals(r, true); });
 }
 
 void CdbEngine::updateAll()
 {
-    updateLocals(true);
+    updateLocals();
 }
 
 void CdbEngine::selectThread(ThreadId threadId)
