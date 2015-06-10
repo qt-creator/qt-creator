@@ -46,6 +46,7 @@ using namespace ClangCodeModel::Internal::Tests;
 
 Q_DECLARE_METATYPE(ClangCodeModel::Internal::ClangCompletionContextAnalyzer::CompletionAction)
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<> char *toString(const ClangCompletionContextAnalyzer::CompletionAction &action)
@@ -72,6 +73,7 @@ template<> char *toString(const ClangCompletionContextAnalyzer::CompletionAction
 }
 
 } // namespace QTest
+QT_END_NAMESPACE
 
 namespace {
 
