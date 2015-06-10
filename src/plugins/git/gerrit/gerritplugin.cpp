@@ -370,7 +370,7 @@ void GerritPlugin::openView()
     if (m_dialog.isNull()) {
         while (!m_parameters->isValid()) {
             Core::AsynchronousMessageBox::warning(tr("Error"),
-                                                   tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
+                                                  tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             if (!ICore::showOptionsDialog("Gerrit"))
                 return;
         }
