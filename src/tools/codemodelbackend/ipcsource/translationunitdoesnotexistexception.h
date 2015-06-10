@@ -45,6 +45,12 @@ public:
 
     const char *what() const Q_DECL_NOEXCEPT override;
 
+#ifdef __GNUC__
+#  if !__GNUC_PREREQ(4,8)
+    ~TranslationUnitDoesNotExistException() noexcept {}
+#  endif
+#endif
+
 private:
     FileContainer fileContainer_;
     mutable Utf8String what_;

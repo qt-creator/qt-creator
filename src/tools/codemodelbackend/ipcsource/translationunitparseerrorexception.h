@@ -47,6 +47,12 @@ public:
 
     const char *what() const Q_DECL_NOEXCEPT override;
 
+#ifdef __GNUC__
+#  if !__GNUC_PREREQ(4,8)
+    ~TranslationUnitParseErrorException() noexcept {}
+#  endif
+#endif
+
 private:
     Utf8String filePath_;
     Utf8String projectPartId_;
