@@ -78,7 +78,7 @@ namespace {
 
 QString backendProcessPath()
 {
-    return QCoreApplication::applicationDirPath()
+    return Core::ICore::libexecPath()
             + QStringLiteral("/codemodelbackend")
             + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
