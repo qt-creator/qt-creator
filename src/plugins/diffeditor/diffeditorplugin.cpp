@@ -175,9 +175,8 @@ void DiffEditorPlugin::diff()
     if (!document)
         return;
 
-    DiffEditorController *controller = DiffEditorController::controller(document);
-    if (!controller)
-        controller = new FileDiffController(document, fileName1, fileName2);
+    if (!DiffEditorController::controller(document))
+        new FileDiffController(document, fileName1, fileName2);
     Core::EditorManager::activateEditorForDocument(document);
     document->reload();
 }
