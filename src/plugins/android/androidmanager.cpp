@@ -493,12 +493,11 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     const QString targetArch = AndroidManager::targetArch(target);
     if (targetArch.isEmpty())
         return;
-    int deviceAPILevel = AndroidManager::minimumSDK(target);
+    const int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
     if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
         return;
 
-    deviceAPILevel = info.sdk;
     QString deviceSerialNumber = info.serialNumber;
 
     if (info.type == AndroidDeviceInfo::Emulator) {
@@ -523,12 +522,11 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     const QString targetArch = AndroidManager::targetArch(target);
     if (targetArch.isEmpty())
         return;
-    int deviceAPILevel = AndroidManager::minimumSDK(target);
+    const int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
     if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
         return;
 
-    deviceAPILevel = info.sdk;
     QString deviceSerialNumber = info.serialNumber;
     if (info.type == AndroidDeviceInfo::Emulator) {
         deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
