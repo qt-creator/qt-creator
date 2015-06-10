@@ -23,7 +23,7 @@ Changelog:
 
 -->
 
-<language name="CSS" version="2.09" kateversion="3.4" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="CSS" version="2.10" kateversion="3.4" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 	<highlighting>
 		<list name="properties">
@@ -194,7 +194,7 @@ Changelog:
 			<item> column-rule-style </item>
 			<item> column-rule-width </item>
 			<item> column-span </item>
-			<item> column-wisth </item>
+			<item> column-width </item>
 			<item> hyphens </item>
 			<item> linear-gradient </item>
 			<item> opacity </item>
