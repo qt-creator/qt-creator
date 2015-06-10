@@ -44,13 +44,7 @@ llvm, e.g.:
         LLVM_INSTALL_DIR=C:\llvm
 
 Set the variable either as part of the build environment or pass it directly to
-qmake and rebuild Qt Creator. Watch out for a message like
-
-    Project MESSAGE: Building ClangCodeModel plugin with Clang from /usr/lib/llvm-3.4
-    Project MESSAGE:   INCLUDEPATH += /usr/lib/llvm-3.4/include
-    Project MESSAGE:   LIBS += -L/usr/lib/llvm-3.4/lib -lclang
-
-This indicates that the ClangCodeModel plugin will be built.
+qmake and rebuild Qt Creator.
 
 Enable the plugin
 -----------------

@@ -150,17 +150,6 @@
 
             \endlist
 
-            The following messages indicate that the Clang code model plugin is
-            built:
-
-            \list
-
-                \li \c {Project MESSAGE: Building ClangCodeModel plugin with Clang from /usr/lib/llvm-3.4}
-                \li \c {Project MESSAGE: INCLUDEPATH += /usr/lib/llvm-3.4/include}
-                \li \c {Project MESSAGE: LIBS += -L/usr/lib/llvm-3.4/lib -lclang}
-
-            \endlist
-
     \li Rebuild \QC.
 
     \endlist
