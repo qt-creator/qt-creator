@@ -551,7 +551,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
         if (ExpressionAST *expr = ast->expression) {
             const int firstToken = expr->firstToken();
             const int lastToken = expr->lastToken();
-            const StringLiteral *constantValue = asStringLiteral(firstToken, lastToken);
+            const StringLiteral *constantValue = asStringLiteral(expr);
             const StringLiteral *resolvedValue = 0;
             if (lastToken - firstToken == 1) {
                 if (const Identifier *constantId = identifier(firstToken))
@@ -1228,8 +1228,11 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     return type;
 }
 
-const StringLiteral *Bind::asStringLiteral(unsigned firstToken, unsigned lastToken)
+const StringLiteral *Bind::asStringLiteral(const ExpressionAST *ast)
 {
+    CPP_ASSERT(ast, return 0);
+    const unsigned firstToken = ast->firstToken();
+    const unsigned lastToken = ast->lastToken();
     std::string buffer;
     for (unsigned index = firstToken; index != lastToken; ++index) {
         const Token &tk = tokenAt(index);
@@ -1349,9 +1352,7 @@ bool Bind::visit(ForeachStatementAST *ast)
         if (arrayType != 0)
             type = arrayType->elementType();
         else if (ast->expression != 0) {
-            unsigned startOfExpression = ast->expression->firstToken();
-            unsigned endOfExpression = ast->expression->lastToken();
-            const StringLiteral *sl = asStringLiteral(startOfExpression, endOfExpression);
+            const StringLiteral *sl = asStringLiteral(ast->expression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
             initializer = control()->stringLiteral(buff.c_str(), unsigned(buff.size()));
         }
@@ -1399,9 +1400,7 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
         if (arrayType != 0)
             type = arrayType->elementType();
         else if (ast->expression != 0) {
-            unsigned startOfExpression = ast->expression->firstToken();
-            unsigned endOfExpression = ast->expression->lastToken();
-            const StringLiteral *sl = asStringLiteral(startOfExpression, endOfExpression);
+            const StringLiteral *sl = asStringLiteral(ast->expression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
             initializer = control()->stringLiteral(buff.c_str(), unsigned(buff.size()));
         }
@@ -1664,13 +1663,8 @@ bool Bind::visit(ConditionAST *ast)
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
 
-        if (type.isAuto() && translationUnit()->languageFeatures().cxx11Enabled) {
-            const ExpressionAST *initializer = ast->declarator->initializer;
-
-            const unsigned startOfExpression = initializer->firstToken();
-            const unsigned endOfExpression = initializer->lastToken();
-            decl->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
-        }
+        if (type.isAuto() && translationUnit()->languageFeatures().cxx11Enabled)
+            decl->setInitializer(asStringLiteral(ast->declarator->initializer));
 
         _scope->addMember(decl);
     }
@@ -1923,8 +1917,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         methodKey = methodKeyForInvokableToken(tokenKind(ast->qt_invokable_token));
 
     // unsigned qt_invokable_token = ast->qt_invokable_token;
-    unsigned declTypeStartOfExpression = 0;
-    unsigned declTypeEndOfExpression = 0;
+    const ExpressionAST *declTypeExpression = 0;
     bool isTypedef = false;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
@@ -1934,10 +1927,8 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
         type.setTypedef(isTypedef);
         if (type.isDecltype()) {
-            if (DecltypeSpecifierAST *decltypeSpec = it->value->asDecltypeSpecifier()) {
-                declTypeStartOfExpression = decltypeSpec->expression->firstToken();
-                declTypeEndOfExpression = decltypeSpec->expression->lastToken();
-            }
+            if (DecltypeSpecifierAST *decltypeSpec = it->value->asDecltypeSpecifier())
+                declTypeExpression = decltypeSpec->expression;
         }
     }
 
@@ -1992,14 +1983,10 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             const ExpressionAST *initializer = it->value->initializer;
             if (!initializer && declaratorId)
                 translationUnit()->error(location(declaratorId->name, ast->firstToken()), "auto-initialized variable must have an initializer");
-            else if (initializer) {
-                unsigned startOfExpression = initializer->firstToken();
-                unsigned endOfExpression = initializer->lastToken();
-                decl->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
-            }
+            else if (initializer)
+                decl->setInitializer(asStringLiteral(initializer));
         } else if (declTy.isDecltype()) {
-            decl->setInitializer(asStringLiteral(declTypeStartOfExpression,
-                                                 declTypeEndOfExpression));
+            decl->setInitializer(asStringLiteral(declTypeExpression));
         }
 
         if (_scope->isClass()) {
@@ -2369,11 +2356,8 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     Argument *arg = control()->newArgument(location(declaratorId, ast->firstToken()), argName);
     arg->setType(type);
 
-    if (ast->expression) {
-        unsigned startOfExpression = ast->expression->firstToken();
-        unsigned endOfExpression = ast->expression->lastToken();
-        arg->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
-    }
+    if (ast->expression)
+        arg->setInitializer(asStringLiteral(ast->expression));
 
     _scope->addMember(arg);
 

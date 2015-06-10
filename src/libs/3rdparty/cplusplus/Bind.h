@@ -105,7 +105,7 @@ protected:
     void capture(CaptureAST *ast);
     Function *lambdaDeclarator(LambdaDeclaratorAST *ast);
     FullySpecifiedType trailingReturnType(TrailingReturnTypeAST *ast, const FullySpecifiedType &init);
-    const StringLiteral *asStringLiteral(unsigned firstToken, unsigned lastToken);
+    const StringLiteral *asStringLiteral(const ExpressionAST *ast);
 
     virtual bool preVisit(AST *);
     virtual void postVisit(AST *);
