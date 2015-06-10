@@ -270,8 +270,8 @@
 
     \section3  Operator Names and Parentheses
 
-    Do not use spaces between operator names and function names. The equation
-    marks (==) are a part of the function name, and therefore, spaces make the
+    Do not use spaces between operator names and parentheses. The equation
+    marks (==) are a part of the operator name, and therefore, spaces make the
     declaration look like an expression:
 
     \code
