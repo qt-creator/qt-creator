@@ -323,7 +323,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    connect(m_deleteAction, &QAction::triggered, this, &SubversionPlugin::promptToDeleteCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 

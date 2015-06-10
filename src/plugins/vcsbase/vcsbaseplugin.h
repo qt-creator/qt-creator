@@ -175,7 +175,7 @@ public:
                                                     QTextCodec *outputCodec = 0,
                                                     const QProcessEnvironment &env = QProcessEnvironment());
 
-public slots:
+protected:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VcsManager.
     void promptToDeleteCurrentFile();
@@ -183,7 +183,6 @@ public slots:
     // pointing to the current project.
     void createRepository();
 
-protected:
     enum ActionState { NoVcsEnabled, OtherVcsEnabled, VcsEnabled };
 
     // Sets the current submit editor for this specific version control plugin.

@@ -616,7 +616,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_createRepositryAction = new QAction(tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
                 m_createRepositryAction, "Git.CreateRepository");
-    connect(m_createRepositryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    connect(m_createRepositryAction, &QAction::triggered, this, &GitPlugin::createRepository);
     gitContainer->addAction(createRepositoryCommand);
 
     // Submit editor

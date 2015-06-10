@@ -231,7 +231,7 @@ void MercurialPlugin::createFileActions(const Core::Context &context)
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_deleteAction, Core::Id(Constants::DELETE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    connect(m_deleteAction, &QAction::triggered, this, &MercurialPlugin::promptToDeleteCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -411,7 +411,7 @@ void MercurialPlugin::createRepositoryActions(const Core::Context &context)
 
     m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
     command = Core::ActionManager::registerAction(m_createRepositoryAction, Core::Id(Constants::CREATE_REPOSITORY), context);
-    connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    connect(m_createRepositoryAction, &QAction::triggered, this, &MercurialPlugin::createRepository);
     m_mercurialContainer->addAction(command);
 }
 
