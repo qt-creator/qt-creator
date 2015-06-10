@@ -397,14 +397,6 @@ void GerritPlugin::push()
     push(GitPlugin::instance()->currentState().topLevel());
 }
 
-Utils::FileName GerritPlugin::gitBinary()
-{
-    const Utils::FileName git = gitClient()->vcsBinary();
-    if (git.isEmpty())
-        VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
-    return git;
-}
-
 Utils::FileName GerritPlugin::gitBinDirectory()
 {
     return gitClient()->gitBinDirectory();
@@ -434,9 +426,11 @@ void GerritPlugin::fetchCheckout(const QSharedPointer<GerritChange> &change)
 void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 {
     // Locate git.
-    const Utils::FileName git = gitBinary();
-    if (git.isEmpty())
+    const Utils::FileName git = gitClient()->vcsBinary();
+    if (git.isEmpty()) {
+        VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
         return;
+    }
 
     GitClient *client = gitClient();
 
