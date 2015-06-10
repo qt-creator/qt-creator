@@ -2393,6 +2393,17 @@ bool isNativeMixedActive()
     return isNativeMixedEnabled() && boolSetting(OperateNativeMixed);
 }
 
+bool isReverseDebuggingEnabled()
+{
+    static bool enabled = qEnvironmentVariableIsSet("QTC_DEBUGGER_ENABLE_REVERSE");
+    return enabled;
+}
+
+bool isReverseDebugging()
+{
+    return isReverseDebuggingEnabled() && dd->m_reverseDirectionAction->isChecked();
+}
+
 void DebuggerPluginPrivate::extensionsInitialized()
 {
     const QKeySequence debugKey = QKeySequence(UseMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
@@ -2545,8 +2556,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     //m_snapshotAction->setIcon(
     //    QIcon(__(":/debugger/images/debugger_snapshot_small.png")));
 
-    act = m_reverseDirectionAction =
-        new QAction(tr("Reverse Direction"), this);
+    act = m_reverseDirectionAction = new QAction(tr("Reverse Direction"), this);
     act->setCheckable(true);
     act->setChecked(false);
     act->setCheckable(false);
@@ -2794,11 +2804,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(m_reverseDirectionAction,
-        Constants::REVERSE, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("F12")));
-    cmd->setAttribute(Command::CA_Hide);
-    debugMenu->addAction(cmd);
+    if (isReverseDebuggingEnabled()) {
+        cmd = ActionManager::registerAction(m_reverseDirectionAction,
+                                            Constants::REVERSE, cppDebuggercontext);
+        cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("F12")));
+        cmd->setAttribute(Command::CA_Hide);
+        debugMenu->addAction(cmd);
+    }
 
     debugMenu->addSeparator();
 
@@ -2964,10 +2976,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     if (isNativeMixedEnabled())
         hbox->addWidget(toolButton(Constants::OPERATE_NATIVE_MIXED));
 
-    //hbox->addWidget(new StyledSeparator);
-    m_reverseToolButton = toolButton(Constants::REVERSE);
-    hbox->addWidget(m_reverseToolButton);
-    //m_reverseToolButton->hide();
+    if (isReverseDebuggingEnabled()) {
+        m_reverseToolButton = toolButton(Constants::REVERSE);
+        hbox->addWidget(m_reverseToolButton);
+    }
 
     hbox->addWidget(new StyledSeparator);
     hbox->addWidget(new QLabel(tr("Threads:")));
@@ -3153,11 +3165,6 @@ bool isActiveDebugLanguage(int language)
 void showMessage(const QString &msg, int channel, int timeout)
 {
     dd->showMessage(msg, channel, timeout);
-}
-
-bool isReverseDebugging()
-{
-    return dd->m_reverseDirectionAction->isChecked();
 }
 
 void runControlStarted(DebuggerEngine *engine)

@@ -388,13 +388,15 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
     checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
 
-    checkBoxEnableReverseDebugging = new QCheckBox(groupBoxDangerous);
-    checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
-    checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Enables stepping backwards.</p><p>"
-        "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
-        "It exhibits unpredictable behavior when going backwards over system "
-        "calls and is very likely to destroy your debugging session.</p></body></html>"));
+    if (isReverseDebuggingEnabled()) {
+        checkBoxEnableReverseDebugging = new QCheckBox(groupBoxDangerous);
+        checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
+        checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
+           "<html><head/><body><p>Enables stepping backwards.</p><p>"
+           "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
+           "It exhibits unpredictable behavior when going backwards over system "
+           "calls and is very likely to destroy your debugging session.</p></body></html>"));
+    }
 
     checkBoxAttemptQuickStart = new QCheckBox(groupBoxDangerous);
     checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
@@ -417,7 +419,8 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     formLayout->addRow(checkBoxBreakOnWarning);
     formLayout->addRow(checkBoxBreakOnFatal);
     formLayout->addRow(checkBoxBreakOnAbort);
-    formLayout->addRow(checkBoxEnableReverseDebugging);
+    if (isReverseDebuggingEnabled())
+        formLayout->addRow(checkBoxEnableReverseDebugging);
     formLayout->addRow(checkBoxAttemptQuickStart);
     formLayout->addRow(checkBoxMultiInferior);
 
@@ -431,7 +434,8 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     group.insert(action(BreakOnAbort), checkBoxBreakOnAbort);
     group.insert(action(AttemptQuickStart), checkBoxAttemptQuickStart);
     group.insert(action(MultiInferior), checkBoxMultiInferior);
-    group.insert(action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
+    if (isReverseDebuggingEnabled())
+        group.insert(action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
 }
 
 GdbOptionsPage2::GdbOptionsPage2()

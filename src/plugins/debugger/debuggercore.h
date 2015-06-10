@@ -112,6 +112,7 @@ QMessageBox *showMessageBox(int icon, const QString &title,
 
 bool isNativeMixedActive();
 bool isNativeMixedEnabled();
+bool isReverseDebuggingEnabled();
 
 } // namespace Internal
 } // namespace Debugger
