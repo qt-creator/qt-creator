@@ -28,12 +28,12 @@
 **
 ****************************************************************************/
 
-#include "gdboptionspage.h"
 #include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 
@@ -46,15 +46,14 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPointer>
 #include <QSpinBox>
 #include <QTextEdit>
-
 
 using namespace Core;
 
 namespace Debugger {
 namespace Internal {
-
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -65,12 +64,24 @@ namespace Internal {
 class GdbOptionsPageWidget : public QWidget
 {
 public:
-    explicit GdbOptionsPageWidget(QWidget *parent = 0);
+    GdbOptionsPageWidget();
     Utils::SavedActionSet group;
 };
 
-GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
-    : QWidget(parent)
+class GdbOptionsPage : public Core::IOptionsPage
+{
+public:
+    GdbOptionsPage();
+
+    QWidget *widget();
+    void apply();
+    void finish();
+
+private:
+    QPointer<GdbOptionsPageWidget> m_widget;
+};
+
+GdbOptionsPageWidget::GdbOptionsPageWidget()
 {
     auto groupBoxGeneral = new QGroupBox(this);
     groupBoxGeneral->setTitle(GdbOptionsPage::tr("General"));
@@ -297,10 +308,6 @@ GdbOptionsPage::GdbOptionsPage()
     setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
-GdbOptionsPage::~GdbOptionsPage()
-{
-}
-
 QWidget *GdbOptionsPage::widget()
 {
     if (!m_widget)
@@ -331,29 +338,17 @@ void GdbOptionsPage::finish()
 class GdbOptionsPageWidget2 : public QWidget
 {
 public:
-    explicit GdbOptionsPageWidget2(QWidget *parent = 0);
-
-    QGroupBox *groupBoxDangerous;
-    QLabel *labelDangerous;
-    QCheckBox *checkBoxTargetAsync;
-    QCheckBox *checkBoxAutoEnrichParameters;
-    QCheckBox *checkBoxBreakOnWarning;
-    QCheckBox *checkBoxBreakOnFatal;
-    QCheckBox *checkBoxBreakOnAbort;
-    QCheckBox *checkBoxEnableReverseDebugging;
-    QCheckBox *checkBoxAttemptQuickStart;
-    QCheckBox *checkBoxMultiInferior;
+    GdbOptionsPageWidget2();
 
     Utils::SavedActionSet group;
 };
 
-GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
-    : QWidget(parent)
+GdbOptionsPageWidget2::GdbOptionsPageWidget2()
 {
-    groupBoxDangerous = new QGroupBox(this);
+    auto groupBoxDangerous = new QGroupBox(this);
     groupBoxDangerous->setTitle(GdbOptionsPage::tr("Extended"));
 
-    labelDangerous = new QLabel(GdbOptionsPage::tr(
+    auto labelDangerous = new QLabel(GdbOptionsPage::tr(
         "The options below should be used with care."));
     labelDangerous->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>The options below give access to advanced "
@@ -363,11 +358,11 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     f.setItalic(true);
     labelDangerous->setFont(f);
 
-    checkBoxTargetAsync = new QCheckBox(groupBoxDangerous);
+    auto checkBoxTargetAsync = new QCheckBox(groupBoxDangerous);
     checkBoxTargetAsync->setText(GdbOptionsPage::tr(
         "Use asynchronous mode to control the inferior"));
 
-    checkBoxAutoEnrichParameters = new QCheckBox(groupBoxDangerous);
+    auto checkBoxAutoEnrichParameters = new QCheckBox(groupBoxDangerous);
     checkBoxAutoEnrichParameters->setText(GdbOptionsPage::tr(
         "Use common locations for debug information"));
     checkBoxAutoEnrichParameters->setToolTip(GdbOptionsPage::tr(
@@ -375,19 +370,20 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
         "of debug information such as <i>/usr/src/debug</i> "
         "when starting GDB.</body></html>"));
 
-    // #fixme: 2.7 Move to common settings page.
-    checkBoxBreakOnWarning = new QCheckBox(groupBoxDangerous);
+    // FIXME: Move to common settings page.
+    auto checkBoxBreakOnWarning = new QCheckBox(groupBoxDangerous);
     checkBoxBreakOnWarning->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
     checkBoxBreakOnWarning->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));
 
-    checkBoxBreakOnFatal = new QCheckBox(groupBoxDangerous);
+    auto checkBoxBreakOnFatal = new QCheckBox(groupBoxDangerous);
     checkBoxBreakOnFatal->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qFatal"));
     checkBoxBreakOnFatal->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qFatal"));
 
-    checkBoxBreakOnAbort = new QCheckBox(groupBoxDangerous);
+    auto checkBoxBreakOnAbort = new QCheckBox(groupBoxDangerous);
     checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
     checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
 
+    QCheckBox *checkBoxEnableReverseDebugging = 0;
     if (isReverseDebuggingEnabled()) {
         checkBoxEnableReverseDebugging = new QCheckBox(groupBoxDangerous);
         checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
@@ -398,33 +394,33 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
            "calls and is very likely to destroy your debugging session.</p></body></html>"));
     }
 
-    checkBoxAttemptQuickStart = new QCheckBox(groupBoxDangerous);
+    auto checkBoxAttemptQuickStart = new QCheckBox(groupBoxDangerous);
     checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
     checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>Postpones reading debug information as long as possible. "
         "This can result in faster startup times at the price of not being able to "
         "set breakpoints by file and number.</body></html>"));
 
-    checkBoxMultiInferior = new QCheckBox(groupBoxDangerous);
+    auto checkBoxMultiInferior = new QCheckBox(groupBoxDangerous);
     checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
     checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>Keeps debugging all children after a fork."
         "</body></html>"));
 
 
-    QFormLayout *formLayout = new QFormLayout(groupBoxDangerous);
+    auto formLayout = new QFormLayout(groupBoxDangerous);
     formLayout->addRow(labelDangerous);
     formLayout->addRow(checkBoxTargetAsync);
     formLayout->addRow(checkBoxAutoEnrichParameters);
     formLayout->addRow(checkBoxBreakOnWarning);
     formLayout->addRow(checkBoxBreakOnFatal);
     formLayout->addRow(checkBoxBreakOnAbort);
-    if (isReverseDebuggingEnabled())
+    if (checkBoxEnableReverseDebugging)
         formLayout->addRow(checkBoxEnableReverseDebugging);
     formLayout->addRow(checkBoxAttemptQuickStart);
     formLayout->addRow(checkBoxMultiInferior);
 
-    QGridLayout *gridLayout = new QGridLayout(this);
+    auto gridLayout = new QGridLayout(this);
     gridLayout->addWidget(groupBoxDangerous, 0, 0, 2, 1);
 
     group.insert(action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
@@ -434,9 +430,23 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     group.insert(action(BreakOnAbort), checkBoxBreakOnAbort);
     group.insert(action(AttemptQuickStart), checkBoxAttemptQuickStart);
     group.insert(action(MultiInferior), checkBoxMultiInferior);
-    if (isReverseDebuggingEnabled())
+    if (checkBoxEnableReverseDebugging)
         group.insert(action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
 }
+
+// The "Dangerous" options.
+class GdbOptionsPage2 : public Core::IOptionsPage
+{
+public:
+    GdbOptionsPage2();
+
+    QWidget *widget();
+    void apply();
+    void finish();
+
+private:
+    QPointer<GdbOptionsPageWidget2> m_widget;
+};
 
 GdbOptionsPage2::GdbOptionsPage2()
 {
@@ -445,10 +455,6 @@ GdbOptionsPage2::GdbOptionsPage2()
     setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
-}
-
-GdbOptionsPage2::~GdbOptionsPage2()
-{
 }
 
 QWidget *GdbOptionsPage2::widget()
@@ -470,6 +476,14 @@ void GdbOptionsPage2::finish()
         m_widget->group.finish();
         delete m_widget;
     }
+}
+
+// Registration
+
+void addGdbOptionPages(QList<IOptionsPage *> *opts)
+{
+    opts->push_back(new GdbOptionsPage);
+    opts->push_back(new GdbOptionsPage2);
 }
 
 } // namespace Internal

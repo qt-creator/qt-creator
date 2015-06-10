@@ -1,6 +1,5 @@
 HEADERS += \
     $$PWD/gdbengine.h \
-    $$PWD/gdboptionspage.h \
     $$PWD/attachgdbadapter.h \
     $$PWD/coregdbadapter.h \
     $$PWD/termgdbadapter.h \

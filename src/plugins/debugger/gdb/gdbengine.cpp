@@ -35,7 +35,6 @@
 #include "gdbplainengine.h"
 #include "termgdbadapter.h"
 #include "remotegdbserveradapter.h"
-#include "gdboptionspage.h"
 
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerinternalconstants.h>
@@ -4656,12 +4655,6 @@ DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
             return new GdbTermEngine(rp);
         return new GdbPlainEngine(rp);
     }
-}
-
-void addGdbOptionPages(QList<IOptionsPage *> *opts)
-{
-    opts->push_back(new GdbOptionsPage());
-    opts->push_back(new GdbOptionsPage2());
 }
 
 void GdbEngine::doUpdateLocals(const UpdateParameters &params)
