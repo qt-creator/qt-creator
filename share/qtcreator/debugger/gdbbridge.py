@@ -1148,7 +1148,7 @@ class Dumper(DumperBase):
             fields = value.type.fields()
             if self.sortStructMembers:
                 fields.sort(key = lambda field:
-                    '[' + field.name if field.is_base_class else field.name)
+                    '[' + field.name if field.is_base_class else str(field.name))
 
             #warn("TYPE: %s" % value.type)
             #warn("FIELDS: %s" % fields)
