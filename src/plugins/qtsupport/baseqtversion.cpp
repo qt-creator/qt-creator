@@ -402,6 +402,12 @@ FeatureSet BaseQtVersion::availableFeatures() const
     features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_3);
     features |= FeatureSet(Constants::FEATURE_QT_QUICK_UI_FILES);
 
+    if (qtVersion() < QtVersionNumber(5, 5, 0))
+        return features;
+
+    features |= FeatureSet(Constants::FEATURE_QT_3D);
+    features |= FeatureSet(Constants::FEATURE_QT_CANVAS3D);
+
     return features;
 }
 
