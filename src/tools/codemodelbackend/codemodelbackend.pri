@@ -21,3 +21,6 @@ INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += codemodelbackendmain.cpp
 
+osx {
+    QMAKE_LFLAGS += -Wl,-rpath,$${LLVM_LIBDIR}
+}
