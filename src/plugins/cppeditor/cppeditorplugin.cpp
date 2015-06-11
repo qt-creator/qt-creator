@@ -76,8 +76,6 @@ using namespace Utils;
 namespace CppEditor {
 namespace Internal {
 
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
-
 enum { QUICKFIX_INTERVAL = 20 };
 
 //////////////////////////// CppEditorFactory /////////////////////////////
