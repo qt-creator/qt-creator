@@ -303,4 +303,4 @@ quint64 MemoryAgent::readInferiorPointerValue(const unsigned char *data, const P
 
 } // namespace Internal
 } // namespace Debugger
-;
+

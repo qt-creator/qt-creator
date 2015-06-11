@@ -72,9 +72,6 @@ private:
     quint16 m_minorPart;
 };
 
-QDebug operator<<(QDebug d, const BreakpointModelId &id);
-
-
 //////////////////////////////////////////////////////////////////
 //
 // BreakpointResponseId
