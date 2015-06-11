@@ -237,9 +237,9 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     emit starting(this);
 
     QTC_ASSERT(m_projectInfo.isValid(), emit finished(); return false);
-    const QString projectFile = m_projectInfo.project()->projectFilePath().toString();
-    appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile) + QLatin1Char('\n'),
-                        Utils::NormalMessageFormat);
+    const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
+    appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile.toUserOutput())
+                  + QLatin1Char('\n'), Utils::NormalMessageFormat);
 
     // Check clang executable
     bool isValidClangExecutable;
@@ -344,7 +344,8 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
     m_runners.insert(runner);
     QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
 
-    appendMessage(tr("Analyzing \"%1\".").arg(unit.file) + QLatin1Char('\n'),
+    appendMessage(tr("Analyzing \"%1\".").arg(
+                      Utils::FileName::fromString(unit.file).toUserOutput()) + QLatin1Char('\n'),
                   Utils::StdOutFormat);
 }
 
