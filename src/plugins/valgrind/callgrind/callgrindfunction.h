@@ -149,6 +149,6 @@ private:
 } // namespace Callgrind
 } // namespace Valgrind
 
-Q_DECLARE_METATYPE(const Valgrind::Callgrind::Function *);
+Q_DECLARE_METATYPE(const Valgrind::Callgrind::Function *)
 
 #endif // LIBVALGRIND_CALLGRIND_FUNCTION_H

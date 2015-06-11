@@ -80,7 +80,7 @@ public:
     void setCosts(const QVector<quint64> &costs);
 
 private:
-    Q_DISABLE_COPY(FunctionCall);
+    Q_DISABLE_COPY(FunctionCall)
 
     class Private;
     Private *d;
@@ -89,6 +89,6 @@ private:
 } // namespace Callgrind
 } // namespace Valgrind
 
-Q_DECLARE_METATYPE(const Valgrind::Callgrind::FunctionCall *);
+Q_DECLARE_METATYPE(const Valgrind::Callgrind::FunctionCall *)
 
 #endif // CALLGRINDFUNCTIONCALL_H
