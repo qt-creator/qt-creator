@@ -202,7 +202,7 @@ bool AndroidDeployQtStep::init()
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
-    m_appProcess = QLatin1String("readlink -f -s /system/bin/app_process");
+    m_appProcess = QLatin1String("readlink -f /system/bin/app_process");
     if (info.cpuAbi.contains(QLatin1String("arm64-v8a"))) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
         if (tc && tc->targetAbi().wordWidth() == 64)
@@ -476,7 +476,11 @@ QString AndroidDeployQtStep::systemAppProcessFilePath() const
                           << m_appProcess;
     proc.start(m_adbPath, args);
     proc.waitForFinished();
-    return QString::fromUtf8(proc.readAll()).trimmed();
+    QString output = QString::fromUtf8(proc.readAll()).trimmed();
+    if (output.startsWith(QLatin1Char('/')))
+        return output;
+    else
+        return QString();
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
