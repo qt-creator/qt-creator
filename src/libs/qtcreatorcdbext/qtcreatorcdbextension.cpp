@@ -561,7 +561,10 @@ static std::string commandLocals(ExtensionCommandContext &commandExtCtx,PCSTR ar
         return dumpRc;
     }
 
-    return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
+    if (WatchesSymbolGroup::isWatchIname(iname))
+        return watchesSymbolGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
+    else
+        return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
 }
 
 extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)

@@ -941,88 +941,6 @@ static inline bool isWatchIName(const QByteArray &iname)
     return iname.startsWith("watch");
 }
 
-void CdbEngine::updateWatchItem(WatchItem *item)
-{
-    if (debug || debugLocals || debugWatches)
-        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s: %s",
-               elapsedLogTime(), m_accessible, stateName(state()),
-               qPrintable(item->toString()));
-
-    if (!m_accessible) // Add watch data while running?
-        return;
-
-    // New watch item?
-    if (item->isWatcher() && item->isValueNeeded()) {
-        QByteArray args;
-        ByteArrayInputStream str(args);
-        WatchData data = *item; // Don't pass pointers to async functions.
-        str << data.iname << " \"" << data.exp << '"';
-        postExtensionCommand("addwatch", args, 0,
-                             [this, data](const CdbResponse &r) { handleAddWatch(r, data); });
-        return;
-    }
-
-    if (item->wantsChildren || item->isValueNeeded()) {
-        updateLocalVariable(item->iname);
-    } else {
-        item->setAllUnneeded();
-        item->update();
-    }
-}
-
-void CdbEngine::handleAddWatch(const CdbResponse &response, WatchData data)
-{
-    if (debugWatches)
-        qDebug() << "handleAddWatch ok="  << response.success << data.iname;
-    if (response.success) {
-        updateLocalVariable(data.iname);
-    } else {
-        auto item = new WatchItem(data);
-        item->setError(tr("Unable to add expression"));
-        watchHandler()->insertItem(item);
-        showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
-                    arg(QString::fromLatin1(data.iname), QString::fromLatin1(data.exp),
-                        QString::fromLocal8Bit(response.errorMessage)), LogError);
-    }
-}
-
-void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
-{
-    if (boolSetting(VerboseLog))
-        str << blankSeparator << "-v";
-    if (boolSetting(UseDebuggingHelpers))
-        str << blankSeparator << "-c";
-    if (boolSetting(SortStructMembers))
-        str << blankSeparator << "-a";
-    const QByteArray typeFormats = watchHandler()->typeFormatRequests();
-    if (!typeFormats.isEmpty())
-        str << blankSeparator << "-T " << typeFormats;
-    const QByteArray individualFormats = watchHandler()->individualFormatRequests();
-    if (!individualFormats.isEmpty())
-        str << blankSeparator << "-I " << individualFormats;
-}
-
-void CdbEngine::updateLocalVariable(const QByteArray &iname)
-{
-    const bool isWatch = isWatchIName(iname);
-    if (debugWatches)
-        qDebug() << "updateLocalVariable watch=" << isWatch << iname;
-    QByteArray localsArguments;
-    ByteArrayInputStream str(localsArguments);
-    addLocalsOptions(str);
-    if (!isWatch) {
-        const int stackFrame = stackHandler()->currentIndex();
-        if (stackFrame < 0) {
-            qWarning("Internal error; no stack frame in updateLocalVariable");
-            return;
-        }
-        str << blankSeparator << stackFrame;
-    }
-    str << blankSeparator << iname;
-    postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0,
-                         [this](const CdbResponse &r) { handleLocals(r, false); });
-}
-
 bool CdbEngine::hasCapability(unsigned cap) const
 {
     return cap & (DisassemblerCapability | RegisterCapability
@@ -1408,11 +1326,13 @@ void CdbEngine::activateFrame(int index)
 
 void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 {
-    Q_UNUSED(updateParameters)
     typedef QHash<QByteArray, int> WatcherHash;
 
+    const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
+    const bool isWatch = isWatchIName(updateParameters.partialVariable);
+
     const int frameIndex = stackHandler()->currentIndex();
-    if (frameIndex < 0) {
+    if (frameIndex < 0 && !isWatch) {
         watchHandler()->removeAllData();
         return;
     }
@@ -1427,19 +1347,33 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
      * Initial expand, get uninitialized and query */
     QByteArray arguments;
     ByteArrayInputStream str(arguments);
-    str << "-D";
-    // Pre-expand
-    const QSet<QByteArray> expanded = watchHandler()->expandedINames();
-    if (!expanded.isEmpty()) {
-        str << blankSeparator << "-e ";
-        int i = 0;
-        foreach (const QByteArray &e, expanded) {
-            if (i++)
-                str << ',';
-            str << e;
+
+    if (!partialUpdate) {
+        str << "-D";
+        // Pre-expand
+        const QSet<QByteArray> expanded = watchHandler()->expandedINames();
+        if (!expanded.isEmpty()) {
+            str << blankSeparator << "-e ";
+            int i = 0;
+            foreach (const QByteArray &e, expanded) {
+                if (i++)
+                    str << ',';
+                str << e;
+            }
         }
     }
-    addLocalsOptions(str);
+    if (boolSetting(VerboseLog))
+        str << blankSeparator << "-v";
+    if (boolSetting(UseDebuggingHelpers))
+        str << blankSeparator << "-c";
+    if (boolSetting(SortStructMembers))
+        str << blankSeparator << "-a";
+    const QByteArray typeFormats = watchHandler()->typeFormatRequests();
+    if (!typeFormats.isEmpty())
+        str << blankSeparator << "-T " << typeFormats;
+    const QByteArray individualFormats = watchHandler()->individualFormatRequests();
+    if (!individualFormats.isEmpty())
+        str << blankSeparator << "-I " << individualFormats;
     // Uninitialized variables if desired. Quote as safeguard against shadowed
     // variables in case of errors in uninitializedVariables().
     if (boolSetting(UseCodeModel)) {
@@ -1457,20 +1391,27 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             str << '"';
         }
     }
-    // Perform watches synchronization
-    str << blankSeparator << "-W";
-    const WatcherHash watcherHash = WatchHandler::watcherNames();
-    if (!watcherHash.isEmpty()) {
-        const WatcherHash::const_iterator cend = watcherHash.constEnd();
-        for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
-            str << blankSeparator << "-w " << it.value() << " \"" << it.key() << '"';
+    if (!partialUpdate || isWatch) {
+        // Perform watches synchronization
+        str << blankSeparator << "-W";
+        const WatcherHash watcherHash = WatchHandler::watcherNames();
+        if (!watcherHash.isEmpty()) {
+            const WatcherHash::const_iterator cend = watcherHash.constEnd();
+            for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
+                str << blankSeparator << "-w " << "watch." + QByteArray::number(it.value())
+                    << " \"" << it.key() << '"';
+            }
         }
     }
 
     // Required arguments: frame
     str << blankSeparator << frameIndex;
+
+    if (partialUpdate)
+        str << blankSeparator << updateParameters.partialVariable;
+
     postExtensionCommand("locals", arguments, 0,
-                         [this](const CdbResponse &r) { handleLocals(r, true); });
+                [this, partialUpdate](const CdbResponse &r) { handleLocals(r, partialUpdate); });
 }
 
 void CdbEngine::updateAll()
@@ -1830,7 +1771,7 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
     postCommandSequence(response.commandSequence);
 }
 
-void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
+void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
 {
     if (response.success) {
         watchHandler()->notifyUpdateFinished();
@@ -1844,7 +1785,7 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
 
         GdbMi partial;
         partial.m_name = "partial";
-        partial.m_data = QByteArray::number(newFrame ? 0 : 1);
+        partial.m_data = QByteArray::number(partialUpdate ? 1 : 0);
 
         GdbMi all;
         all.m_children.push_back(data);
