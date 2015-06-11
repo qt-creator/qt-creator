@@ -7,6 +7,7 @@ include(../../qtcreatorplugin.pri)
 include(autotest_dependencies.pri)
 
 DEFINES += AUTOTEST_LIBRARY
+CONFIG(licensechecker): DEFINES += LICENSECHECKER
 
 SOURCES += \
     testtreeview.cpp \

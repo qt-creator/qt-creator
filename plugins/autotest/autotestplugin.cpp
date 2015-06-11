@@ -38,7 +38,9 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <licensechecker/licensecheckerplugin.h>
+#ifdef LICENSECHECKER
+#  include <licensechecker/licensecheckerplugin.h>
+#endif
 
 #include <QAction>
 #include <QMessageBox>
@@ -89,6 +91,7 @@ QSharedPointer<TestSettings> AutotestPlugin::settings() const
 
 bool AutotestPlugin::checkLicense()
 {
+#ifdef LICENSECHECKER
     LicenseChecker::LicenseCheckerPlugin *licenseChecker
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
@@ -97,6 +100,7 @@ bool AutotestPlugin::checkLicense()
         return false;
     } else if (!licenseChecker->enterpriseFeatures())
         return false;
+#endif // LICENSECHECKER
     return true;
 }
 
