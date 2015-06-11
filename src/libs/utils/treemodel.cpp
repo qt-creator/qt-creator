@@ -917,6 +917,8 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < m_header.size())
         return m_header.at(section);
+    if (role == Qt::ToolTipRole && section < m_headerToolTip.size())
+        return m_headerToolTip.at(section);
     return QVariant();
 }
 
@@ -974,6 +976,11 @@ void TreeModel::setHeader(const QStringList &displays)
 {
     m_header = displays;
     m_columnCount = displays.size();
+}
+
+void TreeModel::setHeaderToolTip(const QStringList &tips)
+{
+    m_headerToolTip = tips;
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const

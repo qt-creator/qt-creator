@@ -257,6 +257,7 @@ public:
     ~TreeModel();
 
     void setHeader(const QStringList &displays);
+    void setHeaderToolTip(const QStringList &tips);
     void clear();
 
     TreeItem *rootItem() const;
@@ -301,6 +302,7 @@ private:
 
     TreeItem *m_root; // Owned.
     QStringList m_header;
+    QStringList m_headerToolTip;
     int m_columnCount;
 };
 
