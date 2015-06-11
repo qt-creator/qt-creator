@@ -727,7 +727,7 @@ QString WatchItem::displayName() const
     QString result;
     if (!parentItem())
         return result;
-    if (iname.startsWith("return"))
+    if (iname.startsWith("return") && name.startsWith(QLatin1Char('$')))
         result = WatchModel::tr("returned value");
     else if (name == QLatin1String("*"))
         result = QLatin1Char('*') + parentItem()->name;
