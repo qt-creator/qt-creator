@@ -537,7 +537,7 @@ void AndroidDeviceDialog::devicesRefreshed()
 {
     m_progressIndicator->hide();
     QString serialNumber;
-    AndroidDeviceInfo::AndroidDeviceType deviceType;
+    AndroidDeviceInfo::AndroidDeviceType deviceType = AndroidDeviceInfo::Hardware;
     QModelIndex currentIndex = m_ui->deviceView->currentIndex();
     if (currentIndex.isValid()) { // save currently selected index
         AndroidDeviceInfo info = m_model->device(currentIndex);
