@@ -205,21 +205,8 @@ void GitEditorWidget::checkoutChange()
 
 void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
-    const QString workingDir = sourceWorkingDirectory();
-
-    GitClient *client = GitPlugin::instance()->client();
-    if (resetType == "hard"
-            && client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
-            != GitClient::StatusUnchanged) {
-        if (QMessageBox::question(
-                    Core::ICore::mainWindow(), tr("Reset"),
-                    tr("All changes in working directory will be discarded. Are you sure?"),
-                    QMessageBox::Yes | QMessageBox::No,
-                    QMessageBox::No) == QMessageBox::No) {
-            return;
-        }
-    }
-    client->reset(workingDir, QLatin1String("--" + resetType), m_currentChange);
+    GitPlugin::instance()->client()->reset(
+                sourceWorkingDirectory(), QLatin1String("--" + resetType), m_currentChange);
 }
 
 void GitEditorWidget::cherryPickChange()

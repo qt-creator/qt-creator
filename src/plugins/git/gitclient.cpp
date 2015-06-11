@@ -1043,8 +1043,18 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
         arguments << commit;
 
     unsigned flags = 0;
-    if (argument == QLatin1String("--hard"))
+    if (argument == QLatin1String("--hard")) {
+        if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusUnchanged) {
+            if (QMessageBox::question(
+                        Core::ICore::mainWindow(), tr("Reset"),
+                        tr("All changes in working directory will be discarded. Are you sure?"),
+                        QMessageBox::Yes | QMessageBox::No,
+                        QMessageBox::No) == QMessageBox::No) {
+                return;
+            }
+        }
         flags |= VcsCommand::ExpectRepoChanges;
+    }
     vcsExec(workingDirectory, arguments, 0, true, flags);
 }
 
