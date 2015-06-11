@@ -38,14 +38,43 @@
 namespace Debugger {
 namespace Internal {
 
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointModelId
-//
-//////////////////////////////////////////////////////////////////
+/*!
+    \class Debugger::Internal::BreakpointIdBase
+
+    Convenience base class for BreakpointModelId and
+    BreakpointResponseId.
+*/
+
+QDebug operator<<(QDebug d, const BreakpointIdBase &id)
+{
+    d << qPrintable(id.toString());
+    return d;
+}
+
+QByteArray BreakpointIdBase::toByteArray() const
+{
+    if (!isValid())
+        return "<invalid bkpt>";
+    QByteArray ba = QByteArray::number(m_majorPart);
+    if (isMinor()) {
+        ba.append('.');
+        ba.append(QByteArray::number(m_minorPart));
+    }
+    return ba;
+}
+
+QString BreakpointIdBase::toString() const
+{
+    if (!isValid())
+        return QLatin1String("<invalid bkpt>");
+    if (isMinor())
+        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
+    return QString::number(m_majorPart);
+}
+
 
 /*!
-    \class Debugger::Internal::ModelId
+    \class Debugger::Internal::BreakpointModelId
 
     This identifies a breakpoint in the \c BreakHandler. The
     major parts are strictly increasing over time.
@@ -54,12 +83,6 @@ namespace Internal {
     set for example by gdb in constructors.
 */
 
-
-QDebug operator<<(QDebug d, const BreakpointModelId &id)
-{
-    d << qPrintable(id.toString());
-    return d;
-}
 
 BreakpointModelId::BreakpointModelId(const QByteArray &ba)
 {
@@ -72,34 +95,6 @@ BreakpointModelId::BreakpointModelId(const QByteArray &ba)
         m_minorPart = ba.mid(pos + 1).toUShort();
     }
 }
-
-QByteArray BreakpointModelId::toByteArray() const
-{
-    if (!isValid())
-        return "<invalid bkpt>";
-    QByteArray ba = QByteArray::number(m_majorPart);
-    if (isMinor()) {
-        ba.append('.');
-        ba.append(QByteArray::number(m_minorPart));
-    }
-    return ba;
-}
-
-QString BreakpointModelId::toString() const
-{
-    if (!isValid())
-        return QLatin1String("<invalid bkpt>");
-    if (isMinor())
-        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
-    return QString::number(m_majorPart);
-}
-
-
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointResponseId
-//
-//////////////////////////////////////////////////////////////////
 
 /*!
     \class Debugger::Internal::BreakpointResponseId
@@ -122,45 +117,6 @@ BreakpointResponseId::BreakpointResponseId(const QByteArray &ba)
         m_majorPart = ba.left(pos).toInt();
         m_minorPart = ba.mid(pos + 1).toInt();
     }
-}
-
-QDebug operator<<(QDebug d, const BreakpointResponseId &id)
-{
-    d << qPrintable(id.toString());
-    return d;
-}
-
-QByteArray BreakpointResponseId::toByteArray() const
-{
-    if (!isValid())
-        return "<invalid bkpt>";
-    QByteArray ba = QByteArray::number(m_majorPart);
-    if (isMinor()) {
-        ba.append('.');
-        ba.append(QByteArray::number(m_minorPart));
-    }
-    return ba;
-}
-
-QString BreakpointResponseId::toString() const
-{
-    if (!isValid())
-        return QLatin1String("<invalid bkpt>");
-    if (isMinor())
-        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
-    return QString::number(m_majorPart);
-}
-
-BreakpointResponseId BreakpointResponseId::parent() const
-{
-    QTC_ASSERT(isMinor(), return BreakpointResponseId());
-    return BreakpointResponseId(m_majorPart, 0);
-}
-
-BreakpointResponseId BreakpointResponseId::child(int row) const
-{
-    QTC_ASSERT(isMajor(), return BreakpointResponseId());
-    return BreakpointResponseId(m_majorPart, row + 1);
 }
 
 //////////////////////////////////////////////////////////////////

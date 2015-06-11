@@ -39,75 +39,51 @@ namespace Internal {
 
 //////////////////////////////////////////////////////////////////
 //
-// BreakpointModelId
+// BreakpointIds
 //
 //////////////////////////////////////////////////////////////////
 
-class BreakpointModelId
+class BreakpointIdBase
+{
+public:
+    BreakpointIdBase() : m_majorPart(0), m_minorPart(0) {}
+
+    bool isValid() const { return m_majorPart != 0; }
+    bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
+    bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
+    bool operator!() const { return !isValid(); }
+    operator const void*() const { return isValid() ? this : 0; }
+    quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
+    QByteArray toByteArray() const;
+    QString toString() const;
+    bool operator==(const BreakpointIdBase &id) const
+        { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
+    quint16 majorPart() const { return m_majorPart; }
+    quint16 minorPart() const { return m_minorPart; }
+
+protected:
+    quint16 m_majorPart;
+    quint16 m_minorPart;
+};
+
+class BreakpointModelId : public BreakpointIdBase
 {
 public:
     BreakpointModelId() { m_majorPart = m_minorPart = 0; }
     explicit BreakpointModelId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
     BreakpointModelId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
     explicit BreakpointModelId(const QByteArray &ba); // "21.2"
-
-    bool isValid() const { return m_majorPart != 0; }
-    bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
-    bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
-    bool operator!() const { return !isValid(); }
-    operator const void*() const { return isValid() ? this : 0; }
-    quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
-    QByteArray toByteArray() const;
-    QString toString() const;
-    bool operator==(const BreakpointModelId &id) const
-        { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
-    quint16 majorPart() const { return m_majorPart; }
-    quint16 minorPart() const { return m_minorPart; }
-
-    static BreakpointModelId fromInternalId(quint32 id)
-        { return BreakpointModelId(id & 0xff, id >> 16); }
-
-private:
-    quint16 m_majorPart;
-    quint16 m_minorPart;
 };
 
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointResponseId
-//
-//////////////////////////////////////////////////////////////////
-
-class BreakpointResponseId
+class BreakpointResponseId : public BreakpointIdBase
 {
 public:
     BreakpointResponseId() { m_majorPart = m_minorPart = 0; }
     explicit BreakpointResponseId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
     BreakpointResponseId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
     explicit BreakpointResponseId(const QByteArray &ba); // "21.2"
-
-    bool isValid() const { return m_majorPart != 0; }
-    bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
-    bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
-    bool operator!() const { return !isValid(); }
-    operator const void*() const { return isValid() ? this : 0; }
-    quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
-    QByteArray toByteArray() const;
-    QString toString() const;
-    bool operator==(const BreakpointResponseId &id) const
-        { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
-    quint16 majorPart() const { return m_majorPart; }
-    quint16 minorPart() const { return m_minorPart; }
-    BreakpointResponseId parent() const;
-    BreakpointResponseId child(int row) const;
-
-private:
-    quint16 m_majorPart;
-    quint16 m_minorPart;
 };
 
-QDebug operator<<(QDebug d, const BreakpointModelId &id);
-QDebug operator<<(QDebug d, const BreakpointResponseId &id);
 
 //////////////////////////////////////////////////////////////////
 //
