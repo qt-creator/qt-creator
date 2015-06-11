@@ -1,0 +1,101 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "W.QtCanvas3dApplication",
+    "category": "F.Application",
+    "trDescription": "Creates a Qt Canvas 3D QML project. Optionally including three.js.",
+    "trDisplayName": "Qt Canvas 3D Application",
+    "trDisplayCategory": "Application",
+    "icon": "3dapplication.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtCanvas3d" ],
+    "enabled": "${JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
+        { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ThreeJs",
+                    "trDisplayName": "Create a three.js based application.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": false
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": { "projectFilePath": "%{ProFileName}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "app.pro",
+                    "target": "%{ProFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{MainCppFileName}"
+                },
+                {
+                    "source": "main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "threejs/3rdparty/three.js",
+                    "condition": "%{ThreeJs}",
+                    "target": "%{ProjectDirectory}/three.js",
+                    "isBinary": true
+                },
+                {
+                    "source": "%{JS: (%{ThreeJs} ? 'threejs' : 'plaincanvas3d') + '/glcode.js'}",
+                    "target": "%{ProjectDirectory}/glcode.js"
+                },
+                {
+                    "source": "qml.qrc"
+                },
+                {
+                    "source": "../../../../shared/qrcdeployment.pri",
+                    "target": "%{ProjectDirectory}/deployment.pri"
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

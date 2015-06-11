@@ -146,5 +146,9 @@
         \li  \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/sqlite}
         \endlist
 
+        \li \b{three.js (license MIT)}\br
+        Copyright (C) 2010-2015 three.js authors\br
+        share/qtcreator/templates/wizards/projects/qmake/qtcanvas3dapplication
+
      \endlist
 */
