@@ -409,7 +409,7 @@ void FormEditorView::changeToCustomTool()
 {
     if (hasSelectedModelNodes()) {
         int handlingRank = 0;
-        AbstractCustomTool *selectedCustomTool;
+        AbstractCustomTool *selectedCustomTool = 0;
 
         ModelNode selectedModelNode = selectedModelNodes().first();
 
@@ -424,9 +424,11 @@ void FormEditorView::changeToCustomTool()
         if (handlingRank > 0) {
             m_scene->updateAllFormEditorItems();
             m_currentTool->clear();
-            m_currentTool = selectedCustomTool;
-            m_currentTool->clear();
-            m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+            if (selectedCustomTool) {
+                m_currentTool = selectedCustomTool;
+                m_currentTool->clear();
+                m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+            }
         }
     }
 }
