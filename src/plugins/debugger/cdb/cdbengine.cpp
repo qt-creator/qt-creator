@@ -1406,8 +1406,9 @@ void CdbEngine::activateFrame(int index)
     updateLocals();
 }
 
-void CdbEngine::updateLocals()
+void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 {
+    Q_UNUSED(updateParameters)
     typedef QHash<QByteArray, int> WatcherHash;
 
     const int frameIndex = stackHandler()->currentIndex();
@@ -1420,7 +1421,6 @@ void CdbEngine::updateLocals()
         watchHandler()->removeAllData();
         return;
     }
-    watchHandler()->resetValueCache();
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
      * and cause errors as it seems to go 'stale' when switching threads.
@@ -1469,7 +1469,6 @@ void CdbEngine::updateLocals()
 
     // Required arguments: frame
     str << blankSeparator << frameIndex;
-    watchHandler()->notifyUpdateStarted();
     postExtensionCommand("locals", arguments, 0,
                          [this](const CdbResponse &r) { handleLocals(r, true); });
 }

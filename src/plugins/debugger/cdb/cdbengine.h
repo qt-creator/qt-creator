@@ -247,7 +247,7 @@ private:
     void handleAdditionalQmlStack(const CdbResponse &response);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
-    void updateLocals();
+    void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
