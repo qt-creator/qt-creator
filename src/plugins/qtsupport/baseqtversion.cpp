@@ -96,6 +96,19 @@ QtVersionNumber::QtVersionNumber()
     majorVersion = minorVersion = patchVersion = -1;
 }
 
+FeatureSet QtVersionNumber::features() const
+{
+    FeatureSet result;
+    result |= Feature(Constants::FEATURE_QT);
+    if (majorVersion >= 0) {
+        QString featureMajor = QString::fromLatin1(Constants::FEATURE_QT) + QString::number(majorVersion);
+        result |= Feature(Id::fromString(featureMajor));
+        for (int i = 0; i <= minorVersion; ++i)
+            result |= Feature(Id::fromString(featureMajor + QLatin1Char('.') + QString::number(i)));
+    }
+    return result;
+}
+
 bool QtVersionNumber::operator <(const QtVersionNumber &b) const
 {
     if (majorVersion != b.majorVersion)
@@ -348,15 +361,11 @@ QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, b
 
 FeatureSet BaseQtVersion::availableFeatures() const
 {
-    FeatureSet features = FeatureSet(Constants::FEATURE_QWIDGETS)
-            | FeatureSet(Constants::FEATURE_QT)
-            | FeatureSet(Constants::FEATURE_QT_WEBKIT)
-            | FeatureSet(Constants::FEATURE_QT_CONSOLE);
+    FeatureSet features = qtVersion().features(); // Qt Version features
 
-    if (qtVersion() < QtVersionNumber(5, 0, 0))
-        features |= FeatureSet(Constants::FEATURE_QT4);
-    else
-        features |= FeatureSet(Constants::FEATURE_QT5);
+    features |= (FeatureSet(Constants::FEATURE_QWIDGETS)
+                 | FeatureSet(Constants::FEATURE_QT_WEBKIT)
+                 | FeatureSet(Constants::FEATURE_QT_CONSOLE));
 
     if (qtVersion() < QtVersionNumber(4, 7, 0))
         return features;

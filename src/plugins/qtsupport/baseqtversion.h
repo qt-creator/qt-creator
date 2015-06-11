@@ -68,6 +68,8 @@ public:
     QtVersionNumber(const QString &versionString);
     QtVersionNumber();
 
+    Core::FeatureSet features() const;
+
     int majorVersion;
     int minorVersion;
     int patchVersion;
