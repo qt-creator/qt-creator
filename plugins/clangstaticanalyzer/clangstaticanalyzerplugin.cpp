@@ -35,8 +35,11 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <licensechecker/licensecheckerplugin.h>
 #include <projectexplorer/projectpanelfactory.h>
+
+#ifdef LICENSECHECKER
+#include <licensechecker/licensecheckerplugin.h>
+#endif
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -114,6 +117,7 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
+#ifdef LICENSECHECKER
     LicenseChecker::LicenseCheckerPlugin *licenseChecker
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
@@ -123,8 +127,10 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     } else {
         qWarning() << "Invalid license, disabling Clang Static Analyzer";
     }
-
     return true;
+#else // LICENSECHECKER
+    return initializeEnterpriseFeatures(arguments, errorString);
+#endif
 }
 
 bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &arguments,
