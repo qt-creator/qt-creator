@@ -193,15 +193,16 @@ def qdump__Utils__ElfSection(d, value):
 
 def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"]
-    if int(k) == 6:
-        d.putValue("T_IDENTIFIER. offset: %d, len: %d"
-            % (value["utf16charOffset"], value["f"]["utf16chars"]))
-    elif int(k) == 7:
-        d.putValue("T_NUMERIC_LITERAL. offset: %d, len: %d"
-            % (value["utf16charOffset"], value["f"]["utf16chars"]))
-    else:
-        val = str(k.cast(d.lookupType("CPlusPlus::Kind")))
-        d.putValue(val[11:]) # Strip "CPlusPlus::"
+    e = int(k)
+    type = str(k.cast(d.lookupType("CPlusPlus::Kind")))[11:] # Strip "CPlusPlus::"
+    try:
+        if e == 6:
+            type = readLiteral(d, value["identifier"]) + " (%s)" % type
+        elif e >= 7 and e <= 23:
+            type = readLiteral(d, value["literal"]) + " (%s)" % type
+    except:
+        pass
+    d.putValue(type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
