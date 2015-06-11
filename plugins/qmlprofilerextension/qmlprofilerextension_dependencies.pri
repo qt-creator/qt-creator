@@ -3,5 +3,6 @@ QTC_PLUGIN_NAME = QmlProfilerExtension
 #    qmldebug \
 #    extensionsystem
 QTC_PLUGIN_DEPENDS += \
-    qmlprofiler \
-    licensechecker \
+    qmlprofiler
+
+CONFIG(licensechecker): QT_PLUGIN_DEPENDS += licensechecker
