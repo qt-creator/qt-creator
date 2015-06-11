@@ -281,7 +281,7 @@ QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target
 
 QPair<int, int> AndroidManager::apiLevelRange()
 {
-    return qMakePair(9, 21);
+    return qMakePair(9, 22);
 }
 
 QString AndroidManager::androidNameForApiLevel(int x)

@@ -61,6 +61,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     // Target sdk combobox
     int minApiLevel = 9;
     QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::currentConfig().sdkTargets(minApiLevel));
+    targets.removeDuplicates();
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::buildTargetSDK(step->target())));
 

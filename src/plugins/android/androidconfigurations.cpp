@@ -176,6 +176,24 @@ namespace {
         return false;
     }
 
+    // Some preview sdks use a non integer version
+    int apiLevelFromAndroidList(const QString &string)
+    {
+        bool ok;
+        int result = string.toInt(&ok);
+        if (ok)
+            return result;
+        Utils::FileName sdkLocation = AndroidConfigurations::currentConfig().sdkLocation();
+        sdkLocation.appendPath(QLatin1String("/platforms/android-") + string + QLatin1String("/source.properties"));
+        result = QSettings(sdkLocation.toString(), QSettings::IniFormat).value(QLatin1String("AndroidVersion.ApiLevel")).toInt(&ok);
+        if (ok)
+            return result;
+        if (string == QLatin1String("L"))
+            return 21;
+        if (string == QLatin1String("MNC"))
+            return 22;
+        return 23; // At least
+    }
 }
 
 //////////////////////////////////
@@ -397,7 +415,8 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
             if (index == -1)
                 continue;
             QString androidTarget = line.mid(index + 1, line.length() - index - 2);
-            platform.apiLevel = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1).toInt();
+            const QString tmp = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1);
+            platform.apiLevel = apiLevelFromAndroidList(tmp);
         } else if (line.startsWith(QLatin1String("Name:"))) {
             platform.name = line.mid(6);
         } else if (line.startsWith(QLatin1String("Tag/ABIs :"))) {
@@ -724,10 +743,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
                 if (lastIndex == -1) // skip line
                     break;
                 QString tmp = line.mid(lastIndex).remove(QLatin1Char(')')).trimmed();
-                if (tmp == QLatin1String("L")) // HACK for android-L preview
-                    dev.sdk = 20;
-                else
-                    dev.sdk = tmp.toInt();
+                dev.sdk = apiLevelFromAndroidList(tmp);
             }
             if (line.contains(QLatin1String("Tag/ABI:"))) {
                 int lastIndex = line.lastIndexOf(QLatin1Char('/')) + 1;
