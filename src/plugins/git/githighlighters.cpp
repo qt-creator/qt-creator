@@ -56,7 +56,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
 {
     // figure out current state
     State state = static_cast<State>(previousBlockState());
-    if (text.isEmpty()) {
+    if (text.trimmed().isEmpty()) {
         if (state == Header)
             state = Other;
         setCurrentBlockState(state);
