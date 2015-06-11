@@ -35,8 +35,6 @@
 #include "applicationlauncher.h"
 
 namespace ProjectExplorer {
-
-class LocalApplicationRunConfiguration;
 namespace Internal {
 
 class LocalApplicationRunControlFactory : public IRunControlFactory
@@ -49,15 +47,22 @@ public:
     RunControl* create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage);
 };
 
-class LocalApplicationRunControl : public RunControl
+} // namespace Internal
+
+class PROJECTEXPLORER_EXPORT LocalApplicationRunControl : public RunControl
 {
     Q_OBJECT
 public:
-    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, RunMode mode);
+    LocalApplicationRunControl(RunConfiguration *runConfiguration, RunMode mode);
     ~LocalApplicationRunControl();
     void start();
     StopResult stop();
     bool isRunning() const;
+
+    void setCommand(const QString &executable, const QString &commandLineArguments);
+    void setApplicationLauncherMode(const ApplicationLauncher::Mode mode);
+    void setWorkingDirectory(const QString &workingDirectory);
+
 private slots:
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus status);
@@ -70,7 +75,6 @@ private:
     bool m_running;
 };
 
-} // namespace Internal
 } // namespace ProjectExplorer
 
 #endif // LOCALAPPLICATIONRUNCONTROL_H

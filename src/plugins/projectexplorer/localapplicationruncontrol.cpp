@@ -58,26 +58,29 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     LocalApplicationRunConfiguration *localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    return new LocalApplicationRunControl(localRunConfiguration, mode);
+
+    QTC_ASSERT(localRunConfiguration, return 0);
+    LocalApplicationRunControl *runControl = new LocalApplicationRunControl(localRunConfiguration, mode);
+    runControl->setCommand(localRunConfiguration->executable(), localRunConfiguration->commandLineArguments());
+    runControl->setApplicationLauncherMode(localRunConfiguration->runMode());
+    runControl->setWorkingDirectory(localRunConfiguration->workingDirectory());
+
+    return runControl;
 }
+
+} // namespace Internal
 
 // ApplicationRunControl
 
-LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
-    : RunControl(rc, mode), m_running(false)
+LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, RunMode mode)
+    : RunControl(rc, mode), m_runMode(ApplicationLauncher::Console), m_running(false)
 {
     setIcon(QLatin1String(Constants::ICON_RUN_SMALL));
     EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
     Utils::Environment env;
     if (environment)
         env = environment->environment();
-    QString dir = rc->workingDirectory();
     m_applicationLauncher.setEnvironment(env);
-    m_applicationLauncher.setWorkingDirectory(dir);
-
-    m_executable = rc->executable();
-    m_runMode = static_cast<ApplicationLauncher::Mode>(rc->runMode());
-    m_commandLineArguments = rc->commandLineArguments();
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
@@ -123,6 +126,22 @@ bool LocalApplicationRunControl::isRunning() const
     return m_running;
 }
 
+void LocalApplicationRunControl::setCommand(const QString &executable, const QString &commandLineArguments)
+{
+    m_executable = executable;
+    m_commandLineArguments = commandLineArguments;
+}
+
+void LocalApplicationRunControl::setApplicationLauncherMode(const ApplicationLauncher::Mode mode)
+{
+    m_runMode = mode;
+}
+
+void LocalApplicationRunControl::setWorkingDirectory(const QString &workingDirectory)
+{
+    m_applicationLauncher.setWorkingDirectory(workingDirectory);
+}
+
 void LocalApplicationRunControl::slotAppendMessage(const QString &err,
                                                    Utils::OutputFormat format)
 {
@@ -151,5 +170,4 @@ void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatu
     emit finished();
 }
 
-} // namespace Internal
 } // namespace ProjectExplorer
