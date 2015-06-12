@@ -57,6 +57,7 @@ public:
     ThreadId currentThread() const;
     ThreadId threadAt(int index) const;
     void setCurrentThread(ThreadId id);
+    QByteArray pidForGroupId(const QByteArray &groupId) const;
 
     void updateThread(const ThreadData &threadData);
     void updateThreads(const GdbMi &data);
@@ -66,6 +67,9 @@ public:
     void removeAll();
     ThreadData thread(ThreadId id) const;
     QAbstractItemModel *model();
+
+    void notifyGroupCreated(const QByteArray &groupId, const QByteArray &pid);
+    bool notifyGroupExited(const QByteArray &groupId); // Returns true when empty.
 
     // Clear out all frame information
     void notifyRunning(const QByteArray &data);
@@ -86,6 +90,7 @@ private:
 
     ThreadId m_currentId;
     bool m_resetLocationScheduled;
+    QHash<QByteArray, QByteArray> m_pidForGroupId;
 };
 
 } // namespace Internal

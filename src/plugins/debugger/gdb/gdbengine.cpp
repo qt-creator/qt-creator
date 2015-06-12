@@ -1352,9 +1352,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     threadsHandler()->notifyStopped(threads.data());
 
     const QByteArray reason = data["reason"].data();
-    const GdbMi frame = data["frame"];
-    const QByteArray func = frame["from"].data();
-
     if (isExitedReason(reason)) {
         //   // The user triggered a stop, but meanwhile the app simply exited ...
         //    QTC_ASSERT(state() == InferiorStopRequested
@@ -1370,12 +1367,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         } else {
             msg = tr("Application exited normally");
         }
+        // Only show the message. Ramp-down will be triggered by -thread-group-exited.
         showStatusMessage(msg);
-        notifyInferiorExited();
         return;
     }
 
     // Ignore signals from the process stub.
+    const GdbMi frame = data["frame"];
+    const QByteArray func = frame["from"].data();
     if (runParameters().useTerminal
             && data["reason"].data() == "signal-received"
             && data["signal-name"].data() == "SIGSTOP"
@@ -1963,18 +1962,16 @@ void GdbEngine::handleDetach(const DebuggerResponse &response)
 
 void GdbEngine::handleThreadGroupCreated(const GdbMi &result)
 {
-    Q_UNUSED(result);
-//    QByteArray id = result["id"].data();
-//    QByteArray pid = result["pid"].data();
-//    Q_UNUSED(id);
-//    Q_UNUSED(pid);
+    QByteArray groupId = result["id"].data();
+    QByteArray pid = result["pid"].data();
+    threadsHandler()->notifyGroupCreated(groupId, pid);
 }
 
 void GdbEngine::handleThreadGroupExited(const GdbMi &result)
 {
-    Q_UNUSED(result);
-//    QByteArray id = result["id"].data();
-//    Q_UNUSED(id);
+    QByteArray groupId = result["id"].data();
+    if (threadsHandler()->notifyGroupExited(groupId))
+        notifyInferiorExited();
 }
 
 int GdbEngine::currentFrame() const

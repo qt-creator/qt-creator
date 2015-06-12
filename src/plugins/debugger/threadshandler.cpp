@@ -314,6 +314,16 @@ void ThreadsHandler::setCurrentThread(ThreadId id)
     updateThreadBox();
 }
 
+QByteArray ThreadsHandler::pidForGroupId(const QByteArray &groupId) const
+{
+    return m_pidForGroupId[groupId];
+}
+
+void ThreadsHandler::notifyGroupCreated(const QByteArray &groupId, const QByteArray &pid)
+{
+    m_pidForGroupId[groupId] = pid;
+}
+
 void ThreadsHandler::updateThread(const ThreadData &threadData)
 {
     if (ThreadItem *item = itemForThreadId(this, threadData.id))
@@ -358,6 +368,20 @@ ThreadData ThreadsHandler::thread(ThreadId id) const
 void ThreadsHandler::removeAll()
 {
     rootItem()->removeChildren();
+}
+
+bool ThreadsHandler::notifyGroupExited(const QByteArray &groupId)
+{
+    QList<ThreadItem *> list;
+    auto items = itemsAtLevel<ThreadItem *>(1);
+    foreach (ThreadItem *item, items)
+        if (item->groupId == groupId)
+            list.append(item);
+    foreach (ThreadItem *item, list)
+        delete takeItem(item);
+
+    m_pidForGroupId.remove(groupId);
+    return m_pidForGroupId.isEmpty();
 }
 
 void ThreadsHandler::notifyRunning(const QByteArray &data)
