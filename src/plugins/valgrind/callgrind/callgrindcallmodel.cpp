@@ -167,9 +167,8 @@ QModelIndex CallModel::index(int row, int column, const QModelIndex &parent) con
 
 QVariant CallModel::data(const QModelIndex &index, int role) const
 {
-    //QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
-    //QTC_ASSERT(index.column() >= 0 && index.column() < columnCount(index.parent()), return QVariant());
-    //QTC_ASSERT(index.row() >= 0 && index.row() < rowCount(index.parent()), return QVariant());
+    if (!index.isValid())
+        return QVariant();
 
     const FunctionCall *call = d->m_calls.at(index.row());
     if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
