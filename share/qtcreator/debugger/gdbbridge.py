@@ -253,7 +253,7 @@ class Dumper(DumperBase):
         self.typeformats = args.get("typeformats", {})
         self.formats = args.get("formats", {})
         self.watchers = args.get("watchers", {})
-        self.qmlcontext = int(args.get("qmlcontext", "0"))
+        self.qmlcontext = int(args.get("qmlcontext", "0"), 0)
         self.useDynamicType = int(args.get("dyntype", "0"))
         self.useFancy = int(args.get("fancy", "0"))
         self.forceQtNamespace = int(args.get("forcens", "0"))
