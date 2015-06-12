@@ -748,11 +748,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actRemoveAllWatchExpression.setEnabled(canRemoveWatches
                                            && !handler->watchedExpressions().isEmpty());
 
-    QMenu formatMenu(tr("Change Local Display Format..."));
+    QMenu formatMenu(tr("Change Local Display Format"));
     if (mi0.isValid())
         fillFormatMenu(&formatMenu, mi0);
 
-    QMenu memoryMenu(tr("Open Memory Editor..."));
+    QMenu memoryMenu(tr("Open Memory Editor"));
     QAction actOpenMemoryEditAtObjectAddress(0);
     QAction actOpenMemoryEditAtPointerAddress(0);
     QAction actOpenMemoryEditor(0);
@@ -805,7 +805,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     QMenu breakpointMenu;
-    breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
+    breakpointMenu.setTitle(tr("Add Data Breakpoint"));
     breakpointMenu.addAction(&actSetWatchpointAtObjectAddress);
     breakpointMenu.addAction(&actSetWatchpointAtPointerAddress);
     breakpointMenu.addAction(&actSetWatchpointAtExpression);
