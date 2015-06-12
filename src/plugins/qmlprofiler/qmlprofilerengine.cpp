@@ -58,7 +58,6 @@ using namespace Core;
 using namespace ProjectExplorer;
 
 namespace QmlProfiler {
-namespace Internal {
 
 //
 // QmlProfilerEnginePrivate
@@ -306,5 +305,4 @@ void QmlProfilerRunControl::profilerStateChanged()
     }
 }
 
-} // namespace Internal
 } // namespace QmlProfiler

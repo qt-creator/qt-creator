@@ -41,9 +41,10 @@
 namespace QmlProfiler {
 
 class QmlProfilerModelManager;
+class QmlProfilerStateManager;
+
 namespace Internal {
 
-class QmlProfilerStateManager;
 class QmlProfilerTool;
 class QmlProfilerViewManager;
 

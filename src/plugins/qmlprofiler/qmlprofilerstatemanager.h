@@ -34,7 +34,6 @@
 #include <QObject>
 
 namespace QmlProfiler {
-namespace Internal {
 
 class QmlProfilerStateManager : public QObject
 {
@@ -78,7 +77,6 @@ private:
     QmlProfilerStateManagerPrivate *d;
 };
 
-}
 }
 
 #endif // QMLPROFILERSTATEMANAGER_H

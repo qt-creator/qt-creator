@@ -32,7 +32,6 @@ SOURCES += \
     qmlprofilerviewmanager.cpp
 
 HEADERS += \
-    abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
     qmlprofiler_global.h \
     qmlprofileranimationsmodel.h \

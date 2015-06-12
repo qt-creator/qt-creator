@@ -37,7 +37,6 @@
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {
-namespace Internal {
 
 class QmlProfilerRunControl : public Analyzer::AnalyzerRunControl
 {
@@ -81,7 +80,6 @@ private:
     QmlProfilerEnginePrivate *d;
 };
 
-} // namespace Internal
 } // namespace QmlProfiler
 
 #endif // QMLPROFILERENGINE_H

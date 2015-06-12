@@ -35,11 +35,11 @@
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
+class QmlProfilerStateManager;
 
 namespace Internal {
 
 class QmlProfilerTool;
-class QmlProfilerStateManager;
 
 class QmlProfilerViewManager : public QObject
 {

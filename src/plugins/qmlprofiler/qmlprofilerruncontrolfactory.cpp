@@ -33,9 +33,6 @@
 #include "qmlprofilerengine.h"
 
 #include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/analyzerruncontrol.h>
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 
@@ -48,8 +45,6 @@
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
-
-#include <QTcpServer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -84,16 +79,11 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
     sp.debuggeeArgs = rc->commandLineArguments();
     sp.displayName = rc->displayName();
 
-    const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
-    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
-            qWarning() << "Cannot open port on host for QML profiling.";
-            return sp;
-        }
-        sp.analyzerHost = server.serverAddress().toString();
-        sp.analyzerPort = server.serverPort();
-    }
+    quint16 localPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
+    if (localPort == 0)
+        return sp;
+    sp.analyzerPort = localPort;
+
     sp.startMode = StartLocal;
     return sp;
 }
@@ -104,27 +94,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
 
     AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
     sp.runMode = mode;
-
-    // only desktop device is supported
-    const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
-    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-
-    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration);
-    QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
-    if (!engine) {
-        delete rc;
-        return 0;
-    }
-    LocalQmlProfilerRunner *runner = LocalQmlProfilerRunner::createLocalRunner(runConfiguration, sp, errorMessage, engine);
-    if (!runner)
-        return 0;
-    connect(runner, SIGNAL(stopped()), engine, SLOT(notifyRemoteFinished()));
-    connect(runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            engine, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
-    connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)), runner,
-            SLOT(start()));
-    connect(rc, SIGNAL(finished()), runner, SLOT(stop()));
-    return rc;
+    return LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp, errorMessage);
 }
 
 } // namespace Internal

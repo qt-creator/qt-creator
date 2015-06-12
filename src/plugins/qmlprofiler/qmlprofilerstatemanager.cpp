@@ -37,7 +37,6 @@
 //#define _DEBUG_PROFILERSTATE_
 
 namespace QmlProfiler {
-namespace Internal {
 
 inline QString stringForState(int state) {
     switch (state) {
@@ -189,5 +188,4 @@ void QmlProfilerStateManager::setRecordingFeatures(quint64 features)
     }
 }
 
-}
 }
