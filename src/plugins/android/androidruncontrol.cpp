@@ -60,10 +60,10 @@ void AndroidRunControl::start()
     emit started();
     disconnect(m_runner, 0, this, 0);
 
-    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
-        SLOT(handleRemoteOutput(QByteArray)));
+    connect(m_runner, SIGNAL(remoteErrorOutput(QString)),
+        SLOT(handleRemoteErrorOutput(QString)));
+    connect(m_runner, SIGNAL(remoteOutput(QString)),
+        SLOT(handleRemoteOutput(QString)));
     connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
         SLOT(handleRemoteProcessFinished(QString)));
     appendMessage(tr("Starting remote process."), Utils::NormalMessageFormat);
@@ -84,14 +84,14 @@ void AndroidRunControl::handleRemoteProcessFinished(const QString &error)
     emit finished();
 }
 
-void AndroidRunControl::handleRemoteOutput(const QByteArray &output)
+void AndroidRunControl::handleRemoteOutput(const QString &output)
 {
-    appendMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
+    appendMessage(output, Utils::StdOutFormatSameLine);
 }
 
-void AndroidRunControl::handleRemoteErrorOutput(const QByteArray &output)
+void AndroidRunControl::handleRemoteErrorOutput(const QString &output)
 {
-    appendMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
+    appendMessage(output, Utils::StdErrFormatSameLine);
 }
 
 bool AndroidRunControl::isRunning() const

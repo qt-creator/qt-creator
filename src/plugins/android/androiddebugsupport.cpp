@@ -171,15 +171,15 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         });
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
-        [this](const QByteArray &output) {
+        [this](const QString &output) {
             QTC_ASSERT(m_runControl, return);
-            m_runControl->showMessage(QString::fromUtf8(output), AppError);
+            m_runControl->showMessage(output, AppError);
         });
 
     connect(m_runner, &AndroidRunner::remoteOutput,
-        [this](const QByteArray &output) {
+        [this](const QString &output) {
             QTC_ASSERT(m_runControl, return);
-            m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
+            m_runControl->showMessage(output, AppOutput);
         });
 }
 

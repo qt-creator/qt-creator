@@ -105,15 +105,13 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
         });
 
     connect(runner, &AndroidRunner::remoteErrorOutput,
-        [this, runControl](const QByteArray &output) {
-            const QString msg = QString::fromUtf8(output);
+        [this, runControl](const QString &msg) {
             runControl->logApplicationMessage(msg, Utils::StdErrFormatSameLine);
             m_outputParser.processOutput(msg);
         });
 
     connect(runner, &AndroidRunner::remoteOutput,
-        [this, runControl](const QByteArray &output) {
-            const QString msg = QString::fromUtf8(output);
+        [this, runControl](const QString &msg) {
             runControl->logApplicationMessage(msg, Utils::StdOutFormatSameLine);
             m_outputParser.processOutput(msg);
         });

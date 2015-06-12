@@ -54,8 +54,8 @@ public:
 
 private slots:
     void handleRemoteProcessFinished(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
+    void handleRemoteOutput(const QString &output);
+    void handleRemoteErrorOutput(const QString &output);
 
 private:
 
