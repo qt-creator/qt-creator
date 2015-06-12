@@ -303,8 +303,10 @@ public:
     }
 };
 
-bool fillParametersFromLocalRunConfiguration
-    (DebuggerRunParameters *rp, const RunConfiguration *runConfig, QString *errorMessage)
+} // namespace Internal
+
+bool fillParametersFromRunConfiguration
+    (DebuggerStartParameters *sp, const RunConfiguration *runConfig, QString *errorMessage)
 {
     QTC_ASSERT(runConfig, return false);
     EnvironmentAspect *environmentAspect = runConfig->extraAspect<EnvironmentAspect>();
@@ -312,9 +314,63 @@ bool fillParametersFromLocalRunConfiguration
 
     Target *target = runConfig->target();
     Kit *kit = target ? target->kit() : KitManager::defaultKit();
-    if (!fillParametersFromKit(rp, kit, errorMessage))
+    if (!fillParametersFromKit(sp, kit, errorMessage))
         return false;
-    rp->environment = environmentAspect->environment();
+    sp->environment = environmentAspect->environment();
+
+    if (target) {
+        if (const Project *project = target->project()) {
+            sp->projectSourceDirectory = project->projectDirectory().toString();
+            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+                sp->projectBuildDirectory = buildConfig->buildDirectory().toString();
+            sp->projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
+        }
+    }
+
+    DebuggerRunConfigurationAspect *debuggerAspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    QTC_ASSERT(debuggerAspect, return false);
+    sp->multiProcess = debuggerAspect->useMultiProcess();
+
+    if (debuggerAspect->useCppDebugger())
+        sp->languages |= CppLanguage;
+
+    if (debuggerAspect->useQmlDebugger()) {
+        const IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
+        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
+        QTcpServer server;
+        const bool canListen = server.listen(QHostAddress::LocalHost)
+                || server.listen(QHostAddress::LocalHostIPv6);
+        if (!canListen) {
+            if (errorMessage)
+                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' ');
+            return sp;
+        }
+        sp->qmlServerAddress = server.serverAddress().toString();
+        sp->qmlServerPort = server.serverPort();
+        sp->languages |= QmlLanguage;
+
+        // Makes sure that all bindings go through the JavaScript engine, so that
+        // breakpoints are actually hit!
+        const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
+        if (!sp->environment.hasKey(optimizerKey))
+            sp->environment.set(optimizerKey, _("1"));
+
+        QtcProcess::addArg(&sp->processArgs, QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(sp->qmlServerPort));
+    }
+
+    sp->startMode = StartInternal;
+    sp->displayName = runConfig->displayName();
+
+    return true;
+}
+
+namespace Internal {
+
+bool fillParametersFromLocalRunConfiguration
+    (DebuggerRunParameters *rp, const RunConfiguration *runConfig, QString *errorMessage)
+{
+    if (!fillParametersFromRunConfiguration(rp, runConfig, errorMessage))
+        return false;
 
     auto rc = qobject_cast<const LocalApplicationRunConfiguration *>(runConfig);
     QTC_ASSERT(rc, return false);
@@ -328,55 +384,13 @@ bool fillParametersFromLocalRunConfiguration
     rp->processArgs = rc->commandLineArguments();
     rp->useTerminal = rc->runMode() == ApplicationLauncher::Console;
 
-    if (target) {
-        if (const Project *project = target->project()) {
-            rp->projectSourceDirectory = project->projectDirectory().toString();
-            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-                rp->projectBuildDirectory = buildConfig->buildDirectory().toString();
-            rp->projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
-        }
-    }
-
-    DebuggerRunConfigurationAspect *debuggerAspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
-    QTC_ASSERT(debuggerAspect, return false);
-    rp->multiProcess = debuggerAspect->useMultiProcess();
-
-    if (debuggerAspect->useCppDebugger())
-        rp->languages |= CppLanguage;
-
-    if (debuggerAspect->useQmlDebugger()) {
-        const IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
-        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return rp);
-        QTcpServer server;
-        const bool canListen = server.listen(QHostAddress::LocalHost)
-                || server.listen(QHostAddress::LocalHostIPv6);
-        if (!canListen) {
-            if (errorMessage)
-                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' ');
-            return rp;
-        }
-        rp->qmlServerAddress = server.serverAddress().toString();
-        rp->qmlServerPort = server.serverPort();
-        rp->languages |= QmlLanguage;
-
-        // Makes sure that all bindings go through the JavaScript engine, so that
-        // breakpoints are actually hit!
-        const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
-        if (!rp->environment.hasKey(optimizerKey))
-            rp->environment.set(optimizerKey, _("1"));
-
-        QtcProcess::addArg(&rp->processArgs, QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(rp->qmlServerPort));
-    }
-
-    rp->startMode = StartInternal;
-    rp->displayName = runConfig->displayName();
-
     return true;
 }
 
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
+    QTC_ASSERT(runConfiguration, return 0);
     QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
 
     // We cover only local setup here. Remote setups are handled by the
@@ -402,6 +416,10 @@ QObject *createDebuggerRunControlFactory(QObject *parent)
 
 DebuggerRunControl *createDebuggerRunControlInternal(const DebuggerRunParameters &rp0, QString *errorMessage)
 {
+    QTC_ASSERT(rp0.runConfiguration, return 0);
+    const Target *target = rp0.runConfiguration->target();
+    QTC_ASSERT(target, return 0);
+
     DebuggerRunParameters rp = rp0;
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
@@ -424,27 +442,29 @@ DebuggerRunControl *createDebuggerRunControlInternal(const DebuggerRunParameters
                 || rp.executable == _("/usr/bin/python3")) {
             rp.masterEngineType = PdbEngineType;
         } else {
-            if (RunConfiguration *rc = rp.runConfiguration) {
-                DebuggerRunConfigurationAspect *aspect
-                        = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-                if (const Target *target = rc->target())
-                    if (!fillParametersFromKit(&rp, target->kit(), errorMessage))
-                        return 0;
-                const bool useCppDebugger = aspect->useCppDebugger() && (rp.languages & CppLanguage);
-                const bool useQmlDebugger = aspect->useQmlDebugger() && (rp.languages & QmlLanguage);
-                if (useQmlDebugger) {
-                    if (useCppDebugger)
-                        rp.masterEngineType = QmlCppEngineType;
-                    else
-                        rp.masterEngineType = QmlEngineType;
-                } else {
-                    rp.masterEngineType = rp.cppEngineType;
-                }
+            if (!fillParametersFromKit(&rp, target->kit(), errorMessage))
+                return 0;
+            auto aspect = rp.runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+            const bool useCppDebugger = aspect->useCppDebugger() && (rp.languages & CppLanguage);
+            const bool useQmlDebugger = aspect->useQmlDebugger() && (rp.languages & QmlLanguage);
+            if (useQmlDebugger) {
+                if (useCppDebugger)
+                    rp.masterEngineType = QmlCppEngineType;
+                else
+                    rp.masterEngineType = QmlEngineType;
             } else {
                 rp.masterEngineType = rp.cppEngineType;
             }
         }
     }
+
+    rp.device = DeviceKitInformation::device(target->kit());
+    if (rp.device && rp.connParams.port == 0)
+        rp.connParams = rp.device->sshParameters();
+
+    // Could have been set from command line.
+    if (rp.remoteChannel.isEmpty())
+        rp.remoteChannel = rp.connParams.host + QLatin1Char(':') + QString::number(rp.connParams.port);
 
     QString error;
     DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, &error);
@@ -478,23 +498,23 @@ static QString executableForPid(qint64 pid)
     return QString();
 }
 
-bool fillParametersFromKit(DebuggerRunParameters *rp, const Kit *kit, QString *errorMessage /* = 0 */)
+bool fillParametersFromKit(DebuggerStartParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
 {
     if (!kit) {
         // This code can only be reached when starting via the command line
         // (-debug pid or executable) or attaching from runconfiguration
         // without specifying a kit. Try to find a kit via ABI.
         QList<Abi> abis;
-        if (rp->toolChainAbi.isValid()) {
-            abis.push_back(rp->toolChainAbi);
+        if (sp->toolChainAbi.isValid()) {
+            abis.push_back(sp->toolChainAbi);
         } else {
             // Try via executable.
-            if (rp->executable.isEmpty()
-                && (rp->startMode == AttachExternal || rp->startMode == AttachCrashedExternal)) {
-                rp->executable = executableForPid(rp->attachPID);
+            if (sp->executable.isEmpty()
+                && (sp->startMode == AttachExternal || sp->startMode == AttachCrashedExternal)) {
+                sp->executable = executableForPid(sp->attachPID);
             }
-            if (!rp->executable.isEmpty())
-                abis = Abi::abisOfBinary(FileName::fromString(rp->executable));
+            if (!sp->executable.isEmpty())
+                abis = Abi::abisOfBinary(FileName::fromString(sp->executable));
         }
         if (!abis.isEmpty()) {
             // Try exact abis.
@@ -522,16 +542,16 @@ bool fillParametersFromKit(DebuggerRunParameters *rp, const Kit *kit, QString *e
 
     // Verify that debugger and profile are valid
     if (!kit) {
-        rp->startMode = NoStartMode;
+        sp->startMode = NoStartMode;
         if (errorMessage)
             *errorMessage = DebuggerKitInformation::tr("No kit found.");
         return false;
     }
     // validate debugger if C++ debugging is enabled
-    if (rp->languages & CppLanguage) {
+    if (sp->languages & CppLanguage) {
         const QList<Task> tasks = DebuggerKitInformation::validateDebugger(kit);
         if (!tasks.isEmpty()) {
-            rp->startMode = NoStartMode;
+            sp->startMode = NoStartMode;
             if (errorMessage) {
                 foreach (const Task &t, tasks) {
                     if (errorMessage->isEmpty())
@@ -542,21 +562,14 @@ bool fillParametersFromKit(DebuggerRunParameters *rp, const Kit *kit, QString *e
             return false;
         }
     }
-    rp->cppEngineType = DebuggerKitInformation::engineType(kit);
-    rp->sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    rp->debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
+    sp->cppEngineType = DebuggerKitInformation::engineType(kit);
+    sp->sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    sp->debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
 
     ToolChain *tc = ToolChainKitInformation::toolChain(kit);
     if (tc)
-        rp->toolChainAbi = tc->targetAbi();
+        sp->toolChainAbi = tc->targetAbi();
 
-    rp->device = DeviceKitInformation::device(kit);
-    if (rp->device) {
-        rp->connParams = rp->device->sshParameters();
-        // Could have been set from command line.
-        if (rp->remoteChannel.isEmpty())
-            rp->remoteChannel = rp->connParams.host + QLatin1Char(':') + QString::number(rp->connParams.port);
-    }
     return true;
 }
 

@@ -50,6 +50,10 @@ DebuggerRunControl *createDebuggerRunControlInternal(const DebuggerRunParameters
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              QString *errorMessage);
 
+DEBUGGER_EXPORT bool fillParametersFromRunConfiguration(DebuggerStartParameters *sp,
+                                                        const ProjectExplorer::RunConfiguration *runConfig,
+                                                        QString *errorMessage);
+
 namespace Internal { class DebuggerEngine; }
 
 class DEBUGGER_EXPORT DebuggerRunControl

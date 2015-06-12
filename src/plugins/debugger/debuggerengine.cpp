@@ -99,8 +99,7 @@ enum { debug = 0 };
 ///////////////////////////////////////////////////////////////////////
 
 DebuggerRunParameters::DebuggerRunParameters()
-    : cppEngineType(NoEngineType),
-      isSnapshot(false),
+    : isSnapshot(false),
       testCase(0)
 {}
 

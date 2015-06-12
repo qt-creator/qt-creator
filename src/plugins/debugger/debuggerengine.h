@@ -90,7 +90,6 @@ public:
     QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
-    DebuggerEngineType cppEngineType;
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;
     QMap<QString, QString> sourcePathMap;
@@ -430,10 +429,7 @@ private:
 
 DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QString *errorMessage);
 
-bool fillParametersFromKit(DebuggerRunParameters *rp, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
-
-bool fillParametersFromLocalRunConfiguration(DebuggerRunParameters *rp,
-    const ProjectExplorer::RunConfiguration *runConfig, QString *errorMessage = 0);
+bool fillParametersFromKit(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
 
 DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp);
 

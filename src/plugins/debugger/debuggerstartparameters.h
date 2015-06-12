@@ -38,6 +38,7 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
 #include <QVector>
@@ -73,6 +74,7 @@ class DEBUGGER_EXPORT DebuggerStartParameters
 public:
     DebuggerStartParameters()
       : masterEngineType(NoEngineType),
+        cppEngineType(NoEngineType),
         runConfiguration(0),
         attachPID(-1),
         useTerminal(false),
@@ -91,6 +93,7 @@ public:
     {}
 
     DebuggerEngineType masterEngineType;
+    DebuggerEngineType cppEngineType;
     QString sysRoot;
     QString deviceSymbolsRoot;
     QString debuggerCommand;
