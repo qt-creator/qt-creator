@@ -761,6 +761,8 @@ static QByteArray msvcRunTime(const Abi::OSFlavor flavour)
         return "MSVCR110";
     case Abi::WindowsMsvc2013Flavor:
         return "MSVCR120";
+    case Abi::WindowsMsvc2015Flavor:
+        return "MSVCR140";
     default:
         break;
     }

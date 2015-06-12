@@ -168,6 +168,9 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
         case 12:
             flavor = Abi::WindowsMsvc2013Flavor;
             break;
+        case 14:
+            flavor = Abi::WindowsMsvc2015Flavor;
+            break;
         default: // Keep unknown flavor
             if (minorLinker != 0)
                 flavor = Abi::WindowsMSysFlavor; // MSVC seems to avoid using minor numbers
@@ -414,6 +417,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMsvc2012Flavor;
         else if (abiParts.at(2) == QLatin1String("msvc2013") && m_os == WindowsOS)
             m_osFlavor = WindowsMsvc2013Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2015") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2015Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
@@ -674,6 +679,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msvc2012");
     case Abi::WindowsMsvc2013Flavor:
         return QLatin1String("msvc2013");
+    case Abi::WindowsMsvc2015Flavor:
+        return QLatin1String("msvc2015");
     case Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
     case Abi::WindowsCEFlavor:
@@ -724,8 +731,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return result << GenericUnixFlavor << SolarisUnixFlavor << UnknownFlavor;
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
-                      << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMSysFlavor
-                      << WindowsCEFlavor << UnknownFlavor;
+                      << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMsvc2015Flavor
+                      << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
     case VxWorks:
         return result << VxWorksFlavor << UnknownFlavor;
     case UnknownOS:
