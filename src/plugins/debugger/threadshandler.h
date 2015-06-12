@@ -33,8 +33,7 @@
 
 #include "threaddata.h"
 
-#include <QAbstractTableModel>
-#include <QIcon>
+#include <utils/treemodel.h>
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -47,7 +46,7 @@ namespace Internal {
 
 class GdbMi;
 
-class ThreadsHandler : public QAbstractTableModel
+class ThreadsHandler : public Utils::TreeModel
 {
     Q_OBJECT
 
@@ -59,45 +58,33 @@ public:
     ThreadId threadAt(int index) const;
     void setCurrentThread(ThreadId id);
 
-    void updateThread(const ThreadData &thread);
+    void updateThread(const ThreadData &threadData);
     void updateThreads(const GdbMi &data);
 
     void removeThread(ThreadId threadId);
     void setThreads(const Threads &threads);
     void removeAll();
-    Threads threads() const;
     ThreadData thread(ThreadId id) const;
     QAbstractItemModel *model();
 
     // Clear out all frame information
     void notifyRunning(const QByteArray &data);
-    void notifyRunning(ThreadId id);
+    void notifyRunning(ThreadId threadId);
     void notifyAllRunning();
 
     void notifyStopped(const QByteArray &data);
-    void notifyStopped(ThreadId id);
+    void notifyStopped(ThreadId threadId);
     void notifyAllStopped();
 
     void resetLocation();
     void scheduleResetLocation();
 
 private:
-    int indexOf(ThreadId threadId) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    void sort(int, Qt::SortOrder);
     void updateThreadBox();
-    void threadDataChanged(ThreadId id);
 
-    Threads m_threads;
+    void sort(int column, Qt::SortOrder order);
+
     ThreadId m_currentId;
-    const QIcon m_positionIcon;
-    const QIcon m_emptyIcon;
-
     bool m_resetLocationScheduled;
 };
 

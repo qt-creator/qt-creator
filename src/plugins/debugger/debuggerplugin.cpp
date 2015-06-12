@@ -609,7 +609,7 @@ public:
     void disconnectEngine() { connectEngine(0); }
     DebuggerEngine *dummyEngine();
 
-    void setThreads(const QStringList &list, int index)
+    void setThreadBoxContents(const QStringList &list, int index)
     {
         const bool state = m_threadBox->blockSignals(true);
         m_threadBox->clear();
@@ -3214,9 +3214,9 @@ void openMemoryEditor()
     }
 }
 
-void setThreads(const QStringList &list, int index)
+void setThreadBoxContents(const QStringList &list, int index)
 {
-    dd->setThreads(list, index);
+    dd->setThreadBoxContents(list, index);
 }
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()

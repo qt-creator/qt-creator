@@ -89,7 +89,7 @@ void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol
 void showModuleSections(const QString &moduleName, const QVector<Internal::Section> &sections);
 void openMemoryEditor();
 
-void setThreads(const QStringList &list, int index);
+void setThreadBoxContents(const QStringList &list, int index);
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 

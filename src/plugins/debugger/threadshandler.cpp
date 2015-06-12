@@ -37,113 +37,187 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QDebug>
+#include <QIcon>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
 
-static void mergeThreadData(ThreadData &data, const ThreadData &other)
-{
-    if (!other.core.isEmpty())
-        data.core = other.core;
-    if (!other.fileName.isEmpty())
-        data.fileName = other.fileName;
-    if (!other.targetId.isEmpty())
-        data.targetId = other.targetId;
-    if (!other.name.isEmpty())
-        data.name = other.name;
-    if (other.frameLevel != -1)
-        data.frameLevel = other.frameLevel;
-    if (!other.function.isEmpty())
-        data.function = other.function;
-    if (other.address)
-        data.address = other.address;
-    if (!other.module.isEmpty())
-        data.module = other.module;
-    if (!other.details.isEmpty())
-        data.details = other.details;
-    if (!other.state.isEmpty())
-        data.state = other.state;
-    if (other.lineNumber != -1)
-        data.lineNumber = other.lineNumber;
-}
-
-static QVariant threadPart(const ThreadData &thread, int column)
-{
-    switch (column) {
-    case ThreadData::IdColumn:
-        return thread.id.raw();
-    case ThreadData::FunctionColumn:
-        return thread.function;
-    case ThreadData::FileColumn:
-        return thread.fileName.isEmpty() ? thread.module : thread.fileName;
-    case ThreadData::LineColumn:
-        return thread.lineNumber >= 0
-            ? QString::number(thread.lineNumber) : QString();
-    case ThreadData::AddressColumn:
-        return thread.address > 0
-            ? QLatin1String("0x") + QString::number(thread.address, 16)
-            : QString();
-    case ThreadData::CoreColumn:
-        return thread.core;
-    case ThreadData::StateColumn:
-        return thread.state;
-    case ThreadData::TargetIdColumn:
-        if (thread.targetId.startsWith(QLatin1String("Thread ")))
-            return thread.targetId.mid(7);
-        return thread.targetId;
-    case ThreadData::NameColumn:
-        return thread.name;
-    case ThreadData::DetailsColumn:
-        return thread.details;
-    case ThreadData::ComboNameColumn:
-        return QString::fromLatin1("#%1 %2").arg(thread.id.raw()).arg(thread.name);
-    }
-    return QVariant();
-}
-
 ////////////////////////////////////////////////////////////////////////
 //
-// ThreadsHandler
+// ThreadItem
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QString threadToolTip(const ThreadData &thread)
+static const QIcon &positionIcon()
 {
-    const char start[] = "<tr><td>";
-    const char sep[] = "</td><td>";
-    const char end[] = "</td>";
-    QString rc;
-    QTextStream str(&rc);
-    str << "<html><head/><body><table>"
-        << start << ThreadsHandler::tr("Thread&nbsp;id:")
-        << sep << thread.id.raw() << end;
-    if (!thread.targetId.isEmpty())
-        str << start << ThreadsHandler::tr("Target&nbsp;id:")
-            << sep << thread.targetId << end;
-    if (!thread.groupId.isEmpty())
-        str << start << ThreadsHandler::tr("Group&nbsp;id:")
-            << sep << thread.groupId << end;
-    if (!thread.name.isEmpty())
-        str << start << ThreadsHandler::tr("Name:")
-            << sep << thread.name << end;
-    if (!thread.state.isEmpty())
-        str << start << ThreadsHandler::tr("State:")
-            << sep << thread.state << end;
-    if (!thread.core.isEmpty())
-        str << start << ThreadsHandler::tr("Core:")
-            << sep << thread.core << end;
-    if (thread.address) {
-        str << start << ThreadsHandler::tr("Stopped&nbsp;at:") << sep;
-        if (!thread.function.isEmpty())
-            str << thread.function << "<br>";
-        if (!thread.fileName.isEmpty())
-            str << thread.fileName << ':' << thread.lineNumber << "<br>";
-        str << formatToolTipAddress(thread.address);
-    }
-    str << "</table></body></html>";
-    return rc;
+    static QIcon icon(QLatin1String(":/debugger/images/location_16.png"));
+    return icon;
 }
+
+static const QIcon &emptyIcon()
+{
+    static QIcon icon(QLatin1String(":/debugger/images/debugger_empty_14.png"));
+    return icon;
+}
+
+class ThreadItem : public TreeItem, public ThreadData
+{
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::ThreadsHandler)
+
+public:
+    ThreadItem(const ThreadsHandler *handler, const ThreadData &data = ThreadData())
+        : ThreadData(data), handler(handler)
+    {}
+
+    QVariant data(int column, int role) const
+    {
+        switch (role) {
+        case Qt::DisplayRole:
+            return threadPart(column);
+        case Qt::ToolTipRole:
+            return threadToolTip();
+        case Qt::DecorationRole:
+            // Return icon that indicates whether this is the active stack frame.
+            if (column == 0)
+                return id == handler->currentThread() ? positionIcon() : emptyIcon();
+            break;
+        case ThreadData::IdRole:
+            return id.raw();
+        default:
+            break;
+        }
+        return QVariant();
+    }
+
+    Qt::ItemFlags flags(int column) const
+    {
+        return stopped ? TreeItem::flags(column) : Qt::ItemFlags(0);
+    }
+
+    QString threadToolTip() const
+    {
+        const char start[] = "<tr><td>";
+        const char sep[] = "</td><td>";
+        const char end[] = "</td>";
+        QString rc;
+        QTextStream str(&rc);
+        str << "<html><head/><body><table>"
+            << start << ThreadsHandler::tr("Thread&nbsp;id:")
+            << sep << id.raw() << end;
+        if (!targetId.isEmpty())
+            str << start << ThreadsHandler::tr("Target&nbsp;id:")
+                << sep << targetId << end;
+        if (!groupId.isEmpty())
+            str << start << ThreadsHandler::tr("Group&nbsp;id:")
+                << sep << groupId << end;
+        if (!name.isEmpty())
+            str << start << ThreadsHandler::tr("Name:")
+                << sep << name << end;
+        if (!state.isEmpty())
+            str << start << ThreadsHandler::tr("State:")
+                << sep << state << end;
+        if (!core.isEmpty())
+            str << start << ThreadsHandler::tr("Core:")
+                << sep << core << end;
+        if (address) {
+            str << start << ThreadsHandler::tr("Stopped&nbsp;at:") << sep;
+            if (!function.isEmpty())
+                str << function << "<br>";
+            if (!fileName.isEmpty())
+                str << fileName << ':' << lineNumber << "<br>";
+            str << formatToolTipAddress(address);
+        }
+        str << "</table></body></html>";
+        return rc;
+    }
+
+    QVariant threadPart(int column) const
+    {
+        switch (column) {
+        case ThreadData::IdColumn:
+            return id.raw();
+        case ThreadData::FunctionColumn:
+            return function;
+        case ThreadData::FileColumn:
+            return fileName.isEmpty() ? module : fileName;
+        case ThreadData::LineColumn:
+            return lineNumber >= 0
+                    ? QString::number(lineNumber) : QString();
+        case ThreadData::AddressColumn:
+            return address > 0
+                    ? QLatin1String("0x") + QString::number(address, 16)
+                    : QString();
+        case ThreadData::CoreColumn:
+            return core;
+        case ThreadData::StateColumn:
+            return state;
+        case ThreadData::TargetIdColumn:
+            if (targetId.startsWith(QLatin1String("Thread ")))
+                return targetId.mid(7);
+            return targetId;
+        case ThreadData::NameColumn:
+            return name;
+        case ThreadData::DetailsColumn:
+            return details;
+        case ThreadData::ComboNameColumn:
+            return QString::fromLatin1("#%1 %2").arg(id.raw()).arg(name);
+        }
+        return QVariant();
+    }
+
+    void notifyRunning() // Clear state information.
+    {
+        address = 0;
+        function.clear();
+        fileName.clear();
+        frameLevel = -1;
+        state.clear();
+        lineNumber = -1;
+        stopped = false;
+        update();
+    }
+
+    void notifyStopped()
+    {
+        stopped = true;
+        update();
+    }
+
+    void mergeThreadData(const ThreadData &other)
+    {
+        if (!other.core.isEmpty())
+            core = other.core;
+        if (!other.fileName.isEmpty())
+            fileName = other.fileName;
+        if (!other.targetId.isEmpty())
+            targetId = other.targetId;
+        if (!other.name.isEmpty())
+            name = other.name;
+        if (other.frameLevel != -1)
+            frameLevel = other.frameLevel;
+        if (!other.function.isEmpty())
+            function = other.function;
+        if (other.address)
+            address = other.address;
+        if (!other.module.isEmpty())
+            module = other.module;
+        if (!other.details.isEmpty())
+            details = other.details;
+        if (!other.state.isEmpty())
+            state = other.state;
+        if (other.lineNumber != -1)
+            lineNumber = other.lineNumber;
+        update();
+    }
+
+
+public:
+    const ThreadsHandler * const handler;
+};
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -166,108 +240,46 @@ static QString threadToolTip(const ThreadData &thread)
 */
 
 ThreadsHandler::ThreadsHandler()
-  : m_currentId(),
-    m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
-    m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
 {
     m_resetLocationScheduled = false;
     setObjectName(QLatin1String("ThreadsModel"));
+    setRootItem(new ThreadItem(this));
+    setHeader({
+        QLatin1String("  ") + tr("ID") + QLatin1String("  "),
+        tr("Address"), tr("Function"), tr("File"), tr("Line"), tr("State"),
+        tr("Name"), tr("Target ID"), tr("Details"), tr("Core"),
+    });
+}
+
+static ThreadItem *itemForThreadId(const ThreadsHandler *handler, ThreadId threadId)
+{
+    const auto matcher = [threadId](ThreadItem *item) { return item->id == threadId; };
+    return handler->findItemAtLevel<ThreadItem *>(1, matcher);
+}
+
+static int indexForThreadId(const ThreadsHandler *handler, ThreadId threadId)
+{
+    ThreadItem *item = itemForThreadId(handler, threadId);
+    return item ? handler->rootItem()->children().indexOf(item) : -1;
 }
 
 int ThreadsHandler::currentThreadIndex() const
 {
-    return indexOf(m_currentId);
-}
-
-int ThreadsHandler::rowCount(const QModelIndex &parent) const
-{
-    // Since the stack is not a tree, row count is 0 for any valid parent.
-    return parent.isValid() ? 0 : m_threads.size();
-}
-
-int ThreadsHandler::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : int(ThreadData::ColumnCount);
-}
-
-QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-    const int row = index.row();
-    if (row >= m_threads.size())
-        return QVariant();
-    const ThreadData &thread = m_threads.at(row);
-
-    switch (role) {
-    case Qt::DisplayRole:
-        return threadPart(thread, index.column());
-    case Qt::ToolTipRole:
-        return threadToolTip(thread);
-    case Qt::DecorationRole:
-        // Return icon that indicates whether this is the active stack frame.
-        if (index.column() == 0)
-            return (thread.id == m_currentId) ? m_positionIcon : m_emptyIcon;
-        break;
-    case ThreadData::IdRole:
-        return thread.id.raw();
-    default:
-        break;
-    }
-    return QVariant();
-}
-
-QVariant ThreadsHandler::headerData
-    (int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
-        return QVariant();
-    switch (section) {
-    case ThreadData::IdColumn:
-        return QString(QLatin1String("  ") + tr("ID") + QLatin1String("  "));
-    case ThreadData::FunctionColumn:
-        return tr("Function");
-    case ThreadData::FileColumn:
-        return tr("File");
-    case ThreadData::LineColumn:
-        return tr("Line");
-    case ThreadData::AddressColumn:
-        return tr("Address");
-    case ThreadData::CoreColumn:
-        return tr("Core");
-    case ThreadData::StateColumn:
-        return tr("State");
-    case ThreadData::TargetIdColumn:
-        return tr("Target ID");
-    case ThreadData::DetailsColumn:
-        return tr("Details");
-    case ThreadData::NameColumn:
-        return tr("Name");
-    }
-    return QVariant();
-}
-
-Qt::ItemFlags ThreadsHandler::flags(const QModelIndex &index) const
-{
-    const int row = index.row();
-    const bool stopped = row >= 0 && row < m_threads.size()
-            && m_threads.at(row).stopped;
-    return stopped ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+    return indexForThreadId(this, m_currentId);
 }
 
 void ThreadsHandler::sort(int column, Qt::SortOrder order)
 {
-    layoutAboutToBeChanged();
-    Utils::sort(m_threads, [&](const ThreadData &t1, const ThreadData &t2) -> bool {
-        const QVariant v1 = threadPart(t1, column);
-        const QVariant v2 = threadPart(t2, column);
+    rootItem()->sortChildren([order, column](const TreeItem *item1, const TreeItem *item2) -> bool {
+        const QVariant v1 = static_cast<const ThreadItem *>(item1)->threadPart(column);
+        const QVariant v2 = static_cast<const ThreadItem *>(item2)->threadPart(column);
         if (v1 == v2)
             return false;
+        if (column == 0)
+            return (v1.toInt() < v2.toInt()) ^ (order == Qt::DescendingOrder);
         // FIXME: Use correct toXXX();
         return (v1.toString() < v2.toString()) ^ (order == Qt::DescendingOrder);
-    }
-);
-    layoutChanged();
+    });
 }
 
 ThreadId ThreadsHandler::currentThread() const
@@ -277,8 +289,8 @@ ThreadId ThreadsHandler::currentThread() const
 
 ThreadId ThreadsHandler::threadAt(int index) const
 {
-    QTC_ASSERT(index >= 0 && index < m_threads.size(), return ThreadId());
-    return m_threads[index].id;
+    QTC_ASSERT(index >= 0 && index < rootItem()->childCount(), return ThreadId());
+    return static_cast<ThreadItem *>(rootItem()->childAt(index))->id;
 }
 
 void ThreadsHandler::setCurrentThread(ThreadId id)
@@ -286,106 +298,66 @@ void ThreadsHandler::setCurrentThread(ThreadId id)
     if (id == m_currentId)
         return;
 
-    const int index = indexOf(id);
-    if (index == -1) {
+    ThreadItem *newItem = itemForThreadId(this, id);
+    if (!newItem) {
         qWarning("ThreadsHandler::setCurrentThreadId: No such thread %d.", int(id.raw()));
         return;
     }
 
-    // Emit changed for previous frame.
-    threadDataChanged(m_currentId);
-
+    ThreadItem *oldItem = itemForThreadId(this, m_currentId);
     m_currentId = id;
+    if (oldItem)
+        oldItem->update();
 
-    // Emit changed for new frame.
-    threadDataChanged(m_currentId);
+    newItem->update();
 
     updateThreadBox();
 }
 
-int ThreadsHandler::indexOf(ThreadId threadId) const
+void ThreadsHandler::updateThread(const ThreadData &threadData)
 {
-    for (int i = m_threads.size(); --i >= 0; )
-        if (m_threads.at(i).id == threadId)
-            return i;
-    return -1;
-}
-
-void ThreadsHandler::updateThread(const ThreadData &thread)
-{
-    const int i = indexOf(thread.id);
-    if (i == -1) {
-        beginInsertRows(QModelIndex(), m_threads.size(), m_threads.size());
-        m_threads.append(thread);
-        endInsertRows();
-    } else {
-        mergeThreadData(m_threads[i], thread);
-        threadDataChanged(thread.id);
-    }
+    if (ThreadItem *item = itemForThreadId(this, threadData.id))
+        item->mergeThreadData(threadData);
+    else
+        rootItem()->appendChild(new ThreadItem(this, threadData));
 }
 
 void ThreadsHandler::removeThread(ThreadId threadId)
 {
-    const int i = indexOf(threadId);
-    if (i == -1)
-        return;
-    beginRemoveRows(QModelIndex(), i, i);
-    m_threads.remove(i);
-    endRemoveRows();
+    if (ThreadItem *item = itemForThreadId(this, threadId))
+        delete takeItem(item);
 }
 
 void ThreadsHandler::setThreads(const Threads &threads)
 {
-    beginResetModel();
-    m_threads = threads;
-    bool found = false;
-    for (int i = 0, n = m_threads.size(); i < n; ++i)
-        if (threads.at(i).id == m_currentId) {
-            found = true;
-            break;
-        }
-    if (!found)
-        m_currentId = ThreadId();
+    auto root = new ThreadItem(this);
+    for (int i = 0, n = threads.size(); i < n; ++i)
+        root->appendChild(new ThreadItem(this, threads.at(i)));
+    rootItem()->removeChildren();
+    setRootItem(root);
     m_resetLocationScheduled = false;
-    endResetModel();
     updateThreadBox();
 }
 
 void ThreadsHandler::updateThreadBox()
 {
     QStringList list;
-    foreach (const ThreadData &thread, m_threads)
-        list.append(QString::fromLatin1("#%1 %2").arg(thread.id.raw()).arg(thread.name));
-    Internal::setThreads(list, indexOf(m_currentId));
-}
-
-void ThreadsHandler::threadDataChanged(ThreadId id)
-{
-    int row = indexOf(id);
-    if (row < 0)
-        return;
-    QModelIndex l = index(row, 0);
-    QModelIndex r = index(row, ThreadData::ColumnCount - 1);
-    dataChanged(l, r);
-}
-
-Threads ThreadsHandler::threads() const
-{
-    return m_threads;
+    auto items = itemsAtLevel<ThreadItem *>(1);
+    foreach (ThreadItem *item, items)
+        list.append(QString::fromLatin1("#%1 %2").arg(item->id.raw()).arg(item->name));
+    Internal::setThreadBoxContents(list, indexForThreadId(this, m_currentId));
 }
 
 ThreadData ThreadsHandler::thread(ThreadId id) const
 {
-    const int i = indexOf(id);
-    return i == -1 ? ThreadData() : m_threads.at(i);
+    if (ThreadItem *item = itemForThreadId(this, id))
+        return *item;
+    return ThreadData();
 }
 
 void ThreadsHandler::removeAll()
 {
-    beginResetModel();
-    m_threads.clear();
-    m_currentId = ThreadId();
-    endResetModel();
+    rootItem()->removeChildren();
 }
 
 void ThreadsHandler::notifyRunning(const QByteArray &data)
@@ -404,18 +376,15 @@ void ThreadsHandler::notifyRunning(const QByteArray &data)
 
 void ThreadsHandler::notifyAllRunning()
 {
-    for (int i = m_threads.size(); --i >= 0; )
-        m_threads[i].notifyRunning();
-    layoutChanged();
+    auto items = itemsAtLevel<ThreadItem *>(1);
+    foreach (ThreadItem *item, items)
+        item->notifyRunning();
 }
 
-void ThreadsHandler::notifyRunning(ThreadId id)
+void ThreadsHandler::notifyRunning(ThreadId threadId)
 {
-    int i = indexOf(id);
-    if (i >= 0) {
-        m_threads[i].notifyRunning();
-        threadDataChanged(id);
-    }
+    if (ThreadItem *item = itemForThreadId(this, threadId))
+        item->notifyRunning();
 }
 
 void ThreadsHandler::notifyStopped(const QByteArray &data)
@@ -434,18 +403,15 @@ void ThreadsHandler::notifyStopped(const QByteArray &data)
 
 void ThreadsHandler::notifyAllStopped()
 {
-    for (int i = m_threads.size(); --i >= 0; )
-        m_threads[i].stopped = true;
-    layoutChanged();
+    auto items = itemsAtLevel<ThreadItem *>(1);
+    foreach (ThreadItem *item, items)
+        item->notifyStopped();
 }
 
-void ThreadsHandler::notifyStopped(ThreadId id)
+void ThreadsHandler::notifyStopped(ThreadId threadId)
 {
-    int i = indexOf(id);
-    if (i >= 0) {
-        m_threads[i].stopped = true;
-        threadDataChanged(id);
-    }
+    if (ThreadItem *item = itemForThreadId(this, threadId))
+        item->notifyStopped();
 }
 
 void ThreadsHandler::updateThreads(const GdbMi &data)
@@ -454,12 +420,6 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     // frame={level="0",addr="0x080530bf",func="testQString",args=[],
     // file="/.../app.cpp",fullname="/../app.cpp",line="1175"},
     // state="stopped",core="0"}],current-thread-id="1"
-
-    // Emit changed for previous frame.
-//    if (m_currentIndex != -1) {
-//        rowChanged(m_currentIndex);
-//        m_currentIndex = -1;
-//    }
 
     const std::vector<GdbMi> items = data["threads"].children();
     const int n = int(items.size());
@@ -483,14 +443,7 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     }
 
     const GdbMi current = data["current-thread-id"];
-    if (current.isValid()) {
-        ThreadId currentId = ThreadId(current.data().toLongLong());
-        if (currentId != m_currentId) {
-            threadDataChanged(m_currentId);
-            m_currentId = currentId;
-            threadDataChanged(m_currentId);
-        }
-    }
+    m_currentId = current.isValid() ? ThreadId(current.data().toLongLong()) : ThreadId();
 
     updateThreadBox();
 }
