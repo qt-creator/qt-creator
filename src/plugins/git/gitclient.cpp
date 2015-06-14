@@ -1324,9 +1324,18 @@ QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory
 {
     QByteArray outputTextData;
     QStringList arguments;
+    QString branch;
     arguments << QLatin1String("symbolic-ref") << QLatin1String(HEAD);
     if (vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, 0, silentFlags)) {
-        QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
+        branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
+    } else {
+        const QString gitDir = findGitDirForRepository(workingDirectory);
+        const QString rebaseHead = gitDir + QLatin1String("/rebase-merge/head-name");
+        QFile head(rebaseHead);
+        if (head.open(QFile::ReadOnly))
+            branch = QString::fromUtf8(head.readLine()).trimmed();
+    }
+    if (!branch.isEmpty()) {
         const QString refsHeadsPrefix = QLatin1String("refs/heads/");
         if (branch.startsWith(refsHeadsPrefix)) {
             branch.remove(0, refsHeadsPrefix.count());
