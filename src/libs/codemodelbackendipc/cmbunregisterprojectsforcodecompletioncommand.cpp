@@ -36,6 +36,8 @@
 
 #include <ostream>
 
+#include <container_common.h>
+
 namespace CodeModelBackEnd {
 
 
@@ -70,7 +72,7 @@ bool operator==(const UnregisterProjectPartsForCodeCompletionCommand &first, con
 
 bool operator<(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
 {
-    return first.filePaths_ < second.filePaths_;
+    return compareContainer(first.filePaths_, second.filePaths_);
 }
 
 QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCommand &command)

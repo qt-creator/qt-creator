@@ -67,6 +67,7 @@ HEADERS += $$PWD/codemodelbackendipc_global.h \
     $$PWD/translationunitdoesnotexistcommand.h \
     $$PWD/codecompletionchunk.h \
     $$PWD/projectpartcontainer.h \
-    $$PWD/projectpartsdonotexistcommand.h
+    $$PWD/projectpartsdonotexistcommand.h \
+    $$PWD/container_common.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

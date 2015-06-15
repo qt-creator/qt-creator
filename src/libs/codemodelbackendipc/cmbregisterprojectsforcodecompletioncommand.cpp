@@ -36,6 +36,10 @@
 
 #include <ostream>
 
+#include <algorithm>
+
+#include <container_common.h>
+
 namespace CodeModelBackEnd {
 
 RegisterProjectPartsForCodeCompletionCommand::RegisterProjectPartsForCodeCompletionCommand(const QVector<ProjectPartContainer> &projectContainers)
@@ -69,7 +73,7 @@ bool operator==(const RegisterProjectPartsForCodeCompletionCommand &first, const
 
 bool operator<(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
 {
-    return first.projectContainers_ < second.projectContainers_;
+    return compareContainer(first.projectContainers_, second.projectContainers_);
 }
 
 QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command)

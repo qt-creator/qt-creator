@@ -38,6 +38,8 @@
 
 #include <QDataStream>
 
+#include <container_common.h>
+
 namespace CodeModelBackEnd {
 
 
@@ -72,7 +74,7 @@ bool operator==(const UnregisterTranslationUnitsForCodeCompletionCommand &first,
 
 bool operator<(const UnregisterTranslationUnitsForCodeCompletionCommand &first, const UnregisterTranslationUnitsForCodeCompletionCommand &second)
 {
-    return first.fileContainers_ < second.fileContainers_;
+    return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
 QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForCodeCompletionCommand &command)

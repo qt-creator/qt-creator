@@ -36,6 +36,8 @@
 
 #include <ostream>
 
+#include <container_common.h>
+
 namespace CodeModelBackEnd {
 
 RegisterTranslationUnitForCodeCompletionCommand::RegisterTranslationUnitForCodeCompletionCommand(const QVector<FileContainer> &fileContainers)
@@ -69,7 +71,7 @@ bool operator==(const RegisterTranslationUnitForCodeCompletionCommand &first, co
 
 bool operator<(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second)
 {
-    return first.fileContainers_ < second.fileContainers_;
+    return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
 QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionCommand &command)
