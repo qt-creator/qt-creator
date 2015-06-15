@@ -2302,11 +2302,6 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
             << sp.qmlServerPort << '\n';
     if (!sp.remoteChannel.isEmpty()) {
         str << "Remote: " << sp.remoteChannel << '\n';
-        if (!sp.remoteSourcesDir.isEmpty())
-            str << "Remote sources: " << sp.remoteSourcesDir << '\n';
-        if (!sp.remoteMountPoint.isEmpty())
-            str << "Remote mount point: " << sp.remoteMountPoint
-                << " Local: " << sp.localMountDir << '\n';
     }
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1Char(':')) << '\n';
