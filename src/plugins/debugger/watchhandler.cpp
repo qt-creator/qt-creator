@@ -1164,7 +1164,7 @@ void WatchModel::insertItem(WatchItem *item)
 
     if (WatchItem *existing = parent->findItem(item->iname)) {
         int row = parent->children().indexOf(existing);
-        takeItem(existing);
+        delete takeItem(existing);
         parent->insertChild(row, item);
     } else {
         parent->appendChild(item);
@@ -1233,7 +1233,7 @@ void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
 {
     foreach (const QByteArray &iname, inames) {
         WatchItem *item = findItem(iname);
-        m_model->takeItem(item);
+        delete m_model->takeItem(item);
     }
 
     m_model->layoutChanged();
