@@ -188,23 +188,6 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 
     bool isTcpConnection = true;
 
-    if (runConfiguration) {
-        // Check minimum Qt Version. We cannot really be sure what the Qt version
-        // at runtime is, but guess that the active build configuraiton has been used.
-        QtSupport::QtVersionNumber minimumVersion(4, 7, 4);
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit());
-        if (version) {
-            if (version->isValid() && version->qtVersion() < minimumVersion) {
-                int result = QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
-                     tr("The QML profiler requires Qt 4.7.4 or newer.\n"
-                     "The Qt version configured in your active build configuration is too old.\n"
-                     "Do you want to continue?"), QMessageBox::Yes, QMessageBox::No);
-                if (result == QMessageBox::No)
-                    return 0;
-            }
-        }
-    }
-
     // FIXME: Check that there's something sensible in sp.connParams
     if (isTcpConnection)
         d->m_profilerConnections->setTcpConnection(sp.analyzerHost, sp.analyzerPort);
