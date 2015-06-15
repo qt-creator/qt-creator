@@ -63,9 +63,16 @@ protected:
     template<class Type>
     void CompareCommand(const Type &command);
 
+    QVariant writeCodeCompletedCommand();
+    void popLastCharacterFromBuffer();
+    void pushLastCharacterToBuffer();
+    void readPartialCommand();
+
+protected:
     QBuffer buffer;
     CodeModelBackEnd::WriteCommandBlock writeCommandBlock;
     CodeModelBackEnd::ReadCommandBlock readCommandBlock;
+    char lastCharacter = 0;
 };
 
 ReadAndWriteCommandBlockTest::ReadAndWriteCommandBlockTest()
@@ -155,6 +162,54 @@ TEST_F(ReadAndWriteCommandBlockTest, CompareCodeCompletedCommand)
     CompareCommand(CodeModelBackEnd::CodeCompletedCommand(codeCompletions, 1));
 }
 
+TEST_F(ReadAndWriteCommandBlockTest, GetInvalidCommandForAPartialBuffer)
+{
+    writeCodeCompletedCommand();
+    popLastCharacterFromBuffer();
+    buffer.seek(0);
+
+    readPartialCommand();
+}
+
+TEST_F(ReadAndWriteCommandBlockTest, ReadCommandAfterInterruption)
+{
+    const QVariant writeCommand = writeCodeCompletedCommand();
+    popLastCharacterFromBuffer();
+    buffer.seek(0);
+    readPartialCommand();
+    pushLastCharacterToBuffer();
+
+    ASSERT_EQ(readCommandBlock.read(), writeCommand);
+}
+
+QVariant ReadAndWriteCommandBlockTest::writeCodeCompletedCommand()
+{
+    CodeModelBackEnd::CodeCompletedCommand command(QVector<CodeModelBackEnd::CodeCompletion>({Utf8StringLiteral("newFunction()")}), 1);
+    const QVariant writeCommand = QVariant::fromValue(command);
+    writeCommandBlock.write(writeCommand);
+
+    return writeCommand;
+}
+
+void ReadAndWriteCommandBlockTest::popLastCharacterFromBuffer()
+{
+    auto &internalBuffer = buffer.buffer();
+    lastCharacter = internalBuffer.at(internalBuffer.size() - 1);
+    internalBuffer.chop(1);
+}
+
+void ReadAndWriteCommandBlockTest::pushLastCharacterToBuffer()
+{
+    buffer.buffer().push_back(lastCharacter);
+}
+
+void ReadAndWriteCommandBlockTest::readPartialCommand()
+{
+    QVariant readCommand = readCommandBlock.read();
+
+    ASSERT_FALSE(readCommand.isValid());
+}
+
 template<class Type>
 void ReadAndWriteCommandBlockTest::CompareCommand(const Type &command)
 {
@@ -168,5 +223,3 @@ void ReadAndWriteCommandBlockTest::CompareCommand(const Type &command)
 }
 
 }
-
-
