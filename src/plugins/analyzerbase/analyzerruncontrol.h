@@ -68,9 +68,6 @@ public:
     virtual void pause() {}
     virtual void unpause() {}
 
-    /// The active run configuration for this engine, might be zero.
-    ProjectExplorer::RunConfiguration *runConfiguration() const { return m_runConfig; }
-
     /// The start parameters for this engine.
     const AnalyzerStartParameters &startParameters() const { return m_sp; }
 
@@ -98,8 +95,6 @@ signals:
 
 private:
     bool supportsReRunning() const { return false; }
-
-    ProjectExplorer::RunConfiguration *m_runConfig;
     AnalyzerStartParameters m_sp;
 };
 } // namespace Analyzer
