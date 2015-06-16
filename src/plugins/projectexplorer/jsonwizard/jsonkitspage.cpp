@@ -45,7 +45,12 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
+using namespace Core;
+
 namespace ProjectExplorer {
+
+const char KEY_FEATURE[] = "feature";
+const char KEY_CONDITION[] = "condition";
 
 JsonKitsPage::JsonKitsPage(QWidget *parent) : TargetSetupPage(parent)
 { }
@@ -58,8 +63,10 @@ void JsonKitsPage::initializePage()
     connect(wiz, &JsonWizard::filesPolished, this, &JsonKitsPage::setupProjectFiles);
 
     const QString platform = wiz->stringValue(QLatin1String("Platform"));
-    const Core::FeatureSet preferred = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("PreferredFeatures")).toStringList());
-    const Core::FeatureSet required = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("RequiredFeatures")).toStringList());
+    const FeatureSet preferred
+            = evaluate(m_preferredFeatures, wiz->value(QLatin1String("PreferredFeatures")), wiz);
+    const FeatureSet required
+            = evaluate(m_requiredFeatures, wiz->value(QLatin1String("RequiredFeatures")), wiz);
 
     setRequiredKitMatcher(KitMatcher([required](const Kit *k) { return k->hasFeatures(required); }));
     setPreferredKitMatcher(KitMatcher([platform, preferred](const Kit *k) { return k->hasPlatform(platform) && k->hasFeatures(preferred); }));
@@ -88,13 +95,23 @@ QString JsonKitsPage::unexpandedProjectPath() const
     return m_unexpandedProjectPath;
 }
 
+void JsonKitsPage::setRequiredFeatures(const QVariant &data)
+{
+    m_requiredFeatures = parseFeatures(data);
+}
+
+void JsonKitsPage::setPreferredFeatures(const QVariant &data)
+{
+    m_preferredFeatures = parseFeatures(data);
+}
+
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
     Project *project = 0;
     QList<IProjectManager *> managerList = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
     foreach (const JsonWizard::GeneratorFile &f, files) {
-        if (f.file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+        if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
             QString errorMessage;
             QString path = f.file.path();
             const QFileInfo fi(path);
@@ -117,6 +134,58 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
             }
         }
     }
+}
+
+FeatureSet JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature> &list,
+                                  const QVariant &defaultSet, JsonWizard *wiz)
+{
+    if (list.isEmpty())
+        return FeatureSet::fromStringList(defaultSet.toStringList());
+
+    FeatureSet features;
+    foreach (const ConditionalFeature &f, list) {
+        if (JsonWizard::boolFromVariant(f.condition, wiz->expander()))
+            features |= f.feature;
+    }
+    return features;
+}
+
+QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVariant &data,
+                                                                      QString *errorMessage)
+{
+    QVector<ConditionalFeature> result;
+    if (errorMessage)
+        errorMessage->clear();
+
+    if (data.isNull())
+        return result;
+    if (data.type() != QVariant::List) {
+        if (errorMessage)
+            *errorMessage = tr("Feature list is set and not of type list.");
+        return result;
+    }
+
+    foreach (const QVariant &element, data.toList()) {
+        if (element.type() == QVariant::String) {
+            result.append({ Id::fromString(element.toString()), QVariant(true) });
+        } else if (element.type() == QVariant::Map) {
+            const QVariantMap obj = element.toMap();
+            const QString feature = obj.value(QLatin1String(KEY_FEATURE)).toString();
+            if (feature.isEmpty()) {
+                *errorMessage = tr("No \"%1\" key found in feature list object.")
+                        .arg(QLatin1String(KEY_FEATURE));
+                return QVector<ConditionalFeature>();
+            }
+
+            result.append({ Id::fromString(feature), obj.value(QLatin1String(KEY_CONDITION), true) });
+        } else {
+            if (errorMessage)
+                *errorMessage = tr("Feature list element is not a string or object.");
+            return QVector<ConditionalFeature>();
+        }
+    }
+
+    return result;
 }
 
 } // namespace ProjectExplorer

@@ -34,6 +34,8 @@
 #include "jsonwizard.h"
 #include "../targetsetuppage.h"
 
+#include <QVector>
+
 namespace ProjectExplorer {
 
 // Documentation inside.
@@ -50,11 +52,32 @@ public:
     void setUnexpandedProjectPath(const QString &path);
     QString unexpandedProjectPath() const;
 
+    void setRequiredFeatures(const QVariant &data);
+    void setPreferredFeatures(const QVariant &data);
+
+    class ConditionalFeature {
+    public:
+        ConditionalFeature() : feature(-1) { }
+        ConditionalFeature(const Core::Feature &f, const QVariant &c) : feature(f), condition(c)
+        { }
+
+        Core::Feature feature;
+        QVariant condition;
+    };
+    static QVector<ConditionalFeature> parseFeatures(const QVariant &data,
+                                                     QString *errorMessage = 0);
+
 private slots:
     void setupProjectFiles(const JsonWizard::GeneratorFiles &files);
 
 private:
     QString m_unexpandedProjectPath;
+
+    QVector<ConditionalFeature> m_requiredFeatures;
+    QVector<ConditionalFeature> m_preferredFeatures;
+
+    Core::FeatureSet evaluate(const QVector<ConditionalFeature> &list, const QVariant &defaultSet,
+                              JsonWizard *wiz);
 };
 
 } // namespace ProjectExplorer
