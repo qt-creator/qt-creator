@@ -349,7 +349,6 @@ QString Id::suffixAfter(Id baseId) const
 
 } // namespace Core
 
-
 QT_BEGIN_NAMESPACE
 
 QDataStream &operator<<(QDataStream &ds, Core::Id id)
@@ -363,6 +362,11 @@ QDataStream &operator>>(QDataStream &ds, Core::Id &id)
     ds >> ba;
     id = Core::Id::fromName(ba);
     return ds;
+}
+
+QDebug operator<<(QDebug dbg, const Core::Id &id)
+{
+    return dbg << id.name();
 }
 
 QT_END_NAMESPACE
