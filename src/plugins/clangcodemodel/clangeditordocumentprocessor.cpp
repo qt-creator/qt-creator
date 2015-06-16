@@ -137,7 +137,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
         projectFilePath = projectPart->projectFile; // OK, Project Part is still loaded
 
     QTC_ASSERT(m_modelManagerSupport, return);
-    m_modelManagerSupport->ipcCommunicator()->unregisterFilesForCodeCompletion(
+    m_modelManagerSupport->ipcCommunicator().unregisterFilesForCodeCompletion(
         {ClangBackEnd::FileContainer(filePath(), projectFilePath)});
 }
 

@@ -241,13 +241,12 @@ class ChangeIpcSender
 public:
     ChangeIpcSender(IpcSenderInterface *ipcSender)
     {
-        m_previousSender = ModelManagerSupportClang::instance()->ipcCommunicator()
-                                ->setIpcSender(ipcSender);
+        m_previousSender = ModelManagerSupportClang::instance()->ipcCommunicator().setIpcSender(ipcSender);
     }
 
     ~ChangeIpcSender()
     {
-        ModelManagerSupportClang::instance()->ipcCommunicator()->setIpcSender(m_previousSender);
+        ModelManagerSupportClang::instance()->ipcCommunicator().setIpcSender(m_previousSender);
     }
 
 private:
@@ -941,9 +940,9 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     spy.senderLog.clear();
 
     // Kill backend process...
-    IpcCommunicator::Ptr ipcCommunicator = ModelManagerSupportClang::instance()->ipcCommunicator();
-    ipcCommunicator->killBackendProcess();
-    QSignalSpy waitForReinitializedBackend(ipcCommunicator.data(),
+    IpcCommunicator &ipcCommunicator = ModelManagerSupportClang::instance()->ipcCommunicator();
+    ipcCommunicator.killBackendProcess();
+    QSignalSpy waitForReinitializedBackend(&ipcCommunicator,
                                            SIGNAL(backendReinitialized()));
     QVERIFY(waitForReinitializedBackend.wait());
 
