@@ -1551,7 +1551,6 @@ void DebuggerEngine::createSnapshot()
 void DebuggerEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
-    watchHandler()->notifyUpdateStarted();
     doUpdateLocals(UpdateParameters());
 }
 

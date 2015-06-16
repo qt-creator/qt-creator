@@ -4660,6 +4660,8 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     m_pendingBreakpointRequests = 0;
 
+    watchHandler()->notifyUpdateStarted();
+
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);
 

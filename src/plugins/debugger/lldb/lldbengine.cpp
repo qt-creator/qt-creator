@@ -864,6 +864,8 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
         return;
     }
 
+    watchHandler()->notifyUpdateStarted();
+
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());
     watchHandler()->appendFormatRequests(&cmd);

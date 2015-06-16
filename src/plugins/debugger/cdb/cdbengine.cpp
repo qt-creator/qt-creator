@@ -1341,6 +1341,9 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         watchHandler()->removeAllData();
         return;
     }
+
+    watchHandler()->notifyUpdateStarted();
+
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
      * and cause errors as it seems to go 'stale' when switching threads.
