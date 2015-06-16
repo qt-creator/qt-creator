@@ -96,9 +96,7 @@ public:
     void initGui();
     void initData();
     virtual ImplementationMode implementationMode() const;
-    void setImplementationsMode(ImplementationMode mode);
     virtual bool insertKeywordVirtual() const;
-    void setInsertKeywordVirtual(bool insert);
     void setHasImplementationFile(bool file);
     void setHasReimplementedFunctions(bool functions);
     bool hideReimplementedFunctions() const;
@@ -120,10 +118,6 @@ private:
 
     void saveExpansionState();
     void restoreExpansionState();
-
-protected:
-    ImplementationMode m_implementationMode;
-    bool m_insertKeywordVirtual;
 
 public:
     InsertVirtualMethodsModel *classFunctionModel;
@@ -272,6 +266,54 @@ Qt::ItemFlags FunctionItem::flags() const
 
 namespace CppEditor {
 namespace Internal {
+
+class Settings
+{
+public:
+    static bool insertVirtualKeyword()
+    {
+        return settings()->value(insertVirtualKeywordKey(), false).toBool();
+    }
+
+    static void writeInsertVirtualKeyword(bool insert)
+    {
+        settings()->setValue(insertVirtualKeywordKey(), insert);
+    }
+
+    static InsertVirtualMethodsDialog::ImplementationMode implementationMode()
+    {
+        return static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
+                    settings()->value(implementationModeKey(), 1).toInt());
+    }
+
+    static void writeImplementationMode(InsertVirtualMethodsDialog::ImplementationMode mode)
+    {
+        settings()->setValue(implementationModeKey(), mode);
+    }
+
+    static bool hideReimplementedFunctions()
+    {
+        return settings()->value(hideReimplementedFunctionsKey(), false).toBool();
+    }
+
+    static void writeHideReimplementedFunctions(bool hide)
+    {
+        settings()->setValue(hideReimplementedFunctionsKey(), hide);
+    }
+
+private:
+    static QSettings *settings()
+    { return Core::ICore::settings(); }
+
+    static QString insertVirtualKeywordKey()
+    { return QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"); }
+
+    static QString implementationModeKey()
+    { return QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"); }
+
+    static QString hideReimplementedFunctionsKey()
+    { return QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"); }
+};
 
 class InsertVirtualMethodsModel : public QAbstractItemModel
 {
@@ -668,15 +710,9 @@ public:
         if (!m_factory->gather())
             return;
 
-        Core::ICore::settings()->setValue(
-                    QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"),
-                    m_factory->insertKeywordVirtual());
-        Core::ICore::settings()->setValue(
-                    QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"),
-                    m_factory->implementationMode());
-        Core::ICore::settings()->setValue(
-                    QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"),
-                    m_factory->hideReimplementedFunctions());
+        Settings::writeInsertVirtualKeyword(m_factory->insertKeywordVirtual());
+        Settings::writeImplementationMode(m_factory->implementationMode());
+        Settings::writeHideReimplementedFunctions(m_factory->hideReimplementedFunctions());
 
         // Insert declarations (and definition if Inside-/OutsideClass)
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -879,8 +915,6 @@ InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     , m_buttons(0)
     , m_hasImplementationFile(false)
     , m_hasReimplementedFunctions(false)
-    , m_implementationMode(ModeOnlyDeclarations)
-    , m_insertKeywordVirtual(false)
     , classFunctionModel(new InsertVirtualMethodsModel(this))
     , classFunctionFilterModel(new InsertVirtualMethodsFilterModel(this))
 {
@@ -936,23 +970,14 @@ void InsertVirtualMethodsDialog::initGui()
 
 void InsertVirtualMethodsDialog::initData()
 {
-    m_insertKeywordVirtual = Core::ICore::settings()->value(
-                QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"),
-                false).toBool();
-    m_implementationMode = static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
-                Core::ICore::settings()->value(
-                    QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"), 1).toInt());
-    m_hideReimplementedFunctions->setChecked(
-                Core::ICore::settings()->value(
-                    QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"),
-                    false).toBool());
+    m_hideReimplementedFunctions->setChecked(Settings::hideReimplementedFunctions());
 
     m_view->setModel(classFunctionFilterModel);
     m_expansionStateNormal.clear();
     m_expansionStateReimp.clear();
     m_hideReimplementedFunctions->setEnabled(m_hasReimplementedFunctions);
-    m_virtualKeyword->setChecked(m_insertKeywordVirtual);
-    m_insertMode->setCurrentIndex(m_insertMode->findData(m_implementationMode));
+    m_virtualKeyword->setChecked(Settings::insertVirtualKeyword());
+    m_insertMode->setCurrentIndex(m_insertMode->findData(Settings::implementationMode()));
 
     setHideReimplementedFunctions(m_hideReimplementedFunctions->isChecked());
 
@@ -981,8 +1006,6 @@ bool InsertVirtualMethodsDialog::gather()
     if (!that)
         return false;
 
-    m_implementationMode = implementationMode();
-    m_insertKeywordVirtual = insertKeywordVirtual();
     return (ret == QDialog::Accepted);
 }
 
@@ -993,19 +1016,9 @@ InsertVirtualMethodsDialog::implementationMode() const
                 m_insertMode->itemData(m_insertMode->currentIndex()).toInt());
 }
 
-void InsertVirtualMethodsDialog::setImplementationsMode(InsertVirtualMethodsDialog::ImplementationMode mode)
-{
-    m_implementationMode = mode;
-}
-
 bool InsertVirtualMethodsDialog::insertKeywordVirtual() const
 {
     return m_virtualKeyword->isChecked();
-}
-
-void InsertVirtualMethodsDialog::setInsertKeywordVirtual(bool insert)
-{
-    m_insertKeywordVirtual = insert;
 }
 
 void InsertVirtualMethodsDialog::setHasImplementationFile(bool file)
@@ -1108,14 +1121,18 @@ public:
     InsertVirtualMethodsDialogTest(ImplementationMode mode, bool insertVirtualKeyword,
                                    QWidget *parent = 0)
         : InsertVirtualMethodsDialog(parent)
+        , m_implementationMode(mode)
+        , m_insertKeywordVirtual(insertVirtualKeyword)
     {
-        setImplementationsMode(mode);
-        setInsertKeywordVirtual(insertVirtualKeyword);
     }
 
     bool gather() { return true; }
     ImplementationMode implementationMode() const { return m_implementationMode; }
     bool insertKeywordVirtual() const { return m_insertKeywordVirtual; }
+
+private:
+    ImplementationMode  m_implementationMode;
+    bool m_insertKeywordVirtual;
 };
 
 } // namespace Tests
