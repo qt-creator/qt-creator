@@ -3244,7 +3244,6 @@ QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
 DebuggerPlugin::DebuggerPlugin()
 {
     setObjectName(QLatin1String("DebuggerPlugin"));
-    addObject(this);
     dd = new DebuggerPluginPrivate(this);
 }
 
@@ -3256,6 +3255,7 @@ DebuggerPlugin::~DebuggerPlugin()
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    addObject(this);
     // Menu groups
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
     mstart->appendGroup(Constants::G_GENERAL);

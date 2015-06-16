@@ -167,7 +167,7 @@ private:
     inline CvsControl *cvsVersionControl() const;
 
     CvsSettings m_settings;
-    CvsClient *m_client;
+    CvsClient *m_client = nullptr;
 
     QString m_commitMessageFileName;
     QString m_commitRepository;

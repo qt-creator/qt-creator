@@ -356,7 +356,7 @@ public:
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
-    ProjectWelcomePage *m_welcomePage;
+    ProjectWelcomePage *m_welcomePage = nullptr;
     IMode *m_projectsMode;
 
     TaskHub *m_taskHub;
@@ -412,10 +412,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     JsonWizardFactory::destroyAllFactories();
 
-    removeObject(dd->m_welcomePage);
-    delete dd->m_welcomePage;
-
-    removeObject(this);
     // Force sequence of deletion:
     delete dd->m_kitManager; // remove all the profile information
     delete dd->m_toolChainManager;
@@ -1521,6 +1517,9 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
     // might shutdown asynchronously).
+    removeObject(dd->m_welcomePage);
+    delete dd->m_welcomePage;
+    removeObject(this);
     if (dd->m_outputPane->closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */))
         return SynchronousShutdown;
     connect(dd->m_outputPane, &AppOutputPane::allRunControlsFinished,

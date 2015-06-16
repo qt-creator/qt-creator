@@ -53,7 +53,6 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    addObject(this);
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunControlFactory);
@@ -67,7 +66,6 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
 RemoteLinuxPlugin::~RemoteLinuxPlugin()
 {
-    removeObject(this);
 }
 
 void RemoteLinuxPlugin::extensionsInitialized()

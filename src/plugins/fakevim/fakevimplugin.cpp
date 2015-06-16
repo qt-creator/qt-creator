@@ -1127,7 +1127,7 @@ private:
     StatusBarWidget *m_statusBar;
     // @TODO: Delete
     //WordCompletion *m_wordCompletion;
-    FakeVimCompletionAssistProvider *m_wordProvider;
+    FakeVimCompletionAssistProvider *m_wordProvider = nullptr;
 };
 
 QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) const
@@ -1185,6 +1185,18 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
 {
+    theFakeVimSettings()->deleteLater();
+}
+
+void FakeVimPluginPrivate::onCoreAboutToClose()
+{
+    // Don't attach to editors anymore.
+    disconnect(EditorManager::instance(), &EditorManager::editorOpened,
+               this, &FakeVimPluginPrivate::editorOpened);
+}
+
+void FakeVimPluginPrivate::aboutToShutdown()
+{
     q->removeObject(m_fakeVimOptionsPage);
     delete m_fakeVimOptionsPage;
     m_fakeVimOptionsPage = 0;
@@ -1199,19 +1211,6 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 
     delete m_wordProvider;
     m_wordProvider = 0;
-
-    theFakeVimSettings()->deleteLater();
-}
-
-void FakeVimPluginPrivate::onCoreAboutToClose()
-{
-    // Don't attach to editors anymore.
-    disconnect(EditorManager::instance(), &EditorManager::editorOpened,
-               this, &FakeVimPluginPrivate::editorOpened);
-}
-
-void FakeVimPluginPrivate::aboutToShutdown()
-{
 }
 
 bool FakeVimPluginPrivate::initialize()

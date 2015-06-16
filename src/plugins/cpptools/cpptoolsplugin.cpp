@@ -93,7 +93,6 @@ CppToolsPlugin::CppToolsPlugin()
 CppToolsPlugin::~CppToolsPlugin()
 {
     m_instance = 0;
-    delete CppModelManager::instance();
 }
 
 CppToolsPlugin *CppToolsPlugin::instance()
@@ -140,6 +139,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(error)
+
+    CppModelManager::instance()->setParent(this);
 
     m_settings = new CppToolsSettings(this); // force registration of cpp tools settings
 

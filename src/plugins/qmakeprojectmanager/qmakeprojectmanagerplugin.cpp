@@ -77,18 +77,13 @@ using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
 
 QmakeProjectManagerPlugin::QmakeProjectManagerPlugin()
-    : m_previousStartupProject(0), m_previousTarget(0)
+    : m_qmakeProjectManager(0), m_previousStartupProject(0), m_previousTarget(0)
 {
 
 }
 
 QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
 {
-    //removeObject(m_embeddedPropertiesPage);
-    //delete m_embeddedPropertiesPage;
-
-    removeObject(m_qmakeProjectManager);
-    delete m_qmakeProjectManager;
 }
 
 bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -102,7 +97,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     //create and register objects
     m_qmakeProjectManager = new QmakeManager;
-    addObject(m_qmakeProjectManager);
+    addAutoReleasedObject(m_qmakeProjectManager);
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
