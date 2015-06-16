@@ -1139,6 +1139,26 @@ void TextEditorWidget::gotoLineEndWithSelection()
     moveCursor(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 }
 
+void TextEditorWidget::gotoFileStart()
+{
+    moveCursor(QTextCursor::Start);
+}
+
+void TextEditorWidget::gotoFileStartWithSelection()
+{
+    moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
+}
+
+void TextEditorWidget::gotoFileEnd()
+{
+    moveCursor(QTextCursor::End);
+}
+
+void TextEditorWidget::gotoFileEndWithSelection()
+{
+    moveCursor(QTextCursor::End, QTextCursor::KeepAnchor);
+}
+
 void TextEditorWidget::gotoNextLine()
 {
     moveCursor(QTextCursor::Down);
