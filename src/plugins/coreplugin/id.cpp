@@ -34,6 +34,7 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QDebug>
 #include <QHash>
 #include <QVariant>
 
