@@ -402,6 +402,10 @@ public:
     void gotoBlockStartWithSelection();
     void gotoBlockEndWithSelection();
 
+    void gotoFileStart();
+    void gotoFileStartWithSelection();
+    void gotoFileEnd();
+    void gotoFileEndWithSelection();
     void gotoLineStart();
     void gotoLineStartWithSelection();
     void gotoLineEnd();
