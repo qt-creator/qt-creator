@@ -19,7 +19,6 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "abstractqmlprofilerrunner.h",
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
             "qmlprofiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
