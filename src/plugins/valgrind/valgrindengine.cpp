@@ -100,7 +100,7 @@ bool ValgrindRunControl::startEngine()
     run->setDebuggeeArguments(sp.debuggeeArgs);
     run->setEnvironment(sp.environment);
     run->setConnectionParameters(sp.connParams);
-    run->setStartMode(sp.startMode);
+    run->setUseStartupProject(sp.useStartupProject);
     run->setLocalRunMode(sp.localRunMode);
 
     connect(run, &ValgrindRunner::processOutputReceived,

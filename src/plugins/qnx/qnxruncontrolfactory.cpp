@@ -125,8 +125,6 @@ static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfigu
     if (device.isNull())
         return params;
 
-    if (mode == QmlProfilerRunMode)
-        params.startMode = StartLocal;
     params.runMode = mode;
     params.debuggee = runConfig->remoteExecutableFilePath();
     params.debuggeeArgs = runConfig->arguments().join(QLatin1Char(' '));

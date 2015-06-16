@@ -66,7 +66,6 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);
         params.analyzerHost = server.serverAddress().toString();
-        params.startMode = StartLocal;
     }
 
     AnalyzerRunControl *analyzerRunControl = AnalyzerManager::createRunControl(params, runConfig);

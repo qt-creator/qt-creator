@@ -72,8 +72,8 @@ public:
     void setEnvironment(const Utils::Environment &environment);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
 
-    void setStartMode(Analyzer::StartMode startMode);
-    Analyzer::StartMode startMode() const;
+    void setUseStartupProject(bool useStartupProject);
+    bool useStartupProject() const;
 
     void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
     ProjectExplorer::ApplicationLauncher::Mode localRunMode() const;

@@ -59,12 +59,12 @@ using namespace ProjectExplorer;
 namespace Analyzer {
 
 AnalyzerAction::AnalyzerAction(QObject *parent)
-    : QAction(parent)
+    : QAction(parent), m_useStartupProject(true)
 {}
 
 bool AnalyzerAction::isRunnable(QString *reason) const
 {
-    if (m_startMode == StartRemote)
+    if (!m_useStartupProject)
         return true;
 
     return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), m_runMode, reason);
@@ -72,7 +72,7 @@ bool AnalyzerAction::isRunnable(QString *reason) const
 
 AnalyzerRunControl *AnalyzerAction::tryCreateRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration) const
 {
-    if (m_runMode == sp.runMode && m_startMode == sp.startMode)
+    if (m_runMode == sp.runMode && m_useStartupProject == sp.useStartupProject)
         return m_runControlCreator(sp, runConfiguration);
     return 0;
 }
@@ -150,7 +150,7 @@ bool checkForRemoteStart(AnalyzerStartParameters *sp)
     if (dlg.exec() != QDialog::Accepted)
         return false;
 
-    sp->startMode = StartRemote;
+    sp->useStartupProject = false;
     sp->connParams = dlg.sshParams();
     sp->debuggee = dlg.executable();
     sp->debuggeeArgs = dlg.arguments();

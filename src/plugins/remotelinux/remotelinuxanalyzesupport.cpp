@@ -78,8 +78,6 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConf
                                                                    RunMode runMode)
 {
     AnalyzerStartParameters params;
-    if (runMode == QmlProfilerRunMode)
-        params.startMode = StartLocal;
     params.runMode = runMode;
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
     params.displayName = runConfig->displayName();

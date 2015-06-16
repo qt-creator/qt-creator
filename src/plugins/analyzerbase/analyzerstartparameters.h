@@ -50,11 +50,12 @@ class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
     AnalyzerStartParameters()
-        : localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
-        , analyzerPort(0)
+        : useStartupProject(true),
+          localRunMode(ProjectExplorer::ApplicationLauncher::Gui),
+          analyzerPort(0)
     {}
 
-    StartMode startMode;
+    bool useStartupProject;
     ProjectExplorer::RunMode runMode;
     QSsh::SshConnectionParameters connParams;
     ProjectExplorer::ApplicationLauncher::Mode localRunMode;

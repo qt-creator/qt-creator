@@ -86,7 +86,6 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
     AnalyzerStartParameters params;
     params.runMode = QmlProfilerRunMode;
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
-    params.startMode = StartLocal;
     params.debuggee = runConfig->localExecutable().toUserOutput();
     params.debuggeeArgs = Utils::QtcProcess::joinArgs(runConfig->commandLineArguments());
     params.analyzerHost = QLatin1String("localhost");

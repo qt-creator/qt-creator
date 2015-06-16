@@ -83,8 +83,6 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
     if (localPort == 0)
         return sp;
     sp.analyzerPort = localPort;
-
-    sp.startMode = StartLocal;
     return sp;
 }
 

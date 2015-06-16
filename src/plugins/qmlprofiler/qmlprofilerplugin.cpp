@@ -74,7 +74,6 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler"));
     action->setToolTip(description);
-    action->setStartMode(StartLocal);
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
     AnalyzerManager::addAction(action);
 
@@ -87,7 +86,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler (External)"));
     action->setToolTip(description);
-    action->setStartMode(StartRemote);
+    action->setUseSpecialStart();
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
     AnalyzerManager::addAction(action);
 

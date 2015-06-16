@@ -74,8 +74,6 @@ public:
     /// The start parameters for this engine.
     const AnalyzerStartParameters &startParameters() const { return m_sp; }
 
-    StartMode mode() const { return m_sp.startMode; }
-
     virtual void notifyRemoteSetupDone(quint16) {}
     virtual void notifyRemoteFinished() {}
 

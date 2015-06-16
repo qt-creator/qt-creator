@@ -156,7 +156,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
-        action->setStartMode(StartLocal);
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
 
@@ -170,7 +169,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(memcheckWithGdbToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
-        action->setStartMode(StartLocal);
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
 
@@ -184,7 +182,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
-        action->setStartMode(StartLocal);
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
     }
@@ -199,7 +196,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
-    action->setStartMode(StartRemote);
+    action->setUseSpecialStart();
     AnalyzerManager::addAction(action);
 
     action = new AnalyzerAction(this);
@@ -212,7 +209,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
-    action->setStartMode(StartRemote);
+    action->setUseSpecialStart();
     AnalyzerManager::addAction(action);
 
     addAutoReleasedObject(new ValgrindRunControlFactory());

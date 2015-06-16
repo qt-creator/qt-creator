@@ -80,7 +80,7 @@ public:
     explicit AnalyzerAction(QObject *parent = 0);
 
 public:
-    void setStartMode(StartMode startMode) { m_startMode = startMode; }
+    void setUseSpecialStart() { m_useStartupProject = false; }
 
     Core::Id menuGroup() const { return m_menuGroup; }
     void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
@@ -114,7 +114,7 @@ public:
     void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
 
 protected:
-    StartMode m_startMode;
+    bool m_useStartupProject;
     Core::Id m_menuGroup;
     Core::Id m_actionId;
     Core::Id m_toolId;
