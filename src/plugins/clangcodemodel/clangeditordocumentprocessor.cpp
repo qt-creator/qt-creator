@@ -138,7 +138,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
     QTC_ASSERT(m_modelManagerSupport, return);
     m_modelManagerSupport->ipcCommunicator()->unregisterFilesForCodeCompletion(
-        {CodeModelBackEnd::FileContainer(filePath(), projectFilePath)});
+        {ClangBackEnd::FileContainer(filePath(), projectFilePath)});
 }
 
 void ClangEditorDocumentProcessor::run()

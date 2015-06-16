@@ -4,7 +4,7 @@ Project {
     name: "Tools"
     references: [
         "buildoutputparser/buildoutputparser.qbs",
-        "codemodelbackend/codemodelbackend.qbs",
+        "clangbackend/clangbackend.qbs",
         "cplusplustools.qbs",
         "qtcdebugger/qtcdebugger.qbs",
         "qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",

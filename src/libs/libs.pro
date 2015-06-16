@@ -15,7 +15,7 @@ SUBDIRS   = \
     ssh \
     timeline \
     sqlite \
-    codemodelbackendipc
+    clangbackendipc
 
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =

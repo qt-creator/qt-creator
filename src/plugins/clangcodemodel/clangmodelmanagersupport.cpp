@@ -40,9 +40,9 @@
 #include <cpptools/editordocumenthandle.h>
 #include <projectexplorer/project.h>
 
-#include <codemodelbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
-#include <codemodelbackendipc/filecontainer.h>
-#include <codemodelbackendipc/projectpartcontainer.h>
+#include <clangbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
+#include <clangbackendipc/filecontainer.h>
+#include <clangbackendipc/projectpartcontainer.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -160,7 +160,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString projectFilePath = Utils::projectFilePathForFile(filePath);
         m_ipcCommunicator->unregisterFilesForCodeCompletion(
-            {CodeModelBackEnd::FileContainer(filePath, projectFilePath)});
+            {ClangBackEnd::FileContainer(filePath, projectFilePath)});
     }
 }
 

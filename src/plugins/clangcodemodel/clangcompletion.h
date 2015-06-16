@@ -32,7 +32,7 @@
 #define CPPEDITOR_INTERNAL_CLANGCOMPLETION_H
 
 #include "clangcompleter.h"
-#include "codemodelbackendipcintegration.h"
+#include "clangbackendipcintegration.h"
 
 #include <cpptools/cppcompletionassistprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
@@ -43,7 +43,7 @@
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
-#include <codemodelbackendipc/codecompletion.h>
+#include <clangbackendipc/codecompletion.h>
 
 #include <QStringList>
 #include <QTextCursor>
@@ -51,7 +51,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-using CodeCompletions = QVector<CodeModelBackEnd::CodeCompletion>;
+using CodeCompletions = QVector<ClangBackEnd::CodeCompletion>;
 
 class ClangAssistProposalModel;
 
@@ -87,16 +87,16 @@ public:
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
 
     bool isOverloaded() const;
-    void addOverload(const CodeModelBackEnd::CodeCompletion &ccr);
+    void addOverload(const ClangBackEnd::CodeCompletion &ccr);
 
-    CodeModelBackEnd::CodeCompletion originalItem() const;
+    ClangBackEnd::CodeCompletion originalItem() const;
 
     bool isCodeCompletion() const;
 
 private:
     unsigned m_completionOperator;
     mutable QChar m_typedChar;
-    QList<CodeModelBackEnd::CodeCompletion> m_overloads;
+    QList<ClangBackEnd::CodeCompletion> m_overloads;
 };
 
 class ClangFunctionHintModel : public TextEditor::IFunctionHintProposalModel

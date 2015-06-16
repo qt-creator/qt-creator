@@ -30,7 +30,7 @@
 
 #include "clangcodecompletion_test.h"
 
-#include "../codemodelbackendipcintegration.h"
+#include "../clangbackendipcintegration.h"
 #include "../clangmodelmanagersupport.h"
 
 #include <clangcodemodel/clangcompletion.h>
@@ -52,19 +52,19 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <codemodelbackendipc/cmbcompletecodecommand.h>
-#include <codemodelbackendipc/cmbendcommand.h>
-#include <codemodelbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
-#include <codemodelbackendipc/cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <codemodelbackendipc/cmbunregisterprojectsforcodecompletioncommand.h>
-#include <codemodelbackendipc/cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbcompletecodecommand.h>
+#include <clangbackendipc/cmbendcommand.h>
+#include <clangbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbunregisterprojectsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletioncommand.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QtTest>
 
-using namespace CodeModelBackEnd;
+using namespace ClangBackEnd;
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 

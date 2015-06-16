@@ -12,7 +12,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "CodeModelBackEndIpc" }
+    Depends { name: "ClangBackEndIpc" }
 
     pluginTestDepends: [
         "CppEditor",
@@ -152,8 +152,8 @@ QtcPlugin {
         "clangprojectsettingspropertiespage.ui",
         "clangutils.cpp",
         "clangutils.h",
-        "codemodelbackendipcintegration.cpp",
-        "codemodelbackendipcintegration.h",
+        "clangbackendipcintegration.cpp",
+        "clangbackendipcintegration.h",
         "completionchunkstotextconverter.cpp",
         "completionchunkstotextconverter.h",
         "constants.h",

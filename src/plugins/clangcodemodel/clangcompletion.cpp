@@ -68,7 +68,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-using namespace CodeModelBackEnd;
+using namespace ClangBackEnd;
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace CPlusPlus;

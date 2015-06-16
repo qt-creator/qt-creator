@@ -22,7 +22,7 @@ SOURCES += \
     $$PWD/clangprojectsettings.cpp \
     $$PWD/clangprojectsettingspropertiespage.cpp \
     $$PWD/clangutils.cpp \
-    $$PWD/codemodelbackendipcintegration.cpp \
+    $$PWD/clangbackendipcintegration.cpp \
     $$PWD/completionchunkstotextconverter.cpp \
     $$PWD/completionproposalsbuilder.cpp \
     $$PWD/cppcreatemarkers.cpp \
@@ -53,7 +53,7 @@ HEADERS += \
     $$PWD/clangprojectsettings.h \
     $$PWD/clangprojectsettingspropertiespage.h \
     $$PWD/clangutils.h \
-    $$PWD/codemodelbackendipcintegration.h \
+    $$PWD/clangbackendipcintegration.h \
     $$PWD/completionchunkstotextconverter.h \
     $$PWD/completionproposalsbuilder.h \
     $$PWD/constants.h \
