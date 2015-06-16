@@ -28,37 +28,38 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock.h"
-
-#include "gtest-qt-printing.h"
-#include "translationunitdoesnotexistcommand.h"
-
-#include <QString>
-#include <QBuffer>
-#include <QVariant>
-#include <vector>
-
-#include <cmbendcommand.h>
-#include <cmbalivecommand.h>
-#include <cmbcommands.h>
-#include <cmbechocommand.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbcodecompletedcommand.h>
-#include <cmbregisterprojectsforcodecompletioncommand.h>
-#include <cmbunregisterprojectsforcodecompletioncommand.h>
-#include <cmbcompletecodecommand.h>
-#include <writecommandblock.h>
-#include <readcommandblock.h>
-
-#include <ipcserverproxy.h>
-#include <ipcclientproxy.h>
-#include <projectpartsdonotexistcommand.h>
 
 #include "mockipclient.h"
 #include "mockipcserver.h"
+
+#include <ipcclientproxy.h>
+#include <ipcserverproxy.h>
+#include <projectpartsdonotexistcommand.h>
+
+#include <cmbalivecommand.h>
+#include <cmbcodecompletedcommand.h>
+#include <cmbcommands.h>
+#include <cmbcompletecodecommand.h>
+#include <cmbechocommand.h>
+#include <cmbendcommand.h>
+#include <cmbregisterprojectsforcodecompletioncommand.h>
+#include <cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <cmbunregisterprojectsforcodecompletioncommand.h>
+#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <readcommandblock.h>
+#include <translationunitdoesnotexistcommand.h>
+#include <writecommandblock.h>
+
+#include <QBuffer>
+#include <QString>
+#include <QVariant>
+
+#include <vector>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 using namespace ClangBackEnd;
 

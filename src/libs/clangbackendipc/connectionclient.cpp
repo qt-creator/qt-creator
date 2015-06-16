@@ -30,13 +30,13 @@
 
 #include "connectionclient.h"
 
-#include <QProcess>
-#include <QThread>
-#include <QCoreApplication>
-
+#include "cmbcompletecodecommand.h"
 #include "cmbregistertranslationunitsforcodecompletioncommand.h"
 #include "cmbunregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbcompletecodecommand.h"
+
+#include <QCoreApplication>
+#include <QProcess>
+#include <QThread>
 
 namespace ClangBackEnd {
 

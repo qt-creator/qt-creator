@@ -28,22 +28,23 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gtest-qt-printing.h"
+#include <sqlitedatabasebackend.h>
+#include <sqlitereadstatement.h>
+#include <sqlitereadwritestatement.h>
+#include <sqlitewritestatement.h>
+#include <utf8string.h>
 
-#include <QDir>
-#include <QVariant>
-#include <QStringList>
 #include <QByteArray>
+#include <QDir>
 #include <QMap>
 #include <QString>
+#include <QStringList>
+#include <QVariant>
 
-#include <sqlitereadwritestatement.h>
-#include <sqlitereadstatement.h>
-#include <sqlitewritestatement.h>
-#include <sqlitedatabasebackend.h>
-#include <utf8string.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 namespace {
 class SqliteStatement : public ::testing::Test

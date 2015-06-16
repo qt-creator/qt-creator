@@ -30,7 +30,7 @@
 
 #include "ipcclientdispatcher.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace ClangBackEnd {
 

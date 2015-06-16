@@ -30,15 +30,14 @@
 
 #include "cmbunregistertranslationunitsforcodecompletioncommand.h"
 
-#include <QtDebug>
+#include "container_common.h"
 
 #ifdef CLANGBACKEND_TESTS
 #include <gtest/gtest-printers.h>
 #endif
 
 #include <QDataStream>
-
-#include "container_common.h"
+#include <QDebug>
 
 namespace ClangBackEnd {
 

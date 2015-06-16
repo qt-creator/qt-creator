@@ -30,15 +30,13 @@
 
 #include "cmbregisterprojectsforcodecompletioncommand.h"
 
-#include <QtDebug>
+#include "container_common.h"
 
 #include <QDataStream>
-
-#include <ostream>
+#include <QDebug>
 
 #include <algorithm>
-
-#include "container_common.h"
+#include <ostream>
 
 namespace ClangBackEnd {
 

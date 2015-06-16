@@ -33,13 +33,13 @@
 
 #include <filecontainer.h>
 
-#include <chrono>
-#include <vector>
-#include <memory>
-
 #include <QVector>
 
 #include <clang-c/Index.h>
+
+#include <chrono>
+#include <vector>
+#include <memory>
 
 namespace ClangBackEnd {
 

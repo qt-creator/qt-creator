@@ -30,15 +30,14 @@
 
 #ifndef CLANGBACKEND_IPCSERVERPROXY_H
 #define CLANGBACKEND_IPCSERVERPROXY_H
+#include "ipcserverinterface.h"
+#include "readcommandblock.h"
+#include "writecommandblock.h"
 
-#include <qglobal.h>
+#include <QtGlobal>
 #include <QTimer>
 
 #include <memory>
-
-#include "ipcserverinterface.h"
-#include "writecommandblock.h"
-#include "readcommandblock.h"
 
 QT_BEGIN_NAMESPACE
 class QVariant;

@@ -30,13 +30,13 @@
 
 #include "cmbunregisterprojectsforcodecompletioncommand.h"
 
-#include <QtDebug>
+#include "container_common.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 #include <ostream>
 
-#include "container_common.h"
 
 namespace ClangBackEnd {
 

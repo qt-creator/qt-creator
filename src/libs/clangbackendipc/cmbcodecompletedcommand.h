@@ -31,10 +31,10 @@
 #ifndef CLANGBACKEND_CODECOMPLETEDCOMMAND_H
 #define CLANGBACKEND_CODECOMPLETEDCOMMAND_H
 
+#include "codecompletion.h"
+
 #include <QMetaType>
 #include <QVector>
-
-#include "codecompletion.h"
 
 namespace ClangBackEnd {
 

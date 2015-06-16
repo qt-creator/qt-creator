@@ -28,27 +28,28 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock-generated-matchers.h"
-#include "gtest-qt-printing.h"
+#include <filecontainer.h>
+#include <projectpart.h>
+#include <projects.h>
+#include <translationunitdoesnotexistexception.h>
+#include <translationunitfilenotexitexception.h>
+#include <translationunit.h>
+#include <translationunitisnullexception.h>
+#include <translationunitparseerrorexception.h>
+#include <translationunits.h>
+#include <unsavedfiles.h>
+#include <utf8string.h>
 
 #include <clang-c/Index.h>
 
-#include <translationunit.h>
-#include <unsavedfiles.h>
-#include <utf8string.h>
-#include <projectpart.h>
-#include <translationunits.h>
-#include <filecontainer.h>
-#include <projects.h>
-#include <translationunitdoesnotexistexception.h>
-#include <translationunitisnullexception.h>
-#include <translationunitfilenotexitexception.h>
-#include <translationunitparseerrorexception.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 #include <chrono>
 #include <thread>
+
 
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;

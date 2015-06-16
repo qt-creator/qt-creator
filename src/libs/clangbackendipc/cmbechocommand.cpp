@@ -30,9 +30,8 @@
 
 #include "cmbechocommand.h"
 
-#include <QtDebug>
-
 #include <QDataStream>
+#include <QDebug>
 
 #include <ostream>
 

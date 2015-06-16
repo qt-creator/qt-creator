@@ -28,12 +28,12 @@
 **
 ****************************************************************************/
 
-
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
-#include "gtest-qt-printing.h"
-
 #include <sqlitecolumn.h>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 namespace {
 

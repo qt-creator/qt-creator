@@ -31,11 +31,10 @@
 #ifndef UTF8STRINGVECTOR_H
 #define UTF8STRINGVECTOR_H
 
+#include "sqliteglobal.h"
 #include "utf8string.h"
 
 #include <QVector>
-
-#include "sqliteglobal.h"
 
 class SQLITE_EXPORT Utf8StringVector : public QVector<Utf8String>
 {

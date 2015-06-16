@@ -33,11 +33,11 @@
 
 #include "ipcserverinterface.h"
 
-#include "translationunit.h"
 #include "projectpart.h"
-#include "unsavedfiles.h"
 #include "projects.h"
+#include "translationunit.h"
 #include "translationunits.h"
+#include "unsavedfiles.h"
 
 #include <utf8string.h>
 

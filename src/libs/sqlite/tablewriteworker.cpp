@@ -31,9 +31,8 @@
 #include "tablewriteworker.h"
 
 #include "createtablesqlstatementbuilder.h"
-
-#include "sqlitewritestatement.h"
 #include "sqlitetransaction.h"
+#include "sqlitewritestatement.h"
 
 namespace Internal {
 

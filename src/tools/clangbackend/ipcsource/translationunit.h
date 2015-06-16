@@ -33,10 +33,10 @@
 
 #include <clang-c/Index.h>
 
+#include <QtGlobal>
+
 #include <chrono>
 #include <memory>
-
-#include <QtGlobal>
 
 class Utf8String;
 

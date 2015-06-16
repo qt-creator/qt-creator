@@ -30,13 +30,13 @@
 
 #include "ipcclientinterface.h"
 
-#include <QVariant>
-#include <QtDebug>
-
-#include "cmbechocommand.h"
 #include "cmbcodecompletedcommand.h"
-#include "translationunitdoesnotexistcommand.h"
+#include "cmbechocommand.h"
 #include "projectpartsdonotexistcommand.h"
+#include "translationunitdoesnotexistcommand.h"
+
+#include <QDebug>
+#include <QVariant>
 
 namespace ClangBackEnd {
 

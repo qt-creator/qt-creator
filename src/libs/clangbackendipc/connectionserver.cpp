@@ -30,11 +30,11 @@
 
 #include "connectionserver.h"
 
-#include <QLocalSocket>
-#include <QCoreApplication>
-#include <QTimer>
-
 #include <ipcserverinterface.h>
+
+#include <QCoreApplication>
+#include <QLocalSocket>
+#include <QTimer>
 
 #include <cstdlib>
 

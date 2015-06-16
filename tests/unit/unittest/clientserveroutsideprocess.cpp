@@ -28,10 +28,28 @@
 **
 ****************************************************************************/
 
+#include "mockipclient.h"
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock.h"
+#include <cmbalivecommand.h>
+#include <cmbcodecompletedcommand.h>
+#include <cmbcommands.h>
+#include <cmbcompletecodecommand.h>
+#include <cmbechocommand.h>
+#include <cmbendcommand.h>
+#include <cmbregisterprojectsforcodecompletioncommand.h>
+#include <cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <cmbunregisterprojectsforcodecompletioncommand.h>
+#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <connectionclient.h>
+#include <projectpartsdonotexistcommand.h>
+#include <readcommandblock.h>
+#include <translationunitdoesnotexistcommand.h>
+#include <writecommandblock.h>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 #include <QBuffer>
 #include <QProcess>
@@ -40,26 +58,6 @@
 #include <QVariant>
 
 #include <vector>
-
-#include "gtest-qt-printing.h"
-
-#include <cmbendcommand.h>
-#include <cmbalivecommand.h>
-#include <cmbcommands.h>
-#include <cmbechocommand.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbregisterprojectsforcodecompletioncommand.h>
-#include <cmbunregisterprojectsforcodecompletioncommand.h>
-#include <cmbcodecompletedcommand.h>
-#include <cmbcompletecodecommand.h>
-#include <writecommandblock.h>
-#include <readcommandblock.h>
-#include <connectionclient.h>
-#include <translationunitdoesnotexistcommand.h>
-#include <projectpartsdonotexistcommand.h>
-
-#include <mockipclient.h>
 
 #ifdef Q_OS_WIN
 #define QTC_HOST_EXE_SUFFIX L".exe"

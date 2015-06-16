@@ -30,20 +30,19 @@
 
 #include "echoipcserver.h"
 
-#include "cmbendcommand.h"
-#include "cmbechocommand.h"
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbregisterprojectsforcodecompletioncommand.h"
-#include "cmbunregisterprojectsforcodecompletioncommand.h"
-#include "cmbcompletecodecommand.h"
 #include "cmbcodecompletedcommand.h"
-
+#include "cmbcompletecodecommand.h"
+#include "cmbechocommand.h"
+#include "cmbendcommand.h"
+#include "cmbregisterprojectsforcodecompletioncommand.h"
+#include "cmbregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbunregisterprojectsforcodecompletioncommand.h"
+#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
 #include "connectionserver.h"
 
-#include <QtDebug>
-
 #include <QCoreApplication>
+#include <QDebug>
+
 
 namespace ClangBackEnd {
 

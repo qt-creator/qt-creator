@@ -33,9 +33,9 @@
 
 #include <clangbackendipc/codecompletionchunk.h>
 
-#include <QString>
-
 #include <sqlite/utf8string.h>
+
+#include <QString>
 
 namespace ClangCodeModel {
 namespace Internal {

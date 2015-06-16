@@ -28,19 +28,19 @@
 **
 ****************************************************************************/
 
-
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gtest-qt-printing.h"
-
-#include <QVariant>
-#include <QSignalSpy>
+#include "spydummy.h"
 
 #include <sqlitedatabase.h>
 #include <sqlitetable.h>
 #include <utf8string.h>
 
-#include "spydummy.h"
+#include <QSignalSpy>
+#include <QVariant>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 namespace {
 

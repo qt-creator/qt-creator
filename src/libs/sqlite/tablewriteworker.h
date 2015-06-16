@@ -31,9 +31,9 @@
 #ifndef INTERNAL_TABLEWRITEWORKER_H
 #define INTERNAL_TABLEWRITEWORKER_H
 
-#include <QObject>
-
 #include "createtablecommand.h"
+
+#include <QObject>
 
 namespace Internal {
 

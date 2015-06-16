@@ -31,10 +31,10 @@
 #ifndef SQLITECOLUMN_H
 #define SQLITECOLUMN_H
 
-#include <QObject>
-
-#include "utf8string.h"
 #include "columndefinition.h"
+#include "utf8string.h"
+
+#include <QObject>
 
 class SQLITE_EXPORT SqliteColumn : public QObject
 {

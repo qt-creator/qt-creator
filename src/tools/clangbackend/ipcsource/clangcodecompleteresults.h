@@ -31,7 +31,6 @@
 #ifndef CLANGBACKEND_CLANGCODECOMPLETERESULTS_H
 #define CLANGBACKEND_CLANGCODECOMPLETERESULTS_H
 
-
 #include <clang-c/Index.h>
 
 #include <utf8string.h>

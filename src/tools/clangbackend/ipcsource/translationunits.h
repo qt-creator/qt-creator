@@ -31,12 +31,13 @@
 #ifndef CLANGBACKEND_TRANSLATIONUNITS_H
 #define CLANGBACKEND_TRANSLATIONUNITS_H
 
+#include "translationunit.h"
+
 #include <filecontainer.h>
+
 #include <QVector>
 
 #include <vector>
-
-#include "translationunit.h"
 
 namespace ClangBackEnd {
 

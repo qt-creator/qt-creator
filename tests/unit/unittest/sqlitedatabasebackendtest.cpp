@@ -28,15 +28,16 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gtest-qt-printing.h"
-
-#include <QDir>
-
 #include "sqlitedatabasebackend.h"
 #include "sqliteexception.h"
 #include "sqlitewritestatement.h"
+
+#include <QDir>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 namespace {
 

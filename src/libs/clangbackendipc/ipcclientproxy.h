@@ -31,15 +31,14 @@
 #ifndef CODELMODELBACKEND_IPCCLIENTPROXY_H
 #define CODELMODELBACKEND_IPCCLIENTPROXY_H
 
+#include "clangbackendipc_global.h"
+#include "ipcclientinterface.h"
+#include "readcommandblock.h"
+#include "writecommandblock.h"
+
 #include <QtGlobal>
 
 #include <memory>
-
-#include "clangbackendipc_global.h"
-#include "ipcclientinterface.h"
-
-#include "writecommandblock.h"
-#include "readcommandblock.h"
 
 QT_BEGIN_NAMESPACE
 class QLocalServer;

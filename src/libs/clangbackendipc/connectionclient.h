@@ -31,11 +31,11 @@
 #ifndef CLANGBACKEND_CONNECTIONCLIENT_H
 #define CLANGBACKEND_CONNECTIONCLIENT_H
 
+#include "ipcserverproxy.h"
+
 #include <QLocalSocket>
 
 #include <memory>
-
-#include "ipcserverproxy.h"
 
 QT_BEGIN_NAMESPACE
 class QProcess;

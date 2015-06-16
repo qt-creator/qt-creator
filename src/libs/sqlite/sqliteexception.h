@@ -31,9 +31,9 @@
 #ifndef SQLITEEXCEPTION_H
 #define SQLITEEXCEPTION_H
 
-#include <QByteArray>
-
 #include "sqliteglobal.h"
+
+#include <QByteArray>
 
 class SQLITE_EXPORT SqliteException
 {

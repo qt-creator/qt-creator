@@ -30,19 +30,18 @@
 
 #include "ipcserverproxy.h"
 
-#include <QProcess>
-#include <QLocalSocket>
-#include <QLocalServer>
-
-#include <cmbendcommand.h>
 #include <cmbalivecommand.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbregisterprojectsforcodecompletioncommand.h>
-#include <cmbunregisterprojectsforcodecompletioncommand.h>
 #include <cmbcompletecodecommand.h>
-
+#include <cmbendcommand.h>
+#include <cmbregisterprojectsforcodecompletioncommand.h>
+#include <cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <cmbunregisterprojectsforcodecompletioncommand.h>
+#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
 #include <ipcclientinterface.h>
+
+#include <QLocalServer>
+#include <QLocalSocket>
+#include <QProcess>
 
 namespace ClangBackEnd {
 

@@ -12,7 +12,6 @@ INCLUDEPATH += $$PWD
 
 SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/ipcserverproxy.cpp \
-    $$PWD/ipcserver.cpp \
     $$PWD/ipcclientinterface.cpp \
     $$PWD/cmbendcommand.cpp \
     $$PWD/cmbalivecommand.cpp \
@@ -42,7 +41,6 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
 HEADERS += \
     $$PWD/ipcserverinterface.h \
     $$PWD/ipcserverproxy.h \
-    $$PWD/ipcserver.h \
     $$PWD/ipcclientinterface.h \
     $$PWD/cmbendcommand.h \
     $$PWD/cmbalivecommand.h \

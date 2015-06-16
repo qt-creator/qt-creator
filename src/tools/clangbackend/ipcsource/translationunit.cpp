@@ -30,17 +30,16 @@
 
 #include "translationunit.h"
 
-#include <QFileInfo>
+#include "codecompleter.h"
+#include "projectpart.h"
+#include "translationunitfilenotexitexception.h"
+#include "translationunitisnullexception.h"
+#include "translationunitparseerrorexception.h"
+#include "unsavedfiles.h"
 
 #include <utf8string.h>
 
-#include "codecompleter.h"
-
-#include "translationunitisnullexception.h"
-#include "translationunitfilenotexitexception.h"
-#include "translationunitparseerrorexception.h"
-#include "unsavedfiles.h"
-#include "projectpart.h"
+#include <QFileInfo>
 
 namespace ClangBackEnd {
 

@@ -35,8 +35,8 @@
 
 #include "filecontainer.h"
 
-#include <QVector>
 #include <QMetaType>
+#include <QVector>
 
 namespace ClangBackEnd {
 

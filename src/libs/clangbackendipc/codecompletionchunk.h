@@ -31,11 +31,11 @@
 #ifndef CLANGBACKEND_CODECOMPLETIONCHUNK_H
 #define CLANGBACKEND_CODECOMPLETIONCHUNK_H
 
+#include "clangbackendipc_global.h"
+
 #include <utf8string.h>
 
 #include <QVector>
-
-#include "clangbackendipc_global.h"
 
 namespace ClangBackEnd {
 

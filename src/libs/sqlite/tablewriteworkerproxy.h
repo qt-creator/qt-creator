@@ -31,11 +31,11 @@
 #ifndef INTERNAL_TABLEWRITEWORKERPROXY_H
 #define INTERNAL_TABLEWRITEWORKERPROXY_H
 
+#include "createtablecommand.h"
+
 #include <QObject>
 
 #include <memory>
-
-#include "createtablecommand.h"
 
 QT_BEGIN_NAMESPACE
 class QThread;

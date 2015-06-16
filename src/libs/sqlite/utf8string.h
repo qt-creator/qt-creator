@@ -31,10 +31,10 @@
 #ifndef UTF8STRING_H
 #define UTF8STRING_H
 
+#include "sqliteglobal.h"
+
 #include <QByteArray>
 #include <QMetaType>
-
-#include "sqliteglobal.h"
 
 class Utf8StringVector;
 class Utf8String;

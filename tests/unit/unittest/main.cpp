@@ -28,12 +28,14 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-
-#include <cmbcommands.h>
 #include <sqliteglobal.h>
 
+#include <cmbcommands.h>
+
 #include <QCoreApplication>
+
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 int main(int argc, char *argv[])
 {

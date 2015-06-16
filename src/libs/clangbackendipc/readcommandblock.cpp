@@ -31,9 +31,9 @@
 #include "readcommandblock.h"
 
 #include <QDataStream>
+#include <QDebug>
 #include <QIODevice>
 #include <QVariant>
-#include <QtDebug>
 
 namespace ClangBackEnd {
 

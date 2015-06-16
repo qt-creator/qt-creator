@@ -31,9 +31,9 @@
 #include <QString>
 #include <QDebug>
 
-#include <iostream>
-
 #include <gtest/gtest-printers.h>
+
+#include <iostream>
 
 #ifndef GTESTQTPRINTING_H
 #define GTESTQTPRINTING_H

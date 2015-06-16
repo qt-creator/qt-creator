@@ -31,22 +31,20 @@
 #ifndef SQLITESTATEMENT_H
 #define SQLITESTATEMENT_H
 
-#include <type_traits>
-#include <memory>
+#include "sqliteglobal.h"
+
+#include "sqliteexception.h"
+#include "utf8stringvector.h"
 
 #include <QString>
 #include <QVariant>
 #include <QVector>
 
-#include "sqliteglobal.h"
+#include <type_traits>
+#include <memory>
 
 struct sqlite3_stmt;
 struct sqlite3;
-
-#include "sqliteexception.h"
-#include "utf8stringvector.h"
-
-
 
 class SQLITE_EXPORT SqliteStatement
 {

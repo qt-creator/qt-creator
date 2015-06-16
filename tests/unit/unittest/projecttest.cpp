@@ -28,16 +28,15 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock-generated-matchers.h"
-#include "gtest-qt-printing.h"
-
 #include <projectpart.h>
-#include <utf8stringvector.h>
-#include <projects.h>
 #include <projectpartsdonotexistexception.h>
+#include <projects.h>
+#include <utf8stringvector.h>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 #include <chrono>
 #include <thread>

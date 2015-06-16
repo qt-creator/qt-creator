@@ -30,7 +30,7 @@
 
 #include "projectpartcontainer.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 #include <QDataStream>
 

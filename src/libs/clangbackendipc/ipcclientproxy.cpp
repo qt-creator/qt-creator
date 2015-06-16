@@ -30,19 +30,18 @@
 
 #include "ipcclientproxy.h"
 
-#include <cmbalivecommand.h>
-
-#include <QVariant>
-#include <QVector>
-#include <QIODevice>
-#include <QtDebug>
-
-#include "ipcserverinterface.h"
+#include "cmbalivecommand.h"
+#include "cmbcodecompletedcommand.h"
 #include "cmbechocommand.h"
 #include "cmbregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbcodecompletedcommand.h"
-#include "translationunitdoesnotexistcommand.h"
+#include "ipcserverinterface.h"
 #include "projectpartsdonotexistcommand.h"
+#include "translationunitdoesnotexistcommand.h"
+
+#include <QDebug>
+#include <QIODevice>
+#include <QVariant>
+#include <QVector>
 
 namespace ClangBackEnd {
 

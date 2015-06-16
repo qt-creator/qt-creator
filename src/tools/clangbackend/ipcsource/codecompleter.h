@@ -31,10 +31,11 @@
 #ifndef CLANGBACKEND_CODECOMPLETER_H
 #define CLANGBACKEND_CODECOMPLETER_H
 
-#include <codecompletion.h>
-#include <utf8stringvector.h>
-
 #include "translationunit.h"
+
+#include <codecompletion.h>
+
+#include <utf8stringvector.h>
 
 namespace ClangBackEnd {
 

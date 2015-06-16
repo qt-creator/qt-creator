@@ -31,8 +31,10 @@
 #ifndef CLANGBACKEND_CONNECTIONSERVER_H
 #define CLANGBACKEND_CONNECTIONSERVER_H
 
-#include <QLocalServer>
 #include <ipcclientproxy.h>
+
+#include <QLocalServer>
+
 #include <vector>
 
 namespace ClangBackEnd {

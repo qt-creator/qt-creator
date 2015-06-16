@@ -33,8 +33,9 @@
 
 #include "clangbackendipc_global.h"
 
-#include <QMetaType>
 #include <utf8string.h>
+
+#include <QMetaType>
 
 namespace ClangBackEnd {
 

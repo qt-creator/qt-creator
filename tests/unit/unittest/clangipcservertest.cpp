@@ -28,33 +28,31 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock.h"
+#include "mockipclient.h"
 
-#include "gtest-qt-printing.h"
-
+#include <clangipcserver.h>
 #include <ipcclientproxy.h>
 #include <ipcserverproxy.h>
-#include <clangipcserver.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitparseerrorexception.h>
 
 #include <cmbcodecompletedcommand.h>
 #include <cmbcompletecodecommand.h>
 #include <cmbechocommand.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
 #include <cmbregisterprojectsforcodecompletioncommand.h>
+#include <cmbregistertranslationunitsforcodecompletioncommand.h>
 #include <cmbunregisterprojectsforcodecompletioncommand.h>
-#include <translationunitdoesnotexistcommand.h>
+#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
 #include <projectpartsdonotexistcommand.h>
+#include <translationunitdoesnotexistcommand.h>
 
 #include <QBuffer>
 #include <QFile>
-#include <projectpartsdonotexistcommand.h>
 
-#include "mockipclient.h"
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 using testing::Property;
 using testing::Contains;

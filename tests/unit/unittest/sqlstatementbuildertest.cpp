@@ -28,15 +28,16 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gtest-qt-printing.h"
+#include <sqlstatementbuilderexception.h>
+#include <sqlstatementbuilder.h>
+#include <utf8stringvector.h>
 
 #include <QString>
 
-#include <sqlstatementbuilder.h>
-#include <sqlstatementbuilderexception.h>
-#include <utf8stringvector.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 using namespace ::testing;
 

@@ -31,9 +31,9 @@
 #ifndef CLANGBACKEND_PROJECTS_H
 #define CLANGBACKEND_PROJECTS_H
 
-#include <projectpartcontainer.h>
-
 #include "projectpart.h"
+
+#include <projectpartcontainer.h>
 
 #include <vector>
 

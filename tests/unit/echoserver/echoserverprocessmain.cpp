@@ -28,11 +28,11 @@
 **
 ****************************************************************************/
 
-#include <QCoreApplication>
+#include <cmbcommands.h>
+#include <connectionserver.h>
+#include <echoipcserver.h>
 
-#include "echoipcserver.h"
-#include "connectionserver.h"
-#include "cmbcommands.h"
+#include <QCoreApplication>
 
 int main(int argc, char *argv[])
 {

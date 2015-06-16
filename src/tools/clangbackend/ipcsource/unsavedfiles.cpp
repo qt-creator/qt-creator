@@ -30,7 +30,6 @@
 
 #include "unsavedfiles.h"
 
-
 #include <cstring>
 
 namespace ClangBackEnd {

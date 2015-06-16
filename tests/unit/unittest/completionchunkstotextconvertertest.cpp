@@ -28,14 +28,13 @@
 **
 ****************************************************************************/
 
-
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock-generated-matchers.h"
-#include "gtest-qt-printing.h"
-
 #include <codecompletionchunk.h>
 #include <completionchunkstotextconverter.h>
+
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 namespace {
 

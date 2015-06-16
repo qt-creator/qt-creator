@@ -31,9 +31,9 @@
 #ifndef CLANGBACKEND_PROJECT_H
 #define CLANGBACKEND_PROJECT_H
 
+#include <chrono>
 #include <memory>
 #include <vector>
-#include <chrono>
 
 class Utf8String;
 class Utf8StringVector;

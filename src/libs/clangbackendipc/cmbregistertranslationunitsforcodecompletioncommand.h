@@ -31,10 +31,10 @@
 #ifndef CLANGBACKEND_REGISTERFILEFORCODECOMPLETION_H
 #define CLANGBACKEND_REGISTERFILEFORCODECOMPLETION_H
 
-#include <qmetatype.h>
-
-#include <QVector>
 #include "filecontainer.h"
+
+#include <QMetaType>
+#include <QVector>
 
 namespace ClangBackEnd {
 

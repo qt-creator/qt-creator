@@ -30,14 +30,14 @@
 
 #include "ipcserverinterface.h"
 
-#include <QVariant>
-#include <QtDebug>
-
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbregisterprojectsforcodecompletioncommand.h"
-#include "cmbunregisterprojectsforcodecompletioncommand.h"
 #include "cmbcompletecodecommand.h"
+#include "cmbregisterprojectsforcodecompletioncommand.h"
+#include "cmbregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbunregisterprojectsforcodecompletioncommand.h"
+#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
+
+#include <QDebug>
+#include <QVariant>
 
 namespace ClangBackEnd {
 

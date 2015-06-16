@@ -30,9 +30,9 @@
 
 #include "projects.h"
 
-#include <QtGlobal>
-
 #include "projectpartsdonotexistexception.h"
+
+#include <QtGlobal>
 
 namespace ClangBackEnd {
 

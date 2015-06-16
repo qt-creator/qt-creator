@@ -31,7 +31,6 @@
 #include "codecompletionchunk.h"
 
 #include <QDataStream>
-
 #include <QDebug>
 
 #include <ostream>

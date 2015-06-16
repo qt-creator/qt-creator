@@ -30,12 +30,11 @@
 
 #include "codecompleter.h"
 
-#include "clangstring.h"
 #include "clangcodecompleteresults.h"
-#include "translationunit.h"
+#include "clangstring.h"
 #include "codecompletefailedexception.h"
-
 #include "codecompletionsextractor.h"
+#include "translationunit.h"
 
 #include <clang-c/Index.h>
 

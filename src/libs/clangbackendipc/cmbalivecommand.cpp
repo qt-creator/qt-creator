@@ -30,9 +30,8 @@
 
 #include "cmbalivecommand.h"
 
-#include <QtDebug>
-
 #include <QDataStream>
+#include <QDebug>
 
 namespace ClangBackEnd {
 

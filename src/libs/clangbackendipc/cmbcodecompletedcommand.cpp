@@ -30,9 +30,8 @@
 
 #include "cmbcodecompletedcommand.h"
 
-#include <QDebug>
-
 #include <QDataStream>
+#include <QDebug>
 
 #include <ostream>
 

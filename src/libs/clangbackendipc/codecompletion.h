@@ -31,12 +31,12 @@
 #ifndef CLANGBACKEND_CODECOMPLETION_H
 #define CLANGBACKEND_CODECOMPLETION_H
 
-#include <QMetaType>
-#include <utf8string.h>
-
+#include "clangbackendipc_global.h"
 #include "codecompletionchunk.h"
 
-#include "clangbackendipc_global.h"
+#include <utf8string.h>
+
+#include <QMetaType>
 
 namespace ClangBackEnd {
 

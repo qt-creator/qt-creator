@@ -31,9 +31,9 @@
 #ifndef CLANGBACKEND_TRANSLATIONUNITDOESNOTEXISTSCOMMAND_H
 #define CLANGBACKEND_TRANSLATIONUNITDOESNOTEXISTSCOMMAND_H
 
-#include <QMetaType>
-
 #include "filecontainer.h"
+
+#include <QMetaType>
 
 namespace ClangBackEnd {
 

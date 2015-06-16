@@ -30,11 +30,11 @@
 
 #include "projectpart.h"
 
-#include <cstring>
+#include <projectpartcontainer.h>
 
 #include <utf8stringvector.h>
 
-#include <projectpartcontainer.h>
+#include <cstring>
 
 namespace ClangBackEnd {
 

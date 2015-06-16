@@ -31,11 +31,10 @@
 #ifndef CREATETABLESQLSTATEMENTBUILDER_H
 #define CREATETABLESQLSTATEMENTBUILDER_H
 
-#include <QVector>
-
+#include "columndefinition.h"
 #include "sqlstatementbuilder.h"
 
-#include "columndefinition.h"
+#include <QVector>
 
 namespace Internal {
 

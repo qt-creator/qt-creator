@@ -31,9 +31,9 @@
 #ifndef SQLITEDATABASECONNECTIONCONTROLLER_H
 #define SQLITEDATABASECONNECTIONCONTROLLER_H
 
-#include <QObject>
-
 #include "sqlitedatabasebackend.h"
+
+#include <QObject>
 
 struct sqlite3;
 

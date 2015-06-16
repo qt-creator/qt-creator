@@ -46,7 +46,6 @@ SOURCES += main.cpp \
     readandwritecommandblocktest.cpp \
     clientserverinprocesstest.cpp \
     clientserveroutsideprocess.cpp \
-    gtest-qt-printing.cpp \
     codecompletiontest.cpp \
     ../../../src/libs/utils/qtcassert.cpp \
     clangstringtest.cpp \

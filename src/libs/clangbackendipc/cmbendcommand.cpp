@@ -30,9 +30,8 @@
 
 #include "cmbendcommand.h"
 
-#include <QtDebug>
-
 #include <QDataStream>
+#include <QDebug>
 
 #include <ostream>
 

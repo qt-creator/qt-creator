@@ -31,11 +31,11 @@
 #ifndef CLANGBACKEND_FILECONTAINER_H
 #define CLANGBACKEND_FILECONTAINER_H
 
-#include <qmetatype.h>
+#include <clangbackendipc_global.h>
 
 #include <utf8string.h>
 
-#include <clangbackendipc_global.h>
+#include <QMetaType>
 
 namespace ClangBackEnd {
 

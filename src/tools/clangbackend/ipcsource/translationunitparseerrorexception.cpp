@@ -30,8 +30,6 @@
 
 #include "translationunitparseerrorexception.h"
 
-
-
 namespace ClangBackEnd {
 
 TranslationUnitParseErrorException::TranslationUnitParseErrorException(const Utf8String &filePath, const Utf8String &projectPartId)

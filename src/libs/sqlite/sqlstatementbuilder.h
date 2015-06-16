@@ -31,10 +31,10 @@
 #ifndef SQLSTATEMENTBUILDER_H
 #define SQLSTATEMENTBUILDER_H
 
-#include <vector>
-#include <utility>
-
 #include "utf8string.h"
+
+#include <utility>
+#include <vector>
 
 class SQLITE_EXPORT SqlStatementBuilder
 {

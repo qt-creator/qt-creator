@@ -30,25 +30,24 @@
 
 #include "clangipcserver.h"
 
-#include <QCoreApplication>
-
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbregisterprojectsforcodecompletioncommand.h>
-#include <cmbunregisterprojectsforcodecompletioncommand.h>
 #include <cmbcodecompletedcommand.h>
 #include <cmbcompletecodecommand.h>
-#include <translationunitdoesnotexistcommand.h>
+#include <cmbregisterprojectsforcodecompletioncommand.h>
+#include <cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <cmbunregisterprojectsforcodecompletioncommand.h>
+#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
 #include <projectpartsdonotexistcommand.h>
+#include <translationunitdoesnotexistcommand.h>
 
-#include "translationunits.h"
 #include "codecompleter.h"
-#include "translationunitdoesnotexistexception.h"
-#include "translationunitisnullexception.h"
-#include "translationunitfilenotexitexception.h"
 #include "projectpartsdonotexistexception.h"
+#include "translationunitdoesnotexistexception.h"
+#include "translationunitfilenotexitexception.h"
+#include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
+#include "translationunits.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 
 namespace ClangBackEnd {

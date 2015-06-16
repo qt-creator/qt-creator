@@ -28,26 +28,25 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gtest-qt-printing.h"
+#include <cmbalivecommand.h>
+#include <cmbcodecompletedcommand.h>
+#include <cmbcommands.h>
+#include <cmbcompletecodecommand.h>
+#include <cmbendcommand.h>
+#include <cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <readcommandblock.h>
+#include <writecommandblock.h>
 
-#include <QString>
 #include <QBuffer>
+#include <QString>
 #include <QVariant>
 #include <vector>
 
-#include <cmbendcommand.h>
-#include <cmbalivecommand.h>
-#include <cmbcommands.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbcodecompletedcommand.h>
-#include <cmbcompletecodecommand.h>
-#include <writecommandblock.h>
-#include <readcommandblock.h>
-
-#include "gtest-qt-printing.h"
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 using namespace testing;
 namespace CodeModelBackeEndTest {

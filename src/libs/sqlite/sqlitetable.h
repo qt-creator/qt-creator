@@ -31,12 +31,12 @@
 #ifndef SQLITETABLE_H
 #define SQLITETABLE_H
 
-#include <QObject>
-#include <QVector>
-#include "utf8string.h"
-
 #include "sqliteglobal.h"
 #include "tablewriteworkerproxy.h"
+#include "utf8string.h"
+
+#include <QObject>
+#include <QVector>
 
 class SqliteColumn;
 class SqliteDatabase;

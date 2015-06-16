@@ -31,13 +31,13 @@
 #ifndef CLANGBACKEND_IPCINTERFACE_H
 #define CLANGBACKEND_IPCINTERFACE_H
 
+#include "clangbackendipc_global.h"
+
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QVariant;
 QT_END_NAMESPACE
-
-#include "clangbackendipc_global.h"
 
 namespace ClangBackEnd {
 

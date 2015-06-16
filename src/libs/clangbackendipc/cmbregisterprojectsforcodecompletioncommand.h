@@ -31,10 +31,10 @@
 #ifndef CLANGBACKEND_REGISTERPROJECTSFORCODECOMPLETIONCOMAND_H
 #define CLANGBACKEND_REGISTERPROJECTSFORCODECOMPLETIONCOMAND_H
 
+#include "projectpartcontainer.h"
+
 #include <QMetaType>
 #include <QVector>
-
-#include "projectpartcontainer.h"
 
 namespace ClangBackEnd {
 

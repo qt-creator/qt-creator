@@ -28,16 +28,17 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock.h"
-#include "gtest-qt-printing.h"
+#include <clangstring.h>
+
+#include <utf8string.h>
 
 #include <clang-c/CXString.h>
 #include <clang-c/Index.h>
 
-#include <clangstring.h>
-#include <utf8string.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include <gtest-qt-printing.h>
 
 namespace {
 

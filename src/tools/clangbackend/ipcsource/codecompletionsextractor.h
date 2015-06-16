@@ -31,11 +31,11 @@
 #ifndef CLANGBACKEND_CODECOMPLETIONSEXTRACTOR_H
 #define CLANGBACKEND_CODECOMPLETIONSEXTRACTOR_H
 
+#include <codecompletion.h>
+
 #include <clang-c/Index.h>
 
 #include <QVector>
-
-#include <codecompletion.h>
 
 namespace ClangBackEnd {
 

@@ -30,7 +30,6 @@
 
 #include "sqlitereadwritestatement.h"
 
-
 SqliteReadWriteStatement::SqliteReadWriteStatement(const Utf8String &sqlStatementUft8)
     : SqliteStatement(sqlStatementUft8)
 {

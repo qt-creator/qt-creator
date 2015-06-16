@@ -31,11 +31,11 @@
 #ifndef CLANGBACKEND_PROJECTPARTSDONOTEXISTCOMMAND_H
 #define CLANGBACKEND_PROJECTPARTSDONOTEXISTCOMMAND_H
 
-#include <QMetaType>
+#include "clangbackendipc_global.h"
 
 #include <utf8stringvector.h>
 
-#include "clangbackendipc_global.h"
+#include <QMetaType>
 
 namespace ClangBackEnd {
 

@@ -30,15 +30,15 @@
 
 #include "sqlitestatement.h"
 
-#include <QMutex>
-#include <QWaitCondition>
-#include <QVariant>
-#include <QtGlobal>
-
-#include "sqlite3.h"
-
 #include "sqlitedatabasebackend.h"
 #include "sqliteexception.h"
+
+#include <QMutex>
+#include <QtGlobal>
+#include <QVariant>
+#include <QWaitCondition>
+
+#include "sqlite3.h"
 
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wignored-qualifiers"
