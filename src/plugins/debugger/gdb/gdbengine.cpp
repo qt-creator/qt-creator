@@ -606,6 +606,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             } else if (asyncClass == "memory-changed") {
                 // New since 2013
                 //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
+            } else if (asyncClass == "tsv-created") {
+                // New since 2013-02-06
+            } else if (asyncClass == "tsv-modified") {
+                // New since 2013-02-06
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
