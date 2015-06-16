@@ -55,6 +55,9 @@ public:
     RemoteLinuxRunConfigurationWidgetPrivate(RemoteLinuxRunConfiguration *runConfig)
         : runConfiguration(runConfig), ignoreChange(false)
     {
+        const auto selectable = Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse;
+        localExecutableLabel.setTextInteractionFlags(selectable);
+        remoteExecutableLabel.setTextInteractionFlags(selectable);
     }
 
     RemoteLinuxRunConfiguration * const runConfiguration;
