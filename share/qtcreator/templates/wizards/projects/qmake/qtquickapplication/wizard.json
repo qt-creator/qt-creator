@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application",
     "icon": "qml_wizard.png",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.2.4", "QtSupport.Wizards.FeatureQt" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureQtQuick.2" ],
     "enabled": "${JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
 
     "options":
@@ -81,7 +81,16 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "data": { "projectFilePath": "%{ProFileName}" }
+            "data": {
+                "projectFilePath": "%{ProFileName}",
+                "requiredFeatures":
+                [
+                    "QtSupport.Wizards.FeatureQt",
+                    { "feature": "QtSupport.Wizards.FeatureQtQuick.2.3", "condition": "%{JS: '%{QtQuickVersion}' === '2.3'}" },
+                    { "feature": "QtSupport.Wizards.FeatureQtQuick.2.4", "condition": "%{JS: '%{QtQuickVersion}' === '2.4'}" },
+                    { "feature": "QtSupport.Wizards.FeatureQtQuick.2.5", "condition": "%{JS: '%{QtQuickVersion}' === '2.5'}" }
+                ]
+            }
         },
         {
             "trDisplayName": "Project Management",
