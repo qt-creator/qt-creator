@@ -141,7 +141,7 @@ void UpdateInfoPlugin::stopCheckForUpdates()
     if (!d->m_checkUpdatesCommand)
         return;
 
-    d->m_collectedOutput = QString();
+    d->m_collectedOutput.clear();
     d->m_checkUpdatesCommand->disconnect();
     d->m_checkUpdatesCommand->cancel();
     d->m_checkUpdatesCommand = 0;
@@ -203,7 +203,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     if (!QFileInfo(d->m_maintenanceTool).isExecutable()) {
         *errorMessage = tr("The maintenance tool at \"%1\" is not an executable. Check your installation.")
             .arg(d->m_maintenanceTool);
-        d->m_maintenanceTool = QString();
+        d->m_maintenanceTool.clear();
         return false;
     }
 
