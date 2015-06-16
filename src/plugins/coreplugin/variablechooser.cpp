@@ -77,6 +77,8 @@ public:
 
     void contextMenuEvent(QContextMenuEvent *ev);
 
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
 private:
     VariableChooserPrivate *m_target;
 };
@@ -225,6 +227,12 @@ void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
         m_target->insertText(expandedText);
 }
 
+void VariableTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+    m_target->updateDescription(current);
+}
+
 VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     : q(parent),
       m_lineEdit(0),
@@ -248,8 +256,6 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     verticalLayout->addWidget(m_variableTree);
     verticalLayout->addWidget(m_variableDescription);
 
-    connect(m_variableTree, &QTreeView::clicked,
-            this, &VariableChooserPrivate::updateDescription);
     connect(m_variableTree, &QTreeView::activated,
             this, &VariableChooserPrivate::handleItemActivated);
     connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
