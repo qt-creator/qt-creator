@@ -983,6 +983,9 @@ bool PluginSpecPrivate::initializePlugin()
     if (!plugin->initialize(arguments, &err)) {
         errorString = QCoreApplication::translate("PluginSpec", "Plugin initialization failed: %1").arg(err);
         hasError = true;
+        // clean up
+        loader.unload();
+        plugin = 0;
         return false;
     }
     state = PluginSpec::Initialized;
