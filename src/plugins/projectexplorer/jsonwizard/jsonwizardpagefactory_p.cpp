@@ -128,6 +128,8 @@ bool FilePageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
 // KitsPageFactory:
 // --------------------------------------------------------------------
 
+static const char KEY_PROJECT_FILE[] = "projectFilePath";
+
 KitsPageFactory::KitsPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Kits"));
@@ -139,7 +141,7 @@ Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, 
     QTC_ASSERT(canCreate(typeId), return 0);
 
     JsonKitsPage *page = new JsonKitsPage;
-    page->setUnexpandedProjectPath(data.toMap().value(QLatin1String("projectFilePath")).toString());
+    page->setUnexpandedProjectPath(data.toMap().value(QLatin1String(KEY_PROJECT_FILE)).toString());
 
     return page;
 }
@@ -155,9 +157,10 @@ bool KitsPageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
     }
 
     QVariantMap tmp = data.toMap();
-    if (tmp.value(QLatin1String("projectFilePath")).toString().isEmpty()) {
+    if (tmp.value(QLatin1String(KEY_PROJECT_FILE)).toString().isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"Kits\" page requires a \"projectFilePath\" set.");
+                                                    "\"Kits\" page requires a \"%1\" set.")
+                .arg(QLatin1String(KEY_PROJECT_FILE));
         return false;
     }
 
