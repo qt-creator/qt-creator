@@ -102,8 +102,6 @@ enum DebuggerState
     InferiorStopOk,            // Debuggee stopped
     InferiorStopFailed,        // Debuggee not stopped, will kill debugger
 
-    InferiorExitOk,
-
     InferiorShutdownRequested,
     InferiorShutdownFailed,
     InferiorShutdownOk,

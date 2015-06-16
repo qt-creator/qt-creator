@@ -135,7 +135,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorStopFailed:
     case InferiorSetupOk:
     case EngineRunFailed:
-    case InferiorExitOk:
     case InferiorRunFailed:
     case EngineShutdownOk:
     case EngineShutdownFailed:
@@ -1876,11 +1875,14 @@ void GdbEngine::shutdownInferior()
 
 void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorShutdownRequested);
     if (response.resultClass == ResultDone) {
-        notifyInferiorShutdownOk();
+        // We'll get async thread-group-exited responses to which we react.
+        // Nothing to do here.
+        // notifyInferiorShutdownOk();
         return;
     }
+    // "kill" got stuck, or similar.
+    CHECK_STATE(InferiorShutdownRequested);
     QByteArray ba = response.data["msg"].data();
     if (ba.contains(": No such file or directory.")) {
         // This happens when someone removed the binary behind our back.

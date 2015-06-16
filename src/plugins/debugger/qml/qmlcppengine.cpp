@@ -649,12 +649,6 @@ void QmlCppEngine::slaveEngineStateChanged
             notifyInferiorStopFailed();
             break;
         }
-        case InferiorExitOk: {
-            // InferiorExitOk will be called through notifyInferiorExited
-            // when InferiorShutDownOk is reached
-            qmlEngine()->quitDebugger();
-            break;
-        }
         case InferiorShutdownRequested: {
             if (state() == InferiorStopOk) {
                 setState(InferiorShutdownRequested);

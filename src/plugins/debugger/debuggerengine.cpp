@@ -382,7 +382,6 @@ const char *DebuggerEngine::stateName(int s)
         SN(InferiorStopRequested)
         SN(InferiorStopOk)
         SN(InferiorStopFailed)
-        SN(InferiorExitOk)
         SN(InferiorShutdownRequested)
         SN(InferiorShutdownOk)
         SN(InferiorShutdownFailed)
@@ -720,19 +719,16 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == InferiorStopOk;
     case InferiorRunOk:
         return to == InferiorStopRequested
-            || to == InferiorStopOk // A spontaneous stop.
-            || to == InferiorExitOk;
+            || to == InferiorStopOk       // A spontaneous stop.
+            || to == InferiorShutdownOk;  // A spontaneous exit.
 
     case InferiorStopRequested:
         return to == InferiorStopOk || to == InferiorStopFailed;
     case InferiorStopOk:
         return to == InferiorRunRequested || to == InferiorShutdownRequested
-            || to == InferiorStopOk || to == InferiorExitOk;
+            || to == InferiorStopOk || to == InferiorShutdownOk;
     case InferiorStopFailed:
         return to == EngineShutdownRequested;
-
-    case InferiorExitOk:
-        return to == InferiorShutdownOk;
 
     case InferiorUnrunnable:
         return to == InferiorShutdownRequested;
@@ -1201,7 +1197,6 @@ void DebuggerEngine::notifyInferiorExited()
 #endif
     showMessage(_("NOTE: INFERIOR EXITED"));
     d->resetLocation();
-    setState(InferiorExitOk);
     setState(InferiorShutdownOk);
     if (isMasterEngine())
         d->queueShutdownEngine();
@@ -1364,7 +1359,6 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case EngineRunFailed:
     case InferiorSetupFailed:
     case InferiorStopFailed:
-    case InferiorExitOk:
     case InferiorShutdownRequested:
     case InferiorShutdownOk:
     case InferiorShutdownFailed:
@@ -1428,7 +1422,6 @@ void DebuggerEngine::quitDebugger()
         break;
     case EngineRunFailed:
     case DebuggerFinished:
-    case InferiorExitOk:
     case InferiorShutdownOk:
         break;
     case InferiorSetupRequested:

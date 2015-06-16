@@ -275,7 +275,7 @@
    {notifyInferior-      +        +                                       +
       Exited}            +        +                                       +
            +             +        +                                       +
-     InferiorExitOk      +        +                                       +
+            +            +        +                                       +
              +           +        +                                       +
             InferiorShutdownOk InferiorShutdownFailed                     +
                       *          *                                        +
