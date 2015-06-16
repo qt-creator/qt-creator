@@ -48,7 +48,6 @@ class ModelManagerSupportClang:
         public CppTools::ModelManagerSupport
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ModelManagerSupportClang)
 
 public:
     ModelManagerSupportClang();
