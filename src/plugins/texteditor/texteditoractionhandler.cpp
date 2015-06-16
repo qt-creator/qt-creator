@@ -458,6 +458,14 @@ void TextEditorActionHandlerPrivate::createActions()
             G_EDIT_BLOCKS, advancedEditMenu);
 
     // register GOTO Actions
+    registerAction(GOTO_FILE_START,
+            [this] (TextEditorWidget *w) { w->gotoFileStart(); }, true, tr("Go to File Start"));
+    registerAction(GOTO_FILE_END,
+            [this] (TextEditorWidget *w) { w->gotoFileEnd(); }, true, tr("Go to File End"));
+    registerAction(GOTO_FILE_START_WITH_SELECTION,
+            [this] (TextEditorWidget *w) { w->gotoFileStartWithSelection(); }, true, tr("Go to File Start with Selection"));
+    registerAction(GOTO_FILE_END_WITH_SELECTION,
+            [this] (TextEditorWidget *w) { w->gotoFileEndWithSelection(); }, true, tr("Go to File End with Selection"));
     registerAction(GOTO_LINE_START,
             [this] (TextEditorWidget *w) { w->gotoLineStart(); }, true, tr("Go to Line Start"));
     registerAction(GOTO_LINE_END,
