@@ -80,6 +80,8 @@ static bool isVirtualFunction_helper(const Function *function,
                         continue;
                     if (functionType == function) // already tested
                         continue;
+                    if (!function->isSignatureEqualTo(functionType))
+                        continue;
                     if (functionType->isFinal())
                         return res == True;
                     if (functionType->isVirtual()) {

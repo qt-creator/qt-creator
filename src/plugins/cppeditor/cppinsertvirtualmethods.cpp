@@ -1539,6 +1539,35 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "};\n"
     );
 
+    // Check: Overloads
+    QTest::newRow("Overloads")
+        << InsertVirtualMethodsDialog::ModeInsideClass << true << false << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int virt(int i) = 0;\n"
+        "    virtual int virt(double d) = 0;\n"
+        "};\n\n"
+        "class Derived : public Bas@eA {\n"
+        "};\n"
+        ) << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int virt(int i) = 0;\n"
+        "    virtual int virt(double d) = 0;\n"
+        "};\n\n"
+        "class Derived : public BaseA {\n"
+        "\n"
+        "    // BaseA interface\n"
+        "public:\n"
+        "    virtual int virt(int i)\n"
+        "    {\n"
+        "    }\n"
+        "    virtual int virt(double d)\n"
+        "    {\n"
+        "    }\n"
+        "};\n"
+    );
+
     // Check: Insert inside class
     QTest::newRow("inside")
         << InsertVirtualMethodsDialog::ModeInsideClass << true << false << _(
