@@ -38,8 +38,6 @@ class PasteBinDotCaProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    explicit PasteBinDotCaProtocol();
-
     static QString protocolName();
     QString name() const { return protocolName(); }
 
@@ -64,11 +62,11 @@ protected:
     virtual bool checkConfiguration(QString *errorMessage);
 
 private:
-    QNetworkReply *m_fetchReply;
-    QNetworkReply *m_listReply;
-    QNetworkReply *m_pasteReply;
+    QNetworkReply *m_fetchReply = nullptr;
+    QNetworkReply *m_listReply = nullptr;
+    QNetworkReply *m_pasteReply = nullptr;
     QString m_fetchId;
-    bool m_hostChecked;
+    bool m_hostChecked = false;
 };
 
 } // namespace CodePaster

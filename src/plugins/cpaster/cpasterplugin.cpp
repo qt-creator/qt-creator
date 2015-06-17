@@ -105,8 +105,7 @@ void CodePasterService::postClipboard()
 CodepasterPlugin *CodepasterPlugin::m_instance = 0;
 
 CodepasterPlugin::CodepasterPlugin() :
-    m_settings(new Settings),
-    m_postEditorAction(0), m_fetchAction(0)
+    m_settings(new Settings)
 {
     CodepasterPlugin::m_instance = this;
 }

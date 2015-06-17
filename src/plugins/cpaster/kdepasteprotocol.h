@@ -39,8 +39,6 @@ class StickyNotesPasteProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    StickyNotesPasteProtocol();
-
     virtual unsigned capabilities() const;
 
     virtual void fetch(const QString &id);
@@ -68,13 +66,13 @@ protected:
 private:
     QString m_hostUrl;
 
-    QNetworkReply *m_fetchReply;
-    QNetworkReply *m_pasteReply;
-    QNetworkReply *m_listReply;
+    QNetworkReply *m_fetchReply = nullptr;
+    QNetworkReply *m_pasteReply = nullptr;
+    QNetworkReply *m_listReply = nullptr;
 
     QString m_fetchId;
-    int m_postId;
-    bool m_hostChecked;
+    int m_postId = -1;
+    bool m_hostChecked = false;
 };
 
 class KdePasteProtocol : public StickyNotesPasteProtocol

@@ -94,12 +94,12 @@ private:
 
     static CodepasterPlugin *m_instance;
     const QSharedPointer<Settings> m_settings;
-    QAction *m_postEditorAction;
-    QAction *m_fetchAction;
-    QAction *m_fetchUrlAction;
+    QAction *m_postEditorAction = nullptr;
+    QAction *m_fetchAction = nullptr;
+    QAction *m_fetchUrlAction = nullptr;
     QList<Protocol*> m_protocols;
     QStringList m_fetchedSnippets;
-    Protocol *m_urlOpen;
+    Protocol *m_urlOpen = nullptr;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CodepasterPlugin::PasteSources)

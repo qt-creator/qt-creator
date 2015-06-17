@@ -47,7 +47,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private:
-    int m_columnIndicator;
+    int m_columnIndicator = 0;
     QFont m_columnIndicatorFont;
 };
 } // namespace CodePaster

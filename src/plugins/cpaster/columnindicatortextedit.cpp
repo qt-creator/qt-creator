@@ -36,7 +36,7 @@
 namespace CodePaster {
 
 ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
-        QTextEdit(parent), m_columnIndicator(0)
+        QTextEdit(parent)
 {
     QFont font;
     font.setFamily(QLatin1String("Courier New"));

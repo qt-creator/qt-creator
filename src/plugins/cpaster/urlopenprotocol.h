@@ -39,8 +39,6 @@ class UrlOpenProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    UrlOpenProtocol();
-
     QString name() const;
     unsigned capabilities() const;
     void fetch(const QString &url);
@@ -50,7 +48,7 @@ private slots:
     void fetchFinished();
 
 private:
-    QNetworkReply *m_fetchReply;
+    QNetworkReply *m_fetchReply = nullptr;
 };
 
 }

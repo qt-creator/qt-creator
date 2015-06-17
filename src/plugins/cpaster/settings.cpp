@@ -44,10 +44,6 @@ static const char displayOutputKeyC[] = "DisplayOutput";
 
 namespace CodePaster {
 
-Settings::Settings() : expiryDays(1), copyToClipboard(true), displayOutput(true)
-{
-}
-
 bool Settings::equals(const Settings &rhs) const
 {
     return copyToClipboard == rhs.copyToClipboard && displayOutput == rhs.displayOutput

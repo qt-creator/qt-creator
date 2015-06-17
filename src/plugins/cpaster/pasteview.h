@@ -89,7 +89,7 @@ private:
 
     Internal::Ui::ViewDialog m_ui;
     FileDataList m_parts;
-    Mode m_mode;
+    Mode m_mode = DiffChunkMode;
 };
 } // namespace CodePaster
 #endif // VIEW_H
