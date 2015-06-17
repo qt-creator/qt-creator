@@ -62,6 +62,7 @@
 #include <QPointer>
 
 using namespace Analyzer;
+using namespace Core;
 using namespace ProjectExplorer;
 
 namespace Valgrind {
@@ -69,7 +70,7 @@ namespace Internal {
 
 static ValgrindGlobalSettings *theGlobalSettings = 0;
 
-class ValgrindOptionsPage : public Core::IOptionsPage
+class ValgrindOptionsPage : public IOptionsPage
 {
 public:
     explicit ValgrindOptionsPage()
@@ -132,11 +133,13 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     theGlobalSettings->readSettings();
 
     addAutoReleasedObject(new ValgrindOptionsPage());
+    addAutoReleasedObject(new ValgrindRunControlFactory());
 
-    m_memcheckTool = new MemcheckTool(this);
-    m_memcheckWithGdbTool = new MemcheckWithGdbTool(this);
-    m_callgrindTool = new CallgrindTool(this);
+    return true;
+}
 
+void ValgrindPlugin::extensionsInitialized()
+{
     AnalyzerAction *action = 0;
 
     QString callgrindToolTip = tr("Valgrind Function Profile uses the "
@@ -145,25 +148,14 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     QString memcheckToolTip = tr("Valgrind Analyze Memory uses the "
          "Memcheck tool to find memory leaks.");
 
-    QString memcheckWithGdbToolTip = tr(
-                "Valgrind Analyze Memory with GDB uses the Memcheck tool to find memory leaks.\n"
-                "When a problem is detected, the application is interrupted and can be debugged.");
-
-    MemcheckTool *mcTool = m_memcheckTool;
+    auto mcTool = new MemcheckTool(this);
     auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
     auto mcRunControlCreator = [mcTool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
         return mcTool->createRunControl(sp, runConfiguration);
     };
 
-    MemcheckWithGdbTool *mcgTool = m_memcheckWithGdbTool;
-    auto mcgWidgetCreator = [mcgTool] { return mcgTool->createWidgets(); };
-    auto mcgRunControlCreator = [mcgTool](const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) {
-        return mcgTool->createRunControl(sp, runConfiguration);
-    };
-
-    CallgrindTool *cgTool = m_callgrindTool;
+    auto cgTool = new CallgrindTool(this);
     auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
     auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
@@ -184,15 +176,20 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
 
+        using namespace std::placeholders;
+        auto mcgTool = new MemcheckWithGdbTool(this);
         action = new AnalyzerAction(this);
         action->setActionId("MemcheckWithGdb.Local");
         action->setToolId("MemcheckWithGdb");
-        action->setWidgetCreator(mcgWidgetCreator);
-        action->setRunControlCreator(mcgRunControlCreator);
+        action->setWidgetCreator([mcgTool] { return mcgTool->createWidgets(); });
+        action->setRunControlCreator(std::bind(&MemcheckWithGdbTool::createRunControl,
+                                               mcgTool, _1, _2));
         action->setToolMode(DebugMode);
         action->setRunMode(ProjectExplorer::MemcheckWithGdbRunMode);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
-        action->setToolTip(memcheckWithGdbToolTip);
+        action->setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
+            "Memcheck tool to find memory leaks.\nWhen a problem is detected, "
+            "the application is interrupted and can be debugged."));
         action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
@@ -237,20 +234,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setUseSpecialStart();
     AnalyzerManager::addAction(action);
 
-    addAutoReleasedObject(new ValgrindRunControlFactory());
-
-    return true;
-}
-
-ValgrindGlobalSettings *ValgrindPlugin::globalSettings()
-{
-   return theGlobalSettings;
-}
-
-void ValgrindPlugin::extensionsInitialized()
-{
-    using namespace Core;
-
     // If there is a CppEditor context menu add our own context menu actions.
     if (ActionContainer *editorContextMenu =
             ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
@@ -259,7 +242,7 @@ void ValgrindPlugin::extensionsInitialized()
 
         QAction *action = new QAction(tr("Profile Costs of This Function and Its Callees"), this);
         action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
-        connect(action, &QAction::triggered, m_callgrindTool,
+        connect(action, &QAction::triggered, cgTool,
                 &CallgrindTool::handleShowCostsOfFunction);
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
             analyzerContext);
@@ -267,6 +250,11 @@ void ValgrindPlugin::extensionsInitialized()
         cmd->setAttribute(Command::CA_Hide);
         cmd->setAttribute(Command::CA_NonConfigurable);
     }
+}
+
+ValgrindGlobalSettings *ValgrindPlugin::globalSettings()
+{
+   return theGlobalSettings;
 }
 
 } // namespace Internal

@@ -39,9 +39,6 @@ namespace Valgrind {
 namespace Internal {
 
 class ValgrindGlobalSettings;
-class MemcheckTool;
-class MemcheckWithGdbTool;
-class CallgrindTool;
 
 class ValgrindPlugin : public ExtensionSystem::IPlugin
 {
@@ -56,11 +53,6 @@ public:
     void extensionsInitialized();
 
     static ValgrindGlobalSettings *globalSettings();
-
-private:
-    MemcheckTool *m_memcheckTool;
-    MemcheckWithGdbTool *m_memcheckWithGdbTool;
-    CallgrindTool *m_callgrindTool;
 };
 
 } // namespace Internal
