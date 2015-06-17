@@ -37,13 +37,12 @@ namespace Internal {
 
 ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model)
     : GenericProposal(cursorPos, model)
-    , m_replaceDotForArrow(static_cast<ClangAssistProposalModel *>(model)->m_replaceDotForArrow)
 {
 }
 
 bool ClangAssistProposal::isCorrective() const
 {
-    return m_replaceDotForArrow;
+    return ClangAssistProposalModel::replaceDotForArrow(model());
 }
 
 void ClangAssistProposal::makeCorrection(TextEditor::TextEditorWidget *editorWidget)

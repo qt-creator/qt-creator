@@ -44,6 +44,13 @@ const ClangAssistProposalItem &toClangAssistProposalItem(TextEditor::AssistPropo
 
 }
 
+bool ClangAssistProposalModel::replaceDotForArrow(TextEditor::IAssistProposalModel *model)
+{
+    auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model);
+
+    return clangAssistProposalModel->m_replaceDotForArrow;
+}
+
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
 {
     return true;

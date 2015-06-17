@@ -49,6 +49,9 @@ public:
 
     bool isSortable(const QString &prefix) const override;
 
+    static bool replaceDotForArrow(IAssistProposalModel *model);
+
+private:
     bool m_sortable;
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
