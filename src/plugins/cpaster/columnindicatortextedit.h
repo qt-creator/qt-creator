@@ -44,7 +44,7 @@ public:
     int columnIndicator() const { return m_columnIndicator; }
 
 protected:
-    virtual void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     int m_columnIndicator = 0;

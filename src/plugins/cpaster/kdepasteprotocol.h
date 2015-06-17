@@ -39,16 +39,16 @@ class StickyNotesPasteProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    virtual unsigned capabilities() const;
+    unsigned capabilities() const override;
 
-    virtual void fetch(const QString &id);
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
-    virtual void list();
+    void fetch(const QString &id) override;
+    void paste(const QString &text,
+               ContentType ct = Text,
+               int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
+    void list() override;
 
 
 
@@ -61,7 +61,7 @@ public slots:
     void listFinished();
 
 protected:
-    virtual bool checkConfiguration(QString *errorMessage = 0);
+    bool checkConfiguration(QString *errorMessage = 0) override;
 
 private:
     QString m_hostUrl;

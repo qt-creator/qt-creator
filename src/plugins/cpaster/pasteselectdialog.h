@@ -46,7 +46,7 @@ class PasteSelectDialog : public QDialog
 public:
     explicit PasteSelectDialog(const QList<Protocol*> &protocols,
                                QWidget *parent = 0);
-    ~PasteSelectDialog();
+    ~PasteSelectDialog() override;
 
     QString pasteId() const;
 

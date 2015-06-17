@@ -71,11 +71,11 @@ public:
     Q_DECLARE_FLAGS(PasteSources, PasteSource)
 
     CodepasterPlugin();
-    ~CodepasterPlugin();
+    ~CodepasterPlugin() override;
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
-    virtual void extensionsInitialized();
-    virtual ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     static CodepasterPlugin *instance();
 

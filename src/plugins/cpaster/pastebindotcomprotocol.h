@@ -42,16 +42,16 @@ public:
     static QString protocolName();
     QString name() const { return protocolName(); }
 
-    virtual unsigned capabilities() const;
+    unsigned capabilities() const override;
 
-    virtual void fetch(const QString &id);
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
-    virtual void list();
+    void fetch(const QString &id);
+    void paste(const QString &text,
+               ContentType ct = Text,
+               int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
+    void list() override;
 
 public slots:
     void fetchFinished();

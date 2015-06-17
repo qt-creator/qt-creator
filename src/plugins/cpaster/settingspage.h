@@ -63,11 +63,11 @@ class SettingsPage : public Core::IOptionsPage
 
 public:
     explicit SettingsPage(const QSharedPointer<Settings> &settings);
-    ~SettingsPage();
+    ~SettingsPage() override;
 
-    QWidget *widget();
-    void apply();
-    void finish() { }
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override { }
 
     void addProtocol(const QString& name);
 
