@@ -69,6 +69,7 @@ private slots:
 private:
     QString pluginsBaseDirectory() const;
     QString resourcesBaseDirectory() const;
+    QString libExecDirectory() const;
 
     QString m_projectFilePath;
     qbs::SetupProjectJob *m_qbsSetupProjectJob;

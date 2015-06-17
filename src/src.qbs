@@ -33,12 +33,16 @@ Project {
         property string resourcesInstallDir: project.ide_data_path + "/qbs"
         property string pluginsInstallDir: project.ide_plugin_path
         property string appInstallDir: project.ide_bin_path
+        property string libexecInstallDir: project.ide_libexec_path
+        property string relativeLibexecPath: FileInfo.relativePath(appInstallDir, libexecInstallDir)
         property string relativePluginsPath: FileInfo.relativePath(appInstallDir, pluginsInstallDir)
         property string relativeSearchPath: FileInfo.relativePath(appInstallDir,
                                                                   resourcesInstallDir)
+        property bool enableJava: project.enableQbsJavaSupport
 
         references: [
             qbsBaseDir + "/src/lib/libs.qbs",
+            qbsBaseDir + "/src/libexec/libexec.qbs",
             qbsBaseDir + "/src/plugins/plugins.qbs",
             qbsBaseDir + "/share/share.qbs",
             qbsBaseDir + "/src/app/apps.qbs",
