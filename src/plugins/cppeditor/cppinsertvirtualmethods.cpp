@@ -79,6 +79,7 @@ namespace CppEditor {
 namespace Internal {
 
 class InsertVirtualMethodsModel;
+class VirtualMethodsSettings;
 
 class InsertVirtualMethodsDialog : public QDialog
 {
@@ -96,21 +97,16 @@ public:
     };
 
     InsertVirtualMethodsDialog(QWidget *parent = 0);
+    ~InsertVirtualMethodsDialog();
     void initGui();
     void initData();
-    virtual ImplementationMode implementationMode() const;
-    virtual bool insertKeywordVirtual() const;
-    virtual bool insertOverrideReplacement() const;
-    virtual QString overrideReplacement() const;
-    int overrideReplacementIndex() const;
-    bool hideReimplementedFunctions() const;
+    virtual void saveSettings();
+    const VirtualMethodsSettings *settings() const;
 
     void setHasImplementationFile(bool file);
     void setHasReimplementedFunctions(bool functions);
 
     virtual bool gather();
-
-    QStringList userAddedOverrideReplacements() const;
 
 protected:
     void setInsertOverrideReplacement(bool insert);
@@ -136,6 +132,9 @@ private:
     QStringList m_availableOverrideReplacements;
     bool m_hasImplementationFile;
     bool m_hasReimplementedFunctions;
+
+protected:
+    VirtualMethodsSettings *m_settings;
 
     void saveExpansionState();
     void restoreExpansionState();
@@ -308,91 +307,54 @@ QStringList sortedAndTrimmedStringListWithoutEmptyElements(const QStringList &li
 namespace CppEditor {
 namespace Internal {
 
-class Settings
+class VirtualMethodsSettings
 {
 public:
-    static bool insertVirtualKeyword()
+    void read()
     {
-        return settings()->value(insertVirtualKeywordKey(), false).toBool();
+        QSettings *s = Core::ICore::settings();
+        s->beginGroup(group());
+        insertVirtualKeyword = s->value(insertVirtualKeywordKey(), false).toBool();
+        hideReimplementedFunctions = s->value(hideReimplementedFunctionsKey(), false).toBool();
+        insertOverrideReplacement = s->value(insertOverrideReplacementKey(), false).toBool();
+        overrideReplacementIndex = s->value(overrideReplacementIndexKey(), 0).toInt();
+        userAddedOverrideReplacements = s->value(userAddedOverrideReplacementsKey()).toStringList();
+        implementationMode = static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
+                    s->value(implementationModeKey(), 1).toInt());
+        s->endGroup();
     }
 
-    static void writeInsertVirtualKeyword(bool insert)
+    void write() const
     {
-        settings()->setValue(insertVirtualKeywordKey(), insert);
+        QSettings *s = Core::ICore::settings();
+        s->beginGroup(group());
+        s->setValue(insertVirtualKeywordKey(), insertVirtualKeyword);
+        s->setValue(hideReimplementedFunctionsKey(), hideReimplementedFunctions);
+        s->setValue(insertOverrideReplacementKey(), insertOverrideReplacement);
+        s->setValue(overrideReplacementIndexKey(), overrideReplacementIndex);
+        s->setValue(userAddedOverrideReplacementsKey(), userAddedOverrideReplacements);
+        s->setValue(implementationModeKey(), implementationMode);
+        s->endGroup();
     }
 
-    static bool insertOverrideReplacement()
-    {
-        return settings()->value(insertOverrideReplacementKey(), false).toBool();
-    }
-
-    static void writeInsertOverrideReplacement(bool insert)
-    {
-        settings()->setValue(insertOverrideReplacementKey(), insert);
-    }
-
-    static int overrideReplacementIndex()
-    {
-        return settings()->value(overrideReplacementIndexKey(), 0).toInt();
-    }
-
-    static void writeOverrideReplacementIndex(int index)
-    {
-        settings()->setValue(overrideReplacementIndexKey(), index);
-    }
-
-    static QStringList userAddedOverrideReplacements()
-    {
-        return settings()->value(userAddedOverrideReplacementsKey()).toStringList();
-    }
-
-    static void writeUserAddedOverrideReplacements(const QStringList &additionals)
-    {
-        return settings()->setValue(userAddedOverrideReplacementsKey(), additionals);
-    }
-
-    static InsertVirtualMethodsDialog::ImplementationMode implementationMode()
-    {
-        return static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
-                    settings()->value(implementationModeKey(), 1).toInt());
-    }
-
-    static void writeImplementationMode(InsertVirtualMethodsDialog::ImplementationMode mode)
-    {
-        settings()->setValue(implementationModeKey(), mode);
-    }
-
-    static bool hideReimplementedFunctions()
-    {
-        return settings()->value(hideReimplementedFunctionsKey(), false).toBool();
-    }
-
-    static void writeHideReimplementedFunctions(bool hide)
-    {
-        settings()->setValue(hideReimplementedFunctionsKey(), hide);
-    }
+    QString overrideReplacement; // internal
+    QStringList userAddedOverrideReplacements;
+    InsertVirtualMethodsDialog::ImplementationMode implementationMode =
+            InsertVirtualMethodsDialog::ModeOnlyDeclarations;
+    int overrideReplacementIndex = 0;
+    bool insertVirtualKeyword = false;
+    bool hideReimplementedFunctions = false;
+    bool insertOverrideReplacement = false;
 
 private:
-    static QSettings *settings()
-    { return Core::ICore::settings(); }
-
-    static QString insertVirtualKeywordKey()
-    { return QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"); }
-
-    static QString insertOverrideReplacementKey()
-    { return QLatin1String("QuickFix/InsertVirtualMethods/insertOverrideReplacement"); }
-
-    static QString overrideReplacementIndexKey()
-    { return QLatin1String("QuickFix/InsertVirtualMethods/overrideReplacementIndex"); }
-
-    static QString userAddedOverrideReplacementsKey()
-    { return QLatin1String("QuickFix/InsertVirtualMethods/userAddedOverrideReplacements"); }
-
-    static QString implementationModeKey()
-    { return QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"); }
-
-    static QString hideReimplementedFunctionsKey()
-    { return QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"); }
+    typedef QLatin1String _;
+    static QString group() { return _("QuickFix/InsertVirtualMethods"); }
+    static QString insertVirtualKeywordKey() { return _("insertKeywordVirtual"); }
+    static QString insertOverrideReplacementKey() { return _("insertOverrideReplacement"); }
+    static QString overrideReplacementIndexKey() { return _("overrideReplacementIndex"); }
+    static QString userAddedOverrideReplacementsKey() { return _("userAddedOverrideReplacements"); }
+    static QString implementationModeKey() { return _("implementationMode"); }
+    static QString hideReimplementedFunctionsKey() { return _("hideReimplementedFunctions"); }
 };
 
 class InsertVirtualMethodsModel : public QAbstractItemModel
@@ -790,12 +752,7 @@ public:
         if (!m_factory->gather())
             return;
 
-        Settings::writeInsertVirtualKeyword(m_factory->insertKeywordVirtual());
-        Settings::writeImplementationMode(m_factory->implementationMode());
-        Settings::writeHideReimplementedFunctions(m_factory->hideReimplementedFunctions());
-        Settings::writeInsertOverrideReplacement(m_factory->insertOverrideReplacement());
-        Settings::writeOverrideReplacementIndex(m_factory->overrideReplacementIndex());
-        Settings::writeUserAddedOverrideReplacements(m_factory->userAddedOverrideReplacements());
+        m_factory->saveSettings();
 
         // Insert declarations (and definition if Inside-/OutsideClass)
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -844,17 +801,19 @@ public:
                 const FullySpecifiedType tn = rewriteType(funcItem->function->type(), &env, control);
                 declaration += printer.prettyType(tn, funcItem->function->unqualifiedName());
 
-                if (m_factory->insertKeywordVirtual())
+                if (m_factory->settings()->insertVirtualKeyword)
                     declaration = QLatin1String("virtual ") + declaration;
-                if (m_factory->insertOverrideReplacement()) {
-                    const QString overrideReplacement = m_factory->overrideReplacement();
+                if (m_factory->settings()->insertOverrideReplacement) {
+                    const QString overrideReplacement = m_factory->settings()->overrideReplacement;
                     if (!overrideReplacement.isEmpty())
                         declaration += QLatin1Char(' ') + overrideReplacement;
                 }
-                if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeInsideClass)
+                if (m_factory->settings()->implementationMode
+                        & InsertVirtualMethodsDialog::ModeInsideClass) {
                     declaration += QLatin1String("\n{\n}\n");
-                else
+                } else {
                     declaration += QLatin1String(";\n");
+                }
 
                 const QString accessSpecString =
                         InsertionPointLocator::accessSpecToString(funcItem->accessSpec);
@@ -867,7 +826,8 @@ public:
                 headerChangeSet.insert(m_insertPosDecl, declaration);
 
                 // Insert definition outside class
-                if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeOutsideClass) {
+                if (m_factory->settings()->implementationMode
+                        & InsertVirtualMethodsDialog::ModeOutsideClass) {
                     const QString name = printer.prettyName(targetClass->name()) +
                             QLatin1String("::") + printer.prettyName(funcItem->function->name());
                     const QString defText = printer.prettyType(tn, name) + QLatin1String("\n{\n}");
@@ -883,7 +843,8 @@ public:
         headerFile->apply();
 
         // Insert in implementation file
-        if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeImplementationFile) {
+        if (m_factory->settings()->implementationMode
+                & InsertVirtualMethodsDialog::ModeImplementationFile) {
             const Symbol *symbol = headerFile->cppDocument()->lastVisibleSymbolAt(
                         targetClass->line(), targetClass->column());
             if (!symbol)
@@ -1006,10 +967,16 @@ InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     , m_buttons(0)
     , m_hasImplementationFile(false)
     , m_hasReimplementedFunctions(false)
+    , m_settings(new VirtualMethodsSettings)
     , classFunctionModel(new InsertVirtualMethodsModel(this))
     , classFunctionFilterModel(new InsertVirtualMethodsFilterModel(this))
 {
     classFunctionFilterModel->setSourceModel(classFunctionModel);
+}
+
+InsertVirtualMethodsDialog::~InsertVirtualMethodsDialog()
+{
+    delete m_settings;
 }
 
 void InsertVirtualMethodsDialog::initGui()
@@ -1092,23 +1059,24 @@ void InsertVirtualMethodsDialog::initGui()
 
 void InsertVirtualMethodsDialog::initData()
 {
-    m_hideReimplementedFunctions->setChecked(Settings::hideReimplementedFunctions());
+    m_settings->read();
+    m_hideReimplementedFunctions->setChecked(m_settings->hideReimplementedFunctions);
     const QStringList alwaysPresentReplacements = defaultOverrideReplacements();
     m_availableOverrideReplacements = alwaysPresentReplacements;
-    m_availableOverrideReplacements += Settings::userAddedOverrideReplacements();
+    m_availableOverrideReplacements += m_settings->userAddedOverrideReplacements;
 
     m_view->setModel(classFunctionFilterModel);
     m_expansionStateNormal.clear();
     m_expansionStateReimp.clear();
     m_hideReimplementedFunctions->setEnabled(m_hasReimplementedFunctions);
-    m_virtualKeyword->setChecked(Settings::insertVirtualKeyword());
-    m_insertMode->setCurrentIndex(m_insertMode->findData(Settings::implementationMode()));
+    m_virtualKeyword->setChecked(m_settings->insertVirtualKeyword);
+    m_insertMode->setCurrentIndex(m_insertMode->findData(m_settings->implementationMode));
 
-    m_overrideReplacementCheckBox->setChecked(Settings::insertOverrideReplacement());
+    m_overrideReplacementCheckBox->setChecked(m_settings->insertOverrideReplacement);
     updateOverrideReplacementsComboBox();
     const bool canClear = m_availableOverrideReplacements.size() > alwaysPresentReplacements.size();
     m_clearUserAddedReplacementsButton->setEnabled(canClear);
-    int overrideReplacementIndex = Settings::overrideReplacementIndex();
+    int overrideReplacementIndex = m_settings->overrideReplacementIndex;
     if (overrideReplacementIndex >= m_overrideReplacementComboBox->count())
         overrideReplacementIndex = 0;
     m_overrideReplacementComboBox->setCurrentIndex(overrideReplacementIndex);
@@ -1124,6 +1092,29 @@ void InsertVirtualMethodsDialog::initData()
         if (m_insertMode->count() == 4)
             m_insertMode->removeItem(3);
     }
+}
+
+void InsertVirtualMethodsDialog::saveSettings()
+{
+    m_settings->insertVirtualKeyword = m_virtualKeyword->isChecked();
+    m_settings->implementationMode = static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
+                m_insertMode->itemData(m_insertMode->currentIndex()).toInt());
+    m_settings->hideReimplementedFunctions = m_hideReimplementedFunctions->isChecked();
+    m_settings->insertOverrideReplacement = m_overrideReplacementCheckBox->isChecked();
+    m_settings->overrideReplacementIndex = m_overrideReplacementComboBox->currentIndex();
+    if (m_overrideReplacementComboBox && m_overrideReplacementComboBox->isEnabled())
+        m_settings->overrideReplacement = m_overrideReplacementComboBox->currentText().trimmed();
+    QSet<QString> addedReplacements = m_availableOverrideReplacements.toSet();
+    addedReplacements.insert(m_settings->overrideReplacement);
+    addedReplacements.subtract(defaultOverrideReplacements().toSet());
+    m_settings->userAddedOverrideReplacements =
+            sortedAndTrimmedStringListWithoutEmptyElements(addedReplacements.toList());
+    m_settings->write();
+}
+
+const VirtualMethodsSettings *InsertVirtualMethodsDialog::settings() const
+{
+    return m_settings;
 }
 
 bool InsertVirtualMethodsDialog::gather()
@@ -1143,39 +1134,6 @@ bool InsertVirtualMethodsDialog::gather()
     return (ret == QDialog::Accepted);
 }
 
-InsertVirtualMethodsDialog::ImplementationMode
-InsertVirtualMethodsDialog::implementationMode() const
-{
-    return static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
-                m_insertMode->itemData(m_insertMode->currentIndex()).toInt());
-}
-
-bool InsertVirtualMethodsDialog::insertKeywordVirtual() const
-{
-    return m_virtualKeyword->isChecked();
-}
-
-bool InsertVirtualMethodsDialog::insertOverrideReplacement() const
-{
-    return m_overrideReplacementCheckBox->isChecked();
-}
-
-QString InsertVirtualMethodsDialog::overrideReplacement() const
-{
-    if (m_overrideReplacementComboBox && m_overrideReplacementComboBox->isEnabled())
-        return m_overrideReplacementComboBox->currentText().trimmed();
-    return QString();
-}
-
-int InsertVirtualMethodsDialog::overrideReplacementIndex() const
-{
-    const QStringList all = defaultOverrideReplacements() + userAddedOverrideReplacements();
-    const int replacementPosition = all.indexOf(overrideReplacement());
-    if (replacementPosition >= 0)
-        return replacementPosition;
-    return 0;
-}
-
 void InsertVirtualMethodsDialog::setHasImplementationFile(bool file)
 {
     m_hasImplementationFile = file;
@@ -1184,20 +1142,6 @@ void InsertVirtualMethodsDialog::setHasImplementationFile(bool file)
 void InsertVirtualMethodsDialog::setHasReimplementedFunctions(bool functions)
 {
     m_hasReimplementedFunctions = functions;
-}
-
-bool InsertVirtualMethodsDialog::hideReimplementedFunctions() const
-{
-    // Safty check necessary because of testing class
-    return (m_hideReimplementedFunctions && m_hideReimplementedFunctions->isChecked());
-}
-
-QStringList InsertVirtualMethodsDialog::userAddedOverrideReplacements() const
-{
-    QSet<QString> addedReplacements = m_availableOverrideReplacements.toSet();
-    addedReplacements.insert(overrideReplacement());
-    addedReplacements.subtract(defaultOverrideReplacements().toSet());
-    return sortedAndTrimmedStringListWithoutEmptyElements(addedReplacements.toList());
 }
 
 void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
@@ -1293,22 +1237,15 @@ public:
                                    bool insertOverrideKeyword,
                                    QWidget *parent = 0)
         : InsertVirtualMethodsDialog(parent)
-        , m_implementationMode(mode)
-        , m_insertKeywordVirtual(insertVirtualKeyword)
-        , m_insertOverrideReplacement(insertOverrideKeyword)
     {
+        m_settings->implementationMode = mode;
+        m_settings->insertVirtualKeyword = insertVirtualKeyword;
+        m_settings->insertOverrideReplacement = insertOverrideKeyword;
+        m_settings->overrideReplacement = QLatin1String("override");
     }
 
     bool gather() { return true; }
-    ImplementationMode implementationMode() const { return m_implementationMode; }
-    bool insertKeywordVirtual() const { return m_insertKeywordVirtual; }
-    bool insertOverrideReplacement() const { return m_insertOverrideReplacement; }
-    QString overrideReplacement() const { return QLatin1String("override"); }
-
-private:
-    ImplementationMode  m_implementationMode;
-    bool m_insertKeywordVirtual;
-    bool m_insertOverrideReplacement;
+    void saveSettings() { }
 };
 
 } // namespace Tests
