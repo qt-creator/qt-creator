@@ -119,9 +119,6 @@ LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 
 void LocalQmlProfilerRunner::start()
 {
-    if (!m_engine->startParameters().useStartupProject)
-        return;
-
     QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
 
     if (!m_configuration.executableArguments.isEmpty())
@@ -157,9 +154,6 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus 
 
 void LocalQmlProfilerRunner::stop()
 {
-    if (!m_engine->startParameters().useStartupProject)
-        return;
-
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Stopping application ...");
 
