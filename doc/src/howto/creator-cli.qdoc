@@ -81,20 +81,20 @@
 
     \table
         \header
-            \li  Option
-            \li  Description
+            \li Option
+            \li Description
 
         \row
-            \li  -help
-            \li  Display help on command line options.
+            \li -help
+            \li Display help on command line options.
 
         \row
-            \li  -version
-            \li  Display \QC version.
+            \li -version
+            \li Display \QC version.
 
         \row
-            \li  -client
-            \li  Attempt to connect to an already running instance of \QC.
+            \li -client
+            \li Attempt to connect to an already running instance of \QC.
 
        \row
             \li -pid
@@ -118,16 +118,16 @@
             \li Enables all plugins.
 
         \row
-            \li  -noload <plugin>
-            \li  Disable the specified plugin and all plugins that depend on it.
+            \li -noload <plugin>
+            \li Disable the specified plugin and all plugins that depend on it.
 
         \row
-            \li  -noload all
-            \li  Disables all plugins.
+            \li -noload all
+            \li Disables all plugins.
 
         \row
-            \li  -profile
-            \li  Output plugin start up and shut down profiling data.
+            \li -profile
+            \li Output plugin start up and shut down profiling data.
 
        \row
             \li -pluginpath <path>
@@ -135,33 +135,33 @@
                 paths, add the \c{-pluginpath} option for each path.
 
         \row
-            \li  -settingspath <path>
-            \li  Override the default path where user settings are stored.
+            \li -settingspath <path>
+            \li Override the default path where user settings are stored.
 
         \row
-            \li  -color <color>
-            \li  Core plugin: override the selected UI color.
+            \li -color <color>
+            \li Core plugin: override the selected UI color.
 
        \row
             \li -presentationMode
-            \li  Core plugin: display keyboard shortcuts as popups when you
-                 press them. Mostly useful when presenting \QC to someone else.
+            \li Core plugin: display keyboard shortcuts as popups when you
+                press them. Mostly useful when presenting \QC to someone else.
 
         \row
-            \li  -theme <default | dark>
-            \li  Core plugin: apply a dark color theme to \QC, without using
-                 stylesheets.
+            \li -theme <default | dark>
+            \li Core plugin: apply a dark color theme to \QC, without using
+                stylesheets.
 
         \row
             \li  -debug <pid>
             \li  Debugger plugin: attach to the process with the given process ID.
 
         \row
-            \li  -debug <executable>[,kit=<kit>]
-            \li  Debugger plugin: launch and debug the executable with the name
-                 \c{executable}.
-                 A \c{kit} can be specified to point to non-default debuggers
-                 and sysroots.
+            \li -debug <executable>[,kit=<kit>]
+            \li Debugger plugin: launch and debug the executable with the name
+                \c{executable}.
+                A \c{kit} can be specified to point to non-default debuggers
+                and sysroots.
 
         \row
             \li  -debug [executable,]core=<corefile>[,kit=<kit>]
@@ -220,4 +220,4 @@
     You can also switch to a dark theme to customize the appearance of widgets,
     colors, and icons without using stylesheets.
 
-    */
+*/
