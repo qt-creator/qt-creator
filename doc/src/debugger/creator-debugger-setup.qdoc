@@ -45,7 +45,7 @@
     instead).
 
     \note If you need to change the debugger to use for an automatically
-    detected \l{glossary-buildandrun-kit}{kit}, you can \uicontrol{Clone} the
+    detected \l{glossary-buildandrun-kit}{kit}, you can \uicontrol Clone the
     kit and change the parameters in the clone. Make sure to select the cloned
     kit for your project.
 
@@ -279,12 +279,13 @@
 
     \list 1
 
-        \li To create a key for signing FSF GDB, select \uicontrol {Keychain Access >
-            Certificate Assistant > Create a Certificate}:
+        \li To create a key for signing FSF GDB, select
+            \uicontrol {Keychain Access} > \uicontrol {Certificate Assistant} >
+            \uicontrol {Create a Certificate}:
 
         \list 1
 
-            \li In the \uicontrol {Name} field, input \uicontrol {fsfgdb} to
+            \li In the \uicontrol Name field, input \uicontrol fsfgdb to
                 replace the existing content.
 
             \li In the \uicontrol {Certificate Type} field, select
@@ -299,8 +300,8 @@
 
             \li In the \uicontrol Keychain field, select \uicontrol System.
 
-            \li Select \uicontrol {Keychain Access > System}, and locate the
-                certificate.
+            \li Select \uicontrol {Keychain Access} > \uicontrol System, and
+                locate the certificate.
 
             \li Double click the certificate to view certificate information.
 
@@ -317,8 +318,9 @@
             codesign -f -s "fsfgdb" $INSTALL_LOCATION/fsfgdb
             \endcode
 
-        \li In \QC, select \uicontrol {Qt Creator > Preferences > Build & Run >
-            Kits} > \uicontrol Add to create a kit that uses FSF GDB.
+        \li In \QC, select \uicontrol {Qt Creator} > \uicontrol Preferences >
+            \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to
+            create a kit that uses FSF GDB.
 
             \li In the \uicontrol Debugger field, specify the path to FSF GDB
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
@@ -342,10 +344,11 @@
         \li Select an automatically created kit in the list, and then select
             \uicontrol Clone to create a copy of the kit.
 
-        \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB Engine
-            is not listed, select \uicontrol Manage to add it in \uicontrol Tools >
-            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Debuggers. For more
-            information, see \l {Adding Debuggers}.
+        \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB
+            Engine is not listed, select \uicontrol Manage to add it in
+            \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Debuggers. For more information, see
+            \l {Adding Debuggers}.
 
         \li To use the debugger, add the kit in the \uicontrol {Build Settings}
             of the project.
