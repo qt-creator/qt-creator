@@ -59,12 +59,12 @@ using namespace ProjectExplorer;
 namespace Analyzer {
 
 AnalyzerAction::AnalyzerAction(QObject *parent)
-    : QAction(parent), m_useStartupProject(true), m_toolMode(AnyMode)
+    : QAction(parent), m_toolMode(AnyMode)
 {}
 
 bool AnalyzerAction::isRunnable(QString *reason) const
 {
-    if (m_toolStarter) // Something special. Pretend we can always run it.
+    if (m_customToolStarter) // Something special. Pretend we can always run it.
         return true;
 
     return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), m_runMode, reason);
@@ -72,7 +72,8 @@ bool AnalyzerAction::isRunnable(QString *reason) const
 
 AnalyzerRunControl *AnalyzerAction::tryCreateRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration) const
 {
-    if (m_runMode == sp.runMode && m_useStartupProject == sp.useStartupProject)
+    const bool useStartupProject = !m_customToolStarter;
+    if (m_runMode == sp.runMode && useStartupProject == sp.useStartupProject)
         return m_runControlCreator(sp, runConfiguration);
     return 0;
 }
@@ -101,8 +102,8 @@ void AnalyzerAction::startTool()
         return;
 
     // Custom start.
-    if (m_toolStarter) {
-        m_toolStarter();
+    if (m_customToolStarter) {
+        m_customToolStarter();
         return;
     }
 
@@ -153,6 +154,11 @@ void AnalyzerAction::startTool()
     }
 
     ProjectExplorerPlugin::runStartupProject(m_runMode);
+}
+
+void AnalyzerAction::setCustomToolStarter(const AnalyzerAction::ToolStarter &toolStarter)
+{
+    m_customToolStarter = toolStarter;
 }
 
 } // namespace Analyzer

@@ -82,12 +82,11 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setToolId(QmlProfilerToolId);
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setToolStarter([tool] { tool->startRemoteTool(); });
+    action->setCustomToolStarter([tool] { tool->startRemoteTool(); });
     action->setToolPreparer([tool] { return tool->prepareTool(); });
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler (External)"));
     action->setToolTip(description);
-    action->setUseSpecialStart();
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
     AnalyzerManager::addAction(action);
 

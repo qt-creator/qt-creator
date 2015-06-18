@@ -213,12 +213,11 @@ void ValgrindPlugin::extensionsInitialized()
     action->setToolId("Memcheck");
     action->setWidgetCreator(mcWidgetCreator);
     action->setRunControlCreator(mcRunControlCreator);
-    action->setToolStarter([] { customStart(MemcheckRunMode); });
+    action->setCustomToolStarter([] { customStart(MemcheckRunMode); });
     action->setRunMode(MemcheckRunMode);
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
     action->setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    action->setUseSpecialStart();
     AnalyzerManager::addAction(action);
 
     action = new AnalyzerAction(this);
@@ -226,12 +225,11 @@ void ValgrindPlugin::extensionsInitialized()
     action->setToolId(CallgrindToolId);
     action->setWidgetCreator(cgWidgetCreator);
     action->setRunControlCreator(cgRunControlCreator);
-    action->setToolStarter([] { customStart(CallgrindRunMode); });
+    action->setCustomToolStarter([] { customStart(CallgrindRunMode); });
     action->setRunMode(CallgrindRunMode);
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);
     action->setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    action->setUseSpecialStart();
     AnalyzerManager::addAction(action);
 
     // If there is a CppEditor context menu add our own context menu actions.

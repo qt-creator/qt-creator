@@ -76,8 +76,6 @@ public:
     explicit AnalyzerAction(QObject *parent = 0);
 
 public:
-    void setUseSpecialStart() { m_useStartupProject = false; }
-
     Core::Id menuGroup() const { return m_menuGroup; }
     void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
 
@@ -106,16 +104,17 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration) const;
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 
-    typedef std::function<void()> ToolStarter;
-    void startTool();
-    void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
-
     typedef std::function<bool()> ToolPreparer;
     ToolPreparer toolPreparer() const { return m_toolPreparer; }
     void setToolPreparer(const ToolPreparer &toolPreparer) { m_toolPreparer = toolPreparer; }
 
+    void startTool();
+
+    /// This is only used for setups not using the startup project.
+    typedef std::function<void()> ToolStarter;
+    void setCustomToolStarter(const ToolStarter &toolStarter);
+
 protected:
-    bool m_useStartupProject;
     Core::Id m_menuGroup;
     Core::Id m_actionId;
     Core::Id m_toolId;
@@ -123,7 +122,7 @@ protected:
     ProjectExplorer::RunMode m_runMode;
     WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;
-    ToolStarter m_toolStarter;
+    ToolStarter m_customToolStarter;
     ToolPreparer m_toolPreparer;
 };
 
