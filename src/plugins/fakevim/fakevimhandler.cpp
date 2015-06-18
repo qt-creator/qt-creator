@@ -262,7 +262,7 @@ enum EventResult
 
 struct CursorPosition
 {
-    CursorPosition() : line(-1), column(-1) {}
+    CursorPosition() {}
     CursorPosition(int block, int column) : line(block), column(column) {}
     explicit CursorPosition(const QTextCursor &tc)
         : line(tc.block().blockNumber()), column(tc.positionInBlock()) {}
@@ -279,8 +279,8 @@ struct CursorPosition
         { return line == other.line && column == other.column; }
     bool operator!=(const CursorPosition &other) const { return !operator==(other); }
 
-    int line; // Line in document (from 0, folded lines included).
-    int column; // Position on line.
+    int line = -1; // Line in document (from 0, folded lines included).
+    int column = -1; // Position on line.
 };
 
 QDebug operator<<(QDebug ts, const CursorPosition &pos)
@@ -335,8 +335,7 @@ typedef QHashIterator<QChar, Mark> MarksIterator;
 
 struct State
 {
-    State() : revision(-1), position(), marks(), lastVisualMode(NoVisualMode),
-        lastVisualModeInverted(false) {}
+    State() {}
     State(int revision, const CursorPosition &position, const Marks &marks,
         VisualMode lastVisualMode, bool lastVisualModeInverted) : revision(revision),
         position(position), marks(marks), lastVisualMode(lastVisualMode),
@@ -344,11 +343,11 @@ struct State
 
     bool isValid() const { return position.isValid(); }
 
-    int revision;
+    int revision = -1;
     CursorPosition position;
     Marks marks;
-    VisualMode lastVisualMode;
-    bool lastVisualModeInverted;
+    VisualMode lastVisualMode = NoVisualMode;
+    bool lastVisualModeInverted = false;
 };
 
 struct Column
@@ -365,11 +364,11 @@ QDebug operator<<(QDebug ts, const Column &col)
 
 struct Register
 {
-    Register() : rangemode(RangeCharMode) {}
-    Register(const QString &c) : contents(c), rangemode(RangeCharMode) {}
+    Register() {}
+    Register(const QString &c) : contents(c) {}
     Register(const QString &c, RangeMode m) : contents(c), rangemode(m) {}
     QString contents;
-    RangeMode rangemode;
+    RangeMode rangemode = RangeCharMode;
 };
 
 QDebug operator<<(QDebug ts, const Register &reg)
@@ -379,15 +378,9 @@ QDebug operator<<(QDebug ts, const Register &reg)
 
 struct SearchData
 {
-    SearchData()
-    {
-        forward = true;
-        highlightMatches = true;
-    }
-
     QString needle;
-    bool forward;
-    bool highlightMatches;
+    bool forward = true;
+    bool highlightMatches = true;
 };
 
 // If string begins with given prefix remove it with trailing spaces and return true.
@@ -875,10 +868,6 @@ static bool isOnlyControlModifier(const Qt::KeyboardModifiers &mods)
 }
 
 
-Range::Range()
-    : beginPos(-1), endPos(-1), rangemode(RangeCharMode)
-{}
-
 Range::Range(int b, int e, RangeMode m)
     : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
 {}
@@ -969,11 +958,9 @@ public:
         return m & ~Qt::KeypadModifier;
     }
 
-    Input()
-        : m_key(0), m_xkey(0), m_modifiers(0) {}
-
+    Input() {}
     explicit Input(QChar x)
-        : m_key(x.unicode()), m_xkey(x.unicode()), m_modifiers(0), m_text(x)
+        : m_key(x.unicode()), m_xkey(x.unicode()), m_text(x)
     {
         if (x.isUpper())
             m_modifiers = Qt::ShiftModifier;
@@ -1168,9 +1155,9 @@ public:
             << quoteUnprintable(m_text);
     }
 private:
-    int m_key;
-    int m_xkey;
-    Qt::KeyboardModifiers m_modifiers;
+    int m_key = 0;
+    int m_xkey = 0;
+    Qt::KeyboardModifiers m_modifiers = NoModifier;
     QString m_text;
 };
 
@@ -1240,7 +1227,7 @@ QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
 class Inputs : public QVector<Input>
 {
 public:
-    Inputs() : m_noremap(true), m_silent(false) {}
+    Inputs() {}
 
     explicit Inputs(const QString &str, bool noremap = true, bool silent = false)
         : m_noremap(noremap), m_silent(silent)
@@ -1256,8 +1243,8 @@ public:
 private:
     void parseFrom(const QString &str);
 
-    bool m_noremap;
-    bool m_silent;
+    bool m_noremap = true;
+    bool m_silent = false;
 };
 
 static Input parseVimKeyName(const QString &keyName)
@@ -1327,7 +1314,7 @@ void Inputs::parseFrom(const QString &str)
 class History
 {
 public:
-    History() : m_items(QString()), m_index(0) {}
+    History() : m_items(QString()) {}
     void append(const QString &item);
     const QString &move(const QStringRef &prefix, int skip);
     const QString &current() const { return m_items[m_index]; }
@@ -1337,7 +1324,7 @@ public:
 private:
     // Last item is always empty or current search prefix.
     QStringList m_items;
-    int m_index;
+    int m_index = 0;
 };
 
 void History::append(const QString &item)
@@ -1372,8 +1359,6 @@ const QString &History::move(const QStringRef &prefix, int skip)
 class CommandBuffer
 {
 public:
-    CommandBuffer() : m_pos(0), m_anchor(0), m_userPos(0), m_historyAutoSave(true) {}
-
     void setPrompt(const QChar &prompt) { m_prompt = prompt; }
     void setContents(const QString &s) { m_buffer = s; m_anchor = m_pos = s.size(); }
 
@@ -1494,10 +1479,10 @@ private:
     QString m_buffer;
     QChar m_prompt;
     History m_history;
-    int m_pos;
-    int m_anchor;
-    int m_userPos; // last position of inserted text (for retrieving history items)
-    bool m_historyAutoSave; // store items to history on clear()?
+    int m_pos = 0;
+    int m_anchor = 0;
+    int m_userPos = 0; // last position of inserted text (for retrieving history items)
+    bool m_historyAutoSave = true; // store items to history on clear()?
 };
 
 // Mappings for a specific mode (trie structure)
@@ -1519,8 +1504,6 @@ class MappingsIterator : public QVector<ModeMapping::Iterator>
 public:
     MappingsIterator(Mappings *mappings, char mode = -1, const Inputs &inputs = Inputs())
         : m_parent(mappings)
-        , m_lastValid(-1)
-        , m_mode(0)
     {
         reset(mode);
         walk(inputs);
@@ -1626,20 +1609,19 @@ public:
 private:
     Mappings *m_parent;
     Mappings::Iterator m_modeMapping;
-    int m_lastValid;
-    char m_mode;
+    int m_lastValid = -1;
+    char m_mode = 0;
     Inputs m_currentInputs;
 };
 
 // state of current mapping
 struct MappingState {
-    MappingState()
-        : noremap(false), silent(false), editBlock(false) {}
+    MappingState() {}
     MappingState(bool noremap, bool silent, bool editBlock)
         : noremap(noremap), silent(silent), editBlock(editBlock) {}
-    bool noremap;
-    bool silent;
-    bool editBlock;
+    bool noremap = false;
+    bool silent = false;
+    bool editBlock = false;
 };
 
 class FakeVimHandler::Private : public QObject
@@ -2163,27 +2145,19 @@ public:
     // Data shared among editors with same document.
     struct BufferData
     {
-        BufferData()
-            : lastRevision(0)
-            , editBlockLevel(0)
-            , breakEditBlock(false)
-            , lastVisualMode(NoVisualMode)
-            , lastVisualModeInverted(false)
-        {}
-
         QStack<State> undo;
         QStack<State> redo;
         State undoState;
-        int lastRevision;
+        int lastRevision = 0;
 
-        int editBlockLevel; // current level of edit blocks
-        bool breakEditBlock; // if true, joinPreviousEditBlock() starts new edit block
+        int editBlockLevel = 0; // current level of edit blocks
+        bool breakEditBlock = false; // if true, joinPreviousEditBlock() starts new edit block
 
         QStack<CursorPosition> jumpListUndo;
         QStack<CursorPosition> jumpListRedo;
 
-        VisualMode lastVisualMode;
-        bool lastVisualModeInverted;
+        VisualMode lastVisualMode = NoVisualMode;
+        bool lastVisualModeInverted = false;
 
         Marks marks;
 
@@ -2215,47 +2189,28 @@ public:
     static struct GlobalData
     {
         GlobalData()
-            : passing(false)
-            , mode(CommandMode)
-            , submode(NoSubMode)
-            , subsubmode(NoSubSubMode)
-            , visualMode(NoVisualMode)
-            , mvcount(0)
-            , opcount(0)
-            , movetype(MoveInclusive)
-            , rangemode(RangeCharMode)
-            , gflag(false)
-            , mappings()
+            : mappings()
             , currentMap(&mappings)
-            , mapDepth(0)
-            , currentMessageLevel(MessageInfo)
-            , lastSearchForward(false)
-            , highlightsCleared(false)
-            , findPending(false)
-            , returnToMode(CommandMode)
-            , isRecording(false)
-            , currentRegister(0)
-            , lastExecutedRegister(0)
         {
             commandBuffer.setPrompt(QLatin1Char(':'));
         }
 
         // Current state.
-        bool passing; // let the core see the next event
-        Mode mode;
-        SubMode submode;
-        SubSubMode subsubmode;
+        bool passing = false; // let the core see the next event
+        Mode mode = CommandMode;
+        SubMode submode = NoSubMode;
+        SubSubMode subsubmode = NoSubSubMode;
         Input subsubdata;
-        VisualMode visualMode;
+        VisualMode visualMode = NoVisualMode;
         Input minibufferData;
 
         // [count] for current command, 0 if no [count] available
-        int mvcount;
-        int opcount;
+        int mvcount = 0;
+        int opcount = 0;
 
-        MoveType movetype;
-        RangeMode rangemode;
-        bool gflag;  // whether current command started with 'g'
+        MoveType movetype = MoveInclusive;
+        RangeMode rangemode = RangeCharMode;
+        bool gflag = false;  // whether current command started with 'g'
 
         // Extra data for ';'.
         Input semicolonType;  // 'f', 'F', 't', 'T'
@@ -2273,7 +2228,7 @@ public:
         QList<Input> pendingInput;
         MappingsIterator currentMap;
         QStack<MappingState> mapStates;
-        int mapDepth;
+        int mapDepth = 0;
 
         // Command line buffers.
         CommandBuffer commandBuffer;
@@ -2281,15 +2236,15 @@ public:
 
         // Current mini buffer message.
         QString currentMessage;
-        MessageLevel currentMessageLevel;
+        MessageLevel currentMessageLevel = MessageInfo;
         QString currentCommand;
 
         // Search state.
         QString lastSearch; // last search expression as entered by user
         QString lastNeedle; // last search expression translated with vimPatternToQtPattern()
-        bool lastSearchForward; // last search command was '/' or '*'
-        bool highlightsCleared; // ':nohlsearch' command is active until next search
-        bool findPending; // currently searching using external tool (until editor is focused again)
+        bool lastSearchForward = false; // last search command was '/' or '*'
+        bool highlightsCleared = false; // ':nohlsearch' command is active until next search
+        bool findPending = false; // currently searching using external tool (until editor is focused again)
 
         // Last substitution command.
         QString lastSubstituteFlags;
@@ -2300,13 +2255,13 @@ public:
         Marks marks;
 
         // Return to insert/replace mode after single command (<C-O>).
-        Mode returnToMode;
+        Mode returnToMode = CommandMode;
 
         // Currently recorded macro
-        bool isRecording;
+        bool isRecording = false;
         QString recorded;
-        int currentRegister;
-        int lastExecutedRegister;
+        int currentRegister = 0;
+        int lastExecutedRegister = 0;
     } g;
 };
 
