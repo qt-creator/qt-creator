@@ -31,8 +31,7 @@
     \title Semantic Highlighting
 
     \QC understands the C++, QML, and JavaScript languages as code, not as plain
-    text.
-    It reads the source code, analyzes it, and highlights it based on the
+    text. It reads the source code, analyzes it, and highlights it based on the
     semantic checks that it does for the following code elements:
 
     \list
@@ -48,10 +47,11 @@
     \endlist
 
     To specify the color scheme to use for semantic highlighting, select
-    \uicontrol {Tools > Options > Text Editor > Fonts & Color}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol {Fonts & Color}.
 
-    \QC supports syntax highlighting also for other types of files than
-    C++, QML, or JavaScript.
+    \QC supports syntax highlighting also for other types of files than C++,
+    QML, or JavaScript.
 
     \section1 Generic Highlighting
 
@@ -65,9 +65,9 @@
     If you have a Unix installation that comes with the Kate Editor, you might
     already have the definition files installed. Typically, the files are
     located in a read-only directory, and therefore, you cannot manage them. \QC
-    can try to locate them and use them as fallback files, when the
-    primary location does not contain the definition for the current file type.
-    You can also specify the directory that contains preinstalled highlight
+    can try to locate them and use them as fallback files, when the primary
+    location does not contain the definition for the current file type. You can
+    also specify the directory that contains preinstalled highlight
     definition files as the primary location.
 
     When you open a file for editing and the editor cannot find the highlight
@@ -78,8 +78,8 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > Text Editor > Generic
-            Highlighter}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
 
             \image qtcreator-generic-highlighter.png "Generic Highlighter options"
 
@@ -113,27 +113,27 @@
     \section1 Highlighting and Folding Blocks
 
     Use block highlighting to visually separate parts of the code that belong
-    together. For example, when you place the cursor within the braces,
-    the code enclosed in braces is highlighted.
+    together. For example, when you place the cursor within the braces, the code
+    enclosed in braces is highlighted.
 
     \image qtcreator-blockhighlighting.png
 
-    To enable block highlighting, select \uicontrol Tools > \uicontrol{Options} >
-    \uicontrol{Text Editor} > \uicontrol Display > \uicontrol{Highlight blocks}.
+    To enable block highlighting, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Display >
+    \uicontrol {Highlight blocks}.
 
-    Use the folding markers to collapse and expand blocks of code within
-    braces. Click the folding marker to collapse or expand a block. In the
-    figure above, the folding markers are located between the line number and
-    the text pane.
+    Use the folding markers to collapse and expand blocks of code within braces.
+    Click the folding marker to collapse or expand a block. In the figure above,
+    the folding markers are located between the line number and the text pane.
 
-    To show the folding markers, select \uicontrol Tools > \uicontrol{Options} >
-    \uicontrol{Text Editor} > \uicontrol Display > \uicontrol{Display folding markers}. This
-    option is enabled by default.
+    To show the folding markers, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol Display >
+    \uicontrol {Display folding markers}. This option is enabled by default.
 
-    When the cursor is on a brace, the matching brace is animated
-    by default. To turn off the animation and just highlight the block and
-    the braces, select \uicontrol {Tools > Options > Text Editor > Display} and
-    deselect \uicontrol {Animate matching parentheses}.
+    When the cursor is on a brace, the matching brace is animated by default. To
+    turn off the animation and just highlight the block and the braces, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Display and deselect \uicontrol {Animate matching parentheses}.
 
 */
 
@@ -148,9 +148,9 @@
 
     As you write code, \QC checks code syntax. When \QC spots a syntax error in
     your code it underlines it and shows error details when you move the mouse
-    pointer over the error.
-    Similarly, when you are working on an instance of a JavaScript object
-    notation (JSON) entity, \QC underlines errors in JSON data structure.
+    pointer over the error. Similarly, when you are working on an instance of a
+    JavaScript object notation (JSON) entity, \QC underlines errors in JSON data
+    structure.
 
     \list
 
@@ -194,15 +194,16 @@
 
     \section1 Checking JavaScript and QML Syntax
 
-    To run the checks, select \uicontrol {Tools > QML/JS > Run Checks} or press
-    \key Ctrl+Shift+C. The results are shown in the \uicontrol {QML Analysis}
-    filter of the \uicontrol {Issues} output pane.
+    To run the checks, select \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}. The results are shown
+    in the \uicontrol {QML Analysis} filter of the \uicontrol Issues output
+    pane.
 
 
     \section1 List of JavaScript and QML Checks
 
-    Many of the JavaScript checks are similar to the ones in Douglas
-    Crockford's JSLint tool and are explained well on
+    Many of the JavaScript checks are similar to the ones in Douglas Crockford's
+    JSLint tool and are explained well on
     \l{http://www.jslint.com/lint.html}{the JSLint website}.
 
     \table
@@ -293,19 +294,19 @@
     \row
         \li M16
         \li Error
-        \li Invalid property name 'name'
+        \li Invalid property name \c name
         \li
 
     \row
         \li M17
         \li Error
-        \li 'Name' does not have members
+        \li \c Name does not have members
         \li
 
     \row
         \li M18
         \li Error
-        \li 'Field' is not a member of 'object'
+        \li \c Field is not a member of \c object
         \li
 
     \row
@@ -316,31 +317,30 @@
             assignment in parentheses.
 
     \row
-        \li  M20
-        \li  Warning
-        \li  Unterminated non-empty case block
-        \li  Case blocks should either be empty or end in a flow control
-           statement such as 'break', 'return' or 'continue'.
-           Alternatively you can indicate intentional fall through by
-           ending with a '// fall through' comment.
+        \li M20
+        \li Warning
+        \li Unterminated non-empty case block
+        \li Case blocks should either be empty or end in a flow control
+            statement such as \c break, \c return or \c continue.
+            Alternatively you can indicate intentional fall through by ending
+            with a \c {// fall through} comment.
 
     \row
         \li M23
         \li Warning
-        \li Do not use 'eval'
+        \li Do not use \c eval
         \li
 
     \row
-        \li  M28
-        \li  Warning
-        \li  Unreachable
-        \li  Indicates that the underlined statement will never be
-           executed.
+        \li M28
+        \li Warning
+        \li Unreachable
+        \li Indicates that the underlined statement will never be executed.
 
     \row
         \li M29
         \li Warning
-        \li Do not use 'with'
+        \li Do not use \c with
         \li
 
     \row
@@ -358,85 +358,85 @@
     \row
         \li M103
         \li Warning
-        \li 'Name' is already a formal parameter
+        \li \c Name is already a formal parameter
         \li
 
     \row
         \li M104
         \li Warning
-        \li 'Name' is already a function
+        \li \c Name is already a function
         \li
 
     \row
         \li M105
         \li Warning
-        \li Var 'name' is used before its declaration
+        \li Var \c name is used before its declaration
         \li
 
     \row
         \li M106
         \li Warning
-        \li 'Name' is already a var
+        \li \c Name is already a var
         \li
 
     \row
-        \li  M107
-        \li  Warning
-        \li  'Name' is declared more than once
-        \li  Variables declared in a function are always visible everywhere
-           in the function, even when declared in nested blocks or
-           'for' statement conditions. Redeclaring a variable has no
-           effect.
+        \li M107
+        \li Warning
+        \li \c Name is declared more than once
+        \li Variables declared in a function are always visible everywhere in
+            the function, even when declared in nested blocks or \c for
+            statement conditions. Redeclaring a variable has no effect.
 
     \row
         \li M108
         \li Warning
-        \li Function 'name' is used before its declaration
+        \li Function \c name is used before its declaration
         \li
 
     \row
         \li M109
         \li Warning
-        \li Do not use 'Boolean' as a constructor
+        \li Do not use \c Boolean as a constructor
         \li
 
     \row
         \li M110
         \li Warning
-        \li Do not use 'String' as a constructor
+        \li Do not use \c String as a constructor
         \li
 
     \row
         \li M111
         \li Warning
-        \li Do not use 'Object' as a constructor
+        \li Do not use \c Object as a constructor
         \li
 
     \row
         \li M112
         \li Warning
-        \li Do not use 'Array' as a constructor
+        \li Do not use \c Array as a constructor
         \li
 
     \row
         \li M113
         \li Warning
-        \li Do not use 'Function' as a constructor
+        \li Do not use \c Function as a constructor
         \li
 
     \row
-        \li  M114
-        \li  Hint
-        \li  The 'function' keyword and the opening parenthesis should be separated by a single space
+        \li M114
+        \li Hint
+        \li The \c function keyword and the opening parenthesis should be
+            separated by a single space
         \li
 
     \row
-        \li  M115
-        \li  Warning
-        \li  Do not use stand-alone blocks
-        \li  Blocks do not affect variable scoping. Thus blocks that are
-           not associated to 'if', 'while', etc. have no effect and
-           should be avoided.
+        \li M115
+        \li Warning
+        \li Do not use stand-alone blocks
+        \li Blocks do not affect variable scoping. Thus blocks that are not
+            associated to \c if, \c while, etc. have no effect and should be
+            avoided.
 
     \row
         \li M116
@@ -470,19 +470,20 @@
 
     \target m126
     \row
-        \li  M126
-        \li  Warning
-        \li  == and != may perform type coercion, use === or !== to avoid it
-        \li  The non-strict equality comparison is allowed to convert its
-           arguments to a common type. That can lead to unexpected
-           results such as \c {' \t\r\n' == 0} being true. Use the
-           strict equality operators === and !== and be explicit about
-           conversions you require.
+        \li M126
+        \li Warning
+        \li \c == and \c != may perform type coercion, use \c === or \c !== to
+            avoid it
+        \li The non-strict equality comparison is allowed to convert its
+            arguments to a common type. That can lead to unexpected results such
+            as \c {' \t\r\n' == 0} being true. Use the strict equality operators
+            \c === and \c !== and be explicit about conversions you require.
 
     \row
-        \li  M127
-        \li  Warning
-        \li  Expression statements should be assignments, calls or delete expressions only
+        \li M127
+        \li Warning
+        \li Expression statements should be assignments, calls or delete
+            expressions only
         \li
 
     \row
@@ -509,10 +510,10 @@
         \li This QML type is not supported in the Qt Quick Designer
         \li
     \row
-        \li  M205
-        \li  Warning
-        \li  Reference to parent QML type cannot be resolved correctly by the
-             Qt Quick Designer
+        \li M205
+        \li Warning
+        \li Reference to parent QML type cannot be resolved correctly by the Qt
+            Quick Designer
         \li
 
     \row
@@ -529,22 +530,22 @@
         \li
 
     \row
-        \li  M208
-        \li  Error
-        \li  This type (%1) is not supported as a root element by \QMLD.
+        \li M208
+        \li Error
+        \li This type (type name) is not supported as a root element by \QMLD.
         \li
 
     \row
-        \li  M220
-        \li  Error
-        \li  This type (%1) is not supported as a root element of a Qt Quick UI
-             form.
+        \li M220
+        \li Error
+        \li This type (type name) is not supported as a root element of a Qt
+            Quick UI form.
         \li
 
     \row
-        \li  M221
-        \li  Error
-        \li  This type (%1) is not supported in a Qt Quick UI form.
+        \li M221
+        \li Error
+        \li This type (type name) is not supported in a Qt Quick UI form.
         \li
 
     \row
@@ -587,48 +588,50 @@
     \row
         \li M301
         \li Error
-        \li Could not resolve the prototype 'name' of 'object'
+        \li Could not resolve the prototype \c name of \c object
         \li
 
     \row
         \li M302
         \li Error
-        \li Could not resolve the prototype 'name'
+        \li Could not resolve the prototype \c name
         \li
 
     \row
         \li M303
         \li Error
-        \li Prototype cycle, the last non-repeated component is 'name'
+        \li Prototype cycle, the last non-repeated component is \c name
         \li
 
     \row
         \li M304
         \li Error
-        \li Invalid property type 'name'
+        \li Invalid property type \c name
         \li
     \row
-        \li  M305
-        \li  Warning
-        \li  == and != perform type coercion, use === or !== to avoid it
-        \li  See \l{m126}{M126}.
+        \li M305
+        \li Warning
+        \li \c == and \c != perform type coercion, use \c === or \c !== to
+            avoid it
+        \li See \l{m126}{M126}.
     \row
-        \li  M306
-        \li  Warning
-        \li  Calls of functions that start with an uppercase letter should use 'new'
-        \li  By convention, functions that start with an uppercase letter
-           are constructor functions that should only be used with 'new'.
+        \li M306
+        \li Warning
+        \li Calls of functions that start with an uppercase letter should use
+            \c new
+        \li By convention, functions that start with an uppercase letter
+            are constructor functions that should only be used with \c new.
 
     \row
-        \li  M307
-        \li  Warning
-        \li  Use 'new' only with functions that start with an uppercase letter
+        \li M307
+        \li Warning
+        \li Use \c new only with functions that start with an uppercase letter
         \li
 
     \row
         \li M308
         \li Warning
-        \li Do not use 'Number' as a constructor
+        \li Do not use \c Number as a constructor
         \li
 
     \row
@@ -644,15 +647,15 @@
         \li
 
     \row
-        \li  M311
-        \li  Hint
-        \li  Use 'type' instead of 'var' or 'variant' to improve performance
+        \li M311
+        \li Hint
+        \li Use \c type instead of \c var or \c variant to improve performance
         \li
 
     \row
         \li M312
         \li Error
-        \li Missing property 'number'
+        \li Missing property \c number
         \li
 
     \row
@@ -670,19 +673,19 @@
     \row
         \li M315
         \li Error
-        \li 'Value' value expected
+        \li \c Value value expected
         \li
 
     \row
         \li M316
         \li Error
-        \li Maximum number value is 'number'
+        \li Maximum number value is \c number
         \li
 
     \row
         \li M317
         \li Error
-        \li Minimum number value is 'number'
+        \li Minimum number value is \c number
         \li
 
     \row
@@ -706,30 +709,30 @@
     \row
         \li M321
         \li Error
-        \li Minimum string value length is 'number'
+        \li Minimum string value length is \c number
         \li
 
     \row
         \li M322
         \li Error
-        \li Maximum string value length is 'number'
+        \li Maximum string value length is \c number
         \li
 
     \row
         \li M323
         \li Error
-        \li 'Number' elements expected in array value
+        \li \c Number elements expected in array value
         \li
 
     \row
-        \li  M324
-        \li  Warning
-        \li  Using Qt Quick 1 code model instead of Qt Quick 2
-        \li  The code model might be corrupt or the QML emulation layer might
-             have been built with a different Qt version than the one selected
-             in the build and run kit. For more information, see
-             \l {Resetting the Code Model} and
-             \l {Running QML Modules in Qt Quick Designer}.
+        \li M324
+        \li Warning
+        \li Using Qt Quick 1 code model instead of Qt Quick 2
+        \li The code model might be corrupt or the QML emulation layer might
+            have been built with a different Qt version than the one selected in
+            the build and run kit. For more information, see
+            \l {Resetting the Code Model} and
+            \l {Running QML Modules in Qt Quick Designer}.
 
     \endtable
 
@@ -777,11 +780,11 @@
     To open the list of suggestions at any time, press \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
 
-    When completion is invoked manually, \QC completes the common prefix
-    of the list of suggestions. This is especially useful for classes with
-    several similarly named members. To disable this functionality, uncheck
-    \uicontrol{Autocomplete common prefix} in the code completion preferences.
-    Select \uicontrol Tools > \uicontrol{Options} > \uicontrol{Text Editor}
+    When completion is invoked manually, \QC completes the common prefix of the
+    list of suggestions. This is especially useful for classes with several
+    similarly named members. To disable this functionality, uncheck
+    \uicontrol {Autocomplete common prefix} in the code completion preferences.
+    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
     > \uicontrol Completion.
 
     By default, code completion considers only the first letter case-sensitive.
@@ -790,8 +793,8 @@
 
     \section2 Summary of Available Types
 
-    The following table lists available types for code completion and icon
-    used for each.
+    The following table lists available types for code completion and icon used
+    for each.
 
     \table
         \header
@@ -858,12 +861,11 @@
 
     \section2 Completing Code Snippets
 
-    Code snippets can consist of multiple
-    variables that you specify values for. Select an item in the list and press
-    \key Tab or \key Enter to complete the code. Press \key Tab to
-    move between the variables and specify values for them. When you specify a
-    value for a variable, all instances of the variable within the snippet
-    are renamed.
+    Code snippets can consist of multiple variables that you specify values for.
+    Select an item in the list and press \key Tab or \key Enter to complete the
+    code. Press \key Tab to move between the variables and specify values for
+    them. When you specify a value for a variable, all instances of the variable
+    within the snippet are renamed.
 
     \image qmldesigner-code-completion.png "Completing QML code"
 
@@ -871,7 +873,8 @@
 
     Code snippets specify C++ or QML code constructs. You can add, modify,
     and remove snippets in the snippet editor. To open the editor, select
-    \uicontrol {Tools > Options > Text Editor > Snippets}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Snippets.
 
     \image qtcreator-edit-code-snippets.png "Snippet options"
 
@@ -891,10 +894,10 @@
     \section3 Adding and Editing Snippets
 
     Select a snippet in the list to edit it in the snippet editor. To add a new
-    snippet, select \uicontrol Add. Specify a trigger and, if the trigger is already
-    in use, an optional variant, which appear in the list of suggestions when
-    you write code. Also specify a text string or C++ or QML code construct in
-    the snippet editor, depending on the snippet category.
+    snippet, select \uicontrol Add. Specify a trigger and, if the trigger is
+    already in use, an optional variant, which appear in the list of suggestions
+    when you write code. Also specify a text string or C++ or QML code construct
+    in the snippet editor, depending on the snippet category.
 
     The snippet editor provides you with:
 
@@ -944,27 +947,27 @@
     or add. However, when you use the snippets, the code editor marks any
     errors by underlining them in red.
 
-    To discard the changes you made to a built-in snippet, select \uicontrol {Revert
-    Built-in}.
+    To discard the changes you made to a built-in snippet, select
+    \uicontrol {Revert Built-in}.
 
     \section3 Removing Snippets
 
-    Several similar built-in snippets might be provided for different use
-    cases. To make the list of suggestions shorter when you write code, remove
-    the built-in snippets that you do not need. If you need them later, you
-    can restore them.
+    Several similar built-in snippets might be provided for different use cases.
+    To make the list of suggestions shorter when you write code, remove the
+    built-in snippets that you do not need. If you need them later, you can
+    restore them.
 
     To remove snippets, select a snippet in the list, and then select
-    \uicontrol Remove. To restore the removed snippets, select \uicontrol {Restore Removed
-    Built-ins}.
+    \uicontrol Remove. To restore the removed snippets, select
+    \uicontrol {Restore Removed Built-ins}.
 
     \section3 Resetting Snippets
 
     To remove all added snippets and to restore all removed snippets, select
     \uicontrol {Reset All}.
 
-    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently lose all
-    your own snippets.
+    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently
+    lose all your own snippets.
 
 */
 
@@ -999,60 +1002,64 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options  > \uicontrol{Code Pasting}.
+        \li Select \uicontrol Tools > \uicontrol Options  >
+            \uicontrol {Code Pasting}.
 
             \image qtcreator-code-pasting-options.png "Code Pasting options"
 
-        \li In the \uicontrol {Default protocol} field, select a code pasting service
-            to use by default.
+        \li In the \uicontrol {Default protocol} field, select a code pasting
+            service to use by default.
 
         \li In the \uicontrol Username field, enter your username.
 
-        \li In the \uicontrol {Expires after} field, specify the time to keep the
-            pasted snippet on the server.
+        \li In the \uicontrol {Expires after} field, specify the time to keep
+            the pasted snippet on the server.
 
-        \li Select the \uicontrol {Copy-paste URL to clipboard} check box to copy the
-            URL of the post on the code pasting service to the clipboard when
-            you paste a post.
+        \li Select the \uicontrol {Copy-paste URL to clipboard} check box to
+            copy the URL of the post on the code pasting service to the
+            clipboard when you paste a post.
 
         \li Select the \uicontrol {Display Output pane after sending a post} to
-            display the URL in the \uicontrol {General Messages} output pane when you
-            paste a post.
+            display the URL in the \uicontrol {General Messages} output pane
+            when you paste a post.
 
     \endlist
 
-    Select \uicontrol Fileshare to specify the path to a shared
-    network drive. The code snippets are copied to the drive as simple files.
-    You have to delete obsolete files from the drive manually.
+    Select \uicontrol Fileshare to specify the path to a shared network drive.
+    The code snippets are copied to the drive as simple files. You have to
+    delete obsolete files from the drive manually.
 
     \section1 Using Code Pasting Services
 
-    To paste a snippet of code onto the server, select \uicontrol{Tools} >
-    \uicontrol{Code Pasting} > \uicontrol{Paste Snippet} or press \key{Alt+C,Alt+P}.
-    By default, \QC copies the URL of the snippet to the clipboard and displays
-    the URL in the \uicontrol {General Messages} output pane.
+    To paste a snippet of code onto the server, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet} or press
+    \key {Alt+C,Alt+P}. By default, \QC copies the URL of the snippet to the
+    clipboard and displays the URL in the \uicontrol {General Messages} output
+    pane.
 
-    To paste any content that you copied to the clipboard, select \uicontrol Tools >
-    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.
+    To paste any content that you copied to the clipboard, select
+    \uicontrol Tools > \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.
 
     To paste content from the \l{Comparing Files}{diff editor}, right-click a
     chunk and select \uicontrol {Send Chunk to CodePaster} in the context menu.
 
-    To fetch a snippet of code from the server, select \uicontrol{Tools} >
-    \uicontrol{Code Pasting} > \uicontrol{Fetch Snippet} or press \key{Alt+C,Alt+F}. Select
-    the snippet to fetch from the list.
+    To fetch a snippet of code from the server, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Fetch Snippet} or press
+    \key {Alt+C,Alt+F}. Select the snippet to fetch from the list.
 
     To fetch the content stored at an URL, select \uicontrol Tools >
     \uicontrol {Code Pasting} > \uicontrol {Fetch from URL}.
 
     For example, you might ask colleagues to review a change that you plan to
     submit to a version control system. If you use the Git version control
-    system, you can create a \e{diff} view by selecting \uicontrol{Tools > Git >
-    Diff Repository}. You can then upload its contents to the server by choosing
-    \uicontrol{Tools} > \uicontrol{Code Pasting} > \uicontrol{Paste Snippet}. The reviewers can
-    retrieve the code snippet by selecting \uicontrol{Tools > Code Pasting >
-    Fetch Snippet}. If they have the project currently opened in \QC, they can
-    apply and test the change by choosing \uicontrol{Tools > Git > Apply Patch}.
+    system, you can create a \e{diff} view by selecting \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Diff Repository}. You can then upload its
+    contents to the server by choosing \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}. The reviewers can
+    retrieve the code snippet by selecting \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Fetch Snippet}. If they have the
+    project currently opened in \QC, they can apply and test the change by
+    choosing \uicontrol Tools > \uicontrol Git > \uicontrol {Apply Patch}.
 
 */
 
@@ -1065,26 +1072,31 @@
 
     \title Using Text Editing Macros
 
-    To record a text editing macro, select \uicontrol {Tools > Text Editing Macros > Record Macro}
-    or press \key {Alt+(}. To stop recording, select \uicontrol {Tools > Text Editing Macros >
-    Stop Recording Macro} or press \key {Alt+)}.
+    To record a text editing macro, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Record Macro}
+    or press \key {Alt+(}. To stop recording, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Stop Recording Macro} or
+    press \key {Alt+)}.
 
     \note The macro recorder does not support code completion.
 
-    To play the last macro, select \uicontrol {Tools > Text Editing Macros > Play Last Macro} or
+    To play the last macro, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Play Last Macro} or
     press \key {Alt+R}.
 
-    To save the last macro, select \uicontrol {Tools > Text Editing Macros > Save Last Macro}.
+    To save the last macro, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Save Last Macro}.
 
-    To assign a keyboard shortcut to a text editing macro, select \uicontrol {Tools >
-    Options > Environment > Keyboard}. For more information, see
+    To assign a keyboard shortcut to a text editing macro, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Keyboard. For more information, see
     \l{Configuring Keyboard Shortcuts}.
 
     You can also use the \c rm locator filter to run a macro. For more
     information, see \l{Searching with the Locator}.
 
-    To view and remove saved macros, select \uicontrol {Tools > Options > Text
-    Editor > Macros}.
+    To view and remove saved macros, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Macros.
 
 */
 
@@ -1097,44 +1109,45 @@
 
     \title Using FakeVim Mode
 
-    In the \uicontrol{FakeVim} mode, you can run the main editor in a manner similar
-    to the Vim editor. To run the editor in the \uicontrol{FakeVim} mode, select
-    \uicontrol{Edit} > \uicontrol{Advanced} > \uicontrol{Use Vim-style Editing} or press
-    \key{Alt+V,Alt+V}.
+    In the \uicontrol FakeVim mode, you can run the main editor in a manner
+    similar to the Vim editor. To run the editor in the \uicontrol FakeVim
+    mode, select \uicontrol Edit > \uicontrol Advanced >
+    \uicontrol {Use Vim-style Editing} or press \key {Alt+V,Alt+V}.
 
-    In the \uicontrol{FakeVim} mode, most keystrokes in the main editor will be
+    In the \uicontrol FakeVim mode, most keystrokes in the main editor will be
     intercepted and interpreted in a way that resembles Vim. Documentation for
-    Vim is not included in \QC. For more information on using Vim,
-    see \l{http://www.vim.org/docs.php}{Documentation} on the Vim web site.
+    Vim is not included in \QC. For more information on using Vim, see
+    \l{http://www.vim.org/docs.php}{Documentation} on the Vim web site.
 
-    To map commands entered on the \uicontrol{FakeVim} command line to actions of the
-    \QC core, select \uicontrol{Tools} > \uicontrol{Options} > \uicontrol{FakeVim} >
-    \uicontrol{Ex Command Mapping}.
+    To map commands entered on the \uicontrol FakeVim command line to actions
+    of the \QC core, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol FakeVim > \uicontrol {Ex Command Mapping}.
 
-    To map \e {user commands} to keyboard shortcuts, select \uicontrol{Tools > Options
-    > FakeVim > User Command Mapping}. The user command mapped to the shortcut
+    To map \e {user commands} to keyboard shortcuts, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol FakeVim >
+    \uicontrol {User Command Mapping}. The user command mapped to the shortcut
     is executed by FakeVim as if you were typing it (as when replaying a macro).
 
-    To make changes to the Vim-style settings, select \uicontrol{Tools} >
-    \uicontrol{Options} > \uicontrol FakeVim > \uicontrol{General}.
+    To make changes to the Vim-style settings, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol FakeVim > \uicontrol General.
 
     \image qtcreator-fakevim-options.png "FakeVim options"
 
     To preselect the indentation settings specified for the text editor, select
-    \uicontrol {Copy Text Editor Settings}. To preselect the Qt coding style, select
-    \uicontrol {Set Qt Style}. To preselect a simple indentation style, select
-    \uicontrol {Set Plain Style}. You can then change any of the preselected settings.
+    \uicontrol {Copy Text Editor Settings}. To preselect the Qt coding style,
+    select \uicontrol {Set Qt Style}. To preselect a simple indentation style,
+    select \uicontrol {Set Plain Style}. You can then change any of the
+    preselected settings.
 
-    To use a Vim-style color scheme, select \uicontrol {Tools > Options >
-    Text Editor > Fonts & Color}. In the \uicontrol {Color Scheme} list, select
-    \uicontrol {Vim (dark)}.
+    To use a Vim-style color scheme, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
+    In the \uicontrol {Color Scheme} list, select \uicontrol {Vim (dark)}.
 
-    To quit the FakeVim mode, unselect \uicontrol{Tools} > \uicontrol{Options} >
-    \uicontrol{FakeVim} > \uicontrol {Use FakeVim} or press \key{Alt+V,Alt+V}.
+    To quit the FakeVim mode, unselect \uicontrol Tools > \uicontrol Options >
+    \uicontrol FakeVim > \uicontrol {Use FakeVim} or press \key {Alt+V,Alt+V}.
 
-    You can temporarily escape FakeVim mode to access the normal \QC
-    keyboard shortcuts like \key{Ctrl-R} for \uicontrol{Run} by pressing
-    \key{,} first.
+    You can temporarily escape FakeVim mode to access the normal \QC keyboard
+    shortcuts like \key {Ctrl-R} for \uicontrol Run by pressing \key {,} first.
 
     */
 
@@ -1146,9 +1159,9 @@
 
     \title Indenting Text or Code
 
-    When you type text or code, it is indented automatically according to the selected
-    text editor or code style options. Select a block to indent it when you
-    press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
+    When you type text or code, it is indented automatically according to the
+    selected text editor or code style options. Select a block to indent it when
+    you press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
     can disable automatic indentation.
 
     You can specify indentation for:
@@ -1173,10 +1186,10 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > C++}.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++}.
 
-        \li In the \uicontrol {Current settings} field, select the settings to modify
-            and click \uicontrol Copy.
+        \li In the \uicontrol {Current settings} field, select the settings to
+            modify and click \uicontrol Copy.
 
             \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
 
@@ -1211,8 +1224,8 @@
 
     You can use the live preview to see how the options change the indentation.
 
-    To specify different settings for a particular project, select \uicontrol {Projects >
-    Code Style Settings}.
+    To specify different settings for a particular project, select
+    \uicontrol Projects > \uicontrol {Code Style Settings}.
 
     \section1 Indenting QML Files
 
@@ -1220,10 +1233,11 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options >Qt Quick}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Qt Quick}.
 
-        \li In the \uicontrol {Current settings} field, select the settings to modify
-            and click \uicontrol Copy.
+        \li In the \uicontrol {Current settings} field, select the settings to
+            modify and click \uicontrol Copy.
 
             \image qtcreator-options-code-style-qml.png "QML Code Style options"
 
@@ -1238,18 +1252,19 @@
     You can specify how to interpret the \key Tab key presses and how to align
     continuation lines.
 
-    To specify different settings for a particular project, select \uicontrol {Projects >
-    Code Style Settings}.
+    To specify different settings for a particular project, select
+    \uicontrol Projects > \uicontrol {Code Style Settings}.
 
     \section1 Indenting Other Text Files
 
-    To specify indentation settings for text files that do not contain C++ or QML code (such
-    as Python code files), select \uicontrol {Tools > Options > Text Editor > Behavior}.
+    To specify indentation settings for text files that do not contain C++ or
+    QML code (such as Python code files), select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior.
 
     \image qtcreator-indentation.png "Text Editor Behavior options"
 
-    To specify different settings for a particular project, select \uicontrol Projects
-    > \uicontrol Editor.
+    To specify different settings for a particular project, select
+    \uicontrol Projects > \uicontrol Editor.
 
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
@@ -1276,39 +1291,41 @@
 
     \section2 Specifying Tabs and Indentation
 
-    You can specify tab policy and tab size in the \uicontrol Typing group. In the
-    \uicontrol {Tab policy} field, select whether to use only spaces or only tabs for
-    indentation, or to use a mixture of them.
+    You can specify tab policy and tab size in the \uicontrol Typing group. In
+    the \uicontrol {Tab policy} field, select whether to use only spaces or
+    only tabs for indentation, or to use a mixture of them.
 
     By default, the tab length in code editor is 8 spaces and the indent size is
     4 spaces. You can specify the tab length and indent size separately for each
     project and for different types of files.
 
     You can have continuation lines aligned with the previous line. In the
-    \uicontrol {Align continuation lines} field, select \uicontrol {Not at all} to disable
-    automatic alignment and indent continuation lines to the logical depth.
-    To always use spaces for alignment, select \uicontrol {With Spaces}. To follow the
-    \uicontrol {Tab policy}, select \uicontrol {With Regular Indent}.
+    \uicontrol {Align continuation lines} field, select
+    \uicontrol {Not at all} to disable automatic alignment and indent
+    continuation lines to the logical depth. To always use spaces for alignment,
+    select \uicontrol {With Spaces}. To follow the \uicontrol {Tab policy},
+    select \uicontrol {With Regular Indent}.
 
     \section2 Specifying Typing Options
 
-    When you type text or code, it is indented automatically according to the selected
-    text editor or code style options. Specify typing options in the
+    When you type text or code, it is indented automatically according to the
+    selected text editor or code style options. Specify typing options in the
     \uicontrol Typing group. To disable automatic indentation, deselect the
     \uicontrol {Enable automatic indentation} check box.
 
     You can specify how the indentation is decreased when you press
-    \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go back one
-    space at a time, select \uicontrol None. To decrease indentation in leading white
-    space by one level, select \uicontrol {Follows Previous Indents}. To move back one
-    tab length if the character to the left of the cursor is a space, select
+    \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go
+    back one space at a time, select \uicontrol None. To decrease indentation
+    in leading white space by one level, select
+    \uicontrol {Follows Previous Indents}. To move back one tab length if the
+    character to the left of the cursor is a space, select
     \uicontrol Unindents.
 
     You can specify whether the \key Tab key automatically indents text when you
     press it. To automatically indent text, select \uicontrol Always in the
-    \uicontrol {Tab key performs auto-indent} field. To only indent text when the
-    cursor is located within leading white space, select \uicontrol {In Leading White
-    Space}.
+    \uicontrol {Tab key performs auto-indent} field. To only indent text when
+    the cursor is located within leading white space, select \uicontrol {In
+    Leading White Space}.
 
     \section1 Specifying Settings for Content
 
@@ -1336,10 +1353,10 @@
 
     \section1 Specifying Alignment
 
-    To align continuation lines to tokens after assignments, such as = or
-    +=, select the \uicontrol {Align after assignments} check box. You can specify
-    additional settings for aligning continuation lines in the \uicontrol General
-    tab.
+    To align continuation lines to tokens after assignments, such as \c = or
+    \c +=, select the \uicontrol {Align after assignments} check box. You can
+    specify additional settings for aligning continuation lines in the
+    \uicontrol General tab.
 
     You can also add spaces to conditional statements, so that they are not
     aligned with the following line. Usually, this only affects \c if
@@ -1349,12 +1366,12 @@
 
     \section1 Binding Pointers and References
 
-    To bind pointers (*) and references (&) in types and declarations to
+    To bind pointers (\c *) and references (\c &) in types and declarations to
     identifiers, type names, or left or right \c const or \c volatile keywords,
     select the check boxes in the \uicontrol {Pointers and References} tab.
 
-    The * and & characters are automatically bound to identifiers of pointers to
-    functions and pointers to arrays.
+    The \c * and \c & characters are automatically bound to identifiers of
+    pointers to functions and pointers to arrays.
 
     \image qtcreator-pointers-references.png "Pointers and References options"
 
@@ -1373,8 +1390,8 @@
 
     \list 1
 
-        \li Press \key Ctrl+F or select \uicontrol Edit > \uicontrol Find/Replace >
-            \uicontrol{Find/Replace}.
+        \li Press \key {Ctrl+F} or select \uicontrol Edit >
+            \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
 
         \li Enter the text you are looking for.
 
@@ -1384,7 +1401,7 @@
             (\uicontrol {Find Next}), or press \key F3. To go to the previous
             occurrence click
             \inlineimage qtcreator-previous.png
-            (\uicontrol {Find Previous}), or press \key Shift+F3.
+            (\uicontrol {Find Previous}), or press \key {Shift+F3}.
 
     \endlist
 
@@ -1396,14 +1413,13 @@
         \li To make your search case sensitive, select
             \uicontrol {Case Sensitive}.
 
-        \li To search only whole words, select
-            \uicontrol {Whole Words Only}.
+        \li To search only whole words, select \uicontrol {Whole Words Only}.
 
         \li To search using regular expressions, select
-            \uicontrol {Regular Expressions}.
-            Regular expressions used in \QC are modeled on Perl regular
-            expressions. For more information on using regular expressions, see
-            the documentation for the QRegExp Class.
+            \uicontrol {Regular Expressions}. Regular expressions used in \QC
+            are modeled on Perl regular expressions. For more information on
+            using regular expressions, see the documentation for the
+            QRegularExpression Class.
 
     \endlist
 
@@ -1416,36 +1432,37 @@
     \list
 
         \li To replace the selected occurrence and move to the next one,
-            click \uicontrol {Find Next}
-            or press \key Ctrl+=.
+            click \uicontrol {Find Next} or press \key {Ctrl+=}.
 
         \li To replace the selected occurrence and move to the previous one,
-            click \uicontrol {Find Previous}
-            .
+            click \uicontrol {Find Previous}.
 
-        \li To replace all occurrences in the file, click \uicontrol{Replace All}.
+        \li To replace all occurrences in the file, click
+            \uicontrol {Replace All}.
 
     \endlist
 
-    The \uicontrol{Preserve Case when Replacing} option can be selected to preserve
-    the case of the original text when replacing. This option is not compatible
-    with the \uicontrol {Regular Expressions} search option, and will thus be
-    disabled when regular expressions are used. When the option is used, the
-    case of the occurrence will be conserved, according to the following rules:
+    The \uicontrol {Preserve Case when Replacing} option can be selected to
+    preserve the case of the original text when replacing. This option is not
+    compatible with the \uicontrol {Regular Expressions} search option, and will
+    thus be disabled when regular expressions are used. When the option is used,
+    the case of the occurrence will be conserved, according to the following
+    rules:
 
     \list
 
-        \li  All upper-case occurrences are replaced with the upper-case new text.
-
-        \li  All lower-case occurrences are replaced with the lower-case new text.
+        \li All upper-case occurrences are replaced with the upper-case new
+            text.
+        \li All lower-case occurrences are replaced with the lower-case new
+            text.
 
         \li Capitalized occurrences are replaced with the capitalized new text.
 
         \li Other occurrences are replaced with the new text as entered.
 
-        \li  If an occurrence and the new text have the same prefix or suffix,
-           then the case of the prefix and/or suffix are preserved, and the
-           other rules are applied on the rest of the occurrence only.
+        \li If an occurrence and the new text have the same prefix or suffix,
+            then the case of the prefix and/or suffix are preserved, and the
+            other rules are applied on the rest of the occurrence only.
 
     \endlist
 
@@ -1455,24 +1472,26 @@
 
     \list 1
 
-        \li Press \key Ctrl+Shift+F or select \uicontrol Edit > \uicontrol Find/Replace >
-            \uicontrol{Advanced Find} > \uicontrol{Open Advanced Find}.
+        \li Press \key {Ctrl+Shift+F} or select \uicontrol Edit >
+            \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
+            \uicontrol {Open Advanced Find}.
 
         \li Select the scope of your search:
 
             \list
 
-                \li \uicontrol{All Projects} searches files matching the defined file
-                    pattern in all currently open projects.
+                \li \uicontrol {All Projects} searches files matching the
+                    defined file pattern in all currently open projects.
 
-                    For example, to search for \tt previewer only in \tt .cpp
-                    and \tt .h files, enter in \uicontrol{File pattern}
-                    \tt *.cpp,*.h.
+                    For example, to search for \c previewer only in \c {.cpp}
+                    and \c {.h} files, enter in \uicontrol {File pattern}
+                    \c {*.cpp,*.h}.
 
                     \image qtcreator-search-allprojects.png
 
-                \li \uicontrol{Current Project} searches files matching the defined
-                    file pattern only in the project you are currently editing.
+                \li \uicontrol {Current Project} searches files matching the
+                    defined file pattern only in the project you are currently
+                    editing.
 
                 \li \uicontrol {Files on File System} recursively searches files
                     matching the defined file pattern in the selected directory.
@@ -1498,7 +1517,8 @@
                 \li To go to an occurrence, double-click it.
 
                 \li To repeat the search after you have made changes to the
-                    listed files, for example, select \uicontrol {Search Again}.
+                    listed files, for example, select
+                    \uicontrol {Search Again}.
 
             \endlist
 
@@ -1507,8 +1527,8 @@
     The search results are stored in the search history from which you can
     select earlier searches.
 
-    \note You can use \uicontrol{Advanced Find} also to search for symbols. For more
-    information, see \l{Finding Symbols}.
+    \note You can use \uicontrol {Advanced Find} also to search for symbols. For
+    more information, see \l{Finding Symbols}.
 
 */
 
@@ -1547,11 +1567,12 @@
 
         \list
 
-            \li \uicontrol {Tools > C++ > Find Usages}
+            \li \uicontrol Tools > \uicontrol {C++} > \uicontrol {Find Usages}
 
-            \li \uicontrol {Tools > QML/JS > Find Usages}
+            \li \uicontrol Tools > \uicontrol {QML/JS} >
+                \uicontrol {Find Usages}
 
-            \li \key Ctrl+Shift+U
+            \li \key {Ctrl+Shift+U}
 
         \endlist
 
@@ -1568,15 +1589,16 @@
 
         \endlist
 
-        \note You can also select \uicontrol{Edit > Find/Replace > Advanced Find >
-        C++ Symbols} to search for classes, functions, enums, and declarations
-        either from files listed as part of the project or from all files that
-        are used by the code, such as include files.
+        \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
+        \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
+        classes, functions, enums, and declarations either from files listed as
+        part of the project or from all files that are used by the code, such as
+        include files.
 
         \image qtcreator-search-cpp-symbols.png
 
-        \li The \uicontrol{Search Results} pane opens and shows the location and
-            number of instances of the symbol in the current project.
+        \li The \uicontrol {Search Results} pane opens and shows the location
+            and number of instances of the symbol in the current project.
 
             \image qtcreator-refactoring-find.png
 
@@ -1589,17 +1611,16 @@
         \li To go directly to an instance, double-click the instance in the
             \uicontrol {Search Results} pane.
 
-        \li To move between instances, click
-            \inlineimage qtcreator-forward.png
-            and
-            \inlineimage qtcreator-back.png
-            in the \uicontrol{Search Results} pane.
+        \li To move between instances, click \inlineimage qtcreator-forward.png
+            and \inlineimage qtcreator-back.png
+            in the \uicontrol {Search Results} pane.
 
         \li To expand and collapse the list of all instances, click
             \inlineimage qtcreator-expand.png
             .
 
-        \li To clear the search results, click \inlineimage qtcreator-clear.png
+        \li To clear the search results, click
+            \inlineimage qtcreator-clear.png
             .
 
     \endlist
@@ -1611,18 +1632,20 @@
     \list 1
 
         \li In the editor, place the cursor on the symbol you would like to
-            change and select \uicontrol Tools > \uicontrol C++ >
-            \uicontrol{Rename Symbol Under Cursor} or \uicontrol Tools > \uicontrol QML/JS >
-            \uicontrol{Rename Symbol Under Cursor}. Alternatively, press
-            \key Ctrl+Shift+R.
+            change and select \uicontrol Tools > \uicontrol {C++} >
+            \uicontrol {Rename Symbol Under Cursor} or
+            \uicontrol Tools > \uicontrol {QML/JS} >
+            \uicontrol {Rename Symbol Under Cursor}. Alternatively, press
+            \key {Ctrl+Shift+R}.
 
-            The \uicontrol{Search Results} pane opens and shows the location and
-            number of instances of the symbol in the current project.
+            The \uicontrol {Search Results} pane opens and shows the location
+            and number of instances of the symbol in the current project.
 
             \image qtcreator-refactoring-replace.png
 
         \li To replace all selected instances, enter the name of the new symbol
-            in the \uicontrol{Replace with} text box and click \uicontrol Replace.
+            in the \uicontrol {Replace with} text box and click
+            \uicontrol Replace.
 
             To omit an instance, uncheck the check-box next to the instance.
 
@@ -1632,9 +1655,9 @@
 
     \endlist
 
-    \note Renaming local symbols does not open the \uicontrol{Search Results} pane.
-    The instances of the symbol are highlighted in code and you can edit the
-    symbol. All instances of the local symbol are changed as you type.
+    \note Renaming local symbols does not open the \uicontrol {Search Results}
+    pane. The instances of the symbol are highlighted in code and you can edit
+    the symbol. All instances of the local symbol are changed as you type.
 
     \section1 Column Editing
 
@@ -1644,19 +1667,19 @@
 
     \section1 Applying Refactoring Actions
 
-    \QC allows you to quickly and conveniently apply actions to refactor
-    your code by selecting them in a context menu. The actions available depend
-    on the position of the cursor in the code editor and on whether you are
-    writing C++ or QML code.
+    \QC allows you to quickly and conveniently apply actions to refactor your
+    code by selecting them in a context menu. The actions available depend on
+    the position of the cursor in the code editor and on whether you are writing
+    C++ or QML code.
 
     To apply refactoring actions to C++ code, right-click an operand,
     conditional statement, string, or name to open a context menu. In QML code,
     click an item ID or name.
 
-    In the context menu, select \uicontrol {Refactoring} and then select a refactoring
-    action.
+    In the context menu, select \uicontrol {Refactoring} and then select a
+    refactoring action.
 
-    You can also press \uicontrol {Alt+Enter} to open a context menu that contains
+    You can also press \key {Alt+Enter} to open a context menu that contains
     refactoring actions available in the current cursor position.
 
    \section2 Refactoring C++ Code
@@ -1690,33 +1713,33 @@
             \li Description
             \li Activation
         \row
-            \li  Add Curly Braces
-            \li  Adds curly braces to an if statement that does not contain a
-            compound statement. For example, rewrites
+            \li Add Curly Braces
+            \li Adds curly braces to an if statement that does not contain a
+                compound statement. For example, rewrites
 
     \code
     if (a)
         b;
     \endcode
 
-            as
+                as
 
     \code
     if (a) {
         b;
     }
     \endcode
-            \li  if
+            \li \c if
         \row
-            \li  Move Declaration out of Condition
-            \li  Moves a declaration out of an if or while condition to simplify the
-            condition. For example, rewrites
+            \li Move Declaration out of Condition
+            \li Moves a declaration out of an if or while condition to simplify
+                the condition. For example, rewrites
 
     \code
     if (Type name = foo()) {}
     \endcode
 
-            as
+                as
 
     \code
     Type name = foo;
@@ -1724,23 +1747,23 @@
     \endcode
             \li Name of the introduced variable
         \row
-            \li  Rewrite Condition Using ||
-            \li  Rewrites the expression according to De Morgan's laws. For example,
-             rewrites:
+            \li Rewrite Condition Using ||
+            \li Rewrites the expression according to De Morgan's laws. For
+                example, rewrites:
     \code
     !a && !b
     \endcode
 
-            as
+                as
 
     \code
     !(a || b)
     \endcode
-            \li  &&
+            \li \c &&
         \row
-            \li  Rewrite Using \e operator
-            \li  Rewrites an expression negating it and using the inverse operator. For
-            example, rewrites:
+            \li Rewrite Using \e operator
+            \li Rewrites an expression negating it and using the inverse
+                operator. For example, rewrites:
 
             \list
 
@@ -1748,7 +1771,7 @@
     a op b
     \endcode
 
-    as
+                as
 
     \code
     !(a invop b)
@@ -1758,7 +1781,7 @@
     (a op b)
     \endcode
 
-    as
+                as
 
     \code
     !(a invop b)
@@ -1768,7 +1791,7 @@
     !(a op b)
     \endcode
 
-    as
+                as
 
     \code
     (a invob b)
@@ -1776,16 +1799,16 @@
 
     \endlist
 
-            \li  <= < > >= == !=
+            \li \c {<=}, \c {<}, \c {>}, \c {>=}, \c {==} or \c {!=}
         \row
-            \li  Split Declaration
-            \li  Splits a simple declaration into several declarations. For example,
-            rewrites:
+            \li Split Declaration
+            \li Splits a simple declaration into several declarations. For
+                example, rewrites:
     \code
     int *a, b;
     \endcode
 
-    as
+                as
 
     \code
     int *a;
@@ -1793,14 +1816,16 @@
     \endcode
             \li Type name or variable name
         \row
-            \li  Split if Statement
-            \li  Splits an if statement into several statements. For example, rewrites:
+            \li Split if Statement
+            \li Splits an if statement into several statements. For example,
+                rewrites:
+
     \code
     if (something && something_else) {
     }
     \endcode
 
-    as
+                as
 
     \code
     if (something) {
@@ -1809,14 +1834,14 @@
     }
     \endcode
 
-    and
+                and
 
     \code
     if (something || something_else)
         x;
     \endcode
 
-    with
+                with
 
     \code
     if (something)
@@ -1825,20 +1850,21 @@
         x;
     \endcode
 
-            \li  && ||
+            \li \c && or \c ||
         \row
-            \li  Swap Operands
-            \li  Rewrites an expression in the inverse order using the inverse operator.
-            For example, rewrites:
+            \li Swap Operands
+            \li Rewrites an expression in the inverse order using the inverse
+                operator. For example, rewrites:
     \code
     a op b
     \endcode
 
-    as
+                as
     \code
     b flipop a
     \endcode
-            \li  <= < > >= == != && ||
+            \li \c {<=}, \c {<}, \c {>},  \c {>=}, \c {==}, \c {!=}, \c {&&}
+                or \c {||}
         \row
             \li Convert to Decimal
             \li Converts an integer literal to decimal representation
@@ -1852,9 +1878,10 @@
             \li Converts an integer literal to octal representation
             \li Numeric literal
         \row
-            \li  Convert to Objective-C String Literal
-            \li  Converts a string literal to an Objective-C string literal
-            if the file type is Objective-C(++). For example, rewrites the following strings
+            \li Convert to Objective-C String Literal
+            \li Converts a string literal to an Objective-C string literal if
+                the file type is Objective-C(++). For example, rewrites the
+                following strings
 
     \code
     "abcd"
@@ -1862,38 +1889,39 @@
     QLatin1Literal("abcd")
     \endcode
 
-    as
+                as
 
     \code
     @"abcd"
     \endcode
             \li String literal
         \row
-            \li  Enclose in QLatin1Char()
-            \li  Sets the encoding for a character to Latin-1, unless the character is
-            already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
-            QLatin1Literal, or QLatin1String. For example, rewrites
+            \li Enclose in QLatin1Char()
+            \li Sets the encoding for a character to Latin-1, unless the
+                character is already enclosed in QLatin1Char, QT_TRANSLATE_NOOP,
+                tr, trUtf8, QLatin1Literal, or QLatin1String. For example,
+                rewrites
 
     \code
     'a'
     \endcode
 
-    as
+                as
 
     \code
     QLatin1Char('a')
     \endcode
             \li String literal
         \row
-            \li  Enclose in QLatin1String()
-            \li  Sets the encoding for a string to Latin-1, unless the string is
-            already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
-            QLatin1Literal, or QLatin1String. For example, rewrites
+            \li Enclose in QLatin1String()
+            \li Sets the encoding for a string to Latin-1, unless the string is
+                already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
+                QLatin1Literal, or QLatin1String. For example, rewrites
     \code
     "abcd"
     \endcode
 
-    as
+                as
 
     \code
     QLatin1String("abcd")
@@ -1902,9 +1930,10 @@
             \li String literal
 
         \row
-            \li  Mark as Translatable
-            \li  Marks a string translatable. For example, rewrites \c "abcd" with
-            one of the following options, depending on which of them is available:
+            \li Mark as Translatable
+            \li Marks a string translatable. For example, rewrites \c "abcd"
+                with one of the following options, depending on which of them is
+                available:
 
     \code
     tr("abcd")
@@ -1915,12 +1944,15 @@
             \li String literal
 
         \row
-            \li  Add Definition in ...
-            \li  Inserts a definition stub for a function declaration either in the header file
-            (inside or outside the class) or in the implementation file. For free functions, inserts
-            the definition after the declaration of the function or in the implementation file.
-            Qualified names are minimized when possible, instead of always being fully expanded.
-            For example, rewrites
+            \li Add Definition in ...
+            \li Inserts a definition stub for a function declaration either in
+                the header file (inside or outside the class) or in the
+                implementation file. For free functions, inserts the definition
+                after the declaration of the function or in the implementation
+                file. Qualified names are minimized when possible, instead of
+                always being fully expanded.
+
+                For example, rewrites
 
     \code
     Class Foo {
@@ -1928,7 +1960,7 @@
     };
     \endcode
 
-    as (inside class)
+                as (inside class)
 
     \code
     Class Foo {
@@ -1938,7 +1970,7 @@
     };
     \endcode
 
-    as (outside class)
+                as (outside class)
 
     \code
     Class Foo {
@@ -1951,7 +1983,7 @@
     }
     \endcode
 
-    as (in implementation file)
+                as (in implementation file)
 
     \code
     // Header file
@@ -1968,68 +2000,72 @@
 
             \li Function name
         \row
-            \li  Add 'Function' Declaration
-            \li  Inserts the member function declaration that matches the member function
-            definition into the class declaration. The function can be public,
-            protected, private, public slot, protected slot, or private slot.
-            \li  Function name
+            \li Add \c Function Declaration
+            \li Inserts the member function declaration that matches the member
+                function definition into the class declaration. The function can
+                be \c {public}, \c {protected}, \c {private}, \c {public slot},
+                \c {protected slot}, or \c {private slot}.
+            \li Function name
         \row
             \li Switch with Next/Previous Parameter
             \li Moves a parameter down or up one position in a parameter list.
             \li Parameter in the declaration or definition of a function
         \row
-            \li  Extract Function
-            \li  Moves the selected code to a new function and replaces the block of
-            code with a call to the new function. Enter a name for the function in
-            the \uicontrol {Extract Function Refactoring} dialog.
-            \li  Block of code selected
+            \li Extract Function
+            \li Moves the selected code to a new function and replaces the block
+                of code with a call to the new function. Enter a name for the
+                function in the \uicontrol {Extract Function Refactoring}
+                dialog.
+            \li Block of code selected
         \row
-            \li  Extract Constant as Function Parameter
-            \li  Replaces the selected literal and all its occurrences with the function parameter
-            \c{newParameter}. The parameter \c{newParameter} will have the original literal as the
-            default value.
-            \li  Block of code selected
+            \li Extract Constant as Function Parameter
+            \li Replaces the selected literal and all its occurrences with the
+                function parameter \c{newParameter}. The parameter
+                \c{newParameter} will have the original literal as the default
+                value.
+            \li Block of code selected
         \row
-            \li  Add Local Declaration
-            \li
-            Adds the type of an assignee, if the type of the right-hand side of the assignment
-            is known. For example, rewrites
+            \li Add Local Declaration
+            \li Adds the type of an assignee, if the type of the right-hand
+                side of the assignment is known. For example, rewrites
 
     \code
     a = foo();
     \endcode
 
-    as
+                as
 
     \code
     Type a = foo();
     \endcode
 
-    where Type is the return type of \c {foo()}
+                where Type is the return type of \c {foo()}
 
             \li Assignee
 
         \row
-            \li  Convert to Camel Case
-            \li  Converts a symbol name to camel case, where elements of the name are joined
-            without delimiter characters and the initial character of each element is
-            capitalized. For example, rewrites \c an_example_symbol
-            as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
-            \li  Identifier
+            \li Convert to Camel Case
+            \li Converts a symbol name to camel case, where elements of the name
+                are joined without delimiter characters and the initial
+                character of each element is capitalized. For example, rewrites
+                \c an_example_symbol as \c anExampleSymbol and
+                \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
+            \li Identifier
         \row
-            \li  Complete Switch Statement
-            \li  Adds all possible cases to a switch statement of the type \c enum
-            \li  Switch
+            \li Complete Switch Statement
+            \li Adds all possible cases to a switch statement of the type
+                \c enum
+            \li \c switch
         \row
-            \li  Generate Missing Q_PROPERTY Members
-            \li  Adds missing members to a Q_PROPERTY:
+            \li Generate Missing Q_PROPERTY Members
+            \li Adds missing members to a \c Q_PROPERTY:
             \list
                 \li \c read function
                 \li \c write function, if there is a WRITE
                 \li \c {onChanged} signal, if there is a NOTIFY
                 \li data member with the name \c {m_<propertyName>}
             \endlist
-            \li  Q_PROPERTY
+            \li \c Q_PROPERTY
         \row
             \li Apply Changes
             \li Keeps function declarations and definitions synchronized by
@@ -2037,44 +2073,45 @@
                 edit a function signature and by applying the changes to the
                 matching code.
             \li Function signature. When this action is available, a light bulb
-                icon appears:
-                \inlineimage qml-toolbar-indicator.png
+                icon appears: \inlineimage qml-toolbar-indicator.png
         \row
             \li Add #include for undeclared or forward declared identifier
-            \li Adds an #include directive to the current file to make the
+            \li Adds an \c {#include} directive to the current file to make the
                 definition of a symbol available.
             \li Undeclared identifier
         \row
             \li Reformat Pointers or References
             \li Reformats declarations with pointers or references according
-            to the code style settings for the current project. In case no
-            project is open, the current global code style settings are used.
-            For example, rewrites:
+                to the code style settings for the current project. In case no
+                project is open, the current global code style settings are
+                used.
+
+                For example, rewrites:
 
     \code
     char*s;
     \endcode
 
-    as
+                as
 
     \code
     char *s;
     \endcode
 
-    When applied to selections, all suitable declarations in the selection are
-    rewritten.
+                When applied to selections, all suitable declarations in the
+                selection are rewritten.
 
             \li Declarations with pointers or references and selections
-            containing such declarations
+                containing such declarations
         \row
-            \li  Create Getter and Setter Member Functions
-            \li  Creates either both getter and setter member functions for member variables or
-                 only a getter or setter.
-            \li  Member variable in class definition
+            \li Create Getter and Setter Member Functions
+            \li Creates either both getter and setter member functions for
+                member variables or only a getter or setter.
+            \li Member variable in class definition
         \row
             \li Move Function Definition
-            \li Moves a function definition to the implementation file, outside the class or back to its declaration. For example, rewrites:
-
+            \li Moves a function definition to the implementation file, outside
+                the class or back to its declaration. For example, rewrites:
     \code
     class Foo
     {
@@ -2085,7 +2122,7 @@
     };
     \endcode
 
-    as
+                as
     \code
     class Foo
     {
@@ -2100,8 +2137,8 @@
             \li Function signature
         \row
             \li Move All Function Definitions
-            \li Moves all function definitions to the implementation file or outside the class. For example, rewrites:
-
+            \li Moves all function definitions to the implementation file or
+                outside the class. For example, rewrites:
     \code
     class Foo
     {
@@ -2116,7 +2153,8 @@
     };
     \endcode
 
-    as
+                as
+
     \code
     class Foo
     {
@@ -2136,22 +2174,29 @@
             \li Class name
         \row
             \li Assign to Local Variable
-            \li Adds a local variable which stores the return value of a function call or a new expression. For example, rewrites:
+            \li Adds a local variable which stores the return value of a
+                function call or a new expression. For example, rewrites:
 
     \code
     QString s;
     s.loLatin1();
     \endcode
-    as
+
+                as
+
     \code
     QString s;
     QByteArray latin1 = s.toLatin1();
     \endcode
-    and
+
+                and
+
     \code
     new Foo;
     \endcode
-    as
+
+                as
+
     \code
     Foo * localFoo = new Foo;
     \endcode
@@ -2172,83 +2217,97 @@
             \li Class or base class name
         \row
             \li Optimize for-Loop
-            \li Rewrites post increment operators as pre increment operators and post decrement
-            operators as pre decrement operators. It also moves other than string or numeric
-            literals and id expressions from the condition of a for loop to its initializer.
-            For example, rewrites:
+            \li Rewrites post increment operators as pre increment operators and
+                post decrement operators as pre decrement operators. It also
+                moves other than string or numeric literals and id expressions
+                from the condition of a for loop to its initializer. For
+                example, rewrites:
 
     \code
     for (int i = 0; i < 3 * 2; i++)
     \endcode
-    as
+
+                as
+
     \code
     for (int i = 0, total = 3 * 2; i < total; ++i)
     \endcode
-            \li for
+            \li \c for
 
         \row
             \li Escape String Literal as UTF-8
-            \li Escapes non-ASCII characters in a string literal to hexadecimal escape sequences.
-            String Literals are handled as UTF-8.
+            \li Escapes non-ASCII characters in a string literal to hexadecimal
+                escape sequences. String Literals are handled as UTF-8.
             \li String literal
 
         \row
             \li Unescape String Literal as UTF-8
-            \li Unescapes octal or hexadecimal escape sequences in a string literal.
-            String Literals are handled as UTF-8.
+            \li Unescapes octal or hexadecimal escape sequences in a string
+                literal. String Literals are handled as UTF-8.
             \li String literal
 
         \row
             \li Convert to Stack Variable
-            \li Converts the selected pointer to a stack variable. For example, rewrites:
+            \li Converts the selected pointer to a stack variable. For example,
+                rewrites:
+
     \code
     QByteArray *foo = new QByteArray("foo");
     foo->append("bar");
     \endcode
-    as
+
+                as
+
     \code
     QByteArray foo = "foo";
     foo.append("bar");
     \endcode
-    This operation is limited to work only within function scope.
-    Also, the coding style for pointers and references is not respected yet.
+
+                This operation is limited to work only within function scope.
+                Also, the coding style for pointers and references is not
+                respected yet.
             \li Pointer Variable
 
         \row
             \li Convert to Pointer
-            \li Converts the selected stack variable to a pointer. For example, rewrites:
+            \li Converts the selected stack variable to a pointer. For example,
+                rewrites:
+
     \code
     QByteArray foo = "foo";
     foo.append("bar");
     \endcode
-    as
+
+                as
+
     \code
     QByteArray *foo = new QByteArray("foo");
     foo->append("bar");
     \endcode
-    This operation is limited to work only within function scope.
-    Also, the coding style for pointers and references is not respected yet.
+
+                This operation is limited to work only within function scope.
+                Also, the coding style for pointers and references is not
+                respected yet.
             \li Stack Variable
-    \row
-        \li Convert connect() to Qt 5 Style
-        \li Converts a Qt 4 \c QObject::connect() to Qt 5 style.
-        \li \c QObject::connect() (Qt 4 style)
+        \row
+            \li Convert connect() to Qt 5 Style
+            \li Converts a Qt 4 QObject::connect() to Qt 5 style.
+            \li QObject::connect() (Qt 4 style)
     \endtable
 
-   \section2 Refactoring QML Code
+    \section2 Refactoring QML Code
 
-   You can apply the following types of refactoring actions to QML code:
+    You can apply the following types of refactoring actions to QML code:
 
-   \list
+    \list
 
         \li Rename IDs
 
         \li Split initializers
 
-        \li  Move a QML type into a separate file to reuse it in other
-        .qml files
+        \li Move a QML type into a separate file to reuse it in other .qml files
 
-   \endlist
+    \endlist
 
     The following table summarizes the refactoring actions for QML code. The
     action is available when the cursor is in the position described in the
@@ -2261,18 +2320,19 @@
             \li Activation
 
         \row
-            \li Move Component into 'filename.qml'
+            \li Move Component into \c filename.qml
             \li Moves a QML type into a separate file
             \li QML type name
         \row
-            \li  Split Initializer
-            \li  Reformats a one-line type into a multi-line type. For example,
-            rewrites
+            \li Split Initializer
+            \li Reformats a one-line type into a multi-line type. For example,
+                rewrites
+
     \code
     Item { x: 10; y: 20; width: 10 }
     \endcode
 
-    as
+                as
 
     \code
     Item {
@@ -2284,15 +2344,15 @@
 
             \li QML type property
         \row
-            \li  Wrap in Loader
-            \li  Wraps the type in a Component type and loads it dynamically in
-               a Loader type. This is usually done to improve startup time.
-            \li  QML type name
+            \li Wrap in Loader
+            \li Wraps the type in a Component type and loads it dynamically in a
+                Loader type. This is usually done to improve startup time.
+            \li QML type name
         \row
-            \li  Add a message suppression comment
-            \li  Prepends the line with an annotation comment that stops the message
-               from being generated.
-            \li  Error, warning or hint from static analysis
+            \li Add a message suppression comment
+            \li Prepends the line with an annotation comment that stops the
+                message from being generated.
+            \li Error, warning or hint from static analysis
 
     \endtable
    */
@@ -2314,7 +2374,7 @@
 
     \list
 
-        \li Press \key Ctrl+K (\key Cmd+K on OS X).
+        \li Press \key {Ctrl+K} (\key {Cmd+K} on OS X).
 
         \li Select \uicontrol Tools > \uicontrol Locate.
 
@@ -2329,15 +2389,15 @@
 
     \list 1
 
-        \li Activate the locator by pressing \key Ctrl+K.
+        \li Activate the locator by pressing \key {Ctrl+K}.
 
-        \li Enter \tt{main.cpp}.
+        \li Enter \c {main.cpp}.
 
             \image qtcreator-locator-open.png
 
         \li Press \key Enter.
 
-            The main.cpp file opens in the editor.
+            The \c {main.cpp} file opens in the editor.
 
         \li To move to a line in the file, enter the line number in the locator.
 
@@ -2360,9 +2420,9 @@
 
     \list
 
-        \li To match any number of any or no characters, enter \b{*}.
+        \li To match any number of any or no characters, enter \c{*}.
 
-        \li To match a single instance of any character, enter \b{?}.
+        \li To match a single instance of any character, enter \c{?}.
 
     \endlist
 
@@ -2373,32 +2433,32 @@
 
     \list
 
-        \li Locating any open document (o)
+        \li Locating any open document (\c {o})
 
-        \li Locating files anywhere on your file system (f)
+        \li Locating files anywhere on your file system (\c {f})
 
-        \li Locating files belonging to your project (p), such as source, header
-            resource, and .ui files, or to any project (a)
+        \li Locating files belonging to your project (\c {p}), such as source,
+            header resource, and \c {.ui} files, or to any project (\c {a})
 
-        \li Locating class (c), enum, and function (m) definitions in your
-            project or anywhere referenced from your project (:)
+        \li Locating class (\c {c}), enum, and function (m) definitions in your
+            project or anywhere referenced from your project (\c {:})
 
-        \li Locating symbols in the current document (.)
+        \li Locating symbols in the current document (\c {.})
 
         \li Locating a specific line and column in the document displayed in
-            your editor (l)
+            your editor (\c {l})
 
-        \li Opening help topics, including Qt documentation (?)
+        \li Opening help topics, including Qt documentation (\c {?})
 
-        \li Performing web searches (r)
+        \li Performing web searches (\c {r})
 
-        \li Running text editing macros that you record and save (rm). For more
-            information, see \l{Using Text Editing Macros}
+        \li Running text editing macros that you record and save (\c {rm}). For
+            more information, see \l{Using Text Editing Macros}
 
-        \li Executing shell commands (!)
+        \li Executing shell commands (\c {!})
 
-        \li Executing version control system commands (git). For more information, see
-            \l{Using Version Control Systems}
+        \li Executing version control system commands (\c {git}). For more
+            information, see \l{Using Version Control Systems}
 
     \endlist
 
@@ -2412,7 +2472,7 @@
 
         \li Activate the locator.
 
-        \li Enter \tt{\b{: QDataStream}} (: (colon) followed by a
+        \li Enter \c{: QDataStream} (\c{:} (colon) followed by a
             \key Space and the symbol name (QDataStream)).
 
             The locator lists the results.
@@ -2434,16 +2494,16 @@
 
     \list
 
-        \li Going to a line and column in the current file (l).
+        \li Going to a line and column in the current file (\c {l}).
 
-        \li Going to an open file (o).
+        \li Going to an open file (\c {o}).
 
-        \li Going to a file in any open project (a).
+        \li Going to a file in any open project (\c {a}).
 
     \endlist
 
     If locator does not find some files, you can add them to the \c DISTFILES
-    variable in the .pro file to include them into the distribution tarball
+    variable in the \c .pro file to include them into the distribution tarball
     of your project and thus make them known to \QC as well.
 
     \section1 Configuring Locator Filters
@@ -2457,8 +2517,8 @@
     \list 1
 
         \li In the locator, click \inlineimage qtcreator-locator-magnify.png
-            (\uicontrol {Options}) and select \uicontrol Configure to open the \uicontrol Locator
-            options.
+            (\uicontrol Options) and select \uicontrol Configure to open the
+            \uicontrol Locator options.
 
         \li Select a filter, and then select \uicontrol Edit.
 
@@ -2474,7 +2534,7 @@
 
     \section2 Adding Web Search Engines
 
-    You can use the \uicontrol {Web Search (\c r)} locator filter to perform
+    You can use the \uicontrol {Web Search (r)} locator filter to perform
     web searches. URLs and search commands for Bing, Google, Yahoo! Search,
     cplusplus.com, and Wikipedia are configured by default.
 
@@ -2487,16 +2547,16 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > Environment > Locator >
-            Web Search (prefix: r) >
-            Edit}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Environment > \uicontrol Locator >
+            \uicontrol {Web Search (prefix: r)} > \uicontrol Edit.
 
         \li Select \uicontrol Add to add a new entry to the list.
 
             \image qtcreator-add-online-doc.png "Filter Configuration dialog"
 
         \li Double-click the new entry to specify a URL and a search command.
-            For example, http://www.google.com/search?q=%1.
+            For example, \c {http://www.google.com/search?q=%1}.
 
         \li Click \uicontrol OK.
 
@@ -2512,8 +2572,8 @@
 
     \list 1
 
-        \li In the locator, select \uicontrol {Options > Configure} to open the
-            \uicontrol Locator options.
+        \li In the locator, select \uicontrol Options >
+            \uicontrol Configure to open the \uicontrol Locator options.
 
             \image qtcreator-locator-customize.png
 
@@ -2529,7 +2589,7 @@
                 recursively.
 
             \li Define the file pattern as a comma separated list. For example,
-                to search all .h and .cpp files, enter \b{*.h,*.cpp}
+                to search all \c {.h} and \c {.cpp} files, enter \c{*.h,*.cpp}
 
             \li Specify the prefix string.
 
@@ -2540,29 +2600,29 @@
 
         \endlist
 
-        \li  Click OK.
+        \li Click \uicontrol OK.
 
     \endlist
 
     \section1 Configuring Locator Cache
 
-    The locator searches the files matching your file pattern in the
-    directories you have selected and caches that information. The cache for
-    all default filters is updated as you write your code. By default,
-    \QC updates the filters created by you once an hour.
+    The locator searches the files matching your file pattern in the directories
+    you have selected and caches that information. The cache for all default
+    filters is updated as you write your code. By default, \QC updates the
+    filters created by you once an hour.
 
-    To update the cached information manually, select \uicontrol {Options > Refresh}
-    in the locator.
+    To update the cached information manually, select \uicontrol Options >
+    \uicontrol Refresh in the locator.
 
     To set a new cache update time:
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > Environment > Locator}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Environment > \uicontrol Locator.
 
         \li In \uicontrol {Refresh interval}, define new time in minutes.
 
     \endlist
 
 */
-
