@@ -54,7 +54,9 @@ QString connectionName()
 
 ConnectionClient::ConnectionClient(IpcClientInterface *client)
     : serverProxy_(client, &localSocket),
-      isAliveTimerResetted(false)
+      isAliveTimerResetted(false),
+      stdErrPrefixer("ClangBackEnd-StdErr: "),
+      stdOutPrefixer("ClangBackEnd: ")
 {
     processAliveTimer.setInterval(10000);
 
@@ -204,12 +206,12 @@ void ConnectionClient::printLocalSocketError(QLocalSocket::LocalSocketError sock
 
 void ConnectionClient::printStandardOutput()
 {
-    qWarning() << "ClangBackEnd:" << process_->readAllStandardOutput();
+    QTextStream(stdout) << stdOutPrefixer.prefix(process_->readAllStandardOutput());
 }
 
 void ConnectionClient::printStandardError()
 {
-    qWarning() << "ClangBackEnd Error:" << process_->readAllStandardError();
+    QTextStream(stderr) << stdErrPrefixer.prefix(process_->readAllStandardError());
 }
 
 void ConnectionClient::finishProcess()

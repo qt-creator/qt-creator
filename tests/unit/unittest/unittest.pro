@@ -56,7 +56,8 @@ SOURCES += main.cpp \
     projecttest.cpp \
     clangipcservertest.cpp \
     translationunitstest.cpp \
-    completionchunkstotextconvertertest.cpp
+    completionchunkstotextconvertertest.cpp \
+    lineprefixertest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \
