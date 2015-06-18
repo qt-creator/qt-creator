@@ -94,13 +94,10 @@
 :FormEditorStack_qdesigner_internal::FormWindow	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::FormWindow' unnamed='1' visible='1'}
 :FormEditorStack_qdesigner_internal::PropertyLineEdit	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::PropertyLineEdit' unnamed='1' visible='1'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
-:Git Repository Clone.Cancel_QPushButton	{text='Cancel' type='QPushButton' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
-:Git Repository Clone.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
-:Git Repository Clone.Repository_QGroupBox	{name='repositoryGroupBox' title='Repository' type='QGroupBox' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
-:Git Repository Clone.Result._QLabel	{type='QLabel' unnamed='1' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
-:Git Repository Clone.Working Copy_QGroupBox	{name='localGroupBox' title='Working Copy' type='QGroupBox' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
-:Git Repository Clone.logPlainTextEdit_QPlainTextEdit	{type='QPlainTextEdit' unnamed='1' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
-:Git Repository Clone_Git::Internal::CloneWizard	{type='Git::Internal::CloneWizard' unnamed='1' visible='1' windowTitle='Git Repository Clone'}
+:Git Repository Clone.Cancel_QPushButton	{text='Cancel' type='QPushButton' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
+:Git Repository Clone.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
+:Git Repository Clone.Result._QLabel	{type='QLabel' unnamed='1' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
+:Git Repository Clone.logPlainTextEdit_QPlainTextEdit	{type='QPlainTextEdit' unnamed='1' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
 :Go to slot.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Go to slot_QDialog'}
 :Go to slot.Select signal_QGroupBox	{name='groupBox' title='Select signal' type='QGroupBox' visible='1' window=':Go to slot_QDialog'}
 :Go to slot_QDialog	{name='SelectSignalDialog' type='QDialog' visible='1' windowTitle='Go to slot'}
@@ -184,7 +181,6 @@
 :QtSupport__Internal__QtVersionManager.errorLabel.QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='errorLabel' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qmake_QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qmakePath' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qtdirList' type='QTreeWidget' visible='1'}
-:Repository.repositoryLineEdit_QLineEdit	{container=':Git Repository Clone.Repository_QGroupBox' name='repositoryLineEdit' type='QLineEdit' visible='1'}
 :Restart required.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Restart required_QMessageBox'}
 :Restart required_QMessageBox	{text='The language change will take effect after a restart of Qt Creator.' type='QMessageBox' unnamed='1' visible='1'}
 :Revert to Saved.Proceed_QPushButton	{text='Proceed' type='QPushButton' unnamed='1' visible='1' window=':Revert to Saved_QMessageBox'}
@@ -213,8 +209,7 @@
 :User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}
 :WelcomePageStyledBar.WelcomePage_QQuickView	{container=':Qt Creator.WelcomePageStyledBar_QWindowContainer' name='WelcomePage' type='QQuickView' visible='true'}
 :Widget Box_qdesigner_internal::WidgetBoxTreeWidget	{container=':*Qt Creator.Widget Box_QDockWidget' type='qdesigner_internal::WidgetBoxTreeWidget' unnamed='1' visible='1'}
-:Working Copy.checkoutDirectoryLineEdit_QLineEdit	{container=':Git Repository Clone.Working Copy_QGroupBox' name='checkoutDirectoryLineEdit' type='QLineEdit' visible='1'}
-:Working Copy_Utils::BaseValidatingLineEdit	{container=':Git Repository Clone.Working Copy_QGroupBox' type='Utils::FancyLineEdit' unnamed='1' visible='1'}
+:Working Copy_Utils::BaseValidatingLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
 :WritePermissions_Core::Internal::ReadOnlyFilesDialog	{name='Core__Internal__ReadOnlyFilesDialog' type='Core::ReadOnlyFilesDialog' visible='1' windowTitle='Files Without Write Permissions'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
