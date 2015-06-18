@@ -156,7 +156,6 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
-    action->setStartMode(StartLocal);
     action->setEnabled(false);
     AnalyzerManager::addAction(action);
 

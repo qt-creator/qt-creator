@@ -99,7 +99,6 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
 
     AnalyzerStartParameters sp;
     sp.runMode = runMode;
-    sp.startMode = StartLocal;
     BuildConfiguration * const buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return 0);
     sp.environment = buildConfiguration->environment();
