@@ -38,15 +38,15 @@
 
             Writing, editing, and navigating in source code are core tasks in
             application development. Therefore, the code editor is one of the
-            key components of \QC. You can use the code editor in the \uicontrol Edit
-            mode.
+            key components of \QC. You can use the code editor in the
+            \uicontrol Edit mode.
 
         \li \l{Finding}
 
             Use the incremental and advanced search to search from currently
             open projects or files on the file system or use the locator to
-            browse through projects, files, classes, functions, documentation and
-            file systems.
+            browse through projects, files, classes, functions, documentation
+            and file systems.
 
         \li \l{Refactoring}
 
