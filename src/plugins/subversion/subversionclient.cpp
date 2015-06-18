@@ -180,14 +180,13 @@ private:
     const SubversionClient *m_client;
     QString m_workingDirectory;
     QStringList m_filesList;
-    int m_changeNumber;
+    int m_changeNumber = 0;
 };
 
 DiffController::DiffController(IDocument *document, const SubversionClient *client, const QString &directory) :
     DiffEditorController(document),
     m_client(client),
-    m_workingDirectory(directory),
-    m_changeNumber(0)
+    m_workingDirectory(directory)
 {
     forceContextLineCount(3); // SVN can not change that when using internal diff
 }

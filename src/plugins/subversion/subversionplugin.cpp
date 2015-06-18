@@ -175,33 +175,7 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    m_svnDirectories(svnDirectories()),
-    m_commandLocator(0),
-    m_addAction(0),
-    m_deleteAction(0),
-    m_revertAction(0),
-    m_diffProjectAction(0),
-    m_diffCurrentAction(0),
-    m_logProjectAction(0),
-    m_logRepositoryAction(0),
-    m_commitAllAction(0),
-    m_revertRepositoryAction(0),
-    m_diffRepositoryAction(0),
-    m_statusRepositoryAction(0),
-    m_updateRepositoryAction(0),
-    m_commitCurrentAction(0),
-    m_filelogCurrentAction(0),
-    m_annotateCurrentAction(0),
-    m_statusProjectAction(0),
-    m_updateProjectAction(0),
-    m_commitProjectAction(0),
-    m_describeAction(0),
-    m_submitCurrentLogAction(0),
-    m_submitDiffAction(0),
-    m_submitUndoAction(0),
-    m_submitRedoAction(0),
-    m_menuAction(0),
-    m_submitActionTriggered(false)
+    m_svnDirectories(svnDirectories())
 {
 }
 

@@ -57,8 +57,7 @@ class SubversionClient;
 
 struct SubversionResponse
 {
-    SubversionResponse() : error(false) {}
-    bool error;
+    bool error = false;
     QString stdOut;
     QString stdErr;
     QString message;
@@ -153,33 +152,33 @@ private:
     QString m_commitMessageFileName;
     QString m_commitRepository;
 
-    Core::CommandLocator *m_commandLocator;
-    Utils::ParameterAction *m_addAction;
-    Utils::ParameterAction *m_deleteAction;
-    Utils::ParameterAction *m_revertAction;
-    Utils::ParameterAction *m_diffProjectAction;
-    Utils::ParameterAction *m_diffCurrentAction;
-    Utils::ParameterAction *m_logProjectAction;
-    QAction *m_logRepositoryAction;
-    QAction *m_commitAllAction;
-    QAction *m_revertRepositoryAction;
-    QAction *m_diffRepositoryAction;
-    QAction *m_statusRepositoryAction;
-    QAction *m_updateRepositoryAction;
-    Utils::ParameterAction *m_commitCurrentAction;
-    Utils::ParameterAction *m_filelogCurrentAction;
-    Utils::ParameterAction *m_annotateCurrentAction;
-    Utils::ParameterAction *m_statusProjectAction;
-    Utils::ParameterAction *m_updateProjectAction;
-    Utils::ParameterAction *m_commitProjectAction;
-    QAction *m_describeAction;
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Utils::ParameterAction *m_addAction = nullptr;
+    Utils::ParameterAction *m_deleteAction = nullptr;
+    Utils::ParameterAction *m_revertAction = nullptr;
+    Utils::ParameterAction *m_diffProjectAction = nullptr;
+    Utils::ParameterAction *m_diffCurrentAction = nullptr;
+    Utils::ParameterAction *m_logProjectAction = nullptr;
+    QAction *m_logRepositoryAction = nullptr;
+    QAction *m_commitAllAction = nullptr;
+    QAction *m_revertRepositoryAction = nullptr;
+    QAction *m_diffRepositoryAction = nullptr;
+    QAction *m_statusRepositoryAction = nullptr;
+    QAction *m_updateRepositoryAction = nullptr;
+    Utils::ParameterAction *m_commitCurrentAction = nullptr;
+    Utils::ParameterAction *m_filelogCurrentAction = nullptr;
+    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
+    Utils::ParameterAction *m_statusProjectAction = nullptr;
+    Utils::ParameterAction *m_updateProjectAction = nullptr;
+    Utils::ParameterAction *m_commitProjectAction = nullptr;
+    QAction *m_describeAction = nullptr;
 
-    QAction *m_submitCurrentLogAction;
-    QAction *m_submitDiffAction;
-    QAction *m_submitUndoAction;
-    QAction *m_submitRedoAction;
-    QAction *m_menuAction;
-    bool m_submitActionTriggered;
+    QAction *m_submitCurrentLogAction = nullptr;
+    QAction *m_submitDiffAction = nullptr;
+    QAction *m_submitUndoAction = nullptr;
+    QAction *m_submitRedoAction = nullptr;
+    QAction *m_menuAction = nullptr;
+    bool m_submitActionTriggered = false;
 
     static SubversionPlugin *m_subversionPluginInstance;
 };
