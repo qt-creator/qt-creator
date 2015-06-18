@@ -32,6 +32,6 @@
     \section1 Adding a QNX Neutrino Device in \QC
 
     Adding a QNX Neutrino device is very similar to \l{Connecting Embedded
-    Linux Devices}, except you need to select \uicontrol{QNX Device} in the
-    \uicontrol{Device Configuration} wizard.
+    Linux Devices}, except you need to select \uicontrol {QNX Device} in the
+    \uicontrol {Device Configuration} wizard.
 */
