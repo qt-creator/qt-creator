@@ -57,7 +57,9 @@ fi
 if [ $LLVM_INSTALL_DIR ]; then
     if [ "$LLVM_INSTALL_DIR"/lib/libclang.dylib -nt "$1/Contents/PlugIns"/libclang.dylib ]; then
         echo "- Copying libclang"
-        cp -f "$LLVM_INSTALL_DIR"/lib/libclang.dylib "$1/Contents/PlugIns/" || exit 1
+        mkdir -p "$1/Contents/Frameworks" || exit 1
+        # use recursive copy to make it copy symlinks as symlinks
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang.*dylib "$1/Contents/Frameworks/" || exit 1
         cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$1/Contents/Resources/cplusplus/" || exit 1
     fi
     _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/libClangCodeModel_debug.dylib"
@@ -66,7 +68,8 @@ if [ $LLVM_INSTALL_DIR ]; then
     fi
     # this will just fail when run a second time on libClangCodeModel
     xcrun install_name_tool -delete_rpath "$LLVM_INSTALL_DIR/lib" "$_CLANG_CODEMODEL_LIB" || true
-    xcrun install_name_tool -add_rpath "@loader_path/" "$_CLANG_CODEMODEL_LIB" || true
+    xcrun install_name_tool -add_rpath "@loader_path/../Frameworks" "$_CLANG_CODEMODEL_LIB" || true
+    clangbackendArgument="-executable=$1/Contents/Resources/clangbackend"
 fi
 
 #### macdeployqt
@@ -93,7 +96,8 @@ if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$1/Contents/Resources/ios/iostool" \
         "-executable=$1/Contents/Resources/ios/iossim" \
         "-executable=$1/Contents/Resources/ios/iossim_1_8_2" \
-        "-executable=$1/Contents/MacOS/buildoutputparser" \
+        "-executable=$1/Contents/Resources/buildoutputparser" \
+        "-executable=$1/Contents/Resources/cpaster" \
         "-executable=$qbsapp" \
         "-executable=$qbsapp-config" \
         "-executable=$qbsapp-config-ui" \
@@ -101,6 +105,6 @@ if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$qbsapp-setup-android" \
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
-        "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
+        "$qmlpuppetArgument" "$qml2puppetArgument" "$clangbackendArgument" || exit 1
 
 fi
