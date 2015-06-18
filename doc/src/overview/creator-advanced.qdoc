@@ -55,8 +55,7 @@
             \QC is integrated with cross-platform systems for build automation:
             qmake, Qbs, CMake, and Autotools. In addition, you can import
             generic projects that do not use those systems, and specify that \QC
-            ignores your build
-            system.
+            ignores your build system.
 
         \li \l{Using Command Line Options}
 
@@ -73,9 +72,9 @@
 
             You can use external tools directly from \QC. Qt Linguist,
             QML preview tools (QML Viewer and QML Scene), the default text
-            editor for your system, and the \c sort
-            tool are preconfigured for use. You can change their default
-            configurations and configure new tools.
+            editor for your system, and the \c sort tool are preconfigured for
+            use. You can change their default configurations and configure new
+            tools.
 
     \endlist
 
