@@ -69,13 +69,14 @@
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Beautifier to specify
-            settings for the tool you want to use.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Beautifier
+            to specify settings for the tool you want to use.
 
             \image beautifier_options.png
 
-        \li In the \uicontrol {Artistic Style command}, \uicontrol {Clang Format command},
-            or \uicontrol {Uncrustify command} field, specify the path to the tool
+        \li In the \uicontrol {Artistic Style command},
+            \uicontrol {Clang Format command}, or
+            \uicontrol {Uncrustify command} field, specify the path to the tool
             executable.
 
         \li In the \uicontrol Options group, select the configuration file that
@@ -84,39 +85,40 @@
 
             \list
 
-                \li Select the \uicontrol {Use file defined in project files} option
-                    to use the configuration file defined in the qmake
+                \li Select the \uicontrol {Use file defined in project files}
+                    option to use the configuration file defined in the qmake
                     DISTFILES variable as the configuration file for the
                     selected tool.
 
-                \li Select the \uicontrol {Use $HOME} option to use the specified file
-                    in the user's home directory as the configuration file for
-                    the selected tool.
+                \li Select the \uicontrol {Use $HOME} option to use the
+                    specified file in the user's home directory as the
+                    configuration file for the selected tool.
 
-                \li Select the \uicontrol {Use customized style} option, and then
-                    \uicontrol Add to define your own style.
+                \li Select the \uicontrol {Use customized style} option, and
+                    then \uicontrol Add to define your own style.
 
-                    Define code formatting in the \uicontrol {Edit Configuration}
-                    dialog. It provides syntax highlighting, auto-completion,
-                    and context-sensitive help. For these features, you must
-                    have the tool installed.
+                    Define code formatting in the
+                    \uicontrol {Edit Configuration} dialog. It provides syntax
+                    highlighting, auto-completion, and context-sensitive help.
+                    For these features, you must have the tool installed.
 
                    \image beautifier_editor.png
 
             \endlist
 
-        \li Select \uicontrol Tools > \uicontrol Beautifier > \uicontrol {Artistic Style},
-            \uicontrol ClangFormat, or \uicontrol Uncrustify > \uicontrol {Format Current File}
-            to format the currently open file.
+        \li Select \uicontrol Tools > \uicontrol Beautifier >
+            \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
+            \uicontrol Uncrustify > \uicontrol {Format Current File} to format
+            the currently open file.
 
             You can \l{Keyboard Shortcuts}{create keyboard shortcuts} for the
             functions.
 
     \endlist
 
-    In addition to the \uicontrol {Format Current File} command, ClangFormat provides
-    the \uicontrol {Format Selected Text} command. If you select it when no text is
-    selected, nothing happens. To format the entire file in this case, select
-    the \uicontrol {Format entire file if no text was selected} check box in the
-    \uicontrol {Clang Format} options.
+    In addition to the \uicontrol {Format Current File} command, ClangFormat
+    provides the \uicontrol {Format Selected Text} command. If you select it
+    when no text is selected, nothing happens. To format the entire file in this
+    case, select the \uicontrol {Format entire file if no text was selected}
+    check box in the \uicontrol {Clang Format} options.
 */
