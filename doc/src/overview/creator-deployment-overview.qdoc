@@ -30,10 +30,11 @@
 
     \title Deploying to Mobile Devices
 
-    Deploy configurations in the \uicontrol Project mode \uicontrol {Run Settings} handle
-    the packaging of the application as an executable and copying it to a
-    location you want to run the executable at. The files can be copied to a
-    location in the file system of the development PC or a mobile device.
+    Deploy configurations in the \uicontrol Project mode
+    \uicontrol {Run Settings} handle the packaging of the application as an
+    executable and copying it to a location you want to run the executable at.
+    The files can be copied to a location in the file system of the development
+    PC or a mobile device.
 
     \list
 
@@ -45,8 +46,8 @@
         \li \l{Deploying Applications to Embedded Linux Devices}
 
             When you deploy the application to a generic Linux-based device, \QC
-            copies the application files to the connected device. You
-            can test and debug the application on the device.
+            copies the application files to the connected device. You can test
+            and debug the application on the device.
         \li  \l{Deploying Applications to QNX Neutrino Devices}
 
             When you deploy the application to a QNX Neutrino device, \QC copies
