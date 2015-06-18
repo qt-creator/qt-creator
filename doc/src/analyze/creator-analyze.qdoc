@@ -30,20 +30,21 @@
 
     \title Analyzing Code
 
-    You can use the code analysis tools in the \uicontrol Analyze mode. To switch to
-    \uicontrol Analyze mode, select \uicontrol Analyze in the mode selector, or
-    select the \uicontrol {Analyze} menu and then select a tool. When you are in the
-    \uicontrol Analyze mode, you can switch between tools by selecting them in the
-    menu on the toolbar.
+    You can use the code analysis tools in the \uicontrol Analyze mode. To
+    switch to \uicontrol Analyze mode, select \uicontrol Analyze in the mode
+    selector, or select the \uicontrol {Analyze} menu and then select a tool.
+    When you are in the \uicontrol Analyze mode, you can switch between tools by
+    selecting them in the menu on the toolbar.
 
     \image qtcreator-analyze-menu.png "Analyze mode menu"
 
-    You can drag and drop the views in the \uicontrol Analyze mode to new positions
-    on the screen. The size and position of views are saved for future
-    sessions. Select \uicontrol {Window > Views > Reset to Default Layout} to reset
-    the views to their original sizes and positions.
+    You can drag and drop the views in the \uicontrol Analyze mode to new
+    positions on the screen. The size and position of views are saved for future
+    sessions. Select \uicontrol {Window > Views > Reset to Default Layout} to
+    reset the views to their original sizes and positions.
 
-    You can use the following code analysis tools in the \uicontrol Analyze mode:
+    You can use the following code analysis tools in the \uicontrol Analyze
+    mode:
 
     \list
 
@@ -75,4 +76,3 @@
     \endlist
 
 */
-
