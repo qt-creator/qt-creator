@@ -207,113 +207,113 @@
 
     \table
     \header
-        \li  Id
-        \li  Severity
-        \li  Message
-        \li  Description
+        \li Id
+        \li Severity
+        \li Message
+        \li Description
 
     \row
-        \li  M1
-        \li  Error
-        \li  Invalid value for enum
+        \li M1
+        \li Error
+        \li Invalid value for enum
         \li
 
     \row
-        \li  M2
-        \li  Error
-        \li  Enum value must be a string or a number
+        \li M2
+        \li Error
+        \li Enum value must be a string or a number
         \li
 
     \row
-        \li  M3
-        \li  Error
-        \li  Number value expected
+        \li M3
+        \li Error
+        \li Number value expected
         \li
 
     \row
-        \li  M4
-        \li  Error
-        \li  Boolean value expected
+        \li M4
+        \li Error
+        \li Boolean value expected
         \li
 
     \row
-        \li  M5
-        \li  Error
-        \li  String value expected
+        \li M5
+        \li Error
+        \li String value expected
         \li
 
     \row
-        \li  M6
-        \li  Error
-        \li  Invalid URL
+        \li M6
+        \li Error
+        \li Invalid URL
         \li
 
     \row
-        \li  M7
-        \li  Warning
-        \li  File or directory does not exist
+        \li M7
+        \li Warning
+        \li File or directory does not exist
         \li
 
     \row
-        \li  M8
-        \li  Error
-        \li  Invalid color
+        \li M8
+        \li Error
+        \li Invalid color
         \li
 
     \row
-        \li  M9
-        \li  Error
-        \li  Anchor line expected
+        \li M9
+        \li Error
+        \li Anchor line expected
         \li
 
     \row
-        \li  M10
-        \li  Error
-        \li  Duplicate property binding
+        \li M10
+        \li Error
+        \li Duplicate property binding
         \li
 
     \row
-        \li  M11
-        \li  Error
-        \li  Id expected
+        \li M11
+        \li Error
+        \li Id expected
         \li
 
     \row
-        \li  M14
-        \li  Error
-        \li  Invalid id
+        \li M14
+        \li Error
+        \li Invalid id
         \li
 
     \row
-        \li  M15
-        \li  Error
-        \li  Duplicate id
-        \li  Ids in a file must be unique.
+        \li M15
+        \li Error
+        \li Duplicate id
+        \li Ids in a file must be unique.
 
     \row
-        \li  M16
-        \li  Error
-        \li  Invalid property name 'name'
+        \li M16
+        \li Error
+        \li Invalid property name 'name'
         \li
 
     \row
-        \li  M17
-        \li  Error
-        \li  'Name' does not have members
+        \li M17
+        \li Error
+        \li 'Name' does not have members
         \li
 
     \row
-        \li  M18
-        \li  Error
-        \li  'Field' is not a member of 'object'
+        \li M18
+        \li Error
+        \li 'Field' is not a member of 'object'
         \li
 
     \row
-        \li  M19
-        \li  Warning
-        \li  Assignment in condition
-        \li  It could be a typing error. If it is intentional, wrap the
-           assignment in parentheses.
+        \li M19
+        \li Warning
+        \li Assignment in condition
+        \li It could be a typing error. If it is intentional, wrap the
+            assignment in parentheses.
 
     \row
         \li  M20
@@ -325,9 +325,9 @@
            ending with a '// fall through' comment.
 
     \row
-        \li  M23
-        \li  Warning
-        \li  Do not use 'eval'
+        \li M23
+        \li Warning
+        \li Do not use 'eval'
         \li
 
     \row
@@ -338,45 +338,45 @@
            executed.
 
     \row
-        \li  M29
-        \li  Warning
-        \li  Do not use 'with'
+        \li M29
+        \li Warning
+        \li Do not use 'with'
         \li
 
     \row
-        \li  M30
-        \li  Warning
-        \li  Do not use comma expressions
+        \li M30
+        \li Warning
+        \li Do not use comma expressions
         \li
 
     \row
-        \li  M31
-        \li  Warning
-        \li  Unnecessary message suppression
+        \li M31
+        \li Warning
+        \li Unnecessary message suppression
         \li
 
     \row
-        \li  M103
-        \li  Warning
-        \li  'Name' is already a formal parameter
+        \li M103
+        \li Warning
+        \li 'Name' is already a formal parameter
         \li
 
     \row
-        \li  M104
-        \li  Warning
-        \li  'Name' is already a function
+        \li M104
+        \li Warning
+        \li 'Name' is already a function
         \li
 
     \row
-        \li  M105
-        \li  Warning
-        \li  Var 'name' is used before its declaration
+        \li M105
+        \li Warning
+        \li Var 'name' is used before its declaration
         \li
 
     \row
-        \li  M106
-        \li  Warning
-        \li  'Name' is already a var
+        \li M106
+        \li Warning
+        \li 'Name' is already a var
         \li
 
     \row
@@ -389,39 +389,39 @@
            effect.
 
     \row
-        \li  M108
-        \li  Warning
-        \li  Function 'name' is used before its declaration
+        \li M108
+        \li Warning
+        \li Function 'name' is used before its declaration
         \li
 
     \row
-        \li  M109
-        \li  Warning
-        \li  Do not use 'Boolean' as a constructor
+        \li M109
+        \li Warning
+        \li Do not use 'Boolean' as a constructor
         \li
 
     \row
-        \li  M110
-        \li  Warning
-        \li  Do not use 'String' as a constructor
+        \li M110
+        \li Warning
+        \li Do not use 'String' as a constructor
         \li
 
     \row
-        \li  M111
-        \li  Warning
-        \li  Do not use 'Object' as a constructor
+        \li M111
+        \li Warning
+        \li Do not use 'Object' as a constructor
         \li
 
     \row
-        \li  M112
-        \li  Warning
-        \li  Do not use 'Array' as a constructor
+        \li M112
+        \li Warning
+        \li Do not use 'Array' as a constructor
         \li
 
     \row
-        \li  M113
-        \li  Warning
-        \li  Do not use 'Function' as a constructor
+        \li M113
+        \li Warning
+        \li Do not use 'Function' as a constructor
         \li
 
     \row
@@ -439,33 +439,33 @@
            should be avoided.
 
     \row
-        \li  M116
-        \li  Warning
-        \li  Do not use void expressions
+        \li M116
+        \li Warning
+        \li Do not use void expressions
         \li
 
     \row
-        \li  M117
-        \li  Warning
-        \li  Confusing pluses
+        \li M117
+        \li Warning
+        \li Confusing pluses
         \li
 
     \row
-        \li  M119
-        \li  Warning
-        \li  Confusing minuses
+        \li M119
+        \li Warning
+        \li Confusing minuses
         \li
 
     \row
-        \li  M121
-        \li  Hint
-        \li  Declare all function vars on a single line
+        \li M121
+        \li Hint
+        \li Declare all function vars on a single line
         \li
 
     \row
-        \li  M123
-        \li  Hint
-        \li  Unnecessary parentheses
+        \li M123
+        \li Hint
+        \li Unnecessary parentheses
         \li
 
     \target m126
@@ -486,27 +486,27 @@
         \li
 
     \row
-        \li  M201
-        \li  Hint
-        \li  Place var declarations at the start of a function
+        \li M201
+        \li Hint
+        \li Place var declarations at the start of a function
         \li
 
     \row
-        \li  M202
-        \li  Hint
-        \li  Use only one statement per line
+        \li M202
+        \li Hint
+        \li Use only one statement per line
         \li
 
     \row
-        \li  M203
-        \li  Warning
-        \li  Imperative code is not supported in the Qt Quick Designer
+        \li M203
+        \li Warning
+        \li Imperative code is not supported in the Qt Quick Designer
         \li
 
     \row
-        \li  M204
-        \li  Warning
-        \li  This QML type is not supported in the Qt Quick Designer
+        \li M204
+        \li Warning
+        \li This QML type is not supported in the Qt Quick Designer
         \li
     \row
         \li  M205
@@ -516,16 +516,16 @@
         \li
 
     \row
-        \li  M206
-        \li  Warning
-        \li  This visual property binding cannot be evaluated in the local
-             context and might not show up in Qt Quick Designer as expected
+        \li M206
+        \li Warning
+        \li This visual property binding cannot be evaluated in the local
+            context and might not show up in Qt Quick Designer as expected
         \li
 
     \row
-        \li  M207
-        \li  Warning
-        \li  Qt Quick Designer only supports states in the root QML type
+        \li M207
+        \li Warning
+        \li Qt Quick Designer only supports states in the root QML type
         \li
 
     \row
@@ -548,64 +548,64 @@
         \li
 
     \row
-        \li  M222
-        \li  Error
-        \li  Functions are not supported in a Qt Quick UI form.
+        \li M222
+        \li Error
+        \li Functions are not supported in a Qt Quick UI form.
         \li
 
     \row
-        \li  M223
-        \li  Error
-        \li  Java Script blocks are not supported in a Qt Quick UI form.
+        \li M223
+        \li Error
+        \li Java Script blocks are not supported in a Qt Quick UI form.
         \li
 
     \row
-        \li  M224
-        \li  Error
-        \li  Behavior type is not supported in a Qt Quick UI form.
+        \li M224
+        \li Error
+        \li Behavior type is not supported in a Qt Quick UI form.
         \li
 
     \row
-        \li  M225
-        \li  Error
-        \li  States are only supported in the root item in a Qt Quick UI form.
+        \li M225
+        \li Error
+        \li States are only supported in the root item in a Qt Quick UI form.
         \li
 
     \row
-        \li  M226
-        \li  Error
-        \li  Referencing the parent of the root item is not supported in a Qt
-             Quick UI form.
+        \li M226
+        \li Error
+        \li Referencing the parent of the root item is not supported in a Qt
+            Quick UI form.
         \li
 
     \row
-        \li  M300
-        \li  Error
-        \li  Unknown component
+        \li M300
+        \li Error
+        \li Unknown component
         \li
 
     \row
-        \li  M301
-        \li  Error
-        \li  Could not resolve the prototype 'name' of 'object'
+        \li M301
+        \li Error
+        \li Could not resolve the prototype 'name' of 'object'
         \li
 
     \row
-        \li  M302
-        \li  Error
-        \li  Could not resolve the prototype 'name'
+        \li M302
+        \li Error
+        \li Could not resolve the prototype 'name'
         \li
 
     \row
-        \li  M303
-        \li  Error
-        \li  Prototype cycle, the last non-repeated component is 'name'
+        \li M303
+        \li Error
+        \li Prototype cycle, the last non-repeated component is 'name'
         \li
 
     \row
-        \li  M304
-        \li  Error
-        \li  Invalid property type 'name'
+        \li M304
+        \li Error
+        \li Invalid property type 'name'
         \li
     \row
         \li  M305
@@ -626,21 +626,21 @@
         \li
 
     \row
-        \li  M308
-        \li  Warning
-        \li  Do not use 'Number' as a constructor
+        \li M308
+        \li Warning
+        \li Do not use 'Number' as a constructor
         \li
 
     \row
-        \li  M309
-        \li  Hint
-        \li  Use spaces around binary operators
+        \li M309
+        \li Hint
+        \li Use spaces around binary operators
         \li
 
     \row
-        \li  M310
-        \li  Warning
-        \li  Unintentional empty block, use ({}) for empty object literal
+        \li M310
+        \li Warning
+        \li Unintentional empty block, use ({}) for empty object literal
         \li
 
     \row
@@ -650,75 +650,75 @@
         \li
 
     \row
-        \li  M312
-        \li  Error
-        \li  Missing property 'number'
+        \li M312
+        \li Error
+        \li Missing property 'number'
         \li
 
     \row
-        \li  M313
-        \li  Error
-        \li  Object value expected
+        \li M313
+        \li Error
+        \li Object value expected
         \li
 
     \row
-        \li  M314
-        \li  Error
-        \li  Array value expected
+        \li M314
+        \li Error
+        \li Array value expected
         \li
 
     \row
-        \li  M315
-        \li  Error
-        \li  'Value' value expected
+        \li M315
+        \li Error
+        \li 'Value' value expected
         \li
 
     \row
-        \li  M316
-        \li  Error
-        \li  Maximum number value is 'number'
+        \li M316
+        \li Error
+        \li Maximum number value is 'number'
         \li
 
     \row
-        \li  M317
-        \li  Error
-        \li  Minimum number value is 'number'
+        \li M317
+        \li Error
+        \li Minimum number value is 'number'
         \li
 
     \row
-        \li  M318
-        \li  Error
-        \li  Maximum number value is exclusive
+        \li M318
+        \li Error
+        \li Maximum number value is exclusive
         \li
 
     \row
-        \li  M319
-        \li  Error
-        \li  Minimum number value is exclusive
+        \li M319
+        \li Error
+        \li Minimum number value is exclusive
         \li
 
     \row
-        \li  M320
-        \li  Error
-        \li  String value does not match required pattern
+        \li M320
+        \li Error
+        \li String value does not match required pattern
         \li
 
     \row
-        \li  M321
-        \li  Error
-        \li  Minimum string value length is 'number'
+        \li M321
+        \li Error
+        \li Minimum string value length is 'number'
         \li
 
     \row
-        \li  M322
-        \li  Error
-        \li  Maximum string value length is 'number'
+        \li M322
+        \li Error
+        \li Maximum string value length is 'number'
         \li
 
     \row
-        \li  M323
-        \li  Error
-        \li  'Number' elements expected in array value
+        \li M323
+        \li Error
+        \li 'Number' elements expected in array value
         \li
 
     \row
@@ -774,7 +774,7 @@
 
     \image qtcreator-codecompletion.png
 
-    To open the list of suggestions at any time, press \key{Ctrl+Space}.
+    To open the list of suggestions at any time, press \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
 
     When completion is invoked manually, \QC completes the common prefix
@@ -983,13 +983,13 @@
 
     \list
 
-        \li \uicontrol{Pastebin.Com}
+        \li \uicontrol {Pastebin.Com}
 
-        \li \uicontrol{Pastebin.Ca}
+        \li \uicontrol {Pastebin.Ca}
 
-        \li \uicontrol{Paste.KDE.Org}
+        \li \uicontrol {Paste.KDE.Org}
 
-        \li \uicontrol{Shared network drives}
+        \li \uicontrol {Shared network drives}
 
     \endlist
 
@@ -1411,7 +1411,7 @@
     search is conducted within the selection.
 
     To replace occurrences of the existing text, enter the new text in the
-    \uicontrol{Replace with} field.
+    \uicontrol {Replace with} field.
 
     \list
 
@@ -1439,9 +1439,9 @@
 
         \li  All lower-case occurrences are replaced with the lower-case new text.
 
-        \li  Capitalized occurrences are replaced with the capitalized new text.
+        \li Capitalized occurrences are replaced with the capitalized new text.
 
-        \li  Other occurrences are replaced with the new text as entered.
+        \li Other occurrences are replaced with the new text as entered.
 
         \li  If an occurrence and the new text have the same prefix or suffix,
            then the case of the prefix and/or suffix are preserved, and the
@@ -1474,10 +1474,10 @@
                 \li \uicontrol{Current Project} searches files matching the defined
                     file pattern only in the project you are currently editing.
 
-                \li \uicontrol{Files on File System} recursively searches files
+                \li \uicontrol {Files on File System} recursively searches files
                     matching the defined file pattern in the selected directory.
 
-                \li \uicontrol{Current File} searches only the current file.
+                \li \uicontrol {Current File} searches only the current file.
 
                 \li \uicontrol {Open Documents} searches all open files.
 
@@ -1488,7 +1488,7 @@
             \image qtcreator-searchresults.png
 
              A list of files containing the searched text is displayed in the
-            \uicontrol{Search Results} pane.
+            \uicontrol {Search Results} pane.
 
             \list
 
@@ -1587,7 +1587,7 @@
     \list
 
         \li To go directly to an instance, double-click the instance in the
-            \uicontrol{Search Results} pane.
+            \uicontrol {Search Results} pane.
 
         \li To move between instances, click
             \inlineimage qtcreator-forward.png
@@ -1627,7 +1627,7 @@
             To omit an instance, uncheck the check-box next to the instance.
 
             \note This action replaces all selected instances of the symbol in
-            all files listed in the \uicontrol{Search Results} pane. You cannot
+            all files listed in the \uicontrol {Search Results} pane. You cannot
             undo this action.
 
     \endlist
@@ -1686,9 +1686,9 @@
 
     \table
         \header
-            \li  Refactoring Action
-            \li  Description
-            \li  Activation
+            \li Refactoring Action
+            \li Description
+            \li Activation
         \row
             \li  Add Curly Braces
             \li  Adds curly braces to an if statement that does not contain a
@@ -1722,7 +1722,7 @@
     Type name = foo;
     if (name) {}
     \endcode
-            \li  Name of the introduced variable
+            \li Name of the introduced variable
         \row
             \li  Rewrite Condition Using ||
             \li  Rewrites the expression according to De Morgan's laws. For example,
@@ -1791,7 +1791,7 @@
     int *a;
     int b;
     \endcode
-            \li  Type name or variable name
+            \li Type name or variable name
         \row
             \li  Split if Statement
             \li  Splits an if statement into several statements. For example, rewrites:
@@ -1840,17 +1840,17 @@
     \endcode
             \li  <= < > >= == != && ||
         \row
-            \li  Convert to Decimal
-            \li  Converts an integer literal to decimal representation
-            \li  Numeric literal
+            \li Convert to Decimal
+            \li Converts an integer literal to decimal representation
+            \li Numeric literal
         \row
-            \li  Convert to Hexadecimal
-            \li  Converts an integer literal to hexadecimal representation
-            \li  Numeric literal
+            \li Convert to Hexadecimal
+            \li Converts an integer literal to hexadecimal representation
+            \li Numeric literal
         \row
-            \li  Convert to Octal
-            \li  Converts an integer literal to octal representation
-            \li  Numeric literal
+            \li Convert to Octal
+            \li Converts an integer literal to octal representation
+            \li Numeric literal
         \row
             \li  Convert to Objective-C String Literal
             \li  Converts a string literal to an Objective-C string literal
@@ -1867,7 +1867,7 @@
     \code
     @"abcd"
     \endcode
-            \li  String literal
+            \li String literal
         \row
             \li  Enclose in QLatin1Char()
             \li  Sets the encoding for a character to Latin-1, unless the character is
@@ -1883,7 +1883,7 @@
     \code
     QLatin1Char('a')
     \endcode
-            \li  String literal
+            \li String literal
         \row
             \li  Enclose in QLatin1String()
             \li  Sets the encoding for a string to Latin-1, unless the string is
@@ -1899,7 +1899,7 @@
     QLatin1String("abcd")
     \endcode
 
-            \li  String literal
+            \li String literal
 
         \row
             \li  Mark as Translatable
@@ -1912,7 +1912,7 @@
     QT_TRANSLATE_NOOP("GLOBAL", "abcd")
     \endcode
 
-            \li  String literal
+            \li String literal
 
         \row
             \li  Add Definition in ...
@@ -1966,7 +1966,7 @@
     }
     \endcode
 
-            \li  Function name
+            \li Function name
         \row
             \li  Add 'Function' Declaration
             \li  Inserts the member function declaration that matches the member function
@@ -1974,9 +1974,9 @@
             protected, private, public slot, protected slot, or private slot.
             \li  Function name
         \row
-            \li  Switch with Next/Previous Parameter
-            \li  Moves a parameter down or up one position in a parameter list.
-            \li  Parameter in the declaration or definition of a function
+            \li Switch with Next/Previous Parameter
+            \li Moves a parameter down or up one position in a parameter list.
+            \li Parameter in the declaration or definition of a function
         \row
             \li  Extract Function
             \li  Moves the selected code to a new function and replaces the block of
@@ -2007,7 +2007,7 @@
 
     where Type is the return type of \c {foo()}
 
-            \li  Assignee
+            \li Assignee
 
         \row
             \li  Convert to Camel Case
@@ -2024,10 +2024,10 @@
             \li  Generate Missing Q_PROPERTY Members
             \li  Adds missing members to a Q_PROPERTY:
             \list
-                \li  \c read function
-                \li  \c write function, if there is a WRITE
-                \li  \c {onChanged} signal, if there is a NOTIFY
-                \li  data member with the name \c {m_<propertyName>}
+                \li \c read function
+                \li \c write function, if there is a WRITE
+                \li \c {onChanged} signal, if there is a NOTIFY
+                \li data member with the name \c {m_<propertyName>}
             \endlist
             \li  Q_PROPERTY
         \row
@@ -2241,9 +2241,9 @@
 
    \list
 
-        \li  Rename IDs
+        \li Rename IDs
 
-        \li  Split initializers
+        \li Split initializers
 
         \li  Move a QML type into a separate file to reuse it in other
         .qml files
@@ -2256,14 +2256,14 @@
 
     \table
         \header
-            \li  Refactoring Action
-            \li  Description
-            \li  Activation
+            \li Refactoring Action
+            \li Description
+            \li Activation
 
         \row
-            \li  Move Component into 'filename.qml'
-            \li  Moves a QML type into a separate file
-            \li  QML type name
+            \li Move Component into 'filename.qml'
+            \li Moves a QML type into a separate file
+            \li QML type name
         \row
             \li  Split Initializer
             \li  Reformats a one-line type into a multi-line type. For example,
@@ -2281,7 +2281,8 @@
         width: 10
     }
     \endcode
-            \li  QML type property
+
+            \li QML type property
         \row
             \li  Wrap in Loader
             \li  Wraps the type in a Component type and loads it dynamically in
@@ -2464,7 +2465,7 @@
         \li Specify the prefix string.
 
         \li To show only results matching this filter, select
-            \uicontrol{Limit to prefix}.
+            \uicontrol {Limit to prefix}.
 
         \li Specify other available options. For more information, see
             \l{Adding Web Search Engines}.
@@ -2518,7 +2519,7 @@
 
         \li Click \uicontrol Add.
 
-        \li In the \uicontrol{Filter Configuration} dialog:
+        \li In the \uicontrol {Filter Configuration} dialog:
 
         \list
 
@@ -2533,7 +2534,7 @@
             \li Specify the prefix string.
 
                 To show only results matching this filter, select
-                \uicontrol{Limit to prefix}.
+                \uicontrol {Limit to prefix}.
 
                 \image qtcreator-navigate-customfilter.png
 
@@ -2559,7 +2560,7 @@
 
         \li Select \uicontrol {Tools > Options > Environment > Locator}.
 
-        \li In \uicontrol{Refresh interval}, define new time in minutes.
+        \li In \uicontrol {Refresh interval}, define new time in minutes.
 
     \endlist
 
