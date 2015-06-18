@@ -6150,7 +6150,6 @@ QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) cons
 
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
 {
-    QList<QTextEdit::ExtraSelection> all;
     foreach (const QList<QTextEdit::ExtraSelection> &sel, d->m_extraSelections) {
         for (int j = 0; j < sel.size(); ++j) {
             const QTextEdit::ExtraSelection &s = sel.at(j);
