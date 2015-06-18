@@ -78,11 +78,8 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
     sp.debuggee = rc->executable();
     sp.debuggeeArgs = rc->commandLineArguments();
     sp.displayName = rc->displayName();
+    sp.analyzerPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
 
-    quint16 localPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
-    if (localPort == 0)
-        return sp;
-    sp.analyzerPort = localPort;
     return sp;
 }
 
