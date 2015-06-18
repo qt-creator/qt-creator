@@ -558,24 +558,6 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
     return rc;
 }
 
-void CallgrindTool::startLocalTool()
-{
-    if (checkForLocalStart(ReleaseMode)) {
-        ProjectExplorerPlugin::runStartupProject(CallgrindRunMode);
-        d->setBusyCursor(true);
-    }
-}
-
-void CallgrindTool::startRemoteTool()
-{
-    AnalyzerStartParameters sp;
-    if (checkForRemoteStart(&sp)) {
-        AnalyzerRunControl *rc = createRunControl(sp, 0);
-        ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
-        d->setBusyCursor(true);
-    }
-}
-
 void CallgrindTool::handleShowCostsOfFunction()
 {
    d->handleShowCostsOfFunction();

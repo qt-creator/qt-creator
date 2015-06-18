@@ -594,40 +594,10 @@ void MemcheckTool::setBusyCursor(bool busy)
     m_errorView->setCursor(cursor);
 }
 
-void MemcheckTool::startLocalTool()
-{
-    if (checkForLocalStart(DebugMode))
-        ProjectExplorerPlugin::runStartupProject(MemcheckRunMode);
-}
-
-void MemcheckTool::startRemoteTool()
-{
-    AnalyzerStartParameters sp;
-    if (checkForRemoteStart(&sp)) {
-        AnalyzerRunControl *rc = createRunControl(sp, 0);
-        ProjectExplorerPlugin::startRunControl(rc, MemcheckRunMode);
-    }
-}
-
 MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
     MemcheckTool(parent)
 {
     setObjectName(QLatin1String("MemcheckWithGdbTool"));
-}
-
-void MemcheckWithGdbTool::startLocalTool()
-{
-    if (checkForLocalStart(DebugMode))
-        ProjectExplorerPlugin::runStartupProject(MemcheckWithGdbRunMode);
-}
-
-void MemcheckWithGdbTool::startRemoteTool()
-{
-    AnalyzerStartParameters sp;
-    if (checkForRemoteStart(&sp)) {
-        AnalyzerRunControl *rc = createRunControl(sp, 0);
-        ProjectExplorerPlugin::startRunControl(rc, MemcheckWithGdbRunMode);
-    }
 }
 
 MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,

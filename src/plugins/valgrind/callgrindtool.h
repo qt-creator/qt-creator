@@ -54,9 +54,6 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
 
-    void startLocalTool();
-    void startRemoteTool();
-
 public slots:
     void handleShowCostsOfFunction();
 

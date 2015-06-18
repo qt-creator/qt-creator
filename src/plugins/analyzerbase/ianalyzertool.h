@@ -63,10 +63,6 @@ enum ToolMode {
     AnyMode
 };
 
-ANALYZER_EXPORT bool checkForLocalStart(ToolMode toolMode);
-ANALYZER_EXPORT bool checkForRemoteStart(AnalyzerStartParameters *sp);
-
-
 /**
  * This class represents an analyzation action, i.e. a tool that runs in a specific mode.
  *
@@ -90,6 +86,7 @@ public:
 
     Core::Id toolId() const { return m_toolId; }
     void setToolId(Core::Id id) { m_toolId = id; }
+    void setToolMode(ToolMode mode) { m_toolMode = mode; }
 
     void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
     bool isRunnable(QString *reason = 0) const;
@@ -110,7 +107,7 @@ public:
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 
     typedef std::function<void()> ToolStarter;
-    ToolStarter toolStarter() const { return m_toolStarter; }
+    void startTool();
     void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
 
 protected:
@@ -118,6 +115,7 @@ protected:
     Core::Id m_menuGroup;
     Core::Id m_actionId;
     Core::Id m_toolId;
+    ToolMode m_toolMode;
     ProjectExplorer::RunMode m_runMode;
     WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;

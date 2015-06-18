@@ -83,8 +83,6 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    void startLocalTool();
-    void startRemoteTool();
     QWidget *createWidgets();
 
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
@@ -140,8 +138,6 @@ class MemcheckWithGdbTool : public MemcheckTool
 public:
     MemcheckWithGdbTool(QObject *parent);
 
-    void startLocalTool();
-    void startRemoteTool();
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration) override;

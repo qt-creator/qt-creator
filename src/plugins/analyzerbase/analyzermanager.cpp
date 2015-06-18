@@ -422,8 +422,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
 void AnalyzerManagerPrivate::startTool()
 {
     QTC_ASSERT(m_currentAction, return);
-    TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
-    m_currentAction->toolStarter()();
+    m_currentAction->startTool();
 }
 
 void AnalyzerManagerPrivate::modeChanged(IMode *mode)
