@@ -45,8 +45,8 @@
 
     \endlist
 
-    The differences are output in the \uicontrol Edit mode. Color coding is used to
-    mark changed lines. By default, light red indicates lines that contain
+    The differences are output in the \uicontrol Edit mode. Color coding is used
+    to mark changed lines. By default, light red indicates lines that contain
     removed text (painted a darker red) in the left pane and light green
     indicates lines that contain added text (painted a darker green) in the
     right pane.
@@ -65,35 +65,36 @@
     (\uicontrol {Switch to Side by Side Diff Editor}).
 
     To change the default colors, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Text Editor} > \uicontrol {Font & Colors}. Create your own color scheme and
-    select new colors for the following options:
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}. Create your own color
+    scheme and select new colors for the following options:
 
     \list
 
-        \li \uicontrol {Diff File Line} sets the color of the line that shows the
-            path and filename of the changed file.
+        \li \uicontrol {Diff File Line} sets the color of the line that shows
+            the path and filename of the changed file.
 
-        \li \uicontrol {Diff Context Line} sets the color of the line that shows
-            the number of hidden lines between changed lines.
+        \li \uicontrol {Diff Context Line} sets the color of the line that
+            shows the number of hidden lines between changed lines.
 
-        \li \uicontrol {Diff Source Line} sets the color of lines that contain removed
-            text.
+        \li \uicontrol {Diff Source Line} sets the color of lines that contain
+            removed text.
 
-        \li \uicontrol {Diff Source Character} sets the color that indicates removed
-            characters.
+        \li \uicontrol {Diff Source Character} sets the color that indicates
+            removed characters.
 
-        \li \uicontrol {Diff Destination Line} sets the color of lines that contain
-            added text.
+        \li \uicontrol {Diff Destination Line} sets the color of lines that
+            contain added text.
 
-        \li \uicontrol {Diff Destination Character} sets the color that indicates
-            added characters.
+        \li \uicontrol {Diff Destination Character} sets the color that
+            indicates added characters.
 
     \endlist
 
     To only show text changes, select \uicontrol {Ignore Whitespace}.
 
     To expand the context for the changes, set the number of unchanged lines to
-    show in \uicontrol {Context lines}. Set the value to -1 to show the whole file.
+    show in \uicontrol {Context lines}. Set the value to -1 to show the whole
+    file.
 
     By default, the horizontal scroll bars in the left and right pane are
     synchronized. To use them independently of each other, select the
