@@ -76,12 +76,6 @@ using namespace QmakeProjectManager::Internal;
 using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
 
-QmakeProjectManagerPlugin::QmakeProjectManagerPlugin()
-    : m_qmakeProjectManager(0), m_previousStartupProject(0), m_previousTarget(0)
-{
-
-}
-
 QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
 {
 }

@@ -109,8 +109,8 @@ private:
     void ctor();
     void setMakeCommand(const QString &make);
     QStringList automaticallyAddedArguments() const;
-    bool m_clean;
-    bool m_scriptTarget;
+    bool m_clean = false;
+    bool m_scriptTarget = false;
     QString m_makeFileToCheck;
     QString m_userArgs;
     QString m_makeCmd;
@@ -136,11 +136,11 @@ private slots:
 private:
     void setSummaryText(const QString &text);
 
-    Internal::Ui::MakeStep *m_ui;
-    MakeStep *m_makeStep;
+    Internal::Ui::MakeStep *m_ui = nullptr;
+    MakeStep *m_makeStep = nullptr;
     QString m_summaryText;
-    ProjectExplorer::BuildConfiguration *m_bc;
-    bool m_ignoreChange;
+    ProjectExplorer::BuildConfiguration *m_bc = nullptr;
+    bool m_ignoreChange = false;
 };
 
 } // QmakeProjectManager

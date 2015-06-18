@@ -59,7 +59,6 @@ class QmakeProjectManagerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeProjectManager.json")
 
 public:
-    QmakeProjectManagerPlugin();
     ~QmakeProjectManagerPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -78,23 +77,23 @@ private slots:
 #endif
 
 private:
-    QmakeManager *m_qmakeProjectManager;
-    QmakeProject *m_previousStartupProject;
-    ProjectExplorer::Target *m_previousTarget;
+    QmakeManager *m_qmakeProjectManager = nullptr;
+    QmakeProject *m_previousStartupProject = nullptr;
+    ProjectExplorer::Target *m_previousTarget = nullptr;
 
-    QAction *m_runQMakeAction;
-    QAction *m_runQMakeActionContextMenu;
-    Utils::ParameterAction *m_buildSubProjectContextMenu;
-    QAction *m_subProjectRebuildSeparator;
-    QAction *m_rebuildSubProjectContextMenu;
-    QAction *m_cleanSubProjectContextMenu;
-    QAction *m_buildFileContextMenu;
-    Utils::ParameterAction *m_buildSubProjectAction;
-    Utils::ParameterAction *m_rebuildSubProjectAction;
-    Utils::ParameterAction *m_cleanSubProjectAction;
-    Utils::ParameterAction *m_buildFileAction;
-    QAction *m_addLibraryAction;
-    QAction *m_addLibraryActionContextMenu;
+    QAction *m_runQMakeAction = nullptr;
+    QAction *m_runQMakeActionContextMenu = nullptr;
+    Utils::ParameterAction *m_buildSubProjectContextMenu = nullptr;
+    QAction *m_subProjectRebuildSeparator = nullptr;
+    QAction *m_rebuildSubProjectContextMenu = nullptr;
+    QAction *m_cleanSubProjectContextMenu = nullptr;
+    QAction *m_buildFileContextMenu = nullptr;
+    Utils::ParameterAction *m_buildSubProjectAction = nullptr;
+    Utils::ParameterAction *m_rebuildSubProjectAction = nullptr;
+    Utils::ParameterAction *m_cleanSubProjectAction = nullptr;
+    Utils::ParameterAction *m_buildFileAction = nullptr;
+    QAction *m_addLibraryAction = nullptr;
+    QAction *m_addLibraryActionContextMenu = nullptr;
     Core::Context m_projectContext;
 };
 

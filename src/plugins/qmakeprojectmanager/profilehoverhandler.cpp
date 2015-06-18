@@ -45,7 +45,7 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 ProFileHoverHandler::ProFileHoverHandler(const TextEditor::Keywords &keywords)
-  : m_manualKind(UnknownManual), m_keywords(keywords)
+    : m_keywords(keywords)
 {
 }
 

@@ -185,35 +185,35 @@ private:
     bool matchesKit(const ProjectExplorer::Kit *kit);
 
     QmakeManager *m_manager;
-    QmakeProFileNode *m_rootProjectNode;
+    QmakeProFileNode *m_rootProjectNode = 0;
 
-    Internal::QmakeProjectFile *m_fileInfo;
+    Internal::QmakeProjectFile *m_fileInfo = nullptr;
 
     // Current configuration
     QString m_oldQtIncludePath;
     QString m_oldQtLibsPath;
 
     // cached lists of all of files
-    Internal::QmakeProjectFiles *m_projectFiles;
+    Internal::QmakeProjectFiles *m_projectFiles = nullptr;
 
-    QMakeVfs *m_qmakeVfs;
+    QMakeVfs *m_qmakeVfs = nullptr;
 
     // cached data during project rescan
-    ProFileGlobals *m_qmakeGlobals;
-    int m_qmakeGlobalsRefCnt;
+    ProFileGlobals *m_qmakeGlobals = nullptr;
+    int m_qmakeGlobalsRefCnt = 0;
 
     QTimer m_asyncUpdateTimer;
-    QFutureInterface<void> *m_asyncUpdateFutureInterface;
-    int m_pendingEvaluateFuturesCount;
-    AsyncUpdateState m_asyncUpdateState;
-    bool m_cancelEvaluate;
+    QFutureInterface<void> *m_asyncUpdateFutureInterface = nullptr;
+    int m_pendingEvaluateFuturesCount = 0;
+    AsyncUpdateState m_asyncUpdateState = Base;
+    bool m_cancelEvaluate = false;
     QList<QmakeProFileNode *> m_partialEvaluate;
 
     QFuture<void> m_codeModelFuture;
 
-    Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher;
+    Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher = nullptr;
 
-    ProjectExplorer::Target *m_activeTarget;
+    ProjectExplorer::Target *m_activeTarget = nullptr;
 
     friend class Internal::QmakeProjectFile;
     friend class Internal::QmakeProjectConfigWidget;

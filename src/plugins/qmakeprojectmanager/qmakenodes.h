@@ -219,7 +219,7 @@ private:
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName> > m_files;
     QSet<Utils::FileName> m_recursiveEnumerateFiles;
     QSet<QString> m_watchedFolders;
-    bool m_includedInExactParse;
+    bool m_includedInExactParse = true;
 
     // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeProFileNode;
@@ -277,7 +277,7 @@ private:
 class QMAKEPROJECTMANAGER_EXPORT TargetInformation
 {
 public:
-    bool valid;
+    bool valid = false;
     QString target;
     QString destDir;
     QString buildDir;
@@ -295,19 +295,9 @@ public:
         return !(*this == other);
     }
 
-    TargetInformation()
-        : valid(false)
-    {}
+    TargetInformation() = default;
 
-    TargetInformation(const TargetInformation &other)
-        : valid(other.valid),
-          target(other.target),
-          destDir(other.destDir),
-          buildDir(other.buildDir),
-          buildTarget(other.buildTarget)
-    {
-    }
-
+    TargetInformation(const TargetInformation &other) = default;
 };
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
@@ -320,12 +310,6 @@ struct QMAKEPROJECTMANAGER_EXPORT InstallsList {
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
     QList<InstallsItem> items;
-};
-
-struct QMAKEPROJECTMANAGER_EXPORT ProjectVersion {
-    int major;
-    int minor;
-    int patch;
 };
 
 // Implements ProjectNode for qmake .pro files
@@ -413,12 +397,12 @@ private:
     static TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir, const QString &projectFilePath);
     static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir);
 
-    bool m_isDeployable;
+    bool m_isDeployable = false;
 
-    bool m_validParse;
-    bool m_parseInProgress;
+    bool m_validParse = false;
+    bool m_parseInProgress = true;
 
-    QmakeProjectType m_projectType;
+    QmakeProjectType m_projectType = InvalidProject;
     QmakeVariablesHash m_varValues;
 
     QMap<QString, QDateTime> m_uitimestamps;
@@ -430,8 +414,8 @@ private:
 
     // Async stuff
     QFutureWatcher<Internal::EvalResult *> m_parseFutureWatcher;
-    QtSupport::ProFileReader *m_readerExact;
-    QtSupport::ProFileReader *m_readerCumulative;
+    QtSupport::ProFileReader *m_readerExact = nullptr;
+    QtSupport::ProFileReader *m_readerCumulative = nullptr;
 };
 
 } // namespace QmakeProjectManager

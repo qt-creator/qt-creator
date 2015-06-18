@@ -54,19 +54,7 @@ LibraryDetailsController::LibraryDetailsController(
         Ui::LibraryDetailsWidget *libraryDetails,
         const QString &proFile, QObject *parent) :
     QObject(parent),
-    m_platforms(AddLibraryWizard::LinuxPlatform
-                | AddLibraryWizard::MacPlatform
-                | AddLibraryWizard::WindowsMinGWPlatform
-                | AddLibraryWizard::WindowsMSVCPlatform),
-    m_linkageType(AddLibraryWizard::NoLinkage),
-    m_macLibraryType(AddLibraryWizard::NoLibraryType),
     m_proFile(proFile),
-    m_ignoreGuiSignals(false),
-    m_includePathChanged(false),
-    m_linkageRadiosVisible(true),
-    m_macLibraryRadiosVisible(true),
-    m_includePathVisible(true),
-    m_windowsGroupVisible(true),
     m_libraryDetailsWidget(libraryDetails)
 {
     switch (Utils::HostOsInfo::hostOs()) {

@@ -61,8 +61,8 @@ private slots:
 private:
     int findQtVersion(const int id) const;
 
-    QLineEdit *m_lineEdit;
-    bool m_ignoreChange;
+    QLineEdit *m_lineEdit = nullptr;
+    bool m_ignoreChange = false;
 };
 
 } // namespace Internal

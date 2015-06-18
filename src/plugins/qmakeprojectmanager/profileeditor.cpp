@@ -58,11 +58,6 @@ namespace Internal {
 
 class ProFileEditorWidget : public TextEditorWidget
 {
-public:
-    ProFileEditorWidget()
-    {
-    }
-
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                             bool inNextSplit = false) override;

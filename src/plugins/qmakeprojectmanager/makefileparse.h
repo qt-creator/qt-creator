@@ -75,16 +75,10 @@ private:
     class QmakeBuildConfig
     {
     public:
-        QmakeBuildConfig()
-            : explicitDebug(false),
-              explicitRelease(false),
-              explicitBuildAll(false),
-              explicitNoBuildAll(false)
-        {}
-        bool explicitDebug;
-        bool explicitRelease;
-        bool explicitBuildAll;
-        bool explicitNoBuildAll;
+        bool explicitDebug = false;
+        bool explicitRelease = false;
+        bool explicitBuildAll = false;
+        bool explicitNoBuildAll = false;
     };
 
     MakefileState m_state;

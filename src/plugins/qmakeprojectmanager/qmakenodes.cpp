@@ -306,8 +306,7 @@ QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmak
           m_project(project),
           m_qmakeProFileNode(qmakeProFileNode),
           m_projectFilePath(filePath),
-          m_projectDir(filePath.toFileInfo().absolutePath()),
-          m_includedInExactParse(true)
+          m_projectDir(filePath.toFileInfo().absolutePath())
 {
     Q_ASSERT(project);
     m_qmakePriFile = new QmakePriFile(this);
@@ -335,18 +334,12 @@ struct InternalNode
     QList<InternalNode *> virtualfolders;
     QMap<QString, InternalNode *> subnodes;
     FileNameList files;
-    FileType type;
-    int priority;
+    FileType type = UnknownFileType;
+    int priority = 0;
     QString displayName;
     QString typeName;
     QString fullPath;
     QIcon icon;
-
-    InternalNode()
-    {
-        type = UnknownFileType;
-        priority = 0;
-    }
 
     ~InternalNode()
     {
@@ -1597,12 +1590,7 @@ bool QmakeProFileNode::isDeployable() const
   */
 QmakeProFileNode::QmakeProFileNode(QmakeProject *project,
                                const FileName &filePath)
-        : QmakePriFileNode(project, this, filePath),
-          m_validParse(false),
-          m_parseInProgress(true),
-          m_projectType(InvalidProject),
-          m_readerExact(0),
-          m_readerCumulative(0)
+        : QmakePriFileNode(project, this, filePath)
 {
     // The slot is a lambda, so that QmakeProFileNode does not need to be
     // a qobject. The lifetime of the m_parserFutureWatcher is shorter
