@@ -97,6 +97,9 @@ void AnalyzerAction::startTool()
 
     TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
 
+    if (m_toolPreparer && !m_toolPreparer())
+        return;
+
     // Custom start.
     if (m_toolStarter) {
         m_toolStarter();

@@ -110,6 +110,10 @@ public:
     void startTool();
     void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
 
+    typedef std::function<bool()> ToolPreparer;
+    ToolPreparer toolPreparer() const { return m_toolPreparer; }
+    void setToolPreparer(const ToolPreparer &toolPreparer) { m_toolPreparer = toolPreparer; }
+
 protected:
     bool m_useStartupProject;
     Core::Id m_menuGroup;
@@ -120,6 +124,7 @@ protected:
     WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;
     ToolStarter m_toolStarter;
+    ToolPreparer m_toolPreparer;
 };
 
 } // namespace Analyzer

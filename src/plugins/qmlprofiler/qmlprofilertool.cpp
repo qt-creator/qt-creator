@@ -433,29 +433,21 @@ void QmlProfilerTool::clearDisplay()
     updateTimeDisplay();
 }
 
-void QmlProfilerTool::startLocalTool()
+bool QmlProfilerTool::prepareTool()
 {
     if (d->m_recordButton->isChecked()) {
-        if (!checkForUnsavedNotes())
-            return;
-        clearData(); // clear right away to suppress second warning on server recording change
+        if (checkForUnsavedNotes()) {
+            clearData(); // clear right away to suppress second warning on server recording change
+            return true;
+        } else {
+            return false;
+        }
     }
-
-    // Make sure mode is shown.
-    AnalyzerManager::showMode();
-
-    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-    ProjectExplorerPlugin::runStartupProject(QmlProfilerRunMode);
+    return true;
 }
 
 void QmlProfilerTool::startRemoteTool()
 {
-    if (d->m_recordButton->isChecked()) {
-        if (!checkForUnsavedNotes())
-            return;
-        clearData(); // clear right away to suppress second warning on server recording change
-    }
-
     AnalyzerManager::showMode();
 
     Id kitId;

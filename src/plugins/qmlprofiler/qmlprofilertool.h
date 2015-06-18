@@ -58,7 +58,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     QWidget *createWidgets();
-    void startLocalTool();
+    bool prepareTool();
     void startRemoteTool();
 
     QList <QAction *> profilerContextMenuActions() const;
