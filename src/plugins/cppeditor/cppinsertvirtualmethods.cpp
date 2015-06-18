@@ -45,6 +45,7 @@
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
