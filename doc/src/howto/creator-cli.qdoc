@@ -30,8 +30,8 @@
 
     \title Using Command Line Options
 
-    You can start \QC and specify some options from the command line.
-    For example, you can open a file to any line.
+    You can start \QC and specify some options from the command line. For
+    example, you can open a file to any line.
 
     To specify command line options, enter the following command in the \QC
     installation or build directory:
@@ -62,9 +62,10 @@
 
     \endlist
 
-    To open a project that is located in a particular folder, you can pass on the folder
-    name as a command line argument. \QC looks for a session that matches the folder name and
-    loads it. Or it looks for a project file in the folder and opens it. For example:
+    To open a project that is located in a particular folder, you can pass on
+    the folder name as a command line argument. \QC looks for a session that
+    matches the folder name and loads it. Or it looks for a project file in the
+    folder and opens it. For example:
 
     \c {qtcreator .}
 
@@ -153,8 +154,9 @@
                 stylesheets.
 
         \row
-            \li  -debug <pid>
-            \li  Debugger plugin: attach to the process with the given process ID.
+            \li -debug <pid>
+            \li Debugger plugin: attach to the process with the given process
+                ID.
 
         \row
             \li -debug <executable>[,kit=<kit>]
@@ -164,53 +166,53 @@
                 and sysroots.
 
         \row
-            \li  -debug [executable,]core=<corefile>[,kit=<kit>]
-            \li  Debugger plugin: load the core file named \c{corefile}.
-                 The parameter \c{executable} specifies the executable that
-                 produced the core file.
-                 If this parameter is omitted, \QC will attempt to reconstruct
-                 it from the core file itself.
-                 This will fail for paths with more than about 80 characters.
-                 In such cases the \c{executable} parameter is mandatory.
-                 A \c{kit} can be specified to point to non-default debuggers
-                 and sysroots.
+            \li -debug [executable,]core=<corefile>[,kit=<kit>]
+            \li Debugger plugin: load the core file named \c{corefile}.
+                The parameter \c{executable} specifies the executable that
+                produced the core file.
+                If this parameter is omitted, \QC will attempt to reconstruct
+                it from the core file itself. This will fail for paths with more
+                than about 80 characters.
+                In such cases the \c{executable} parameter is mandatory.
+                A \c{kit} can be specified to point to non-default debuggers
+                and sysroots.
 
         \row
-            \li  -debug <executable>,server=<server:port>[,kit=<kit>]
-            \li  Debugger plugin: attach to a debug server running on the port
-                 \c{port} on the server \c{server}. The parameter \c{executable}
-                 specifies a local copy of the executable the remote debug server is
-                 manipulating.
-                 A \c{kit} can be specified to point to non-default debuggers
-                 and sysroots.
+            \li -debug <executable>,server=<server:port>[,kit=<kit>]
+            \li Debugger plugin: attach to a debug server running on the port
+                \c{port} on the server \c{server}. The parameter \c{executable}
+                specifies a local copy of the executable the remote debug server
+                is manipulating.
+                A \c{kit} can be specified to point to non-default debuggers and
+                sysroots.
 
         \row
-            \li  -wincrashevent <event-handle:pid>
-            \li  Debugger plugin: Attach to crashed processes by using the specified
-                 event handle and process ID.
+            \li -wincrashevent <event-handle:pid>
+            \li Debugger plugin: Attach to crashed processes by using the
+                specified event handle and process ID.
 
         \row
-            \li  -customwizard-verbose
-            \li  ProjectExplorer plugin: display additional information when loading
-            custom wizards. For more information about custom wizards, see
-            \l{Adding New Custom Wizards}
+            \li -customwizard-verbose
+            \li ProjectExplorer plugin: display additional information when
+                loading custom wizards. For more information about custom
+                wizards, see \l{Adding New Custom Wizards}
 
         \row
-            \li  -lastsession
-            \li  ProjectExplorer plugin: load the last session when \QC starts.
-            Open the projects and files that were open when you last exited \QC.
-            For more information about managing sessions, see \l{Managing Sessions}.
+            \li -lastsession
+            \li ProjectExplorer plugin: load the last session when \QC starts.
+                Open the projects and files that were open when you last exited
+                \QC. For more information about managing sessions, see
+                \l{Managing Sessions}.
 
     \endtable
 
     \section1 Using Custom Styles
 
-    \QC is a \l{QApplication}
-    {Qt application}, and therefore, it accepts the command line options
-    that all Qt applications accept. For example, you can use the \c {-style} and
-    \c {-stylesheet} options to apply custom styles and
-    \l{Qt Style Sheets}{stylesheets}.
-    The styling is only applied during the current session.
+    \QC is a \l{QApplication}{Qt application}, and therefore, it accepts the
+    command line options that all Qt applications accept. For example, you can
+    use the \c {-style} and \c {-stylesheet} options to apply custom styles and
+    \l{Qt Style Sheets}{stylesheets}. The styling is only applied during the
+    current session.
 
     Exercise caution when applying styles, as overriding the existing styling
     may make some items difficult to see. Also, setting a stylesheet may affect
