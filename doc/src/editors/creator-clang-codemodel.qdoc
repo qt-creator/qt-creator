@@ -55,9 +55,9 @@
 
     \endlist
 
-    An IDE needs a parser for the language and the semantic
-    analyzes. The only difference between a code model and a compiler is that a
-    code model does not generate an executable.
+    An IDE needs a parser for the language and the semantic analyzes. The only
+    difference between a code model and a compiler is that a code model does not
+    generate an executable.
 
     As \l{http://clang.llvm.org/}{Clang} is a compiler, as well as a code model,
     it provides accurate information. The feedback you get through warning and
@@ -66,8 +66,8 @@
     Clang focuses on detailed information for diagnostics, which is really
     useful if the code contains typos, for example.
 
-    Also, Clang already supports C++98/03, C89 and C99, Objective-C
-    (and Objective-C++), and C++11 support is in active development.
+    Also, Clang already supports C++98/03, C89 and C99, Objective-C (and
+    Objective-C++), and C++11 support is in active development.
 
     On the downside, for large projects using Clang as code model is slower than
     using the built-in code model. Clang does not need to generate object files,
@@ -158,8 +158,8 @@
 
     \list 1
 
-        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {C++} >
-            \uicontrol ClangCodeModel to enable the plugin.
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {C++} > \uicontrol ClangCodeModel to enable the plugin.
 
         \li Restart \QC to be able to use the plugin.
 
