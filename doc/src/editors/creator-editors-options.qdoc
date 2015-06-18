@@ -31,11 +31,11 @@
     \title Configuring the Editor
 
     \QC allows you to configure the text editor to suit your specific
-    needs. To configure the editor, select \uicontrol Tools > \uicontrol{Options} >
-    \uicontrol{Text Editor}.
+    needs. To configure the editor, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol{Text Editor}.
 
-    These settings apply to all projects. To specify editor behavior for an
-    open project, select \uicontrol Projects > \uicontrol Editor. For more
+    These settings apply to all projects. To specify editor behavior for an open
+    project, select \uicontrol Projects > \uicontrol Editor. For more
     information, see \l{Specifying Editor Settings}.
 
     You can also specify indentation settings separately for C++ and QML files
@@ -47,11 +47,12 @@
     \list
 
         \li Set the \l{Specifying Text Editor Settings}{font preferences and
-            apply color schemes} for syntax highlighting in \uicontrol{Font & Colors}.
+            apply color schemes} for syntax highlighting in
+            \uicontrol {Font & Colors}.
 
         \li Specify \l{Generic Highlighting}
             {definition files for syntax highlighting} for other types of files
-             than C++ or QML in \uicontrol{Generic Highlighter}.
+             than C++ or QML in \uicontrol {Generic Highlighter}.
 
         \li Set \l{Indenting Text or Code}{tabs, indentation, the handling of
             whitespace, and mouse operations} in \uicontrol Behavior.
