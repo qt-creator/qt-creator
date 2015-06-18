@@ -97,7 +97,7 @@ private:
     void disconnectProcessFinished() const;
     void connectStandardOutputAndError() const;
 
-    void waitUntilSocketIsFlushed() const;
+    void ensureCommandIsWritten();
 
 private:
     mutable std::unique_ptr<QProcess> process_;

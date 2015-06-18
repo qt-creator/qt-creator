@@ -95,10 +95,17 @@ bool ConnectionClient::isConnected() const
     return localSocket.state() == QLocalSocket::ConnectedState;
 }
 
+void ConnectionClient::ensureCommandIsWritten()
+{
+    while (localSocket.bytesToWrite() > 0)
+        localSocket.waitForBytesWritten();
+}
+
 void ConnectionClient::sendEndCommand()
 {
     serverProxy_.end();
     localSocket.flush();
+    ensureCommandIsWritten();
 }
 
 void ConnectionClient::resetProcessAliveTimer()
