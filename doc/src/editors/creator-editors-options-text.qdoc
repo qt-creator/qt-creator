@@ -39,14 +39,15 @@
 
     You can select the font family and size. You can specify a zoom setting in
     percentage for viewing the text. You can also zoom in or out by pressing
-    \key {Ctrl++} or \key {Ctrl +-}, or by pressing \key Ctrl and rolling
+    \key {Ctrl++} or \key {Ctrl+-}, or by pressing \key Ctrl and rolling
     the mouse button up or down. To disable the mouse wheel function, select
-    \uicontrol {Tools > Options > Text Editor > Behavior} and deselect the
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Behavior and deselect the
     \uicontrol {Enable scroll wheel zooming} check box.
 
-    Antialiasing is used by default to make text look smoother and more
-    readable on the screen. Deselect the \uicontrol Antialias check box to
-    turn off antialiasing.
+    Antialiasing is used by default to make text look smoother and more readable
+    on the screen. Deselect the \uicontrol Antialias check box to turn off
+    antialiasing.
 
     \section2 Defining Color Schemes
 
@@ -58,7 +59,9 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > Text Editor > Fonts & Color > Copy}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Text Editor} > \uicontrol {Fonts & Color} >
+            \uicontrol Copy.
 
         \li Enter a name for the color scheme and click \uicontrol OK.
 
@@ -79,12 +82,12 @@
 
     \section2 File Encoding
 
-    To define the default file encoding, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Text Editor} > \uicontrol Behavior, and then select a suitable option in
-    \uicontrol {Default encoding}.
+    To define the default file encoding, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior, and
+    then select a suitable option in \uicontrol {Default encoding}.
 
-    Qt 5 requires UTF-8 encoded source files, and therefore the default
-    encoding was changed from \uicontrol System to \uicontrol UTF-8 in \QC version 2.6.
+    Qt 5 requires UTF-8 encoded source files, and therefore the default encoding
+    was changed from \uicontrol System to \uicontrol UTF-8 in \QC version 2.6.
     However, the \uicontrol {Default encoding} field still displays the value
     \uicontrol System if the default system encoding is set to UTF-8.
 
