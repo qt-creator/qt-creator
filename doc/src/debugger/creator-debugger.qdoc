@@ -455,7 +455,7 @@
        \li To leave the current function or subfunction, press \key{Shift+F11}
            (\key{Command+Shift+T} on OS X).
 
-       \li To continue running the program, press \key{F5}.
+       \li To continue running the program, press \key {F5}.
 
        \li To run to the line containing the cursor, press \key{Ctrl+F10}
            (\key{Shift+F8} on OS X).
@@ -567,9 +567,9 @@
         \li Click the breakpoint marker in the text editor.
 
         \li Select the breakpoint in the \uicontrol Breakpoints view and press
-            \key{Delete}.
+            \key {Delete}.
 
-        \li Select \uicontrol{Delete Breakpoint} in the context menu in the
+        \li Select \uicontrol {Delete Breakpoint} in the context menu in the
             \uicontrol Breakpoints view.
 
     \endlist
@@ -833,7 +833,7 @@
     Right-click the view to open a context menu that contains menu items for
     reloading data and opening files.
 
-    By default, the \uicontrol{Source Files} view is hidden.
+    By default, the \uicontrol {Source Files} view is hidden.
 
     \section2 Viewing Disassembled Code and Register State
 
@@ -975,7 +975,7 @@
     For each line in the \uicontrol{Locals and Expressions} view, a string like the
     following needs to be created and channeled to the debugger plugin.
     \code
-     {iname='some internal name',           # optional
+    {iname='some internal name',           # optional
       addr='object address in memory',      # optional
       name='contents of the name column',   # optional
       value='contents of the value column',
@@ -1127,7 +1127,7 @@
             output produced by \c putItem is replaced by the output of:
 
             \code
-           except RuntimeError:
+            except RuntimeError:
                 d.put('value="<invalid>",type="<unknown>",numchild="0",')
             \endcode
 
@@ -1203,7 +1203,7 @@
     \l{http://www.avira.com/en/support-for-business-knowledgebase-detail/kbid/805}
     {Restricted Usability of IDE/Debuggers since 2010-12-08}.
 
-   \section1 Debugger Does Not Hit Breakpoints
+    \section1 Debugger Does Not Hit Breakpoints
 
     You might have created a release build that does not contain debug
     information. A GNU Compiler Collection (GCC) debug build has the \c {-g}
