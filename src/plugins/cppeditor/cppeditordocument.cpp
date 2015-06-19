@@ -169,6 +169,7 @@ void CppEditorDocument::applyFontSettings()
         }
     }
     TextDocument::applyFontSettings(); // rehighlights and updates additional formats
+    m_processor->semanticRehighlight();
 }
 
 void CppEditorDocument::invalidateFormatterCache()

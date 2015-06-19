@@ -182,6 +182,14 @@ void BuiltinEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
     m_semanticInfoUpdater.updateDetached(source);
 }
 
+void BuiltinEditorDocumentProcessor::semanticRehighlight()
+{
+    if (m_semanticHighlighter && m_semanticInfoUpdater.semanticInfo().doc) {
+        m_semanticHighlighter->updateFormatMapFromFontSettings();
+        m_semanticHighlighter->run();
+    }
+}
+
 SemanticInfo BuiltinEditorDocumentProcessor::recalculateSemanticInfo()
 {
     const auto source = createSemanticInfoSource(false);

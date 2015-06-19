@@ -167,6 +167,12 @@ void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
     m_builtinProcessor.recalculateSemanticInfoDetached(force);
 }
 
+void ClangEditorDocumentProcessor::semanticRehighlight()
+{
+    m_semanticHighlighter.updateFormatMapFromFontSettings();
+    m_semanticHighlighter.run();
+}
+
 CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
 {
     return m_builtinProcessor.recalculateSemanticInfo();
