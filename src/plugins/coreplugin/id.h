@@ -46,10 +46,8 @@ namespace Core {
 class CORE_EXPORT Id
 {
 public:
-    enum { IdsPerPlugin = 10000, ReservedPlugins = 1000 };
-
     Id() : m_id(0) {}
-    Id(const char *name);
+    Id(const char *name); // Good to use.
 
     Id withSuffix(int suffix) const;
     Id withSuffix(const char *suffix) const;
@@ -68,8 +66,8 @@ public:
     bool operator<(Id id) const { return m_id < id.m_id; }
     bool operator>(Id id) const { return m_id > id.m_id; }
     bool alphabeticallyBefore(Id other) const;
-    int uniqueIdentifier() const { return m_id; }
-    static Id fromUniqueIdentifier(int uid) { return Id(uid); }
+
+    quintptr uniqueIdentifier() const { return m_id; } // Avoid.
     static Id fromString(const QString &str); // FIXME: avoid.
     static Id fromName(const QByteArray &ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
@@ -81,14 +79,13 @@ public:
 
 private:
     // Intentionally unimplemented
-    Id(const QLatin1String &);
-    // Force explicit use of fromUniqueIdentifier().
-    explicit Id(int uid) : m_id(uid) {}
+    Id(const QLatin1String &) = delete;
+    explicit Id(quintptr uid) : m_id(uid) {}
 
-    int m_id;
+    quintptr m_id;
 };
 
-inline uint qHash(Id id) { return id.uniqueIdentifier(); }
+inline uint qHash(Id id) { return static_cast<uint>(id.uniqueIdentifier()); }
 
 } // namespace Core
 
