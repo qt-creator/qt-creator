@@ -70,13 +70,6 @@ bool AnalyzerAction::isRunnable(QString *reason) const
     return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), m_runMode, reason);
 }
 
-AnalyzerRunControl *AnalyzerAction::tryCreateRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration) const
-{
-    if (m_runMode == sp.runMode)
-        return m_runControlCreator(sp, runConfiguration);
-    return 0;
-}
-
 static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType buildType)
 {
     if (toolMode == AnyMode)
@@ -153,11 +146,6 @@ void AnalyzerAction::startTool()
     }
 
     ProjectExplorerPlugin::runStartupProject(m_runMode);
-}
-
-void AnalyzerAction::setCustomToolStarter(const AnalyzerAction::ToolStarter &toolStarter)
-{
-    m_customToolStarter = toolStarter;
 }
 
 } // namespace Analyzer

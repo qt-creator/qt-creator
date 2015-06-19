@@ -32,6 +32,7 @@
 #include "analyzermanager.h"
 
 #include "analyzerplugin.h"
+#include "analyzerstartparameters.h"
 #include "ianalyzertool.h"
 
 #include <coreplugin/coreconstants.h>
@@ -709,10 +710,9 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
     const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     foreach (AnalyzerAction *action, d->m_actions) {
-        if (AnalyzerRunControl *rc = action->tryCreateRunControl(sp, runConfiguration))
-            return rc;
+        if (action->runMode() == sp.runMode)
+            return action->runControlCreator()(sp, runConfiguration);
     }
-    QTC_CHECK(false);
     return 0;
 }
 

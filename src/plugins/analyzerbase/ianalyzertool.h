@@ -86,6 +86,7 @@ public:
     void setToolId(Core::Id id) { m_toolId = id; }
     void setToolMode(ToolMode mode) { m_toolMode = mode; }
 
+    ProjectExplorer::RunMode runMode() const { return m_runMode; }
     void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
     bool isRunnable(QString *reason = 0) const;
 
@@ -100,8 +101,7 @@ public:
     /// Called each time the tool is launched.
     typedef std::function<AnalyzerRunControl *(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)> RunControlCreator;
-    AnalyzerRunControl *tryCreateRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) const;
+    RunControlCreator runControlCreator() const { return m_runControlCreator; }
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 
     typedef std::function<bool()> ToolPreparer;
@@ -112,7 +112,7 @@ public:
 
     /// This is only used for setups not using the startup project.
     typedef std::function<void()> ToolStarter;
-    void setCustomToolStarter(const ToolStarter &toolStarter);
+    void setCustomToolStarter(const ToolStarter &toolStarter) { m_customToolStarter = toolStarter; }
 
 protected:
     Core::Id m_menuGroup;
