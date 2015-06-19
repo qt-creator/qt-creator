@@ -30,6 +30,7 @@
 
 #include "command_p.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
@@ -320,7 +321,7 @@ void Action::addOverrideAction(QAction *action, const Context &context, bool scr
     if (isEmpty())
         m_action->initialize(action);
     if (context.isEmpty()) {
-        m_contextActionMap.insert(0, action);
+        m_contextActionMap.insert(Constants::C_GLOBAL, action);
     } else {
         for (int i = 0; i < context.size(); ++i) {
             Id id = context.at(i);

@@ -49,7 +49,6 @@ public:
     enum { IdsPerPlugin = 10000, ReservedPlugins = 1000 };
 
     Id() : m_id(0) {}
-    Id(int uid) : m_id(uid) {}
     Id(const char *name);
 
     Id withSuffix(int suffix) const;
@@ -78,6 +77,9 @@ public:
 private:
     // Intentionally unimplemented
     Id(const QLatin1String &);
+    // Force explicit use of fromUniqueIdentifier().
+    explicit Id(int uid) : m_id(uid) {}
+
     int m_id;
 };
 

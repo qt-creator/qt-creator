@@ -57,7 +57,7 @@ public:
 
     class ConditionalFeature {
     public:
-        ConditionalFeature() : feature(-1) { }
+        ConditionalFeature() : feature(Core::Id()) { }
         ConditionalFeature(const Core::Feature &f, const QVariant &c) : feature(f), condition(c)
         { }
 
