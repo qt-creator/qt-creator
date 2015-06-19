@@ -72,8 +72,7 @@ bool AnalyzerAction::isRunnable(QString *reason) const
 
 AnalyzerRunControl *AnalyzerAction::tryCreateRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration) const
 {
-    const bool useStartupProject = !m_customToolStarter;
-    if (m_runMode == sp.runMode && useStartupProject == sp.useStartupProject)
+    if (m_runMode == sp.runMode)
         return m_runControlCreator(sp, runConfiguration);
     return 0;
 }

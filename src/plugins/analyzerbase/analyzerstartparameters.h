@@ -49,16 +49,10 @@ namespace Analyzer {
 class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
-    AnalyzerStartParameters()
-        : useStartupProject(true),
-          localRunMode(ProjectExplorer::ApplicationLauncher::Gui),
-          analyzerPort(0)
-    {}
-
-    bool useStartupProject;
     ProjectExplorer::RunMode runMode;
     QSsh::SshConnectionParameters connParams;
-    ProjectExplorer::ApplicationLauncher::Mode localRunMode;
+    ProjectExplorer::ApplicationLauncher::Mode localRunMode
+        = ProjectExplorer::ApplicationLauncher::Gui;
 
     QString debuggee;
     QString debuggeeArgs;
@@ -67,7 +61,7 @@ public:
     QString workingDirectory;
     QString sysroot;
     QString analyzerHost;
-    quint16 analyzerPort;
+    quint16 analyzerPort = 0;
 };
 
 } // namespace Analyzer

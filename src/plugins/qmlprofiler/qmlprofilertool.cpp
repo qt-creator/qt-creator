@@ -476,7 +476,6 @@ void QmlProfilerTool::startRemoteTool()
     }
 
     AnalyzerStartParameters sp;
-    sp.useStartupProject = false;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
