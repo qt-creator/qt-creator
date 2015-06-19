@@ -427,7 +427,7 @@ QWidget *MemcheckTool::createWidgets()
     return widget;
 }
 
-AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
+MemcheckRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
                                             RunConfiguration *runConfiguration)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()

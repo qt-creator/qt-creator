@@ -120,7 +120,7 @@ public:
     void doClear(bool clearParseData);
     void updateEventCombo();
 
-    AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
+    ValgrindRunControl *createRunControl(const AnalyzerStartParameters &sp,
         RunConfiguration *runConfiguration = 0);
 
 signals:
@@ -514,13 +514,13 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-AnalyzerRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
+ValgrindRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
     return d->createRunControl(sp, runConfiguration);
 }
 
-AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartParameters &sp,
+ValgrindRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
     CallgrindRunControl *rc = new CallgrindRunControl(sp, runConfiguration);

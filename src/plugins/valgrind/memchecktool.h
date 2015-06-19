@@ -85,8 +85,8 @@ public:
 
     QWidget *createWidgets();
 
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration);
+    MemcheckRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
 
 private slots:
     void settingsDestroyed(QObject *settings);

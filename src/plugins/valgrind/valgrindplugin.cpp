@@ -33,6 +33,7 @@
 
 #include "callgrindtool.h"
 #include "memchecktool.h"
+#include "memcheckengine.h"
 #include "valgrindruncontrolfactory.h"
 #include "valgrindsettings.h"
 #include "valgrindconfigwidget.h"
@@ -109,22 +110,18 @@ ValgrindPlugin::~ValgrindPlugin()
     theGlobalSettings = 0;
 }
 
-static void customStart(ProjectExplorer::RunMode runMode)
+static bool fillParameters(AnalyzerStartParameters *sp)
 {
     StartRemoteDialog dlg;
     if (dlg.exec() != QDialog::Accepted)
-        return;
+        return false;
 
-    AnalyzerStartParameters sp;
-    sp.useStartupProject = false;
-    sp.connParams = dlg.sshParams();
-    sp.debuggee = dlg.executable();
-    sp.debuggeeArgs = dlg.arguments();
-    sp.displayName = dlg.executable();
-    sp.workingDirectory = dlg.workingDirectory();
-
-    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, 0);
-    ProjectExplorerPlugin::startRunControl(rc, runMode);
+    sp->connParams = dlg.sshParams();
+    sp->debuggee = dlg.executable();
+    sp->debuggeeArgs = dlg.arguments();
+    sp->displayName = dlg.executable();
+    sp->workingDirectory = dlg.workingDirectory();
+    return false;
 }
 
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
@@ -151,7 +148,7 @@ void ValgrindPlugin::extensionsInitialized()
     auto mcTool = new MemcheckTool(this);
     auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
     auto mcRunControlCreator = [mcTool](const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) {
+        ProjectExplorer::RunConfiguration *runConfiguration) -> AnalyzerRunControl * {
         return mcTool->createRunControl(sp, runConfiguration);
     };
 
@@ -212,9 +209,15 @@ void ValgrindPlugin::extensionsInitialized()
     action->setActionId("Memcheck.Remote");
     action->setToolId("Memcheck");
     action->setWidgetCreator(mcWidgetCreator);
-    action->setRunControlCreator(mcRunControlCreator);
-    action->setCustomToolStarter([] { customStart(MemcheckRunMode); });
-    action->setRunMode(MemcheckRunMode);
+    action->setCustomToolStarter([mcTool] {
+        AnalyzerStartParameters sp;
+        if (!fillParameters(&sp))
+            return;
+        ValgrindRunControl *rc = mcTool->createRunControl(sp, 0);
+        QTC_ASSERT(rc, return);
+        rc->setCustomStart();
+        ProjectExplorerPlugin::startRunControl(rc, MemcheckRunMode);
+    });
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
     action->setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
@@ -224,9 +227,16 @@ void ValgrindPlugin::extensionsInitialized()
     action->setActionId(CallgrindRemoteActionId);
     action->setToolId(CallgrindToolId);
     action->setWidgetCreator(cgWidgetCreator);
-    action->setRunControlCreator(cgRunControlCreator);
-    action->setCustomToolStarter([] { customStart(CallgrindRunMode); });
-    action->setRunMode(CallgrindRunMode);
+    action->setCustomToolStarter([cgTool] {
+        AnalyzerStartParameters sp;
+        if (!fillParameters(&sp))
+            return;
+        ValgrindRunControl *rc = cgTool->createRunControl(sp, 0);
+        QTC_ASSERT(rc, return);
+        rc->setCustomStart();
+        ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
+    });
+
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);
     action->setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);

@@ -56,6 +56,7 @@ public:
     void stopEngine();
 
     QString executable() const;
+    void setCustomStart() { m_isCustomStart = true; }
 
 protected:
     virtual QString progressTitle() const = 0;
@@ -64,6 +65,7 @@ protected:
 
     ValgrindBaseSettings *m_settings;
     QFutureInterface<void> m_progress;
+    bool m_isCustomStart;
 
 private slots:
     void handleProgressCanceled();
