@@ -70,7 +70,7 @@ QString clangExecutable(const QString &fileNameOrPath, bool *isValid)
     return executable;
 }
 
-QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &location)
+QString createFullLocationString(const Analyzer::DiagnosticLocation &location)
 {
     const QString filePath = location.filePath;
     const QString lineNumber = QString::number(location.line);

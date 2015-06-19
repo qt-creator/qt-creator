@@ -19,6 +19,7 @@
 #include "clangstaticanalyzertool.h"
 
 #include "clangstaticanalyzerconstants.h"
+#include "clangstaticanalyzerdiagnostic.h"
 #include "clangstaticanalyzerdiagnosticmodel.h"
 #include "clangstaticanalyzerdiagnosticview.h"
 #include "clangstaticanalyzerruncontrol.h"
@@ -88,11 +89,10 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     // Diagnostic View
     //
     m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
-    m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
     m_diagnosticView->setFrameStyle(QFrame::NoFrame);
     m_diagnosticView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_diagnosticModel = new ClangStaticAnalyzerDiagnosticModel(m_diagnosticView);
-    m_diagnosticFilterModel = new ClangStaticAnalyzerDiagnosticFilterModel(m_diagnosticView);
+    m_diagnosticModel = new ClangStaticAnalyzerDiagnosticModel(this);
+    m_diagnosticFilterModel = new ClangStaticAnalyzerDiagnosticFilterModel(this);
     m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
     m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -302,7 +302,7 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
     QTC_ASSERT(m_diagnosticModel, return);
     QTC_ASSERT(m_diagnosticFilterModel, return);
 
-    const int issuesFound = m_diagnosticModel->rowCount();
+    const int issuesFound = m_diagnosticModel->diagnostics().count();
     const int issuesVisible = m_diagnosticFilterModel->rowCount();
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);

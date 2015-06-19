@@ -19,12 +19,13 @@
 #ifndef CLANGSTATICANALYZERDIAGNOSTICMODEL_H
 #define CLANGSTATICANALYZERDIAGNOSTICMODEL_H
 
-#include "clangstaticanalyzerlogfilereader.h"
+#include "clangstaticanalyzerdiagnostic.h"
 #include "clangstaticanalyzerprojectsettings.h"
 
+#include <analyzerbase/detailederrorview.h>
 #include <utils/fileutils.h>
+#include <utils/treemodel.h>
 
-#include <QAbstractListModel>
 #include <QPointer>
 #include <QSortFilterProxyModel>
 
@@ -33,7 +34,7 @@ namespace ProjectExplorer { class Project; }
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticModel : public QAbstractListModel
+class ClangStaticAnalyzerDiagnosticModel : public Utils::TreeModel
 {
     Q_OBJECT
 
@@ -41,15 +42,11 @@ public:
     ClangStaticAnalyzerDiagnosticModel(QObject *parent = 0);
 
     void addDiagnostics(const QList<Diagnostic> &diagnostics);
-    QList<Diagnostic> diagnostics() const { return m_diagnostics; }
-    void clear();
+    QList<Diagnostic> diagnostics() const;
 
-    // QAbstractListModel interface
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
-
-private:
-    QList<Diagnostic> m_diagnostics;
+    enum ItemRole {
+        DiagnosticRole = Analyzer::DetailedErrorView::FullTextRole + 1
+    };
 };
 
 class ClangStaticAnalyzerDiagnosticFilterModel : public QSortFilterProxyModel

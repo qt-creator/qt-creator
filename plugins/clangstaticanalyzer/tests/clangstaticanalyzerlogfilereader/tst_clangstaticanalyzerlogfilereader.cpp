@@ -24,30 +24,10 @@
 
 enum { debug = 0 };
 
-namespace ClangStaticAnalyzer {
-namespace Internal {
-
-static bool operator==(const Location &first, const Location &second)
-{
-    return first.filePath == second.filePath
-        && first.line == second.line
-        && first.column == second.column;
-}
-
-} // namespace Internal
-} // namespace ClangStaticAnalyzer
-
+using namespace Analyzer;
 using namespace ClangStaticAnalyzer::Internal;
 
 namespace {
-
-QDebug operator<<(QDebug dbg, const Location &location)
-{
-    dbg.nospace() << "Location(" << location.filePath << ", "
-                                 << location.line << ", "
-                                 << location.column << ')';
-    return dbg.space();
-}
 
 QDebug operator<<(QDebug dbg, const ExplainingStep &step)
 {
@@ -55,7 +35,7 @@ QDebug operator<<(QDebug dbg, const ExplainingStep &step)
         << "    ExplainingStep\n"
         << "      location:" << step.location << '\n'
         << "      ranges:\n";
-    foreach (const Location &location, step.ranges)
+    foreach (const DiagnosticLocation &location, step.ranges)
         dbg << "      " << location << '\n';
     dbg
         << "      message:" << step.message << '\n'
@@ -148,23 +128,23 @@ void ClangStaticAnalyzerLogFileReaderTest::readFileWithDiagnostics()
     QCOMPARE(d1.type, d1.description);
     QCOMPARE(d1.issueContextKind, QLatin1String("function"));
     QCOMPARE(d1.issueContext, QLatin1String("test"));
-    QCOMPARE(d1.location, Location(commonPath, 36, 3));
+    QCOMPARE(d1.location, DiagnosticLocation(commonPath, 36, 3));
 
     QCOMPARE(d1.explainingSteps.size(), 2);
     const ExplainingStep step1 = d1.explainingSteps.at(0);
-    QCOMPARE(step1.location, Location(commonPath, 35, 3));
+    QCOMPARE(step1.location, DiagnosticLocation(commonPath, 35, 3));
     QCOMPARE(step1.ranges.size(), 2);
-    QCOMPARE(step1.ranges.at(0), Location(commonPath, 35, 3));
-    QCOMPARE(step1.ranges.at(1), Location(commonPath, 35, 9));
+    QCOMPARE(step1.ranges.at(0), DiagnosticLocation(commonPath, 35, 3));
+    QCOMPARE(step1.ranges.at(1), DiagnosticLocation(commonPath, 35, 9));
     QCOMPARE(step1.depth, 0);
     QCOMPARE(step1.message, QLatin1String("Null pointer value stored to 'foo'"));
     QCOMPARE(step1.extendedMessage, step1.message);
 
     const ExplainingStep step2 = d1.explainingSteps.at(1);
-    QCOMPARE(step2.location, Location(commonPath, 36, 3));
+    QCOMPARE(step2.location, DiagnosticLocation(commonPath, 36, 3));
     QCOMPARE(step2.ranges.size(), 2);
-    QCOMPARE(step2.ranges.at(0), Location(commonPath, 36, 3));
-    QCOMPARE(step2.ranges.at(1), Location(commonPath, 36, 5));
+    QCOMPARE(step2.ranges.at(0), DiagnosticLocation(commonPath, 36, 3));
+    QCOMPARE(step2.ranges.at(1), DiagnosticLocation(commonPath, 36, 5));
     QCOMPARE(step2.depth, 0);
     QCOMPARE(step2.message, QLatin1String("Called function pointer is null (null dereference)"));
     QCOMPARE(step2.extendedMessage, step2.message);

@@ -27,17 +27,17 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
+namespace Analyzer { class DiagnosticLocation; }
+
 namespace ClangStaticAnalyzer {
 namespace Internal {
-
-class Location;
 
 bool isClangExecutableUsable(const QString &filePath, QString *errorMessage = 0);
 
 QString clangExecutable(const QString &fileNameOrPath, bool *isValid);
 QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid);
 
-QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &location);
+QString createFullLocationString(const Analyzer::DiagnosticLocation &location);
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer

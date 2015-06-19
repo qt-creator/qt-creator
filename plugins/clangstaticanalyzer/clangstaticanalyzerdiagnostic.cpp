@@ -21,21 +21,6 @@
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-Location::Location()
-    : line(0), column(0)
-{
-}
-
-Location::Location(const QString &filePath, int line, int column)
-    : filePath(filePath), line(line), column(column)
-{
-}
-
-bool Location::isValid() const
-{
-    return !filePath.isEmpty() && line >= 0 && column >= 0;
-}
-
 ExplainingStep::ExplainingStep()
     : depth(0)
 {

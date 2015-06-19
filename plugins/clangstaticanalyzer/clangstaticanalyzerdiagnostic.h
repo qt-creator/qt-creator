@@ -19,25 +19,14 @@
 #ifndef CLANGSTATICANALZYERDIAGNOSTIC_H
 #define CLANGSTATICANALZYERDIAGNOSTIC_H
 
+#include <analyzerbase/diagnosticlocation.h>
+
 #include <QList>
 #include <QMetaType>
 #include <QString>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
-
-class Location
-{
-public:
-    Location();
-    Location(const QString &filePath, int line, int column);
-
-    bool isValid() const;
-
-    QString filePath;
-    int line;
-    int column;
-};
 
 class ExplainingStep
 {
@@ -48,8 +37,8 @@ public:
 
     QString message;
     QString extendedMessage;
-    Location location;
-    QList<Location> ranges;
+    Analyzer::DiagnosticLocation location;
+    QList<Analyzer::DiagnosticLocation> ranges;
     int depth;
 };
 
@@ -63,7 +52,7 @@ public:
     QString type;
     QString issueContextKind;
     QString issueContext;
-    Location location;
+    Analyzer::DiagnosticLocation location;
     QList<ExplainingStep> explainingSteps;
 };
 

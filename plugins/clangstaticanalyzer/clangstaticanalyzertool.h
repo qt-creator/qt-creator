@@ -72,7 +72,7 @@ private:
 
     ClangStaticAnalyzerDiagnosticModel *m_diagnosticModel;
     ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel;
-    Analyzer::DetailedErrorView *m_diagnosticView;
+    ClangStaticAnalyzerDiagnosticView *m_diagnosticView;
 
     QAction *m_goBack;
     QAction *m_goNext;
