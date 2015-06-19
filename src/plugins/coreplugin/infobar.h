@@ -114,8 +114,6 @@ public:
     void setInfoBar(InfoBar *infoBar);
 
 private slots:
-    void cancelButtonClicked();
-    void suppressButtonClicked();
     void update();
     void infoBarDestroyed();
     void widgetDestroyed();

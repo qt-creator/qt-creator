@@ -229,22 +229,25 @@ void InfoBarDisplay::update()
             hbox->addWidget(infoWidgetButton);
         }
 
+        const Id id = info.id;
         QToolButton *infoWidgetSuppressButton = 0;
         if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
             infoWidgetSuppressButton = new QToolButton;
-            infoWidgetSuppressButton->setProperty("infoId", info.id.uniqueIdentifier());
             infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
-            connect(infoWidgetSuppressButton, SIGNAL(clicked()), SLOT(suppressButtonClicked()));
+            connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
+                m_infoBar->removeInfo(id);
+                InfoBar::globallySuppressInfo(id);
+            });
         }
 
         QToolButton *infoWidgetCloseButton = new QToolButton;
-        infoWidgetCloseButton->setProperty("infoId", info.id.uniqueIdentifier());
-
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
         // because the latter removes the button and with it any connect
         if (info.m_cancelButtonCallBack)
             connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
-        connect(infoWidgetCloseButton, SIGNAL(clicked()), SLOT(cancelButtonClicked()));
+        connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [this, id] {
+            m_infoBar->suppressInfo(id);
+        });
 
         if (info.cancelButtonText.isEmpty()) {
             infoWidgetCloseButton->setAutoRaise(true);
@@ -269,18 +272,6 @@ void InfoBarDisplay::update()
 void InfoBarDisplay::widgetDestroyed()
 {
     m_infoWidgets.removeOne(static_cast<QWidget *>(sender()));
-}
-
-void InfoBarDisplay::cancelButtonClicked()
-{
-    m_infoBar->suppressInfo(Id::fromUniqueIdentifier(sender()->property("infoId").toInt()));
-}
-
-void InfoBarDisplay::suppressButtonClicked()
-{
-    Id id = Id::fromUniqueIdentifier(sender()->property("infoId").toInt());
-    m_infoBar->removeInfo(id);
-    InfoBar::globallySuppressInfo(id);
 }
 
 } // namespace Core
