@@ -296,22 +296,6 @@ Id Id::withPrefix(const char *prefix) const
 }
 
 
-/*!
-  Associates a id with its uid and its string
-  representation.
-
-  The uid should be taken from the plugin's private range.
-
-  \sa fromSetting()
-*/
-
-void Id::registerId(int uid, const char *name)
-{
-    StringHolder sh(name, 0);
-    idFromString[sh] = uid;
-    stringFromId[uid] = sh;
-}
-
 bool Id::operator==(const char *name) const
 {
     const char *string = stringFromId.value(m_id).str;

@@ -74,7 +74,6 @@ public:
     static Id fromString(const QString &str); // FIXME: avoid.
     static Id fromName(const QByteArray &ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
-    static void registerId(int uid, const char *name);
 
 private:
     // Intentionally unimplemented
