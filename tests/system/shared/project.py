@@ -131,21 +131,16 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
-def __createProjectHandleQtQuickSelection__(qtQuickOrControlsVersion):
-    comboBox = waitForObject("{type='QComboBox' unnamed='1' visible='1' "
-                             "leftWidget={text='Qt Quick component set:' type='QLabel' unnamed='1' "
-                             "visible='1'}}")
+def __createProjectHandleQtQuickSelection__(minimumQtVersion):
+    comboBox = waitForObject("{buddy=':Minimal required Qt version:_QLabel' name='QtVersion' "
+                             "type='Utils::TextFieldComboBox' visible='1'}")
     try:
-        selectFromCombo(comboBox, "Qt Quick %s" % qtQuickOrControlsVersion)
+        selectFromCombo(comboBox, "Qt %s" % minimumQtVersion)
     except:
         t,v = sys.exc_info()[:2]
-        test.fatal("Exception while trying to select Qt Quick version", "%s (%s)" % (str(t), str(v)))
-    label = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='Creates a *' }")
-    requires = re.match(".*Requires Qt (\d\.\d).*", str(label.text))
-    if requires:
-        requires = requires.group(1)
+        test.fatal("Exception while trying to select Qt version", "%s (%s)" % (str(t), str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
-    return requires
+    return minimumQtVersion
 
 # Selects the Qt versions for a project
 # param checks turns tests in the function on if set to True
@@ -274,11 +269,11 @@ def createProject_Qt_Console(path, projectName, checks = True):
     return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None,
-                                targets=Targets.desktopTargetClasses(), qtQuickVersion="1.1",
+                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.3",
                                 fromWelcome=False):
     available = __createProjectOrFileSelectType__("  Application", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion)
+    requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)

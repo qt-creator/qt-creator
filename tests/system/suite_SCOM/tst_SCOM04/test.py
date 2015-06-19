@@ -44,7 +44,7 @@ def main():
     checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in cpp file
     openDocument("SampleApp.Sources.main\\.cpp")
-    if not appendToLine(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget"), "viewer.showExpanded();", "SyntaxError"):
+    if not appendToLine(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget"), "QQmlApplicationEngine engine;", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return
     # save all
