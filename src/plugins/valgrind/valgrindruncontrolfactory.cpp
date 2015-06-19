@@ -97,7 +97,6 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         sp.localRunMode = static_cast<ApplicationLauncher::Mode>(rc1->runMode());
     } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.useStartupProject = false; // FIXME: This is wrong.
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
         sp.debuggeeArgs = rc2->arguments().join(QLatin1Char(' '));
