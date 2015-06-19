@@ -152,7 +152,7 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     action->setActionId("ClangStaticAnalyzer");
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setToolStarter([tool] { tool->startTool(); });
+    action->setCustomToolStarter([tool] { tool->startTool(); });
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
