@@ -162,9 +162,9 @@ void ClangEditorDocumentProcessor::run()
     m_builtinProcessor.run();
 }
 
-void ClangEditorDocumentProcessor::semanticRehighlight(bool force)
+void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 {
-    m_builtinProcessor.semanticRehighlight(force);
+    m_builtinProcessor.recalculateSemanticInfoDetached(force);
 }
 
 CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()

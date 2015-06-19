@@ -130,11 +130,11 @@ TextEditor::CompletionAssistProvider *CppEditorDocument::completionAssistProvide
     return m_completionAssistProvider;
 }
 
-void CppEditorDocument::semanticRehighlight()
+void CppEditorDocument::recalculateSemanticInfoDetached()
 {
     CppTools::BaseEditorDocumentProcessor *p = processor();
     QTC_ASSERT(p, return);
-    p->semanticRehighlight(true);
+    p->recalculateSemanticInfoDetached(true);
 }
 
 CppTools::SemanticInfo CppEditorDocument::recalculateSemanticInfo()
