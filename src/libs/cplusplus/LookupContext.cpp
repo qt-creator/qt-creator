@@ -1830,6 +1830,12 @@ bool CreateBindings::visit(Template *templ)
     return false;
 }
 
+bool CreateBindings::visit(ExplicitInstantiation *inst)
+{
+    Q_UNUSED(inst);
+    return false;
+}
+
 bool CreateBindings::visit(Namespace *ns)
 {
     LookupScope *previous = enterLookupScopeBinding(ns);

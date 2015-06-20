@@ -796,6 +796,21 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Data")
             << QLatin1String("dataMember"));
 
+    QTest::newRow("explicit_instantiation") << _(
+            "template<class T>\n"
+            "struct Foo { T bar; };\n"
+            "\n"
+            "template class Foo<int>;\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    Foo<int> foo;\n"
+            "    @\n"
+            "}\n"
+        ) << _("foo.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
+
     QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
             "{\n"
