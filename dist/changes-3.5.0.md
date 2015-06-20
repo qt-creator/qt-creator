@@ -93,10 +93,7 @@ C++ Support
 * Partially fixed STL containers (QTCREATORBUG-8937, QTCREATORBUG-8922)
     * GCC implementation of `std::map`, `std::unique_ptr` (and other pointer wrappers)
       and `std::vector` are known to work
-    * Known limitations:
-        * MSVC implementation is not supported
-        * types that contain a typedef for `pointer` are not supported
-          (For example: `std::unique_ptr<std::string>`)
+    * MSVC implementation is not supported
 
 QML Support
 
