@@ -118,6 +118,10 @@ Todo
 
 * Added option to excluding file patterns from parsing
 
+Beautifier
+
+* Added option to format only selected lines with Uncrustify (`--frag`)
+
 Platform Specific
 
 Windows
