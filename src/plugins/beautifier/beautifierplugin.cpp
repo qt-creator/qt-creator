@@ -98,12 +98,11 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
-    for (int i = 0, total = m_tools.count(); i < total; ++i) {
-        BeautifierAbstractTool *tool = m_tools.at(i);
+    foreach (BeautifierAbstractTool *tool, m_tools) {
         tool->initialize();
         const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
-        for (int j = 0, total = autoReleasedObjects.count(); j < total; ++j)
-            addAutoReleasedObject(autoReleasedObjects.at(j));
+        foreach (QObject *object, autoReleasedObjects)
+            addAutoReleasedObject(object);
     }
 
     // The single shot is needed, otherwise the menu will stay disabled even
@@ -127,8 +126,8 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 void BeautifierPlugin::updateActions(Core::IEditor *editor)
 {
-    for (int i = 0, total = m_tools.count(); i < total; ++i)
-        m_tools.at(i)->updateActions(editor);
+    foreach (BeautifierAbstractTool *tool, m_tools)
+        tool->updateActions(editor);
 }
 
 // Use pipeError() instead of calling showError() because this function may run in another thread.
@@ -323,9 +322,7 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     int newCursorPos = charactersInfrontOfCursor;
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    const int diffSize = diff.size();
-    for (int i = 0; i < diffSize; ++i) {
-        const DiffEditor::Diff d = diff.at(i);
+    foreach (const DiffEditor::Diff &d, diff) {
         switch (d.command) {
         case DiffEditor::Diff::Insert:
         {
@@ -396,9 +393,8 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
                                               + absoluteVerticalCursorOffset / fontHeight);
     // Restore folded blocks
     const QTextDocument *doc = textEditor->document();
-    const int total = foldedBlocks.size();
-    for (int i = 0; i < total; ++i) {
-        QTextBlock block = doc->findBlockByNumber(qMax(0, foldedBlocks.at(i)));
+    foreach (const int blockId, foldedBlocks) {
+        QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
             TextDocumentLayout::doFoldOrUnfold(block, false);
     }

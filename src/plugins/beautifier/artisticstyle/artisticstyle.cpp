@@ -119,8 +119,7 @@ QString ArtisticStyle::configurationFile() const
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
             const QStringList files = project->files(ProjectExplorer::Project::AllFiles);
-            for (int i = 0, total = files.size(); i < total; ++i) {
-                const QString &file = files.at(i);
+            foreach (const QString &file, files) {
                 if (!file.endsWith(QLatin1String(".astylerc")))
                     continue;
                 const QFileInfo fi(file);

@@ -136,9 +136,7 @@ void ClangFormatSettings::createDocumentationFile() const
             << QLatin1String("TabWidth {unsigned}")
             << QLatin1String("UseTab {UseTabStyle: UT_Never, UT_ForIndentation, UT_Always}");
 
-    const int totalLines = lines.count();
-    for (int i = 0; i < totalLines; ++i) {
-        const QString& line = lines.at(i);
+    foreach (const QString& line, lines) {
         const int firstSpace = line.indexOf(QLatin1Char(' '));
         const QString keyword = line.left(firstSpace);
         const QString options = line.right(line.size() - firstSpace).trimmed();

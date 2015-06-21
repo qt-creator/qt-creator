@@ -180,11 +180,10 @@ void ArtisticStyleSettings::createDocumentationFile() const
     // astyle writes its output to 'error'...
     const QStringList lines = QString::fromUtf8(process.readAllStandardError())
             .split(QLatin1Char('\n'));
-    const int totalLines = lines.count();
     QStringList keys;
     QStringList docu;
-    for (int i = 0; i < totalLines; ++i) {
-        const QString &line = lines.at(i).trimmed();
+    foreach (QString line, lines) {
+        line = line.trimmed();
         if ((line.startsWith(QLatin1String("--")) && !line.startsWith(QLatin1String("---")))
                 || line.startsWith(QLatin1String("OR "))) {
             QStringList rawKeys = line.split(QLatin1String(" OR "), QString::SkipEmptyParts);
