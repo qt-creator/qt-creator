@@ -112,11 +112,12 @@ void ClangFormat::formatFile()
 
 void ClangFormat::formatSelectedText()
 {
-    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    const TextEditor::TextEditorWidget *widget
+            = TextEditor::TextEditorWidget::currentTextEditorWidget();
     if (!widget)
         return;
 
-    QTextCursor tc = widget->textCursor();
+    const QTextCursor tc = widget->textCursor();
     if (tc.hasSelection()) {
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;

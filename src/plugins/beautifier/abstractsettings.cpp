@@ -82,7 +82,7 @@ bool AbstractSettings::styleExists(const QString &key) const
 
 bool AbstractSettings::styleIsReadOnly(const QString &key)
 {
-    QFileInfo fi(m_styleDir.absoluteFilePath(key + m_ending));
+    const QFileInfo fi(m_styleDir.absoluteFilePath(key + m_ending));
     if (!fi.exists()) {
         // newly added style which was not saved yet., thus it is not read only.
         //TODO In a later version when we have predefined styles in Core::ICore::resourcePath()

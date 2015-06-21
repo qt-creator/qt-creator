@@ -69,7 +69,7 @@ ClangFormatOptionsPageWidget::~ClangFormatOptionsPageWidget()
 void ClangFormatOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
-    int textIndex = ui->predefinedStyle->findText(m_settings->predefinedStyle());
+    const int textIndex = ui->predefinedStyle->findText(m_settings->predefinedStyle());
     if (textIndex != -1)
         ui->predefinedStyle->setCurrentIndex(textIndex);
     ui->formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
