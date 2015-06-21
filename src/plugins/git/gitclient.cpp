@@ -485,6 +485,9 @@ public:
                                const QString &abortCommand = QString())
     {
         ConflictHandler handler(workingDirectory, abortCommand);
+        // No conflicts => do nothing
+        if (response.result == SynchronousProcessResponse::Finished)
+            return;
         handler.readStdOut(response.stdOut);
         handler.readStdErr(response.stdErr);
     }
@@ -2750,10 +2753,8 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
             | VcsCommand::ShowSuccessMessage;
     const SynchronousProcessResponse resp = vcsSynchronousExec(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
-    const bool ok = resp.result == SynchronousProcessResponse::Finished;
-    if (!ok)
-        ConflictHandler::handleResponse(resp, workingDirectory, abortCommand);
-    return ok;
+    ConflictHandler::handleResponse(resp, workingDirectory, abortCommand);
+    return resp.result == SynchronousProcessResponse::Finished;
 }
 
 bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
