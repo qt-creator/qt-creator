@@ -59,7 +59,8 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
     AbstractSettings(QLatin1String(Constants::ArtisticStyle::SETTINGS_NAME),
                      QLatin1String(".astyle"))
 {
-    connect(&m_versionWatcher, SIGNAL(finished()), this, SLOT(helperSetVersion()));
+    connect(&m_versionWatcher, &QFutureWatcherBase::finished,
+            this, &ArtisticStyleSettings::helperSetVersion);
 
     setCommand(QLatin1String("astyle"));
     m_settings.insert(QLatin1String(kUseOtherFiles), QVariant(true));

@@ -57,8 +57,8 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent) :
     updateDocumentation();
     connect(ui->name, &QLineEdit::textChanged, this, &ConfigurationDialog::updateOkButton);
     updateOkButton(); // force initial test.
-    connect(ui->editor, SIGNAL(documentationChanged(QString,QString)),
-            this, SLOT(updateDocumentation(QString,QString)));
+    connect(ui->editor, &ConfigurationEditor::documentationChanged,
+            this, &ConfigurationDialog::updateDocumentation);
 
     // Set palette and font according to settings
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();

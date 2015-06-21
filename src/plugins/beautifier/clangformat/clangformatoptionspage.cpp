@@ -57,7 +57,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(
                 BeautifierPlugin::msgCommandPromptDialogTitle(QLatin1String("Clang Format")));
-    connect(ui->command, SIGNAL(validChanged(bool)), ui->options, SLOT(setEnabled(bool)));
+    connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }
 

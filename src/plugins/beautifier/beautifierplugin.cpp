@@ -75,8 +75,9 @@ namespace Internal {
 BeautifierPlugin::BeautifierPlugin() :
     m_asyncFormatMapper(new QSignalMapper)
 {
-    connect(m_asyncFormatMapper, SIGNAL(mapped(QObject*)),
-            this, SLOT(formatCurrentFileContinue(QObject*)));
+    connect(m_asyncFormatMapper,
+            static_cast<void (QSignalMapper::*)(QObject *)>(&QSignalMapper::mapped),
+            this, &BeautifierPlugin::formatCurrentFileContinue);
     connect(this, &BeautifierPlugin::pipeError, this, &BeautifierPlugin::showError);
 }
 
@@ -114,8 +115,8 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 void BeautifierPlugin::extensionsInitialized()
 {
     if (const Core::EditorManager *editorManager = Core::EditorManager::instance()) {
-        connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
-                this, SLOT(updateActions(Core::IEditor*)));
+        connect(editorManager, &Core::EditorManager::currentEditorChanged,
+                this, &BeautifierPlugin::updateActions);
     }
 }
 
@@ -237,7 +238,8 @@ void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, i
             QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
             connect(doc, &TextDocument::contentsChanged,
                     watcher, &QFutureWatcher<FormatTask>::cancel);
-            connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
+            connect(watcher, &QFutureWatcherBase::finished, m_asyncFormatMapper,
+                    static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
             m_asyncFormatMapper->setMapping(watcher, watcher);
             watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this, task));
         }
