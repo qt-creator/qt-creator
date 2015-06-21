@@ -79,8 +79,10 @@ QML Profiler
 C++ Support
 
 * Added separate icon for structs
+* Added support for setting the access specifier of an extracted function (QTCREATORBUG-12127)
 * Fixed *Convert to Stack Variable* refactoring action for empty
   initializer lists (QTCREATORBUG-14279)
+* Fixed misplaced newlines of refactoring actions (QTCREATORBUG-13872)
 * Fixed expanding items in class view with double-click
   (QTCREATORBUG-2536)
 * Fixed code folding issues after missing closing braces
