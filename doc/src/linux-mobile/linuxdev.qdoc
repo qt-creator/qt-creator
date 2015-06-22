@@ -77,18 +77,18 @@
 
                 \li In the \uicontrol {The device's host name or IP address} field,
                     enter the host name or IP address of the device.
-                    This value will be available in the variable \c %{CurrentDevice:HostAddress}.
+                    This value will be available in the variable \c %{Device:HostAddress}.
 
                 \li In the \uicontrol {The username to log into the device} field,
                     enter the username to log into the device and run the
                     application as.
-                    This value will be available in the variable \c %{CurrentDevice:UserName}.
+                    This value will be available in the variable \c %{Device:UserName}.
 
                 \li In the \uicontrol {The authentication type} field, select whether
                     to use \uicontrol Password or \uicontrol Key authentication, and enter
                     the user's password or the file that contains the user's
                     private key.
-                    The latter will be available in the variable \c %{CurrentDevice:PrivateKeyFile}.
+                    The latter will be available in the variable \c %{Device:PrivateKeyFile}.
 
                 \li  Click \uicontrol {Next} to create the connection.
 
@@ -96,7 +96,7 @@
 
             All of these parameters can be edited later, as well as additional ones that the
             wizard does not show because there are sensible default values. One of these is
-            the SSH port number, which is available in the variable \c %{CurrentDevice:SshPort}.
+            the SSH port number, which is available in the variable \c %{Device:SshPort}.
 
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run}
