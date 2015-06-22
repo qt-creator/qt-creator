@@ -68,7 +68,7 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
     Q_OBJECT
 
 public:
-    explicit VcsBaseClientImpl(VcsBaseClientImpl *client, VcsBaseClientSettings *settings);
+    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
     ~VcsBaseClientImpl();
 
     VcsBaseClientSettings &settings() const;
@@ -130,7 +130,6 @@ protected:
 
 private:
     void saveSettings();
-    void commandFinishedGotoLine(QWidget*);
 
     VcsBaseClientImplPrivate *d;
 };

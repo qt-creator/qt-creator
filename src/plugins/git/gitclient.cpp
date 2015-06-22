@@ -596,7 +596,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 
 const char *GitClient::stashNamePrefix = "stash@{";
 
-GitClient::GitClient() : VcsBase::VcsBaseClientImpl(this, new GitSettings),
+GitClient::GitClient() : VcsBase::VcsBaseClientImpl(new GitSettings),
     m_cachedGitVersion(0),
     m_disableEditor(false)
 {
