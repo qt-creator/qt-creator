@@ -4221,7 +4221,7 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("python from gdbbridge import *", flags);
 
     const QString path = stringSetting(ExtraDumperFile);
-    if (!path.isEmpty()) {
+    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.toUtf8());
         runCommand(cmd);

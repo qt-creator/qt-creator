@@ -291,7 +291,7 @@ void LldbEngine::startLldbStage2()
 void LldbEngine::setupInferior()
 {
     const QString path = stringSetting(ExtraDumperFile);
-    if (!path.isEmpty()) {
+    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.toUtf8());
         runCommand(cmd);
