@@ -74,8 +74,7 @@ public:
     static Utils::FancyMainWindow *mainWindow();
 
     static void showMode();
-    static void selectTool(Core::Id actionId);
-    static void startTool();
+    static void selectAction(Core::Id actionId, bool alsoRunIt = false);
     static void stopTool();
 
     // Convenience functions.

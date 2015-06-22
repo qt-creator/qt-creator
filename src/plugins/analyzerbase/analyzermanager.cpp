@@ -155,7 +155,7 @@ public:
     void handleToolFinished();
     void saveToolSettings(Id toolId);
     void loadToolSettings(Id toolId);
-    void startTool();
+    void startCurrentTool();
     void selectToolboxAction(const QString &item);
     void modeChanged(IMode *mode);
     void resetLayout();
@@ -241,7 +241,8 @@ void AnalyzerManagerPrivate::setupActions()
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
     ActionManager::registerAction(m_startAction, "Analyzer.Start");
-    connect(m_startAction, &QAction::triggered, this, &AnalyzerManagerPrivate::startTool);
+    connect(m_startAction, &QAction::triggered,
+            this, &AnalyzerManagerPrivate::startCurrentTool);
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
@@ -420,7 +421,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
-void AnalyzerManagerPrivate::startTool()
+void AnalyzerManagerPrivate::startCurrentTool()
 {
     QTC_ASSERT(m_currentAction, return);
     m_currentAction->startTool();
@@ -539,9 +540,8 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
     rebuildToolBox();
 
     connect(action, &QAction::triggered, this, [this, action] {
-        AnalyzerManager::showMode();
         selectAction(action);
-        startTool();
+        action->startTool();
     });
 }
 
@@ -647,16 +647,15 @@ QDockWidget *AnalyzerManager::createDockWidget(Core::Id toolId,
     return dockWidget;
 }
 
-void AnalyzerManager::selectTool(Id actionId)
+void AnalyzerManager::selectAction(Id actionId, bool alsoRunIt)
 {
-    foreach (AnalyzerAction *action, d->m_actions)
-        if (action->actionId() == actionId)
+    foreach (AnalyzerAction *action, d->m_actions) {
+        if (action->actionId() == actionId) {
             d->selectAction(action);
-}
-
-void AnalyzerManager::startTool()
-{
-    d->startTool();
+            if (alsoRunIt)
+                action->startTool();
+        }
+    }
 }
 
 FancyMainWindow *AnalyzerManager::mainWindow()
