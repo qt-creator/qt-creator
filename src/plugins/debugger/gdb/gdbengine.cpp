@@ -1677,11 +1677,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
 void GdbEngine::handleStop2()
 {
-    // We are already continuing.
-    if (!m_stackNeeded)
-        return;
-
-    // This is only available in gdb 7.1+.
     postCommand("-thread-info", Discardable, CB(handleThreadInfo));
 }
 
