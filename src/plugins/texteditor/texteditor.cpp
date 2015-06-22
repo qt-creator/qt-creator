@@ -5436,7 +5436,14 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
 void TextEditorWidget::wheelEvent(QWheelEvent *e)
 {
     d->clearVisibleFoldedBlock();
-    if (scrollWheelZoomingEnabled() && e->modifiers() & Qt::ControlModifier) {
+    if (e->modifiers() & Qt::ControlModifier) {
+        if (!scrollWheelZoomingEnabled()) {
+            // When the setting is disabled globally,
+            // we have to skip calling QPlainTextEdit::wheelEvent()
+            // that changes zoom in it.
+            return;
+        }
+
         const int delta = e->delta();
         if (delta < 0)
             zoomOut();
