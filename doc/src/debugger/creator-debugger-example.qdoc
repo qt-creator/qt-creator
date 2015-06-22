@@ -53,11 +53,11 @@
             \image qtcreator-setting-breakpoint2.png
 
         \li To remove a breakpoint, right-click it and select
-            \uicontrol{Delete Breakpoint}.
+            \uicontrol {Delete Breakpoint}.
 
 
         \li To view the base classes and data members of the TextFinder class,
-            go to the \uicontrol{Locals and Expressions} view.
+            go to the \uicontrol {Locals and Expressions} view.
 
             \image qtcreator-watcher.png
 
