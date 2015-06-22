@@ -72,7 +72,7 @@ bool FormClassWizardDialog::validateCurrentPage()
 
 void FormClassWizardDialog::initializePage(int id)
 {
-    QWizard::initializePage(id);
+    Core::BaseFileWizard::initializePage(id);
     // Switching from form to class page: store XML template and set a suitable
     // class name in the class page based on the form base class
     if (id == ClassPageId) {
