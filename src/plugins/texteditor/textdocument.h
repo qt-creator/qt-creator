@@ -149,7 +149,8 @@ protected slots:
     virtual void applyFontSettings();
 
 private:
-    OpenResult openImpl(QString *errorString, const QString &fileName, const QString &realFileName);
+    OpenResult openImpl(QString *errorString, const QString &fileName, const QString &realFileName,
+                        bool reload);
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
 

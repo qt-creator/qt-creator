@@ -562,7 +562,7 @@ Core::IDocument::OpenResult TextDocument::open(QString *errorString, const QStri
                                                const QString &realFileName)
 {
     emit aboutToOpen(fileName, realFileName);
-    OpenResult success = openImpl(errorString, fileName, realFileName);
+    OpenResult success = openImpl(errorString, fileName, realFileName, /*reload =*/ false);
     if (success == OpenResult::Success) {
         Utils::MimeDatabase mdb;
         setMimeType(mdb.mimeTypeForFile(fileName).name());
@@ -572,7 +572,7 @@ Core::IDocument::OpenResult TextDocument::open(QString *errorString, const QStri
 }
 
 Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const QString &fileName,
-                                                   const QString &realFileName)
+                                                   const QString &realFileName, bool reload)
 {
     QStringList content;
 
@@ -582,31 +582,39 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         const QFileInfo fi(fileName);
         d->m_fileIsReadOnly = !fi.isWritable();
         readResult = read(realFileName, &content, errorString);
-
-        d->m_document.setModified(false);
         const int chunks = content.size();
-        if (chunks == 0) {
-            d->m_document.clear();
-        } else if (chunks == 1) {
-            d->m_document.setPlainText(content.at(0));
+
+        d->m_document.setUndoRedoEnabled(reload);
+        QTextCursor c(&d->m_document);
+        c.beginEditBlock();
+        if (reload) {
+            c.select(QTextCursor::Document);
+            c.removeSelectedText();
         } else {
+            d->m_document.clear();
+        }
+
+        if (chunks == 1) {
+            c.insertText(content.at(0));
+        } else if (chunks > 1) {
             QFutureInterface<void> interface;
             interface.setProgressRange(0, chunks);
-            ProgressManager::addTask(interface.future(), tr("Opening File"), Constants::TASK_OPEN_FILE);
+            ProgressManager::addTask(interface.future(), tr("Opening File"),
+                                     Constants::TASK_OPEN_FILE);
             interface.reportStarted();
-            d->m_document.setUndoRedoEnabled(false);
-            QTextCursor c(&d->m_document);
-            c.beginEditBlock();
-            d->m_document.clear();
+
             for (int i = 0; i < chunks; ++i) {
                 c.insertText(content.at(i));
                 interface.setProgressValue(i + 1);
                 QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             }
-            c.endEditBlock();
-            d->m_document.setUndoRedoEnabled(true);
+
             interface.reportFinished();
         }
+
+        c.endEditBlock();
+        d->m_document.setUndoRedoEnabled(true);
+
         TextDocumentLayout *documentLayout =
             qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
         QTC_ASSERT(documentLayout, return OpenResult::CannotHandle);
@@ -636,7 +644,8 @@ bool TextDocument::reload(QString *errorString)
     if (documentLayout)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
-    bool success = (openImpl(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success);
+    const QString &file = filePath().toString();
+    bool success = openImpl(errorString, file, file, /*reload =*/ true) == OpenResult::Success;
 
     if (documentLayout)
         documentLayout->documentReloaded(marks, this); // re-adds text marks
