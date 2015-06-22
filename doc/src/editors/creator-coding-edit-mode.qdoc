@@ -95,7 +95,7 @@
            Side by side split command creates views to the right of the
            currently active editor view.
 
-        \li To open the editor in a detached window, press \key{Ctrl+E, 4}, or
+        \li To open the editor in a detached window, press \key {Ctrl+E, 4}, or
             select \uicontrol Window > \uicontrol {Open in New Window}.
 
             The new window behaves basically in the same way as the editor area
@@ -121,11 +121,11 @@
 
     \list
 
-        \li Right-click the line number and select \uicontrol{Toggle Bookmark}.
+        \li Right-click the line number and select \uicontrol {Toggle Bookmark}.
 
         \li Press \key Shift and click the left margin at a line.
 
-        \li Press \key{Ctrl+M} when the cursor is on a line.
+        \li Press \key {Ctrl+M} when the cursor is on a line.
 
     \endlist
 
@@ -135,9 +135,9 @@
     \uicontrol{Edit Bookmark}. To view the note, move the mouse pointer over the
     bookmark.
 
-    To go to previous bookmark in the current session, press \key{Ctrl+,}.
+    To go to previous bookmark in the current session, press \key {Ctrl+,}.
 
-    To go to next bookmark in the current session, press \key{Ctrl+.}.
+    To go to next bookmark in the current session, press \key {Ctrl+.}.
 
     \section1 Moving to Symbol Definition or Declaration
 
