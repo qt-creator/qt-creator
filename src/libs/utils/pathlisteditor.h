@@ -35,6 +35,12 @@
 
 #include <QWidget>
 
+#include <functional>
+
+QT_BEGIN_NAMESPACE
+class QPushButton;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 struct PathListEditorPrivate;
@@ -53,33 +59,24 @@ public:
     QStringList pathList() const;
     QString fileDialogTitle() const;
 
-    // Add a convenience action "Import from 'Path'" (environment variable)
-    void addEnvVariableImportAction(const QString &var);
-
-public slots:
     void clear();
     void setPathList(const QStringList &l);
     void setPathList(const QString &pathString);
-    void setPathListFromEnvVariable(const QString &var);
     void setFileDialogTitle(const QString &l);
 
 protected:
-    // Index after which to insert further "Add" actions
-    static int lastAddActionIndex();
-    QAction *insertAction(int index /* -1 */, const QString &text, QObject * receiver, const char *slotFunc);
-    QAction *addAction(const QString &text, QObject * receiver, const char *slotFunc);
+    // Index after which to insert further "Add" buttons
+    static const int lastInsertButtonIndex;
+
+    QPushButton *addButton(const QString &text, QObject *parent, std::function<void()> slotFunc);
+    QPushButton *insertButton(int index /* -1 */, const QString &text, QObject *parent,
+                              std::function<void()> slotFunc);
 
     QString text() const;
     void setText(const QString &);
 
-protected slots:
     void insertPathAtCursor(const QString &);
     void deletePathAtCursor();
-    void appendPath(const QString &);
-
-private slots:
-    void slotAdd();
-    void slotInsert();
 
 private:
     PathListEditorPrivate *d;

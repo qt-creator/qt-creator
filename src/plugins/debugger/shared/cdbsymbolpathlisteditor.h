@@ -98,10 +98,6 @@ public:
 
 private:
     void addSymbolPath(SymbolPathMode mode);
-
-private slots:
-    void addSymbolServer();
-    void addSymbolCache();
 };
 
 } // namespace Internal

@@ -44,6 +44,7 @@
 #include <QAction>
 #include <QFormLayout>
 #include <QLabel>
+#include <QPushButton>
 
 namespace Debugger {
 namespace Internal {
@@ -122,12 +123,17 @@ const char *CdbSymbolPathListEditor::symbolCachePrefixC = "cache*";
 CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
     Utils::PathListEditor(parent)
 {
-    //! Add Microsoft Symbol server connection
-    QAction *action = insertAction(lastAddActionIndex() + 1, tr("Symbol Server..."), this, SLOT(addSymbolServer()));
-    action->setToolTip(tr("Adds the Microsoft symbol server providing symbols for operating system libraries."
-                      "Requires specifying a local cache directory."));
-    action = insertAction(lastAddActionIndex() + 1, tr("Symbol Cache..."), this, SLOT(addSymbolCache()));
-    action->setToolTip(tr("Uses a directory to cache symbols used by the debugger."));
+    QPushButton *button = insertButton(lastInsertButtonIndex + 1,
+                                       tr("Insert Symbol Server..."), this, [this](){
+        addSymbolPath(SymbolServerPath);
+    });
+    button->setToolTip(tr("Adds the Microsoft symbol server providing symbols for operating system "
+                          "libraries. Requires specifying a local cache directory."));
+
+    button = insertButton(lastInsertButtonIndex + 1, tr("Insert Symbol Cache..."), this, [this]() {
+        addSymbolPath(SymbolCachePath);
+    });
+    button->setToolTip(tr("Uses a directory to cache symbols used by the debugger."));
 }
 
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, QString *cacheDirectory)
@@ -138,16 +144,6 @@ bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, QString *cac
         return false;
     *cacheDirectory = dialog.path();
     return true;
-}
-
-void CdbSymbolPathListEditor::addSymbolServer()
-{
-    addSymbolPath(SymbolServerPath);
-}
-
-void CdbSymbolPathListEditor::addSymbolCache()
-{
-    addSymbolPath(SymbolCachePath);
 }
 
 void CdbSymbolPathListEditor::addSymbolPath(CdbSymbolPathListEditor::SymbolPathMode mode)
