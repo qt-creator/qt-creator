@@ -2383,16 +2383,18 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         GdbMi gdbmi;
         gdbmi.fromString(message);
         exception.fromGdbMI(gdbmi);
-        // Don't show the Win32 x86 emulation subsystem breakpoint hit exception.
-        if (exception.exceptionCode == winExceptionWX86Breakpoint)
+        // Don't show the Win32 x86 emulation subsystem breakpoint hit or the
+        // set thread names exception.
+        if (exception.exceptionCode == winExceptionWX86Breakpoint
+                || exception.exceptionCode == winExceptionSetThreadName) {
             return;
+        }
         const QString message = exception.toString(true);
         showStatusMessage(message);
         // Report C++ exception in application output as well.
         if (exception.exceptionCode == winExceptionCppException)
             showMessage(message + QLatin1Char('\n'), AppOutput);
-        if (!isDebuggerWinException(exception.exceptionCode)
-                && exception.exceptionCode != winExceptionSetThreadName) {
+        if (!isDebuggerWinException(exception.exceptionCode)) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
             const FileName fileName = exception.file.isEmpty() ?
