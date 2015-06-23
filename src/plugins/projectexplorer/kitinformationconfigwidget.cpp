@@ -228,7 +228,7 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workin
             = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (IDeviceFactory *factory, factories) {
         foreach (Id id, factory->availableCreationIds())
-            m_comboBox->addItem(factory->displayNameForId(id), id.uniqueIdentifier());
+            m_comboBox->addItem(factory->displayNameForId(id), id.toSetting());
     }
 
     m_comboBox->setToolTip(toolTip());
@@ -263,7 +263,7 @@ void DeviceTypeInformationConfigWidget::refresh()
     if (!devType.isValid())
         m_comboBox->setCurrentIndex(-1);
     for (int i = 0; i < m_comboBox->count(); ++i) {
-        if (m_comboBox->itemData(i).toInt() == devType.uniqueIdentifier()) {
+        if (m_comboBox->itemData(i) == devType.toSetting()) {
             m_comboBox->setCurrentIndex(i);
             break;
         }
@@ -277,7 +277,7 @@ void DeviceTypeInformationConfigWidget::makeReadOnly()
 
 void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
 {
-    Id type = idx < 0 ? Id() : Id::fromUniqueIdentifier(m_comboBox->itemData(idx).toInt());
+    Id type = idx < 0 ? Id() : Id::fromSetting(m_comboBox->itemData(idx));
     DeviceTypeKitInformation::setDeviceTypeId(m_kit, type);
 }
 
