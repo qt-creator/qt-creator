@@ -85,7 +85,7 @@ bool TaskModel::hasFile(const QModelIndex &index) const
 
 void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
 {
-    QTC_ASSERT(categoryId.uniqueIdentifier(), return);
+    QTC_ASSERT(categoryId.isValid(), return);
     CategoryData data;
     data.displayName = categoryName;
     m_categories.insert(categoryId, data);
@@ -93,12 +93,12 @@ void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
 
 QList<Task> TaskModel::tasks(Core::Id categoryId) const
 {
-    if (categoryId.uniqueIdentifier() == 0)
+    if (!categoryId.isValid())
         return m_tasks;
 
     QList<Task> taskList;
     foreach (const Task &t, m_tasks) {
-        if (t.category.uniqueIdentifier() == categoryId.uniqueIdentifier())
+        if (t.category == categoryId)
             taskList.append(t);
     }
     return taskList;
@@ -170,7 +170,7 @@ void TaskModel::clearTasks(Core::Id categoryId)
 {
     typedef QHash<Core::Id,CategoryData>::ConstIterator IdCategoryConstIt;
 
-    if (categoryId.uniqueIdentifier() == 0) {
+    if (!categoryId.isValid()) {
         if (m_tasks.count() == 0)
             return;
         beginRemoveRows(QModelIndex(), 0, m_tasks.count() -1);
