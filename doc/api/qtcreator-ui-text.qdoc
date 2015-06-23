@@ -278,50 +278,54 @@
 
     \table
         \header
-            \li  Features of Languages or Writing Systems
-            \li  Impact on Implementation
+            \li Features of Languages or Writing Systems
+
+            \li Impact on Implementation
         \row
-            \li  Word order
-            \li  Different languages have different word order rules.
+            \li Word order
+
+            \li Different languages have different word order rules.
 
                  Do not use run-time concatenation. Use complete phrases
                  and "%1" formatting instead. For example, use:
 
-                 \c{tr("Foo failed: %1").arg(message)}
+                \c{tr("Foo failed: %1").arg(message)}
 
                  instead of
 
                  \c {tr("Foo failed: ") + message}
         \row
-            \li  Singular vs. plural vs. dual forms
-            \li  Some languages do not have plural form (for example, Chinese
-                 and Japanese), whereas some have a different form for dual.
+            \li Singular vs. plural vs. dual forms
 
-                 Allow room for text expansion in the layout design. Some
-                 languages need more space to indicate plurality or duality to
-                 convey the needed information.
+            \li Some languages do not have plural form (for example, Chinese
+                and Japanese), whereas some have a different form for dual.
 
-                 For example, use
+                Allow room for text expansion in the layout design. Some
+                languages need more space to indicate plurality or duality to
+                convey the needed information.
 
-                 \c {tr("%n files found", 0, number)}
+                For example, use
 
-                 instead of
+                \c {tr("%n files found", 0, number)}
 
-                 \c {tr("%1 files found").arg(number)}
+                instead of
+
+                \c {tr("%1 files found").arg(number)}
         \row
-            \li  Gender
-            \li  Some languages have gender (feminine, masculine, neutral),
-                 whereas some do not (for example, Finnish) or do not use it
-                 extensively (for example, English).
+            \li Gender
+
+            \li Some languages have gender (feminine, masculine, neutral),
+                whereas some do not (for example, Finnish) or do not use it
+                extensively (for example, English).
 
                  Do not reuse text strings. The same term may not work in
                  another context due to the gender of the base word.
 
-                 Articles have a grammatical gender in some languages and
-                 sentences cannot be as easily constructed as in English. Avoid
-                 following types of constructs:
+                Articles have a grammatical gender in some languages and
+                sentences cannot be as easily constructed as in English. Avoid
+                following types of constructs:
 
-                 \c {tr("%1 failed").arg(someCondition ? "the operation" : "opening a file")}
+                \c {tr("%1 failed").arg(someCondition ? "the operation" : "opening a file")}
     \endtable
 
     \section1 Common Qt Creator Terms
@@ -339,16 +343,22 @@
 
     \table
         \header
-            \li  UI Text
-            \li  Usage
-            \li  Conventions
+            \li UI Text
+
+            \li Usage
+
+            \li Conventions
+
         \row
-            \li  Context menu
-            \li  Opens when users right-click on the screen. Contents depend on
-                 the context.
-                 \image qtcreator-context-menu.png "Context menu"
-            \li  You can add menu items that are relevant in a particular
-                 context. Follow the conventions for naming menu items.
+            \li Context menu
+
+            \li Opens when users right-click on the screen. Contents depend on
+                the context.
+                \image qtcreator-context-menu.png "Context menu"
+
+            \li You can add menu items that are relevant in a particular
+                context. Follow the conventions for naming menu items.
+
         \row
             \li  Dialog
             \li  User interface element that usually contains a number of
@@ -361,20 +371,26 @@
                  button in the \uicontrol Documentation options opens the
                  \uicontrol {Add Documentation} dialog.
         \row
-            \li  Locator
-            \li  Allows you to browse not only files, but any items defined by
-                 locator filters.
-                 \image qtcreator-locator.png "Locator"
-            \li  You can add locator filters. Check that the filter is not
-                 already in use and give the filter a descriptive name.
+            \li Locator
+
+            \li Allows you to browse not only files, but any items defined by
+                locator filters.
+                \image qtcreator-locator.png "Locator"
+
+            \li You can add locator filters. Check that the filter is not
+                already in use and give the filter a descriptive name.
+
         \row
-            \li  Menu
-            \li  Contains menu items that represent commands or options and that
-                 are logically grouped and displayed. A menu can also contain
-                 submenus.
-                 \image qtcreator-menu.png "Menu"
-            \li  You can create new menus. Use short, but descriptive names that
-                 are consistent with existing menu names. Use unambigious names.
+            \li Menu
+
+            \li Contains menu items that represent commands or options and that
+                are logically grouped and displayed. A menu can also contain
+                submenus.
+                \image qtcreator-menu.png "Menu"
+
+            \li You can create new menus. Use short, but descriptive names that
+                are consistent with existing menu names. Use unambigious names.
+
         \row
             \li  Menu item
             \li  Represents a command or an option for users to choose.
