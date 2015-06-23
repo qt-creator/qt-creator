@@ -56,7 +56,7 @@
             project name. You will choose that name later in the wizard.
             Continue to the next page.
 
-            The \uicontrol{Kit Selection} dialog opens.
+            The \uicontrol {Kit Selection} dialog opens.
 
             \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
 
@@ -68,7 +68,7 @@
             build your plugin, you will get errors while \QC tries to load your
             plugin. Continue to the next page.
 
-            The \uicontrol{Plugin Information} dialog opens.
+            The \uicontrol {Plugin Information} dialog opens.
 
             \image firstplugin-pluginsetup.png "Specify Your Plugin Details"
 
@@ -119,7 +119,7 @@
             \QC, and want the plugin to be only loaded by that \QC
             instance. Continue to the next page.
 
-            The \uicontrol{Project Management} dialog opens.
+            The \uicontrol {Project Management} dialog opens.
 
             \image firstplugin-summary.png "Summary of Created Files"
 
@@ -158,26 +158,30 @@
 
         \li Role
     \row
-        \li \c{Example.json.in}
-        \li Plugin meta data template. QMake creates an \c{Example.json}
+        \li \c {Example.json.in}
+
+        \li Plugin meta data template. QMake creates an \c {Example.json}
             from this file, which is compiled into the plugin as meta data.
             The meta data is read by \QC to find out about the plugin.
     \row
-        \li \c{example.pro}
+        \li \c {example.pro}
+
         \li Project file, used by QMake to generate a Makefile that then is used to
             build the plugin.
     \row
-        \li \c{example_global.h}
+        \li \c {example_global.h}
+
         \li Contains macro definitions that are useful when this plugin should export
             symbols to other plugins.
     \row
-        \li \c{exampleconstants.h}
+        \li \c {exampleconstants.h}
+
         \li Header defining constants used by the plugin code.
     \row
         \li \c{exampleplugin.h/.cpp}
 
         \li C++ header and source files that define the plugin class that will be
-           instanciated and run by \QC's plugin manager.
+            instanciated and run by \QC's plugin manager.
     \endtable
 
     \section1 qmake Project
@@ -279,7 +283,7 @@
 
     \section1 Plugin Class
 
-    The files \c{exampleplugin.h} and \c{exampleplugin.cpp} define the plugin
+    The files \c {exampleplugin.h} and \c {exampleplugin.cpp} define the plugin
     implementation of your little plugin. We'll concentrate on some highlights
     here, and give pointers to more detailed information for the various parts.
 
