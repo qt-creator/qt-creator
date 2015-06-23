@@ -241,11 +241,21 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
 QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
                                            const QString &text, Id id,
                                            const Context &context, bool addToLocator,
-                                           const char *pluginSlot, const QKeySequence &keys)
+                                           const std::function<void()> &callback, const QKeySequence &keys)
 {
     QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
-    connect(action, SIGNAL(triggered()), this, pluginSlot);
-    action->setData(id.uniqueIdentifier());
+    connect(action, &QAction::triggered, this, callback);
+    return action;
+}
+
+QAction *GitPlugin::createChangeRelatedRepositoryAction(ActionContainer *ac,
+                                                        const QString &text, Id id,
+                                                        const Context &context, bool addToLocator,
+                                                        const std::function<void(Id)> &callback,
+                                                        const QKeySequence &keys)
+{
+    QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
+    connect(action, &QAction::triggered, this, [callback, id] { callback(id); });
     return action;
 }
 
@@ -360,18 +370,16 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addMenu(localRepositoryMenu);
 
     createRepositoryAction(localRepositoryMenu, tr("Diff"), "Git.DiffRepository",
-                           context, true, SLOT(diffRepository()));
+                           context, true, [this] { diffRepository(); });
 
     createRepositoryAction(localRepositoryMenu, tr("Log"), "Git.LogRepository",
-                           context, true,
-                           SLOT(logRepository()));
+                           context, true, [this] { logRepository(); });
 
     createRepositoryAction(localRepositoryMenu, tr("Reflog"), "Git.ReflogRepository",
-                           context, true,
-                           SLOT(reflogRepository()));
+                           context, true, [this] { reflogRepository(); });
 
     createRepositoryAction(localRepositoryMenu, tr("Clean..."), "Git.CleanRepository",
-                           context, true, SLOT(cleanRepository()));
+                           context, true, [this] { cleanRepository(); });
 
     createRepositoryAction(localRepositoryMenu, tr("Status"), "Git.StatusRepository",
                            context, true, &GitClient::status);
@@ -380,75 +388,75 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     localRepositoryMenu->addSeparator(context);
 
     createRepositoryAction(localRepositoryMenu, tr("Commit..."), "Git.Commit",
-                           context, true, SLOT(startCommit()),
+                           context, true, [this] { startCommit(); },
                            QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+C") : tr("Alt+G,Alt+C")));
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Amend Last Commit..."), "Git.AmendCommit",
-                           context, true, SLOT(startAmendCommit()));
+                           context, true, [this] { startAmendCommit(); });
 
     m_fixupCommitAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Fixup Previous Commit..."), "Git.FixupCommit",
-                                   context, true, SLOT(startFixupCommit()));
+                                   context, true, [this] { startFixupCommit(); });
 
     // --------------
     localRepositoryMenu->addSeparator(context);
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Reset..."), "Git.Reset",
-                           context, true, SLOT(resetRepository()));
+                           context, true, [this] { resetRepository(); });
 
     m_interactiveRebaseAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Interactive Rebase..."), "Git.InteractiveRebase",
-                                   context, true, SLOT(startRebase()));
+                                   context, true, [this] { startRebase(); });
 
     m_submoduleUpdateAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Update Submodules"), "Git.SubmoduleUpdate",
-                                   context, true, SLOT(updateSubmodules()));
+                                   context, true, [this] { updateSubmodules(); });
     m_abortMergeAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Merge"), "Git.MergeAbort",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     m_abortRebaseAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Rebase"), "Git.RebaseAbort",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     m_abortCherryPickAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Cherry Pick"), "Git.CherryPickAbort",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     m_abortRevertAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Revert"), "Git.RevertAbort",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     m_continueRebaseAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Continue Rebase"), "Git.RebaseContinue",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     m_continueCherryPickAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Continue Cherry Pick"), "Git.CherryPickContinue",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     m_continueRevertAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Continue Revert"), "Git.RevertContinue",
-                                   context, true, SLOT(continueOrAbortCommand()));
+                                   context, true, [this] { continueOrAbortCommand(); });
 
     // --------------
     localRepositoryMenu->addSeparator(context);
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Branches..."), "Git.BranchList",
-                           context, true, SLOT(branchList()));
+                           context, true, [this] { branchList(); });
 
     // --------------
     localRepositoryMenu->addSeparator(context);
@@ -465,12 +473,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                   "Git.ApplyCurrentFilePatch",
                                   context, true);
 
-    connect(m_applyCurrentFilePatchAction, SIGNAL(triggered()), this,
-            SLOT(applyCurrentFilePatch()));
+    connect(m_applyCurrentFilePatchAction, &QAction::triggered,
+            this, &GitPlugin::applyCurrentFilePatch);
 
     createRepositoryAction(patchMenu,
                            tr("Apply from File..."), "Git.ApplyPatch",
-                           context, true, SLOT(promptApplyPatch()));
+                           context, true, [this] { promptApplyPatch(); });
 
     // "Stash" menu
     ActionContainer *stashMenu = ActionManager::createMenu("Git.StashMenu");
@@ -479,27 +487,27 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(stashMenu,
                            tr("Stashes..."), "Git.StashList",
-                           context, false, SLOT(stashList()));
+                           context, false, [this] { stashList(); });
 
     stashMenu->addSeparator(context);
 
     QAction *action = createRepositoryAction(stashMenu, tr("Stash"), "Git.Stash",
-                                             context, true, SLOT(stash()));
+                                             context, true, [this] { stash(); });
     action->setToolTip(tr("Saves the current state of your work and resets the repository."));
 
     action = createRepositoryAction(stashMenu, tr("Stash Unstaged Files"), "Git.StashUnstaged",
-                                    context, true, SLOT(stashUnstaged()));
+                                    context, true, [this] { stashUnstaged(); });
     action->setToolTip(tr("Saves the current state of your unstaged files and resets the repository "
                           "to its staged state."));
 
     action = createRepositoryAction(stashMenu, tr("Take Snapshot..."), "Git.StashSnapshot",
-                                    context, true, SLOT(stashSnapshot()));
+                                    context, true, [this] { stashSnapshot(); });
     action->setToolTip(tr("Saves the current state of your work."));
 
     stashMenu->addSeparator(context);
 
     action = createRepositoryAction(stashMenu, tr("Stash Pop"), "Git.StashPop",
-                                    context, true, SLOT(stashPop()));
+                                    context, true, [this] { stashPop(); });
     action->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
 
 
@@ -513,13 +521,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addMenu(remoteRepositoryMenu);
 
     createRepositoryAction(remoteRepositoryMenu, tr("Fetch"), "Git.Fetch",
-                           context, true, SLOT(fetch()));
+                           context, true, [this] { fetch(); });
 
     createRepositoryAction(remoteRepositoryMenu, tr("Pull"), "Git.Pull",
-                           context, true, SLOT(pull()));
+                           context, true, [this] { pull(); });
 
     createRepositoryAction(remoteRepositoryMenu, tr("Push"), "Git.Push",
-                           context, true, SLOT(push()));
+                           context, true, [this] { push(); });
 
     // --------------
     remoteRepositoryMenu->addSeparator(context);
@@ -542,30 +550,31 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(remoteRepositoryMenu,
                            tr("Manage Remotes..."), "Git.RemoteList",
-                           context, false, SLOT(remoteList()));
+                           context, false, [this] { remoteList(); });
 
     /* \"Remote Repository" menu */
 
     // --------------
 
     /*  Actions only in locator */
-    createRepositoryAction(0, tr("Show..."), "Git.Show",
-                           context, true, SLOT(startChangeRelatedAction()));
+    const auto startChangeRelated = [this](Id id) { startChangeRelatedAction(id); };
+    createChangeRelatedRepositoryAction(0, tr("Show..."), "Git.Show",
+                                        context, true, startChangeRelated);
 
-    createRepositoryAction(0, tr("Revert..."), "Git.Revert",
-                           context, true, SLOT(startChangeRelatedAction()));
+    createChangeRelatedRepositoryAction(0, tr("Revert..."), "Git.Revert",
+                                        context, true, startChangeRelated);
 
-    createRepositoryAction(0, tr("Cherry Pick..."), "Git.CherryPick",
-                           context, true, SLOT(startChangeRelatedAction()));
+    createChangeRelatedRepositoryAction(0, tr("Cherry Pick..."), "Git.CherryPick",
+                                        context, true, startChangeRelated);
 
-    createRepositoryAction(0, tr("Checkout..."), "Git.Checkout",
-                           context, true, SLOT(startChangeRelatedAction()));
+    createChangeRelatedRepositoryAction(0, tr("Checkout..."), "Git.Checkout",
+                                        context, true, startChangeRelated);
 
     createRepositoryAction(0, tr("Rebase..."), "Git.Rebase",
-                           context, true, SLOT(branchList()));
+                           context, true, [this] { branchList(); });
 
     createRepositoryAction(0, tr("Merge..."), "Git.Merge",
-                           context, true, SLOT(branchList()));
+                           context, true, [this] { branchList(); });
 
     /*  \Actions only in locator */
 
@@ -590,7 +599,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitToolsMenu->addSeparator(context);
 
     createRepositoryAction(gitToolsMenu, tr("Git Gui"), "Git.GitGui",
-                           context, true, SLOT(gitGui()));
+                           context, true, [this] { gitGui(); });
 
     // --------------
     gitToolsMenu->addSeparator(context);
@@ -603,7 +612,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_mergeToolAction =
             createRepositoryAction(gitToolsMenu,
                                    tr("Merge Tool"), "Git.MergeTool",
-                                   context, true, SLOT(startMergeTool()));
+                                   context, true, [this] { startMergeTool(); });
 
     /* \"Git Tools" menu */
 
@@ -611,7 +620,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addSeparator(context);
 
     createRepositoryAction(gitContainer, tr("Actions on Commits..."), "Git.ChangeActions",
-                           context, false, SLOT(startChangeRelatedAction()));
+                           context, false, [this] { startChangeRelatedAction("Git.ChangeActions"); });
 
     m_createRepositryAction = new QAction(tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
@@ -624,7 +633,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_submitCurrentAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     Command *command = ActionManager::registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
+    connect(m_submitCurrentAction, &QAction::triggered, this, &GitPlugin::submitCurrentLog);
 
     m_diffSelectedFilesAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     ActionManager::registerAction(m_diffSelectedFilesAction, Constants::DIFF_SELECTED, submitContext);
@@ -635,10 +644,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_redoAction = new QAction(tr("&Redo"), this);
     ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
-    connect(VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
-            this, SLOT(updateContinueAndAbortCommands()));
-    connect(VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
-            this, SLOT(updateBranches(QString)), Qt::QueuedConnection);
+    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
+            this, &GitPlugin::updateContinueAndAbortCommands);
+    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
+            this, &GitPlugin::updateBranches, Qt::QueuedConnection);
 
     Utils::MimeDatabase::addMimeTypes(QLatin1String(RC_GIT_MIME_XML));
 
@@ -804,14 +813,12 @@ void GitPlugin::startRebase()
         m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
 }
 
-void GitPlugin::startChangeRelatedAction()
+void GitPlugin::startChangeRelatedAction(const Id &id)
 {
     const VcsBasePluginState state = currentState();
     if (!state.hasTopLevel())
         return;
 
-    QAction *action = qobject_cast<QAction *>(sender());
-    Id id = action ? Id::fromUniqueIdentifier(action->data().toInt()) : Id();
     ChangeSelectionDialog dialog(state.topLevel(), id, ICore::mainWindow());
 
     int result = dialog.exec();
