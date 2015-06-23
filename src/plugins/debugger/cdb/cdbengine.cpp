@@ -2499,6 +2499,8 @@ void CdbEngine::parseOutputLine(QByteArray line)
                        currentCommand->response.command.constData(), currentCommand->token,
                        currentCommand->response.builtinReply.size(), m_builtinCommandQueue.size() - 1);
             QTC_ASSERT(token == currentCommand->token, return; );
+            if (boolSetting(VerboseLog))
+                showMessage(QLatin1String(currentCommand->response.builtinReply.join(' ')), LogMisc);
             if (currentCommand->handler) {
                 currentCommand->handler(currentCommand->response);
             }
