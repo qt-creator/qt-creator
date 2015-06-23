@@ -229,7 +229,7 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
         updateSemanticInfo(cppEditorWidget->semanticInfo());
     d->m_cppEditorOutline->update();
-    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
+    const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
 }
 
