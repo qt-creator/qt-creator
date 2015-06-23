@@ -547,10 +547,6 @@ void CdbEngine::setupEngine()
 {
     if (debug)
         qDebug(">setupEngine");
-    // Nag to add symbol server and cache
-    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    if (CdbSymbolPathListEditor::promptToAddSymbolPaths(&symbolPaths))
-        action(CdbSymbolPaths)->setValue(symbolPaths);
 
     init();
     if (!m_logTime.elapsed())
