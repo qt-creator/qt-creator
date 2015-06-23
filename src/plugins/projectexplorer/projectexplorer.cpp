@@ -3216,6 +3216,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     const QString activeSession = SessionManager::activeSession();
     foreach (const QString &session, SessionManager::sessions()) {
         QAction *act = ag->addAction(session);
+        act->setData(session);
         act->setCheckable(true);
         if (session == activeSession)
             act->setChecked(true);
@@ -3226,7 +3227,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
 
 void ProjectExplorerPluginPrivate::setSession(QAction *action)
 {
-    QString session = action->text();
+    QString session = action->data().toString();
     if (session != SessionManager::activeSession())
         SessionManager::loadSession(session);
 }
