@@ -76,10 +76,13 @@
     While this gives you complete control over the wizard, it
     also requires you to write most of the UI and the logic yourself.
     \list
-    \li \l{Creating Plugins}
-    \li \l{Qt Creator Coding Rules}
-    \li \l{Creating Wizards in Code}
-    \li \l{User Interface Text Guidelines}
+        \li \l{Creating Plugins}
+
+        \li \l{Qt Creator Coding Rules}
+
+        \li \l{Creating Wizards in Code}
+
+        \li \l{User Interface Text Guidelines}
     \endlist
 
     \section1 Supporting Additional File Types
@@ -125,10 +128,13 @@
     a basis to build on, taking away some of the pain of implementing
     a text editor from the ground up.
     \list
-    \li \l{Creating Plugins}
-    \li \l{Qt Creator Coding Rules}
-    \li \l{Text Editors}
-    \li \l{CodeAssist} {Providing Code Assist}
+        \li \l{Creating Plugins}
+
+        \li \l{Qt Creator Coding Rules}
+
+        \li \l{Text Editors}
+
+        \li \l{CodeAssist} {Providing Code Assist}
     \endlist
 
     \section2 Other Custom Editors
@@ -136,9 +142,11 @@
     You can also add a completely custom editor to gain complete
     control over its appearance and behavior.
     \list
-    \li \l{Creating Plugins}
-    \li \l{Qt Creator Coding Rules}
-    \li \l{Editors}
+        \li \l{Creating Plugins}
+
+        \li \l{Qt Creator Coding Rules}
+
+        \li \l{Editors}
     \endlist
 
     \section1 Running External Tools
@@ -228,12 +236,12 @@
     \list
         \li \l{Developing Qt Creator Plugins}
             \list
-                \li  \l{Creating Plugins}
-                \li  \l{Menus and Menu Items}
-                \li  \l{Creating Wizards in Code}
-                \li  \l{Editors}
-                \li  \l{Text Editors}
-                \li  \l{Options Pages}
+                \li \l{Creating Plugins}
+                \li \l{Menus and Menu Items}
+                \li \l{Creating Wizards in Code}
+                \li \l{Editors}
+                \li \l{Text Editors}
+                \li \l{Options Pages}
             \endlist
         \li Reference
             \list
