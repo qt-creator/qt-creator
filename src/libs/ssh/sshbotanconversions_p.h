@@ -118,11 +118,16 @@ inline const char *botanHMacAlgoName(const QByteArray &rfcAlgoName)
 
 inline quint32 botanHMacKeyLen(const QByteArray &rfcAlgoName)
 {
-    Q_ASSERT(rfcAlgoName == SshCapabilities::HMacSha1
-             || rfcAlgoName == SshCapabilities::HMacSha256);
     if (rfcAlgoName == SshCapabilities::HMacSha1)
         return 20;
-    return 32;
+    if (rfcAlgoName == SshCapabilities::HMacSha256)
+        return 32;
+    if (rfcAlgoName == SshCapabilities::HMacSha384)
+        return 48;
+    if (rfcAlgoName == SshCapabilities::HMacSha512)
+        return 64;
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected hashing algorithm \"%1\"")
+                             .arg(QString::fromLatin1(rfcAlgoName)));
 }
 
 } // namespace Internal

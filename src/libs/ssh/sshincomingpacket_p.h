@@ -164,7 +164,8 @@ public:
     void reset();
 
     SshKeyExchangeInit extractKeyExchangeInitData() const;
-    SshKeyExchangeReply extractKeyExchangeReply(const QByteArray &pubKeyAlgo) const;
+    SshKeyExchangeReply extractKeyExchangeReply(const QByteArray &kexAlgo,
+                                                const QByteArray &hostKeyAlgo) const;
     SshDisconnect extractDisconnect() const;
     SshUserAuthBanner extractUserAuthBanner() const;
     SshUserAuthInfoRequestPacket extractUserAuthInfoRequest() const;
