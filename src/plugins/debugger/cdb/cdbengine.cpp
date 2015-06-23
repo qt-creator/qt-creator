@@ -1778,8 +1778,8 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
 
 void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
 {
+    watchHandler()->notifyUpdateFinished();
     if (response.success) {
-        watchHandler()->notifyUpdateFinished();
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
 
