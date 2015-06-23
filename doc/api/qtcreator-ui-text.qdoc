@@ -121,14 +121,8 @@
     short, canonical HTML in the source tab of the rich text editor:
     \c {<html><head/><body><b>Note:</b> text.}
 
-    In Qt 4.7, use only the \uicontrol Source tab of the Qt Designer rich text
-    editor. The automatic conversion performed by the rich text editor tab
-    generates a lot of redundant stylesheet information and uses hard-coded
-    fonts that look bad on other platforms and make translation in Qt Linguist
-    difficult.
-
-    Qt Designer 4.8 has a feature that simplifies the rich text (on by
-    default), but still, you should verify by looking at the \uicontrol Source tab.
+    Qt Designer has a feature that simplifies the rich text (on by default),
+    but still, you should verify by looking at the \uicontrol Source tab.
 
     \section2 Writing Messages
 
