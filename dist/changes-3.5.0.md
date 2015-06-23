@@ -36,6 +36,7 @@ General
 
 Editing
 
+* Added highlighting of search results to editor scroll bar
 * Added option to jump directly to specific column in addition to
   line number when opening files through locator or command line
 * Added *Remove missing files* action to QRC editor
@@ -43,6 +44,7 @@ Editing
 * Made global file search use multiple threads (QTCREATORBUG-10298)
 * Fixed highlighting of current line in read-only text editors
   (QTCREATORBUG-10104)
+* Fixed issues with completion while inserting snippet (QTCREATORBUG-14633)
 
 Help
 
@@ -55,6 +57,8 @@ QMake Projects
 CMake Projects
 
 * Made it possible to register multiple CMake executables
+* Added support for file targets when explicitly specified in the
+  generated CodeBlocks file
 * Fixed default shadow build directory name
 
 Qbs Projects
@@ -80,6 +84,7 @@ C++ Support
 
 * Added separate icon for structs
 * Added support for setting the access specifier of an extracted function (QTCREATORBUG-12127)
+* Moved Clang code model backend out-of-process
 * Fixed *Convert to Stack Variable* refactoring action for empty
   initializer lists (QTCREATORBUG-14279)
 * Fixed misplaced newlines of refactoring actions (QTCREATORBUG-13872)
@@ -96,10 +101,14 @@ C++ Support
     * GCC implementation of `std::map`, `std::unique_ptr` (and other pointer wrappers)
       and `std::vector` are known to work
     * MSVC implementation is not supported
+* Fixed that highlighting vanished after text zoom (QTCREATORBUG-14579)
+* Fixed issues with completion while renaming local variable (QTCREATORBUG-14633)
 
 QML Support
 
 * Removed Qt Quick 1 wizards
+* Fixed missing auto-completion for `QtQuick` and `QtQuick.Controls`
+  (QTCREATORBUG-14563)
 
 Qt Quick Designer
 
@@ -132,6 +141,8 @@ OS X
 
 Linux
 
+* Fixed performance issue with journal support (QTCREATORBUG-14356)
+
 Android
 
 * Made it possible to create AVD without SD card (QTCREATORBUG-13590)
@@ -142,6 +153,8 @@ Android
   (QTCREATORBUG-13615)
 * Added input field for activity name in Android manifest editor
   (QTCREATORBUG-13958)
+* Fixed issues with Android M (QTCREATORBUG-14537, QTCREATORBUG-14534)
+* Fixed issues with 64 bit
 * Fixed handling of external file changes in Android manifest editor
 * Fixed listing of Google AVDs (QTCREATORBUG-13980)
 * Fixed that kits were removed from projects when changing NDK path
