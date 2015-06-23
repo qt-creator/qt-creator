@@ -56,7 +56,7 @@ def handleInsertVirtualFunctions(expected):
                 "Verifying whether all expected functions have been found.")
 
     selectFromCombo("{container={title='Insertion options:' type='QGroupBox' unnamed='1' "
-                    " visible='1'} type='QComboBox' unnamed='1' visible='1'}",
+                    " visible='1'} occurrence='2' type='QComboBox' unnamed='1' visible='1'}",
                     "Insert definitions in implementation file")
     clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1'}")
 
