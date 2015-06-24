@@ -145,7 +145,7 @@ FeatureSet JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature
     FeatureSet features;
     foreach (const ConditionalFeature &f, list) {
         if (JsonWizard::boolFromVariant(f.condition, wiz->expander()))
-            features |= f.feature;
+            features |= Feature::fromString(wiz->expander()->expand(f.feature));
     }
     return features;
 }
@@ -167,7 +167,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
 
     foreach (const QVariant &element, data.toList()) {
         if (element.type() == QVariant::String) {
-            result.append({ Feature::fromString(element.toString()), QVariant(true) });
+            result.append({ element.toString(), QVariant(true) });
         } else if (element.type() == QVariant::Map) {
             const QVariantMap obj = element.toMap();
             const QString feature = obj.value(QLatin1String(KEY_FEATURE)).toString();
@@ -177,7 +177,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
                 return QVector<ConditionalFeature>();
             }
 
-            result.append({ Feature::fromString(feature), obj.value(QLatin1String(KEY_CONDITION), true) });
+            result.append({ feature, obj.value(QLatin1String(KEY_CONDITION), true) });
         } else {
             if (errorMessage)
                 *errorMessage = tr("Feature list element is not a string or object.");
