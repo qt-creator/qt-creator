@@ -1396,9 +1396,10 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             str << '"';
         }
     }
-    if (!partialUpdate || isWatch) {
-        // Perform watches synchronization
+    // Perform watches synchronization only for full updates
+    if (!partialUpdate)
         str << blankSeparator << "-W";
+    if (!partialUpdate || isWatch) {
         const WatcherHash watcherHash = WatchHandler::watcherNames();
         if (!watcherHash.isEmpty()) {
             const WatcherHash::const_iterator cend = watcherHash.constEnd();
