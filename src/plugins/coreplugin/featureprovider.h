@@ -61,6 +61,8 @@ public:
     static Feature fromString(const QString &str) { return Feature(Id::fromString(str)); }
     static Feature fromName(const QByteArray &ba) { return Feature(Id::fromName(ba)); }
 
+    static Feature versionedFeature(const QByteArray &prefix, int major = -1, int minor = -1);
+
 private:
     explicit Feature(const Id id) : Id(id) { }
 };
@@ -77,6 +79,8 @@ public:
     FeatureSet() = default;
     FeatureSet(const FeatureSet &other) = default;
     FeatureSet &operator=(const FeatureSet &other) = default;
+
+    static FeatureSet versionedFeatures(const QByteArray &prefix, int major, int minor = -1);
 
     using QSet<Feature>::isEmpty;
 

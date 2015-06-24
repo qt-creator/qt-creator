@@ -98,15 +98,7 @@ QtVersionNumber::QtVersionNumber()
 
 FeatureSet QtVersionNumber::features() const
 {
-    FeatureSet result;
-    result |= Feature(Constants::FEATURE_QT);
-    if (majorVersion >= 0) {
-        QString featureMajor = QString::fromLatin1(Constants::FEATURE_QT) + QString::number(majorVersion);
-        result |= Feature::fromString(featureMajor);
-        for (int i = 0; i <= minorVersion; ++i)
-            result |= Feature::fromString(featureMajor + QLatin1Char('.') + QString::number(i));
-    }
-    return result;
+    return FeatureSet::versionedFeatures(Constants::FEATURE_QT, majorVersion, minorVersion);
 }
 
 bool QtVersionNumber::operator <(const QtVersionNumber &b) const
