@@ -1,12 +1,11 @@
 import qbs
 
-QtcPlugin {
+QtcCommercialPlugin {
     name: "AutoTest"
 
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "CPlusPlus" }
-    Depends { name: "LicenseChecker" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmakeProjectManager" }
     Depends { name: "QmlJS" }
