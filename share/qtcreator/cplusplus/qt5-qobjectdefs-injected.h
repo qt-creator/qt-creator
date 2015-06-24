@@ -57,6 +57,8 @@
 #define Q_OVERRIDE(text)
 #define Q_ENUMS(x)
 #define Q_FLAGS(x)
+#define Q_ENUM(x)
+#define Q_FLAG(x)
 #define Q_SCRIPTABLE
 #define Q_INVOKABLE
 
