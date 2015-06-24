@@ -128,14 +128,9 @@ installer.depends = bindist_installer
 installer.commands = python -u $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "$$INSTALLER_NAME"
 
 macx {
-    # this should be very temporary:
-    MENU_NIB = $$(MENU_NIB_FILE)
-    isEmpty(MENU_NIB): MENU_NIB = "FATAT_SET_MENU_NIB_FILE_ENV"
-    copy_menu_nib_installer.commands = cp -R \"$$MENU_NIB\" \"$${INSTALLER_NAME}.app/Contents/Resources\"
-
     codesign_installer.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${INSTALLER_NAME}.app\"
     dmg_installer.commands = hdiutil create -srcfolder "$${INSTALLER_NAME}.app" -volname \"Qt Creator\" -format UDBZ "$${BASENAME}-installer.dmg" -ov -scrub -size 1g -verbose
-    QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer copy_menu_nib_installer
+    QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer
 }
 
 win32 {
