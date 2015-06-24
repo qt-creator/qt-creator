@@ -270,26 +270,39 @@ def createProject_Qt_Console(path, projectName, checks = True):
 
 def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.3",
-                                fromWelcome=False):
-    available = __createProjectOrFileSelectType__("  Application", "Qt Quick Application", fromWelcome)
+                                withControls = False, fromWelcome=False):
+    if withControls:
+        template = "Qt Quick Controls Application"
+    else:
+        template = "Qt Quick Application"
+    available = __createProjectOrFileSelectType__("  Application", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
-    clickButton(waitForObject(":Next_QPushButton"))
-    __createProjectHandleLastPage__()
+    if len(checkedTargets):
+        clickButton(waitForObject(":Next_QPushButton"))
+        __createProjectHandleLastPage__()
+        progressBarWait(10000)
+    else:
+        clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
 
-    progressBarWait(10000)
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtQuickVersion="1.1"):
-    __createProjectOrFileSelectType__("  Application", "Qt Quick UI")
+def createNewQtQuickUI(workingDir, qtVersion = "5.3", withControls = False):
+    if withControls:
+        template = 'Qt Quick Controls UI'
+    else:
+        template = 'Qt Quick UI'
+    __createProjectOrFileSelectType__("  Application", template)
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
-    __createProjectHandleQtQuickSelection__(qtQuickVersion)
+    __createProjectHandleQtQuickSelection__(qtVersion)
     __createProjectHandleLastPage__()
+    progressBarWait(10000)
+
     return projectName
 
 def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVersion=1):
