@@ -85,7 +85,7 @@ bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &se
 static Utf8String quotedArguments(const Utf8StringVector &arguments)
 {
     const Utf8String quote = Utf8String::fromUtf8("\"");
-    const Utf8String joined = arguments.join(quote + QString::fromUtf8(" ") + quote);
+    const Utf8String joined = arguments.join(quote + Utf8String::fromUtf8(" ") + quote);
     return quote + joined + quote;
 }
 
