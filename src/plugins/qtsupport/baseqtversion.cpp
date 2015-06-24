@@ -102,9 +102,9 @@ FeatureSet QtVersionNumber::features() const
     result |= Feature(Constants::FEATURE_QT);
     if (majorVersion >= 0) {
         QString featureMajor = QString::fromLatin1(Constants::FEATURE_QT) + QString::number(majorVersion);
-        result |= Feature(Id::fromString(featureMajor));
+        result |= Feature::fromString(featureMajor);
         for (int i = 0; i <= minorVersion; ++i)
-            result |= Feature(Id::fromString(featureMajor + QLatin1Char('.') + QString::number(i)));
+            result |= Feature::fromString(featureMajor + QLatin1Char('.') + QString::number(i));
     }
     return result;
 }

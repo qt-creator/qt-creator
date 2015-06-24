@@ -461,10 +461,8 @@ static inline FeatureSet readRequiredFeatures(const QXmlStreamReader &reader)
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
     QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
     FeatureSet features;
-    foreach (const QString &string, stringList) {
-        Feature feature(Id::fromString(string));
-        features |= feature;
-    }
+    foreach (const QString &string, stringList)
+        features |= Feature::fromString(string);
     return features;
 }
 

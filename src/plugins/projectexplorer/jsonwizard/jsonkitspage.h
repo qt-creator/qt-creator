@@ -57,7 +57,7 @@ public:
 
     class ConditionalFeature {
     public:
-        ConditionalFeature() : feature(Core::Id()) { }
+        ConditionalFeature() = default;
         ConditionalFeature(const Core::Feature &f, const QVariant &c) : feature(f), condition(c)
         { }
 
