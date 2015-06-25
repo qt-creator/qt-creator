@@ -118,32 +118,20 @@ static QStringList argumentsFromProjectPart(const CppTools::ProjectPart::Ptr &pr
                                             const QString &toolchainType,
                                             unsigned char wordWidth)
 {
-    QStringList result;
-
-    const bool objcExt = projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
-    result += CppTools::CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt,
-                                                                     toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
-                                                    projectPart->languageVersion,
-                                                    projectPart->languageExtensions, false,
-                                                    toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->toolchainDefines,
-                                                                    false, toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines,
-                                                                    false, toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(
-                projectPart->headerPaths,
-                CompilerOptionsBuilder::IsBlackListed(),
-                toolchainType);
+    CompilerOptionsBuilder optionsBuilder(projectPart);
+    optionsBuilder.addLanguageOption(fileKind, toolchainType);
+    optionsBuilder.addOptionsForLanguage(false, toolchainType);
+    optionsBuilder.addToolchainAndProjectDefines(toolchainType);
+    optionsBuilder.addHeaderPathOptions(CompilerOptionsBuilder::IsBlackListed(), toolchainType);
 
     if (toolchainType == QLatin1String("msvc"))
-        result += QLatin1String("/EHsc"); // clang-cl does not understand exceptions
+        optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
     else
-        result += QLatin1String("-fPIC"); // TODO: Remove?
+        optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
 
-    prependWordWidthArgumentIfNotIncluded(&result, wordWidth);
-
-    return result;
+    QStringList options = optionsBuilder.options();
+    prependWordWidthArgumentIfNotIncluded(&options, wordWidth);
+    return options;
 }
 
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
