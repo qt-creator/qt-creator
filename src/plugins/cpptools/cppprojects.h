@@ -214,21 +214,24 @@ private:
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
+    CompilerOptionsBuilder(const ProjectPart::Ptr &projectPart);
+
+    QStringList options() const;
+
+    void add(const QString &option);
+
     typedef std::function<bool (const QString &)> IsBlackListed;
-    static QStringList createHeaderPathOptions(const ProjectPart::HeaderPaths &headerPaths,
-                                               IsBlackListed isBlackListed = IsBlackListed(),
-                                               const QString &toolchainType = QLatin1String("clang"));
+    void addHeaderPathOptions(IsBlackListed isBlackListed = IsBlackListed(),
+                              const QString &toolchainType = QLatin1String("clang"));
+    void addToolchainAndProjectDefines(const QString &toolchainType = QLatin1String("clang"));
+    void addLanguageOption(ProjectFile::Kind fileKind,
+                           const QString &toolchainType = QLatin1String("clang"));
+    void addOptionsForLanguage(bool checkForBorlandExtensions = true,
+                               const QString &toolchainType = QLatin1String("clang"));
 
-    static QStringList createDefineOptions(const QByteArray &defines,
-                                           bool toolchainDefines = false,
-                                           const QString &toolchainType = QLatin1String("clang"));
-
-    static QStringList createLanguageOption(ProjectFile::Kind fileKind, bool objcExt,
-                                            const QString &toolchainType = QLatin1String("clang"));
-    static QStringList createOptionsForLanguage(ProjectPart::LanguageVersion languageVersion,
-                                                ProjectPart::LanguageExtensions languageExtensions,
-                                                bool checkForBorlandExtensions = true,
-                                                const QString &toolchainType = QLatin1String("clang"));
+private:
+    ProjectPart::Ptr m_projectPart;
+    QStringList m_options;
 };
 
 } // namespace CppTools

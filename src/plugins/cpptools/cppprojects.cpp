@@ -501,9 +501,23 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
 }
 
 
-QStringList CompilerOptionsBuilder::createHeaderPathOptions(
-        const ProjectPart::HeaderPaths &headerPaths,
-        IsBlackListed isBlackListed, const QString &toolchainType)
+CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart::Ptr &projectPart)
+    : m_projectPart(projectPart)
+{
+}
+
+QStringList CompilerOptionsBuilder::options() const
+{
+    return m_options;
+}
+
+void CompilerOptionsBuilder::add(const QString &option)
+{
+    m_options.append(option);
+}
+
+void CompilerOptionsBuilder::addHeaderPathOptions(IsBlackListed isBlackListed,
+                                                  const QString &toolchainType)
 {
     typedef ProjectPart::HeaderPath HeaderPath;
     const QString defaultPrefix
@@ -511,7 +525,7 @@ QStringList CompilerOptionsBuilder::createHeaderPathOptions(
 
     QStringList result;
 
-    foreach (const HeaderPath &headerPath , headerPaths) {
+    foreach (const HeaderPath &headerPath , m_projectPart->headerPaths) {
         if (headerPath.path.isEmpty())
             continue;
 
@@ -533,14 +547,12 @@ QStringList CompilerOptionsBuilder::createHeaderPathOptions(
         result.append(prefix + headerPath.path);
     }
 
-    return result;
+    m_options.append(result);
 }
 
-QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &defines,
-                                                        bool toolchainDefines,
-                                                        const QString &toolchainType)
+void CompilerOptionsBuilder::addToolchainAndProjectDefines(const QString &toolchainType)
 {
-    QByteArray extendedDefines = defines;
+    QByteArray extendedDefines = m_projectPart->toolchainDefines + m_projectPart->projectDefines;
     QStringList result;
 
     // In gcc headers, lots of built-ins are referenced that clang does not understand.
@@ -558,17 +570,6 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
         // TODO: do a proper fix, see QTCREATORBUG-11709.
         if (def.startsWith("#define __cplusplus"))
             continue;
-
-        // TODO: verify if we can pass compiler-defined macros when also passing -undef.
-        if (toolchainDefines) {
-            //### FIXME: the next 3 check shouldn't be needed: we probably don't want to get the compiler-defined defines in.
-            if (!def.startsWith("#define "))
-                continue;
-            if (def.startsWith("#define _"))
-                continue;
-            if (def.startsWith("#define OBJC_NEW_PROPERTIES"))
-                continue;
-        }
 
         // gcc 4.9 has:
         //    #define __has_include(STR) __has_include__(STR)
@@ -590,7 +591,7 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
             result.append(arg);
     }
 
-    return result;
+    m_options.append(result);
 }
 
 static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
@@ -668,24 +669,26 @@ static QStringList createLanguageOptionMsvc(ProjectFile::Kind fileKind)
     return opts;
 }
 
-QStringList CompilerOptionsBuilder::createLanguageOption(ProjectFile::Kind fileKind, bool objcExt,
-                                                         const QString &toolchainType)
+void CompilerOptionsBuilder::addLanguageOption(ProjectFile::Kind fileKind,
+                                               const QString &toolchainType)
 {
-    return toolchainType == QLatin1String("msvc") ? createLanguageOptionMsvc(fileKind)
-                                                  : createLanguageOptionGcc(fileKind, objcExt);
+    const bool objcExt = m_projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
+    const QStringList options = toolchainType == QLatin1String("msvc")
+            ? createLanguageOptionMsvc(fileKind)
+            : createLanguageOptionGcc(fileKind, objcExt);
+    m_options.append(options);
 }
 
-QStringList CompilerOptionsBuilder::createOptionsForLanguage(
-    ProjectPart::LanguageVersion languageVersion,
-    ProjectPart::LanguageExtensions languageExtensions,
-    bool checkForBorlandExtensions,
-    const QString &toolchainType)
+void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtensions,
+                                                   const QString &toolchainType)
 {
     QStringList opts;
     if (toolchainType == QLatin1String("msvc"))
-        return opts;
-    bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
-    switch (languageVersion) {
+        return;
+
+    const ProjectPart::LanguageExtensions languageExtensions = m_projectPart->languageExtensions;
+    const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
+    switch (m_projectPart->languageVersion) {
     case ProjectPart::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
@@ -718,5 +721,5 @@ QStringList CompilerOptionsBuilder::createOptionsForLanguage(
     if (checkForBorlandExtensions && (languageExtensions & ProjectPart::BorlandExtensions))
         opts << QLatin1String("-fborland-extensions");
 
-    return opts;
+    m_options.append(opts);
 }

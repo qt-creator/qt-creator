@@ -139,49 +139,53 @@ static bool maybeIncludeBorlandExtensions()
  */
 QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
 {
-    QStringList result;
     if (pPart.isNull())
-        return result;
+        return QStringList();
+
+    CompilerOptionsBuilder optionsBuilder(pPart);
 
     if (verboseRunLog().isDebugEnabled())
-        result << QLatin1String("-v");
+        optionsBuilder.add(QLatin1String("-v"));
 
-    const bool objcExt = pPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
-    result << CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt);
-    result << CompilerOptionsBuilder::createOptionsForLanguage(
-                  pPart->languageVersion,
-                  pPart->languageExtensions,
-                  maybeIncludeBorlandExtensions());
-    result << CompilerOptionsBuilder::createDefineOptions(pPart->toolchainDefines);
-    result << CompilerOptionsBuilder::createDefineOptions(pPart->projectDefines);
+    optionsBuilder.addLanguageOption(fileKind);
+    optionsBuilder.addOptionsForLanguage(maybeIncludeBorlandExtensions());
+    optionsBuilder.addToolchainAndProjectDefines();
 
     static const QString resourceDir = getResourceDir();
     if (!resourceDir.isEmpty()) {
-        result << QLatin1String("-nostdlibinc");
-        result << (QLatin1String("-I") + resourceDir);
-        result << QLatin1String("-undef");
+        optionsBuilder.add(QLatin1String("-nostdlibinc"));
+        optionsBuilder.add(QLatin1String("-I") + resourceDir);
+        optionsBuilder.add(QLatin1String("-undef"));
     }
 
-    result << CompilerOptionsBuilder::createHeaderPathOptions(pPart->headerPaths, isBlacklisted);
+    optionsBuilder.addHeaderPathOptions(isBlacklisted);
 
     // Inject header file
     static const QString injectedHeader = ICore::instance()->resourcePath()
             + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
-//    if (qtVersion == ProjectPart::Qt4)
-//        opts << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('4'));
-    if (pPart->qtVersion == ProjectPart::Qt5)
-        result << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('5'));
 
-    if (!pPart->projectConfigFile.isEmpty())
-        result << QLatin1String("-include") << pPart->projectConfigFile;
+//    if (pPart->qtVersion == ProjectPart::Qt4) {
+//        builder.addOption(QLatin1String("-include"));
+//        builder.addOption(injectedHeader.arg(QLatin1Char('4')));
+//    }
 
-    result << QLatin1String("-fmessage-length=0");
-    result << QLatin1String("-fdiagnostics-show-note-include-stack");
-    result << QLatin1String("-fmacro-backtrace-limit=0");
-    result << QLatin1String("-fretain-comments-from-system-headers");
+    if (pPart->qtVersion == ProjectPart::Qt5) {
+        optionsBuilder.add(QLatin1String("-include"));
+        optionsBuilder.add(injectedHeader.arg(QLatin1Char('5')));
+    }
+
+    if (!pPart->projectConfigFile.isEmpty()) {
+        optionsBuilder.add(QLatin1String("-include"));
+        optionsBuilder.add(pPart->projectConfigFile);
+    }
+
+    optionsBuilder.add(QLatin1String("-fmessage-length=0"));
+    optionsBuilder.add(QLatin1String("-fdiagnostics-show-note-include-stack"));
+    optionsBuilder.add(QLatin1String("-fmacro-backtrace-limit=0"));
+    optionsBuilder.add(QLatin1String("-fretain-comments-from-system-headers"));
     // TODO: -Xclang -ferror-limit -Xclang 0 ?
 
-    return result;
+    return optionsBuilder.options();
 }
 
 /// @return Option to speed up parsing with precompiled header
