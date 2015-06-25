@@ -272,9 +272,9 @@ DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QStringList *er
     if (HostOsInfo::isWindowsHost()) {
         if (validMode(rp.startMode))
             return new CdbEngine(rp);
-        errors->append(QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine."));
+        errors->append(CdbEngine::tr("Internal error: Invalid start parameters passed for the CDB engine."));
     } else {
-        errors->append(QString::fromLatin1("Unsupported debug mode"));
+        errors->append(CdbEngine::tr("Unsupported CDB host system."));
     }
     return 0;
 }
