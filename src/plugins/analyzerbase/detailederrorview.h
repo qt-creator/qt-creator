@@ -33,59 +33,12 @@
 
 #include "analyzerbase_global.h"
 
-#include <QListView>
+#include <QTreeView>
 #include <QStyledItemDelegate>
 
 namespace Analyzer {
 
-// Provides the details widget for the DetailedErrorView
-class ANALYZER_EXPORT DetailedErrorDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-public:
-    struct SummaryLineInfo {
-        QString errorText;
-        QString errorLocation;
-    };
-
-public:
-    /// This delegate can only work on one view at a time, parent. parent will also be the parent
-    /// in the QObject parent-child system.
-    explicit DetailedErrorDelegate(QListView *parent);
-
-    virtual SummaryLineInfo summaryInfo(const QModelIndex &index) const = 0;
-    void copyToClipboard();
-
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-
-public slots:
-    void onCurrentSelectionChanged(const QModelIndex &now, const QModelIndex &previous);
-    void onViewResized();
-    void onLayoutChanged();
-
-private slots:
-    void onVerticalScroll();
-
-protected:
-    void openLinkInEditor(const QString &link);
-    mutable QPersistentModelIndex m_detailsIndex;
-
-private:
-    // the constness of this function is a necessary lie because it is called from paint() const.
-    virtual QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex,
-                                         QWidget *parent) const = 0;
-    virtual QString textualRepresentation() const = 0;
-
-    static const int s_itemMargin = 2;
-    mutable QWidget *m_detailsWidget;
-    mutable int m_detailsWidgetHeight;
-};
-
-// A QListView that displays additional details for the currently selected item
-class ANALYZER_EXPORT DetailedErrorView : public QListView
+class ANALYZER_EXPORT DetailedErrorView : public QTreeView
 {
     Q_OBJECT
 
@@ -93,21 +46,18 @@ public:
     DetailedErrorView(QWidget *parent = 0);
     ~DetailedErrorView();
 
-    // Reimplemented to connect delegate to connection model after it has
-    // been set by superclass implementation.
-    void setModel(QAbstractItemModel *model);
-
-    void setItemDelegate(QAbstractItemDelegate *delegate); // Takes ownership
-
     void goNext();
     void goBack();
 
-signals:
-    void resized();
+    enum ItemRole {
+        LocationRole = Qt::UserRole,
+        FullTextRole
+    };
 
-protected:
-    void updateGeometries();
-    void resizeEvent(QResizeEvent *e);
+    enum Column {
+        DiagnosticColumn,
+        LocationColumn,
+    };
 
 private:
     void contextMenuEvent(QContextMenuEvent *e) override;
@@ -119,7 +69,7 @@ private:
     QList<QAction *> commonActions() const;
     virtual QList<QAction *> customActions() const;
 
-    QAction *m_copyAction;
+    QAction * const m_copyAction;
 };
 
 } // namespace Analyzer

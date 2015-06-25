@@ -14,6 +14,7 @@ SOURCES += \
     analyzerrunconfigwidget.cpp \
     analyzerutils.cpp \
     detailederrorview.cpp \
+    diagnosticlocation.cpp \
     startremotedialog.cpp
 
 HEADERS += \
@@ -27,6 +28,7 @@ HEADERS += \
     analyzerrunconfigwidget.h \
     analyzerutils.h \
     detailederrorview.h \
+    diagnosticlocation.h \
     startremotedialog.h
 
 RESOURCES += \

@@ -2,7 +2,6 @@
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing
-** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -28,52 +27,38 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef ANALYZERDIAGNOSTIC_H
+#define ANALYZERDIAGNOSTIC_H
 
-#ifndef LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
-#define LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
+#include "analyzerbase_global.h"
 
-#include <analyzerbase/detailederrorview.h>
-#include <utils/treemodel.h>
+#include <QDebug>
+#include <QMetaType>
+#include <QString>
 
-#include <QSharedPointer>
+namespace Analyzer {
 
-namespace Valgrind {
-namespace XmlProtocol {
-
-class Error;
-class ErrorListModelPrivate;
-class Frame;
-
-class ErrorListModel : public Utils::TreeModel
+class ANALYZER_EXPORT DiagnosticLocation
 {
-    Q_OBJECT
-
 public:
-    enum Role {
-        ErrorRole = Analyzer::DetailedErrorView::FullTextRole + 1,
-    };
+    DiagnosticLocation();
+    DiagnosticLocation(const QString &filePath, int line, int column);
 
-    class RelevantFrameFinder
-    {
-    public:
-        virtual ~RelevantFrameFinder() {}
-        virtual Frame findRelevant(const Error &error) const = 0;
-    };
+    bool isValid() const;
 
-    explicit ErrorListModel(QObject *parent = 0);
-    ~ErrorListModel();
+    QString filePath;
 
-    QSharedPointer<const RelevantFrameFinder> relevantFrameFinder() const;
-    void setRelevantFrameFinder(const QSharedPointer<const RelevantFrameFinder> &finder);
-
-public slots:
-    void addError(const Valgrind::XmlProtocol::Error &error);
-
-private:
-    ErrorListModelPrivate *const d;
+    // Both values start at 1.
+    int line;
+    int column;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+ANALYZER_EXPORT bool operator==(const DiagnosticLocation &first, const DiagnosticLocation &second);
+ANALYZER_EXPORT QDebug operator<<(QDebug dbg, const DiagnosticLocation &location);
 
-#endif // LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
+} // namespace Analyzer
+
+Q_DECLARE_METATYPE(Analyzer::DiagnosticLocation)
+
+#endif // Include guard.
+

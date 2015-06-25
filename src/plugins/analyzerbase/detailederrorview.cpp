@@ -30,247 +30,132 @@
 
 #include "detailederrorview.h"
 
+#include "diagnosticlocation.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
 
+#include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
-#include <QFontMetrics>
+#include <QFileInfo>
+#include <QHeaderView>
 #include <QMenu>
 #include <QPainter>
-#include <QScrollBar>
+#include <QSharedPointer>
+#include <QTextDocument>
 
 namespace Analyzer {
+namespace Internal {
 
-DetailedErrorDelegate::DetailedErrorDelegate(QListView *parent)
-    : QStyledItemDelegate(parent),
-      m_detailsWidget(0)
+class DetailedErrorDelegate : public QStyledItemDelegate
 {
-    connect(parent->verticalScrollBar(), &QScrollBar::valueChanged,
-            this, &DetailedErrorDelegate::onVerticalScroll);
-}
+    Q_OBJECT
 
-QSize DetailedErrorDelegate::sizeHint(const QStyleOptionViewItem &opt,
-                                      const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return QStyledItemDelegate::sizeHint(opt, index);
+public:
+    DetailedErrorDelegate(QTreeView *parent) : QStyledItemDelegate(parent) { }
 
-    const QListView *view = qobject_cast<const QListView *>(parent());
-    const int viewportWidth = view->viewport()->width();
-    const bool isSelected = view->selectionModel()->currentIndex() == index;
-    const int dy = 2 * s_itemMargin;
-
-    if (!isSelected) {
-        QFontMetrics fm(opt.font);
-        return QSize(viewportWidth, fm.height() + dy);
+private:
+    QString actualText(const QModelIndex &index) const
+    {
+        const auto location = index.model()->data(index, DetailedErrorView::LocationRole)
+                .value<DiagnosticLocation>();
+        return location.isValid()
+                ? QString::fromLatin1("<a href=\"file://%1\">%2:%3")
+                      .arg(location.filePath, QFileInfo(location.filePath).fileName())
+                      .arg(location.line)
+                : QString();
     }
 
-    if (m_detailsWidget && m_detailsIndex != index) {
-        m_detailsWidget->deleteLater();
-        m_detailsWidget = 0;
+    using DocConstPtr = QSharedPointer<const QTextDocument>;
+    DocConstPtr document(const QStyleOptionViewItem &option) const
+    {
+        const auto doc = QSharedPointer<QTextDocument>::create();
+        doc->setHtml(option.text);
+        doc->setTextWidth(option.rect.width());
+        doc->setDocumentMargin(0);
+        return doc;
     }
 
-    if (!m_detailsWidget) {
-        m_detailsWidget = createDetailsWidget(opt.font, index, view->viewport());
-        QTC_ASSERT(m_detailsWidget->parent() == view->viewport(),
-                   m_detailsWidget->setParent(view->viewport()));
-        m_detailsIndex = index;
-    } else {
-        QTC_ASSERT(m_detailsIndex == index, /**/);
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem opt = option;
+        opt.text = actualText(index);
+        initStyleOption(&opt, index);
+
+        const DocConstPtr doc = document(opt);
+        return QSize(doc->idealWidth(), doc->size().height());
     }
-    const int widthExcludingMargins = viewportWidth - 2 * s_itemMargin;
-    m_detailsWidget->setFixedWidth(widthExcludingMargins);
 
-    m_detailsWidgetHeight = m_detailsWidget->heightForWidth(widthExcludingMargins);
-    // HACK: it's a bug in QLabel(?) that we have to force the widget to have the size it said
-    //       it would have.
-    m_detailsWidget->setFixedHeight(m_detailsWidgetHeight);
-    return QSize(viewportWidth, dy + m_detailsWidget->heightForWidth(widthExcludingMargins));
-}
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem opt = option;
+        initStyleOption(&opt, index);
 
-void DetailedErrorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &basicOption,
-                                  const QModelIndex &index) const
-{
-    QStyleOptionViewItemV4 opt(basicOption);
-    initStyleOption(&opt, index);
+        QStyle *style = opt.widget? opt.widget->style() : QApplication::style();
 
-    const QListView *const view = qobject_cast<const QListView *>(parent());
-    const bool isSelected = view->selectionModel()->currentIndex() == index;
+        // Painting item without text
+        opt.text.clear();
+        style->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+        opt.text = actualText(index);
 
-    QFontMetrics fm(opt.font);
-    QPoint pos = opt.rect.topLeft();
+        QAbstractTextDocumentLayout::PaintContext ctx;
 
-    painter->save();
-
-    const QColor bgColor = isSelected
-            ? opt.palette.highlight().color()
-            : opt.palette.background().color();
-    painter->setBrush(bgColor);
-
-    // clear background
-    painter->setPen(Qt::NoPen);
-    painter->drawRect(opt.rect);
-
-    pos.rx() += s_itemMargin;
-    pos.ry() += s_itemMargin;
-
-    if (isSelected) {
-        // only show detailed widget and let it handle everything
-        QTC_ASSERT(m_detailsIndex == index, /**/);
-        QTC_ASSERT(m_detailsWidget, return); // should have been set in sizeHint()
-        m_detailsWidget->move(pos);
-        // when scrolling quickly, the widget can get stuck in a visible part of the scroll area
-        // even though it should not be visible. therefore we hide it every time the scroll value
-        // changes and un-hide it when the item with details widget is paint()ed, i.e. visible.
-        m_detailsWidget->show();
-
-        const int viewportWidth = view->viewport()->width();
-        const int widthExcludingMargins = viewportWidth - 2 * s_itemMargin;
-        QTC_ASSERT(m_detailsWidget->width() == widthExcludingMargins, /**/);
-        QTC_ASSERT(m_detailsWidgetHeight == m_detailsWidget->height(), /**/);
-    } else {
-        // the reference coordinate for text drawing is the text baseline; move it inside the view rect.
-        pos.ry() += fm.ascent();
-
-        const QColor textColor = opt.palette.text().color();
-        painter->setPen(textColor);
-        // draw only text + location
-
-        const SummaryLineInfo info = summaryInfo(index);
-        const QString errorText = info.errorText;
-        painter->drawText(pos, errorText);
-
-        const int whatWidth = QFontMetrics(opt.font).width(errorText);
-        const int space = 10;
-        const int widthLeft = opt.rect.width() - (pos.x() + whatWidth + space + s_itemMargin);
-        if (widthLeft > 0) {
-            QFont monospace = opt.font;
-            monospace.setFamily(QLatin1String("monospace"));
-            QFontMetrics metrics(monospace);
-            QColor nameColor = textColor;
-            nameColor.setAlphaF(0.7);
-
-            painter->setFont(monospace);
-            painter->setPen(nameColor);
-
-            QPoint namePos = pos;
-            namePos.rx() += whatWidth + space;
-            painter->drawText(namePos, metrics.elidedText(info.errorLocation, Qt::ElideLeft,
-                                                          widthLeft));
+        // Highlighting text if item is selected
+        if (opt.state & QStyle::State_Selected) {
+            ctx.palette.setColor(QPalette::Text, opt.palette.color(QPalette::Active,
+                                                                   QPalette::HighlightedText));
         }
+
+        QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt);
+        painter->save();
+        painter->translate(textRect.topLeft());
+        painter->setClipRect(textRect.translated(-textRect.topLeft()));
+        document(opt)->documentLayout()->draw(painter, ctx);
+        painter->restore();
     }
+};
 
-    // Separator lines (like Issues pane)
-    painter->setPen(QColor::fromRgb(150,150,150));
-    painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
+} // namespace Internal
 
-    painter->restore();
-}
-
-void DetailedErrorDelegate::onCurrentSelectionChanged(const QModelIndex &now,
-                                                      const QModelIndex &previous)
-{
-    if (m_detailsWidget) {
-        m_detailsWidget->deleteLater();
-        m_detailsWidget = 0;
-    }
-
-    m_detailsIndex = QModelIndex();
-    if (now.isValid())
-        emit sizeHintChanged(now);
-    if (previous.isValid())
-        emit sizeHintChanged(previous);
-}
-
-void DetailedErrorDelegate::onLayoutChanged()
-{
-    if (m_detailsWidget) {
-        m_detailsWidget->deleteLater();
-        m_detailsWidget = 0;
-        m_detailsIndex = QModelIndex();
-    }
-}
-
-void DetailedErrorDelegate::onViewResized()
-{
-    const QListView *view = qobject_cast<const QListView *>(parent());
-    if (m_detailsWidget)
-        emit sizeHintChanged(view->selectionModel()->currentIndex());
-}
-
-void DetailedErrorDelegate::onVerticalScroll()
-{
-    if (m_detailsWidget)
-        m_detailsWidget->hide();
-}
-
-// Expects "file://some/path[:line[:column]]" - the line/column part is optional
-void DetailedErrorDelegate::openLinkInEditor(const QString &link)
-{
-    const QString linkWithoutPrefix = link.mid(int(strlen("file://")));
-    const QChar separator = QLatin1Char(':');
-    const int lineColon = linkWithoutPrefix.indexOf(separator, /*after drive letter + colon =*/ 2);
-    const QString path = linkWithoutPrefix.left(lineColon);
-    const QString lineColumn = linkWithoutPrefix.mid(lineColon + 1);
-    const int line = lineColumn.section(separator, 0, 0).toInt();
-    const int column = lineColumn.section(separator, 1, 1).toInt();
-    Core::EditorManager::openEditorAt(path, qMax(line, 0), qMax(column, 0));
-}
-
-void DetailedErrorDelegate::copyToClipboard()
-{
-    QApplication::clipboard()->setText(textualRepresentation());
-}
 
 DetailedErrorView::DetailedErrorView(QWidget *parent) :
-    QListView(parent),
-    m_copyAction(0)
+    QTreeView(parent),
+    m_copyAction(new QAction(this))
 {
-}
+    header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    setItemDelegateForColumn(LocationColumn, new Internal::DetailedErrorDelegate(this));
 
-DetailedErrorView::~DetailedErrorView()
-{
-    itemDelegate()->deleteLater();
-}
-
-void DetailedErrorView::setItemDelegate(QAbstractItemDelegate *delegate)
-{
-    QListView::setItemDelegate(delegate);
-
-    DetailedErrorDelegate *myDelegate = qobject_cast<DetailedErrorDelegate *>(itemDelegate());
-    connect(this, &DetailedErrorView::resized, myDelegate, &DetailedErrorDelegate::onViewResized);
-
-    m_copyAction = new QAction(this);
     m_copyAction->setText(tr("Copy"));
     m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
     m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    connect(m_copyAction, &QAction::triggered, myDelegate, &DetailedErrorDelegate::copyToClipboard);
+    connect(m_copyAction, &QAction::triggered, [this] {
+        const QModelIndexList selectedRows = selectionModel()->selectedRows();
+        QTC_ASSERT(selectedRows.count() == 1, return);
+        QApplication::clipboard()->setText(model()->data(selectedRows.first(),
+                                                         FullTextRole).toString());
+    });
+    connect(this, &QAbstractItemView::clicked, [](const QModelIndex &index) {
+        if (index.column() == LocationColumn) {
+            const auto loc = index.model()
+                    ->data(index, Analyzer::DetailedErrorView::LocationRole)
+                    .value<DiagnosticLocation>();
+            if (loc.isValid())
+                Core::EditorManager::openEditorAt(loc.filePath, loc.line, loc.column - 1);
+        }
+    });
+
     addAction(m_copyAction);
 }
 
-void DetailedErrorView::setModel(QAbstractItemModel *model)
+DetailedErrorView::~DetailedErrorView()
 {
-    QListView::setModel(model);
-
-    DetailedErrorDelegate *delegate = qobject_cast<DetailedErrorDelegate *>(itemDelegate());
-    QTC_ASSERT(delegate, return);
-
-    connect(selectionModel(), &QItemSelectionModel::currentChanged,
-            delegate, &DetailedErrorDelegate::onCurrentSelectionChanged);
-    connect(model, &QAbstractItemModel::layoutChanged,
-            delegate, &DetailedErrorDelegate::onLayoutChanged);
-}
-
-void DetailedErrorView::resizeEvent(QResizeEvent *e)
-{
-    emit resized();
-    QListView::resizeEvent(e);
 }
 
 void DetailedErrorView::contextMenuEvent(QContextMenuEvent *e)
@@ -286,19 +171,6 @@ void DetailedErrorView::contextMenuEvent(QContextMenuEvent *e)
         menu.addActions(custom);
     }
     menu.exec(e->globalPos());
-}
-
-void DetailedErrorView::updateGeometries()
-{
-    if (model()) {
-        QModelIndex index = model()->index(0, modelColumn(), rootIndex());
-        QStyleOptionViewItem option = viewOptions();
-        // delegate for row / column
-        QSize step = itemDelegate()->sizeHint(option, index);
-        horizontalScrollBar()->setSingleStep(step.width() + spacing());
-        verticalScrollBar()->setSingleStep(step.height() + spacing());
-    }
-    QListView::updateGeometries();
 }
 
 void DetailedErrorView::goNext()
@@ -346,3 +218,5 @@ void DetailedErrorView::setCurrentRow(int row)
 }
 
 } // namespace Analyzer
+
+#include "detailederrorview.moc"
