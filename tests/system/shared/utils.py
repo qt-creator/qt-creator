@@ -380,7 +380,7 @@ def getConfiguredKits():
     iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
     for kit, qtVersion in kitsWithQtVersionName.iteritems():
-        if kit in ('Fremantle', 'Harmattan'):
+        if kit in ('Fremantle', 'Harmattan', 'Qt Simulator'):
             test.verify(qtVersion == 'None',
                         "The outdated kit '%s' should not have a Qt version" % kit)
         elif qtVersion in qtVersionNames:

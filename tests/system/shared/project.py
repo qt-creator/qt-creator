@@ -644,7 +644,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
-        return None, None
+        return [], None
     if getAsStrings:
         result = Targets.getTargetsAsStrings(result)
     return result, version

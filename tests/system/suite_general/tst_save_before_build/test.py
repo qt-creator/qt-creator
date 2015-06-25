@@ -48,7 +48,7 @@ def main():
         return
     ensureSaveBeforeBuildChecked(False)
     # create qt quick application
-    createNewQtQuickApplication(tempDir(), "SampleApp", qtQuickVersion="2.2")
+    createNewQtQuickApplication(tempDir(), "SampleApp")
     for expectDialog in [True, False]:
         files = ["SampleApp.SampleApp\\.pro",
                  "SampleApp.deployment.deployment\\.pri",
