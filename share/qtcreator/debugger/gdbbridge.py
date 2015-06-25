@@ -26,7 +26,7 @@ from dumper import *
 #
 #######################################################################
 
-def savePrint(output):
+def safePrint(output):
     try:
         print(output)
     except:
@@ -47,7 +47,7 @@ def registerCommand(name, func):
         def __init__(self):
             super(Command, self).__init__(name, gdb.COMMAND_OBSCURE)
         def invoke(self, args, from_tty):
-            savePrint(func(args))
+            safePrint(func(args))
 
     Command()
 
@@ -130,7 +130,7 @@ class ScanStackCommand(gdb.Command):
     def invoke(self, args, from_tty):
         if len(args) == 0:
             args = 20
-        savePrint(scanStack(gdb.parse_and_eval("$sp"), int(args)))
+        safePrint(scanStack(gdb.parse_and_eval("$sp"), int(args)))
 
 ScanStackCommand()
 
@@ -438,7 +438,7 @@ class Dumper(DumperBase):
 
         self.output.append(',partial="%d"' % isPartial)
 
-        print(''.join(self.output))
+        safePrint(''.join(self.output))
 
     def enterSubItem(self, item):
         if not item.iname:
@@ -1619,7 +1619,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-        print(''.join(self.output))
+        safePrint(''.join(self.output))
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
