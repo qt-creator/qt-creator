@@ -137,6 +137,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
     auto cmd = new VcsCommand(workingDirectory, processEnvironment());
     cmd->setDefaultTimeoutS(vcsTimeoutS());
     if (editor) {
+        editor->setCommand(cmd);
         connect(editor, &QObject::destroyed, cmd, &VcsCommand::abort);
         connect(cmd, &VcsCommand::finished,
                 editor, [editor, cmd]() { commandFinished(editor, cmd); });
