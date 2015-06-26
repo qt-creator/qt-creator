@@ -39,12 +39,12 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
     chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     chooser->setHistoryCompleter(QLatin1String("ClangStaticAnalyzer.ClangCommand.History"));
     chooser->setPromptDialogTitle(tr("Clang Command"));
-    chooser->setPath(settings->clangExecutable());
     const auto validator = [chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
         return chooser->defaultValidationFunction()(edit, errorMessage)
                 && isClangExecutableUsable(chooser->fileName().toString(), errorMessage);
     };
     chooser->setValidationFunction(validator);
+    chooser->setPath(settings->clangExecutable());
     connect(m_ui->clangExecutableChooser, &Utils::PathChooser::changed,
             [settings](const QString &path) { settings->setClangExecutable(path); });
 
