@@ -64,8 +64,9 @@ def prepareQmlFile():
             markText(editor, "End")
         else:
             markText(editor, "Ctrl+End")
-        # unmark the last line
-        type(editor, "<Shift+Up>")
+        # unmark the 2 last lines
+        for _ in range(2):
+            type(editor, "<Shift+Up>")
         type(editor, "<Ctrl+c>")
         for j in range(10):
             type(editor, "<Ctrl+v>")
