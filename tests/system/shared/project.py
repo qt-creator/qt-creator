@@ -323,26 +323,31 @@ def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desk
     return projectName, checkedTargets
 
 def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESKTOP_474_GCC,
-                          plainC=False, cmake=False):
+                          plainC=False, cmake=False, qbs=False):
     if plainC:
-        template = "Plain C Project"
+        template = "Plain C Application"
     else:
-        template = "Plain C++ Project"
-    if cmake:
-        template += " (CMake Build)"
+        template = "Plain C++ Application"
+
     available = __createProjectOrFileSelectType__("  Non-Qt Project", template)
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    if cmake:
-        __createProjectHandleLastPage__()
-        clickButton(waitForObject(":Next_QPushButton"))
-        if not __handleCmakeWizardPage__():
-            return None
-    else:
-        __chooseTargets__(target, availableTargets=available)
-        clickButton(waitForObject(":Next_QPushButton"))
-        __createProjectHandleLastPage__()
+
+    buildSystem = "qmake"
+    if qbs:
+        buildSystem = "Qbs"
+        if cmake:
+            test.warning("Unsupported combination, at least one of parameters cmake and qbs must "
+                         "be False, ignoring the value of cmake")
+    elif cmake:
+        buildSystem = "CMake"
+    selectFromCombo("{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}", buildSystem)
+    clickButton(waitForObject(":Next_QPushButton"))
+
+    __chooseTargets__(target, availableTargets=available)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleLastPage__()
     return projectName
 
 def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
