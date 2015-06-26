@@ -159,8 +159,7 @@ class QmlProfilerEventRelativesView : public QmlProfilerTreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerEventRelativesView(QmlProfilerModelManager *modelManager,
-                                           QmlProfilerEventRelativesModelProxy *modelProxy,
+    explicit QmlProfilerEventRelativesView(QmlProfilerEventRelativesModelProxy *modelProxy,
                                            QWidget *parent );
     ~QmlProfilerEventRelativesView();
 

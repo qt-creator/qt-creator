@@ -153,11 +153,9 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
     connect(d->m_eventTree, SIGNAL(typeSelected(int)), this, SIGNAL(typeSelected(int)));
 
     d->m_eventChildren = new QmlProfilerEventRelativesView(
-                profilerModelManager,
                 new QmlProfilerEventChildrenModelProxy(profilerModelManager, d->modelProxy, this),
                 this);
     d->m_eventParents = new QmlProfilerEventRelativesView(
-                profilerModelManager,
                 new QmlProfilerEventParentsModelProxy(profilerModelManager, d->modelProxy, this),
                 this);
     connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventChildren, SLOT(displayType(int)));
@@ -876,10 +874,10 @@ public:
     QmlProfilerEventRelativesView *q;
 };
 
-QmlProfilerEventRelativesView::QmlProfilerEventRelativesView(QmlProfilerModelManager *modelManager, QmlProfilerEventRelativesModelProxy *modelProxy, QWidget *parent)
+QmlProfilerEventRelativesView::QmlProfilerEventRelativesView(
+        QmlProfilerEventRelativesModelProxy *modelProxy, QWidget *parent)
     : QmlProfilerTreeView(parent), d(new QmlProfilerEventParentsViewPrivate(this))
 {
-    Q_UNUSED(modelManager);
     setSortingEnabled(false);
     d->modelProxy = modelProxy;
     QStandardItemModel *model = new QStandardItemModel(this);
