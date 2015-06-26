@@ -25,7 +25,7 @@
 /*!
     \contentspage {Qt Creator Manual}
     \previouspage creator-tutorials.html
-    \page creator-qml-application.html
+    \example transitions
     \nextpage creator-writing-program.html
 
     \title Creating a Qt Quick Application
@@ -53,20 +53,19 @@
         \li Select \uicontrol{File > New File or Project > Application >
             Qt Quick Application > Choose}.
 
-        \li In the \uicontrol{Name} field, type \b {Transitions}.
+        \li In the \uicontrol{Name} field, type \e {Transitions}.
 
         \li In the \uicontrol {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \uicontrol{Next} (on
             Windows and Linux) or \uicontrol Continue (on OS X).
 
-        \li In the \uicontrol {Qt Quick component set} field, select
-            \uicontrol {Qt Quick 2.1}.
+        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
+            version to develop with.
 
-            \note This selection determines the set of files that the wizard
+            \note This page determines the set of files that the wizard
             generates and their contents. The instructions in this tutorial
-            might not apply if you select some other component set, such as Qt
-            Quick 2.4. The wizard indicates which Qt version each component set
-            requires at minimum.
+            might not apply if you select the \uicontrol {With .ui.qml file}
+            check box.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
             and then click \uicontrol{Next}.
@@ -96,7 +95,7 @@
     The main view of the application displays a Qt logo in the top left corner
     of the screen and two empty rectangles.
 
-    To use the states.png image in your application, you must copy it to the
+    To use the states.svg image in your application, you must copy it to the
     project directory (same subdirectory as the QML file) from the examples
     directory in the Qt installation directory. For example:
     \c {C:\Qt\Examples\Qt-5.4\declarative\animation\states}. The image appears
@@ -112,10 +111,10 @@
 
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 
-        \li In the \uicontrol Navigator, select \uicontrol MouseArea and
-            \uicontrol Text and press \key Delete to delete them.
+        \li In the \uicontrol Navigator, select \uicontrol Label and press
+            \key Delete to delete it.
 
-        \li Select \uicontrol Window to edit its properties.
+        \li Select \uicontrol ApplicationWindow to edit its properties.
 
             \image qmldesigner-tutorial-page.png "Page properties"
 
@@ -124,12 +123,17 @@
             \li In the \uicontrol Id field, enter \e page, to be able to reference the
                 window from other places.
 
+            \li In the \uicontrol Title field, type \e Transitions.
+
+            \li In the \uicontrol Size field, set \uicontrol W and \uicontrol H
+                to \e 330.
+
             \li In the \uicontrol Color field, set the window background color
-                to #343434.
+                to \e #343434.
 
         \endlist
 
-        \li In \uicontrol Library > \uicontrol Resources, select states.png and
+        \li In \uicontrol Library > \uicontrol Resources, select states.svg and
             drag and drop it to the canvas.
 
             \image qmldesigner-tutorial-user-icon.png "Image properties"
@@ -138,15 +142,17 @@
 
             \li In the \uicontrol Id field, enter \e icon.
 
-            \li In the \uicontrol Position field, set \uicontrol X to 10 and \uicontrol Y to 20.
+            \li In the \uicontrol Position field, set \uicontrol X to \e 10 and
+                \uicontrol Y to \e 20.
 
         \endlist
 
         \li Right-click the resource file, qml.qrc, in the \uicontrol Projects
-            view, and select \uicontrol {Open in Editor} to add states.png to
+            view, and select \uicontrol {Open in Editor} to add states.svg to
             the resource file for deployment.
 
-        \li Click \uicontrol Add and select states.png.
+        \li Click \uicontrol Add > \uicontrol {Add File} and select
+            \e states.svg.
 
         \li In the \uicontrol Design mode, \uicontrol Library view, \uicontrol {QML Types} tab,
             select \uicontrol Rectangle,
@@ -158,26 +164,21 @@
 
             \li In the \uicontrol Id field, enter \e topLeftRect.
 
-            \li In the \uicontrol Size field, set \uicontrol W and \uicontrol H to 64, for the
-                rectangle size to match the image size.
+            \li In the \uicontrol Size field, set \uicontrol W and \uicontrol H
+                to \e 44, for the rectangle size to match the image size.
 
             \li In the \uicontrol Color field, click the
                 \inlineimage qmldesigner-transparent-button.png
                 (\uicontrol Transparent) button to make the rectangle transparent.
 
-            \li In the \uicontrol Border field, set the border color to #808080.
+            \li In the \uicontrol Border field, set the border color to
+                \e #808080.
 
             \li In the \uicontrol Rectangle group, \uicontrol Border field, set the border
-                width to 1.
+                width to \e 1.
 
-                \note If the \uicontrol Border field does not appear after you set the
-                border color, try setting the border color to solid by clicking
-                the
-                \inlineimage qmldesigner-solid-color-button.png
-                (\uicontrol {Solid Color}) button.
-
-            \li In the \uicontrol Radius field, select 6 to create rounded corners for
-                the rectangle.
+            \li In the \uicontrol Radius field, select \e 6 to create rounded
+                corners for the rectangle.
 
             \li Click \uicontrol {Layout}, and then click the top and left anchor
                 buttons to anchor the rectangle to the top left corner of the
@@ -185,8 +186,8 @@
 
                 \image qmldesigner-tutorial-topleftrect-layout.png "Layout tab"
 
-            \li In the \uicontrol Margin field, select 20 for the top anchor and 10
-                for the left anchor.
+            \li In the \uicontrol Margin field, select \e 20 for the top anchor
+                and \e 10 for the left anchor.
 
         \endlist
 
@@ -238,8 +239,8 @@
                 then the right anchor button to
                 anchor the rectangle to the middle right margin of the screen.
 
-            \li In the \uicontrol Margin field, select 10 for the right anchor and 0
-                for the vertical center anchor.
+            \li In the \uicontrol Margin field, select \e 10 for the right
+                anchor and \e 0 for the vertical center anchor.
 
             \li In the code editor, add a pointer to a clicked expression to the
                 mouse area. The following expression sets the state to
@@ -260,8 +261,8 @@
             \li In \uicontrol {Layout}, select the bottom and left anchor buttons to
                 anchor the rectangle to the bottom left margin of the screen.
 
-            \li In the \uicontrol Margin field, select 20 for the bottom anchor and 10
-                for the left anchor.
+            \li In the \uicontrol Margin field, select \e 20 for the bottom
+                anchor and \e 10 for the left anchor.
 
             \li In the code editor, add a pointer to a clicked expression to the
                 mouse area. The following expression sets the state to
@@ -373,13 +374,4 @@
     \endlist
 
     Click the rectangles to view the animated transitions.
-
-    \section1 Example Code
-
-    When you have completed the steps, the main.qml file should look as follows:
-
-            \quotefromfile transitions/main.qml
-            \skipto Window {
-            \printuntil /^\}/
-
 */

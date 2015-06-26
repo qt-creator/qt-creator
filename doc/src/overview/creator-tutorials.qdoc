@@ -26,7 +26,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-build-example-application.html
     \page creator-tutorials.html
-    \nextpage creator-qml-application.html
+    \nextpage {Creating a Qt Quick Application}
 
     \title Tutorials
 
