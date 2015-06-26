@@ -156,14 +156,14 @@ def main():
                   ("color ='silver'", "silver", "color", u"#\u200bc0c0c0"),
                   ("width=66", "66", "width"), ("anchors.centerIn", "<unnamed object>"),
                   ("opacity", "1"), ("opacity = .2", u"0.\u200b2", "opacity")]
-        # check green inner Rectangle
-        runChecks("text='Rectangle'", rootIndex, checks)
+        # check red inner Rectangle
+        runChecks("text='Rectangle' occurrence='2'", rootIndex, checks)
 
         checks = [("color", u"#\u200bff0000"), ("width", "100"), ("height", "100"),
                   ("radius = Math.min(width, height) / 2", "50", "radius"),
                   ("parent.objectName= 'mainRect'", "mainRect")]
-        # check red inner Rectangle
-        runChecks("text='Rectangle' occurrence='2'", rootIndex, checks)
+        # check green inner Rectangle
+        runChecks("text='Rectangle'", rootIndex, checks)
 
         checks = [("color", u"#\u200b000000"), ("font.pointSize=14", "14", "font.pointSize"),
                   ("font.bold", "false"), ("font.weight=Font.Bold", "75", "font.bold", "true"),
