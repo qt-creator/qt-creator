@@ -75,14 +75,8 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
     using namespace Debugger;
     DebuggerStartParameters params;
     params.startMode = AttachExternal;
-    params.languages |= CppLanguage;
-    params.breakOnMain = mode == DebugRunModeWithBreakOnMain;
     // The first Thread needs to be resumed manually.
     params.commandsAfterConnect = "~0 m";
-    Kit *kit = runConfig->target()->kit();
-    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-        params.toolChainAbi = tc->targetAbi();
 
     QFileInfo debuggerHelper(QCoreApplication::applicationDirPath()
                              + QLatin1String("/winrtdebughelper.exe"));
@@ -125,9 +119,8 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
                     return 0;
                 }
                 server.close();
-                params.runConfiguration = runConfig;
                 Debugger::DebuggerRunControl *debugRunControl
-                        = createDebuggerRunControl(params, errorMessage);
+                        = createDebuggerRunControl(params, runConfig, errorMessage, mode);
                 runner->setRunControl(debugRunControl);
                 new WinRtDebugSupport(debugRunControl, runner);
                 return debugRunControl;

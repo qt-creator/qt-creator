@@ -85,6 +85,14 @@ class DebuggerRunParameters : public DebuggerStartParameters
 public:
     DebuggerRunParameters() {}
 
+    DebuggerEngineType masterEngineType = NoEngineType;
+    DebuggerEngineType cppEngineType = NoEngineType;
+
+    DebuggerLanguages languages = AnyLanguage;
+    bool breakOnMain = false;
+    bool multiProcess = false; // Whether to set detach-on-fork off.
+
+    QString debuggerCommand;
     QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
@@ -93,7 +101,12 @@ public:
     QStringList debugSourceLocation; // Gdb "directory"
     QString serverStartScript;
     ProjectExplorer::IDevice::ConstPtr device;
+    QString sysRoot;
     bool isSnapshot = false; // Set if created internally.
+    ProjectExplorer::Abi toolChainAbi;
+
+    QString projectSourceDirectory;
+    QStringList projectSourceFiles;
 
     // Used by AttachCrashedExternal.
     QString crashParameter;

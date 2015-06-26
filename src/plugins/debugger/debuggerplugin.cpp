@@ -2290,19 +2290,14 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
         str << "PID: " << sp.attachPID << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory);
-        if (!sp.projectBuildDirectory.isEmpty())
-            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDirectory)
-                << ')';
-        str << '\n';
         str << "Addtional Search Directories:"
             << sp.additionalSearchDirectories.join(QLatin1Char(' ')) << '\n';
     }
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':'
             << sp.qmlServerPort << '\n';
-    if (!sp.remoteChannel.isEmpty()) {
+    if (!sp.remoteChannel.isEmpty())
         str << "Remote: " << sp.remoteChannel << '\n';
-    }
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1Char(':')) << '\n';
     return rc;

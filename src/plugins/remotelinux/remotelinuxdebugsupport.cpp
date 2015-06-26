@@ -87,42 +87,25 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     const IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return params);
 
+    params.startMode = AttachToRemoteServer;
     params.closeMode = KillAndExitMonitorAtClose;
-    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
-    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        params.toolChainAbi = tc->targetAbi();
+    params.remoteSetupNeeded = true;
+    params.displayName = runConfig->displayName();
 
-    DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;
         params.qmlServerPort = 0; // port is selected later on
     }
     if (aspect->useCppDebugger()) {
-        params.multiProcess = true;
-        aspect->setUseMultiProcess(true); // TODO: One should suffice.
-        params.languages |= CppLanguage;
+        aspect->setUseMultiProcess(true);
         QStringList args = runConfig->arguments();
         if (aspect->useQmlDebugger())
             args.prepend(QString::fromLatin1("-qmljsdebugger=port:%qml_port%,block"));
         params.processArgs = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
-        params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
         params.remoteExecutable = runConfig->remoteExecutableFilePath();
-    } else {
-        params.startMode = AttachToRemoteServer;
-    }
-    params.remoteSetupNeeded = true;
-    params.displayName = runConfig->displayName();
-
-    if (const Project *project = target->project()) {
-        params.projectSourceDirectory = project->projectDirectory().toString();
-        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }
 
     return params;

@@ -119,32 +119,19 @@ RunControl *BareMetalRunControlFactory::create(
 
     DebuggerStartParameters sp;
 
-    if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-        sp.toolChainAbi = tc->targetAbi();
-
-    if (const Project *project = target->project()) {
-        sp.projectSourceDirectory = project->projectDirectory().toString();
-        sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
-
-        if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            sp.projectBuildDirectory = bc->buildDirectory().toString();
-            if (const BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
-                foreach (const BuildStep *bs, bsl->steps()) {
-                    const auto ds = qobject_cast<const BareMetalGdbCommandsDeployStep *>(bs);
-                    if (ds) {
-                        if (!sp.commandsAfterConnect.endsWith("\n"))
-                            sp.commandsAfterConnect.append("\n");
-                        sp.commandsAfterConnect.append(ds->gdbCommands().toLatin1());
-                    }
+    if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
+        if (const BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
+            foreach (const BuildStep *bs, bsl->steps()) {
+                if (auto ds = qobject_cast<const BareMetalGdbCommandsDeployStep *>(bs)) {
+                    if (!sp.commandsAfterConnect.endsWith("\n"))
+                        sp.commandsAfterConnect.append("\n");
+                    sp.commandsAfterConnect.append(ds->gdbCommands().toLatin1());
                 }
             }
         }
     }
 
     sp.executable = bin;
-    sp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    sp.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-    sp.languages |= CppLanguage;
     sp.processArgs = rc->arguments();
     sp.startMode = AttachToRemoteServer;
     sp.displayName = rc->displayName();
@@ -156,8 +143,7 @@ RunControl *BareMetalRunControlFactory::create(
     if (p->startupMode() == GdbServerProvider::StartupOnNetwork)
         sp.remoteSetupNeeded = true;
 
-    sp.runConfiguration = rc;
-    DebuggerRunControl *runControl = createDebuggerRunControl(sp, errorMessage);
+    DebuggerRunControl *runControl = createDebuggerRunControl(sp, rc, errorMessage);
     if (runControl && sp.remoteSetupNeeded) {
         const auto debugSupport = new BareMetalDebugSupport(dev, runControl);
         Q_UNUSED(debugSupport);

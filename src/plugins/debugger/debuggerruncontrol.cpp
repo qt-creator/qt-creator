@@ -295,7 +295,7 @@ public:
     // detectable pieces, construct an Engine and a RunControl.
     void initialize(const DebuggerStartParameters &sp);
     void enrich(const RunConfiguration *runConfig, const Kit *kit);
-    void createRunControl(RunMode runMode = DebugRunMode);
+    void createRunControl(RunMode runMode);
     QString fullError() const { return m_errors.join(QLatin1Char('\n')); }
 
     // Result.
@@ -325,9 +325,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     // Find RunConfiguration.
     if (!m_runConfig)
         m_runConfig = runConfig;
-
-    if (!m_runConfig)
-        m_runConfig = m_rp.runConfiguration;
 
     // Extract as much as possible from available RunConfiguration.
     if (auto localRc = qobject_cast<const LocalApplicationRunConfiguration *>(m_runConfig)) {
@@ -398,16 +395,21 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     }
 
     if (m_runConfig) {
-        auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>();
-        if (envAspect)
+        if (auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>())
             m_rp.environment = envAspect->environment();
     }
 
-    if (m_runConfig)
-        m_debuggerAspect = m_runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(m_kit))
+        m_rp.toolChainAbi = tc->targetAbi();
 
     if (m_target)
         m_project = m_target->project();
+
+    if (m_project && m_rp.projectSourceDirectory.isEmpty())
+        m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
+
+    if (m_project && m_rp.projectSourceFiles.isEmpty())
+        m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
 
     // validate debugger if C++ debugging is enabled
     if (m_rp.languages & CppLanguage) {
@@ -422,22 +424,15 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     m_rp.cppEngineType = DebuggerKitInformation::engineType(m_kit);
     m_rp.sysRoot = SysRootKitInformation::sysRoot(m_kit).toString();
     m_rp.debuggerCommand = DebuggerKitInformation::debuggerCommand(m_kit).toString();
-
-    if (auto toolChain = ToolChainKitInformation::toolChain(m_kit)) {
-        m_rp.toolChainAbi = toolChain->targetAbi();
-    }
-
-    if (m_target) {
-        if (const BuildConfiguration *buildConfig = m_target->activeBuildConfiguration())
-            m_rp.projectBuildDirectory = buildConfig->buildDirectory().toString();
-    }
+    m_rp.device = DeviceKitInformation::device(m_kit);
 
     if (m_project) {
         m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
         m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
     }
 
-    m_rp.device = DeviceKitInformation::device(m_kit);
+    if (m_runConfig)
+        m_debuggerAspect = m_runConfig->extraAspect<DebuggerRunConfigurationAspect>();
 
     if (m_debuggerAspect) {
         m_rp.multiProcess = m_debuggerAspect->useMultiProcess();
@@ -446,6 +441,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
             m_rp.languages |= CppLanguage;
 
         if (m_debuggerAspect->useQmlDebugger()) {
+            m_rp.languages |= QmlLanguage;
             if (m_rp.device && m_rp.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
                 QTcpServer server;
                 const bool canListen = server.listen(QHostAddress::LocalHost)
@@ -456,7 +452,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 }
                 m_rp.qmlServerAddress = server.serverAddress().toString();
                 m_rp.qmlServerPort = server.serverPort();
-                m_rp.languages |= QmlLanguage;
 
                 // Makes sure that all bindings go through the JavaScript engine, so that
                 // breakpoints are actually hit!
@@ -495,6 +490,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (m_rp.masterEngineType == NoEngineType && m_debuggerAspect) {
         const bool useCppDebugger = m_debuggerAspect->useCppDebugger() && (m_rp.languages & CppLanguage);
         const bool useQmlDebugger = m_debuggerAspect->useQmlDebugger() && (m_rp.languages & QmlLanguage);
+
         if (useQmlDebugger) {
             if (useCppDebugger)
                 m_rp.masterEngineType = QmlCppEngineType;
@@ -619,7 +615,7 @@ DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const 
     DebuggerRunControlCreator creator;
     creator.m_rp = rp;
     creator.enrich(0, kit);
-    creator.createRunControl();
+    creator.createRunControl(DebugRunMode);
     if (!creator.m_runControl) {
         ProjectExplorerPlugin::showRunErrorMessage(creator.fullError());
         return 0;
@@ -634,12 +630,15 @@ DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const 
 /**
  * Main entry point for target plugins.
  */
-DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp, QString *errorMessage)
+DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
+                                             RunConfiguration *runConfig,
+                                             QString *errorMessage,
+                                             RunMode runMode)
 {
     DebuggerRunControlCreator creator;
     creator.initialize(sp);
-    creator.enrich(sp.runConfiguration, 0);
-    creator.createRunControl();
+    creator.enrich(runConfig, 0);
+    creator.createRunControl(runMode);
     if (errorMessage)
         *errorMessage = creator.fullError();
     if (!creator.m_runControl) {
@@ -658,7 +657,7 @@ bool fillParametersFromRunConfiguration(DebuggerStartParameters *sp, const RunCo
     DebuggerRunControlCreator creator;
     creator.initialize(*sp);
     creator.enrich(runConfig, 0);
-    creator.createRunControl();
+    creator.createRunControl(DebugRunMode);
     if (errorMessage)
         *errorMessage = creator.fullError();
     *sp = creator.m_rp;

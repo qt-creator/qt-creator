@@ -73,14 +73,7 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
         return params;
 
     params.startMode = AttachToRemoteServer;
-    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
-    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.useCtrlCStub = true;
-    params.runConfiguration = runConfig;
-
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        params.toolChainAbi = tc->targetAbi();
-
     params.executable = runConfig->localExecutableFilePath();
     params.remoteExecutable = runConfig->remoteExecutableFilePath();
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
@@ -89,26 +82,13 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
     params.closeMode = KillAtClose;
     params.processArgs = runConfig->arguments().join(QLatin1Char(' '));
 
-    DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;
         params.qmlServerPort = 0; // QML port is handed out later
     }
 
-    if (aspect->useCppDebugger())
-        params.languages |= CppLanguage;
-
-    if (const Project *project = runConfig->target()->project()) {
-        params.projectSourceDirectory = project->projectDirectory().toString();
-        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
-    }
-
-    QnxQtVersion *qtVersion =
-            dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
+    auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
     if (qtVersion)
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
@@ -178,7 +158,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         return new QnxRunControl(rc);
     case DebugRunMode: {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
-        DebuggerRunControl * const runControl = createDebuggerRunControl(params, errorMessage);
+        DebuggerRunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
         if (!runControl)
             return 0;
 
