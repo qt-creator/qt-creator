@@ -8,7 +8,7 @@
 
     <InstallerWindowIcon>logo.png</InstallerWindowIcon>
     <Watermark>watermark.png</Watermark>
-    <UninstallerName>QtCreatorUninst</UninstallerName>
+    <MaintenanceToolName>QtCreatorUninst</MaintenanceToolName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
     <TargetDir>@rootDir@/Qt/qtcreator-{version}</TargetDir>
 </Installer>
