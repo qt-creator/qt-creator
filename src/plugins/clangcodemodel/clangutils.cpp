@@ -58,20 +58,6 @@ namespace Utils {
 
 Q_LOGGING_CATEGORY(verboseRunLog, "qtc.clangcodemodel.verboserun")
 
-namespace {
-bool isBlacklisted(const QString &path)
-{
-    static QStringList blacklistedPaths = QStringList()
-            << QLatin1String("lib/gcc/i686-apple-darwin");
-
-    foreach (const QString &blacklisted, blacklistedPaths)
-        if (path.contains(blacklisted))
-            return true;
-
-    return false;
-}
-} // anonymous namespace
-
 UnsavedFiles createUnsavedFiles(WorkingCopy workingCopy)
 {
     // TODO: change the modelmanager to hold one working copy, and amend it every time we ask for one.
@@ -132,6 +118,72 @@ static bool maybeIncludeBorlandExtensions()
 #endif
 }
 
+class LibClangOptionsBuilder : public CompilerOptionsBuilder
+{
+public:
+    static QStringList build(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
+    {
+        if (pPart.isNull())
+            return QStringList();
+
+        LibClangOptionsBuilder optionsBuilder(pPart);
+
+        if (verboseRunLog().isDebugEnabled())
+            optionsBuilder.add(QLatin1String("-v"));
+
+        optionsBuilder.addLanguageOption(fileKind);
+        optionsBuilder.addOptionsForLanguage(maybeIncludeBorlandExtensions());
+        optionsBuilder.addToolchainAndProjectDefines();
+
+        static const QString resourceDir = getResourceDir();
+        if (!resourceDir.isEmpty()) {
+            optionsBuilder.add(QLatin1String("-nostdlibinc"));
+            optionsBuilder.add(QLatin1String("-I") + resourceDir);
+            optionsBuilder.add(QLatin1String("-undef"));
+        }
+
+        optionsBuilder.addHeaderPathOptions();
+
+        // Inject header file
+        static const QString injectedHeader = ICore::instance()->resourcePath()
+                + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
+
+//        if (pPart->qtVersion == ProjectPart::Qt4) {
+//            builder.addOption(QLatin1String("-include"));
+//            builder.addOption(injectedHeader.arg(QLatin1Char('4')));
+//        }
+
+        if (pPart->qtVersion == ProjectPart::Qt5) {
+            optionsBuilder.add(QLatin1String("-include"));
+            optionsBuilder.add(injectedHeader.arg(QLatin1Char('5')));
+        }
+
+        if (!pPart->projectConfigFile.isEmpty()) {
+            optionsBuilder.add(QLatin1String("-include"));
+            optionsBuilder.add(pPart->projectConfigFile);
+        }
+
+        optionsBuilder.add(QLatin1String("-fmessage-length=0"));
+        optionsBuilder.add(QLatin1String("-fdiagnostics-show-note-include-stack"));
+        optionsBuilder.add(QLatin1String("-fmacro-backtrace-limit=0"));
+        optionsBuilder.add(QLatin1String("-fretain-comments-from-system-headers"));
+        // TODO: -Xclang -ferror-limit -Xclang 0 ?
+
+        return optionsBuilder.options();
+    }
+
+private:
+    LibClangOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
+        : CompilerOptionsBuilder(projectPart)
+    {
+    }
+
+    bool excludeHeaderPath(const QString &path) const override
+    {
+        return path.contains(QLatin1String("lib/gcc/i686-apple-darwin"));
+    }
+};
+
 /**
  * @brief Creates list of command-line arguments required for correct parsing
  * @param pPart Null if file isn't part of any project
@@ -139,53 +191,7 @@ static bool maybeIncludeBorlandExtensions()
  */
 QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
 {
-    if (pPart.isNull())
-        return QStringList();
-
-    CompilerOptionsBuilder optionsBuilder(pPart);
-
-    if (verboseRunLog().isDebugEnabled())
-        optionsBuilder.add(QLatin1String("-v"));
-
-    optionsBuilder.addLanguageOption(fileKind);
-    optionsBuilder.addOptionsForLanguage(maybeIncludeBorlandExtensions());
-    optionsBuilder.addToolchainAndProjectDefines();
-
-    static const QString resourceDir = getResourceDir();
-    if (!resourceDir.isEmpty()) {
-        optionsBuilder.add(QLatin1String("-nostdlibinc"));
-        optionsBuilder.add(QLatin1String("-I") + resourceDir);
-        optionsBuilder.add(QLatin1String("-undef"));
-    }
-
-    optionsBuilder.addHeaderPathOptions(isBlacklisted);
-
-    // Inject header file
-    static const QString injectedHeader = ICore::instance()->resourcePath()
-            + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
-
-//    if (pPart->qtVersion == ProjectPart::Qt4) {
-//        builder.addOption(QLatin1String("-include"));
-//        builder.addOption(injectedHeader.arg(QLatin1Char('4')));
-//    }
-
-    if (pPart->qtVersion == ProjectPart::Qt5) {
-        optionsBuilder.add(QLatin1String("-include"));
-        optionsBuilder.add(injectedHeader.arg(QLatin1Char('5')));
-    }
-
-    if (!pPart->projectConfigFile.isEmpty()) {
-        optionsBuilder.add(QLatin1String("-include"));
-        optionsBuilder.add(pPart->projectConfigFile);
-    }
-
-    optionsBuilder.add(QLatin1String("-fmessage-length=0"));
-    optionsBuilder.add(QLatin1String("-fdiagnostics-show-note-include-stack"));
-    optionsBuilder.add(QLatin1String("-fmacro-backtrace-limit=0"));
-    optionsBuilder.add(QLatin1String("-fretain-comments-from-system-headers"));
-    // TODO: -Xclang -ferror-limit -Xclang 0 ?
-
-    return optionsBuilder.options();
+    return LibClangOptionsBuilder::build(pPart, fileKind);
 }
 
 /// @return Option to speed up parsing with precompiled header
