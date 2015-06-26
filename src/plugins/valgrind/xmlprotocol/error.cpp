@@ -238,8 +238,8 @@ QString Error::toXml() const
                 stream << "      <fn>" << frame.functionName() << "</fn>\n";
             if (!frame.directory().isEmpty())
                 stream << "      <dir>" << frame.directory() << "</dir>\n";
-            if (!frame.file().isEmpty())
-                stream << "      <file>" << frame.file() << "</file>\n";
+            if (!frame.fileName().isEmpty())
+                stream << "      <file>" << frame.fileName() << "</file>\n";
             if (frame.line() != -1)
                 stream << "      <line>" << frame.line() << "</line>";
             stream << "    </frame>\n";

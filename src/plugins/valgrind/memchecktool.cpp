@@ -299,11 +299,11 @@ public:
         //find the first frame belonging to the project
         if (!m_projectFiles.isEmpty()) {
             foreach (const Frame &frame, frames) {
-                if (frame.directory().isEmpty() || frame.file().isEmpty())
+                if (frame.directory().isEmpty() || frame.fileName().isEmpty())
                     continue;
 
                 //filepaths can contain "..", clean them:
-                const QString f = QFileInfo(frame.directory() + QLatin1Char('/') + frame.file()).absoluteFilePath();
+                const QString f = QFileInfo(frame.filePath()).absoluteFilePath();
                 if (m_projectFiles.contains(f))
                     return frame;
             }
