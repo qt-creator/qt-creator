@@ -43,6 +43,9 @@
     For more information about using \QMLD, see
     \l{Developing Qt Quick Applications}.
 
+    For tutorials that describe using Qt Quick Controls, see
+    \l{Qt Quick Text Editor Guide} and \l{Qt Quick Controls - UI Forms}.
+
     \section1 Creating the Project
 
     \list 1
