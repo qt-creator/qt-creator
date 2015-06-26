@@ -102,6 +102,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     }
     if (aspect->useCppDebugger()) {
         params.multiProcess = true;
+        aspect->setUseMultiProcess(true); // TODO: One should suffice.
         params.languages |= CppLanguage;
         QStringList args = runConfig->arguments();
         if (aspect->useQmlDebugger())
