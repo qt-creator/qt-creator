@@ -203,14 +203,14 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
 
     QScopedPointer<Public_Key> sigKey;
     if (m_serverHostKeyAlgo == SshCapabilities::PubKeyDss) {
-        const DL_Group group(reply.parameters.at(0), reply.parameters.at(1),
-            reply.parameters.at(2));
+        const DL_Group group(reply.hostKeyParameters.at(0), reply.hostKeyParameters.at(1),
+            reply.hostKeyParameters.at(2));
         DSA_PublicKey * const dsaKey
-            = new DSA_PublicKey(group, reply.parameters.at(3));
+            = new DSA_PublicKey(group, reply.hostKeyParameters.at(3));
         sigKey.reset(dsaKey);
     } else if (m_serverHostKeyAlgo == SshCapabilities::PubKeyRsa) {
         RSA_PublicKey * const rsaKey
-            = new RSA_PublicKey(reply.parameters.at(1), reply.parameters.at(0));
+            = new RSA_PublicKey(reply.hostKeyParameters.at(1), reply.hostKeyParameters.at(0));
         sigKey.reset(rsaKey);
     } else {
         QSSH_ASSERT_AND_RETURN(m_serverHostKeyAlgo == SshCapabilities::PubKeyEcdsa);

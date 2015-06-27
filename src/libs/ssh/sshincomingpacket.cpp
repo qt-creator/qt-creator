@@ -176,13 +176,13 @@ static void getHostKeySpecificReplyData(SshKeyExchangeReply &replyData,
     quint32 offset = 0;
     if (hostKeyAlgo == SshCapabilities::PubKeyDss || hostKeyAlgo == SshCapabilities::PubKeyRsa) {
         // DSS: p and q, RSA: e and n
-        replyData.parameters << SshPacketParser::asBigInt(input, &offset);
-        replyData.parameters << SshPacketParser::asBigInt(input, &offset);
+        replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
+        replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
 
         // g and y
         if (hostKeyAlgo == SshCapabilities::PubKeyDss) {
-            replyData.parameters << SshPacketParser::asBigInt(input, &offset);
-            replyData.parameters << SshPacketParser::asBigInt(input, &offset);
+            replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
+            replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
         }
     } else {
         QSSH_ASSERT_AND_RETURN(hostKeyAlgo == SshCapabilities::PubKeyEcdsa);
