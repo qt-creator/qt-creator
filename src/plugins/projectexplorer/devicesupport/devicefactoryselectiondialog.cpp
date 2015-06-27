@@ -87,7 +87,7 @@ Core::Id DeviceFactorySelectionDialog::selectedId() const
     QList<QListWidgetItem *> selected = ui->listWidget->selectedItems();
     if (selected.isEmpty())
         return Core::Id();
-    return Core::Id::fromSetting(selected.at(0)->data(Qt::UserRole));
+    return selected.at(0)->data(Qt::UserRole).value<Core::Id>();
 }
 
 } // namespace Internal
