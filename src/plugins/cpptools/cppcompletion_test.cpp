@@ -2547,6 +2547,21 @@ void CppToolsPlugin::test_completion_data()
         ) << _("ar") << (QStringList()
             << QLatin1String("arg1"));
 
+    QTest::newRow("local_typedef_access_in_lambda") << _(
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    typedef Foo F;\n"
+            "    []() {\n"
+            "        F f;\n"
+            "        @\n"
+            "    };\n"
+            "}\n"
+    ) << _("f.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
+
     QTest::newRow("default_arguments_for_class_templates_and_base_class_QTCREATORBUG-12605") << _(
             "struct Foo { int foo; };\n"
             "template <typename T = Foo>\n"
