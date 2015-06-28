@@ -1551,6 +1551,29 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("C")
             << QLatin1String("m"));
 
+    QTest::newRow("type_and_using_declaration: type in nested namespace and using in global") << _(
+            "namespace Ns {\n"
+            "namespace Nested {\n"
+            "struct Foo\n"
+            "{\n"
+            "    void func();\n"
+            "    int m_bar;\n"
+            "};\n"
+            "}\n"
+            "}\n"
+            "\n"
+            "using namespace Ns::Nested;\n"
+            "\n"
+            "namespace Ns\n"
+            "{\n"
+            "void Foo::func()\n"
+            "{\n"
+            "    @\n"
+            "}\n"
+            "}\n"
+        ) << _("m_") << (QStringList()
+            << QLatin1String("m_bar"));
+
     QTest::newRow("instantiate_template_with_anonymous_class") << _(
             "template <typename T>\n"
             "struct S\n"

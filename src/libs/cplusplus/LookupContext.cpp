@@ -1021,7 +1021,7 @@ LookupScope *LookupScope::lookupType(const Name *name, Block *block)
 LookupScope *LookupScope::findType(const Name *name)
 {
     ProcessedSet processed;
-    return d->lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false, d);
+    return d->lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ true, d);
 }
 
 LookupScope *Internal::LookupScopePrivate::findBlock_helper(
