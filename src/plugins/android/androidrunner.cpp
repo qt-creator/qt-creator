@@ -125,21 +125,21 @@ static int socketHandShakePort = MIN_SOCKET_HANDSHAKE_PORT;
 
 AndroidRunner::AndroidRunner(QObject *parent,
                              AndroidRunConfiguration *runConfig,
-                             ProjectExplorer::RunMode runMode)
+                             Core::Id runMode)
     : QThread(parent), m_handShakeMethod(SocketHandShake), m_socket(0),
       m_customPort(false)
 {
     m_tries = 0;
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    const bool debuggingMode = runMode == ProjectExplorer::DebugRunMode;
+    const bool debuggingMode = (runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE || runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     m_useQmlDebugger = debuggingMode && aspect->useQmlDebugger();
     QString channel = runConfig->remoteChannel();
     QTC_CHECK(channel.startsWith(QLatin1Char(':')));
     m_localGdbServerPort = channel.mid(1).toUShort();
     QTC_CHECK(m_localGdbServerPort);
-    m_useQmlProfiler = runMode == ProjectExplorer::QmlProfilerRunMode;
+    m_useQmlProfiler = runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE;
     if (m_useQmlDebugger || m_useQmlProfiler) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)

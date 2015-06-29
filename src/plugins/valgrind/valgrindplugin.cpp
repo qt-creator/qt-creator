@@ -54,7 +54,6 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/hostosinfo.h>
 
@@ -166,7 +165,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setWidgetCreator(mcWidgetCreator);
         action->setRunControlCreator(mcRunControlCreator);
         action->setToolMode(DebugMode);
-        action->setRunMode(ProjectExplorer::MemcheckRunMode);
+        action->setRunMode(MEMCHECK_RUN_MODE);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
         action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
@@ -182,7 +181,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setRunControlCreator(std::bind(&MemcheckWithGdbTool::createRunControl,
                                                mcgTool, _1, _2));
         action->setToolMode(DebugMode);
-        action->setRunMode(ProjectExplorer::MemcheckWithGdbRunMode);
+        action->setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
             "Memcheck tool to find memory leaks.\nWhen a problem is detected, "
@@ -197,7 +196,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setWidgetCreator(cgWidgetCreator);
         action->setRunControlCreator(cgRunControlCreator);
         action->setToolMode(ReleaseMode);
-        action->setRunMode(CallgrindRunMode);
+        action->setRunMode(CALLGRIND_RUN_MODE);
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);
         action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
@@ -216,7 +215,7 @@ void ValgrindPlugin::extensionsInitialized()
         ValgrindRunControl *rc = mcTool->createRunControl(sp, 0);
         QTC_ASSERT(rc, return);
         rc->setCustomStart();
-        ProjectExplorerPlugin::startRunControl(rc, MemcheckRunMode);
+        ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
     });
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
@@ -234,7 +233,7 @@ void ValgrindPlugin::extensionsInitialized()
         ValgrindRunControl *rc = cgTool->createRunControl(sp, 0);
         QTC_ASSERT(rc, return);
         rc->setCustomStart();
-        ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
+        ProjectExplorerPlugin::startRunControl(rc, CALLGRIND_RUN_MODE);
     });
 
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));

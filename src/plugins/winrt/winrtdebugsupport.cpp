@@ -68,7 +68,7 @@ void WinRtDebugSupport::finish()
 }
 
 RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runConfig,
-                                                     RunMode mode,
+                                                     Core::Id mode,
                                                      QString *errorMessage)
 {
     // FIXME: This is just working for local debugging;

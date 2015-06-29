@@ -33,7 +33,7 @@
 
 #include "androidconfigurations.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <QObject>
 #include <QTimer>
@@ -58,7 +58,7 @@ class AndroidRunner : public QThread
 
 public:
     AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig,
-                  ProjectExplorer::RunMode runMode);
+                  Core::Id runMode);
     ~AndroidRunner();
 
     QString displayName() const;

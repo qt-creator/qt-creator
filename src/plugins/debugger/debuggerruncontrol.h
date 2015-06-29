@@ -50,7 +50,7 @@ class DebuggerRunControlCreator;
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              ProjectExplorer::RunConfiguration *runConfig,
                                                              QString *errorMessage,
-                                                             ProjectExplorer::RunMode runMode = ProjectExplorer::DebugRunMode);
+                                                             Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl

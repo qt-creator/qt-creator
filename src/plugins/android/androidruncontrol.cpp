@@ -42,8 +42,8 @@ namespace Android {
 namespace Internal {
 
 AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
-    : RunControl(rc, NormalRunMode)
-    , m_runner(new AndroidRunner(this, rc, NormalRunMode))
+    : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
+    , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
     , m_running(false)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));

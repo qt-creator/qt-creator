@@ -41,6 +41,8 @@ const char CallgrindLocalActionId[] = "Callgrind.Local";
 const char CallgrindRemoteActionId[] = "Callgrind.Remote";
 
 class ValgrindRunControl;
+const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";
+
 class CallgrindToolPrivate;
 
 class CallgrindTool : public QObject

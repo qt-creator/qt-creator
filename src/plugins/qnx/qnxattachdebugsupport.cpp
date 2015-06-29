@@ -135,7 +135,7 @@ void QnxAttachDebugSupport::attachToProcess()
     }
     connect(runControl, &Debugger::DebuggerRunControl::stateChanged,
             this, &QnxAttachDebugSupport::handleDebuggerStateChanged);
-    ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::DebugRunMode);
+    ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
 }
 
 void QnxAttachDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState state)

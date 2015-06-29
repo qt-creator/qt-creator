@@ -50,12 +50,17 @@ class Error;
 }
 
 namespace Valgrind {
+
+const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
+const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
+
 namespace Internal {
 
 class FrameFinder;
 class MemcheckErrorView;
 class MemcheckRunControl;
 class ValgrindBaseSettings;
+
 
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 {

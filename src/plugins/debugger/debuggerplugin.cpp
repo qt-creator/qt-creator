@@ -810,7 +810,7 @@ public slots:
     void handleExecStep()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -823,7 +823,7 @@ public slots:
     void handleExecNext()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -1306,7 +1306,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_continueAction->setEnabled(false);
     m_exitAction->setEnabled(false);
     QString whyNot;
-    const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode, &whyNot);
+    const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
@@ -1978,7 +1978,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
         Project *project = SessionManager::startupProject();
-        const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode);
+        const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         // We don't want to do anything anymore.
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
@@ -2080,7 +2080,7 @@ void DebuggerPluginPrivate::updateDebugActions()
 
     Project *project = SessionManager::startupProject();
     QString whyNot;
-    const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode, &whyNot);
+    const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
@@ -2089,7 +2089,7 @@ void DebuggerPluginPrivate::updateDebugActions()
     if (m_snapshotHandler->currentIndex() < 0) {
         QString toolTip;
         const bool canRunAndBreakMain
-                = ProjectExplorerPlugin::canRun(project, DebugRunModeWithBreakOnMain, &toolTip);
+                = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, &toolTip);
         m_stepAction->setEnabled(canRunAndBreakMain);
         m_nextAction->setEnabled(canRunAndBreakMain);
         if (canRunAndBreakMain) {
@@ -2592,11 +2592,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
-    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode); });
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
 
     act = m_debugWithoutDeployAction = new QAction(this);
     act->setText(tr("Start Debugging Without Deployment"));
-    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode, true); });
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, true); });
 
     act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));

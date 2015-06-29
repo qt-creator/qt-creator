@@ -203,12 +203,12 @@ public:
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QList<Id> stepIds);
     void updateContextMenuActions();
-    void executeRunConfiguration(RunConfiguration *, RunMode mode);
+    void executeRunConfiguration(RunConfiguration *, Core::Id mode);
     QPair<bool, QString> buildSettingsEnabledForSession();
     QPair<bool, QString> buildSettingsEnabled(Project *pro);
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
-    void startRunControl(RunControl *runControl, RunMode runMode);
+    void startRunControl(RunControl *runControl, Core::Id runMode);
 
     void updateActions();
     void updateContext();
@@ -350,9 +350,9 @@ public:
 
     QString m_lastOpenDirectory;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
-    QList<QPair<RunConfiguration *, RunMode>> m_delayedRunConfigurationForRun;
+    QList<QPair<RunConfiguration *, Core::Id>> m_delayedRunConfigurationForRun;
     bool m_shouldHaveRunConfiguration;
-    RunMode m_runMode;
+    Core::Id m_runMode;
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
@@ -373,7 +373,7 @@ public:
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_shouldHaveRunConfiguration(false),
-    m_runMode(NoRunMode),
+    m_runMode(Constants::NO_RUN_MODE),
     m_projectsMode(0),
     m_kitManager(0),
     m_toolChainManager(0),
@@ -1901,7 +1901,7 @@ void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
 }
 
 // NBS TODO implement more than one runner
-static IRunControlFactory *findRunControlFactory(RunConfiguration *config, RunMode mode)
+static IRunControlFactory *findRunControlFactory(RunConfiguration *config, Core::Id mode)
 {
     return ExtensionSystem::PluginManager::getObject<IRunControlFactory>(
         [&config, &mode](IRunControlFactory *factory) {
@@ -1909,7 +1909,7 @@ static IRunControlFactory *findRunControlFactory(RunConfiguration *config, RunMo
         });
 }
 
-void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, RunMode runMode)
+void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
 {
     if (!runConfiguration->isConfigured()) {
         QString errorMessage;
@@ -1947,18 +1947,18 @@ void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
         QMessageBox::critical(ICore::mainWindow(), errorMessage.isNull() ? tr("Unknown error") : tr("Could Not Run"), errorMessage);
 }
 
-void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runMode)
+void ProjectExplorerPlugin::startRunControl(RunControl *runControl, Core::Id runMode)
 {
     dd->startRunControl(runControl, runMode);
 }
 
-void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl, RunMode runMode)
+void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl, Core::Id runMode)
 {
     m_outputPane->createNewOutputWindow(runControl);
     m_outputPane->flash(); // one flash for starting
     m_outputPane->showTabFor(runControl);
-    bool popup = (runMode == NormalRunMode && dd->m_projectExplorerSettings.showRunOutput)
-            || ((runMode == DebugRunMode || runMode == DebugRunModeWithBreakOnMain)
+    bool popup = (runMode == Constants::NORMAL_RUN_MODE && dd->m_projectExplorerSettings.showRunOutput)
+            || ((runMode == Constants::DEBUG_RUN_MODE || runMode == Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
                 && m_projectExplorerSettings.showDebugOutput);
     m_outputPane->setBehaviorOnOutput(runControl, popup ? AppOutputPane::Popup : AppOutputPane::Flash);
     runControl->start();
@@ -2001,13 +2001,13 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
     }
     m_delayedRunConfiguration = 0;
     m_shouldHaveRunConfiguration = false;
-    m_runMode = NoRunMode;
+    m_runMode = Constants::NO_RUN_MODE;
 }
 
 void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
 {
     RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
-    RunMode runMode = NoRunMode;
+    Core::Id runMode = Constants::NO_RUN_MODE;
     for (int i = 0; i < m_delayedRunConfigurationForRun.size(); ++i) {
         if (m_delayedRunConfigurationForRun.at(i).first == rc) {
             runMode = m_delayedRunConfigurationForRun.at(i).second;
@@ -2015,7 +2015,7 @@ void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
             break;
         }
     }
-    if (runMode != NoRunMode && rc->isConfigured())
+    if (runMode != Constants::NO_RUN_MODE && rc->isConfigured())
         executeRunConfiguration(rc, runMode);
 }
 
@@ -2368,12 +2368,12 @@ void ProjectExplorerPluginPrivate::cleanSession()
 
 void ProjectExplorerPluginPrivate::handleRunProject()
 {
-    m_instance->runStartupProject(NormalRunMode);
+    m_instance->runStartupProject(Constants::NORMAL_RUN_MODE);
 }
 
 void ProjectExplorerPluginPrivate::runProjectWithoutDeploy()
 {
-    m_instance->runStartupProject(NormalRunMode, true);
+    m_instance->runStartupProject(Constants::NORMAL_RUN_MODE, true);
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
@@ -2381,7 +2381,7 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu()
     Node *node = ProjectTree::currentNode();
     ProjectNode *projectNode = node ? node->asProjectNode() : 0;
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
-        m_instance->runProject(ProjectTree::currentProject(), NormalRunMode);
+        m_instance->runProject(ProjectTree::currentProject(), Constants::NORMAL_RUN_MODE);
     } else {
         QAction *act = qobject_cast<QAction *>(sender());
         if (!act)
@@ -2389,7 +2389,7 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu()
         RunConfiguration *rc = act->data().value<RunConfiguration *>();
         if (!rc)
             return;
-        m_instance->runRunConfiguration(rc, NormalRunMode);
+        m_instance->runRunConfiguration(rc, Constants::NORMAL_RUN_MODE);
     }
 }
 
@@ -2493,7 +2493,7 @@ static bool hasDeploySettings(Project *pro)
     });
 }
 
-void ProjectExplorerPlugin::runProject(Project *pro, RunMode mode, const bool forceSkipDeploy)
+void ProjectExplorerPlugin::runProject(Project *pro, Core::Id mode, const bool forceSkipDeploy)
 {
     if (!pro)
         return;
@@ -2503,13 +2503,13 @@ void ProjectExplorerPlugin::runProject(Project *pro, RunMode mode, const bool fo
             runRunConfiguration(rc, mode, forceSkipDeploy);
 }
 
-void ProjectExplorerPlugin::runStartupProject(RunMode runMode, bool forceSkipDeploy)
+void ProjectExplorerPlugin::runStartupProject(Core::Id runMode, bool forceSkipDeploy)
 {
     runProject(SessionManager::startupProject(), runMode, forceSkipDeploy);
 }
 
 void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
-                                                RunMode runMode,
+                                                Core::Id runMode,
                                                 const bool forceSkipDeploy)
 {
     if (!rc->isEnabled())
@@ -2680,7 +2680,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     emit m_instance->updateRunActions();
 }
 
-bool ProjectExplorerPlugin::canRun(Project *project, RunMode runMode, QString *whyNot)
+bool ProjectExplorerPlugin::canRun(Project *project, Core::Id runMode, QString *whyNot)
 {
     if (!project) {
         if (whyNot)
@@ -2747,7 +2747,7 @@ void ProjectExplorerPluginPrivate::slotUpdateRunActions()
 {
     Project *project = SessionManager::startupProject();
     QString whyNot;
-    const bool state = ProjectExplorerPlugin::canRun(project, NormalRunMode, &whyNot);
+    const bool state = ProjectExplorerPlugin::canRun(project, Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAction->setEnabled(state);
     m_runAction->setToolTip(whyNot);
     m_runWithoutDeployAction->setEnabled(state);

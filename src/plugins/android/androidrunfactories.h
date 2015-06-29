@@ -53,9 +53,9 @@ public:
     explicit AndroidRunControlFactory(QObject *parent = 0);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const;
+                Core::Id mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       ProjectExplorer::RunMode mode,
+                       Core::Id mode,
                        QString *errorMessage);
 };
 

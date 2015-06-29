@@ -84,7 +84,7 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
     if (device.isNull())
         return 0;
     AnalyzerStartParameters params;
-    params.runMode = QmlProfilerRunMode;
+    params.runMode = ProjectExplorer::Constants::QML_PROFILER_RUN_MODE;
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
     params.debuggee = runConfig->localExecutable().toUserOutput();
     params.debuggeeArgs = Utils::QtcProcess::joinArgs(runConfig->commandLineArguments());

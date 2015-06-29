@@ -406,7 +406,7 @@ private:
 class PythonRunControl : public RunControl
 {
 public:
-    PythonRunControl(PythonRunConfiguration *runConfiguration, RunMode mode);
+    PythonRunControl(PythonRunConfiguration *runConfiguration, Core::Id mode);
 
     void start();
     StopResult stop();
@@ -1098,16 +1098,16 @@ bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFi
 class PythonRunControlFactory : public IRunControlFactory
 {
 public:
-    bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
-    RunControl *create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage);
+    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const;
+    RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage);
 };
 
-bool PythonRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool PythonRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == NormalRunMode && dynamic_cast<PythonRunConfiguration *>(runConfiguration);
+    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE && dynamic_cast<PythonRunConfiguration *>(runConfiguration);
 }
 
-RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
@@ -1116,7 +1116,7 @@ RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, 
 
 // PythonRunControl
 
-PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, RunMode mode)
+PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_running(false)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));

@@ -51,7 +51,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 /*!
     \class ProjectExplorer::ProcessHandle
@@ -515,7 +515,7 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
     than it needs to be.
 */
 
-RunControl::RunControl(RunConfiguration *runConfiguration, RunMode mode)
+RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode)
     : m_runMode(mode), m_runConfiguration(runConfiguration), m_outputFormatter(0)
 {
     if (runConfiguration) {
@@ -537,7 +537,7 @@ Utils::OutputFormatter *RunControl::outputFormatter()
     return m_outputFormatter;
 }
 
-RunMode RunControl::runMode() const
+Core::Id RunControl::runMode() const
 {
     return m_runMode;
 }
@@ -663,3 +663,5 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
     emit appendMessage(this, msg, format);
 }
+
+} // namespace ProjectExplorer

@@ -81,9 +81,9 @@ public:
     explicit IosRunControlFactory(QObject *parent = 0);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const override;
+                Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       ProjectExplorer::RunMode mode,
+                       Core::Id mode,
                        QString *errorMessage) override;
 private:
     mutable QMap<Core::Id, QPointer<ProjectExplorer::RunControl> > m_activeRunControls;

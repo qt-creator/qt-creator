@@ -71,17 +71,20 @@ BareMetalRunControlFactory::~BareMetalRunControlFactory()
 {
 }
 
-bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode && mode != DebugRunModeWithBreakOnMain)
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         return false;
+    }
 
     const QByteArray idStr = runConfiguration->id().name();
     return runConfiguration->isEnabled() && idStr.startsWith(BareMetalRunConfiguration::IdPrefix);
 }
 
 RunControl *BareMetalRunControlFactory::create(
-        RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+        RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 

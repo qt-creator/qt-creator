@@ -47,7 +47,7 @@ class WinRtDebugSupport : public QObject
     Q_OBJECT
 public:
     static ProjectExplorer::RunControl *createDebugRunControl(WinRtRunConfiguration *runConfig,
-                                                              ProjectExplorer::RunMode mode,
+                                                              Core::Id mode,
                                                               QString *errorMessage);
     ~WinRtDebugSupport();
 

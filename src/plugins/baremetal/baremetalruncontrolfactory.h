@@ -47,9 +47,9 @@ class BareMetalRunControlFactory : public ProjectExplorer::IRunControlFactory
 public:
     explicit BareMetalRunControlFactory(QObject *parent = 0);
     ~BareMetalRunControlFactory();
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode,
+                                        Core::Id mode,
                                         QString *errorMessage);
 };
 

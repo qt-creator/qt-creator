@@ -41,7 +41,7 @@ namespace Ios {
 namespace Internal {
 
 IosRunControl::IosRunControl(IosRunConfiguration *rc)
-    : RunControl(rc, NormalRunMode)
+    : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
     , m_runner(new IosRunner(this, rc, false, false))
     , m_running(false)
 {

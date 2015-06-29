@@ -57,9 +57,9 @@ QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
 {
 }
 
-bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == QmlProfilerRunMode
+    return mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
             && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
 }
 
@@ -83,7 +83,7 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
     return sp;
 }
 
-RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 

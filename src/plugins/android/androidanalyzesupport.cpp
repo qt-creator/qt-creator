@@ -52,7 +52,7 @@ namespace Android {
 namespace Internal {
 
 RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                           RunMode runMode)
+                                                           Core::Id runMode)
 {
     Target *target = runConfig->target();
     AnalyzerStartParameters params;
@@ -61,7 +61,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
     // TODO: Not sure if these are the right paths.
     params.workingDirectory = target->project()->projectDirectory().toString();
-    if (runMode == QmlProfilerRunMode) {
+    if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);

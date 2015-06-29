@@ -56,35 +56,30 @@ AndroidRunControlFactory::AndroidRunControlFactory(QObject *parent)
 {
 }
 
-bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode)
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         return false;
+    }
     return qobject_cast<AndroidRunConfiguration *>(runConfiguration);
 }
 
 RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
-                                        RunMode mode, QString *errorMessage)
+                                        Core::Id mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
     AndroidRunConfiguration *rc = qobject_cast<AndroidRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
-    switch (mode) {
-    case NormalRunMode:
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         return new AndroidRunControl(rc);
-    case DebugRunMode:
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
         return AndroidDebugSupport::createDebugRunControl(rc, errorMessage);
-    case QmlProfilerRunMode:
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         return AndroidAnalyzeSupport::createAnalyzeRunControl(rc, mode);
-    case NoRunMode:
-    case DebugRunModeWithBreakOnMain:
-    case CallgrindRunMode:
-    case MemcheckRunMode:
-    case MemcheckWithGdbRunMode:
-    case ClangStaticAnalyzerMode:
-    case PerfProfilerRunMode:
-        QTC_CHECK(false); // The other run modes are not supported
-    }
+    QTC_CHECK(false); // The other run modes are not supported
     return 0;
 }
 

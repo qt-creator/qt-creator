@@ -486,7 +486,7 @@ void QmlProfilerTool::startRemoteTool()
     sp.analyzerPort = port;
 
     AnalyzerRunControl *rc = createRunControl(sp, 0);
-    ProjectExplorerPlugin::startRunControl(rc, QmlProfilerRunMode);
+    ProjectExplorerPlugin::startRunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 
 void QmlProfilerTool::logState(const QString &msg)

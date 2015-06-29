@@ -70,6 +70,9 @@ namespace Debugger {
 namespace Internal {
 
 DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QStringList *error);
+const auto *DebugRunMode = ProjectExplorer::Constants::DEBUG_RUN_MODE;
+const auto *DebugRunModeWithBreakOnMain = ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN;
+
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createQmlEngine(const DebuggerRunParameters &rp);
@@ -295,7 +298,7 @@ public:
     // detectable pieces, construct an Engine and a RunControl.
     void initialize(const DebuggerStartParameters &sp);
     void enrich(const RunConfiguration *runConfig, const Kit *kit);
-    void createRunControl(RunMode runMode);
+    void createRunControl(Core::Id runMode = DebugRunMode);
     QString fullError() const { return m_errors.join(QLatin1Char('\n')); }
 
     // Result.
@@ -536,7 +539,7 @@ DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters 
     return 0;
 }
 
-void DebuggerRunControlCreator::createRunControl(RunMode runMode)
+void DebuggerRunControlCreator::createRunControl(Core::Id runMode)
 {
     if (runMode == DebugRunModeWithBreakOnMain)
         m_rp.breakOnMain = true;
@@ -569,7 +572,7 @@ public:
     {}
 
     RunControl *create(RunConfiguration *runConfig,
-                       RunMode mode, QString *errorMessage) override
+                       Core::Id mode, QString *errorMessage) override
     {
         QTC_ASSERT(runConfig, return 0);
         QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
@@ -584,7 +587,7 @@ public:
         return creator.m_runControl;
     }
 
-    bool canRun(RunConfiguration *runConfig, RunMode mode) const override
+    bool canRun(RunConfiguration *runConfig, Core::Id mode) const override
     {
         return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
                 && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
@@ -633,7 +636,7 @@ DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const 
 DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                              RunConfiguration *runConfig,
                                              QString *errorMessage,
-                                             RunMode runMode)
+                                             Core::Id runMode)
 {
     DebuggerRunControlCreator creator;
     creator.initialize(sp);
