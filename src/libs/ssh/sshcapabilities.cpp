@@ -65,9 +65,9 @@ const QList<QByteArray> SshCapabilities::KeyExchangeMethods = QList<QByteArray>(
 
 const QByteArray SshCapabilities::PubKeyDss("ssh-dss");
 const QByteArray SshCapabilities::PubKeyRsa("ssh-rsa");
-const QByteArray SshCapabilities::PubKeyEcdsa("ecdsa-sha2-nistp256");
+const QByteArray SshCapabilities::PubKeyEcdsa256("ecdsa-sha2-nistp256");
 const QList<QByteArray> SshCapabilities::PublicKeyAlgorithms = QList<QByteArray>()
-        << SshCapabilities::PubKeyEcdsa
+        << SshCapabilities::PubKeyEcdsa256
         << SshCapabilities::PubKeyRsa
         << SshCapabilities::PubKeyDss;
 

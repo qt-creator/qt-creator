@@ -50,7 +50,7 @@ public:
 
     static const QByteArray PubKeyDss;
     static const QByteArray PubKeyRsa;
-    static const QByteArray PubKeyEcdsa;
+    static const QByteArray PubKeyEcdsa256;
     static const QList<QByteArray> PublicKeyAlgorithms;
 
     static const QByteArray CryptAlgo3DesCbc;

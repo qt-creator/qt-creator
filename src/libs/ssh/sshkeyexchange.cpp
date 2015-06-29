@@ -213,7 +213,7 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
             = new RSA_PublicKey(reply.hostKeyParameters.at(1), reply.hostKeyParameters.at(0));
         sigKey.reset(rsaKey);
     } else {
-        QSSH_ASSERT_AND_RETURN(m_serverHostKeyAlgo == SshCapabilities::PubKeyEcdsa);
+        QSSH_ASSERT_AND_RETURN(m_serverHostKeyAlgo == SshCapabilities::PubKeyEcdsa256);
         const EC_Group domain("secp256r1");
         const PointGFp point = OS2ECP(convertByteArray(reply.q), reply.q.count(),
                                       domain.get_curve());
