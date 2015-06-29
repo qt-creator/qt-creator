@@ -52,10 +52,6 @@ DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStart
                                                              QString *errorMessage,
                                                              ProjectExplorer::RunMode runMode = ProjectExplorer::DebugRunMode);
 
-DEBUGGER_EXPORT bool fillParametersFromRunConfiguration(DebuggerStartParameters *sp,
-                                                        const ProjectExplorer::RunConfiguration *runConfig,
-                                                        QString *errorMessage);
-
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
 {

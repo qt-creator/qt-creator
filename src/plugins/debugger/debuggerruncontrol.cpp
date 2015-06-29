@@ -648,20 +648,4 @@ DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
     return creator.m_runControl;
 }
 
-/**
- * Helper for 3rd party plugins in need to reproduce the enrichment process.
- */
-bool fillParametersFromRunConfiguration(DebuggerStartParameters *sp, const RunConfiguration *runConfig,
-                                        QString *errorMessage)
-{
-    DebuggerRunControlCreator creator;
-    creator.initialize(*sp);
-    creator.enrich(runConfig, 0);
-    creator.createRunControl(DebugRunMode);
-    if (errorMessage)
-        *errorMessage = creator.fullError();
-    *sp = creator.m_rp;
-    return creator.m_errors.isEmpty();
-}
-
 } // namespace Debugger
