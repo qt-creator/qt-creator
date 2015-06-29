@@ -38,6 +38,8 @@
 #include <QPair>
 #include <QTimer>
 
+#include <cstdlib>
+
 using namespace QSsh;
 
 class Test : public QObject {
@@ -117,27 +119,27 @@ private slots:
     void handleConnected()
     {
         qDebug("Error: Received unexpected connected() signal.");
-        qApp->quit();
+        qApp->exit(EXIT_FAILURE);
     }
 
     void handleDisconnected()
     {
         qDebug("Error: Received unexpected disconnected() signal.");
-        qApp->quit();
+        qApp->exit(EXIT_FAILURE);
     }
 
     void handleDataAvailable(const QString &msg)
     {
         qDebug("Error: Received unexpected dataAvailable() signal. "
             "Message was: '%s'.", qPrintable(msg));
-        qApp->quit();
+        qApp->exit(EXIT_FAILURE);
     }
 
     void handleError(QSsh::SshError error)
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: Received error %d, but no test was running.", error);
-            qApp->quit();
+            qApp->exit(EXIT_FAILURE);
         }
 
         const TestItem testItem = m_testSet.takeFirst();
@@ -151,7 +153,7 @@ private slots:
             }
         } else {
             qDebug("Received unexpected error %d.", error);
-            qApp->quit();
+            qApp->exit(EXIT_FAILURE);
         }
     }
 
@@ -159,7 +161,7 @@ private slots:
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: timeout, but no test was running.");
-            qApp->quit();
+            qApp->exit(EXIT_FAILURE);
         }
         const TestItem testItem = m_testSet.takeFirst();
         qDebug("Error: The following test timed out: %s", testItem.description);
