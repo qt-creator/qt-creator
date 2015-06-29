@@ -86,7 +86,6 @@ TestRunner *TestRunner::instance()
 
 TestRunner::TestRunner(QObject *parent) :
     QObject(parent),
-    m_building(false),
     m_executingTests(false)
 {
 }
@@ -197,12 +196,9 @@ void performTestRun(QFutureInterface<void> &futureInterface,
     futureInterface.setProgressValue(testCaseCount);
 }
 
-void TestRunner::runTests()
+void TestRunner::prepareToRunTests()
 {
-    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
-    const int timeout = settings->timeout;
-    const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
-    const bool displayRunConfigWarnings = !settings->omitRunConfigWarn;
+    const bool omitRunConfigWarnings = AutotestPlugin::instance()->settings()->omitRunConfigWarn;
 
     m_executingTests = true;
     emit testRunStarted();
@@ -211,7 +207,7 @@ void TestRunner::runTests()
     TestResultsPane::instance()->clearContents();
 
     foreach (TestConfiguration *config, m_selectedTests) {
-        if (displayRunConfigWarnings && config->guessedConfiguration()) {
+        if (!omitRunConfigWarnings && config->guessedConfiguration()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
                 tr("Project's run configuration was guessed for \"%1\".\n"
                 "This might cause trouble during execution.").arg(config->displayName())));
@@ -237,38 +233,31 @@ void TestRunner::runTests()
 
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
         ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
-    if (projectExplorerSettings.buildBeforeDeploy) {
-        if (!project->hasActiveBuildSettings()) {
+    if (!projectExplorerSettings.buildBeforeDeploy) {
+        runTests();
+    } else {
+        if (project->hasActiveBuildSettings()) {
+            buildProject(project);
+        } else {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("Project is not configured. Canceling test run.")));
             onFinished();
             return;
         }
-
-        auto connection = connect(this, &TestRunner::requestStopTestRun, [&] () {
-            ProjectExplorer::BuildManager::instance()->cancel();
-            m_building = false;
-            m_buildSucceeded = false;
-        });
-        buildProject(project);
-        while (m_building) {
-            qApp->processEvents();
-        }
-        disconnect(connection);
-
-        if (!m_buildSucceeded) {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
-                tr("Build failed. Canceling test run.")));
-            onFinished();
-            return;
-        }
     }
+}
+
+void TestRunner::runTests()
+{
+    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
+    const QString &metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
 
     connect(this, &TestRunner::testResultCreated,
             TestResultsPane::instance(), &TestResultsPane::addTestResult,
             Qt::QueuedConnection);
 
-    QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, timeout, metricsOption, this);
+    QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, settings->timeout,
+                                             metricsOption, this);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
                                                                     Autotest::Constants::TASK_INDEX);
     connect(progress, &Core::FutureProgress::finished,
@@ -277,9 +266,9 @@ void TestRunner::runTests()
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)
 {
-    m_building = true;
-    m_buildSucceeded = false;
     ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
+    m_buildConnect = connect(this, &TestRunner::requestStopTestRun,
+                             buildManager, &ProjectExplorer::BuildManager::cancel);
     connect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
     ProjectExplorer::ProjectExplorerPlugin::buildProject(project);
@@ -287,11 +276,18 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
 
 void TestRunner::buildFinished(bool success)
 {
+    disconnect(m_buildConnect);
     ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
     disconnect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
                this, &TestRunner::buildFinished);
-    m_building = false;
-    m_buildSucceeded = success;
+
+    if (success) {
+        runTests();
+    } else {
+        TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
+            tr("Build failed. Canceling test run.")));
+        onFinished();
+    }
 }
 
 void TestRunner::onFinished()
