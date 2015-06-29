@@ -130,11 +130,13 @@
                     "target": "%{MainCppFileName}"
                 },
                 {
-                    "source": "main.qml",
+                    "source": "main.qml.tpl",
+                    "target": "main.qml",
                     "openInEditor": true
                 },
                 {
-                    "source": "MainForm.ui.qml",
+                    "source": "MainForm.ui.qml.tpl",
+                    "target": "MainForm.ui.qml",
                     "condition": "%{IsUiFileInUse}"
                 },
                 {
