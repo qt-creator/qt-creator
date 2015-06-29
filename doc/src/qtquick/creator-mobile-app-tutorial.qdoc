@@ -25,7 +25,7 @@
 /*!
     \contentspage {Qt Creator Manual}
     \previouspage creator-writing-program.html
-    \page creator-mobile-app-tutorial.html
+    \example accelbubble
     \nextpage {Using Qt Quick UI Forms}
 
     \title Creating a Mobile Application
@@ -61,17 +61,23 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
-            \uicontrol {Qt Quick Application} > \uicontrol Choose.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Quick Controls Application}
+            > \uicontrol Choose.
 
-        \li In the \uicontrol{Name} field, type \b{accelbubble}.
+        \li In the \uicontrol Name field, type \e {accelbubble}.
 
-        \li In the \uicontrol {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then click \uicontrol{Next} (or
-            \uicontrol Continue on OS X).
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files, and then click \uicontrol Next (or \uicontrol Continue on
+            OS X).
 
-        \li In the \uicontrol {Qt Quick component set} field, select
-            \uicontrol {Qt Quick Controls 1.1}.
+        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
+            version to develop with.
+
+            \note This page determines the set of files that the wizard
+            generates and their contents. The instructions in this tutorial
+            might not apply if you select the \uicontrol {With .ui.qml file}
+            check box.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for Android ARM and iPhone
             OS, and click \uicontrol{Next}.
@@ -97,11 +103,8 @@
     The main view of the application displays an SVG bubble image at the center
     of the main window.
 
-    To use the Bluebubble.svg used by the Qt Sensors example, Accel Bubble, in
-    your project, you must copy it to the project directory (same subdirectory
-    as the QML file) from the examples directory in the Qt installation
-    directory. For example:
-    \c {C:\Qt\Qt5.2.0\5.2.0\msvc2010\examples\sensors\accelbubble\content}.
+    To use \l{accelbubble/Bluebubble.svg}{Bluebubble.svg} in your project,
+    copy it to the project directory (same subdirectory as the QML file).
     The image appears in \uicontrol Resources. You can also use any other
     image or a QML type, instead.
 
@@ -110,20 +113,21 @@
         \li In the \uicontrol Projects view, double-click the main.qml file
             to open it in the code editor.
 
-        \li Modify the properties of the ApplicationWindow type to specify the
-            application name, give the ApplicationWindow an id, and to set it
-            visible, as illustrated by the following code snippet:
-
-            \quotefromfile accelbubble/main.qml
-            \skipto ApplicationWindow
-            \printuntil visible
-            \skipto /^\}/
-            \printuntil }
-
         \li Click \uicontrol Design to open the file in \QMLD.
 
-        \li In the \uicontrol Navigator, select \uicontrol Label and press \key Delete
-            to delete it.
+        \li In the \uicontrol Navigator, select \uicontrol Label and press
+            \key Delete to delete it.
+
+        \li Select \uicontrol ApplicationWindow to edit its properties.
+
+        \list a
+
+            \li In the \uicontrol Id field, enter \e mainWindow, to be able to
+                reference the window from other places.
+
+            \li In the \uicontrol Title field, type \e {Accelerate Bubble}.
+
+        \endlist
 
         \li In \uicontrol Library > \uicontrol Resources, select Bluebubble.svg
             and drag and drop it to the canvas.
@@ -132,34 +136,23 @@
             able to reference the image from other places.
 
         \li In the code editor, add the following new properties to the image to
-            position the image at the center of ApplicationWindow when the
+            position the image at the center of the application window when the
             application starts:
 
             \quotefromfile accelbubble/main.qml
             \skipto Image
             \printuntil bubble.width
 
-         \li Set the x and y position of the image based on the new
-            properties:
+         \li Set the x and y position of the image based on the new properties:
 
             \dots
             \printuntil centerY
             \skipto /^\}/
             \printuntil }
+
     \endlist
 
-    Here is how the accelbubble.qml file looks after you made the changes:
-
-    \quotefromfile accelbubble/main.qml
-    \skipto import QtQuick
-    \printuntil 1.1
-    \codeline
-    \skipto ApplicationWindow
-    \printuntil true
-    \skipto Image
-    \printuntil y:
-    \skipto /^\}/
-    \printuntil }
+    For an example, see \l{accelbubble/main.qml}{main.qml}.
 
     \section1 Moving the Bubble
 
@@ -275,19 +268,11 @@
 
     If you are using a device running Android v4.2.2, it should prompt you to
     verify the connection to allow USB debugging from the PC it is connected
-    to. To avoid such prompts every time you connect the device, check
-    "Always allow from the computer" and select \uicontrol OK.
+    to. To avoid such prompts every time you connect the device, select the
+    \uicontrol {Always allow from the computer} check box, and then select
+    \uicontrol OK.
 
         \li To run the application on the device, press \key {Ctrl+R}.
 
     \endlist
-
-    \section1 Example Code
-
-    When you have completed the steps, the main.qml file should look as follows:
-
-    \quotefromfile accelbubble/main.qml
-    \skipto import
-    \printuntil /^\}/
-
 */

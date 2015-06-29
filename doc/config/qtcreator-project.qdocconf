@@ -7,7 +7,7 @@ sourcedirs = $SRCDIR/src
 imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR/examples
-examples.fileextensions += *.qml
+examples.fileextensions += *.qml *.svg
 
 HTML.extraimages         = images/commercial.png
 qhp.QtCreator.extraFiles = images/commercial.png
