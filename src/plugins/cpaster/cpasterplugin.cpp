@@ -70,32 +70,29 @@ using namespace TextEditor;
 namespace CodePaster {
 
 /*!
-   \class CodePaster::CodePasterService
-   \brief The CodePasterService class is a service registered with PluginManager
+   \class CodePaster::Service
+   \brief The CodePaster::Service class is a service registered with PluginManager
    that provides CodePaster \c post() functionality.
-
-   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
-   \sa VcsBase::VcsBaseEditorWidget
 */
 
-CodePasterService::CodePasterService(QObject *parent) :
+CodePasterServiceImpl::CodePasterServiceImpl(QObject *parent) :
     QObject(parent)
 {
 }
 
-void CodePasterService::postText(const QString &text, const QString &mimeType)
+void CodePasterServiceImpl::postText(const QString &text, const QString &mimeType)
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->post(text, mimeType);
 }
 
-void CodePasterService::postCurrentEditor()
+void CodePasterServiceImpl::postCurrentEditor()
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->post(CodepasterPlugin::PasteEditor);
 }
 
-void CodePasterService::postClipboard()
+void CodePasterServiceImpl::postClipboard()
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->post(CodepasterPlugin::PasteClipboard);
@@ -176,7 +173,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_fetchUrlAction, &QAction::triggered, this, &CodepasterPlugin::fetchUrl);
     cpContainer->addAction(command);
 
-    addAutoReleasedObject(new CodePasterService);
+    addAutoReleasedObject(new CodePasterServiceImpl);
 
     return true;
 }

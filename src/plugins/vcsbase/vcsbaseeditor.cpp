@@ -40,6 +40,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/patchtool.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpaster/codepasterservice.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -953,9 +954,12 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     switch (d->m_parameters->type) {
     case LogOutput: // log might have diff
     case DiffOutput: {
-        menu->addSeparator();
-        connect(menu->addAction(tr("Send to CodePaster...")), &QAction::triggered,
-                this, &VcsBaseEditorWidget::slotPaste);
+        if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
+            // optional code pasting service
+            menu->addSeparator();
+            connect(menu->addAction(tr("Send to CodePaster...")), &QAction::triggered,
+                    this, &VcsBaseEditorWidget::slotPaste);
+        }
         menu->addSeparator();
         // Apply/revert diff chunk.
         const DiffChunk chunk = diffChunk(cursorForPosition(e->pos()));
@@ -1472,14 +1476,9 @@ QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) con
 void VcsBaseEditorWidget::slotPaste()
 {
     // Retrieve service by soft dependency.
-    QObject *pasteService =
-            ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("CodePaster::CodePasterService"));
-    if (pasteService) {
-        QMetaObject::invokeMethod(pasteService, "postCurrentEditor");
-    } else {
-        QMessageBox::information(this, tr("Unable to Paste"),
-                                 tr("Code pasting services are not available."));
-    }
+    auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
+    QTC_ASSERT(pasteService, return);
+    pasteService->postCurrentEditor();
 }
 
 void VcsBaseEditorWidget::showProgressIndicator()

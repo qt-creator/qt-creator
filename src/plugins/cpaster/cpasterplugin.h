@@ -31,6 +31,8 @@
 #ifndef CPASTERPLUGIN_H
 #define CPASTERPLUGIN_H
 
+#include "codepasterservice.h"
+
 #include <extensionsystem/iplugin.h>
 
 #include <QStringList>
@@ -46,16 +48,17 @@ class CustomPoster;
 struct Settings;
 class Protocol;
 
-class CodePasterService : public QObject
+class CodePasterServiceImpl : public QObject, public CodePaster::Service
 {
     Q_OBJECT
+    Q_INTERFACES(CodePaster::Service)
 public:
-    explicit CodePasterService(QObject *parent = 0);
+    explicit CodePasterServiceImpl(QObject *parent = 0);
 
 public slots:
-    void postText(const QString &text, const QString &mimeType);
-    void postCurrentEditor();
-    void postClipboard();
+    void postText(const QString &text, const QString &mimeType) override;
+    void postCurrentEditor() override;
+    void postClipboard() override;
 };
 
 class CodepasterPlugin : public ExtensionSystem::IPlugin

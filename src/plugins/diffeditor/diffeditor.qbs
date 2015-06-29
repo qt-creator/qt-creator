@@ -9,6 +9,10 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
+    pluginRecommends: [
+        "CodePaster"
+    ]
+
     files: [
         "diffeditor.cpp",
         "diffeditor.h",

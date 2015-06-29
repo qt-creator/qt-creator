@@ -56,8 +56,11 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/patchtool.h>
 
+#include <cpaster/codepasterservice.h>
+
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -894,11 +897,14 @@ void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
                                                               int chunkIndex)
 {
     menu->addSeparator();
-    QAction *sendChunkToCodePasterAction =
-            menu->addAction(tr("Send Chunk to CodePaster..."));
-    connect(sendChunkToCodePasterAction, &QAction::triggered,
-            this, &SideBySideDiffEditorWidget::slotSendChunkToCodePaster);
-    menu->addSeparator();
+    if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
+        // optional code pasting service
+        QAction *sendChunkToCodePasterAction =
+                menu->addAction(tr("Send Chunk to CodePaster..."));
+        connect(sendChunkToCodePasterAction, &QAction::triggered,
+                this, &SideBySideDiffEditorWidget::slotSendChunkToCodePaster);
+        menu->addSeparator();
+    }
     QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
     connect(applyAction, &QAction::triggered, this, &SideBySideDiffEditorWidget::slotApplyChunk);
     applyAction->setEnabled(false);
@@ -929,11 +935,14 @@ void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
                                                                int chunkIndex)
 {
     menu->addSeparator();
-    QAction *sendChunkToCodePasterAction =
-            menu->addAction(tr("Send Chunk to CodePaster..."));
-    connect(sendChunkToCodePasterAction, &QAction::triggered,
-            this, &SideBySideDiffEditorWidget::slotSendChunkToCodePaster);
-    menu->addSeparator();
+    if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
+        // optional code pasting service
+        QAction *sendChunkToCodePasterAction =
+                menu->addAction(tr("Send Chunk to CodePaster..."));
+        connect(sendChunkToCodePasterAction, &QAction::triggered,
+                this, &SideBySideDiffEditorWidget::slotSendChunkToCodePaster);
+        menu->addSeparator();
+    }
     QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
     connect(revertAction, &QAction::triggered, this, &SideBySideDiffEditorWidget::slotRevertChunk);
     revertAction->setEnabled(false);
@@ -961,21 +970,15 @@ void SideBySideDiffEditorWidget::slotSendChunkToCodePaster()
     if (!m_document)
         return;
 
+    // Retrieve service by soft dependency.
+    auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
+    QTC_ASSERT(pasteService, return);
+
     const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, false);
     if (patch.isEmpty())
         return;
 
-    // Retrieve service by soft dependency.
-    QObject *pasteService
-            = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("CodePaster::CodePasterService"));
-    if (pasteService) {
-        QMetaObject::invokeMethod(pasteService, "postText",
-                                  Q_ARG(QString, patch),
-                                  Q_ARG(QString, QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)));
-    } else {
-        QMessageBox::information(this, tr("Unable to Paste"),
-                                 tr("Code pasting services are not available."));
-    }
+    pasteService->postText(patch, QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
 }
 
 void SideBySideDiffEditorWidget::slotApplyChunk()

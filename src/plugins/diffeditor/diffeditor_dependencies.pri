@@ -5,3 +5,5 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     texteditor \
     coreplugin
+QTC_PLUGIN_RECOMMENDS += \
+    cpaster
