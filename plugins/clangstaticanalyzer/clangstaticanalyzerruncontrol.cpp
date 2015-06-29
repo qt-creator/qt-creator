@@ -196,24 +196,6 @@ private:
         return CompilerOptionsBuilder::defineOption();
     }
 
-    bool excludeDefineLine(const QByteArray &defineLine) const override
-    {
-        if (CompilerOptionsBuilder::excludeDefineLine(defineLine))
-            return true;
-
-        // gcc 4.9 has:
-        //    #define __has_include(STR) __has_include__(STR)
-        //    #define __has_include_next(STR) __has_include_next__(STR)
-        // The right-hand sides are gcc built-ins that clang does not understand, and they'd
-        // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
-        // side.
-        const bool isGccToolchain = m_projectPart->toolchainType == QLatin1String("gcc");
-        if (isGccToolchain && defineLine.contains("has_include"))
-            return true;
-
-        return false;
-    }
-
 private:
     bool m_isMsvcToolchain;
 };
