@@ -194,6 +194,11 @@ static void getHostKeySpecificReplyData(SshKeyExchangeReply &replyData,
     }
 }
 
+static QByteArray &padToWidth(QByteArray &data, int targetWidth)
+{
+    return data.prepend(QByteArray(targetWidth - data.count(), 0));
+}
+
 SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray &kexAlgo,
                                                                const QByteArray &hostKeyAlgo) const
 {
@@ -226,8 +231,11 @@ SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray 
             quint32 blobOffset = 0;
             const Botan::BigInt r = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
             const Botan::BigInt s = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
-            replyData.signatureBlob = convertByteArray(Botan::BigInt::encode(r));
-            replyData.signatureBlob += convertByteArray(Botan::BigInt::encode(s));
+            const int width = SshCapabilities::ecdsaIntegerWidthInBytes(hostKeyAlgo);
+            QByteArray encodedR = convertByteArray(Botan::BigInt::encode(r));
+            replyData.signatureBlob = padToWidth(encodedR, width);
+            QByteArray encodedS = convertByteArray(Botan::BigInt::encode(s));
+            replyData.signatureBlob += padToWidth(encodedS, width);
         }
         replyData.k_s.prepend(m_data.mid(TypeOffset + 1, 4));
         return replyData;

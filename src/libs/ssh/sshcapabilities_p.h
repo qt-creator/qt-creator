@@ -76,6 +76,8 @@ public:
                                                 const QList<QByteArray> &serverCapabilities);
     static QByteArray findBestMatch(const QList<QByteArray> &myCapabilities,
         const QList<QByteArray> &serverCapabilities);
+
+    static int ecdsaIntegerWidthInBytes(const QByteArray &ecdsaAlgo);
 };
 
 } // namespace Internal

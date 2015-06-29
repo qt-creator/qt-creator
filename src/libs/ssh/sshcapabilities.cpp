@@ -130,5 +130,13 @@ QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilitie
     return commonCapabilities(myCapabilities, serverCapabilities).first();
 }
 
+int SshCapabilities::ecdsaIntegerWidthInBytes(const QByteArray &ecdsaAlgo)
+{
+    if (ecdsaAlgo == PubKeyEcdsa256)
+        return 32;
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected ecdsa algorithm \"%1\"")
+                             .arg(QString::fromLatin1(ecdsaAlgo)));
+}
+
 } // namespace Internal
 } // namespace QSsh
