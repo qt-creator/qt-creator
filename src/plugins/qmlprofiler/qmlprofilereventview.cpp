@@ -216,8 +216,6 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *copyRowAction = 0;
     QAction *copyTableAction = 0;
     QAction *showExtendedStatsAction = 0;
-    QAction *showJavaScriptAction = 0;
-    QAction *showQmlAction = 0;
     QAction *getLocalStatsAction = 0;
     QAction *getGlobalStatsAction = 0;
 
@@ -249,14 +247,6 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
     if (hasGlobalStats())
         getGlobalStatsAction->setEnabled(false);
 
-    showJavaScriptAction = menu.addAction(tr("Show JavaScript Events"));
-    showJavaScriptAction->setCheckable(true);
-    showJavaScriptAction->setChecked(showJavaScript());
-
-    showQmlAction = menu.addAction(tr("Show QML Events"));
-    showQmlAction->setCheckable(true);
-    showQmlAction->setChecked(showQml());
-
     QAction *selectedAction = menu.exec(position);
 
     if (selectedAction) {
@@ -272,10 +262,6 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
             getStatisticsInRange(-1, -1);
         if (selectedAction == showExtendedStatsAction)
             setShowExtendedStatistics(!showExtendedStatistics());
-        if (selectedAction == showJavaScriptAction)
-            setShowJavaScript(showJavaScriptAction->isChecked());
-        if (selectedAction == showQmlAction)
-            setShowQml(showQmlAction->isChecked());
     }
 }
 
@@ -313,6 +299,17 @@ void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, in
     d->m_eventTree->selectByLocation(filename, line, column);
 }
 
+void QmlProfilerEventsWidget::onVisibleFeaturesChanged(quint64 features)
+{
+    for (int i = 0; i < MaximumRangeType; ++i) {
+        RangeType range = static_cast<RangeType>(i);
+        quint64 featureFlag = 1ULL << featureFromRangeType(range);
+        if (QmlDebug::Constants::QML_JS_RANGE_FEATURES & featureFlag)
+            d->modelProxy->setEventTypeAccepted(range, features & featureFlag);
+    }
+    d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
+}
+
 bool QmlProfilerEventsWidget::hasGlobalStats() const
 {
     return d->rangeStart == -1 && d->rangeEnd == -1;
@@ -326,34 +323,6 @@ void QmlProfilerEventsWidget::setShowExtendedStatistics(bool show)
 bool QmlProfilerEventsWidget::showExtendedStatistics() const
 {
     return d->m_eventTree->showExtendedStatistics();
-}
-
-void QmlProfilerEventsWidget::setShowJavaScript(bool show)
-{
-    d->modelProxy->setEventTypeAccepted(Javascript, show);
-    d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
-}
-
-void QmlProfilerEventsWidget::setShowQml(bool show)
-{
-    d->modelProxy->setEventTypeAccepted(Binding, show);
-    d->modelProxy->setEventTypeAccepted(HandlingSignal, show);
-    d->modelProxy->setEventTypeAccepted(Compiling, show);
-    d->modelProxy->setEventTypeAccepted(Creating, show);
-    d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
-}
-
-bool QmlProfilerEventsWidget::showJavaScript() const
-{
-    return d->modelProxy->eventTypeAccepted(Javascript);
-}
-
-bool QmlProfilerEventsWidget::showQml() const
-{
-    return d->modelProxy->eventTypeAccepted(Binding) &&
-            d->modelProxy->eventTypeAccepted(HandlingSignal) &&
-            d->modelProxy->eventTypeAccepted(Compiling) &&
-            d->modelProxy->eventTypeAccepted(Creating);
 }
 
 class QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate

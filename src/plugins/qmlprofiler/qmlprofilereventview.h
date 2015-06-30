@@ -78,12 +78,6 @@ public:
     void setShowExtendedStatistics(bool show);
     bool showExtendedStatistics() const;
 
-    void setShowJavaScript(bool show);
-    bool showJavaScript() const;
-
-    void setShowQml(bool show);
-    bool showQml() const;
-
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
@@ -92,6 +86,7 @@ signals:
 public slots:
     void selectByTypeId(int typeIndex) const;
     void selectBySourceLocation(const QString &filename, int line, int column);
+    void onVisibleFeaturesChanged(quint64 features);
 
 private slots:
     void profilerDataModelStateChanged();
