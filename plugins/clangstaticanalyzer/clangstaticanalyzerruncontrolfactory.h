@@ -35,10 +35,10 @@ public:
                                                   QObject *parent = 0);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode runMode) const;
+                Core::Id runMode) const;
 
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode runMode,
+                                        Core::Id runMode,
                                         QString *errorMessage);
 
 private:

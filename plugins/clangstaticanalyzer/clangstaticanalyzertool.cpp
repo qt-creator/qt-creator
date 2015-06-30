@@ -18,6 +18,7 @@
 
 #include "clangstaticanalyzertool.h"
 
+#include "clangstaticanalyzerconstants.h"
 #include "clangstaticanalyzerdiagnosticmodel.h"
 #include "clangstaticanalyzerdiagnosticview.h"
 #include "clangstaticanalyzerruncontrol.h"
@@ -249,7 +250,7 @@ void ClangStaticAnalyzerTool::startTool()
         connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject, this,
                 onProjectRemoved, Qt::UniqueConnection);
     }
-    ProjectExplorerPlugin::runRunConfiguration(rc, ProjectExplorer::ClangStaticAnalyzerMode);
+    ProjectExplorerPlugin::runRunConfiguration(rc, Constants::CLANGSTATICANALYZER_RUN_MODE);
 }
 
 CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const

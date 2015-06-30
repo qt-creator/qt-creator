@@ -18,6 +18,8 @@
 
 #include "clangstaticanalyzerruncontrolfactory.h"
 
+#include "clangstaticanalyzerconstants.h"
+
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
@@ -51,9 +53,9 @@ ClangStaticAnalyzerRunControlFactory::ClangStaticAnalyzerRunControlFactory(
 }
 
 bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                                                  RunMode runMode) const
+                                                  Core::Id runMode) const
 {
-    if (runMode != ClangStaticAnalyzerMode)
+    if (runMode != Constants::CLANGSTATICANALYZER_RUN_MODE)
         return false;
 
     Target *target = runConfiguration->target();
@@ -68,7 +70,7 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
-                                                         RunMode runMode,
+                                                         Core::Id runMode,
                                                          QString *errorMessage)
 {
     using namespace CppTools;

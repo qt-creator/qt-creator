@@ -24,6 +24,7 @@ namespace Constants {
 
 const char CLANG_EXECUTABLE_BASE_NAME[] = "clang";
 const char SETTINGS_ID[] = "ClangStaticAnalyzer";
+const char CLANGSTATICANALYZER_RUN_MODE[] = "ClangStaticAnalyzer.RunMode";
 
 } // Constants
 } // ClangStaticAnalyzer

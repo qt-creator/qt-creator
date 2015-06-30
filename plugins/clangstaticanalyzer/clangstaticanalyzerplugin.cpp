@@ -19,6 +19,7 @@
 #include "clangstaticanalyzerplugin.h"
 
 #include "clangstaticanalyzerconfigwidget.h"
+#include "clangstaticanalyzerconstants.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
@@ -153,7 +154,7 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
                                "to find bugs.");
 
     AnalyzerAction *action = new AnalyzerAction(this);
-    action->setRunMode(ProjectExplorer::ClangStaticAnalyzerMode);
+    action->setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
     action->setToolId(ClangStaticAnalyzerToolId);
     action->setActionId("ClangStaticAnalyzer");
     action->setWidgetCreator(widgetCreator);
@@ -161,7 +162,7 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     action->setCustomToolStarter([tool] { tool->startTool(); });
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
-    action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
+    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
     action->setEnabled(false);
     AnalyzerManager::addAction(action);
 
