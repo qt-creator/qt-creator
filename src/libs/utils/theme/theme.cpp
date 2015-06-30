@@ -366,6 +366,10 @@ QPalette Theme::palette() const
     pal.setColor(QPalette::ToolTipText,     color(Theme::TextColorNormal));
     pal.setColor(QPalette::Link,            color(Theme::TextColorLink));
     pal.setColor(QPalette::LinkVisited,     color(Theme::TextColorLinkVisited));
+    pal.setColor(QPalette::Disabled, QPalette::Window,     color(Theme::BackgroundColorDisabled));
+    pal.setBrush(QPalette::Disabled, QPalette::WindowText, color(Theme::TextColorDisabled));
+    pal.setColor(QPalette::Disabled, QPalette::Base,       color(Theme::BackgroundColorDisabled));
+    pal.setBrush(QPalette::Disabled, QPalette::Text,       color(Theme::TextColorDisabled));
     return pal;
 }
 

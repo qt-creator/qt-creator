@@ -63,6 +63,7 @@ public:
         BackgroundColorHover,
         BackgroundColorNormal,
         BackgroundColorSelected,
+        BackgroundColorDisabled,
         BadgeLabelBackgroundColorChecked,
         BadgeLabelBackgroundColorUnchecked,
         BadgeLabelTextColorChecked,
