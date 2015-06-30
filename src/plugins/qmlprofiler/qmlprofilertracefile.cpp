@@ -81,8 +81,7 @@ namespace Internal {
 
 static QPair<Message, RangeType> qmlTypeAsEnum(const QString &typeString)
 {
-    QPair<Message, RangeType> ret(MaximumMessage,
-                                                      MaximumRangeType);
+    QPair<Message, RangeType> ret(MaximumMessage, MaximumRangeType);
 
     for (int i = 0; i < MaximumMessage; ++i) {
         if (typeString == _(MESSAGE_STRINGS[i])) {
