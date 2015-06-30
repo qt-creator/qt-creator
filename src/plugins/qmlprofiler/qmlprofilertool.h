@@ -76,6 +76,7 @@ public slots:
     void serverRecordingChanged();
     void clientsDisconnected();
     void setAvailableFeatures(quint64 features);
+    void setRecordedFeatures(quint64 features);
 
     void recordingButtonChanged(bool recording);
     void setRecording(bool recording);
@@ -95,14 +96,16 @@ private slots:
     void showLoadDialog();
     void onLoadSaveFinished();
 
-    void toggleRecordingFeature(QAction *action);
+    void toggleRequestedFeature(QAction *action);
+    void toggleVisibleFeature(QAction *action);
 
 private:
     void clearDisplay();
     void populateFileFinder(QString projectDirectory = QString(), QString activeSysroot = QString());
     template<QmlDebug::ProfileFeature feature>
-    void updateFeaturesMenu(quint64 features);
+    void updateFeatures(quint64 features);
     bool checkForUnsavedNotes();
+    void restoreFeatureVisibility();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

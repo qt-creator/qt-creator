@@ -56,7 +56,8 @@ public:
     QmlProfilerState currentState();
     bool clientRecording();
     bool serverRecording();
-    quint64 recordingFeatures() const;
+    quint64 requestedFeatures() const;
+    quint64 recordedFeatures() const;
 
     QString currentStateAsString();
 
@@ -64,13 +65,15 @@ signals:
     void stateChanged();
     void clientRecordingChanged();
     void serverRecordingChanged();
-    void recordingFeaturesChanged(quint64);
+    void requestedFeaturesChanged(quint64);
+    void recordedFeaturesChanged(quint64);
 
 public slots:
     void setCurrentState(QmlProfilerState newState);
     void setClientRecording(bool recording);
     void setServerRecording(bool recording);
-    void setRecordingFeatures(quint64 features);
+    void setRequestedFeatures(quint64 features);
+    void setRecordedFeatures(quint64 features);
 
 private:
     class QmlProfilerStateManagerPrivate;

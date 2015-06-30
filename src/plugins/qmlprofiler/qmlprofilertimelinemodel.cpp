@@ -44,6 +44,8 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
 {
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerTimelineModel::dataChanged);
+    connect(modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
+            this, &QmlProfilerTimelineModel::onVisibleFeaturesChanged);
     announceFeatures(1ULL << m_mainFeature);
 }
 

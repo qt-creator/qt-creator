@@ -178,7 +178,9 @@ public:
 
     QVector <double> partialCounts;
     QVector <int> partialCountWeights;
-    quint64 features;
+    quint64 availableFeatures;
+    quint64 visibleFeatures;
+    quint64 recordedFeatures;
 
     int totalWeight;
     double progress;
@@ -193,7 +195,9 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
 {
     d->totalWeight = 0;
-    d->features = 0;
+    d->availableFeatures = 0;
+    d->visibleFeatures = 0;
+    d->recordedFeatures = 0;
     d->model = new QmlProfilerDataModel(finder, this);
     d->dataState = new QmlProfilerDataState(this, this);
     d->traceTime = new QmlProfilerTraceTime(this);
@@ -272,15 +276,45 @@ void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, 
 void QmlProfilerModelManager::announceFeatures(int proxyId, quint64 features)
 {
     Q_UNUSED(proxyId); // Will use that later to optimize the event dispatching on loading.
-    if ((features & d->features) != features) {
-        d->features |= features;
-        emit availableFeaturesChanged(d->features);
+    if ((features & d->availableFeatures) != features) {
+        d->availableFeatures |= features;
+        emit availableFeaturesChanged(d->availableFeatures);
+    }
+    if ((features & d->visibleFeatures) != features) {
+        d->visibleFeatures |= features;
+        emit visibleFeaturesChanged(d->visibleFeatures);
     }
 }
 
-quint64 QmlProfilerModelManager::availableFeatures()
+quint64 QmlProfilerModelManager::availableFeatures() const
 {
-    return d->features;
+    return d->availableFeatures;
+}
+
+quint64 QmlProfilerModelManager::visibleFeatures() const
+{
+    return d->visibleFeatures;
+}
+
+void QmlProfilerModelManager::setVisibleFeatures(quint64 features)
+{
+    if (d->visibleFeatures != features) {
+        d->visibleFeatures = features;
+        emit visibleFeaturesChanged(d->visibleFeatures);
+    }
+}
+
+quint64 QmlProfilerModelManager::recordedFeatures() const
+{
+    return d->recordedFeatures;
+}
+
+void QmlProfilerModelManager::setRecordedFeatures(quint64 features)
+{
+    if (d->recordedFeatures != features) {
+        d->recordedFeatures = features;
+        emit recordedFeaturesChanged(d->recordedFeatures);
+    }
 }
 
 const char *QmlProfilerModelManager::featureName(QmlDebug::ProfileFeature feature)
@@ -398,6 +432,7 @@ void QmlProfilerModelManager::load()
         connect(&reader, &QmlProfilerFileReader::error, this, &QmlProfilerModelManager::error);
         reader.setQmlDataModel(d->model);
         reader.load(file);
+        setRecordedFeatures(reader.loadedFeatures());
         file->close();
         file->deleteLater();
 
@@ -430,6 +465,8 @@ void QmlProfilerModelManager::clear()
     d->model->clear();
     d->traceTime->clear();
     d->notesModel->clear();
+    setVisibleFeatures(0);
+    setRecordedFeatures(0);
 
     setState(QmlProfilerDataState::Empty);
 }

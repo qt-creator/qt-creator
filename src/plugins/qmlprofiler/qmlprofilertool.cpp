@@ -101,7 +101,7 @@ public:
     QmlProfilerViewManager *m_viewContainer;
     Utils::FileInProjectFinder m_projectFinder;
     QToolButton *m_recordButton;
-    QMenu *m_featuresMenu;
+    QMenu *m_recordFeaturesMenu;
 
     QToolButton *m_clearButton;
 
@@ -112,6 +112,10 @@ public:
 
     // open search
     QToolButton *m_searchButton;
+
+    // hide and show categories
+    QToolButton *m_displayFeaturesButton;
+    QMenu *m_displayFeaturesMenu;
 
     // save and load actions
     QAction *m_saveQmlTrace;
@@ -126,15 +130,19 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
     d->m_recordButton = 0;
-    d->m_featuresMenu = 0;
+    d->m_recordFeaturesMenu = 0;
     d->m_clearButton = 0;
     d->m_timeLabel = 0;
     d->m_searchButton = 0;
+    d->m_displayFeaturesButton = 0;
+    d->m_displayFeaturesMenu = 0;
 
     d->m_profilerState = new QmlProfilerStateManager(this);
     connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
     connect(d->m_profilerState, SIGNAL(clientRecordingChanged()), this, SLOT(clientRecordingChanged()));
     connect(d->m_profilerState, SIGNAL(serverRecordingChanged()), this, SLOT(serverRecordingChanged()));
+    connect(d->m_profilerState, &QmlProfilerStateManager::recordedFeaturesChanged,
+            this, &QmlProfilerTool::setRecordedFeatures);
 
     d->m_profilerConnections = new QmlProfilerClientManager(this);
     d->m_profilerConnections->registerProfilerStateManager(d->m_profilerState);
@@ -143,8 +151,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerModelManager = new QmlProfilerModelManager(&d->m_projectFinder, this);
     connect(d->m_profilerModelManager, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
     connect(d->m_profilerModelManager, SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
-    connect(d->m_profilerModelManager, SIGNAL(availableFeaturesChanged(quint64)),
-            this, SLOT(setAvailableFeatures(quint64)));
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::availableFeaturesChanged,
+            this, &QmlProfilerTool::setAvailableFeatures);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::saveFinished,
             this, &QmlProfilerTool::onLoadSaveFinished);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::loadFinished,
@@ -246,12 +254,11 @@ QWidget *QmlProfilerTool::createWidgets()
 
     connect(d->m_recordButton,SIGNAL(clicked(bool)), this, SLOT(recordingButtonChanged(bool)));
     d->m_recordButton->setChecked(true);
-    d->m_featuresMenu = new QMenu(d->m_recordButton);
-    d->m_recordButton->setMenu(d->m_featuresMenu);
+    d->m_recordFeaturesMenu = new QMenu(d->m_recordButton);
+    d->m_recordButton->setMenu(d->m_recordFeaturesMenu);
     d->m_recordButton->setPopupMode(QToolButton::MenuButtonPopup);
-    setAvailableFeatures(d->m_profilerModelManager->availableFeatures());
-    connect(d->m_featuresMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(toggleRecordingFeature(QAction*)));
+    connect(d->m_recordFeaturesMenu, SIGNAL(triggered(QAction*)),
+            this, SLOT(toggleRequestedFeature(QAction*)));
 
     setRecording(d->m_profilerState->clientRecording());
     layout->addWidget(d->m_recordButton);
@@ -282,8 +289,21 @@ QWidget *QmlProfilerTool::createWidgets()
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
+    d->m_displayFeaturesButton = new QToolButton;
+    d->m_displayFeaturesButton->setIcon(QIcon(QLatin1String(ICON_FILTER)));
+    d->m_displayFeaturesButton->setToolTip(tr("Hide or show event categories."));
+    d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
+    d->m_displayFeaturesMenu = new QMenu(d->m_displayFeaturesButton);
+    d->m_displayFeaturesButton->setMenu(d->m_displayFeaturesMenu);
+    connect(d->m_displayFeaturesMenu, &QMenu::triggered,
+            this, &QmlProfilerTool::toggleVisibleFeature);
+    layout->addWidget(d->m_displayFeaturesButton);
+
     layout->addStretch();
+
     toolbarWidget->setLayout(layout);
+    setAvailableFeatures(d->m_profilerModelManager->availableFeatures());
+    setRecordedFeatures(0);
 
     // When the widgets are requested we assume that the session data
     // is available, then we can populate the file finder
@@ -407,6 +427,7 @@ void QmlProfilerTool::clearData()
 {
     d->m_profilerModelManager->clear();
     d->m_profilerConnections->discardPendingData();
+    setRecordedFeatures(0);
 }
 
 void QmlProfilerTool::clearDisplay()
@@ -531,12 +552,16 @@ void QmlProfilerTool::showLoadDialog()
 
     if (!filename.isEmpty()) {
         AnalyzerManager::mainWindow()->setEnabled(false);
+        connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
+                this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->load(filename);
     }
 }
 
 void QmlProfilerTool::onLoadSaveFinished()
 {
+    disconnect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
+               this, &QmlProfilerTool::setRecordedFeatures);
     AnalyzerManager::mainWindow()->setEnabled(true);
 }
 
@@ -556,6 +581,18 @@ bool QmlProfilerTool::checkForUnsavedNotes()
                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
+void QmlProfilerTool::restoreFeatureVisibility()
+{
+    // Restore the shown/hidden state of features to what the user selected. When clearing data the
+    // the model manager sets its features to 0, and models get automatically shown, for the mockup.
+    quint64 features = 0;
+    foreach (const QAction *action, d->m_displayFeaturesMenu->actions()) {
+        if (action->isChecked())
+            features |= (1ULL << action->data().toUInt());
+    }
+    d->m_profilerModelManager->setVisibleFeatures(features);
+}
+
 void QmlProfilerTool::clientsDisconnected()
 {
     // If the application stopped by itself, check if we have all the data
@@ -571,21 +608,29 @@ void QmlProfilerTool::clientsDisconnected()
     // If the connection is closed while the app is still running, no special action is needed
 }
 
+void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
+{
+    QAction *action =
+            menu->addAction(QmlProfilerTool::tr(QmlProfilerModelManager::featureName(feature)));
+    action->setCheckable(true);
+    action->setData(static_cast<uint>(feature));
+    action->setChecked(enabledFeatures & (1ULL << (feature)));
+}
+
 template<ProfileFeature feature>
-void QmlProfilerTool::updateFeaturesMenu(quint64 features)
+void QmlProfilerTool::updateFeatures(quint64 features)
 {
     if (features & (1ULL << (feature))) {
-        QAction *action = d->m_featuresMenu->addAction(tr(QmlProfilerModelManager::featureName(
-                                               static_cast<ProfileFeature>(feature))));
-        action->setCheckable(true);
-        action->setData(static_cast<uint>(feature));
-        action->setChecked(d->m_profilerState->recordingFeatures() & (1ULL << (feature)));
+        addFeatureToMenu(d->m_recordFeaturesMenu, feature,
+                         d->m_profilerState->requestedFeatures());
+        addFeatureToMenu(d->m_displayFeaturesMenu, feature,
+                         d->m_profilerModelManager->visibleFeatures());
     }
-    updateFeaturesMenu<static_cast<ProfileFeature>(feature + 1)>(features);
+    updateFeatures<static_cast<ProfileFeature>(feature + 1)>(features);
 }
 
 template<>
-void QmlProfilerTool::updateFeaturesMenu<MaximumProfileFeature>(quint64 features)
+void QmlProfilerTool::updateFeatures<MaximumProfileFeature>(quint64 features)
 {
     Q_UNUSED(features);
     return;
@@ -593,12 +638,19 @@ void QmlProfilerTool::updateFeaturesMenu<MaximumProfileFeature>(quint64 features
 
 void QmlProfilerTool::setAvailableFeatures(quint64 features)
 {
-    if (features != d->m_profilerState->recordingFeatures())
-        d->m_profilerState->setRecordingFeatures(features); // by default, enable them all.
-    if (d->m_featuresMenu) {
-        d->m_featuresMenu->clear();
-        updateFeaturesMenu<static_cast<ProfileFeature>(0)>(features);
+    if (features != d->m_profilerState->requestedFeatures())
+        d->m_profilerState->setRequestedFeatures(features); // by default, enable them all.
+    if (d->m_recordFeaturesMenu && d->m_displayFeaturesMenu) {
+        d->m_recordFeaturesMenu->clear();
+        d->m_displayFeaturesMenu->clear();
+        updateFeatures<static_cast<ProfileFeature>(0)>(features);
     }
+}
+
+void QmlProfilerTool::setRecordedFeatures(quint64 features)
+{
+    foreach (QAction *action, d->m_displayFeaturesMenu->actions())
+        action->setEnabled(features & (1ULL << action->data().toUInt()));
 }
 
 void QmlProfilerTool::profilerDataModelStateChanged()
@@ -618,6 +670,7 @@ void QmlProfilerTool::profilerDataModelStateChanged()
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppReadyToStop);
         showSaveOption();
         updateTimeDisplay();
+        restoreFeatureVisibility();
     break;
     default:
         break;
@@ -715,18 +768,32 @@ void QmlProfilerTool::serverRecordingChanged()
     }
 }
 
-void QmlProfilerTool::toggleRecordingFeature(QAction *action)
+void QmlProfilerTool::toggleRequestedFeature(QAction *action)
 {
     uint feature = action->data().toUInt();
     if (action->isChecked())
-        d->m_profilerState->setRecordingFeatures(
-                    d->m_profilerState->recordingFeatures() | (1ULL << feature));
+        d->m_profilerState->setRequestedFeatures(
+                    d->m_profilerState->requestedFeatures() | (1ULL << feature));
     else
-        d->m_profilerState->setRecordingFeatures(
-                    d->m_profilerState->recordingFeatures() & (~(1ULL << feature)));
+        d->m_profilerState->setRequestedFeatures(
+                    d->m_profilerState->requestedFeatures() & (~(1ULL << feature)));
 
     // Keep the menu open to allow for more features to be toggled
     d->m_recordButton->showMenu();
+}
+
+void QmlProfilerTool::toggleVisibleFeature(QAction *action)
+{
+    uint feature = action->data().toUInt();
+    if (action->isChecked())
+        d->m_profilerModelManager->setVisibleFeatures(
+                    d->m_profilerModelManager->visibleFeatures() | (1ULL << feature));
+    else
+        d->m_profilerModelManager->setVisibleFeatures(
+                    d->m_profilerModelManager->visibleFeatures() & (~(1ULL << feature)));
+
+    // Keep the menu open to allow for more features to be toggled
+    d->m_displayFeaturesButton->showMenu();
 }
 
 }

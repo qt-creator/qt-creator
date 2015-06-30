@@ -121,7 +121,8 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 
 QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
     QObject(parent),
-    m_future(0)
+    m_future(0),
+    m_loadedFeatures(0)
 {
 }
 
@@ -196,6 +197,37 @@ bool QmlProfilerFileReader::load(QIODevice *device)
         m_qmlModel->setData(traceStart, qMax(traceStart, traceEnd), m_qmlEvents, m_ranges);
         m_qmlModel->setNoteData(m_notes);
         return true;
+    }
+}
+
+quint64 QmlProfilerFileReader::loadedFeatures() const
+{
+    return m_loadedFeatures;
+}
+
+QmlDebug::ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTypeData &event) {
+    if (event.rangeType < MaximumRangeType)
+        return featureFromRangeType(event.rangeType);
+
+    switch (event.message) {
+    case Event:
+        switch (event.detailType) {
+        case AnimationFrame:
+            return ProfileAnimations;
+        case Key:
+        case Mouse:
+            return ProfileInputEvents;
+        default:
+            return MaximumProfileFeature;
+        }
+    case PixmapCacheEvent:
+        return ProfilePixmapCache;
+    case SceneGraphFrame:
+        return ProfileSceneGraph;
+    case MemoryAllocation:
+        return ProfileMemory;
+    default:
+        return MaximumProfileFeature;
     }
 }
 
@@ -308,6 +340,9 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
                     if (eventIndex >= m_qmlEvents.size())
                         m_qmlEvents.resize(eventIndex + 1);
                     m_qmlEvents[eventIndex] = event;
+                    ProfileFeature feature = featureFromEvent(event);
+                    if (feature != MaximumProfileFeature)
+                        m_loadedFeatures |= (1ULL << static_cast<uint>(feature));
                 }
                 break;
             }
