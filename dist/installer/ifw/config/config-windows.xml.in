@@ -8,6 +8,7 @@
 
     <InstallerWindowIcon>logo.png</InstallerWindowIcon>
     <Watermark>watermark.png</Watermark>
+    <WizardDefaultHeight>560</WizardDefaultHeight>
     <MaintenanceToolName>QtCreatorUninst</MaintenanceToolName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
     <TargetDir>@rootDir@/Qt/qtcreator-{version}</TargetDir>

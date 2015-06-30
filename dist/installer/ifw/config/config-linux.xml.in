@@ -8,6 +8,7 @@
 
     <InstallerWindowIcon>logo.png</InstallerWindowIcon>
     <Watermark>watermark.png</Watermark>
+    <WizardDefaultHeight>520</WizardDefaultHeight>
     <MaintenanceToolName>QtCreatorUninstaller</MaintenanceToolName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
     <TargetDir>@homeDir@/qtcreator-{version}</TargetDir>
