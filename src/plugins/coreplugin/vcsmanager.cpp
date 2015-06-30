@@ -56,11 +56,6 @@ namespace Core {
 
 typedef QList<IVersionControl *> VersionControlList;
 
-static inline VersionControlList allVersionControls()
-{
-    return ExtensionSystem::PluginManager::getObjects<IVersionControl>();
-}
-
 #if defined(WITH_TESTS)
 const char TEST_PREFIX[] = "/8E3A9BA0-0B97-40DF-AEC1-2BDF9FC9EDBE/";
 #endif
@@ -213,7 +208,7 @@ VcsManager *VcsManager::instance()
 void VcsManager::extensionsInitialized()
 {
     // Change signal connections
-    foreach (IVersionControl *versionControl, allVersionControls()) {
+    foreach (IVersionControl *versionControl, versionControls()) {
         connect(versionControl, SIGNAL(filesChanged(QStringList)),
                 DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
@@ -271,10 +266,9 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     }
 
     // Nothing: ask the IVersionControls directly.
-    const VersionControlList versionControls = allVersionControls();
     StringVersionControlPairs allThatCanManage;
 
-    foreach (IVersionControl * versionControl, versionControls) {
+    foreach (IVersionControl * versionControl, versionControls()) {
         QString topLevel;
         if (versionControl->managesDirectory(directory, &topLevel))
             allThatCanManage.push_back(StringVersionControlPair(topLevel, versionControl));
@@ -425,7 +419,7 @@ QStringList VcsManager::additionalToolsPath()
 {
     if (d->m_cachedAdditionalToolsPathsDirty) {
         d->m_cachedAdditionalToolsPaths.clear();
-        foreach (IVersionControl *vc, allVersionControls())
+        foreach (IVersionControl *vc, versionControls())
             d->m_cachedAdditionalToolsPaths.append(vc->additionalToolsPath());
         d->m_cachedAdditionalToolsPathsDirty = false;
     }
