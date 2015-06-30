@@ -180,7 +180,6 @@ void QmlProfilerClientManager::connectClientSignals()
                 d->modelManager->traceTime(), SLOT(decreaseStartTime(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                 d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
-        // fixme: this should be unified for both clients
         connect(d->qmlclientplugin.data(), SIGNAL(recordingChanged(bool)),
                 d->profilerState, SLOT(setServerRecording(bool)));
         connect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
