@@ -411,9 +411,14 @@ void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
 void ProjectWizardPage::initializeVersionControls()
 {
     // Figure out version control situation:
+    // 0) Check that any version control is available
     // 1) Directory is managed and VCS supports "Add" -> List it
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
+
+    QList<IVersionControl *> versionControls = VcsManager::versionControls();
+    if (versionControls.isEmpty())
+        hideVersionControlUiElements();
 
     IVersionControl *currentSelection = 0;
     int currentIdx = versionControlIndex() - 1;
@@ -590,6 +595,13 @@ void ProjectWizardPage::projectChanged(int index)
 void ProjectWizardPage::manageVcs()
 {
     ICore::showOptionsDialog(VcsBase::Constants::VCS_COMMON_SETTINGS_ID, this);
+}
+
+void ProjectWizardPage::hideVersionControlUiElements()
+{
+    m_ui->addToVersionControlLabel->hide();
+    m_ui->vcsManageButton->hide();
+    m_ui->addToVersionControlComboBox->hide();
 }
 
 } // namespace Internal

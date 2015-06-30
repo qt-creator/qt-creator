@@ -89,6 +89,7 @@ public slots:
 private slots:
     void projectChanged(int);
     void manageVcs();
+    void hideVersionControlUiElements();
 
 private:
     void setAdditionalInfo(const QString &text);
