@@ -91,9 +91,6 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
     return details;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////
-
 QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
                                                      QmlProfilerModelManager *parent)
     : QmlProfilerBaseModel(fileFinder, parent, new QmlProfilerDataModelPrivate(this))

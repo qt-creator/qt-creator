@@ -186,8 +186,6 @@ void QmlProfilerRangeModel::findBindingLoops()
 
 }
 
-/////////////////// QML interface
-
 QString QmlProfilerRangeModel::categoryLabel(QmlDebug::RangeType rangeType)
 {
     return QCoreApplication::translate("MainView",

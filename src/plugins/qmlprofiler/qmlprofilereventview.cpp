@@ -79,11 +79,6 @@ struct RootEventType : public QmlProfilerDataModel::QmlEventTypeData {
 Q_GLOBAL_STATIC(Colors, colors)
 Q_GLOBAL_STATIC(RootEventType, rootEventType)
 
-////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////
-
 class EventsViewItem : public QStandardItem
 {
 public:
@@ -112,8 +107,6 @@ public:
         }
     }
 };
-
-////////////////////////////////////////////////////////////////////////////////////
 
 class QmlProfilerEventsWidget::QmlProfilerEventsWidgetPrivate
 {
@@ -363,8 +356,6 @@ bool QmlProfilerEventsWidget::showQml() const
             d->modelProxy->eventTypeAccepted(Creating);
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-
 class QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate
 {
 public:
@@ -385,9 +376,6 @@ public:
     int m_firstNumericColumn;
     bool m_preventSelectBounce;
 };
-
-
-////////////////////////////////////////////////////////////////////////////////////
 
 QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
                                    QmlProfilerEventsModelProxy *modelProxy)
@@ -860,8 +848,6 @@ void QmlProfilerEventsMainView::copyRowToClipboard() const
     clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
-
-////////////////////////////////////////////////////////////////////////////////////
 
 class QmlProfilerEventRelativesView::QmlProfilerEventParentsViewPrivate
 {

@@ -106,8 +106,6 @@ void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
         connect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
 }
 
-////////////////////////////////////////////////////////////////
-// Interface
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
 {
     d->connectMode = QmlProfilerClientManagerPrivate::TcpConnection;
@@ -132,8 +130,6 @@ void QmlProfilerClientManager::discardPendingData()
     clearBufferedData();
 }
 
-////////////////////////////////////////////////////////////////
-// Internal
 void QmlProfilerClientManager::connectClient(quint16 port)
 {
     if (d->connection)
@@ -323,8 +319,6 @@ void QmlProfilerClientManager::stopClientsRecording()
         d->qmlclientplugin.data()->setRecording(false);
 }
 
-////////////////////////////////////////////////////////////////
-// Profiler State
 void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     if (d->profilerState) {

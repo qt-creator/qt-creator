@@ -127,8 +127,6 @@ void QmlProfilerAnimationsModel::loadData()
     updateProgress(1, 1);
 }
 
-/////////////////// QML interface
-
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
 {
     return (threadId == QmlDebug::GuiThread || m_maxGuiThreadAnimations == 0) ? 1 : 2;

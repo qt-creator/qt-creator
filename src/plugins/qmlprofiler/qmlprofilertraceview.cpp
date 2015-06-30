@@ -71,7 +71,6 @@ using namespace QmlDebug;
 namespace QmlProfiler {
 namespace Internal {
 
-/////////////////////////////////////////////////////////
 class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
 {
 public:
@@ -164,7 +163,6 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
     delete d;
 }
 
-/////////////////////////////////////////////////////////
 bool QmlProfilerTraceView::hasValidSelection() const
 {
     QQuickItem *rootObject = d->m_mainView->rootObject();
@@ -227,7 +225,6 @@ void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
                               Q_ARG(QVariant, QVariant(eventIndex)));
 }
 
-/////////////////////////////////////////////////////////
 // Goto source location
 void QmlProfilerTraceView::updateCursorPosition()
 {
@@ -252,8 +249,6 @@ void QmlProfilerTraceView::mouseReleaseEvent(QMouseEvent *event)
     QWidget::mouseReleaseEvent(event);
 }
 
-////////////////////////////////////////////////////////////////
-// Context menu
 void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
 {
     showContextMenu(ev->globalPos());
@@ -300,8 +295,6 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
             d->m_viewContainer->getStatisticsInRange(-1, -1);
     }
 }
-
-////////////////////////////////////////////////////////////////
 
 void QmlProfilerTraceView::changeEvent(QEvent *e)
 {

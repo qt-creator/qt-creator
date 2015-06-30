@@ -80,8 +80,6 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
     delete d;
 }
 
-////////////////////////////////////////////////////////////
-// Views
 void QmlProfilerViewManager::createViews()
 {
 

@@ -289,7 +289,6 @@ int QmlProfilerEventsModelProxy::count() const
     return d->data.count();
 }
 
-//////////////////////////////////////////////////////////////////////////////////
 QmlProfilerEventRelativesModelProxy::QmlProfilerEventRelativesModelProxy(QmlProfilerModelManager *modelManager,
                                                                          QmlProfilerEventsModelProxy *eventsModel,
                                                                          QObject *parent)
@@ -343,8 +342,6 @@ void QmlProfilerEventRelativesModelProxy::dataChanged()
     emit dataAvailable();
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////
 QmlProfilerEventParentsModelProxy::QmlProfilerEventParentsModelProxy(QmlProfilerModelManager *modelManager,
                                                                      QmlProfilerEventsModelProxy *eventsModel,
                                                                      QObject *parent)
@@ -409,7 +406,6 @@ void QmlProfilerEventParentsModelProxy::loadData()
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////
 QmlProfilerEventChildrenModelProxy::QmlProfilerEventChildrenModelProxy(QmlProfilerModelManager *modelManager,
                                                                        QmlProfilerEventsModelProxy *eventsModel,
                                                                        QObject *parent)

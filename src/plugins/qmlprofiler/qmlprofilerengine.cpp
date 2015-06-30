@@ -273,8 +273,6 @@ void QmlProfilerRunControl::runControlFinished()
     emit finished();
 }
 
-////////////////////////////////////////////////////////////////
-// Profiler State
 void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     // disconnect old

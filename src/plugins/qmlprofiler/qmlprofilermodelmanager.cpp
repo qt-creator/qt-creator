@@ -59,7 +59,6 @@ static const char *ProfileFeatureNames[QmlDebug::MaximumProfileFeature] = {
     QT_TRANSLATE_NOOP("MainView", "Input Events")
 };
 
-/////////////////////////////////////////////////////////////////////
 QmlProfilerDataState::QmlProfilerDataState(QmlProfilerModelManager *modelManager, QObject *parent)
     : QObject(parent), m_state(Empty), m_modelManager(modelManager)
 {
