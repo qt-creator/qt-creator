@@ -64,8 +64,6 @@ public:
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
                           QObject *parent = 0);
 
-    static QString categoryLabel(QmlDebug::RangeType categoryIndex);
-
     Q_INVOKABLE int expandedRow(int index) const;
     Q_INVOKABLE int collapsedRow(int index) const;
     int bindingLoopDest(int index) const;

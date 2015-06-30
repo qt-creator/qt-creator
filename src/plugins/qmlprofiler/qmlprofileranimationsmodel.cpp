@@ -47,12 +47,10 @@ namespace Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
                                                        QObject *parent) :
-    QmlProfilerTimelineModel(manager,
-                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
-                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
+    QmlProfilerTimelineModel(manager, QmlDebug::Event, QmlDebug::MaximumRangeType,
+                             QmlDebug::ProfileAnimations, parent)
 {
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
-    announceFeatures(1 << QmlDebug::ProfileAnimations);
 }
 
 void QmlProfilerAnimationsModel::clear()

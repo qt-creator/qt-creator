@@ -45,14 +45,15 @@ class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public Timeline::TimelineMod
     Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager CONSTANT)
 
 public:
-    QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager, const QString &displayName,
+    QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
                              QmlDebug::Message message, QmlDebug::RangeType rangeType,
-                             QObject *parent);
+                             QmlDebug::ProfileFeature mainFeature, QObject *parent);
 
     QmlProfilerModelManager *modelManager() const;
 
     QmlDebug::RangeType rangeType() const;
     QmlDebug::Message message() const;
+    QmlDebug::ProfileFeature mainFeature() const;
 
     virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool handlesTypeId(int typeId) const;
@@ -63,6 +64,7 @@ public:
 
 private slots:
     void dataChanged();
+    void onVisibleFeaturesChanged(quint64 features);
 
 protected:
     void updateProgress(qint64 count, qint64 max) const;
@@ -71,6 +73,7 @@ protected:
 private:
     const QmlDebug::Message m_message;
     const QmlDebug::RangeType m_rangeType;
+    const QmlDebug::ProfileFeature m_mainFeature;
     QmlProfilerModelManager *const m_modelManager;
 };
 

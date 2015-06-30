@@ -33,14 +33,18 @@
 namespace QmlProfiler {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
-                                                   const QString &displayName,
                                                    QmlDebug::Message message,
-                                                   QmlDebug::RangeType rangeType, QObject *parent) :
-    TimelineModel(modelManager->registerModelProxy(), displayName, parent), m_message(message),
-    m_rangeType(rangeType), m_modelManager(modelManager)
+                                                   QmlDebug::RangeType rangeType,
+                                                   QmlDebug::ProfileFeature mainFeature,
+                                                   QObject *parent) :
+    TimelineModel(modelManager->registerModelProxy(),
+                  tr(QmlProfilerModelManager::featureName(mainFeature)), parent),
+    m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
+    m_modelManager(modelManager)
 {
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerTimelineModel::dataChanged);
+    announceFeatures(1ULL << m_mainFeature);
 }
 
 QmlDebug::RangeType QmlProfilerTimelineModel::rangeType() const
@@ -51,6 +55,11 @@ QmlDebug::RangeType QmlProfilerTimelineModel::rangeType() const
 QmlDebug::Message QmlProfilerTimelineModel::message() const
 {
     return m_message;
+}
+
+QmlDebug::ProfileFeature QmlProfilerTimelineModel::mainFeature() const
+{
+    return m_mainFeature;
 }
 
 bool QmlProfilerTimelineModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
@@ -103,6 +112,11 @@ void QmlProfilerTimelineModel::dataChanged()
     }
 
     emit labelsChanged();
+}
+
+void QmlProfilerTimelineModel::onVisibleFeaturesChanged(quint64 features)
+{
+    setHidden(!(features & (1ULL << m_mainFeature)));
 }
 
 int QmlProfilerTimelineModel::bindingLoopDest(int index) const
