@@ -52,6 +52,6 @@ QtcProduct {
     Export {
         Depends { name: "ExtensionSystem" }
         Depends { name: "cpp" }
-        cpp.includePaths: [pluginIncludeBase]
+        cpp.includePaths: [product.pluginIncludeBase]
     }
 }
