@@ -70,7 +70,6 @@ bool QmlProfilerAnimationsModel::accepted(const QmlProfilerDataModel::QmlEventTy
 
 void QmlProfilerAnimationsModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;

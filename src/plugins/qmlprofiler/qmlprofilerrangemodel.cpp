@@ -72,7 +72,6 @@ bool QmlProfilerRangeModel::supportsBindingLoops() const
 
 void QmlProfilerRangeModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
