@@ -238,8 +238,6 @@ private:
     QString                     m_submitRepository;
     QString                     m_commitMessageFileName;
     bool                        m_submitActionTriggered;
-
-    GitSettings m_settings;
 };
 
 } // namespace Git
