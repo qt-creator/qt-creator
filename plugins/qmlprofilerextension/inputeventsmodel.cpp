@@ -81,7 +81,6 @@ int InputEventsModel::collapsedRow(int index) const
 
 void InputEventsModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;

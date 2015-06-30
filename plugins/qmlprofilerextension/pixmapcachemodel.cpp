@@ -162,7 +162,6 @@ QVariantMap PixmapCacheModel::details(int index) const
 
 void PixmapCacheModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;

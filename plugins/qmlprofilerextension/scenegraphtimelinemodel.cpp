@@ -129,7 +129,6 @@ QVariantMap SceneGraphTimelineModel::details(int index) const
 
 void SceneGraphTimelineModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;

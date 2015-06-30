@@ -144,7 +144,6 @@ struct RangeStackFrame {
 
 void MemoryUsageModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
