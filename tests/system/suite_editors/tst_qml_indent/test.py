@@ -37,11 +37,8 @@ def main():
     # using a temporary directory won't mess up a potentially existing
     createNewQtQuickApplication(tempDir(), "untitled")
     originalText = prepareQmlFile()
-    if not originalText:
-        invokeMenuItem("File", "Save All")
-        invokeMenuItem("File", "Exit")
-        return
-    testReIndent(originalText)
+    if originalText:
+        testReIndent(originalText)
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
