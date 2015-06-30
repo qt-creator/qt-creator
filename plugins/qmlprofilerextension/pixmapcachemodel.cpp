@@ -26,12 +26,10 @@ namespace Internal {
 using namespace QmlProfiler;
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent) :
-    QmlProfilerTimelineModel(manager,
-                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfilePixmapCache)),
-                             QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType, parent)
+    QmlProfilerTimelineModel(manager, QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType,
+                             QmlDebug::ProfilePixmapCache, parent)
 {
     m_maxCacheSize = 1;
-    announceFeatures(1 << QmlDebug::ProfilePixmapCache);
 }
 
 int PixmapCacheModel::rowMaxValue(int rowNumber) const

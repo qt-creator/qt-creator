@@ -28,12 +28,11 @@ namespace Internal {
 using namespace QmlProfiler;
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
-    QmlProfilerTimelineModel(manager,
-                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileMemory)),
-                             QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
+    QmlProfilerTimelineModel(manager, QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType,
+                             QmlDebug::ProfileMemory, parent)
 {
     m_maxSize = 1;
-    announceFeatures((1 << QmlDebug::ProfileMemory) | QmlDebug::Constants::QML_JS_RANGE_FEATURES);
+    announceFeatures((1ULL << mainFeature()) | QmlDebug::Constants::QML_JS_RANGE_FEATURES);
 }
 
 int MemoryUsageModel::rowMaxValue(int rowNumber) const

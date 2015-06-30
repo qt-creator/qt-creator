@@ -70,11 +70,9 @@ Q_STATIC_ASSERT(sizeof(StageLabels) ==
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager,
                                                  QObject *parent) :
-    QmlProfilerTimelineModel(manager,
-                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileSceneGraph)),
-                             QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
+    QmlProfilerTimelineModel(manager, QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType,
+                             QmlDebug::ProfileSceneGraph, parent)
 {
-    announceFeatures(1 << QmlDebug::ProfileSceneGraph);
 }
 
 int SceneGraphTimelineModel::expandedRow(int index) const
