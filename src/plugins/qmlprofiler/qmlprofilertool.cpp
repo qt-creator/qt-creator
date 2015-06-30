@@ -274,14 +274,6 @@ QWidget *QmlProfilerTool::createWidgets()
 
     layout->addWidget(d->m_clearButton);
 
-    d->m_timeLabel = new QLabel();
-    QPalette palette;
-    palette.setColor(QPalette::WindowText, Qt::white);
-    d->m_timeLabel->setPalette(palette);
-    d->m_timeLabel->setIndent(10);
-    updateTimeDisplay();
-    layout->addWidget(d->m_timeLabel);
-
     d->m_searchButton = new QToolButton;
     d->m_searchButton->setIcon(QIcon(QStringLiteral(":/timeline/ico_zoom.png")));
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
@@ -298,6 +290,14 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_displayFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleVisibleFeature);
     layout->addWidget(d->m_displayFeaturesButton);
+
+    d->m_timeLabel = new QLabel();
+    QPalette palette;
+    palette.setColor(QPalette::WindowText, Qt::white);
+    d->m_timeLabel->setPalette(palette);
+    d->m_timeLabel->setIndent(10);
+    updateTimeDisplay();
+    layout->addWidget(d->m_timeLabel);
 
     layout->addStretch();
 
@@ -777,9 +777,6 @@ void QmlProfilerTool::toggleRequestedFeature(QAction *action)
     else
         d->m_profilerState->setRequestedFeatures(
                     d->m_profilerState->requestedFeatures() & (~(1ULL << feature)));
-
-    // Keep the menu open to allow for more features to be toggled
-    d->m_recordButton->showMenu();
 }
 
 void QmlProfilerTool::toggleVisibleFeature(QAction *action)
@@ -791,9 +788,6 @@ void QmlProfilerTool::toggleVisibleFeature(QAction *action)
     else
         d->m_profilerModelManager->setVisibleFeatures(
                     d->m_profilerModelManager->visibleFeatures() & (~(1ULL << feature)));
-
-    // Keep the menu open to allow for more features to be toggled
-    d->m_displayFeaturesButton->showMenu();
 }
 
 }
