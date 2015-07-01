@@ -751,6 +751,12 @@ class Dumper(DumperBase):
     def extractUInt(self, addr):
         return struct.unpack("I", self.readRawMemory(addr, 4))[0]
 
+    def extractShort(self, addr):
+        return struct.unpack("h", self.readRawMemory(addr, 2))[0]
+
+    def extractUShort(self, addr):
+        return struct.unpack("H", self.readRawMemory(addr, 2))[0]
+
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 

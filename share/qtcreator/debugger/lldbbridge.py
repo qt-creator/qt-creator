@@ -505,6 +505,16 @@ class Dumper(DumperBase):
     def addressOf(self, value):
         return int(value.GetLoadAddress())
 
+    def extractUShort(self, address):
+        error = lldb.SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 2, error))
+
+    def extractShort(self, address):
+        i = self.extractUInt(address)
+        if i >= 0x8000:
+            i -= 0x10000
+        return i
+
     def extractUInt(self, address):
         error = lldb.SBError()
         return int(self.process.ReadUnsignedFromMemory(address, 4, error))

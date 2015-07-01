@@ -5806,6 +5806,63 @@ void tst_Dumpers::dumper_data()
                + GuiProfile()
                + Check("pol", "<5 items>", "@QPolygonF")
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");
+
+    QTest::newRow("QJson")
+            << Data("#include <QJsonObject>\n"
+                    "#include <QJsonArray>\n"
+                    "#include <QJsonValue>\n"
+                    "#include <QVariantMap>\n",
+                    "QJsonObject ob = QJsonObject::fromVariantMap({\n"
+                    "    {\"a\", 1},\n"
+                    "    {\"bb\", 2},\n"
+                    "    {\"ccc\", \"hallo\"},\n"
+                    "    {\"s\", \"ssss\"}\n"
+                    "});\n"
+                    "ob.insert(QLatin1String(\"d\"), QJsonObject::fromVariantMap({{\"ddd\", 1234}}));\n"
+                    "\n"
+                    "QJsonArray a;\n"
+                    "a.append(QJsonValue(1));\n"
+                    "a.append(QJsonValue(\"asd\"));\n"
+                    "a.append(QJsonValue(QString::fromLatin1(\"cdfer\")));\n"
+                    "a.append(QJsonValue(1.4));\n"
+                    "a.append(QJsonValue(true));\n"
+                    "a.append(ob);\n"
+                    "\n"
+                    "QJsonArray b;\n"
+                    "b.append(QJsonValue(1));\n"
+                    "b.append(a);\n"
+                    "b.append(QJsonValue(2));\n"
+                    "\n"
+                    "unused(&ob,&b,&a);\n")
+            + Cxx11Profile()
+            + Check("a",                  "<6 items>",  "@QJsonArray")
+            + Check("a.0",   "[0]",       "1",            "QJsonValue (Number)")
+            + Check("a.1",   "[1]",       "\"asd\"",      "QJsonValue (String)")
+            + Check("a.2",   "[2]",       "\"cdfer\"",    "QJsonValue (String)")
+            + Check("a.3",   "[3]",       "1.4",          "QJsonValue (Number)")
+            + Check("a.4",   "[4]",       "true",         "QJsonValue (Bool)")
+            + Check("a.5",   "[5]",       "<5 items>",    "QJsonValue (Object)")
+            + Check("a.5.0",    "\"a\"",     "1",            "QJsonValue (Number)")
+            + Check("a.5.1",    "\"bb\"",    "2",            "QJsonValue (Number)")
+            + Check("a.5.2",    "\"ccc\"",   "\"hallo\"",    "QJsonValue (String)")
+            + Check("a.5.3",    "\"d\"",     "<1 items>",    "QJsonValue (Object)")
+            + Check("a.5.4",    "\"s\"",     "\"ssss\"",     "QJsonValue (String)")
+            + Check("b",     "b",        "<3 items>" ,  "@QJsonArray")
+            + Check("b.0",   "[0]",       "1",             "QJsonValue (Number)")
+            + Check("b.1",   "[1]",       "<6 items>",     "QJsonValue (Array)")
+            + Check("b.1.0",    "[0]",       "1",             "QJsonValue (Number)")
+            + Check("b.1.1",    "[1]",       "\"asd\"",       "QJsonValue (String)")
+            + Check("b.1.2",    "[2]",       "\"cdfer\"",     "QJsonValue (String)")
+            + Check("b.1.3",    "[3]",       "1.4",           "QJsonValue (Number)")
+            + Check("b.1.4",    "[4]",       "true",          "QJsonValue (Bool)")
+            + Check("b.1.5",    "[5]",       "<5 items>",     "QJsonValue (Object)")
+            + Check("b.2",   "[2]",       "2",             "QJsonValue (Number)")
+            + Check("ob",   "ob",      "<5 items>",     "@QJsonObject")
+            + Check("ob.0", "\"a\"",    "1",              "QJsonValue (Number)")
+            + Check("ob.1", "\"bb\"",   "2",              "QJsonValue (Number)")
+            + Check("ob.2", "\"ccc\"",  "\"hallo\"",      "QJsonValue (String)")
+            + Check("ob.3", "\"d\"",    "<1 items>",      "QJsonValue (Object)")
+            + Check("ob.4", "\"s\"",    "\"ssss\"",       "QJsonValue (String)");
 }
 
 int main(int argc, char *argv[])
