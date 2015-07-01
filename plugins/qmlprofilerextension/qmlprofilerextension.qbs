@@ -1,10 +1,9 @@
 import qbs
 
-QtcPlugin {
+QtcCommercialPlugin {
     name: "QmlProfilerExtension"
 
     Depends { name: "Core" }
-    Depends { name: "LicenseChecker" }
     Depends { name: "QmlProfiler" }
     Depends { name: "Timeline" }
 
