@@ -89,6 +89,7 @@ void AnalyzerAction::startTool()
     AnalyzerManager::showMode();
 
     TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
+    AnalyzerManager::showPermanentStatusMessage(toolId(), QString());
 
     if (m_toolPreparer && !m_toolPreparer())
         return;
