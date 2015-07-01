@@ -98,8 +98,8 @@ signals:
     void allDone(const JsonWizard::GeneratorFiles &files); // emitted just after the wizard is done with the files. They are ready to be opened.
 
 public slots:
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 
 private slots:
     void handleNewPages(int pageId);
