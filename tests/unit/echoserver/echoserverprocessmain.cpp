@@ -28,9 +28,10 @@
 **
 ****************************************************************************/
 
+#include "echoipcserver.h"
+
 #include <cmbcommands.h>
 #include <connectionserver.h>
-#include <echoipcserver.h>
 
 #include <QCoreApplication>
 
