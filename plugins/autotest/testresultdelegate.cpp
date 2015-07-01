@@ -114,7 +114,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
         if (!desc.isEmpty()) {
             int breakPos = desc.indexOf(QLatin1Char('('));
-            output.append(QLatin1String(" - ")).append(desc.left(breakPos));
+            output.append(QLatin1String(": ")).append(desc.left(breakPos));
             if (selected)
                 output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
         }

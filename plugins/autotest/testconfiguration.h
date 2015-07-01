@@ -41,8 +41,11 @@ public:
                                int testCaseCount = 0, QObject *parent = 0);
     ~TestConfiguration();
 
+    void completeTestInformation();
+
     void setTestCases(const QStringList &testCases);
     void setTestCaseCount(int count);
+    void setMainFilePath(const QString &mainFile);
     void setTargetFile(const QString &targetFile);
     void setTargetName(const QString &targetName);
     void setProFile(const QString &proFile);
@@ -66,14 +69,11 @@ public:
     bool unnamedOnly() const { return m_unnamedOnly; }
     bool guessedConfiguration() const { return m_guessedConfiguration; }
 
-signals:
-
-public slots:
-
 private:
     QString m_testClass;
     QStringList m_testCases;
     int m_testCaseCount;
+    QString m_mainFilePath;
     bool m_unnamedOnly;
     QString m_proFile;
     QString m_targetFile;

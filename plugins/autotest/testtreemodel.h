@@ -31,7 +31,8 @@ namespace {
     enum ItemRole {
 //        AnnotationRole = Qt::UserRole + 1,
         LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
-        ItalicRole // used only inside the delegate
+        ItalicRole, // used only inside the delegate
+        TypeRole
     };
 }
 
@@ -71,6 +72,7 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
+    TestConfiguration *getTestConfiguration(const TestTreeItem *item) const;
     QString getMainFileForUnnamedQuickTest(const QString &qmlFile) const;
     void qmlFilesForMainFile(const QString &mainFile, QSet<QString> *filePaths) const;
     QList<QString> getUnnamedQuickTestFunctions() const;

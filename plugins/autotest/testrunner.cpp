@@ -110,8 +110,16 @@ void performTestRun(QFutureInterface<void> &futureInterface,
                     const QString metricsOption, TestRunner* testRunner)
 {
     int testCaseCount = 0;
-    foreach (const TestConfiguration *config, selectedTests)
-        testCaseCount += config->testCaseCount();
+    foreach (TestConfiguration *config, selectedTests) {
+        config->completeTestInformation();
+        if (config->project()) {
+            testCaseCount += config->testCaseCount();
+        } else {
+            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_WARN,
+                QObject::tr("Project is null for \"%1\". Removing from test run.\n"
+                            "Check the test environment.").arg(config->displayName())));
+        }
+    }
 
     QProcess testProcess;
     testProcess.setReadChannelMode(QProcess::MergedChannels);
@@ -135,11 +143,16 @@ void performTestRun(QFutureInterface<void> &futureInterface,
         if (futureInterface.isCanceled())
             break;
 
+        if (!testConfiguration->project())
+            continue;
+
         QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
         QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
         if (commandFilePath.isEmpty()) {
             emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                QObject::tr("Could not find command \"%1\".").arg(testConfiguration->targetFile())));
+                QObject::tr("Could not find command \"%1\". (%2)")
+                                                   .arg(testConfiguration->targetFile())
+                                                   .arg(testConfiguration->displayName())));
             continue;
         }
 
@@ -197,25 +210,12 @@ void TestRunner::runTests()
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
 
-    // handle faulty test configurations
-    QList<TestConfiguration *> toBeRemoved;
     foreach (TestConfiguration *config, m_selectedTests) {
-        if (!config->project()) {
-            toBeRemoved.append(config);
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
-                tr("Project is null for \"%1\". Removing from test run.\n"
-                "Check the test environment."
-                ).arg(config->displayName())));
-        }
         if (displayRunConfigWarnings && config->guessedConfiguration()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
                 tr("Project's run configuration was guessed for \"%1\".\n"
                 "This might cause trouble during execution.").arg(config->displayName())));
         }
-    }
-    foreach (TestConfiguration *config, toBeRemoved) {
-        m_selectedTests.removeOne(config);
-        delete config;
     }
 
     if (m_selectedTests.empty()) {

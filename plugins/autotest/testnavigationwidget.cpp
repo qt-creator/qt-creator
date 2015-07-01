@@ -89,7 +89,27 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     const bool enabled = !TestRunner::instance()->isTestRunning()
             && m_model->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = m_model->hasTests();
+
     QMenu menu;
+    QAction *runThisTest = 0;
+    const QModelIndexList list = m_view->selectionModel()->selectedIndexes();
+    if (list.size() == 1) {
+        const QModelIndex index = list.first();
+        QRect rect(m_view->visualRect(index));
+        if (rect.contains(event->pos())) {
+            // do not provide this menu entry for unnamed Quick Tests as it makes no sense
+            int type = index.data(TypeRole).toInt();
+            const QString &unnamed = tr(Constants::UNNAMED_QUICKTESTS);
+            if ((type == TestTreeItem::TEST_FUNCTION && index.parent().data().toString() != unnamed)
+                    || (type == TestTreeItem::TEST_CLASS && index.data().toString() != unnamed)) {
+                runThisTest = new QAction(tr("Run This Test"), &menu);
+                runThisTest->setEnabled(enabled);
+                connect(runThisTest, &QAction::triggered,
+                        this, &TestNavigationWidget::onRunThisTestTriggered);
+            }
+        }
+    }
+
     QAction *runAll = Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action();
     QAction *runSelected = Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action();
     QAction *selectAll = new QAction(tr("Select All"), &menu);
@@ -106,6 +126,10 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     deselectAll->setEnabled(enabled && hasTests);
     rescan->setEnabled(enabled);
 
+    if (runThisTest) {
+        menu.addAction(runThisTest);
+        menu.addSeparator();
+    }
     menu.addAction(runAll);
     menu.addAction(runSelected);
     menu.addSeparator();
@@ -208,6 +232,26 @@ void TestNavigationWidget::initializeFilterMenu()
     action->setChecked(false);
     action->setData(TestTreeSortFilterModel::ShowTestData);
     m_filterMenu->addAction(action);
+}
+
+void TestNavigationWidget::onRunThisTestTriggered()
+{
+    const QModelIndexList selected = m_view->selectionModel()->selectedIndexes();
+    // paranoia
+    if (selected.isEmpty())
+        return;
+    const QModelIndex sourceIndex = m_sortFilterModel->mapToSource(selected.first());
+    if (!sourceIndex.isValid())
+        return;
+
+    TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
+    if (item->type() == TestTreeItem::TEST_CLASS || item->type() == TestTreeItem::TEST_FUNCTION) {
+        if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
+            TestRunner *runner = TestRunner::instance();
+            runner->setSelectedTests( {configuration} );
+            runner->runTests();
+        }
+    }
 }
 
 TestNavigationWidgetFactory::TestNavigationWidgetFactory()

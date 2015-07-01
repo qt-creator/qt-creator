@@ -24,21 +24,14 @@
 
 #include <cpptools/cppmodelmanager.h>
 
-#include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/target.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <texteditor/texteditor.h>
 
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QIcon>
 
@@ -262,6 +255,8 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
         default:
             return false;
         }
+    case TypeRole:
+        return item->type();
     }
 
     // TODO ?
@@ -347,105 +342,13 @@ bool TestTreeModel::hasTests() const
     return m_autoTestRootItem->childCount() > 0 || m_quickTestRootItem->childCount() > 0;
 }
 
-static void addProjectInformation(TestConfiguration *config, const QString &filePath)
-{
-    const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
-    if (!session || !session->hasProjects())
-        return;
-
-    ProjectExplorer::Project *project = session->startupProject();
-    if (!project)
-        return;
-
-    QString targetFile;
-    QString targetName;
-    QString workDir;
-    QString proFile;
-    QString displayName;
-    ProjectExplorer::Project *targetProject = 0;
-    Utils::Environment env;
-    bool hasDesktopTarget = false;
-    bool guessedRunConfiguration = false;
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
-
-    if (!projParts.empty()) {
-        foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
-            foreach (const CppTools::ProjectFile currentFile, part->files) {
-                if (currentFile.path == filePath) {
-                    proFile = part->projectFile;
-                    displayName = part->displayName;
-                    targetProject = part->project;
-                    break;
-                }
-            }
-            if (!proFile.isEmpty()) // maybe better use a goto instead of the break above??
-                break;
-        }
-    }
-
-    if (project) {
-        if (auto target = project->activeTarget()) {
-            ProjectExplorer::BuildTargetInfoList appTargets = target->applicationTargets();
-            foreach (const ProjectExplorer::BuildTargetInfo &bti, appTargets.list) {
-                if (bti.isValid() && bti.projectFilePath.toString() == proFile) {
-                    targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
-                    targetName = bti.targetName;
-                    break;
-                }
-            }
-
-            QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
-            foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
-                ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
-                    = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc);
-                if (localRunConfiguration && localRunConfiguration->executable() == targetFile) {
-                    hasDesktopTarget = true;
-                    workDir = Utils::FileUtils::normalizePathName(
-                                localRunConfiguration->workingDirectory());
-                    ProjectExplorer::EnvironmentAspect *envAsp
-                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-                    env = envAsp->environment();
-                    break;
-                }
-            }
-
-            // if we could not figure out the run configuration
-            // try to use the run configuration of the parent project
-            if (!hasDesktopTarget && targetProject && !targetFile.isEmpty()) {
-                auto localRunConfiguration
-                        = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(target->activeRunConfiguration());
-                if (localRunConfiguration) {
-                    hasDesktopTarget = true;
-                    workDir = Utils::FileUtils::normalizePathName(
-                                localRunConfiguration->workingDirectory());
-                    ProjectExplorer::EnvironmentAspect *environmentAspect
-                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-                    env = environmentAspect->environment();
-                    guessedRunConfiguration = true;
-                }
-            }
-        }
-    }
-
-    if (hasDesktopTarget) {
-        config->setTargetFile(targetFile);
-        config->setTargetName(targetName);
-        config->setWorkingDirectory(workDir);
-        config->setProFile(proFile);
-        config->setEnvironment(env);
-        config->setProject(project);
-        config->setDisplayName(displayName);
-        config->setGuessedConfiguration(guessedRunConfiguration);
-    } else {
-        config->setProFile(proFile);
-        config->setDisplayName(displayName);
-    }
-}
-
 QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 {
     QList<TestConfiguration *> result;
+
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return result;
 
     // get all Auto Tests
     for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
@@ -453,7 +356,8 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 
         TestConfiguration *tc = new TestConfiguration(child->name(), QStringList(),
                                                       child->childCount());
-        addProjectInformation(tc, child->filePath());
+        tc->setMainFilePath(child->filePath());
+        tc->setProject(project);
         result << tc;
     }
 
@@ -481,7 +385,8 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
     foreach (const QString &mainFile, foundMains.keys()) {
         TestConfiguration *tc = new TestConfiguration(QString(), QStringList(),
                                                       foundMains.value(mainFile));
-        addProjectInformation(tc, mainFile);
+        tc->setMainFilePath(mainFile);
+        tc->setProject(project);
         result << tc;
     }
 
@@ -491,6 +396,10 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return result;
+
     TestConfiguration *testConfiguration = 0;
 
     for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
@@ -501,7 +410,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             continue;
         case Qt::Checked:
             testConfiguration = new TestConfiguration(child->name(), QStringList(), child->childCount());
-            addProjectInformation(testConfiguration, child->filePath());
+            testConfiguration->setMainFilePath(child->filePath());
+            testConfiguration->setProject(project);
             result << testConfiguration;
             continue;
         case Qt::PartiallyChecked:
@@ -516,7 +426,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             }
 
             testConfiguration = new TestConfiguration(childName, testCases);
-            addProjectInformation(testConfiguration, child->filePath());
+            testConfiguration->setMainFilePath(child->filePath());
+            testConfiguration->setProject(project);
             result << testConfiguration;
         }
     }
@@ -540,7 +451,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
                 testConfiguration = new TestConfiguration(QString(), QStringList());
                 testConfiguration->setTestCaseCount(1);
                 testConfiguration->setUnnamedOnly(true);
-                addProjectInformation(testConfiguration, mainFile);
+                testConfiguration->setMainFilePath(mainFile);
+                testConfiguration->setProject(project);
                 foundMains.insert(mainFile, testConfiguration);
             }
         }
@@ -581,7 +493,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
                 }
             } else {
                 tc = new TestConfiguration(QString(), testFunctions);
-                addProjectInformation(tc, child->mainFile());
+                tc->setMainFilePath(child->mainFile());
+                tc->setProject(project);
                 foundMains.insert(child->mainFile(), tc);
             }
             break;
@@ -593,6 +506,55 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             result << config;
 
     return result;
+}
+
+TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item) const
+{
+    QTC_ASSERT(item != 0, return 0);
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    QTC_ASSERT(project, return 0);
+
+    TestConfiguration *config = 0;
+    switch (item->type()) {
+    case TestTreeItem::TEST_CLASS: {
+        if (item->parent() == m_quickTestRootItem) {
+            // Quick Test TestCase
+            QStringList testFunctions;
+            for (int row = 0, count = item->childCount(); row < count; ++row) {
+                    testFunctions << item->name() + QLatin1String("::") + item->child(row)->name();
+            }
+            config = new TestConfiguration(QString(), testFunctions);
+            config->setMainFilePath(item->mainFile());
+            config->setProject(project);
+        } else {
+            // normal auto test
+            config = new TestConfiguration(item->name(), QStringList(), item->childCount());
+            config->setMainFilePath(item->filePath());
+            config->setProject(project);
+        }
+        break;
+    }
+    case TestTreeItem::TEST_FUNCTION: {
+        const TestTreeItem *parent = item->parent();
+        if (parent->parent() == m_quickTestRootItem) {
+            // it's a Quick Test function of a named TestCase
+            QStringList testFunction(parent->name() + QLatin1String("::") + item->name());
+            config = new TestConfiguration(QString(), testFunction);
+            config->setMainFilePath(parent->mainFile());
+            config->setProject(project);
+        } else {
+            // normal auto test
+            config = new TestConfiguration(parent->name(), QStringList() << item->name());
+            config->setMainFilePath(parent->filePath());
+            config->setProject(project);
+        }
+        break;
+    }
+    // not supported items
+    default:
+        return 0;
+    }
+    return config;
 }
 
 QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) const
