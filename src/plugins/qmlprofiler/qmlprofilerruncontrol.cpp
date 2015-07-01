@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilerengine.h"
+#include "qmlprofilerruncontrol.h"
 
 #include "localqmlprofilerrunner.h"
 
@@ -60,13 +60,13 @@ using namespace ProjectExplorer;
 namespace QmlProfiler {
 
 //
-// QmlProfilerEnginePrivate
+// QmlProfilerRunControlPrivate
 //
 
-class QmlProfilerRunControl::QmlProfilerEnginePrivate
+class QmlProfilerRunControl::QmlProfilerRunControlPrivate
 {
 public:
-    QmlProfilerEnginePrivate() : m_running(false) {}
+    QmlProfilerRunControlPrivate() : m_running(false) {}
 
     QmlProfilerStateManager *m_profilerState;
     QTimer m_noDebugOutputTimer;
@@ -75,13 +75,12 @@ public:
 };
 
 //
-// QmlProfilerEngine
+// QmlProfilerRunControl
 //
 
 QmlProfilerRunControl::QmlProfilerRunControl(const AnalyzerStartParameters &sp,
-                                     RunConfiguration *runConfiguration)
-    : AnalyzerRunControl(sp, runConfiguration)
-    , d(new QmlProfilerEnginePrivate)
+                                             RunConfiguration *runConfiguration) :
+    AnalyzerRunControl(sp, runConfiguration), d(new QmlProfilerRunControlPrivate)
 {
     d->m_profilerState = 0;
 

@@ -30,7 +30,7 @@
 
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
-#include "qmlprofilerengine.h"
+#include "qmlprofilerruncontrol.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilerviewmanager.h"

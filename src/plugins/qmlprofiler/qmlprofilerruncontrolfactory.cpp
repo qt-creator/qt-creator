@@ -30,7 +30,7 @@
 
 #include "qmlprofilerruncontrolfactory.h"
 #include "localqmlprofilerrunner.h"
-#include "qmlprofilerengine.h"
+#include "qmlprofilerruncontrol.h"
 
 #include <analyzerbase/ianalyzertool.h>
 

@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERENGINE_H
-#define QMLPROFILERENGINE_H
+#ifndef QMLPROFILERRUNCONTROL_H
+#define QMLPROFILERRUNCONTROL_H
 
 #include "qmlprofilerstatemanager.h"
 
@@ -76,10 +76,10 @@ private slots:
     void profilerStateChanged();
 
 private:
-    class QmlProfilerEnginePrivate;
-    QmlProfilerEnginePrivate *d;
+    class QmlProfilerRunControlPrivate;
+    QmlProfilerRunControlPrivate *d;
 };
 
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERENGINE_H
+#endif // QMLPROFILERRUNCONTROL_H
