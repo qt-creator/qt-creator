@@ -78,8 +78,8 @@ public:
     static void stopTool();
 
     // Convenience functions.
-    static void showStatusMessage(const QString &message, int timeoutMS = 10000);
-    static void showPermanentStatusMessage(const QString &message);
+    static void showStatusMessage(Core::Id toolId, const QString &message, int timeoutMS = 10000);
+    static void showPermanentStatusMessage(Core::Id toolId, const QString &message);
 
     static void handleToolStarted();
     static void handleToolFinished();
