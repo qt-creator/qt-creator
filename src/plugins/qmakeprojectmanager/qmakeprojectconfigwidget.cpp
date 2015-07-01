@@ -47,8 +47,7 @@ using namespace ProjectExplorer;
 
 QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     : NamedWidget(),
-      m_buildConfiguration(bc),
-      m_ignoreChange(false)
+      m_buildConfiguration(bc)
 {
     m_defaultShadowBuildDir
             = QmakeBuildConfiguration::shadowBuildDirectory(bc->target()->project()->projectFilePath().toString(),

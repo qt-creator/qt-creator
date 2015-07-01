@@ -469,7 +469,7 @@ void QmlProfilerTool::startRemoteTool()
     sp.analyzerPort = port;
 
     AnalyzerRunControl *rc = createRunControl(sp, 0);
-    ProjectExplorerPlugin::startRunControl(rc, QmlProfilerRunMode);
+    ProjectExplorerPlugin::startRunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 
 void QmlProfilerTool::logState(const QString &msg)
@@ -524,7 +524,7 @@ void QmlProfilerTool::showLoadDialog()
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
-    AnalyzerManager::selectTool(QmlProfilerRemoteActionId);
+    AnalyzerManager::selectAction(QmlProfilerRemoteActionId);
 
     QString filename = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));

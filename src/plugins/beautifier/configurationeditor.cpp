@@ -139,7 +139,7 @@ void ConfigurationEditor::setCommentExpression(const QRegExp &rx)
 bool ConfigurationEditor::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *key = static_cast<QKeyEvent *>(event);
+        const QKeyEvent *key = static_cast<const QKeyEvent *>(event);
         if (key->key() == Qt::Key_Escape) {
             event->accept();
             m_completer->popup()->hide();
@@ -176,7 +176,7 @@ void ConfigurationEditor::keyPressEvent(QKeyEvent *event)
         QPlainTextEdit::keyPressEvent(event);
 
     const int cursorPosition = textCursor().position();
-    QTextCursor cursor = cursorForTextUnderCursor();
+    const QTextCursor cursor = cursorForTextUnderCursor();
     const QString prefix = cursor.selectedText();
 
     if (!isShortcut && (prefix.length() < 2 || cursorPosition != cursor.position())) {

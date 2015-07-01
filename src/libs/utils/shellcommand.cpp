@@ -159,7 +159,10 @@ QString ShellCommand::displayName() const
     if (!d->m_jobs.isEmpty()) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(0);
         QString result = job.binary.toFileInfo().baseName();
-        result[0] = result.at(0).toTitleCase();
+        if (!result.isEmpty())
+            result[0] = result.at(0).toTitleCase();
+        else
+            result = tr("UNKNOWN");
 
         if (!job.arguments.isEmpty())
             result += QLatin1Char(' ') + job.arguments.at(0);

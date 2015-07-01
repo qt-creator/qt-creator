@@ -150,6 +150,8 @@ using namespace Utils;
 namespace TextEditor {
 namespace Internal {
 
+enum { NExtraSelectionKinds = 12 };
+
 typedef QString (TransformationMethod)(const QString &);
 
 static QString QString_toUpper(const QString &str)
@@ -414,8 +416,8 @@ public:
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer m_delayedUpdateTimer;
 
-    void setExtraSelections(int kind, const QList<QTextEdit::ExtraSelection> &selections);
-    QHash<int, QList<QTextEdit::ExtraSelection>> m_extraSelections;
+    void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QHash<Core::Id, QList<QTextEdit::ExtraSelection>> m_extraSelections;
 
     // block selection mode
     bool m_inBlockSelectionMode;
@@ -555,8 +557,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
-
-    m_extraSelections.reserve(TextEditorWidget::NExtraSelectionKinds);
+    m_extraSelections.reserve(NExtraSelectionKinds);
 }
 
 } // namespace Internal
@@ -618,6 +619,18 @@ QString TextEditorWidget::convertToPlainText(const QString &txt)
 }
 
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
+
+Id TextEditorWidget::SnippetPlaceholderSelection("TextEdit.SnippetPlaceHolderSelection");
+Id TextEditorWidget::CurrentLineSelection("TextEdit.CurrentLineSelection");
+Id TextEditorWidget::ParenthesesMatchingSelection("TextEdit.ParenthesesMatchingSelection");
+Id TextEditorWidget::CodeWarningsSelection("TextEdit.CodeWarningsSelection");
+Id TextEditorWidget::CodeSemanticsSelection("TextEdit.CodeSemanticsSelection");
+Id TextEditorWidget::UndefinedSymbolSelection("TextEdit.UndefinedSymbolSelection");
+Id TextEditorWidget::UnusedSymbolSelection("TextEdit.UnusedSymbolSelection");
+Id TextEditorWidget::OtherSelection("TextEdit.OtherSelection");
+Id TextEditorWidget::ObjCSelection("TextEdit.ObjCSelection");
+Id TextEditorWidget::DebuggerExceptionSelection("TextEdit.DebuggerExceptionSelection");
+Id TextEditorWidget::FakeVimSelection("TextEdit.FakeVimSelection");
 
 TextEditorWidget::TextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -2615,7 +2628,7 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
     // remove extra selections (loads of QTextCursor objects)
 
     m_extraSelections.clear();
-    m_extraSelections.reserve(TextEditorWidget::NExtraSelectionKinds);
+    m_extraSelections.reserve(NExtraSelectionKinds);
     q->QPlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
     // clear all overlays
@@ -5423,7 +5436,14 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
 void TextEditorWidget::wheelEvent(QWheelEvent *e)
 {
     d->clearVisibleFoldedBlock();
-    if (scrollWheelZoomingEnabled() && e->modifiers() & Qt::ControlModifier) {
+    if (e->modifiers() & Qt::ControlModifier) {
+        if (!scrollWheelZoomingEnabled()) {
+            // When the setting is disabled globally,
+            // we have to skip calling QPlainTextEdit::wheelEvent()
+            // that changes zoom in it.
+            return;
+        }
+
         const int delta = e->delta();
         if (delta < 0)
             zoomOut();
@@ -6085,8 +6105,7 @@ void TextEditorWidget::deleteStartOfWordCamelCase()
     setTextCursor(c);
 }
 
-// kind can be either a value from the ExtraSelectionKind enum, or an unique Core::Id identifier.
-void TextEditorWidgetPrivate::setExtraSelections(int kind, const QList<QTextEdit::ExtraSelection> &selections)
+void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
     if (selections.isEmpty() && m_extraSelections[kind].isEmpty())
         return;
@@ -6124,28 +6143,14 @@ void TextEditorWidgetPrivate::setExtraSelections(int kind, const QList<QTextEdit
     }
 }
 
-void TextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
+void TextEditorWidget::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
     d->setExtraSelections(kind, selections);
 }
 
-QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(ExtraSelectionKind kind) const
-{
-    return d->m_extraSelections[kind];
-}
-
-void TextEditorWidget::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
-{
-    // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
-    QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return);
-    d->setExtraSelections(kind.uniqueIdentifier(), selections);
-}
-
 QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) const
 {
-    // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
-    QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return QList<QTextEdit::ExtraSelection>());
-    return d->m_extraSelections[kind.uniqueIdentifier()];
+    return d->m_extraSelections.value(kind);
 }
 
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
@@ -6349,6 +6354,13 @@ void TextEditorWidget::rewrapParagraph()
 void TextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this, d->m_commentDefinition);
+}
+
+void TextEditorWidget::encourageApply()
+{
+    if (!d->m_snippetOverlay->isVisible() || d->m_snippetOverlay->isEmpty())
+        return;
+    d->m_snippetOverlay->updateEquivalentSelections(textCursor());
 }
 
 void TextEditorWidget::showEvent(QShowEvent* e)
@@ -6586,6 +6598,7 @@ void TextEditorWidget::copy()
 void TextEditorWidget::paste()
 {
     QPlainTextEdit::paste();
+    encourageApply();
 }
 
 void TextEditorWidgetPrivate::collectToCircularClipboard()

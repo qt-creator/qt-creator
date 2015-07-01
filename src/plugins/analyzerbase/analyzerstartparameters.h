@@ -36,10 +36,11 @@
 
 #include <QMetaType>
 
+#include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace Analyzer {
 
@@ -49,7 +50,7 @@ namespace Analyzer {
 class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
-    ProjectExplorer::RunMode runMode;
+    Core::Id runMode = ProjectExplorer::Constants::NO_RUN_MODE;
     QSsh::SshConnectionParameters connParams;
     ProjectExplorer::ApplicationLauncher::Mode localRunMode
         = ProjectExplorer::ApplicationLauncher::Gui;

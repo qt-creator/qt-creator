@@ -30,10 +30,11 @@
 
 source("../../shared/qtcreator.py")
 
-inputDialog = "{type='QInputDialog' unnamed='1' visible='1'}"
+inputDialog = "{type='QDialog' unnamed='1' visible='1' windowTitle='Extract Function Refactoring'}"
 
 def revertMainCpp():
     invokeMenuItem('File', 'Revert "main.cpp" to Saved')
+    waitFor("object.exists(':Revert to Saved_QMessageBox')", 1000)
     clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
 
 def constructExpectedCode(original, codeLines, funcSuffix):
@@ -109,9 +110,9 @@ def main():
             markText(editor, "Right", 2)
             snooze(1) # avoid timing issue with the parser
             invokeContextMenuItem(editor, 'Refactor', 'Extract Function')
-            funcEdit = waitForObject("{buddy={text='Enter function name' type='QLabel' unnamed='1' "
-                                     "visible='1' window=%s} type='QLineEdit' unnamed='1' visible='1'}"
-                                     % inputDialog)
+            funcEdit = waitForObject("{buddy={text='Function name' type='QLabel' unnamed='1' "
+                                     "visible='1' window=%s} type='Utils::FancyLineEdit' "
+                                     "unnamed='1' visible='1'}" % inputDialog)
             replaceEditorContent(funcEdit, "myFunc%s" % funcSuffix)
             clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}"
                                       % inputDialog))

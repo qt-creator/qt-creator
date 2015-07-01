@@ -139,6 +139,7 @@
                 \li \l{Creating a Qt Quick Application}
                 \li \l{Creating a Qt Widget Based Application}
                 \li \l{Creating a Mobile Application}
+                \li \l{Using Qt Quick UI Forms}
             \endlist
         \endlist
         \li \l{Managing Projects}

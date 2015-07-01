@@ -57,11 +57,11 @@ public:
 
     class ConditionalFeature {
     public:
-        ConditionalFeature() : feature(Core::Id()) { }
-        ConditionalFeature(const Core::Feature &f, const QVariant &c) : feature(f), condition(c)
+        ConditionalFeature() = default;
+        ConditionalFeature(const QString &f, const QVariant &c) : feature(f), condition(c)
         { }
 
-        Core::Feature feature;
+        QString feature;
         QVariant condition;
     };
     static QVector<ConditionalFeature> parseFeatures(const QVariant &data,

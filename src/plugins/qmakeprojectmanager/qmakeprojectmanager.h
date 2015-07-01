@@ -54,7 +54,6 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProject
     Q_OBJECT
 
 public:
-    QmakeManager();
     ~QmakeManager();
 
     void registerProject(QmakeProject *project);
@@ -95,9 +94,9 @@ private:
     void addLibrary(const QString &fileName, TextEditor::BaseTextEditor *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
-    ProjectExplorer::Node *m_contextNode;
-    ProjectExplorer::Project *m_contextProject;
-    ProjectExplorer::FileNode *m_contextFile;
+    ProjectExplorer::Node *m_contextNode = nullptr;
+    ProjectExplorer::Project *m_contextProject = nullptr;
+    ProjectExplorer::FileNode *m_contextFile = nullptr;
 };
 
 } // namespace QmakeProjectManager

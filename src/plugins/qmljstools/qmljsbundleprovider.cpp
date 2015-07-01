@@ -131,9 +131,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
     QString qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
 
     Core::FeatureSet features = qtVersion->availableFeatures();
-    if (features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK))
-            || features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1))
-            || features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1))) {
+    if (features.contains(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX))) {
         myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtImportsPath);
         QDir qtQuick1Bundles(qtImportsPath);
         qtQuick1Bundles.setNameFilters(QStringList(QLatin1String("*-bundle.json")));
@@ -158,7 +156,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
         bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick1Bundle);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, qtQuick1Bundle);
     }
-    if (features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2))) {
+    if (features.contains(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX, 2))) {
         myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtQmlPath);
         QDir qtQuick2Bundles(qtQmlPath);
         qtQuick2Bundles.setNameFilters(QStringList(QLatin1String("*-bundle.json")));

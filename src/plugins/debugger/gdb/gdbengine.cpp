@@ -1811,7 +1811,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     // Gdb running on windows often delivers "fullnames" which
     // (a) have no drive letter and (b) are not normalized.
     if (Abi::hostAbi().os() == Abi::WindowsOS) {
-        QTC_ASSERT(!fileName.isEmpty(), return QString());
+        if (fileName.isEmpty())
+            return QString();
         QFileInfo fi(fileName);
         if (fi.isReadable())
             cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
@@ -3525,7 +3526,7 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
         }
         rp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
         rp.isSnapshot = true;
-        createAndScheduleRun(rp);
+        createAndScheduleRun(rp, 0);
     } else {
         QByteArray msg = response.data["msg"].data();
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),

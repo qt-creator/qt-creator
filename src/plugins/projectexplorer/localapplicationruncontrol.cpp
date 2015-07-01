@@ -48,12 +48,12 @@ LocalApplicationRunControlFactory::~LocalApplicationRunControlFactory()
 {
 }
 
-bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == NormalRunMode && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    return mode == Constants::NORMAL_RUN_MODE && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
-RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
@@ -72,7 +72,7 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
 
 // ApplicationRunControl
 
-LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, RunMode mode)
+LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_runMode(ApplicationLauncher::Console), m_running(false)
 {
     setIcon(QLatin1String(Constants::ICON_RUN_SMALL));

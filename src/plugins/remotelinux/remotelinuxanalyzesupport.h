@@ -53,10 +53,10 @@ class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxR
     Q_OBJECT
 public:
     static Analyzer::AnalyzerStartParameters startParameters(const ProjectExplorer::RunConfiguration *runConfig,
-                                                             ProjectExplorer::RunMode runMode);
+                                                             Core::Id runMode);
 
     RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
-            Analyzer::AnalyzerRunControl *engine, ProjectExplorer::RunMode runMode);
+            Analyzer::AnalyzerRunControl *engine, Core::Id runMode);
     ~RemoteLinuxAnalyzeSupport();
 
 protected:

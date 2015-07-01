@@ -1,24 +1,41 @@
-import QtQuick 2.1
-import QtQuick.Window 2.1
+import QtQuick 2.5
+import QtQuick.Controls 1.4
 
-Window {
+ApplicationWindow {
     id: page
     visible: true
     width: 360
     height: 360
     color: "#343434"
+    title: qsTr("Transitions")
+
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("File")
+            MenuItem {
+                text: qsTr("&Open")
+                onTriggered: console.log("Open action triggered");
+            }
+            MenuItem {
+                text: qsTr("Exit")
+                onTriggered: Qt.quit();
+            }
+        }
+    }
 
     Image {
         id: icon
         x: 10
         y: 20
-        source: "states.png"
+        source: "states.svg"
     }
 
     Rectangle {
         id: topLeftRect
-        width: 64
-        height: 64
+        x: 10
+        y: 20
+        width: 44
+        height: 44
         color: "#00000000"
         radius: 6
         opacity: 1
@@ -37,8 +54,8 @@ Window {
 
     Rectangle {
         id: middleRightRect
-        width: 64
-        height: 64
+        width: 44
+        height: 44
         color: "#00000000"
         radius: 6
         anchors.right: parent.right
@@ -55,8 +72,8 @@ Window {
 
     Rectangle {
         id: bottomLeftRect
-        width: 64
-        height: 64
+        width: 44
+        height: 44
         color: "#00000000"
         radius: 6
         border.width: 1

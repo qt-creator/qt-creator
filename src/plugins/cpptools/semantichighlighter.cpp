@@ -54,10 +54,6 @@ SemanticHighlighter::SemanticHighlighter(TextEditor::TextDocument *baseTextDocum
     , m_revision(0)
 {
     QTC_CHECK(m_baseTextDocument);
-
-    connect(baseTextDocument, &TextEditor::TextDocument::fontSettingsChanged,
-            this, &SemanticHighlighter::onDocumentFontSettingsChanged);
-
     updateFormatMapFromFontSettings();
 }
 
@@ -90,12 +86,6 @@ void SemanticHighlighter::run()
 
     m_revision = documentRevision();
     m_watcher->setFuture(m_highlightingRunner());
-}
-
-void SemanticHighlighter::onDocumentFontSettingsChanged()
-{
-    updateFormatMapFromFontSettings();
-    run();
 }
 
 void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)

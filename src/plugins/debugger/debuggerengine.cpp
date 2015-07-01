@@ -92,22 +92,6 @@ enum { debug = 0 };
 #include <valgrind/callgrind.h>
 #endif
 
-///////////////////////////////////////////////////////////////////////
-//
-// DebuggerRunParameters
-//
-///////////////////////////////////////////////////////////////////////
-
-DebuggerRunParameters::DebuggerRunParameters()
-    : isSnapshot(false),
-      testCase(0)
-{}
-
-void DebuggerRunParameters::initialize(const DebuggerStartParameters &sp)
-{
-    DebuggerStartParameters::operator=(sp);
-}
-
 // VariableManager Prefix
 const char PrefixDebugExecutable[]  = "DebuggedExecutable";
 

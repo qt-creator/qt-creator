@@ -44,12 +44,10 @@
 
 #include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QDebug>
 #include <QMap>
 #include <QVector>
-
-#include <QSignalMapper>
-#include <QAction>
 
 namespace Core {
 
@@ -70,7 +68,6 @@ struct ModeManagerPrivate
     QMap<QAction*, int> m_actions;
     QVector<IMode*> m_modes;
     QVector<Command*> m_modeCommands;
-    QSignalMapper *m_signalMapper;
     Context m_addedContexts;
     int m_oldCurrent;
     bool m_modeSelectorVisible;
@@ -96,7 +93,6 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
     d = new ModeManagerPrivate();
     d->m_mainWindow = mainWindow;
     d->m_modeStack = modeStack;
-    d->m_signalMapper = new QSignalMapper(this);
     d->m_oldCurrent = -1;
     d->m_actionBar = new Internal::FancyActionBar(modeStack);
     d->m_modeStack->addCornerWidget(d->m_actionBar);
@@ -105,7 +101,6 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
 
     connect(d->m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
     connect(d->m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
-    connect(d->m_signalMapper, SIGNAL(mapped(int)), this, SLOT(slotActivateMode(int)));
 }
 
 void ModeManager::init()
@@ -137,12 +132,6 @@ IMode *ModeManager::mode(Id id)
     if (index >= 0)
         return d->m_modes.at(index);
     return 0;
-}
-
-void ModeManager::slotActivateMode(int id)
-{
-    m_instance->activateMode(Id::fromUniqueIdentifier(id));
-    ICore::raiseWindow(d->m_modeStack);
 }
 
 void ModeManager::activateMode(Id id)
@@ -190,8 +179,12 @@ void ModeManager::objectAdded(QObject *obj)
             currentCmd->setKeySequence(currentCmd->defaultKeySequence());
     }
 
-    d->m_signalMapper->setMapping(action, mode->id().uniqueIdentifier());
-    connect(action, SIGNAL(triggered()), d->m_signalMapper, SLOT(map()));
+    Id id = mode->id();
+    connect(action, &QAction::triggered, [id] {
+        m_instance->activateMode(id);
+        ICore::raiseWindow(d->m_modeStack);
+    });
+
     connect(mode, SIGNAL(enabledStateChanged(bool)),
             m_instance, SLOT(enabledStateChanged()));
 }

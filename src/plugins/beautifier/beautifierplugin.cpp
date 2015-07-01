@@ -142,7 +142,7 @@ QString BeautifierPlugin::format(const QString &text, const Command &command,
     switch (command.processing()) {
     case Command::FileProcessing: {
         // Save text to temporary file
-        QFileInfo fi(fileName);
+        const QFileInfo fi(fileName);
         Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
                                         + fi.suffix());
         sourceFile.setAutoRemove(true);
@@ -396,7 +396,7 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     // Restore folded blocks
     const QTextDocument *doc = textEditor->document();
     foreach (const int blockId, foldedBlocks) {
-        QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
+        const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
             TextDocumentLayout::doFoldOrUnfold(block, false);
     }

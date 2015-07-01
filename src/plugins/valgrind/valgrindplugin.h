@@ -34,6 +34,7 @@
 
 #include <extensionsystem/iplugin.h>
 #include <analyzerbase/ianalyzertool.h>
+#include <projectexplorer/projectexplorer.h>
 
 namespace Valgrind {
 namespace Internal {

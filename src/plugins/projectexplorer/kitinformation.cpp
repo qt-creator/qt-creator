@@ -346,7 +346,7 @@ Core::FeatureSet DeviceTypeKitInformation::availableFeatures(const Kit *k) const
     Core::Id id = DeviceTypeKitInformation::deviceTypeId(k);
     Core::FeatureSet result;
     if (id.isValid())
-        result |= Core::Feature(Core::Id::fromString(QString::fromLatin1("DeviceType.") + id.toString()));
+        result |= Core::Feature::fromString(QString::fromLatin1("DeviceType.") + id.toString());
     return result;
 }
 

@@ -111,16 +111,13 @@ Frame ErrorListModel::Private::findRelevantFrame(const Error &error) const
 
 QString ErrorListModel::Private::formatAbsoluteFilePath(const Error &error) const
 {
-    const Frame f = findRelevantFrame(error);
-    if (!f.directory().isEmpty() && !f.file().isEmpty())
-        return f.directory() + QLatin1Char('/') + f.file();
-    return QString();
+    return findRelevantFrame(error).filePath();
 }
 
 QString ErrorListModel::Private::formatLocation(const Error &error) const
 {
     const Frame frame = findRelevantFrame(error);
-    const QString file = frame.file();
+    const QString file = frame.fileName();
     if (!frame.functionName().isEmpty())
         return frame.functionName();
     if (!file.isEmpty()) {
@@ -185,7 +182,7 @@ QVariant ErrorListModel::Private::errorData(int row, int column, int role) const
     case AbsoluteFilePathRole:
         return formatAbsoluteFilePath(error);
     case FileRole:
-        return findRelevantFrame(error).file();
+        return findRelevantFrame(error).fileName();
     case LineRole: {
         const qint64 line = findRelevantFrame(error).line();
         return line > 0 ? line : QVariant();

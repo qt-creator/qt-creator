@@ -137,7 +137,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
         projectFilePath = projectPart->projectFile; // OK, Project Part is still loaded
 
     QTC_ASSERT(m_modelManagerSupport, return);
-    m_modelManagerSupport->ipcCommunicator()->unregisterFilesForCodeCompletion(
+    m_modelManagerSupport->ipcCommunicator().unregisterFilesForCodeCompletion(
         {ClangBackEnd::FileContainer(filePath(), projectFilePath)});
 }
 
@@ -165,6 +165,12 @@ void ClangEditorDocumentProcessor::run()
 void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 {
     m_builtinProcessor.recalculateSemanticInfoDetached(force);
+}
+
+void ClangEditorDocumentProcessor::semanticRehighlight()
+{
+    m_semanticHighlighter.updateFormatMapFromFontSettings();
+    m_semanticHighlighter.run();
 }
 
 CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()

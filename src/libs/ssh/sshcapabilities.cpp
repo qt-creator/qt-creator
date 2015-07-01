@@ -65,9 +65,9 @@ const QList<QByteArray> SshCapabilities::KeyExchangeMethods = QList<QByteArray>(
 
 const QByteArray SshCapabilities::PubKeyDss("ssh-dss");
 const QByteArray SshCapabilities::PubKeyRsa("ssh-rsa");
-const QByteArray SshCapabilities::PubKeyEcdsa("ecdsa-sha2-nistp256");
+const QByteArray SshCapabilities::PubKeyEcdsa256("ecdsa-sha2-nistp256");
 const QList<QByteArray> SshCapabilities::PublicKeyAlgorithms = QList<QByteArray>()
-        << SshCapabilities::PubKeyEcdsa
+        << SshCapabilities::PubKeyEcdsa256
         << SshCapabilities::PubKeyRsa
         << SshCapabilities::PubKeyDss;
 
@@ -128,6 +128,14 @@ QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilitie
     const QList<QByteArray> &serverCapabilities)
 {
     return commonCapabilities(myCapabilities, serverCapabilities).first();
+}
+
+int SshCapabilities::ecdsaIntegerWidthInBytes(const QByteArray &ecdsaAlgo)
+{
+    if (ecdsaAlgo == PubKeyEcdsa256)
+        return 32;
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected ecdsa algorithm \"%1\"")
+                             .arg(QString::fromLatin1(ecdsaAlgo)));
 }
 
 } // namespace Internal

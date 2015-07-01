@@ -52,6 +52,7 @@ public:
     // BaseEditorDocumentProcessor interface
     void run() override;
     void recalculateSemanticInfoDetached(bool force) override;
+    void semanticRehighlight() override;
     CppTools::SemanticInfo recalculateSemanticInfo() override;
     BaseEditorDocumentParser *parser() override;
     CPlusPlus::Snapshot snapshot() override;

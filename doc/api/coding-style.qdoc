@@ -50,7 +50,7 @@
             \l{Patterns and Practices}.
         \li Document interfaces. Right now we use qdoc, but changing to doxygen
             is being considered.
-        \endlist
+    \endlist
 
 
     \section1 Submitting Code
@@ -561,14 +561,15 @@
 
         void someFunction() { ... }
 
-        }  // namespace MyPlugin
-        \endcode
+            }  // namespace MyPlugin
+            \endcode
 
         \li As an exception, if there is only a single class declaration inside
             the namespace, all can go on a single line:
-        \code
-        namespace MyPlugin { class MyClass; }
-        \endcode
+
+            \code
+            namespace MyPlugin { class MyClass; }
+            \endcode
 
         \li Do not use using-directives in header files.
 
@@ -1181,25 +1182,25 @@
             your class.
 
         \li To improve code readability, always check whether a preprocessor
-            variable is defined before probing its value (\c{-Wundef}).
+            variable is defined before probing its value (\c {-Wundef}).
 
             \code
-              #if defined(Foo) && Foo == 0
+            #if defined(Foo) && Foo == 0
 
               -NOT-
 
-              #if Foo == 0
+            #if Foo == 0
 
-              -NOT-
+            -NOT-
 
-              #if Foo - 0 == 0
-           \endcode
+            #if Foo - 0 == 0
+            \endcode
 
-        \li When checking for a preprocessor define using the \c{defined}
+        \li When checking for a preprocessor define using the \c {defined}
             operator, always include the variable name in parentheses.
 
             \code
-              #if defined(Foo)
+            #if defined(Foo)
 
               -NOT-
 

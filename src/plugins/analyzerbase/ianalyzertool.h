@@ -86,8 +86,8 @@ public:
     void setToolId(Core::Id id) { m_toolId = id; }
     void setToolMode(ToolMode mode) { m_toolMode = mode; }
 
-    ProjectExplorer::RunMode runMode() const { return m_runMode; }
-    void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
+    Core::Id runMode() const { return m_runMode; }
+    void setRunMode(Core::Id mode) { m_runMode = mode; }
     bool isRunnable(QString *reason = 0) const;
 
     /// Creates all widgets used by the tool.
@@ -119,7 +119,7 @@ protected:
     Core::Id m_actionId;
     Core::Id m_toolId;
     ToolMode m_toolMode;
-    ProjectExplorer::RunMode m_runMode;
+    Core::Id m_runMode;
     WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;
     ToolStarter m_customToolStarter;

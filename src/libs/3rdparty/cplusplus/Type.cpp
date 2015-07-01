@@ -68,6 +68,9 @@ bool Type::isNamespaceType() const
 bool Type::isTemplateType() const
 { return asTemplateType() != 0; }
 
+bool Type::isExplicitInstantiationType() const
+{ return asExplicitInstantiationType() != 0; }
+
 bool Type::isClassType() const
 { return asClassType() != 0; }
 

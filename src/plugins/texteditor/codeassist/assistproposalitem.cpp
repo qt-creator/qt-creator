@@ -135,12 +135,14 @@ bool AssistProposalItem::prematurelyApplies(const QChar &c) const
 
 void AssistProposalItem::apply(TextEditorWidget *editorWidget, int basePosition) const
 {
-    if (data().canConvert<QString>())
+    if (data().canConvert<QString>()) {
         applySnippet(editorWidget, basePosition);
-    else if (data().canConvert<QuickFixOperation::Ptr>())
+    } else if (data().canConvert<QuickFixOperation::Ptr>()) {
         applyQuickFix(editorWidget, basePosition);
-    else
+    } else {
         applyContextualContent(editorWidget, basePosition);
+        editorWidget->encourageApply();
+    }
 }
 
 void AssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const

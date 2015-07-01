@@ -159,16 +159,20 @@ IosRunControlFactory::IosRunControlFactory(QObject *parent)
 }
 
 bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                RunMode mode) const
+                Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode
-            && mode != DebugRunModeWithBreakOnMain)
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         return false;
+    }
+
     return qobject_cast<IosRunConfiguration *>(runConfiguration);
 }
 
 RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
-                                        RunMode mode, QString *errorMessage)
+                                        Core::Id mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
@@ -181,9 +185,9 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
             activeRunControl->stop();
         m_activeRunControls.remove(devId);
     }
-    if (mode == NormalRunMode)
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         res = new Ios::Internal::IosRunControl(rc);
-    else if (mode == QmlProfilerRunMode)
+    else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         res = IosAnalyzeSupport::createAnalyzeRunControl(rc, errorMessage);
     else
         res = IosDebugSupport::createDebugRunControl(rc, errorMessage);

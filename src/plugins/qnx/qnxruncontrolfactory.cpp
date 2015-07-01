@@ -73,14 +73,7 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
         return params;
 
     params.startMode = AttachToRemoteServer;
-    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
-    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.useCtrlCStub = true;
-    params.runConfiguration = runConfig;
-
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        params.toolChainAbi = tc->targetAbi();
-
     params.executable = runConfig->localExecutableFilePath();
     params.remoteExecutable = runConfig->remoteExecutableFilePath();
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
@@ -89,33 +82,20 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
     params.closeMode = KillAtClose;
     params.processArgs = runConfig->arguments().join(QLatin1Char(' '));
 
-    DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;
         params.qmlServerPort = 0; // QML port is handed out later
     }
 
-    if (aspect->useCppDebugger())
-        params.languages |= CppLanguage;
-
-    if (const Project *project = runConfig->target()->project()) {
-        params.projectSourceDirectory = project->projectDirectory().toString();
-        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
-    }
-
-    QnxQtVersion *qtVersion =
-            dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
+    auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
     if (qtVersion)
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     return params;
 }
 
-static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig, RunMode mode)
+static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig, Core::Id mode)
 {
     AnalyzerStartParameters params;
     Target *target = runConfig->target();
@@ -145,10 +125,13 @@ QnxRunControlFactory::QnxRunControlFactory(QObject *parent)
 {
 }
 
-bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode)
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         return false;
+    }
 
     if (!runConfiguration->isEnabled()
             || !runConfiguration->id().name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)) {
@@ -161,24 +144,24 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mo
     if (dev.isNull())
         return false;
 
-    if (mode == DebugRunMode || mode == QmlProfilerRunMode)
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         return rc->portsUsedByDebuggers() <= dev->freePorts().count();
 
     return true;
 }
 
-RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode, QString *errorMessage)
+RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
 
     QnxRunConfiguration *rc = qobject_cast<QnxRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
-    switch (mode) {
-    case NormalRunMode:
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         return new QnxRunControl(rc);
-    case DebugRunMode: {
+
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE) {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
-        DebuggerRunControl * const runControl = createDebuggerRunControl(params, errorMessage);
+        DebuggerRunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
         if (!runControl)
             return 0;
 
@@ -187,21 +170,15 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
 
         return runControl;
     }
-    case QmlProfilerRunMode: {
+
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         const AnalyzerStartParameters params = createAnalyzerStartParameters(rc, mode);
         AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig);
         QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;
     }
-    case PerfProfilerRunMode:
-    case NoRunMode:
-    case CallgrindRunMode:
-    case MemcheckRunMode:
-    case MemcheckWithGdbRunMode:
-    case ClangStaticAnalyzerMode:
-    case DebugRunModeWithBreakOnMain:
-        QTC_ASSERT(false, return 0);
-    }
+
+    QTC_CHECK(false);
     return 0;
 }

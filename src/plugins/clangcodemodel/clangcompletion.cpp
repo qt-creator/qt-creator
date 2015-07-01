@@ -299,10 +299,9 @@ namespace Internal {
 // -----------------------------
 // ClangCompletionAssistProvider
 // -----------------------------
-ClangCompletionAssistProvider::ClangCompletionAssistProvider(IpcCommunicator::Ptr ipcCommunicator)
+ClangCompletionAssistProvider::ClangCompletionAssistProvider(IpcCommunicator &ipcCommunicator)
     : m_ipcCommunicator(ipcCommunicator)
 {
-    QTC_CHECK(m_ipcCommunicator);
 }
 
 IAssistProvider::RunType ClangCompletionAssistProvider::runType() const
@@ -642,7 +641,7 @@ const TextEditor::TextEditorWidget *ClangCompletionAssistInterface::textEditorWi
 }
 
 ClangCompletionAssistInterface::ClangCompletionAssistInterface(
-        IpcCommunicator::Ptr ipcCommunicator,
+        IpcCommunicator &ipcCommunicator,
         const TextEditorWidget *textEditorWidget,
         int position,
         const QString &fileName,
@@ -661,7 +660,7 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(
     m_unsavedFiles = Utils::createUnsavedFiles(mmi->workingCopy());
 }
 
-IpcCommunicator::Ptr ClangCompletionAssistInterface::ipcCommunicator() const
+IpcCommunicator &ClangCompletionAssistInterface::ipcCommunicator() const
 {
     return m_ipcCommunicator;
 }
@@ -1111,8 +1110,8 @@ void ClangCompletionAssistProcessor::sendFileContent(const QString &projectFileP
             : modifiedFileContent;
     const bool hasUnsavedContent = true; // TODO
 
-    IpcCommunicator::Ptr ipcCommunicator = m_interface->ipcCommunicator();
-    ipcCommunicator->registerFilesForCodeCompletion(
+    IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
+    ipcCommunicator.registerFilesForCodeCompletion(
         {FileContainer(filePath,
                        projectFilePath,
                        Utf8String::fromByteArray(unsavedContent),
@@ -1129,7 +1128,7 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     const QString filePath = m_interface->fileName();
     const QString projectFilePath = Utils::projectFilePathForFile(filePath);
     sendFileContent(projectFilePath, modifiedFileContent);
-    m_interface->ipcCommunicator()->completeCode(this, filePath, line, column, projectFilePath);
+    m_interface->ipcCommunicator().completeCode(this, filePath, line, column, projectFilePath);
 }
 
 TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() const

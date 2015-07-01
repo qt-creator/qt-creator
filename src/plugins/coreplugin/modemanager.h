@@ -75,7 +75,6 @@ signals:
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode = 0);
 
 private slots:
-    void slotActivateMode(int id);
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
     void currentTabAboutToChange(int index);

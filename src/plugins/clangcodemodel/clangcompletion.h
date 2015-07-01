@@ -60,7 +60,7 @@ class ClangCompletionAssistProvider : public CppTools::CppCompletionAssistProvid
     Q_OBJECT
 
 public:
-    ClangCompletionAssistProvider(IpcCommunicator::Ptr ipcCommunicator);
+    ClangCompletionAssistProvider(IpcCommunicator &ipcCommunicator);
 
     IAssistProvider::RunType runType() const override;
 
@@ -73,7 +73,7 @@ public:
             TextEditor::AssistReason reason) const override;
 
 private:
-    IpcCommunicator::Ptr m_ipcCommunicator;
+    IpcCommunicator &m_ipcCommunicator;
 };
 
 class ClangAssistProposalItem : public TextEditor::AssistProposalItem
@@ -117,7 +117,7 @@ private:
 class ClangCompletionAssistInterface: public TextEditor::AssistInterface
 {
 public:
-    ClangCompletionAssistInterface(ClangCodeModel::Internal::IpcCommunicator::Ptr ipcCommunicator,
+    ClangCompletionAssistInterface(ClangCodeModel::Internal::IpcCommunicator &ipcCommunicator,
                                    const TextEditor::TextEditorWidget *textEditorWidget,
                                    int position,
                                    const QString &fileName,
@@ -126,7 +126,7 @@ public:
                                    const Internal::PchInfo::Ptr &pchInfo,
                                    const CPlusPlus::LanguageFeatures &features);
 
-    ClangCodeModel::Internal::IpcCommunicator::Ptr ipcCommunicator() const;
+    ClangCodeModel::Internal::IpcCommunicator &ipcCommunicator() const;
     const ClangCodeModel::Internal::UnsavedFiles &unsavedFiles() const;
     bool objcEnabled() const;
     const CppTools::ProjectPart::HeaderPaths &headerPaths() const;
@@ -136,7 +136,7 @@ public:
     void setHeaderPaths(const CppTools::ProjectPart::HeaderPaths &headerPaths); // For tests
 
 private:
-    ClangCodeModel::Internal::IpcCommunicator::Ptr m_ipcCommunicator;
+    ClangCodeModel::Internal::IpcCommunicator &m_ipcCommunicator;
     ClangCodeModel::Internal::UnsavedFiles m_unsavedFiles;
     QStringList m_options;
     CppTools::ProjectPart::HeaderPaths m_headerPaths;

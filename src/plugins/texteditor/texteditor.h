@@ -328,22 +328,18 @@ public:
 
     void ensureCursorVisible();
 
-    enum ExtraSelectionKind {
-        CurrentLineSelection,
-        ParenthesesMatchingSelection,
-        CodeWarningsSelection,
-        CodeSemanticsSelection,
-        UndefinedSymbolSelection,
-        UnusedSymbolSelection,
-        FakeVimSelection,
-        OtherSelection,
-        SnippetPlaceholderSelection,
-        ObjCSelection,
-        DebuggerExceptionSelection,
-        NExtraSelectionKinds
-    };
-    void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
-    QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
+    static Core::Id FakeVimSelection;
+    static Core::Id SnippetPlaceholderSelection;
+    static Core::Id CurrentLineSelection;
+    static Core::Id ParenthesesMatchingSelection;
+    static Core::Id CodeWarningsSelection;
+    static Core::Id CodeSemanticsSelection;
+    static Core::Id UndefinedSymbolSelection;
+    static Core::Id UnusedSymbolSelection;
+    static Core::Id OtherSelection;
+    static Core::Id ObjCSelection;
+    static Core::Id DebuggerExceptionSelection;
+
     void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(Core::Id kind) const;
     QString extraSelectionTooltip(int pos) const;
@@ -366,6 +362,8 @@ public:
     virtual void format();
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
+
+    virtual void encourageApply();
 
 public slots: // Qt4-style connect used in EditorConfiguration
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);

@@ -48,7 +48,7 @@ public:
         return ip == other.ip
                 && object == other.object
                 && functionName == other.functionName
-                && file == other.file
+                && fileName == other.fileName
                 && directory == other.directory
                 && line == other.line;
     }
@@ -56,7 +56,7 @@ public:
     quint64 ip;
     QString object;
     QString functionName;
-    QString file;
+    QString fileName;
     QString directory;
     int line;
 };
@@ -126,14 +126,14 @@ void Frame::setFunctionName(const QString &functionName)
     d->functionName = functionName;
 }
 
-QString Frame::file() const
+QString Frame::fileName() const
 {
-    return d->file;
+    return d->fileName;
 }
 
-void Frame::setFile(const QString &file)
+void Frame::setFileName(const QString &file)
 {
-    d->file = file;
+    d->fileName = file;
 }
 
 QString Frame::directory() const
@@ -144,6 +144,14 @@ QString Frame::directory() const
 void Frame::setDirectory(const QString &directory)
 {
     d->directory = directory;
+}
+
+QString Frame::filePath() const
+{
+    QString f;
+    if (!directory().isEmpty())
+        f.append(directory()).append(QLatin1Char('/'));
+    return f.append(fileName());
 }
 
 int Frame::line() const

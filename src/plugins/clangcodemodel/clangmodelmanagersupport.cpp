@@ -58,8 +58,7 @@ static CppTools::CppModelManager *cppModelManager()
 }
 
 ModelManagerSupportClang::ModelManagerSupportClang()
-    : m_ipcCommunicator(new IpcCommunicator)
-    , m_completionAssistProvider(new ClangCompletionAssistProvider(m_ipcCommunicator))
+    : m_completionAssistProvider(m_ipcCommunicator)
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
@@ -84,7 +83,7 @@ ModelManagerSupportClang::~ModelManagerSupportClang()
 
 CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssistProvider()
 {
-    return m_completionAssistProvider.data();
+    return &m_completionAssistProvider;
 }
 
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(
@@ -98,7 +97,7 @@ void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
     // If we switch away from a cpp editor, update the backend about
     // the document's unsaved content.
     if (m_previousCppEditor && m_previousCppEditor->document()->isModified()) {
-        m_ipcCommunicator->updateUnsavedFileFromCppEditorDocument(
+        m_ipcCommunicator.updateUnsavedFileFromCppEditorDocument(
                                 m_previousCppEditor->document()->filePath().toString());
     }
 
@@ -138,20 +137,20 @@ void ModelManagerSupportClang::onCppDocumentReloadFinished(bool success)
         return;
 
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-    m_ipcCommunicator->updateUnsavedFileIfNotCurrentDocument(document);
+    m_ipcCommunicator.updateUnsavedFileIfNotCurrentDocument(document);
 }
 
 void ModelManagerSupportClang::onCppDocumentContentsChanged()
 {
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-    m_ipcCommunicator->updateUnsavedFileIfNotCurrentDocument(document);
+    m_ipcCommunicator.updateUnsavedFileIfNotCurrentDocument(document);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QString &filePath,
                                                                       const QByteArray &content)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
-    m_ipcCommunicator->updateUnsavedFile(filePath, content);
+    m_ipcCommunicator.updateUnsavedFile(filePath, content);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &filePath)
@@ -159,7 +158,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
     QTC_ASSERT(!filePath.isEmpty(), return);
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString projectFilePath = Utils::projectFilePathForFile(filePath);
-        m_ipcCommunicator->unregisterFilesForCodeCompletion(
+        m_ipcCommunicator.unregisterFilesForCodeCompletion(
             {ClangBackEnd::FileContainer(filePath, projectFilePath)});
     }
 }
@@ -169,12 +168,12 @@ void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *p
     QTC_ASSERT(project, return);
     const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return);
-    m_ipcCommunicator->registerProjectsParts(projectInfo.projectParts());
+    m_ipcCommunicator.registerProjectsParts(projectInfo.projectParts());
 }
 
 void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectFiles)
 {
-    m_ipcCommunicator->unregisterProjectPartsForCodeCompletion(projectFiles);
+    m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectFiles);
 }
 
 ModelManagerSupportClang *ModelManagerSupportClang::instance()
@@ -182,7 +181,7 @@ ModelManagerSupportClang *ModelManagerSupportClang::instance()
     return m_instance;
 }
 
-IpcCommunicator::Ptr ModelManagerSupportClang::ipcCommunicator()
+IpcCommunicator &ModelManagerSupportClang::ipcCommunicator()
 {
     return m_ipcCommunicator;
 }

@@ -73,12 +73,11 @@ public:
     ~SemanticHighlighter();
 
     void setHighlightingRunner(HighlightingRunner highlightingRunner);
+    void updateFormatMapFromFontSettings();
 
     void run();
 
 private slots:
-    void onDocumentFontSettingsChanged();
-
     void onHighlighterResultAvailable(int from, int to);
     void onHighlighterFinished();
 
@@ -87,7 +86,6 @@ private:
     void disconnectWatcher();
 
     unsigned documentRevision() const;
-    void updateFormatMapFromFontSettings();
 
 private:
     TextEditor::TextDocument *m_baseTextDocument;

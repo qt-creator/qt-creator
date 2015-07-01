@@ -60,7 +60,7 @@ public:
 static QString makeName(const Frame &frame)
 {
     const QString d = frame.directory();
-    const QString f = frame.file();
+    const QString f = frame.fileName();
     const QString fn = frame.functionName();
     if (!fn.isEmpty())
         return fn;
@@ -123,7 +123,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
             case DirectoryColumn:
                 return frame.directory();
             case FileColumn:
-                return frame.file();
+                return frame.fileName();
             case LineColumn:
                 if (frame.line() > 0)
                     return frame.line();
@@ -139,7 +139,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
         case FunctionNameRole:
             return frame.functionName();
         case FileRole:
-            return frame.file();
+            return frame.fileName();
         case DirectoryRole:
             return frame.directory();
         case LineRole:

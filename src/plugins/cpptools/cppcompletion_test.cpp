@@ -796,6 +796,21 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Data")
             << QLatin1String("dataMember"));
 
+    QTest::newRow("explicit_instantiation") << _(
+            "template<class T>\n"
+            "struct Foo { T bar; };\n"
+            "\n"
+            "template class Foo<int>;\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    Foo<int> foo;\n"
+            "    @\n"
+            "}\n"
+        ) << _("foo.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
+
     QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
             "{\n"
@@ -1550,6 +1565,29 @@ void CppToolsPlugin::test_completion_data()
         ) << _("c.") << (QStringList()
             << QLatin1String("C")
             << QLatin1String("m"));
+
+    QTest::newRow("type_and_using_declaration: type in nested namespace and using in global") << _(
+            "namespace Ns {\n"
+            "namespace Nested {\n"
+            "struct Foo\n"
+            "{\n"
+            "    void func();\n"
+            "    int m_bar;\n"
+            "};\n"
+            "}\n"
+            "}\n"
+            "\n"
+            "using namespace Ns::Nested;\n"
+            "\n"
+            "namespace Ns\n"
+            "{\n"
+            "void Foo::func()\n"
+            "{\n"
+            "    @\n"
+            "}\n"
+            "}\n"
+        ) << _("m_") << (QStringList()
+            << QLatin1String("m_bar"));
 
     QTest::newRow("instantiate_template_with_anonymous_class") << _(
             "template <typename T>\n"
@@ -2523,6 +2561,21 @@ void CppToolsPlugin::test_completion_data()
             "auto func = [](int arg1) { return @; };\n"
         ) << _("ar") << (QStringList()
             << QLatin1String("arg1"));
+
+    QTest::newRow("local_typedef_access_in_lambda") << _(
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    typedef Foo F;\n"
+            "    []() {\n"
+            "        F f;\n"
+            "        @\n"
+            "    };\n"
+            "}\n"
+    ) << _("f.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
     QTest::newRow("default_arguments_for_class_templates_and_base_class_QTCREATORBUG-12605") << _(
             "struct Foo { int foo; };\n"

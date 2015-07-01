@@ -60,6 +60,7 @@ public:
 
     // Function interface to implement
     virtual void run() = 0;
+    virtual void semanticRehighlight() = 0;
     virtual void recalculateSemanticInfoDetached(bool force) = 0;
     virtual CppTools::SemanticInfo recalculateSemanticInfo() = 0;
     virtual CPlusPlus::Snapshot snapshot() = 0;

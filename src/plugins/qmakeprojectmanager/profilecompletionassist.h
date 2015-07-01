@@ -43,7 +43,6 @@ class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvi
     Q_OBJECT
 
 public:
-    ProFileCompletionAssistProvider();
     void init();
     ~ProFileCompletionAssistProvider();
 

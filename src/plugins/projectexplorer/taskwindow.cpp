@@ -384,7 +384,7 @@ void TaskWindow::clearTasks(Core::Id categoryId)
 
 void TaskWindow::setCategoryVisibility(Core::Id categoryId, bool visible)
 {
-    if (categoryId.uniqueIdentifier() == 0)
+    if (!categoryId.isValid())
         return;
 
     QList<Core::Id> categories = d->m_filter->filteredCategories();

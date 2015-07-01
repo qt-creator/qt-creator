@@ -50,7 +50,7 @@ public:
 
     static const QByteArray PubKeyDss;
     static const QByteArray PubKeyRsa;
-    static const QByteArray PubKeyEcdsa;
+    static const QByteArray PubKeyEcdsa256;
     static const QList<QByteArray> PublicKeyAlgorithms;
 
     static const QByteArray CryptAlgo3DesCbc;
@@ -76,6 +76,8 @@ public:
                                                 const QList<QByteArray> &serverCapabilities);
     static QByteArray findBestMatch(const QList<QByteArray> &myCapabilities,
         const QList<QByteArray> &serverCapabilities);
+
+    static int ecdsaIntegerWidthInBytes(const QByteArray &ecdsaAlgo);
 };
 
 } // namespace Internal

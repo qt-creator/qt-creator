@@ -30,6 +30,7 @@
 
 #include "sshincomingpacket_p.h"
 
+#include "ssh_global.h"
 #include "sshbotanconversions_p.h"
 #include "sshcapabilities_p.h"
 
@@ -169,7 +170,37 @@ SshKeyExchangeInit SshIncomingPacket::extractKeyExchangeInitData() const
     return exchangeData;
 }
 
-SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray &pubKeyAlgo) const
+static void getHostKeySpecificReplyData(SshKeyExchangeReply &replyData,
+                                        const QByteArray &hostKeyAlgo, const QByteArray &input)
+{
+    quint32 offset = 0;
+    if (hostKeyAlgo == SshCapabilities::PubKeyDss || hostKeyAlgo == SshCapabilities::PubKeyRsa) {
+        // DSS: p and q, RSA: e and n
+        replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
+        replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
+
+        // g and y
+        if (hostKeyAlgo == SshCapabilities::PubKeyDss) {
+            replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
+            replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
+        }
+    } else {
+        QSSH_ASSERT_AND_RETURN(hostKeyAlgo == SshCapabilities::PubKeyEcdsa256);
+        if (SshPacketParser::asString(input, &offset)
+                != hostKeyAlgo.mid(11)) { // Without "ecdsa-sha2-" prefix.
+            throw SshPacketParseException();
+        }
+        replyData.q = SshPacketParser::asString(input, &offset);
+    }
+}
+
+static QByteArray &padToWidth(QByteArray &data, int targetWidth)
+{
+    return data.prepend(QByteArray(targetWidth - data.count(), 0));
+}
+
+SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray &kexAlgo,
+                                                               const QByteArray &hostKeyAlgo) const
 {
     Q_ASSERT(isComplete());
     Q_ASSERT(type() == SSH_MSG_KEXDH_REPLY);
@@ -179,41 +210,32 @@ SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray 
         quint32 topLevelOffset = TypeOffset + 1;
         replyData.k_s = SshPacketParser::asString(m_data, &topLevelOffset);
         quint32 k_sOffset = 0;
-        if (SshPacketParser::asString(replyData.k_s, &k_sOffset) != pubKeyAlgo)
+        if (SshPacketParser::asString(replyData.k_s, &k_sOffset) != hostKeyAlgo)
             throw SshPacketParseException();
+        getHostKeySpecificReplyData(replyData, hostKeyAlgo, replyData.k_s.mid(k_sOffset));
 
-        if (pubKeyAlgo == SshCapabilities::PubKeyDss || pubKeyAlgo == SshCapabilities::PubKeyRsa) {
-
-            // DSS: p and q, RSA: e and n
-            replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
-            replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
-
-            // g and y
-            if (pubKeyAlgo == SshCapabilities::PubKeyDss) {
-                replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
-                replyData.parameters << SshPacketParser::asBigInt(replyData.k_s, &k_sOffset);
-            }
-
+        if (kexAlgo == SshCapabilities::DiffieHellmanGroup1Sha1) {
             replyData.f = SshPacketParser::asBigInt(m_data, &topLevelOffset);
         } else {
-            Q_ASSERT(pubKeyAlgo == SshCapabilities::PubKeyEcdsa);
-            if (SshPacketParser::asString(replyData.k_s, &k_sOffset) != pubKeyAlgo.mid(11)) // Without "ecdsa-sha2-" prefix.
-                throw SshPacketParseException();
-            replyData.q = SshPacketParser::asString(replyData.k_s, &k_sOffset);
+            QSSH_ASSERT_AND_RETURN_VALUE(kexAlgo.startsWith(SshCapabilities::EcdhKexNamePrefix),
+                                         SshKeyExchangeReply());
             replyData.q_s = SshPacketParser::asString(m_data, &topLevelOffset);
         }
         const QByteArray fullSignature = SshPacketParser::asString(m_data, &topLevelOffset);
         quint32 sigOffset = 0;
-        if (SshPacketParser::asString(fullSignature, &sigOffset) != pubKeyAlgo)
+        if (SshPacketParser::asString(fullSignature, &sigOffset) != hostKeyAlgo)
             throw SshPacketParseException();
         replyData.signatureBlob = SshPacketParser::asString(fullSignature, &sigOffset);
-        if (pubKeyAlgo == SshCapabilities::PubKeyEcdsa) {
+        if (hostKeyAlgo == SshCapabilities::PubKeyEcdsa256) {
             // Botan's PK_Verifier wants the signature in this format.
             quint32 blobOffset = 0;
             const Botan::BigInt r = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
             const Botan::BigInt s = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
-            replyData.signatureBlob = convertByteArray(Botan::BigInt::encode(r));
-            replyData.signatureBlob += convertByteArray(Botan::BigInt::encode(s));
+            const int width = SshCapabilities::ecdsaIntegerWidthInBytes(hostKeyAlgo);
+            QByteArray encodedR = convertByteArray(Botan::BigInt::encode(r));
+            replyData.signatureBlob = padToWidth(encodedR, width);
+            QByteArray encodedS = convertByteArray(Botan::BigInt::encode(s));
+            replyData.signatureBlob += padToWidth(encodedS, width);
         }
         replyData.k_s.prepend(m_data.mid(TypeOffset + 1, 4));
         return replyData;

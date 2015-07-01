@@ -596,7 +596,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 
 const char *GitClient::stashNamePrefix = "stash@{";
 
-GitClient::GitClient() : VcsBase::VcsBaseClientImpl(this, new GitSettings),
+GitClient::GitClient() : VcsBase::VcsBaseClientImpl(new GitSettings),
     m_cachedGitVersion(0),
     m_disableEditor(false)
 {
@@ -1739,7 +1739,8 @@ QStringList GitClient::synchronousSubmoduleStatus(const QString &workingDirector
 
     // get submodule status
     arguments << QLatin1String("submodule") << QLatin1String("status");
-    if (!vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText)) {
+    if (!vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText,
+                                 silentFlags)) {
         msgCannotRun(tr("Cannot retrieve submodule status of \"%1\": %2")
                      .arg(QDir::toNativeSeparators(workingDirectory),
                           commandOutputFromLocal8Bit(errorText)), errorMessage);

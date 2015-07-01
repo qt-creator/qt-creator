@@ -178,6 +178,7 @@ protected:
     void process(Symbol *root);
 
     virtual bool visit(Template *templ);
+    virtual bool visit(ExplicitInstantiation *inst);
     virtual bool visit(Namespace *ns);
     virtual bool visit(Class *klass);
     virtual bool visit(ForwardClassDeclaration *klass);

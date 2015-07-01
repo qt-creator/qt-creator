@@ -210,8 +210,7 @@ DesignerExternalEditor::DesignerExternalEditor(QObject *parent) :
     ExternalQtEditor(designerIdC,
                      QLatin1String(designerDisplayName),
                      QLatin1String(Designer::Constants::FORM_MIMETYPE),
-                     parent),
-    m_terminationMapper(0)
+                     parent)
 {
 }
 

@@ -130,6 +130,7 @@ public: // fields
     QString projectConfigFile; // currently only used by the Generic Project Manager
     QByteArray projectDefines;
     QByteArray toolchainDefines;
+    QString toolchainType;
     QList<HeaderPath> headerPaths;
     QStringList precompiledHeaders;
     LanguageVersion languageVersion;
@@ -214,21 +215,34 @@ private:
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
-    typedef std::function<bool (const QString &)> IsBlackListed;
-    static QStringList createHeaderPathOptions(const ProjectPart::HeaderPaths &headerPaths,
-                                               IsBlackListed isBlackListed = IsBlackListed(),
-                                               const QString &toolchainType = QLatin1String("clang"));
+    CompilerOptionsBuilder(const ProjectPart::Ptr &projectPart);
+    virtual ~CompilerOptionsBuilder() {}
 
-    static QStringList createDefineOptions(const QByteArray &defines,
-                                           bool toolchainDefines = false,
-                                           const QString &toolchainType = QLatin1String("clang"));
+    QStringList options() const;
 
-    static QStringList createLanguageOption(ProjectFile::Kind fileKind, bool objcExt,
-                                            const QString &toolchainType = QLatin1String("clang"));
-    static QStringList createOptionsForLanguage(ProjectPart::LanguageVersion languageVersion,
-                                                ProjectPart::LanguageExtensions languageExtensions,
-                                                bool checkForBorlandExtensions = true,
-                                                const QString &toolchainType = QLatin1String("clang"));
+    // Add custom options
+    void add(const QString &option);
+    void addDefine(const QByteArray &defineLine);
+
+    // Add options based on project part
+    void addHeaderPathOptions();
+    void addToolchainAndProjectDefines();
+    virtual void addLanguageOption(ProjectFile::Kind fileKind);
+    virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
+
+protected:
+    virtual bool excludeDefineLine(const QByteArray &defineLine) const;
+    virtual bool excludeHeaderPath(const QString &headerPath) const;
+
+    virtual QString defineOption() const;
+    virtual QString includeOption() const;
+
+    const ProjectPart::Ptr m_projectPart;
+
+private:
+    QString defineLineToDefineOption(const QByteArray &defineLine);
+
+    QStringList m_options;
 };
 
 } // namespace CppTools

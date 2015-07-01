@@ -139,7 +139,7 @@ private:
     typedef QMap<QString, QTcpSocket*> ProcessCache;
 
     ProcessCache m_processCache;
-    QSignalMapper *m_terminationMapper;
+    QSignalMapper *m_terminationMapper = nullptr;
 };
 
 } // namespace Internal

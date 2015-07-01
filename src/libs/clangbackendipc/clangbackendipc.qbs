@@ -6,7 +6,7 @@ QtcLibrary {
     Depends { name: "Qt.network" }
     Depends { name: "Sqlite" }
 
-    cpp.defines: base.concat("CLANGIPC_LIBRARY")
+    cpp.defines: base.concat("CLANGBACKENDIPC_LIBRARY")
     cpp.includePaths: base.concat(".")
 
     Group {

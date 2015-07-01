@@ -83,9 +83,7 @@ static Utils::FileName pathFromId(Core::Id id)
 
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
-    m_proFilePath(pathFromId(id)),
-    m_runMode(ApplicationLauncher::Gui),
-    m_isUsingDyldImageSuffix(false)
+    m_proFilePath(pathFromId(id))
 {
     addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
 
@@ -174,10 +172,7 @@ void DesktopQmakeRunConfiguration::ctor()
 
 DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration, QWidget *parent)
     : QWidget(parent),
-    m_qmakeRunConfiguration(qmakeRunConfiguration),
-    m_ignoreChange(false),
-    m_usingDyldImageSuffix(0),
-    m_isShown(false)
+    m_qmakeRunConfiguration(qmakeRunConfiguration)
 {
     QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
     vboxTopLayout->setMargin(0);

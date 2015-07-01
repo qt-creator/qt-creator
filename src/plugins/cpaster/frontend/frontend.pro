@@ -1,4 +1,3 @@
-TEMPLATE = app
 TARGET=cpaster
 
 QTC_LIB_DEPENDS += \
@@ -7,16 +6,11 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     coreplugin
 
-include(../../../../qtcreator.pri)
-include(../../../rpath.pri)
+include(../../../qtcreatortool.pri)
 
-CONFIG += console
-CONFIG -= app_bundle
 QT += network
 
-QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH
-
-DESTDIR=$$IDE_LIBEXEC_PATH
+linux-*: QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,\$\$ORIGIN/$$relative_path($$IDE_PLUGIN_PATH, $$DESTDIR)\'
 
 HEADERS = ../protocol.h \
     ../cpasterconstants.h \

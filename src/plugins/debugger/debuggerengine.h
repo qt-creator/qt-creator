@@ -83,28 +83,36 @@ class ThreadId;
 class DebuggerRunParameters : public DebuggerStartParameters
 {
 public:
-    DebuggerRunParameters();
+    DebuggerRunParameters() {}
 
-    void initialize(const DebuggerStartParameters &sp);
+    DebuggerEngineType masterEngineType = NoEngineType;
+    DebuggerEngineType cppEngineType = NoEngineType;
 
+    DebuggerLanguages languages = AnyLanguage;
+    bool breakOnMain = false;
+    bool multiProcess = false; // Whether to set detach-on-fork off.
+
+    QString debuggerCommand;
     QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
-    QByteArray remoteSourcesDir;
-    QString remoteMountPoint;
     QMap<QString, QString> sourcePathMap;
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     QString serverStartScript;
-    QString localMountDir;
     ProjectExplorer::IDevice::ConstPtr device;
-    bool isSnapshot; // Set if created internally.
+    QString sysRoot;
+    bool isSnapshot = false; // Set if created internally.
+    ProjectExplorer::Abi toolChainAbi;
+
+    QString projectSourceDirectory;
+    QStringList projectSourceFiles;
 
     // Used by AttachCrashedExternal.
     QString crashParameter;
 
     // For Debugger testing.
-    int testCase;
+    int testCase = 0;
 };
 
 class UpdateParameters
@@ -427,12 +435,9 @@ private:
     DebuggerEnginePrivate *d;
 };
 
-DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QString *errorMessage);
+DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors);
 
-bool fillParametersFromKit(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
-
-DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp);
-
+DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const ProjectExplorer::Kit *kit);
 
 } // namespace Internal
 } // namespace Debugger

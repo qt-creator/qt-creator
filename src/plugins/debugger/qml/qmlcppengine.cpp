@@ -60,10 +60,9 @@ enum { debug = 0 };
         } \
     } while (0)
 
-DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp,
-                                   QString *errorMessage)
+DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp, QStringList *errors)
 {
-    QmlCppEngine *newEngine = new QmlCppEngine(sp, errorMessage);
+    QmlCppEngine *newEngine = new QmlCppEngine(sp, errors);
     if (newEngine->cppEngine())
         return newEngine;
     delete newEngine;
@@ -77,14 +76,17 @@ DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp,
 //
 ////////////////////////////////////////////////////////////////////////
 
-QmlCppEngine::QmlCppEngine(const DebuggerRunParameters &rp, QString *errorMessage)
+QmlCppEngine::QmlCppEngine(const DebuggerRunParameters &rp, QStringList *errors)
     : DebuggerEngine(rp)
 {
     setObjectName(QLatin1String("QmlCppEngine"));
     m_qmlEngine = new QmlEngine(rp, this);
-    m_cppEngine = createEngine(rp.cppEngineType, rp, errorMessage);
+    QStringList innerErrors;
+    m_cppEngine = createEngine(rp.cppEngineType, rp, &innerErrors);
     if (!m_cppEngine) {
-        *errorMessage = tr("The slave debugging engine required for combined QML/C++-Debugging could not be created: %1").arg(*errorMessage);
+        errors->append(tr("The slave debugging engine required for combined "
+                          "QML/C++-Debugging could not be created: %1")
+                       .arg(innerErrors.join(QLatin1Char('\n'))));
         return;
     }
     m_cppEngine->setMasterEngine(this);

@@ -93,9 +93,9 @@ public:
 signals:
 
 private:
-    LibraryTypePage *m_libraryTypePage;
-    DetailsPage *m_detailsPage;
-    SummaryPage *m_summaryPage;
+    LibraryTypePage *m_libraryTypePage = nullptr;
+    DetailsPage *m_detailsPage = nullptr;
+    SummaryPage *m_summaryPage = nullptr;
     QString m_proFile;
 };
 
@@ -109,10 +109,10 @@ public:
     AddLibraryWizard::LibraryKind libraryKind() const;
 
 private:
-    QRadioButton *m_internalRadio;
-    QRadioButton *m_externalRadio;
-    QRadioButton *m_systemRadio;
-    QRadioButton *m_packageRadio;
+    QRadioButton *m_internalRadio = nullptr;
+    QRadioButton *m_externalRadio = nullptr;
+    QRadioButton *m_systemRadio = nullptr;
+    QRadioButton *m_packageRadio = nullptr;
 };
 
 class DetailsPage : public QWizardPage
@@ -126,8 +126,8 @@ public:
 
 private:
     AddLibraryWizard *m_libraryWizard;
-    Ui::LibraryDetailsWidget *m_libraryDetailsWidget;
-    LibraryDetailsController *m_libraryDetailsController;
+    Ui::LibraryDetailsWidget *m_libraryDetailsWidget = nullptr;
+    LibraryDetailsController *m_libraryDetailsController = nullptr;
 };
 
 class SummaryPage : public QWizardPage
@@ -138,9 +138,9 @@ public:
     virtual void initializePage();
     QString snippet() const;
 private:
-    AddLibraryWizard *m_libraryWizard;
-    QLabel *m_summaryLabel;
-    QLabel *m_snippetLabel;
+    AddLibraryWizard *m_libraryWizard = nullptr;
+    QLabel *m_summaryLabel = nullptr;
+    QLabel *m_snippetLabel = nullptr;
     QString m_snippet;
 };
 

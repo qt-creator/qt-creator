@@ -130,7 +130,8 @@ void Uncrustify::formatSelectedText()
         return;
     }
 
-    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    const TextEditor::TextEditorWidget *widget
+            = TextEditor::TextEditorWidget::currentTextEditorWidget();
     if (!widget)
         return;
 

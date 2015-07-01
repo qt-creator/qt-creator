@@ -125,21 +125,21 @@ static int socketHandShakePort = MIN_SOCKET_HANDSHAKE_PORT;
 
 AndroidRunner::AndroidRunner(QObject *parent,
                              AndroidRunConfiguration *runConfig,
-                             ProjectExplorer::RunMode runMode)
+                             Core::Id runMode)
     : QThread(parent), m_handShakeMethod(SocketHandShake), m_socket(0),
       m_customPort(false)
 {
     m_tries = 0;
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    const bool debuggingMode = runMode == ProjectExplorer::DebugRunMode;
+    const bool debuggingMode = (runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE || runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     m_useQmlDebugger = debuggingMode && aspect->useQmlDebugger();
     QString channel = runConfig->remoteChannel();
     QTC_CHECK(channel.startsWith(QLatin1Char(':')));
     m_localGdbServerPort = channel.mid(1).toUShort();
     QTC_CHECK(m_localGdbServerPort);
-    m_useQmlProfiler = runMode == ProjectExplorer::QmlProfilerRunMode;
+    m_useQmlProfiler = runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE;
     if (m_useQmlDebugger || m_useQmlProfiler) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
@@ -209,6 +209,21 @@ AndroidRunner::AndroidRunner(QObject *parent,
             }
         }
     }
+
+    m_logCatRegExp = QRegExp(QLatin1String("[0-9\\-]*"  // date
+                                           "\\s+"
+                                           "[0-9\\-:.]*"// time
+                                           "\\s*"
+                                           "(\\d*)"     // pid           1. capture
+                                           "\\s+"
+                                           "\\d*"       // unknown
+                                           "\\s+"
+                                           "(\\w)"      // message type  2. capture
+                                           "\\s+"
+                                           "(.*): "     // source        3. capture
+                                           "(.*)"       // message       4. capture
+                                           "[\\n\\r]*"
+                                          ));
 }
 
 AndroidRunner::~AndroidRunner()
@@ -526,21 +541,35 @@ void AndroidRunner::logcatProcess(const QByteArray &text, QByteArray &buffer, bo
         buffer.clear();
     }
 
-    QByteArray pid(QString::fromLatin1("%1):").arg(m_processPID).toLatin1());
-    foreach (QByteArray line, lines) {
-        if (!line.contains(pid))
+    QString pidString = QString::number(m_processPID);
+    foreach (const QByteArray &msg, lines) {
+        const QString line = QString::fromUtf8(msg).trimmed() + QLatin1Char('\n');
+        if (!line.contains(pidString))
             continue;
-        if (line.endsWith('\r'))
-            line.chop(1);
-        line.append('\n');
-        if (onlyError || line.startsWith("F/")
-                || line.startsWith("E/")
-                || line.startsWith("D/Qt")
-                || line.startsWith("W/"))
-            emit remoteErrorOutput(line);
-        else
-            emit remoteOutput(line);
+        if (m_logCatRegExp.exactMatch(line)) {
+            // Android M
+            if (m_logCatRegExp.cap(1) == pidString) {
+                const QString &messagetype = m_logCatRegExp.cap(2);
+                QString output = line.mid(m_logCatRegExp.pos(2));
 
+                if (onlyError
+                        || messagetype == QLatin1String("F")
+                        || messagetype == QLatin1String("E")
+                        || messagetype == QLatin1String("W")
+                        || messagetype == QLatin1String("D"))
+                    emit remoteErrorOutput(output);
+                else
+                    emit remoteOutput(output);
+            }
+        } else {
+            if (onlyError || line.startsWith(_("F/"))
+                    || line.startsWith(_("E/"))
+                    || line.startsWith(_("D/Qt"))
+                    || line.startsWith(_("W/")))
+                emit remoteErrorOutput(line);
+            else
+                emit remoteOutput(line);
+        }
     }
 }
 

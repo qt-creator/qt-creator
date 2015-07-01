@@ -1,0 +1,516 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage {Creating a Mobile Application}
+    \example uiforms
+    \nextpage creator-project-managing.html
+
+    \title Using Qt Quick UI Forms
+
+    \commercial
+
+    This tutorial describes how to develop an application that uses \e ui.qml
+    files to separate the application logic from the UI. The tutorial uses \QMLD
+    to implement a simplified version of the \l{Qt Quick Controls - UI Forms}
+    {UI Forms example}, which provides an interface to a customer database and
+    is purely written in QML and JavaScript.
+
+    \note Some of the described features are only available in the commercial
+    version of \QC.
+
+    \image qmldesigner-uiforms-example.png
+
+    \e {UI forms} consist of \e .qml and \e .js files that implement the
+    business logic, and corresponding \e .ui.qml files that only contain the
+    purely declarative description of the UI. The \e .ui.qml files should be
+    edited only in the \uicontrol Design mode of \QC. However, \QMLD does not
+    fully support all QML controls, such as the TableView, so you sometimes need
+    to edit UI forms also in the \uicontrol Edit mode. You can keep this to the
+    minimum by creating custom QML types that you edit in the \uicontrol Edit
+    mode.
+
+    \section1 Creating the UI Forms Project
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Quick Controls Application}
+            > \uicontrol Choose.
+
+        \li In the \uicontrol Name field, type \b uiforms.
+
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files and then click \uicontrol Next (or \uicontrol Continue on
+            OS X).
+
+        \li In the \uicontrol {Minimal required Qt version} field, select
+            \uicontrol {Qt 5.4}, or later.
+
+        \li Select \l{glossary-buildandrun-kit}{kits} for your project and click
+            \uicontrol{Next}.
+
+            \note Kits are listed if they have been specified in
+            \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Kits (on Windows and Linux) or in \uicontrol {Qt Creator}
+            > \uicontrol Preferences \uicontrol {Build & Run} > \uicontrol Kits
+            (on OS X).
+
+        \li Review the project settings, and click \uicontrol Finish (or
+            \uicontrol Done on OS X).
+
+    \endlist
+
+    \QC generates a default UI file, \e MainForm.ui.qml, that you can modify to
+    create the main view of the application.
+
+    \section1 Creating the UI Forms Main View
+
+    The main view of the application displays a customer list in a table view
+    and detailed information about the selected customer in a tab view.
+
+    \image qmldesigner-uiforms-example-main-view.png
+
+    To create the main view:
+
+    \list 1
+
+        \li In the \uicontrol Projects view (1), double-click the
+            \e MainForm.ui.qml file to open it in \QMLD.
+
+        \li In the \uicontrol Navigator (2), select the \uicontrol RowLayout and
+            press \key Delete to delete it.
+
+        \li In \uicontrol Library > \uicontrol {QML Types} (3), select
+            \uicontrol SplitView and drag and drop it to the \uicontrol Item in
+            the navigator.
+
+        \li Select the split view in the navigator, then select the
+            \uicontrol Layout tab in \uicontrol Properties (4), and then click
+            the \inlineimage qmldesigner-anchor-fill-screen.png
+            (\uicontrol {Fill to Parent}) button to anchor the split view to the
+            item.
+
+        \li Drag and drop a \uicontrol TableView and a \uicontrol {Tab View}
+            from the library to the split view in the navigator.
+
+        \li Select the \inlineimage qmldesigner-export-item-button.png
+            (\uicontrol Export) button in the navigator to export the table view
+            as a property.
+
+        \li Right-click \uicontrol TabView to open the context menu and select
+            \uicontrol {Add Tab} to create a Tab element.
+
+            \QC creates the element as a separate QML file with the name that
+            you enter in the dialog. By default, the element is called
+            \uicontrol Tab.
+
+        \li Select the tab in the navigator and enter \b {Customer Settings} in
+            the \uicontrol Title field in the properties.
+
+        \li Press \key Ctrl+C to copy the tab to the clipboard, and then press
+            \key Ctrl+V twice to create two more tabs that you name
+            \b {Customer Notes} and \b {Customer History}. \QC uses the \l Tab
+            type in the \e MainForm.ui.qml file. You will create separate UI
+            forms for the tab contents later.
+
+    \endlist
+
+    \section2 Editing the Table View
+
+    \QMLD does not support adding columns to TableView types, and therefore, you
+    must use the code editor to add them. To keep editing the \e MainForm.ui.qml
+    file in the \uicontrol Edit mode to the minimum, move the TableView type to
+    a separate QML file called \e CustomerTableView.qml:
+
+    \list 1
+
+        \li Click \uicontrol Edit to open \e MainForm.ui.qml in \uicontrol Edit
+            mode.
+
+        \li To move the TableView type to a separate QML file, right-click it
+            and select \uicontrol Refactoring >
+            \uicontrol {Move Component into Separate File}.
+
+        \li Add the code from the \l {uiforms/CustomerTableView.qml}
+            {CustomerTableView.qml} example file to the file that \QC creates
+            for you.
+
+    \endlist
+
+    \section1 Implementing the Application Logic for the Main View
+
+    The new project wizard adds boilerplate code to the \e main.qml file to
+    create menu items and push buttons. Modify the boilerplate code by removing
+    obsolete code and by adding new code. You removed the push buttons from the
+    UI Form, so you also need to remove the corresponding code from
+    \e main.qml (or the application cannot be built).
+
+    You will want to keep the dialog box and menu bar, but change their
+    contents, as instructed later.
+
+    Edit the \e main.qml file in the code editor, as described in the following
+    sections.
+
+    \section2 Specifying Main View Size
+
+    The wizard creates an ApplicationWindow type and a MainForm type that
+    specify the application main view. Enter the application name as the
+    value of the \c title property.
+
+    Clean up the MainForm code by removing the obsolete lines that call
+    functions when buttons are clicked:
+
+    \badcode
+    MainForm {
+        anchors.fill: parent
+        button1.onClicked: messageDialog.show(qsTr("Button 1 pressed"))
+        button2.onClicked: messageDialog.show(qsTr("Button 2 pressed"))
+    }
+    \endcode
+
+    Remove the \c width and \c height properties from the ApplicationWindow
+    type and use a Layout type in the MainForm type to set the minimum and
+    preferred size of the main view.
+
+    To use the Layouts, import QtQuick Layouts:
+
+    \quotefromfile uiforms/main.qml
+    \skipto QtQuick.Layouts
+    \printline Layouts
+
+    Then specify the following properties for the MainForm:
+
+    \skipto MainForm
+    \printuntil Layout.preferredHeight
+
+    \section2 Creating the Table View Model
+
+    Use a list model to display customer data in the table view. Because the
+    list model is accessed from several different \e .qml files, access it
+    through a singleton type defined in \e CustomerModelSingleton.qml and
+    registered in \e main.cpp. This way, you do not have to rely on the QML
+    context scoping rules to access the list model.
+
+    \list 1
+
+        \li In the \uicontrol Projects view, right-click \uicontrol qml.qrc and
+            select \uicontrol {Add New} > \uicontrol Qt >
+            \uicontrol {QML File (Qt Quick 2)} to create the
+            \e CustomerModelSingleton.qml file and to add it to the project.
+
+        \li Copy the implementation from \l{uiforms/CustomerModelSingleton.qml}
+            {CustomerModelSingleton.qml}.
+
+        \li Add the following code to the MainForm in \e main.qml to access the
+            list model:
+
+            \quotefromfile uiforms/main.qml
+            \skipto tableView1.model: CustomerModel
+            \printuntil tableView1.selection
+
+        \li To register the singleton type in the \e main.cpp file, include the
+            Qt QML module and call the \c qmlRegisterSingletonType() function in
+            the initialization function:
+
+            \quotefromfile uiforms/main.cpp
+            \dots
+            \skipto QtQml
+            \printuntil "CustomerModel");
+
+        \li To use the registered singleton type in \e main.qml, you must import
+            the singleton type:
+
+            \quotefromfile uiforms/main.qml
+            \skipto my.customermodel.singleton
+            \printline 1.0
+
+    \endlist
+
+    \section1 Creating Tabs
+
+    You can use the new file wizard to create UI forms that specify tab
+    contents and functionality. You set the QML files as sources for the tabs
+    in the \e MainForm.ui.qml file and modify the corresponding UI forms in the
+    \uicontrol Design mode.
+
+    \section2 Creating UI Forms for Tab Contents
+
+    To create UI forms for the tab contents:
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Qt > \uicontrol {QtQuick UI File} > \uicontrol Choose.
+
+        \li In the \uicontrol {Component name} field, enter \b Settings.
+
+        \li Click \uicontrol Next.
+
+        \li Click \uicontrol Finish to create the UI form,
+            \e SettingsForm.ui.qml, and a corresponding QML file,
+            \e Settings.qml.
+
+    \endlist
+
+    Create the UI form, \e NotesForm.ui.qml, and the corresponding QML file,
+    \e Notes.qml, for the notes tab in the same way. You will not need an
+    \e ui.qml file for the history tab, so you will create the QML file for it
+    later.
+
+    \section2 Creating the Settings Tab
+
+    The \uicontrol {Customer Settings} tab contains information about the
+    selected user.
+
+    \image qmldesigner-uiforms-example-settings-tab.png
+
+    To create the tab contents:
+
+    \list 1
+
+        \li Double-click \e SettingsForm.ui.qml in the \uicontrol Projects
+            view to open it for editing in the \uicontrol Design mode.
+
+        \li Select \uicontrol Item in the \uicontrol Navigator and enter
+            \b content in the \uicontrol Id field in \uicontrol Properties.
+
+        \li In \uicontrol Library, select \uicontrol Imports >
+            \uicontrol {Add Import} and import Qt Quick Controls and Layouts to
+            make the QML types in those modules visible in the library.
+
+        \li Drag and drop a \uicontrol {Grid Layout} from the library to the
+            \b content item in the navigator.
+
+        \li Select \uicontrol Layout > \uicontrol Top, \uicontrol Left, and
+            \uicontrol Right buttons to anchor the grid layout to the parent.
+
+        \li In the \uicontrol Margin fields for the anchors, set the margins
+            to \b 12.
+
+        \li In \uicontrol Properties, set \uicontrol {Column spacing} and
+            \uicontrol {Row spacing} to \b 8, \uicontrol Columns to \b 3, and
+            \uicontrol Rows to \b 4. If you add more fields, add the necessary
+            amount of rows.
+
+        \li Drag and drop four \uicontrol Label controls, a
+            \uicontrol {Combo Box}, and three \uicontrol {Text Field} controls
+            from the library to the navigator.
+
+        \li Use the down arrow in the navigator to move one label down to the
+            position above the last text field.
+
+        \li In the properties, change the label text for each field in the
+            \uicontrol Text field. You need the following labels: \b Title,
+            \b {First Name}, \b {Last Name}, and \b {Customer Id}.
+
+        \li In the properties, change the placeholder text for each text field
+            in the \uicontrol {Placeholder text} field to be the same as the
+            field label.
+
+        \li Select the customer ID text field, then select \uicontrol Layout
+            in properties and set \uicontrol {Column span} to 3 and check
+            \uicontrol {Fill width} to make the ID field span the length of
+            the grid layout.
+
+        \li Drag and drop a \uicontrol {Row Layout} from the library to the
+            \b content item in the navigator and click on it.
+
+        \li Reset the height of the row layout in properties.
+
+            \image qmldesigner-uiforms-reset-height.png
+
+        \li Select \uicontrol Layout > \uicontrol Bottom and \uicontrol Right
+            buttons to anchor the row layout to the parent.
+
+        \li In the \uicontrol Margin fields for the anchors, set the margins
+            to \b 12.
+
+        \li Drag and drop two \uicontrol Button controls from the library to the
+            row layout in the navigator.
+
+        \li In the properties, change the button labels in the \uicontrol Text
+            field to \b Save and \b Cancel.
+
+        \li Select \uicontrol Layout and > \uicontrol {Fill width} and
+            \uicontrol {Fill height} in properties for each button to have the
+            buttons fill the row layout.
+
+        \li In the navigator, select \uicontrol Export for each field to export
+            the field IDs as properties. The following items should be exported,
+            so that they can be referred to in \e Settings.qml:
+
+            \quotefromfile uiforms/SettingsForm.ui.qml
+            \skipto property
+            \printuntil title
+
+    \endlist
+
+    \section2 Creating the Notes Tab
+
+    The \uicontrol {Customer Notes} tab contains a text area for entering notes
+    about the selected customer and buttons for saving or canceling the changes.
+
+    To create the tab contents:
+
+    \list 1
+
+        \li Double-click \e NotesForm.ui.qml in the \uicontrol Projects
+            view to open it for editing in the \uicontrol Design mode.
+
+        \li Select \uicontrol Item in the \uicontrol Navigator and enter
+            \b content in the \uicontrol Id field in \uicontrol Properties.
+
+        \li In \uicontrol Library, select \uicontrol Imports >
+            \uicontrol {Add Import} and import Qt Quick Controls and Layouts.
+
+        \li Drag and drop a \uicontrol {Column Layout} from the library to the
+            \b content item in the navigator.
+
+        \li Select \uicontrol Layout > \uicontrol Top, \uicontrol Left, and
+            \uicontrol Right buttons to anchor the grid layout to the parent
+            and set the margins to \b 12.
+
+        \li Drag and drop a \uicontrol {Text Area} from the library to the
+            column layout.
+
+        \li Select \uicontrol Layout and > \uicontrol {Fill width} and
+            \uicontrol {Fill height} in properties to have the text area fill
+            the column layout.
+
+        \li Create the \uicontrol Save and \uicontrol Cancel buttons as
+            instructed in \l {Creating the Settings Tab}. You can also copy and
+            paste the row layout from SettingsForm.ui.qml.
+
+        \li In the navigator, select \uicontrol Export for each field to export
+            the field IDs as properties. The following items should be exported,
+            so that they can be referred to in \e Notes.qml:
+
+            \quotefromfile uiforms/NotesForm.ui.qml
+            \skipto property
+            \printuntil save
+
+    \endlist
+
+    \section2 Creating the History Tab
+
+    The \uicontrol {Customer History} tab contains a table view that displays
+    the transactions performed by the customer. Create a custom HistoryTableView
+    type that you can edit in the \uicontrol Edit mode. For the history tab, you
+    do not need an \e ui.qml file at all.
+
+    To create the history tab:
+
+    \list 1
+
+        \li In the \uicontrol Projects view, right-click \uicontrol qml.qrc and
+            select \uicontrol {Add New} > \uicontrol Qt >
+            \uicontrol {QML File (Qt Quick 2)} to create the
+            \e HistoryTableView.qml file and to add it to the project.
+
+        \li Copy the implementation from \l{uiforms/HistoryTableView.qml}
+            {HistoryTableView.qml}.
+
+        \li Add the code from the example \l{uiforms/History.qml}{History.qml}
+            file to your \e History.qml file to access the code model.
+
+    \endlist
+
+    \section1 Adding Tab Functionality
+
+    Add functions for displaying data from the customer model in the tabs. You
+    have already created the files that you need. You now need to copy the
+    implementation for the settings tab from the \l {uiforms/Settings.qml}
+    {Settings.qml} file and for the notes tab from the \l {uiforms/Notes.qml}
+    {Notes.qml} file.
+
+    To display the tab contents in the main view, set the QML files as sources
+    for the tabs in the \uicontrol Design mode. Select the settings tab in the
+    \uicontrol Navigator and specify for example \e Settings.qml in the
+    \uicontrol Source field in the \uicontrol Properties view. Similarly,
+    specify the sources for the notes and history tabs.
+
+    You can then remove the \e Tab.qml file that the wizard generated but that
+    you no longer need by selecting \uicontrol {Remove File} in the context
+    menu.
+
+    \section1 Creating Menus
+
+    The wizard adds a menu bar to the \e main.qml file that contains a
+    \uicontrol File menu with the \uicontrol Open and \uicontrol Exit menu
+    items. Keep the menu and the \uicontrol Exit menu item, and add the
+    \uicontrol Edit and \uicontrol Help menus with standard menu items.
+
+    The wizard creates the following code:
+
+    \badcode
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("&File")
+            MenuItem {
+                text: qsTr("&Open")
+                onTriggered: messageDialog.show(qsTr("Open action triggered"));
+            }
+            MenuItem {
+                text: qsTr("E&xit")
+                onTriggered: Qt.quit();
+            }
+        }
+    }
+    \endcode
+
+    Remove the \uicontrol Open menu item and add the following code to create
+    the new menus:
+
+    \quotefromfile uiforms/main.qml
+    \skipto menuBar
+    \printuntil activeFocusItem.paste
+    \printuntil }
+
+    \section1 Creating Dialogs
+
+    \image qmldesigner-uiforms-example-about-dialog.png
+
+    The wizard creates a message box in the \e main.qml file that you should
+    turn into an \uicontrol About dialog for the purpose of this example:
+
+    \badcode
+    MessageDialog {
+        id: messageDialog
+        title: qsTr("May I have your attention, please?")
+
+        function show(caption) {
+            messageDialog.text = caption;
+            messageDialog.open();
+        }
+    \endcode
+
+    Modify the code created by the wizard to add an icon and some text:
+
+    \quotefromfile uiforms/main.qml
+    \skipto MessageDialog
+    \printuntil }
+
+    Enable access to the \uicontrol About dialog from the \uicontrol Help menu
+    that you create next.
+
+    \section1 Running the Application
+
+    The application is complete and ready to be run on the desktop or deployed
+    to a device. To run the application, press \key {Ctrl+R}.
+*/

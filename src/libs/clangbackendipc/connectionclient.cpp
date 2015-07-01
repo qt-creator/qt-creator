@@ -54,7 +54,9 @@ QString connectionName()
 
 ConnectionClient::ConnectionClient(IpcClientInterface *client)
     : serverProxy_(client, &localSocket),
-      isAliveTimerResetted(false)
+      isAliveTimerResetted(false),
+      stdErrPrefixer("ClangBackEnd-StdErr: "),
+      stdOutPrefixer("ClangBackEnd: ")
 {
     processAliveTimer.setInterval(10000);
 
@@ -95,10 +97,17 @@ bool ConnectionClient::isConnected() const
     return localSocket.state() == QLocalSocket::ConnectedState;
 }
 
+void ConnectionClient::ensureCommandIsWritten()
+{
+    while (localSocket.bytesToWrite() > 0)
+        localSocket.waitForBytesWritten();
+}
+
 void ConnectionClient::sendEndCommand()
 {
     serverProxy_.end();
     localSocket.flush();
+    ensureCommandIsWritten();
 }
 
 void ConnectionClient::resetProcessAliveTimer()
@@ -148,8 +157,6 @@ void ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty()
 
 bool ConnectionClient::connectToLocalSocket()
 {
-    QThread::msleep(30);
-
     for (int counter = 0; counter < 1000; counter++) {
         localSocket.connectToServer(connectionName());
         bool isConnected = localSocket.waitForConnected(20);
@@ -191,19 +198,20 @@ void ConnectionClient::killProcess()
     }
 }
 
-void ConnectionClient::printLocalSocketError(QLocalSocket::LocalSocketError /*socketError*/)
+void ConnectionClient::printLocalSocketError(QLocalSocket::LocalSocketError socketError)
 {
-    qWarning() << "ClangCodeModel ConnectionClient LocalSocket Error:" << localSocket.errorString();
+    if (socketError != QLocalSocket::ServerNotFoundError)
+        qWarning() << "ClangCodeModel ConnectionClient LocalSocket Error:" << localSocket.errorString();
 }
 
 void ConnectionClient::printStandardOutput()
 {
-    qWarning() << "ClangBackEnd:" << process_->readAllStandardOutput();
+    QTextStream(stdout) << stdOutPrefixer.prefix(process_->readAllStandardOutput());
 }
 
 void ConnectionClient::printStandardError()
 {
-    qWarning() << "ClangBackEnd Error:" << process_->readAllStandardError();
+    QTextStream(stderr) << stdErrPrefixer.prefix(process_->readAllStandardError());
 }
 
 void ConnectionClient::finishProcess()

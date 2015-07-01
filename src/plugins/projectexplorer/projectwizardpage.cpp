@@ -535,7 +535,10 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 
 void ProjectWizardPage::setFiles(const QStringList &fileNames)
 {
-    m_commonDirectory = Utils::commonPath(fileNames);
+    if (fileNames.count() == 1)
+        m_commonDirectory = QFileInfo(fileNames.first()).absolutePath();
+    else
+        m_commonDirectory = Utils::commonPath(fileNames);
     QString fileMessage;
     {
         QTextStream str(&fileMessage);

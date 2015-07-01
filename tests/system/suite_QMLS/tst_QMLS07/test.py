@@ -31,7 +31,7 @@
 source("../shared/qmls.py")
 
 def main():
-    editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "Rectangle {")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "Window {")
     if not editorArea:
         return
     type(editorArea, "<Return>")

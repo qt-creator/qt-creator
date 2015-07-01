@@ -45,10 +45,10 @@ public:
     explicit QmlProfilerRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
-    bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const;
 
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode,
+                                        Core::Id mode,
                                         QString *errorMessage);
 };
 

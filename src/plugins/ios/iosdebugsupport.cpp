@@ -77,8 +77,6 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
     if (device.isNull())
         return 0;
-    QmakeProject *project = static_cast<QmakeProject *>(target->project());
-    Kit *kit = target->kit();
 
     DebuggerStartParameters params;
     if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE)) {
@@ -116,20 +114,12 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     }
     params.displayName = runConfig->applicationName();
     params.remoteSetupNeeded = true;
-    if (!params.breakOnMain)
-        params.continueAfterAttach = true;
-    params.runConfiguration = runConfig;
+    params.continueAfterAttach = true;
 
-    DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     bool cppDebug = aspect->useCppDebugger();
     bool qmlDebug = aspect->useQmlDebugger();
     if (cppDebug) {
-        params.languages |= CppLanguage;
-        params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-        params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-        if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-            params.toolChainAbi = tc->targetAbi();
         params.executable = runConfig->localExecutable().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
 
@@ -161,16 +151,11 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
                              ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         }
     }
-    if (qmlDebug) {
-        params.languages |= QmlLanguage;
-        params.projectSourceDirectory = project->projectDirectory().toString();
-        params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
-        if (!cppDebug)
-            params.startMode = AttachToRemoteServer;
+    if (qmlDebug && !cppDebug) {
+        params.startMode = AttachToRemoteServer;
     }
 
-    DebuggerRunControl * const debuggerRunControl = createDebuggerRunControl(params, errorMessage);
+    DebuggerRunControl *debuggerRunControl = createDebuggerRunControl(params, runConfig, errorMessage);
     if (debuggerRunControl)
         new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;

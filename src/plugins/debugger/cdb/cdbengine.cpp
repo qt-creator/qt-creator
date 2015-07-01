@@ -267,14 +267,14 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QStringList *errors)
 {
     if (HostOsInfo::isWindowsHost()) {
         if (validMode(rp.startMode))
             return new CdbEngine(rp);
-        *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
+        errors->append(CdbEngine::tr("Internal error: Invalid start parameters passed for the CDB engine."));
     } else {
-        *errorMessage = QString::fromLatin1("Unsupported debug mode");
+        errors->append(CdbEngine::tr("Unsupported CDB host system."));
     }
     return 0;
 }
@@ -1396,9 +1396,10 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             str << '"';
         }
     }
-    if (!partialUpdate || isWatch) {
-        // Perform watches synchronization
+    // Perform watches synchronization only for full updates
+    if (!partialUpdate)
         str << blankSeparator << "-W";
+    if (!partialUpdate || isWatch) {
         const WatcherHash watcherHash = WatchHandler::watcherNames();
         if (!watcherHash.isEmpty()) {
             const WatcherHash::const_iterator cend = watcherHash.constEnd();
@@ -1778,8 +1779,8 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
 
 void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
 {
+    watchHandler()->notifyUpdateFinished();
     if (response.success) {
-        watchHandler()->notifyUpdateFinished();
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
 
@@ -2499,6 +2500,8 @@ void CdbEngine::parseOutputLine(QByteArray line)
                        currentCommand->response.command.constData(), currentCommand->token,
                        currentCommand->response.builtinReply.size(), m_builtinCommandQueue.size() - 1);
             QTC_ASSERT(token == currentCommand->token, return; );
+            if (boolSetting(VerboseLog))
+                showMessage(QLatin1String(currentCommand->response.builtinReply.join(' ')), LogMisc);
             if (currentCommand->handler) {
                 currentCommand->handler(currentCommand->response);
             }

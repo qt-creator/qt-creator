@@ -398,7 +398,7 @@ QDebug operator<<(QDebug d, const Context &context)
 {
     d << "CONTEXT: ";
     foreach (Id id, context)
-        d << "   " << id.uniqueIdentifier() << " " << id.toString();
+        d << "   " << id.toString();
     return d;
 }
 

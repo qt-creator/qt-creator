@@ -229,7 +229,7 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
         updateSemanticInfo(cppEditorWidget->semanticInfo());
     d->m_cppEditorOutline->update();
-    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
+    const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
 }
 
@@ -721,6 +721,14 @@ void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
 {
     return d->m_followSymbolUnderCursor.data();
+}
+
+void CppEditorWidget::encourageApply()
+{
+    if (d->m_localRenaming.encourageApply())
+        return;
+
+    TextEditorWidget::encourageApply();
 }
 
 void CppEditorWidget::abortDeclDefLink()

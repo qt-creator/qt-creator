@@ -97,7 +97,6 @@ Core::IDocument::OpenResult ImageViewerFile::open(QString *errorString, const QS
 Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, const QString &fileName)
 {
     cleanUp();
-    m_type = TypeInvalid;
 
     if (!QFileInfo(fileName).isReadable())
         return OpenResult::ReadError;
@@ -112,14 +111,16 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
 
 #ifndef QT_NO_SVG
     if (format.startsWith("svg")) {
-        m_type = TypeSvg;
         m_tempSvgItem = new QGraphicsSvgItem(fileName);
         QRectF bound = m_tempSvgItem->boundingRect();
         if (bound.width() == 0 && bound.height() == 0) {
+            delete m_tempSvgItem;
+            m_tempSvgItem = 0;
             if (errorString)
                 *errorString = tr("Failed to read SVG image.");
             return OpenResult::CannotHandle;
         }
+        m_type = TypeSvg;
         emit imageSizeChanged(QSize());
     } else
 #endif
@@ -133,14 +134,15 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
         m_isPaused = false; // force update
         setPaused(true);
     } else {
-        m_type = TypePixmap;
         m_pixmap = new QPixmap(fileName);
         if (m_pixmap->isNull()) {
             if (errorString)
                 *errorString = tr("Failed to read image.");
             delete m_pixmap;
+            m_pixmap = 0;
             return OpenResult::CannotHandle;
         }
+        m_type = TypePixmap;
         emit imageSizeChanged(m_pixmap->size());
     }
 
@@ -242,10 +244,14 @@ void ImageViewerFile::updateVisibility()
 void ImageViewerFile::cleanUp()
 {
     delete m_pixmap;
+    m_pixmap = 0;
     delete m_movie;
+    m_movie = 0;
 #ifndef QT_NO_SVG
     delete m_tempSvgItem;
+    m_tempSvgItem = 0;
 #endif
+    m_type = TypeInvalid;
 }
 
 bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)

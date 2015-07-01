@@ -810,7 +810,7 @@ public slots:
     void handleExecStep()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -823,7 +823,7 @@ public slots:
     void handleExecNext()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -957,7 +957,7 @@ public:
     DebuggerMainWindow *m_mainWindow;
 
     Id m_previousMode;
-    QList<DebuggerRunParameters> m_scheduledStarts;
+    QVector<QPair<DebuggerRunParameters, Kit *>> m_scheduledStarts;
 
     ProxyAction *m_visibleStartAction;
     ProxyAction *m_hiddenStopAction;
@@ -1183,13 +1183,11 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 }
             }
         }
-        if (!fillParametersFromKit(&rp, kit, errorMessage))
-            return false;
         if (rp.startMode == StartExternal) {
             rp.displayName = tr("Executable file \"%1\"").arg(rp.executable);
             rp.startMessage = tr("Debugging file %1.").arg(rp.executable);
         }
-        m_scheduledStarts.append(rp);
+        m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, kit));
         return true;
     }
     // -wincrashevent <event-handle>:<pid>. A handle used for
@@ -1204,8 +1202,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerRunParameters rp;
-        if (!fillParametersFromKit(&rp, findUniversalCdbKit(), errorMessage))
-            return false;
         rp.startMode = AttachCrashedExternal;
         rp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         rp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
@@ -1216,7 +1212,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
-        m_scheduledStarts.append(rp);
+        m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, findUniversalCdbKit()));
         return true;
     }
 
@@ -1310,7 +1306,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_continueAction->setEnabled(false);
     m_exitAction->setEnabled(false);
     QString whyNot;
-    const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode, &whyNot);
+    const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
@@ -1320,8 +1316,9 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerRunParameters rp;
-    if (StartApplicationDialog::run(ICore::dialogParent(), &rp))
-        createAndScheduleRun(rp);
+    Kit *kit;
+    if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit))
+        createAndScheduleRun(rp, kit);
 }
 
 void DebuggerPluginPrivate::attachCore()
@@ -1349,8 +1346,6 @@ void DebuggerPluginPrivate::attachCore()
 
     QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     DebuggerRunParameters rp;
-    bool res = fillParametersFromKit(&rp, dlg.kit());
-    QTC_ASSERT(res, return);
     rp.masterEngineType = DebuggerKitInformation::engineType(dlg.kit());
     rp.executable = dlg.localExecutableFile();
     rp.coreFile = dlg.localCoreFile();
@@ -1358,7 +1353,7 @@ void DebuggerPluginPrivate::attachCore()
     rp.startMode = AttachCore;
     rp.closeMode = DetachAtClose;
     rp.overrideStartScript = dlg.overrideStartScript();
-    createAndScheduleRun(rp);
+    createAndScheduleRun(rp, dlg.kit());
 }
 
 void DebuggerPluginPrivate::startRemoteCdbSession()
@@ -1367,8 +1362,6 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     DebuggerRunParameters rp;
     Kit *kit = findUniversalCdbKit();
     QTC_ASSERT(kit, return);
-    bool res = fillParametersFromKit(&rp, kit);
-    QTC_ASSERT(res, return);
     rp.startMode = AttachToRemoteServer;
     rp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(ICore::dialogParent());
@@ -1380,17 +1373,18 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         return;
     rp.remoteChannel = dlg.connection();
     setConfigValue(connectionKey, rp.remoteChannel);
-    createAndScheduleRun(rp);
+    createAndScheduleRun(rp, kit);
 }
 
 void DebuggerPluginPrivate::attachToRemoteServer()
 {
     DebuggerRunParameters rp;
+    Kit *kit;
     rp.startMode = AttachToRemoteServer;
-    if (StartApplicationDialog::run(ICore::dialogParent(), &rp)) {
+    if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
         rp.closeMode = KillAtClose;
         rp.serverStartScript.clear();
-        createAndScheduleRun(rp);
+        createAndScheduleRun(rp, kit);
     }
 }
 
@@ -1488,15 +1482,13 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     }
 
     DebuggerRunParameters rp;
-    bool res = fillParametersFromKit(&rp, kit);
-    QTC_ASSERT(res, return 0);
     rp.attachPID = process.pid;
     rp.displayName = tr("Process %1").arg(process.pid);
     rp.executable = process.exe;
     rp.startMode = AttachExternal;
     rp.closeMode = DetachAtClose;
     rp.continueAfterAttach = contAfterAttach;
-    return createAndScheduleRun(rp);
+    return createAndScheduleRun(rp, kit);
 }
 
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
@@ -1511,9 +1503,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     if (const RunConfiguration *runConfiguration = rc->runConfiguration())
         if (const Target *target = runConfiguration->target())
             kit = target->kit();
-    bool res = fillParametersFromKit(&rp, kit);
-    QTC_ASSERT(res, return);
-    createAndScheduleRun(rp);
+    createAndScheduleRun(rp, kit);
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()
@@ -1536,8 +1526,6 @@ void DebuggerPluginPrivate::attachToQmlPort()
 
     Kit *kit = dlg.kit();
     QTC_ASSERT(kit, return);
-    bool res = fillParametersFromKit(&rp, kit);
-    QTC_ASSERT(res, return);
     setConfigValue("LastQmlServerPort", dlg.port());
     setConfigValue("LastProfile", kit->id().toSetting());
 
@@ -1568,8 +1556,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     rp.projectSourceDirectory =
             !projects.isEmpty() ? projects.first()->projectDirectory().toString() : QString();
     rp.projectSourceFiles = sourceFiles;
-    rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    createAndScheduleRun(rp);
+    createAndScheduleRun(rp, kit);
 }
 
 void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &value)
@@ -1582,8 +1569,8 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    foreach (const DebuggerRunParameters &rp, m_scheduledStarts)
-        createAndScheduleRun(rp);
+    for (int i = 0, n = m_scheduledStarts.size(); i != n; ++i)
+        createAndScheduleRun(m_scheduledStarts.at(i).first, m_scheduledStarts.at(i).second);
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
@@ -1991,7 +1978,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
         Project *project = SessionManager::startupProject();
-        const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode);
+        const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         // We don't want to do anything anymore.
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
@@ -2093,7 +2080,7 @@ void DebuggerPluginPrivate::updateDebugActions()
 
     Project *project = SessionManager::startupProject();
     QString whyNot;
-    const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode, &whyNot);
+    const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
@@ -2102,7 +2089,7 @@ void DebuggerPluginPrivate::updateDebugActions()
     if (m_snapshotHandler->currentIndex() < 0) {
         QString toolTip;
         const bool canRunAndBreakMain
-                = ProjectExplorerPlugin::canRun(project, DebugRunModeWithBreakOnMain, &toolTip);
+                = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, &toolTip);
         m_stepAction->setEnabled(canRunAndBreakMain);
         m_nextAction->setEnabled(canRunAndBreakMain);
         if (canRunAndBreakMain) {
@@ -2303,24 +2290,14 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
         str << "PID: " << sp.attachPID << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory);
-        if (!sp.projectBuildDirectory.isEmpty())
-            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDirectory)
-                << ')';
-        str << '\n';
         str << "Addtional Search Directories:"
             << sp.additionalSearchDirectories.join(QLatin1Char(' ')) << '\n';
     }
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':'
             << sp.qmlServerPort << '\n';
-    if (!sp.remoteChannel.isEmpty()) {
+    if (!sp.remoteChannel.isEmpty())
         str << "Remote: " << sp.remoteChannel << '\n';
-        if (!sp.remoteSourcesDir.isEmpty())
-            str << "Remote sources: " << sp.remoteSourcesDir << '\n';
-        if (!sp.remoteMountPoint.isEmpty())
-            str << "Remote mount point: " << sp.remoteMountPoint
-                << " Local: " << sp.localMountDir << '\n';
-    }
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1Char(':')) << '\n';
     return rc;
@@ -2615,11 +2592,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
-    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode); });
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
 
     act = m_debugWithoutDeployAction = new QAction(this);
     act->setText(tr("Start Debugging Without Deployment"));
-    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode, true); });
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, true); });
 
     act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));
@@ -3375,7 +3352,7 @@ void DebuggerPluginPrivate::testUnloadProject()
 void DebuggerPluginPrivate::testRunProject(const DebuggerRunParameters &rp, const TestCallBack &cb)
 {
     m_testCallbacks.append(cb);
-    RunControl *rc = createAndScheduleRun(rp);
+    RunControl *rc = createAndScheduleRun(rp, 0);
     connect(rc, &RunControl::finished, this, &DebuggerPluginPrivate::testRunControlFinished);
 }
 

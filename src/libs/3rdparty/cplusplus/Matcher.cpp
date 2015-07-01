@@ -218,6 +218,17 @@ bool Matcher::match(const Template *type, const Template *otherType)
     return true;
 }
 
+bool Matcher::match(const ExplicitInstantiation *type, const ExplicitInstantiation *otherType)
+{
+    if (type == otherType)
+        return true;
+
+    if (! Matcher::match(type->name(), otherType->name(), this))
+        return false;
+
+    return true;
+}
+
 bool Matcher::match(const ForwardClassDeclaration *type, const ForwardClassDeclaration *otherType)
 {
     if (type == otherType)

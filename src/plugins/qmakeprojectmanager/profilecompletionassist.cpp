@@ -317,9 +317,6 @@ static const char *const functionKeywords[] = {
 // -------------------------------
 // ProFileCompletionAssistProvider
 // -------------------------------
-ProFileCompletionAssistProvider::ProFileCompletionAssistProvider()
-{}
-
 void ProFileCompletionAssistProvider::init()
 {
     for (uint i = 0; i < sizeof variableKeywords / sizeof variableKeywords[0] - 1; i++)

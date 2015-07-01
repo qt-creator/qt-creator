@@ -113,6 +113,7 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     }
 
     toolchainDefines = tc->predefinedMacros(commandLineFlags);
+    toolchainType = tc->type();
     updateLanguageFeatures();
 }
 
@@ -501,21 +502,50 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
 }
 
 
-QStringList CompilerOptionsBuilder::createHeaderPathOptions(
-        const ProjectPart::HeaderPaths &headerPaths,
-        IsBlackListed isBlackListed, const QString &toolchainType)
+CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart::Ptr &projectPart)
+    : m_projectPart(projectPart)
+{
+}
+
+QStringList CompilerOptionsBuilder::options() const
+{
+    return m_options;
+}
+
+void CompilerOptionsBuilder::add(const QString &option)
+{
+    m_options.append(option);
+}
+
+QString CompilerOptionsBuilder::defineLineToDefineOption(const QByteArray &defineLine)
+{
+    QByteArray str = defineLine.mid(8);
+    int spaceIdx = str.indexOf(' ');
+    const QString option = defineOption();
+    const bool hasValue = spaceIdx != -1;
+    QString arg = option + QLatin1String(str.left(hasValue ? spaceIdx : str.size()) + '=');
+    if (hasValue)
+        arg += QLatin1String(str.mid(spaceIdx + 1));
+    return arg;
+}
+
+void CompilerOptionsBuilder::addDefine(const QByteArray &defineLine)
+{
+    m_options.append(defineLineToDefineOption(defineLine));
+}
+
+void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPart::HeaderPath HeaderPath;
-    const QString defaultPrefix
-            = QLatin1String(toolchainType == QLatin1String("msvc") ? "/I" : "-I");
+    const QString defaultPrefix = includeOption();
 
     QStringList result;
 
-    foreach (const HeaderPath &headerPath , headerPaths) {
+    foreach (const HeaderPath &headerPath , m_projectPart->headerPaths) {
         if (headerPath.path.isEmpty())
             continue;
 
-        if (isBlackListed && isBlackListed(headerPath.path))
+        if (excludeHeaderPath(headerPath.path))
             continue;
 
         QString prefix;
@@ -533,64 +563,24 @@ QStringList CompilerOptionsBuilder::createHeaderPathOptions(
         result.append(prefix + headerPath.path);
     }
 
-    return result;
+    m_options.append(result);
 }
 
-QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &defines,
-                                                        bool toolchainDefines,
-                                                        const QString &toolchainType)
+void CompilerOptionsBuilder::addToolchainAndProjectDefines()
 {
-    QByteArray extendedDefines = defines;
+    QByteArray extendedDefines = m_projectPart->toolchainDefines + m_projectPart->projectDefines;
     QStringList result;
 
-    // In gcc headers, lots of built-ins are referenced that clang does not understand.
-    // Therefore, prevent the inclusion of the header that references them. Of course, this
-    // will break if code actually requires stuff from there, but that should be the less common
-    // case.
-    if (toolchainType == QLatin1String("mingw") || toolchainType == QLatin1String("gcc"))
-        extendedDefines += "#define _X86INTRIN_H_INCLUDED\n";
-
     foreach (QByteArray def, extendedDefines.split('\n')) {
-        if (def.isEmpty())
+        if (def.isEmpty() || excludeDefineLine(def))
             continue;
 
-        // This is a quick fix for QTCREATORBUG-11501.
-        // TODO: do a proper fix, see QTCREATORBUG-11709.
-        if (def.startsWith("#define __cplusplus"))
-            continue;
-
-        // TODO: verify if we can pass compiler-defined macros when also passing -undef.
-        if (toolchainDefines) {
-            //### FIXME: the next 3 check shouldn't be needed: we probably don't want to get the compiler-defined defines in.
-            if (!def.startsWith("#define "))
-                continue;
-            if (def.startsWith("#define _"))
-                continue;
-            if (def.startsWith("#define OBJC_NEW_PROPERTIES"))
-                continue;
-        }
-
-        // gcc 4.9 has:
-        //    #define __has_include(STR) __has_include__(STR)
-        //    #define __has_include_next(STR) __has_include_next__(STR)
-        // The right-hand sides are gcc built-ins that clang does not understand, and they'd
-        // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
-        // side.
-        if (toolchainType == QLatin1String("gcc") && def.contains("has_include"))
-            continue;
-
-        QByteArray str = def.mid(8);
-        int spaceIdx = str.indexOf(' ');
-        const QString option = QLatin1String(toolchainType == QLatin1String("msvc") ? "/D" : "-D");
-        const bool hasValue = spaceIdx != -1;
-        QString arg = option + QLatin1String(str.left(hasValue ? spaceIdx : str.size()) + '=');
-        if (hasValue)
-            arg += QLatin1String(str.mid(spaceIdx + 1));
-        if (!result.contains(arg))
-            result.append(arg);
+        const QString defineOption = defineLineToDefineOption(def);
+        if (!result.contains(defineOption))
+            result.append(defineOption);
     }
 
-    return result;
+    m_options.append(result);
 }
 
 static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
@@ -650,42 +640,19 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
     return opts;
 }
 
-static QStringList createLanguageOptionMsvc(ProjectFile::Kind fileKind)
+void CompilerOptionsBuilder::addLanguageOption(ProjectFile::Kind fileKind)
 {
-    QStringList opts;
-    switch (fileKind) {
-    case ProjectFile::CHeader:
-    case ProjectFile::CSource:
-        opts << QLatin1String("/TC");
-        break;
-    case ProjectFile::CXXHeader:
-    case ProjectFile::CXXSource:
-        opts << QLatin1String("/TP");
-        break;
-    default:
-        break;
-    }
-    return opts;
+    const bool objcExt = m_projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
+    const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
+    m_options.append(options);
 }
 
-QStringList CompilerOptionsBuilder::createLanguageOption(ProjectFile::Kind fileKind, bool objcExt,
-                                                         const QString &toolchainType)
-{
-    return toolchainType == QLatin1String("msvc") ? createLanguageOptionMsvc(fileKind)
-                                                  : createLanguageOptionGcc(fileKind, objcExt);
-}
-
-QStringList CompilerOptionsBuilder::createOptionsForLanguage(
-    ProjectPart::LanguageVersion languageVersion,
-    ProjectPart::LanguageExtensions languageExtensions,
-    bool checkForBorlandExtensions,
-    const QString &toolchainType)
+void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtensions)
 {
     QStringList opts;
-    if (toolchainType == QLatin1String("msvc"))
-        return opts;
-    bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
-    switch (languageVersion) {
+    const ProjectPart::LanguageExtensions languageExtensions = m_projectPart->languageExtensions;
+    const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
+    switch (m_projectPart->languageVersion) {
     case ProjectPart::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
@@ -718,5 +685,41 @@ QStringList CompilerOptionsBuilder::createOptionsForLanguage(
     if (checkForBorlandExtensions && (languageExtensions & ProjectPart::BorlandExtensions))
         opts << QLatin1String("-fborland-extensions");
 
-    return opts;
+    m_options.append(opts);
+}
+
+QString CompilerOptionsBuilder::includeOption() const
+{
+    return QLatin1String("-I");
+}
+
+QString CompilerOptionsBuilder::defineOption() const
+{
+    return QLatin1String("-D");
+}
+
+bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) const
+{
+    // This is a quick fix for QTCREATORBUG-11501.
+    // TODO: do a proper fix, see QTCREATORBUG-11709.
+    if (defineLine.startsWith("#define __cplusplus"))
+        return true;
+
+    // gcc 4.9 has:
+    //    #define __has_include(STR) __has_include__(STR)
+    //    #define __has_include_next(STR) __has_include_next__(STR)
+    // The right-hand sides are gcc built-ins that clang does not understand, and they'd
+    // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
+    // side.
+    const bool isGccToolchain = m_projectPart->toolchainType == QLatin1String("gcc");
+    if (isGccToolchain && defineLine.contains("has_include"))
+        return true;
+
+    return false;
+}
+
+bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
+{
+    Q_UNUSED(headerPath);
+    return false;
 }

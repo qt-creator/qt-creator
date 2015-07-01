@@ -63,7 +63,7 @@ def main():
                 "Step 2: Verifying if: .cpp file is opened in Edit mode.")
 # Step 3: Insert text "re" to new line in Editor mode and press Ctrl+Space.
     editorWidget = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    if not placeCursorToLine(editorWidget, "QApplication app(argc, argv);"):
+    if not placeCursorToLine(editorWidget, "QGuiApplication app(argc, argv);"):
         earlyExit("Did not find first line in function block.")
         return
     type(editorWidget, "<Return>")

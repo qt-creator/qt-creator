@@ -63,10 +63,12 @@ RemoteLinuxRunControlFactory::~RemoteLinuxRunControlFactory()
 {
 }
 
-bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode && mode != DebugRunModeWithBreakOnMain
-            && mode != QmlProfilerRunMode) {
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         return false;
     }
 
@@ -76,16 +78,16 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
                 || id.name().startsWith(RemoteLinuxRunConfiguration::IdPrefix));
 }
 
-RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode,
+RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode,
                                                  QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfig, mode), return 0);
 
-    switch (mode) {
-    case NormalRunMode:
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         return new RemoteLinuxRunControl(runConfig);
-    case DebugRunMode:
-    case DebugRunModeWithBreakOnMain: {
+
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+            || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
         if (!dev) {
             *errorMessage = tr("Cannot debug: Kit has no device.");
@@ -104,10 +106,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         }
 
         DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
-        if (mode == DebugRunModeWithBreakOnMain)
-            params.breakOnMain = true;
-        params.runConfiguration = runConfig;
-        DebuggerRunControl * const runControl = createDebuggerRunControl(params, errorMessage);
+        DebuggerRunControl * const runControl = createDebuggerRunControl(params, runConfig, errorMessage);
         if (!runControl)
             return 0;
         LinuxDeviceDebugSupport * const debugSupport =
@@ -115,7 +114,8 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
         return runControl;
     }
-    case QmlProfilerRunMode: {
+
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(runConfig, mode);
         auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
         QTC_ASSERT(rc, return 0);
@@ -123,16 +123,8 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         (void) new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         return runControl;
     }
-    case PerfProfilerRunMode:
-    case NoRunMode:
-    case CallgrindRunMode:
-    case MemcheckRunMode:
-    case MemcheckWithGdbRunMode:
-    case ClangStaticAnalyzerMode:
-        QTC_ASSERT(false, return 0);
-    }
 
-    QTC_ASSERT(false, return 0);
+    QTC_CHECK(false);
     return 0;
 }
 

@@ -190,7 +190,7 @@ AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
 /////////////
 
 DetailsPage::DetailsPage(AddLibraryWizard *parent)
-    : QWizardPage(parent), m_libraryWizard(parent), m_libraryDetailsController(0)
+    : QWizardPage(parent), m_libraryWizard(parent)
 {
     m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
     m_libraryDetailsWidget->setupUi(this);

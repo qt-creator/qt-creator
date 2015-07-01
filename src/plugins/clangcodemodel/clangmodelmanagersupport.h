@@ -58,7 +58,7 @@ public:
     CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
 
-    IpcCommunicator::Ptr ipcCommunicator();
+    IpcCommunicator &ipcCommunicator();
 
 public: // for tests
     static ModelManagerSupportClang *instance();
@@ -75,8 +75,8 @@ private:
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectFiles);
 
-    IpcCommunicator::Ptr m_ipcCommunicator;
-    QScopedPointer<ClangCompletionAssistProvider> m_completionAssistProvider;
+    IpcCommunicator m_ipcCommunicator;
+    ClangCompletionAssistProvider m_completionAssistProvider;
     QPointer<Core::IEditor> m_previousCppEditor;
 };
 

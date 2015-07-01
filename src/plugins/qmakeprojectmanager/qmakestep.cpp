@@ -75,22 +75,13 @@ const char QMAKE_QMLDEBUGLIB_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDeb
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(QMAKE_BS_ID)),
-    m_forced(false),
-    m_needToRunQMake(false),
-    m_linkQmlDebuggingLibrary(DebugLink),
-    m_useQtQuickCompiler(false),
-    m_separateDebugInfo(false)
+    AbstractProcessStep(bsl, Core::Id(QMAKE_BS_ID))
 {
     ctor();
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id),
-    m_forced(false),
-    m_linkQmlDebuggingLibrary(DebugLink),
-    m_useQtQuickCompiler(false),
-    m_separateDebugInfo(false)
+    AbstractProcessStep(bsl, id)
 {
     ctor();
 }
@@ -457,8 +448,7 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 ////
 
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
-    : BuildStepConfigWidget(), m_ui(new Internal::Ui::QMakeStep), m_step(step),
-      m_ignoreChange(false)
+    : BuildStepConfigWidget(), m_ui(new Internal::Ui::QMakeStep), m_step(step)
 {
     m_ui->setupUi(this);
 

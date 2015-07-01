@@ -137,9 +137,7 @@ QString ConfigurationDialog::value() const
 void ConfigurationDialog::updateOkButton()
 {
     const QString key = ui->name->text().simplified();
-    bool exists = false;
-    if (m_settings && key != m_currentKey)
-        exists = m_settings->styleExists(key);
+    const bool exists = m_settings && key != m_currentKey && m_settings->styleExists(key);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!(key.isEmpty() || exists));
 }
 

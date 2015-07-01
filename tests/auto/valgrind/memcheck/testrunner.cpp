@@ -180,7 +180,7 @@ void TestRunner::testLeak1()
         QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak1"));
     }
 }
@@ -214,7 +214,7 @@ void TestRunner::testLeak2()
             QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
             QCOMPARE(frame.object(), binary);
-            QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+            QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
             QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak2"));
         } else {
            QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
@@ -252,7 +252,7 @@ void TestRunner::testLeak3()
             QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
             QCOMPARE(frame.object(), binary);
-            QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+            QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
             QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak3"));
         } else {
             QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
@@ -293,7 +293,7 @@ void TestRunner::testLeak4()
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     {
@@ -302,7 +302,7 @@ void TestRunner::testLeak4()
         QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -332,7 +332,7 @@ void TestRunner::testLeak4()
         QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -361,7 +361,7 @@ void TestRunner::uninit1()
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -375,7 +375,7 @@ void TestRunner::uninit1()
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -406,7 +406,7 @@ void TestRunner::uninit2()
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -420,7 +420,7 @@ void TestRunner::uninit2()
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -439,7 +439,7 @@ void TestRunner::uninit2()
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -470,7 +470,7 @@ void TestRunner::uninit3()
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -484,7 +484,7 @@ void TestRunner::uninit3()
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -503,7 +503,7 @@ void TestRunner::uninit3()
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -562,7 +562,7 @@ void TestRunner::syscall()
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -595,7 +595,7 @@ void TestRunner::free1()
     QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -615,7 +615,7 @@ void TestRunner::free1()
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -649,7 +649,7 @@ void TestRunner::free2()
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -673,7 +673,7 @@ void TestRunner::free2()
     QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -733,7 +733,7 @@ void TestRunner::overlap()
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }

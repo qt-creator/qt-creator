@@ -48,13 +48,13 @@
 using ProjectExplorer::DeviceKitInformation;
 using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
-using ProjectExplorer::RunMode;
+using Core::Id;
 using ProjectExplorer::Target;
 
 namespace WinRt {
 namespace Internal {
 
-WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, RunMode mode)
+WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode)
     : RunControl(runConfiguration, mode)
     , m_runConfiguration(runConfiguration)
     , m_state(StoppedState)

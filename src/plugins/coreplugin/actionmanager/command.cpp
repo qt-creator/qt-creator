@@ -305,8 +305,7 @@ static QString msgActionWarning(QAction *newAction, Id id, QAction *oldAction)
          << ": Action ";
     if (oldAction)
         str << oldAction->objectName() << '/' << oldAction->text();
-    str << " is already registered for context " << id.uniqueIdentifier() << ' '
-        << id.toString() << '.';
+    str << " is already registered for context " << id.toString() << '.';
     return msg;
 }
 

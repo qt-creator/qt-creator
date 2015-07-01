@@ -125,6 +125,12 @@ void CloneType::visit(Template *type)
     _type = templ;
 }
 
+void CloneType::visit(ExplicitInstantiation *type)
+{
+    ExplicitInstantiation *inst = _clone->symbol(type, _subst)->asExplicitInstantiation();
+    _type = inst;
+}
+
 void CloneType::visit(Class *type)
 {
     Class *klass = _clone->symbol(type, _subst)->asClass();
@@ -288,6 +294,14 @@ bool CloneSymbol::visit(Template *symbol)
     Template *templ = new Template(_clone, _subst, symbol);
     _symbol = templ;
     _control->addSymbol(templ);
+    return false;
+}
+
+bool CloneSymbol::visit(ExplicitInstantiation *symbol)
+{
+    ExplicitInstantiation *inst = new ExplicitInstantiation(_clone, _subst, symbol);
+    _symbol = inst;
+    _control->addSymbol(inst);
     return false;
 }
 

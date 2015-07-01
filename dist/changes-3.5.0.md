@@ -79,8 +79,10 @@ QML Profiler
 C++ Support
 
 * Added separate icon for structs
+* Added support for setting the access specifier of an extracted function (QTCREATORBUG-12127)
 * Fixed *Convert to Stack Variable* refactoring action for empty
   initializer lists (QTCREATORBUG-14279)
+* Fixed misplaced newlines of refactoring actions (QTCREATORBUG-13872)
 * Fixed expanding items in class view with double-click
   (QTCREATORBUG-2536)
 * Fixed code folding issues after missing closing braces
@@ -93,10 +95,7 @@ C++ Support
 * Partially fixed STL containers (QTCREATORBUG-8937, QTCREATORBUG-8922)
     * GCC implementation of `std::map`, `std::unique_ptr` (and other pointer wrappers)
       and `std::vector` are known to work
-    * Known limitations:
-        * MSVC implementation is not supported
-        * types that contain a typedef for `pointer` are not supported
-          (For example: `std::unique_ptr<std::string>`)
+    * MSVC implementation is not supported
 
 QML Support
 
@@ -118,6 +117,10 @@ FakeVim
 Todo
 
 * Added option to excluding file patterns from parsing
+
+Beautifier
+
+* Added option to format only selected lines with Uncrustify (`--frag`)
 
 Platform Specific
 

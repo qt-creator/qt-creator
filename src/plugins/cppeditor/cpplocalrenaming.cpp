@@ -210,6 +210,14 @@ bool CppLocalRenaming::handleKeyPressEvent(QKeyEvent *e)
     return true;
 }
 
+bool CppLocalRenaming::encourageApply()
+{
+    if (!isActive())
+        return false;
+    finishRenameChange();
+    return true;
+}
+
 QTextEdit::ExtraSelection &CppLocalRenaming::renameSelection()
 {
     return m_selections[m_renameSelectionIndex];

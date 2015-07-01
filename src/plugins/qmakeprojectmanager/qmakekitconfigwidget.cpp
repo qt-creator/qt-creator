@@ -41,8 +41,7 @@ namespace Internal {
 
 QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki) :
     ProjectExplorer::KitConfigWidget(k, ki),
-    m_lineEdit(new QLineEdit),
-    m_ignoreChange(false)
+    m_lineEdit(new QLineEdit)
 {
     refresh(); // set up everything according to kit
     m_lineEdit->setToolTip(toolTip());

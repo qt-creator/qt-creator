@@ -104,21 +104,24 @@ private:
     void showLinkageType(AddLibraryWizard::LinkageType linkageType);
     void showMacLibraryType(AddLibraryWizard::MacLibraryType libType);
 
-    AddLibraryWizard::Platforms m_platforms;
-    AddLibraryWizard::LinkageType m_linkageType;
-    AddLibraryWizard::MacLibraryType m_macLibraryType;
+    AddLibraryWizard::Platforms m_platforms = AddLibraryWizard::LinuxPlatform
+                                            | AddLibraryWizard::MacPlatform
+                                            | AddLibraryWizard::WindowsMinGWPlatform
+                                            | AddLibraryWizard::WindowsMSVCPlatform;
+    AddLibraryWizard::LinkageType m_linkageType = AddLibraryWizard::NoLinkage;
+    AddLibraryWizard::MacLibraryType m_macLibraryType = AddLibraryWizard::NoLibraryType;
 
     QString m_proFile;
 
     CreatorPlatform m_creatorPlatform;
 
-    bool m_ignoreGuiSignals;
-    bool m_includePathChanged;
+    bool m_ignoreGuiSignals = false;
+    bool m_includePathChanged = false;
 
-    bool m_linkageRadiosVisible;
-    bool m_macLibraryRadiosVisible;
-    bool m_includePathVisible;
-    bool m_windowsGroupVisible;
+    bool m_linkageRadiosVisible = true;
+    bool m_macLibraryRadiosVisible = true;
+    bool m_includePathVisible = true;
+    bool m_windowsGroupVisible = true;
 
     Ui::LibraryDetailsWidget *m_libraryDetailsWidget;
 };

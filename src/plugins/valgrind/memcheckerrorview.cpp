@@ -83,9 +83,9 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
                              bool link = true, const QString &linkAttr = QString())
 {
     const QString d = frame.directory();
-    const QString f = frame.file();
+    const QString f = frame.fileName();
     const QString fn = frame.functionName();
-    const QString fullPath = d + QLatin1Char('/') + f;
+    const QString fullPath = frame.filePath();
 
     QString path;
     if (!d.isEmpty() && !f.isEmpty())

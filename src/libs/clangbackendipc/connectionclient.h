@@ -32,6 +32,7 @@
 #define CLANGBACKEND_CONNECTIONCLIENT_H
 
 #include "ipcserverproxy.h"
+#include "lineprefixer.h"
 
 #include <QLocalSocket>
 
@@ -97,7 +98,7 @@ private:
     void disconnectProcessFinished() const;
     void connectStandardOutputAndError() const;
 
-    void waitUntilSocketIsFlushed() const;
+    void ensureCommandIsWritten();
 
 private:
     mutable std::unique_ptr<QProcess> process_;
@@ -106,6 +107,9 @@ private:
     QTimer processAliveTimer;
     QString processPath_;
     bool isAliveTimerResetted;
+
+    LinePrefixer stdErrPrefixer;
+    LinePrefixer stdOutPrefixer;
 };
 
 } // namespace ClangBackEnd

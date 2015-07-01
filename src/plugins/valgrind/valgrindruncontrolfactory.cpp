@@ -31,6 +31,8 @@
 #include "valgrindruncontrolfactory.h"
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
+#include "callgrindtool.h"
+#include "memchecktool.h"
 
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
@@ -62,13 +64,13 @@ ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
 {
 }
 
-bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
     Q_UNUSED(runConfiguration);
-    return mode == CallgrindRunMode || mode == MemcheckRunMode || mode == MemcheckWithGdbRunMode;
+    return mode == CALLGRIND_RUN_MODE || mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
 }
 
-RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
 

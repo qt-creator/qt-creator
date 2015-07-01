@@ -43,8 +43,8 @@ namespace XmlProtocol {
 QString toolTipForFrame(const Frame &frame)
 {
     QString location;
-    if (!frame.file().isEmpty()) {
-        location = frame.directory() + QLatin1Char('/') + frame.file();
+    if (!frame.fileName().isEmpty()) {
+        location = frame.filePath();
         if (frame.line() > 0)
             location += QLatin1Char(':') + QString::number(frame.line());
     }

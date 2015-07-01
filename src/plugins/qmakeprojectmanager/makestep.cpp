@@ -63,8 +63,7 @@ const char CLEAN_KEY[] = "Qt4ProjectManager.MakeStep.Clean";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(MAKESTEP_BS_ID)),
-    m_clean(false)
+    AbstractProcessStep(bsl, Core::Id(MAKESTEP_BS_ID))
 {
     ctor();
 }
@@ -79,8 +78,7 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
 }
 
 MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id),
-    m_clean(false)
+    AbstractProcessStep(bsl, id)
 {
     ctor();
 }
@@ -314,7 +312,7 @@ void MakeStep::setUserArguments(const QString &arguments)
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_ui(new Internal::Ui::MakeStep), m_makeStep(makeStep), m_bc(0), m_ignoreChange(false)
+    : BuildStepConfigWidget(), m_ui(new Internal::Ui::MakeStep), m_makeStep(makeStep)
 {
     m_ui->setupUi(this);
 

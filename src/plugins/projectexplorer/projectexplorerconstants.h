@@ -267,22 +267,14 @@ const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
 const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
 
+// RunMode
+const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";
+const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
+const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
+const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
+const char DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN[]="RunConfiguration.DebugRunModeWithBreakOnMain";
+
 } // namespace Constants
-
-// Run modes
-enum RunMode {
-    NoRunMode,
-    NormalRunMode,
-    DebugRunMode,
-    DebugRunModeWithBreakOnMain,
-    QmlProfilerRunMode,
-    CallgrindRunMode,
-    MemcheckRunMode,
-    MemcheckWithGdbRunMode,
-    ClangStaticAnalyzerMode,
-    PerfProfilerRunMode
-};
-
 } // namespace ProjectExplorer
 
 #endif // PROJECTEXPLORERCONSTANTS_H

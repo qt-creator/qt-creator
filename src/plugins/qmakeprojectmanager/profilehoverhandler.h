@@ -66,7 +66,7 @@ private:
                        const QString &keyword);
 
     QString m_docFragment;
-    ManualKind m_manualKind;
+    ManualKind m_manualKind = UnknownManual;
     const TextEditor::Keywords m_keywords;
 };
 

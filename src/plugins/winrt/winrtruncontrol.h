@@ -54,7 +54,7 @@ class WinRtRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
+    explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode);
 
     void start();
     StopResult stop();
