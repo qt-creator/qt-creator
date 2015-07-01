@@ -28,7 +28,6 @@ SOURCES += \
     qmlprofilertool.cpp \
     qmlprofilertracefile.cpp \
     qmlprofilertraceview.cpp \
-    qmlprofilertreeview.cpp \
     qmlprofilerviewmanager.cpp
 
 HEADERS += \
@@ -58,7 +57,6 @@ HEADERS += \
     qmlprofilertool.h \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \
-    qmlprofilertreeview.h \
     qmlprofilerviewmanager.h
 
 RESOURCES += \

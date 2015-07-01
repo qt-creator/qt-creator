@@ -128,6 +128,57 @@ public:
     qint64 rangeEnd;
 };
 
+static void setViewDefaults(Utils::TreeView *view)
+{
+    view->setFrameStyle(QFrame::NoFrame);
+    QHeaderView *header = view->header();
+    header->setSectionResizeMode(QHeaderView::Interactive);
+    header->setDefaultSectionSize(100);
+    header->setMinimumSectionSize(50);
+}
+
+static QString displayHeader(Fields header)
+{
+    static const char ctxt[] = "QmlProfiler::Internal::QmlProfilerEventsMainView";
+
+    switch (header) {
+    case Callee:
+        return QCoreApplication::translate(ctxt, "Callee");
+    case CalleeDescription:
+        return QCoreApplication::translate(ctxt, "Callee Description");
+    case Caller:
+        return QCoreApplication::translate(ctxt, "Caller");
+    case CallerDescription:
+        return QCoreApplication::translate(ctxt, "Caller Description");
+    case CallCount:
+        return QCoreApplication::translate(ctxt, "Calls");
+    case Details:
+        return QCoreApplication::translate(ctxt, "Details");
+    case Location:
+        return QCoreApplication::translate(ctxt, "Location");
+    case MaxTime:
+        return QCoreApplication::translate(ctxt, "Longest Time");
+    case TimePerCall:
+        return QCoreApplication::translate(ctxt, "Mean Time");
+    case SelfTime:
+        return QCoreApplication::translate(ctxt, "Self Time");
+    case SelfTimeInPercent:
+        return QCoreApplication::translate(ctxt, "Self Time in Percent");
+    case MinTime:
+        return QCoreApplication::translate(ctxt, "Shortest Time");
+    case TimeInPercent:
+        return QCoreApplication::translate(ctxt, "Time in Percent");
+    case TotalTime:
+        return QCoreApplication::translate(ctxt, "Total Time");
+    case Type:
+        return QCoreApplication::translate(ctxt, "Type");
+    case MedianTime:
+        return QCoreApplication::translate(ctxt, "Median Time");
+    default:
+        return QString();
+    }
+}
+
 QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
                                                  QmlProfilerTool *profilerTool,
                                                  QmlProfilerViewManager *container,
@@ -347,9 +398,10 @@ public:
 };
 
 QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
-                                   QmlProfilerEventsModelProxy *modelProxy)
-: QmlProfilerTreeView(parent), d(new QmlProfilerEventsMainViewPrivate(this))
+                                                     QmlProfilerEventsModelProxy *modelProxy) :
+    Utils::TreeView(parent), d(new QmlProfilerEventsMainViewPrivate(this))
 {
+    setViewDefaults(this);
     setObjectName(QLatin1String("QmlProfilerEventsTable"));
 
     setSortingEnabled(false);
@@ -830,9 +882,10 @@ public:
 };
 
 QmlProfilerEventRelativesView::QmlProfilerEventRelativesView(
-        QmlProfilerEventRelativesModelProxy *modelProxy, QWidget *parent)
-    : QmlProfilerTreeView(parent), d(new QmlProfilerEventParentsViewPrivate(this))
+        QmlProfilerEventRelativesModelProxy *modelProxy, QWidget *parent) :
+    Utils::TreeView(parent), d(new QmlProfilerEventParentsViewPrivate(this))
 {
+    setViewDefaults(this);
     setSortingEnabled(false);
     d->modelProxy = modelProxy;
     QStandardItemModel *model = new QStandardItemModel(this);

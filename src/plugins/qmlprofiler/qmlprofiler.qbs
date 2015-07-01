@@ -44,7 +44,6 @@ QtcPlugin {
             "qmlprofilertool.cpp", "qmlprofilertool.h",
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
-            "qmlprofilertreeview.cpp", "qmlprofilertreeview.h",
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
         ]
     }

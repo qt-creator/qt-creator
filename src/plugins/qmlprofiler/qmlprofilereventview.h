@@ -31,15 +31,15 @@
 #ifndef QMLPROFILEREVENTVIEW_H
 #define QMLPROFILEREVENTVIEW_H
 
-#include <QStandardItemModel>
-#include <qmldebug/qmlprofilereventtypes.h>
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventsmodelproxy.h"
-#include "qmlprofilertreeview.h"
-
-#include <analyzerbase/ianalyzertool.h>
-
 #include "qmlprofilerviewmanager.h"
+
+#include <qmldebug/qmlprofilereventtypes.h>
+#include <analyzerbase/ianalyzertool.h>
+#include <utils/itemviews.h>
+
+#include <QStandardItemModel>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -54,6 +54,27 @@ enum ItemRole {
     FilenameRole,
     LineRole,
     ColumnRole
+};
+
+enum Fields {
+    Name,
+    Callee,
+    CalleeDescription,
+    Caller,
+    CallerDescription,
+    CallCount,
+    Details,
+    Location,
+    MaxTime,
+    TimePerCall,
+    SelfTime,
+    SelfTimeInPercent,
+    MinTime,
+    TimeInPercent,
+    TotalTime,
+    Type,
+    MedianTime,
+    MaxFields
 };
 
 class QmlProfilerEventsWidget : public QWidget
@@ -100,7 +121,7 @@ private:
     QmlProfilerEventsWidgetPrivate *d;
 };
 
-class QmlProfilerEventsMainView : public QmlProfilerTreeView
+class QmlProfilerEventsMainView : public Utils::TreeView
 {
     Q_OBJECT
 public:
@@ -150,7 +171,7 @@ private:
 
 };
 
-class QmlProfilerEventRelativesView : public QmlProfilerTreeView
+class QmlProfilerEventRelativesView : public Utils::TreeView
 {
     Q_OBJECT
 public:
