@@ -983,7 +983,7 @@ QString Diff::toString() const
 {
     QString prettyText = text;
     // Replace linebreaks with pretty char
-    prettyText.replace(QLatin1Char('\n'), QLatin1Char(L'\u00b6'));
+    prettyText.replace(QLatin1Char('\n'), QLatin1Char('\xb6'));
     return commandString(command) + QLatin1String(" \"")
             + prettyText + QLatin1String("\"");
 }
