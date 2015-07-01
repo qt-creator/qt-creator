@@ -293,6 +293,7 @@ public:
                               const QString &messge, QString *name,
                               QString *errorMessage = 0) const;
 
+    QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
     QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
@@ -369,6 +370,8 @@ private:
 
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = 0) const;
+
+    QString readOneLine(const QString &workingDirectory, const QStringList &arguments) const;
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files,

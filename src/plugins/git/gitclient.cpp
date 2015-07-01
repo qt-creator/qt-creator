@@ -2484,8 +2484,19 @@ bool GitClient::getCommitData(const QString &workingDirectory,
             commitData.amendSHA1.clear();
         }
         if (!authorFromCherryPick) {
-            commitData.panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
-            commitData.panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
+            // the format is:
+            // Joe Developer <joedev@example.com> unixtimestamp +HHMM
+            QString author_info = readGitVar(workingDirectory, QLatin1String("GIT_AUTHOR_IDENT"));
+            int lt = author_info.lastIndexOf(QLatin1Char('<'));
+            int gt = author_info.lastIndexOf(QLatin1Char('>'));
+            if (gt == -1 || uint(lt) > uint(gt)) {
+                // shouldn't happen!
+                commitData.panelData.author.clear();
+                commitData.panelData.email.clear();
+            } else {
+                commitData.panelData.author = author_info.left(lt - 1);
+                commitData.panelData.email = author_info.mid(lt + 1, gt - lt - 1);
+            }
         }
         // Commit: Get the commit template
         QString templateFilename = gitDirectory.absoluteFilePath(QLatin1String("MERGE_MSG"));
@@ -3084,13 +3095,25 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
 // Read a single-line config value, return trimmed
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
+    QStringList arguments;
+    arguments << QLatin1String("config") << configVar;
+    return readOneLine(workingDirectory, arguments);
+}
+
+QString GitClient::readGitVar(const QString &workingDirectory, const QString &configVar) const
+{
+    QStringList arguments;
+    arguments << QLatin1String("var") << configVar;
+    return readOneLine(workingDirectory, arguments);
+}
+
+QString GitClient::readOneLine(const QString &workingDirectory, const QStringList &arguments) const
+{
     // msysGit always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
     static QTextCodec *codec = HostOsInfo::isWindowsHost()
             ? QTextCodec::codecForName("UTF-8")
             : QTextCodec::codecForLocale();
-    QStringList arguments;
-    arguments << QLatin1String("config") << configVar;
 
     QByteArray outputText;
     if (!vcsFullySynchronousExec(workingDirectory, arguments, &outputText, 0, silentFlags))
