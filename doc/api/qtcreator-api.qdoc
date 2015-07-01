@@ -89,19 +89,14 @@
                 editors, actions, mode windows and files, just to mention the
                 most important ones.
 
+                This plugin also contains classes necessary to hook into the
+                \l{Locator} as well as support for searching text in arbitrary
+                widgets.
+
         \row
             \li \l{ProjectExplorer}
             \li The project explorer plugin. Provides base classes for project
                 handling.
-
-        \row
-            \li \l{Find}
-            \li Support for searching text in arbitrary widgets, and arbitrary
-                other things.
-
-        \row
-            \li \l{Locator}
-            \li Hooks for providing content for Locator.
 
         \row
             \li \l{Debugger}
