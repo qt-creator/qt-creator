@@ -40,10 +40,14 @@
     matches the patterns specified for any MIME type. If no match is found, it
     checks the contents of the file for magic headers specified for the file.
 
-    The magic headers can contain text strings or bytes. The type of the header
-    value, string or byte, determines how \QC interprets the value. \QC
-    searches for the value within a specified range in the files and takes the
-    priority of the magic header into account. If you specify wide search
+    The magic headers can contain the following types of values: string, host,
+    big-endian, little-endian, and byte. \QC interprets the values according to
+    the
+    \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
+    {Shared MIME-info Database specification}.
+
+    \QC searches for the value within a specified range in the files and takes
+    the priority of the magic header into account. If you specify wide search
     ranges, openging files in \QC might take a long time. Therefore, you are
     advised to use the recommended values for the range and priority of the
     magic header.
@@ -73,6 +77,12 @@
             appear in the files.
 
         \li In the \uicontrol Type field, select the type of the value.
+
+        \li In the \uicontrol Mask field, specify the number to combine the
+            value in the file with using the AND operator before comparing it to
+            the specified value. You can specify any numbers as masks for
+            numerical types, whereas masks for strings must be in base 16, and
+            start with 0x.
 
             \note You are recommended not to change the range and priority,
             because it might cause problems when opening files in \QC.
