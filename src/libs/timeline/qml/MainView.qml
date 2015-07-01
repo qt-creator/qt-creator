@@ -170,7 +170,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.bottom: overview.top
         windowStart: zoomControl.windowStart
-        rangeDuration: Math.max(1, Math.round(zoomControl.rangeDuration))
+        rangeDuration: zoomControl.rangeDuration
         contentX: content.contentX
         clip: true
     }
