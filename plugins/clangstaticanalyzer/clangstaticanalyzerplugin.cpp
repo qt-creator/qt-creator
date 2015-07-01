@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise Qt Quick Profiler Add-on.
+** This file is part of the Qt Enterprise ClangStaticAnalyzer Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -19,6 +19,7 @@
 #include "clangstaticanalyzerplugin.h"
 
 #include "clangstaticanalyzerconfigwidget.h"
+#include "clangstaticanalyzerconstants.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
@@ -35,8 +36,11 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <licensechecker/licensecheckerplugin.h>
 #include <projectexplorer/projectpanelfactory.h>
+
+#ifdef LICENSECHECKER
+#include <licensechecker/licensecheckerplugin.h>
+#endif
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -114,6 +118,7 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
+#ifdef LICENSECHECKER
     LicenseChecker::LicenseCheckerPlugin *licenseChecker
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
@@ -123,8 +128,10 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     } else {
         qWarning() << "Invalid license, disabling Clang Static Analyzer";
     }
-
     return true;
+#else // LICENSECHECKER
+    return initializeEnterpriseFeatures(arguments, errorString);
+#endif
 }
 
 bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &arguments,
@@ -147,7 +154,7 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
                                "to find bugs.");
 
     AnalyzerAction *action = new AnalyzerAction(this);
-    action->setRunMode(ProjectExplorer::ClangStaticAnalyzerMode);
+    action->setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
     action->setToolId(ClangStaticAnalyzerToolId);
     action->setActionId("ClangStaticAnalyzer");
     action->setWidgetCreator(widgetCreator);
@@ -155,7 +162,7 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     action->setCustomToolStarter([tool] { tool->startTool(); });
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
-    action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
+    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
     action->setEnabled(false);
     AnalyzerManager::addAction(action);
 

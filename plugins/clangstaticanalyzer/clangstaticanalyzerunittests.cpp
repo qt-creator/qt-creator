@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to Digia, please use contact form at http://qt.digia.com <http://qt.digia.com/>
 **
-** This file is part of the Qt Enterprise Qt Quick Profiler Add-on.
+** This file is part of the Qt Enterprise ClangStaticAnalyzer Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -82,8 +82,7 @@ void ClangStaticAnalyzerUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    AnalyzerManager::selectTool(ClangStaticAnalyzerToolId);
-    AnalyzerManager::startTool();
+    AnalyzerManager::selectAction(ClangStaticAnalyzerToolId, /* alsoRunIt = */ true);
     QSignalSpy waiter(m_analyzerTool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
     const QList<QVariant> arguments = waiter.takeFirst();

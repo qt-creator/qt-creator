@@ -4,8 +4,9 @@ QTC_LIB_DEPENDS += \
     utils
 QTC_PLUGIN_DEPENDS += \
     analyzerbase \
-    cpptools \
-    licensechecker
+    cpptools
 QTC_TEST_DEPENDS += \
     qbsprojectmanager \
     qmakeprojectmanager
+
+CONFIG(licensechecker): QTC_PLUGIN_DEPENDS += licensechecker

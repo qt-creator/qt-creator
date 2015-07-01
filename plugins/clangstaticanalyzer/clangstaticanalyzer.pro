@@ -50,5 +50,7 @@ equals(TEST, 1) {
     RESOURCES += clangstaticanalyzerunittests.qrc
 }
 
+CONFIG(licensechecker): DEFINES += LICENSECHECKER
+
 DISTFILES += \
     tests/tests.pri

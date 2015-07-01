@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise Qt LicenseChecker Add-on.
+** This file is part of the Qt Enterprise ClangStaticAnalyzer Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -24,6 +24,7 @@ namespace Constants {
 
 const char CLANG_EXECUTABLE_BASE_NAME[] = "clang";
 const char SETTINGS_ID[] = "ClangStaticAnalyzer";
+const char CLANGSTATICANALYZER_RUN_MODE[] = "ClangStaticAnalyzer.RunMode";
 
 } // Constants
 } // ClangStaticAnalyzer

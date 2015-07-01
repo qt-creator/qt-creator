@@ -1,13 +1,12 @@
 import qbs
 
-QtcPlugin {
+QtcCommercialPlugin {
     name: "ClangStaticAnalyzer"
 
     Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ExtensionSystem" }
-    Depends { name: "LicenseChecker" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtcSsh" } // TODO: export + recursive dependencies broken in qbs
     Depends { name: "Utils" }

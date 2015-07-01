@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise LicenseChecker Add-on.
+** This file is part of the Qt Enterprise ClangStaticAnalyzer Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -18,6 +18,7 @@
 
 #include "clangstaticanalyzertool.h"
 
+#include "clangstaticanalyzerconstants.h"
 #include "clangstaticanalyzerdiagnosticmodel.h"
 #include "clangstaticanalyzerdiagnosticview.h"
 #include "clangstaticanalyzerruncontrol.h"
@@ -249,7 +250,7 @@ void ClangStaticAnalyzerTool::startTool()
         connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject, this,
                 onProjectRemoved, Qt::UniqueConnection);
     }
-    ProjectExplorerPlugin::runRunConfiguration(rc, ProjectExplorer::ClangStaticAnalyzerMode);
+    ProjectExplorerPlugin::runRunConfiguration(rc, Constants::CLANGSTATICANALYZER_RUN_MODE);
 }
 
 CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const

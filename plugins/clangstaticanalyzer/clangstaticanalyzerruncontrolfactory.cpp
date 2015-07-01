@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise LicenseChecker Add-on.
+** This file is part of the Qt Enterprise ClangStaticAnalyzer Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -17,6 +17,8 @@
 ****************************************************************************/
 
 #include "clangstaticanalyzerruncontrolfactory.h"
+
+#include "clangstaticanalyzerconstants.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
@@ -51,9 +53,9 @@ ClangStaticAnalyzerRunControlFactory::ClangStaticAnalyzerRunControlFactory(
 }
 
 bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                                                  RunMode runMode) const
+                                                  Core::Id runMode) const
 {
-    if (runMode != ClangStaticAnalyzerMode)
+    if (runMode != Constants::CLANGSTATICANALYZER_RUN_MODE)
         return false;
 
     Target *target = runConfiguration->target();
@@ -68,7 +70,7 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
-                                                         RunMode runMode,
+                                                         Core::Id runMode,
                                                          QString *errorMessage)
 {
     using namespace CppTools;

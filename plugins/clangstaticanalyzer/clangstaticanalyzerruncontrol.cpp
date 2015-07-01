@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise LicenseChecker Add-on.
+** This file is part of the Qt Enterprise ClangStaticAnalyzer Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -61,8 +61,6 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             const ProjectInfo &projectInfo)
     : AnalyzerRunControl(startParams, runConfiguration)
     , m_projectInfo(projectInfo)
-    , m_toolchainType(ProjectExplorer::ToolChainKitInformation
-                      ::toolChain(runConfiguration->target()->kit())->type())
     , m_wordWidth(runConfiguration->abi().wordWidth())
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
@@ -113,38 +111,94 @@ static QStringList tweakedArguments(const QString &filePath,
     return newArguments;
 }
 
-static QStringList argumentsFromProjectPart(const CppTools::ProjectPart::Ptr &projectPart,
-                                            CppTools::ProjectFile::Kind fileKind,
-                                            const QString &toolchainType,
-                                            unsigned char wordWidth)
+static QString createLanguageOptionMsvc(ProjectFile::Kind fileKind)
 {
-    QStringList result;
-
-    const bool objcExt = projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
-    result += CppTools::CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt,
-                                                                     toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
-                                                    projectPart->languageVersion,
-                                                    projectPart->languageExtensions, false,
-                                                    toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->toolchainDefines,
-                                                                    false, toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines,
-                                                                    false, toolchainType);
-    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(
-                projectPart->headerPaths,
-                CompilerOptionsBuilder::IsBlackListed(),
-                toolchainType);
-
-    if (toolchainType == QLatin1String("msvc"))
-        result += QLatin1String("/EHsc"); // clang-cl does not understand exceptions
-    else
-        result += QLatin1String("-fPIC"); // TODO: Remove?
-
-    prependWordWidthArgumentIfNotIncluded(&result, wordWidth);
-
-    return result;
+    switch (fileKind) {
+    case ProjectFile::CHeader:
+    case ProjectFile::CSource:
+        return QLatin1String("/TC");
+        break;
+    case ProjectFile::CXXHeader:
+    case ProjectFile::CXXSource:
+        return QLatin1String("/TP");
+        break;
+    default:
+        break;
+    }
+    return QString();
 }
+
+class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
+{
+public:
+    static QStringList build(const CppTools::ProjectPart::Ptr &projectPart,
+                             CppTools::ProjectFile::Kind fileKind,
+                             unsigned char wordWidth)
+    {
+        ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+        optionsBuilder.addLanguageOption(fileKind);
+        optionsBuilder.addOptionsForLanguage(false);
+
+        // In gcc headers, lots of built-ins are referenced that clang does not understand.
+        // Therefore, prevent the inclusion of the header that references them. Of course, this
+        // will break if code actually requires stuff from there, but that should be the less common
+        // case.
+        const QString type = projectPart->toolchainType;
+        if (type == QLatin1String("mingw") || type == QLatin1String("gcc"))
+            optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
+
+        optionsBuilder.addToolchainAndProjectDefines();
+        optionsBuilder.addHeaderPathOptions();
+
+        if (projectPart->toolchainType == QLatin1String("msvc"))
+            optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
+        else
+            optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
+
+        QStringList options = optionsBuilder.options();
+        prependWordWidthArgumentIfNotIncluded(&options, wordWidth);
+        return options;
+    }
+
+private:
+    ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
+        : CompilerOptionsBuilder(projectPart)
+        , m_isMsvcToolchain(m_projectPart->toolchainType == QLatin1String("msvc"))
+    {
+    }
+
+    void addLanguageOption(ProjectFile::Kind fileKind) override
+    {
+        if (m_isMsvcToolchain)
+            add(createLanguageOptionMsvc(fileKind));
+        else
+            CompilerOptionsBuilder::addLanguageOption(fileKind);
+    }
+
+    void addOptionsForLanguage(bool checkForBorlandExtensions) override
+    {
+        if (m_isMsvcToolchain)
+            return;
+        CompilerOptionsBuilder::addOptionsForLanguage(checkForBorlandExtensions);
+    }
+
+    QString includeOption() const override
+    {
+        if (m_isMsvcToolchain)
+            return QLatin1String("/I");
+        return CompilerOptionsBuilder::includeOption();
+    }
+
+    QString defineOption() const override
+    {
+        if (m_isMsvcToolchain)
+            return QLatin1String("/D");
+        return CompilerOptionsBuilder::defineOption();
+    }
+
+private:
+    bool m_isMsvcToolchain;
+};
 
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
             const ProjectInfo::CompilerCallData &compilerCallData,
@@ -169,7 +223,6 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 }
 
 static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts,
-                                                   const QString &toolchainType,
                                                    unsigned char wordWidth)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
@@ -185,10 +238,8 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
                 continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
-                const QStringList arguments = argumentsFromProjectPart(projectPart,
-                                                                       file.kind,
-                                                                       toolchainType,
-                                                                       wordWidth);
+                const QStringList arguments
+                    = ClangStaticAnalyzerOptionsBuilder::build(projectPart, file.kind, wordWidth);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -205,7 +256,6 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (compilerCallData.isEmpty()) {
         units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
-                                               m_toolchainType,
                                                m_wordWidth);
     } else {
         units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_wordWidth);
@@ -231,6 +281,12 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
+static QString toolchainType(ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    QTC_ASSERT(runConfiguration, return QString());
+    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit())->type();
+}
+
 bool ClangStaticAnalyzerRunControl::startEngine()
 {
     m_success = false;
@@ -243,8 +299,8 @@ bool ClangStaticAnalyzerRunControl::startEngine()
 
     // Check clang executable
     bool isValidClangExecutable;
-    const QString executable
-            = clangExecutableFromSettings(m_toolchainType, &isValidClangExecutable);
+    const QString executable = clangExecutableFromSettings(toolchainType(runConfiguration()),
+                                                           &isValidClangExecutable);
     if (!isValidClangExecutable) {
         const QString errorMessage = tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
                 .arg(executable);
