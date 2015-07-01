@@ -723,6 +723,14 @@ FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
     return d->m_followSymbolUnderCursor.data();
 }
 
+void CppEditorWidget::encourageApply()
+{
+    if (d->m_localRenaming.encourageApply())
+        return;
+
+    TextEditorWidget::encourageApply();
+}
+
 void CppEditorWidget::abortDeclDefLink()
 {
     if (!d->m_declDefLink)

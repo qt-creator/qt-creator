@@ -83,6 +83,8 @@ public:
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
+    void encourageApply() override;
+
 public slots:
     void paste() override;
     void cut() override;
