@@ -59,7 +59,7 @@ CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
 
 void CallgrindRunControl::showStatusMessage(const QString &msg)
 {
-    AnalyzerManager::showStatusMessage(CallgrindToolId, msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, msg);
 }
 
 QStringList CallgrindRunControl::toolArguments() const

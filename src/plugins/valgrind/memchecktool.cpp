@@ -576,7 +576,7 @@ MemcheckRunControl *MemcheckTool::createMemcheckRunControl(const AnalyzerStartPa
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showStatusMessage(MemcheckToolId, issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
         ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
 }
@@ -584,7 +584,7 @@ void MemcheckTool::engineFinished()
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showStatusMessage(MemcheckToolId, issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
         ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Log file processed, no issues were found."));
 }

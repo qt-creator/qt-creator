@@ -834,7 +834,7 @@ void CallgrindToolPrivate::engineFinished()
     if (data)
         showParserResults(data);
     else
-        AnalyzerManager::showStatusMessage(CallgrindToolId, tr("Profiling aborted."));
+        AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, tr("Profiling aborted."));
 
     setBusyCursor(false);
 }
@@ -853,7 +853,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     } else {
         msg = tr("Parsing failed.");
     }
-    AnalyzerManager::showStatusMessage(CallgrindToolId, msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, msg);
 }
 
 void CallgrindToolPrivate::editorOpened(IEditor *editor)
@@ -918,7 +918,7 @@ void CallgrindToolPrivate::loadExternalLogFile()
         return;
     }
 
-    AnalyzerManager::showStatusMessage(CallgrindToolId, tr("Parsing Profile Data..."));
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
     Parser parser;
