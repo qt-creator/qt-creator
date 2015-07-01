@@ -28,6 +28,7 @@ HEADERS += \
     clangstaticanalyzerdiagnosticmodel.h \
     clangstaticanalyzerdiagnosticview.h \
     clangstaticanalyzer_global.h \
+    clangstaticanalyzerlicensecheck.h \
     clangstaticanalyzerlogfilereader.h \
     clangstaticanalyzerplugin.h \
     clangstaticanalyzerprojectsettings.h \
