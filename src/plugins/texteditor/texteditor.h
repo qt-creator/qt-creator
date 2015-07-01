@@ -363,6 +363,8 @@ public:
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
 
+    virtual void encourageApply();
+
 public slots: // Qt4-style connect used in EditorConfiguration
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setMarginSettings(const TextEditor::MarginSettings &);

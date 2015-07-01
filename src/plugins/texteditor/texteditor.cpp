@@ -6349,6 +6349,13 @@ void TextEditorWidget::unCommentSelection()
     Utils::unCommentSelection(this, d->m_commentDefinition);
 }
 
+void TextEditorWidget::encourageApply()
+{
+    if (!d->m_snippetOverlay->isVisible() || d->m_snippetOverlay->isEmpty())
+        return;
+    d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+}
+
 void TextEditorWidget::showEvent(QShowEvent* e)
 {
     triggerPendingUpdates();
@@ -6584,6 +6591,7 @@ void TextEditorWidget::copy()
 void TextEditorWidget::paste()
 {
     QPlainTextEdit::paste();
+    encourageApply();
 }
 
 void TextEditorWidgetPrivate::collectToCircularClipboard()
