@@ -63,9 +63,8 @@
     CMake, but do not use the Qt library.
 
     In addition, you can import projects as \e {generic projects} that do not
-    use qmake, Qbs, or CMake. This enables you to
-    use \QC as a code editor and to fully control the steps and commands used to
-    build the project.
+    use qmake, Qbs, or CMake. This enables you to use \QC as a code editor and
+    to fully control the steps and commands used to build the project.
 
     You can install tools for mobile devices as part of Qt distributions.
     The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
@@ -75,9 +74,8 @@
 
     \section1 Using Project Wizards
 
-    In the first step, you
-    select a template for the project. You can filter templates (1) to view only
-    those that apply to a particular device type.
+    In the first step, you select a template for the project. You can filter
+    templates (1) to view only those that apply to a particular target platform.
 
     \image qtcreator-new-qt-quick-project-wizard.png
 
@@ -86,6 +84,7 @@
     When you have completed the steps, \QC automatically generates the project
     with required headers, source files, user interface descriptions and project
     files, as defined by the wizard.
+
     For example, if you choose to create a Qt Quick application, \QC generates a
     QML file that you can modify with the integrated \QMLD.
 
@@ -192,18 +191,8 @@
 
             \li Plain C or C++ Project
 
-                Plain C or C++ project that uses qmake but does not use the Qt
-                library
-
-            \li Plain C or C++ Project (CMake Build)
-
-                Plain C or C++ project that uses CMake but does not use the Qt
-                library
-
-            \li Plain C or C++ Project (Qbs Build)
-
-                Plain C or C++ project that uses Qbs but does not use the Qt
-                library.
+                Plain C or C++ project that uses qmake, CMake or Qbs but does
+                not use the Qt library
 
         \endlist
 
@@ -220,8 +209,8 @@
         \li Import Existing Project
 
             Import an existing project that does not use any of the supported
-            build systems: qmake, CMake, or Autotools. This enables you to use
-            \QC as a code editor
+            build systems: qmake, Qbs, CMake, or Autotools. This enables you to
+            use \QC as a code editor
 
         \endlist
 
