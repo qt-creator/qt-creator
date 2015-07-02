@@ -135,8 +135,7 @@ GdbServerProviderConfigWidget *GdbServerProviderModel::widget(
 void GdbServerProviderModel::apply()
 {
     // Remove unused providers
-    foreach (TreeItem *item, rootItem()->children()) {
-        auto n = static_cast<GdbServerProviderNode *>(item);
+    foreach (GdbServerProviderNode *n, m_toRemoveNodes) {
         GdbServerProviderManager::instance()->deregisterProvider(n->provider);
     }
     QTC_CHECK(m_toRemoveNodes.isEmpty());
@@ -212,8 +211,6 @@ void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
     } else {
         m_toRemoveNodes.append(n);
     }
-
-    emit endRemoveRows();
 }
 
 void GdbServerProviderModel::markForAddition(GdbServerProvider *provider)
