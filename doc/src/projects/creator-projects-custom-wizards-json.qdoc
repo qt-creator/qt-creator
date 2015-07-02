@@ -33,35 +33,28 @@
     \image qtcreator-new-qt-gui-application.png
 
     The JSON-based wizards are displayed in the \uicontrol New dialog. To
-    customize them, copy a directory that contains a wizard.json file in
+    customize them, copy a directory that contains a \c {wizard.json} file in
     \c {share/qtcreator/templates/wizards/} and modify it to fit your needs.
     After you run qmake and restart \QC, the wizard name appears in the
     selected or added category. For each wizard, an icon, a display name, and
     a description are displayed.
 
     JSON-based wizard template directories contain a JSON configuration file
-    called wizard.json and the template files. The configuration file contains
-    sections that specify information about the wizard, variables that you can
-    use, wizard pages, and generators for creating files.
+    called \c {wizard.json} and any template files needed. The configuration
+    file contains sections that specify information about the wizard, variables
+    that you can use, wizard pages, and generators for creating files.
 
     \section1 Using Variables in Wizards
 
-    You can use variables (\c %{<variableName>}) in the configuration and
+    You can use variables (\c {%\{<variableName>\}}) in the configuration and
     template source files. A set of variables is predefined by the wizards and
     their pages. You can introduce new variables as shortcuts to be used later.
     Define the variable key names and values in the \c options section in the
-    .json file.
+    \c {.json} file.
 
     The variables always return strings. In places where a boolean value is
-    expected and a string is given, an empty string is treated as \c false and
-    anything else as \c true. A common pitfall is that a string containing
-    \c "false" is not empty and is therefore treated as the value \c true when
-    converted to a boolean value. To avoid this pitfall, use the following type
-    of construction:
-
-    \code
-    {"condition": "%{JS: ('%{VersionControl}' === 'G.Git') ? 'yes' : ''}"
-    \endcode
+    expected and a string is given, an empty string as well as the string
+    \c {"false"} is treated as \c false and anything else as \c true.
 
     \section1 Localizing Wizards
 
@@ -99,12 +92,13 @@
         \li Make a copy of \c {share/qtcreator/templates/wizards/classes/cpp}
             and rename it.
 
-        \li Right-click the project name in \uicontrol Projects and select
-            \uicontrol {Run qmake} to register the new wizard. Basically, qmake
-            generates a fixed list of files to copy. Therefore, you need to run
-            qmake each time the names or locations of the files change.
+        \li Right-click the project name in \uicontrol Projects view and
+            select \uicontrol {Run qmake} from the context menu to register the
+            new wizard. Basically, qmake generates a fixed list of files to
+            copy. Therefore, you need to run qmake each time the names or
+            locations of the files change.
 
-        \li Open the wizard configuration file, \c wizard.json for editing:
+        \li Open the wizard configuration file, \c {wizard.json} for editing:
 
             \list
 
@@ -126,17 +120,23 @@
                     \li \c kind specifies the type of the wizard: \c file or
                         \c project.
 
+                        This information is available in the wizard as
+                        \c {%\{kind\}} with values \c file or \c project.
+
                     \li \c id is the unique identifier for your wizard. You can
                         use a leading letter to specify the position of the
                         wizard within the \c category.
+
+                        This information is available in the wizard as
+                        \c {%\{id\}}.
 
                     \li \c category is the category in which to place the wizard
                         in the list. You can use a leading letter to specify the
                         position of the category in the list in the
                         \uicontrol New dialog.
 
-                    \li \c disabled is set to to \c true to hide the wizard. By
-                        default, it is set to \c{false}.
+                        This information is available in the wizard as
+                        \c {%\{category\}}.
                 \endlist
 
             \li The following settings specify the icon and text that appear in
@@ -147,7 +147,6 @@
                 "trDisplayName": "C++ Class",
                 "trDisplayCategory": "C++",
                 "icon": "../../global/genericfilewizard.png",
-                "featuresRequired": [ "Plugin.CppEditor" ],
                 \endcode
 
             \list
@@ -155,28 +154,56 @@
                 \li \c trDescription appears in the right-most panel when
                     \c trDisplayCategory is selected.
 
+                    This information is available in the wizard as
+                    \c {%\{trDescription\}}.
+
                 \li \c trDisplayName appears in the middle panel when
                     \c trDisplayCategory is selected.
 
+                    This information is available in the wizard as
+                    \c {%\{trDisplayName\}}.
+
                 \li \c trDisplayCategory appears in the \uicontrol New dialog,
                     under \uicontrol Projects.
+
+                    This information is available in the wizard as
+                    \c {%\{trDisplayCategory\}}.
 
                 \li \c icon appears next to the \c trDisplayName in the middle
                     panel when \c trDisplayCategory is selected. We recommend
                     that you specify the path relative to the wizard.json file,
                     but you can also use an absolute path.
 
+                \li \c image specifies a path to an image (for example a
+                    screenshot) that appears below the \c trDescription.
+
                 \li \c featuresRequired specifies the \QC features that the
                     wizard depends on. If a required feature is missing, the
-                    wizard is hidden. For example, if the CppEditor plugin is
-                    disabled, the C++ Class wizard is hidden.
+                    wizard is hidden. For example, if no kit has a Qt version
+                    set, then the qmake-based wizards are hidden.
+
+                    Use \c enabled if you need to express more complex logic to
+                    decide whether or not your wizard will be available.
+
+                    This information is available in the wizard as
+                    \c {%\{RequiredFeatures\}}.
 
                 \li \c featuresPreferred specifies the build and run kits to
                     preselect.
 
+                    This information is available in the wizard as
+                    \c {%\{PreferredFeatures\}}.
+
                 \li \c platformIndependent is set to \c true if the wizard is
                     supported by all target platforms. By default, it is set to
                     \c{false}.
+
+                \li \c enabled is evaluated to determine whether a wizard is
+                    listed in \uicontrol Files >
+                    \uicontrol {New File or Project}, after \c featuresRequired
+                    has been checked.
+
+                    The default value is \c true.
 
             \endlist
 
@@ -201,7 +228,7 @@
                 \endcode
 
                 This section is optional. For more examples of variables, see
-                the wizard.json files for other wizards.
+                the \c {wizard.json} files for other wizards.
 
             \li The \c pages section specifies the wizard pages. The pages
                 used depend on the wizard type. You can add standard pages to
@@ -232,9 +259,11 @@
                 \list
 
                     \li \c typeId specifies the page to use: \c Fields, \c File,
-                        \c Form, \c Kits, \c Project, or \c Summary. Full page
-                        ID, as used in the code, consists of the \c typeId
-                        prefixed with \c {"PE.Wizard.Page."}. For more
+                        \c Form, \c Kits, \c Project, \c VcsConfiguration,
+                        \c VcsCommand or \c Summary.
+
+                        Full page ID, as used in the code, consists of the
+                        \c typeId prefixed with \c {"PE.Wizard.Page."}. For more
                         information, about the pages, see \l{Available Pages}.
 
                     \li \c trDisplayName specifies the title of the page. By
@@ -287,41 +316,42 @@
                 \list
 
                    \li \c typeId specifies the type of the generator. Currently,
-                        only \c File is supported.
+                        only \c File or \c Scanner is supported.
 
-                    \li \c data spefices the files to generate. For a each file
-                        to be generated, specify the following values:
-
-                    \list
-
-                        \li \c source specifies the path and filename of the
-                            template file relative to the wizard.json file.
-
-                        \li \c target specifies the location of the generated
-                            file, either absolute or relative to
-                            \c %{TargetPath}, which is usually set by one of the
-                             wizard pages.
-
-                        \li \c openInEditor opens the file in the appropriate
-                            editor if it is set to \c{true}.
-
-                        \li \c openAsProject opens the project file in \QC if it
-                            is set to \c{true}.
-
-                        \li \c isBinary treats the file as a binary and prevents
-                            replacements from being done in the file if set to
-                            \c true.
-
-                        \li \c condition generates the file if the condition
-                            returns \c{true}. For more information, see
-                            \l{Using Variables in Wizards}.
-
-                    \endlist
-
+                    \li \c data allows to configure the generator further.
                 \endlist
 
           \endlist
 
+    \endlist
+
+    \section1 Values Available to the Wizard
+
+    In addition to properties taken from the \c {wizard.json} file itself (see
+    \l{Creating Wizards}), \QC makes some information available to all JSON
+    based wizards:
+
+    \list
+        \li \c WizardDir is the absolute path to the \c {wizard.json} file.
+
+        \li \c Features lists all features available via any of the kits
+            configured in \QC.
+
+        \li \c Plugins contains a list of all plugins running in the current
+            instance of \QC.
+
+        \li \c Platform contains the platform selected in the \uicontrol File >
+            \uicontrol {New File or Project} dialog. This value may be empty.
+    \endlist
+
+    The following information is only available when the wizard was triggered
+    via the context menu of a node in the \uicontrol Projects view:
+
+    \list
+        \li \c InitialPath with the path to the selected node.
+
+        \li \c ProjectExplorer.Profile.Ids contains a list of Kits configured
+            for the project of the selected node.
     \endlist
 
     \section1 Available Pages
@@ -389,7 +419,30 @@
     \section2 Kits
 
     A Kits page has the \c typeId value \c Kits. The \c data section of a Kits
-    page contains an object with the field \c projectFilePath set.
+    page contains an object with the following settings:
+
+    \list
+        \li \c projectFilePath with the path to the project file.
+
+        \li \c requiredFeatures with a list of strings or objects that describe
+            the features that a kit must provide to be listed on the page.
+
+            When a string is found, this feature must be set. When using an
+            object instead, the following settings are checked:
+
+            \list
+                \li \c feature, which must be a string (that will have all
+                    \c {%\{<VariableName\}} expanded).
+
+                \li \c condition, which must evaluate to \c true or \c false and
+                    can be used to discount the feature from the list.
+            \endlist
+
+        \li \c preferredFeatures with a list in the same format as
+            requiredFeatures. Any kit matching all features listed in
+            \c preferredFeatures (in addition to \c requiredFeatures) will be
+            pre-selected on this page.
+    \endlist
 
     \code
     {
@@ -401,17 +454,18 @@
     },
     \endcode
 
-    The page evaluates \c Platform to set the platform selected in
-    \uicontrol File > \uicontrol New, \c PreferredFeatures to set the preferred
-    features for the project, and \c RequiredFeatures to set the required
-    features for the project. The feature set is used to determine which kits to
-    display and pre-select for the project.
+    The page evaluates \c {%\{Platform\}} to set the platform selected in
+    \uicontrol File > \uicontrol {New File or Project}.
+
+
 
     \section2 Project
 
     A Project page has the \c typeId value \c Project. It contains no data or an
-    object with the \c trDescription property which will be shown on the generated
-    page.
+    object with the \c trDescription property which will be shown on the
+    generated page. \c trDescription defaults to \c {%\{trDescription\}}, which
+    is filled in with the information taken from the \c trDescription
+    field of the \c {wizard.json} file.
 
     \code
     {
@@ -442,6 +496,69 @@
     project and to \c yes otherwise. It sets \c VersionControl to the ID of the
     version control system in use.
 
+    \section2 VcsCommand
+
+    The VcsCommand page runs a set of version control operations and displays
+    the results.
+
+    The \c data section of this page takes an object with the following keys:
+
+    \list
+        \li \c vcsId with the id of the version control system to be used.
+
+        \li \c trRunMessage with the message to be shown while the version
+            control is running.
+
+        \li \c extraArguments with a string or a list of strings defining
+            extra arguments passed to the version control checkout command.
+
+        \li \c repository with the URL to check out from the version control
+            system.
+
+        \li \c baseDirectory with the directory to run the checkout operation
+            in.
+
+        \li \c checkoutName with the subdirectory that will be created to hold
+            the checked out data.
+
+        \li \c extraJobs with a list of objects defining additional commands to
+            run after the initial checkout. This can be used to customize the
+            repository further by for example adding additional remote
+            repositories or setting configuration variables of the version
+            control system.
+
+            Each \c extraJob is defined by an object with the following
+            settings:
+
+            \list
+                \li \c skipIfEmpty will cause empty arguments to be silently
+                    removed from the command to be run if set to \c true.
+                    Defaults to \c true.
+
+                \li \c directory with the working directory of the command to
+                    be run. This defaults to the value of \c baseDirectory.
+
+                \li \c command with the command to be run.
+
+                \li \c arguments with the arguments to pass to \c command.
+
+                \li \c timeOutFactor can be used to provide for longer than
+                    default timeouts for long-running commands.
+
+                \li \c enabled which will be evaluated to decide whether or
+                    not to actually execute this job.
+            \endlist
+    \endlist
+
+    \section2 VcsConfiguration
+
+    The VcsConfiguration page asks the user to configure a version control
+    system and only enables the \uicontrol Next button once the configuration
+    is successful.
+
+    The \c data section of this page takes an object with the \c vcsId key.
+    This setting defines the version control system that will be configured.
+
     \section1 Available Widgets
 
     You can add the following widgets on a Field page:
@@ -468,6 +585,17 @@
 
         \li \c type specifies the type of the widget: \c CheckBox, \c ComboBox,
             \c Label, \c LineEdit, \c PathChooser, \c Spacer, and \c TextEdit.
+
+        \li \c trToolTip specifies a tool tip to show when hovering the field
+            with the mouse.
+
+        \li \c isComplete is evaluated for all fields to decide whether the
+            \uicontrol Next button of the wizard is available or not. All fields
+            must have their \c isComplete evaluate to \c true for this to
+            happen. This setting defaults to \c true.
+
+        \li \c trIncompleteMessage is shown when the field's \c isComplete was
+            evaluated to \c false.
 
         \li \c data specifies settings for the widget:
 
@@ -687,6 +815,73 @@
 
         \li \c richText is set to \c true for rich text, otherwise \c{false}.
 
+    \endlist
+
+    \section1 Available Generators
+
+    \QC supports two different generators for JSON wizards.
+
+    \section2 File Generator
+
+    A \c File generator expects a list of objects in its \c data section. Each
+    object defines one file to be processed and copied into the
+    \c {%\{TargetPath\}} (or any other location).
+
+    Each file object can take the following settings:
+
+    \list
+        \li \c source specifies the path and filename of the template file
+            relative to the directory containing the \c {wizard.json} file.
+
+            If \c source is unset, it is assumed that the file with the name
+            given in \c target is generated by some other means. This is useful
+            to for example specify the correct file to open as a project after
+            checking out data from a version control system.
+
+        \li \c target specifies the location of the generated file, either
+            absolute or relative to \c %{TargetPath}, which is usually set by
+            one of the wizard pages.
+
+        \li \c openInEditor opens the file in the appropriate editor if it is
+            set to \c true. This setting defaults to \c false.
+
+        \li \c openAsProject opens the project file in \QC if it is set to
+            \c true. This setting defaults to \c false.
+
+        \li \c isBinary treats the file as a binary and prevents replacements
+            from being done in the file if set to \c true. This setting
+            defaults to \c false.
+
+        \li \c condition generates the file if the condition
+            returns \c true. This setting defaults to \c true. For more
+            information, see \l{Using Variables in Wizards}.
+
+    \endlist
+
+    \section2 Scanner Generator
+
+    A \c Scanner generator scans the \c {%\{TargetPath\}} and produces a list
+    of all files found there.
+
+    The \c Scanner generator takes one object in its \c data section with the
+    following settings:
+
+    \list
+
+        \li \c binaryPattern is a regular expression that will be matched
+            against all file names found. Any match will be marked as a binary
+            file and template substitution will be skipped for this file. This
+            setting defaults to an empty pattern, so no files will be marked as
+            binary.
+
+        \li \c subdirectoryPatterns is a list of regular expression patterns.
+            Any directory matching one of these patterns will be scanned as well
+            as the top level directory. This setting defaults to an empty list
+            and no subdirectories will be scanned.
+
+        \li \c firstProjectOnly is a boolean value, which will determine whether
+            all project files that were found will be opened as a project or
+            only the first one. This setting defaults to \c true.
     \endlist
 
 */
