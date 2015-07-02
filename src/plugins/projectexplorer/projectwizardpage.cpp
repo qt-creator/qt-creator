@@ -604,5 +604,11 @@ void ProjectWizardPage::hideVersionControlUiElements()
     m_ui->addToVersionControlComboBox->hide();
 }
 
+void ProjectWizardPage::setProjectUiVisible(bool visible)
+{
+    m_ui->projectLabel->setVisible(visible);
+    m_ui->projectComboBox->setVisible(visible);
+}
+
 } // namespace Internal
 } // namespace ProjectExplorer

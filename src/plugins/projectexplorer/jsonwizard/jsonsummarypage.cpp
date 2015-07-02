@@ -93,6 +93,11 @@ JsonSummaryPage::JsonSummaryPage(QWidget *parent) :
             this, &JsonSummaryPage::summarySettingsHaveChanged);
 }
 
+void JsonSummaryPage::setHideProjectUiValue(const QVariant &hideProjectUiValue)
+{
+    m_hideProjectUiValue = hideProjectUiValue;
+}
+
 void JsonSummaryPage::initializePage()
 {
     m_wizard = qobject_cast<JsonWizard *>(wizard());
@@ -128,6 +133,9 @@ void JsonSummaryPage::initializePage()
             .value<Node *>();
     initializeProjectTree(contextNode, files, kind,
                           isProject ? AddSubProject : AddNewFile);
+
+    bool hideProjectUi = JsonWizard::boolFromVariant(m_hideProjectUiValue, m_wizard->expander());
+    setProjectUiVisible(!hideProjectUi);
 
     initializeVersionControls();
 

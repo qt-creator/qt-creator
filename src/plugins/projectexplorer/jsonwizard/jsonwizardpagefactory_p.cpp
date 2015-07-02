@@ -228,6 +228,8 @@ bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QSt
 // SummaryPageFactory:
 // --------------------------------------------------------------------
 
+static const char KEY_HIDE_PROJECT_UI[] = "hideProjectUi";
+
 SummaryPageFactory::SummaryPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Summary"));
@@ -239,15 +241,18 @@ Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Core::Id typeI
     Q_UNUSED(data);
     QTC_ASSERT(canCreate(typeId), return 0);
 
-    return new JsonSummaryPage;
+    JsonSummaryPage *page = new JsonSummaryPage;
+    QVariant hideProjectUi = data.toMap().value(QLatin1String(KEY_HIDE_PROJECT_UI));
+    page->setHideProjectUiValue(hideProjectUi);
+    return page;
 }
 
 bool SummaryPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
-    if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
+    if (!data.isNull() && (data.type() != QVariant::Map)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"data\" for a \"Summary\" page needs to be unset or an empty object.");
+            "\"data\" for a \"Summary\" page can be unset or needs to be an object.");
         return false;
     }
 
