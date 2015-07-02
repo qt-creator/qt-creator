@@ -5593,7 +5593,13 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
 {
     DEBUG_THIS_RULE();
 
+    unsigned iterations = 0;
     while (precedence(tok().kind(), _templateArguments) >= minPrecedence) {
+        if (++iterations > MAX_EXPRESSION_DEPTH) {
+            warning(cursor(), "Reached parse limit for expression");
+            return;
+        }
+
         const int operPrecedence = precedence(tok().kind(), _templateArguments);
         const int oper = consumeToken();
 
