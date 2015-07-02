@@ -31,16 +31,17 @@
     \title Adding New Custom Wizards
 
     If you have a team working on a large application or several applications,
-    you might want to standardize the way the team members create projects,
-    classes, and files.
+    you might want to standardize the way the team members create projects and
+    files.
 
     You can copy the wizard templates in the template folders to create your own
-    project, class, and file wizards. They are displayed in the \uicontrol New
-    dialog that opens when you choose \uicontrol {File > New File or Project}.
+    project and file wizards. They are displayed in the \uicontrol New
+    dialog that opens when you choose \uicontrol File >
+    \uicontrol {New File or Project}.
 
-    A custom wizard defines the user interface of a wizard page. The values the
-    user enters in the wizard are assigned field names. Field name and value
-    pairs are then passed to the file creation process.
+    A custom wizard defines the user interface of a set of wizard pages. The
+    values the user enters in the wizard are assigned field names. Field name
+    and value pairs are then passed to the file creation process.
 
     \section1 Wizard Types
 
@@ -48,40 +49,16 @@
     You can add wizard pages to allow developers to specify settings for the
     project.
 
-    In a class wizard, you can allow developers to specify the class name, base
-    class, and header and source files for the class.
+    A file wizard is similar, but does not contain any project file.
 
-    In a file wizard, you can allow developers to specify the type and location
-    of the file.
-
-    You can create either JSON-based or XML-based wizards. We recommend creating
-    JSON-based wizards for new projects. For more information, see:
+    You are encouraged to create JSON-based wizards. They provide a super-set
+    of the functionality available in the XML based wizards used before. For
+    more information, see:
 
     \list
         \li \l{Adding JSON-Based Wizards}
-        \li \l{Adding XML-Based Wizards}
+        \li \l{Adding XML-Based Wizards} (deprecated)
     \endlist
-
-    The following table summarizes the wizards you can create:
-
-    \table
-        \header
-            \li Wizard Type
-            \li JSON-Based
-            \li XML-Based
-        \row
-            \li Class
-            \li \image ok
-            \li \image ok
-        \row
-            \li File
-            \li \image ok
-            \li \image ok
-        \row
-            \li Project
-            \li \image ok
-            \li \image ok
-    \endtable
 
     \section1 Locating Wizards
 
@@ -89,13 +66,50 @@
 
     \list
 
-        \li \c{share/qtcreator/templates/wizards}
+        \li \c {share/qtcreator/templates/wizards}
 
         \li the local user's configuration folder,
-            \c{$HOME/.config/QtProject/qtcreator/templates/wizards}
-
-        \li \c{%APPDATA%\QtProject\qtcreator\templates\wizards}
+            \c {$HOME/.config/QtProject/qtcreator/templates/wizards} on Linux
+            and OS X or \c {%APPDATA%\QtProject\qtcreator\templates\wizards} on
+            windows
 
     \endlist
+
+    \section1 Tips for Wizard Development
+
+    \QC has some actions that can improve the wizard development process. These
+    are by default not bound to any keyboard shortcuts and can thus not be
+    triggered. To enable them, assign keyboard shortcuts in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard >
+    \uicontrol Wizard.
+
+    The following actions can help with wizard development:
+
+    \table
+        \header
+            \li Action Id
+            \li Description
+
+        \row
+            \li \uicontrol Inspect
+            \li Triggering this action opens a window that lists all the
+                defined fields and variables in the wizard at the time the
+                action was triggered. Each activation of this action opens a
+                new non-modal window, so you can compare state at different
+                pages of the wizard for example.
+
+        \row
+            \li \uicontrol {Factory.Reset}
+            \li Triggering this action makes \QC forget all wizard factories,
+                causing it to reload all wizard definitions when for example
+                opening \uicontrol File > \uicontrol {New File or Project}.
+                This way you can avoid having to restart \QC for your changes to
+                a wizard definition to become visible.
+    \endtable
+
+    \note When developing custom wizards (both JSON as well as XML based), it is
+    recommended to start \QC with the \c {-customwizard-verbose} argument. See
+    \l{Using Command Line Options} for more information about command line
+    arguments.
 
 */
