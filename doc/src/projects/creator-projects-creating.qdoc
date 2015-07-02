@@ -59,8 +59,8 @@
     You can modify the build and run settings for qmake projects in the
     \uicontrol Projects mode.
 
-    You can use wizards also to create plain C or C++ projects that use Qbs or
-    CMake, but do not use the Qt library.
+    You can use wizards also to create plain C or C++ projects that use
+    qmake, Qbs, or CMake, but do not use the Qt library.
 
     In addition, you can import projects as \e {generic projects} that do not
     use qmake, Qbs, or CMake. This enables you to use \QC as a code editor and
@@ -191,7 +191,7 @@
 
             \li Plain C or C++ Project
 
-                Plain C or C++ project that uses qmake, CMake or Qbs but does
+                Plain C or C++ project that uses qmake, Qbs, or CMake but does
                 not use the Qt library
 
         \endlist
@@ -381,6 +381,16 @@
 
     To specify dependencies, use the \uicontrol{Add Library} wizard. For more
     information, see \l{Adding Libraries to Projects}.
+
+    \section1 Binding Keyboard Shortcuts to Wizards
+
+    If you use a wizard regularly, you can bind a custom keyboard shortcut to
+    it. Triggering this keyboard shortcut will directly open the wizard without
+    the need to navigate to \uicontrol File > \uicontrol {New File or Project}.
+
+    Keyboard shortcuts for wizards can be set in \uicontol Tools >
+    \uicontol Options > \uicontrol Environment > \uicontrol Keyboard >
+    \uicontrol Wizard. All wizard actions start with \uicontrol Impl there.
 
     \section1 Related Topics
 
