@@ -13,7 +13,6 @@ unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
 
 SOURCES += \
     $$PWD/clangcodemodelplugin.cpp \
-    $$PWD/clangcompleter.cpp \
     $$PWD/clangcompletioncontextanalyzer.cpp \
     $$PWD/clangcompletion.cpp \
     $$PWD/clangeditordocumentparser.cpp \
@@ -24,7 +23,6 @@ SOURCES += \
     $$PWD/clangutils.cpp \
     $$PWD/clangbackendipcintegration.cpp \
     $$PWD/completionchunkstotextconverter.cpp \
-    $$PWD/completionproposalsbuilder.cpp \
     $$PWD/cppcreatemarkers.cpp \
     $$PWD/cxprettyprinter.cpp \
     $$PWD/diagnostic.cpp \
@@ -43,7 +41,6 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/clangcodemodelplugin.h \
-    $$PWD/clangcompleter.h \
     $$PWD/clangcompletioncontextanalyzer.h \
     $$PWD/clangcompletion.h \
     $$PWD/clangeditordocumentparser.h \
@@ -55,7 +52,6 @@ HEADERS += \
     $$PWD/clangutils.h \
     $$PWD/clangbackendipcintegration.h \
     $$PWD/completionchunkstotextconverter.h \
-    $$PWD/completionproposalsbuilder.h \
     $$PWD/constants.h \
     $$PWD/cppcreatemarkers.h \
     $$PWD/cxprettyprinter.h \
@@ -96,14 +92,12 @@ equals(TEST, 1) {
 
     HEADERS += \
         $$PWD/test/clangcodecompletion_test.h \
-        $$PWD/test/clangcompletioncontextanalyzertest.h \
-        $$PWD/test/completiontesthelper.h
+        $$PWD/test/clangcompletioncontextanalyzertest.h
 
     SOURCES += \
         $$PWD/test/clangcodecompletion_test.cpp \
-        $$PWD/test/clangcompletioncontextanalyzertest.cpp \
-        $$PWD/test/clangcompletion_test.cpp \
-        $$PWD/test/completiontesthelper.cpp
+        $$PWD/test/clangcompletioncontextanalyzertest.cpp
+
 
     DISTFILES += \
         $$PWD/test/mysource.cpp \
@@ -112,23 +106,7 @@ equals(TEST, 1) {
         $$PWD/test/memberCompletion.cpp \
         $$PWD/test/doxygenKeywordsCompletion.cpp \
         $$PWD/test/preprocessorKeywordsCompletion.cpp \
-        $$PWD/test/includeDirectiveCompletion.cpp \
-        $$PWD/test/cxx_regression_1.cpp \
-        $$PWD/test/cxx_regression_2.cpp \
-        $$PWD/test/cxx_regression_3.cpp \
-        $$PWD/test/cxx_regression_4.cpp \
-        $$PWD/test/cxx_regression_5.cpp \
-        $$PWD/test/cxx_regression_6.cpp \
-        $$PWD/test/cxx_regression_7.cpp \
-        $$PWD/test/cxx_regression_8.cpp \
-        $$PWD/test/cxx_regression_9.cpp \
-        $$PWD/test/cxx_snippets_1.cpp \
-        $$PWD/test/cxx_snippets_2.cpp \
-        $$PWD/test/cxx_snippets_3.cpp \
-        $$PWD/test/cxx_snippets_4.cpp \
-        $$PWD/test/objc_messages_1.mm \
-        $$PWD/test/objc_messages_2.mm \
-        $$PWD/test/objc_messages_3.mm
+        $$PWD/test/includeDirectiveCompletion.cpp
 }
 
 macx {

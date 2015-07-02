@@ -53,12 +53,8 @@ QtcPlugin {
         name: "Completion support"
         condition: product.clangCompletion
         files: [
-            "clangcompleter.cpp",
-            "clangcompleter.h",
             "clangcompletion.cpp",
             "clangcompletion.h",
-            "completionproposalsbuilder.cpp",
-            "completionproposalsbuilder.h",
         ]
     }
 
@@ -92,9 +88,6 @@ QtcPlugin {
         prefix: "test/"
         files: [
             "clang_tests_database.qrc",
-            "clangcompletion_test.cpp",
-            "completiontesthelper.cpp",
-            "completiontesthelper.h",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
             "clangcompletioncontextanalyzertest.cpp",
@@ -114,19 +107,6 @@ QtcPlugin {
             "doxygenKeywordsCompletion.cpp",
             "preprocessorKeywordsCompletion.cpp",
             "includeDirectiveCompletion.cpp",
-            "cxx_regression_1.cpp",
-            "cxx_regression_2.cpp",
-            "cxx_regression_3.cpp",
-            "cxx_regression_4.cpp",
-            "cxx_regression_5.cpp",
-            "cxx_regression_6.cpp",
-            "cxx_regression_7.cpp",
-            "cxx_regression_8.cpp",
-            "cxx_regression_9.cpp",
-            "cxx_snippets_1.cpp",
-            "cxx_snippets_2.cpp",
-            "cxx_snippets_3.cpp",
-            "cxx_snippets_4.cpp",
             "objc_messages_1.mm",
             "objc_messages_2.mm",
             "objc_messages_3.mm",

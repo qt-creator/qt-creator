@@ -31,8 +31,10 @@
 #ifndef CPPEDITOR_INTERNAL_CLANGCOMPLETION_H
 #define CPPEDITOR_INTERNAL_CLANGCOMPLETION_H
 
-#include "clangcompleter.h"
 #include "clangbackendipcintegration.h"
+
+#include "pchinfo.h"
+#include "utils.h"
 
 #include <cpptools/cppcompletionassistprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
