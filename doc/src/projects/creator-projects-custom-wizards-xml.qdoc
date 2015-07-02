@@ -30,13 +30,18 @@
 
     \title Adding XML-Based Wizards
 
-    To display the XML-based example wizards in \QC, rename wizard_sample.xml as wizard.xml in the
+    \note We recommend that you create \l{Adding JSON-Based Wizards}
+    {JSON-Based wizards} instead. XML wizards are deprecated and support for
+    them will be removed in future versions of \QC.
+
+    To display the XML-based example wizards in \QC, rename
+    \c {wizard_sample.xml} as \c {wizard.xml} in the
     \c {\share\qtcreator\templates\wizards\helloworld} and
     \c {\share\qtcreator\templates\wizards\listmodel} folders. After
     you restart \QC, the \uicontrol {Custom Classes}
-    and \uicontrol {Custom Projects} categories (1) appear in the \uicontrol New dialog. For
-    each category, an icon (2), a display name (3), and a description (4) are
-    displayed.
+    and \uicontrol {Custom Projects} categories (1) appear in the \uicontrol New
+    dialog. For each category, an icon (2), a display name (3), and a
+    description (4) are displayed.
 
     \image qtcreator-custom-project-wizards.png "The New dialog with custom projects and classes"
 
