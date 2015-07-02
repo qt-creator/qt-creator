@@ -93,7 +93,7 @@ public:
     {
         m_iconButton = new IconButton;
         m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
-        m_iconButton->setToolTip(VariableChooser::tr("Insert variable"));
+        m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
                 this, &VariableChooserPrivate::updatePositionAndShow);
@@ -205,14 +205,14 @@ void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *insertExpandedAction = 0;
 
     if (unexpandedText.isEmpty()) {
-        insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert unexpanded value"));
+        insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert Unexpanded Value"));
         insertUnexpandedAction->setEnabled(false);
     } else {
         insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert \"%1\"").arg(unexpandedText));
     }
 
     if (expandedText.isEmpty()) {
-        insertExpandedAction = menu.addAction(VariableChooser::tr("Insert expanded value"));
+        insertExpandedAction = menu.addAction(VariableChooser::tr("Insert Expanded Value"));
         insertExpandedAction->setEnabled(false);
     } else {
         insertExpandedAction = menu.addAction(VariableChooser::tr("Insert \"%1\"").arg(expandedText));
