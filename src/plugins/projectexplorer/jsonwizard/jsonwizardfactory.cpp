@@ -391,7 +391,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
 
     wizard->setValue(QStringLiteral("trDescription"), description());
     wizard->setValue(QStringLiteral("trDisplayName"), displayName());
-    wizard->setValue(QStringLiteral("trCategory"), displayCategory());
+    wizard->setValue(QStringLiteral("trDisplayCategory"), displayCategory());
     wizard->setValue(QStringLiteral("category"), category());
     wizard->setValue(QStringLiteral("id"), id().toString());
 
