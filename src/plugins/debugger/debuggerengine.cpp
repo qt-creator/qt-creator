@@ -1603,11 +1603,11 @@ void DebuggerEngine::attemptBreakpointSynchronization()
             //qDebug() << "BREAKPOINT " << id << " IS GOOD";
             continue;
         case BreakpointDead:
-            // Should not only be visible inside BreakpointHandler.
-            QTC_CHECK(false);
+            // Can happen temporarily during Breakpoint destruction.
+            // BreakpointItem::deleteThis() intentionally lets the event loop run,
+            // during which an attemptBreakpointSynchronization() might kick in.
             continue;
         }
-        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << bp.id() << state());
     }
 
     if (done) {
