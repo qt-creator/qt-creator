@@ -20,6 +20,7 @@
 
 #include "clangstaticanalyzerconfigwidget.h"
 #include "clangstaticanalyzerconstants.h"
+#include "clangstaticanalyzerlicensecheck.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
@@ -37,12 +38,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/projectpanelfactory.h>
-
-#ifdef LICENSECHECKER
-#include <licensechecker/licensecheckerplugin.h>
-#endif
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <QAction>
 #include <QDebug>
@@ -117,21 +112,7 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     panelFactory->setDisplayName(tr("Clang Static Analyzer Settings"));
     panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-
-#ifdef LICENSECHECKER
-    LicenseChecker::LicenseCheckerPlugin *licenseChecker
-            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
-
-    if (licenseChecker && licenseChecker->hasValidLicense()) {
-        if (licenseChecker->enterpriseFeatures())
-            return initializeEnterpriseFeatures(arguments, errorString);
-    } else {
-        qWarning() << "Invalid license, disabling Clang Static Analyzer";
-    }
-    return true;
-#else // LICENSECHECKER
     return initializeEnterpriseFeatures(arguments, errorString);
-#endif
 }
 
 bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &arguments,
@@ -139,6 +120,9 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
+
+    if (!enterpriseFeaturesAvailable())
+        return true;
 
     auto tool = m_analyzerTool = new ClangStaticAnalyzerTool(this);
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
