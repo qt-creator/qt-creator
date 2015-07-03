@@ -31,7 +31,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    startApplication("qtcreator -load QmlProjectManager" + SettingsPath)
+    startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     available = [("5.3", False), ("5.3", True)]

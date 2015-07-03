@@ -295,7 +295,7 @@ def createNewQtQuickUI(workingDir, qtVersion = "5.3", withControls = False):
         template = 'Qt Quick Controls UI'
     else:
         template = 'Qt Quick UI'
-    __createProjectOrFileSelectType__("  Application", template)
+    __createProjectOrFileSelectType__("  Other Project", template)
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
