@@ -682,6 +682,7 @@ void TreeItem::appendChild(TreeItem *item)
 
 void TreeItem::insertChild(int pos, TreeItem *item)
 {
+    QTC_CHECK(!item->model());
     QTC_CHECK(!item->parent());
     QTC_ASSERT(0 <= pos && pos <= m_children.size(), return); // '<= size' is intentional.
 
