@@ -101,7 +101,6 @@ public:
     QModelIndex index() const;
 
     TreeModel *model() const { return m_model; }
-    void setModel(TreeModel *model);
 
     void walkTree(TreeItemVisitor *visitor);
     void walkTree(std::function<void(TreeItem *)> f);
