@@ -762,7 +762,7 @@ bool JsonFieldPage::ComboBoxField::parseData(const QVariant &data, QString *erro
         m_itemDataList.clear();
         m_itemList.clear();
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Internal Error: ComboBox items lists got confused.");
+                                                    "Internal Error: ComboBox items lists got mixed up.");
         return false;
     }
 
