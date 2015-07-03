@@ -48,4 +48,5 @@ void main()
     // square to make lines sharper
     total = total > 0.5 ? (1.0 - (1.0 - total) * (1.0 - total) * 2.0) : total * total * 2.0;
     gl_FragColor.rgb = mix(edgeColor, color, total);
+    gl_FragColor.a = 1.0;
 }
