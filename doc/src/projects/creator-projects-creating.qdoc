@@ -395,8 +395,8 @@
     it. Triggering this keyboard shortcut will directly open the wizard without
     the need to navigate to \uicontrol File > \uicontrol {New File or Project}.
 
-    Keyboard shortcuts for wizards can be set in \uicontol Tools >
-    \uicontol Options > \uicontrol Environment > \uicontrol Keyboard >
+    Keyboard shortcuts for wizards can be set in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard >
     \uicontrol Wizard. All wizard actions start with \uicontrol Impl there.
 
     \section1 Related Topics
