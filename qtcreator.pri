@@ -88,7 +88,10 @@ IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 osx {
     IDE_APP_TARGET   = "Qt Creator"
 
-    IDE_APP_BUNDLE = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app
+    # check if IDE_BUILD_TREE is actually an existing Qt Creator.app,
+    # for building against a binary package
+    exists($$IDE_BUILD_TREE/Contents/MacOS/Qt Creator): IDE_APP_BUNDLE = $$IDE_BUILD_TREE
+    else: IDE_APP_BUNDLE = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app
 
     # set output path if not set manually
     isEmpty(IDE_OUTPUT_PATH): IDE_OUTPUT_PATH = $$IDE_APP_BUNDLE/Contents
@@ -145,9 +148,16 @@ osx {
 }
 
 INCLUDEPATH += \
-    $$IDE_BUILD_TREE/src \ # for <app/app_version.h>
+    $$IDE_BUILD_TREE/src \ # for <app/app_version.h> in case of actual build directory
+    $$IDE_SOURCE_TREE/src \ # for <app/app_version.h> in case of binary package with dev package
     $$IDE_SOURCE_TREE/src/libs \
     $$IDE_SOURCE_TREE/tools
+
+win32:exists($$IDE_SOURCE_TREE/lib/qtcreator) {
+    # for .lib in case of binary package with dev package
+    LIBS *= -L$$IDE_SOURCE_TREE/lib/qtcreator
+    LIBS *= -L$$IDE_SOURCE_TREE/lib/qtcreator/plugins
+}
 
 QTC_PLUGIN_DIRS_FROM_ENVIRONMENT = $$(QTC_PLUGIN_DIRS)
 QTC_PLUGIN_DIRS += $$split(QTC_PLUGIN_DIRS_FROM_ENVIRONMENT, $$QMAKE_DIRLIST_SEP)
