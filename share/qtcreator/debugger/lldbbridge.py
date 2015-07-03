@@ -230,7 +230,6 @@ class Dumper(DumperBase):
         self.voidPtrType_ = None
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
-        self.dummyValue = None
         self.qmlBreakpointResolvers = {}
         self.qmlTriggeredBreakpoint = None
 
@@ -1207,8 +1206,6 @@ class Dumper(DumperBase):
             if id in ids:
                 continue
             ids[id] = True
-            #if self.dummyValue is None:
-            #    self.dummyValue = value
             if name is None:
                 # This can happen for unnamed function parameters with
                 # default values:  void foo(int = 0)
