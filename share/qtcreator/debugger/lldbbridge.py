@@ -1210,7 +1210,8 @@ class Dumper(DumperBase):
             #if self.dummyValue is None:
             #    self.dummyValue = value
             if name is None:
-                warn("NO NAME FOR VALUE: %s" % value)
+                # This can happen for unnamed function parameters with
+                # default values:  void foo(int = 0)
                 continue
             if name in shadowed:
                 level = shadowed[name]
