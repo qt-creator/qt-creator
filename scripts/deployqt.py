@@ -117,6 +117,9 @@ def fix_rpaths(chrpath_bin, install_dir):
         #TODO remove library_helper once all libs moved out of bin/ on linux
         filenames = [filename for filename in filenames if check_unix_binary_exec_helper(dirpath, filename) or check_unix_library_helper(dirpath, filename)]
         fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames)
+    for dirpath, dirnames, filenames in os.walk(os.path.join(install_dir, 'libexec', 'qtcreator')):
+        filenames = [filename for filename in filenames if check_unix_binary_exec_helper(dirpath, filename)]
+        fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames)
     for dirpath, dirnames, filenames in os.walk(os.path.join(install_dir, 'lib')):
         filenames = [filename for filename in filenames if check_unix_library_helper(dirpath, filename)]
         fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames)

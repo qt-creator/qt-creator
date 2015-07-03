@@ -4,7 +4,7 @@ TEMPLATE = app
 
 include(../../../../qtcreator.pri)
 
-DESTDIR = $$IDE_BIN_PATH
+DESTDIR = $$IDE_LIBEXEC_PATH
 
 include(../../../rpath.pri)
 
