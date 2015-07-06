@@ -243,9 +243,8 @@ static void addFileInfo(const QString &fileName, IDocument *document, bool isLin
             watcher = d->linkWatcher();
         else
             watcher = d->fileWatcher();
-        if (watcher->files().contains(fileName))
-           watcher->removePath(fileName);
-        watcher->addPath(fileName);
+        if (!watcher->files().contains(fileName))
+            watcher->addPath(fileName);
 
         d->m_states[fileName].lastUpdatedState.insert(document, state);
     }
