@@ -1443,6 +1443,7 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
 
     StackHandler *stackHandler = d->engine->stackHandler();
     WatchHandler * watchHandler = d->engine->watchHandler();
+    watchHandler->notifyUpdateStarted();
     d->clearCache();
 
     const int frameIndex = stackHandler->currentIndex();
@@ -1454,7 +1455,6 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
         if (item && item->isLocal())
             handlesToLookup.insert(item->id, iname);
     }
-    watchHandler->removeAllData();
     if (frameIndex < 0)
         return;
     const StackFrame frame = stackHandler->currentFrame();
@@ -1556,6 +1556,8 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
 
     if (!handlesToLookup.isEmpty())
         d->lookup(handlesToLookup);
+    else
+        d->engine->watchHandler()->notifyUpdateFinished();
 }
 
 QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
@@ -1702,6 +1704,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
             d->engine->watchHandler()->insertItem(item);
         }
     }
+    d->engine->watchHandler()->notifyUpdateFinished();
 }
 
 void QmlV8DebuggerClient::createWatchDataList(const WatchItem *parent,
