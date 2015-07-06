@@ -2738,6 +2738,7 @@ bool Parser::parseInitializer0x(ExpressionAST *&node, unsigned *equals_token)
 
 bool Parser::parseBraceOrEqualInitializer0x(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_EQUAL) {
         consumeToken();
         parseInitializerClause0x(node);
@@ -2783,6 +2784,7 @@ bool Parser::parseInitializerClause0x(ExpressionAST *&node)
 
 bool Parser::parseInitializerList0x(ExpressionListAST *&node)
 {
+    DEBUG_THIS_RULE();
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
 
@@ -3930,6 +3932,7 @@ bool Parser::lookAtClassKey() const
 
 bool Parser::parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribute_list)
 {
+    DEBUG_THIS_RULE();
     bool didRead = false;
     while (parseAttributeSpecifier(attribute_list))
         didRead = true;
@@ -3938,6 +3941,7 @@ bool Parser::parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribut
 
 bool Parser::parseAttributeSpecifier(SpecifierListAST *&attribute_list)
 {
+    DEBUG_THIS_RULE();
     SpecifierListAST **attr_ptr = &attribute_list;
     switch (LA()) {
     case T_ALIGNAS: {
