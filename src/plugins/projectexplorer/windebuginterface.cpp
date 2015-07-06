@@ -33,6 +33,7 @@
 #ifdef Q_OS_WIN
 
 #include <windows.h>
+#include <QApplication>
 
 
 /*!
@@ -68,6 +69,7 @@ WinDebugInterface::WinDebugInterface(QObject *parent) :
     QThread(parent)
 {
     m_instance = this;
+    m_creatorPid = qApp->applicationPid();
     setObjectName(QLatin1String("WinDebugInterfaceThread"));
 }
 
@@ -138,7 +140,8 @@ bool WinDebugInterface::runLoop()
         if (ret == WAIT_FAILED || ret - WAIT_OBJECT_0 == TerminateEventHandle)
             break;
         if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
-            emit debugOutput(*processId, QString::fromLocal8Bit(message));
+            if (*processId != m_creatorPid)
+                emit debugOutput(*processId, QString::fromLocal8Bit(message));
             SetEvent(m_bufferReadyEvent);
         }
     }
