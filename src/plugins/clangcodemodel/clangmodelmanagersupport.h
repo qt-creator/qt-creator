@@ -60,8 +60,9 @@ public:
 
     IpcCommunicator &ipcCommunicator();
 
-public: // for tests
-    static ModelManagerSupportClang *instance();
+#ifdef QT_TESTLIB_LIB
+    static ModelManagerSupportClang *instance_forTestsOnly();
+#endif
 
 private:
     void onEditorOpened(Core::IEditor *editor);
