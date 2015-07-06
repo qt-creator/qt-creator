@@ -176,8 +176,13 @@ public:
                 return m_variable;
         }
 
-        if (role == Qt::ToolTipRole)
-            return m_expander->variableDescription(m_variable.toUtf8());
+        if (role == Qt::ToolTipRole) {
+            QString description = m_expander->variableDescription(m_variable.toUtf8());
+            const QString value = m_expander->value(m_variable.toUtf8()).toHtmlEscaped();
+            if (!value.isEmpty())
+                description += QLatin1String("<p>") + VariableChooser::tr("Current Value: %1").arg(value);
+            return description;
+        }
 
         if (role == UnexpandedTextRole)
             return QString(QLatin1String("%{") + m_variable + QLatin1Char('}'));
