@@ -52,7 +52,7 @@ public:
     bool isOverloaded() const;
     void addOverload(const ClangBackEnd::CodeCompletion &ccr);
 
-    ClangBackEnd::CodeCompletion originalItem() const;
+    ClangBackEnd::CodeCompletion codeCompletion() const;
 
     bool isCodeCompletion() const;
 private:

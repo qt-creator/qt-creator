@@ -53,7 +53,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
         applies = (typedChar == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
     else if (!isCodeCompletion())
         applies = (typedChar == QLatin1Char('(')); /* && data().canConvert<CompleteFunctionDeclaration>()*/ //###
-    else if (originalItem().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
+    else if (codeCompletion().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
         applies = QString::fromLatin1(";.,").contains(typedChar);
     else
         applies = QString::fromLatin1(";.,:(").contains(typedChar);
@@ -67,7 +67,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
 void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
                                                      int basePosition) const
 {
-    const CodeCompletion ccr = originalItem();
+    const CodeCompletion ccr = codeCompletion();
 
     QString toInsert = text();
     QString extraChars;
@@ -206,7 +206,7 @@ void ClangAssistProposalItem::addOverload(const CodeCompletion &ccr)
     m_overloads.append(ccr);
 }
 
-CodeCompletion ClangAssistProposalItem::originalItem() const
+CodeCompletion ClangAssistProposalItem::codeCompletion() const
 {
     const QVariant &value = data();
     if (value.canConvert<CodeCompletion>())
