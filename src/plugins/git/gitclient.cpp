@@ -2838,12 +2838,20 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
                                      const QStringList &files, const QString &abortCommand)
 {
     QString message;
-    if (!commit.isEmpty())
+    if (!commit.isEmpty()) {
         message = tr("Conflicts detected with commit %1.").arg(commit);
-    else if (!files.isEmpty())
-        message = tr("Conflicts detected with files:\n%1").arg(files.join(QLatin1Char('\n')));
-    else
+    } else if (!files.isEmpty()) {
+        QString fileList;
+        QStringList partialFiles = files;
+        while (partialFiles.count() > 20)
+            partialFiles.removeLast();
+        fileList = partialFiles.join(QLatin1Char('\n'));
+        if (partialFiles.count() != files.count())
+            fileList += QLatin1String("\n...");
+        message = tr("Conflicts detected with files:\n%1").arg(fileList);
+    } else {
         message = tr("Conflicts detected.");
+    }
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
                              QMessageBox::NoButton, ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
