@@ -45,23 +45,23 @@ namespace Internal {
 
 bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
 {
-    bool ok = false;
+    bool applies = false;
 
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT)
-        ok = QString::fromLatin1("(,").contains(typedChar);
+        applies = QString::fromLatin1("(,").contains(typedChar);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
-        ok = (typedChar == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
+        applies = (typedChar == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
     else if (!isCodeCompletion())
-        ok = (typedChar == QLatin1Char('(')); /* && data().canConvert<CompleteFunctionDeclaration>()*/ //###
+        applies = (typedChar == QLatin1Char('(')); /* && data().canConvert<CompleteFunctionDeclaration>()*/ //###
     else if (originalItem().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
-        ok = QString::fromLatin1(";.,").contains(typedChar);
+        applies = QString::fromLatin1(";.,").contains(typedChar);
     else
-        ok = QString::fromLatin1(";.,:(").contains(typedChar);
+        applies = QString::fromLatin1(";.,:(").contains(typedChar);
 
-    if (ok)
+    if (applies)
         m_typedChar = typedChar;
 
-    return ok;
+    return applies;
 }
 
 void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
