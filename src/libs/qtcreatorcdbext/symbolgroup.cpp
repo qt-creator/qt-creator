@@ -756,23 +756,56 @@ std::string WatchesSymbolGroup::fixWatchExpressionI(CIDebugSymbols *s, const std
     // Check if it matches the form
     std::string::size_type typeStartPos;
     std::string::size_type typeEndPos;
-    if (!parseWatchExpression(expression, &typeStartPos, &typeEndPos))
-        return expression;
-    std::string type = expression.substr(typeStartPos, typeEndPos - typeStartPos);
-    trimFront(type);
-    trimBack(type);
-    // Do not qualify POD types
-    const KnownType kt = knownType(type, 0);
-    if (kt & KT_POD_Type)
-        return expression;
-    SymbolGroupValueContext ctx;
-    ctx.symbols = s;
-    const std::string resolved = SymbolGroupValue::resolveType(type, ctx);
-    if (resolved.empty() || resolved == type)
-        return expression;
-    std::string fixed = expression;
-    fixed.replace(typeStartPos, typeEndPos - typeStartPos, resolved);
-    return fixed;
+    if (parseWatchExpression(expression, &typeStartPos, &typeEndPos)) {
+        std::string type = expression.substr(typeStartPos, typeEndPos - typeStartPos);
+        trimFront(type);
+        trimBack(type);
+        // Do not qualify POD types
+        const KnownType kt = knownType(type, 0);
+        if (kt & KT_POD_Type)
+            return expression;
+        SymbolGroupValueContext ctx;
+        ctx.symbols = s;
+        const std::string resolved = SymbolGroupValue::resolveType(type, ctx);
+        if (resolved.empty() || resolved == type)
+            return expression;
+        std::string fixed = expression;
+        fixed.replace(typeStartPos, typeEndPos - typeStartPos, resolved);
+        return fixed;
+    } else {
+        // unify the access operator
+        std::string fixed;
+        const std::string::const_iterator end = expression.end();
+        for (std::string::const_iterator pos = expression.begin(); pos != end; ++pos) {
+            switch (*pos) {
+            case '*':
+            case '&':
+            case '(':
+            case ')':
+                break;
+            case '-':
+                ++pos;
+                if (pos == end) {
+                    fixed.push_back('-');
+                    return fixed;
+                }
+                if (*pos == '>') {
+                    fixed.push_back('.');
+                } else {
+                    fixed.push_back('-');
+                    fixed.push_back(*pos);
+                }
+                break;
+            case '[':
+                fixed.push_back('.');
+                // fall through
+            default:
+                fixed.push_back(*pos);
+                break;
+            }
+        }
+        return fixed;
+    }
 }
 
 // Wrapper with debug output.

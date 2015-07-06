@@ -63,6 +63,7 @@ public:
 
     GdbServerProvider *provider(const QModelIndex &) const;
     GdbServerProviderConfigWidget *widget(const QModelIndex &) const;
+    GdbServerProviderNode *nodeForIndex(const QModelIndex &index) const;
     QModelIndex indexForProvider(GdbServerProvider *provider) const;
 
     void apply();
@@ -77,10 +78,11 @@ private:
     void addProvider(GdbServerProvider *);
     void removeProvider(GdbServerProvider *);
 
+    GdbServerProviderNode *findNode(const GdbServerProvider *provider) const;
     GdbServerProviderNode *createNode(GdbServerProvider *, bool changed);
 
-    QList<GdbServerProviderNode *> m_toAddNodes;
-    QList<GdbServerProviderNode *> m_toRemoveNodes;
+    QList<GdbServerProvider *> m_providersToAdd;
+    QList<GdbServerProvider *> m_providersToRemove;
 };
 
 class GdbServerProvidersSettingsPage : public Core::IOptionsPage

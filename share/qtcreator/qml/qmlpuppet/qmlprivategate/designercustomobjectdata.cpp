@@ -128,7 +128,12 @@ void DesignerCustomObjectData::populateResetHashes()
     foreach (const PropertyName &propertyName, propertyNameList) {
         QQmlProperty property(object(), propertyName, QQmlEngine::contextForObject(object()));
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+        QQmlAbstractBinding::Ptr binding = QQmlAbstractBinding::Ptr(QQmlPropertyPrivate::binding(property));
+#else
         QQmlAbstractBinding::Pointer binding = QQmlAbstractBinding::getPointer(QQmlPropertyPrivate::binding(property));
+#endif
+
         if (binding) {
             m_resetBindingHash.insert(propertyName, binding);
         } else if (property.isWritable()) {
@@ -173,14 +178,29 @@ void DesignerCustomObjectData::doResetProperty(QQmlContext *context, const Prope
     QQmlAbstractBinding *binding = QQmlPropertyPrivate::binding(property);
     if (binding && !(hasValidResetBinding(propertyName) && getResetBinding(propertyName) == binding)) {
         binding->setEnabled(false, 0);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+        //Refcounting is taking care
+#else
         binding->destroy();
+#endif
     }
 
 
     if (hasValidResetBinding(propertyName)) {
         QQmlAbstractBinding *binding = getResetBinding(propertyName);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+        QQmlBinding *qmlBinding = dynamic_cast<QQmlBinding*>(binding);
+        if (qmlBinding)
+            qmlBinding->setTarget(property);
+        QQmlPropertyPrivate::setBinding(binding, QQmlPropertyPrivate::None, QQmlPropertyPrivate::DontRemoveBinding);
+        if (qmlBinding)
+            qmlBinding->update();
+#else
         QQmlPropertyPrivate::setBinding(property, binding, QQmlPropertyPrivate::DontRemoveBinding);
         binding->update();
+#endif
+
     } else if (property.isResettable()) {
         property.reset();
     } else if (property.propertyTypeCategory() == QQmlProperty::List) {
@@ -239,9 +259,15 @@ void DesignerCustomObjectData::setPropertyBinding(QQmlContext *context, const Pr
         QQmlBinding *binding = new QQmlBinding(expression, object(), context);
         binding->setTarget(property);
         binding->setNotifyOnValueChanged(true);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+        QQmlPropertyPrivate::setBinding(binding, QQmlPropertyPrivate::None, QQmlPropertyPrivate::DontRemoveBinding);
+        //Refcounting is taking take care of deletion
+#else
         QQmlAbstractBinding *oldBinding = QQmlPropertyPrivate::setBinding(property, binding);
         if (oldBinding && !hasValidResetBinding(propertyName))
             oldBinding->destroy();
+#endif
         binding->update();
         if (binding->hasError()) {
             if (property.property().userType() == QVariant::String)
@@ -255,9 +281,15 @@ void DesignerCustomObjectData::setPropertyBinding(QQmlContext *context, const Pr
 
 void DesignerCustomObjectData::keepBindingFromGettingDeleted(QQmlContext *context, const PropertyName &propertyName)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    //Refcounting is taking care
+    Q_UNUSED(context)
+    Q_UNUSED(propertyName)
+#else
     QQmlProperty property(object(), propertyName, context);
     QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor
                                     | QQmlPropertyPrivate::DontRemoveBinding);
+#endif
 }
 
 

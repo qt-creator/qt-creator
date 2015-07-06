@@ -1,3 +1,4 @@
+%{Cpp:LicenseTemplate}\
 #include <iostream>
 
 using namespace std;

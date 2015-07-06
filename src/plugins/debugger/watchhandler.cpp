@@ -1159,16 +1159,23 @@ void WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::insertItem(WatchItem *item)
 {
+    QTC_ASSERT(!item->iname.isEmpty(), return);
+
     WatchItem *parent = findItem(parentName(item->iname));
     QTC_ASSERT(parent, return);
 
-    if (WatchItem *existing = parent->findItem(item->iname)) {
-        int row = parent->children().indexOf(existing);
-        delete takeItem(existing);
-        parent->insertChild(row, item);
-    } else {
-        parent->appendChild(item);
+    bool found = false;
+    const QVector<TreeItem *> siblings = parent->children();
+    for (int row = 0, n = siblings.size(); row < n; ++row) {
+        if (static_cast<WatchItem *>(siblings.at(row))->iname == item->iname) {
+            delete takeItem(parent->children().at(row));
+            parent->insertChild(row, item);
+            found = true;
+            break;
+        }
     }
+    if (!found)
+        parent->appendChild(item);
 
     item->walkTree([this](TreeItem *sub) { showEditValue(static_cast<WatchItem *>(sub)); });
 }

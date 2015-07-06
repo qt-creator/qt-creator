@@ -2383,16 +2383,18 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         GdbMi gdbmi;
         gdbmi.fromString(message);
         exception.fromGdbMI(gdbmi);
-        // Don't show the Win32 x86 emulation subsystem breakpoint hit exception.
-        if (exception.exceptionCode == winExceptionWX86Breakpoint)
+        // Don't show the Win32 x86 emulation subsystem breakpoint hit or the
+        // set thread names exception.
+        if (exception.exceptionCode == winExceptionWX86Breakpoint
+                || exception.exceptionCode == winExceptionSetThreadName) {
             return;
+        }
         const QString message = exception.toString(true);
         showStatusMessage(message);
         // Report C++ exception in application output as well.
         if (exception.exceptionCode == winExceptionCppException)
             showMessage(message + QLatin1Char('\n'), AppOutput);
-        if (!isDebuggerWinException(exception.exceptionCode)
-                && exception.exceptionCode != winExceptionSetThreadName) {
+        if (!isDebuggerWinException(exception.exceptionCode)) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
             const FileName fileName = exception.file.isEmpty() ?
@@ -2541,7 +2543,14 @@ void CdbEngine::parseOutputLine(QByteArray line)
             }
         }
     }
-    showMessage(QString::fromLocal8Bit(line), LogMisc);
+    // output(64): ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL
+    // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
+    if (line.startsWith("ModLoad: ")) {
+        QRegExp moduleRegExp(QLatin1String(
+                                 "[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)"));
+        if (moduleRegExp.indexIn(QLatin1String(line)) > -1)
+            showStatusMessage(tr("Module loaded: ") + moduleRegExp.cap(3).trimmed(), 3000);
+    }
 }
 
 void CdbEngine::readyReadStandardOut()

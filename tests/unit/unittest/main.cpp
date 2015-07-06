@@ -35,7 +35,7 @@
 #include <QCoreApplication>
 
 #include <gtest/gtest.h>
-#include <gtest-qt-printing.h>
+#include "gtest-qt-printing.h"
 
 int main(int argc, char *argv[])
 {

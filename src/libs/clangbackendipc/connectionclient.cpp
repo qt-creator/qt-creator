@@ -99,8 +99,8 @@ bool ConnectionClient::isConnected() const
 
 void ConnectionClient::ensureCommandIsWritten()
 {
-    while (localSocket.bytesToWrite() > 0)
-        localSocket.waitForBytesWritten();
+    while (isConnected() && localSocket.bytesToWrite() > 0)
+        localSocket.waitForBytesWritten(50);
 }
 
 void ConnectionClient::sendEndCommand()

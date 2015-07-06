@@ -114,31 +114,28 @@ GdbServerProviderModel::GdbServerProviderModel(QObject *parent)
         addProvider(p);
 }
 
-GdbServerProvider *GdbServerProviderModel::provider(
-        const QModelIndex &index) const
+GdbServerProvider *GdbServerProviderModel::provider(const QModelIndex &index) const
 {
-    if (!index.isValid())
-        return 0;
+    if (GdbServerProviderNode *node = nodeForIndex(index))
+        return node->provider;
 
-    return static_cast<GdbServerProviderNode *>(itemForIndex(index))->provider;
+    return 0;
 }
 
-GdbServerProviderConfigWidget *GdbServerProviderModel::widget(
-        const QModelIndex &index) const
+GdbServerProviderNode *GdbServerProviderModel::nodeForIndex(const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
 
-    return static_cast<GdbServerProviderNode *>(itemForIndex(index))->widget;
+    return static_cast<GdbServerProviderNode *>(itemForIndex(index));
 }
 
 void GdbServerProviderModel::apply()
 {
     // Remove unused providers
-    foreach (GdbServerProviderNode *n, m_toRemoveNodes) {
-        GdbServerProviderManager::instance()->deregisterProvider(n->provider);
-    }
-    QTC_CHECK(m_toRemoveNodes.isEmpty());
+    foreach (GdbServerProvider *provider, m_providersToRemove)
+        GdbServerProviderManager::instance()->deregisterProvider(provider);
+    QTC_ASSERT(m_providersToRemove.isEmpty(), m_providersToRemove.clear());
 
     // Update providers
     foreach (TreeItem *item, rootItem()->children()) {
@@ -155,61 +152,50 @@ void GdbServerProviderModel::apply()
     }
 
     // Add new (and already updated) providers
-    QStringList removedProviders;
-    foreach (const GdbServerProviderNode *n, m_toAddNodes) {
-        if (!GdbServerProviderManager::instance()->registerProvider(n->provider))
-            removedProviders << n->provider->displayName();
+    QStringList skippedProviders;
+    foreach (GdbServerProvider *provider, m_providersToAdd) {
+        if (!GdbServerProviderManager::instance()->registerProvider(provider))
+            skippedProviders << provider->displayName();
     }
 
-    qDeleteAll(m_toAddNodes);
+    m_providersToAdd.clear();
 
-    if (removedProviders.count() == 1) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("Duplicate Providers Detected"),
-                             tr("The following provider was already configured:<br>"
-                                "&nbsp;%1<br>"
-                                "It was not configured again.")
-                             .arg(removedProviders.at(0)));
-
-    } else if (!removedProviders.isEmpty()) {
+    if (!skippedProviders.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("Duplicate Providers Detected"),
                              tr("The following providers were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
-                             .arg(removedProviders.join(QLatin1String(",<br>&nbsp;"))));
+                             .arg(skippedProviders.join(QLatin1String(",<br>&nbsp;"))));
     }
 }
 
-template <class Container>
-GdbServerProviderNode *findNode(const Container &container, const GdbServerProvider *provider)
+GdbServerProviderNode *GdbServerProviderModel::findNode(const GdbServerProvider *provider) const
 {
     auto test = [provider](TreeItem *item) {
         return static_cast<GdbServerProviderNode *>(item)->provider == provider;
     };
 
-    return static_cast<GdbServerProviderNode *>(Utils::findOrDefault(container, test));
+    return static_cast<GdbServerProviderNode *>(Utils::findOrDefault(rootItem()->children(), test));
 }
 
 QModelIndex GdbServerProviderModel::indexForProvider(GdbServerProvider *provider) const
 {
-    GdbServerProviderNode *n = findNode(rootItem()->children(), provider);
+    GdbServerProviderNode *n = findNode(provider);
     return n ? indexForItem(n) : QModelIndex();
 }
 
 void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
 {
-    GdbServerProviderNode *n = findNode(rootItem()->children(), provider);
+    GdbServerProviderNode *n = findNode(provider);
     QTC_ASSERT(n, return);
-    takeItem(n);
+    delete takeItem(n);
 
-    if (m_toAddNodes.contains(n)) {
-        delete n->provider;
-        n->provider = 0;
-        m_toAddNodes.removeOne(n);
-        delete n;
+    if (m_providersToAdd.contains(provider)) {
+        m_providersToAdd.removeOne(provider);
+        delete provider;
     } else {
-        m_toRemoveNodes.append(n);
+        m_providersToRemove.append(provider);
     }
 }
 
@@ -217,7 +203,7 @@ void GdbServerProviderModel::markForAddition(GdbServerProvider *provider)
 {
     GdbServerProviderNode *n = createNode(provider, true);
     rootItem()->appendChild(n);
-    m_toAddNodes.append(n);
+    m_providersToAdd.append(provider);
 }
 
 GdbServerProviderNode *GdbServerProviderModel::createNode(
@@ -240,29 +226,19 @@ GdbServerProviderNode *GdbServerProviderModel::createNode(
 
 void GdbServerProviderModel::addProvider(GdbServerProvider *provider)
 {
-    foreach (TreeItem *item, rootItem()->children()) {
-        auto n = static_cast<GdbServerProviderNode *>(item);
-        if (n->provider == provider) {
-            m_toAddNodes.removeOne(n);
-            // do not delete n: Still used elsewhere!
-            return;
-        }
-    }
-    rootItem()->appendChild(createNode(provider, false));
+    if (findNode(provider))
+        m_providersToAdd.removeOne(provider);
+    else
+        rootItem()->appendChild(createNode(provider, false));
+
     emit providerStateChanged();
 }
 
 void GdbServerProviderModel::removeProvider(GdbServerProvider *provider)
 {
-    GdbServerProviderNode *n = findNode(m_toRemoveNodes, provider);
-    if (n) {
-        m_toRemoveNodes.removeOne(n);
-        delete n;
-        return;
-    }
-
-    n = findNode(rootItem()->children(), provider);
-    delete takeItem(n);
+    m_providersToRemove.removeAll(provider);
+    if (GdbServerProviderNode *n = findNode(provider))
+        delete takeItem(n);
 
     emit providerStateChanged();
 }
@@ -372,7 +348,9 @@ void GdbServerProvidersSettingsWidget::providerSelectionChanged()
     QWidget *w = m_container->takeWidget(); // Prevent deletion.
     if (w)
         w->setVisible(false);
-    w = current.isValid() ? m_model.widget(current) : 0;
+
+    GdbServerProviderNode *node = m_model.nodeForIndex(current);
+    w = node ? node->widget : 0;
     m_container->setWidget(w);
     m_container->setVisible(w != 0);
     updateState();

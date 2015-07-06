@@ -45,6 +45,8 @@
 #include <Foundation/NSOperation.h>
 #include <Foundation/NSPredicate.h>
 
+#include <CoreServices/CoreServices.h>
+
 namespace Core {
 namespace Internal {
 
@@ -96,7 +98,7 @@ SpotlightIterator::SpotlightIterator(const QString &expression)
                     usingBlock:^(NSNotification *note) {
                         [m_query disableUpdates];
                         QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
-                        [m_queue addObjectsFromArray:[note.userInfo objectForKey:NSMetadataQueryUpdateAddedItemsKey]];
+                        [m_queue addObjectsFromArray:[note.userInfo objectForKey:(NSString *)kMDQueryUpdateAddedItems]];
                         [m_query enableUpdates];
                         m_waitForItems.wakeAll();
                     }] retain];

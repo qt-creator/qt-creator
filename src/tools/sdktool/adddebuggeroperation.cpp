@@ -128,7 +128,18 @@ bool AddDebuggerOperation::setArguments(const QStringList &args)
             m_abis = next.split(QLatin1Char(','));
             continue;
         }
+
+        if (next.isNull())
+            return false;
+        ++i; // skip next;
+
+        KeyValuePair pair(current, next);
+        if (!pair.value.isValid())
+            return false;
+        m_extra << pair;
     }
+
+
 
     if (m_id.isEmpty())
         std::cerr << "No id given for kit." << std::endl << std::endl;

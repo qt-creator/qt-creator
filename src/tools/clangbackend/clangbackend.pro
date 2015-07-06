@@ -14,6 +14,7 @@ INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += clangbackendmain.cpp
 
-osx {
-    QMAKE_LFLAGS += -Wl,-rpath,$${LLVM_LIBDIR}
+unix {
+    !osx: QMAKE_LFLAGS += -Wl,-z,origin
+    QMAKE_LFLAGS += -Wl,-rpath,$$shell_quote($${LLVM_LIBDIR})
 }

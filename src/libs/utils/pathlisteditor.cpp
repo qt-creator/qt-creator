@@ -34,7 +34,6 @@
 
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
-#include <QToolButton>
 #include <QFileDialog>
 #include <QTextBlock>
 #include <QMenu>
@@ -43,6 +42,7 @@
 #include <QMimeData>
 #include <QSharedPointer>
 #include <QDebug>
+#include <QPushButton>
 
 /*!
     \class Utils::PathListEditor
@@ -64,6 +64,8 @@
  */
 
 namespace Utils {
+
+const int PathListEditor::lastInsertButtonIndex = 0;
 
 // ------------ PathListPlainTextEdit:
 // Replaces the platform separator ';',':' by '\n'
@@ -105,26 +107,20 @@ struct PathListEditorPrivate {
 
     QHBoxLayout *layout;
     QVBoxLayout *buttonLayout;
-    QToolButton *toolButton;
-    QMenu *buttonMenu;
     QPlainTextEdit *edit;
-    QSignalMapper *envVarMapper;
     QString fileDialogTitle;
 };
 
 PathListEditorPrivate::PathListEditorPrivate()   :
         layout(new QHBoxLayout),
         buttonLayout(new QVBoxLayout),
-        toolButton(new QToolButton),
-        buttonMenu(new QMenu),
-        edit(new PathListPlainTextEdit),
-        envVarMapper(0)
+        edit(new PathListPlainTextEdit)
 {
     layout->setMargin(0);
     layout->addWidget(edit);
-    buttonLayout->addWidget(toolButton);
-    buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     layout->addLayout(buttonLayout);
+    buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored,
+                                          QSizePolicy::MinimumExpanding));
 }
 
 PathListEditor::PathListEditor(QWidget *parent) :
@@ -132,14 +128,17 @@ PathListEditor::PathListEditor(QWidget *parent) :
         d(new PathListEditorPrivate)
 {
     setLayout(d->layout);
-    d->toolButton->setPopupMode(QToolButton::MenuButtonPopup);
-    d->toolButton->setText(tr("Insert..."));
-    d->toolButton->setMenu(d->buttonMenu);
-    connect(d->toolButton, &QAbstractButton::clicked, this, &PathListEditor::slotInsert);
-
-    addAction(tr("Add..."), this, SLOT(slotAdd()));
-    addAction(tr("Delete Line"), this, SLOT(deletePathAtCursor()));
-    addAction(tr("Clear"), this, SLOT(clear()));
+    addButton(tr("Insert..."), this, [this](){
+        const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
+        if (!dir.isEmpty())
+            insertPathAtCursor(QDir::toNativeSeparators(dir));
+    });
+    addButton(tr("Delete Line"), this, [this](){
+        deletePathAtCursor();
+    });
+    addButton(tr("Clear"), this, [this](){
+        d->edit->clear();
+    });
 }
 
 PathListEditor::~PathListEditor()
@@ -147,40 +146,19 @@ PathListEditor::~PathListEditor()
     delete d;
 }
 
-static inline QAction *createAction(QObject *parent, const QString &text, QObject * receiver, const char *slotFunc)
+QPushButton *PathListEditor::addButton(const QString &text, QObject *parent,
+                                       std::function<void()> slotFunc)
 {
-    QAction *rc = new QAction(text, parent);
-    QObject::connect(rc, SIGNAL(triggered()), receiver, slotFunc);
-    return rc;
+    return insertButton(d->buttonLayout->count() - 1, text, parent, slotFunc);
 }
 
-QAction *PathListEditor::addAction(const QString &text, QObject * receiver, const char *slotFunc)
+QPushButton *PathListEditor::insertButton(int index /* -1 */, const QString &text, QObject *parent,
+                                          std::function<void()> slotFunc)
 {
-    QAction *rc = createAction(this, text, receiver, slotFunc);
-    d->buttonMenu->addAction(rc);
+    QPushButton *rc = new QPushButton(text, this);
+    QObject::connect(rc, &QPushButton::pressed, parent, slotFunc);
+    d->buttonLayout->insertWidget(index, rc);
     return rc;
-}
-
-QAction *PathListEditor::insertAction(int index /* -1 */, const QString &text, QObject * receiver, const char *slotFunc)
-{
-    // Find the 'before' action
-    QAction *beforeAction = 0;
-    if (index >= 0) {
-        const QList<QAction*> actions = d->buttonMenu->actions();
-        if (index < actions.size())
-            beforeAction = actions.at(index);
-    }
-    QAction *rc = createAction(this, text, receiver, slotFunc);
-    if (beforeAction)
-        d->buttonMenu->insertAction(beforeAction, rc);
-    else
-        d->buttonMenu->addAction(rc);
-    return rc;
-}
-
-int PathListEditor::lastAddActionIndex()
-{
-    return 0; // Insert/Add
 }
 
 QString PathListEditor::pathListString() const
@@ -216,11 +194,6 @@ void PathListEditor::setPathList(const QString &pathString)
     }
 }
 
-void PathListEditor::setPathListFromEnvVariable(const QString &var)
-{
-    setPathList(QString::fromLocal8Bit(qgetenv(var.toLocal8Bit())));
-}
-
 QString PathListEditor::fileDialogTitle() const
 {
     return d->fileDialogTitle;
@@ -234,35 +207,6 @@ void PathListEditor::setFileDialogTitle(const QString &l)
 void PathListEditor::clear()
 {
     d->edit->clear();
-}
-
-void PathListEditor::slotAdd()
-{
-    const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
-    if (!dir.isEmpty())
-        appendPath(QDir::toNativeSeparators(dir));
-}
-
-void PathListEditor::slotInsert()
-{
-    const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
-    if (!dir.isEmpty())
-        insertPathAtCursor(QDir::toNativeSeparators(dir));
-}
-
-// Add a button "Import from 'Path'"
-void PathListEditor::addEnvVariableImportAction(const QString &var)
-{
-    if (!d->envVarMapper) {
-        d->envVarMapper = new QSignalMapper(this);
-        connect(d->envVarMapper,
-                static_cast<void (QSignalMapper::*)(const QString &)>(&QSignalMapper::mapped),
-                this, &PathListEditor::setPathListFromEnvVariable);
-    }
-
-    QAction *a = insertAction(lastAddActionIndex() + 1,
-                              tr("From \"%1\"").arg(var), d->envVarMapper, SLOT(map()));
-    d->envVarMapper->setMapping(a, var);
 }
 
 QString PathListEditor::text() const
@@ -292,15 +236,6 @@ void PathListEditor::insertPathAtCursor(const QString &path)
         cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
         d->edit->setTextCursor(cursor);
     }
-}
-
-void PathListEditor::appendPath(const QString &path)
-{
-    QString paths = text().trimmed();
-    if (!paths.isEmpty())
-        paths += QLatin1Char('\n');
-    paths += path;
-    setText(paths);
 }
 
 void PathListEditor::deletePathAtCursor()

@@ -195,7 +195,7 @@ void WorkingDirectoryAspect::resetPath()
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
-    m_workingDirectory = map.value(m_key).toBool();
+    m_workingDirectory = map.value(m_key).toString();
 }
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
