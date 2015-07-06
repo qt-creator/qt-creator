@@ -40,9 +40,8 @@
 #endif
 
 #define CPLUSPLUS_NO_DEBUG_RULE
-#define MAX_EXPRESSION_DEPTH 100
+#define MAX_EXPRESSION_DEPTH 1000
 #define MAX_STATEMENT_DEPTH 100
-#define MAX_INITIALIZER_CLAUSE_DEPTH 2000
 
 using namespace CPlusPlus;
 
@@ -2801,7 +2800,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         for (++_initializerClauseDepth.top();
                 LA() == T_COMMA
                     && LA(2) != T_RBRACE
-                    && _initializerClauseDepth.top() <= MAX_INITIALIZER_CLAUSE_DEPTH;
+                    && _initializerClauseDepth.top() <= MAX_EXPRESSION_DEPTH;
              ++_initializerClauseDepth.top()) {
             consumeToken(); // consume T_COMMA
 
@@ -2817,7 +2816,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         }
     }
 
-    const bool result = _initializerClauseDepth.top() <= MAX_INITIALIZER_CLAUSE_DEPTH;
+    const bool result = _initializerClauseDepth.top() <= MAX_EXPRESSION_DEPTH;
     _initializerClauseDepth.pop();
     if (!result)
         warning(cursor(), "Reached parse limit for initializer clause");
