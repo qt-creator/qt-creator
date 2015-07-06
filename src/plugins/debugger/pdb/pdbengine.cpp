@@ -572,17 +572,10 @@ void PdbEngine::refreshLocals(const GdbMi &vars)
     WatchHandler *handler = watchHandler();
     handler->resetValueCache();
 
-    QSet<QByteArray> toDelete;
-    foreach (WatchItem *item, handler->model()->itemsAtLevel<WatchItem *>(2))
-        toDelete.insert(item->iname);
+    foreach (const GdbMi &child, vars.children())
+        handler->insertItem(new WatchItem(child));
 
-    foreach (const GdbMi &child, vars.children()) {
-        WatchItem *item = new WatchItem(child);
-        handler->insertItem(item);
-        toDelete.remove(item->iname);
-    }
-
-    handler->purgeOutdatedItems(toDelete);
+    handler->notifyUpdateFinished();
 
     DebuggerToolTipManager::updateEngine(this);
 }

@@ -447,8 +447,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
     foreach (const GdbMi &item, all.children()) {
         const QByteArray name = item.name();
         if (name == "all") {
-            watchHandler()->notifyUpdateFinished();
             updateLocalsView(item);
+            watchHandler()->notifyUpdateFinished();
         } else if (name == "dumpers") {
             watchHandler()->addDumpers(item);
             setupInferiorStage2();
@@ -864,7 +864,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
         return;
     }
 
-    watchHandler()->notifyUpdateStarted();
+    watchHandler()->notifyUpdateStarted(params.partialVariables());
 
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());

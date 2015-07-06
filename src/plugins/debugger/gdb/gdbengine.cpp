@@ -4660,7 +4660,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     m_pendingBreakpointRequests = 0;
 
-    watchHandler()->notifyUpdateStarted();
+    watchHandler()->notifyUpdateStarted(params.partialVariables());
 
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);
@@ -4716,7 +4716,6 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
 void GdbEngine::handleStackFrame(const DebuggerResponse &response)
 {
-    watchHandler()->notifyUpdateFinished();
     if (response.resultClass == ResultDone) {
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
@@ -4735,6 +4734,7 @@ void GdbEngine::handleStackFrame(const DebuggerResponse &response)
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }
+    watchHandler()->notifyUpdateFinished();
 }
 
 QString GdbEngine::msgPtraceError(DebuggerStartMode sm)

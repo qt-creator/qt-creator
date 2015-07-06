@@ -1221,8 +1221,20 @@ void WatchHandler::resetWatchers()
     loadSessionData();
 }
 
-void WatchHandler::notifyUpdateStarted()
+void WatchHandler::notifyUpdateStarted(const QList<QByteArray> &inames)
 {
+    auto marker = [](TreeItem *it) { static_cast<WatchItem *>(it)->outdated = true; };
+
+    if (inames.isEmpty()) {
+        foreach (auto item, m_model->itemsAtLevel<WatchItem *>(2))
+            item->walkTree(marker);
+    } else {
+        foreach (auto iname, inames) {
+            if (WatchItem *item = m_model->findItem(iname))
+                item->walkTree(marker);
+        }
+    }
+
     m_model->m_requestUpdateTimer.start(80);
     m_model->m_contentsValid = false;
     updateWatchersWindow();
@@ -1230,23 +1242,30 @@ void WatchHandler::notifyUpdateStarted()
 
 void WatchHandler::notifyUpdateFinished()
 {
+    struct OutDatedItemsFinder : public TreeItemVisitor
+    {
+        bool preVisit(TreeItem *item)
+        {
+            auto watchItem = static_cast<WatchItem *>(item);
+            if (level() <= 1 || !watchItem->outdated)
+                return true;
+            toRemove.append(watchItem);
+            return false;
+        }
+
+        QList<WatchItem *> toRemove;
+    } finder;
+
+    m_model->root()->walkTree(&finder);
+
+    foreach (auto item, finder.toRemove)
+        delete m_model->takeItem(item);
+
     m_model->m_contentsValid = true;
     updateWatchersWindow();
+    m_model->reexpandItems();
     m_model->m_requestUpdateTimer.stop();
     emit m_model->updateFinished();
-}
-
-void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
-{
-    foreach (const QByteArray &iname, inames) {
-        WatchItem *item = findItem(iname);
-        delete m_model->takeItem(item);
-    }
-
-    m_model->layoutChanged();
-    m_model->reexpandItems();
-    m_model->m_contentsValid = true;
-    updateWatchersWindow();
 }
 
 void WatchHandler::removeItemByIName(const QByteArray &iname)

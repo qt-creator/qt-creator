@@ -1944,12 +1944,6 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
         }
     }
 
-    QSet<QByteArray> toDelete;
-    if (!partial) {
-        foreach (WatchItem *item, handler->model()->itemsAtLevel<WatchItem *>(2))
-            toDelete.insert(item->iname);
-    }
-
     GdbMi data = all["data"];
     foreach (const GdbMi &child, data.children()) {
         WatchItem *item = new WatchItem(child);
@@ -1958,7 +1952,6 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
             item->size = ti.size;
 
         handler->insertItem(item);
-        toDelete.remove(item->iname);
     }
 
     GdbMi ns = all["qtnamespace"];
@@ -1966,8 +1959,6 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
         setQtNamespace(ns.data());
         showMessage(_("FOUND NAMESPACED QT: " + ns.data()));
     }
-
-    handler->purgeOutdatedItems(toDelete);
 
     static int count = 0;
     showMessage(_("<Rebuild Watchmodel %1 @ %2 >")

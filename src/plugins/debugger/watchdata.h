@@ -119,6 +119,7 @@ public:
     bool            wantsChildren;
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
+    bool            outdated;      // \internal item is to be removed.
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 };
