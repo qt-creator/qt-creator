@@ -30,7 +30,7 @@
 
 #include "clangbackendipcintegration.h"
 
-#include "clangcompletion.h"
+#include "clangcompletionassistprocessor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 #include "pchmanager.h"

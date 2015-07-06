@@ -31,9 +31,9 @@
 #include "clangcodecompletion_test.h"
 
 #include "../clangbackendipcintegration.h"
+#include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
 
-#include <clangcodemodel/clangcompletion.h>
 #include <clangcodemodel/constants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -45,6 +45,7 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>

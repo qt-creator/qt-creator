@@ -53,8 +53,20 @@ QtcPlugin {
         name: "Completion support"
         condition: product.clangCompletion
         files: [
-            "clangcompletion.cpp",
-            "clangcompletion.h",
+            "clangassistproposal.cpp",
+            "clangassistproposal.h",
+            "clangassistproposalitem.cpp",
+            "clangassistproposalitem.h",
+            "clangassistproposalmodel.cpp",
+            "clangassistproposalmodel.h",
+            "clangcompletionassistinterface.cpp",
+            "clangcompletionassistinterface.h",
+            "clangcompletionassistprocessor.cpp",
+            "clangcompletionassistprocessor.h",
+            "clangcompletionassistprovider.cpp",
+            "clangcompletionassistprovider.h",
+            "clangfunctionhintmodel.cpp",
+            "clangfunctionhintmodel.h",
         ]
     }
 

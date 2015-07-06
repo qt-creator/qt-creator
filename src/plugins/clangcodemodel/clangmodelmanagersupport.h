@@ -31,7 +31,7 @@
 #ifndef CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 #define CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 
-#include "clangcompletion.h"
+#include "clangcompletionassistprovider.h"
 
 #include <cpptools/cppmodelmanagersupport.h>
 
