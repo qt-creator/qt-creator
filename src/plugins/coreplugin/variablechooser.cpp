@@ -229,8 +229,8 @@ void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
 void VariableTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    Q_UNUSED(previous);
     m_target->updateDescription(current);
+    QTreeView::currentChanged(current, previous);
 }
 
 VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
