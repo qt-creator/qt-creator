@@ -43,7 +43,7 @@ namespace Internal {
 QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid)
 {
     QString exeFromSettings = ClangStaticAnalyzerSettings::instance()->clangExecutable();
-    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
+    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
         exeFromSettings.replace(QLatin1String("clang.exe"), QLatin1String("clang-cl.exe"));
     return clangExecutable(exeFromSettings, isValid);
 }

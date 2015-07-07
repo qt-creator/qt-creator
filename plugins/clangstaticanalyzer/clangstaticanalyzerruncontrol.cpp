@@ -144,14 +144,14 @@ public:
         // will break if code actually requires stuff from there, but that should be the less common
         // case.
         const Core::Id type = projectPart->toolchainType;
-        if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID
-                || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_ID)
+        if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+                || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)
             optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
 
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.addHeaderPathOptions();
 
-        if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
+        if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
         else
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
@@ -164,7 +164,7 @@ public:
 private:
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
         : CompilerOptionsBuilder(projectPart)
-        , m_isMsvcToolchain(m_projectPart->toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
+        , m_isMsvcToolchain(m_projectPart->toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
     }
 

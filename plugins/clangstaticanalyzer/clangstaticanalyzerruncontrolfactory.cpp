@@ -63,10 +63,10 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
     Kit *kit = target->kit();
     QTC_ASSERT(kit, return false);
     ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
-    return toolChain && (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_ID
-            || toolChain->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_ID
-            || toolChain->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID
-            || toolChain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID);
+    return toolChain && (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
+            || toolChain->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+            || toolChain->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+            || toolChain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID);
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
