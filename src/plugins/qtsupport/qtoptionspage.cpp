@@ -936,13 +936,13 @@ void QtOptionsPageWidget::updateCurrentQtName()
 
 void QtOptionsPageWidget::apply()
 {
-    disconnect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));
+    disconnect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &QtOptionsPageWidget::updateQtVersions);
 
     QtVersionManager::setNewQtVersions(versions());
 
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &QtOptionsPageWidget::updateQtVersions);
 }
 
 QList<BaseQtVersion *> QtOptionsPageWidget::versions() const
