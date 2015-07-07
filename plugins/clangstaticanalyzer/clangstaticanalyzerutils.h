@@ -19,6 +19,8 @@
 #ifndef CLANGSTATICANALYZERUTILS_H
 #define CLANGSTATICANALYZERUTILS_H
 
+#include <coreplugin/id.h>
+
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
@@ -33,7 +35,7 @@ class Location;
 bool isClangExecutableUsable(const QString &filePath, QString *errorMessage = 0);
 
 QString clangExecutable(const QString &fileNameOrPath, bool *isValid);
-QString clangExecutableFromSettings(const QString &toolchainType, bool *isValid);
+QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid);
 
 QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &location);
 

@@ -21,6 +21,8 @@
 #include "clangstaticanalyzerdiagnostic.h"
 #include "clangstaticanalyzersettings.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/environment.h>
 
 #include <QCoreApplication>
@@ -38,10 +40,10 @@ static bool isFileExecutable(const QString &executablePath)
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-QString clangExecutableFromSettings(const QString &toolchainType, bool *isValid)
+QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid)
 {
     QString exeFromSettings = ClangStaticAnalyzerSettings::instance()->clangExecutable();
-    if (toolchainType == QLatin1String("msvc"))
+    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
         exeFromSettings.replace(QLatin1String("clang.exe"), QLatin1String("clang-cl.exe"));
     return clangExecutable(exeFromSettings, isValid);
 }

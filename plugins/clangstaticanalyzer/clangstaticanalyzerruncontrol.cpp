@@ -143,14 +143,15 @@ public:
         // Therefore, prevent the inclusion of the header that references them. Of course, this
         // will break if code actually requires stuff from there, but that should be the less common
         // case.
-        const QString type = projectPart->toolchainType;
-        if (type == QLatin1String("mingw") || type == QLatin1String("gcc"))
+        const Core::Id type = projectPart->toolchainType;
+        if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID
+                || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_ID)
             optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
 
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.addHeaderPathOptions();
 
-        if (projectPart->toolchainType == QLatin1String("msvc"))
+        if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
             optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
         else
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
@@ -163,7 +164,7 @@ public:
 private:
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
         : CompilerOptionsBuilder(projectPart)
-        , m_isMsvcToolchain(m_projectPart->toolchainType == QLatin1String("msvc"))
+        , m_isMsvcToolchain(m_projectPart->toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
     {
     }
 
@@ -281,10 +282,10 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
-static QString toolchainType(ProjectExplorer::RunConfiguration *runConfiguration)
+static Core::Id toolchainType(ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    QTC_ASSERT(runConfiguration, return QString());
-    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit())->type();
+    QTC_ASSERT(runConfiguration, return Core::Id());
+    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit())->typeId();
 }
 
 bool ClangStaticAnalyzerRunControl::startEngine()
