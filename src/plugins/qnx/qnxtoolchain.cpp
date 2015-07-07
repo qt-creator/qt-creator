@@ -64,9 +64,8 @@ static void setQnxEnvironment(Utils::Environment &env, const QList<Utils::Enviro
 }
 
 QnxToolChain::QnxToolChain(ToolChain::Detection d)
-    : GccToolChain(QLatin1String(Constants::QNX_TOOLCHAIN_ID), d)
-{
-}
+    : GccToolChain(Constants::QNX_TOOLCHAIN_ID, d)
+{ }
 
 QString QnxToolChain::type() const
 {
@@ -164,8 +163,8 @@ QnxToolChainFactory::QnxToolChainFactory()
 
 bool QnxToolChainFactory::canRestore(const QVariantMap &data)
 {
-    const QString id = idFromMap(data);
-    return id.startsWith(QLatin1String(Constants::QNX_TOOLCHAIN_ID) + QLatin1Char(':'));
+    const QByteArray id = idFromMap(data);
+    return id.startsWith(QByteArray(Constants::QNX_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *QnxToolChainFactory::restore(const QVariantMap &data)

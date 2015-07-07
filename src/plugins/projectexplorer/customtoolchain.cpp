@@ -78,11 +78,11 @@ static const char messageCapKeyC[] = "ProjectExplorer.CustomToolChain.MessageCap
 // --------------------------------------------------------------------------
 
 CustomToolChain::CustomToolChain(Detection d) :
-    ToolChain(QLatin1String(Constants::CUSTOM_TOOLCHAIN_ID), d),
+    ToolChain(Constants::CUSTOM_TOOLCHAIN_ID, d),
     m_outputParser(Gcc)
 { }
 
-CustomToolChain::CustomToolChain(const QString &id, Detection d) :
+CustomToolChain::CustomToolChain(const QByteArray &id, Detection d) :
     ToolChain(id, d)
 { }
 
@@ -407,8 +407,8 @@ ToolChain *CustomToolChainFactory::create()
 // Used by the ToolChainManager to restore user-generated tool chains
 bool CustomToolChainFactory::canRestore(const QVariantMap &data)
 {
-    const QString id = idFromMap(data);
-    return id.startsWith(QLatin1String(Constants::CUSTOM_TOOLCHAIN_ID) + QLatin1Char(':'));
+    const QByteArray id = idFromMap(data);
+    return id.startsWith(QByteArray(Constants::CUSTOM_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)

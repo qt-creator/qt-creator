@@ -2160,7 +2160,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
                 foreach (ToolChain *tc, ToolChainManager::toolChains()) {
                     if ((tc->compilerCommand() == FileName::fromString(compilerPath))
                             && (tc->targetAbi() == compilerAbi)) {
-                        tcId = tc->id();
+                        tcId = QString::fromUtf8(tc->id());
                         break;
                     }
                 }

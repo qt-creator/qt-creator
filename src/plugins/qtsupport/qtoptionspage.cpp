@@ -310,7 +310,7 @@ void QtOptionsPageWidget::selectedToolChainChanged(int comboIndex)
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return);
 
-    QString toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(comboIndex).toString();
+    QByteArray toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(comboIndex).toByteArray();
 
     item->setData(0, ToolChainIdRole, toolChainId);
 }
@@ -403,7 +403,7 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
     if (!version)
         return toolChains;
 
-    QSet<QString> ids;
+    QSet<QByteArray> ids;
     foreach (const Abi &a, version->qtAbis()) {
         foreach (ToolChain *tc, ToolChainManager::findToolChains(a)) {
             if (ids.contains(tc->id()))
@@ -416,12 +416,12 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
     return toolChains;
 }
 
-QString QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
+QByteArray QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
 {
     QList<ToolChain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())
         return possibleToolChains.first()->id();
-    return QString();
+    return QByteArray();
 }
 
 bool QtOptionsPageWidget::isNameUnique(const BaseQtVersion *version)
@@ -469,8 +469,8 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     updateDebuggingHelperUi();
 
     // Run a debugging helper build task in the background.
-    QString toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(
-                m_debuggingHelperUi->toolChainComboBox->currentIndex()).toString();
+    QByteArray toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(
+                m_debuggingHelperUi->toolChainComboBox->currentIndex()).toByteArray();
     ToolChain *toolChain = ToolChainManager::findToolChain(toolChainId);
     if (!toolChain)
         return;
@@ -780,7 +780,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(canBuildQmlDumper & !isBuildingQmlDumper);
 
         QList<ToolChain*> toolchains = toolChains(currentVersion());
-        QString selectedToolChainId = currentItem->data(0, ToolChainIdRole).toString();
+        QByteArray selectedToolChainId = currentItem->data(0, ToolChainIdRole).toByteArray();
         m_debuggingHelperUi->toolChainComboBox->clear();
         for (int i = 0; i < toolchains.size(); ++i) {
             if (!toolchains.at(i)->isValid())

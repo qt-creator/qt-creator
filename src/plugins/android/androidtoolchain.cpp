@@ -68,7 +68,7 @@ QHash<Abi, QList<int> > AndroidToolChainFactory::m_newestVersionForAbi;
 FileName AndroidToolChainFactory::m_ndkLocation;
 
 AndroidToolChain::AndroidToolChain(const Abi &abi, const QString &ndkToolChainVersion, Detection d)
-    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), d),
+    : GccToolChain(Constants::ANDROID_TOOLCHAIN_ID, d),
       m_ndkToolChainVersion(ndkToolChainVersion), m_secondaryToolChain(false)
 {
     setTargetAbi(abi);
@@ -79,7 +79,7 @@ AndroidToolChain::AndroidToolChain(const Abi &abi, const QString &ndkToolChainVe
 
 // for fromMap
 AndroidToolChain::AndroidToolChain()
-    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), ToolChain::ManualDetection),
+    : GccToolChain(Constants::ANDROID_TOOLCHAIN_ID, ToolChain::ManualDetection),
       m_secondaryToolChain(false)
 {
 }
@@ -271,7 +271,7 @@ QList<ToolChain *> AndroidToolChainFactory::autoDetect()
 
 bool AndroidToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return idFromMap(data).startsWith(QByteArray(Constants::ANDROID_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)

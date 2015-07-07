@@ -123,7 +123,7 @@ public:
     static QString parserName(OutputParser parser);
 
 protected:
-    explicit CustomToolChain(const QString &id, Detection d);
+    explicit CustomToolChain(const QByteArray &id, Detection d);
     CustomToolChain(const CustomToolChain &);
 
 private:

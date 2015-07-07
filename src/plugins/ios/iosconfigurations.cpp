@@ -157,9 +157,8 @@ void IosConfigurations::updateAutomaticKitList()
             if (p.compilerPath.toFileInfo().baseName().startsWith(QLatin1String("clang")))
                 toolchain = new ClangToolChain(ToolChain::AutoDetection);
             else
-                toolchain = new GccToolChain(
-                            QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID),
-                            ToolChain::AutoDetection);
+                toolchain = new GccToolChain(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID,
+                                             ToolChain::AutoDetection);
             QString baseDisplayName = p.name;
             QString displayName = baseDisplayName;
             for (int iVers = 1; iVers < 100; ++iVers) {

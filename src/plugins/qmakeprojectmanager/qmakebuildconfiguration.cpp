@@ -737,7 +737,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
       m_mkspec(QmakeKitInformation::mkspec(k).toString())
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    m_toolchain = tc ? tc->id() : QString();
+    m_toolchain = tc ? tc->id() : QByteArray();
 }
 
 bool QmakeBuildConfiguration::LastKitState::operator ==(const LastKitState &other) const

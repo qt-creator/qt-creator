@@ -77,7 +77,7 @@ public:
     inline bool isAutoDetected() const { return detection() != ManualDetection; }
     Detection detection() const;
 
-    QString id() const;
+    QByteArray id() const;
 
     virtual QList<Utils::FileName> suggestedMkspecList() const;
     virtual Utils::FileName suggestedDebugger() const;
@@ -157,7 +157,7 @@ public:
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
 protected:
-    explicit ToolChain(const QString &id, Detection d);
+    explicit ToolChain(const QByteArray &id, Detection d);
     explicit ToolChain(const ToolChain &);
 
     void toolChainUpdated();
@@ -190,7 +190,7 @@ public:
     virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);
 
-    static QString idFromMap(const QVariantMap &data);
+    static QByteArray idFromMap(const QVariantMap &data);
     static void idToMap(QVariantMap &data, const QString id);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 

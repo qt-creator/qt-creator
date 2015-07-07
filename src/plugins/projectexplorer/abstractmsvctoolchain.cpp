@@ -47,7 +47,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 
-AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id,
+AbstractMsvcToolChain::AbstractMsvcToolChain(const QByteArray &id,
                                              Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) :
@@ -62,12 +62,10 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id,
     Q_ASSERT(!m_vcvarsBat.isEmpty());
 }
 
-AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id, Detection d) :
+AbstractMsvcToolChain::AbstractMsvcToolChain(const QByteArray &id, Detection d) :
     ToolChain(id, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
-{
-
-}
+{ }
 
 Abi AbstractMsvcToolChain::targetAbi() const
 {

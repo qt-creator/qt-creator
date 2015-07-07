@@ -343,7 +343,7 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(Utils::Environment& env
 
 MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
                              const QString &varsBat, const QString &varsBatArg, Detection d) :
-    AbstractMsvcToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), d, abi, varsBat),
+    AbstractMsvcToolChain(Constants::MSVC_TOOLCHAIN_ID, d, abi, varsBat),
     m_varsBatArg(varsBatArg)
 {
     Q_ASSERT(!name.isEmpty());
@@ -360,7 +360,7 @@ bool MsvcToolChain::isValid() const
 }
 
 MsvcToolChain::MsvcToolChain() :
-    AbstractMsvcToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), ManualDetection)
+    AbstractMsvcToolChain(Constants::MSVC_TOOLCHAIN_ID, ManualDetection)
 {
 }
 
@@ -632,7 +632,7 @@ bool MsvcToolChain::operator ==(const ToolChain &other) const
 
 bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::MSVC_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return idFromMap(data).startsWith(QByteArray(Constants::MSVC_TOOLCHAIN_ID) + ':');
 }
 
 } // namespace Internal

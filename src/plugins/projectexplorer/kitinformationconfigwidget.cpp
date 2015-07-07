@@ -203,15 +203,15 @@ void ToolChainInformationConfigWidget::currentToolChainChanged(int idx)
     if (m_ignoreChanges)
         return;
 
-    const QString id = m_comboBox->itemData(idx).toString();
+    const QByteArray id = m_comboBox->itemData(idx).toByteArray();
     ToolChainKitInformation::setToolChain(m_kit, ToolChainManager::findToolChain(id));
 }
 
 int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
 {
-    const QString id = tc ? tc->id() : QString();
+    const QByteArray id = tc ? tc->id() : QByteArray();
     for (int i = 0; i < m_comboBox->count(); ++i) {
-        if (id == m_comboBox->itemData(i).toString())
+        if (id == m_comboBox->itemData(i).toByteArray())
             return i;
     }
     return -1;

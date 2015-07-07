@@ -169,7 +169,7 @@ void ToolChainKitInformation::fix(Kit *k)
 void ToolChainKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    const QString id = k->value(ToolChainKitInformation::id()).toString();
+    const QByteArray id = k->value(ToolChainKitInformation::id()).toByteArray();
     if (id.isEmpty())
         return;
 
@@ -179,7 +179,7 @@ void ToolChainKitInformation::setup(Kit *k)
 
     // ID is not found: Might be an ABI string...
     foreach (ToolChain *current, ToolChainManager::toolChains()) {
-        if (current->targetAbi().toString() == id)
+        if (current->targetAbi().toString() == QString::fromUtf8(id))
             return setToolChain(k, current);
     }
 }
@@ -237,12 +237,12 @@ ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
     QTC_ASSERT(ToolChainManager::isLoaded(), return 0);
     if (!k)
         return 0;
-    return ToolChainManager::findToolChain(k->value(ToolChainKitInformation::id()).toString());
+    return ToolChainManager::findToolChain(k->value(ToolChainKitInformation::id()).toByteArray());
 }
 
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
 {
-    k->setValue(ToolChainKitInformation::id(), tc ? tc->id() : QString());
+    k->setValue(ToolChainKitInformation::id(), tc ? QString::fromUtf8(tc->id()) : QString());
 }
 
 QString ToolChainKitInformation::msgNoToolChainInTarget()

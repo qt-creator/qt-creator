@@ -162,7 +162,7 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
         }
         if (!restored)
             qWarning("Warning: Unable to restore compiler '%s' stored in %s.",
-                     qPrintable(ToolChainFactory::idFromMap(tcMap)),
+                     qPrintable(QString::fromUtf8(ToolChainFactory::idFromMap(tcMap))),
                      qPrintable(fileName.toUserOutput()));
     }
 
@@ -243,7 +243,7 @@ void ToolChainManager::restoreToolChains()
     foreach (ToolChain *tc, tcsToCheck) {
         if (!tc->isValid()) {
             qWarning() << QString::fromLatin1("ToolChain \"%1\" (%2) dropped since it is not valid")
-                          .arg(tc->displayName()).arg(tc->id());
+                          .arg(tc->displayName()).arg(QString::fromUtf8(tc->id()));
             delete tc;
         } else {
             tcsToRegister += tc;
@@ -294,7 +294,7 @@ QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi)
     return result;
 }
 
-ToolChain *ToolChainManager::findToolChain(const QString &id)
+ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
 {
     if (id.isEmpty())
         return 0;

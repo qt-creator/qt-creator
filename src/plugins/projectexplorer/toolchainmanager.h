@@ -59,7 +59,7 @@ public:
 
     static QList<ToolChain *> toolChains();
     static QList<ToolChain *> findToolChains(const Abi &abi);
-    static ToolChain *findToolChain(const QString &id);
+    static ToolChain *findToolChain(const QByteArray &id);
 
     static Utils::FileName defaultDebugger(const Abi &abi);
 

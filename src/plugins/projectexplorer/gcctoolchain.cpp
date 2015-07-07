@@ -245,10 +245,10 @@ static QString gccVersion(const FileName &path, const QStringList &env)
 // --------------------------------------------------------------------------
 
 GccToolChain::GccToolChain(Detection d) :
-    ToolChain(QLatin1String(Constants::GCC_TOOLCHAIN_ID), d)
+    ToolChain(Constants::GCC_TOOLCHAIN_ID, d)
 { }
 
-GccToolChain::GccToolChain(const QString &id, Detection d) :
+GccToolChain::GccToolChain(const QByteArray &id, Detection d) :
     ToolChain(id, d)
 { }
 
@@ -805,8 +805,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetect()
 // Used by the ToolChainManager to restore user-generated tool chains
 bool GccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    const QString id = idFromMap(data);
-    return id.startsWith(QLatin1String(Constants::GCC_TOOLCHAIN_ID) + QLatin1Char(':'));
+    const QByteArray id = idFromMap(data);
+    return id.startsWith(QByteArray(Constants::GCC_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
@@ -1024,7 +1024,7 @@ void GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
 // --------------------------------------------------------------------------
 
 ClangToolChain::ClangToolChain(Detection d) :
-    GccToolChain(QLatin1String(Constants::CLANG_TOOLCHAIN_ID), d)
+    GccToolChain(Constants::CLANG_TOOLCHAIN_ID, d)
 { }
 
 QString ClangToolChain::type() const
@@ -1149,7 +1149,7 @@ ToolChain *ClangToolChainFactory::create()
 
 bool ClangToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::CLANG_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return idFromMap(data).startsWith(QByteArray(Constants::CLANG_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *ClangToolChainFactory::restore(const QVariantMap &data)
@@ -1172,7 +1172,7 @@ GccToolChain *ClangToolChainFactory::createToolChain(bool autoDetect)
 // --------------------------------------------------------------------------
 
 MingwToolChain::MingwToolChain(Detection d) :
-    GccToolChain(QLatin1String(Constants::MINGW_TOOLCHAIN_ID), d)
+    GccToolChain(Constants::MINGW_TOOLCHAIN_ID, d)
 { }
 
 QString MingwToolChain::type() const
@@ -1255,7 +1255,7 @@ ToolChain *MingwToolChainFactory::create()
 
 bool MingwToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::MINGW_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return idFromMap(data).startsWith(QByteArray(Constants::MINGW_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *MingwToolChainFactory::restore(const QVariantMap &data)
@@ -1278,7 +1278,7 @@ GccToolChain *MingwToolChainFactory::createToolChain(bool autoDetect)
 // --------------------------------------------------------------------------
 
 LinuxIccToolChain::LinuxIccToolChain(Detection d) :
-    GccToolChain(QLatin1String(Constants::LINUXICC_TOOLCHAIN_ID), d)
+    GccToolChain(Constants::LINUXICC_TOOLCHAIN_ID, d)
 { }
 
 QString LinuxIccToolChain::type() const
@@ -1351,7 +1351,7 @@ ToolChain *LinuxIccToolChainFactory::create()
 
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::LINUXICC_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return idFromMap(data).startsWith(QByteArray(Constants::LINUXICC_TOOLCHAIN_ID) + ':');
 }
 
 ToolChain *LinuxIccToolChainFactory::restore(const QVariantMap &data)

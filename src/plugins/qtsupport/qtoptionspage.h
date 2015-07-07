@@ -124,7 +124,7 @@ private:
     };
     ValidityInfo validInformation(const BaseQtVersion *version);
     QList<ProjectExplorer::ToolChain*> toolChains(const BaseQtVersion *version);
-    QString defaultToolChainId(const BaseQtVersion *verison);
+    QByteArray defaultToolChainId(const BaseQtVersion *version);
 
     bool isNameUnique(const BaseQtVersion *version);
     void updateVersionItem(BaseQtVersion *version);
