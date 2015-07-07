@@ -271,7 +271,7 @@ QList<ToolChain *> AndroidToolChainFactory::autoDetect()
 
 bool AndroidToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QByteArray(Constants::ANDROID_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::ANDROID_TOOLCHAIN_ID;
 }
 
 ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)

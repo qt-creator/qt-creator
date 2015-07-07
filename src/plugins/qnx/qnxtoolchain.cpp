@@ -163,8 +163,7 @@ QnxToolChainFactory::QnxToolChainFactory()
 
 bool QnxToolChainFactory::canRestore(const QVariantMap &data)
 {
-    const QByteArray id = idFromMap(data);
-    return id.startsWith(QByteArray(Constants::QNX_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::QNX_TOOLCHAIN_ID;
 }
 
 ToolChain *QnxToolChainFactory::restore(const QVariantMap &data)

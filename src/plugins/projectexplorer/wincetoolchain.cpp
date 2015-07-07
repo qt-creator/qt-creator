@@ -432,7 +432,7 @@ QString WinCEToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /*
 
 bool WinCEToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QByteArray(Constants::WINCE_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::WINCE_TOOLCHAIN_ID;
 }
 
 bool WinCEToolChain::operator ==(const ToolChain &other) const

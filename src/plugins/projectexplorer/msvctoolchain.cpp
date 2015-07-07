@@ -632,7 +632,7 @@ bool MsvcToolChain::operator ==(const ToolChain &other) const
 
 bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QByteArray(Constants::MSVC_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::MSVC_TOOLCHAIN_ID;
 }
 
 } // namespace Internal

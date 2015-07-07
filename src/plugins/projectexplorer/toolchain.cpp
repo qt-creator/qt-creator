@@ -261,9 +261,22 @@ ToolChain *ToolChainFactory::restore(const QVariantMap &)
     return 0;
 }
 
+static QPair<QString, QString> rawIdData(const QVariantMap &data)
+{
+    const QString raw = data.value(QLatin1String(ID_KEY)).toString();
+    const int pos = raw.indexOf(QLatin1Char(':'));
+    QTC_ASSERT(pos > 0, return qMakePair(QString::fromLatin1("unknown"), QString::fromLatin1("unknown")));
+    return qMakePair(raw.mid(0, pos), raw.mid(pos + 1));
+}
+
 QByteArray ToolChainFactory::idFromMap(const QVariantMap &data)
 {
-    return data.value(QLatin1String(ID_KEY)).toByteArray();
+    return rawIdData(data).second.toUtf8();
+}
+
+Core::Id ToolChainFactory::typeIdFromMap(const QVariantMap &data)
+{
+    return Core::Id::fromString(rawIdData(data).first);
 }
 
 void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)

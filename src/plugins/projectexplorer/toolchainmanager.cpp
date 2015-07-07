@@ -161,9 +161,10 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
             }
         }
         if (!restored)
-            qWarning("Warning: Unable to restore compiler '%s' stored in %s.",
-                     qPrintable(QString::fromUtf8(ToolChainFactory::idFromMap(tcMap))),
-                     qPrintable(fileName.toUserOutput()));
+            qWarning("Warning: '%s': Unable to restore compiler type '%s' for tool chain %s.",
+                     qPrintable(fileName.toUserOutput()),
+                     qPrintable(ToolChainFactory::typeIdFromMap(tcMap).toString()),
+                     qPrintable(QString::fromUtf8(ToolChainFactory::idFromMap(tcMap))));
     }
 
     return result;

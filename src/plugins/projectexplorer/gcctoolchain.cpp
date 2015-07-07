@@ -795,8 +795,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetect()
 // Used by the ToolChainManager to restore user-generated tool chains
 bool GccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    const QByteArray id = idFromMap(data);
-    return id.startsWith(QByteArray(Constants::GCC_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::GCC_TOOLCHAIN_ID;
 }
 
 ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
@@ -1139,7 +1138,7 @@ ToolChain *ClangToolChainFactory::create()
 
 bool ClangToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QByteArray(Constants::CLANG_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::CLANG_TOOLCHAIN_ID;
 }
 
 ToolChain *ClangToolChainFactory::restore(const QVariantMap &data)
@@ -1245,7 +1244,7 @@ ToolChain *MingwToolChainFactory::create()
 
 bool MingwToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QByteArray(Constants::MINGW_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::MINGW_TOOLCHAIN_ID;
 }
 
 ToolChain *MingwToolChainFactory::restore(const QVariantMap &data)
@@ -1341,7 +1340,7 @@ ToolChain *LinuxIccToolChainFactory::create()
 
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QByteArray(Constants::LINUXICC_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::LINUXICC_TOOLCHAIN_ID;
 }
 
 ToolChain *LinuxIccToolChainFactory::restore(const QVariantMap &data)

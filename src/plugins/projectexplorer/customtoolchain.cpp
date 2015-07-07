@@ -394,8 +394,7 @@ ToolChain *CustomToolChainFactory::create()
 // Used by the ToolChainManager to restore user-generated tool chains
 bool CustomToolChainFactory::canRestore(const QVariantMap &data)
 {
-    const QByteArray id = idFromMap(data);
-    return id.startsWith(QByteArray(Constants::CUSTOM_TOOLCHAIN_ID) + ':');
+    return typeIdFromMap(data) == Constants::CUSTOM_TOOLCHAIN_ID;
 }
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)

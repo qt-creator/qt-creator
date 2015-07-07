@@ -192,6 +192,7 @@ public:
     virtual ToolChain *restore(const QVariantMap &data);
 
     static QByteArray idFromMap(const QVariantMap &data);
+    static Core::Id typeIdFromMap(const QVariantMap &data);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
 protected:
