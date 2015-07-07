@@ -100,6 +100,7 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
     }
 
     AnalyzerStartParameters sp;
+    sp.displayName = runConfiguration->displayName();
     sp.runMode = runMode;
     BuildConfiguration * const buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return 0);
