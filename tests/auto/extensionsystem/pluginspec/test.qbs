@@ -7,7 +7,7 @@ QtcAutotest {
     Group {
         name: "Sources"
         files: "tst_pluginspec.cpp"
-        cpp.defines: base.concat([
+        cpp.defines: outer.concat([
             'PLUGIN_DIR="' + destinationDirectory + '"',
             'PLUGINSPEC_DIR="' + sourceDirectory + '"'
         ])
