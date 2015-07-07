@@ -2349,6 +2349,8 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
     }
 
     if (what == "event") {
+        if (message.startsWith("Process exited"))
+            notifyInferiorExited();
         showStatusMessage(QString::fromLatin1(message),  5000);
         return;
     }
