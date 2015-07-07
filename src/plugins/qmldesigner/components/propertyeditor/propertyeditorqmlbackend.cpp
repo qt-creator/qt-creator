@@ -473,6 +473,7 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 
     static QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
     QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
+    QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
 
     const QString versionString = QStringLiteral("_") + QString::number(info.majorVersion())
             + QStringLiteral("_")
@@ -484,6 +485,14 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 
     //Check for qml files with versions first
     const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).last();
+
+    const QString withoutDir = relativePath.split(QStringLiteral("/")).last();
+
+    if (importDirVersion.exists(withoutDir))
+        return importDirVersion.absoluteFilePath(withoutDir);
+
+
+
     if (importDir.exists(relativePathWithVersion))
         return importDir.absoluteFilePath(relativePathWithVersion);
     if (importDir.exists(withoutDirWithVersion)) //Since we are in a subfolder of the import we do not require the directory
@@ -493,7 +502,7 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
     if (resourcesDir.exists(relativePathWithVersion))
         return resourcesDir.absoluteFilePath(relativePathWithVersion);
 
-    const QString withoutDir = relativePath.split(QStringLiteral("/")).last();
+
     if (importDir.exists(relativePath))
         return importDir.absoluteFilePath(relativePath);
     if (importDir.exists(withoutDir)) //Since we are in a subfolder of the import we do not require the directory
