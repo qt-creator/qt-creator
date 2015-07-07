@@ -33,8 +33,6 @@
 #include <qmljs/parser/qmljsast_p.h>
 
 using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
 
 RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier,
                                              quint32 parentLocation,
@@ -45,7 +43,7 @@ RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier
 {
 }
 
-bool RemovePropertyVisitor::visit(UiObjectBinding *ast)
+bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
         //this condition is wrong for the UiObjectBinding case, but we keep it
@@ -62,7 +60,7 @@ bool RemovePropertyVisitor::visit(UiObjectBinding *ast)
     return !didRewriting();
 }
 
-bool RemovePropertyVisitor::visit(UiObjectDefinition *ast)
+bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
         // FIXME: change this to use the QmlJS::Rewriter class
@@ -73,22 +71,22 @@ bool RemovePropertyVisitor::visit(UiObjectDefinition *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void RemovePropertyVisitor::removeFrom(UiObjectInitializer *ast)
+void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
 {
     QString prefix;
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
     if (dotIdx != -1)
         prefix = propertyName.left(dotIdx);
 
-    for (UiObjectMemberList *it = ast->members; it; it = it->next) {
-        UiObjectMember *member = it->member;
+    for (QmlJS::AST::UiObjectMemberList *it = ast->members; it; it = it->next) {
+        QmlJS::AST::UiObjectMember *member = it->member;
 
         // run full name match (for ungrouped properties):
         if (memberNameMatchesPropertyName(propertyName, member)) {
             removeMember(member);
         // check for grouped properties:
         } else if (!prefix.isEmpty()) {
-            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
+            if (QmlJS::AST::UiObjectDefinition *def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
                 if (toString(def->qualifiedTypeNameId) == prefix)
                     removeGroupedProperty(def);
             }
@@ -97,7 +95,7 @@ void RemovePropertyVisitor::removeFrom(UiObjectInitializer *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
+void RemovePropertyVisitor::removeGroupedProperty(QmlJS::AST::UiObjectDefinition *ast)
 {
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
     if (dotIdx == -1)
@@ -105,11 +103,11 @@ void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
 
     const QString propName = propertyName.mid(dotIdx + 1);
 
-    UiObjectMember *wanted = 0;
+    QmlJS::AST::UiObjectMember *wanted = 0;
     unsigned memberCount = 0;
-    for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
+    for (QmlJS::AST::UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         ++memberCount;
-        UiObjectMember *member = it->member;
+        QmlJS::AST::UiObjectMember *member = it->member;
 
         if (!wanted && memberNameMatchesPropertyName(propName, member))
             wanted = member;
@@ -124,7 +122,7 @@ void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void RemovePropertyVisitor::removeMember(UiObjectMember *member)
+void RemovePropertyVisitor::removeMember(QmlJS::AST::UiObjectMember *member)
 {
     int start = member->firstSourceLocation().offset;
     int end = member->lastSourceLocation().end();
@@ -136,15 +134,15 @@ void RemovePropertyVisitor::removeMember(UiObjectMember *member)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, UiObjectMember *ast)
+bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, QmlJS::AST::UiObjectMember *ast)
 {
-    if (UiPublicMember *publicMember = cast<UiPublicMember*>(ast))
+    if (QmlJS::AST::UiPublicMember *publicMember = QmlJS::AST::cast<QmlJS::AST::UiPublicMember*>(ast))
         return publicMember->name == propertyName;
-    else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(ast))
+    else if (QmlJS::AST::UiObjectBinding *objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(ast))
         return toString(objectBinding->qualifiedId) == propertyName;
-    else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(ast))
+    else if (QmlJS::AST::UiScriptBinding *scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(ast))
         return toString(scriptBinding->qualifiedId) == propertyName;
-    else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(ast))
+    else if (QmlJS::AST::UiArrayBinding *arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(ast))
         return toString(arrayBinding->qualifiedId) == propertyName;
     else
         return false;
