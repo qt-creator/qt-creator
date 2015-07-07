@@ -37,7 +37,7 @@ using namespace QmlJS::AST;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
-ChangePropertyVisitor::ChangePropertyVisitor(TextModifier &modifier,
+ChangePropertyVisitor::ChangePropertyVisitor(QmlDesigner::TextModifier &modifier,
                                              quint32 parentLocation,
                                              const QString &name,
                                              const QString &value,
@@ -50,7 +50,7 @@ ChangePropertyVisitor::ChangePropertyVisitor(TextModifier &modifier,
 {
 }
 
-bool ChangePropertyVisitor::visit(UiObjectDefinition *ast)
+bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (didRewriting())
         return false;
@@ -66,7 +66,7 @@ bool ChangePropertyVisitor::visit(UiObjectDefinition *ast)
     return !didRewriting();
 }
 
-bool ChangePropertyVisitor::visit(UiObjectBinding *ast)
+bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (didRewriting())
         return false;
@@ -160,7 +160,7 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
     }
 
     if (needsSemicolon)
-        replacement += ';';
+        replacement += QChar::fromLatin1(';');
 
     replace(startOffset, endOffset - startOffset, replacement);
     setDidRewriting(true);
@@ -192,7 +192,7 @@ bool ChangePropertyVisitor::nextMemberOnSameLine(UiObjectMemberList *members)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void ChangePropertyVisitor::insertIntoArray(UiArrayBinding *ast)
+void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
 {
     if (!ast)
         return;
