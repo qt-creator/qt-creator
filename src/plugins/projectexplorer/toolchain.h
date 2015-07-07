@@ -180,7 +180,7 @@ class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
     Q_OBJECT
 
 public:
-    Core::Id id() const { return m_id; }
+    Core::Id typeId() const { return m_typeId; }
     QString displayName() const { return m_displayName; }
 
     virtual QList<ToolChain *> autoDetect();
@@ -196,12 +196,12 @@ public:
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
 protected:
-    void setId(Core::Id id) { m_id = id; }
+    void setTypeId(Core::Id id) { m_typeId = id; }
     void setDisplayName(const QString &name) { m_displayName = name; }
 
 private:
     QString m_displayName;
-    Core::Id m_id;
+    Core::Id m_typeId;
 };
 
 } // namespace ProjectExplorer

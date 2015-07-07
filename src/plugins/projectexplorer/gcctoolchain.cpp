@@ -765,7 +765,7 @@ QString GccToolChain::detectVersion() const
 
 GccToolChainFactory::GccToolChainFactory()
 {
-    setId(Constants::GCC_TOOLCHAIN_ID);
+    setTypeId(Constants::GCC_TOOLCHAIN_ID);
     setDisplayName(tr("GCC"));
 }
 
@@ -1117,7 +1117,7 @@ ToolChain *ClangToolChain::clone() const
 ClangToolChainFactory::ClangToolChainFactory()
 {
     setDisplayName(tr("Clang"));
-    setId(Constants::CLANG_TOOLCHAIN_ID);
+    setTypeId(Constants::CLANG_TOOLCHAIN_ID);
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect()
@@ -1221,7 +1221,7 @@ ToolChain *MingwToolChain::clone() const
 
 MingwToolChainFactory::MingwToolChainFactory()
 {
-    setId(Constants::MINGW_TOOLCHAIN_ID);
+    setTypeId(Constants::MINGW_TOOLCHAIN_ID);
     setDisplayName(tr("MinGW"));
 }
 
@@ -1325,7 +1325,7 @@ ToolChain *LinuxIccToolChain::clone() const
 LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
     setDisplayName(tr("Linux ICC"));
-    setId(Constants::LINUXICC_TOOLCHAIN_ID);
+    setTypeId(Constants::LINUXICC_TOOLCHAIN_ID);
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect()

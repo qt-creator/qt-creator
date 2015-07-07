@@ -486,7 +486,7 @@ void MsvcToolChainConfigWidget::setFromToolChain()
 
 MsvcToolChainFactory::MsvcToolChainFactory()
 {
-    setId(Constants::MSVC_TOOLCHAIN_ID);
+    setTypeId(Constants::MSVC_TOOLCHAIN_ID);
     setDisplayName(tr("MSVC"));
 }
 

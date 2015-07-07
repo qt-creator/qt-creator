@@ -157,7 +157,7 @@ QStringList QnxToolChain::reinterpretOptions(const QStringList &args) const
 
 QnxToolChainFactory::QnxToolChainFactory()
 {
-    setId(Constants::QNX_TOOLCHAIN_ID);
+    setTypeId(Constants::QNX_TOOLCHAIN_ID);
     setDisplayName(tr("QCC"));
 }
 

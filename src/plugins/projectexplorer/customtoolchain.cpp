@@ -377,7 +377,7 @@ namespace Internal {
 
 CustomToolChainFactory::CustomToolChainFactory()
 {
-    setId(Constants::CUSTOM_TOOLCHAIN_ID);
+    setTypeId(Constants::CUSTOM_TOOLCHAIN_ID);
     setDisplayName(tr("Custom"));
 }
 
