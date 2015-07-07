@@ -35,19 +35,17 @@
 
 #include <QDebug>
 
-using namespace QmlJS;
 using namespace QmlDesigner;
-using namespace QmlJS::AST;
 
 FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
-        m_doc(Document::create("<internal>", Dialect::Qml))
+        m_doc(QmlJS::Document::create(QLatin1String("<internal>"), QmlJS::Dialect::Qml))
 {
     m_doc->setSource(text);
     bool ok = m_doc->parseQml();
 
     if (!ok) {
         qDebug() << text;
-        foreach (const DiagnosticMessage &message, m_doc->diagnosticMessages())
+        foreach (const QmlJS::DiagnosticMessage &message, m_doc->diagnosticMessages())
                 qDebug() << message.message;
     }
 
@@ -63,7 +61,7 @@ qint32 FirstDefinitionFinder::operator()(quint32 offset)
     m_offset = offset;
     m_firstObjectDefinition = 0;
 
-    Node::accept(m_doc->qmlProgram(), this);
+    QmlJS::AST::Node::accept(m_doc->qmlProgram(), this);
 
     if (!m_firstObjectDefinition)
         return -1;
@@ -71,18 +69,18 @@ qint32 FirstDefinitionFinder::operator()(quint32 offset)
     return m_firstObjectDefinition->firstSourceLocation().offset;
 }
 
-void FirstDefinitionFinder::extractFirstObjectDefinition(UiObjectInitializer* ast)
+void FirstDefinitionFinder::extractFirstObjectDefinition(QmlJS::AST::UiObjectInitializer* ast)
 {
     if (!ast)
         return;
 
-    for (UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
-        if (UiObjectDefinition *def = cast<UiObjectDefinition*>(iter->member))
+    for (QmlJS::AST::UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
+        if (QmlJS::AST::UiObjectDefinition *def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition*>(iter->member))
             m_firstObjectDefinition = def;
     }
 }
 
-bool FirstDefinitionFinder::visit(UiObjectBinding *ast)
+bool FirstDefinitionFinder::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (ast->qualifiedTypeNameId && ast->qualifiedTypeNameId->identifierToken.isValid()) {
         const quint32 start = ast->qualifiedTypeNameId->identifierToken.offset;
@@ -95,7 +93,7 @@ bool FirstDefinitionFinder::visit(UiObjectBinding *ast)
     return true;
 }
 
-bool FirstDefinitionFinder::visit(UiObjectDefinition *ast)
+bool FirstDefinitionFinder::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     const quint32 start = ast->firstSourceLocation().offset;
 
