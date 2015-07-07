@@ -32,12 +32,10 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlJS;
 using namespace QmlDesigner;
-using namespace QmlJS::AST;
 
 ObjectLengthCalculator::ObjectLengthCalculator():
-        m_doc(Document::create("<internal>", Dialect::Qml))
+        m_doc(QmlJS::Document::create(QLatin1String("<internal>"), QmlJS::Dialect::Qml))
 {
 }
 
@@ -51,7 +49,7 @@ bool ObjectLengthCalculator::operator()(const QString &text, quint32 offset,
     if (!m_doc->parseQml())
         return false;
 
-    Node::accept(m_doc->qmlProgram(), this);
+    QmlJS::AST::Node::accept(m_doc->qmlProgram(), this);
     if (m_length) {
         length = m_length;
         return true;
@@ -60,7 +58,7 @@ bool ObjectLengthCalculator::operator()(const QString &text, quint32 offset,
     }
 }
 
-bool ObjectLengthCalculator::visit(UiObjectBinding *ast)
+bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (m_length > 0)
         return false;
@@ -80,7 +78,7 @@ bool ObjectLengthCalculator::visit(UiObjectBinding *ast)
     }
 }
 
-bool ObjectLengthCalculator::visit(UiObjectDefinition *ast)
+bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (m_length > 0)
         return false;
