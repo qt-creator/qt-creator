@@ -2962,6 +2962,14 @@ void tst_Dumpers::dumper_data()
                + Check4("url1.d.fragment", "\"\"", "@QString");
 
 
+    QTest::newRow("QUuid")
+            << Data("#include <QUuid>",
+                    "QUuid uuid(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);\n"
+                    "unused(&uuid);\n")
+               + CoreProfile()
+               + Check("uuid", "{00000001-0002-0003-0405-060708090a0b}", "@QUuid");
+
+
     QByteArray expected1 = "\"AAA";
     expected1.append(char('\t'));
     expected1.append(char('\r'));
