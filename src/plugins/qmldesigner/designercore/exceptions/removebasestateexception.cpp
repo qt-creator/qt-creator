@@ -57,7 +57,7 @@ Returns the type of this exception as a string.
 */
 QString RemoveBaseStateException::type() const
 {
-    return "RemoveBaseStateException";
+    return QLatin1String("RemoveBaseStateException");
 }
 
 } // namespace QmlDesigner

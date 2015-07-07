@@ -58,7 +58,7 @@ InvalidQmlSourceException::InvalidQmlSourceException(int line,
 */
 QString InvalidQmlSourceException::type() const
 {
-    return "InvalidQmlSourceException";
+    return QLatin1String("InvalidQmlSourceException");
 }
 
 QString InvalidQmlSourceException::description() const

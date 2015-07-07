@@ -57,7 +57,7 @@ InvalidPropertyException::InvalidPropertyException(int line,
 */
 QString InvalidPropertyException::type() const
 {
-    return "InvalidPropertyException";
+    return QLatin1String("InvalidPropertyException");
 }
 
 /*!

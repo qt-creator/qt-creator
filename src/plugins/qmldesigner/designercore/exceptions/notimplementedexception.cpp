@@ -41,6 +41,6 @@ NotImplementedException::NotImplementedException(int line,
 
 QString NotImplementedException::type() const
 {
-    return "NotImplementedException";
+    return QLatin1String("NotImplementedException");
 }
 }

@@ -149,7 +149,7 @@ QString ModelNode::validId()
 static bool idIsQmlKeyWord(const QString& id)
 {
     QStringList keywords;
-    keywords << "import" << "as";
+    keywords << QLatin1String("import") << QLatin1String("as");
 
     return keywords.contains(id);
 }
@@ -589,7 +589,7 @@ void ModelNode::removeProperty(const PropertyName &name) const
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    model()->d->checkPropertyName(name);
+    model()->d->checkPropertyName(QString::fromLatin1(name));
 
     if (internalNode()->hasProperty(name))
         model()->d->removeProperty(internalNode()->property(name));
@@ -1028,9 +1028,9 @@ QString ModelNode::convertTypeToImportAlias() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     if (model()->rewriterView())
-        return model()->rewriterView()->convertTypeToImportAlias(type());
+        return model()->rewriterView()->convertTypeToImportAlias(QString::fromLatin1(type()));
 
-    return type();
+    return QString::fromLatin1(type());
 }
 
 ModelNode::NodeSourceType ModelNode::nodeSourceType() const

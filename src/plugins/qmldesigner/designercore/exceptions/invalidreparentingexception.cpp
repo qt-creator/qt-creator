@@ -56,6 +56,6 @@ Returns the type of this exception as a string.
 */
 QString InvalidReparentingException::type() const
 {
-    return "InvalidReparentingException";
+    return QLatin1String("InvalidReparentingException");
 }
 } // namespace QmlDesigner

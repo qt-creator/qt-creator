@@ -203,7 +203,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readQmlSourceElement(const QString &n
 
 void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value)
 {
-    if (name == "name") {
+    if (name == QLatin1String("name")) {
         m_currentClassName = value.toString().toUtf8();
         if (!m_qualication.isEmpty()) //prepend qualification
             m_currentClassName = m_qualication + "." + m_currentClassName;
@@ -266,10 +266,10 @@ void MetaInfoReader::setVersion(const QString &versionNumber)
     if (!versionNumber.isEmpty()) {
         int val;
         bool ok;
-        if (versionNumber.contains('.')) {
-            val = versionNumber.split('.').first().toInt(&ok);
+        if (versionNumber.contains(QLatin1Char('.'))) {
+            val = versionNumber.split(QLatin1Char('.')).first().toInt(&ok);
             major = ok ? val : major;
-            val = versionNumber.split('.').last().toInt(&ok);
+            val = versionNumber.split(QLatin1Char('.')).last().toInt(&ok);
             minor = ok ? val : minor;
         } else {
             val = versionNumber.toInt(&ok);

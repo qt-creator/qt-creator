@@ -57,7 +57,7 @@ InvalidMetaInfoException::InvalidMetaInfoException(int line,
 */
 QString InvalidMetaInfoException::type() const
 {
-    return "InvalidMetaInfoException";
+    return QLatin1String("InvalidMetaInfoException");
 }
 
 }

@@ -76,17 +76,17 @@ QString Import::toString(bool skipAlias) const
     QString result;
 
     if (isFileImport())
-        result += '"' + file() + '"';
+        result += QLatin1Char('"') + file() + QLatin1Char('"');
     else if (isLibraryImport())
         result += url();
     else
         return QString();
 
     if (hasVersion())
-        result += ' ' + version();
+        result += QLatin1Char(' ') + version();
 
     if (hasAlias() && !skipAlias)
-        result += " as " + alias();
+        result += QLatin1String(" as ") + alias();
 
     return result;
 }

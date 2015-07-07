@@ -57,7 +57,7 @@ InvalidModelNodeException::InvalidModelNodeException(int line,
 */
 QString InvalidModelNodeException::type() const
 {
-    return "InvalidModelNodeException";
+    return QLatin1String("InvalidModelNodeException");
 }
 
 }

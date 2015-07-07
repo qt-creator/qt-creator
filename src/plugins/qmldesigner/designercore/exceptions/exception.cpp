@@ -146,7 +146,7 @@ void Exception::createWarning() const
 */
 QString Exception::description() const
 {
-    return QString("file: %1, function: %2, line: %3").arg(m_file, m_function, QString::number(m_line));
+    return QString(QStringLiteral("file: %1, function: %2, line: %3")).arg(m_file, m_function, QString::number(m_line));
 }
 
 /*!

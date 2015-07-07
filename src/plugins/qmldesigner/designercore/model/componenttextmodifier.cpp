@@ -102,11 +102,11 @@ QString ComponentTextModifier::text() const
     QString txt(m_originalModifier->text());
 
     const int leader = m_componentStartOffset - m_rootStartOffset;
-    txt.replace(m_rootStartOffset, leader, QString(leader, ' '));
+    txt.replace(m_rootStartOffset, leader, QString(leader, QLatin1Char(' ')));
 
     const int textLength = txt.size();
     const int trailer = textLength - m_componentEndOffset;
-    txt.replace(m_componentEndOffset, trailer, QString(trailer, ' '));
+    txt.replace(m_componentEndOffset, trailer, QString(trailer, QLatin1Char(' ')));
 
     return txt;
 }

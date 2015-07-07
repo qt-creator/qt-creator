@@ -198,7 +198,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
             parentproperty.reparentHere(newQmlItemNode);
 
-            newQmlItemNode.setId(view->generateNewId("image"));
+            newQmlItemNode.setId(view->generateNewId(QLatin1String("image")));
 
             if (!view->currentState().isBaseState()) {
                 newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);

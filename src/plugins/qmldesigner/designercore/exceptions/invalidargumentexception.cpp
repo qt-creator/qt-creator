@@ -56,7 +56,7 @@ InvalidArgumentException::InvalidArgumentException(int line,
 
 QString InvalidArgumentException::description() const
 {
-    if (function() == "createNode")
+    if (function() == QLatin1String("createNode"))
         return QCoreApplication::translate("QmlDesigner::InvalidArgumentException", "Failed to create item of type %1").arg(m_argument);
 
     return Exception::description();
@@ -67,7 +67,7 @@ QString InvalidArgumentException::description() const
 */
 QString InvalidArgumentException::type() const
 {
-    return "InvalidArgumentException";
+    return QLatin1String("InvalidArgumentException");
 }
 
 /*!

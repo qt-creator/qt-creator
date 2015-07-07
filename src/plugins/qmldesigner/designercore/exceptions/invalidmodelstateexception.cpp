@@ -58,7 +58,7 @@ InvalidModelStateException::InvalidModelStateException(int line,
 */
 QString InvalidModelStateException::type() const
 {
-    return "InvalidModelStateException";
+    return QLatin1String("InvalidModelStateException");
 }
 
 } // namespace QmlDesigner

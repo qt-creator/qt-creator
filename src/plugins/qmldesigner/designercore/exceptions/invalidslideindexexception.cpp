@@ -57,7 +57,7 @@ InvalidSlideIndexException::InvalidSlideIndexException(int line,
 */
 QString InvalidSlideIndexException::type() const
 {
-    return "InvalidSlideIndexException";
+    return QLatin1String("InvalidSlideIndexException");
 }
 
 } // namespace QmlDesigner

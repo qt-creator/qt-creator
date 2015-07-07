@@ -44,7 +44,7 @@ RewritingException::RewritingException(int line,
 
 QString RewritingException::type() const
 {
-    return "RewritingException";
+    return QLatin1String("RewritingException");
 }
 
 QString RewritingException::description() const

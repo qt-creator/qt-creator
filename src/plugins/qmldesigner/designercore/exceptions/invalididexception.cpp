@@ -62,7 +62,7 @@ InvalidIdException::InvalidIdException(int line,
 
 QString InvalidIdException::type() const
 {
-    return "InvalidIdException";
+    return QLatin1String("InvalidIdException");
 }
 
 QString InvalidIdException::description() const
