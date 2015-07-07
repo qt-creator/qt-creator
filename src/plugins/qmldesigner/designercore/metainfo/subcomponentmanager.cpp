@@ -209,6 +209,15 @@ void SubComponentManager::parseDirectories()
             foreach (const QString &path, importPaths()) {
                 QString fullUrl  = path + QLatin1Char('/') + url;
                 dirInfo = QFileInfo(fullUrl);
+
+                if (dirInfo.exists() && dirInfo.isDir()) {
+                    //### todo full qualified names QString nameSpace = import.uri();
+                    parseDirectory(dirInfo.canonicalFilePath(), false);
+                }
+
+                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split(".").first();
+                dirInfo = QFileInfo(fullUrlVersion);
+
                 if (dirInfo.exists() && dirInfo.isDir()) {
                     //### todo full qualified names QString nameSpace = import.uri();
                     parseDirectory(dirInfo.canonicalFilePath(), false);
