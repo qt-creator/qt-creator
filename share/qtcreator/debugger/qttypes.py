@@ -621,10 +621,6 @@ def qdump__QHash(d, value):
                 with SubItem(d, i):
                     if isCompact:
                         key = it["key"]
-                        if not key:
-                            # LLDB can't access directly since it's in anonymous union
-                            # for Qt4 optimized int keytype
-                            key = it[1]["key"]
                         d.putMapName(key, j)
                         d.putItem(it["value"])
                         d.putType(valueType)
@@ -638,10 +634,6 @@ def qform__QHashNode():
 
 def qdump__QHashNode(d, value):
     key = value["key"]
-    if not key:
-        # LLDB can't access directly since it's in anonymous union
-        # for Qt4 optimized int keytype
-        key = value[1]["key"]
     val = value["value"]
     if d.isMapCompact(key.type, val.type):
         d.putMapName(key)

@@ -1716,6 +1716,7 @@ void tst_Dumpers::dumper_data()
                     "h1.insert(\"!\", QList<int>() << 1 << 2);\n\n"
 
                     "QHash<int, float> h2;\n"
+                    "h2[0]  = 33.0;\n"
                     "h2[11] = 11.0;\n"
                     "h2[22] = 22.0;\n\n"
 
@@ -1765,9 +1766,10 @@ void tst_Dumpers::dumper_data()
                + Check("h1.2.value.0", "[0]", "1", "int")
                + Check("h1.2.value.1", "[1]", "2", "int")
 
-               + Check("h2", "<2 items>", "@QHash<int, float>")
-               + Check("h2.0", "[0] 22", "22", "float")
-               + Check("h2.1", "[1] 11", "11", "float")
+               + Check("h2", "<3 items>", "@QHash<int, float>")
+               + Check("h2.0", "[0] 0", "33", "float")
+               + Check("h2.1", "[1] 22", "22", "float")
+               + Check("h2.2", "[2] 11", "11", "float")
 
                + Check("h3", "<1 items>", "@QHash<@QString, int>")
                + Check("h3.0", "[0]", "", "@QHashNode<@QString, int>")
