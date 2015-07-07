@@ -255,6 +255,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     m_variableDescription->setWordWrap(true);
     m_variableDescription->setAttribute(Qt::WA_MacSmallSize);
+    m_variableDescription->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(q);
     verticalLayout->setContentsMargins(3, 3, 3, 12);
