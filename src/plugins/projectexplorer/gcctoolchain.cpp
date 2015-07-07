@@ -313,11 +313,6 @@ ToolChain::CompilerFlags GccToolChain::defaultCompilerFlags() const
     return CompilerFlags(GnuExtensions);
 }
 
-QString GccToolChain::type() const
-{
-    return QLatin1String("gcc");
-}
-
 QString GccToolChain::typeDisplayName() const
 {
     return GccToolChainFactory::tr("GCC");
@@ -1016,11 +1011,6 @@ ClangToolChain::ClangToolChain(Detection d) :
     GccToolChain(Constants::CLANG_TOOLCHAIN_ID, d)
 { }
 
-QString ClangToolChain::type() const
-{
-    return QLatin1String("clang");
-}
-
 QString ClangToolChain::typeDisplayName() const
 {
     return ClangToolChainFactory::tr("Clang");
@@ -1164,11 +1154,6 @@ MingwToolChain::MingwToolChain(Detection d) :
     GccToolChain(Constants::MINGW_TOOLCHAIN_ID, d)
 { }
 
-QString MingwToolChain::type() const
-{
-    return QLatin1String("mingw");
-}
-
 QString MingwToolChain::typeDisplayName() const
 {
     return MingwToolChainFactory::tr("MinGW");
@@ -1269,11 +1254,6 @@ GccToolChain *MingwToolChainFactory::createToolChain(bool autoDetect)
 LinuxIccToolChain::LinuxIccToolChain(Detection d) :
     GccToolChain(Constants::LINUXICC_TOOLCHAIN_ID, d)
 { }
-
-QString LinuxIccToolChain::type() const
-{
-    return QLatin1String("icc");
-}
 
 QString LinuxIccToolChain::typeDisplayName() const
 {

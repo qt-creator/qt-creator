@@ -100,7 +100,8 @@ void IosConfigurations::updateAutomaticKitList()
     foreach (ToolChain *tc, ToolChainManager::toolChains()) {
         if (!tc->isAutoDetected()) // use also user toolchains?
             continue;
-        if (tc->type() != QLatin1String("clang") && tc->type() != QLatin1String("gcc"))
+        if (tc->typeId() != ProjectExplorer::Constants::CLANG_TOOLCHAIN_ID
+                && tc->typeId() != ProjectExplorer::Constants::GCC_TOOLCHAIN_ID)
             continue;
         GccToolChain *toolchain = static_cast<GccToolChain *>(tc);
         QMapIterator<QString, Platform> iter(platforms);

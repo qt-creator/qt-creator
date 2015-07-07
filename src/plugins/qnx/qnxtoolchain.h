@@ -44,7 +44,6 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 public:
     explicit QnxToolChain(Detection d);
 
-    QString type() const override;
     QString typeDisplayName() const override;
 
     ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;

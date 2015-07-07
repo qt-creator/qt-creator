@@ -67,11 +67,6 @@ QnxToolChain::QnxToolChain(ToolChain::Detection d)
     : GccToolChain(Constants::QNX_TOOLCHAIN_ID, d)
 { }
 
-QString QnxToolChain::type() const
-{
-    return QLatin1String(Constants::QNX_TOOLCHAIN_ID);
-}
-
 QString QnxToolChain::typeDisplayName() const
 {
     return QnxToolChainFactory::tr("QCC");

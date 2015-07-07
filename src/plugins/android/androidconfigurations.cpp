@@ -1218,9 +1218,9 @@ static bool equalKits(Kit *a, Kit *b)
     ToolChain *btc = ToolChainKitInformation::toolChain(b);
     if (atc == btc)
         return true;
-    if (!atc || atc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+    if (!atc || atc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPE)
         return false;
-    if (!btc || btc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+    if (!btc || btc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPE)
         return false;
     AndroidToolChain *aatc = static_cast<AndroidToolChain *>(atc);
     AndroidToolChain *bbtc = static_cast<AndroidToolChain *>(btc);
@@ -1252,7 +1252,7 @@ void AndroidConfigurations::registerNewToolChains()
 void AndroidConfigurations::removeOldToolChains()
 {
     foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-        if (tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
+        if (tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPE) {
             if (!tc->isValid())
                 ToolChainManager::deregisterToolChain(tc);
         }
@@ -1268,7 +1268,7 @@ void AndroidConfigurations::updateAutomaticKitList()
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {
             if (!tc->isAutoDetected())
                 continue;
-            if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+            if (tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPE)
                 continue;
             if (!tc->isValid()) // going to be deleted
                 continue;
@@ -1369,7 +1369,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     foreach (Kit *k, existingKits) {
         ToolChain *tc = ToolChainKitInformation::toolChain(k);
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-        if (tc && tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)
+        if (tc && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPE
                 && tc->isValid()
                 && qtVersion && qtVersion->type() == QLatin1String(Constants::ANDROIDQT)) {
             k->makeUnSticky();

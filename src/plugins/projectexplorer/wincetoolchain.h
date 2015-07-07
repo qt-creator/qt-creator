@@ -55,7 +55,6 @@ public:
 
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 
-    QString type() const override;
     QString typeDisplayName() const override;
 
     QString ceVer() const;

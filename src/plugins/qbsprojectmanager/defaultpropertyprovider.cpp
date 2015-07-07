@@ -133,13 +133,13 @@ static QStringList targetOSList(const ProjectExplorer::Abi &abi, const ProjectEx
 static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
 {
     QStringList list;
-    if (tc->type() == QLatin1String("clang"))
+    if (tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_ID)
         list << QLatin1String("clang") << QLatin1String("llvm") << QLatin1String("gcc");
-    else if (tc->type() == QLatin1String("gcc"))
+    else if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_ID)
         list << QLatin1String("gcc"); // TODO: Detect llvm-gcc
-    else if (tc->type() == QLatin1String("mingw"))
+    else if (tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID)
         list << QLatin1String("mingw") << QLatin1String("gcc");
-    else if (tc->type() == QLatin1String("msvc"))
+    else if (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_ID)
         list << QLatin1String("msvc");
     return list;
 }

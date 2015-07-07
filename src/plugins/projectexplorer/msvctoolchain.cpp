@@ -373,11 +373,6 @@ MsvcToolChain *MsvcToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-QString MsvcToolChain::type() const
-{
-    return QLatin1String("msvc");
-}
-
 QString MsvcToolChain::typeDisplayName() const
 {
     return MsvcToolChainFactory::tr("MSVC");

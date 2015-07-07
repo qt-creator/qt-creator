@@ -76,7 +76,6 @@ public:
         OutputParserCount
     };
 
-    QString type() const override;
     QString typeDisplayName() const override;
     Abi targetAbi() const override;
     void setTargetAbi(const Abi &);

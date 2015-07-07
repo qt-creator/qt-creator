@@ -92,11 +92,6 @@ AndroidToolChain::AndroidToolChain(const AndroidToolChain &tc) :
 AndroidToolChain::~AndroidToolChain()
 { }
 
-QString AndroidToolChain::type() const
-{
-    return QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE);
-}
-
 QString AndroidToolChain::typeDisplayName() const
 {
     return AndroidToolChainFactory::tr("Android GCC");

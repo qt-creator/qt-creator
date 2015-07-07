@@ -65,7 +65,6 @@ public:
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
 
-    QString type() const override;
     QString typeDisplayName() const override;
 
     QVariantMap toMap() const override;

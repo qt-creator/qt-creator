@@ -113,7 +113,7 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     }
 
     toolchainDefines = tc->predefinedMacros(commandLineFlags);
-    toolchainType = tc->type();
+    toolchainType = tc->typeId();
     updateLanguageFeatures();
 }
 
@@ -711,7 +711,7 @@ bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) con
     // The right-hand sides are gcc built-ins that clang does not understand, and they'd
     // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
     // side.
-    const bool isGccToolchain = m_projectPart->toolchainType == QLatin1String("gcc");
+    const bool isGccToolchain = m_projectPart->toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_ID;
     if (isGccToolchain && defineLine.contains("has_include"))
         return true;
 

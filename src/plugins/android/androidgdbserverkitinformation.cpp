@@ -90,7 +90,7 @@ bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
     ToolChain *tc = ToolChainKitInformation::toolChain(kit);
     if (qt && tc)
         return qt->type() == QLatin1String(Constants::ANDROIDQT)
-                && tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE);
+                && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPE;
     return false;
 
 }
@@ -108,7 +108,7 @@ void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbSe
 FileName AndroidGdbServerKitInformation::autoDetect(Kit *kit)
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(kit);
-    if (!tc || tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+    if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPE)
         return FileName();
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
     return atc->suggestedGdbServer();

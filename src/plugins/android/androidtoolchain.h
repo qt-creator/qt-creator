@@ -42,7 +42,6 @@ class AndroidToolChain : public ProjectExplorer::GccToolChain
 public:
     ~AndroidToolChain() override;
 
-    QString type() const override;
     QString typeDisplayName() const override;
 
     bool isValid() const override;

@@ -82,11 +82,6 @@ CustomToolChain::CustomToolChain(Detection d) :
     m_outputParser(Gcc)
 { }
 
-QString CustomToolChain::type() const
-{
-    return QLatin1String("custom");
-}
-
 QString CustomToolChain::typeDisplayName() const
 {
     return Internal::CustomToolChainFactory::tr("Custom");

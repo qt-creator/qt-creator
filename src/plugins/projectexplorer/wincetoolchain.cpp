@@ -271,11 +271,6 @@ WinCEToolChain *WinCEToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-QString WinCEToolChain::type() const
-{
-    return QLatin1String("wince");
-}
-
 QString WinCEToolChain::typeDisplayName() const
 {
     return WinCEToolChainFactory::tr("WinCE");

@@ -82,7 +82,6 @@ public:
     virtual QList<Utils::FileName> suggestedMkspecList() const;
     virtual Utils::FileName suggestedDebugger() const;
 
-    virtual QString type() const = 0;
     Core::Id typeId() const;
     virtual QString typeDisplayName() const = 0;
     virtual Abi targetAbi() const = 0;

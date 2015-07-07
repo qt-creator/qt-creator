@@ -130,7 +130,7 @@ public: // fields
     QString projectConfigFile; // currently only used by the Generic Project Manager
     QByteArray projectDefines;
     QByteArray toolchainDefines;
-    QString toolchainType;
+    Core::Id toolchainType;
     QList<HeaderPath> headerPaths;
     QStringList precompiledHeaders;
     LanguageVersion languageVersion;

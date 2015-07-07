@@ -58,7 +58,6 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
     GccToolChain(Core::Id typeId, Detection d);
-    QString type() const override;
     QString typeDisplayName() const override;
     Abi targetAbi() const override;
     QString version() const;
@@ -163,7 +162,6 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
     explicit ClangToolChain(Detection d);
-    QString type() const override;
     QString typeDisplayName() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 
@@ -192,7 +190,6 @@ private:
 class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
-    QString type() const override;
     QString typeDisplayName() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 
@@ -214,7 +211,6 @@ private:
 class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 {
 public:
-    QString type() const override;
     QString typeDisplayName() const override;
 
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
