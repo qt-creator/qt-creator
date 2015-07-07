@@ -62,7 +62,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    updateProjectPart();
+    m_projectPart = determineProjectPart();
 
     if (m_forceSnapshotInvalidation) {
         invalidateSnapshot = true;

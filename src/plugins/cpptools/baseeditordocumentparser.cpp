@@ -45,7 +45,7 @@ namespace CppTools {
     the "best" project part for a file.
 
     Derived classes are expected to implement update() by using the protected
-    mutex, updateProjectPart() and by respecting the options set by the client.
+    mutex, determineProjectPart() and by respecting the options set by the client.
 */
 
 BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
@@ -115,33 +115,35 @@ BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
     return 0;
 }
 
-void BaseEditorDocumentParser::updateProjectPart()
+ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart() const
 {
-    if (m_manuallySetProjectPart) {
-        m_projectPart = m_manuallySetProjectPart;
-        return;
-    }
+    if (m_manuallySetProjectPart)
+        return m_manuallySetProjectPart;
+
+    ProjectPart::Ptr projectPart = m_projectPart;
 
     CppModelManager *cmm = CppModelManager::instance();
     QList<ProjectPart::Ptr> projectParts = cmm->projectPart(m_filePath);
     if (projectParts.isEmpty()) {
-        if (m_projectPart)
+        if (projectPart)
             // File is not directly part of any project, but we got one before. We will re-use it,
             // because re-calculating this can be expensive when the dependency table is big.
-            return;
+            return projectPart;
 
         // Fall-back step 1: Get some parts through the dependency table:
         projectParts = cmm->projectPartFromDependencies(Utils::FileName::fromString(m_filePath));
         if (projectParts.isEmpty())
             // Fall-back step 2: Use fall-back part from the model manager:
-            m_projectPart = cmm->fallbackProjectPart();
+            projectPart = cmm->fallbackProjectPart();
         else
-            m_projectPart = projectParts.first();
+            projectPart = projectParts.first();
     } else {
-        if (!projectParts.contains(m_projectPart))
+        if (!projectParts.contains(projectPart))
             // Apparently the project file changed, so update our project part.
-            m_projectPart = projectParts.first();
+            projectPart = projectParts.first();
     }
+
+    return projectPart;
 }
 
 bool BaseEditorDocumentParser::editorDefinesChanged() const

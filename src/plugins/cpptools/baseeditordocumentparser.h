@@ -63,18 +63,18 @@ public:
     static BaseEditorDocumentParser *get(const QString &filePath);
 
 protected:
-    void updateProjectPart();
+    ProjectPart::Ptr determineProjectPart() const;
 
     bool editorDefinesChanged() const;
     void resetEditorDefinesChanged();
 
 protected:
     mutable QMutex m_mutex;
+    ProjectPart::Ptr m_projectPart;
 
 private:
     const QString m_filePath;
 
-    ProjectPart::Ptr m_projectPart;
     ProjectPart::Ptr m_manuallySetProjectPart;
 
     bool m_usePrecompiledHeaders;

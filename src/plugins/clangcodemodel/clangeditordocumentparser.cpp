@@ -94,7 +94,7 @@ void ClangEditorDocumentParser::update(CppTools::WorkingCopy workingCopy)
     QMutexLocker lock(m_marker->mutex());
     QMutexLocker lock2(&m_mutex);
 
-    updateProjectPart();
+    m_projectPart = determineProjectPart();
     const QStringList options = createOptions(filePath(), projectPart(), true);
 
     qCDebug(log, "Reparse options (cmd line equivalent): %s",
