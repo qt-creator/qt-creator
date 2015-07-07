@@ -240,7 +240,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
-    m_rerunPending = true;
+    m_rerunPending = false;
 
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
