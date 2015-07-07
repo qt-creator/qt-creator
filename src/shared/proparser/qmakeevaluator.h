@@ -307,6 +307,7 @@ public:
     QMakeHandler *m_handler;
     QMakeVfs *m_vfs;
 };
+Q_DECLARE_TYPEINFO(QMakeEvaluator::Location, Q_PRIMITIVE_TYPE);
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeEvaluator::LoadFlags)
 
