@@ -32,10 +32,6 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-
-using namespace QmlJS;
-using namespace QmlJS::AST;
-
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
@@ -44,7 +40,7 @@ ChangeImportsVisitor::ChangeImportsVisitor(TextModifier &textModifier,
         QMLRewriter(textModifier), m_source(source)
 {}
 
-bool ChangeImportsVisitor::add(UiProgram *ast, const Import &import)
+bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
 {
     setDidRewriting(false);
     if (!ast)
@@ -72,14 +68,14 @@ bool ChangeImportsVisitor::add(UiProgram *ast, const Import &import)
     return true;
 }
 
-bool ChangeImportsVisitor::remove(UiProgram *ast, const Import &import)
+bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &import)
 {
     setDidRewriting(false);
     if (!ast)
         return false;
 
-    for (UiHeaderItemList *iter = ast->headers; iter; iter = iter->next) {
-        UiImport *iterImport = AST::cast<UiImport *>(iter->headerItem);
+    for (QmlJS::AST::UiHeaderItemList *iter = ast->headers; iter; iter = iter->next) {
+        QmlJS::AST::UiImport *iterImport = QmlJS::AST::cast<QmlJS::AST::UiImport *>(iter->headerItem);
         if (equals(iterImport, import)) {
             int start = iterImport->firstSourceLocation().begin();
             int end = iterImport->lastSourceLocation().end();
@@ -92,7 +88,7 @@ bool ChangeImportsVisitor::remove(UiProgram *ast, const Import &import)
     return didRewriting();
 }
 
-bool ChangeImportsVisitor::equals(UiImport *ast, const Import &import)
+bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
 {
     if (import.isLibraryImport())
         return toString(ast->importUri) == import.url();
