@@ -34,8 +34,6 @@
 
 #include <QDebug>
 
-using namespace QmlJS;
-using namespace QmlJS::AST;
 using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
 
@@ -60,7 +58,7 @@ MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modif
     beforeObjectLocation(beforeObjectLocation)
 {}
 
-bool MoveObjectBeforeObjectVisitor::operator ()(UiProgram *ast)
+bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
 {
     movingObject = 0;
     beforeObject = 0;
@@ -74,13 +72,13 @@ bool MoveObjectBeforeObjectVisitor::operator ()(UiProgram *ast)
     return didRewriting();
 }
 
-bool MoveObjectBeforeObjectVisitor::preVisit(Node *ast)
+bool MoveObjectBeforeObjectVisitor::preVisit(QmlJS::AST::Node *ast)
 { if (ast) parents.push(ast); return true; }
 
-void MoveObjectBeforeObjectVisitor::postVisit(Node *ast)
+void MoveObjectBeforeObjectVisitor::postVisit(QmlJS::AST::Node *ast)
 { if (ast) parents.pop(); }
 
-bool MoveObjectBeforeObjectVisitor::visit(UiObjectDefinition *ast)
+bool MoveObjectBeforeObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (foundEverything())
         return false;
@@ -110,16 +108,16 @@ void MoveObjectBeforeObjectVisitor::doMove()
     Q_ASSERT(!movingObjectParents.isEmpty());
 
     TextModifier::MoveInfo moveInfo;
-    Node *parent = movingObjectParent();
-    UiArrayMemberList *arrayMember = 0, *otherArrayMember = 0;
+    QmlJS::AST::Node *parent = movingObjectParent();
+    QmlJS::AST::UiArrayMemberList *arrayMember = 0, *otherArrayMember = 0;
     QString separator;
 
     if (!inDefaultProperty) {
-        UiArrayBinding *initializer = cast<UiArrayBinding*>(parent);
+        QmlJS::AST::UiArrayBinding *initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent);
         Q_ASSERT(initializer);
 
         otherArrayMember = 0;
-        for (UiArrayMemberList *cur = initializer->members; cur; cur = cur->next) {
+        for (QmlJS::AST::UiArrayMemberList *cur = initializer->members; cur; cur = cur->next) {
             if (cur->member == movingObject) {
                 arrayMember = cur;
                 if (cur->next)
@@ -156,7 +154,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
         moveInfo.prefixToInsert = QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
         moveInfo.suffixToInsert = separator + QStringLiteral("\n\n");
     } else {
-        const SourceLocation insertionPoint = lastParentLocation();
+        const QmlJS::AST::SourceLocation insertionPoint = lastParentLocation();
         Q_ASSERT(insertionPoint.isValid());
         moveInfo.destination = insertionPoint.offset;
         int dummy = -1;
@@ -170,7 +168,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
     setDidRewriting(true);
 }
 
-Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
+QmlJS::AST::Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
 {
     if (movingObjectParents.size() > 1)
         return movingObjectParents.at(movingObjectParents.size() - 2);
@@ -178,15 +176,15 @@ Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
         return 0;
 }
 
-SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
+QmlJS::AST::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
 {
     dump(movingObjectParents);
 
-    Node *parent = movingObjectParent();
-    if (UiObjectInitializer *initializer = cast<UiObjectInitializer*>(parent))
+    QmlJS::AST::Node *parent = movingObjectParent();
+    if (QmlJS::AST::UiObjectInitializer *initializer = QmlJS::AST::cast<QmlJS::AST::UiObjectInitializer*>(parent))
         return initializer->rbraceToken;
-    else if (UiArrayBinding *initializer = cast<UiArrayBinding*>(parent))
+    else if (QmlJS::AST::UiArrayBinding *initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent))
         return initializer->rbracketToken;
     else
-        return SourceLocation();
+        return QmlJS::AST::SourceLocation();
 }
