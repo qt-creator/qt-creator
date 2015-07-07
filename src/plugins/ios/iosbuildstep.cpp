@@ -201,8 +201,8 @@ QStringList IosBuildStep::defaultArguments() const
         qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
                           << target()->activeBuildConfiguration()->buildType();
     }
-    if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_ID
-            || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_ID) {
+    if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+            || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
         GccToolChain *gtc = static_cast<GccToolChain *>(tc);
         res << gtc->platformCodeGenFlags();
     }

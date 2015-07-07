@@ -100,8 +100,8 @@ void IosConfigurations::updateAutomaticKitList()
     foreach (ToolChain *tc, ToolChainManager::toolChains()) {
         if (!tc->isAutoDetected()) // use also user toolchains?
             continue;
-        if (tc->typeId() != ProjectExplorer::Constants::CLANG_TOOLCHAIN_ID
-                && tc->typeId() != ProjectExplorer::Constants::GCC_TOOLCHAIN_ID)
+        if (tc->typeId() != ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
+                && tc->typeId() != ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)
             continue;
         GccToolChain *toolchain = static_cast<GccToolChain *>(tc);
         QMapIterator<QString, Platform> iter(platforms);
@@ -158,7 +158,7 @@ void IosConfigurations::updateAutomaticKitList()
             if (p.compilerPath.toFileInfo().baseName().startsWith(QLatin1String("clang")))
                 toolchain = new ClangToolChain(ToolChain::AutoDetection);
             else
-                toolchain = new GccToolChain(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID,
+                toolchain = new GccToolChain(ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID,
                                              ToolChain::AutoDetection);
             QString baseDisplayName = p.name;
             QString displayName = baseDisplayName;

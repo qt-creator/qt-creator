@@ -223,14 +223,14 @@ const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 // Deploy Configuration id:
 const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
 
-// ToolChain Ids
-const char CLANG_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Clang";
-const char GCC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Gcc";
-const char LINUXICC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.LinuxIcc";
-const char MINGW_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Mingw";
-const char MSVC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Msvc";
-const char WINCE_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.WinCE";
-const char CUSTOM_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Custom";
+// ToolChain TypeIds
+const char CLANG_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Clang";
+const char GCC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Gcc";
+const char LINUXICC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.LinuxIcc";
+const char MINGW_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Mingw";
+const char MSVC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Msvc";
+const char WINCE_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.WinCE";
+const char CUSTOM_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Custom";
 
 // Default directory to run custom (build) commands in.
 const char DEFAULT_WORKING_DIR[] = "%{buildDir}";

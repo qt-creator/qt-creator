@@ -242,7 +242,7 @@ WinCEToolChain::WinCEToolChain(const QString &name,
                                const QString &includePath,
                                const QString &libPath,
                                Detection d) :
-    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_ID, d, abi, vcvarsBat),
+    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, d, abi, vcvarsBat),
     m_msvcVer(msvcVer),
     m_ceVer(ceVer),
     m_binPath(binPath),
@@ -258,7 +258,7 @@ WinCEToolChain::WinCEToolChain(const QString &name,
 }
 
 WinCEToolChain::WinCEToolChain() :
-    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_ID, ManualDetection)
+    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, ManualDetection)
 {
 }
 
@@ -349,7 +349,7 @@ ToolChain *WinCEToolChain::clone() const
 
 WinCEToolChainFactory::WinCEToolChainFactory()
 {
-    setTypeId(Constants::WINCE_TOOLCHAIN_ID);
+    setTypeId(Constants::WINCE_TOOLCHAIN_TYPEID);
     setDisplayName(tr("WinCE"));
 }
 
@@ -427,7 +427,7 @@ QString WinCEToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /*
 
 bool WinCEToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return typeIdFromMap(data) == Constants::WINCE_TOOLCHAIN_ID;
+    return typeIdFromMap(data) == Constants::WINCE_TOOLCHAIN_TYPEID;
 }
 
 bool WinCEToolChain::operator ==(const ToolChain &other) const

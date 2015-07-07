@@ -245,7 +245,7 @@ static QString gccVersion(const FileName &path, const QStringList &env)
 // --------------------------------------------------------------------------
 
 GccToolChain::GccToolChain(Detection d) :
-    ToolChain(Constants::GCC_TOOLCHAIN_ID, d)
+    ToolChain(Constants::GCC_TOOLCHAIN_TYPEID, d)
 { }
 
 GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
@@ -760,7 +760,7 @@ QString GccToolChain::detectVersion() const
 
 GccToolChainFactory::GccToolChainFactory()
 {
-    setTypeId(Constants::GCC_TOOLCHAIN_ID);
+    setTypeId(Constants::GCC_TOOLCHAIN_TYPEID);
     setDisplayName(tr("GCC"));
 }
 
@@ -790,7 +790,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetect()
 // Used by the ToolChainManager to restore user-generated tool chains
 bool GccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return typeIdFromMap(data) == Constants::GCC_TOOLCHAIN_ID;
+    return typeIdFromMap(data) == Constants::GCC_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
@@ -1008,7 +1008,7 @@ void GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
 // --------------------------------------------------------------------------
 
 ClangToolChain::ClangToolChain(Detection d) :
-    GccToolChain(Constants::CLANG_TOOLCHAIN_ID, d)
+    GccToolChain(Constants::CLANG_TOOLCHAIN_TYPEID, d)
 { }
 
 QString ClangToolChain::typeDisplayName() const
@@ -1107,7 +1107,7 @@ ToolChain *ClangToolChain::clone() const
 ClangToolChainFactory::ClangToolChainFactory()
 {
     setDisplayName(tr("Clang"));
-    setTypeId(Constants::CLANG_TOOLCHAIN_ID);
+    setTypeId(Constants::CLANG_TOOLCHAIN_TYPEID);
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect()
@@ -1128,7 +1128,7 @@ ToolChain *ClangToolChainFactory::create()
 
 bool ClangToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return typeIdFromMap(data) == Constants::CLANG_TOOLCHAIN_ID;
+    return typeIdFromMap(data) == Constants::CLANG_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *ClangToolChainFactory::restore(const QVariantMap &data)
@@ -1151,7 +1151,7 @@ GccToolChain *ClangToolChainFactory::createToolChain(bool autoDetect)
 // --------------------------------------------------------------------------
 
 MingwToolChain::MingwToolChain(Detection d) :
-    GccToolChain(Constants::MINGW_TOOLCHAIN_ID, d)
+    GccToolChain(Constants::MINGW_TOOLCHAIN_TYPEID, d)
 { }
 
 QString MingwToolChain::typeDisplayName() const
@@ -1206,7 +1206,7 @@ ToolChain *MingwToolChain::clone() const
 
 MingwToolChainFactory::MingwToolChainFactory()
 {
-    setTypeId(Constants::MINGW_TOOLCHAIN_ID);
+    setTypeId(Constants::MINGW_TOOLCHAIN_TYPEID);
     setDisplayName(tr("MinGW"));
 }
 
@@ -1229,7 +1229,7 @@ ToolChain *MingwToolChainFactory::create()
 
 bool MingwToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return typeIdFromMap(data) == Constants::MINGW_TOOLCHAIN_ID;
+    return typeIdFromMap(data) == Constants::MINGW_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *MingwToolChainFactory::restore(const QVariantMap &data)
@@ -1252,7 +1252,7 @@ GccToolChain *MingwToolChainFactory::createToolChain(bool autoDetect)
 // --------------------------------------------------------------------------
 
 LinuxIccToolChain::LinuxIccToolChain(Detection d) :
-    GccToolChain(Constants::LINUXICC_TOOLCHAIN_ID, d)
+    GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID, d)
 { }
 
 QString LinuxIccToolChain::typeDisplayName() const
@@ -1305,7 +1305,7 @@ ToolChain *LinuxIccToolChain::clone() const
 LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
     setDisplayName(tr("Linux ICC"));
-    setTypeId(Constants::LINUXICC_TOOLCHAIN_ID);
+    setTypeId(Constants::LINUXICC_TOOLCHAIN_TYPEID);
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect()
@@ -1320,7 +1320,7 @@ ToolChain *LinuxIccToolChainFactory::create()
 
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return typeIdFromMap(data) == Constants::LINUXICC_TOOLCHAIN_ID;
+    return typeIdFromMap(data) == Constants::LINUXICC_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *LinuxIccToolChainFactory::restore(const QVariantMap &data)

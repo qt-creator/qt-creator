@@ -61,7 +61,10 @@ public:
         m_id(QUuid::createUuid().toByteArray()),
         m_typeId(typeId),
         m_detection(d)
-    { }
+    {
+        QTC_ASSERT(m_typeId.isValid(), return);
+        QTC_ASSERT(!m_typeId.toString().contains(QLatin1Char(':')), return);
+    }
 
     QByteArray m_id;
     Core::Id m_typeId;
