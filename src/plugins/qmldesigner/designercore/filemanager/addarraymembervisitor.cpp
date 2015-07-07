@@ -34,8 +34,6 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
 
 AddArrayMemberVisitor::AddArrayMemberVisitor(TextModifier &modifier,
                                              quint32 parentLocation,
@@ -49,20 +47,20 @@ AddArrayMemberVisitor::AddArrayMemberVisitor(TextModifier &modifier,
 {
 }
 
-void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyName, UiObjectMemberList *ast)
+void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyName, QmlJS::AST::UiObjectMemberList *ast)
 {
-    for (UiObjectMemberList *iter = ast; iter; iter = iter->next) {
-        if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(iter->member)) {
+    for (QmlJS::AST::UiObjectMemberList *iter = ast; iter; iter = iter->next) {
+        if (QmlJS::AST::UiArrayBinding *arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(iter->member)) {
             if (toString(arrayBinding->qualifiedId) == propertyName)
                 insertInto(arrayBinding);
-        } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(iter->member)) {
+        } else if (QmlJS::AST::UiObjectBinding *objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(iter->member)) {
             if (toString(objectBinding->qualifiedId) == propertyName && willConvertObjectBindingIntoArrayBinding())
                 convertAndAdd(objectBinding);
         }
     }
 }
 
-bool AddArrayMemberVisitor::visit(UiObjectBinding *ast)
+bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (didRewriting())
         return false;
@@ -73,7 +71,7 @@ bool AddArrayMemberVisitor::visit(UiObjectBinding *ast)
     return !didRewriting();
 }
 
-bool AddArrayMemberVisitor::visit(UiObjectDefinition *ast)
+bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (didRewriting())
         return false;
@@ -85,10 +83,10 @@ bool AddArrayMemberVisitor::visit(UiObjectDefinition *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void AddArrayMemberVisitor::insertInto(UiArrayBinding *arrayBinding)
+void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
 {
-    UiObjectMember *lastMember = 0;
-    for (UiArrayMemberList *iter = arrayBinding->members; iter; iter = iter->next)
+    QmlJS::AST::UiObjectMember *lastMember = 0;
+    for (QmlJS::AST::UiArrayMemberList *iter = arrayBinding->members; iter; iter = iter->next)
         if (iter->member)
             lastMember = iter->member;
 
@@ -103,7 +101,7 @@ void AddArrayMemberVisitor::insertInto(UiArrayBinding *arrayBinding)
     setDidRewriting(true);
 }
 
-void AddArrayMemberVisitor::convertAndAdd(UiObjectBinding *objectBinding)
+void AddArrayMemberVisitor::convertAndAdd(QmlJS::AST::UiObjectBinding *objectBinding)
 {
     const int indentDepth = calculateIndentDepth(objectBinding->firstSourceLocation());
     const QString arrayPrefix = QStringLiteral("[\n") + addIndentation(QString(), indentDepth);
