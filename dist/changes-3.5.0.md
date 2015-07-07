@@ -30,7 +30,7 @@ General
   interpreted in the order given on the command line.
 * Fixed issues with raising the Qt Creator window on Gnome desktop
   (QTCREATORBUG-13845)
-* Fixed appearance on high DPI displays on Windows and Linux
+* Fixed appearance on high DPI displays on Windows
   (QTCREATORBUG-11179)
 * Added locator filter for running external tools
 
@@ -46,13 +46,9 @@ Editing
   (QTCREATORBUG-10104)
 * Fixed issues with completion while inserting snippet (QTCREATORBUG-14633)
 
-Help
-
 Project Management
 
 * Fixed issues with restoring project tree state (QTCREATORBUG-14304)
-
-QMake Projects
 
 CMake Projects
 
@@ -61,8 +57,6 @@ CMake Projects
   generated CodeBlocks file
 * Fixed default shadow build directory name
 
-Qbs Projects
-
 Generic Projects
 
 * Fixed that resource links were removed from UI files
@@ -70,9 +64,7 @@ Generic Projects
 
 QML-Only Projects (.qmlproject)
 
-Debugging
-
-Analyzer
+* Re-enabled the plugin by default
 
 QML Profiler
 
@@ -135,6 +127,9 @@ Platform Specific
 
 Windows
 
+* Fixed that Qt Creator could freeze while user application is running
+  (QTCREATORBUG-14676)
+
 OS X
 
 * Added locator filter that uses Spotlight for locating files
@@ -172,7 +167,5 @@ Remote Linux
 
 * Added support for ECDH key exchange for SSH connections
   (QTCREATORBUG-14025)
-
-BareMetal
 
 Credits for these changes go to:
