@@ -290,9 +290,11 @@ void QmlProfilerClientManager::logState(const QString &msg)
 
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 {
-    QTC_ASSERT(!d->connection->isOpen(), return);
-    if (d->connection->isConnecting())
-        d->connection->disconnect();
+    if (d->connection) {
+        QTC_ASSERT(!d->connection->isOpen(), return);
+        if (d->connection->isConnecting())
+            d->connection->disconnect();
+    }
 
     switch (result) {
     case QMessageBox::Retry: {
