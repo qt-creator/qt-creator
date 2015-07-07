@@ -32,6 +32,10 @@
 
 #include "clangassistproposalmodel.h"
 
+#include <texteditor/codeassist/assistproposalitem.h>
+
+#include <algorithm>
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -54,6 +58,19 @@ bool ClangAssistProposalModel::replaceDotForArrow(TextEditor::IAssistProposalMod
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
 {
     return true;
+}
+
+void ClangAssistProposalModel::sort(const QString &/*prefix*/)
+{
+    using TextEditor::AssistProposalItem;
+
+    auto currentItemsCompare = [](AssistProposalItem *first, AssistProposalItem *second) {
+        return (first->order() > 0
+                && (first->order() < second->order()
+                     || (first->order() == second->order() && first->text() < second->text())));
+    };
+
+    std::sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);
 }
 
 } // namespace Internal

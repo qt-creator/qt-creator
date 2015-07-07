@@ -48,6 +48,7 @@ public:
     {}
 
     bool isSortable(const QString &prefix) const override;
+    void sort(const QString &prefix) override;
 
     static bool replaceDotForArrow(IAssistProposalModel *model);
 
