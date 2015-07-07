@@ -240,6 +240,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
+    m_rerunPending = true;
 
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
@@ -1972,8 +1973,12 @@ void GdbEngine::handleThreadGroupCreated(const GdbMi &result)
 void GdbEngine::handleThreadGroupExited(const GdbMi &result)
 {
     QByteArray groupId = result["id"].data();
-    if (threadsHandler()->notifyGroupExited(groupId))
-        notifyInferiorExited();
+    if (threadsHandler()->notifyGroupExited(groupId)) {
+        if (m_rerunPending)
+            m_rerunPending = false;
+        else
+            notifyInferiorExited();
+    }
 }
 
 int GdbEngine::currentFrame() const
@@ -4322,6 +4327,7 @@ void GdbEngine::resetInferior()
             }
         }
     }
+    m_rerunPending = true;
     requestInterruptInferior();
     runEngine();
 }
