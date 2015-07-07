@@ -3866,8 +3866,8 @@ void tst_Dumpers::dumper_data()
                + Check("l3.1", "[1]", "0x0", "int *")
                + Check("l3.2", "[2]", "2", "int")
 
-               + Check("l4.@1.0", "[0]", "1", "int")
-               + Check("l4.@1.1", "[1]", "2", "int");
+               + Check("l4.@0.0", "[0]", "1", "int")
+               + Check("l4.@0.1", "[1]", "2", "int");
 
 
     QTest::newRow("StdListQt")
@@ -5651,10 +5651,10 @@ void tst_Dumpers::dumper_data()
                     "unused(&c.S2::v);\n")
                 + NoLldbEngine
                 + Check("c.c", "1", "int")
-                + Check("c.@1.@2.a", "42", "int")
-                + Check("c.@1.@4.v", "45", "int")
-                + Check("c.@2.@2.a", "43", "int")
-                + Check("c.@2.@4.v", "45", "int");
+                + Check("c.@1.@1.a", "42", "int")
+                + Check("c.@1.@3.v", "45", "int")
+                + Check("c.@2.@1.a", "43", "int")
+                + Check("c.@2.@3.v", "45", "int");
 
     // FIXME: Virtual inheritance doesn't work with LLDB 300
     QTest::newRow("InheritanceLldb")

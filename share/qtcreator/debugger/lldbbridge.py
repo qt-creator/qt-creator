@@ -1759,6 +1759,7 @@ class Tester(Dumper):
 
         self.expandedINames = set(expandedINames)
         self.passExceptions = True
+        self.sortStructMembers = True
 
         self.loadDumpers({})
         error = lldb.SBError()
