@@ -32,12 +32,10 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlJS;
 using namespace QmlDesigner;
-using namespace QmlJS::AST;
 
 ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):
-        m_document(Document::create("<ASTObjectTextExtractor>", Dialect::Qml))
+        m_document(QmlJS::Document::create(QLatin1String("<ASTObjectTextExtractor>"), QmlJS::Dialect::Qml))
 {
     m_document->setSource(text);
     m_document->parseQml();
@@ -50,12 +48,12 @@ QString ASTObjectTextExtractor::operator ()(int location)
     m_location = location;
     m_text.clear();
 
-    Node::accept(m_document->qmlProgram(), this);
+    QmlJS::AST::Node::accept(m_document->qmlProgram(), this);
 
     return m_text;
 }
 
-bool ASTObjectTextExtractor::visit(UiObjectBinding *ast)
+bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (!m_text.isEmpty())
         return false;
@@ -66,7 +64,7 @@ bool ASTObjectTextExtractor::visit(UiObjectBinding *ast)
     return m_text.isEmpty();
 }
 
-bool ASTObjectTextExtractor::visit(UiObjectDefinition *ast)
+bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (!m_text.isEmpty())
         return false;
