@@ -34,10 +34,8 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
 
-AddObjectVisitor::AddObjectVisitor(TextModifier &modifier,
+AddObjectVisitor::AddObjectVisitor(QmlDesigner::TextModifier &modifier,
                                    quint32 parentLocation,
                                    const QString &content,
                                    const PropertyNameList &propertyOrder):
@@ -48,7 +46,7 @@ AddObjectVisitor::AddObjectVisitor(TextModifier &modifier,
 {
 }
 
-bool AddObjectVisitor::visit(UiObjectBinding *ast)
+bool AddObjectVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (didRewriting())
         return false;
@@ -59,7 +57,7 @@ bool AddObjectVisitor::visit(UiObjectBinding *ast)
     return !didRewriting();
 }
 
-bool AddObjectVisitor::visit(UiObjectDefinition *ast)
+bool AddObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (didRewriting())
         return false;
@@ -71,9 +69,9 @@ bool AddObjectVisitor::visit(UiObjectDefinition *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void AddObjectVisitor::insertInto(UiObjectInitializer *ast)
+void AddObjectVisitor::insertInto(QmlJS::AST::UiObjectInitializer *ast)
 {
-    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
+    QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
 
     int insertionPoint;
     int depth;
