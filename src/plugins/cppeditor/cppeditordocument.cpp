@@ -268,9 +268,11 @@ void CppEditorDocument::setPreprocessorSettings(const CppTools::ProjectPart::Ptr
 {
     CppTools::BaseEditorDocumentParser *parser = processor()->parser();
     QTC_ASSERT(parser, return);
-    if (parser->projectPart() != projectPart || parser->editorDefines() != defines) {
-        parser->setProjectPart(projectPart);
-        parser->setEditorDefines(defines);
+    if (parser->projectPart() != projectPart || parser->configuration().editorDefines != defines) {
+        CppTools::BaseEditorDocumentParser::Configuration config = parser->configuration();
+        config.manuallySetProjectPart = projectPart;
+        config.editorDefines = defines;
+        parser->setConfiguration(config);
 
         emit preprocessorSettingsChanged(!defines.trimmed().isEmpty());
     }

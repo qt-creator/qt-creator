@@ -134,7 +134,10 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
     using namespace Internal;
 
     QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    m_parser.setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
+
+    BaseEditorDocumentParser::Configuration config = m_parser.configuration();
+    config.usePrecompiledHeaders = cms->pchUsage() != CppCodeModelSettings::PchUse_None;
+    m_parser.setConfiguration(config);
 
     if (m_semanticHighlighter) {
         m_semanticHighlighter->setHighlightingRunner(

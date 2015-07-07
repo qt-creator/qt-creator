@@ -95,6 +95,8 @@ public:
     static CPlusPlus::Snapshot globalSnapshot();
     static bool garbageCollectGlobalSnapshot();
 
+    static bool waitForProcessedEditorDocument(const QString &filePath, int timeOutInMs = 5000);
+
     enum { defaultTimeOutInMs = 30 * 1000 /*= 30 secs*/ };
     static bool waitUntilCppModelManagerIsAwareOf(
             ProjectExplorer::Project *project,

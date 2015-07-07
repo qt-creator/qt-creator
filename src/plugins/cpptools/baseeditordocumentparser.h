@@ -43,44 +43,48 @@ class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
     Q_OBJECT
 
 public:
+    static BaseEditorDocumentParser *get(const QString &filePath);
+
+    struct Configuration {
+        bool usePrecompiledHeaders = false;
+        QByteArray editorDefines;
+        ProjectPart::Ptr manuallySetProjectPart;
+    };
+
+public:
     BaseEditorDocumentParser(const QString &filePath);
     virtual ~BaseEditorDocumentParser();
 
     QString filePath() const;
 
+    Configuration configuration() const;
+    void setConfiguration(const Configuration &configuration);
+
     virtual void update(WorkingCopy workingCopy) = 0;
 
     ProjectPart::Ptr projectPart() const;
-    void setProjectPart(ProjectPart::Ptr projectPart);
-
-    bool usePrecompiledHeaders() const;
-    void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
-
-    QByteArray editorDefines() const;
-    void setEditorDefines(const QByteArray &editorDefines);
-
-public:
-    static BaseEditorDocumentParser *get(const QString &filePath);
 
 protected:
-    ProjectPart::Ptr determineProjectPart() const;
+    struct State {
+        QByteArray editorDefines;
+        ProjectPart::Ptr projectPart;
+    };
 
-    bool editorDefinesChanged() const;
-    void resetEditorDefinesChanged();
+    State state() const;
+    void setState(const State &state);
 
-protected:
-    mutable QMutex m_mutex;
-    ProjectPart::Ptr m_projectPart;
+    static ProjectPart::Ptr determineProjectPart(const QString &filePath,
+                                                 const Configuration &config,
+                                                 const State &state);
+
+    mutable QMutex m_updateIsRunning;
+    mutable QMutex m_stateAndConfigurationMutex;
 
 private:
     const QString m_filePath;
 
-    ProjectPart::Ptr m_manuallySetProjectPart;
-
-    bool m_usePrecompiledHeaders;
-
-    QByteArray m_editorDefines;
-    bool m_editorDefinesChangedSinceLastUpdate;
+    Configuration m_configuration;
+    State m_state;
 };
 
 } // namespace CppTools
