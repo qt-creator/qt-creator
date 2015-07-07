@@ -36,8 +36,6 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
 
 RemoveUIObjectMemberVisitor::RemoveUIObjectMemberVisitor(TextModifier &modifier,
                                                          quint32 objectLocation):
@@ -46,27 +44,27 @@ RemoveUIObjectMemberVisitor::RemoveUIObjectMemberVisitor(TextModifier &modifier,
 {
 }
 
-bool RemoveUIObjectMemberVisitor::preVisit(Node *ast)
+bool RemoveUIObjectMemberVisitor::preVisit(QmlJS::AST::Node *ast)
 {
     parents.push(ast);
 
     return true;
 }
 
-void RemoveUIObjectMemberVisitor::postVisit(Node *)
+void RemoveUIObjectMemberVisitor::postVisit(QmlJS::AST::Node *)
 {
     parents.pop();
 }
 
-bool RemoveUIObjectMemberVisitor::visit(UiPublicMember *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(UiObjectDefinition *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(UiSourceElement *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(UiObjectBinding *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(UiScriptBinding *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(UiArrayBinding *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiPublicMember *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiSourceElement *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiScriptBinding *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiArrayBinding *ast) { return visitObjectMember(ast); }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-bool RemoveUIObjectMemberVisitor::visitObjectMember(UiObjectMember *ast)
+bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *ast)
 {
     const quint32 memberStart = ast->firstSourceLocation().offset;
 
@@ -75,7 +73,7 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(UiObjectMember *ast)
         int start = objectLocation;
         int end = ast->lastSourceLocation().end();
 
-        if (UiArrayBinding *parentArray = containingArray())
+        if (QmlJS::AST::UiArrayBinding *parentArray = containingArray())
             extendToLeadingOrTrailingComma(parentArray, ast, start, end);
         else
             includeSurroundingWhitespace(start, end);
@@ -95,24 +93,24 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(UiObjectMember *ast)
     }
 }
 
-UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
+QmlJS::AST::UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
 {
     if (parents.size() > 2) {
-        if (cast<UiArrayMemberList*>(parents[parents.size() - 2]))
-            return cast<UiArrayBinding*>(parents[parents.size() - 3]);
+        if (QmlJS::AST::cast<QmlJS::AST::UiArrayMemberList*>(parents[parents.size() - 2]))
+            return QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parents[parents.size() - 3]);
     }
 
     return 0;
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(UiArrayBinding *parentArray,
-                                                                 UiObjectMember *ast,
+void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(QmlJS::AST::UiArrayBinding *parentArray,
+                                                                 QmlJS::AST::UiObjectMember *ast,
                                                                  int &start,
                                                                  int &end) const
 {
-    UiArrayMemberList *currentMember = 0;
-    for (UiArrayMemberList *it = parentArray->members; it; it = it->next) {
+    QmlJS::AST::UiArrayMemberList *currentMember = 0;
+    for (QmlJS::AST::UiArrayMemberList *it = parentArray->members; it; it = it->next) {
         if (it->member == ast) {
             currentMember = it;
             break;
