@@ -40,25 +40,25 @@ namespace Internal {
 class AndroidToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    ~AndroidToolChain();
+    ~AndroidToolChain() override;
 
-    QString type() const;
-    QString typeDisplayName() const;
+    QString type() const override;
+    QString typeDisplayName() const override;
 
-    bool isValid() const;
+    bool isValid() const override;
 
-    void addToEnvironment(Utils::Environment &env) const;
+    void addToEnvironment(Utils::Environment &env) const override;
 
-    bool operator ==(const ProjectExplorer::ToolChain &) const;
+    bool operator ==(const ProjectExplorer::ToolChain &) const override;
 
-    ProjectExplorer::ToolChainConfigWidget *configurationWidget();
-    virtual Utils::FileName suggestedDebugger() const;
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;
+    virtual Utils::FileName suggestedDebugger() const override;
     Utils::FileName suggestedGdbServer() const;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
-    QList<Utils::FileName> suggestedMkspecList() const;
-    QString makeCommand(const Utils::Environment &environment) const;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
+    QList<Utils::FileName> suggestedMkspecList() const override;
+    QString makeCommand(const Utils::Environment &environment) const override;
 
     QString ndkToolChainVersion() const;
 
@@ -66,7 +66,7 @@ public:
     void setSecondaryToolChain(bool b);
 
 protected:
-    QList<ProjectExplorer::Abi> detectSupportedAbis() const;
+    QList<ProjectExplorer::Abi> detectSupportedAbis() const override;
 
 private:
     explicit AndroidToolChain(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion, Detection d);
@@ -88,10 +88,10 @@ public:
     AndroidToolChainConfigWidget(AndroidToolChain *);
 
 private:
-    void applyImpl() {}
-    void discardImpl() {}
-    bool isDirtyImpl() const { return false; }
-    void makeReadOnlyImpl() {}
+    void applyImpl() override {}
+    void discardImpl() override {}
+    bool isDirtyImpl() const override { return false; }
+    void makeReadOnlyImpl() override {}
 };
 
 
@@ -102,9 +102,9 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     AndroidToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect();
-    bool canRestore(const QVariantMap &data);
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
+    QList<ProjectExplorer::ToolChain *> autoDetect() override;
+    bool canRestore(const QVariantMap &data) override;
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     class AndroidToolChainInformation
     {

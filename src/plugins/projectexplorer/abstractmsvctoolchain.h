@@ -47,25 +47,26 @@ public:
     explicit AbstractMsvcToolChain(const QByteArray &id, Detection d, const Abi &abi, const QString& vcvarsBat);
     explicit AbstractMsvcToolChain(const QByteArray &id, Detection d);
 
-    Abi targetAbi() const;
+    Abi targetAbi() const override;
 
-    bool isValid() const;
+    bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &cxxflags) const;
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const;
-    WarningFlags warningFlags(const QStringList &cflags) const;
-    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const;
-    void addToEnvironment(Utils::Environment &env) const;
+    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    WarningFlags warningFlags(const QStringList &cflags) const override;
+    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
+                                        const Utils::FileName &sysRoot) const override;
+    void addToEnvironment(Utils::Environment &env) const override;
 
-    QString makeCommand(const Utils::Environment &environment) const;
-    Utils::FileName compilerCommand() const;
-    IOutputParser *outputParser() const;
+    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName compilerCommand() const override;
+    IOutputParser *outputParser() const override;
 
-    bool canClone() const;
+    bool canClone() const override;
 
     QString varsBat() const { return m_vcvarsBat; }
 
-    bool operator ==(const ToolChain &) const;
+    bool operator ==(const ToolChain &) const override;
 
     static bool generateEnvironmentSettings(Utils::Environment &env,
                                             const QString &batchFile,

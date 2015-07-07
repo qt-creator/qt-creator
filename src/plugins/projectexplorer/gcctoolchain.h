@@ -58,40 +58,41 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
     GccToolChain(const QByteArray &id, Detection d);
-    QString type() const;
-    QString typeDisplayName() const;
-    Abi targetAbi() const;
+    QString type() const override;
+    QString typeDisplayName() const override;
+    Abi targetAbi() const override;
     QString version() const;
     QList<Abi> supportedAbis() const;
     void setTargetAbi(const Abi &);
 
-    bool isValid() const;
+    bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &cxxflags) const;
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const;
-    WarningFlags warningFlags(const QStringList &cflags) const;
+    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    WarningFlags warningFlags(const QStringList &cflags) const override;
 
-    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const;
-    void addToEnvironment(Utils::Environment &env) const;
-    QString makeCommand(const Utils::Environment &environment) const;
-    QList<Utils::FileName> suggestedMkspecList() const;
-    IOutputParser *outputParser() const;
+    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
+                                        const Utils::FileName &sysRoot) const override;
+    void addToEnvironment(Utils::Environment &env) const override;
+    QString makeCommand(const Utils::Environment &environment) const override;
+    QList<Utils::FileName> suggestedMkspecList() const override;
+    IOutputParser *outputParser() const override;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
 
-    ToolChainConfigWidget *configurationWidget();
+    ToolChainConfigWidget *configurationWidget() override;
 
-    bool operator ==(const ToolChain &) const;
+    bool operator ==(const ToolChain &) const override;
 
     void resetToolChain(const Utils::FileName &);
-    Utils::FileName compilerCommand() const;
+    Utils::FileName compilerCommand() const override;
     void setPlatformCodeGenFlags(const QStringList &);
     QStringList platformCodeGenFlags() const;
     void setPlatformLinkerFlags(const QStringList &);
     QStringList platformLinkerFlags() const;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
     static void addCommandPathToEnvironment(const Utils::FileName &command, Utils::Environment &env);
 
@@ -162,22 +163,22 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
     explicit ClangToolChain(Detection d);
-    QString type() const;
-    QString typeDisplayName() const;
-    QString makeCommand(const Utils::Environment &environment) const;
+    QString type() const override;
+    QString typeDisplayName() const override;
+    QString makeCommand(const Utils::Environment &environment) const override;
 
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const;
-    WarningFlags warningFlags(const QStringList &cflags) const;
+    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    WarningFlags warningFlags(const QStringList &cflags) const override;
 
-    IOutputParser *outputParser() const;
+    IOutputParser *outputParser() const override;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
-    QList<Utils::FileName> suggestedMkspecList() const;
-    void addToEnvironment(Utils::Environment &env) const;
+    QList<Utils::FileName> suggestedMkspecList() const override;
+    void addToEnvironment(Utils::Environment &env) const override;
 
 protected:
-    virtual CompilerFlags defaultCompilerFlags() const;
+    virtual CompilerFlags defaultCompilerFlags() const override;
 
 private:
     friend class Internal::ClangToolChainFactory;
@@ -191,13 +192,13 @@ private:
 class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
-    QString type() const;
-    QString typeDisplayName() const;
-    QString makeCommand(const Utils::Environment &environment) const;
+    QString type() const override;
+    QString typeDisplayName() const override;
+    QString makeCommand(const Utils::Environment &environment) const override;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
-    QList<Utils::FileName> suggestedMkspecList() const;
+    QList<Utils::FileName> suggestedMkspecList() const override;
 
 private:
     explicit MingwToolChain(Detection d);
@@ -213,15 +214,15 @@ private:
 class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 {
 public:
-    QString type() const;
-    QString typeDisplayName() const;
+    QString type() const override;
+    QString typeDisplayName() const override;
 
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const;
-    IOutputParser *outputParser() const;
+    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    IOutputParser *outputParser() const override;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
-    QList<Utils::FileName> suggestedMkspecList() const;
+    QList<Utils::FileName> suggestedMkspecList() const override;
 
 private:
     explicit LinuxIccToolChain(Detection d);

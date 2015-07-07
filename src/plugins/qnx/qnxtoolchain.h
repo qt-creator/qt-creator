@@ -44,24 +44,24 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 public:
     explicit QnxToolChain(Detection d);
 
-    QString type() const;
-    QString typeDisplayName() const;
+    QString type() const override;
+    QString typeDisplayName() const override;
 
-    ProjectExplorer::ToolChainConfigWidget *configurationWidget();
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;
 
-    void addToEnvironment(Utils::Environment &env) const;
-    QList<Utils::FileName> suggestedMkspecList() const;
+    void addToEnvironment(Utils::Environment &env) const override;
+    QList<Utils::FileName> suggestedMkspecList() const override;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
 
     QString ndkPath() const;
     void setNdkPath(const QString &ndkPath);
 
 protected:
-    virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const;
+    virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const override;
 
-    QStringList reinterpretOptions(const QStringList &args) const;
+    QStringList reinterpretOptions(const QStringList &args) const override;
 
 private:
     QString m_ndkPath;
@@ -78,11 +78,11 @@ class QnxToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     QnxToolChainFactory();
 
-    bool canRestore(const QVariantMap &data);
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
-    bool canCreate();
-    ProjectExplorer::ToolChain *create();
+    bool canCreate() override;
+    ProjectExplorer::ToolChain *create() override;
 };
 
 //----------------------------------------------------------------------------
@@ -97,10 +97,10 @@ public:
     QnxToolChainConfigWidget(QnxToolChain *tc);
 
 private:
-    void applyImpl();
-    void discardImpl();
-    bool isDirtyImpl() const;
-    void makeReadOnlyImpl() {}
+    void applyImpl() override;
+    void discardImpl() override;
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override { }
 
     Utils::PathChooser *m_compilerCommand;
     Utils::PathChooser *m_ndkPath;

@@ -60,29 +60,29 @@ public:
 
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, Detection d = ManualDetection);
-    bool isValid() const;
-    QList<Utils::FileName> suggestedMkspecList() const;
+    bool isValid() const override;
+    QList<Utils::FileName> suggestedMkspecList() const override;
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
 
-    QString type() const;
-    QString typeDisplayName() const;
+    QString type() const override;
+    QString typeDisplayName() const override;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
 
-    ToolChainConfigWidget *configurationWidget();
+    ToolChainConfigWidget *configurationWidget() override;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
     QString varsBatArg() const { return m_varsBatArg; }
 
-    bool operator == (const ToolChain &) const;
+    bool operator == (const ToolChain &) const override;
 
 protected:
-    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;
+    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const override;
     QByteArray msvcPredefinedMacros(const QStringList cxxflags,
-                                    const Utils::Environment &env) const;
+                                    const Utils::Environment &env) const override;
 
 private:
     MsvcToolChain();
@@ -101,11 +101,11 @@ class MsvcToolChainFactory : public ToolChainFactory
 public:
     MsvcToolChainFactory();
 
-    QList<ToolChain *> autoDetect();
+    QList<ToolChain *> autoDetect() override;
 
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data)
-        { return MsvcToolChain::readFromMap(data); }
+    bool canRestore(const QVariantMap &data) override;
+    ToolChain *restore(const QVariantMap &data) override
+    { return MsvcToolChain::readFromMap(data); }
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
     static QString vcVarsBatFor(const QString &basePath, const QString &toolchainName);
@@ -126,10 +126,10 @@ public:
     MsvcToolChainConfigWidget(ToolChain *);
 
 private:
-    void applyImpl() {}
-    void discardImpl() { setFromToolChain(); }
-    bool isDirtyImpl() const { return false; }
-    void makeReadOnlyImpl() {}
+    void applyImpl() override {}
+    void discardImpl() override { setFromToolChain(); }
+    bool isDirtyImpl() const override { return false; }
+    void makeReadOnlyImpl() override {}
 
     void setFromToolChain();
 

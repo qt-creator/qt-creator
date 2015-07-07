@@ -51,27 +51,28 @@ public:
                    const QString &libPath,
                    Detection d = ManualDetection);
 
-    QList<Utils::FileName> suggestedMkspecList() const;
+    QList<Utils::FileName> suggestedMkspecList() const override;
 
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 
-    QString type() const;
-    QString typeDisplayName() const;
+    QString type() const override;
+    QString typeDisplayName() const override;
 
     QString ceVer() const;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
 
-    ToolChainConfigWidget *configurationWidget();
+    ToolChainConfigWidget *configurationWidget() override;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
     static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
 
-    bool operator ==(const ToolChain &other) const;
+    bool operator ==(const ToolChain &other) const override;
+
 protected:
-    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;
+    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const override;
 
 private:
     WinCEToolChain();
@@ -94,10 +95,10 @@ public:
     WinCEToolChainConfigWidget(ToolChain *);
 
 private:
-    void applyImpl() {}
-    void discardImpl() { }
-    bool isDirtyImpl() const {return false;}
-    void makeReadOnlyImpl() {}
+    void applyImpl() override { }
+    void discardImpl() override { }
+    bool isDirtyImpl() const override { return false; }
+    void makeReadOnlyImpl() override { }
 };
 
 class WinCEToolChainFactory : public ToolChainFactory
@@ -107,10 +108,10 @@ class WinCEToolChainFactory : public ToolChainFactory
 public:
     WinCEToolChainFactory();
 
-    QList<ToolChain *> autoDetect();
+    QList<ToolChain *> autoDetect() override;
 
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
+    ToolChain *restore(const QVariantMap &data) override;
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
 
