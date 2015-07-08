@@ -666,8 +666,22 @@ ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
 {
-    if (textModifier())
-        return textModifier()->renameId(oldId, newId);
+    if (textModifier()) {
+        PropertyName propertyName = oldId.toLatin1();
+
+        bool hasAliasExport = rootModelNode().isValid()
+                && rootModelNode().hasBindingProperty(propertyName)
+                && rootModelNode().bindingProperty(propertyName).isAliasExport();
+
+        bool refactoring =  textModifier()->renameId(oldId, newId);
+
+        if (refactoring && hasAliasExport) { //Keep export alias properties
+            rootModelNode().removeProperty(propertyName);
+            PropertyName newPropertyName = newId.toLatin1();
+            rootModelNode().bindingProperty(newPropertyName).setDynamicTypeNameAndExpression("alias", newPropertyName);
+        }
+        return refactoring;
+    }
 
     return false;
 }
