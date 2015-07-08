@@ -383,7 +383,7 @@ bool CustomToolChainFactory::canCreate()
 
 ToolChain *CustomToolChainFactory::create()
 {
-    return createToolChain(false);
+    return new CustomToolChain(ToolChain::ManualDetection);
 }
 
 // Used by the ToolChainManager to restore user-generated tool chains
@@ -400,11 +400,6 @@ ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)
 
     delete tc;
     return 0;
-}
-
-CustomToolChain *CustomToolChainFactory::createToolChain(bool autoDetect)
-{
-    return new CustomToolChain(autoDetect ? ToolChain::AutoDetection : ToolChain::ManualDetection);
 }
 
 // --------------------------------------------------------------------------

@@ -116,11 +116,7 @@ public:
 
     QList<ToolChain *> autoDetect();
 
-    bool canCreate();
-    ToolChain *create();
-
     bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
 
 protected:
     GccToolChain *createToolChain(bool autoDetect);
@@ -139,11 +135,7 @@ public:
 
     QList<ToolChain *> autoDetect();
 
-    bool canCreate();
-    ToolChain *create();
-
     bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
 
 protected:
     GccToolChain *createToolChain(bool autoDetect);
@@ -162,10 +154,7 @@ public:
 
     QList<ToolChain *> autoDetect();
 
-    ToolChain *create();
-
     bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
 
 protected:
     GccToolChain *createToolChain(bool autoDetect);

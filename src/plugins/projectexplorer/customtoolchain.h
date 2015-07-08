@@ -159,11 +159,6 @@ public:
     // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override;
-
-protected:
-    virtual CustomToolChain *createToolChain(bool autoDetect);
-    QList<ToolChain *> autoDetectToolchains(const QString &compiler,
-                                            const Abi &);
 };
 
 // --------------------------------------------------------------------------

@@ -795,10 +795,8 @@ bool GccToolChainFactory::canRestore(const QVariantMap &data)
 
 ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
 {
-    GccToolChain *tc = new GccToolChain(ToolChain::ManualDetection);
-    // Updating from 2.5:
-    QVariantMap updated = data;
-    if (tc->fromMap(updated))
+    GccToolChain *tc = createToolChain(false);
+    if (tc->fromMap(data))
         return tc;
 
     delete tc;
@@ -1116,29 +1114,9 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect()
     return autoDetectToolchains(QLatin1String("clang++"), ha);
 }
 
-bool ClangToolChainFactory::canCreate()
-{
-    return true;
-}
-
-ToolChain *ClangToolChainFactory::create()
-{
-    return createToolChain(false);
-}
-
 bool ClangToolChainFactory::canRestore(const QVariantMap &data)
 {
     return typeIdFromMap(data) == Constants::CLANG_TOOLCHAIN_TYPEID;
-}
-
-ToolChain *ClangToolChainFactory::restore(const QVariantMap &data)
-{
-    ClangToolChain *tc = new ClangToolChain(ToolChain::ManualDetection);
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return 0;
 }
 
 GccToolChain *ClangToolChainFactory::createToolChain(bool autoDetect)
@@ -1217,29 +1195,9 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect()
                                 Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth()));
 }
 
-bool MingwToolChainFactory::canCreate()
-{
-    return true;
-}
-
-ToolChain *MingwToolChainFactory::create()
-{
-    return createToolChain(false);
-}
-
 bool MingwToolChainFactory::canRestore(const QVariantMap &data)
 {
     return typeIdFromMap(data) == Constants::MINGW_TOOLCHAIN_TYPEID;
-}
-
-ToolChain *MingwToolChainFactory::restore(const QVariantMap &data)
-{
-    MingwToolChain *tc = new MingwToolChain(ToolChain::ManualDetection);
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return 0;
 }
 
 GccToolChain *MingwToolChainFactory::createToolChain(bool autoDetect)
@@ -1313,24 +1271,9 @@ QList<ToolChain *> LinuxIccToolChainFactory::autoDetect()
     return autoDetectToolchains(QLatin1String("icpc"), Abi::hostAbi());
 }
 
-ToolChain *LinuxIccToolChainFactory::create()
-{
-    return createToolChain(false);
-}
-
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)
 {
     return typeIdFromMap(data) == Constants::LINUXICC_TOOLCHAIN_TYPEID;
-}
-
-ToolChain *LinuxIccToolChainFactory::restore(const QVariantMap &data)
-{
-    LinuxIccToolChain *tc = new LinuxIccToolChain(ToolChain::ManualDetection);
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return 0;
 }
 
 GccToolChain *LinuxIccToolChainFactory::createToolChain(bool autoDetect)
