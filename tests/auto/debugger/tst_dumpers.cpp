@@ -3866,8 +3866,8 @@ void tst_Dumpers::dumper_data()
                + Check("l3.1", "[1]", "0x0", "int *")
                + Check("l3.2", "[2]", "2", "int")
 
-               + Check("l4.@0.0", "[0]", "1", "int")
-               + Check("l4.@0.1", "[1]", "2", "int");
+               + Check("l4.@2.0", "[0]", "1", "int")
+               + Check("l4.@2.1", "[1]", "2", "int");
 
 
     QTest::newRow("StdListQt")
