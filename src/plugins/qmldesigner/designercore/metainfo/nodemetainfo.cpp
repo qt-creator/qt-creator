@@ -281,7 +281,7 @@ class PropertyMemberProcessor : public MemberProcessor
 public:
     PropertyMemberProcessor(const ContextPtr &context) : m_context(context)
     {}
-    bool processProperty(const QString &name, const Value *value, const QmlJS::PropertyInfo &)
+    bool processProperty(const QString &name, const Value *value, const QmlJS::PropertyInfo &) override
     {
         PropertyName propertyName = name.toUtf8();
         const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
