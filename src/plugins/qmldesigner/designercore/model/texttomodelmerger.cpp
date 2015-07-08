@@ -862,7 +862,9 @@ void TextToModelMerger::setupUsedImports()
 
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
-//    qDebug() << "TextToModelMerger::load with data:" << data;
+    // maybe the project environment (kit, ...) changed, so we need to clean old caches
+    NodeMetaInfo::clearCache();
+
 
     const QUrl url = m_rewriterView->model()->fileUrl();
 
