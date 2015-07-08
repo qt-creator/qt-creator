@@ -774,6 +774,18 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Dialogs")   //Unsupported
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Controls.Styles")   //Unsupported
             || importKey.libraryQualifiedPath().contains(QStringLiteral("Qt.labs"))    //No support for labs plugins
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtNfc") //Unsupported
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtMultimedia")
+            || importKey.libraryQualifiedPath() == QStringLiteral("Qt.WebSockets")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtWebkit")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtLocation")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtWebEngine")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtWebChannel")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtWinExtras")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtPurchasing")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtBluetooth")
+            || importKey.libraryQualifiedPath() ==  QStringLiteral("Enginio")
+
             || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick")); // Don't show Quick X.X imports
 }
 
