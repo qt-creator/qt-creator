@@ -36,6 +36,7 @@
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
 
+#include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -435,7 +436,18 @@ QString AbstractView::contextHelpId() const
     QString helpId;
 
     if (hasSelectedModelNodes()) {
-        helpId = QStringLiteral("QML.") + firstSelectedModelNode().simplifiedTypeName();
+        QString className = firstSelectedModelNode().simplifiedTypeName();
+        helpId = QStringLiteral("QML.") + className;
+        if (Core::HelpManager::linksForIdentifier(helpId).isEmpty() && firstSelectedModelNode().metaInfo().isValid()) {
+
+            foreach (className, firstSelectedModelNode().metaInfo().superClassNames()) {
+                helpId = QStringLiteral("QML.") + className;
+                if (Core::HelpManager::linksForIdentifier(helpId).isEmpty())
+                    helpId = QString();
+                else
+                    break;
+            }
+        }
     }
 
     return helpId;
