@@ -33,13 +33,12 @@
 
 #include <QDialog>
 
-QT_BEGIN_NAMESPACE
+namespace  QmlDesigner {
+
 namespace Ui {
 class PuppetBuildProgressDialog;
 }
-QT_END_NAMESPACE
 
-namespace  QmlDesigner {
 
 class PuppetBuildProgressDialog : public QDialog
 {

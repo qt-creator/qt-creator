@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PuppetBuildProgressDialog</class>
- <widget class="QDialog" name="PuppetBuildProgressDialog">
+ <class>QmlDesigner::PuppetBuildProgressDialog</class>
+ <widget class="QDialog" name="QmlDesigner::PuppetBuildProgressDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -33,6 +33,19 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="openErrorOutputFileLabel">
+       <property name="text">
+        <string>Open error output file</string>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
