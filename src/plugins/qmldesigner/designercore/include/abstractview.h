@@ -188,50 +188,49 @@ public:
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
 
-    virtual void nodeCreated(const ModelNode &createdNode) = 0;
-    virtual void nodeAboutToBeRemoved(const ModelNode &removedNode) = 0;
-    virtual void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) = 0;
-    virtual void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) = 0;
-    virtual void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) = 0;
-    virtual void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) = 0;
-    virtual void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) = 0;
-    virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList) = 0;
-    virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
-    virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
-    virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
-    virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) = 0;
+    virtual void nodeCreated(const ModelNode &createdNode);
+    virtual void nodeAboutToBeRemoved(const ModelNode &removedNode);
+    virtual void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
+    virtual void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
+    virtual void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
+    virtual void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
+    virtual void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
+    virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList);
+    virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
+    virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
+    virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange);
+    virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
-    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) = 0;
-    virtual void instancesCompleted(const QVector<ModelNode> &completedNodeList) = 0;
-    virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) = 0;
-    virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) = 0;
-    virtual void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) = 0;
-    virtual void instancesChildrenChanged(const QVector<ModelNode> &nodeList) = 0;
-    virtual void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) = 0;
-
-    virtual void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) = 0;
-
-    virtual void rewriterBeginTransaction() = 0;
-    virtual void rewriterEndTransaction() = 0;
-
-    virtual void currentStateChanged(const ModelNode &node) = 0; // base state is a invalid model node
+    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     virtual void instanceErrorChange(const QVector<ModelNode> &errorNodeList);
+    virtual void instancesCompleted(const QVector<ModelNode> &completedNodeList);
+    virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
+    virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
+    virtual void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
+    virtual void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    virtual void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector);
+
+    virtual void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
+
+    virtual void rewriterBeginTransaction();
+    virtual void rewriterEndTransaction();
+
+    virtual void currentStateChanged(const ModelNode &node); // base state is a invalid model node
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                      const QList<ModelNode> &lastSelectedNodeList) = 0;
+                                      const QList<ModelNode> &lastSelectedNodeList);
 
     virtual void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
-    virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) = 0;
+    virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
-    virtual void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) = 0;
+    virtual void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
     virtual void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
 
     virtual void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
-    virtual void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) = 0;
-
+    virtual void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 
