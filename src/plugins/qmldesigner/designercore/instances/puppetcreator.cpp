@@ -353,7 +353,6 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         else
             environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
     }
-
     return environment.toProcessEnvironment();
 }
 

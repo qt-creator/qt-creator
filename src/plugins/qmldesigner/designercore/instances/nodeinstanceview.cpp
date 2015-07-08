@@ -188,7 +188,7 @@ void NodeInstanceView::handleChrash()
     if (elaspsedTimeSinceLastCrash > 2000)
         restartProcess();
     else
-        emit  qmlPuppetCrashed();
+        emit qmlPuppetCrashed();
 
     emitCustomNotification(QStringLiteral("puppet crashed"));
 }

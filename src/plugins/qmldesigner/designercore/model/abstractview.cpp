@@ -109,7 +109,7 @@ const ModelNode AbstractView::rootModelNode() const
 ModelNode AbstractView::rootModelNode()
 {
     Q_ASSERT(model());
-    return  ModelNode(model()->d->rootNode(), model(), this);
+    return ModelNode(model()->d->rootNode(), model(), this);
 }
 
 /*!

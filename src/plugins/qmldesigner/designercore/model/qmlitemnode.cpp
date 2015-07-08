@@ -99,7 +99,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-    return  QmlItemNode::createQmlItemNode(view, itemLibraryEntry, position, parentProperty);
+    return QmlItemNode::createQmlItemNode(view, itemLibraryEntry, position, parentProperty);
 }
 
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, NodeAbstractProperty parentproperty)

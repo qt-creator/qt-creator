@@ -262,12 +262,12 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
 
 static bool isListElementType(const QmlDesigner::TypeName &type)
 {
-    return  type == "ListElement" || type == "QtQuick.ListElement" || type == "Qt.ListElement";
+    return type == "ListElement" || type == "QtQuick.ListElement" || type == "Qt.ListElement";
 }
 
 static bool isComponentType(const QmlDesigner::TypeName &type)
 {
-    return  type == "Component" || type == "Qt.Component" || type == "QtQuick.Component" || type == "<cpp>.QQmlComponent";
+    return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component" || type == "<cpp>.QQmlComponent";
 }
 
 static bool isCustomParserType(const QString &type)
@@ -281,12 +281,12 @@ static bool isCustomParserType(const QString &type)
 
 static bool isPropertyChangesType(const QmlDesigner::TypeName &type)
 {
-    return  type == "PropertyChanges" || type == "QtQuick.PropertyChanges" || type == "Qt.PropertyChanges";
+    return type == "PropertyChanges" || type == "QtQuick.PropertyChanges" || type == "Qt.PropertyChanges";
 }
 
 static bool isConnectionsType(const QmlDesigner::TypeName &type)
 {
-    return  type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections";
+    return type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections";
 }
 
 static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)

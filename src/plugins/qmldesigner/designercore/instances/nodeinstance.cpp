@@ -125,7 +125,7 @@ NodeInstance &NodeInstance::operator=(const NodeInstance &other)
 ModelNode NodeInstance::modelNode() const
 {
     if (d)
-        return  d->modelNode;
+        return d->modelNode;
     else
         return ModelNode();
 }
@@ -170,7 +170,7 @@ void NodeInstance::setY(double y)
 
 bool NodeInstance::hasAnchors() const
 {
-    return  hasAnchor("anchors.fill")
+    return hasAnchor("anchors.fill")
             || hasAnchor("anchors.centerIn")
             || hasAnchor("anchors.top")
             || hasAnchor("anchors.left")
@@ -206,7 +206,7 @@ void NodeInstance::makeInvalid()
 QRectF NodeInstance::boundingRect() const
 {
     if (isValid())
-        return  d->boundingRect;
+        return d->boundingRect;
     else
         return QRectF();
 }
@@ -214,7 +214,7 @@ QRectF NodeInstance::boundingRect() const
 QRectF NodeInstance::contentItemBoundingRect() const
 {
     if (isValid())
-        return  d->contentItemBoundingRect;
+        return d->contentItemBoundingRect;
     else
         return QRectF();
 }

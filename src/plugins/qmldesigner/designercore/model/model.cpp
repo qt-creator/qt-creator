@@ -1836,7 +1836,7 @@ QString Model::pathForImport(const Import &import)
     if (!rewriterView())
         return QString();
 
-    return  rewriterView()->pathForImport(import);
+    return rewriterView()->pathForImport(import);
 }
 
 QStringList Model::importPaths() const
