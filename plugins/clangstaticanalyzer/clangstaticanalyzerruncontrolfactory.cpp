@@ -24,6 +24,8 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
 
+#include <coreplugin/icontext.h>
+
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojects.h>
 
@@ -31,6 +33,8 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -56,6 +60,12 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
                                                   Core::Id runMode) const
 {
     if (runMode != Constants::CLANGSTATICANALYZER_RUN_MODE)
+        return false;
+
+    Project *project = runConfiguration->target()->project();
+    QTC_ASSERT(project, return false);
+    const Core::Context context = project->projectLanguages();
+    if (!context.contains(ProjectExplorer::Constants::LANG_CXX))
         return false;
 
     Target *target = runConfiguration->target();
