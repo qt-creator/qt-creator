@@ -113,9 +113,8 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
     Core::IDocument *document = editor->document();
     QTC_ASSERT(document, return);
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-    QTC_ASSERT(textDocument, return);
 
-    if (cppModelManager()->isCppEditor(editor)) {
+    if (textDocument && cppModelManager()->isCppEditor(editor)) {
         // Handle externally changed documents
         connect(textDocument, &Core::IDocument::reloadFinished,
                 this, &ModelManagerSupportClang::onCppDocumentReloadFinished,
