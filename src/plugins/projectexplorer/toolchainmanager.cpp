@@ -247,6 +247,7 @@ void ToolChainManager::restoreToolChains()
                           .arg(tc->displayName()).arg(QString::fromUtf8(tc->id()));
             delete tc;
         } else {
+            tc->setDetection(ToolChain::ManualDetection); // "demote" to manual toolchain
             tcsToRegister += tc;
         }
     }
