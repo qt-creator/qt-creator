@@ -56,9 +56,9 @@ namespace Internal {
 class RemoteLinuxAnalyzeSupportPrivate
 {
 public:
-    RemoteLinuxAnalyzeSupportPrivate(AnalyzerRunControl *rc, RunMode runMode)
+    RemoteLinuxAnalyzeSupportPrivate(AnalyzerRunControl *rc, Core::Id runMode)
         : runControl(rc),
-          qmlProfiling(runMode == QmlProfilerRunMode),
+          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE),
           qmlPort(-1)
     {
     }
@@ -75,11 +75,9 @@ public:
 using namespace Internal;
 
 AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConfiguration *runConfig,
-                                                                   RunMode runMode)
+                                                                   Core::Id runMode)
 {
     AnalyzerStartParameters params;
-    if (runMode == QmlProfilerRunMode)
-        params.startMode = StartLocal;
     params.runMode = runMode;
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
     params.displayName = runConfig->displayName();
@@ -90,7 +88,7 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConf
 }
 
 RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
-                                                     AnalyzerRunControl *engine, RunMode runMode)
+                                                     AnalyzerRunControl *engine, Core::Id runMode)
     : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new RemoteLinuxAnalyzeSupportPrivate(engine, runMode))
 {

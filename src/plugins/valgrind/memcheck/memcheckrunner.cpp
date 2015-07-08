@@ -101,7 +101,9 @@ bool MemcheckRunner::start()
     QTC_ASSERT(d->parser, return false);
 
     // The remote case is handled in localHostAddressRetrieved().
-    if (startMode() == Analyzer::StartLocal) {
+    // FIXME: We start confusing "use startup project" with a "local/remote"
+    // decision here.
+    if (useStartupProject()) {
         startServers(QHostAddress(QHostAddress::LocalHost));
         setValgrindArguments(memcheckLogArguments() + valgrindArguments());
     }

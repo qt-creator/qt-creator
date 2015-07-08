@@ -244,7 +244,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
 
     QToolButton *resetButton = new QToolButton();
-    resetButton->setToolTip(tr("Reset to default."));
+    resetButton->setToolTip(tr("Reset to Default"));
     resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
 
     QHBoxLayout *boxlayout = new QHBoxLayout();

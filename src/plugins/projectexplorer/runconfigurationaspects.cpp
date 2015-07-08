@@ -163,7 +163,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
             this, &WorkingDirectoryAspect::setWorkingDirectory);
 
     auto resetButton = new QToolButton(parent);
-    resetButton->setToolTip(tr("Reset to default"));
+    resetButton->setToolTip(tr("Reset to Default"));
     resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
     connect(resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
@@ -195,7 +195,7 @@ void WorkingDirectoryAspect::resetPath()
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
-    m_workingDirectory = map.value(m_key).toBool();
+    m_workingDirectory = map.value(m_key).toString();
 }
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const

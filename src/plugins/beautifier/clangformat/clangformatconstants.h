@@ -35,6 +35,7 @@ namespace Beautifier {
 namespace Constants {
 namespace ClangFormat {
 
+const char DISPLAY_NAME[]          = "ClangFormat";
 const char ACTION_FORMATFILE[]     = "ClangFormat.FormatFile";
 const char ACTION_FORMATSELECTED[] = "ClangFormat.FormatSelectedText";
 const char MENU_ID[]               = "ClangFormat.Menu";

@@ -361,6 +361,9 @@ bool Symbol::isNamespace() const
 bool Symbol::isTemplate() const
 { return asTemplate() != 0; }
 
+bool Symbol::isExplicitInstantiation() const
+{ return asExplicitInstantiation() != 0; }
+
 bool Symbol::isClass() const
 { return asClass() != 0; }
 

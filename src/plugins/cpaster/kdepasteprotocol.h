@@ -39,18 +39,16 @@ class StickyNotesPasteProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    StickyNotesPasteProtocol();
+    unsigned capabilities() const override;
 
-    virtual unsigned capabilities() const;
-
-    virtual void fetch(const QString &id);
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
-    virtual void list();
+    void fetch(const QString &id) override;
+    void paste(const QString &text,
+               ContentType ct = Text,
+               int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
+    void list() override;
 
 
 
@@ -63,18 +61,18 @@ public slots:
     void listFinished();
 
 protected:
-    virtual bool checkConfiguration(QString *errorMessage = 0);
+    bool checkConfiguration(QString *errorMessage = 0) override;
 
 private:
     QString m_hostUrl;
 
-    QNetworkReply *m_fetchReply;
-    QNetworkReply *m_pasteReply;
-    QNetworkReply *m_listReply;
+    QNetworkReply *m_fetchReply = nullptr;
+    QNetworkReply *m_pasteReply = nullptr;
+    QNetworkReply *m_listReply = nullptr;
 
     QString m_fetchId;
-    int m_postId;
-    bool m_hostChecked;
+    int m_postId = -1;
+    bool m_hostChecked = false;
 };
 
 class KdePasteProtocol : public StickyNotesPasteProtocol

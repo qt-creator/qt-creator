@@ -40,16 +40,15 @@ QT_END_NAMESPACE
 namespace CodePaster {
 
 struct Settings {
-    Settings();
     void toSettings(QSettings *s) const;
     void fromSettings(const QSettings *s);
     bool equals(const Settings &s) const;
 
     QString username;
     QString protocol;
-    int expiryDays;
-    bool copyToClipboard;
-    bool displayOutput;
+    int expiryDays = 1;
+    bool copyToClipboard = true;
+    bool displayOutput = true;
 };
 
 inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }

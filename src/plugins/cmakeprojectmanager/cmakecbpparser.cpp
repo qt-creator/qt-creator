@@ -104,10 +104,19 @@ void CMakeCbpParser::sortFiles()
 
     foreach (const FileName &fileName, fileNames) {
         qCDebug(log) << fileName;
+        const QString unitTarget = m_unitTargetMap[fileName];
+        if (!unitTarget.isEmpty()) { // target was explicitly specified for that file
+            int index = Utils::indexOf(m_buildTargets, Utils::equal(&CMakeBuildTarget::title, unitTarget));
+            if (index != -1) {
+                m_buildTargets[index].files.append(fileName.toString());
+                qCDebug(log) << "  into" << m_buildTargets[index].title << "(target attribute)";
+                continue;
+            }
+        }
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
             last->files.append(fileName.toString());
-            qCDebug(log) << "  into" << last->title;
+            qCDebug(log) << "  into" << last->title << "(same parent)";
         } else {
             int bestDistance = std::numeric_limits<int>::max();
             int bestIndex = -1;
@@ -228,8 +237,7 @@ void CMakeCbpParser::parseBuildTarget()
         readNext();
         if (isEndElement()) {
             if (!m_buildTarget.title.endsWith(QLatin1String("/fast"))
-                    && !m_buildTarget.title.endsWith(QLatin1String("_automoc"))
-                    && !m_buildTarget.title.endsWith(QLatin1String("_unittest")))
+                    && !m_buildTarget.title.endsWith(QLatin1String("_automoc")))
                 m_buildTargets.append(m_buildTarget);
             return;
         } else if (name() == QLatin1String("Compiler")) {
@@ -409,6 +417,7 @@ void CMakeCbpParser::parseUnit()
     }
 
     m_parsingCmakeUnit = false;
+    m_unitTarget.clear();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -429,6 +438,8 @@ void CMakeCbpParser::parseUnit()
                     else
                         m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, generated));
                 }
+                if (!m_unitTarget.isEmpty())
+                    m_unitTargetMap.insert(fileName, m_unitTarget);
                 m_processedUnits.insert(fileName);
             }
             return;
@@ -442,8 +453,9 @@ void CMakeCbpParser::parseUnit()
 
 void CMakeCbpParser::parseUnitOption()
 {
-    if (attributes().hasAttribute(QLatin1String("virtualFolder")))
-        m_parsingCmakeUnit = true;
+    const QXmlStreamAttributes optionAttributes = attributes();
+    m_parsingCmakeUnit = optionAttributes.hasAttribute(QLatin1String("virtualFolder"));
+    m_unitTarget = optionAttributes.value(QLatin1String("target")).toString();
 
     while (!atEnd()) {
         readNext();

@@ -55,17 +55,11 @@ public:
         ValueNeeded       = 2,
         ChildrenNeeded    = 8,
 
-        NeededMask = ValueNeeded
-            | ChildrenNeeded
-            | HasChildrenNeeded,
-
         InitialState = ValueNeeded
             | ChildrenNeeded
             | HasChildrenNeeded
     };
 
-    bool isSomethingNeeded() const { return state & NeededMask; }
-    void setAllNeeded()            { state = NeededMask; }
     void setAllUnneeded()          { state = State(0); }
 
     bool isValueNeeded() const { return state & ValueNeeded; }
@@ -88,7 +82,6 @@ public:
     void setError(const QString &);
     void setValue(const QString &);
     void setType(const QByteArray &, bool guessChildrenFromType = true);
-    void setHexAddress(const QByteArray &a);
 
     QString toString()  const;
     QString toToolTip() const;
@@ -126,6 +119,7 @@ public:
     bool            wantsChildren;
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
+    bool            outdated;      // \internal item is to be removed.
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 };

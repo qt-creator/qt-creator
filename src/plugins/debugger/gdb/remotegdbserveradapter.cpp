@@ -58,11 +58,11 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &startParameters)
-    : GdbEngine(startParameters), m_startAttempted(false)
+GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &runParameters)
+    : GdbEngine(runParameters), m_startAttempted(false)
 {
     if (HostOsInfo::isWindowsHost())
-        m_gdbProc.setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
+        m_gdbProc.setUseCtrlCStub(runParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
 
     connect(&m_uploadProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &GdbRemoteServerEngine::uploadProcError);

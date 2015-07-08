@@ -179,6 +179,9 @@ bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
     case Token::Comment:
         return false;
 
+    case Token::RightBrace:
+        return false;
+
     case Token::String: {
         const QString blockText = cursor.block().text();
         const QStringRef tokenText = blockText.midRef(token.offset, token.length);

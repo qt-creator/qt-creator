@@ -53,7 +53,6 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
 {
     setIcon(QLatin1String(":/images/analyzer_start_small.png"));
 
-    m_runConfig = runConfiguration;
     m_sp = sp;
 
     connect(this, &AnalyzerRunControl::finished,
@@ -101,7 +100,7 @@ bool AnalyzerRunControl::isRunning() const
 
 QString AnalyzerRunControl::displayName() const
 {
-    return m_runConfig ? m_runConfig->displayName() : m_sp.displayName;
+    return m_sp.displayName;
 }
 
 } // namespace Analyzer

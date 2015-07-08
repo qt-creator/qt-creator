@@ -38,39 +38,41 @@
     \nextpage creator-project-generic.html
 
     \title Setting Up an Autotools Project
-    The AutotoolsProjectManager is a plugin for autotools support. It is disabled by default.
-    To enable the plugin, select \uicontrol{Help > About Plugins > Build Systems
-    > AutotoolsProjectManager}.
+
+    The AutotoolsProjectManager is a plugin for autotools support. It is
+    disabled by default. To enable the plugin, select \uicontrol Help >
+    \uicontrol {About Plugins} > \uicontrol {Build Systems} >
+    \uicontrol AutotoolsProjectManager.
+
     To use the plugin, restart \QC.
 
     To work with your Autotools project in \QC:
 
-        \list 1
+    \list 1
 
-            \li  Select \uicontrol{File > Open File or Project}.
-            \li  Select the Makefile.am file from your project. This is the only
-               way you can use the autotools plugin.
-            \li  Select the build directory. Only in-source building is currently
-               supported.
-            \li  Select \uicontrol Finish.
-               \QC displays the project tree structure. The root node displays
-               the project name. All project files are listed below it and you
-               can open them from the list.
+        \li Select \uicontrol File > \uicontrol {Open File or Project}.
+        \li Select the Makefile.am file from your project. This is the only way
+            you can use the autotools plugin.
+        \li Select the build directory. Only in-source building is currently
+            supported.
+        \li Select \uicontrol Finish. \QC displays the project tree structure.
+            The root node displays the project name. All project files are
+            listed below it and you can open them from the list.
 
-               \image qtcreator-autotools-buildrun.png
+            \image qtcreator-autotools-buildrun.png
 
-            \li  Select \uicontrol Run to build and run the application. The predefined
-               build steps (autogen.sh or autoreconf, configure, and make) are
-               executed.
+        \li Select \uicontrol Run to build and run the application. The
+            predefined build steps (autogen.sh or autoreconf, configure, and
+            make) are executed.
 
-               The first time you run the application you must choose the
-               executable.
+            The first time you run the application you must choose the
+            executable.
 
-            \li  To check and edit autotools build steps, select
-               \uicontrol{Projects > Build Settings}.
+        \li To check and edit autotools build steps, select
+            \uicontrol Projects > \uicontrol {Build Settings}.
 
-               You can add parameters to the predefined autotools build steps.
+            You can add parameters to the predefined autotools build steps.
 
-              \image qtcreator-autotools-buildsettings.png
-        \endlist
+            \image qtcreator-autotools-buildsettings.png
+    \endlist
 */

@@ -38,7 +38,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QSignalMapper;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -69,11 +68,11 @@ private slots:
     void deviceNameEditingFinished();
     void setDefaultDevice();
     void testDevice();
-    void handleAdditionalActionRequest(int actionId);
     void handleProcessListRequested();
 
 private:
     void initGui();
+    void handleAdditionalActionRequest(Core::Id actionId);
     void displayCurrent();
     void setDeviceInfoWidgetsEnabled(bool enable);
     IDevice::ConstPtr currentDevice() const;
@@ -88,7 +87,6 @@ private:
     DeviceManagerModel * const m_deviceManagerModel;
     NameValidator * const m_nameValidator;
     QList<QPushButton *> m_additionalActionButtons;
-    QSignalMapper * const m_additionalActionsMapper;
     IDeviceWidget *m_configWidget;
 };
 

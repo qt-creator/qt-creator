@@ -47,6 +47,7 @@ class JsonSummaryPage : public Internal::ProjectWizardPage
 
 public:
     JsonSummaryPage(QWidget *parent = 0);
+    void setHideProjectUiValue(const QVariant &hideProjectUiValue);
 
     void initializePage();
     bool validatePage();
@@ -63,6 +64,7 @@ private:
 
     JsonWizard *m_wizard;
     JsonWizard::GeneratorFiles m_fileList;
+    QVariant m_hideProjectUiValue;
 };
 
 } // namespace ProjectExplorer

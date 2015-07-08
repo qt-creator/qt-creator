@@ -1222,8 +1222,12 @@ void PluginManagerPrivate::loadPlugins()
     while (it.hasPrevious()) {
         PluginSpec *spec = it.previous();
         loadPlugin(spec, PluginSpec::Running);
-        if (spec->state() == PluginSpec::Running)
+        if (spec->state() == PluginSpec::Running) {
             delayedInitializeQueue.append(spec);
+        } else {
+            // Plugin initialization failed, so cleanup after it
+            spec->d->kill();
+        }
     }
     emit q->pluginsChanged();
 
@@ -1246,8 +1250,12 @@ void PluginManagerPrivate::shutdown()
         shutdownEventLoop->exec();
     }
     deleteAll();
-    if (!allObjects.isEmpty())
-        qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool: " << allObjects;
+    if (!allObjects.isEmpty()) {
+        qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool.";
+        // Intentionally split debug info here, since in case the list contains
+        // already deleted object we get at least the info about the number of objects;
+        qDebug() << "The following objects left in the plugin manager pool:" << allObjects;
+    }
 }
 
 /*!

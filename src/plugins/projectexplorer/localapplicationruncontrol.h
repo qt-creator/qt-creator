@@ -43,8 +43,8 @@ class LocalApplicationRunControlFactory : public IRunControlFactory
 public:
     LocalApplicationRunControlFactory ();
     ~LocalApplicationRunControlFactory();
-    bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
-    RunControl* create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage);
+    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const;
+    RunControl* create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage);
 };
 
 } // namespace Internal
@@ -53,7 +53,7 @@ class PROJECTEXPLORER_EXPORT LocalApplicationRunControl : public RunControl
 {
     Q_OBJECT
 public:
-    LocalApplicationRunControl(RunConfiguration *runConfiguration, RunMode mode);
+    LocalApplicationRunControl(RunConfiguration *runConfiguration, Core::Id mode);
     ~LocalApplicationRunControl();
     void start();
     StopResult stop();

@@ -55,32 +55,34 @@ public:
 class CORE_EXPORT Feature : public Id
 {
 public:
-    Feature(Id id) : Id(id) {}
+    Feature() = default;
+    template <int N> Feature(const char(&ch)[N]) : Id(ch) { }
+
+    static Feature fromString(const QString &str) { return Feature(Id::fromString(str)); }
+    static Feature fromName(const QByteArray &ba) { return Feature(Id::fromName(ba)); }
+
+    static Feature versionedFeature(const QByteArray &prefix, int major = -1, int minor = -1);
+
+private:
+    explicit Feature(const Id id) : Id(id) { }
 };
 
 class CORE_EXPORT FeatureSet : private QSet<Feature>
 {
 public:
-    FeatureSet() {}
-
-    FeatureSet(Id id)
+    explicit FeatureSet(Feature id)
     {
         if (id.isValid())
             insert(id);
     }
 
-    FeatureSet(const FeatureSet &other) : QSet<Feature>(other) {}
+    FeatureSet() = default;
+    FeatureSet(const FeatureSet &other) = default;
+    FeatureSet &operator=(const FeatureSet &other) = default;
 
-    FeatureSet &operator=(const FeatureSet &other)
-    {
-       QSet<Feature>::operator=(other);
-       return *this;
-    }
+    static FeatureSet versionedFeatures(const QByteArray &prefix, int major, int minor = -1);
 
-    bool isEmpty() const
-    {
-        return QSet<Feature>::isEmpty();
-    }
+    using QSet<Feature>::isEmpty;
 
     bool contains(const Feature &feature) const
     {
@@ -144,7 +146,7 @@ public:
     {
         FeatureSet features;
         foreach (const QString &i, list)
-            features |= Feature(Id::fromString(i));
+            features |= Feature::fromString(i);
         return features;
     }
 };

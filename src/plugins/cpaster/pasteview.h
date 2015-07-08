@@ -54,7 +54,7 @@ public:
     explicit PasteView(const QList<Protocol *> &protocols,
                        const QString &mimeType,
                        QWidget *parent);
-    ~PasteView();
+    ~PasteView() override;
 
     // Show up with checkable list of diff chunks.
     int show(const QString &user, const QString &description, const QString &comment,
@@ -73,7 +73,7 @@ public:
     void setExpiryDays(int d);
     int expiryDays() const;
 
-    virtual void accept();
+    void accept() override;
 
 private slots:
     void contentChanged();
@@ -89,7 +89,7 @@ private:
 
     Internal::Ui::ViewDialog m_ui;
     FileDataList m_parts;
-    Mode m_mode;
+    Mode m_mode = DiffChunkMode;
 };
 } // namespace CodePaster
 #endif // VIEW_H

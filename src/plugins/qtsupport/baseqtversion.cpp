@@ -96,6 +96,28 @@ QtVersionNumber::QtVersionNumber()
     majorVersion = minorVersion = patchVersion = -1;
 }
 
+FeatureSet QtVersionNumber::features() const
+{
+    return FeatureSet::versionedFeatures(Constants::FEATURE_QT_PREFIX, majorVersion, minorVersion);
+}
+
+bool QtVersionNumber::matches(int major, int minor, int patch) const
+{
+    if (major < 0)
+        return true;
+    if (major != majorVersion)
+        return false;
+
+    if (minor < 0)
+        return true;
+    if (minor != minorVersion)
+        return false;
+
+    if (patch < 0)
+        return true;
+    return (patch == patchVersion);
+}
+
 bool QtVersionNumber::operator <(const QtVersionNumber &b) const
 {
     if (majorVersion != b.majorVersion)
@@ -348,65 +370,64 @@ QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, b
 
 FeatureSet BaseQtVersion::availableFeatures() const
 {
-    FeatureSet features = FeatureSet(Constants::FEATURE_QWIDGETS)
-            | FeatureSet(Constants::FEATURE_QT)
-            | FeatureSet(Constants::FEATURE_QT_WEBKIT)
-            | FeatureSet(Constants::FEATURE_QT_CONSOLE);
+    FeatureSet features = qtVersion().features(); // Qt Version features
 
-    if (qtVersion() < QtVersionNumber(5, 0, 0))
-        features |= FeatureSet(Constants::FEATURE_QT4);
-    else
-        features |= FeatureSet(Constants::FEATURE_QT5);
+    features |= (Feature(Constants::FEATURE_QWIDGETS)
+                 | Feature(Constants::FEATURE_QT_WEBKIT)
+                 | Feature(Constants::FEATURE_QT_CONSOLE));
 
     if (qtVersion() < QtVersionNumber(4, 7, 0))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_1);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 1, 0);
 
-    if (qtVersion() < QtVersionNumber(4, 7, 1))
+    if (qtVersion().matches(4, 7, 0))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_1_1);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 1, 1);
 
-    if (qtVersion() < QtVersionNumber(5, 0, 0))
+    if (qtVersion().matches(4))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_2);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_0);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 0);
 
-    if (qtVersion() < QtVersionNumber(5, 1, 0))
+    if (qtVersion().matches(5, 0))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_1);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_0);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 1);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 0);
 
-    if (qtVersion() < QtVersionNumber(5, 2, 0))
+    if (qtVersion().matches(5, 1))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_2);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_1);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 2);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 1);
 
-    if (qtVersion() < QtVersionNumber(5, 3, 0))
+    if (qtVersion().matches(5, 2))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_3);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_2);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 3);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 2);
 
-    if (qtVersion() < QtVersionNumber(5, 4, 0))
+    if (qtVersion().matches(5, 3))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_4);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_3);
-    features |= FeatureSet(Constants::FEATURE_QT_QUICK_UI_FILES);
+    features |= Feature(Constants::FEATURE_QT_QUICK_UI_FILES);
 
-    if (qtVersion() < QtVersionNumber(5, 5, 0))
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 4);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 3);
+
+    if (qtVersion().matches(5, 4))
         return features;
 
-    features |= FeatureSet(Constants::FEATURE_QT_3D);
-    features |= FeatureSet(Constants::FEATURE_QT_CANVAS3D);
+    features |= Feature(Constants::FEATURE_QT_3D);
+    features |= Feature(Constants::FEATURE_QT_CANVAS3D);
+
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 5);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 4);
+
+    if (qtVersion().matches(5, 5))
+        return features;
 
     return features;
 }

@@ -31,11 +31,11 @@
 #ifndef SQLITEDATABASE_H
 #define SQLITEDATABASE_H
 
+#include "sqlitedatabaseconnectionproxy.h"
+#include "sqliteglobal.h"
+
 #include <QString>
 #include <QVector>
-
-#include "sqliteglobal.h"
-#include "sqlitedatabaseconnectionproxy.h"
 
 class SqliteTable;
 

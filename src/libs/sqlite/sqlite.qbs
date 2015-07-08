@@ -19,6 +19,7 @@ QtcLibrary {
     Group {
         name: "ThirdPartySqlite"
         prefix: "../3rdparty/sqlite/"
+        cpp.warningLevel: "none"
         files: [
             "sqlite3.c",
             "sqlite3.h",

@@ -60,13 +60,14 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
       m_settings(0),
       m_isStopping(false)
 {
+    m_isCustomStart = false;
+
     if (runConfiguration)
         if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))
             m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->currentSettings());
 
     if (!m_settings)
         m_settings = ValgrindPlugin::globalSettings();
-
 }
 
 ValgrindRunControl::~ValgrindRunControl()
@@ -100,7 +101,7 @@ bool ValgrindRunControl::startEngine()
     run->setDebuggeeArguments(sp.debuggeeArgs);
     run->setEnvironment(sp.environment);
     run->setConnectionParameters(sp.connParams);
-    run->setStartMode(sp.startMode);
+    run->setUseStartupProject(!m_isCustomStart);
     run->setLocalRunMode(sp.localRunMode);
 
     connect(run, &ValgrindRunner::processOutputReceived,

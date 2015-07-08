@@ -44,6 +44,7 @@
 #include <QAction>
 #include <QFormLayout>
 #include <QLabel>
+#include <QPushButton>
 
 namespace Debugger {
 namespace Internal {
@@ -122,12 +123,22 @@ const char *CdbSymbolPathListEditor::symbolCachePrefixC = "cache*";
 CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
     Utils::PathListEditor(parent)
 {
-    //! Add Microsoft Symbol server connection
-    QAction *action = insertAction(lastAddActionIndex() + 1, tr("Symbol Server..."), this, SLOT(addSymbolServer()));
-    action->setToolTip(tr("Adds the Microsoft symbol server providing symbols for operating system libraries."
-                      "Requires specifying a local cache directory."));
-    action = insertAction(lastAddActionIndex() + 1, tr("Symbol Cache..."), this, SLOT(addSymbolCache()));
-    action->setToolTip(tr("Uses a directory to cache symbols used by the debugger."));
+    QPushButton *button = insertButton(lastInsertButtonIndex + 1,
+                                       tr("Insert Symbol Server..."), this, [this](){
+        addSymbolPath(SymbolServerPath);
+    });
+    button->setToolTip(tr("Adds the Microsoft symbol server providing symbols for operating system "
+                          "libraries. Requires specifying a local cache directory."));
+
+    button = insertButton(lastInsertButtonIndex + 1, tr("Insert Symbol Cache..."), this, [this]() {
+        addSymbolPath(SymbolCachePath);
+    });
+    button->setToolTip(tr("Uses a directory to cache symbols used by the debugger."));
+
+    button = insertButton(lastInsertButtonIndex + 1, tr("Setup Symbol Paths..."), this, [this](){
+        setupSymbolPaths();
+    });
+    button->setToolTip(tr("Configure Symbol paths that are used to locate debug symbol files."));
 }
 
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, QString *cacheDirectory)
@@ -140,21 +151,42 @@ bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, QString *cac
     return true;
 }
 
-void CdbSymbolPathListEditor::addSymbolServer()
-{
-    addSymbolPath(SymbolServerPath);
-}
-
-void CdbSymbolPathListEditor::addSymbolCache()
-{
-    addSymbolPath(SymbolCachePath);
-}
-
 void CdbSymbolPathListEditor::addSymbolPath(CdbSymbolPathListEditor::SymbolPathMode mode)
 {
     QString cacheDir;
     if (promptCacheDirectory(this, &cacheDir))
         insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(cacheDir, mode));
+}
+
+void CdbSymbolPathListEditor::setupSymbolPaths()
+{
+    const QStringList &currentPaths = pathList();
+    const int indexOfSymbolServer = indexOfSymbolPath(currentPaths, SymbolServerPath);
+    const int indexOfSymbolCache = indexOfSymbolPath(currentPaths, SymbolCachePath);
+
+    QString path;
+    if (indexOfSymbolServer != -1)
+        path = currentPaths.at(indexOfSymbolServer);
+    if (path.isEmpty() && indexOfSymbolCache != -1)
+        path = currentPaths.at(indexOfSymbolCache);
+    if (path.isEmpty())
+        path = QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache");
+
+    bool useSymbolServer = true;
+    bool useSymbolCache = true;
+    bool addSymbolPaths = SymbolPathsDialog::useCommonSymbolPaths(useSymbolCache,
+                                                                  useSymbolServer,
+                                                                  path);
+    if (!addSymbolPaths)
+        return;
+
+    if (useSymbolCache) {
+        insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(path, SymbolCachePath));
+        if (useSymbolServer)
+            insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(QString(), SymbolServerPath));
+    } else if (useSymbolServer) {
+        insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(path, SymbolServerPath));
+    }
 }
 
 QString CdbSymbolPathListEditor::symbolPath(const QString &cacheDir,
@@ -209,62 +241,6 @@ int CdbSymbolPathListEditor::indexOfSymbolPath(const QStringList &paths,
         }
     }
     return -1;
-}
-
-bool CdbSymbolPathListEditor::promptToAddSymbolPaths(QStringList *symbolPaths)
-{
-    const int indexOfSymbolServer =
-            CdbSymbolPathListEditor::indexOfSymbolPath(*symbolPaths, SymbolServerPath);
-    const int indexOfSymbolCache =
-            CdbSymbolPathListEditor::indexOfSymbolPath(*symbolPaths, SymbolCachePath);
-
-    if (!qgetenv("_NT_SYMBOL_PATH").isEmpty()
-            || (indexOfSymbolServer != -1 && indexOfSymbolCache != -1))
-        return false;
-
-    const QString nagSymbolServerKey = QLatin1String("CDB2/NoPromptSymbolCache");
-    bool noFurtherNagging = Core::ICore::settings()->value(nagSymbolServerKey, false).toBool();
-    if (noFurtherNagging)
-        return false;
-
-    QString path;
-    if (indexOfSymbolServer != -1)
-        path = symbolPaths->at(indexOfSymbolServer);
-    if (path.isEmpty() && indexOfSymbolCache != -1)
-        path = symbolPaths->at(indexOfSymbolCache);
-    if (path.isEmpty())
-        path = QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache");
-
-    bool useSymbolServer = true;
-    bool useSymbolCache = true;
-    bool addSymbolPaths = SymbolPathsDialog::useCommonSymbolPaths(useSymbolCache,
-                                                                  useSymbolServer,
-                                                                  path, noFurtherNagging);
-    Core::ICore::settings()->setValue(nagSymbolServerKey, noFurtherNagging);
-    if (!addSymbolPaths)
-        return false;
-
-    // remove old entries
-    if (indexOfSymbolServer > indexOfSymbolCache) {
-        symbolPaths->removeAt(indexOfSymbolServer);
-        if (indexOfSymbolCache != -1)
-            symbolPaths->removeAt(indexOfSymbolCache);
-    } else if (indexOfSymbolCache > indexOfSymbolServer) {
-        symbolPaths->removeAt(indexOfSymbolCache);
-        if (indexOfSymbolServer != -1)
-            symbolPaths->removeAt(indexOfSymbolServer);
-    }
-
-    if (useSymbolCache) {
-        symbolPaths->push_back(CdbSymbolPathListEditor::symbolPath(path, SymbolCachePath));
-        if (useSymbolServer)
-            symbolPaths->push_back(CdbSymbolPathListEditor::symbolPath(QString(), SymbolServerPath));
-        return true;
-    } else if (useSymbolServer) {
-        symbolPaths->push_back(CdbSymbolPathListEditor::symbolPath(path, SymbolServerPath));
-        return true;
-    }
-    return false;
 }
 
 } // namespace Internal

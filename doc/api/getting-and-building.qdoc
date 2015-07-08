@@ -26,33 +26,38 @@
     \endcode
 
     There are several reasons why you might want to do your own build of \QC,
-    like using the most current development version and being able to tweak
-    \QC at one or the other place. It is also necessary if you want to
-    create your own \QC plugin.
+    like using the most current development version and being able to tweak \QC
+    at one or the other place. It is also necessary if you want to create your
+    own \QC plugin.
 
     \section1 Getting Qt
 
-    Prebuilt \QC packages usually use the latest stable release of Qt.
-    You can see the exact minimum requirement at the top of \QC's qtcreator.pro.
+    Prebuilt \QC packages usually use the latest stable release of Qt. You can
+    see the exact minimum requirement at the top of \QC's \c {qtcreator.pro}.
     (You can find the current version in our source repository here:
     \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/qtcreator.pro#n4}.)
 
-    You can get prebuilt Qt packages from \l{https://download.qt.io}{Qt Downloads}.
-    If you want to use Qt as provided by your Linux distribution, you need to make sure that all
-    Qt development packages and private header packages are also installed.
+    You can get prebuilt Qt packages from
+    \l{https://download.qt.io}{Qt Downloads}. If you want to use Qt as provided
+    by your Linux distribution, you need to make sure that all Qt development
+    packages and private header packages are also installed.
 
     \section1 Getting and Building \QC
 
-    You can get the \QC sources for a specific version either by using one of the
-    released source bundles, or from the Git repository
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git}. If you intend to contribute to \QC
-    itself, you should use the repository from our Gerrit review tool as described
-    in: \l{https://wiki.qt.io/Setting_up_Gerrit}{Setting up Gerrit}.
+    You can get the \QC sources for a specific version either by using one of
+    the released source bundles, or from the Git repository
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git}. If you intend to
+    contribute to \QC itself, you should use the repository from our Gerrit
+    review tool as described in:
+    \l{https://wiki.qt.io/Setting_up_Gerrit}{Setting up Gerrit}.
 
     We strongly encourage you to do out-of-source builds of \QC (also called
     shadow-builds).
-    After you put the \QC sources somewhere (lets call the path \c{<QtCreatorSources>})
+
+    After you put the \QC sources somewhere (lets call the path
+    \c {<QtCreatorSources>})
     you build it on Linux and Mac with
+
     \code
     cd <QtCreatorSources>/..
     mkdir qtcreator-build
@@ -60,5 +65,6 @@
     <QtInstall>/bin/qmake -r <QtCreatorSources>
     make
     \endcode
+
     or the corresponding commands on Windows systems.
 */

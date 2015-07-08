@@ -8,7 +8,8 @@
 
     <InstallerWindowIcon>logo.png</InstallerWindowIcon>
     <Background>background.png</Background>
-    <UninstallerName>Uninstall Qt Creator</UninstallerName>
+    <WizardDefaultHeight>560</WizardDefaultHeight>
+    <MaintenanceToolName>Uninstall Qt Creator</MaintenanceToolName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
     <TargetDir>@homeDir@/Applications/Qt Creator {version}</TargetDir>
     <AllowSpaceInPath>true</AllowSpaceInPath>

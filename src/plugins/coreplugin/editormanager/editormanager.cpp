@@ -65,6 +65,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -107,6 +108,8 @@ static const char documentStatesKey[] = "EditorManager/DocumentStates";
 static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
 static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
 static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
+static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
+static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
 
@@ -280,7 +283,9 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_coreListener(0),
     m_reloadSetting(IDocument::AlwaysAsk),
     m_autoSaveEnabled(true),
-    m_autoSaveInterval(5)
+    m_autoSaveInterval(5),
+    m_warnBeforeOpeningBigFilesEnabled(true),
+    m_bigFileSizeLimitInMB(5)
 {
     d = this;
 }
@@ -544,6 +549,47 @@ EditorArea *EditorManagerPrivate::mainEditorArea()
     return d->m_editorAreas.at(0);
 }
 
+bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
+{
+    if (!d->m_warnBeforeOpeningBigFilesEnabled)
+        return false;
+
+    const QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists(filePath))
+        return false;
+
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mimeType = mdb.mimeTypeForFile(filePath);
+    if (!mimeType.inherits(QLatin1String("text/plain")))
+        return false;
+
+    const double fileSizeInMB = fileInfo.size() / 1000.0 / 1000.0;
+    if (fileSizeInMB > d->m_bigFileSizeLimitInMB) {
+        const QString title = EditorManager::tr("Continue Opening Huge Text File?");
+        const QString text = EditorManager::tr(
+            "The text file \"%1\" has the size %2MB and might take more memory to open"
+            " and process than available.\n"
+            "\n"
+            "Continue?")
+                .arg(fileInfo.fileName())
+                .arg(fileSizeInMB, 0, 'f', 2);
+
+        CheckableMessageBox messageBox(ICore::mainWindow());
+        messageBox.setWindowTitle(title);
+        messageBox.setText(text);
+        messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::No);
+        messageBox.setDefaultButton(QDialogButtonBox::No);
+        messageBox.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
+        messageBox.setCheckBoxVisible(true);
+        messageBox.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
+        messageBox.exec();
+        d->setWarnBeforeOpeningBigFilesEnabled(!messageBox.isChecked());
+        return messageBox.clickedStandardButton() != QDialogButtonBox::Yes;
+    }
+
+    return false;
+}
+
 IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileName, Id editorId,
                                           EditorManager::OpenEditorFlags flags, bool *newEditor)
 {
@@ -618,6 +664,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
 
         overrideCursor.reset();
         delete editor;
+        editor = 0;
 
         if (openResult == IDocument::OpenResult::ReadError) {
             QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
@@ -960,6 +1007,11 @@ void EditorManagerPrivate::saveSettings()
     settings->setValue(QLatin1String(autoSaveEnabledKey), d->m_autoSaveEnabled);
     settings->setValue(QLatin1String(autoSaveIntervalKey), d->m_autoSaveInterval);
     settings->endTransaction();
+
+    QSettings *qsettings = ICore::settings();
+    qsettings->setValue(QLatin1String(warnBeforeOpeningBigTextFilesKey),
+                        d->m_warnBeforeOpeningBigFilesEnabled);
+    qsettings->setValue(QLatin1String(bigTextFileSizeLimitKey), d->m_bigFileSizeLimitInMB);
 }
 
 void EditorManagerPrivate::readSettings()
@@ -971,6 +1023,12 @@ void EditorManagerPrivate::readSettings()
         d->m_editorStates = qs->value(QLatin1String(documentStatesKey))
             .value<QMap<QString, QVariant> >();
         qs->remove(QLatin1String(documentStatesKey));
+    }
+
+    if (qs->contains(QLatin1String(warnBeforeOpeningBigTextFilesKey))) {
+        d->m_warnBeforeOpeningBigFilesEnabled
+                = qs->value(QLatin1String(warnBeforeOpeningBigTextFilesKey)).toBool();
+        d->m_bigFileSizeLimitInMB = qs->value(QLatin1String(bigTextFileSizeLimitKey)).toInt();
     }
 
     SettingsDatabase *settings = ICore::settingsDatabase();
@@ -1008,6 +1066,26 @@ void EditorManagerPrivate::setAutoSaveInterval(int interval)
 int EditorManagerPrivate::autoSaveInterval()
 {
     return d->m_autoSaveInterval;
+}
+
+bool EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled()
+{
+    return d->m_warnBeforeOpeningBigFilesEnabled;
+}
+
+void EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(bool enabled)
+{
+    d->m_warnBeforeOpeningBigFilesEnabled = enabled;
+}
+
+int EditorManagerPrivate::bigFileSizeLimit()
+{
+    return d->m_bigFileSizeLimitInMB;
+}
+
+void EditorManagerPrivate::setBigFileSizeLimit(int limitInMB)
+{
+    d->m_bigFileSizeLimitInMB = limitInMB;
 }
 
 EditorManager::EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString &fileName)
@@ -2451,6 +2529,9 @@ EditorManager::ExternalEditorList
 IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
+    if (EditorManagerPrivate::skipOpeningBigTextFile(fileName))
+        return 0;
+
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
@@ -2461,6 +2542,9 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
 IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
                                      Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
+    if (EditorManagerPrivate::skipOpeningBigTextFile(fileName))
+        return 0;
+
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 

@@ -33,7 +33,7 @@
 
 #include "androidconfigurations.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <QObject>
 #include <QTimer>
@@ -58,7 +58,7 @@ class AndroidRunner : public QThread
 
 public:
     AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig,
-                  ProjectExplorer::RunMode runMode);
+                  Core::Id runMode);
     ~AndroidRunner();
 
     QString displayName() const;
@@ -73,8 +73,8 @@ signals:
     void remoteProcessStarted(int gdbServerPort, int qmlPort);
     void remoteProcessFinished(const QString &errString = QString());
 
-    void remoteOutput(const QByteArray &output);
-    void remoteErrorOutput(const QByteArray &output);
+    void remoteOutput(const QString &output);
+    void remoteErrorOutput(const QString &output);
 
 private slots:
     void checkPID();
@@ -120,6 +120,7 @@ private:
     bool m_isBusyBox;
     QStringList m_selector;
     QMutex m_mutex;
+    QRegExp m_logCatRegExp;
     DebugHandShakeType m_handShakeMethod;
     QTcpSocket *m_socket;
     bool m_customPort;

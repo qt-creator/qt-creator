@@ -85,7 +85,7 @@ public:
     explicit StartApplicationDialog(QWidget *parent);
     ~StartApplicationDialog();
 
-    static bool run(QWidget *parent, DebuggerRunParameters *rp);
+    static bool run(QWidget *parent, DebuggerRunParameters *rp, ProjectExplorer::Kit **kit);
 
 private slots:
     void historyIndexChanged(int);

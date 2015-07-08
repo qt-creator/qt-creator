@@ -1412,36 +1412,78 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
                                                   std::string *errorMessage)
 {
     ULONG index = DEBUG_ANY_ID; // Append
-    HRESULT hr = m_symbolGroup->debugSymbolGroup()->AddSymbol(name.c_str(), &index);
+
+    char buf[BufSize];
+    CIDebugSymbolGroup *symbolGroup = m_symbolGroup->debugSymbolGroup();
+    SymbolParameterVector indexParameters(1, DEBUG_SYMBOL_PARAMETERS());
+
+    static const char separator = '.';
+    std::string::size_type partStart = 0;
+    std::string::size_type partEnd = name.find(separator);
+    std::string namePart = name.substr(0, partEnd);
+
+    HRESULT hr = symbolGroup->AddSymbol(namePart.c_str(), &index);
     if (FAILED(hr)) {
-        *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("AddSymbol", hr));
+        *errorMessage = msgCannotAddSymbol(namePart, msgDebugEngineComFailed("AddSymbol", hr));
         ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
         return 0;
     }
-    if (index == DEBUG_ANY_ID) { // Occasionally happens for unknown or 'complicated' types
-        *errorMessage = msgCannotAddSymbol(name, "DEBUG_ANY_ID was returned as symbol index by AddSymbol.");
-        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
-        return 0;
-    }
-    SymbolParameterVector parameters(1, DEBUG_SYMBOL_PARAMETERS());
-    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolParameters(index, 1, &(*parameters.begin()));
-    if (FAILED(hr)) { // Should never fail
-        std::ostringstream str;
-        str << "Cannot retrieve 1 symbol parameter entry at " << index << ": "
-            << msgDebugEngineComFailed("GetSymbolParameters", hr);
-        *errorMessage = msgCannotAddSymbol(name, str.str());
-        return 0;
-    }
-    // Paranoia: Check for cuckoo's eggs (which should not happen)
-    if (parameters.front().ParentSymbol != m_index) {
-        *errorMessage = msgCannotAddSymbol(name, "Parent id mismatch");
-        return 0;
-    }
+
+    do {
+        if (index == DEBUG_ANY_ID) { // Occasionally happens for unknown or 'complicated' types
+            *errorMessage = msgCannotAddSymbol(namePart, "DEBUG_ANY_ID was returned as symbol index by AddSymbol.");
+            ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
+            return 0;
+        }
+        hr = symbolGroup->GetSymbolParameters(index, 1, &(*indexParameters.begin()));
+        if (FAILED(hr)) { // Should never fail
+            std::ostringstream str;
+            str << "Cannot retrieve 1 symbol parameter entry at " << index << ": "
+                << msgDebugEngineComFailed("GetSymbolParameters", hr);
+            *errorMessage = msgCannotAddSymbol(namePart, str.str());
+            return 0;
+        }
+
+        if (partEnd == std::string::npos)
+            break;
+        partStart = partEnd + 1;
+        partEnd = name.find(separator, partStart);
+        namePart = name.substr(partStart, partEnd == std::string::npos ? partEnd
+                                                                       : partEnd - partStart);
+
+        hr = symbolGroup->ExpandSymbol(index, TRUE);
+        if (FAILED(hr)) {
+            std::ostringstream str;
+            str << "Cannot expand " << namePart.c_str() << ": "
+                << msgDebugEngineComFailed("ExpandSymbol", hr);
+            *errorMessage = msgCannotAddSymbol(name, str.str());
+            return 0;
+        }
+        ULONG childCount = indexParameters.at(0).SubElements;
+        SymbolParameterVector childParameters(childCount + 1, DEBUG_SYMBOL_PARAMETERS());
+        SymbolGroup::getSymbolParameters(symbolGroup, index,
+                                         childCount + 1, &childParameters, errorMessage);
+
+        const VectorIndexType size = childParameters.size();
+        ULONG newIndex = DEBUG_ANY_ID;
+        for (VectorIndexType pos = 1; pos < size ; ++pos) {
+            if (childParameters.at(pos).ParentSymbol != index)
+                continue;
+            if (FAILED(symbolGroup->GetSymbolName(ULONG(index + pos), buf, BufSize, NULL)))
+                buf[0] = '\0';
+            if (!namePart.compare(buf)) {
+                newIndex = index + (ULONG)pos;
+                break;
+            }
+        }
+        index = newIndex;
+    } while (true);
+
     SymbolGroupNode *node = new SymbolGroupNode(m_symbolGroup, index,
                                                 module,
                                                 displayName.empty() ? name : displayName,
                                                 iname.empty() ? name : iname);
-    node->parseParameters(0, 0, parameters);
+    node->parseParameters(0, 0, indexParameters);
     node->addFlags(AdditionalSymbol);
     addChild(node);
     return node;

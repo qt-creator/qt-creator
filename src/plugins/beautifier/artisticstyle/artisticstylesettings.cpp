@@ -59,7 +59,8 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
     AbstractSettings(QLatin1String(Constants::ArtisticStyle::SETTINGS_NAME),
                      QLatin1String(".astyle"))
 {
-    connect(&m_versionWatcher, SIGNAL(finished()), this, SLOT(helperSetVersion()));
+    connect(&m_versionWatcher, &QFutureWatcherBase::finished,
+            this, &ArtisticStyleSettings::helperSetVersion);
 
     setCommand(QLatin1String("astyle"));
     m_settings.insert(QLatin1String(kUseOtherFiles), QVariant(true));
@@ -180,11 +181,10 @@ void ArtisticStyleSettings::createDocumentationFile() const
     // astyle writes its output to 'error'...
     const QStringList lines = QString::fromUtf8(process.readAllStandardError())
             .split(QLatin1Char('\n'));
-    const int totalLines = lines.count();
     QStringList keys;
     QStringList docu;
-    for (int i = 0; i < totalLines; ++i) {
-        const QString &line = lines.at(i).trimmed();
+    foreach (QString line, lines) {
+        line = line.trimmed();
         if ((line.startsWith(QLatin1String("--")) && !line.startsWith(QLatin1String("---")))
                 || line.startsWith(QLatin1String("OR "))) {
             QStringList rawKeys = line.split(QLatin1String(" OR "), QString::SkipEmptyParts);

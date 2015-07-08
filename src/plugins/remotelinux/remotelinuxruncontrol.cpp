@@ -57,7 +57,7 @@ public:
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
-        : RunControl(rc, NormalRunMode), d(new RemoteLinuxRunControlPrivate)
+        : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE), d(new RemoteLinuxRunControlPrivate)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 

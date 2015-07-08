@@ -46,7 +46,7 @@ class QmakeBuildInfo : public ProjectExplorer::BuildInfo
 public:
     QmakeBuildInfo(const QmakeBuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f) { }
 
-    ProjectExplorer::BuildConfiguration::BuildType type;
+    ProjectExplorer::BuildConfiguration::BuildType type = ProjectExplorer::BuildConfiguration::Unknown;
     QString additionalArguments;
     QString makefile;
     QMakeStepConfig config;

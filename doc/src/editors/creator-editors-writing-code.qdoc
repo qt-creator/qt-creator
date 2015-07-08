@@ -65,16 +65,17 @@
 
         \li \l{Indenting Text or Code}
 
-            \QC indents text and code according to rules that you specify separately for
-            files that contain C++ or QML code and for other text files.
+            \QC indents text and code according to rules that you
+            specify separately for files that contain C++ or QML code and for
+            other text files.
 
         \li \l{Using Qt Quick Toolbars}
 
             When you edit QML code in the code editor, you specify the
             properties of QML components. For some properties, such as
             colors and font names, this is not a trivial task. For example,
-            few people can visualize the color #18793f. To easily edit these
-            properties, you can use the Qt Quick Toolbars.
+            few people can visualize the color \c {#18793f}. To easily edit
+            these properties, you can use the Qt Quick Toolbars.
 
         \li \l{Pasting and Fetching Code Snippets}
 

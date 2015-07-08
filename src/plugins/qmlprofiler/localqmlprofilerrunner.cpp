@@ -30,33 +30,46 @@
 
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilerplugin.h"
-#include "qmlprofilerengine.h"
+#include "qmlprofilerruncontrol.h"
 
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
+
+#include <QTcpServer>
 
 using namespace QmlProfiler;
-using namespace QmlProfiler::Internal;
 using namespace ProjectExplorer;
 
-LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
+Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
         RunConfiguration *runConfiguration,
         const Analyzer::AnalyzerStartParameters &sp,
-        QString *errorMessage,
-        QmlProfilerRunControl *engine)
+        QString *errorMessage)
 {
-    LocalApplicationRunConfiguration *larc =
-                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(larc, return 0);
-    EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(environment, return 0);
+    // only desktop device is supported
+    const IDevice::ConstPtr device = DeviceKitInformation::device(
+                runConfiguration->target()->kit());
+    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+
+    Analyzer::AnalyzerRunControl *rc = Analyzer::AnalyzerManager::createRunControl(
+                sp, runConfiguration);
+    QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
+    if (!engine) {
+        delete rc;
+        return 0;
+    }
+
     Configuration conf;
-    conf.executable = larc->executable();
-    conf.executableArguments = larc->commandLineArguments();
-    conf.workingDirectory = larc->workingDirectory();
-    conf.environment = environment->environment();
+    conf.executable = sp.debuggee;
+    conf.executableArguments = sp.debuggeeArgs;
+    conf.workingDirectory = sp.workingDirectory;
+    conf.environment = sp.environment;
 
     conf.port = sp.analyzerPort;
 
@@ -65,12 +78,33 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
             *errorMessage = tr("No executable file to launch.");
         return 0;
     }
-    return new LocalQmlProfilerRunner(conf, engine);
+
+    LocalQmlProfilerRunner *runner = new LocalQmlProfilerRunner(conf, engine);
+
+    QObject::connect(runner, SIGNAL(stopped()), engine, SLOT(notifyRemoteFinished()));
+    QObject::connect(runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+                     engine, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
+    QObject::connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)), runner,
+                     SLOT(start()));
+    QObject::connect(rc, SIGNAL(finished()), runner, SLOT(stop()));
+    return rc;
+}
+
+quint16 LocalQmlProfilerRunner::findFreePort(QString &host)
+{
+    QTcpServer server;
+    if (!server.listen(QHostAddress::LocalHost)
+            && !server.listen(QHostAddress::LocalHostIPv6)) {
+        qWarning() << "Cannot open port on host for QML profiling.";
+        return 0;
+    }
+    host = server.serverAddress().toString();
+    return server.serverPort();
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
                                                QmlProfilerRunControl *engine) :
-    AbstractQmlProfilerRunner(engine),
+    QObject(engine),
     m_configuration(configuration),
     m_engine(engine)
 {
@@ -85,9 +119,6 @@ LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 
 void LocalQmlProfilerRunner::start()
 {
-    if (m_engine->mode() != Analyzer::StartLocal)
-        return;
-
     QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
 
     if (!m_configuration.executableArguments.isEmpty())
@@ -123,17 +154,9 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus 
 
 void LocalQmlProfilerRunner::stop()
 {
-    if (m_engine->mode() != Analyzer::StartLocal)
-        return;
-
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Stopping application ...");
 
     if (m_launcher.isRunning())
         m_launcher.stop();
-}
-
-quint16 LocalQmlProfilerRunner::debugPort() const
-{
-    return m_configuration.port;
 }

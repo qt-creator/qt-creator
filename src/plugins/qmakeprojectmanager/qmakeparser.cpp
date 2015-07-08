@@ -46,26 +46,6 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
 void QMakeParser::stdError(const QString &line)
 {
     QString lne = rightTrimmed(line);
-    if (lne.startsWith(QLatin1String("Project ERROR:"))) {
-        const QString description = lne.mid(15);
-        Task task = Task(Task::Error,
-                         description,
-                         Utils::FileName() /* filename */,
-                         -1 /* linenumber */,
-                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit addTask(task, 1);
-        return;
-    }
-    if (lne.startsWith(QLatin1String("Project WARNING:"))) {
-        const QString description = lne.mid(17);
-        Task task = Task(Task::Warning,
-                         description,
-                         Utils::FileName() /* filename */,
-                         -1 /* linenumber */,
-                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit addTask(task, 1);
-        return;
-    }
     if (m_error.indexIn(lne) > -1) {
         QString fileName = m_error.cap(1);
         Task::TaskType type = Task::Error;
@@ -79,6 +59,28 @@ void QMakeParser::stdError(const QString &line)
                          m_error.cap(3) /* description */,
                          Utils::FileName::fromUserInput(fileName),
                          m_error.cap(2).toInt() /* line */,
+                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(task, 1);
+        return;
+    }
+    if (lne.startsWith(QLatin1String("Project ERROR: "))
+            || lne.startsWith(QLatin1String("ERROR: "))) {
+        const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
+        Task task = Task(Task::Error,
+                         description,
+                         Utils::FileName() /* filename */,
+                         -1 /* linenumber */,
+                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(task, 1);
+        return;
+    }
+    if (lne.startsWith(QLatin1String("Project WARNING: "))
+            || lne.startsWith(QLatin1String("WARNING: "))) {
+        const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
+        Task task = Task(Task::Warning,
+                         description,
+                         Utils::FileName() /* filename */,
+                         -1 /* linenumber */,
                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         emit addTask(task, 1);
         return;
@@ -151,6 +153,17 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("bearer module might require ReadUserData capability"),
+                        Utils::FileName(), -1,
+                        categoryBuildSystem))
+            << QString();
+
+    QTest::newRow("qMake warning 2")
+            << QString::fromLatin1("WARNING: Failure to find: blackberrycreatepackagestepconfigwidget.cpp")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("Failure to find: blackberrycreatepackagestepconfigwidget.cpp"),
                         Utils::FileName(), -1,
                         categoryBuildSystem))
             << QString();

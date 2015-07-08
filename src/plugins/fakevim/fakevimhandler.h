@@ -50,29 +50,29 @@ enum RangeMode
 
 struct Range
 {
-    Range();
+    Range() {}
     Range(int b, int e, RangeMode m = RangeCharMode);
     QString toString() const;
     bool isValid() const;
 
-    int beginPos;
-    int endPos;
-    RangeMode rangemode;
+    int beginPos = -1;
+    int endPos = -1;
+    RangeMode rangemode = RangeCharMode;
 };
 
 struct ExCommand
 {
-    ExCommand() : hasBang(false), count(1) {}
+    ExCommand() {}
     ExCommand(const QString &cmd, const QString &args = QString(),
         const Range &range = Range());
 
     bool matches(const QString &min, const QString &full) const;
 
     QString cmd;
-    bool hasBang;
+    bool hasBang = false;
     QString args;
     Range range;
-    int count;
+    int count = 1;
 };
 
 // message levels sorted by severity

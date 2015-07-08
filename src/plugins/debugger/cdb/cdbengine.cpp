@@ -267,14 +267,14 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QStringList *errors)
 {
     if (HostOsInfo::isWindowsHost()) {
         if (validMode(rp.startMode))
             return new CdbEngine(rp);
-        *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
+        errors->append(CdbEngine::tr("Internal error: Invalid start parameters passed for the CDB engine."));
     } else {
-        *errorMessage = QString::fromLatin1("Unsupported debug mode");
+        errors->append(CdbEngine::tr("Unsupported CDB host system."));
     }
     return 0;
 }
@@ -547,10 +547,6 @@ void CdbEngine::setupEngine()
 {
     if (debug)
         qDebug(">setupEngine");
-    // Nag to add symbol server and cache
-    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    if (CdbSymbolPathListEditor::promptToAddSymbolPaths(&symbolPaths))
-        action(CdbSymbolPaths)->setValue(symbolPaths);
 
     init();
     if (!m_logTime.elapsed())
@@ -761,6 +757,8 @@ static QByteArray msvcRunTime(const Abi::OSFlavor flavour)
         return "MSVCR110";
     case Abi::WindowsMsvc2013Flavor:
         return "MSVCR120";
+    case Abi::WindowsMsvc2015Flavor:
+        return "MSVCR140";
     default:
         break;
     }
@@ -939,88 +937,6 @@ void CdbEngine::detachDebugger()
 static inline bool isWatchIName(const QByteArray &iname)
 {
     return iname.startsWith("watch");
-}
-
-void CdbEngine::updateWatchItem(WatchItem *item)
-{
-    if (debug || debugLocals || debugWatches)
-        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s: %s",
-               elapsedLogTime(), m_accessible, stateName(state()),
-               qPrintable(item->toString()));
-
-    if (!m_accessible) // Add watch data while running?
-        return;
-
-    // New watch item?
-    if (item->isWatcher() && item->isValueNeeded()) {
-        QByteArray args;
-        ByteArrayInputStream str(args);
-        WatchData data = *item; // Don't pass pointers to async functions.
-        str << data.iname << " \"" << data.exp << '"';
-        postExtensionCommand("addwatch", args, 0,
-                             [this, data](const CdbResponse &r) { handleAddWatch(r, data); });
-        return;
-    }
-
-    if (item->wantsChildren || item->isValueNeeded()) {
-        updateLocalVariable(item->iname);
-    } else {
-        item->setAllUnneeded();
-        item->update();
-    }
-}
-
-void CdbEngine::handleAddWatch(const CdbResponse &response, WatchData data)
-{
-    if (debugWatches)
-        qDebug() << "handleAddWatch ok="  << response.success << data.iname;
-    if (response.success) {
-        updateLocalVariable(data.iname);
-    } else {
-        auto item = new WatchItem(data);
-        item->setError(tr("Unable to add expression"));
-        watchHandler()->insertItem(item);
-        showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
-                    arg(QString::fromLatin1(data.iname), QString::fromLatin1(data.exp),
-                        QString::fromLocal8Bit(response.errorMessage)), LogError);
-    }
-}
-
-void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
-{
-    if (boolSetting(VerboseLog))
-        str << blankSeparator << "-v";
-    if (boolSetting(UseDebuggingHelpers))
-        str << blankSeparator << "-c";
-    if (boolSetting(SortStructMembers))
-        str << blankSeparator << "-a";
-    const QByteArray typeFormats = watchHandler()->typeFormatRequests();
-    if (!typeFormats.isEmpty())
-        str << blankSeparator << "-T " << typeFormats;
-    const QByteArray individualFormats = watchHandler()->individualFormatRequests();
-    if (!individualFormats.isEmpty())
-        str << blankSeparator << "-I " << individualFormats;
-}
-
-void CdbEngine::updateLocalVariable(const QByteArray &iname)
-{
-    const bool isWatch = isWatchIName(iname);
-    if (debugWatches)
-        qDebug() << "updateLocalVariable watch=" << isWatch << iname;
-    QByteArray localsArguments;
-    ByteArrayInputStream str(localsArguments);
-    addLocalsOptions(str);
-    if (!isWatch) {
-        const int stackFrame = stackHandler()->currentIndex();
-        if (stackFrame < 0) {
-            qWarning("Internal error; no stack frame in updateLocalVariable");
-            return;
-        }
-        str << blankSeparator << stackFrame;
-    }
-    str << blankSeparator << iname;
-    postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0,
-                         [this](const CdbResponse &r) { handleLocals(r, false); });
 }
 
 bool CdbEngine::hasCapability(unsigned cap) const
@@ -1408,11 +1324,13 @@ void CdbEngine::activateFrame(int index)
 
 void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 {
-    Q_UNUSED(updateParameters)
     typedef QHash<QByteArray, int> WatcherHash;
 
+    const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
+    const bool isWatch = isWatchIName(updateParameters.partialVariable);
+
     const int frameIndex = stackHandler()->currentIndex();
-    if (frameIndex < 0) {
+    if (frameIndex < 0 && !isWatch) {
         watchHandler()->removeAllData();
         return;
     }
@@ -1421,25 +1339,42 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         watchHandler()->removeAllData();
         return;
     }
+
+    watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
+
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
      * and cause errors as it seems to go 'stale' when switching threads.
      * Initial expand, get uninitialized and query */
     QByteArray arguments;
     ByteArrayInputStream str(arguments);
-    str << "-D";
-    // Pre-expand
-    const QSet<QByteArray> expanded = watchHandler()->expandedINames();
-    if (!expanded.isEmpty()) {
-        str << blankSeparator << "-e ";
-        int i = 0;
-        foreach (const QByteArray &e, expanded) {
-            if (i++)
-                str << ',';
-            str << e;
+
+    if (!partialUpdate) {
+        str << "-D";
+        // Pre-expand
+        const QSet<QByteArray> expanded = watchHandler()->expandedINames();
+        if (!expanded.isEmpty()) {
+            str << blankSeparator << "-e ";
+            int i = 0;
+            foreach (const QByteArray &e, expanded) {
+                if (i++)
+                    str << ',';
+                str << e;
+            }
         }
     }
-    addLocalsOptions(str);
+    if (boolSetting(VerboseLog))
+        str << blankSeparator << "-v";
+    if (boolSetting(UseDebuggingHelpers))
+        str << blankSeparator << "-c";
+    if (boolSetting(SortStructMembers))
+        str << blankSeparator << "-a";
+    const QByteArray typeFormats = watchHandler()->typeFormatRequests();
+    if (!typeFormats.isEmpty())
+        str << blankSeparator << "-T " << typeFormats;
+    const QByteArray individualFormats = watchHandler()->individualFormatRequests();
+    if (!individualFormats.isEmpty())
+        str << blankSeparator << "-I " << individualFormats;
     // Uninitialized variables if desired. Quote as safeguard against shadowed
     // variables in case of errors in uninitializedVariables().
     if (boolSetting(UseCodeModel)) {
@@ -1457,20 +1392,28 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             str << '"';
         }
     }
-    // Perform watches synchronization
-    str << blankSeparator << "-W";
-    const WatcherHash watcherHash = WatchHandler::watcherNames();
-    if (!watcherHash.isEmpty()) {
-        const WatcherHash::const_iterator cend = watcherHash.constEnd();
-        for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
-            str << blankSeparator << "-w " << it.value() << " \"" << it.key() << '"';
+    // Perform watches synchronization only for full updates
+    if (!partialUpdate)
+        str << blankSeparator << "-W";
+    if (!partialUpdate || isWatch) {
+        const WatcherHash watcherHash = WatchHandler::watcherNames();
+        if (!watcherHash.isEmpty()) {
+            const WatcherHash::const_iterator cend = watcherHash.constEnd();
+            for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
+                str << blankSeparator << "-w " << "watch." + QByteArray::number(it.value())
+                    << " \"" << it.key() << '"';
+            }
         }
     }
 
     // Required arguments: frame
     str << blankSeparator << frameIndex;
+
+    if (partialUpdate)
+        str << blankSeparator << updateParameters.partialVariable;
+
     postExtensionCommand("locals", arguments, 0,
-                         [this](const CdbResponse &r) { handleLocals(r, true); });
+                [this, partialUpdate](const CdbResponse &r) { handleLocals(r, partialUpdate); });
 }
 
 void CdbEngine::updateAll()
@@ -1830,10 +1773,9 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
     postCommandSequence(response.commandSequence);
 }
 
-void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
+void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
 {
     if (response.success) {
-        watchHandler()->notifyUpdateFinished();
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
 
@@ -1844,7 +1786,7 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
 
         GdbMi partial;
         partial.m_name = "partial";
-        partial.m_data = QByteArray::number(newFrame ? 0 : 1);
+        partial.m_data = QByteArray::number(partialUpdate ? 1 : 0);
 
         GdbMi all;
         all.m_children.push_back(data);
@@ -1853,6 +1795,7 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
     } else {
         showMessage(QString::fromLatin1(response.errorMessage), LogWarning);
     }
+    watchHandler()->notifyUpdateFinished();
 }
 
 void CdbEngine::handleExpandLocals(const CdbResponse &response)
@@ -2406,6 +2349,8 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
     }
 
     if (what == "event") {
+        if (message.startsWith("Process exited"))
+            notifyInferiorExited();
         showStatusMessage(QString::fromLatin1(message),  5000);
         return;
     }
@@ -2436,16 +2381,18 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         GdbMi gdbmi;
         gdbmi.fromString(message);
         exception.fromGdbMI(gdbmi);
-        // Don't show the Win32 x86 emulation subsystem breakpoint hit exception.
-        if (exception.exceptionCode == winExceptionWX86Breakpoint)
+        // Don't show the Win32 x86 emulation subsystem breakpoint hit or the
+        // set thread names exception.
+        if (exception.exceptionCode == winExceptionWX86Breakpoint
+                || exception.exceptionCode == winExceptionSetThreadName) {
             return;
+        }
         const QString message = exception.toString(true);
         showStatusMessage(message);
         // Report C++ exception in application output as well.
         if (exception.exceptionCode == winExceptionCppException)
             showMessage(message + QLatin1Char('\n'), AppOutput);
-        if (!isDebuggerWinException(exception.exceptionCode)
-                && exception.exceptionCode != winExceptionSetThreadName) {
+        if (!isDebuggerWinException(exception.exceptionCode)) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
             const FileName fileName = exception.file.isEmpty() ?
@@ -2553,6 +2500,8 @@ void CdbEngine::parseOutputLine(QByteArray line)
                        currentCommand->response.command.constData(), currentCommand->token,
                        currentCommand->response.builtinReply.size(), m_builtinCommandQueue.size() - 1);
             QTC_ASSERT(token == currentCommand->token, return; );
+            if (boolSetting(VerboseLog))
+                showMessage(QLatin1String(currentCommand->response.builtinReply.join(' ')), LogMisc);
             if (currentCommand->handler) {
                 currentCommand->handler(currentCommand->response);
             }
@@ -2592,7 +2541,14 @@ void CdbEngine::parseOutputLine(QByteArray line)
             }
         }
     }
-    showMessage(QString::fromLocal8Bit(line), LogMisc);
+    // output(64): ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL
+    // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
+    if (line.startsWith("ModLoad: ")) {
+        QRegExp moduleRegExp(QLatin1String(
+                                 "[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)"));
+        if (moduleRegExp.indexIn(QLatin1String(line)) > -1)
+            showStatusMessage(tr("Module loaded: ") + moduleRegExp.cap(3).trimmed(), 3000);
+    }
 }
 
 void CdbEngine::readyReadStandardOut()

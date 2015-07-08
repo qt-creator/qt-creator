@@ -124,8 +124,6 @@ public:
     MiniBuffer()
         : m_label(new QLabel(this))
         , m_edit(new QLineEdit(this))
-        , m_eventFilter(0)
-        , m_lastMessageLevel(MessageMode)
     {
         connect(m_edit, &QLineEdit::textEdited, this, &MiniBuffer::changed);
         connect(m_edit, &QLineEdit::cursorPositionChanged, this, &MiniBuffer::changed);
@@ -225,9 +223,9 @@ private:
 
     QLabel *m_label;
     QLineEdit *m_edit;
-    QObject *m_eventFilter;
+    QObject *m_eventFilter = nullptr;
     QTimer m_hideTimer;
-    int m_lastMessageLevel;
+    int m_lastMessageLevel = MessageMode;
 };
 
 class RelativeNumbersColumn : public QWidget
@@ -237,8 +235,6 @@ class RelativeNumbersColumn : public QWidget
 public:
     RelativeNumbersColumn(TextEditorWidget *baseTextEditor)
         : QWidget(baseTextEditor)
-        , m_currentPos(0)
-        , m_lineSpacing(0)
         , m_editor(baseTextEditor)
     {
         setAttribute(Qt::WA_TransparentForMouseEvents, true);
@@ -346,8 +342,8 @@ private slots:
     }
 
 private:
-    int m_currentPos;
-    int m_lineSpacing;
+    int m_currentPos = 0;
+    int m_lineSpacing = 0;
     TextEditorWidget *m_editor;
     QTimer m_timerUpdate;
 };
@@ -1101,9 +1097,9 @@ signals:
 
 private:
     FakeVimPlugin *q;
-    FakeVimOptionPage *m_fakeVimOptionsPage;
-    FakeVimExCommandsPage *m_fakeVimExCommandsPage;
-    FakeVimUserCommandsPage *m_fakeVimUserCommandsPage;
+    FakeVimOptionPage *m_fakeVimOptionsPage = nullptr;
+    FakeVimExCommandsPage *m_fakeVimExCommandsPage = nullptr;
+    FakeVimUserCommandsPage *m_fakeVimUserCommandsPage = nullptr;
     QHash<IEditor *, FakeVimHandler *> m_editorToHandler;
 
     void triggerAction(Id id);
@@ -1127,7 +1123,7 @@ private:
     StatusBarWidget *m_statusBar;
     // @TODO: Delete
     //WordCompletion *m_wordCompletion;
-    FakeVimCompletionAssistProvider *m_wordProvider;
+    FakeVimCompletionAssistProvider *m_wordProvider = nullptr;
 };
 
 QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) const
@@ -1157,11 +1153,8 @@ bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
 }
 
 FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
+    : q(plugin)
 {
-    q = plugin;
-    m_fakeVimOptionsPage = 0;
-    m_fakeVimExCommandsPage = 0;
-    m_fakeVimUserCommandsPage = 0;
     defaultExCommandMap()[_(CppTools::Constants::SWITCH_HEADER_SOURCE)] =
         QRegExp(_("^A$"));
     defaultExCommandMap()[_("Coreplugin.OutputPane.previtem")] =
@@ -1185,6 +1178,18 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
 {
+    theFakeVimSettings()->deleteLater();
+}
+
+void FakeVimPluginPrivate::onCoreAboutToClose()
+{
+    // Don't attach to editors anymore.
+    disconnect(EditorManager::instance(), &EditorManager::editorOpened,
+               this, &FakeVimPluginPrivate::editorOpened);
+}
+
+void FakeVimPluginPrivate::aboutToShutdown()
+{
     q->removeObject(m_fakeVimOptionsPage);
     delete m_fakeVimOptionsPage;
     m_fakeVimOptionsPage = 0;
@@ -1199,19 +1204,6 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 
     delete m_wordProvider;
     m_wordProvider = 0;
-
-    theFakeVimSettings()->deleteLater();
-}
-
-void FakeVimPluginPrivate::onCoreAboutToClose()
-{
-    // Don't attach to editors anymore.
-    disconnect(EditorManager::instance(), &EditorManager::editorOpened,
-               this, &FakeVimPluginPrivate::editorOpened);
-}
-
-void FakeVimPluginPrivate::aboutToShutdown()
-{
 }
 
 bool FakeVimPluginPrivate::initialize()

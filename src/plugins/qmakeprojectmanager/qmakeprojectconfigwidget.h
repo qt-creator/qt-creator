@@ -73,7 +73,7 @@ private:
     QmakeBuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
     QString m_defaultShadowBuildDir;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
 };
 
 } // namespace Internal

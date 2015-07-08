@@ -52,14 +52,17 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
+    qchs = []
+    for p in Qt5Path.getPaths(Qt5Path.DOCS):
+        qchs.append(os.path.join(p, "qtquick.qch"))
+    addHelpDocumentation(qchs)
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
     # verify Rectangle help
-    verifyInteractiveQMLHelp("Rectangle {", "QML Rectangle Element")
+    verifyInteractiveQMLHelp("Window {", "Window QML Type")
     # go back to edit mode
     switchViewTo(ViewConstants.EDIT)
     # verify MouseArea help
-    verifyInteractiveQMLHelp("MouseArea {", "QML MouseArea Element")
+    verifyInteractiveQMLHelp("MouseArea {", "MouseArea QML Type")
     # exit
     invokeMenuItem("File","Exit")

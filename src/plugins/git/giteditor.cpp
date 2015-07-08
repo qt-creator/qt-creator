@@ -124,45 +124,46 @@ BaseAnnotationHighlighter *GitEditorWidget::createAnnotationHighlighter(const QS
 8ca887aa (author               YYYY-MM-DD HH:MM:SS <offset>  <line>)<content>
 \endcode */
 
-static QString removeAnnotationDate(const QString &b)
+static QString sanitizeBlameOutput(const QString &b)
 {
     if (b.isEmpty())
         return b;
 
+    const bool omitDate = GitPlugin::instance()->client()->settings().boolValue(
+                GitSettings::omitAnnotationDateKey);
     const QChar space(QLatin1Char(' '));
     const int parenPos = b.indexOf(QLatin1Char(')'));
     if (parenPos == -1)
         return b;
-    int datePos = parenPos;
 
     int i = parenPos;
     while (i >= 0 && b.at(i) != space)
         --i;
     while (i >= 0 && b.at(i) == space)
         --i;
-    int spaceCount = 0;
-    // i is now on timezone. Go back 3 spaces: That is where the date starts.
-    while (i >= 0) {
-        if (b.at(i) == space)
-            ++spaceCount;
-        if (spaceCount == 3) {
-            datePos = i;
-            break;
+    int stripPos = i + 1;
+    if (omitDate) {
+        int spaceCount = 0;
+        // i is now on timezone. Go back 3 spaces: That is where the date starts.
+        while (i >= 0) {
+            if (b.at(i) == space)
+                ++spaceCount;
+            if (spaceCount == 3) {
+                stripPos = i;
+                break;
+            }
+            --i;
         }
-        --i;
     }
-    if (datePos == 0)
-        return b;
 
     // Copy over the parts that have not changed into a new byte array
     QString result;
-    QTC_ASSERT(b.size() >= parenPos, return result);
     int prevPos = 0;
     int pos = b.indexOf(QLatin1Char('\n'), 0) + 1;
     forever {
         QTC_CHECK(prevPos < pos);
         int afterParen = prevPos + parenPos;
-        result.append(b.mid(prevPos, datePos));
+        result.append(b.mid(prevPos, stripPos));
         result.append(b.mid(afterParen, pos - afterParen));
         prevPos = pos;
         QTC_CHECK(prevPos != 0);
@@ -179,17 +180,12 @@ static QString removeAnnotationDate(const QString &b)
 void GitEditorWidget::setPlainText(const QString &text)
 {
     QString modText = text;
-    GitPlugin *plugin = GitPlugin::instance();
     // If desired, filter out the date from annotation
     switch (contentType())
     {
-    case AnnotateOutput: {
-        const bool omitAnnotationDate
-                = plugin->client()->settings().boolValue(GitSettings::omitAnnotationDateKey);
-        if (omitAnnotationDate)
-            modText = removeAnnotationDate(text);
+    case AnnotateOutput:
+        modText = sanitizeBlameOutput(text);
         break;
-    }
     default:
         break;
     }

@@ -19,7 +19,6 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "abstractqmlprofilerrunner.h",
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
             "qmlprofiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
@@ -30,22 +29,21 @@ QtcPlugin {
             "qmlprofilerconstants.h",
             "qmlprofilerdatamodel.cpp", "qmlprofilerdatamodel.h",
             "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
-            "qmlprofilerengine.cpp", "qmlprofilerengine.h",
             "qmlprofilereventsmodelproxy.cpp", "qmlprofilereventsmodelproxy.h",
             "qmlprofilereventview.cpp", "qmlprofilereventview.h",
             "qmlprofilermodelmanager.cpp", "qmlprofilermodelmanager.h",
             "qmlprofilernotesmodel.cpp", "qmlprofilernotesmodel.h",
             "qmlprofilerplugin.cpp", "qmlprofilerplugin.h",
             "qmlprofilerruncontrolfactory.cpp", "qmlprofilerruncontrolfactory.h",
+            "qmlprofilerrangemodel.cpp", "qmlprofilerrangemodel.h",
+            "qmlprofilerruncontrol.cpp", "qmlprofilerruncontrol.h",
             "qmlprofilerstatemanager.cpp", "qmlprofilerstatemanager.h",
             "qmlprofilerstatewidget.cpp", "qmlprofilerstatewidget.h",
-            "qmlprofilerrangemodel.cpp", "qmlprofilerrangemodel.h",
             "qmlprofilertimelinemodel.cpp", "qmlprofilertimelinemodel.h",
             "qmlprofilertimelinemodelfactory.cpp", "qmlprofilertimelinemodelfactory.h",
             "qmlprofilertool.cpp", "qmlprofilertool.h",
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
-            "qmlprofilertreeview.cpp", "qmlprofilertreeview.h",
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
         ]
     }

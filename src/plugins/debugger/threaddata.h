@@ -93,17 +93,6 @@ struct ThreadData
         IdRole = Qt::UserRole
     };
 
-    void notifyRunning() // Clear state information.
-    {
-        address = 0;
-        function.clear();
-        fileName.clear();
-        frameLevel = -1;
-        state.clear();
-        lineNumber = -1;
-        stopped = false;
-    }
-
     // Permanent data.
     ThreadId id;
     QByteArray groupId;

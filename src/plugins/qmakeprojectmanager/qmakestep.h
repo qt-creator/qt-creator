@@ -91,25 +91,15 @@ public:
     static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
     static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
 
-
-    QMakeStepConfig()
-        : archConfig(NoArch),
-          osType(NoOsType),
-          linkQmlDebuggingQQ1(false),
-          linkQmlDebuggingQQ2(false),
-          useQtQuickCompiler(false),
-          separateDebugInfo(false)
-    {}
-
     QStringList toArguments() const;
 
     // Actual data
-    TargetArchConfig archConfig;
-    OsType osType;
-    bool linkQmlDebuggingQQ1;
-    bool linkQmlDebuggingQQ2;
-    bool useQtQuickCompiler;
-    bool separateDebugInfo;
+    TargetArchConfig archConfig = NoArch;
+    OsType osType = NoOsType;
+    bool linkQmlDebuggingQQ1 = false;
+    bool linkQmlDebuggingQQ2 = false;
+    bool useQtQuickCompiler = false;
+    bool separateDebugInfo = false;
 };
 
 
@@ -192,13 +182,13 @@ private:
     void ctor();
 
     // last values
-    bool m_forced;
-    bool m_needToRunQMake; // set in init(), read in run()
+    bool m_forced = false;
+    bool m_needToRunQMake = false; // set in init(), read in run()
     QString m_userArgs;
-    QmlLibraryLink m_linkQmlDebuggingLibrary;
-    bool m_useQtQuickCompiler;
-    bool m_scriptTemplate;
-    bool m_separateDebugInfo;
+    QmlLibraryLink m_linkQmlDebuggingLibrary = DebugLink;
+    bool m_useQtQuickCompiler = false;
+    bool m_scriptTemplate = false;
+    bool m_separateDebugInfo = false;
 };
 
 
@@ -239,11 +229,11 @@ private:
 
     void setSummaryText(const QString &);
 
-    Internal::Ui::QMakeStep *m_ui;
-    QMakeStep *m_step;
+    Internal::Ui::QMakeStep *m_ui = nullptr;
+    QMakeStep *m_step = nullptr;
     QString m_summaryText;
     QString m_additionalSummaryText;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
 };
 
 } // namespace QmakeProjectManager

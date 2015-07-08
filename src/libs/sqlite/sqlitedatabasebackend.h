@@ -31,11 +31,11 @@
 #ifndef SQLITEDATABASEBACKEND_H
 #define SQLITEDATABASEBACKEND_H
 
-#include <QStringList>
-
 #include "sqliteglobal.h"
 
 #include "utf8stringvector.h"
+
+#include <QStringList>
 
 struct sqlite3;
 

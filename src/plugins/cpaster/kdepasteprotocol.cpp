@@ -56,15 +56,6 @@ static inline QByteArray expiryParameter(int daysRequested)
 }
 
 namespace CodePaster {
-StickyNotesPasteProtocol::StickyNotesPasteProtocol() :
-    m_fetchReply(0),
-    m_pasteReply(0),
-    m_listReply(0),
-    m_fetchId(-1),
-    m_postId(-1),
-    m_hostChecked(false)
-{
-}
 
 void StickyNotesPasteProtocol::setHostUrl(const QString &hostUrl)
 {

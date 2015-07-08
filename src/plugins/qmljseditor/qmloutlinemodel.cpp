@@ -39,8 +39,8 @@
 #include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/dropsupport.h>
 
 #include <coreplugin/icore.h>
 #include <QDebug>
@@ -318,7 +318,7 @@ QStringList QmlOutlineModel::mimeTypes() const
 {
     QStringList types;
     types << QLatin1String(INTERNAL_MIMETYPE);
-    types << Utils::FileDropSupport::mimeTypesForFilePaths();
+    types << Utils::DropSupport::mimeTypesForFilePaths();
     return types;
 }
 
@@ -327,7 +327,7 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
         return 0;
-    auto data = new Utils::FileDropMimeData;
+    auto data = new Utils::DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction);
     QByteArray encoded;
     QDataStream stream(&encoded, QIODevice::WriteOnly);

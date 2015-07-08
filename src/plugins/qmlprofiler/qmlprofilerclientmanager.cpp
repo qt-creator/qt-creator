@@ -106,8 +106,6 @@ void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
         connect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
 }
 
-////////////////////////////////////////////////////////////////
-// Interface
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
 {
     d->connectMode = QmlProfilerClientManagerPrivate::TcpConnection;
@@ -132,8 +130,6 @@ void QmlProfilerClientManager::discardPendingData()
     clearBufferedData();
 }
 
-////////////////////////////////////////////////////////////////
-// Internal
 void QmlProfilerClientManager::connectClient(quint16 port)
 {
     if (d->connection)
@@ -155,8 +151,9 @@ void QmlProfilerClientManager::enableServices()
     disconnectClientSignals();
     d->profilerState->setServerRecording(false); // false by default (will be set to true when connected)
     delete d->qmlclientplugin.data();
+    d->profilerState->setRecordedFeatures(0);
     d->qmlclientplugin = new QmlProfilerTraceClient(d->connection,
-                                                    d->profilerState->recordingFeatures());
+                                                    d->profilerState->requestedFeatures());
     connectClientSignals();
 }
 
@@ -180,11 +177,12 @@ void QmlProfilerClientManager::connectClientSignals()
                 d->modelManager->traceTime(), SLOT(decreaseStartTime(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                 d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
-        // fixme: this should be unified for both clients
         connect(d->qmlclientplugin.data(), SIGNAL(recordingChanged(bool)),
                 d->profilerState, SLOT(setServerRecording(bool)));
-        connect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
-                d->qmlclientplugin.data(), SLOT(setFeatures(quint64)));
+        connect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
+                d->qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
+        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
+                d->profilerState, &QmlProfilerStateManager::setRecordedFeatures);
     }
 }
 
@@ -208,14 +206,16 @@ void QmlProfilerClientManager::disconnectClientSignals()
         // fixme: this should be unified for both clients
         disconnect(d->qmlclientplugin.data(), SIGNAL(recordingChanged(bool)),
                    d->profilerState, SLOT(setServerRecording(bool)));
-        disconnect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
-                   d->qmlclientplugin.data(), SLOT(setFeatures(quint64)));
+        disconnect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
+                   d->qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
+        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
+                   d->profilerState, &QmlProfilerStateManager::setRecordedFeatures);
     }
 }
 
 void QmlProfilerClientManager::connectToClient()
 {
-    if (!d->connection || d->connection->isOpen())
+    if (!d->connection || d->connection->isOpen() || d->connection->isConnecting())
         return;
 
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
@@ -290,6 +290,12 @@ void QmlProfilerClientManager::logState(const QString &msg)
 
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 {
+    if (d->connection) {
+        QTC_ASSERT(!d->connection->isOpen(), return);
+        if (d->connection->isConnecting())
+            d->connection->disconnect();
+    }
+
     switch (result) {
     case QMessageBox::Retry: {
         d->connectionAttempts = 0;
@@ -324,8 +330,6 @@ void QmlProfilerClientManager::stopClientsRecording()
         d->qmlclientplugin.data()->setRecording(false);
 }
 
-////////////////////////////////////////////////////////////////
-// Profiler State
 void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     if (d->profilerState) {

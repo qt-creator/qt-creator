@@ -59,6 +59,7 @@ public:
     void setFuture(QFutureInterface<void> *future);
 
     bool load(QIODevice *device);
+    quint64 loadedFeatures() const;
 
 signals:
     void error(const QString &error);
@@ -75,6 +76,7 @@ private:
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
     QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;
+    quint64 m_loadedFeatures;
 };
 
 

@@ -46,11 +46,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <diffeditor/differ.h>
+#include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <utils/QtConcurrentTools>
 
 #include <QAction>
@@ -73,8 +75,9 @@ namespace Internal {
 BeautifierPlugin::BeautifierPlugin() :
     m_asyncFormatMapper(new QSignalMapper)
 {
-    connect(m_asyncFormatMapper, SIGNAL(mapped(QObject*)),
-            this, SLOT(formatCurrentFileContinue(QObject*)));
+    connect(m_asyncFormatMapper,
+            static_cast<void (QSignalMapper::*)(QObject *)>(&QSignalMapper::mapped),
+            this, &BeautifierPlugin::formatCurrentFileContinue);
     connect(this, &BeautifierPlugin::pipeError, this, &BeautifierPlugin::showError);
 }
 
@@ -96,12 +99,11 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
-    for (int i = 0, total = m_tools.count(); i < total; ++i) {
-        BeautifierAbstractTool *tool = m_tools.at(i);
+    foreach (BeautifierAbstractTool *tool, m_tools) {
         tool->initialize();
         const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
-        for (int j = 0, total = autoReleasedObjects.count(); j < total; ++j)
-            addAutoReleasedObject(autoReleasedObjects.at(j));
+        foreach (QObject *object, autoReleasedObjects)
+            addAutoReleasedObject(object);
     }
 
     // The single shot is needed, otherwise the menu will stay disabled even
@@ -113,8 +115,8 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 void BeautifierPlugin::extensionsInitialized()
 {
     if (const Core::EditorManager *editorManager = Core::EditorManager::instance()) {
-        connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
-                this, SLOT(updateActions(Core::IEditor*)));
+        connect(editorManager, &Core::EditorManager::currentEditorChanged,
+                this, &BeautifierPlugin::updateActions);
     }
 }
 
@@ -125,8 +127,8 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 void BeautifierPlugin::updateActions(Core::IEditor *editor)
 {
-    for (int i = 0, total = m_tools.count(); i < total; ++i)
-        m_tools.at(i)->updateActions(editor);
+    foreach (BeautifierAbstractTool *tool, m_tools)
+        tool->updateActions(editor);
 }
 
 // Use pipeError() instead of calling showError() because this function may run in another thread.
@@ -140,7 +142,7 @@ QString BeautifierPlugin::format(const QString &text, const Command &command,
     switch (command.processing()) {
     case Command::FileProcessing: {
         // Save text to temporary file
-        QFileInfo fi(fileName);
+        const QFileInfo fi(fileName);
         Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
                                         + fi.suffix());
         sourceFile.setAutoRemove(true);
@@ -219,24 +221,29 @@ QString BeautifierPlugin::format(const QString &text, const Command &command,
     return QString();
 }
 
-void BeautifierPlugin::formatCurrentFile(const Command &command)
+void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
 {
-    TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-    if (!widget)
-        return;
+    QTC_ASSERT(startPos <= endPos, return);
 
-    const QString sourceData = widget->toPlainText();
-    if (sourceData.isEmpty())
-        return;
+    if (TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget()) {
+        if (const TextDocument *doc = widget->textDocument()) {
+            const QString sourceData = (startPos < 0)
+                    ? widget->toPlainText()
+                    : Convenience::textAt(widget->textCursor(), startPos, (endPos - startPos));
+            if (sourceData.isEmpty())
+                return;
+            const FormatTask task = FormatTask(widget, doc->filePath().toString(), sourceData,
+                                               command, startPos, endPos);
 
-    QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
-    connect(widget->textDocument(), &TextDocument::contentsChanged,
-            watcher, &QFutureWatcher<FormatTask>::cancel);
-    connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
-    m_asyncFormatMapper->setMapping(watcher, watcher);
-    const QString filePath = widget->textDocument()->filePath().toString();
-    watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this,
-                                         FormatTask(widget, filePath, sourceData, command)));
+            QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
+            connect(doc, &TextDocument::contentsChanged,
+                    watcher, &QFutureWatcher<FormatTask>::cancel);
+            connect(watcher, &QFutureWatcherBase::finished, m_asyncFormatMapper,
+                    static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+            m_asyncFormatMapper->setMapping(watcher, watcher);
+            watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this, task));
+        }
+    }
 }
 
 void BeautifierPlugin::formatAsync(QFutureInterface<FormatTask> &future, FormatTask task)
@@ -268,6 +275,11 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
         return;
     }
 
+    if (task.formattedData.isEmpty()) {
+        showError(tr("Could not format file %1.").arg(task.filePath));
+        return;
+    }
+
     QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
         showError(tr("File %1 was closed.").arg(task.filePath));
@@ -275,9 +287,13 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     }
 
     const QString sourceData = textEditor->toPlainText();
-    const QString formattedData = task.formattedData;
-    if ((sourceData == formattedData) || formattedData.isEmpty())
+    const QString formattedData = (task.startPos < 0)
+            ? task.formattedData
+            : QString(sourceData).replace(task.startPos, (task.endPos - task.startPos),
+                                          task.formattedData);
+    if (sourceData == formattedData)
         return;
+
 
     // Since QTextCursor does not work properly with folded blocks, all blocks must be unfolded.
     // To restore the current state at the end, keep track of which block is folded.
@@ -308,9 +324,7 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     int newCursorPos = charactersInfrontOfCursor;
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    const int diffSize = diff.size();
-    for (int i = 0; i < diffSize; ++i) {
-        const DiffEditor::Diff d = diff.at(i);
+    foreach (const DiffEditor::Diff &d, diff) {
         switch (d.command) {
         case DiffEditor::Diff::Insert:
         {
@@ -381,9 +395,8 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
                                               + absoluteVerticalCursorOffset / fontHeight);
     // Restore folded blocks
     const QTextDocument *doc = textEditor->document();
-    const int total = foldedBlocks.size();
-    for (int i = 0; i < total; ++i) {
-        QTextBlock block = doc->findBlockByNumber(qMax(0, foldedBlocks.at(i)));
+    foreach (const int blockId, foldedBlocks) {
+        const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
             TextDocumentLayout::doFoldOrUnfold(block, false);
     }

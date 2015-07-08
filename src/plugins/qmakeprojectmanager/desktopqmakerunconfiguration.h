@@ -128,11 +128,11 @@ private:
     Utils::FileName m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
-    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
-    bool m_isUsingDyldImageSuffix;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode = ProjectExplorer::ApplicationLauncher::Gui;
+    bool m_isUsingDyldImageSuffix = false;
     QString m_userWorkingDirectory;
-    bool m_parseSuccess;
-    bool m_parseInProgress;
+    bool m_parseSuccess = false;
+    bool m_parseInProgress = false;
 };
 
 class DesktopQmakeRunConfigurationWidget : public QWidget
@@ -165,19 +165,19 @@ private slots:
     void usingDyldImageSuffixChanged(bool);
 
 private:
-    DesktopQmakeRunConfiguration *m_qmakeRunConfiguration;
-    bool m_ignoreChange;
-    QLabel *m_disabledIcon;
-    QLabel *m_disabledReason;
-    QLabel *m_executableLineLabel;
-    Utils::PathChooser *m_workingDirectoryEdit;
-    QLineEdit *m_argumentsLineEdit;
-    QCheckBox *m_useTerminalCheck;
-    QCheckBox *m_useQvfbCheck;
-    QCheckBox *m_usingDyldImageSuffix;
-    QLineEdit *m_qmlDebugPort;
+    DesktopQmakeRunConfiguration *m_qmakeRunConfiguration = nullptr;
+    bool m_ignoreChange = false;
+    QLabel *m_disabledIcon = nullptr;
+    QLabel *m_disabledReason = nullptr;
+    QLabel *m_executableLineLabel = nullptr;
+    Utils::PathChooser *m_workingDirectoryEdit = nullptr;
+    QLineEdit *m_argumentsLineEdit = nullptr;
+    QCheckBox *m_useTerminalCheck = nullptr;
+    QCheckBox *m_useQvfbCheck = nullptr;
+    QCheckBox *m_usingDyldImageSuffix = nullptr;
+    QLineEdit *m_qmlDebugPort = nullptr;
     Utils::DetailsWidget *m_detailsContainer;
-    bool m_isShown;
+    bool m_isShown = false;
 };
 
 class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory

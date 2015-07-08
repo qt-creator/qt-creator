@@ -63,10 +63,6 @@ enum ToolMode {
     AnyMode
 };
 
-ANALYZER_EXPORT bool checkForLocalStart(ToolMode toolMode);
-ANALYZER_EXPORT bool checkForRemoteStart(AnalyzerStartParameters *sp);
-
-
 /**
  * This class represents an analyzation action, i.e. a tool that runs in a specific mode.
  *
@@ -80,8 +76,6 @@ public:
     explicit AnalyzerAction(QObject *parent = 0);
 
 public:
-    void setStartMode(StartMode startMode) { m_startMode = startMode; }
-
     Core::Id menuGroup() const { return m_menuGroup; }
     void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
 
@@ -90,8 +84,10 @@ public:
 
     Core::Id toolId() const { return m_toolId; }
     void setToolId(Core::Id id) { m_toolId = id; }
+    void setToolMode(ToolMode mode) { m_toolMode = mode; }
 
-    void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
+    Core::Id runMode() const { return m_runMode; }
+    void setRunMode(Core::Id mode) { m_runMode = mode; }
     bool isRunnable(QString *reason = 0) const;
 
     /// Creates all widgets used by the tool.
@@ -105,23 +101,29 @@ public:
     /// Called each time the tool is launched.
     typedef std::function<AnalyzerRunControl *(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)> RunControlCreator;
-    AnalyzerRunControl *tryCreateRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) const;
+    RunControlCreator runControlCreator() const { return m_runControlCreator; }
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 
+    typedef std::function<bool()> ToolPreparer;
+    ToolPreparer toolPreparer() const { return m_toolPreparer; }
+    void setToolPreparer(const ToolPreparer &toolPreparer) { m_toolPreparer = toolPreparer; }
+
+    void startTool();
+
+    /// This is only used for setups not using the startup project.
     typedef std::function<void()> ToolStarter;
-    ToolStarter toolStarter() const { return m_toolStarter; }
-    void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
+    void setCustomToolStarter(const ToolStarter &toolStarter) { m_customToolStarter = toolStarter; }
 
 protected:
-    StartMode m_startMode;
     Core::Id m_menuGroup;
     Core::Id m_actionId;
     Core::Id m_toolId;
-    ProjectExplorer::RunMode m_runMode;
+    ToolMode m_toolMode;
+    Core::Id m_runMode;
     WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;
-    ToolStarter m_toolStarter;
+    ToolStarter m_customToolStarter;
+    ToolPreparer m_toolPreparer;
 };
 
 } // namespace Analyzer

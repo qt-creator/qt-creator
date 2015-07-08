@@ -490,14 +490,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 QColor shadow(0, 0, 0, 30);
                 painter->setPen(shadow);
                 if (pressed) {
-                    QColor shade(0, 0, 0, 40);
+                    QColor shade = option->palette.base().color();
+                    shade.setHsv(shade.hue(), shade.saturation(), 255 - shade.value(), 40);
                     painter->fillRect(rect, shade);
                     painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() - QPoint(1, 0));
                     painter->drawLine(rect.topLeft(), rect.bottomLeft());
                     painter->drawLine(rect.topRight(), rect.bottomRight());
-                   // painter->drawLine(rect.bottomLeft()  + QPoint(1, 0), rect.bottomRight()  - QPoint(1, 0));
-                    QColor highlight(255, 255, 255, 30);
-                    painter->setPen(highlight);
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
                     painter->fillRect(rect, creatorTheme()->color(Theme::PanelButtonToolBackgroundColorHover));
                 } else if (widget && widget->property("highlightWidget").toBool()) {
@@ -844,23 +842,16 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             }
 
             bool drawLightColored = lightColored(widget);
-            if (horizontal)
-            {
-                // draws the background of the 'Type hierarchy', 'Projects' headers
-                if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-                    painter->fillRect (rect, creatorTheme()->color(Theme::ToolBarBackgroundColor));
-                else
-                    StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
-            } else {
-                if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-                    painter->fillRect (rect, creatorTheme()->color(Theme::ToolBarBackgroundColor));
-                else
-                    StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
-            }
+            // draws the background of the 'Type hierarchy', 'Projects' headers
+            if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+                painter->fillRect (rect, creatorTheme()->color(Theme::ToolBarBackgroundColor));
+            else if (horizontal)
+                StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
+            else
+                StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
-            if (!drawLightColored) {
+            if (!drawLightColored)
                 painter->setPen(StyleHelper::borderColor());
-            }
             else
                 painter->setPen(QColor(0x888888));
 

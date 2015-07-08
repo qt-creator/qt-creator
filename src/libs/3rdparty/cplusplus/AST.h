@@ -3348,7 +3348,7 @@ public:
     DeclarationAST *declaration;
 
 public: // annotations
-    Template *symbol;
+    Scope *symbol;
 
 public:
     TemplateDeclarationAST()

@@ -157,8 +157,10 @@ const QByteArray &JournaldWatcher::machineId()
     static QByteArray id;
     if (id.isEmpty()) {
         sd_id128 sdId;
-        if (sd_id128_get_machine(&sdId) == 0)
-            id = QByteArray(reinterpret_cast<char *>(sdId.bytes), 16);
+        if (sd_id128_get_machine(&sdId) == 0) {
+            id.resize(32);
+            sd_id128_to_string(sdId, id.data());
+        }
     }
     return id;
 }
@@ -209,6 +211,9 @@ void JournaldWatcher::handleEntry()
     if (!d->m_notifier)
         return;
 
+    if (sd_journal_process(d->m_journalContext) != SD_JOURNAL_APPEND)
+        return;
+
     LogEntry logEntry;
     forever {
         logEntry = d->retrieveEntry();
@@ -225,6 +230,7 @@ void JournaldWatcher::handleEntry()
         quint64 pidNum = pid.isEmpty() ? 0 : QString::fromLatin1(pid).toInt();
 
         QString message = QString::fromUtf8(logEntry.value(QByteArrayLiteral("MESSAGE")));
+        message.append(QLatin1Char('\n')); // Add newline.
 
         emit journaldOutput(pidNum, message);
     }

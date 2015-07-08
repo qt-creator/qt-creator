@@ -70,7 +70,7 @@ QT_END_NAMESPACE
 
 void dumpFrame(const Frame &f)
 {
-    qDebug() << f.instructionPointer() << f.directory() << f.file() << f.functionName()
+    qDebug() << f.instructionPointer() << f.directory() << f.fileName() << f.functionName()
              << f.line() << f.object();
 }
 
@@ -168,14 +168,14 @@ void ParserTests::testHelgrindSample1()
         frame11.setObject(QLatin1String("/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so"));
         frame11.setFunctionName(QLatin1String("QMutex::lock()"));
         frame11.setDirectory(QLatin1String("/build/buildd/valgrind-3.6.0~svn20100212/helgrind"));
-        frame11.setFile(QLatin1String("hg_intercepts.c"));
+        frame11.setFileName(QLatin1String("hg_intercepts.c"));
         frame11.setLine(1988);
         Frame frame12;
         frame12.setInstructionPointer(0x72E57EE);
         frame12.setObject(QLatin1String("/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3"));
         frame12.setFunctionName(QLatin1String("QMutexLocker::relock()"));
         frame12.setDirectory(QLatin1String("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread"));
-        frame12.setFile(QLatin1String("qmutex.h"));
+        frame12.setFileName(QLatin1String("qmutex.h"));
         frame12.setLine(120);
         stack1.setFrames(QVector<Frame>() << frame11 << frame12);
 
@@ -186,14 +186,14 @@ void ParserTests::testHelgrindSample1()
         frame21.setObject(QLatin1String("/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so"));
         frame21.setFunctionName(QLatin1String("QMutex::lock()"));
         frame21.setDirectory(QLatin1String("/build/buildd/valgrind-3.6.0~svn20100212/helgrind"));
-        frame21.setFile(QLatin1String("hg_intercepts.c"));
+        frame21.setFileName(QLatin1String("hg_intercepts.c"));
         frame21.setLine(1989);
         Frame frame22;
         frame22.setInstructionPointer(0x72E57EE);
         frame22.setObject(QLatin1String("/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3"));
         frame22.setFunctionName(QLatin1String("QMutexLocker::relock()"));
         frame22.setDirectory(QLatin1String("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread"));
-        frame22.setFile(QLatin1String("qmutex.h"));
+        frame22.setFileName(QLatin1String("qmutex.h"));
         frame22.setLine(121);
         stack2.setFrames(QVector<Frame>() << frame21 << frame22);
 
@@ -204,14 +204,14 @@ void ParserTests::testHelgrindSample1()
         frame31.setObject(QLatin1String("/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so"));
         frame31.setFunctionName(QLatin1String("QMutex::lock()"));
         frame31.setDirectory(QLatin1String("/build/buildd/valgrind-3.6.0~svn20100212/helgrind"));
-        frame31.setFile(QLatin1String("hg_intercepts.c"));
+        frame31.setFileName(QLatin1String("hg_intercepts.c"));
         frame31.setLine(1990);
         Frame frame32;
         frame32.setInstructionPointer(0x72E57EE);
         frame32.setObject(QLatin1String("/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3"));
         frame32.setFunctionName(QLatin1String("QMutexLocker::relock()"));
         frame32.setDirectory(QLatin1String("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread"));
-        frame32.setFile(QLatin1String("qmutex.h"));
+        frame32.setFileName(QLatin1String("qmutex.h"));
         frame32.setLine(122);
 
         stack3.setFrames(QVector<Frame>() << frame31 << frame32);
@@ -260,7 +260,7 @@ void ParserTests::testMemcheckSample1()
         f1.setObject(QLatin1String("/usr/lib/libQtGui.so.4.7.0"));
         f1.setFunctionName(QLatin1String("QFrame::frameStyle() const"));
         f1.setDirectory(QLatin1String("/build/buildd/qt4-x11-4.7.0/src/gui/widgets"));
-        f1.setFile(QLatin1String("qframe.cpp"));
+        f1.setFileName(QLatin1String("qframe.cpp"));
         f1.setLine(252);
         Frame f2;
         f2.setInstructionPointer(0x118F2AF7);
@@ -270,13 +270,13 @@ void ParserTests::testMemcheckSample1()
         f3.setObject(QLatin1String("/usr/lib/libQtGui.so.4.7.0"));
         f3.setFunctionName(QLatin1String("QWidget::event(QEvent*)"));
         f3.setDirectory(QLatin1String("/build/buildd/qt4-x11-4.7.0/src/gui/kernel"));
-        f3.setFile(QLatin1String("qwidget.cpp"));
+        f3.setFileName(QLatin1String("qwidget.cpp"));
         f3.setLine(8273);
         Frame f4;
         f4.setInstructionPointer(0x6A2B6EB);
         f4.setObject(QLatin1String("/usr/lib/libQtGui.so.4.7.0"));
         f4.setDirectory(QLatin1String("/build/buildd/qt4-x11-4.7.0/src/gui/kernel"));
-        f4.setFile(QLatin1String("qapplication.cpp"));
+        f4.setFileName(QLatin1String("qapplication.cpp"));
         f4.setFunctionName(QLatin1String("QApplicationPrivate::notify_helper(QObject*, QEvent*)"));
         f4.setLine(4396);
         Stack s1;

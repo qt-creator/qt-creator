@@ -31,10 +31,10 @@
 #ifndef SQLITEDATABASECONNECTION_H
 #define SQLITEDATABASECONNECTION_H
 
+#include <sqliteglobal.h>
+
 #include <QObject>
 #include <QPointer>
-
-#include <sqliteglobal.h>
 
 struct sqlite3;
 class SqliteWorkerThread;

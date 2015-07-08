@@ -262,12 +262,13 @@ void AbstractSshChannel::closeChannel()
         if (m_state == Inactive) {
             setChannelState(Closed);
         } else {
+            const ChannelState oldState = m_state;
             setChannelState(CloseRequested);
             if (m_remoteChannel != NoChannel) {
                 m_sendFacility.sendChannelEofPacket(m_remoteChannel);
                 m_sendFacility.sendChannelClosePacket(m_remoteChannel);
             } else {
-                QSSH_ASSERT(m_state == SessionRequested);
+                QSSH_ASSERT(oldState == SessionRequested);
             }
         }
     }

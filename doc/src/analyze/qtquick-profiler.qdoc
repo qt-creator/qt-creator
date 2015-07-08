@@ -534,30 +534,5 @@
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
     JavaScript events are shown in the \uicontrol Events view only for applications
-    that use Qt Quick 2 and are compiled with Qt 5.3 or later. For applications
-    that use Qt Quick 2 and are built with Qt 5.0 or 5.1, you can view
-    information about JavaScript events in the separate \uicontrol V8 view.
-
-    \section2 Viewing More Data
-
-    The QML JavaScript engine optimizes trivial bindings. The QML Profiler
-    may not receive all information about optimized bindings, and therefore,
-    it may display the text \uicontrol {<bytecode>} and the message
-    \uicontrol {Source code not available} in the \uicontrol Callers and \uicontrol {Callees}
-    panes.
-
-    To inspect the optimized bindings, turn off the QML optimizer by setting
-    the environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
-    variable for the current project in the project settings:
-
-    \list 1
-
-        \li Select \uicontrol {Projects > Run}.
-
-        \li In \uicontrol {Run Environment}, click \uicontrol Add.
-
-        \li Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
-
-    \endlist
-
+    that use Qt Quick 2 and are compiled with Qt 5.3 or later.
 */

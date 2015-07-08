@@ -30,10 +30,9 @@
 
 #include "tablewriteworkerproxy.h"
 
-#include "tablewriteworker.h"
-#include "sqlitetable.h"
-
 #include "createtablecommand.h"
+#include "sqlitetable.h"
+#include "tablewriteworker.h"
 
 namespace Internal {
 

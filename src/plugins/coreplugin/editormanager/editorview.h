@@ -33,7 +33,7 @@
 
 #include "coreplugin/id.h"
 
-#include <utils/fileutils.h>
+#include <utils/dropsupport.h>
 
 #include <QMap>
 #include <QList>
@@ -122,7 +122,7 @@ private slots:
     void splitVertically();
     void splitNewWindow();
     void closeSplit();
-    void openDroppedFiles(const QList<Utils::FileDropSupport::FileSpec> &files);
+    void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView

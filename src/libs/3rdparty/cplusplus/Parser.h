@@ -137,7 +137,6 @@ public:
     bool parseTypenameCallExpression(ExpressionAST *&node);
     bool parseCorePostfixExpression(ExpressionAST *&node);
     bool parsePostfixExpression(ExpressionAST *&node);
-    bool parsePostfixExpressionInternal(ExpressionAST *&node);
     bool parsePrimaryExpression(ExpressionAST *&node);
     bool parseNestedExpression(ExpressionAST *&node);
     bool parsePtrOperator(PtrOperatorListAST *&node);
@@ -250,7 +249,6 @@ public:
     bool lookAtObjCSelector() const;
 
     // c99
-    bool parseDesignatedInitializerList(ExpressionListAST *&node);
     bool parseDesignatedInitializer(ExpressionAST *&node);
     bool parseDesignator(DesignatorAST *&node);
 

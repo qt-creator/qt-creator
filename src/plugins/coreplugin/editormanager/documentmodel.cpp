@@ -34,7 +34,7 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/dropsupport.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractItemModel>
@@ -509,7 +509,7 @@ Qt::DropActions DocumentModelPrivate::supportedDragActions() const
 
 QStringList DocumentModelPrivate::mimeTypes() const
 {
-    return Utils::FileDropSupport::mimeTypesForFilePaths();
+    return Utils::DropSupport::mimeTypesForFilePaths();
 }
 
 DocumentModel::Entry *DocumentModel::entryAtRow(int row)
@@ -569,7 +569,7 @@ Qt::ItemFlags DocumentModelPrivate::flags(const QModelIndex &index) const
 
 QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
 {
-    auto data = new Utils::FileDropMimeData;
+    auto data = new Utils::DropMimeData;
     foreach (const QModelIndex &index, indexes) {
         const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
         if (!e || e->fileName().isEmpty())

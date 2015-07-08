@@ -197,9 +197,9 @@ public:
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
     void resetWatchers();
-    void notifyUpdateStarted();
+
+    void notifyUpdateStarted(const QList<QByteArray> &inames = {});
     void notifyUpdateFinished();
-    void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:
     WatchModel *m_model; // Owned.

@@ -116,15 +116,10 @@ void QnxAttachDebugSupport::attachToProcess()
     sp.attachPID = m_process.pid;
     sp.startMode = Debugger::AttachToRemoteServer;
     sp.closeMode = Debugger::DetachAtClose;
-    sp.masterEngineType = Debugger::GdbEngineType;
     sp.connParams.port = m_pdebugPort;
     sp.remoteChannel = m_device->sshParameters().host + QLatin1Char(':') + QString::number(m_pdebugPort);
     sp.displayName = tr("Remote: \"%1:%2\" - Process %3").arg(sp.connParams.host).arg(m_pdebugPort).arg(m_process.pid);
-    sp.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(m_kit).toString();
-    sp.projectSourceDirectory = m_projectSourceDirectory;
     sp.executable = m_localExecutablePath;
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit))
-        sp.toolChainAbi = tc->targetAbi();
     sp.useCtrlCStub = true;
 
     QnxQtVersion *qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(m_kit));
@@ -132,7 +127,7 @@ void QnxAttachDebugSupport::attachToProcess()
         sp.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     QString errorMessage;
-    Debugger::DebuggerRunControl * const runControl = Debugger::createDebuggerRunControl(sp, &errorMessage);
+    Debugger::DebuggerRunControl *runControl = Debugger::createDebuggerRunControl(sp, 0, &errorMessage);
     if (!errorMessage.isEmpty()) {
         handleError(errorMessage);
         stopPDebug();
@@ -140,7 +135,7 @@ void QnxAttachDebugSupport::attachToProcess()
     }
     connect(runControl, &Debugger::DebuggerRunControl::stateChanged,
             this, &QnxAttachDebugSupport::handleDebuggerStateChanged);
-    ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::DebugRunMode);
+    ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
 }
 
 void QnxAttachDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState state)

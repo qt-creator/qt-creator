@@ -622,6 +622,8 @@ TreeItem::TreeItem(const QStringList &displays, int flags)
 
 TreeItem::~TreeItem()
 {
+    QTC_CHECK(m_parent == 0);
+    QTC_CHECK(m_model == 0);
     removeChildren();
     delete m_displays;
 }
@@ -851,6 +853,10 @@ TreeModel::TreeModel(TreeItem *root, QObject *parent)
 
 TreeModel::~TreeModel()
 {
+    QTC_ASSERT(m_root, return);
+    QTC_ASSERT(m_root->m_parent == 0, return);
+    QTC_ASSERT(m_root->m_model == this, return);
+    m_root->m_model = 0;
     delete m_root;
 }
 
@@ -966,7 +972,13 @@ int TreeModel::topLevelItemCount() const
 
 void TreeModel::setRootItem(TreeItem *item)
 {
-    delete m_root;
+    QTC_CHECK(m_root);
+    if (m_root) {
+        QTC_CHECK(m_root->m_parent == 0);
+        QTC_CHECK(m_root->m_model == this);
+        m_root->m_model = 0;
+        delete m_root;
+    }
     m_root = item;
     item->setModel(this);
     emit layoutChanged();
@@ -1049,6 +1061,7 @@ TreeItem *TreeModel::takeItem(TreeItem *item)
     QModelIndex idx = indexForItem(parent);
     beginRemoveRows(idx, pos, pos);
     item->m_parent = 0;
+    item->m_model = 0;
     parent->m_children.removeAt(pos);
     endRemoveRows();
     return item;

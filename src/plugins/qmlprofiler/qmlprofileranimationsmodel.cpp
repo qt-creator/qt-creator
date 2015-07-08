@@ -47,12 +47,10 @@ namespace Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
                                                        QObject *parent) :
-    QmlProfilerTimelineModel(manager,
-                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
-                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
+    QmlProfilerTimelineModel(manager, QmlDebug::Event, QmlDebug::MaximumRangeType,
+                             QmlDebug::ProfileAnimations, parent)
 {
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
-    announceFeatures(1 << QmlDebug::ProfileAnimations);
 }
 
 void QmlProfilerAnimationsModel::clear()
@@ -70,7 +68,6 @@ bool QmlProfilerAnimationsModel::accepted(const QmlProfilerDataModel::QmlEventTy
 
 void QmlProfilerAnimationsModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
@@ -127,8 +124,6 @@ void QmlProfilerAnimationsModel::loadData()
     setCollapsedRowCount(expandedRowCount());
     updateProgress(1, 1);
 }
-
-/////////////////// QML interface
 
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
 {

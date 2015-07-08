@@ -26,7 +26,7 @@ from dumper import *
 #
 #######################################################################
 
-def savePrint(output):
+def safePrint(output):
     try:
         print(output)
     except:
@@ -47,7 +47,7 @@ def registerCommand(name, func):
         def __init__(self):
             super(Command, self).__init__(name, gdb.COMMAND_OBSCURE)
         def invoke(self, args, from_tty):
-            savePrint(func(args))
+            safePrint(func(args))
 
     Command()
 
@@ -130,7 +130,7 @@ class ScanStackCommand(gdb.Command):
     def invoke(self, args, from_tty):
         if len(args) == 0:
             args = 20
-        savePrint(scanStack(gdb.parse_and_eval("$sp"), int(args)))
+        safePrint(scanStack(gdb.parse_and_eval("$sp"), int(args)))
 
 ScanStackCommand()
 
@@ -253,7 +253,7 @@ class Dumper(DumperBase):
         self.typeformats = args.get("typeformats", {})
         self.formats = args.get("formats", {})
         self.watchers = args.get("watchers", {})
-        self.qmlcontext = int(args.get("qmlcontext", "0"))
+        self.qmlcontext = int(args.get("qmlcontext", "0"), 0)
         self.useDynamicType = int(args.get("dyntype", "0"))
         self.useFancy = int(args.get("fancy", "0"))
         self.forceQtNamespace = int(args.get("forcens", "0"))
@@ -438,7 +438,7 @@ class Dumper(DumperBase):
 
         self.output.append(',partial="%d"' % isPartial)
 
-        print(''.join(self.output))
+        safePrint(''.join(self.output))
 
     def enterSubItem(self, item):
         if not item.iname:
@@ -750,6 +750,12 @@ class Dumper(DumperBase):
 
     def extractUInt(self, addr):
         return struct.unpack("I", self.readRawMemory(addr, 4))[0]
+
+    def extractShort(self, addr):
+        return struct.unpack("h", self.readRawMemory(addr, 2))[0]
+
+    def extractUShort(self, addr):
+        return struct.unpack("H", self.readRawMemory(addr, 2))[0]
 
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
@@ -1147,8 +1153,7 @@ class Dumper(DumperBase):
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
             if self.sortStructMembers:
-                fields.sort(key = lambda field:
-                    '[' + field.name if field.is_base_class else str(field.name))
+                fields.sort(key = lambda field: "%d%s" % (not field.is_base_class, field.name))
 
             #warn("TYPE: %s" % value.type)
             #warn("FIELDS: %s" % fields)
@@ -1619,7 +1624,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-        print(''.join(self.output))
+        safePrint(''.join(self.output))
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):

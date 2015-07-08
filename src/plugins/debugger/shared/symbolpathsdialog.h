@@ -57,7 +57,7 @@ public:
     void setPath(const QString &path);
     void setDoNotAskAgain(bool doNotAskAgain) const;
 
-    static bool useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer, QString &path, bool &doNotAskAgain);
+    static bool useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer, QString &path);
 
 private:
     Ui::SymbolPathsDialog *ui;

@@ -101,59 +101,63 @@ QList<QObject *> ArtisticStyle::autoReleaseObjects()
 
 void ArtisticStyle::formatFile()
 {
-    QString cfgFileName;
+    const QString cfgFileName = configurationFile();
+    if (cfgFileName.isEmpty()) {
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
+                                        QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME)));
+    } else {
+        m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
+    }
+}
+
+QString ArtisticStyle::configurationFile() const
+{
+    if (m_settings->useCustomStyle())
+        return m_settings->styleFileName(m_settings->customStyle());
 
     if (m_settings->useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
             const QStringList files = project->files(ProjectExplorer::Project::AllFiles);
-            for (int i = 0, total = files.size(); i < total; ++i) {
-                const QString &file = files.at(i);
+            foreach (const QString &file, files) {
                 if (!file.endsWith(QLatin1String(".astylerc")))
                     continue;
                 const QFileInfo fi(file);
-                if (fi.isReadable()) {
-                    cfgFileName = file;
-                    break;
-                }
+                if (fi.isReadable())
+                    return file;
             }
         }
     }
 
-    if (cfgFileName.isEmpty() && m_settings->useHomeFile()) {
+    if (m_settings->useHomeFile()) {
         const QDir homeDirectory = QDir::home();
         QString file = homeDirectory.filePath(QLatin1String(".astylerc"));
-        if (QFile::exists(file)) {
-            cfgFileName = file;
-        } else {
-            file = homeDirectory.filePath(QLatin1String("astylerc"));
-            if (QFile::exists(file))
-                cfgFileName = file;
-        }
+        if (QFile::exists(file))
+            return file;
+        file = homeDirectory.filePath(QLatin1String("astylerc"));
+        if (QFile::exists(file))
+            return file;
     }
 
-    if (m_settings->useCustomStyle())
-        cfgFileName = m_settings->styleFileName(m_settings->customStyle());
+    return QString();
+}
 
-    if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME)));
+Command ArtisticStyle::command(const QString &cfgFile) const
+{
+    Command command;
+    command.setExecutable(m_settings->command());
+    command.addOption(QLatin1String("-q"));
+    command.addOption(QLatin1String("--options=") + cfgFile);
+
+    if (m_settings->version() > ArtisticStyleSettings::Version_2_03) {
+        command.setProcessing(Command::PipeProcessing);
+        command.setPipeAddsNewline(true);
+        command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
     } else {
-        Command command;
-        command.setExecutable(m_settings->command());
-        command.addOption(QLatin1String("-q"));
-        command.addOption(QLatin1String("--options=") + cfgFileName);
-
-        if (m_settings->version() > ArtisticStyleSettings::Version_2_03) {
-            command.setProcessing(Command::PipeProcessing);
-            command.setPipeAddsNewline(true);
-            command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
-        } else {
-            command.addOption(QLatin1String("%file"));
-        }
-
-        m_beautifierPlugin->formatCurrentFile(command);
+        command.addOption(QLatin1String("%file"));
     }
+
+    return command;
 }
 
 } // namespace ArtisticStyle

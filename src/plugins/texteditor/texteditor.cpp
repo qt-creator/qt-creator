@@ -77,14 +77,18 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/find/basetextfind.h>
+#include <coreplugin/find/highlightscrollbar.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
+#include <utils/dropsupport.h>
+#include <utils/filesearch.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
+#include <utils/theme/theme.h>
 
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
@@ -145,6 +149,8 @@ using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
+
+enum { NExtraSelectionKinds = 12 };
 
 typedef QString (TransformationMethod)(const QString &);
 
@@ -270,6 +276,7 @@ public:
     void copyLineUpDown(bool up);
     void saveCurrentCursorPositionForNavigation();
     void updateHighlights();
+    void updateCurrentLineInScrollbar();
     void updateCurrentLineHighlight();
 
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,
@@ -308,6 +315,19 @@ public:
     void documentAboutToBeReloaded();
     void documentReloadFinished(bool success);
     void highlightSearchResultsSlot(const QString &txt, FindFlags findFlags);
+    void searchResultsReady(int beginIndex, int endIndex);
+    void searchFinished();
+    void setupScrollBar();
+    void highlightSearchResultsInScrollBar();
+    void scheduleUpdateHighlightScrollBar();
+    void updateHighlightScrollBarNow();
+    struct SearchResult {
+        int start;
+        int length;
+    };
+    void addSearchResultsToScrollBar(QVector<SearchResult> results);
+    void adjustScrollBarRanges();
+
     void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
 
     void updateCursorPosition();
@@ -396,8 +416,8 @@ public:
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer m_delayedUpdateTimer;
 
-    void setExtraSelections(int kind, const QList<QTextEdit::ExtraSelection> &selections);
-    QHash<int, QList<QTextEdit::ExtraSelection>> m_extraSelections;
+    void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QHash<Core::Id, QList<QTextEdit::ExtraSelection>> m_extraSelections;
 
     // block selection mode
     bool m_inBlockSelectionMode;
@@ -447,6 +467,12 @@ public:
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
+
+    QFutureWatcher<FileSearchResultList> *m_searchWatcher;
+    QVector<SearchResult> m_searchResults;
+    QTimer m_scrollBarUpdateTimer;
+    HighlightScrollBar *m_highlightScrollBar;
+    bool m_scrollBarUpdateScheduled;
 };
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
@@ -498,7 +524,11 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_markDragging(false),
     m_clipboardAssistProvider(new ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false),
-    m_autoCompleter(new AutoCompleter)
+    m_autoCompleter(new AutoCompleter),
+    m_searchWatcher(0),
+    m_scrollBarUpdateTimer(0),
+    m_highlightScrollBar(0),
+    m_scrollBarUpdateScheduled(false)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(q);
@@ -527,8 +557,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
-
-    m_extraSelections.reserve(TextEditorWidget::NExtraSelectionKinds);
+    m_extraSelections.reserve(NExtraSelectionKinds);
 }
 
 } // namespace Internal
@@ -591,6 +620,18 @@ QString TextEditorWidget::convertToPlainText(const QString &txt)
 
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
 
+Id TextEditorWidget::SnippetPlaceholderSelection("TextEdit.SnippetPlaceHolderSelection");
+Id TextEditorWidget::CurrentLineSelection("TextEdit.CurrentLineSelection");
+Id TextEditorWidget::ParenthesesMatchingSelection("TextEdit.ParenthesesMatchingSelection");
+Id TextEditorWidget::CodeWarningsSelection("TextEdit.CodeWarningsSelection");
+Id TextEditorWidget::CodeSemanticsSelection("TextEdit.CodeSemanticsSelection");
+Id TextEditorWidget::UndefinedSymbolSelection("TextEdit.UndefinedSymbolSelection");
+Id TextEditorWidget::UnusedSymbolSelection("TextEdit.UnusedSymbolSelection");
+Id TextEditorWidget::OtherSelection("TextEdit.OtherSelection");
+Id TextEditorWidget::ObjCSelection("TextEdit.ObjCSelection");
+Id TextEditorWidget::DebuggerExceptionSelection("TextEdit.DebuggerExceptionSelection");
+Id TextEditorWidget::FakeVimSelection("TextEdit.FakeVimSelection");
+
 TextEditorWidget::TextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
 {
@@ -603,6 +644,29 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
 {
     d->ctor(doc);
+}
+
+void TextEditorWidgetPrivate::setupScrollBar()
+{
+    if (m_displaySettings.m_scrollBarHighlights) {
+        if (m_highlightScrollBar)
+            return;
+        m_highlightScrollBar = new HighlightScrollBar(Qt::Vertical, q);
+        m_highlightScrollBar->setColor(Constants::SCROLL_BAR_SEARCH_RESULT,
+                                       Theme::TextEditor_SearchResult_ScrollBarColor);
+        m_highlightScrollBar->setColor(Constants::SCROLL_BAR_CURRENT_LINE,
+                                       Theme::TextEditor_CurrentLine_ScrollBarColor);
+        m_highlightScrollBar->setPriority(
+                    Constants::SCROLL_BAR_SEARCH_RESULT, HighlightScrollBar::HighPriority);
+        m_highlightScrollBar->setPriority(
+                    Constants::SCROLL_BAR_CURRENT_LINE, HighlightScrollBar::HighestPriority);
+        q->setVerticalScrollBar(m_highlightScrollBar);
+        highlightSearchResultsInScrollBar();
+        scheduleUpdateHighlightScrollBar();
+    } else if (m_highlightScrollBar) {
+        q->setVerticalScrollBar(new QScrollBar(Qt::Vertical, q));
+        m_highlightScrollBar = 0;
+    }
 }
 
 void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
@@ -666,6 +730,10 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     m_highlightBlocksTimer.setSingleShot(true);
     QObject::connect(&m_highlightBlocksTimer, &QTimer::timeout,
                      this, &TextEditorWidgetPrivate::_q_highlightBlocks);
+
+    m_scrollBarUpdateTimer.setSingleShot(true);
+    QObject::connect(&m_scrollBarUpdateTimer, &QTimer::timeout,
+                     this, &TextEditorWidgetPrivate::highlightSearchResultsInScrollBar);
 
     m_animator = 0;
 
@@ -1072,6 +1140,7 @@ void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemove
             q->verticalScrollBar()->setValue(q->verticalScrollBar()->value() + newBlockCount - m_blockCount);
     }
     m_blockCount = newBlockCount;
+    m_scrollBarUpdateTimer.start(500);
 }
 
 void TextEditorWidgetPrivate::slotSelectionChanged()
@@ -2559,7 +2628,7 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
     // remove extra selections (loads of QTextCursor objects)
 
     m_extraSelections.clear();
-    m_extraSelections.reserve(TextEditorWidget::NExtraSelectionKinds);
+    m_extraSelections.reserve(NExtraSelectionKinds);
     q->QPlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
     // clear all overlays
@@ -2567,6 +2636,9 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
     m_snippetOverlay->clear();
     m_searchResultOverlay->clear();
     m_refactorOverlay->clear();
+
+    // clear search results
+    m_searchResults.clear();
 }
 
 void TextEditorWidgetPrivate::documentReloadFinished(bool success)
@@ -2872,6 +2944,15 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
     QObject::connect(q, &TextEditorWidget::requestBlockUpdate,
                      documentLayout, &QPlainTextDocumentLayout::updateBlock);
 
+    QObject::connect(documentLayout, &TextDocumentLayout::updateExtraArea,
+                     this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
+    QObject::connect(documentLayout, &QAbstractTextDocumentLayout::documentSizeChanged,
+                     this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
+    QObject::connect(documentLayout, &QAbstractTextDocumentLayout::update,
+                     this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
     QObject::connect(doc, &QTextDocument::contentsChange,
                      this, &TextEditorWidgetPrivate::editorContentsChange);
 
@@ -3049,6 +3130,8 @@ void TextEditorWidget::resizeEvent(QResizeEvent *e)
     d->m_extraArea->setGeometry(
         QStyle::visualRect(layoutDirection(), cr,
                            QRect(cr.left(), cr.top(), extraAreaWidth(), cr.height())));
+    d->adjustScrollBarRanges();
+    d->updateCurrentLineInScrollbar();
 }
 
 QRect TextEditorWidgetPrivate::foldBox()
@@ -4583,6 +4666,7 @@ void TextEditorWidgetPrivate::updateCurrentLineHighlight()
         sel.cursor.clearSelection();
         extraSelections.append(sel);
     }
+    updateCurrentLineInScrollbar();
 
     q->setExtraSelections(TextEditorWidget::CurrentLineSelection, extraSelections);
 
@@ -4645,6 +4729,20 @@ void TextEditorWidgetPrivate::updateHighlights()
         QTextCursor cursor = q->textCursor();
         extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
         m_highlightBlocksTimer.start(100);
+    }
+}
+
+void TextEditorWidgetPrivate::updateCurrentLineInScrollbar()
+{
+    if (m_highlightCurrentLine && m_highlightScrollBar) {
+        m_highlightScrollBar->removeHighlights(Constants::SCROLL_BAR_CURRENT_LINE);
+        if (m_highlightScrollBar->maximum() > 0) {
+            const QTextCursor &tc = q->textCursor();
+            const int lineNumberInBlock =
+                    tc.block().layout()->lineForTextPosition(tc.positionInBlock()).lineNumber();
+            m_highlightScrollBar->addHighlight(Constants::SCROLL_BAR_CURRENT_LINE,
+                                               q->textCursor().block().firstLineNumber() + lineNumberInBlock);
+        }
     }
 }
 
@@ -5338,7 +5436,14 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
 void TextEditorWidget::wheelEvent(QWheelEvent *e)
 {
     d->clearVisibleFoldedBlock();
-    if (scrollWheelZoomingEnabled() && e->modifiers() & Qt::ControlModifier) {
+    if (e->modifiers() & Qt::ControlModifier) {
+        if (!scrollWheelZoomingEnabled()) {
+            // When the setting is disabled globally,
+            // we have to skip calling QPlainTextEdit::wheelEvent()
+            // that changes zoom in it.
+            return;
+        }
+
         const int delta = e->delta();
         if (delta < 0)
             zoomOut();
@@ -5465,6 +5570,158 @@ void TextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, Fin
     m_findFlags = findFlags;
 
     m_delayedUpdateTimer.start(50);
+
+    if (m_highlightScrollBar)
+        m_scrollBarUpdateTimer.start(50);
+}
+
+void TextEditorWidgetPrivate::searchResultsReady(int beginIndex, int endIndex)
+{
+    QVector<SearchResult> results;
+    for (int index = beginIndex; index < endIndex; ++index) {
+        foreach (Utils::FileSearchResult result, m_searchWatcher->resultAt(index)) {
+            const QTextBlock &block = q->document()->findBlockByNumber(result.lineNumber - 1);
+            const int matchStart = block.position() + result.matchStart;
+            if (!q->inFindScope(matchStart, matchStart + result.matchLength))
+                continue;
+            results << SearchResult{matchStart, result.matchLength};
+        }
+    }
+    m_searchResults << results;
+    addSearchResultsToScrollBar(results);
+}
+
+void TextEditorWidgetPrivate::searchFinished()
+{
+    delete m_searchWatcher;
+    m_searchWatcher = 0;
+}
+
+void TextEditorWidgetPrivate::adjustScrollBarRanges()
+{
+    if (!m_highlightScrollBar)
+        return;
+    const float lineSpacing = QFontMetricsF(q->font()).lineSpacing();
+    if (lineSpacing == 0)
+        return;
+
+    const float offset = q->contentOffset().y();
+    m_highlightScrollBar->setVisibleRange((q->viewport()->rect().height() - offset) / lineSpacing);
+    m_highlightScrollBar->setRangeOffset(offset / lineSpacing);
+}
+
+void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
+{
+    if (!m_highlightScrollBar)
+        return;
+    m_highlightScrollBar->removeHighlights(Constants::SCROLL_BAR_SEARCH_RESULT);
+    m_searchResults.clear();
+
+    if (m_searchWatcher) {
+        m_searchWatcher->disconnect();
+        m_searchWatcher->cancel();
+        m_searchWatcher->deleteLater();
+        m_searchWatcher = 0;
+    }
+
+    const QString &txt = m_searchExpr.pattern();
+    if (txt.isEmpty())
+        return;
+
+    adjustScrollBarRanges();
+
+    m_searchWatcher = new QFutureWatcher<FileSearchResultList>();
+    connect(m_searchWatcher, &QFutureWatcher<Utils::FileSearchResultList>::resultsReadyAt,
+            this, &TextEditorWidgetPrivate::searchResultsReady);
+    connect(m_searchWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
+            this, &TextEditorWidgetPrivate::searchFinished);
+    m_searchWatcher->setPendingResultsLimit(10);
+
+    const QTextDocument::FindFlags findFlags = textDocumentFlagsForFindFlags(m_findFlags);
+
+    const QString &fileName = m_document->filePath().toString();
+    FileListIterator *it =
+            new FileListIterator( { fileName } , { const_cast<QTextCodec *>(m_document->codec()) } );
+    QMap<QString, QString> fileToContentsMap;
+    fileToContentsMap[fileName] = m_document->plainText();
+
+    if (m_findFlags & FindRegularExpression)
+        m_searchWatcher->setFuture(findInFilesRegExp(txt, it, findFlags, fileToContentsMap));
+    else
+        m_searchWatcher->setFuture(findInFiles(txt, it, findFlags, fileToContentsMap));
+}
+
+void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
+{
+    if (m_scrollBarUpdateScheduled)
+        return;
+
+    m_scrollBarUpdateScheduled = true;
+    QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateHighlightScrollBarNow);
+}
+
+HighlightScrollBar::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
+{
+    switch (prio) {
+    case TextMark::LowPriority:
+        return HighlightScrollBar::LowPriority;
+    case TextMark::NormalPriority:
+        return HighlightScrollBar::NormalPriority;
+    case TextMark::HighPriority:
+        return HighlightScrollBar::HighPriority;
+    default:
+        return HighlightScrollBar::NormalPriority;
+    }
+}
+
+void TextEditorWidgetPrivate::addSearchResultsToScrollBar(QVector<SearchResult> results)
+{
+    QSet<int> searchResults;
+    foreach (SearchResult result, results) {
+        const QTextBlock &block = q->document()->findBlock(result.start);
+        if (block.isValid() && block.isVisible()) {
+            const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
+            const int lastLine = block.layout()->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
+            for (int line = firstLine; line <= lastLine; ++line)
+                searchResults << block.firstLineNumber() + line;
+        }
+    }
+    if (m_highlightScrollBar)
+        m_highlightScrollBar->addHighlights(Constants::SCROLL_BAR_SEARCH_RESULT, searchResults);
+}
+
+void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
+{
+    typedef QSet<int> IntSet;
+
+    m_scrollBarUpdateScheduled = false;
+    if (!m_highlightScrollBar)
+        return;
+
+    m_highlightScrollBar->removeAllHighlights();
+
+    updateCurrentLineInScrollbar();
+
+    // update search results
+    addSearchResultsToScrollBar(m_searchResults);
+
+    // update text marks
+    QHash<Id, IntSet> marks;
+    foreach (TextMark *mark, m_document->marks()) {
+        Id category = mark->category();
+        if (!mark->isVisible() || !TextMark::categoryHasColor(category))
+            continue;
+        m_highlightScrollBar->setPriority(category, textMarkPrioToScrollBarPrio(mark->priority()));
+        const QTextBlock &block = q->document()->findBlockByNumber(mark->lineNumber() - 1);
+        if (block.isVisible())
+            marks[category] << block.firstLineNumber();
+    }
+    QHashIterator<Id, IntSet> it(marks);
+    while (it.hasNext()) {
+        it.next();
+        m_highlightScrollBar->setColor(it.key(), TextMark::categoryColor(it.key()));
+        m_highlightScrollBar->addHighlights(it.key(), it.value());
+    }
 }
 
 int TextEditorWidget::verticalBlockSelectionFirstColumn() const
@@ -5509,6 +5766,7 @@ void TextEditorWidgetPrivate::setFindScope(const QTextCursor &start, const QText
         m_findScopeVerticalBlockSelectionFirstColumn = verticalBlockSelectionFirstColumn;
         m_findScopeVerticalBlockSelectionLastColumn = verticalBlockSelectionLastColumn;
         q->viewport()->update();
+        highlightSearchResultsInScrollBar();
     }
 }
 
@@ -5847,8 +6105,7 @@ void TextEditorWidget::deleteStartOfWordCamelCase()
     setTextCursor(c);
 }
 
-// kind can be either a value from the ExtraSelectionKind enum, or an unique Core::Id identifier.
-void TextEditorWidgetPrivate::setExtraSelections(int kind, const QList<QTextEdit::ExtraSelection> &selections)
+void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
     if (selections.isEmpty() && m_extraSelections[kind].isEmpty())
         return;
@@ -5886,33 +6143,18 @@ void TextEditorWidgetPrivate::setExtraSelections(int kind, const QList<QTextEdit
     }
 }
 
-void TextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
+void TextEditorWidget::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
     d->setExtraSelections(kind, selections);
 }
 
-QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(ExtraSelectionKind kind) const
-{
-    return d->m_extraSelections[kind];
-}
-
-void TextEditorWidget::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
-{
-    // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
-    QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return);
-    d->setExtraSelections(kind.uniqueIdentifier(), selections);
-}
-
 QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) const
 {
-    // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
-    QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return QList<QTextEdit::ExtraSelection>());
-    return d->m_extraSelections[kind.uniqueIdentifier()];
+    return d->m_extraSelections.value(kind);
 }
 
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
 {
-    QList<QTextEdit::ExtraSelection> all;
     foreach (const QList<QTextEdit::ExtraSelection> &sel, d->m_extraSelections) {
         for (int j = 0; j < sel.size(); ++j) {
             const QTextEdit::ExtraSelection &s = sel.at(j);
@@ -6114,6 +6356,13 @@ void TextEditorWidget::unCommentSelection()
     Utils::unCommentSelection(this, d->m_commentDefinition);
 }
 
+void TextEditorWidget::encourageApply()
+{
+    if (!d->m_snippetOverlay->isVisible() || d->m_snippetOverlay->isEmpty())
+        return;
+    d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+}
+
 void TextEditorWidget::showEvent(QShowEvent* e)
 {
     triggerPendingUpdates();
@@ -6203,6 +6452,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
     d->updateCodeFoldingVisible();
     d->updateHighlights();
+    d->setupScrollBar();
     viewport()->update();
     extraArea()->update();
 }
@@ -6348,6 +6598,7 @@ void TextEditorWidget::copy()
 void TextEditorWidget::paste()
 {
     QPlainTextEdit::paste();
+    encourageApply();
 }
 
 void TextEditorWidgetPrivate::collectToCircularClipboard()
@@ -7319,7 +7570,7 @@ void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
     if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
         return;
 
-    auto data = new FileDropMimeData;
+    auto data = new DropMimeData;
     data->addFile(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
     auto drag = new QDrag(this);
     drag->setMimeData(data);

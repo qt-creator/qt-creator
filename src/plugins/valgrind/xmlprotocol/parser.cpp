@@ -517,7 +517,7 @@ Frame Parser::Private::parseFrame()
             else if (name == QLatin1String("dir"))
                 frame.setDirectory(blockingReadElementText());
             else if (name == QLatin1String("file"))
-                frame.setFile( blockingReadElementText());
+                frame.setFileName(blockingReadElementText());
             else if (name == QLatin1String("line"))
                 frame.setLine(parseInt64(blockingReadElementText(), QLatin1String("error/frame/line")));
             else if (reader.isStartElement())

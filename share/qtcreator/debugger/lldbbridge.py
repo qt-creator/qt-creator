@@ -230,7 +230,6 @@ class Dumper(DumperBase):
         self.voidPtrType_ = None
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
-        self.dummyValue = None
         self.qmlBreakpointResolvers = {}
         self.qmlTriggeredBreakpoint = None
 
@@ -504,6 +503,16 @@ class Dumper(DumperBase):
 
     def addressOf(self, value):
         return int(value.GetLoadAddress())
+
+    def extractUShort(self, address):
+        error = lldb.SBError()
+        return int(self.process.ReadUnsignedFromMemory(address, 2, error))
+
+    def extractShort(self, address):
+        i = self.extractUInt(address)
+        if i >= 0x8000:
+            i -= 0x10000
+        return i
 
     def extractUInt(self, address):
         error = lldb.SBError()
@@ -1197,10 +1206,9 @@ class Dumper(DumperBase):
             if id in ids:
                 continue
             ids[id] = True
-            #if self.dummyValue is None:
-            #    self.dummyValue = value
             if name is None:
-                warn("NO NAME FOR VALUE: %s" % value)
+                # This can happen for unnamed function parameters with
+                # default values:  void foo(int = 0)
                 continue
             if name in shadowed:
                 level = shadowed[name]
@@ -1751,6 +1759,7 @@ class Tester(Dumper):
 
         self.expandedINames = set(expandedINames)
         self.passExceptions = True
+        self.sortStructMembers = True
 
         self.loadDumpers({})
         error = lldb.SBError()

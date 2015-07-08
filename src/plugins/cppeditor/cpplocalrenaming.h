@@ -61,6 +61,8 @@ public:
     // to BaseTextEditorWidget::keyPressEvent()
     bool handleKeyPressEvent(QKeyEvent *e);
 
+    bool encourageApply();
+
 public slots:
     void updateSelectionsForVariableUnderCursor(const QList<QTextEdit::ExtraSelection> &selections);
 

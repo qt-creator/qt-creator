@@ -64,6 +64,7 @@ private slots:
     void updatePath();
 
 private:
+    bool canResetWarnings() const;
     void variableHelpDialogCreator(const QString &helpText);
     void fillLanguageBox() const;
     QString language() const;

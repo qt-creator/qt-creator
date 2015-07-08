@@ -31,11 +31,11 @@
 #ifndef CLANGCODEMODEL_INTERNAL_COMPLETIONCHUNKSTOTEXTCONVERTER_H
 #define CLANGCODEMODEL_INTERNAL_COMPLETIONCHUNKSTOTEXTCONVERTER_H
 
-#include <codemodelbackendipc/codecompletionchunk.h>
-
-#include <QString>
+#include <clangbackendipc/codecompletionchunk.h>
 
 #include <sqlite/utf8string.h>
+
+#include <QString>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -43,17 +43,17 @@ namespace Internal {
 class CompletionChunksToTextConverter
 {
 public:
-    void parseChunks(const QVector<CodeModelBackEnd::CodeCompletionChunk> &codeCompletionChunks);
+    void parseChunks(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
 
     const QString &text() const;
 
-    static QString convert(const QVector<CodeModelBackEnd::CodeCompletionChunk> &codeCompletionChunks);
+    static QString convert(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
 
 private:
-    void parse(const CodeModelBackEnd::CodeCompletionChunk & codeCompletionChunk);
+    void parse(const ClangBackEnd::CodeCompletionChunk & codeCompletionChunk);
     void parseResultType(const Utf8String &text);
     void parseText(const Utf8String &text);
-    void parseOptional(const CodeModelBackEnd::CodeCompletionChunk & optionalCodeCompletionChunk);
+    void parseOptional(const ClangBackEnd::CodeCompletionChunk & optionalCodeCompletionChunk);
 
 private:
     QString m_text;

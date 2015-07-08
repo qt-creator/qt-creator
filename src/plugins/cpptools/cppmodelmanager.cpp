@@ -988,14 +988,14 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 
         // Save paths
         const ProjectInfo projectInfo = d->m_projectToProjectsInfo.value(project, ProjectInfo());
-        QTC_CHECK(projectInfo.isValid());
         projectFilePaths = pathsOfAllProjectParts(projectInfo);
 
         d->m_projectToProjectsInfo.remove(project);
         recalculateFileToProjectParts();
     }
 
-    emit projectPartsRemoved(projectFilePaths);
+    if (!projectFilePaths.isEmpty())
+        emit projectPartsRemoved(projectFilePaths);
 
     delayedGC();
 }

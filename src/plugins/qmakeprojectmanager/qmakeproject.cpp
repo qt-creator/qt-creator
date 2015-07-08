@@ -311,18 +311,9 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
 
 QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_manager(manager),
-    m_rootProjectNode(0),
     m_fileInfo(new QmakeProjectFile(fileName, this)),
     m_projectFiles(new QmakeProjectFiles),
-    m_qmakeVfs(new QMakeVfs),
-    m_qmakeGlobals(0),
-    m_qmakeGlobalsRefCnt(0),
-    m_asyncUpdateFutureInterface(0),
-    m_pendingEvaluateFuturesCount(0),
-    m_asyncUpdateState(Base),
-    m_cancelEvaluate(false),
-    m_centralizedFolderWatcher(0),
-    m_activeTarget(0)
+    m_qmakeVfs(new QMakeVfs)
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));

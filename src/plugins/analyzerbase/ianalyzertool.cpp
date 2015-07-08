@@ -33,7 +33,6 @@
 
 #include "analyzermanager.h"
 #include "analyzerruncontrol.h"
-#include "startremotedialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -44,6 +43,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
@@ -59,22 +59,15 @@ using namespace ProjectExplorer;
 namespace Analyzer {
 
 AnalyzerAction::AnalyzerAction(QObject *parent)
-    : QAction(parent)
+    : QAction(parent), m_toolMode(AnyMode)
 {}
 
 bool AnalyzerAction::isRunnable(QString *reason) const
 {
-    if (m_startMode == StartRemote)
+    if (m_customToolStarter) // Something special. Pretend we can always run it.
         return true;
 
     return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), m_runMode, reason);
-}
-
-AnalyzerRunControl *AnalyzerAction::tryCreateRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration) const
-{
-    if (m_runMode == sp.runMode && m_startMode == sp.startMode)
-        return m_runControlCreator(sp, runConfiguration);
-    return 0;
 }
 
 static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType buildType)
@@ -90,10 +83,22 @@ static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType b
     return false;
 }
 
-bool checkForLocalStart(ToolMode toolMode)
+void AnalyzerAction::startTool()
 {
     // Make sure mode is shown.
     AnalyzerManager::showMode();
+
+    TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
+    AnalyzerManager::showPermanentStatusMessage(toolId(), QString());
+
+    if (m_toolPreparer && !m_toolPreparer())
+        return;
+
+    // Custom start.
+    if (m_customToolStarter) {
+        m_customToolStarter();
+        return;
+    }
 
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
     Project *pro = SessionManager::startupProject();
@@ -108,13 +113,13 @@ bool checkForLocalStart(ToolMode toolMode)
 
     // Check the project for whether the build config is in the correct mode
     // if not, notify the user and urge him to use the correct mode.
-    if (!buildTypeAccepted(toolMode, buildType)) {
+    if (!buildTypeAccepted(m_toolMode, buildType)) {
         const QString currentMode = buildType == BuildConfiguration::Debug
                 ? AnalyzerManager::tr("Debug")
                 : AnalyzerManager::tr("Release");
 
         QString toolModeString;
-        switch (toolMode) {
+        switch (m_toolMode) {
             case DebugMode:
                 toolModeString = AnalyzerManager::tr("Debug");
                 break;
@@ -138,26 +143,10 @@ bool checkForLocalStart(ToolMode toolMode)
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
                 title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"))
                     != QDialogButtonBox::Yes)
-            return false;
+            return;
     }
 
-    return true;
-}
-
-bool checkForRemoteStart(AnalyzerStartParameters *sp)
-{
-    StartRemoteDialog dlg;
-    if (dlg.exec() != QDialog::Accepted)
-        return false;
-
-    sp->startMode = StartRemote;
-    sp->connParams = dlg.sshParams();
-    sp->debuggee = dlg.executable();
-    sp->debuggeeArgs = dlg.arguments();
-    sp->displayName = dlg.executable();
-    sp->workingDirectory = dlg.workingDirectory();
-
-    return true;
+    ProjectExplorerPlugin::runStartupProject(m_runMode);
 }
 
 } // namespace Analyzer

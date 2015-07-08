@@ -2367,11 +2367,15 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
-    Template *templ = control()->newTemplate(ast->firstToken(), 0);
-    templ->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
-    templ->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
-    ast->symbol = templ;
-    Scope *previousScope = switchScope(templ);
+    Scope *scope = 0;
+    if (ast->less_token)
+        scope = control()->newTemplate(ast->firstToken(), 0);
+    else
+        scope = control()->newExplicitInstantiation(ast->firstToken(), 0);
+    scope->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
+    scope->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
+    ast->symbol = scope;
+    Scope *previousScope = switchScope(scope);
 
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
@@ -2380,12 +2384,17 @@ bool Bind::visit(TemplateDeclarationAST *ast)
     this->declaration(ast->declaration);
     (void) switchScope(previousScope);
 
-    if (Symbol *decl = templ->declaration()) {
-        templ->setSourceLocation(decl->sourceLocation(), translationUnit());
-        templ->setName(decl->name());
+    Symbol *decl = 0;
+    if (Template *templ = scope->asTemplate())
+        decl = templ->declaration();
+    else if (ExplicitInstantiation *inst = scope->asExplicitInstantiation())
+        decl = inst->declaration();
+    if (decl) {
+        scope->setSourceLocation(decl->sourceLocation(), translationUnit());
+        scope->setName(decl->name());
     }
 
-    _scope->addMember(templ);
+    _scope->addMember(scope);
     return false;
 }
 

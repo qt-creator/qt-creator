@@ -45,7 +45,7 @@ def verifyNextLineIndented(editorArea, expectedIndentation):
 
 def verifyIndentation(editorArea):
     #verify indentation
-    if not placeCursorToLine(editorArea, "id: rect"):
+    if not placeCursorToLine(editorArea, "id: wdw"):
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
         return False
@@ -60,13 +60,13 @@ def main():
     if not editorArea:
         return
     # prepare code for test - insert unindented code
-    lines = ['id: rect', 'property bool random: true', 'Text{',
-             'anchors.bottom:parent.bottom', 'text: rect.random ? getRandom() : "I\'m fixed."',
+    lines = ['id: wdw', 'property bool random: true', 'Text {',
+             'anchors.bottom: parent.bottom', 'text: wdw.random ? getRandom() : "I\'m fixed."',
              '', 'function getRandom(){', 'var result="I\'m random: ";',
              'var chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";',
              'for(var i=0;i<8;++i)', 'result += chars.charAt(Math.floor(Math.random() * chars.length));',
              'return result + ".";']
-    if not placeCursorToLine(editorArea, "Rectangle {"):
+    if not placeCursorToLine(editorArea, "Window {"):
         invokeMenuItem("File", "Exit")
         return
     type(editorArea, "<Return>")

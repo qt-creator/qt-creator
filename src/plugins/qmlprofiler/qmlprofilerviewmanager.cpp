@@ -80,8 +80,6 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
     delete d;
 }
 
-////////////////////////////////////////////////////////////
-// Views
 void QmlProfilerViewManager::createViews()
 {
 
@@ -105,6 +103,8 @@ void QmlProfilerViewManager::createViews()
             SIGNAL(gotoSourceLocation(QString,int,int)));
     connect(d->eventsView, SIGNAL(typeSelected(int)), d->traceView, SLOT(selectByTypeId(int)));
     connect(d->traceView, SIGNAL(typeSelected(int)), d->eventsView, SLOT(selectByTypeId(int)));
+    connect(d->profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
+            d->eventsView, &QmlProfilerEventsWidget::onVisibleFeaturesChanged);
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (QmlProfilerToolId, d->eventsView);

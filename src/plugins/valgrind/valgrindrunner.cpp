@@ -51,7 +51,7 @@ public:
           process(0),
           channelMode(QProcess::SeparateChannels),
           finished(false),
-          startMode(Analyzer::StartLocal),
+          useStartupProject(true),
           localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
     {
     }
@@ -68,7 +68,7 @@ public:
     QString debuggeeExecutable;
     QString debuggeeArguments;
     QString workingdir;
-    Analyzer::StartMode startMode;
+    bool useStartupProject;
     ProjectExplorer::ApplicationLauncher::Mode localRunMode;
     QSsh::SshConnectionParameters connParams;
 };
@@ -178,11 +178,6 @@ void ValgrindRunner::setDebuggeeArguments(const QString &arguments)
     d->debuggeeArguments = arguments;
 }
 
-Analyzer::StartMode ValgrindRunner::startMode() const
-{
-    return d->startMode;
-}
-
 void ValgrindRunner::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode)
 {
     d->localRunMode = localRunMode;
@@ -191,11 +186,6 @@ void ValgrindRunner::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode 
 ProjectExplorer::ApplicationLauncher::Mode ValgrindRunner::localRunMode() const
 {
     return d->localRunMode;
-}
-
-void ValgrindRunner::setStartMode(Analyzer::StartMode startMode)
-{
-    d->startMode = startMode;
 }
 
 const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() const
@@ -228,6 +218,16 @@ void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
     d->channelMode = mode;
 }
 
+void ValgrindRunner::setUseStartupProject(bool useStartupProject)
+{
+    d->useStartupProject = useStartupProject;
+}
+
+bool ValgrindRunner::useStartupProject() const
+{
+    return d->useStartupProject;
+}
+
 void ValgrindRunner::waitForFinished() const
 {
     if (d->finished || !d->process)
@@ -240,7 +240,8 @@ void ValgrindRunner::waitForFinished() const
 
 bool ValgrindRunner::start()
 {
-    d->run(new ValgrindProcess(d->startMode == Analyzer::StartLocal, d->connParams, 0, this));
+    // FIXME: This wrongly uses "useStartupProject" for a Local/Remote decision.
+    d->run(new ValgrindProcess(d->useStartupProject, d->connParams, 0, this));
     return true;
 }
 

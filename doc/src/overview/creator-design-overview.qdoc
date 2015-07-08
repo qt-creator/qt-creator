@@ -40,16 +40,16 @@
         \li \l{Developing Qt Quick Applications}
 
             You can use wizards to create Qt Quick projects that contain
-            boiler-plate code. You can use the code editor (Edit mode)
-            or the visual editor (Design mode) to develop Qt Quick applications.
+            boiler-plate code. You can use the code editor (Edit mode) or the
+            visual editor (Design mode) to develop Qt Quick applications.
         \li \l{Developing Widget Based Applications}
 
             Widgets and forms created with \QD are integrated seamlessly with
             programmed code by using the Qt signals and slots mechanism that
             allows you to easily assign behavior to graphical elements. All
             properties set in \QD can be changed dynamically within the code.
-            Furthermore, features such as widget promotion and custom
-            plugins allow you to use your own widgets with \QD.
+            Furthermore, features such as widget promotion and custom plugins
+            allow you to use your own widgets with \QD.
         \li \l{Optimizing Applications for Mobile Devices}
 
             Mobile devices have been designed for use when mobile. Keep the

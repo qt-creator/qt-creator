@@ -33,7 +33,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-void CompletionChunksToTextConverter::parseChunks(const QVector<CodeModelBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+void CompletionChunksToTextConverter::parseChunks(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
 {
     m_text.clear();
 
@@ -46,7 +46,7 @@ const QString &CompletionChunksToTextConverter::text() const
     return m_text;
 }
 
-QString CompletionChunksToTextConverter::convert(const QVector<CodeModelBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convert(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
 
@@ -55,9 +55,9 @@ QString CompletionChunksToTextConverter::convert(const QVector<CodeModelBackEnd:
     return converter.text();
 }
 
-void CompletionChunksToTextConverter::parse(const CodeModelBackEnd::CodeCompletionChunk &codeCompletionChunk)
+void CompletionChunksToTextConverter::parse(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
-    using CodeModelBackEnd::CodeCompletionChunk;
+    using ClangBackEnd::CodeCompletionChunk;
 
     switch (codeCompletionChunk.kind()) {
         case CodeCompletionChunk::ResultType: parseResultType(codeCompletionChunk.text()); break;
@@ -76,7 +76,7 @@ void CompletionChunksToTextConverter::parseText(const Utf8String &text)
     m_text += text.toString();
 }
 
-void CompletionChunksToTextConverter::parseOptional(const CodeModelBackEnd::CodeCompletionChunk &optionalCodeCompletionChunk)
+void CompletionChunksToTextConverter::parseOptional(const ClangBackEnd::CodeCompletionChunk &optionalCodeCompletionChunk)
 {
     m_text += QStringLiteral("<i>");
 

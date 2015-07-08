@@ -93,15 +93,9 @@ public:
     // Check for symbol server in list of paths.
     static int indexOfSymbolPath(const QStringList &paths, SymbolPathMode mode, QString *cacheDir = 0);
 
-    // Nag user to add a symbol cache and server to the path list on debugger startup.
-    static bool promptToAddSymbolPaths(QStringList *symbolPaths);
-
 private:
     void addSymbolPath(SymbolPathMode mode);
-
-private slots:
-    void addSymbolServer();
-    void addSymbolCache();
+    void setupSymbolPaths();
 };
 
 } // namespace Internal

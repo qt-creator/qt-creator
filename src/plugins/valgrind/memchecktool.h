@@ -50,12 +50,17 @@ class Error;
 }
 
 namespace Valgrind {
+
+const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
+const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
+
 namespace Internal {
 
 class FrameFinder;
 class MemcheckErrorView;
 class MemcheckRunControl;
 class ValgrindBaseSettings;
+
 
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 {
@@ -83,12 +88,10 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    void startLocalTool();
-    void startRemoteTool();
     QWidget *createWidgets();
 
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration);
+    MemcheckRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -140,8 +143,6 @@ class MemcheckWithGdbTool : public MemcheckTool
 public:
     MemcheckWithGdbTool(QObject *parent);
 
-    void startLocalTool();
-    void startRemoteTool();
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration) override;

@@ -72,7 +72,7 @@ ClangFormat::~ClangFormat()
 bool ClangFormat::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
-    menu->menu()->setTitle(QLatin1String("ClangFormat"));
+    menu->menu()->setTitle(QLatin1String(Constants::ClangFormat::DISPLAY_NAME));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -112,11 +112,12 @@ void ClangFormat::formatFile()
 
 void ClangFormat::formatSelectedText()
 {
-    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    const TextEditor::TextEditorWidget *widget
+            = TextEditor::TextEditorWidget::currentTextEditorWidget();
     if (!widget)
         return;
 
-    QTextCursor tc = widget->textCursor();
+    const QTextCursor tc = widget->textCursor();
     if (tc.hasSelection()) {
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;

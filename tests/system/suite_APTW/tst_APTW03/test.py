@@ -56,7 +56,7 @@ def handleInsertVirtualFunctions(expected):
                 "Verifying whether all expected functions have been found.")
 
     selectFromCombo("{container={title='Insertion options:' type='QGroupBox' unnamed='1' "
-                    " visible='1'} type='QComboBox' unnamed='1' visible='1'}",
+                    " visible='1'} occurrence='2' type='QComboBox' unnamed='1' visible='1'}",
                     "Insert definitions in implementation file")
     clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1'}")
 
@@ -88,11 +88,10 @@ def main():
     targets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC
     checkedTargets, projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin",
                                                                target=targets)
-    is12251Open = JIRA.isBugStillOpen(12251)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
         verifyBuildConfig(len(checkedTargets), kit, config, True, True)
-        if (virtualFunctionsAdded and is12251Open and platform.system() in ('Microsoft', 'Windows')
+        if (virtualFunctionsAdded and platform.system() in ('Microsoft', 'Windows')
             and "480" in Targets.getStringForTarget(checkedTargets[kit])):
             test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
             continue
@@ -131,7 +130,7 @@ def main():
             addReturn(editor, "QObject \*%s::create.*" % className, "0")
             virtualFunctionsAdded = True
             invokeMenuItem('File', 'Save All')
-            if (is12251Open and platform.system() in ('Microsoft', 'Windows')
+            if (platform.system() in ('Microsoft', 'Windows')  # QTCREATORBUG-12251
                 and "480" in Targets.getStringForTarget(checkedTargets[kit])):
                 test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
                 continue

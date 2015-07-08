@@ -127,7 +127,12 @@ public:
     void setProxyCountWeight(int proxyId, int weight);
     void modelProxyCountUpdated(int proxyId, qint64 count, qint64 max);
     void announceFeatures(int proxyId, quint64 features);
-    quint64 availableFeatures();
+    quint64 availableFeatures() const;
+    quint64 visibleFeatures() const;
+    void setVisibleFeatures(quint64 features);
+    quint64 recordedFeatures() const;
+    void setRecordedFeatures(quint64 features);
+
     static const char *featureName(QmlDebug::ProfileFeature feature);
 
 signals:
@@ -139,6 +144,8 @@ signals:
 
     void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
     void availableFeaturesChanged(quint64 features);
+    void visibleFeaturesChanged(quint64 features);
+    void recordedFeaturesChanged(quint64 features);
 
 public slots:
     void clear();

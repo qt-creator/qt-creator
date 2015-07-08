@@ -57,11 +57,12 @@ public:
     bool isEnabled() const;
     bool isRecording() const;
     void setRecording(bool);
+    quint64 recordedFeatures() const;
 
 public slots:
     void clearData();
     void sendRecordingStatus(int engineId = -1);
-    void setFeatures(quint64 features);
+    void setRequestedFeatures(quint64 features);
 
 signals:
     void complete(qint64 maximumTime);
@@ -73,6 +74,7 @@ signals:
                      const QmlDebug::QmlEventLocation &location, qint64 param1, qint64 param2,
                      qint64 param3, qint64 param4, qint64 param5);
     void recordingChanged(bool arg);
+    void recordedFeaturesChanged(quint64 features);
 
     void enabledChanged();
     void cleared();

@@ -36,10 +36,11 @@
 
 #include <QMetaType>
 
+#include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace Analyzer {
 
@@ -49,15 +50,10 @@ namespace Analyzer {
 class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
-    AnalyzerStartParameters()
-        : localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
-        , analyzerPort(0)
-    {}
-
-    StartMode startMode;
-    ProjectExplorer::RunMode runMode;
+    Core::Id runMode = ProjectExplorer::Constants::NO_RUN_MODE;
     QSsh::SshConnectionParameters connParams;
-    ProjectExplorer::ApplicationLauncher::Mode localRunMode;
+    ProjectExplorer::ApplicationLauncher::Mode localRunMode
+        = ProjectExplorer::ApplicationLauncher::Gui;
 
     QString debuggee;
     QString debuggeeArgs;
@@ -66,7 +62,7 @@ public:
     QString workingDirectory;
     QString sysroot;
     QString analyzerHost;
-    quint16 analyzerPort;
+    quint16 analyzerPort = 0;
 };
 
 } // namespace Analyzer

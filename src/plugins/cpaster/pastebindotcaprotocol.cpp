@@ -63,13 +63,6 @@ static inline QByteArray expiryValue(int expiryDays)
 }
 
 namespace CodePaster {
-PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
-    m_fetchReply(0),
-    m_listReply(0),
-    m_pasteReply(0),
-    m_hostChecked(false)
-{
-}
 
 QString PasteBinDotCaProtocol::protocolName()
 {

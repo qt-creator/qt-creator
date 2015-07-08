@@ -33,6 +33,7 @@
 
 #include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
+#include "runconfiguration.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -88,7 +89,7 @@ public:
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     static Internal::ProjectExplorerSettings projectExplorerSettings();
 
-    static void startRunControl(RunControl *runControl, RunMode runMode);
+    static void startRunControl(RunControl *runControl, Core::Id runMode);
     static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
@@ -97,10 +98,10 @@ public:
     static bool coreAboutToClose();
     static QList<QPair<QString, QString> > recentProjects();
 
-    static bool canRun(Project *pro, RunMode runMode, QString *whyNot = 0);
-    static void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
-    static void runStartupProject(RunMode runMode, bool forceSkipDeploy = false);
-    static void runRunConfiguration(RunConfiguration *rc, RunMode runMode,
+    static bool canRun(Project *pro, Core::Id runMode, QString *whyNot = 0);
+    static void runProject(Project *pro, Core::Id, const bool forceSkipDeploy = false);
+    static void runStartupProject(Core::Id runMode, bool forceSkipDeploy = false);
+    static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
                              const bool forceSkipDeploy = false);
 
     static void addExistingFiles(FolderNode *projectNode, const QStringList &filePaths);
@@ -128,7 +129,7 @@ signals:
     // or the file list of a specific project has changed.
     void fileListChanged();
 
-    void aboutToExecuteProject(ProjectExplorer::Project *project, RunMode runMode);
+    void aboutToExecuteProject(ProjectExplorer::Project *project, Core::Id runMode);
     void recentProjectsChanged();
 
     void settingsChanged();

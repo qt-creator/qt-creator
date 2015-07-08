@@ -47,7 +47,6 @@
 
 #include <QPixmap>
 #include <QPushButton>
-#include <QSignalMapper>
 #include <QTextStream>
 
 #include <algorithm>
@@ -95,12 +94,9 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_deviceManager(DeviceManager::cloneInstance()),
       m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
       m_nameValidator(new NameValidator(m_deviceManager, this)),
-      m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
 {
     initGui();
-    connect(m_additionalActionsMapper, SIGNAL(mapped(int)),
-            SLOT(handleAdditionalActionRequest(int)));
     connect(m_deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
 }
 
@@ -302,8 +298,8 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     foreach (Id actionId, device->actionIds()) {
         QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
         m_additionalActionButtons << button;
-        connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
-        m_additionalActionsMapper->setMapping(button, actionId.uniqueIdentifier());
+        connect(button, &QAbstractButton::clicked, this,
+                [this, actionId] { handleAdditionalActionRequest(actionId); });
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 
@@ -322,12 +318,12 @@ void DeviceSettingsWidget::clearDetails()
     m_ui->autoDetectionValueLabel->clear();
 }
 
-void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
+void DeviceSettingsWidget::handleAdditionalActionRequest(Id actionId)
 {
     const IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
     QTC_ASSERT(device, return);
     updateDeviceFromUi();
-    device->executeAction(Id::fromUniqueIdentifier(actionId), this);
+    device->executeAction(actionId, this);
 
     // Widget must be set up from scratch, because the action could have changed random attributes.
     currentDeviceChanged(currentIndex());

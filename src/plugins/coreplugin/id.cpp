@@ -34,6 +34,7 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QDebug>
 #include <QHash>
 #include <QVariant>
 
@@ -295,22 +296,6 @@ Id Id::withPrefix(const char *prefix) const
 }
 
 
-/*!
-  Associates a id with its uid and its string
-  representation.
-
-  The uid should be taken from the plugin's private range.
-
-  \sa fromSetting()
-*/
-
-void Id::registerId(int uid, const char *name)
-{
-    StringHolder sh(name, 0);
-    idFromString[sh] = uid;
-    stringFromId[uid] = sh;
-}
-
 bool Id::operator==(const char *name) const
 {
     const char *string = stringFromId.value(m_id).str;
@@ -349,7 +334,6 @@ QString Id::suffixAfter(Id baseId) const
 
 } // namespace Core
 
-
 QT_BEGIN_NAMESPACE
 
 QDataStream &operator<<(QDataStream &ds, Core::Id id)
@@ -363,6 +347,11 @@ QDataStream &operator>>(QDataStream &ds, Core::Id &id)
     ds >> ba;
     id = Core::Id::fromName(ba);
     return ds;
+}
+
+QDebug operator<<(QDebug dbg, const Core::Id &id)
+{
+    return dbg << id.name();
 }
 
 QT_END_NAMESPACE

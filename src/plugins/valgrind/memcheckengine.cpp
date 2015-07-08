@@ -156,39 +156,17 @@ void MemcheckWithGdbRunControl::startDebugger()
 {
     const qint64 valgrindPid = runner()->valgrindProcess()->pid();
     const AnalyzerStartParameters &mySp = startParameters();
+
     Debugger::DebuggerStartParameters sp;
-
-    RunConfiguration *rc = runConfiguration();
-    const Target *target = rc->target();
-    QTC_ASSERT(target, return);
-
-    const Kit *kit = target->kit();
-    QTC_ASSERT(kit, return);
-
-    if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-        sp.toolChainAbi = tc->targetAbi();
-
-    if (const Project *project = target->project()) {
-        sp.projectSourceDirectory = project->projectDirectory().toString();
-        sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
-
-        if (const BuildConfiguration *bc = target->activeBuildConfiguration())
-            sp.projectBuildDirectory = bc->buildDirectory().toString();
-    }
-
     sp.executable = mySp.debuggee;
-    sp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    sp.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(kit).toString();
-    sp.languages |= Debugger::CppLanguage;
     sp.startMode = Debugger::AttachToRemoteServer;
     sp.displayName = QString::fromLatin1("VGdb %1").arg(valgrindPid);
     sp.remoteChannel = QString::fromLatin1("| vgdb --pid=%1").arg(valgrindPid);
     sp.useContinueInsteadOfRun = true;
-    sp.expectedSignals << "SIGTRAP";
-    sp.runConfiguration = rc;
+    sp.expectedSignals.append("SIGTRAP");
 
     QString errorMessage;
-    RunControl *gdbRunControl = Debugger::createDebuggerRunControl(sp, &errorMessage);
+    RunControl *gdbRunControl = Debugger::createDebuggerRunControl(sp, runConfiguration(), &errorMessage);
     QTC_ASSERT(gdbRunControl, return);
     connect(gdbRunControl, &RunControl::finished,
             gdbRunControl, &RunControl::deleteLater);

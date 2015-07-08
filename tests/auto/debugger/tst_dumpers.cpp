@@ -1716,6 +1716,7 @@ void tst_Dumpers::dumper_data()
                     "h1.insert(\"!\", QList<int>() << 1 << 2);\n\n"
 
                     "QHash<int, float> h2;\n"
+                    "h2[0]  = 33.0;\n"
                     "h2[11] = 11.0;\n"
                     "h2[22] = 22.0;\n\n"
 
@@ -1765,9 +1766,10 @@ void tst_Dumpers::dumper_data()
                + Check("h1.2.value.0", "[0]", "1", "int")
                + Check("h1.2.value.1", "[1]", "2", "int")
 
-               + Check("h2", "<2 items>", "@QHash<int, float>")
-               + Check("h2.0", "[0] 22", "22", "float")
-               + Check("h2.1", "[1] 11", "11", "float")
+               + Check("h2", "<3 items>", "@QHash<int, float>")
+               + Check("h2.0", "[0] 0", "33", "float")
+               + Check("h2.1", "[1] 22", "22", "float")
+               + Check("h2.2", "[2] 11", "11", "float")
 
                + Check("h3", "<1 items>", "@QHash<@QString, int>")
                + Check("h3.0", "[0]", "", "@QHashNode<@QString, int>")
@@ -3864,8 +3866,8 @@ void tst_Dumpers::dumper_data()
                + Check("l3.1", "[1]", "0x0", "int *")
                + Check("l3.2", "[2]", "2", "int")
 
-               + Check("l4.@1.0", "[0]", "1", "int")
-               + Check("l4.@1.1", "[1]", "2", "int");
+               + Check("l4.@2.0", "[0]", "1", "int")
+               + Check("l4.@2.1", "[1]", "2", "int");
 
 
     QTest::newRow("StdListQt")
@@ -5649,10 +5651,10 @@ void tst_Dumpers::dumper_data()
                     "unused(&c.S2::v);\n")
                 + NoLldbEngine
                 + Check("c.c", "1", "int")
-                + Check("c.@1.@2.a", "42", "int")
-                + Check("c.@1.@4.v", "45", "int")
-                + Check("c.@2.@2.a", "43", "int")
-                + Check("c.@2.@4.v", "45", "int");
+                + Check("c.@1.@1.a", "42", "int")
+                + Check("c.@1.@3.v", "45", "int")
+                + Check("c.@2.@1.a", "43", "int")
+                + Check("c.@2.@3.v", "45", "int");
 
     // FIXME: Virtual inheritance doesn't work with LLDB 300
     QTest::newRow("InheritanceLldb")
@@ -5806,6 +5808,63 @@ void tst_Dumpers::dumper_data()
                + GuiProfile()
                + Check("pol", "<5 items>", "@QPolygonF")
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");
+
+    QTest::newRow("QJson")
+            << Data("#include <QJsonObject>\n"
+                    "#include <QJsonArray>\n"
+                    "#include <QJsonValue>\n"
+                    "#include <QVariantMap>\n",
+                    "QJsonObject ob = QJsonObject::fromVariantMap({\n"
+                    "    {\"a\", 1},\n"
+                    "    {\"bb\", 2},\n"
+                    "    {\"ccc\", \"hallo\"},\n"
+                    "    {\"s\", \"ssss\"}\n"
+                    "});\n"
+                    "ob.insert(QLatin1String(\"d\"), QJsonObject::fromVariantMap({{\"ddd\", 1234}}));\n"
+                    "\n"
+                    "QJsonArray a;\n"
+                    "a.append(QJsonValue(1));\n"
+                    "a.append(QJsonValue(\"asd\"));\n"
+                    "a.append(QJsonValue(QString::fromLatin1(\"cdfer\")));\n"
+                    "a.append(QJsonValue(1.4));\n"
+                    "a.append(QJsonValue(true));\n"
+                    "a.append(ob);\n"
+                    "\n"
+                    "QJsonArray b;\n"
+                    "b.append(QJsonValue(1));\n"
+                    "b.append(a);\n"
+                    "b.append(QJsonValue(2));\n"
+                    "\n"
+                    "unused(&ob,&b,&a);\n")
+            + Cxx11Profile()
+            + Check("a",                  "<6 items>",  "@QJsonArray")
+            + Check("a.0",   "[0]",       "1",            "QJsonValue (Number)")
+            + Check("a.1",   "[1]",       "\"asd\"",      "QJsonValue (String)")
+            + Check("a.2",   "[2]",       "\"cdfer\"",    "QJsonValue (String)")
+            + Check("a.3",   "[3]",       "1.4",          "QJsonValue (Number)")
+            + Check("a.4",   "[4]",       "true",         "QJsonValue (Bool)")
+            + Check("a.5",   "[5]",       "<5 items>",    "QJsonValue (Object)")
+            + Check("a.5.0",    "\"a\"",     "1",            "QJsonValue (Number)")
+            + Check("a.5.1",    "\"bb\"",    "2",            "QJsonValue (Number)")
+            + Check("a.5.2",    "\"ccc\"",   "\"hallo\"",    "QJsonValue (String)")
+            + Check("a.5.3",    "\"d\"",     "<1 items>",    "QJsonValue (Object)")
+            + Check("a.5.4",    "\"s\"",     "\"ssss\"",     "QJsonValue (String)")
+            + Check("b",     "b",        "<3 items>" ,  "@QJsonArray")
+            + Check("b.0",   "[0]",       "1",             "QJsonValue (Number)")
+            + Check("b.1",   "[1]",       "<6 items>",     "QJsonValue (Array)")
+            + Check("b.1.0",    "[0]",       "1",             "QJsonValue (Number)")
+            + Check("b.1.1",    "[1]",       "\"asd\"",       "QJsonValue (String)")
+            + Check("b.1.2",    "[2]",       "\"cdfer\"",     "QJsonValue (String)")
+            + Check("b.1.3",    "[3]",       "1.4",           "QJsonValue (Number)")
+            + Check("b.1.4",    "[4]",       "true",          "QJsonValue (Bool)")
+            + Check("b.1.5",    "[5]",       "<5 items>",     "QJsonValue (Object)")
+            + Check("b.2",   "[2]",       "2",             "QJsonValue (Number)")
+            + Check("ob",   "ob",      "<5 items>",     "@QJsonObject")
+            + Check("ob.0", "\"a\"",    "1",              "QJsonValue (Number)")
+            + Check("ob.1", "\"bb\"",   "2",              "QJsonValue (Number)")
+            + Check("ob.2", "\"ccc\"",  "\"hallo\"",      "QJsonValue (String)")
+            + Check("ob.3", "\"d\"",    "<1 items>",      "QJsonValue (Object)")
+            + Check("ob.4", "\"s\"",    "\"ssss\"",       "QJsonValue (String)");
 }
 
 int main(int argc, char *argv[])

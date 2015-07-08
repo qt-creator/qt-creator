@@ -135,7 +135,9 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
         else if (version == QLatin1String("v7.0A") || version == QLatin1String("v7.1"))
             msvcVersionString = QLatin1String("10.0");
     }
-    if (msvcVersionString.startsWith(QLatin1String("12.")))
+    if (msvcVersionString.startsWith(QLatin1String("14.")))
+        flavor = Abi::WindowsMsvc2015Flavor;
+    else if (msvcVersionString.startsWith(QLatin1String("12.")))
         flavor = Abi::WindowsMsvc2013Flavor;
     else if (msvcVersionString.startsWith(QLatin1String("11.")))
         flavor = Abi::WindowsMsvc2012Flavor;
@@ -404,6 +406,14 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
             << Utils::FileName::fromLatin1("winrt-x64-msvc2013")
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
+    case Abi::WindowsMsvc2015Flavor:
+        return QList<Utils::FileName>()
+            << Utils::FileName::fromLatin1("win32-msvc2015")
+            << Utils::FileName::fromLatin1("winphone-arm-msvc2015")
+            << Utils::FileName::fromLatin1("winphone-x86-msvc2015")
+            << Utils::FileName::fromLatin1("winrt-arm-msvc2015")
+            << Utils::FileName::fromLatin1("winrt-x86-msvc2015")
+            << Utils::FileName::fromLatin1("winrt-x64-msvc2015");
     default:
         break;
     }

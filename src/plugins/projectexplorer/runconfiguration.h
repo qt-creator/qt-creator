@@ -253,8 +253,8 @@ public:
     explicit IRunControlFactory(QObject *parent = 0);
     virtual ~IRunControlFactory();
 
-    virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const = 0;
-    virtual RunControl *create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage) = 0;
+    virtual bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const = 0;
+    virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) = 0;
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
 };
@@ -283,7 +283,7 @@ public:
         AsynchronousStop     // Stop sequence has been started
     };
 
-    RunControl(RunConfiguration *runConfiguration, RunMode mode);
+    RunControl(RunConfiguration *runConfiguration, Core::Id mode);
     virtual ~RunControl();
     virtual void start() = 0;
 
@@ -304,7 +304,7 @@ public:
     bool sameRunConfiguration(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();
-    RunMode runMode() const;
+    Core::Id runMode() const;
 
 public slots:
     void bringApplicationToForeground(qint64 pid);
@@ -328,7 +328,7 @@ protected:
 
 private:
     QString m_displayName;
-    RunMode m_runMode;
+    Core::Id m_runMode;
     QString m_icon;
     const QPointer<RunConfiguration> m_runConfiguration;
     Utils::OutputFormatter *m_outputFormatter;

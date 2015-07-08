@@ -35,7 +35,7 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Symbols.h>
-#include <utils/fileutils.h>
+#include <utils/dropsupport.h>
 
 using namespace CPlusPlus;
 
@@ -258,12 +258,12 @@ Qt::DropActions OverviewModel::supportedDragActions() const
 
 QStringList OverviewModel::mimeTypes() const
 {
-    return Utils::FileDropSupport::mimeTypesForFilePaths();
+    return Utils::DropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
 {
-    auto mimeData = new Utils::FileDropMimeData;
+    auto mimeData = new Utils::DropMimeData;
     foreach (const QModelIndex &index, indexes) {
         const QVariant fileName = data(index, FileNameRole);
         if (!fileName.canConvert<QString>())

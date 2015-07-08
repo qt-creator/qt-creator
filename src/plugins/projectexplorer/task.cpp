@@ -137,9 +137,9 @@ bool operator<(const Task &a, const Task &b)
         // Can't happen
         return true;
     } else {
-        if (a.category.uniqueIdentifier() < b.category.uniqueIdentifier())
+        if (a.category < b.category)
             return true;
-        if (b.category.uniqueIdentifier() < a.category.uniqueIdentifier())
+        if (b.category < a.category)
             return false;
         return a.taskId < b.taskId;
     }

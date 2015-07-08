@@ -61,6 +61,13 @@ exists(src/shared/qbs/qbs.pro) {
     cache(QBS_APPS_DESTDIR)
     QBS_APPS_INSTALL_DIR = $${QTC_PREFIX}/bin
     cache(QBS_APPS_INSTALL_DIR)
+    QBS_LIBEXEC_DESTDIR = $${IDE_LIBEXEC_PATH}
+    cache(QBS_LIBEXEC_DESTDIR)
+    QBS_LIBEXEC_INSTALL_DIR = $${QTC_PREFIX}/bin
+    cache(QBS_LIBEXEC_INSTALL_DIR)
+    QBS_RELATIVE_LIBEXEC_PATH = $$relative_path($$QBS_LIBEXEC_DESTDIR, $$QBS_APPS_DESTDIR)
+    isEmpty(QBS_RELATIVE_LIBEXEC_PATH):QBS_RELATIVE_LIBEXEC_PATH = .
+    cache(QBS_RELATIVE_LIBEXEC_PATH)
     QBS_RELATIVE_PLUGINS_PATH = $$relative_path($$QBS_PLUGINS_BUILD_DIR, $$QBS_APPS_DESTDIR$$)
     cache(QBS_RELATIVE_PLUGINS_PATH)
     QBS_RELATIVE_SEARCH_PATH = $$relative_path($$QBS_RESOURCES_BUILD_DIR, $$QBS_APPS_DESTDIR)
@@ -121,14 +128,9 @@ installer.depends = bindist_installer
 installer.commands = python -u $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "$$INSTALLER_NAME"
 
 macx {
-    # this should be very temporary:
-    MENU_NIB = $$(MENU_NIB_FILE)
-    isEmpty(MENU_NIB): MENU_NIB = "FATAT_SET_MENU_NIB_FILE_ENV"
-    copy_menu_nib_installer.commands = cp -R \"$$MENU_NIB\" \"$${INSTALLER_NAME}.app/Contents/Resources\"
-
     codesign_installer.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${INSTALLER_NAME}.app\"
     dmg_installer.commands = hdiutil create -srcfolder "$${INSTALLER_NAME}.app" -volname \"Qt Creator\" -format UDBZ "$${BASENAME}-installer.dmg" -ov -scrub -size 1g -verbose
-    QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer copy_menu_nib_installer
+    QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer
 }
 
 win32 {

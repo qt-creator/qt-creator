@@ -208,6 +208,27 @@
     diff view, you can use context menu commands to apply, revert, stage, and
     unstage hunks, as well as send them to a code pasting service.
 
+    \section3 Using GNU Diffutils with ClearCase
+
+    You can use the GNU Diffutils tool With ClearCase to compare files and
+    activities:
+
+    \list 1
+
+        \li Download \l{http://gnuwin32.sourceforge.net/packages/diffutils.htm}
+            {Diffutils} and extract it to a directory in your PATH.
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Version Control} > \uicontrol ClearCase.
+
+        \li Select the \uicontrol External radio button. The radio button is
+            disabled if \c diff is not found in the PATH.
+
+        \li In the \uicontrol Arguments field, specify arguments for running
+            \c diff.
+
+    \endlist
+
     \section2 Viewing Versioning History and Change Details
 
     Display the versioning history of a file by selecting \uicontrol{Log}

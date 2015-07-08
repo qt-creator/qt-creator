@@ -203,12 +203,16 @@ bool AndroidDeployQtStep::init()
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
     m_appProcess = QLatin1String("readlink -f /system/bin/app_process");
-    if (info.cpuAbi.contains(QLatin1String("arm64-v8a"))) {
+    m_libdir = QLatin1String("lib");
+    if (info.cpuAbi.contains(QLatin1String("arm64-v8a")) ||
+            info.cpuAbi.contains(QLatin1String("x86_64"))) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-        if (tc && tc->targetAbi().wordWidth() == 64)
+        if (tc && tc->targetAbi().wordWidth() == 64) {
             m_appProcess += QLatin1String("64");
-        else
+            m_libdir += QLatin1String("64");
+        } else {
             m_appProcess += QLatin1String("32");
+        }
     }
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
@@ -436,9 +440,10 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                        .arg(remoteAppProcessFile).arg(localAppProcessFile), ErrorMessageOutput);
     }
+
     runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("pull")
-               << QLatin1String("/system/lib/libc.so")
+               << QLatin1String("/system/") + m_libdir + QLatin1String("/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
 
     fi.reportResult(returnValue == Success ? true : false);

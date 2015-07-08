@@ -460,7 +460,7 @@ class DumperBase:
             return s.decode("hex")
         return bytes.fromhex(s).decode("utf8")
 
-    # Hex decoding operating on str or bytes, return str.
+    # Hex encoding operating on str or bytes, return str.
     def hexencode(self, s):
         if sys.version_info[0] == 2:
             return s.encode("hex")

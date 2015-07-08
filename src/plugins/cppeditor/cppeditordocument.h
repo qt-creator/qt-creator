@@ -57,7 +57,7 @@ public:
     bool isObjCEnabled() const;
     TextEditor::CompletionAssistProvider *completionAssistProvider() const override;
 
-    void semanticRehighlight();
+    void recalculateSemanticInfoDetached();
     CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
 
     void setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,

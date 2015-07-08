@@ -37,12 +37,12 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariant>
 
 #include <functional>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QVariant;
 class QProcessEnvironment;
 QT_END_NAMESPACE
 
@@ -68,7 +68,7 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
     Q_OBJECT
 
 public:
-    explicit VcsBaseClientImpl(VcsBaseClientImpl *client, VcsBaseClientSettings *settings);
+    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
     ~VcsBaseClientImpl();
 
     VcsBaseClientSettings &settings() const;
@@ -130,7 +130,6 @@ protected:
 
 private:
     void saveSettings();
-    void commandFinishedGotoLine(QWidget*);
 
     VcsBaseClientImplPrivate *d;
 };

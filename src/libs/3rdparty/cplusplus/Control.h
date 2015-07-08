@@ -120,6 +120,9 @@ public:
     /// Creates a new Template symbol.
     Template *newTemplate(unsigned sourceLocation, const Name *name = 0);
 
+    /// Creates a new ExplicitInstantiation symbol.
+    ExplicitInstantiation *newExplicitInstantiation(unsigned sourceLocation, const Name *name = 0);
+
     /// Creates a new Namespace symbol.
     NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name = 0);
 

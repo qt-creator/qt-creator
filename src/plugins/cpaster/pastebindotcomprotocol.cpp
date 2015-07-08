@@ -52,15 +52,6 @@ static const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // 
 static const char PROTOCOL_NAME[] = "Pastebin.Com";
 
 namespace CodePaster {
-PasteBinDotComProtocol::PasteBinDotComProtocol() :
-    m_fetchReply(0),
-    m_pasteReply(0),
-    m_listReply(0),
-    m_fetchId(-1),
-    m_postId(-1),
-    m_hostChecked(false)
-{
-}
 
 QString PasteBinDotComProtocol::protocolName()
 {

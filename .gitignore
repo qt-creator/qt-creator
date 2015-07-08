@@ -40,7 +40,7 @@ Thumbs.db
 *.creator.user*
 *.qbs.user*
 *.qmlproject.user*
-*.json
+/src/plugins/**/*.json
 /src/app/Info.plist
 app_version.h
 /src/plugins/coreplugin/ide_version.h
@@ -117,7 +117,7 @@ tmp/
 *.dll
 *.exe
 /bin/buildoutputparser
-/bin/codemodelbackend
+/bin/clangbackend
 /bin/cpaster
 /bin/cplusplus-ast2png
 /bin/cplusplus-frontend

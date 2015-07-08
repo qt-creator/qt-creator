@@ -43,12 +43,17 @@
             a QQuickView. You can build the application and deploy it to desktop
             and mobile target platforms.
 
-        \li \uicontrol {Qt Quick UI} creates a Qt Quick UI project with a single QML
-            file that contains the main view. You can review Qt Quick UI
-            projects in a \l{Previewing QML Files}{preview tool} and you need
-            not build them. You do not
-            need to have the development environment installed on your
-            computer to create and run this type of project.
+        \li \uicontrol {Qt Quick Controls Application} is like
+            \uicontrol {Qt Quick Application}, but using Qt Quick Controls.
+
+        \li \uicontrol {Qt Quick UI} (in the \uicontrol {Other Project}
+            category) creates a Qt Quick UI project with a single QML file that
+            contains the main view. You can review Qt Quick UI projects in a
+            \l{Previewing QML Files}{preview tool} and you need not build them.
+            They do not contain any C++ code.
+
+        \li \uicontrol {Qt Quick Controls UI} is like \uicontrol {Qt Quick UI},
+            but using Qt Quick Controls.
 
         \li \uicontrol {Qt Quick Extension Plugins} (in the \uicontrol Libraries category)
             create C++ plugins that make it possible to offer extensions that
@@ -59,28 +64,64 @@
 
     \endlist
 
-    \section1 Creating Qt Quick UI Projects
-
-    The \uicontrol {Qt Quick UI} wizard is disabled by default.
+    \section1 Creating Qt Quick Applications
 
     \list 1
 
-        \li Select \uicontrol Help > \uicontrol Tools > \uicontrol {About Plugins} >
-            \uicontrol {Qt Quick} > \uicontrol {QmlProjectManager} and restart \QC to show
-            the wizard.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Quick Application} or
+            \uicontrol {Qt Quick Controls Application} > \uicontrol Choose.
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
-            \uicontrol {Qt Quick UI} > \uicontrol Choose.
+        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
+            version to develop with. The Qt version determines the Qt Quick
+            imports that are used in the QML files.
 
-        \li In the \uicontrol {Qt Quick component set} field, select the component set
-            to use for the project. The Qt Quick imports enable you to use the
-            basic QML types to create user interfaces, whereas the Qt Quick
-            Controls provide a set of ready-made controls that you can customize
-            by using Qt Quick Controls Styles.
+        \li Select the \uicontrol {With .ui.qml file} check box to create an UI
+            form that can contain a subset of the QML language. Similarly as
+            with the UI forms for \QD, it is recommended that you use \QMLD to
+            edit the UI forms. For more information, see \l{Qt Quick UI Forms}.
 
-        You can add imports later to combine Qt Quick basic types with Qt Quick
-        Controls, Qt Quick Dialogs, and Qt Quick Layouts (available since
-        Qt 5.1).
+        \li For a Qt Quick Controls application, you can also select the
+            \uicontrol {Enable native styling} check box. \QC adds a dependency
+            to the Qt Widgets module to the \c .pro file.
+
+        \li Select \l{glossary-buildandrun-kit}{kits} for running and building
+            your project, and then click \uicontrol Next.
+
+            \note Kits are listed if they have been specified in
+            \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Kits.
+
+        \li Review the project settings, and click \uicontrol Finish (on Windows
+            and Linux) or \uicontrol Done (on OS X) to create the project.
+
+    \endlist
+
+    \note The SDK for a particular target platform might install additional
+    templates for that platform. For example, the QNX templates are installed
+    as part of the QNX SDK.
+
+    \QC creates the necessary boilerplate files. Some of the files are
+    specific to a particular target platform.
+
+    \section1 Creating Qt Quick UI Projects
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Other Project} > \uicontrol {Qt Quick UI} or
+            \uicontrol {Qt Quick Controls UI} > \uicontrol Choose.
+
+        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
+            version to develop with. The Qt version determines the Qt Quick
+            imports that are used in the QML files.
+
+            You can add imports later to combine Qt Quick basic types with
+            Qt Quick Controls, Qt Quick Dialogs, and Qt Quick Layouts (available
+            since Qt 5.1).
+
+        \li Select the \uicontrol {With .ui.qml file} check box to create an UI
+            form.
 
     \endlist
 
@@ -95,45 +136,13 @@
         \li .qml file defines an UI item, such as a component, screen, or the
             whole application UI.
 
-        \li .qml.ui files defines a form for the application UI. It is created
-            if you select \uicontrol {Qt Quick Controls 1.3}, or later, or
-            \uicontrol {Qt Quick 2.4}, or later. The forms can contain a subset of the
-            QML language. Similarly as with the UI forms for \QD, it is
-            recommended that you use \QMLD to edit the UI forms. For more
-            information, see \l{Qt Quick UI Forms}.
+        \li ui.qml file defines a form for the application UI. This file is
+            created if you selected the \uicontrol {With .ui.qml file} check
+            box.
 
     \endlist
 
     To use JavaScript and image files in the application, copy them to the
     project folder.
-
-    \section1 Creating Qt Quick Applications
-
-    \list 1
-
-        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
-            \uicontrol {Qt Quick Application} > \uicontrol Choose.
-
-        \li In the \uicontrol {Qt Quick component set} field, select the component set
-            to use for the project. For more information, see
-            \l{Creating Qt Quick UI Projects}.
-
-        \li Select \l{glossary-buildandrun-kit}{kits} for running and building
-            your project, and then click \uicontrol{Next}.
-
-            \note Kits are listed if they have been specified in \uicontrol Tools >
-            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
-
-        \li Review the project settings, and click \uicontrol{Finish} (on Windows and
-            Linux) or \uicontrol Done (on OS X) to create the project.
-
-    \endlist
-
-    \note The SDK for a particular target platform might install additional
-    templates for that platform. For example, the QNX templates are installed
-    as part of the QNX SDK.
-
-    \QC creates the necessary boilerplate files. Some of the files are
-    specific to a particular target platform.
 
 */

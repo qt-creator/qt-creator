@@ -74,17 +74,19 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > Build & Run > Compilers > Add} and
-            select a compiler in the list.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Build & Run} > \uicontrol Compilers > \uicontrol Add
+            and select a compiler in the list.
 
             \image qtcreator-toolchains.png
 
-            To clone the selected compiler, select \uicontrol {Clone}.
+            To clone the selected compiler, select \uicontrol Clone.
 
-        \li In the \uicontrol Name column, double-click the name to change it.
+        \li In the \uicontrol Name field, enter a name for the compiler to
+            identify it in \QC.
 
-        \li In the \uicontrol{Compiler path} field, enter the path to the directory
-            where the compiler is located.
+        \li In the \uicontrol {Compiler path} field, enter the path to the
+            directory where the compiler is located.
 
         \li In the \uicontrol {Platform codegen flags} field, check the flags passed
             to the compiler that specify the architecture on the target
@@ -95,6 +97,10 @@
             The linker flags are used only when building with Qbs.
 
             The other settings to specify depend on the compiler.
+
+        \li In the \uicontrol ABI field, provide an identification for the
+            target architecture. This is used to warn about ABI mismatches
+            within the kits.
 
     \endlist
 
@@ -168,7 +174,7 @@
     \section1 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \uicontrol {Compile Output} pane contain
-    paths where slashes are missing (for example, C:QtSDK),
+    paths where slashes are missing (for example, \c {C:QtSDK}),
     check your PATH variable. At the command line, enter the following commands:
 
     \code

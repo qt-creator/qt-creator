@@ -154,6 +154,13 @@ QList<LookupItem> TypeResolver::typedefsFromScopeUpToFunctionScope(const Name *n
             }
         }
         enclosingBlockScope = block->enclosingScope();
+        if (enclosingBlockScope) {
+            // For lambda, step beyond the function to its enclosing block
+            if (Function *enclosingFunction = enclosingBlockScope->asFunction()) {
+                if (!enclosingFunction->name())
+                    enclosingBlockScope = enclosingBlockScope->enclosingScope();
+            }
+        }
     }
     return results;
 }

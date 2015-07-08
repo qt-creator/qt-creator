@@ -31,19 +31,20 @@
 #ifndef LOCALQMLPROFILERRUNNER_H
 #define LOCALQMLPROFILERRUNNER_H
 
-#include "abstractqmlprofilerrunner.h"
-
+#include "qmlprofiler_global.h"
 #include <utils/environment.h>
 #include <projectexplorer/applicationlauncher.h>
 
 namespace ProjectExplorer { class RunConfiguration; }
-namespace Analyzer { class AnalyzerStartParameters; }
+namespace Analyzer {
+    class AnalyzerStartParameters;
+    class AnalyzerRunControl;
+}
 
 namespace QmlProfiler {
-namespace Internal {
 
 class QmlProfilerRunControl;
-class LocalQmlProfilerRunner : public AbstractQmlProfilerRunner
+class QMLPROFILER_EXPORT LocalQmlProfilerRunner : public QObject
 {
     Q_OBJECT
 
@@ -56,31 +57,33 @@ public:
         Utils::Environment environment;
     };
 
-    static LocalQmlProfilerRunner *createLocalRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                     const Analyzer::AnalyzerStartParameters &sp,
-                                                     QString *errorMessage,
-                                                     QmlProfilerRunControl *engine);
+    static Analyzer::AnalyzerRunControl *createLocalRunControl(
+            ProjectExplorer::RunConfiguration *runConfiguration,
+            const Analyzer::AnalyzerStartParameters &sp,
+            QString *errorMessage);
+
+    static quint16 findFreePort(QString &host);
 
     ~LocalQmlProfilerRunner();
 
-    // AbstractQmlProfilerRunner
-    virtual void start();
-    virtual void stop();
-    virtual quint16 debugPort() const;
+signals:
+    void started();
+    void stopped();
+    void appendMessage(const QString &message, Utils::OutputFormat format);
 
 private slots:
     void spontaneousStop(int exitCode, QProcess::ExitStatus status);
+    void start();
+    void stop();
 
 private:
     LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
 
-private:
     Configuration m_configuration;
     ProjectExplorer::ApplicationLauncher m_launcher;
     QmlProfilerRunControl *m_engine;
 };
 
-} // namespace Internal
 } // namespace QmlProfiler
 
 #endif // LOCALQMLPROFILERRUNNER_H

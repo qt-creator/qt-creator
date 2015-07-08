@@ -32,13 +32,11 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = map(lambda x: 2 ** x , range(9))
+    ALL_TARGETS = map(lambda x: 2 ** x , range(7))
 
     (DESKTOP_474_GCC,
      DESKTOP_480_DEFAULT,
      SIMULATOR,
-     MAEMO5,
-     HARMATTAN,
      EMBEDDED_LINUX,
      DESKTOP_521_DEFAULT,
      DESKTOP_531_DEFAULT,
@@ -46,8 +44,7 @@ class Targets:
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.MAEMO5
-                          & ~Targets.HARMATTAN & ~Targets.EMBEDDED_LINUX)
+        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':
             desktopTargets &= ~Targets.DESKTOP_541_GCC
         return desktopTargets
@@ -61,12 +58,8 @@ class Targets:
                 return "Desktop 480 MSVC2010"
             else:
                 return "Desktop 480 GCC"
-        elif target == Targets.MAEMO5:
-            return "Fremantle"
         elif target == Targets.SIMULATOR:
             return "Qt Simulator"
-        elif target == Targets.HARMATTAN:
-            return "Harmattan"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
         elif target == Targets.DESKTOP_521_DEFAULT:
@@ -179,3 +172,33 @@ class LibType:
         if libType == LibType.QT_PLUGIN:
             return "Qt Plugin"
         return None
+
+class Qt5Path:
+    DOCS = 0
+    EXAMPLES = 1
+
+    @staticmethod
+    def getPaths(pathSpec):
+        if pathSpec == Qt5Path.DOCS:
+            path52 = "/doc"
+            path53 = "/Docs/Qt-5.3"
+            path54 = "/Docs/Qt-5.4"
+        elif pathSpec == Qt5Path.EXAMPLES:
+            path52 = "/examples"
+            path53 = "/Examples/Qt-5.3"
+            path54 = "/Examples/Qt-5.4"
+        else:
+            test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
+            return []
+        if platform.system() in ('Microsoft', 'Windows'):
+            return ["C:/Qt/Qt5.2.1/5.2.1/msvc2010" + path52,
+                    "C:/Qt/Qt5.3.1" + path53, "C:/Qt/Qt5.4.1" + path54]
+        elif platform.system() == 'Linux':
+            if __is64BitOS__():
+                return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc_64" + path52,
+                                                "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
+            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc" + path52,
+                                            "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
+        else:
+            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/clang_64" + path52,
+                                            "~/Qt5.3.1" + path53])

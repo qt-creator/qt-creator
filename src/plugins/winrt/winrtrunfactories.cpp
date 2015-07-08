@@ -137,7 +137,7 @@ WinRtRunControlFactory::WinRtRunControlFactory()
 }
 
 bool WinRtRunControlFactory::canRun(RunConfiguration *runConfiguration,
-        RunMode mode) const
+        Core::Id mode) const
 {
     if (!runConfiguration)
         return false;
@@ -145,35 +145,32 @@ bool WinRtRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (!device)
         return false;
 
-    switch (mode) {
-    case DebugRunMode:
-    case DebugRunModeWithBreakOnMain:
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+            || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         if (device->type() != Constants::WINRT_DEVICE_TYPE_LOCAL)
             return false;
-        // fall through
-    case NormalRunMode:
         return qobject_cast<WinRtRunConfiguration *>(runConfiguration);
-    default:
-        return false;
     }
+
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
+        return qobject_cast<WinRtRunConfiguration *>(runConfiguration);
+
+    return false;
 }
 
 RunControl *WinRtRunControlFactory::create(
-        RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+        RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     WinRtRunConfiguration *rc = qobject_cast<WinRtRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return 0);
 
-    switch (mode) {
-    case NormalRunMode:
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         return new WinRtRunControl(rc, mode);
-    case DebugRunMode:
-    case DebugRunModeWithBreakOnMain:
+
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
         return WinRtDebugSupport::createDebugRunControl(rc, mode, errorMessage);
-    default:
-        break;
-    }
-    *errorMessage = tr("Unsupported run mode %1.").arg(mode);
+
+    *errorMessage = tr("Unsupported run mode %1.").arg(mode.toString());
     return 0;
 }
 

@@ -13,6 +13,10 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "CppTools" }
 
+    pluginRecommends: [
+        "CodePaster"
+    ]
+
     files: [
         "baseannotationhighlighter.cpp",
         "baseannotationhighlighter.h",

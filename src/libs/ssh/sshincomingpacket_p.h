@@ -62,10 +62,10 @@ struct SshKeyExchangeInit
 struct SshKeyExchangeReply
 {
     QByteArray k_s;
-    QList<Botan::BigInt> parameters; // DSS: p, q, g, y. RSA: e, n.
+    QList<Botan::BigInt> hostKeyParameters; // DSS: p, q, g, y. RSA: e, n.
+    QByteArray q; // For ECDSA host keys only.
     Botan::BigInt f; // For DH only.
     QByteArray q_s; // For ECDH only.
-    QByteArray q; // For ECDH only.
     QByteArray signatureBlob;
 };
 
@@ -164,7 +164,8 @@ public:
     void reset();
 
     SshKeyExchangeInit extractKeyExchangeInitData() const;
-    SshKeyExchangeReply extractKeyExchangeReply(const QByteArray &pubKeyAlgo) const;
+    SshKeyExchangeReply extractKeyExchangeReply(const QByteArray &kexAlgo,
+                                                const QByteArray &hostKeyAlgo) const;
     SshDisconnect extractDisconnect() const;
     SshUserAuthBanner extractUserAuthBanner() const;
     SshUserAuthInfoRequestPacket extractUserAuthInfoRequest() const;

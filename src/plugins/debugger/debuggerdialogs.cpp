@@ -358,7 +358,7 @@ void StartApplicationDialog::updateState()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okEnabled);
 }
 
-bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp)
+bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit **kit)
 {
     const bool attachRemote = rp->startMode == AttachToRemoteServer;
     const QString settingsGroup = QLatin1String("DebugMode");
@@ -409,11 +409,6 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp)
         settings->endGroup();
     }
 
-    Kit *kit = dialog.d->kitChooser->currentKit();
-    QTC_ASSERT(kit, return false);
-    bool res = fillParametersFromKit(rp, kit);
-    QTC_ASSERT(res, return false);
-
     rp->executable = newParameters.localExecutable;
     const QString inputAddress = dialog.d->serverAddressEdit->text();
     if (!inputAddress.isEmpty())
@@ -430,10 +425,13 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp)
     rp->serverStartScript = newParameters.serverStartScript;
     rp->debugInfoLocation = newParameters.debugInfoLocation;
 
-    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
+    Kit *k = dialog.d->kitChooser->currentKit();
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
         rp->startMode = isLocal ? StartExternal : StartRemoteProcess;
+    if (kit)
+        *kit = k;
     return true;
 }
 

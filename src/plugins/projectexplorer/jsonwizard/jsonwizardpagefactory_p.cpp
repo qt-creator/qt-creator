@@ -128,6 +128,10 @@ bool FilePageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
 // KitsPageFactory:
 // --------------------------------------------------------------------
 
+static const char KEY_PROJECT_FILE[] = "projectFilePath";
+static const char KEY_REQUIRED_FEATURES[] = "requiredFeatures";
+static const char KEY_PREFERRED_FEATURES[] = "preferredFeatures";
+
 KitsPageFactory::KitsPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Kits"));
@@ -139,9 +143,25 @@ Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, 
     QTC_ASSERT(canCreate(typeId), return 0);
 
     JsonKitsPage *page = new JsonKitsPage;
-    page->setUnexpandedProjectPath(data.toMap().value(QLatin1String("projectFilePath")).toString());
+    const QVariantMap dataMap = data.toMap();
+    page->setUnexpandedProjectPath(dataMap.value(QLatin1String(KEY_PROJECT_FILE)).toString());
+    page->setRequiredFeatures(dataMap.value(QLatin1String(KEY_REQUIRED_FEATURES)));
+    page->setPreferredFeatures(dataMap.value(QLatin1String(KEY_PREFERRED_FEATURES)));
 
     return page;
+}
+
+static bool validateFeatureList(const QVariantMap &data, const QByteArray &key, QString *errorMessage)
+{
+    QString message;
+    JsonKitsPage::parseFeatures(data.value(QLatin1String(key)), &message);
+    if (!message.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "Error parsing \"%1\" in \"Kits\" page: %2")
+                .arg(QLatin1String(key), message);
+        return false;
+    }
+    return true;
 }
 
 bool KitsPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
@@ -155,13 +175,15 @@ bool KitsPageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
     }
 
     QVariantMap tmp = data.toMap();
-    if (tmp.value(QLatin1String("projectFilePath")).toString().isEmpty()) {
+    if (tmp.value(QLatin1String(KEY_PROJECT_FILE)).toString().isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"Kits\" page requires a \"projectFilePath\" set.");
+                                                    "\"Kits\" page requires a \"%1\" set.")
+                .arg(QLatin1String(KEY_PROJECT_FILE));
         return false;
     }
 
-    return true;
+    return validateFeatureList(tmp, KEY_REQUIRED_FEATURES, errorMessage)
+            && validateFeatureList(tmp, KEY_PREFERRED_FEATURES, errorMessage);
 }
 
 // --------------------------------------------------------------------
@@ -206,6 +228,8 @@ bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QSt
 // SummaryPageFactory:
 // --------------------------------------------------------------------
 
+static const char KEY_HIDE_PROJECT_UI[] = "hideProjectUi";
+
 SummaryPageFactory::SummaryPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Summary"));
@@ -217,15 +241,18 @@ Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Core::Id typeI
     Q_UNUSED(data);
     QTC_ASSERT(canCreate(typeId), return 0);
 
-    return new JsonSummaryPage;
+    JsonSummaryPage *page = new JsonSummaryPage;
+    QVariant hideProjectUi = data.toMap().value(QLatin1String(KEY_HIDE_PROJECT_UI));
+    page->setHideProjectUiValue(hideProjectUi);
+    return page;
 }
 
 bool SummaryPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
-    if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
+    if (!data.isNull() && (data.type() != QVariant::Map)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"data\" for a \"Summary\" page needs to be unset or an empty object.");
+            "\"data\" for a \"Summary\" page can be unset or needs to be an object.");
         return false;
     }
 

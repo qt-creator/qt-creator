@@ -113,7 +113,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
                                   "toolTip?='Full path: *'}")
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
-                                    "type='Utils::ProjectNameValidatingLineEdit'}")
+                                    "type='Utils::FancyLineEdit'}")
     if projectName == None:
         projectName = projectNameEdit.text
     else:
@@ -131,21 +131,16 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
-def __createProjectHandleQtQuickSelection__(qtQuickOrControlsVersion):
-    comboBox = waitForObject("{type='QComboBox' unnamed='1' visible='1' "
-                             "leftWidget={text='Qt Quick component set:' type='QLabel' unnamed='1' "
-                             "visible='1'}}")
+def __createProjectHandleQtQuickSelection__(minimumQtVersion):
+    comboBox = waitForObject("{buddy=':Minimal required Qt version:_QLabel' name='QtVersion' "
+                             "type='Utils::TextFieldComboBox' visible='1'}")
     try:
-        selectFromCombo(comboBox, "Qt Quick %s" % qtQuickOrControlsVersion)
+        selectFromCombo(comboBox, "Qt %s" % minimumQtVersion)
     except:
         t,v = sys.exc_info()[:2]
-        test.fatal("Exception while trying to select Qt Quick version", "%s (%s)" % (str(t), str(v)))
-    label = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='Creates a *' }")
-    requires = re.match(".*Requires Qt (\d\.\d).*", str(label.text))
-    if requires:
-        requires = requires.group(1)
+        test.fatal("Exception while trying to select Qt version", "%s (%s)" % (str(t), str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
-    return requires
+    return minimumQtVersion
 
 # Selects the Qt versions for a project
 # param checks turns tests in the function on if set to True
@@ -274,11 +269,11 @@ def createProject_Qt_Console(path, projectName, checks = True):
     return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None,
-                                targets=Targets.desktopTargetClasses(), qtQuickVersion="1.1",
+                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.3",
                                 fromWelcome=False):
     available = __createProjectOrFileSelectType__("  Application", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion)
+    requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
@@ -328,26 +323,31 @@ def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desk
     return projectName, checkedTargets
 
 def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESKTOP_474_GCC,
-                          plainC=False, cmake=False):
+                          plainC=False, cmake=False, qbs=False):
     if plainC:
-        template = "Plain C Project"
+        template = "Plain C Application"
     else:
-        template = "Plain C++ Project"
-    if cmake:
-        template += " (CMake Build)"
+        template = "Plain C++ Application"
+
     available = __createProjectOrFileSelectType__("  Non-Qt Project", template)
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    if cmake:
-        __createProjectHandleLastPage__()
-        clickButton(waitForObject(":Next_QPushButton"))
-        if not __handleCmakeWizardPage__():
-            return None
-    else:
-        __chooseTargets__(target, availableTargets=available)
-        clickButton(waitForObject(":Next_QPushButton"))
-        __createProjectHandleLastPage__()
+
+    buildSystem = "qmake"
+    if qbs:
+        buildSystem = "Qbs"
+        if cmake:
+            test.warning("Unsupported combination, at least one of parameters cmake and qbs must "
+                         "be False, ignoring the value of cmake")
+    elif cmake:
+        buildSystem = "CMake"
+    selectFromCombo("{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}", buildSystem)
+    clickButton(waitForObject(":Next_QPushButton"))
+
+    __chooseTargets__(target, availableTargets=available)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleLastPage__()
     return projectName
 
 def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
@@ -394,9 +394,6 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
             available.remove(Targets.EMBEDDED_LINUX)
         elif platform.system() == 'Darwin':
             available.remove(Targets.DESKTOP_541_GCC)
-    for target in filter(lambda x: x in available,
-                         (Targets.MAEMO5, Targets.HARMATTAN)):
-        available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
@@ -624,14 +621,9 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.extend([Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
-        if 'MeeGo/Harmattan' in supports:
-            result.append(Targets.HARMATTAN)
-        if 'Maemo/Fremantle' in supports:
-            result.append(Targets.MAEMO5)
         if not ("BlackBerry" in templateName or re.search("custom Qt Creator plugin", text)) and (version == None or version < "5.0"):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
-        # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
         result = list(Targets.ALL_TARGETS)
         result.remove(Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':

@@ -60,8 +60,8 @@
     automatically become available in \QC. If they do not, you must add the kits
     yourself to tell \QC where everything is.
 
-    To add kits, select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol Kits > \uicontrol Add.
+    To add kits, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add.
 
     For more information, see \l{Adding Kits}.
 
@@ -72,13 +72,13 @@
 
     For more information, see \l{Adding Qt Versions}.
 
-    Also check that your compiler is listed in \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Build & Run} > \uicontrol {Compilers}.
+    Also check that your compiler is listed in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol {Compilers}.
 
     For more information, see \l{Adding Compilers}.
 
-    You can connect mobile devices to the development PC to run, debug,
-    and analyze applications on them from \QC. You can connect the device to the
+    You can connect mobile devices to the development PC to run, debug, and
+    analyze applications on them from \QC. You can connect the device to the
     development PC via USB. Additionally, you can connect Linux-based devices
     over a WLAN. You must also configure a connection between \QC and the
     development PC and specify the device in a kit.
@@ -93,9 +93,8 @@
     You can use \QC with your favorite keyboard shortcuts.
 
     To view and edit all keyboard shortcuts defined in \QC, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard.
-
-    For more information, see \l{Keyboard Shortcuts}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Keyboard. For more information, see \l{Keyboard Shortcuts}.
 
     \section1 Changing Color Schemes
 
@@ -104,15 +103,13 @@
 
     To switch from the default theme to a dark theme, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Environment, and then select \uicontrol Dark
-    in the \uicontrol Theme
-    field.
+    in the \uicontrol Theme field.
 
     You can use the \QC text and code editors with your favorite color scheme
-    that defines how code
-    elements are highlighted and which background color is used. You can select
-    one of the predefined color schemes or create custom ones.
-    The color schemes apply to highlighting C++ files, QML files, and generic
-    files.
+    that defines how code elements are highlighted and which background color is
+    used. You can select one of the predefined color schemes or create custom
+    ones. The color schemes apply to highlighting C++ files, QML files, and
+    generic files.
 
     To change the color scheme, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
@@ -133,8 +130,8 @@
 
     As you write code, \QC suggests properties, IDs, and code snippets to
     complete the code. It provides a list of context-sensitive suggestions to
-    the statement currently under your cursor. You can add, modify,
-    and remove snippets in the snippet editor.
+    the statement currently under your cursor. You can add, modify, and remove
+    snippets in the snippet editor.
 
     To open the snippet editor, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Text Editor} > \uicontrol Snippets.
@@ -148,22 +145,24 @@
     \QC. Once it is set up correctly on the development PC, it should just work.
 
     However, some configuration options are available and you can set them in
-    \uicontrol Tools > \uicontrol Options > \uicontrol{Version Control} > \uicontrol Common.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Version Control} >
+    \uicontrol Common.
 
     For more information about the supported functions, see
     \l{Using Version Control Systems}.
 
     \section1 Enabling and Disabling Plugins
 
-    New \QC plugins are often introduced as \e {experimental plugins} to let
-    you try them out before they are fully supported. Experimental plugins
-    are disabled by default and you must enable them for them to become visible
+    New \QC plugins are often introduced as \e {experimental plugins} to let you
+    try them out before they are fully supported. Experimental plugins are
+    disabled by default and you must enable them for them to become visible
     after you restart \QC. By default, all the plugins that the plugin depends
     on are also enabled.
 
     You can also disable plugins that you do not use, to streamline \QC.
     By default, all the plugins that depend on the plugin are also disabled.
 
-    To enable and disable plugins, select \uicontrol Help > \uicontrol {About Plugins}.
+    To enable and disable plugins, select \uicontrol Help >
+    \uicontrol {About Plugins}.
 
 */

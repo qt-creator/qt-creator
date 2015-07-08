@@ -96,8 +96,6 @@ protected:
     }
 };
 
-/////////////////////////////////////////////////////////////////////////////////
-
 class QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriterPrivate
 {
 public:

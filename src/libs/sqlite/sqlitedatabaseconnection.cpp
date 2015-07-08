@@ -30,19 +30,19 @@
 
 #include "sqlitedatabaseconnection.h"
 
+#include "sqliteexception.h"
+#include "sqliteglobal.h"
+
 #include <sqlite3.h>
 
-#include <QtDebug>
+#include <QDebug>
 
 #ifdef Q_OS_LINUX
 #include <sys/resource.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/syscall.h>
 #endif
-
-#include "sqliteexception.h"
-#include "sqliteglobal.h"
 
 SqliteDatabaseConnection::SqliteDatabaseConnection(QObject *parent) :
     QObject(parent)

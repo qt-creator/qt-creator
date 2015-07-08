@@ -38,22 +38,20 @@ class PasteBinDotCaProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    explicit PasteBinDotCaProtocol();
-
     static QString protocolName();
-    QString name() const { return protocolName(); }
+    QString name() const override { return protocolName(); }
 
-    virtual bool hasSettings() const { return false; }
-    virtual unsigned capabilities() const;
+    bool hasSettings() const override { return false; }
+    unsigned capabilities() const override;
 
-    virtual void fetch(const QString &id);
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
-    virtual void list();
+    void fetch(const QString &id);
+    void paste(const QString &text,
+               ContentType ct = Text,
+               int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
+    void list() override;
 
 public slots:
     void fetchFinished();
@@ -61,14 +59,14 @@ public slots:
     void pasteFinished();
 
 protected:
-    virtual bool checkConfiguration(QString *errorMessage);
+    bool checkConfiguration(QString *errorMessage) override;
 
 private:
-    QNetworkReply *m_fetchReply;
-    QNetworkReply *m_listReply;
-    QNetworkReply *m_pasteReply;
+    QNetworkReply *m_fetchReply = nullptr;
+    QNetworkReply *m_listReply = nullptr;
+    QNetworkReply *m_pasteReply = nullptr;
     QString m_fetchId;
-    bool m_hostChecked;
+    bool m_hostChecked = false;
 };
 
 } // namespace CodePaster

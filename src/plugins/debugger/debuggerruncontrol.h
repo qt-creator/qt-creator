@@ -43,14 +43,14 @@ class DebuggerStartParameters;
 class DebuggerRunControl;
 
 namespace Internal {
-class DebuggerRunParameters;
-DebuggerRunControl *createDebuggerRunControlInternal(const DebuggerRunParameters &, QString *);
+class DebuggerEngine;
+class DebuggerRunControlCreator;
 }
 
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
-                                                             QString *errorMessage);
-
-namespace Internal { class DebuggerEngine; }
+                                                             ProjectExplorer::RunConfiguration *runConfig,
+                                                             QString *errorMessage,
+                                                             Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
@@ -88,8 +88,7 @@ signals:
 private:
     void handleFinished();
 
-    friend DebuggerRunControl *Debugger::Internal::createDebuggerRunControlInternal(
-            const Internal::DebuggerRunParameters &rp, QString *errorMessage);
+    friend class Internal::DebuggerRunControlCreator;
 
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                        Internal::DebuggerEngine *engine);

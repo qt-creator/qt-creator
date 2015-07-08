@@ -224,12 +224,6 @@ void QmlProfilerStateWidget::updateDisplay()
         return;
     }
 
-    // View is not supported for this kind of application
-    if (d->traceAvailable && d->loadingDone && !parentWidget()->isEnabled()) {
-        showText(tr("Not supported for this application"));
-        return;
-    }
-
     // Application died before all data could be read
     if (!d->loadingDone && !d->emptyList && d->appKilled) {
         showText(tr("Application stopped before loading all data"), true);

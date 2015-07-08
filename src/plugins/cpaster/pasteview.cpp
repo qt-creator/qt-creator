@@ -49,8 +49,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     QDialog(parent),
     m_protocols(protocols),
     m_commentPlaceHolder(tr("<Comment>")),
-    m_mimeType(mt),
-    m_mode(DiffChunkMode)
+    m_mimeType(mt)
 {
     m_ui.setupUi(this);
 

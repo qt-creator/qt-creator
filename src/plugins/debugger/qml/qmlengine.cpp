@@ -1003,7 +1003,10 @@ void QmlEngine::updateWatchData(const QByteArray &iname)
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //showStatusMessage(tr("Stopped."), 5000);
     const WatchItem *item = watchHandler()->findItem(iname);
-    QTC_ASSERT(item, return);
+    // invalid expressions or out of scope variables
+    if (!item)
+        return;
+
     if (item->isInspect()) {
         m_inspectorAdapter.agent()->updateWatchData(*item);
     } else {

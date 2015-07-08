@@ -59,13 +59,12 @@
     You can modify the build and run settings for qmake projects in the
     \uicontrol Projects mode.
 
-    You can use wizards also to create plain C or C++ projects that use Qbs or
-    CMake, but do not use the Qt library.
+    You can use wizards also to create plain C or C++ projects that use
+    qmake, Qbs, or CMake, but do not use the Qt library.
 
     In addition, you can import projects as \e {generic projects} that do not
-    use qmake, Qbs, or CMake. This enables you to
-    use \QC as a code editor and to fully control the steps and commands used to
-    build the project.
+    use qmake, Qbs, or CMake. This enables you to use \QC as a code editor and
+    to fully control the steps and commands used to build the project.
 
     You can install tools for mobile devices as part of Qt distributions.
     The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
@@ -75,9 +74,8 @@
 
     \section1 Using Project Wizards
 
-    In the first step, you
-    select a template for the project. You can filter templates (1) to view only
-    those that apply to a particular device type.
+    In the first step, you select a template for the project. You can filter
+    templates (1) to view only those that apply to a particular target platform.
 
     \image qtcreator-new-qt-quick-project-wizard.png
 
@@ -86,6 +84,7 @@
     When you have completed the steps, \QC automatically generates the project
     with required headers, source files, user interface descriptions and project
     files, as defined by the wizard.
+
     For example, if you choose to create a Qt Quick application, \QC generates a
     QML file that you can modify with the integrated \QMLD.
 
@@ -111,18 +110,13 @@
                 You can build the application and deploy it to desktop and
                 mobile target platforms.
 
+            \li Qt Quick Controls Application
+
+                Create a Qt Quick application using Qt Quick Controls
+
             \li Qt Console Application
 
                 Use a single main.cpp file
-
-            \li Qt Quick UI
-
-                Use a single QML file that contains the main view. You can
-                review Qt Quick UI projects in a \l{Previewing QML Files}
-                {preview tool} and you need not build
-                them. You do not need to have the development environment
-                installed on your computer to create and run this type of
-                projects
 
         \endlist
 
@@ -164,6 +158,16 @@
                 Projects with boilerplate code for an autotest. For more
                 information, see \l {Creating Autotests}.
 
+            \li Qt Quick UI
+
+                Use a single QML file that contains the main view. You can
+                review Qt Quick UI projects in a \l{Previewing QML Files}
+                {preview tool} and you need not build them.
+
+            \li Qt Quick Controls UI
+
+                Like a Qt Quick UI project, but using Qt Quick Controls
+
             \li Qt Custom Designer Widgets
 
                 Custom \QD widget or widget collection
@@ -192,18 +196,8 @@
 
             \li Plain C or C++ Project
 
-                Plain C or C++ project that uses qmake but does not use the Qt
-                library
-
-            \li Plain C or C++ Project (CMake Build)
-
-                Plain C or C++ project that uses CMake but does not use the Qt
-                library
-
-            \li Plain C or C++ Project (Qbs Build)
-
-                Plain C or C++ project that uses Qbs but does not use the Qt
-                library.
+                Plain C or C++ project that uses qmake, Qbs, or CMake but does
+                not use the Qt library
 
         \endlist
 
@@ -220,8 +214,8 @@
         \li Import Existing Project
 
             Import an existing project that does not use any of the supported
-            build systems: qmake, CMake, or Autotools. This enables you to use
-            \QC as a code editor
+            build systems: qmake, Qbs, CMake, or Autotools. This enables you to
+            use \QC as a code editor
 
         \endlist
 
@@ -273,6 +267,8 @@
             \uicontrol {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
             Select \uicontrol {Qt Quick 1} to add files to a Qt Quick 1 application
             and \uicontrol {Qt Quick 2} to add files to a Qt Quick 2 application.
+            \uicontrol {Qt Quick UI File} creates an UI form (\e .ui.qml) and
+            the corresponding QML file.
 
         \li JavaScript files that you can use to write the application logic in
             Qt Quick projects
@@ -392,6 +388,16 @@
 
     To specify dependencies, use the \uicontrol{Add Library} wizard. For more
     information, see \l{Adding Libraries to Projects}.
+
+    \section1 Binding Keyboard Shortcuts to Wizards
+
+    If you use a wizard regularly, you can bind a custom keyboard shortcut to
+    it. Triggering this keyboard shortcut will directly open the wizard without
+    the need to navigate to \uicontrol File > \uicontrol {New File or Project}.
+
+    Keyboard shortcuts for wizards can be set in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard >
+    \uicontrol Wizard. All wizard actions start with \uicontrol Impl there.
 
     \section1 Related Topics
 

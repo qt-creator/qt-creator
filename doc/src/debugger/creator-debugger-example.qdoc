@@ -31,8 +31,8 @@
     \title Debugging a C++ Example Application
 
     This section uses the \l{Creating a Qt Widget Based Application}{TextFinder}
-    example to illustrate how to debug Qt C++ applications in the \uicontrol Debug
-    mode.
+    example to illustrate how to debug Qt C++ applications in the
+    \uicontrol Debug mode.
 
     TextFinder reads a text file into QString and then displays it with
     QTextEdit. To look at the TextFinder class and see the stored data, place
@@ -45,19 +45,19 @@
 
             \image qtcreator-setting-breakpoint1.png
 
-        \li Select \uicontrol{Debug > Start Debugging > Start Debugging} or press
-            \key{F5}.
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start Debugging} or press \key F5.
 
-        \li To view the breakpoint, click the \uicontrol{Breakpoints} tab.
+        \li To view the breakpoint, click the \uicontrol Breakpoints tab.
 
             \image qtcreator-setting-breakpoint2.png
 
         \li To remove a breakpoint, right-click it and select
-            \uicontrol{Delete Breakpoint}.
+            \uicontrol {Delete Breakpoint}.
 
 
         \li To view the base classes and data members of the TextFinder class,
-            go to the \uicontrol{Locals and Expressions} view.
+            go to the \uicontrol {Locals and Expressions} view.
 
             \image qtcreator-watcher.png
 
@@ -105,8 +105,8 @@
     \inlineimage qtcreator-debug-button-step-over.png
     (\uicontrol {Step Over}),
     \inlineimage qtcreator-debug-button-step-into.png
-    (\uicontrol {Step Into}), and
-    \inlineimage qtcreator-debug-button-step-out.png
+    (\uicontrol {Step Into}),
+    and \inlineimage qtcreator-debug-button-step-out.png
     (\uicontrol {Step Out}).
 
 */

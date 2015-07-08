@@ -63,6 +63,7 @@ public:
         BackgroundColorHover,
         BackgroundColorNormal,
         BackgroundColorSelected,
+        BackgroundColorDisabled,
         BadgeLabelBackgroundColorChecked,
         BadgeLabelBackgroundColorUnchecked,
         BadgeLabelTextColorChecked,
@@ -184,6 +185,10 @@ public:
 
         /* Bookmarks Plugin */
         Bookmarks_TextMarkColor,
+
+        /* TextEditor Plugin */
+        TextEditor_SearchResult_ScrollBarColor,
+        TextEditor_CurrentLine_ScrollBarColor,
 
         /* Debugger Plugin */
         Debugger_Breakpoint_TextMarkColor,

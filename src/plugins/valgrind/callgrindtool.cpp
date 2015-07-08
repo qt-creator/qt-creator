@@ -120,7 +120,7 @@ public:
     void doClear(bool clearParseData);
     void updateEventCombo();
 
-    AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
+    ValgrindRunControl *createRunControl(const AnalyzerStartParameters &sp,
         RunConfiguration *runConfiguration = 0);
 
 signals:
@@ -514,13 +514,13 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-AnalyzerRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
+ValgrindRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
     return d->createRunControl(sp, runConfiguration);
 }
 
-AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartParameters &sp,
+ValgrindRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
     CallgrindRunControl *rc = new CallgrindRunControl(sp, runConfiguration);
@@ -556,24 +556,6 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
         }
     }
     return rc;
-}
-
-void CallgrindTool::startLocalTool()
-{
-    if (checkForLocalStart(ReleaseMode)) {
-        ProjectExplorerPlugin::runStartupProject(CallgrindRunMode);
-        d->setBusyCursor(true);
-    }
-}
-
-void CallgrindTool::startRemoteTool()
-{
-    AnalyzerStartParameters sp;
-    if (checkForRemoteStart(&sp)) {
-        AnalyzerRunControl *rc = createRunControl(sp, 0);
-        ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
-        d->setBusyCursor(true);
-    }
 }
 
 void CallgrindTool::handleShowCostsOfFunction()
@@ -852,7 +834,7 @@ void CallgrindToolPrivate::engineFinished()
     if (data)
         showParserResults(data);
     else
-        AnalyzerManager::showStatusMessage(tr("Profiling aborted."));
+        AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, tr("Profiling aborted."));
 
     setBusyCursor(false);
 }
@@ -871,7 +853,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     } else {
         msg = tr("Parsing failed.");
     }
-    AnalyzerManager::showStatusMessage(msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, msg);
 }
 
 void CallgrindToolPrivate::editorOpened(IEditor *editor)
@@ -909,8 +891,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = qualifiedFunctionName + QLatin1String("()");
 
-    AnalyzerManager::selectTool(CallgrindLocalActionId);
-    AnalyzerManager::startTool();
+    AnalyzerManager::selectAction(CallgrindLocalActionId, /* alsoRunIt = */ true);
 }
 
 void CallgrindToolPrivate::slotRequestDump()
@@ -937,7 +918,7 @@ void CallgrindToolPrivate::loadExternalLogFile()
         return;
     }
 
-    AnalyzerManager::showStatusMessage(tr("Parsing Profile Data..."));
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
     Parser parser;

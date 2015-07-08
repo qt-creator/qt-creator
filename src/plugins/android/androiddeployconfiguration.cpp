@@ -122,7 +122,7 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
         return ids;
 
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(parent->kit());
-    if (qt->type() != QLatin1String(Constants::ANDROIDQT))
+    if (!qt || qt->type() != QLatin1String(Constants::ANDROIDQT))
         return ids;
     ids << Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);
     return ids;

@@ -291,7 +291,7 @@ void LldbEngine::startLldbStage2()
 void LldbEngine::setupInferior()
 {
     const QString path = stringSetting(ExtraDumperFile);
-    if (!path.isEmpty()) {
+    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.toUtf8());
         runCommand(cmd);
@@ -447,8 +447,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
     foreach (const GdbMi &item, all.children()) {
         const QByteArray name = item.name();
         if (name == "all") {
-            watchHandler()->notifyUpdateFinished();
             updateLocalsView(item);
+            watchHandler()->notifyUpdateFinished();
         } else if (name == "dumpers") {
             watchHandler()->addDumpers(item);
             setupInferiorStage2();
@@ -863,6 +863,8 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
         showMessage(_("SKIPPING LOCALS DUE TO EMPTY STACK"));
         return;
     }
+
+    watchHandler()->notifyUpdateStarted(params.partialVariables());
 
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());

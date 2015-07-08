@@ -58,6 +58,9 @@ Item {
 
     readonly property var timeUnits: ["μs", "ms", "s"]
     function prettyPrintTime(t, rangeDuration) {
+        if (rangeDuration < 1)
+            return ""
+
         var round = 1;
         var barrier = 1;
 

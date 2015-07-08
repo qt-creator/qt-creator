@@ -135,7 +135,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorStopFailed:
     case InferiorSetupOk:
     case EngineRunFailed:
-    case InferiorExitOk:
     case InferiorRunFailed:
     case EngineShutdownOk:
     case EngineShutdownFailed:
@@ -241,6 +240,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
+    m_rerunPending = false;
 
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
@@ -607,6 +607,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             } else if (asyncClass == "memory-changed") {
                 // New since 2013
                 //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
+            } else if (asyncClass == "tsv-created") {
+                // New since 2013-02-06
+            } else if (asyncClass == "tsv-modified") {
+                // New since 2013-02-06
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -1352,9 +1356,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     threadsHandler()->notifyStopped(threads.data());
 
     const QByteArray reason = data["reason"].data();
-    const GdbMi frame = data["frame"];
-    const QByteArray func = frame["from"].data();
-
     if (isExitedReason(reason)) {
         //   // The user triggered a stop, but meanwhile the app simply exited ...
         //    QTC_ASSERT(state() == InferiorStopRequested
@@ -1370,12 +1371,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         } else {
             msg = tr("Application exited normally");
         }
+        // Only show the message. Ramp-down will be triggered by -thread-group-exited.
         showStatusMessage(msg);
-        notifyInferiorExited();
         return;
     }
 
     // Ignore signals from the process stub.
+    const GdbMi frame = data["frame"];
+    const QByteArray func = frame["from"].data();
     if (runParameters().useTerminal
             && data["reason"].data() == "signal-received"
             && data["signal-name"].data() == "SIGSTOP"
@@ -1675,11 +1678,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
 void GdbEngine::handleStop2()
 {
-    // We are already continuing.
-    if (!m_stackNeeded)
-        return;
-
-    // This is only available in gdb 7.1+.
     postCommand("-thread-info", Discardable, CB(handleThreadInfo));
 }
 
@@ -1814,7 +1812,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     // Gdb running on windows often delivers "fullnames" which
     // (a) have no drive letter and (b) are not normalized.
     if (Abi::hostAbi().os() == Abi::WindowsOS) {
-        QTC_ASSERT(!fileName.isEmpty(), return QString());
+        if (fileName.isEmpty())
+            return QString();
         QFileInfo fi(fileName);
         if (fi.isReadable())
             cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
@@ -1877,11 +1876,14 @@ void GdbEngine::shutdownInferior()
 
 void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorShutdownRequested);
     if (response.resultClass == ResultDone) {
-        notifyInferiorShutdownOk();
+        // We'll get async thread-group-exited responses to which we react.
+        // Nothing to do here.
+        // notifyInferiorShutdownOk();
         return;
     }
+    // "kill" got stuck, or similar.
+    CHECK_STATE(InferiorShutdownRequested);
     QByteArray ba = response.data["msg"].data();
     if (ba.contains(": No such file or directory.")) {
         // This happens when someone removed the binary behind our back.
@@ -1963,18 +1965,20 @@ void GdbEngine::handleDetach(const DebuggerResponse &response)
 
 void GdbEngine::handleThreadGroupCreated(const GdbMi &result)
 {
-    Q_UNUSED(result);
-//    QByteArray id = result["id"].data();
-//    QByteArray pid = result["pid"].data();
-//    Q_UNUSED(id);
-//    Q_UNUSED(pid);
+    QByteArray groupId = result["id"].data();
+    QByteArray pid = result["pid"].data();
+    threadsHandler()->notifyGroupCreated(groupId, pid);
 }
 
 void GdbEngine::handleThreadGroupExited(const GdbMi &result)
 {
-    Q_UNUSED(result);
-//    QByteArray id = result["id"].data();
-//    Q_UNUSED(id);
+    QByteArray groupId = result["id"].data();
+    if (threadsHandler()->notifyGroupExited(groupId)) {
+        if (m_rerunPending)
+            m_rerunPending = false;
+        else
+            notifyInferiorExited();
+    }
 }
 
 int GdbEngine::currentFrame() const
@@ -3527,7 +3531,7 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
         }
         rp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
         rp.isSnapshot = true;
-        createAndScheduleRun(rp);
+        createAndScheduleRun(rp, 0);
     } else {
         QByteArray msg = response.data["msg"].data();
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),
@@ -4218,7 +4222,7 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("python from gdbbridge import *", flags);
 
     const QString path = stringSetting(ExtraDumperFile);
-    if (!path.isEmpty()) {
+    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.toUtf8());
         runCommand(cmd);
@@ -4323,6 +4327,7 @@ void GdbEngine::resetInferior()
             }
         }
     }
+    m_rerunPending = true;
     requestInterruptInferior();
     runEngine();
 }
@@ -4661,6 +4666,8 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     m_pendingBreakpointRequests = 0;
 
+    watchHandler()->notifyUpdateStarted(params.partialVariables());
+
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);
 
@@ -4706,7 +4713,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("partialVariable", params.partialVariable);
     cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
     cmd.flags = Discardable;
-    cmd.callback = [this, params](const DebuggerResponse &r) { handleStackFrame(r); };
+    cmd.callback = [this](const DebuggerResponse &r) { handleStackFrame(r); };
     runCommand(cmd);
 
     cmd.arg("passExceptions", true);
@@ -4715,7 +4722,6 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
 void GdbEngine::handleStackFrame(const DebuggerResponse &response)
 {
-    watchHandler()->notifyUpdateFinished();
     if (response.resultClass == ResultDone) {
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
@@ -4734,6 +4740,7 @@ void GdbEngine::handleStackFrame(const DebuggerResponse &response)
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }
+    watchHandler()->notifyUpdateFinished();
 }
 
 QString GdbEngine::msgPtraceError(DebuggerStartMode sm)

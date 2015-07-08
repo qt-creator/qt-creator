@@ -49,21 +49,21 @@ class FileShareProtocol : public Protocol
 
 public:
     FileShareProtocol();
-    virtual ~FileShareProtocol();
+    ~FileShareProtocol() override;
 
-    virtual QString name() const;
-    virtual unsigned capabilities() const;
-    virtual bool hasSettings() const;
-    virtual Core::IOptionsPage *settingsPage() const;
+    QString name() const override;
+    unsigned capabilities() const override;
+    bool hasSettings() const override;
+    Core::IOptionsPage *settingsPage() const override;
 
-    virtual bool checkConfiguration(QString *errorMessage = 0);
-    virtual void fetch(const QString &id);
-    virtual void list();
-    virtual void paste(const QString &text,
-                       ContentType ct = Text, int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
+    bool checkConfiguration(QString *errorMessage = 0) override;
+    void fetch(const QString &id) override;
+    void list() override;
+    void paste(const QString &text,
+               ContentType ct = Text, int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
 
 private:
     const QSharedPointer<FileShareProtocolSettings> m_settings;

@@ -144,11 +144,11 @@ private:
     };
     LastKitState m_lastKitState;
 
-    bool m_shadowBuild;
-    bool m_isEnabled;
-    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
-    QmakeProjectManager::QmakeProFileNode *m_subNodeBuild;
-    ProjectExplorer::FileNode *m_fileNodeBuild;
+    bool m_shadowBuild = true;
+    bool m_isEnabled = false;
+    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration = 0;
+    QmakeProjectManager::QmakeProFileNode *m_subNodeBuild = nullptr;
+    ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
 
     friend class Internal::QmakeProjectConfigWidget;
     friend class QmakeBuildConfigurationFactory;

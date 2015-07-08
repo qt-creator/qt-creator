@@ -31,7 +31,7 @@
 #ifndef CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 #define CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 
-#include "clangcompletion.h"
+#include "clangcompletionassistprovider.h"
 
 #include <cpptools/cppmodelmanagersupport.h>
 
@@ -48,7 +48,6 @@ class ModelManagerSupportClang:
         public CppTools::ModelManagerSupport
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ModelManagerSupportClang)
 
 public:
     ModelManagerSupportClang();
@@ -58,10 +57,11 @@ public:
     CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
 
-    IpcCommunicator::Ptr ipcCommunicator();
+    IpcCommunicator &ipcCommunicator();
 
-public: // for tests
-    static ModelManagerSupportClang *instance();
+#ifdef QT_TESTLIB_LIB
+    static ModelManagerSupportClang *instance_forTestsOnly();
+#endif
 
 private:
     void onEditorOpened(Core::IEditor *editor);
@@ -75,8 +75,8 @@ private:
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectFiles);
 
-    IpcCommunicator::Ptr m_ipcCommunicator;
-    QScopedPointer<ClangCompletionAssistProvider> m_completionAssistProvider;
+    IpcCommunicator m_ipcCommunicator;
+    ClangCompletionAssistProvider m_completionAssistProvider;
     QPointer<Core::IEditor> m_previousCppEditor;
 };
 

@@ -39,21 +39,19 @@ class PasteBinDotComProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    PasteBinDotComProtocol();
-
     static QString protocolName();
     QString name() const { return protocolName(); }
 
-    virtual unsigned capabilities() const;
+    unsigned capabilities() const override;
 
-    virtual void fetch(const QString &id);
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
-    virtual void list();
+    void fetch(const QString &id);
+    void paste(const QString &text,
+               ContentType ct = Text,
+               int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
+    void list() override;
 
 public slots:
     void fetchFinished();
@@ -61,13 +59,13 @@ public slots:
     void listFinished();
 
 private:
-    QNetworkReply *m_fetchReply;
-    QNetworkReply *m_pasteReply;
-    QNetworkReply *m_listReply;
+    QNetworkReply *m_fetchReply = nullptr;
+    QNetworkReply *m_pasteReply = nullptr;
+    QNetworkReply *m_listReply = nullptr;
 
     QString m_fetchId;
-    int m_postId;
-    bool m_hostChecked;
+    int m_postId = -1;
+    bool m_hostChecked = false;
 };
 } // namespace CodePaster
 #endif // PASTEBINDOTCOMPROTOCOL_H

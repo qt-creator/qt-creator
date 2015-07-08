@@ -86,8 +86,7 @@
     \brief The FeatureSet class is a set of available or required feature sets.
 
     This class behaves similarly to QFlags. However, instead of enums, Features
-    relies on string ids
-    and is therefore extendable.
+    relies on string ids and is therefore extendable.
 
     \sa Core::Feature
     \sa Core::IWizard
@@ -106,3 +105,39 @@
 
     Returns true if all \a features are available.
 */
+
+Core::Feature Core::Feature::versionedFeature(const QByteArray &prefix, int major, int minor)
+{
+    if (major < 0)
+        return Feature::fromName(prefix);
+
+    QByteArray result = prefix + '.';
+    result += QString::number(major).toLatin1();
+
+    if (minor < 0)
+        return Feature::fromName(result);
+    return Feature::fromName(result + '.' + QString::number(minor).toLatin1());
+}
+
+Core::FeatureSet Core::FeatureSet::versionedFeatures(const QByteArray &prefix, int major, int minor)
+{
+    FeatureSet result;
+    result |= Feature::fromName(prefix);
+
+    if (major < 0)
+        return result;
+
+    const QByteArray majorStr = QString::number(major).toLatin1();
+    const QByteArray featureMajor = prefix + majorStr;
+    const QByteArray featureDotMajor = prefix + '.' + majorStr;
+
+    result |= Feature::fromName(featureMajor) | Feature::fromName(featureDotMajor);
+
+    for (int i = 0; i <= minor; ++i) {
+        const QByteArray minorStr = QString::number(i).toLatin1();
+        result |= Feature::fromName(featureMajor + '.' + minorStr)
+                | Feature::fromName(featureDotMajor + '.' + minorStr);
+    }
+
+    return result;
+}

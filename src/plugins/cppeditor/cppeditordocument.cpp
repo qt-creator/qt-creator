@@ -130,11 +130,11 @@ TextEditor::CompletionAssistProvider *CppEditorDocument::completionAssistProvide
     return m_completionAssistProvider;
 }
 
-void CppEditorDocument::semanticRehighlight()
+void CppEditorDocument::recalculateSemanticInfoDetached()
 {
     CppTools::BaseEditorDocumentProcessor *p = processor();
     QTC_ASSERT(p, return);
-    p->semanticRehighlight(true);
+    p->recalculateSemanticInfoDetached(true);
 }
 
 CppTools::SemanticInfo CppEditorDocument::recalculateSemanticInfo()
@@ -169,6 +169,8 @@ void CppEditorDocument::applyFontSettings()
         }
     }
     TextDocument::applyFontSettings(); // rehighlights and updates additional formats
+    if (m_processor)
+        m_processor->semanticRehighlight();
 }
 
 void CppEditorDocument::invalidateFormatterCache()

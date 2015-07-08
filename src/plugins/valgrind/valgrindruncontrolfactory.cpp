@@ -31,6 +31,8 @@
 #include "valgrindruncontrolfactory.h"
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
+#include "callgrindtool.h"
+#include "memchecktool.h"
 
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
@@ -62,13 +64,13 @@ ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
 {
 }
 
-bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
     Q_UNUSED(runConfiguration);
-    return mode == CallgrindRunMode || mode == MemcheckRunMode || mode == MemcheckWithGdbRunMode;
+    return mode == CALLGRIND_RUN_MODE || mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
 }
 
-RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
 
@@ -94,11 +96,9 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         }
         sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
-        sp.startMode = StartLocal;
         sp.localRunMode = static_cast<ApplicationLauncher::Mode>(rc1->runMode());
     } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.startMode = StartRemote;
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
         sp.debuggeeArgs = rc2->arguments().join(QLatin1Char(' '));

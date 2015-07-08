@@ -207,10 +207,10 @@ MainWindow::MainWindow() :
 
     statusBar()->setProperty("p_styled", true);
 
-    auto dropSupport = new FileDropSupport(this, [](QDropEvent *event) {
+    auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
         return event->source() == 0; // only accept drops from the "outside" (e.g. file manager)
     });
-    connect(dropSupport, &FileDropSupport::filesDropped,
+    connect(dropSupport, &DropSupport::filesDropped,
             this, &MainWindow::openDroppedFiles);
 }
 
@@ -371,11 +371,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::openDroppedFiles(const QList<FileDropSupport::FileSpec> &files)
+void MainWindow::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     raiseWindow();
     QStringList filePaths = Utils::transform(files,
-                                             [](const FileDropSupport::FileSpec &spec) -> QString {
+                                             [](const DropSupport::FileSpec &spec) -> QString {
                                                  return spec.filePath;
                                              });
     openFiles(filePaths, ICore::SwitchMode);
@@ -453,6 +453,7 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_HELP);
     ac->appendGroup(Constants::G_HELP_SUPPORT);
     ac->appendGroup(Constants::G_HELP_ABOUT);
+    ac->appendGroup(Constants::G_HELP_UPDATES);
 }
 
 void MainWindow::registerDefaultActions()

@@ -30,6 +30,7 @@
 
 #include "callgrindengine.h"
 
+#include "callgrindtool.h"
 #include "valgrindsettings.h"
 
 #include <valgrind/callgrind/callgrindcontroller.h>
@@ -58,7 +59,7 @@ CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
 
 void CallgrindRunControl::showStatusMessage(const QString &msg)
 {
-    AnalyzerManager::showStatusMessage(msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, msg);
 }
 
 QStringList CallgrindRunControl::toolArguments() const

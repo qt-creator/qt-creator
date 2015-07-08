@@ -36,12 +36,11 @@ import QtQuick.Controls.Styles 1.2
 
 ToolBar {
     id: buttons
-    readonly property int buttonWidth: 25
+    readonly property int buttonWidth: 30
 
     signal jumpToPrev()
     signal jumpToNext()
     signal zoomControlChanged()
-    signal filterMenuChanged()
     signal rangeSelectChanged()
     signal lockChanged()
 
@@ -111,18 +110,6 @@ ToolBar {
             checkable: true
             checked: false
             onCheckedChanged: buttons.zoomControlChanged()
-        }
-
-        ToolButton {
-            id: filterButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            implicitWidth: buttonWidth
-
-            iconSource: "qrc:/timeline/ico_filter.png"
-            tooltip: qsTr("Filter Categories")
-            checkable: true
-            onCheckedChanged: buttons.filterMenuChanged()
         }
 
         ToolButton {

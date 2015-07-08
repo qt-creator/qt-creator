@@ -32,18 +32,18 @@
 
     \title Deploying Applications to QNX Neutrino Devices
 
-    You can deploy applications to QNX Neutrino devices in the way that is described
-    in \l{Deploying Applications to Embedded Linux Devices}.
+    You can deploy applications to QNX Neutrino devices in the way that is
+    described in \l{Deploying Applications to Embedded Linux Devices}.
 
     \image qtcreator-qnx-deployment.png "Deploy to device"
 
     The files to be installed are listed in the \uicontrol {Deployment} step,
-    the \uicontrol {Files to install for subproject} field. The \uicontrol {Local File Path}
-    field displays the location of the file on the development PC. The
-    \uicontrol {Remote Directory} field displays the folder where the file is
-    installed on the device. Text in red color indicates that the information is
-    missing. Edit the qmake \l{Variables#installs}
-    {INSTALLS variable} in the project .pro file to add the missing files.
+    the \uicontrol {Files to install for subproject} field. The
+    \uicontrol {Local File Path} field displays the location of the file on the
+    development PC. The \uicontrol {Remote Directory} field displays the folder
+    where the file is installed on the device. Text in red color indicates that
+    the information is missing. Edit the qmake \l{Variables#installs}
+    {INSTALLS variable} in the project \c .pro file to add the missing files.
 
     When you run the application, \QC copies the necessary files to the device
     and starts the application on it.

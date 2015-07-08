@@ -40,6 +40,9 @@ const char CallgrindToolId[] = "Callgrind";
 const char CallgrindLocalActionId[] = "Callgrind.Local";
 const char CallgrindRemoteActionId[] = "Callgrind.Remote";
 
+class ValgrindRunControl;
+const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";
+
 class CallgrindToolPrivate;
 
 class CallgrindTool : public QObject
@@ -50,12 +53,9 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+    ValgrindRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
-
-    void startLocalTool();
-    void startRemoteTool();
 
 public slots:
     void handleShowCostsOfFunction();

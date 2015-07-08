@@ -166,6 +166,7 @@ private slots:
     void pointer_to_function_1();
 
     void template_instance_1();
+    void explicit_instantiation_1();
 
     void expression_under_cursor_1();
 
@@ -521,6 +522,25 @@ void tst_Semantic::template_instance_1()
     Declaration *clonedDecl = clone->memberAt(0)->asDeclaration();
     const QString genDecl = oo.prettyType(clonedDecl->type());
     QCOMPARE(genDecl, QString::fromLatin1("void (const int &)"));
+}
+
+void tst_Semantic::explicit_instantiation_1()
+{
+    QSharedPointer<Document> doc = document("template class basic_string<char>;");
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+
+    ExplicitInstantiation *inst = doc->globals->memberAt(0)->asExplicitInstantiation();
+    QVERIFY(inst);
+
+    ForwardClassDeclaration *fwd = inst->memberAt(0)->asForwardClassDeclaration();
+    QVERIFY(fwd);
+
+    QVERIFY(inst->name()->match(fwd->name()));
+
+    Overview oo;
+    const QString name = oo.prettyName(inst->name());
+    QCOMPARE(name, QString::fromLatin1("basic_string<char>"));
 }
 
 void tst_Semantic::expression_under_cursor_1()

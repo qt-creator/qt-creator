@@ -131,7 +131,8 @@ WatchData::WatchData() :
     elided(0),
     wantsChildren(false),
     valueEnabled(true),
-    valueEditable(true)
+    valueEditable(true),
+    outdated(false)
 {
 }
 
@@ -250,19 +251,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
             setHasChildren(true); // FIXME: bold assumption
             break;
         }
-    }
-}
-
-void WatchData::setHexAddress(const QByteArray &a)
-{
-    bool ok;
-    const qint64 av = a.toULongLong(&ok, 0);
-    if (ok) {
-        address = av;
-    } else {
-        qWarning("WatchData::setHexAddress(): Failed to parse address value '%s' for '%s', '%s'",
-                 a.constData(), iname.constData(), type.constData());
-        address = 0;
     }
 }
 

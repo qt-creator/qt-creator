@@ -339,7 +339,7 @@ bool SharedMemory::initKeyInternal()
         return false;
     }
 
-    m_errorString = QString();
+    m_errorString.clear();
     m_error = QSharedMemory::NoError;
     return true;
 }

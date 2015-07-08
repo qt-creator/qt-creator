@@ -34,7 +34,7 @@
 #include "classviewutils.h"
 
 #include <cplusplus/Icons.h>
-#include <utils/fileutils.h>
+#include <utils/dropsupport.h>
 
 namespace ClassView {
 namespace Internal {
@@ -141,12 +141,12 @@ Qt::DropActions TreeItemModel::supportedDragActions() const
 
 QStringList TreeItemModel::mimeTypes() const
 {
-    return ::Utils::FileDropSupport::mimeTypesForFilePaths();
+    return ::Utils::DropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
 {
-    auto mimeData = new ::Utils::FileDropMimeData;
+    auto mimeData = new ::Utils::DropMimeData;
     mimeData->setOverrideFileDropAction(Qt::CopyAction);
     foreach (const QModelIndex &index, indexes) {
         const QSet<SymbolLocation> locations = Utils::roleToLocations(

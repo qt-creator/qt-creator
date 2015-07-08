@@ -32,7 +32,6 @@
 
 #include "sqlitewritestatement.h"
 
-
 SqliteAbstractTransaction::~SqliteAbstractTransaction()
 {
     if (!isAlreadyCommited)

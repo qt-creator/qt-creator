@@ -94,6 +94,7 @@ using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
+const Core::Id MemcheckToolId = "Memcheck";
 
 // ---------------------------- MemcheckErrorFilterProxyModel
 MemcheckErrorFilterProxyModel::MemcheckErrorFilterProxyModel(QObject *parent)
@@ -299,11 +300,11 @@ public:
         //find the first frame belonging to the project
         if (!m_projectFiles.isEmpty()) {
             foreach (const Frame &frame, frames) {
-                if (frame.directory().isEmpty() || frame.file().isEmpty())
+                if (frame.directory().isEmpty() || frame.fileName().isEmpty())
                     continue;
 
                 //filepaths can contain "..", clean them:
-                const QString f = QFileInfo(frame.directory() + QLatin1Char('/') + frame.file()).absoluteFilePath();
+                const QString f = QFileInfo(frame.filePath()).absoluteFilePath();
                 if (m_projectFiles.contains(f))
                     return frame;
             }
@@ -355,7 +356,7 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    QDockWidget *errorDock = AnalyzerManager::createDockWidget("Memcheck", m_errorView);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget(MemcheckToolId, m_errorView);
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
@@ -427,7 +428,7 @@ QWidget *MemcheckTool::createWidgets()
     return widget;
 }
 
-AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
+MemcheckRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
                                             RunConfiguration *runConfiguration)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
@@ -575,7 +576,7 @@ MemcheckRunControl *MemcheckTool::createMemcheckRunControl(const AnalyzerStartPa
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showStatusMessage(issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
         ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
 }
@@ -583,7 +584,7 @@ void MemcheckTool::engineFinished()
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showStatusMessage(issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
         ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Log file processed, no issues were found."));
 }
@@ -594,40 +595,10 @@ void MemcheckTool::setBusyCursor(bool busy)
     m_errorView->setCursor(cursor);
 }
 
-void MemcheckTool::startLocalTool()
-{
-    if (checkForLocalStart(DebugMode))
-        ProjectExplorerPlugin::runStartupProject(MemcheckRunMode);
-}
-
-void MemcheckTool::startRemoteTool()
-{
-    AnalyzerStartParameters sp;
-    if (checkForRemoteStart(&sp)) {
-        AnalyzerRunControl *rc = createRunControl(sp, 0);
-        ProjectExplorerPlugin::startRunControl(rc, MemcheckRunMode);
-    }
-}
-
 MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
     MemcheckTool(parent)
 {
     setObjectName(QLatin1String("MemcheckWithGdbTool"));
-}
-
-void MemcheckWithGdbTool::startLocalTool()
-{
-    if (checkForLocalStart(DebugMode))
-        ProjectExplorerPlugin::runStartupProject(MemcheckWithGdbRunMode);
-}
-
-void MemcheckWithGdbTool::startRemoteTool()
-{
-    AnalyzerStartParameters sp;
-    if (checkForRemoteStart(&sp)) {
-        AnalyzerRunControl *rc = createRunControl(sp, 0);
-        ProjectExplorerPlugin::startRunControl(rc, MemcheckWithGdbRunMode);
-    }
 }
 
 MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,

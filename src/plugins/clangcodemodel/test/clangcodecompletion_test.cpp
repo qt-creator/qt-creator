@@ -30,10 +30,10 @@
 
 #include "clangcodecompletion_test.h"
 
-#include "../codemodelbackendipcintegration.h"
+#include "../clangbackendipcintegration.h"
+#include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
 
-#include <clangcodemodel/clangcompletion.h>
 #include <clangcodemodel/constants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -45,6 +45,7 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -52,19 +53,19 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <codemodelbackendipc/cmbcompletecodecommand.h>
-#include <codemodelbackendipc/cmbendcommand.h>
-#include <codemodelbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
-#include <codemodelbackendipc/cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <codemodelbackendipc/cmbunregisterprojectsforcodecompletioncommand.h>
-#include <codemodelbackendipc/cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbcompletecodecommand.h>
+#include <clangbackendipc/cmbendcommand.h>
+#include <clangbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbregistertranslationunitsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbunregisterprojectsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletioncommand.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QtTest>
 
-using namespace CodeModelBackEnd;
+using namespace ClangBackEnd;
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
@@ -241,13 +242,14 @@ class ChangeIpcSender
 public:
     ChangeIpcSender(IpcSenderInterface *ipcSender)
     {
-        m_previousSender = ModelManagerSupportClang::instance()->ipcCommunicator()
-                                ->setIpcSender(ipcSender);
+        auto &ipc = ModelManagerSupportClang::instance_forTestsOnly()->ipcCommunicator();
+        m_previousSender = ipc.setIpcSender(ipcSender);
     }
 
     ~ChangeIpcSender()
     {
-        ModelManagerSupportClang::instance()->ipcCommunicator()->setIpcSender(m_previousSender);
+        auto &ipc = ModelManagerSupportClang::instance_forTestsOnly()->ipcCommunicator();
+        ipc.setIpcSender(m_previousSender);
     }
 
 private:
@@ -941,9 +943,9 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     spy.senderLog.clear();
 
     // Kill backend process...
-    IpcCommunicator::Ptr ipcCommunicator = ModelManagerSupportClang::instance()->ipcCommunicator();
-    ipcCommunicator->killBackendProcess();
-    QSignalSpy waitForReinitializedBackend(ipcCommunicator.data(),
+    auto &ipcCommunicator = ModelManagerSupportClang::instance_forTestsOnly()->ipcCommunicator();
+    ipcCommunicator.killBackendProcess();
+    QSignalSpy waitForReinitializedBackend(&ipcCommunicator,
                                            SIGNAL(backendReinitialized()));
     QVERIFY(waitForReinitializedBackend.wait());
 

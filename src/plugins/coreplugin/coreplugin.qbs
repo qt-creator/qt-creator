@@ -223,6 +223,8 @@ QtcPlugin {
             "findtoolwindow.cpp",
             "findtoolwindow.h",
             "findwidget.ui",
+            "highlightscrollbar.cpp",
+            "highlightscrollbar.h",
             "ifindfilter.cpp",
             "ifindfilter.h",
             "ifindsupport.cpp",

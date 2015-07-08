@@ -41,12 +41,14 @@ public:
         ,  inProgressRanges(0)
         , maximumTime(0)
         , recording(false)
-        , features(0)
+        , requestedFeatures(0)
+        , recordedFeatures(0)
     {
         ::memset(rangeCount, 0, MaximumRangeType * sizeof(int));
     }
 
     void sendRecordingStatus(int engineId);
+    bool updateFeatures(QmlDebug::ProfileFeature feature);
 
     QmlProfilerTraceClient *q;
     QmlEngineControlClient engineControl;
@@ -58,7 +60,8 @@ public:
     int rangeCount[MaximumRangeType];
     qint64 maximumTime;
     bool recording;
-    quint64 features;
+    quint64 requestedFeatures;
+    quint64 recordedFeatures;
 };
 
 } // namespace QmlDebug
@@ -73,7 +76,7 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording)
-        stream << features;
+        stream << requestedFeatures;
     q->sendMessage(ba);
 }
 
@@ -81,7 +84,7 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
     , d(new QmlProfilerTraceClientPrivate(this, client))
 {
-    d->features = features;
+    d->requestedFeatures = features;
     connect(&d->engineControl, SIGNAL(engineAboutToBeAdded(int,QString)),
             this, SLOT(sendRecordingStatus(int)));
 }
@@ -104,6 +107,10 @@ void QmlProfilerTraceClient::clearData()
         d->rangeStartTimes[eventType].clear();
     }
     d->bindingTypes.clear();
+    if (d->recordedFeatures != 0) {
+        d->recordedFeatures = 0;
+        emit recordedFeaturesChanged(0);
+    }
     emit cleared();
 }
 
@@ -135,9 +142,14 @@ void QmlProfilerTraceClient::setRecording(bool v)
     emit recordingChanged(v);
 }
 
-void QmlProfilerTraceClient::setFeatures(quint64 features)
+quint64 QmlProfilerTraceClient::recordedFeatures() const
 {
-    d->features = features;
+    return d->recordedFeatures;
+}
+
+void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
+{
+    d->requestedFeatures = features;
 }
 
 void QmlProfilerTraceClient::setRecordingFromServer(bool v)
@@ -146,6 +158,18 @@ void QmlProfilerTraceClient::setRecordingFromServer(bool v)
         return;
     d->recording = v;
     emit recordingChanged(v);
+}
+
+bool QmlProfilerTraceClientPrivate::updateFeatures(ProfileFeature feature)
+{
+    quint64 flag = 1ULL << feature;
+    if (!(requestedFeatures & flag))
+        return false;
+    if (!(recordedFeatures & flag)) {
+        recordedFeatures |= flag;
+        emit q->recordedFeaturesChanged(recordedFeatures);
+    }
+    return true;
 }
 
 void QmlProfilerTraceClient::stateChanged(State /*status*/)
@@ -200,7 +224,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             break;
         }
         case AnimationFrame: {
-            if (!(d->features & (1 << ProfileAnimations)))
+            if (!d->updateFeatures(ProfileAnimations))
                 break;
             int frameRate, animationCount;
             int threadId;
@@ -218,7 +242,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         }
         case Key:
         case Mouse:
-            if (!(d->features & (1 << ProfileInputEvents)))
+            if (!d->updateFeatures(ProfileInputEvents))
                 break;
 
             emit this->rangedEvent(Event, MaximumRangeType, subtype, time, 0, QString(),
@@ -233,7 +257,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         emit complete(d->maximumTime);
         break;
     case SceneGraphFrame: {
-        if (!(d->features & (1 << ProfileSceneGraph)))
+        if (!d->updateFeatures(ProfileSceneGraph))
             break;
 
         int count = 0;
@@ -250,7 +274,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case PixmapCacheEvent: {
-        if (!(d->features & (1 << ProfilePixmapCache)))
+        if (!d->updateFeatures(ProfilePixmapCache))
             break;
         int width = 0, height = 0, refcount = 0;
         QString pixUrl;
@@ -268,7 +292,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case MemoryAllocation: {
-        if (!(d->features & (1 << ProfileMemory)))
+        if (!d->updateFeatures(ProfileMemory))
             break;
 
         qint64 delta;
@@ -279,7 +303,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeStart: {
-        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
             break;
         d->rangeStartTimes[subtype].push(time);
         d->inProgressRanges |= (static_cast<qint64>(1) << subtype);
@@ -295,7 +319,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeData: {
-        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
             break;
         QString data;
         stream >> data;
@@ -309,7 +333,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeLocation: {
-        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
             break;
         QString fileName;
         int line;
@@ -324,7 +348,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeEnd: {
-        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
             break;
         if (d->rangeCount[subtype] == 0)
             break;

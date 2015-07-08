@@ -61,7 +61,7 @@ def verifyCloneLog(targetDir, canceled):
         if canceled:
             test.warning("Could not find resultLabel",
                          "Cloning might have failed before clicking 'Cancel'")
-            return object.exists(":Git Repository Clone_Git::Internal::CloneWizard")
+            return object.exists(":New Text File_ProjectExplorer::JsonWizard")
         else:
             test.fail("Could not find resultLabel")
     return True
@@ -93,19 +93,19 @@ def main():
     for button in ["Cancel immediately",
                    ":Git Repository Clone.Cancel_QPushButton",
                    ":Git Repository Clone.Finish_QPushButton"]:
-        __createProjectOrFileSelectType__("  Import Project", "Git Repository Clone")
-        replaceEditorContent(waitForObject(":Repository.repositoryLineEdit_QLineEdit"),
+        __createProjectOrFileSelectType__("  Import Project", "Git Clone")
+        replaceEditorContent(waitForObject("{name='Repo' type='QLineEdit' visible='1'}"),
                              cloneUrl)
         targetDir = tempDir()
         replaceEditorContent(waitForObject(":Working Copy_Utils::BaseValidatingLineEdit"),
                              targetDir)
-        cloneDirEdit = waitForObject(":Working Copy.checkoutDirectoryLineEdit_QLineEdit")
+        cloneDirEdit = waitForObject("{name='Dir' type='QLineEdit' visible='1'}")
         test.compare(cloneDirEdit.text, "jom")
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
         cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit", 1000)
         test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text,
-                     "Cloning started...")
+                     "Running Git clone...")
         if button == "Cancel immediately":
             # wait for cloning to have started
             waitFor('len(str(cloneLog.plainText)) > 20 + len(cloneDir)')

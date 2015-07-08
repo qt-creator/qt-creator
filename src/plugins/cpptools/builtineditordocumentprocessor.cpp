@@ -176,10 +176,18 @@ CPlusPlus::Snapshot BuiltinEditorDocumentProcessor::snapshot()
     return m_parser.snapshot();
 }
 
-void BuiltinEditorDocumentProcessor::semanticRehighlight(bool force)
+void BuiltinEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 {
     const auto source = createSemanticInfoSource(force);
     m_semanticInfoUpdater.updateDetached(source);
+}
+
+void BuiltinEditorDocumentProcessor::semanticRehighlight()
+{
+    if (m_semanticHighlighter && m_semanticInfoUpdater.semanticInfo().doc) {
+        m_semanticHighlighter->updateFormatMapFromFontSettings();
+        m_semanticHighlighter->run();
+    }
 }
 
 SemanticInfo BuiltinEditorDocumentProcessor::recalculateSemanticInfo()

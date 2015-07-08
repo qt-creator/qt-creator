@@ -49,7 +49,6 @@ public:
     enum { IdsPerPlugin = 10000, ReservedPlugins = 1000 };
 
     Id() : m_id(0) {}
-    Id(int uid) : m_id(uid) {}
     Id(const char *name);
 
     Id withSuffix(int suffix) const;
@@ -74,11 +73,13 @@ public:
     static Id fromString(const QString &str); // FIXME: avoid.
     static Id fromName(const QByteArray &ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
-    static void registerId(int uid, const char *name);
 
 private:
     // Intentionally unimplemented
     Id(const QLatin1String &);
+    // Force explicit use of fromUniqueIdentifier().
+    explicit Id(int uid) : m_id(uid) {}
+
     int m_id;
 };
 
@@ -92,6 +93,7 @@ Q_DECLARE_METATYPE(QList<Core::Id>)
 QT_BEGIN_NAMESPACE
 QDataStream &operator<<(QDataStream &ds, Core::Id id);
 QDataStream &operator>>(QDataStream &ds, Core::Id &id);
+CORE_EXPORT QDebug operator<<(QDebug dbg, const Core::Id &id);
 QT_END_NAMESPACE
 
 #endif // CORE_ID_H

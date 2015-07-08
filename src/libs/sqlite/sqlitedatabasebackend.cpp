@@ -30,18 +30,18 @@
 
 #include "sqlitedatabasebackend.h"
 
-#include <QThread>
-#include <QtDebug>
+#include "sqliteexception.h"
+#include "sqlitereadstatement.h"
+#include "sqlitereadwritestatement.h"
+#include "sqlitestatement.h"
+#include "sqlitewritestatement.h"
 
-#include "sqlite3.h"
+#include <QThread>
+#include <QDebug>
 
 #include "okapi_bm25.h"
 
-#include "sqliteexception.h"
-#include "sqlitestatement.h"
-#include "sqlitereadstatement.h"
-#include "sqlitewritestatement.h"
-#include "sqlitereadwritestatement.h"
+#include "sqlite3.h"
 
 #if defined(Q_OS_UNIX)
 #define QTC_THREAD_LOCAL __thread

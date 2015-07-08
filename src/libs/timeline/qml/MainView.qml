@@ -170,7 +170,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.bottom: overview.top
         windowStart: zoomControl.windowStart
-        rangeDuration: Math.max(1, Math.round(zoomControl.rangeDuration))
+        rangeDuration: zoomControl.rangeDuration
         contentX: content.contentX
         clip: true
     }
@@ -183,7 +183,6 @@ Rectangle {
         width: 150
         height: 24
         onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
-        onFilterMenuChanged: filterMenu.visible = !filterMenu.visible
         onJumpToNext: {
             var next = timelineModelAggregator.nextItem(root.selectedModel, root.selectedItem,
                                                       zoomControl.rangeStart);
@@ -368,48 +367,6 @@ Rectangle {
         anchors.top: parent.top
         width: 1
         color: "#B0B0B0"
-    }
-
-    Rectangle {
-        id: filterMenu
-        color: "#9b9b9b"
-        enabled: buttonsBar.enabled
-        visible: false
-        width: buttonsBar.width
-        anchors.left: parent.left
-        anchors.top: buttonsBar.bottom
-        height: timelineModelAggregator.models.length * buttonsBar.height
-
-        Repeater {
-            id: filterMenuInner
-            model: timelineModelAggregator.models
-            CheckBox {
-                anchors.left: filterMenu.left
-                anchors.right: filterMenu.right
-                height: buttonsBar.height
-                y: index * height
-                enabled: !modelData.empty
-                checked: true
-                onCheckedChanged: modelData.hidden = !checked
-
-                style: CheckBoxStyle {
-                    label: Text {
-                        width: filterMenu.width - implicitHeight * 1.5
-                        color: control.enabled ? "black" : "#808080"
-                        text: modelData.displayName
-                        textFormat: Text.PlainText
-                        elide: Text.ElideRight
-                        renderType: Text.NativeRendering
-                    }
-                }
-
-                Connections {
-                    target: modelData
-                    onEmptyChanged: checked = true
-                }
-            }
-        }
-
     }
 
     Rectangle {

@@ -89,7 +89,6 @@ public:
     virtual void shutdownEngine();
     virtual void abortDebugger();
     virtual void detachDebugger();
-    virtual void updateWatchItem(WatchItem *item);
     virtual bool hasCapability(unsigned cap) const;
     virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(const QByteArray &name, const QString &value);
@@ -235,8 +234,7 @@ private:
     // Extension commands
     void handleThreads(const CdbResponse &response);
     void handlePid(const CdbResponse &response);
-    void handleLocals(const CdbResponse &response, bool newFrame);
-    void handleAddWatch(const CdbResponse &response, WatchData item);
+    void handleLocals(const CdbResponse &response, bool partialUpdate);
     void handleExpandLocals(const CdbResponse &response);
     void handleRegistersExt(const CdbResponse &response);
     void handleModules(const CdbResponse &response);
@@ -246,11 +244,9 @@ private:
     void handleBreakPoints(const GdbMi &value);
     void handleAdditionalQmlStack(const CdbResponse &response);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
-    void updateLocalVariable(const QByteArray &iname);
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
     int elapsedLogTime() const;
-    void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
     void mergeStartParametersSourcePathMap();
 

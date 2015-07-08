@@ -411,9 +411,14 @@ void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
 void ProjectWizardPage::initializeVersionControls()
 {
     // Figure out version control situation:
+    // 0) Check that any version control is available
     // 1) Directory is managed and VCS supports "Add" -> List it
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
+
+    QList<IVersionControl *> versionControls = VcsManager::versionControls();
+    if (versionControls.isEmpty())
+        hideVersionControlUiElements();
 
     IVersionControl *currentSelection = 0;
     int currentIdx = versionControlIndex() - 1;
@@ -535,7 +540,10 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 
 void ProjectWizardPage::setFiles(const QStringList &fileNames)
 {
-    m_commonDirectory = Utils::commonPath(fileNames);
+    if (fileNames.count() == 1)
+        m_commonDirectory = QFileInfo(fileNames.first()).absolutePath();
+    else
+        m_commonDirectory = Utils::commonPath(fileNames);
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
@@ -587,6 +595,19 @@ void ProjectWizardPage::projectChanged(int index)
 void ProjectWizardPage::manageVcs()
 {
     ICore::showOptionsDialog(VcsBase::Constants::VCS_COMMON_SETTINGS_ID, this);
+}
+
+void ProjectWizardPage::hideVersionControlUiElements()
+{
+    m_ui->addToVersionControlLabel->hide();
+    m_ui->vcsManageButton->hide();
+    m_ui->addToVersionControlComboBox->hide();
+}
+
+void ProjectWizardPage::setProjectUiVisible(bool visible)
+{
+    m_ui->projectLabel->setVisible(visible);
+    m_ui->projectComboBox->setVisible(visible);
 }
 
 } // namespace Internal

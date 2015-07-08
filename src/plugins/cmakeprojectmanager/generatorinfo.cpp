@@ -72,7 +72,8 @@ QByteArray GeneratorInfo::generator() const
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor) {
             return "NMake Makefiles";
         } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             if (Utils::HostOsInfo::isWindowsHost())
@@ -105,7 +106,8 @@ QString GeneratorInfo::displayName() const
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor) {
             return tr("NMake Generator (%1)").arg(m_kit->displayName());
         } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             if (Utils::HostOsInfo::isWindowsHost())
@@ -139,7 +141,8 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor) {
                 if (hasCodeBlocks)
                     results << GeneratorInfo(k);
             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {

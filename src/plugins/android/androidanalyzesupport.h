@@ -51,7 +51,7 @@ public:
         Analyzer::AnalyzerRunControl *runControl);
 
     static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                                ProjectExplorer::RunMode runMode);
+                                                                Core::Id runMode);
 
 private:
     QmlDebug::QmlOutputParser m_outputParser;

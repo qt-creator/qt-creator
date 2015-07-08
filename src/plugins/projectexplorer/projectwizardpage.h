@@ -85,10 +85,12 @@ signals:
 
 public slots:
     void initializeVersionControls();
+    void setProjectUiVisible(bool visible);
 
 private slots:
     void projectChanged(int);
     void manageVcs();
+    void hideVersionControlUiElements();
 
 private:
     void setAdditionalInfo(const QString &text);

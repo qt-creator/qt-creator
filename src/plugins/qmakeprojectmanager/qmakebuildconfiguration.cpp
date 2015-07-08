@@ -106,12 +106,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target)
 }
 
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id) :
-    BuildConfiguration(target, id),
-    m_shadowBuild(true),
-    m_isEnabled(false),
-    m_qmakeBuildConfiguration(0),
-    m_subNodeBuild(0),
-    m_fileNodeBuild(0)
+    BuildConfiguration(target, id)
 {
     ctor();
 }
@@ -119,10 +114,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id) :
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, QmakeBuildConfiguration *source) :
     BuildConfiguration(target, source),
     m_shadowBuild(source->m_shadowBuild),
-    m_isEnabled(false),
-    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration),
-    m_subNodeBuild(0), // temporary value, so not copied
-    m_fileNodeBuild(0)
+    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration)
 {
     cloneSteps(source);
     ctor();

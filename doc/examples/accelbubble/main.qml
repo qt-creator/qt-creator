@@ -35,8 +35,8 @@
 **
 **************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.1
+import QtQuick 2.5
+import QtQuick.Controls 1.4
 
 import QtSensors 5.0
 
@@ -46,6 +46,20 @@ ApplicationWindow {
     width: 640
     height: 480
     visible: true
+
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("File")
+            MenuItem {
+                text: qsTr("&Open")
+                onTriggered: console.log("Open action triggered");
+            }
+            MenuItem {
+                text: qsTr("Exit")
+                onTriggered: Qt.quit();
+            }
+        }
+    }
 
     Image {
         id: bubble
@@ -104,19 +118,5 @@ ApplicationWindow {
     }
     function calcRoll(x, y, z) {
         return -(Math.atan(x / Math.sqrt(y * y + z * z)) * 57.2957795);
-    }
-
-    menuBar: MenuBar {
-        Menu {
-            title: qsTr("File")
-            MenuItem {
-                text: qsTr("&Open")
-                onTriggered: console.log("Open action triggered");
-            }
-            MenuItem {
-                text: qsTr("Exit")
-                onTriggered: Qt.quit();
-            }
-        }
     }
 }

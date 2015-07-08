@@ -30,7 +30,7 @@
 
 #include "sqliteexception.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 SqliteException::SqliteException(const char *whatErrorHasHappen, const char *sqliteErrorMessage)
     : whatErrorHasHappen(whatErrorHasHappen),

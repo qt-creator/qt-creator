@@ -31,11 +31,11 @@
 #ifndef INTERNAL_CREATETABLECOMMAND_H
 #define INTERNAL_CREATETABLECOMMAND_H
 
+#include "columndefinition.h"
+#include "utf8string.h"
+
 #include <QMetaType>
 #include <QVector>
-
-#include "utf8string.h"
-#include "columndefinition.h"
 
 namespace Internal {
 

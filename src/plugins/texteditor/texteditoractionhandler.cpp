@@ -63,7 +63,7 @@ public:
                                    uint optionalActions);
 
     QAction *registerActionHelper(Core::Id id, bool scriptable, const QString &title,
-                            const QKeySequence &keySequence, const char *menueGroup,
+                            const QKeySequence &keySequence, Core::Id menueGroup,
                             Core::ActionContainer *container,
                             std::function<void(bool)> slot)
     {
@@ -72,7 +72,7 @@ public:
         if (!keySequence.isEmpty())
             command->setDefaultKeySequence(keySequence);
 
-        if (container && menueGroup)
+        if (container && menueGroup.isValid())
             container->addAction(command, menueGroup);
 
         connect(result, &QAction::triggered, slot);
@@ -84,7 +84,7 @@ public:
                             bool scriptable = false,
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
-                            const char *menueGroup = 0,
+                            Core::Id menueGroup = Core::Id(),
                             Core::ActionContainer *container = 0)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
@@ -96,7 +96,7 @@ public:
                             bool scriptable = false,
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
-                            const char *menueGroup = 0,
+                            Core::Id menueGroup = Core::Id(),
                             Core::ActionContainer *container = 0)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
@@ -108,7 +108,7 @@ public:
                             bool scriptable = false,
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
-                            const char *menueGroup = 0,
+                            Core::Id menueGroup = Core::Id(),
                             Core::ActionContainer *container = 0)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,

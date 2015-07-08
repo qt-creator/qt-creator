@@ -31,6 +31,8 @@
 #ifndef CPASTERPLUGIN_H
 #define CPASTERPLUGIN_H
 
+#include "codepasterservice.h"
+
 #include <extensionsystem/iplugin.h>
 
 #include <QStringList>
@@ -46,16 +48,17 @@ class CustomPoster;
 struct Settings;
 class Protocol;
 
-class CodePasterService : public QObject
+class CodePasterServiceImpl : public QObject, public CodePaster::Service
 {
     Q_OBJECT
+    Q_INTERFACES(CodePaster::Service)
 public:
-    explicit CodePasterService(QObject *parent = 0);
+    explicit CodePasterServiceImpl(QObject *parent = 0);
 
 public slots:
-    void postText(const QString &text, const QString &mimeType);
-    void postCurrentEditor();
-    void postClipboard();
+    void postText(const QString &text, const QString &mimeType) override;
+    void postCurrentEditor() override;
+    void postClipboard() override;
 };
 
 class CodepasterPlugin : public ExtensionSystem::IPlugin
@@ -71,11 +74,11 @@ public:
     Q_DECLARE_FLAGS(PasteSources, PasteSource)
 
     CodepasterPlugin();
-    ~CodepasterPlugin();
+    ~CodepasterPlugin() override;
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
-    virtual void extensionsInitialized();
-    virtual ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     static CodepasterPlugin *instance();
 
@@ -94,12 +97,12 @@ private:
 
     static CodepasterPlugin *m_instance;
     const QSharedPointer<Settings> m_settings;
-    QAction *m_postEditorAction;
-    QAction *m_fetchAction;
-    QAction *m_fetchUrlAction;
+    QAction *m_postEditorAction = nullptr;
+    QAction *m_fetchAction = nullptr;
+    QAction *m_fetchUrlAction = nullptr;
     QList<Protocol*> m_protocols;
     QStringList m_fetchedSnippets;
-    Protocol *m_urlOpen;
+    Protocol *m_urlOpen = nullptr;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CodepasterPlugin::PasteSources)

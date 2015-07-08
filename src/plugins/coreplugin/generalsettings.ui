@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>527</width>
-    <height>359</height>
+    <height>366</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -310,6 +310,49 @@
         </item>
        </layout>
       </item>
+      <item row="5" column="0" colspan="4">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QCheckBox" name="warnBeforeOpeningBigFiles">
+          <property name="text">
+           <string>Warn before opening text files greater than</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="bigFilesLimitSpinBox">
+          <property name="suffix">
+           <string>MB</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>500</number>
+          </property>
+          <property name="value">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -362,12 +405,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>161</x>
-     <y>262</y>
+     <x>181</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
-     <x>342</x>
-     <y>263</y>
+     <x>340</x>
+     <y>311</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>warnBeforeOpeningBigFiles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bigFilesLimitSpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>332</y>
     </hint>
    </hints>
   </connection>

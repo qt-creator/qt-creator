@@ -206,7 +206,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelOneShot->setBuddy(m_checkBoxOneShot);
 
     const QString pathToolTip =
-        tr("<html><head/><body><p>Determines how the path is specified "
+        tr("<p>Determines how the path is specified "
                 "when setting breakpoints:</p><ul>"
            "<li><i>Use Engine Default</i>: Preferred setting of the "
                 "debugger engine.</li>"
@@ -217,8 +217,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
                 "useful when using a source tree whose location does "
                 "not match the one used when building the modules. "
                 "It is the engine default for GDB as using full paths can "
-                "be slow with this engine.</li>"
-           "</ul></body></html>");
+                "be slow with this engine.</li></ul>");
     m_comboBoxPathUsage = new QComboBox(groupBoxAdvanced);
     m_comboBoxPathUsage->addItem(tr("Use Engine Default"));
     m_comboBoxPathUsage->addItem(tr("Use Full Path"));
@@ -229,8 +228,8 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelUseFullPath->setToolTip(pathToolTip);
 
     const QString moduleToolTip =
-        tr("Specifying the module (base name of the library or executable)\n"
-           "for function or file type breakpoints can significantly speed up\n"
+        tr("<p>Specifying the module (base name of the library or executable) "
+           "for function or file type breakpoints can significantly speed up "
            "debugger start-up times (CDB, LLDB).");
     m_lineEditModule = new QLineEdit(groupBoxAdvanced);
     m_lineEditModule->setToolTip(moduleToolTip);
@@ -239,7 +238,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelModule->setToolTip(moduleToolTip);
 
     const QString commandsToolTip =
-        tr("Debugger commands to be executed when the breakpoint is hit.\n"
+        tr("<p>Debugger commands to be executed when the breakpoint is hit. "
            "This feature is only available for GDB.");
     m_textEditCommands = new SmallTextEdit(groupBoxAdvanced);
     m_textEditCommands->setToolTip(commandsToolTip);

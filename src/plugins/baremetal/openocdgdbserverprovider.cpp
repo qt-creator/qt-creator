@@ -35,6 +35,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #include <coreplugin/variablechooser.h>
 
@@ -145,7 +146,7 @@ QStringList OpenOcdGdbServerProvider::arguments() const
         args << QLatin1String("-f") << m_configurationFile;
 
     if (!m_additionalArguments.isEmpty())
-        args << m_additionalArguments;
+        args << Utils::QtcProcess::splitArgs(m_additionalArguments);
 
     return args;
 }

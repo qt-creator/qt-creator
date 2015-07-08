@@ -213,8 +213,6 @@ void GdbServerStarter::attach(int port)
     }
 
     DebuggerRunParameters rp;
-    bool res = fillParametersFromKit(&rp, d->kit);
-    QTC_ASSERT(res, return);
     rp.masterEngineType = GdbEngineType;
     rp.connParams.port = port;
     rp.remoteChannel = rp.connParams.host + QLatin1Char(':') + QString::number(rp.connParams.port);
@@ -222,7 +220,7 @@ void GdbServerStarter::attach(int port)
     rp.executable = localExecutable;
     rp.startMode = AttachToRemoteServer;
     rp.closeMode = KillAtClose;
-    createAndScheduleRun(rp);
+    createAndScheduleRun(rp, d->kit);
 }
 
 void GdbServerStarter::handleProcessClosed(int status)

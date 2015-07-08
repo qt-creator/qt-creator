@@ -57,10 +57,16 @@ public:
         FuncPublicIconType,
         FuncProtectedIconType,
         FuncPrivateIconType,
+        FuncPublicStaticIconType,
+        FuncProtectedStaticIconType,
+        FuncPrivateStaticIconType,
         NamespaceIconType,
         VarPublicIconType,
         VarProtectedIconType,
         VarPrivateIconType,
+        VarPublicStaticIconType,
+        VarProtectedStaticIconType,
+        VarPrivateStaticIconType,
         SignalIconType,
         SlotPublicIconType,
         SlotProtectedIconType,
@@ -81,10 +87,16 @@ private:
     QIcon _funcPublicIcon;
     QIcon _funcProtectedIcon;
     QIcon _funcPrivateIcon;
+    QIcon _funcPublicStaticIcon;
+    QIcon _funcProtectedStaticIcon;
+    QIcon _funcPrivateStaticIcon;
     QIcon _namespaceIcon;
     QIcon _varPublicIcon;
     QIcon _varProtectedIcon;
     QIcon _varPrivateIcon;
+    QIcon _varPublicStaticIcon;
+    QIcon _varProtectedStaticIcon;
+    QIcon _varPrivateStaticIcon;
     QIcon _signalIcon;
     QIcon _slotPublicIcon;
     QIcon _slotProtectedIcon;

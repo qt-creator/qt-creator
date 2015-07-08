@@ -294,23 +294,51 @@ QString TemporaryDir::createFile(const QByteArray &relativePath, const QByteArra
     return filePath;
 }
 
+static bool copyRecursively(const QString &sourceDirPath,
+                            const QString &targetDirPath,
+                            QString *error)
+{
+    auto copyHelper = [](QFileInfo sourceInfo, QFileInfo targetInfo, QString *error) -> bool {
+        const QString sourcePath = sourceInfo.absoluteFilePath();
+        const QString targetPath = targetInfo.absoluteFilePath();
+        if (!QFile::copy(sourcePath, targetPath)) {
+            if (error) {
+                *error = QString::fromLatin1("copyRecursively() failed: \"%1\" to \"%2\".")
+                            .arg(sourcePath, targetPath);
+            }
+            return false;
+        }
+
+        // Copied files from Qt resources are read-only. Make them writable
+        // so that their parent directory can be removed without warnings.
+        QFile file(targetPath);
+        return file.setPermissions(file.permissions() | QFile::WriteUser);
+    };
+
+    return Utils::FileUtils::copyRecursively(Utils::FileName::fromString(sourceDirPath),
+                                             Utils::FileName::fromString(targetDirPath),
+                                             error,
+                                             copyHelper);
+}
+
 TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
 {
     if (!m_isValid)
         return;
 
-    if (!sourceDirPath.isEmpty()) {
-        QFileInfo fi(sourceDirPath);
-        if (!fi.exists() || !fi.isReadable()) {
-            m_isValid = false;
-            return;
-        }
+    if (sourceDirPath.isEmpty())
+        return;
 
-        if (!Utils::FileUtils::copyRecursively(Utils::FileName::fromString(sourceDirPath),
-                                               Utils::FileName::fromString(path()))) {
-            m_isValid = false;
-            return;
-        }
+    QFileInfo fi(sourceDirPath);
+    if (!fi.exists() || !fi.isReadable()) {
+        m_isValid = false;
+        return;
+    }
+
+    QString errorMessage;
+    if (!copyRecursively(sourceDirPath, path(), &errorMessage)) {
+        QWARN(qPrintable(errorMessage));
+        m_isValid = false;
     }
 }
 

@@ -68,9 +68,14 @@ public:
     QtVersionNumber(const QString &versionString);
     QtVersionNumber();
 
+    Core::FeatureSet features() const;
+
     int majorVersion;
     int minorVersion;
     int patchVersion;
+
+    bool matches(int major = -1, int minor = -1, int patch = -1) const;
+
     bool operator <(const QtVersionNumber &b) const;
     bool operator <=(const QtVersionNumber &b) const;
     bool operator >(const QtVersionNumber &b) const;

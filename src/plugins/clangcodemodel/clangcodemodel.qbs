@@ -12,7 +12,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "CodeModelBackEndIpc" }
+    Depends { name: "ClangBackEndIpc" }
 
     pluginTestDepends: [
         "CppEditor",
@@ -53,12 +53,22 @@ QtcPlugin {
         name: "Completion support"
         condition: product.clangCompletion
         files: [
-            "clangcompleter.cpp",
-            "clangcompleter.h",
-            "clangcompletion.cpp",
-            "clangcompletion.h",
-            "completionproposalsbuilder.cpp",
-            "completionproposalsbuilder.h",
+            "activationsequenceprocessor.cpp",
+            "activationsequenceprocessor.h",
+            "clangassistproposal.cpp",
+            "clangassistproposal.h",
+            "clangassistproposalitem.cpp",
+            "clangassistproposalitem.h",
+            "clangassistproposalmodel.cpp",
+            "clangassistproposalmodel.h",
+            "clangcompletionassistinterface.cpp",
+            "clangcompletionassistinterface.h",
+            "clangcompletionassistprocessor.cpp",
+            "clangcompletionassistprocessor.h",
+            "clangcompletionassistprovider.cpp",
+            "clangcompletionassistprovider.h",
+            "clangfunctionhintmodel.cpp",
+            "clangfunctionhintmodel.h",
         ]
     }
 
@@ -92,9 +102,6 @@ QtcPlugin {
         prefix: "test/"
         files: [
             "clang_tests_database.qrc",
-            "clangcompletion_test.cpp",
-            "completiontesthelper.cpp",
-            "completiontesthelper.h",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
             "clangcompletioncontextanalyzertest.cpp",
@@ -114,19 +121,6 @@ QtcPlugin {
             "doxygenKeywordsCompletion.cpp",
             "preprocessorKeywordsCompletion.cpp",
             "includeDirectiveCompletion.cpp",
-            "cxx_regression_1.cpp",
-            "cxx_regression_2.cpp",
-            "cxx_regression_3.cpp",
-            "cxx_regression_4.cpp",
-            "cxx_regression_5.cpp",
-            "cxx_regression_6.cpp",
-            "cxx_regression_7.cpp",
-            "cxx_regression_8.cpp",
-            "cxx_regression_9.cpp",
-            "cxx_snippets_1.cpp",
-            "cxx_snippets_2.cpp",
-            "cxx_snippets_3.cpp",
-            "cxx_snippets_4.cpp",
             "objc_messages_1.mm",
             "objc_messages_2.mm",
             "objc_messages_3.mm",
@@ -152,8 +146,8 @@ QtcPlugin {
         "clangprojectsettingspropertiespage.ui",
         "clangutils.cpp",
         "clangutils.h",
-        "codemodelbackendipcintegration.cpp",
-        "codemodelbackendipcintegration.h",
+        "clangbackendipcintegration.cpp",
+        "clangbackendipcintegration.h",
         "completionchunkstotextconverter.cpp",
         "completionchunkstotextconverter.h",
         "constants.h",

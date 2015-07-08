@@ -40,6 +40,7 @@
 #include <utils/algorithm.h>
 #include <utils/annotateditemdelegate.h>
 #include <utils/navigationtreeview.h>
+#include <utils/dropsupport.h>
 
 #include <QApplication>
 #include <QLabel>
@@ -245,12 +246,12 @@ Qt::DropActions CppTypeHierarchyModel::supportedDragActions() const
 
 QStringList CppTypeHierarchyModel::mimeTypes() const
 {
-    return FileDropSupport::mimeTypesForFilePaths();
+    return DropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
 {
-    auto data = new FileDropMimeData;
+    auto data = new DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
     foreach (const QModelIndex &index, indexes) {
         auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();

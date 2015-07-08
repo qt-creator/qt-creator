@@ -64,6 +64,8 @@ QtcLibrary {
         "detailsbutton.h",
         "detailswidget.cpp",
         "detailswidget.h",
+        "dropsupport.cpp",
+        "dropsupport.h",
         "elfreader.cpp",
         "elfreader.h",
         "elidinglabel.cpp",

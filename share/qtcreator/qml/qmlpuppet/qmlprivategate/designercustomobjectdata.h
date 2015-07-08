@@ -37,8 +37,9 @@
 #include <QObject>
 #include <QVariant>
 
+#include <private/qqmlbinding_p.h>
+
 QT_BEGIN_NAMESPACE
-class QQmlAbstractBinding;
 class QQmlContext;
 QT_END_NAMESPACE
 
@@ -74,7 +75,11 @@ private:
 
     QObject *m_object;
     QHash<PropertyName, QVariant> m_resetValueHash;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    QHash<PropertyName, QQmlAbstractBinding::Ptr> m_resetBindingHash;
+#else
     QHash<PropertyName, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
+#endif
     mutable QHash<PropertyName, bool> m_hasBindingHash;
 };
 

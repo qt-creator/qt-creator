@@ -182,7 +182,7 @@ void CppEditorWidget::finalizeInitialization()
     connect(document(), SIGNAL(contentsChange(int,int,int)),
             &d->m_localRenaming, SLOT(onContentsChangeOfEditorWidgetDocument(int,int,int)));
     connect(&d->m_localRenaming, &CppLocalRenaming::finished, [this] {
-        cppEditorDocument()->semanticRehighlight();
+        cppEditorDocument()->recalculateSemanticInfoDetached();
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
@@ -229,7 +229,7 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
         updateSemanticInfo(cppEditorWidget->semanticInfo());
     d->m_cppEditorOutline->update();
-    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
+    const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
 }
 
@@ -721,6 +721,14 @@ void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
 {
     return d->m_followSymbolUnderCursor.data();
+}
+
+void CppEditorWidget::encourageApply()
+{
+    if (d->m_localRenaming.encourageApply())
+        return;
+
+    TextEditorWidget::encourageApply();
 }
 
 void CppEditorWidget::abortDeclDefLink()

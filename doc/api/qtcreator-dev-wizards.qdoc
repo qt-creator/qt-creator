@@ -26,24 +26,18 @@
     \l{http://doc.qt.io/qtcreator/creator-project-wizards.html}{custom wizards}
     is not sufficient for your case, you can write wizards in code.
 
-    A wizard in Qt Creator is an instance of a class implementing
+    A wizard in \QC is an instance of a class implementing
     the Core::IWizardFactory interface that is registered with
     ExtensionSystem::PluginManager.
 
     Implementing wizards requires:
     \list
-    \li Deciding on a base class:
-       \list
-       \li Core::IWizardFactory is a very generic interface that does
-           not make any assumption about what the wizard does and
-           what its UI looks like.
-
-       \li Core::BaseFileWizardFactory should be used for wizards that
-           generate files using a UI based on Utils::Wizard.
-       \endlist
+    \li Writing a factory class that derives from Core::IWizardFactory. This is
+        a very generic interface that does not make any assumption about what
+        the wizard does and what its UI looks like.
 
     \li Providing a set of parameters that determine how the wizard shows up
-        in the list of wizards in the  \uicontrol{New File or Project} dialog.
+        in the list of wizards in the  \uicontrol {New File or Project} dialog.
 
         When deriving from Core::IWizardFactory, the constructor has to call
         the following setters provided by the base class:
@@ -61,11 +55,6 @@
         \li \c setFlags
         \endlist
 
-        When deriving from Core::BaseFileWizardFactory, a parameter class
-        Core::BaseFileWizardParameters needs to be passed to the constructor,
-        on which the parameters can be set. This allows for easy creation
-        of several wizard instances with slightly different parameters.
-
     \li Implementing the wizard UI
 
         Typically, this will be a class derived from Utils::Wizard.
@@ -74,187 +63,87 @@
 
     \li Implementing the wizard functionality
 
-        When deriving from Core::BaseFileWizardFactory, a list of Core::GeneratedFile
-        needs to be populated with the files and their contents.
-        \note The files are not actually written to the disk. This will be
-        done by Core::BaseFileWizardFactory after performing overwrite checks and
-        prompting the user accordingly.
-
+        It is recommended to use Core::GeneratedFile to represent files
+        that need to be written to disk. They allow to delay writing the actual
+        data to disk till the wizard is done.
     \endlist
 
     \section2 Relevant Classes
 
     \table
-    \header
-    \li Class
-    \li Description
+        \header
+            \li Class
+            \li Description
 
-    \row
-    \li Core::IWizardFactory
-    \li Qt Creator wizard interface, implementations of which are registered with
-        ExtensionSystem::PluginManager.
+        \row
+            \li Core::IWizardFactory
+            \li \QC wizard interface, implementations of which are registered
+                with ExtensionSystem::PluginManager.
 
-    \row
-    \li Core::BaseFileWizardFactory
-    \li Inherits Core::IWizardFactory and provides a base class for generating files with a UI
-        based on QWizard.
+        \row
+            \li Core::GeneratedFile
+            \li A file containing name, contents, and some attributes.
 
-    \row
-    \li Core::BaseFileWizardParameters
-    \li Contains parameters for Core::BaseFileWizard.
+        \row
+            \li Utils::FileWizardPage
+            \li Introductory wizard page asking for file name and path.
 
-    \row
-    \li Core::GeneratedFile
-    \li A file as produced by Core::BaseFileWizard, containing name, contents and some
-        attributes.
-
-    \row
-    \li Utils::FileWizardPage
-    \li Introductory wizard page asking for file name and path.
-
-    \row
-    \li Utils::FileWizardDialog
-    \li A wizard dialog presenting a Utils::FileWizardPage, which can be extended
-        by custom pages.
-
-    \row
-    \li Utils::ProjectIntroPage
-    \li Introductory wizard page asking for project name and path.
-
-    \row
-    \li ProjectExplorer::BaseProjectWizardDialog
-    \li Base class for project wizard dialogs, presenting
-        a Utils::ProjectIntroPage.
-
+        \row
+            \li Utils::ProjectIntroPage
+            \li Introductory wizard page asking for project name and path.
     \endtable
 
-    \section2 Parameters
+    \section2 Setters and Getters of IWizardFactory
 
-    The parameters listed below determine how the wizard shows up
-    in the list of wizards in the  \uicontrol{New File or Project} dialog.
-
-    Wizards in Qt Creator are grouped by categories.
+    The setters and getters listed below determine how the wizard shows up
+    in the list of wizards in the  \uicontrol {New File or Project} dialog.
 
     \table
-    \header
-    \li Type
-    \li Parameter Name
-    \li Description
+        \header
+            \li Type
+            \li Parameter Name
+            \li Description
 
-    \row
-    \li Core::IWizardFactory::WizardKind
-    \li kind
-    \li Enumeration value that indicates the type of the wizard (project or file).
+        \row
+            \li Core::IWizardFactory::WizardKind
+            \li kind
+            \li Enumeration value that indicates the type of the wizard
+                (\c project or \c file).
 
-    \row
-    \li QIcon
-    \li icon
-    \li Icon to show.
+        \row
+            \li QIcon
+            \li icon
+            \li Icon to show.
 
-    \row
-    \li QString
-    \li description
-    \li Descriptive text.
+        \row
+            \li QString
+            \li description
+            \li Descriptive text.
 
-    \row
-    \li QString
-    \li displayName
-    \li Name to be shown in the list.
+        \row
+            \li QString
+            \li displayName
+            \li Name to be shown in the list.
 
-    \row
-    \li QString
-    \li id
-    \li Unique identifier for the wizard. It also determines the order within a category.
+        \row
+            \li QString
+            \li id
+            \li Unique identifier for the wizard. It also determines the order
+                within a category.
 
-    \row
-    \li QString
-    \li category
-    \li Identifier of the category under which the wizard is to be listed. It also
-        determines the order of the categories.
-    \
-    \row
-    \li QString
-    \li displayCategory
-    \li Description of the category.
+        \row
+            \li QString
+            \li category
+            \li Identifier of the category under which the wizard is to be
+                listed. It also determines the order of the categories.
+
+        \row
+            \li QString
+            \li displayCategory
+        \li Description of the category.
     \endtable
 
-    \section1 Example
+    All wizards that have the same category set will be grouped together in the
+    \uicontrol {New File or Project} dialog.
 
-    \section2 Introduction
-
-    In this example, we create a wizard
-    for writing HTML files consisting of a title and a paragraph,
-    making use of QXmlStreamWriter.
-
-    For the UI, we use Utils::FileWizardDialog and extend it by a page
-    letting the user enter title and contents.
-
-    In our BaseFileWizard implementation, we create the file contents
-    using QXmlStreamWriter.
-
-    \section2 The WebContentPageWizardPage Class
-
-    Let us start with the wizard page. We use a QLineEdit for the title
-    and a QPlainTextEdit for the content, arranged in a QGridLayout with
-    descriptive labels.
-    \note The QGridLayout was chosen to be able to accommodate the large
-    vertical span of the QPlainTextEdit. For standard controls, a
-    QFormLayout should be considered, which will lay out the labels
-    according to the platform guide lines.
-
-    On top of that, we implement validation logic to ensure content is entered.
-    We implement QWizardPage::isComplete() to return true when both input widgets
-    have contents, enabling the \uicontrol{Next} button. For this to happen
-    as the user enters text, we need to connect to the changed() signal of the
-    controls and emit QWizardPage::completeChanged() once the complete status changes.
-
-    \snippet webpagewizard/webpagewizard.h 1
-
-    \snippet webpagewizard/webpagewizard.cpp 1
-
-    \section2 The WebContentWizardDialog Class
-
-    The wizard dialog extends Utils::FileWizardDialog, which presents an
-    introductory page asking for file name and path.
-    We add our WebContentPageWizardPage after that.
-
-    \snippet webpagewizard/webpagewizard.h 2
-
-    \snippet webpagewizard/webpagewizard.cpp 2
-
-    \section2 The WebContentWizard Class
-
-    In our implementation of Core::BaseFileWizard, we overwrite
-    createWizardDialog() to return an instance of our WebContentWizardDialog,
-    initially set to the path passed in. We also add the extension pages
-    we receive. Extension pages are for example the wizard pages asking for
-    a project to add the files to and whether to add the files to a version control
-    system.
-
-    In generateFiles(), we obtain the parameters from our wizard and populate
-    the list of Core::GeneratedFile with our file. To generate the contents,
-    we use QXmlStreamWriter.
-
-    \snippet webpagewizard/webpagewizard.h 3
-
-    \snippet webpagewizard/webpagewizard.cpp 3
-
-    \section2 Plugin Registration
-
-    In order for the wizard to be found by the \uicontrol{New} dialog, we need to
-    register it with ExtensionSystem::PluginManager, which also takes care
-    of deleting it:
-
-    \snippet webpagewizard/webpagewizardplugin.cpp 0
-
-    \section2 Complete Example Code
-
-    Here is the complete code of \c webpagewizard.h:
-    \snippet webpagewizard/webpagewizard.h 0
-    The complete code of \c webpagewizard.cpp looks as follows:
-    \snippet webpagewizard/webpagewizard.cpp 0
-
-    The registration of the wizard in the \c initialize() function
-    of a plugin looks like:
-    \snippet webpagewizard/webpagewizardplugin.cpp 0
 */

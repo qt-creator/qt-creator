@@ -12,6 +12,7 @@ BackgroundColorDark=ff232323
 BackgroundColorHover=ff515151
 BackgroundColorNormal=ffffffff
 BackgroundColorSelected=ff151515
+BackgroundColorDisabled=ffefebe7
 BadgeLabelBackgroundColorChecked=ffe0e0e0
 BadgeLabelBackgroundColorUnchecked=ff808080
 BadgeLabelTextColorChecked=ff606060
@@ -94,7 +95,7 @@ Debugger_WatchItem_ValueNormal=ff000000
 Debugger_WatchItem_ValueInvalid=ff8c8c8c
 Debugger_WatchItem_ValueChanged=ffc80000
 
-Debugger_Breakpoint_TextMarkColor=80ff0000
+Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_BackgroundColorNormal=ffffffff
 Welcome_Button_BorderColorNormal=ff737373
@@ -122,10 +123,13 @@ VcsBase_FileModified_TextColor=ff0000ee
 VcsBase_FileDeleted_TextColor=ffee0000
 VcsBase_FileRenamed_TextColor=ffd77d00
 
-Bookmarks_TextMarkColor=800000ff
+Bookmarks_TextMarkColor=ffa0a0ff
 
-ProjectExplorer_TaskError_TextMarkColor=80800000
-ProjectExplorer_TaskWarn_TextMarkColor=80ffff00
+TextEditor_SearchResult_ScrollBarColor=ff00c000
+TextEditor_CurrentLine_ScrollBarColor=ff404040
+
+ProjectExplorer_TaskError_TextMarkColor=ffff0000
+ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 
 [Flags]
 ComboBoxDrawTextShadow=true

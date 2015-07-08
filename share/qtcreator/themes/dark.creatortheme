@@ -5,7 +5,7 @@ PreferredStyles=Fusion
 [Palette]
 shadowBackground=ff232323
 text=ffe7e7e7
-textDisabled=ffa0a0a4
+textDisabled=ffa0a0a0
 hoverBackground=ff515151
 selectedBackground=ff151515
 normalBackground=ff333333
@@ -17,6 +17,7 @@ BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=hoverBackground
 BackgroundColorNormal=normalBackground
+BackgroundColorDisabled=ff444444
 BackgroundColorSelected=ff909090
 BadgeLabelBackgroundColorChecked=normalBackground
 BadgeLabelBackgroundColorUnchecked=selectedBackground
@@ -100,7 +101,7 @@ Debugger_WatchItem_ValueNormal=text
 Debugger_WatchItem_ValueInvalid=textDisabled
 Debugger_WatchItem_ValueChanged=ffbf0303
 
-Debugger_Breakpoint_TextMarkColor=60ff2020
+Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_BackgroundColorNormal=normalBackground
 Welcome_Button_BorderColorNormal=0
@@ -128,10 +129,13 @@ VcsBase_FileModified_TextColor=ff8ee0ff
 VcsBase_FileDeleted_TextColor=fffff6c6c
 VcsBase_FileRenamed_TextColor=ffffa500
 
-Bookmarks_TextMarkColor=804040ff
+Bookmarks_TextMarkColor=ff8080ff
 
-ProjectExplorer_TaskError_TextMarkColor=a0ff4040
-ProjectExplorer_TaskWarn_TextMarkColor=80ffff20
+TextEditor_SearchResult_ScrollBarColor=ff00c000
+TextEditor_CurrentLine_ScrollBarColor=ffffffff
+
+ProjectExplorer_TaskError_TextMarkColor=ffff4040
+ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
 
 [Flags]
 ComboBoxDrawTextShadow=false

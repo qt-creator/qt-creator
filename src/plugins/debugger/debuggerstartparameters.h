@@ -38,6 +38,7 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
 #include <QVector>
@@ -71,76 +72,49 @@ public:
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
-    DebuggerStartParameters()
-      : masterEngineType(NoEngineType),
-        runConfiguration(0),
-        attachPID(-1),
-        useTerminal(false),
-        breakOnMain(false),
-        continueAfterAttach(false),
-        multiProcess(false),
-        languages(AnyLanguage),
-        qmlServerAddress(QLatin1String("127.0.0.1")),
-        qmlServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
-        remoteSetupNeeded(false),
-        useContinueInsteadOfRun(false),
-        startMode(NoStartMode),
-        closeMode(KillAtClose),
-        useCtrlCStub(false),
-        skipExecutableValidation(false)
-    {}
+    DebuggerStartParameters() {}
 
-    DebuggerEngineType masterEngineType;
-    QString sysRoot;
-    QString deviceSymbolsRoot;
-    QString debuggerCommand;
-    ProjectExplorer::Abi toolChainAbi;
-    QPointer<ProjectExplorer::RunConfiguration> runConfiguration;
+    DebuggerStartMode startMode = NoStartMode;
+    DebuggerCloseMode closeMode = KillAtClose;
 
-    QString platform;
     QString executable;
     QString displayName; // Used in the Snapshots view.
     QString processArgs;
     Utils::Environment environment;
     QString workingDirectory;
-    qint64 attachPID;
-    bool useTerminal;
-    bool breakOnMain;
-    bool continueAfterAttach;
-    bool multiProcess;
-    DebuggerLanguages languages;
+    qint64 attachPID = InvalidPid;
+    QStringList solibSearchPath;
+    bool useTerminal = false;
 
     // Used by Qml debugging.
     QString qmlServerAddress;
     quint16 qmlServerPort;
-    QString projectSourceDirectory;
-    QStringList additionalSearchDirectories;
-    QString projectBuildDirectory;
-    QStringList projectSourceFiles;
 
-    // Used by remote debugging.
+    // Used by general remote debugging.
     QString remoteChannel;
     QSsh::SshConnectionParameters connParams;
-    bool remoteSetupNeeded;
+    bool remoteSetupNeeded = false;
 
     // Used by baremetal plugin
     QByteArray commandsForReset; // commands used for resetting the inferior
-    bool useContinueInsteadOfRun; // if connected to a hw debugger run is not possible but continue is used
+    bool useContinueInsteadOfRun = false; // if connected to a hw debugger run is not possible but continue is used
     QByteArray commandsAfterConnect; // additional commands to post after connection to debug target
 
     // Used by Valgrind
     QVector<QByteArray> expectedSignals;
 
-    QStringList solibSearchPath;
-    DebuggerStartMode startMode;
-    DebuggerCloseMode closeMode;
-
     // For QNX debugging
     QString remoteExecutable;
-    bool useCtrlCStub;
+    bool useCtrlCStub = false;
 
     // Used by Android to avoid false positives on warnOnRelease
-    bool skipExecutableValidation;
+    bool skipExecutableValidation = false;
+    QStringList additionalSearchDirectories;
+
+    // Used by iOS.
+    QString platform;
+    QString deviceSymbolsRoot;
+    bool continueAfterAttach = false;
 };
 
 } // namespace Debugger

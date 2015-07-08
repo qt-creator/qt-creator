@@ -40,9 +40,8 @@
 #endif
 
 #define CPLUSPLUS_NO_DEBUG_RULE
-#define MAX_EXPRESSION_DEPTH 100
+#define MAX_EXPRESSION_DEPTH 1000
 #define MAX_STATEMENT_DEPTH 100
-#define MAX_INITIALIZER_CLAUSE_DEPTH 2000
 
 using namespace CPlusPlus;
 
@@ -2738,6 +2737,7 @@ bool Parser::parseInitializer0x(ExpressionAST *&node, unsigned *equals_token)
 
 bool Parser::parseBraceOrEqualInitializer0x(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_EQUAL) {
         consumeToken();
         parseInitializerClause0x(node);
@@ -2783,6 +2783,7 @@ bool Parser::parseInitializerClause0x(ExpressionAST *&node)
 
 bool Parser::parseInitializerList0x(ExpressionListAST *&node)
 {
+    DEBUG_THIS_RULE();
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
 
@@ -2799,7 +2800,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         for (++_initializerClauseDepth.top();
                 LA() == T_COMMA
                     && LA(2) != T_RBRACE
-                    && _initializerClauseDepth.top() <= MAX_INITIALIZER_CLAUSE_DEPTH;
+                    && _initializerClauseDepth.top() <= MAX_EXPRESSION_DEPTH;
              ++_initializerClauseDepth.top()) {
             consumeToken(); // consume T_COMMA
 
@@ -2815,7 +2816,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         }
     }
 
-    const bool result = _initializerClauseDepth.top() <= MAX_INITIALIZER_CLAUSE_DEPTH;
+    const bool result = _initializerClauseDepth.top() <= MAX_EXPRESSION_DEPTH;
     _initializerClauseDepth.pop();
     if (!result)
         warning(cursor(), "Reached parse limit for initializer clause");
@@ -3930,6 +3931,7 @@ bool Parser::lookAtClassKey() const
 
 bool Parser::parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribute_list)
 {
+    DEBUG_THIS_RULE();
     bool didRead = false;
     while (parseAttributeSpecifier(attribute_list))
         didRead = true;
@@ -3938,6 +3940,7 @@ bool Parser::parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribut
 
 bool Parser::parseAttributeSpecifier(SpecifierListAST *&attribute_list)
 {
+    DEBUG_THIS_RULE();
     SpecifierListAST **attr_ptr = &attribute_list;
     switch (LA()) {
     case T_ALIGNAS: {
@@ -5590,7 +5593,13 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
 {
     DEBUG_THIS_RULE();
 
+    unsigned iterations = 0;
     while (precedence(tok().kind(), _templateArguments) >= minPrecedence) {
+        if (++iterations > MAX_EXPRESSION_DEPTH) {
+            warning(cursor(), "Reached parse limit for expression");
+            return;
+        }
+
         const int operPrecedence = precedence(tok().kind(), _templateArguments);
         const int oper = consumeToken();
 

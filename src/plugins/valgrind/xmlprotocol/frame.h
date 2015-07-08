@@ -59,11 +59,13 @@ public:
     QString functionName() const;
     void setFunctionName(const QString &functionName);
 
-    QString file() const;
-    void setFile(const QString &file);
+    QString fileName() const;
+    void setFileName(const QString &fileName);
 
     QString directory() const;
     void setDirectory(const QString &directory);
+
+    QString filePath() const;
 
     int line() const;
     void setLine(int line);

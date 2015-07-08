@@ -36,11 +36,6 @@
 
 using namespace CodePaster;
 
-UrlOpenProtocol::UrlOpenProtocol()
-    : m_fetchReply(0)
-{
-}
-
 QString UrlOpenProtocol::name() const
 {
     return QLatin1String("Open URL"); // unused

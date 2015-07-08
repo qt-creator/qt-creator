@@ -89,17 +89,10 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.startMode = AttachToRemoteServer;
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
-    params.runConfiguration = runConfig;
 
-    DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
-        params.languages |= CppLanguage;
         Kit *kit = target->kit();
-        params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-        params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-        if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-            params.toolChainAbi = tc->targetAbi();
         params.executable = target->activeBuildConfiguration()->buildDirectory().toString() + QLatin1String("/app_process");
         params.skipExecutableValidation = true;
         params.remoteChannel = runConfig->remoteChannel();
@@ -108,25 +101,20 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.solibSearchPath.append(qtSoPaths(version));
     }
     if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);
         params.qmlServerAddress = server.serverAddress().toString();
-        params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
-        params.projectSourceDirectory = target->project()->projectDirectory().toString();
         Kit *kit = target->kit();
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         if (version) {
             const QString qmlQtDir = version->versionInfo().value(QLatin1String("QT_INSTALL_QML"));
             params.additionalSearchDirectories = QStringList(qmlQtDir);
         }
-        params.projectSourceFiles = target->project()->files(Project::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
     }
 
-    DebuggerRunControl * const debuggerRunControl = createDebuggerRunControl(params, errorMessage);
+    DebuggerRunControl * const debuggerRunControl = createDebuggerRunControl(params, runConfig, errorMessage);
     new AndroidDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }
@@ -171,15 +159,15 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         });
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
-        [this](const QByteArray &output) {
+        [this](const QString &output) {
             QTC_ASSERT(m_runControl, return);
-            m_runControl->showMessage(QString::fromUtf8(output), AppError);
+            m_runControl->showMessage(output, AppError);
         });
 
     connect(m_runner, &AndroidRunner::remoteOutput,
-        [this](const QByteArray &output) {
+        [this](const QString &output) {
             QTC_ASSERT(m_runControl, return);
-            m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
+            m_runControl->showMessage(output, AppOutput);
         });
 }
 

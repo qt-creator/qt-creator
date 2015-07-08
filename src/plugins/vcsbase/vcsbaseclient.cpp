@@ -56,6 +56,17 @@
 #include <QVariant>
 #include <QProcessEnvironment>
 
+static void commandFinished(VcsBase::VcsBaseEditorWidget *editor, VcsBase::VcsCommand *cmd)
+{
+    if (!cmd->lastExecutionSuccess()) {
+        editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
+    } else if (cmd->cookie().type() == QVariant::Int) {
+        const int line = cmd->cookie().toInt();
+        if (line >= 0)
+            editor->gotoLine(line);
+    }
+}
+
 /*!
     \class VcsBase::VcsBaseClient
 
@@ -80,27 +91,14 @@ namespace VcsBase {
 class VcsBaseClientImplPrivate
 {
 public:
-    VcsBaseClientImplPrivate(VcsBaseClientImpl *client, VcsBaseClientSettings *settings);
+    VcsBaseClientImplPrivate(VcsBaseClientSettings *settings);
     ~VcsBaseClientImplPrivate();
 
-    void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
-
     VcsBaseClientSettings *m_clientSettings;
-    QSignalMapper *m_cmdFinishedMapper;
 };
 
-void VcsBaseClientImplPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
-{
-    editor->setCommand(cmd);
-    QObject::connect(cmd, &VcsCommand::finished,
-                     m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
-    m_cmdFinishedMapper->setMapping(cmd, editor);
-}
-
-VcsBaseClientImplPrivate::VcsBaseClientImplPrivate(VcsBaseClientImpl *client,
-                                                   VcsBaseClientSettings *settings) :
-    m_clientSettings(settings),
-    m_cmdFinishedMapper(new QSignalMapper(client))
+VcsBaseClientImplPrivate::VcsBaseClientImplPrivate(VcsBaseClientSettings *settings) :
+    m_clientSettings(settings)
 {
     m_clientSettings->readSettings(Core::ICore::settings());
 }
@@ -110,14 +108,11 @@ VcsBaseClientImplPrivate::~VcsBaseClientImplPrivate()
     delete m_clientSettings;
 }
 
-VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientImpl *client, VcsBaseClientSettings *settings) :
-    d(new VcsBaseClientImplPrivate(client, settings))
+VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
+    d(new VcsBaseClientImplPrivate(settings))
 {
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
-
-    connect(d->m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)(QWidget*)>(&QSignalMapper::mapped),
-            this, &VcsBaseClientImpl::commandFinishedGotoLine);
 }
 
 VcsBaseClientImpl::~VcsBaseClientImpl()
@@ -141,8 +136,12 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 {
     auto cmd = new VcsCommand(workingDirectory, processEnvironment());
     cmd->setDefaultTimeoutS(vcsTimeoutS());
-    if (editor)
-        d->bindCommandToEditor(cmd, editor);
+    if (editor) {
+        editor->setCommand(cmd);
+        connect(editor, &QObject::destroyed, cmd, &VcsCommand::abort);
+        connect(cmd, &VcsCommand::finished,
+                editor, [editor, cmd]() { commandFinished(editor, cmd); });
+    }
     if (mode == VcsWindowOutputBind) {
         cmd->addFlags(VcsCommand::ShowStdOut);
         if (editor) // assume that the commands output is the important thing
@@ -278,22 +277,6 @@ void VcsBaseClientImpl::saveSettings()
     settings().writeSettings(Core::ICore::settings());
 }
 
-void VcsBaseClientImpl::commandFinishedGotoLine(QWidget *editorObject)
-{
-    VcsBaseEditorWidget *editor = qobject_cast<VcsBaseEditorWidget *>(editorObject);
-    VcsCommand *cmd = qobject_cast<VcsCommand *>(d->m_cmdFinishedMapper->mapping(editor));
-    if (editor && cmd) {
-        if (!cmd->lastExecutionSuccess()) {
-            editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
-        } else if (cmd->cookie().type() == QVariant::Int) {
-            const int line = cmd->cookie().toInt();
-            if (line >= 0)
-                editor->gotoLine(line);
-        }
-        d->m_cmdFinishedMapper->removeMappings(cmd);
-    }
-}
-
 class VcsBaseClientPrivate
 {
 public:
@@ -319,7 +302,7 @@ VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
 { }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
-    VcsBaseClientImpl(this, settings),
+    VcsBaseClientImpl(settings),
     d(new VcsBaseClientPrivate)
 {
     qRegisterMetaType<QVariant>();

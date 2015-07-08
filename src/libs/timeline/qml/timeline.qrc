@@ -25,7 +25,6 @@
         <file>ico_rangeselected.png</file>
         <file>ico_note.png</file>
         <file>ButtonsBar.qml</file>
-        <file>ico_filter.png</file>
         <file>timelineitems.vert</file>
         <file>timelineitems.frag</file>
         <file>notes.vert</file>

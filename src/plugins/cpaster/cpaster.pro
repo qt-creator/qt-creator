@@ -13,7 +13,8 @@ HEADERS += cpasterplugin.h \
     fileshareprotocol.h \
     fileshareprotocolsettingspage.h \
     kdepasteprotocol.h \
-    urlopenprotocol.h
+    urlopenprotocol.h \
+    codepasterservice.h
 
 SOURCES += cpasterplugin.cpp \
     settingspage.cpp \

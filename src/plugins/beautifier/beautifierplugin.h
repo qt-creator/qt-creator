@@ -50,19 +50,23 @@ class BeautifierAbstractTool;
 struct FormatTask
 {
     FormatTask(QPlainTextEdit *_editor, const QString &_filePath, const QString &_sourceData,
-               const Command &_command) :
+               const Command &_command, int _startPos = -1, int _endPos = 0) :
         editor(_editor),
         filePath(_filePath),
         sourceData(_sourceData),
         command(_command),
+        startPos(_startPos),
+        endPos(_endPos),
         timeout(false) {}
 
     QPointer<QPlainTextEdit> editor;
     QString filePath;
     QString sourceData;
     Command command;
-    QString formattedData;
+    int startPos;
+    int endPos;
     bool timeout;
+    QString formattedData;
 };
 
 class BeautifierPlugin : public ExtensionSystem::IPlugin
@@ -79,7 +83,7 @@ public:
 
     QString format(const QString &text, const Command &command, const QString &fileName,
                    bool *timeout = 0);
-    void formatCurrentFile(const Command &command);
+    void formatCurrentFile(const Command &command, int startPos = -1, int endPos = 0);
     void formatAsync(QFutureInterface<FormatTask> &future, FormatTask task);
 
     static QString msgCannotGetConfigurationFile(const QString &command);

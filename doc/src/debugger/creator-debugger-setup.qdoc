@@ -32,53 +32,50 @@
     \title Setting Up Debugger
 
     The main debugger settings are associated with the
-    \l{glossary-buildandrun-kit}{kit} you build and run your project with. To specify the
-    debugger and compiler to use for each kit, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build and Run} > \uicontrol Kits.
+    \l{glossary-buildandrun-kit}{kit} you build and run your project with. To
+    specify the debugger and compiler to use for each kit, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build and Run} >
+    \uicontrol Kits.
 
-    You need to set up the debugger only if the automatic setup
-    fails, because the native debugger is missing (as is usually the
-    case for the CDB debugger on Windows, which you always must install
-    yourself) or because the installed version is not supported (for example,
-    when your system contains no, or an outdated version of GDB and you
-    want to use a locally installed replacement instead).
+    You need to set up the debugger only if the automatic setup fails, because
+    the native debugger is missing (as is usually the case for the CDB debugger
+    on Windows, which you always must install yourself) or because the installed
+    version is not supported (for example, when your system contains no, or an
+    outdated version of GDB and you want to use a locally installed replacement
+    instead).
 
     \note If you need to change the debugger to use for an automatically
-    detected \l{glossary-buildandrun-kit}{kit},
-    you can \uicontrol{Clone} the kit and change the parameters in
-    the clone. Make sure to select the cloned kit for your project.
+    detected \l{glossary-buildandrun-kit}{kit}, you can \uicontrol Clone the
+    kit and change the parameters in the clone. Make sure to select the cloned
+    kit for your project.
 
     If the debugger you want to use is not automatically detected, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol Debuggers > \uicontrol Add
-    to add it.
+    \uicontrol Debuggers > \uicontrol Add to add it.
 
-    \note To use the debugging tools for Windows, you must install them
-    and add the Symbol Server provided by Microsoft to the symbol search
-    path of the debugger. For more information, see \l{Setting the Symbol
-    Server in Windows}.
+    \note To use the debugging tools for Windows, you must install them and add
+    the Symbol Server provided by Microsoft to the symbol search path of the
+    debugger. For more information, see \l{Setting the Symbol Server in
+    Windows}.
 
-    \note To use the Free Software Foundation (FSF) version of GDB on
-    OS X, you must sign it and modify your \l{glossary-buildandrun-kit}{kit}
-    settings.
+    \note To use the Free Software Foundation (FSF) version of GDB on OS X, you
+    must sign it and modify your \l{glossary-buildandrun-kit}{kit} settings.
 
-    This section explains the options you have for debugging C++ code
-    and provides installation notes for the supported native debuggers.
-    It also applies for code in other compiled languages such as C,
-    FORTRAN, Ada.
+    This section explains the options you have for debugging C++ code and
+    provides installation notes for the supported native debuggers. It also
+    applies for code in other compiled languages such as C, FORTRAN, Ada.
 
     For more information on the debugger modes, see
     \l{Launching the Debugger in Different Modes}.
 
     \section1 Supported Native Debugger Versions
 
-    Qt Creator supports native debuggers when working with
-    compiled code. On most supported platforms, the GNU Symbolic Debugger
-    GDB can be used. On Microsoft Windows, when using the Microsoft tool chain
-    the Microsoft Console Debugger CDB, is needed. On OS X, the LLDB
-    debugger can be used. Basic support for LLDB is also available on Linux,
-    but it is restricted by LLDB's capabilities there, and considered
-    experimental.
+    Qt Creator supports native debuggers when working with compiled code. On
+    most supported platforms, the GNU Symbolic Debugger GDB can be used. On
+    Microsoft Windows, when using the Microsoft tool chain the Microsoft Console
+    Debugger CDB, is needed. On OS X, the LLDB debugger can be used. Basic
+    support for LLDB is also available on Linux, but it is restricted by LLDB's
+    capabilities there, and considered experimental.
 
     The following table summarizes the support for debugging C++ code:
 
@@ -111,25 +108,25 @@
 
     \section2 Supported GDB Versions
 
-    Starting with version 3.1, \QC requires the Python scripting
-    extension. GDB builds without Python scripting are not supported
-    anymore and will not work. The minimal supported version is GDB 7.5
-    using Python version 2.7, or 3.3, or newer.
+    Starting with version 3.1, \QC requires the Python scripting extension. GDB
+    builds without Python scripting are not supported anymore and will not work.
+    The minimal supported version is GDB 7.5 using Python version 2.7, or 3.3,
+    or newer.
 
-    For remote debugging using GDB and GDB server, the minimal
-    supported version of GDB server on the target device is 7.0.
+    For remote debugging using GDB and GDB server, the minimal supported version
+    of GDB server on the target device is 7.0.
 
     \section2 Supported CDB Versions
 
-    All versions of CDB targeting platforms supported by Qt
-    are supported by \QC.
+    All versions of CDB targeting platforms supported by Qt are supported by
+    \QC.
 
     \section2 Supported LLDB Versions
 
-    The LLDB native debugger has similar functionality to the GDB debugger.
-    LLDB is the default debugger in Xcode on OS X for supporting C++ on the
-    desktop. LLDB is typically used with the Clang compiler (even though you
-    can use it with GCC, too).
+    The LLDB native debugger has similar functionality to the GDB debugger. LLDB
+    is the default debugger in Xcode on OS X for supporting C++ on the desktop.
+    LLDB is typically used with the Clang compiler (even though you can use it
+    with GCC, too).
 
     You can use the LLDB version delivered with Xcode, but we recommend that you
     build it from sources using Xcode. The minimal supported version is LLDB
@@ -152,8 +149,7 @@
             available, parts relevant only when Python is not available, and
             mixed code.
 
-        \li TermGdbAdapter debugs locally started processes that need a
-            console.
+        \li TermGdbAdapter debugs locally started processes that need a console.
 
         \li AttachGdbAdapter debugs local processes started outside \QC.
 
@@ -176,15 +172,13 @@
             \li Notes
         \row
             \li GDB
-            \li On Windows, use the Python-enabled GDB versions that
-                is bundled with the Qt package or comes with recent
-                versions of MinGW. On most Linux distributions the GDB
-                builds shipped with the system are sufficient. You can
-                also build your own. Follow the instructions in
-                \l{http://wiki.qt.io/QtCreator_Build_Gdb}
-                {Building GDB}.
-                Builds of GDB shipped with Xcode on OS X are no longer
-                supported.
+            \li On Windows, use the Python-enabled GDB versions that is bundled
+                with the Qt package or comes with recent versions of MinGW. On
+                most Linux distributions the GDB builds shipped with the system
+                are sufficient. You can also build your own. Follow the
+                instructions in \l{http://wiki.qt.io/QtCreator_Build_Gdb}
+                {Building GDB}. Builds of GDB shipped with Xcode on OS X are no
+                longer supported.
 
         \row
             \li Debugging tools for Windows
@@ -217,8 +211,8 @@
                 your application is compiled as debug, as release is the default
                 library.
 
-                If you use a qmake based project in \QC,  you can set a
-                flag in your \l{glossary-run-config}{run configuration}, in
+                If you use a qmake based project in \QC,  you can set a flag in
+                your \l{glossary-run-config}{run configuration}, in
                 \uicontrol Projects mode. In the run configuration, select
                 \uicontrol{Use debug version of frameworks}.
 
@@ -239,22 +233,22 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger
-            > \uicontrol General > \uicontrol Add.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+            \uicontrol General > \uicontrol Add.
 
-        \li In the \uicontrol {Source path} field, specify the source path in the
-            debug information of the executable as reported by the debugger.
+        \li In the \uicontrol {Source path} field, specify the source path in
+            the debug information of the executable as reported by the debugger.
 
-        \li In the \uicontrol {Target path} field, specify the actual location of the
-            source tree on the local machine.
+        \li In the \uicontrol {Target path} field, specify the actual location
+            of the source tree on the local machine.
 
     \endlist
 
     \section1 Setting the Symbol Server in Windows
 
     To obtain debugging information for the operating system libraries for
-    debugging Windows applications, add the Symbol Server provided
-    by Microsoft to the symbol search path of the debugger:
+    debugging Windows applications, add the Symbol Server provided by Microsoft
+    to the symbol search path of the debugger:
 
     \list 1
 
@@ -285,13 +279,14 @@
 
     \list 1
 
-        \li To create a key for signing FSF GDB, select \uicontrol {Keychain Access >
-            Certificate Assistant > Create a Certificate}:
+        \li To create a key for signing FSF GDB, select
+            \uicontrol {Keychain Access} > \uicontrol {Certificate Assistant} >
+            \uicontrol {Create a Certificate}:
 
         \list 1
 
-            \li In the \uicontrol {Name} field, input \uicontrol {fsfgdb} to replace
-                the existing content.
+            \li In the \uicontrol Name field, input \uicontrol fsfgdb to
+                replace the existing content.
 
             \li In the \uicontrol {Certificate Type} field, select
                 \uicontrol {Code Signing}.
@@ -299,17 +294,19 @@
             \li Select the \uicontrol {Let me override defaults} check box.
 
             \li Select \uicontrol Continue, and follow the instructions of the
-                wizard (use the default settings), until the \uicontrol {Specify a
-                Location For The Certificate} dialog opens.
+                wizard (use the default settings), until the
+                \uicontrol {Specify a Location For The Certificate} dialog
+                opens.
 
             \li In the \uicontrol Keychain field, select \uicontrol System.
 
-            \li Select \uicontrol {Keychain Access > System}, and locate the
-                certificate.
+            \li Select \uicontrol {Keychain Access} > \uicontrol System, and
+                locate the certificate.
 
             \li Double click the certificate to view certificate information.
 
-            \li In the \uicontrol Trust section, select \uicontrol {Always Trust} in the
+            \li In the \uicontrol Trust section, select
+                \uicontrol {Always Trust} in the
                 \uicontrol {When using this certificate} field, and then close
                 the dialog.
 
@@ -321,8 +318,9 @@
             codesign -f -s "fsfgdb" $INSTALL_LOCATION/fsfgdb
             \endcode
 
-        \li In \QC, select \uicontrol {Qt Creator > Preferences > Build & Run >
-            Kits} > \uicontrol Add to create a kit that uses FSF GDB.
+        \li In \QC, select \uicontrol {Qt Creator} > \uicontrol Preferences >
+            \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to
+            create a kit that uses FSF GDB.
 
             \li In the \uicontrol Debugger field, specify the path to FSF GDB
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
@@ -346,10 +344,11 @@
         \li Select an automatically created kit in the list, and then select
             \uicontrol Clone to create a copy of the kit.
 
-        \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB Engine
-            is not listed, select \uicontrol Manage to add it in \uicontrol Tools >
-            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Debuggers. For more
-            information, see \l {Adding Debuggers}.
+        \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB
+            Engine is not listed, select \uicontrol Manage to add it in
+            \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Debuggers. For more information, see
+            \l {Adding Debuggers}.
 
         \li To use the debugger, add the kit in the \uicontrol {Build Settings}
             of the project.

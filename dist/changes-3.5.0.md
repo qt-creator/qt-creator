@@ -30,12 +30,13 @@ General
   interpreted in the order given on the command line.
 * Fixed issues with raising the Qt Creator window on Gnome desktop
   (QTCREATORBUG-13845)
-* Fixed appearance on high DPI displays on Windows and Linux
+* Fixed appearance on high DPI displays on Windows
   (QTCREATORBUG-11179)
 * Added locator filter for running external tools
 
 Editing
 
+* Added highlighting of search results to editor scroll bar
 * Added option to jump directly to specific column in addition to
   line number when opening files through locator or command line
 * Added *Remove missing files* action to QRC editor
@@ -43,21 +44,18 @@ Editing
 * Made global file search use multiple threads (QTCREATORBUG-10298)
 * Fixed highlighting of current line in read-only text editors
   (QTCREATORBUG-10104)
-
-Help
+* Fixed issues with completion while inserting snippet (QTCREATORBUG-14633)
 
 Project Management
 
 * Fixed issues with restoring project tree state (QTCREATORBUG-14304)
 
-QMake Projects
-
 CMake Projects
 
 * Made it possible to register multiple CMake executables
+* Added support for file targets when explicitly specified in the
+  generated CodeBlocks file
 * Fixed default shadow build directory name
-
-Qbs Projects
 
 Generic Projects
 
@@ -66,9 +64,16 @@ Generic Projects
 
 QML-Only Projects (.qmlproject)
 
+* Re-enabled the plugin by default
+
 Debugging
 
-Analyzer
+* Added dumper for `QJsonValue`, `QJsonObject`, `QJsonArray`, `QUuid`
+* Added basic support for GDB's fork-follows-child
+* Improved support for GDB 7.9 and LLDB 3.7
+* Fixed display of `QHash` keys with value 0 (QTCREATORBUG-14451)
+* Fixed variable expansion state in QML debugger
+* Fixed display of members of returned values
 
 QML Profiler
 
@@ -79,15 +84,32 @@ QML Profiler
 C++ Support
 
 * Added separate icon for structs
+* Added support for setting the access specifier of an extracted function (QTCREATORBUG-12127)
+* Moved Clang code model backend out-of-process
 * Fixed *Convert to Stack Variable* refactoring action for empty
   initializer lists (QTCREATORBUG-14279)
+* Fixed misplaced newlines of refactoring actions (QTCREATORBUG-13872)
 * Fixed expanding items in class view with double-click
   (QTCREATORBUG-2536)
 * Fixed code folding issues after missing closing braces
+* Fixed resolving of decltype (QTCREATORBUG-14483)
+* Fixed resolving of template using alias
+  For example: `template<class T> using U = Temp<T>` (QTCREATORBUG-14480)
+* Fixed some issues related to template lookup (QTCREATORBUG-14141,
+  QTCREATORBUG-14218, QTCREATORBUG-14237)
+* Fixed resolving of partial and full template specialization (QTCREATORBUG-14034)
+* Partially fixed STL containers (QTCREATORBUG-8937, QTCREATORBUG-8922)
+    * GCC implementation of `std::map`, `std::unique_ptr` (and other pointer wrappers)
+      and `std::vector` are known to work
+    * MSVC implementation is not supported
+* Fixed that highlighting vanished after text zoom (QTCREATORBUG-14579)
+* Fixed issues with completion while renaming local variable (QTCREATORBUG-14633)
 
 QML Support
 
 * Removed Qt Quick 1 wizards
+* Fixed missing auto-completion for `QtQuick` and `QtQuick.Controls`
+  (QTCREATORBUG-14563)
 
 Qt Quick Designer
 
@@ -101,20 +123,30 @@ Version Control Systems
 FakeVim
 
 * Added support for `C-r{register}`
+* Added support for remapping shortcuts
 
 Todo
 
 * Added option to excluding file patterns from parsing
 
+Beautifier
+
+* Added option to format only selected lines with Uncrustify (`--frag`)
+
 Platform Specific
 
 Windows
+
+* Fixed that Qt Creator could freeze while user application is running
+  (QTCREATORBUG-14676)
 
 OS X
 
 * Added locator filter that uses Spotlight for locating files
 
 Linux
+
+* Fixed performance issue with journal support (QTCREATORBUG-14356)
 
 Android
 
@@ -126,6 +158,8 @@ Android
   (QTCREATORBUG-13615)
 * Added input field for activity name in Android manifest editor
   (QTCREATORBUG-13958)
+* Fixed issues with Android M (QTCREATORBUG-14537, QTCREATORBUG-14534)
+* Fixed issues with 64 bit
 * Fixed handling of external file changes in Android manifest editor
 * Fixed listing of Google AVDs (QTCREATORBUG-13980)
 * Fixed that kits were removed from projects when changing NDK path
@@ -146,4 +180,57 @@ Remote Linux
 
 BareMetal
 
+* Fixed processing of additional OpenOCD arguments
+
 Credits for these changes go to:
+Alessandro Portale
+André Pönitz
+Alexander Drozdov
+Alexander Izmailov
+Arnold Dumas
+Benjamin Zeller
+BogDan Vatra
+Christian Kandeler
+Christian Stenger
+Cristian Adam
+Daniel Teske
+David Schulz
+Denis Kormalev
+Eike Ziller
+Erik Verbruggen
+Finn Brudal
+Friedemann Kleint
+Hugues Delorme
+Jack Andersen
+Jarek Kobus
+Jochen Becher
+Jörg Bornemann
+Johannes Lorenz
+Kai Köhne
+Knut Petter Svendsen
+Kudryavtsev Alexander
+Leena Miettinen
+Libor Tomsik
+Lorenz Haas
+Lukas Holecek
+Marcel Krems
+Marco Benelli
+Marco Bubke
+Montel Laurent
+Nikita Baryshnikov
+Nikita Kniazev
+Nikolai Kosjar
+Olivier Goffart
+Orgad Shaneh
+Ray Donnelly
+Robert Löhning
+Stanislav Ionascu
+Sune Vuorela
+Takumi ASAKI
+Tasuku Suzuki
+Thiago Macieira
+Thomas Hartmann
+Thorben Kroeger
+Tim Jenssen
+Tobias Hunger
+Ulf Hermann

@@ -33,26 +33,28 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QTime>
-#include <QDomDocument>
+QT_BEGIN_NAMESPACE
+class QDate;
+QT_END_NAMESPACE
 
 namespace UpdateInfo {
 
-namespace Constants {
-    const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Update", "Update");
-} // namespace Constants
-
 namespace Internal {
 
-class SettingsPage;
 class UpdateInfoPluginPrivate;
 
 class UpdateInfoPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "UpdateInfo.json")
-
+    Q_ENUMS(CheckUpdateInterval)
 public:
+    enum CheckUpdateInterval {
+        DailyCheck,
+        WeeklyCheck,
+        MonthlyCheck
+    };
+
     UpdateInfoPlugin();
     virtual ~UpdateInfoPlugin();
 
@@ -60,22 +62,39 @@ public:
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
-    void loadSettings();
-    void saveSettings();
+    bool isAutomaticCheck() const;
+    void setAutomaticCheck(bool on);
 
-    QTime scheduledUpdateTime() const;
-    void setScheduledUpdateTime(const QTime &time);
+    CheckUpdateInterval checkUpdateInterval() const;
+    void setCheckUpdateInterval(CheckUpdateInterval interval);
 
-protected:
-    void timerEvent(QTimerEvent *event);
+    QDate lastCheckDate() const;
+    QDate nextCheckDate() const;
+    QDate nextCheckDate(CheckUpdateInterval interval) const;
 
-private slots:
-    void parseUpdates();
-    void startUpdaterUiApplication();
+    bool isCheckForUpdatesRunning() const;
+    void startCheckForUpdates();
+
+signals:
+    void lastCheckDateChanged(const QDate &date);
+    void newUpdatesAvailable(bool available);
+    void checkForUpdatesRunningChanged(bool running);
 
 private:
-    QDomDocument update();
-    template <typename T> void settingsHelper(T *settings);
+    void setLastCheckDate(const QDate &date);
+
+    void startAutoCheckForUpdates();
+    void stopAutoCheckForUpdates();
+    void doAutoCheckForUpdates();
+
+    void startUpdater();
+    void stopCheckForUpdates();
+
+    void collectCheckForUpdatesOutput(const QString &contents);
+    void checkForUpdatesFinished();
+
+    void loadSettings() const;
+    void saveSettings();
 
 private:
     UpdateInfoPluginPrivate *d;

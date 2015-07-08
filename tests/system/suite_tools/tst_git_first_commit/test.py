@@ -65,5 +65,9 @@ def main():
     changedEdit = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
     waitFor("len(str(changedEdit.plainText)) > 0 and "
             "str(changedEdit.plainText) != 'Waiting for data...'", 20000)
-    test.xverify(str(changedEdit.plainText) != "No difference", "Does Creator show actual changes?")
+    diffPlainText = str(changedEdit.plainText)
+    test.verify("# This file is used to ignore files which are generated" in diffPlainText,
+                "Comment from .gitignore in diff?")
+    test.verify("SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);"
+                in diffPlainText, "main function in diff?")
     invokeMenuItem("File", "Exit")

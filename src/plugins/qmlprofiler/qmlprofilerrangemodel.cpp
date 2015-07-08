@@ -51,10 +51,10 @@ namespace Internal {
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager,
                                              QmlDebug::RangeType range, QObject *parent) :
-    QmlProfilerTimelineModel(manager, categoryLabel(range), QmlDebug::MaximumMessage, range, parent)
+    QmlProfilerTimelineModel(manager, QmlDebug::MaximumMessage, range,
+                             QmlDebug::featureFromRangeType(range), parent)
 {
     m_expandedRowTypes << -1;
-    announceFeatures(1ULL << QmlDebug::featureFromRangeType(rangeType()));
 }
 
 void QmlProfilerRangeModel::clear()
@@ -72,7 +72,6 @@ bool QmlProfilerRangeModel::supportsBindingLoops() const
 
 void QmlProfilerRangeModel::loadData()
 {
-    clear();
     QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
@@ -187,14 +186,6 @@ void QmlProfilerRangeModel::findBindingLoops()
 
 }
 
-/////////////////// QML interface
-
-QString QmlProfilerRangeModel::categoryLabel(QmlDebug::RangeType rangeType)
-{
-    return QCoreApplication::translate("MainView",
-            QmlProfilerModelManager::featureName(QmlDebug::featureFromRangeType(rangeType)));
-}
-
 int QmlProfilerRangeModel::expandedRow(int index) const
 {
     return m_data[index].displayRowExpanded;
@@ -240,7 +231,8 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             modelManager()->qmlModel()->getEventTypes();
 
-    result.insert(QStringLiteral("displayName"), categoryLabel(rangeType()));
+    result.insert(QStringLiteral("displayName"),
+                  tr(QmlProfilerModelManager::featureName(mainFeature())));
     result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
 
     result.insert(tr("Details"), types[id].data);

@@ -7,21 +7,34 @@
     <x>0</x>
     <y>0</y>
     <width>482</width>
-    <height>364</height>
+    <height>242</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Configure Filters</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0" colspan="4">
+    <widget class="QGroupBox" name="m_updatesGroupBox">
      <property name="title">
-      <string>Qt Creator Update Settings</string>
+      <string>Automatic Check for Updates</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="m_info">
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Check interval basis:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="m_infoLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -29,195 +42,106 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Qt Creator automatically runs a scheduled update check on a daily basis. If Qt Creator is not in use on the scheduled time or maintenance is behind schedule, the automatic update check will be run next time Qt Creator starts.</string>
+         <string>Qt Creator automatically runs a scheduled check for updates on a time interval basis. If Qt Creator is not in use on the scheduled date, the automatic check for updates will be performed next time Qt Creator starts.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="m_checkIntervalComboBox">
+        <property name="currentIndex">
+         <number>-1</number>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>171</width>
           <height>20</height>
          </size>
         </property>
        </spacer>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Run update check daily at:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="m_timeTable">
-          <property name="currentIndex">
-           <number>12</number>
-          </property>
-          <item>
-           <property name="text">
-            <string notr="true">00:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">01:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">02:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">03:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">04:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">05:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">06:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">07:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">08:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">09:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">10:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">11:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">12:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">13:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">14:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">15:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">16:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">17:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">18:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">19:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">20:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">21:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">22:00</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">23:00</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Next check date:</string>
+        </property>
+       </widget>
       </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+      <item row="2" column="1" colspan="2">
+       <widget class="QLabel" name="m_nextCheckDateLabel">
+        <property name="text">
+         <string/>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>253</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Last check date:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="m_lastCheckDateLabel">
+     <property name="text">
+      <string>Not checked yet</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>167</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="m_checkNowButton">
+     <property name="text">
+      <string>Check Now</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="4">
+    <widget class="QLabel" name="m_messageLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>233</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

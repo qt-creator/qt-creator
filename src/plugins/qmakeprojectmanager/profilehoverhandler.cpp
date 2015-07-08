@@ -45,7 +45,7 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 ProFileHoverHandler::ProFileHoverHandler(const TextEditor::Keywords &keywords)
-  : m_manualKind(UnknownManual), m_keywords(keywords)
+    : m_keywords(keywords)
 {
 }
 
@@ -61,7 +61,7 @@ void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidg
         identifyQMakeKeyword(block.text(), pos - block.position());
 
         if (m_manualKind != UnknownManual) {
-            QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html#%2")
+            QUrl url(QString::fromLatin1("qthelp://org.qt-project.qmake/qmake/qmake-%1-reference.html#%2")
                      .arg(manualName()).arg(m_docFragment));
             setLastHelpItemIdentified(TextEditor::HelpItem(url.toString(),
                                                            m_docFragment, TextEditor::HelpItem::QMakeVariableOfFunction));
@@ -134,7 +134,7 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
     m_docFragment.replace(QLatin1Char('_'), QLatin1Char('-'));
 
     if (m_manualKind == FunctionManual) {
-        QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html").arg(manualName()));
+        QUrl url(QString::fromLatin1("qthelp://org.qt-project.qmake/qmake/qmake-%1-reference.html").arg(manualName()));
         const QByteArray html = Core::HelpManager::fileData(url);
 
         Utils::HtmlDocExtractor htmlExtractor;

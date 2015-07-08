@@ -64,9 +64,9 @@ class WinRtRunControlFactory : public ProjectExplorer::IRunControlFactory
 public:
     WinRtRunControlFactory();
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const;
+                Core::Id mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       ProjectExplorer::RunMode mode, QString *errorMessage);
+                       Core::Id mode, QString *errorMessage);
     QString displayName() const;
 };
 

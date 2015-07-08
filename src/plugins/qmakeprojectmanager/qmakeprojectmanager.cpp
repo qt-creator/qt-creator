@@ -58,13 +58,6 @@ using namespace TextEditor;
 
 namespace QmakeProjectManager {
 
-QmakeManager::QmakeManager()
-  : m_contextNode(0),
-    m_contextProject(0),
-    m_contextFile(0)
-{
-}
-
 QmakeManager::~QmakeManager()
 {
 }

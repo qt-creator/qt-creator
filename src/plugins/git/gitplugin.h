@@ -33,12 +33,16 @@
 
 #include "gitsettings.h"
 
+#include <coreplugin/id.h>
+
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QStringList>
 #include <QPointer>
 #include <QKeySequence>
 #include <QVector>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -108,7 +112,7 @@ private slots:
     void undoUnstagedFileChanges();
     void resetRepository();
     void startRebase();
-    void startChangeRelatedAction();
+    void startChangeRelatedAction(const Core::Id &id);
     void stageFile();
     void unstageFile();
     void gitkForCurrentFile();
@@ -178,8 +182,13 @@ private:
     QAction *createRepositoryAction(Core::ActionContainer *ac,
                                     const QString &text, Core::Id id,
                                     const Core::Context &context,
-                                    bool addToLocator, const char *pluginSlot,
+                                    bool addToLocator, const std::function<void()> &callback,
                                     const QKeySequence &keys = QKeySequence());
+    QAction *createChangeRelatedRepositoryAction(Core::ActionContainer *ac,
+                                                 const QString &text, Core::Id id,
+                                                 const Core::Context &context,
+                                                 bool addToLocator, const std::function<void(Core::Id)> &callback,
+                                                 const QKeySequence &keys = QKeySequence());
     QAction *createRepositoryAction(Core::ActionContainer *ac,
                                     const QString &text, Core::Id id,
                                     const Core::Context &context,
@@ -229,8 +238,6 @@ private:
     QString                     m_submitRepository;
     QString                     m_commitMessageFileName;
     bool                        m_submitActionTriggered;
-
-    GitSettings m_settings;
 };
 
 } // namespace Git

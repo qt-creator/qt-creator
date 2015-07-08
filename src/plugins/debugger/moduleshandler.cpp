@@ -212,7 +212,7 @@ Modules ModulesHandler::modules() const
 void ModulesHandler::removeModule(const QString &modulePath)
 {
     if (ModuleItem *item = moduleFromPath(m_model->rootItem(), modulePath))
-        m_model->takeItem(item);
+        delete m_model->takeItem(item);
 }
 
 void ModulesHandler::updateModule(const Module &module)
@@ -254,7 +254,7 @@ void ModulesHandler::endUpdateAll()
     for (int i = root->rowCount(); --i >= 0; ) {
         auto item = static_cast<ModuleItem *>(root->child(i));
         if (!item->updated)
-            m_model->takeItem(item);
+            delete m_model->takeItem(item);
     }
 }
 

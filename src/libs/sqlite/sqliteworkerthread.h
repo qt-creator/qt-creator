@@ -31,9 +31,9 @@
 #ifndef SQLITEWORKERTHREAD_H
 #define SQLITEWORKERTHREAD_H
 
-#include <QThread>
-#include <QPointer>
 #include <QMutex>
+#include <QPointer>
+#include <QThread>
 #include <QWaitCondition>
 
 class SqliteDatabaseConnection;

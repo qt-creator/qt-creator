@@ -30,16 +30,24 @@
 
 #define QT_NO_META_MACROS
 
-#define signals public __attribute__((annotate("qt_signal")))
-#define slots __attribute__((annotate("qt_slot")))
-#define Q_SIGNALS signals
-#define Q_SLOTS slots
+#if defined(QT_NO_KEYWORDS)
+# define QT_NO_EMIT
+#else
+#  ifndef QT_NO_SIGNALS_SLOTS_KEYWORDS
+#    define signals public __attribute__((annotate("qt_signal")))
+#    define slots __attribute__((annotate("qt_slot")))
+#  endif
+#endif
+#define Q_SIGNALS public __attribute__((annotate("qt_signal")))
+#define Q_SLOTS slots __attribute__((annotate("qt_slot")))
 #define Q_SIGNAL __attribute__((annotate("qt_signal")))
 #define Q_SLOT __attribute__((annotate("qt_slot")))
-# define Q_PRIVATE_SLOT(d, signature)
+#define Q_PRIVATE_SLOT(d, signature)
 
 #define Q_EMIT
-#define emit
+#ifndef QT_NO_EMIT
+# define emit
+#endif
 #define Q_CLASSINFO(name, value)
 #define Q_PLUGIN_METADATA(x)
 #define Q_INTERFACES(x)
@@ -49,6 +57,8 @@
 #define Q_OVERRIDE(text)
 #define Q_ENUMS(x)
 #define Q_FLAGS(x)
+#define Q_ENUM(x)
+#define Q_FLAG(x)
 #define Q_SCRIPTABLE
 #define Q_INVOKABLE
 

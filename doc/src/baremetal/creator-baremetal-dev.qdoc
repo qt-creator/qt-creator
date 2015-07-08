@@ -38,9 +38,9 @@
     To connect bare metal devices:
 
     \list 1
-
-        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {Device Support} >
-            \uicontrol {Bare Metal} to enable the Bare Metal Device plugin.
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Device Support} > \uicontrol {Bare Metal} to enable the
+            Bare Metal Device plugin.
 
         \li Restart \QC to be able to use the plugin.
 
@@ -70,8 +70,9 @@
 
             \endlist
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices > \uicontrol Add >
-            \uicontrol {Bare Metal Device} > \uicontrol {Start Wizard}:
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+            \uicontrol Add > \uicontrol {Bare Metal Device} >
+            \uicontrol {Start Wizard}:
 
             \list 1
 

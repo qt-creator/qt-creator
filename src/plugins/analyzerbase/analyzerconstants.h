@@ -35,18 +35,6 @@
 #include <QtGlobal>
 
 namespace Analyzer {
-
-// Special values for currently used start modes.
-// Their meaning is interpreted by the individual tools.
-// FIXME: The plan is to remove this entirely from the
-// public interface and let the tools handle that internally.
-
-enum StartMode
-{
-    StartLocal = -1,
-    StartRemote = -2
-};
-
 namespace Constants {
 
 // Mode and its priority.
