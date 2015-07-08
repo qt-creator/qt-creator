@@ -48,6 +48,7 @@ namespace QmlDesigner {
 typedef QByteArray PropertyName;
 typedef QList<PropertyName> PropertyNameList;
 typedef QByteArray TypeName;
+typedef QList<PropertyName> PropertyTypeList;
 typedef QByteArray IdName;
 
 enum AnchorLineType {
