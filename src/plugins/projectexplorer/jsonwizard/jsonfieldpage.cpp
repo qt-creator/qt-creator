@@ -820,13 +820,15 @@ void JsonFieldPage::ComboBoxField::initializeData(MacroExpander *expander)
         if (!tmpConditions.at(i)) {
             tmpItems.removeAt(i);
             tmpData.removeAt(i);
-            if (i <= index)
+            if (i < index && index > 0)
                 --index;
         }
     }
+
+    if (index < 0 || index >= tmpData.count())
+        index = 0;
     w->setItems(tmpItems, tmpData);
     w->setInsertPolicy(QComboBox::NoInsert);
-
     w->setCurrentIndex(index);
 }
 
