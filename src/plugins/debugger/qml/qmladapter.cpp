@@ -133,7 +133,7 @@ void QmlAdapter::debugClientStateChanged(QmlDebugClient::State state)
     QmlDebugClient *client = qobject_cast<QmlDebugClient*>(sender());
     QTC_ASSERT(client, return);
 
-    m_qmlClient = qobject_cast<BaseQmlDebuggerClient *>(client);
+    m_qmlClient = qobject_cast<QmlV8DebuggerClient *>(client);
     m_qmlClient->startSession();
 }
 
@@ -185,12 +185,12 @@ void QmlAdapter::showConnectionErrorMessage(const QString &message)
         m_engine.data()->showMessage(_("QML Debugger: ") + message, LogError);
 }
 
-BaseQmlDebuggerClient *QmlAdapter::activeDebuggerClient() const
+QmlV8DebuggerClient *QmlAdapter::activeDebuggerClient() const
 {
     return m_qmlClient;
 }
 
-QHash<QString, BaseQmlDebuggerClient*> QmlAdapter::debuggerClients() const
+QHash<QString, QmlV8DebuggerClient*> QmlAdapter::debuggerClients() const
 {
     return m_debugClients;
 }

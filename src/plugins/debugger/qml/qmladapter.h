@@ -45,7 +45,7 @@ class QDebugMessageClient;
 namespace Debugger {
 namespace Internal {
 
-class BaseQmlDebuggerClient;
+class QmlV8DebuggerClient;
 class DebuggerEngine;
 class QmlAdapterPrivate;
 
@@ -63,8 +63,8 @@ public:
     QmlDebug::QmlDebugConnection *connection() const;
     DebuggerEngine *debuggerEngine() const;
 
-    BaseQmlDebuggerClient *activeDebuggerClient() const;
-    QHash<QString, BaseQmlDebuggerClient*> debuggerClients() const;
+    QmlV8DebuggerClient *activeDebuggerClient() const;
+    QHash<QString, QmlV8DebuggerClient*> debuggerClients() const;
 
     QmlDebug::QDebugMessageClient *messageClient() const;
 
@@ -94,10 +94,10 @@ private:
 
 private:
     QPointer<DebuggerEngine> m_engine;
-    BaseQmlDebuggerClient *m_qmlClient;
+    QmlV8DebuggerClient *m_qmlClient;
     QTimer m_connectionTimer;
     QmlDebug::QmlDebugConnection *m_conn;
-    QHash<QString, BaseQmlDebuggerClient*> m_debugClients;
+    QHash<QString, QmlV8DebuggerClient*> m_debugClients;
     QmlDebug::QDebugMessageClient *m_msgClient;
 };
 

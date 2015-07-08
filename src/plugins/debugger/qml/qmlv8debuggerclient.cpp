@@ -138,6 +138,8 @@ public:
     QHash<int, int> stackIndexLookup;
 
     QmlV8DebuggerClient::StepAction previousStepAction;
+
+    QList<QByteArray> sendBuffer;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -745,7 +747,7 @@ void QmlV8DebuggerClientPrivate::logReceiveMessage(const QString &msg) const
 ///////////////////////////////////////////////////////////////////////
 
 QmlV8DebuggerClient::QmlV8DebuggerClient(QmlDebug::QmlDebugConnection *client)
-    : BaseQmlDebuggerClient(client, QLatin1String("V8Debugger")),
+    : QmlDebugClient(QLatin1String("V8Debugger"), client),
       d(new QmlV8DebuggerClientPrivate(this))
 {
 }
@@ -1793,6 +1795,27 @@ void QmlV8DebuggerClient::clearExceptionSelection()
         ed->setExtraSelections(TextEditor::TextEditorWidget::DebuggerExceptionSelection, selections);
     }
 
+}
+
+void QmlV8DebuggerClient::stateChanged(State state)
+{
+    emit newState(state);
+}
+
+void QmlV8DebuggerClient::sendMessage(const QByteArray &msg)
+{
+    if (state() == Enabled)
+        QmlDebugClient::sendMessage(msg);
+    else
+        d->sendBuffer.append(msg);
+}
+
+void QmlV8DebuggerClient::flushSendBuffer()
+{
+    QTC_ASSERT(state() == Enabled, return);
+    foreach (const QByteArray &msg, d->sendBuffer)
+       QmlDebugClient::sendMessage(msg);
+    d->sendBuffer.clear();
 }
 
 } // Internal

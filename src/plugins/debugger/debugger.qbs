@@ -145,7 +145,6 @@ QtcPlugin {
         name: "QML Debugger"
         prefix: "qml/"
         files: [
-            "baseqmldebuggerclient.cpp", "baseqmldebuggerclient.h",
             "interactiveinterpreter.cpp", "interactiveinterpreter.h",
             "qmladapter.cpp", "qmladapter.h",
             "qmlcppengine.cpp", "qmlcppengine.h",

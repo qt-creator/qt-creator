@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 #include "qmlengine.h"
-#include "baseqmldebuggerclient.h"
 #include "qmlinspectoragent.h"
+#include "qmlv8debuggerclient.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
@@ -821,7 +821,7 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
     if (m_adapter.activeDebuggerClient()) {
         m_adapter.activeDebuggerClient()->insertBreakpoint(bp, line, column);
     } else {
-        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
+        foreach (QmlV8DebuggerClient *client, m_adapter.debuggerClients()) {
             client->insertBreakpoint(bp, line, column);
         }
     }
@@ -849,7 +849,7 @@ void QmlEngine::removeBreakpoint(Breakpoint bp)
     if (m_adapter.activeDebuggerClient()) {
         m_adapter.activeDebuggerClient()->removeBreakpoint(bp);
     } else {
-        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
+        foreach (QmlV8DebuggerClient *client, m_adapter.debuggerClients()) {
             client->removeBreakpoint(bp);
         }
     }
@@ -867,7 +867,7 @@ void QmlEngine::changeBreakpoint(Breakpoint bp)
     if (m_adapter.activeDebuggerClient()) {
         m_adapter.activeDebuggerClient()->changeBreakpoint(bp);
     } else {
-        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
+        foreach (QmlV8DebuggerClient *client, m_adapter.debuggerClients()) {
             client->changeBreakpoint(bp);
         }
     }
@@ -922,7 +922,7 @@ void QmlEngine::attemptBreakpointSynchronization()
     if (m_adapter.activeDebuggerClient()) {
         m_adapter.activeDebuggerClient()->synchronizeBreakpoints();
     } else {
-        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
+        foreach (QmlV8DebuggerClient *client, m_adapter.debuggerClients()) {
             client->synchronizeBreakpoints();
         }
     }
@@ -1035,7 +1035,7 @@ void QmlEngine::synchronizeWatchers()
     if (m_adapter.activeDebuggerClient()) {
         m_adapter.activeDebuggerClient()->synchronizeWatchers(watchedExpressions);
     } else {
-        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients())
+        foreach (QmlV8DebuggerClient *client, m_adapter.debuggerClients())
             client->synchronizeWatchers(watchedExpressions);
     }
 }

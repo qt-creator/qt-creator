@@ -1,7 +1,6 @@
 HEADERS += \
     $$PWD/qmlengine.h \
     $$PWD/qmladapter.h \
-    $$PWD/baseqmldebuggerclient.h \
     $$PWD/qmlcppengine.h \
     $$PWD/qmlv8debuggerclient.h \
     $$PWD/interactiveinterpreter.h \
@@ -12,7 +11,6 @@ HEADERS += \
 SOURCES += \
     $$PWD/qmlengine.cpp \
     $$PWD/qmladapter.cpp \
-    $$PWD/baseqmldebuggerclient.cpp \
     $$PWD/qmlcppengine.cpp \
     $$PWD/qmlv8debuggerclient.cpp \
     $$PWD/interactiveinterpreter.cpp \

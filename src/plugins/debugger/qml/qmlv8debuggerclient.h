@@ -31,14 +31,18 @@
 #ifndef QMLV8DEBUGGERCLIENT_H
 #define QMLV8DEBUGGERCLIENT_H
 
-#include "baseqmldebuggerclient.h"
+#include <debugger/debuggerengine.h>
+#include <qmldebug/qmldebugclient.h>
 
 namespace Debugger {
 namespace Internal {
 
+class WatchData;
+class WatchItem;
+class QmlEngine;
 class QmlV8DebuggerClientPrivate;
 
-class QmlV8DebuggerClient : public BaseQmlDebuggerClient
+class QmlV8DebuggerClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
 
@@ -98,6 +102,15 @@ public:
     void setEngine(QmlEngine *engine);
 
     void getSourceFiles();
+
+    void flushSendBuffer();
+
+    void stateChanged(State state);
+    void sendMessage(const QByteArray &msg);
+
+signals:
+    void newState(QmlDebug::QmlDebugClient::State state);
+    void stackFrameCompleted();
 
 protected:
     void messageReceived(const QByteArray &data);
