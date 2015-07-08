@@ -140,6 +140,9 @@ signals:
     void qmlPuppetCrashed();
     void qmlPuppetError(const QString &errorMessage);
 
+protected:
+    void timerEvent(QTimerEvent *event);
+
 private: // functions
     void activateState(const NodeInstance &instance);
     void activateBaseState();
@@ -185,6 +188,7 @@ private: // functions
     void resetVerticalAnchors(const ModelNode &node);
 
     void restartProcess();
+    void delayedRestartProcess();
 
 private slots:
     void handleChrash();
@@ -202,6 +206,7 @@ private: //variables
     QTime m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
     ProjectExplorer::Kit *m_currentKit;
+    int m_restartProcessTimerId;
 };
 
 } // namespace ProxyNodeInstanceView

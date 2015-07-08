@@ -520,6 +520,11 @@ void AbstractView::resetView()
     currentModel->attachView(this);
 }
 
+void AbstractView::resetPuppet()
+{
+    emitCustomNotification(QStringLiteral("reset QmlPuppet"));
+}
+
 bool AbstractView::hasWidget() const
 {
     return false;

@@ -34,6 +34,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QMultiHash>
+#include <QTimerEvent>
 
 #include <model.h>
 #include <modelnode.h>
@@ -107,7 +108,8 @@ NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface:
         : AbstractView(parent),
           m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32),
           m_runModus(runModus),
-          m_currentKit(0)
+          m_currentKit(0),
+          m_restartProcessTimerId(0)
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
 }
@@ -198,6 +200,9 @@ void NodeInstanceView::handleChrash()
 
 void NodeInstanceView::restartProcess()
 {
+    if (m_restartProcessTimerId)
+        killTimer(m_restartProcessTimerId);
+
     if (model()) {
         delete nodeInstanceServer();
 
@@ -213,6 +218,14 @@ void NodeInstanceView::restartProcess()
             activateState(newStateInstance);
         }
     }
+
+    m_restartProcessTimerId = 0;
+}
+
+void NodeInstanceView::delayedRestartProcess()
+{
+    if (0 == m_restartProcessTimerId)
+        m_restartProcessTimerId = startTimer(100);
 }
 
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
@@ -457,7 +470,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const Propert
 void NodeInstanceView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &, const QList<QVariant> &)
 {
     if (view && identifier == QStringLiteral("reset QmlPuppet"))
-        restartProcess();
+        delayedRestartProcess();
 }
 
 void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & newNodeSource)
@@ -1232,6 +1245,12 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
         instanceIdVector.append(node.internalId());
 
     nodeInstanceServer()->token(TokenCommand(token, number, instanceIdVector));
+}
+
+void NodeInstanceView::timerEvent(QTimerEvent *event)
+{
+    if (m_restartProcessTimerId == event->timerId())
+        restartProcess();
 }
 
 }

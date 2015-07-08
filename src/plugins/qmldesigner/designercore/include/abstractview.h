@@ -245,6 +245,8 @@ public:
 
     void resetView();
 
+    void resetPuppet();
+
     virtual bool hasWidget() const;
     virtual WidgetInfo widgetInfo();
 
