@@ -56,6 +56,8 @@ public:
     bool isList() const;
     QList<ModelNode> resolveToModelNodeList() const;
 
+    bool isAliasExport() const;
+
 protected:
     BindingProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };

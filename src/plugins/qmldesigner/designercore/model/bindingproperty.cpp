@@ -197,6 +197,18 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
     return returnList;
 }
 
+bool BindingProperty::isAliasExport() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return parentModelNode() == parentModelNode().view()->rootModelNode()
+            && isDynamic()
+            && dynamicTypeName() == "alias"
+            && name() == expression()
+            && parentModelNode().view()->modelNodeForId(expression()).isValid();
+}
+
 void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, const QString &expression)
 {
     Internal::WriteLocker locker(model());
