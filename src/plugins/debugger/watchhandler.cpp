@@ -1268,6 +1268,11 @@ void WatchHandler::notifyUpdateFinished()
     emit m_model->updateFinished();
 }
 
+void WatchHandler::reexpandItems()
+{
+    m_model->reexpandItems();
+}
+
 void WatchHandler::removeItemByIName(const QByteArray &iname)
 {
     WatchItem *item = m_model->findItem(iname);

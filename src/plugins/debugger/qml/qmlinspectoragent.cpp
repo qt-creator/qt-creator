@@ -686,6 +686,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
         m_objectToSelect = -1;
     }
     m_debuggerEngine->watchHandler()->updateWatchersWindow();
+    m_debuggerEngine->watchHandler()->reexpandItems();
 }
 
 void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)

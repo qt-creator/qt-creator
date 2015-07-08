@@ -201,6 +201,8 @@ public:
     void notifyUpdateStarted(const QList<QByteArray> &inames = {});
     void notifyUpdateFinished();
 
+    void reexpandItems();
+
 private:
     WatchModel *m_model; // Owned.
 };
