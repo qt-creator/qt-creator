@@ -597,6 +597,19 @@ void QmlItemNode::setPostionInBaseState(const QPointF &position)
     modelNode().variantProperty("y").setValue(qRound(position.y()));
 }
 
+bool QmlItemNode::isInLayout() const
+{
+    if (isValid() && hasNodeParent()) {
+
+        ModelNode parent = modelNode().parentProperty().parentModelNode();
+
+        if (parent.isValid() && parent.metaInfo().isValid())
+            return parent.metaInfo().isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+    }
+
+    return false;
+}
+
 void QmlItemNode::setSize(const QSizeF &size)
 {
     if (!hasBindingProperty("width") && !anchors().instanceHasAnchor(AnchorLineRight))

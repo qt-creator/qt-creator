@@ -125,6 +125,7 @@ public:
     void setPostionInBaseState(const QPointF &position);
 
     void setSize(const QSizeF &size);
+    bool isInLayout() const;
 };
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
