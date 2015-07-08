@@ -445,7 +445,20 @@ QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
     int assignPos = line.indexOf(QLatin1Char('=')) + 1;
     if (assignPos >= line.size())
         return QStringList();
-    return line.mid(assignPos).split(QLatin1Char(' '), QString::SkipEmptyParts);
+
+    const QStringList parts = line.mid(assignPos).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    QStringList result;
+    for (int i = 0; i < parts.count(); ++i) {
+        const QString cur = parts.at(i);
+        const QString next = (i == parts.count() - 1) ? QString() : parts.at(i + 1);
+        if (cur == QLatin1String("-D") || cur == QLatin1String("-U") || cur == QLatin1String("-I")) {
+            result << cur + next;
+            ++i;
+        } else {
+            result << cur;
+        }
+    }
+    return result;
 }
 
 bool MakefileParser::maybeParseDefine(const QString &term)
