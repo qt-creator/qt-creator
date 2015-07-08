@@ -273,6 +273,25 @@ static void removeStateOperationsForChildren(const QmlObjectNode &node)
     }
 }
 
+static void removeAliasExports(const QmlObjectNode &node)
+{
+
+    PropertyName propertyName = node.id().toLatin1();
+
+    ModelNode rootNode = node.view()->rootModelNode();
+    bool hasAliasExport = !propertyName.isEmpty()
+            && rootNode.isValid()
+            && rootNode.hasBindingProperty(propertyName)
+            && rootNode.bindingProperty(propertyName).isAliasExport();
+
+    if (hasAliasExport)
+        rootNode.removeProperty(propertyName);
+
+    foreach (const ModelNode &childNode, node.modelNode().directSubModelNodes()) {
+        removeAliasExports(childNode);
+    }
+
+}
 
 /*!
     Deletes this object's node and its dependencies from the model.
@@ -283,6 +302,8 @@ void QmlObjectNode::destroy()
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    removeAliasExports(modelNode());
 
     foreach (QmlModelStateOperation stateOperation, allAffectingStatesOperations()) {
         stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
