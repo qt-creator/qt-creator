@@ -33,7 +33,6 @@
 #include <debugger/debuggerstringutils.h>
 #include "qmlengine.h"
 #include "qmlv8debuggerclient.h"
-#include "qscriptdebuggerclient.h"
 
 #include <utils/qtcassert.h>
 
@@ -153,22 +152,14 @@ bool QmlAdapter::isConnected() const
 
 void QmlAdapter::createDebuggerClients()
 {
-    QScriptDebuggerClient *debugClient1 = new QScriptDebuggerClient(m_conn);
-    connect(debugClient1, &QScriptDebuggerClient::newState,
-            this, &QmlAdapter::clientStateChanged);
-    connect(debugClient1, &QScriptDebuggerClient::newState,
-            this, &QmlAdapter::debugClientStateChanged);
-
     QmlV8DebuggerClient *debugClient2 = new QmlV8DebuggerClient(m_conn);
     connect(debugClient2, &QmlV8DebuggerClient::newState,
             this, &QmlAdapter::clientStateChanged);
     connect(debugClient2, &QmlV8DebuggerClient::newState,
             this, &QmlAdapter::debugClientStateChanged);
 
-    m_debugClients.insert(debugClient1->name(),debugClient1);
     m_debugClients.insert(debugClient2->name(),debugClient2);
 
-    debugClient1->setEngine((QmlEngine*)(m_engine.data()));
     debugClient2->setEngine((QmlEngine*)(m_engine.data()));
 }
 
