@@ -82,6 +82,12 @@ static inline QStringList globalQtEnums()
     return list;
 }
 
+static inline QStringList knownEnumScopes()
+{
+    static QStringList list = QStringList() << QStringLiteral("TextInput") << QStringLiteral("TextEdit");
+    return list;
+}
+
 static inline bool supportedQtQuickVersion(const QString &version)
 {
     static QStringList supportedVersions = supportedVersionsList();
@@ -574,10 +580,16 @@ public:
     {
         QStringList astValueList = astValue.split(QStringLiteral("."));
 
-        if (astValueList.count() == 2 //Check for global Qt enums
-                && astValueList.first() == QStringLiteral("Qt")
-                && globalQtEnums().contains(astValueList.last()))
-            return QVariant::fromValue(Enumeration(astValue));
+        if (astValueList.count() == 2) {
+            //Check for global Qt enums
+            if (astValueList.first() == QStringLiteral("Qt")
+                    && globalQtEnums().contains(astValueList.last()))
+                return QVariant::fromValue(Enumeration(astValue));
+
+            //Check for known enum scopes used globally
+            if (knownEnumScopes().contains(astValueList.first()))
+                return QVariant::fromValue(Enumeration(astValue));
+        }
 
         AST::ExpressionStatement *eStmt = AST::cast<AST::ExpressionStatement *>(rhs);
         if (!eStmt || !eStmt->expression)
