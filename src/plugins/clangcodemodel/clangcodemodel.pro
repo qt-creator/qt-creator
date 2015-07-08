@@ -12,6 +12,7 @@ DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/incl
 unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
 
 SOURCES += \
+    activationsequenceprocessor.cpp \
     clangassistproposal.cpp \
     clangassistproposalitem.cpp \
     clangassistproposalmodel.cpp \
@@ -47,6 +48,7 @@ SOURCES += \
 
 
 HEADERS += \
+    activationsequenceprocessor.h \
     clangassistproposal.h \
     clangassistproposalitem.h \
     clangassistproposalmodel.h \

@@ -30,6 +30,7 @@
 
 #include "clangassistproposalitem.h"
 
+#include "activationsequenceprocessor.h"
 #include "clangassistproposal.h"
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
@@ -65,84 +66,6 @@ namespace {
 
 const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
 
-int activationSequenceChar(const QChar &ch,
-                           const QChar &ch2,
-                           const QChar &ch3,
-                           unsigned *kind,
-                           bool wantFunctionCall)
-{
-    using namespace CPlusPlus;
-
-    int referencePosition = 0;
-    int completionKind = T_EOF_SYMBOL;
-    switch (ch.toLatin1()) {
-    case '.':
-        if (ch2 != QLatin1Char('.')) {
-            completionKind = T_DOT;
-            referencePosition = 1;
-        }
-        break;
-    case ',':
-        completionKind = T_COMMA;
-        referencePosition = 1;
-        break;
-    case '(':
-        if (wantFunctionCall) {
-            completionKind = T_LPAREN;
-            referencePosition = 1;
-        }
-        break;
-    case ':':
-        if (ch3 != QLatin1Char(':') && ch2 == QLatin1Char(':')) {
-            completionKind = T_COLON_COLON;
-            referencePosition = 2;
-        }
-        break;
-    case '>':
-        if (ch2 == QLatin1Char('-')) {
-            completionKind = T_ARROW;
-            referencePosition = 2;
-        }
-        break;
-    case '*':
-        if (ch2 == QLatin1Char('.')) {
-            completionKind = T_DOT_STAR;
-            referencePosition = 2;
-        } else if (ch3 == QLatin1Char('-') && ch2 == QLatin1Char('>')) {
-            completionKind = T_ARROW_STAR;
-            referencePosition = 3;
-        }
-        break;
-    case '\\':
-    case '@':
-        if (ch2.isNull() || ch2.isSpace()) {
-            completionKind = T_DOXY_COMMENT;
-            referencePosition = 1;
-        }
-        break;
-    case '<':
-        completionKind = T_ANGLE_STRING_LITERAL;
-        referencePosition = 1;
-        break;
-    case '"':
-        completionKind = T_STRING_LITERAL;
-        referencePosition = 1;
-        break;
-    case '/':
-        completionKind = T_SLASH;
-        referencePosition = 1;
-        break;
-    case '#':
-        completionKind = T_POUND;
-        referencePosition = 1;
-        break;
-    }
-
-    if (kind)
-        *kind = completionKind;
-
-    return referencePosition;
-}
 
 QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &completions)
 {
@@ -423,18 +346,21 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
 }
 
 // TODO: Extract duplicated logic from InternalCppCompletionAssistProcessor::startOfOperator
-int ClangCompletionAssistProcessor::startOfOperator(int pos,
+int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
                                                     unsigned *kind,
                                                     bool wantFunctionCall) const
 {
-    const QChar ch  = pos > -1 ? m_interface->characterAt(pos - 1) : QChar();
-    const QChar ch2 = pos >  0 ? m_interface->characterAt(pos - 2) : QChar();
-    const QChar ch3 = pos >  1 ? m_interface->characterAt(pos - 3) : QChar();
+    auto activationSequence = m_interface->textAt(positionInDocument - 3, 3);
+    ActivationSequenceProcessor activationSequenceProcessor(activationSequence,
+                                                            positionInDocument,
+                                                            wantFunctionCall);
 
-    int start = pos - activationSequenceChar(ch, ch2, ch3, kind, wantFunctionCall);
-    if (start != pos) {
+    *kind = activationSequenceProcessor.completionKind();
+
+    int start = activationSequenceProcessor.position();
+    if (start != positionInDocument) {
         QTextCursor tc(m_interface->textDocument());
-        tc.setPosition(pos);
+        tc.setPosition(positionInDocument);
 
         // Include completion: make sure the quote character is the first one on the line
         if (*kind == T_STRING_LITERAL) {
@@ -443,7 +369,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
             QString sel = s.selectedText();
             if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
                 *kind = T_EOF_SYMBOL;
-                start = pos;
+                start = positionInDocument;
             }
         }
 
@@ -451,7 +377,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
             ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
                 *kind = T_EOF_SYMBOL;
-                start = pos;
+                start = positionInDocument;
             }
         }
 
@@ -464,7 +390,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
 
         if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
             *kind = T_EOF_SYMBOL;
-            start = pos;
+            start = positionInDocument;
         }
         // Don't complete in comments or strings, but still check for include completion
         else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
@@ -473,12 +399,12 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
                                      && *kind != T_ANGLE_STRING_LITERAL
                                      && *kind != T_SLASH))) {
             *kind = T_EOF_SYMBOL;
-            start = pos;
+            start = positionInDocument;
         }
         // Include completion: can be triggered by slash, but only in a string
         else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
             *kind = T_EOF_SYMBOL;
-            start = pos;
+            start = positionInDocument;
         }
         else if (*kind == T_LPAREN) {
             if (tokenIdx > 0) {
@@ -493,7 +419,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
                 default:
                     // that's a bad token :)
                     *kind = T_EOF_SYMBOL;
-                    start = pos;
+                    start = positionInDocument;
                 }
             }
         }
@@ -516,7 +442,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
 
             if (!include) {
                 *kind = T_EOF_SYMBOL;
-                start = pos;
+                start = positionInDocument;
             }
         }
     }

@@ -53,6 +53,8 @@ QtcPlugin {
         name: "Completion support"
         condition: product.clangCompletion
         files: [
+            "activationsequenceprocessor.cpp",
+            "activationsequenceprocessor.h",
             "clangassistproposal.cpp",
             "clangassistproposal.h",
             "clangassistproposalitem.cpp",

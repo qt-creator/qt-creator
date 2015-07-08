@@ -20,14 +20,15 @@ include(../../../src/libs/clangbackendipc/clangbackendipc-lib.pri)
 include(../../../src/tools/clangbackend/ipcsource/clangbackendclangipc-source.pri)
 include(../../../src/shared/clang/clang_installation.pri)
 include(../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pri)
+include(cplusplus.pri)
 
-INCLUDEPATH += $$PWD/../../../src/libs $$PWD/../../../src/plugins
+INCLUDEPATH += $$PWD/../../../src/libs $$PWD/../../../src/plugins $$PWD/../../../src/libs/3rdparty
 
 requires(!isEmpty(LLVM_LIBS))
 
 LIBS += $$LLVM_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
-INCLUDEPATH += ../../../../src/libs/utils
+
 
 osx:QMAKE_CXXFLAGS = -stdlib=libc++
 
@@ -57,7 +58,8 @@ SOURCES += main.cpp \
     clangipcservertest.cpp \
     translationunitstest.cpp \
     completionchunkstotextconvertertest.cpp \
-    lineprefixertest.cpp
+    lineprefixertest.cpp \
+    activationsequenceprocessortest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \
