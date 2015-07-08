@@ -63,6 +63,11 @@ using namespace QmlJS;
 
 namespace {
 
+static inline bool isSupportedAttachedProperties(const QString &propertyName)
+{
+    return propertyName.startsWith(QLatin1String("Layout."));
+}
+
 static inline QStringList supportedVersionsList()
 {
     QStringList list;
@@ -1294,7 +1299,8 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
     } else { // Not an enum, so:
         if (isPropertyChangesType(modelNode.type())
                 || isConnectionsType(modelNode.type())
-                || context->lookupProperty(prefix, script->qualifiedId)) {
+                || context->lookupProperty(prefix, script->qualifiedId)
+                || isSupportedAttachedProperties(astPropertyName)) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             syncExpressionProperty(modelProperty, astValue, TypeName(), differenceHandler); // TODO: parse type
             return astPropertyName.toUtf8();
