@@ -435,6 +435,19 @@ void ModelPrivate::notifyInstancePropertyChange(const QList<QPair<ModelNode, Pro
     }
 }
 
+void ModelPrivate::notifyInstanceErrorChange(const QVector<qint32> &instanceIds)
+{
+    // no need to notify the rewriter or the instance view
+
+    QVector<ModelNode> errorNodeList;
+    foreach (const QPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        foreach (qint32 instanceId, instanceIds)
+            errorNodeList.append(ModelNode(model()->d->nodeForInternalId(instanceId), model(), view));
+        view->instanceErrorChange(errorNodeList);
+    }
+}
+
 void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &nodeVector)
 {
     bool resetModel = false;

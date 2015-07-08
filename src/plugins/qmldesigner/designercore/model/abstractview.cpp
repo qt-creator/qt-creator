@@ -192,6 +192,11 @@ void AbstractView::modelAboutToBeDetached(Model *)
             Empty properties were removed.
 */
 
+
+void AbstractView::instanceErrorChange(const QVector<ModelNode> &/*errorNodeList*/)
+{
+}
+
 // Node related functions
 
 /*!
@@ -460,6 +465,12 @@ void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, Prope
 {
     if (model() && nodeInstanceView() == this)
         model()->d->notifyInstancePropertyChange(propertyList);
+}
+
+void AbstractView::emitInstanceErrorChange(const QVector<qint32> &instanceIds)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->d->notifyInstanceErrorChange(instanceIds);
 }
 
 void AbstractView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)

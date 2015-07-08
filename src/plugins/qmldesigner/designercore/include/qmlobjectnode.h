@@ -55,6 +55,8 @@ public:
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
     bool isValid() const;
 
+    bool hasError() const;
+    QString error() const;
     bool hasNodeParent() const;
     bool hasInstanceParent() const;
     bool hasInstanceParentItem() const;

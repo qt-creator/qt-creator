@@ -173,6 +173,7 @@ public:
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
     void emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
+    void emitInstanceErrorChange(const QVector<qint32> &instanceIds);
     void emitInstancesCompleted(const QVector<ModelNode> &nodeList);
     void emitInstanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeList);
@@ -214,6 +215,7 @@ public:
     virtual void rewriterEndTransaction() = 0;
 
     virtual void currentStateChanged(const ModelNode &node) = 0; // base state is a invalid model node
+    virtual void instanceErrorChange(const QVector<ModelNode> &errorNodeList);
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList) = 0;

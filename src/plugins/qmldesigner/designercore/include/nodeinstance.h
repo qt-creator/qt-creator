@@ -94,6 +94,8 @@ public:
     void setY(double y);
 
     bool hasAnchors() const;
+    QString error() const;
+    bool hasError() const;
 
 protected:
     void setProperty(const PropertyName &name, const QVariant &value);
@@ -124,6 +126,7 @@ protected:
 
     void setParentId(qint32 instanceId);
     void setRenderPixmap(const QImage &image);
+    bool setError(const QString &errorMessage);
     NodeInstance(ProxyNodeInstanceData *d);
 
 private:

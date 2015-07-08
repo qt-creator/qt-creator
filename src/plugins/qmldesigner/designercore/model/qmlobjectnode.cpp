@@ -486,6 +486,22 @@ bool QmlObjectNode::isValid() const
     return isValidQmlObjectNode(modelNode());
 }
 
+bool QmlObjectNode::hasError() const
+{
+    if (isValid())
+        return nodeInstance().hasError();
+    else
+        qDebug() << "called hasError() on an invalid QmlObjectNode";
+    return false;
+}
+
+QString QmlObjectNode::error() const
+{
+    if (hasError())
+        return nodeInstance().error();
+    return QString();
+}
+
 bool QmlObjectNode::hasNodeParent() const
 {
     return modelNode().hasParentProperty();

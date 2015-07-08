@@ -84,6 +84,8 @@ public:
     QPixmap renderPixmap;
     QPixmap blurredRenderPixmap;
 
+    QString errorMessage;
+
     QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
 };
 
@@ -178,6 +180,17 @@ bool NodeInstance::hasAnchors() const
             || hasAnchor("anchors.verticalCenter")
             || hasAnchor("anchors.baseline");
 }
+
+QString NodeInstance::error() const
+{
+    return d->errorMessage;
+}
+
+bool NodeInstance::hasError() const
+{
+    return !d->errorMessage.isEmpty();
+}
+
 
 bool NodeInstance::isValid() const
 {
@@ -390,6 +403,15 @@ void NodeInstance::setRenderPixmap(const QImage &image)
 {
     d->renderPixmap = QPixmap::fromImage(image);
     d->blurredRenderPixmap = QPixmap();
+}
+
+bool NodeInstance::setError(const QString &errorMessage)
+{
+    if (d->errorMessage != errorMessage) {
+        d->errorMessage = errorMessage;
+        return true;
+    }
+    return false;
 }
 
 void NodeInstance::setParentId(qint32 instanceId)
