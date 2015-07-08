@@ -33,6 +33,7 @@
 #include "makefileparser.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QDir>
@@ -443,10 +444,10 @@ QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
 QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
 {
     int assignPos = line.indexOf(QLatin1Char('=')) + 1;
-    if (assignPos >= line.size())
+    if (assignPos <= 0 || assignPos >= line.size())
         return QStringList();
 
-    const QStringList parts = line.mid(assignPos).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    const QStringList parts = Utils::QtcProcess::splitArgs(line.mid(assignPos));
     QStringList result;
     for (int i = 0; i < parts.count(); ++i) {
         const QString cur = parts.at(i);
@@ -545,6 +546,12 @@ void MakefileParser::parseIncludePaths()
     QString line;
     do {
         line = textStream.readLine();
+        while (line.endsWith(QLatin1Char('\\'))) {
+            line.chop(1);
+            QString next = textStream.readLine();
+            line.append(next);
+        }
+
         const QString varName = parseIdentifierBeforeAssign(line);
         if (varName.isEmpty())
             continue;
