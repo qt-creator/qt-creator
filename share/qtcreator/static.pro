@@ -72,12 +72,6 @@ for(data_dir, DATA_DIRS) {
    dumpinfo.input = qml/qmldump/Info.plist.in
    dumpinfo.output = $$IDE_DATA_PATH/qml/qmldump/Info.plist
    QMAKE_SUBSTITUTES += dumpinfo
-   puppetinfo.input = qml/qmlpuppet/qmlpuppet/Info.plist.in
-   puppetinfo.output = $$IDE_DATA_PATH/qml/qmlpuppet/qmlpuppet/Info.plist
-   QMAKE_SUBSTITUES += puppetinfo
-   puppet2info.input = qml/qmlpuppet/qml2puppet/Info.plist.in
-   puppet2info.output = $$IDE_DATA_PATH/qml/qmlpuppet/qml2puppet/Info.plist
-   QMAKE_SUBSTITUES += puppet2info
 }
 
 SRCRESOURCEDIR = $$IDE_SOURCE_TREE/src/share/qtcreator/
