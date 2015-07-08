@@ -41,13 +41,14 @@ class BaseEngineDebugClient;
 class BaseToolsClient;
 class ObjectReference;
 class FileReference;
+class QmlDebugConnection;
 }
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
-class QmlAdapter;
+class QmlEngine;
 class QmlInspectorAgent;
 
 class QmlInspectorAdapter : public QObject
@@ -55,8 +56,7 @@ class QmlInspectorAdapter : public QObject
     Q_OBJECT
 
 public:
-    QmlInspectorAdapter(QmlAdapter *debugAdapter, DebuggerEngine *engine,
-                        QObject *parent = 0);
+    QmlInspectorAdapter(QmlEngine *engine, QmlDebug::QmlDebugConnection *connection);
     ~QmlInspectorAdapter();
 
     QmlDebug::BaseEngineDebugClient *engineClient() const;
@@ -96,8 +96,8 @@ private:
 
     void enableTools(const bool enable);
 
-    QmlAdapter *m_debugAdapter;
-    DebuggerEngine *m_engine; // Master Engine
+    QmlEngine *m_qmlEngine;
+    DebuggerEngine *m_masterEngine;
     QmlDebug::BaseEngineDebugClient *m_engineClient;
     QHash<QString, QmlDebug::BaseEngineDebugClient*> m_engineClients;
     QmlDebug::BaseToolsClient *m_toolsClient;

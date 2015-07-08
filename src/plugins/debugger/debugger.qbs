@@ -146,12 +146,11 @@ QtcPlugin {
         prefix: "qml/"
         files: [
             "interactiveinterpreter.cpp", "interactiveinterpreter.h",
-            "qmladapter.cpp", "qmladapter.h",
             "qmlcppengine.cpp", "qmlcppengine.h",
             "qmlengine.cpp", "qmlengine.h",
+            "qmlengineutils.cpp", "qmlengineutils.h",
             "qmlinspectoradapter.cpp", "qmlinspectoradapter.h",
             "qmlinspectoragent.cpp", "qmlinspectoragent.h",
-            "qmlv8debuggerclient.cpp", "qmlv8debuggerclient.h",
             "qmlv8debuggerclientconstants.h"
         ]
     }

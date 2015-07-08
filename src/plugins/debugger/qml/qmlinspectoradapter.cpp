@@ -30,8 +30,9 @@
 
 #include "qmlinspectoradapter.h"
 
-#include "qmladapter.h"
+#include "qmlengine.h"
 #include "qmlinspectoragent.h"
+
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerstringutils.h>
@@ -60,15 +61,12 @@ namespace Internal {
  * QmlInspectorAdapter manages the clients for the inspector, and the
  * integration with the text editor.
  */
-QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
-                                         DebuggerEngine *engine,
-                                         QObject *parent)
-    : QObject(parent)
-    , m_debugAdapter(debugAdapter)
-    , m_engine(engine)
+QmlInspectorAdapter::QmlInspectorAdapter(QmlEngine *engine, QmlDebugConnection *connection)
+    : m_qmlEngine(engine)
+    , m_masterEngine(engine)
     , m_engineClient(0)
     , m_toolsClient(0)
-    , m_agent(new QmlInspectorAgent(engine, this))
+    , m_agent(new QmlInspectorAgent(engine))
     , m_targetToSync(NoTarget)
     , m_debugIdToSelect(-1)
     , m_currentSelectedDebugId(-1)
@@ -79,16 +77,15 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_showAppOnTopAction(action(ShowAppOnTop))
     , m_engineClientConnected(false)
 {
-    if (!m_engine->isMasterEngine())
-        m_engine = m_engine->masterEngine();
-    connect(m_engine, &DebuggerEngine::stateChanged,
+    if (!m_masterEngine->isMasterEngine())
+        m_masterEngine = m_masterEngine->masterEngine();
+    connect(m_masterEngine, &DebuggerEngine::stateChanged,
             this, &QmlInspectorAdapter::onEngineStateChanged);
     connect(m_agent, &QmlInspectorAgent::objectFetched,
             this, &QmlInspectorAdapter::onObjectFetched);
     connect(m_agent, &QmlInspectorAgent::jumpToObjectDefinition,
             this, &QmlInspectorAdapter::jumpToObjectDefinitionInEditor);
 
-    QmlDebugConnection *connection = m_debugAdapter->connection();
     auto engineClient1 = new DeclarativeEngineDebugClient(connection);
     connect(engineClient1, &BaseEngineDebugClient::newState,
             this, &QmlInspectorAdapter::clientStateChanged);
@@ -186,7 +183,7 @@ void QmlInspectorAdapter::clientStateChanged(QmlDebugClient::State state)
         version = client->remoteVersion();
     }
 
-    m_debugAdapter->logServiceStateChange(serviceName, version, state);
+    m_qmlEngine->logServiceStateChange(serviceName, version, state);
 }
 
 void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
@@ -199,7 +196,7 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         connect(client, &BaseToolsClient::currentObjectsChanged,
                 this, &QmlInspectorAdapter::selectObjectsFromToolsClient);
         connect(client, &BaseToolsClient::logActivity,
-                m_debugAdapter, &QmlAdapter::logServiceActivity);
+                m_qmlEngine, &QmlEngine::logServiceActivity);
         connect(client, &BaseToolsClient::reloaded, this, &QmlInspectorAdapter::onReloaded);
 
         // register actions here
@@ -217,15 +214,15 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         Core::ICore::addAdditionalContext(m_inspectorToolsContext);
 
         m_toolsClientConnected = true;
-        onEngineStateChanged(m_engine->state());
+        onEngineStateChanged(m_masterEngine->state());
         if (m_showAppOnTopAction->isChecked())
             m_toolsClient->showAppOnTop(true);
 
     } else if (m_toolsClientConnected && client == m_toolsClient) {
-        disconnect(client, SIGNAL(currentObjectsChanged(QList<int>)),
-                   this, SLOT(selectObjectsFromToolsClient(QList<int>)));
-        disconnect(client, SIGNAL(logActivity(QString,QString)),
-                   m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
+        disconnect(client, &BaseToolsClient::currentObjectsChanged,
+                   this, &QmlInspectorAdapter::selectObjectsFromToolsClient);
+        disconnect(client, &BaseToolsClient::logActivity,
+                   m_qmlEngine, &QmlEngine::logServiceActivity);
 
         Core::ActionManager::unregisterAction(m_selectAction, Core::Id(Constants::QML_SELECTTOOL));
         Core::ActionManager::unregisterAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL));
@@ -316,13 +313,13 @@ void QmlInspectorAdapter::setActiveEngineClient(BaseEngineDebugClient *client)
 
 void QmlInspectorAdapter::showConnectionStateMessage(const QString &message)
 {
-    m_engine->showMessage(_("QML Inspector: ") + message, LogStatus);
+    m_masterEngine->showMessage(_("QML Inspector: ") + message, LogStatus);
 }
 
 void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
         const FileReference &objSource, int debugId)
 {
-    const QString fileName = m_engine->toFileInProject(objSource.url());
+    const QString fileName = m_masterEngine->toFileInProject(objSource.url());
 
     Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
     if (debugId != -1 && debugId != m_currentSelectedDebugId) {
