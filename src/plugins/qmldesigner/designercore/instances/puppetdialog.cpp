@@ -31,6 +31,8 @@
 #include "puppetdialog.h"
 #include "ui_puppetdialog.h"
 
+namespace QmlDesigner {
+
 PuppetDialog::PuppetDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PuppetDialog)
@@ -63,3 +65,5 @@ void PuppetDialog::warning(QWidget *parent, const QString &title, const QString 
 
     dialog.exec();
 }
+
+} //QmlDesigner

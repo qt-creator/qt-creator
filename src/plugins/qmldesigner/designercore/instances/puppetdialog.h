@@ -33,11 +33,12 @@
 
 #include <QDialog>
 
-QT_BEGIN_NAMESPACE
+namespace QmlDesigner {
+
 namespace Ui {
 class PuppetDialog;
 }
-QT_END_NAMESPACE
+
 
 class PuppetDialog : public QDialog
 {
@@ -58,5 +59,7 @@ public:
 private:
     Ui::PuppetDialog *ui;
 };
+
+} //QmlDesigner
 
 #endif // PUPPETDIALOG_H
