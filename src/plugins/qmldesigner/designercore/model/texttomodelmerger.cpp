@@ -456,7 +456,7 @@ public:
         if (parentObject)
             *parentObject = objectValue;
         if (!value) {
-            qWarning() << "Skipping invalid property name" << propertyName;
+            qWarning() << Q_FUNC_INFO << "Skipping invalid property name" << propertyName;
             return false;
         }
 
@@ -537,7 +537,7 @@ public:
         const ObjectValue *containingObject = 0;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
-            qWarning() << "Unknown property" << propertyPrefix + QLatin1Char('.') + toString(propertyId)
+            qWarning() << Q_FUNC_INFO << "Unknown property" << propertyPrefix + QLatin1Char('.') + toString(propertyId)
                        << "on line" << propertyId->identifierToken.startLine
                        << "column" << propertyId->identifierToken.startColumn;
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
@@ -1305,7 +1305,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
             syncExpressionProperty(modelProperty, astValue, TypeName(), differenceHandler); // TODO: parse type
             return astPropertyName.toUtf8();
         } else {
-            qWarning() << "Skipping invalid expression property" << astPropertyName
+            qWarning() << Q_FUNC_INFO << "Skipping invalid expression property" << astPropertyName
                     << "for node type" << modelNode.type();
             return PropertyName();
         }
