@@ -1570,7 +1570,7 @@ void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, in
     rootNode()->setType(type);
     rootNode()->setMajorVersion(majorVersion);
     rootNode()->setMinorVersion(minorVersion);
-    notifyRootNodeTypeChanged(type, majorVersion, minorVersion);
+    notifyRootNodeTypeChanged(QString::fromLatin1(type), majorVersion, minorVersion);
 }
 
 void ModelPrivate::setScriptFunctions(const InternalNode::Pointer &internalNodePointer, const QStringList &scriptFunctionList)
@@ -1773,8 +1773,8 @@ static bool compareVersions(const QString &version1, const QString &version2, bo
         return true;
     if (!allowHigherVersion)
         return false;
-    QStringList version1List = version1.split('.');
-    QStringList version2List = version2.split('.');
+    QStringList version1List = version1.split(QLatin1Char('.'));
+    QStringList version2List = version2.split(QLatin1Char('.'));
     if (version1List.count() == 2 && version2List.count() == 2) {
         bool ok;
         int major1 = version1List.first().toInt(&ok);
