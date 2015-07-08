@@ -49,8 +49,6 @@ namespace CppTools {
 class CPPTOOLS_EXPORT BaseEditorDocumentProcessor : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BaseEditorDocumentProcessor)
-    BaseEditorDocumentProcessor();
 
 public:
     BaseEditorDocumentProcessor(TextEditor::TextDocument *document);

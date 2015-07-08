@@ -51,7 +51,6 @@ namespace CppTools {
 class CPPTOOLS_EXPORT CppEditorOutline : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(CppEditorOutline)
 
 public:
     explicit CppEditorOutline(TextEditor::TextEditorWidget *editorWidget);

@@ -43,7 +43,6 @@ class SemanticInfoUpdaterPrivate;
 class SemanticInfoUpdater : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SemanticInfoUpdater)
 
 public:
     explicit SemanticInfoUpdater();
