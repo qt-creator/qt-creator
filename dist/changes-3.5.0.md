@@ -66,6 +66,15 @@ QML-Only Projects (.qmlproject)
 
 * Re-enabled the plugin by default
 
+Debugging
+
+* Added dumper for `QJsonValue`, `QJsonObject`, `QJsonArray`, `QUuid`
+* Added basic support for GDB's fork-follows-child
+* Improved support for GDB 7.9 and LLDB 3.7
+* Fixed display of `QHash` keys with value 0 (QTCREATORBUG-14451)
+* Fixed variable expansion state in QML debugger
+* Fixed display of members of returned values
+
 QML Profiler
 
 * Removed support for V8
@@ -114,6 +123,7 @@ Version Control Systems
 FakeVim
 
 * Added support for `C-r{register}`
+* Added support for remapping shortcuts
 
 Todo
 
@@ -167,5 +177,9 @@ Remote Linux
 
 * Added support for ECDH key exchange for SSH connections
   (QTCREATORBUG-14025)
+
+BareMetal
+
+* Fixed processing of additional OpenOCD arguments
 
 Credits for these changes go to:
