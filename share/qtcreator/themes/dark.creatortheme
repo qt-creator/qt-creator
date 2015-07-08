@@ -5,7 +5,7 @@ PreferredStyles=Fusion
 [Palette]
 shadowBackground=ff232323
 text=ffe7e7e7
-textDisabled=ffa0a0a4
+textDisabled=ffa0a0a0
 hoverBackground=ff515151
 selectedBackground=ff151515
 normalBackground=ff333333
@@ -17,6 +17,7 @@ BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=hoverBackground
 BackgroundColorNormal=normalBackground
+BackgroundColorDisabled=ff444444
 BackgroundColorSelected=ff909090
 BadgeLabelBackgroundColorChecked=normalBackground
 BadgeLabelBackgroundColorUnchecked=selectedBackground

@@ -131,7 +131,8 @@ WatchData::WatchData() :
     elided(0),
     wantsChildren(false),
     valueEnabled(true),
-    valueEditable(true)
+    valueEditable(true),
+    outdated(false)
 {
 }
 

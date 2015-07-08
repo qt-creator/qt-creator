@@ -147,8 +147,11 @@ QString DiffEditorController::prepareBranchesForCommit(const QString &output)
         moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
         res.erase(res.begin() + leave, res.end());
     }
-    if (!res.isEmpty())
-        branches = (QLatin1String("Branches: ") + res.join(QLatin1String(", ")) + moreBranches);
+    branches = QLatin1String("Branches: ");
+    if (res.isEmpty())
+        branches += tr("<None>");
+    else
+        branches += res.join(QLatin1String(", ")) + moreBranches;
 
     return branches;
 }

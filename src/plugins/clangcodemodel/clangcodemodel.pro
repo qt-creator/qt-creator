@@ -12,123 +12,117 @@ DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/incl
 unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
 
 SOURCES += \
-    $$PWD/clangcodemodelplugin.cpp \
-    $$PWD/clangcompleter.cpp \
-    $$PWD/clangcompletioncontextanalyzer.cpp \
-    $$PWD/clangcompletion.cpp \
-    $$PWD/clangeditordocumentparser.cpp \
-    $$PWD/clangeditordocumentprocessor.cpp \
-    $$PWD/clangmodelmanagersupport.cpp \
-    $$PWD/clangprojectsettings.cpp \
-    $$PWD/clangprojectsettingspropertiespage.cpp \
-    $$PWD/clangutils.cpp \
-    $$PWD/clangbackendipcintegration.cpp \
-    $$PWD/completionchunkstotextconverter.cpp \
-    $$PWD/completionproposalsbuilder.cpp \
-    $$PWD/cppcreatemarkers.cpp \
-    $$PWD/cxprettyprinter.cpp \
-    $$PWD/diagnostic.cpp \
-    $$PWD/fastindexer.cpp \
-    $$PWD/pchinfo.cpp \
-    $$PWD/pchmanager.cpp \
-    $$PWD/raii/scopedclangoptions.cpp \
-    $$PWD/semanticmarker.cpp \
-    $$PWD/sourcelocation.cpp \
-    $$PWD/sourcemarker.cpp \
-    $$PWD/symbol.cpp \
-    $$PWD/unit.cpp \
-    $$PWD/unsavedfiledata.cpp \
-    $$PWD/utils.cpp \
-    $$PWD/utils_p.cpp
+    activationsequenceprocessor.cpp \
+    clangassistproposal.cpp \
+    clangassistproposalitem.cpp \
+    clangassistproposalmodel.cpp \
+    clangbackendipcintegration.cpp \
+    clangcodemodelplugin.cpp \
+    clangcompletionassistinterface.cpp \
+    clangcompletionassistprocessor.cpp \
+    clangcompletionassistprovider.cpp \
+    clangcompletioncontextanalyzer.cpp \
+    clangeditordocumentparser.cpp \
+    clangeditordocumentprocessor.cpp \
+    clangfunctionhintmodel.cpp \
+    clangmodelmanagersupport.cpp \
+    clangprojectsettings.cpp \
+    clangprojectsettingspropertiespage.cpp \
+    clangutils.cpp \
+    completionchunkstotextconverter.cpp \
+    cppcreatemarkers.cpp \
+    cxprettyprinter.cpp \
+    diagnostic.cpp \
+    fastindexer.cpp \
+    pchinfo.cpp \
+    pchmanager.cpp \
+    raii/scopedclangoptions.cpp \
+    semanticmarker.cpp \
+    sourcelocation.cpp \
+    sourcemarker.cpp \
+    symbol.cpp \
+    unit.cpp \
+    unsavedfiledata.cpp \
+    utils.cpp \
+    utils_p.cpp
+
 
 HEADERS += \
-    $$PWD/clangcodemodelplugin.h \
-    $$PWD/clangcompleter.h \
-    $$PWD/clangcompletioncontextanalyzer.h \
-    $$PWD/clangcompletion.h \
-    $$PWD/clangeditordocumentparser.h \
-    $$PWD/clangeditordocumentprocessor.h \
-    $$PWD/clang_global.h \
-    $$PWD/clangmodelmanagersupport.h \
-    $$PWD/clangprojectsettings.h \
-    $$PWD/clangprojectsettingspropertiespage.h \
-    $$PWD/clangutils.h \
-    $$PWD/clangbackendipcintegration.h \
-    $$PWD/completionchunkstotextconverter.h \
-    $$PWD/completionproposalsbuilder.h \
-    $$PWD/constants.h \
-    $$PWD/cppcreatemarkers.h \
-    $$PWD/cxprettyprinter.h \
-    $$PWD/cxraii.h \
-    $$PWD/diagnostic.h \
-    $$PWD/fastindexer.h \
-    $$PWD/pchinfo.h \
-    $$PWD/pchmanager.h \
-    $$PWD/raii/scopedclangoptions.h \
-    $$PWD/semanticmarker.h \
-    $$PWD/sourcelocation.h \
-    $$PWD/sourcemarker.h \
-    $$PWD/symbol.h \
-    $$PWD/unit.h \
-    $$PWD/unsavedfiledata.h \
-    $$PWD/utils.h \
-    $$PWD/utils_p.h
+    activationsequenceprocessor.h \
+    clangassistproposal.h \
+    clangassistproposalitem.h \
+    clangassistproposalmodel.h \
+    clangbackendipcintegration.h \
+    clangcodemodelplugin.h \
+    clangcompletionassistinterface.h \
+    clangcompletionassistprocessor.h \
+    clangcompletionassistprovider.h \
+    clangcompletioncontextanalyzer.h \
+    clangeditordocumentparser.h \
+    clangeditordocumentprocessor.h \
+    clangfunctionhintmodel.h \
+    clang_global.h \
+    clangmodelmanagersupport.h \
+    clangprojectsettings.h \
+    clangprojectsettingspropertiespage.h \
+    clangutils.h \
+    completionchunkstotextconverter.h \
+    constants.h \
+    cppcreatemarkers.h \
+    cxprettyprinter.h \
+    cxraii.h \
+    diagnostic.h \
+    fastindexer.h \
+    pchinfo.h \
+    pchmanager.h \
+    raii/scopedclangoptions.h \
+    semanticmarker.h \
+    sourcelocation.h \
+    sourcemarker.h \
+    symbol.h \
+    unit.h \
+    unsavedfiledata.h \
+    utils.h \
+    utils_p.h
+
 
 contains(DEFINES, CLANG_INDEXING) {
     HEADERS += \
-        $$PWD/clangindexer.h \
-        $$PWD/index.h \
-        $$PWD/indexer.h
-#        $$PWD/dependencygraph.h \
+        clangindexer.h \
+        index.h \
+        indexer.h
+#        dependencygraph.h \
 
     SOURCES += \
-        $$PWD/clangindexer.cpp \
-        $$PWD/index.cpp \
-        $$PWD/indexer.cpp
-#        $$PWD/dependencygraph.cpp \
+        clangindexer.cpp \
+        index.cpp \
+        indexer.cpp
+#        dependencygraph.cpp \
 }
 
-FORMS += $$PWD/clangprojectsettingspropertiespage.ui
+FORMS += clangprojectsettingspropertiespage.ui
 
 equals(TEST, 1) {
     RESOURCES += \
-        $$PWD/test/clang_tests_database.qrc
+        test/clang_tests_database.qrc
 
     HEADERS += \
-        $$PWD/test/clangcodecompletion_test.h \
-        $$PWD/test/clangcompletioncontextanalyzertest.h \
-        $$PWD/test/completiontesthelper.h
+        test/clangcodecompletion_test.h \
+        test/clangcompletioncontextanalyzertest.h
 
     SOURCES += \
-        $$PWD/test/clangcodecompletion_test.cpp \
-        $$PWD/test/clangcompletioncontextanalyzertest.cpp \
-        $$PWD/test/clangcompletion_test.cpp \
-        $$PWD/test/completiontesthelper.cpp
+        test/clangcodecompletion_test.cpp \
+        test/clangcompletioncontextanalyzertest.cpp
+
 
     DISTFILES += \
-        $$PWD/test/mysource.cpp \
-        $$PWD/test/myheader.cpp \
-        $$PWD/test/completionWithProject.cpp \
-        $$PWD/test/memberCompletion.cpp \
-        $$PWD/test/doxygenKeywordsCompletion.cpp \
-        $$PWD/test/preprocessorKeywordsCompletion.cpp \
-        $$PWD/test/includeDirectiveCompletion.cpp \
-        $$PWD/test/cxx_regression_1.cpp \
-        $$PWD/test/cxx_regression_2.cpp \
-        $$PWD/test/cxx_regression_3.cpp \
-        $$PWD/test/cxx_regression_4.cpp \
-        $$PWD/test/cxx_regression_5.cpp \
-        $$PWD/test/cxx_regression_6.cpp \
-        $$PWD/test/cxx_regression_7.cpp \
-        $$PWD/test/cxx_regression_8.cpp \
-        $$PWD/test/cxx_regression_9.cpp \
-        $$PWD/test/cxx_snippets_1.cpp \
-        $$PWD/test/cxx_snippets_2.cpp \
-        $$PWD/test/cxx_snippets_3.cpp \
-        $$PWD/test/cxx_snippets_4.cpp \
-        $$PWD/test/objc_messages_1.mm \
-        $$PWD/test/objc_messages_2.mm \
-        $$PWD/test/objc_messages_3.mm
+        test/mysource.cpp \
+        test/myheader.cpp \
+        test/completionWithProject.cpp \
+        test/memberCompletion.cpp \
+        test/doxygenKeywordsCompletion.cpp \
+        test/preprocessorKeywordsCompletion.cpp \
+        test/includeDirectiveCompletion.cpp
 }
 
 macx {

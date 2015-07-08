@@ -28,55 +28,34 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_TESTS_COMPLETIONTESTHELPER_H
-#define CLANGCODEMODEL_TESTS_COMPLETIONTESTHELPER_H
+#ifndef CLANGCODEMODEL_INTERNAL_CLANGFUNCTIONHINTMODEL_H
+#define CLANGCODEMODEL_INTERNAL_CLANGFUNCTIONHINTMODEL_H
 
-#ifdef WITH_TESTS
+#include <codecompletion.h>
 
-#include "../clangcompleter.h"
-
-#include <QObject>
-#include <QTextDocument>
-#include <texteditor/texteditor.h>
-#include <cplusplus/CppDocument.h>
-
-namespace TextEditor { class IAssistProposal; }
+#include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class CompletionTestHelper : public QObject
+using CodeCompletions = QVector<ClangBackEnd::CodeCompletion>;
+
+class ClangFunctionHintModel : public TextEditor::IFunctionHintProposalModel
 {
-    Q_OBJECT
 public:
-    explicit CompletionTestHelper(QObject *parent = 0);
-    ~CompletionTestHelper();
+    ClangFunctionHintModel(const CodeCompletions &functionSymbols);
 
-    void operator <<(const QString &fileName);
-    QStringList codeCompleteTexts();
-    QList<CodeCompletionResult> codeComplete();
-
-    int position() const;
-    const QByteArray &source() const;
-
-    void addOption(const QString &option);
+    void reset() override;
+    int size() const override;
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
-    void findCompletionPos();
-
-    UnsavedFiles m_unsavedFiles;
-    ClangCompleter::Ptr m_completer;
-    QStringList m_clangOptions;
-
-    QByteArray m_sourceCode;
-    int m_position;
-    int m_line;
-    int m_column;
+    CodeCompletions m_functionSymbols;
+    mutable int m_currentArg;
 };
 
 } // namespace Internal
 } // namespace ClangCodeModel
 
-#endif
-
-#endif // CLANGCODEMODEL_TESTS_COMPLETIONTESTHELPER_H
+#endif // CLANGCODEMODEL_INTERNAL_CLANGFUNCTIONHINTMODEL_H

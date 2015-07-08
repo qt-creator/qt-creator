@@ -31,7 +31,6 @@
 #include "clangmodelmanagersupport.h"
 
 #include "constants.h"
-#include "clangcompletion.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 
@@ -50,7 +49,7 @@
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-static ModelManagerSupportClang *m_instance = 0;
+static ModelManagerSupportClang *m_instance_forTestsOnly = 0;
 
 static CppTools::CppModelManager *cppModelManager()
 {
@@ -60,8 +59,8 @@ static CppTools::CppModelManager *cppModelManager()
 ModelManagerSupportClang::ModelManagerSupportClang()
     : m_completionAssistProvider(m_ipcCommunicator)
 {
-    QTC_CHECK(!m_instance);
-    m_instance = this;
+    QTC_CHECK(!m_instance_forTestsOnly);
+    m_instance_forTestsOnly = this;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
@@ -78,7 +77,7 @@ ModelManagerSupportClang::ModelManagerSupportClang()
 
 ModelManagerSupportClang::~ModelManagerSupportClang()
 {
-    m_instance = 0;
+    m_instance_forTestsOnly = 0;
 }
 
 CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssistProvider()
@@ -176,10 +175,12 @@ void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectF
     m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectFiles);
 }
 
-ModelManagerSupportClang *ModelManagerSupportClang::instance()
+#ifdef QT_TESTLIB_LIB
+ModelManagerSupportClang *ModelManagerSupportClang::instance_forTestsOnly()
 {
-    return m_instance;
+    return m_instance_forTestsOnly;
 }
+#endif
 
 IpcCommunicator &ModelManagerSupportClang::ipcCommunicator()
 {

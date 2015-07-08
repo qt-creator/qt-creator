@@ -61,14 +61,6 @@ private:
 
 #ifdef WITH_TESTS
     QList<QObject *> createTestObjects() const;
-
-private slots:
-    void test_CXX_regressions();
-    void test_CXX_regressions_data();
-    void test_CXX_snippets();
-    void test_CXX_snippets_data();
-    void test_ObjC_hints();
-    void test_ObjC_hints_data();
 #endif
 };
 

@@ -28,34 +28,29 @@
 **
 ****************************************************************************/
 
-// Expected:
-//   (clamp, ),
-//   (perform, perform<$class T$>)
-//   (perform3, perform3<$class T$, $int E$, $class D$>)
+#ifndef CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSAL_H
+#define CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSAL_H
 
-// note: clang understands if parameter is redundant
+#include "clangassistproposalmodel.h"
 
-template<class T>
-T clamp(T value, T a = 0.0, T b = 1.0)
+#include <texteditor/codeassist/genericproposal.h>
+
+namespace ClangCodeModel {
+namespace Internal {
+
+class ClangAssistProposal : public TextEditor::GenericProposal
 {
-    if (value < a)
-        return a;
-    if (value > b)
-        return b;
-    return value;
-}
+public:
+    ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model);
 
-template<class T>
-void perform()
-{
-}
+    virtual bool isCorrective() const;
+    virtual void makeCorrection(TextEditor::TextEditorWidget *editorWidget);
 
-template<class T, int E, class D>
-void perform3()
-{
-}
+private:
+    bool m_replaceDotForArrow;
+};
 
-void check()
-{
-    <<<<
-}
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSAL_H

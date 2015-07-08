@@ -295,6 +295,11 @@ bool QmlDebugConnection::isOpen() const
     return d->gotHello;
 }
 
+bool QmlDebugConnection::isConnecting() const
+{
+    return !isOpen() && d->device;
+}
+
 void QmlDebugConnection::close()
 {
     if (d->device && d->device->isOpen())

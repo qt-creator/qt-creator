@@ -211,6 +211,7 @@ private:
     CommandsDoneCallback m_commandsDoneCallback;
 
     QList<DebuggerCommand> m_commandsToRunOnTemporaryBreak;
+    bool m_rerunPending;
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:

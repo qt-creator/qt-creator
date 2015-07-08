@@ -57,6 +57,7 @@ public:
     void connectToHost(const QString &hostName, quint16 port);
 
     bool isOpen() const;
+    bool isConnecting() const;
     void close();
 
 signals:

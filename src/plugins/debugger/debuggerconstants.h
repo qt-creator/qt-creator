@@ -136,36 +136,36 @@ enum DebuggerCloseMode
 
 enum DebuggerCapabilities
 {
-    ReverseSteppingCapability = 0x1,
-    SnapshotCapability = 0x2,
-    AutoDerefPointersCapability = 0x4,
-    DisassemblerCapability = 0x8,
-    RegisterCapability = 0x10,
-    ShowMemoryCapability = 0x20,
-    JumpToLineCapability = 0x40,
-    ReloadModuleCapability = 0x80,
-    ReloadModuleSymbolsCapability = 0x100,
-    BreakOnThrowAndCatchCapability = 0x200,
-    BreakConditionCapability = 0x400, //!< Conditional Breakpoints
-    BreakModuleCapability = 0x800, //!< Breakpoint specification includes module
-    TracePointCapability = 0x1000,
-    ReturnFromFunctionCapability = 0x2000,
-    CreateFullBacktraceCapability = 0x4000,
-    AddWatcherCapability = 0x8000,
-    AddWatcherWhileRunningCapability = 0x10000,
-    WatchWidgetsCapability = 0x20000,
-    WatchpointByAddressCapability = 0x40000,
-    WatchpointByExpressionCapability = 0x80000,
-    ShowModuleSymbolsCapability = 0x100000,
-    CatchCapability = 0x200000, //!< fork, vfork, syscall
-    OperateByInstructionCapability = 0x400000,
-    RunToLineCapability = 0x800000,
-    MemoryAddressCapability = 0x1000000,
-    ShowModuleSectionsCapability = 0x200000,
-    WatchComplexExpressionsCapability = 0x400000, // Used to filter out challenges for cdb.
-    AdditionalQmlStackCapability = 0x800000, // C++ debugger engine is able to retrieve QML stack as well.
-    ResetInferiorCapability = 0x1000000,  //!< restart program while debugging
-    NativeMixedCapability = 0x2000000
+    ReverseSteppingCapability         = 1 <<  0,
+    SnapshotCapability                = 1 <<  1,
+    AutoDerefPointersCapability       = 1 <<  2,
+    DisassemblerCapability            = 1 <<  3,
+    RegisterCapability                = 1 <<  4,
+    ShowMemoryCapability              = 1 <<  5,
+    JumpToLineCapability              = 1 <<  6,
+    ReloadModuleCapability            = 1 <<  7,
+    ReloadModuleSymbolsCapability     = 1 <<  8,
+    BreakOnThrowAndCatchCapability    = 1 <<  9,
+    BreakConditionCapability          = 1 << 10, //!< Conditional Breakpoints
+    BreakModuleCapability             = 1 << 11, //!< Breakpoint specification includes module
+    TracePointCapability              = 1 << 12,
+    ReturnFromFunctionCapability      = 1 << 13,
+    CreateFullBacktraceCapability     = 1 << 14,
+    AddWatcherCapability              = 1 << 15,
+    AddWatcherWhileRunningCapability  = 1 << 16,
+    WatchWidgetsCapability            = 1 << 17,
+    WatchpointByAddressCapability     = 1 << 18,
+    WatchpointByExpressionCapability  = 1 << 19,
+    ShowModuleSymbolsCapability       = 1 << 20,
+    CatchCapability                   = 1 << 21, //!< fork, vfork, syscall
+    OperateByInstructionCapability    = 1 << 22,
+    RunToLineCapability               = 1 << 23,
+    MemoryAddressCapability           = 1 << 24,
+    ShowModuleSectionsCapability      = 1 << 25,
+    WatchComplexExpressionsCapability = 1 << 26, // Used to filter out challenges for cdb.
+    AdditionalQmlStackCapability      = 1 << 27, //!< C++ debugger engine is able to retrieve QML stack as well.
+    ResetInferiorCapability           = 1 << 28, //!< restart program while debugging
+    NativeMixedCapability             = 1 << 29
 };
 
 enum LogChannel

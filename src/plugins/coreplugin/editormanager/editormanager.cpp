@@ -664,6 +664,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
 
         overrideCursor.reset();
         delete editor;
+        editor = 0;
 
         if (openResult == IDocument::OpenResult::ReadError) {
             QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),

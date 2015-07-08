@@ -31,9 +31,9 @@
 #include "clangcodecompletion_test.h"
 
 #include "../clangbackendipcintegration.h"
+#include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
 
-#include <clangcodemodel/clangcompletion.h>
 #include <clangcodemodel/constants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -45,6 +45,7 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -241,12 +242,14 @@ class ChangeIpcSender
 public:
     ChangeIpcSender(IpcSenderInterface *ipcSender)
     {
-        m_previousSender = ModelManagerSupportClang::instance()->ipcCommunicator().setIpcSender(ipcSender);
+        auto &ipc = ModelManagerSupportClang::instance_forTestsOnly()->ipcCommunicator();
+        m_previousSender = ipc.setIpcSender(ipcSender);
     }
 
     ~ChangeIpcSender()
     {
-        ModelManagerSupportClang::instance()->ipcCommunicator().setIpcSender(m_previousSender);
+        auto &ipc = ModelManagerSupportClang::instance_forTestsOnly()->ipcCommunicator();
+        ipc.setIpcSender(m_previousSender);
     }
 
 private:
@@ -940,7 +943,7 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     spy.senderLog.clear();
 
     // Kill backend process...
-    IpcCommunicator &ipcCommunicator = ModelManagerSupportClang::instance()->ipcCommunicator();
+    auto &ipcCommunicator = ModelManagerSupportClang::instance_forTestsOnly()->ipcCommunicator();
     ipcCommunicator.killBackendProcess();
     QSignalSpy waitForReinitializedBackend(&ipcCommunicator,
                                            SIGNAL(backendReinitialized()));

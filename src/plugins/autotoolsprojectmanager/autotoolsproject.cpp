@@ -284,7 +284,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     FolderNode *parentFolder = 0;
     FolderNode *oldParentFolder = 0;
 
-    foreach (const QString& file, files) {
+    foreach (const QString &file, files) {
         if (file.endsWith(QLatin1String(".moc")))
             continue;
 
@@ -306,8 +306,8 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
                 parentFolder = m_rootNode;
             }
         }
-        QTC_ASSERT(parentFolder != 0, return);
-        if ((oldParentFolder != parentFolder) && !fileNodes.isEmpty()) {
+        QTC_ASSERT(parentFolder, return);
+        if (oldParentFolder && (oldParentFolder != parentFolder) && !fileNodes.isEmpty()) {
             // AutotoolsProjectNode::addFileNodes() is a very expensive operation. It is
             // important to collect as much file nodes of the same parent folder as
             // possible before invoking it.
@@ -328,7 +328,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
         }
     }
 
-    if (!fileNodes.isEmpty())
+    if (parentFolder && !fileNodes.isEmpty())
         parentFolder->addFileNodes(fileNodes);
 
     // Remove unused file nodes and empty folder nodes

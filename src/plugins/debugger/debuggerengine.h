@@ -120,6 +120,14 @@ class UpdateParameters
 public:
     UpdateParameters() {}
 
+    QList<QByteArray> partialVariables() const
+    {
+        QList<QByteArray> result;
+        if (!partialVariable.isEmpty())
+            result.append(partialVariable);
+        return result;
+    }
+
     QByteArray partialVariable;
 };
 

@@ -87,6 +87,12 @@ static const char HEAD[] = "HEAD";
 static const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
 static const char noColorOption[] = "--no-color";
 static const char decorateOption[] = "--decorate";
+static const char showFormatC[] =
+        "--pretty=format:commit %H%n"
+        "Author: %an <%ae>, %ad (%ar)%n"
+        "Committer: %cn <%ce>, %cd (%cr)%n"
+        "%n"
+        "%B";
 
 using namespace Core;
 using namespace DiffEditor;
@@ -367,7 +373,7 @@ void ShowController::reload()
 {
     QStringList args;
     args << QLatin1String("show") << QLatin1String("-s") << QLatin1String(noColorOption)
-              << QLatin1String(decorateOption) << m_id;
+              << QLatin1String(decorateOption) << QLatin1String(showFormatC) << m_id;
     m_state = GettingDescription;
     runCommand(QList<QStringList>() << args, gitClient()->encoding(m_directory, "i18n.commitEncoding"));
 }
@@ -2838,12 +2844,20 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
                                      const QStringList &files, const QString &abortCommand)
 {
     QString message;
-    if (!commit.isEmpty())
+    if (!commit.isEmpty()) {
         message = tr("Conflicts detected with commit %1.").arg(commit);
-    else if (!files.isEmpty())
-        message = tr("Conflicts detected with files:\n%1").arg(files.join(QLatin1Char('\n')));
-    else
+    } else if (!files.isEmpty()) {
+        QString fileList;
+        QStringList partialFiles = files;
+        while (partialFiles.count() > 20)
+            partialFiles.removeLast();
+        fileList = partialFiles.join(QLatin1Char('\n'));
+        if (partialFiles.count() != files.count())
+            fileList += QLatin1String("\n...");
+        message = tr("Conflicts detected with files:\n%1").arg(fileList);
+    } else {
         message = tr("Conflicts detected.");
+    }
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
                              QMessageBox::NoButton, ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),

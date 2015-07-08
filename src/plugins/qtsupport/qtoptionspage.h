@@ -126,6 +126,9 @@ private:
     QList<ProjectExplorer::ToolChain*> toolChains(const BaseQtVersion *version);
     QString defaultToolChainId(const BaseQtVersion *verison);
 
+    bool isNameUnique(const BaseQtVersion *version);
+    void updateVersionItem(BaseQtVersion *version);
+
     QTreeWidgetItem *m_autoItem;
     QTreeWidgetItem *m_manualItem;
 };

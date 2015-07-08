@@ -28,18 +28,54 @@
 **
 ****************************************************************************/
 
-/*
- * Expected: 'sqr'
- * Not expected: '~Math', 'operator='s
- */
+#ifndef CLANGCODEMODEL_INTERNAL_ACTIVATIONSEQUENCEPROCESSOR_H
+#define CLANGCODEMODEL_INTERNAL_ACTIVATIONSEQUENCEPROCESSOR_H
 
-class Math
+#include <cplusplus/Token.h>
+
+#include <QString>
+
+namespace ClangCodeModel {
+namespace Internal {
+
+class ActivationSequenceProcessor
 {
-    int sqr(int a);
+public:
+    ActivationSequenceProcessor(const QString &activationString,
+                                int positionInDocument,
+                                bool wantFunctionCall);
+
+    CPlusPlus::Kind completionKind() const;
+    int offset() const;
+    int position() const;
+
+private:
+    void extractCharactersBeforePosition(const QString &activationString);
+    void process();
+    void processDot();
+    void processComma();
+    void processLeftParen();
+    void processColonColon();
+    void processArrow();
+    void processDotStar();
+    void processArrowStar();
+    void processDoxyGenComment();
+    void processAngleStringLiteral();
+    void processStringLiteral();
+    void processSlash();
+    void processPound();
+
+private:
+    CPlusPlus::Kind m_completionKind = CPlusPlus::T_EOF_SYMBOL;
+    int m_offset = 0;
+    int m_positionInDocument;
+    QChar m_char1;
+    QChar m_char2;
+    QChar m_char3;
+    bool m_wantFunctionCall;
 };
 
-void foo()
-{
-    Math math;
-    int sqr = math.<<<<;
-}
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGCODEMODEL_INTERNAL_ACTIVATIONSEQUENCEPROCESSOR_H

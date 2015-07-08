@@ -28,15 +28,40 @@
 **
 ****************************************************************************/
 
-/*
- * Expected: 'action'
- */
+#ifndef CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTPROVIDER_H
+#define CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTPROVIDER_H
 
-void func()
+#include "clangbackendipcintegration.h"
+
+#include <cpptools/cppcompletionassistprovider.h>
+
+#include <texteditor/codeassist/assistinterface.h>
+
+namespace ClangCodeModel {
+namespace Internal {
+
+class ClangCompletionAssistProvider : public CppTools::CppCompletionAssistProvider
 {
-    struct impl
-    {
-        static void action() {}
-    };
-    impl::<<<<;
-}
+    Q_OBJECT
+
+public:
+    ClangCompletionAssistProvider(IpcCommunicator &ipcCommunicator);
+
+    IAssistProvider::RunType runType() const override;
+
+    TextEditor::IAssistProcessor *createProcessor() const override;
+    TextEditor::AssistInterface *createAssistInterface(
+            const QString &filePath,
+            const TextEditor::TextEditorWidget *textEditorWidget,
+            const CPlusPlus::LanguageFeatures &languageFeatures,
+            int position,
+            TextEditor::AssistReason reason) const override;
+
+private:
+    IpcCommunicator &m_ipcCommunicator;
+};
+
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTPROVIDER_H

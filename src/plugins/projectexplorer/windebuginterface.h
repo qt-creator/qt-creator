@@ -60,6 +60,7 @@ private:
 
     static WinDebugInterface *m_instance;
 
+    qint64 m_creatorPid;
     Qt::HANDLE m_waitHandles[HandleCount];
     Qt::HANDLE m_bufferReadyEvent;
     Qt::HANDLE m_sharedFile;

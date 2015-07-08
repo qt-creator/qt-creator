@@ -210,7 +210,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     m_targetChooser(new PathChooser(this))
 {
     setTitle(tr("Source Paths Mapping"));
-    setToolTip(tr("<html><head/><body><p>Mappings of source file folders to "
+    setToolTip(tr("<p>Mappings of source file folders to "
                   "be used in the debugger can be entered here.</p>"
                   "<p>This is useful when using a copy of the source tree "
                   "at a location different from the one "
@@ -220,8 +220,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
                   "open parenthesis, Qt Creator matches the paths in the ELF with the "
                   "regular expression to automatically determine the source path.</p>"
                   "<p>Example: <b>(/home/.*/Project)/KnownSubDir -> D:\\Project</b> will "
-                  "substitute ELF built by any user to your local project directory.</p>"
-                  "</body></html>"));
+                  "substitute ELF built by any user to your local project directory.</p>"));
     // Top list/left part.
     m_treeView->setRootIsDecorated(false);
     m_treeView->setUniformRowHeights(true);
@@ -236,7 +235,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_addQtButton);
     m_addQtButton->setVisible(sizeof(qtBuildPaths) > 0);
-    m_addQtButton->setToolTip(tr("Add a mapping for Qt's source folders "
+    m_addQtButton->setToolTip(tr("<p>Add a mapping for Qt's source folders "
         "when using an unpatched version of Qt."));
     buttonLayout->addWidget(m_removeButton);
     connect(m_addButton, &QAbstractButton::clicked,
@@ -260,7 +259,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     connect(m_targetChooser, &PathChooser::changed,
             this, &DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged);
     auto editLayout = new QFormLayout;
-    const QString sourceToolTip = tr("The source path contained in the "
+    const QString sourceToolTip = tr("<p>The source path contained in the "
         "debug information of the executable as reported by the debugger");
     auto editSourceLabel = new QLabel(tr("&Source path:"));
     editSourceLabel->setToolTip(sourceToolTip);
@@ -268,7 +267,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     editSourceLabel->setBuddy(m_sourceLineEdit);
     editLayout->addRow(editSourceLabel, m_sourceLineEdit);
 
-    const QString targetToolTip = tr("The actual location of the source "
+    const QString targetToolTip = tr("<p>The actual location of the source "
         "tree on the local machine");
     auto editTargetLabel = new QLabel(tr("&Target path:"));
     editTargetLabel->setToolTip(targetToolTip);

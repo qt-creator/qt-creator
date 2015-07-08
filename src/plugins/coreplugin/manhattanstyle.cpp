@@ -490,7 +490,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 QColor shadow(0, 0, 0, 30);
                 painter->setPen(shadow);
                 if (pressed) {
-                    QColor shade(0, 0, 0, 40);
+                    QColor shade = option->palette.base().color();
+                    shade.setHsv(shade.hue(), shade.saturation(), 255 - shade.value(), 40);
                     painter->fillRect(rect, shade);
                     painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() - QPoint(1, 0));
                     painter->drawLine(rect.topLeft(), rect.bottomLeft());

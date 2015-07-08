@@ -210,7 +210,7 @@ void QmlProfilerClientManager::disconnectClientSignals()
 
 void QmlProfilerClientManager::connectToClient()
 {
-    if (!d->connection || d->connection->isOpen())
+    if (!d->connection || d->connection->isOpen() || d->connection->isConnecting())
         return;
 
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
@@ -285,6 +285,12 @@ void QmlProfilerClientManager::logState(const QString &msg)
 
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 {
+    if (d->connection) {
+        QTC_ASSERT(!d->connection->isOpen(), return);
+        if (d->connection->isConnecting())
+            d->connection->disconnect();
+    }
+
     switch (result) {
     case QMessageBox::Retry: {
         d->connectionAttempts = 0;

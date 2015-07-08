@@ -28,18 +28,51 @@
 **
 ****************************************************************************/
 
-/*
-  Expected:
-    text 'private',
-    text 'protected',
-    text 'public',
-    text 'friend',
-    text 'virtual'
+#include "clangassistproposalitem.h"
 
-    text 'typedef type name', snippet 'typedef $type$ $name$'
- */
+#include "clangassistproposalmodel.h"
 
-class A
+#include <texteditor/codeassist/assistproposalitem.h>
+
+#include <algorithm>
+
+namespace ClangCodeModel {
+namespace Internal {
+
+namespace {
+
+const ClangAssistProposalItem &toClangAssistProposalItem(TextEditor::AssistProposalItem *assistProposalItem)
 {
-    <<<<
-};
+    return *static_cast<ClangAssistProposalItem*>(assistProposalItem);
+}
+
+}
+
+bool ClangAssistProposalModel::replaceDotForArrow(TextEditor::IAssistProposalModel *model)
+{
+    auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model);
+
+    return clangAssistProposalModel->m_replaceDotForArrow;
+}
+
+bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
+{
+    return true;
+}
+
+void ClangAssistProposalModel::sort(const QString &/*prefix*/)
+{
+    using TextEditor::AssistProposalItem;
+
+    auto currentItemsCompare = [](AssistProposalItem *first, AssistProposalItem *second) {
+        return (first->order() > 0
+                && (first->order() < second->order()
+                     || (first->order() == second->order() && first->text() < second->text())));
+    };
+
+    std::sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);
+}
+
+} // namespace Internal
+} // namespace ClangCodeModel
+

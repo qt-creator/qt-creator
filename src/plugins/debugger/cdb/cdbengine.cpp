@@ -547,10 +547,6 @@ void CdbEngine::setupEngine()
 {
     if (debug)
         qDebug(">setupEngine");
-    // Nag to add symbol server and cache
-    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    if (CdbSymbolPathListEditor::promptToAddSymbolPaths(&symbolPaths))
-        action(CdbSymbolPaths)->setValue(symbolPaths);
 
     init();
     if (!m_logTime.elapsed())
@@ -1344,7 +1340,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         return;
     }
 
-    watchHandler()->notifyUpdateStarted();
+    watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
 
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
@@ -1779,7 +1775,6 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
 
 void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
 {
-    watchHandler()->notifyUpdateFinished();
     if (response.success) {
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
@@ -1800,6 +1795,7 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
     } else {
         showMessage(QString::fromLatin1(response.errorMessage), LogWarning);
     }
+    watchHandler()->notifyUpdateFinished();
 }
 
 void CdbEngine::handleExpandLocals(const CdbResponse &response)
@@ -2353,6 +2349,8 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
     }
 
     if (what == "event") {
+        if (message.startsWith("Process exited"))
+            notifyInferiorExited();
         showStatusMessage(QString::fromLatin1(message),  5000);
         return;
     }

@@ -240,6 +240,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
+    m_rerunPending = false;
 
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
@@ -1972,8 +1973,12 @@ void GdbEngine::handleThreadGroupCreated(const GdbMi &result)
 void GdbEngine::handleThreadGroupExited(const GdbMi &result)
 {
     QByteArray groupId = result["id"].data();
-    if (threadsHandler()->notifyGroupExited(groupId))
-        notifyInferiorExited();
+    if (threadsHandler()->notifyGroupExited(groupId)) {
+        if (m_rerunPending)
+            m_rerunPending = false;
+        else
+            notifyInferiorExited();
+    }
 }
 
 int GdbEngine::currentFrame() const
@@ -4322,6 +4327,7 @@ void GdbEngine::resetInferior()
             }
         }
     }
+    m_rerunPending = true;
     requestInterruptInferior();
     runEngine();
 }
@@ -4660,7 +4666,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     m_pendingBreakpointRequests = 0;
 
-    watchHandler()->notifyUpdateStarted();
+    watchHandler()->notifyUpdateStarted(params.partialVariables());
 
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);
@@ -4716,7 +4722,6 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
 void GdbEngine::handleStackFrame(const DebuggerResponse &response)
 {
-    watchHandler()->notifyUpdateFinished();
     if (response.resultClass == ResultDone) {
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
@@ -4735,6 +4740,7 @@ void GdbEngine::handleStackFrame(const DebuggerResponse &response)
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }
+    watchHandler()->notifyUpdateFinished();
 }
 
 QString GdbEngine::msgPtraceError(DebuggerStartMode sm)

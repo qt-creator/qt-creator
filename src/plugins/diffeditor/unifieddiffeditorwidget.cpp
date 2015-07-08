@@ -54,8 +54,11 @@
 #include <coreplugin/patchtool.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <cpaster/codepasterservice.h>
+
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
 //static const int FILE_LEVEL = 1;
@@ -189,10 +192,13 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
 
     menu->addSeparator();
     menu->addSeparator();
-    QAction *sendChunkToCodePasterAction =
-            menu->addAction(tr("Send Chunk to CodePaster..."));
-    connect(sendChunkToCodePasterAction, &QAction::triggered,
-            this, &UnifiedDiffEditorWidget::slotSendChunkToCodePaster);
+    if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
+        // optional code pasting service
+        QAction *sendChunkToCodePasterAction =
+                menu->addAction(tr("Send Chunk to CodePaster..."));
+        connect(sendChunkToCodePasterAction, &QAction::triggered,
+                this, &UnifiedDiffEditorWidget::slotSendChunkToCodePaster);
+    }
     QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
     connect(applyAction, &QAction::triggered, this, &UnifiedDiffEditorWidget::slotApplyChunk);
     QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
@@ -229,23 +235,16 @@ void UnifiedDiffEditorWidget::slotSendChunkToCodePaster()
     if (!m_document)
         return;
 
+    // Retrieve service by soft dependency.
+    auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
+    QTC_ASSERT(pasteService, return);
+
     const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, false);
 
     if (patch.isEmpty())
         return;
 
-    // Retrieve service by soft dependency.
-    QObject *pasteService =
-            ExtensionSystem::PluginManager::getObjectByClassName(
-                QLatin1String("CodePaster::CodePasterService"));
-    if (pasteService) {
-        QMetaObject::invokeMethod(pasteService, "postText",
-                                  Q_ARG(QString, patch),
-                                  Q_ARG(QString, QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)));
-    } else {
-        QMessageBox::information(this, tr("Unable to Paste"),
-                                 tr("Code pasting services are not available."));
-    }
+    pasteService->postText(patch, QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
 }
 
 void UnifiedDiffEditorWidget::slotApplyChunk()

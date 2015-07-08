@@ -28,35 +28,30 @@
 **
 ****************************************************************************/
 
-/*
- * Expected: 'doB'
- * Not expected: 'doA'
- */
+#include "clangassistproposal.h"
 
-struct A {
-    struct Inside {
-        void doA() {}
-    };
-};
+#include <texteditor/texteditor.h>
 
-struct B {
-    struct Inside {
-        void doB() {}
-    };
-};
+namespace ClangCodeModel {
+namespace Internal {
 
-template<class T> class C {
-public:
-    typename T::Inside inner;
-};
-
-int main()
+ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model)
+    : GenericProposal(cursorPos, model)
 {
-    C<A> ca;
-    C<B> cb;
-    ca.inner.doA();
-    cb.inner.<<<<;
-
-    return 0;
 }
+
+bool ClangAssistProposal::isCorrective() const
+{
+    return ClangAssistProposalModel::replaceDotForArrow(model());
+}
+
+void ClangAssistProposal::makeCorrection(TextEditor::TextEditorWidget *editorWidget)
+{
+    editorWidget->setCursorPosition(basePosition() - 1);
+    editorWidget->replace(1, QLatin1String("->"));
+    moveBasePosition(1);
+}
+
+} // namespace Internal
+} // namespace ClangCodeModel
 

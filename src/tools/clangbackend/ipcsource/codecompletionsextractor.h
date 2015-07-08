@@ -67,6 +67,12 @@ private:
     void extractHasParameters();
     void extractCompletionChunks();
 
+    void adaptPriority();
+    void decreasePriorityForNonAvailableCompletions();
+    void decreasePriorityForDestructors();
+    void decreasePriorityForSignals();
+    void decreasePriorityForQObjectInternals();
+
     bool hasText(const Utf8String &text, CXCompletionString cxCompletionString) const;
 
 private:

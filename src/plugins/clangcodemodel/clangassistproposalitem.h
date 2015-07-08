@@ -28,24 +28,40 @@
 **
 ****************************************************************************/
 
-/*
- * Expected: 'OwningPtr'
- */
+#ifndef CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALITEM_H
+#define CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALITEM_H
 
-namespace llvm {
-class OwningPtr;
-}
+#include <codecompletion.h>
 
-namespace clang {
-using llvm::OwningPtr;
-}
+#include <texteditor/codeassist/assistproposalitem.h>
 
-class llvm::OwningPtr
+namespace ClangCodeModel {
+namespace Internal {
+
+class ClangAssistProposalItem : public TextEditor::AssistProposalItem
 {
+    friend bool operator<(const ClangAssistProposalItem &first, const ClangAssistProposalItem &second);
+public:
+    ClangAssistProposalItem() {}
+
+    bool prematurelyApplies(const QChar &c) const override;
+    void applyContextualContent(TextEditor::TextEditorWidget *editorWidget, int basePosition) const override;
+
+    void keepCompletionOperator(unsigned compOp);
+
+    bool isOverloaded() const;
+    void addOverload(const ClangBackEnd::CodeCompletion &ccr);
+
+    ClangBackEnd::CodeCompletion codeCompletion() const;
+
+    bool isCodeCompletion() const;
+private:
+    unsigned m_completionOperator;
+    mutable QChar m_typedChar;
+    QList<ClangBackEnd::CodeCompletion> m_overloads;
 };
 
-void foo()
-{
-    clang::<<<< ptr;
-    (void)ptr;
-}
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALITEM_H

@@ -177,7 +177,7 @@ DebuggerSettings::DebuggerSettings()
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_singleinstructionmode.png")));
-    item->setToolTip(tr("This switches the debugger to instruction-wise "
+    item->setToolTip(tr("<p>This switches the debugger to instruction-wise "
         "operation mode. In this mode, stepping operates on single "
         "instructions and the source location view also shows the "
         "disassembled instructions."));
@@ -189,7 +189,7 @@ DebuggerSettings::DebuggerSettings()
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
-    item->setToolTip(tr("This switches the debugger to native-mixed "
+    item->setToolTip(tr("<p>This switches the debugger to native-mixed "
         "operation mode. In this mode, stepping and data display will "
         "be handled by the native debugger backend (GDB, LLDB or CDB) "
         "for C++, QML and JS sources."));
@@ -201,7 +201,7 @@ DebuggerSettings::DebuggerSettings()
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoDerefPointers"));
-    item->setToolTip(tr("This switches the Locals&&Watchers view to "
+    item->setToolTip(tr("<p>This switches the Locals&&Watchers view to "
         "automatically dereference pointers. This saves a level in the "
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
@@ -262,7 +262,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowStandardNamespace"));
     item->setText(tr("Show \"std::\" Namespace in Types"));
     item->setDialogText(tr("Show \"std::\" namespace in types"));
-    item->setToolTip(tr("Shows \"std::\" prefix for types from the standard library."));
+    item->setToolTip(tr("<p>Shows \"std::\" prefix for types from the standard library."));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -272,7 +272,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowQtNamespace"));
     item->setText(tr("Show Qt's Namespace in Types"));
     item->setDialogText(tr("Show Qt's namespace in types"));
-    item->setToolTip(tr("Shows Qt namespace prefix for Qt types. This is only "
+    item->setToolTip(tr("<p>Shows Qt namespace prefix for Qt types. This is only "
                         "relevant if Qt was configured with \"-qtnamespace\"."));
     item->setCheckable(true);
     item->setDefaultValue(true);
@@ -302,7 +302,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
     item->setDialogText(tr("Use code model"));
-    item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "
+    item->setToolTip(tr("<p>Selecting this causes the C++ Code Model being asked "
       "for variable scope information. This might result in slightly faster "
       "debugger operation but may fail for optimized code."));
     item->setCheckable(true);
@@ -312,7 +312,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowThreadNames"));
-    item->setToolTip(tr("Displays names of QThread based threads."));
+    item->setToolTip(tr("<p>Displays names of QThread based threads."));
     item->setDialogText(tr("Display thread names"));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -329,7 +329,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setText(tr("Adjust Breakpoint Locations"));
-    item->setToolTip(tr("Not all source code lines generate "
+    item->setToolTip(tr("<p>Not all source code lines generate "
       "executable code. Putting a breakpoint on such a line acts as "
       "if the breakpoint was set on the next line that generated code. "
       "Selecting 'Adjust Breakpoint Locations' shifts the red "
@@ -514,7 +514,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTips"));
     item->setText(tr("Use tooltips in main editor when debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips for variable "
+    item->setToolTip(tr("<p>Checking this will enable tooltips for variable "
         "values during debugging. Since this can slow down debugging and "
         "does not provide reliable information as it does not use scope "
         "information, it is switched off by default."));
@@ -525,7 +525,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInLocalsView"));
     item->setText(tr("Use Tooltips in Locals View when Debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips in the locals "
+    item->setToolTip(tr("<p>Checking this will enable tooltips in the locals "
         "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -534,7 +534,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
     item->setText(tr("Use Tooltips in Breakpoints View when Debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips in the breakpoints "
+    item->setToolTip(tr("<p>Checking this will enable tooltips in the breakpoints "
         "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -543,7 +543,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
     item->setText(tr("Use Tooltips in Stack View when Debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips in the stack "
+    item->setToolTip(tr("<p>Checking this will enable tooltips in the stack "
         "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(true);
@@ -552,7 +552,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInBreakpointsView"));
     item->setText(tr("Show Address Data in Breakpoints View when Debugging"));
-    item->setToolTip(tr("Checking this will show a column with address "
+    item->setToolTip(tr("<p>Checking this will show a column with address "
         "information in the breakpoint view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -561,7 +561,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInStackView"));
     item->setText(tr("Show Address Data in Stack View when Debugging"));
-    item->setToolTip(tr("Checking this will show a column with address "
+    item->setToolTip(tr("<p>Checking this will show a column with address "
         "information in the stack view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -624,7 +624,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("DisplayStringLimit"));
-    item->setToolTip(tr("The maximum length of string entries in the "
+    item->setToolTip(tr("<p>The maximum length of string entries in the "
         "Locals and Expressions pane. Longer than that are cut off "
         "and displayed with an ellipsis attached."));
     item->setDefaultValue(100);
@@ -632,7 +632,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("MaximalStringLength"));
-    item->setToolTip(tr("The maximum length for strings in separated windows. "
+    item->setToolTip(tr("<p>The maximum length for strings in separated windows. "
         "Longer strings are cut off and displayed with an ellipsis attached."));
     item->setDefaultValue(10000);
     insertItem(MaximalStringLength, item);

@@ -64,11 +64,6 @@ QString SymbolPathsDialog::path() const
     return ui->pathChooser->path();
 }
 
-bool SymbolPathsDialog::doNotAskAgain() const
-{
-    return ui->doNotAskAgain->isChecked();
-}
-
 void SymbolPathsDialog::setUseSymbolCache(bool useSymbolCache)
 {
     ui->useLocalSymbolCache->setChecked(useSymbolCache);
@@ -84,23 +79,16 @@ void SymbolPathsDialog::setPath(const QString &path)
     ui->pathChooser->setPath(path);
 }
 
-void SymbolPathsDialog::setDoNotAskAgain(bool doNotAskAgain) const
-{
-    ui->doNotAskAgain->setChecked(doNotAskAgain);
-}
-
 bool SymbolPathsDialog::useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer,
-                                             QString &path, bool &doNotAskAgain)
+                                             QString &path)
 {
     SymbolPathsDialog dialog;
     dialog.setUseSymbolCache(useSymbolCache);
     dialog.setUseSymbolServer(useSymbolServer);
     dialog.setPath(path);
-    dialog.setDoNotAskAgain(doNotAskAgain);
     int ret = dialog.exec();
     useSymbolCache = dialog.useSymbolCache();
     useSymbolServer = dialog.useSymbolServer();
     path = dialog.path();
-    doNotAskAgain = dialog.doNotAskAgain();
     return ret == QDialog::Accepted;
 }

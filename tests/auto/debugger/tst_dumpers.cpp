@@ -1716,6 +1716,7 @@ void tst_Dumpers::dumper_data()
                     "h1.insert(\"!\", QList<int>() << 1 << 2);\n\n"
 
                     "QHash<int, float> h2;\n"
+                    "h2[0]  = 33.0;\n"
                     "h2[11] = 11.0;\n"
                     "h2[22] = 22.0;\n\n"
 
@@ -1765,9 +1766,10 @@ void tst_Dumpers::dumper_data()
                + Check("h1.2.value.0", "[0]", "1", "int")
                + Check("h1.2.value.1", "[1]", "2", "int")
 
-               + Check("h2", "<2 items>", "@QHash<int, float>")
-               + Check("h2.0", "[0] 22", "22", "float")
-               + Check("h2.1", "[1] 11", "11", "float")
+               + Check("h2", "<3 items>", "@QHash<int, float>")
+               + Check("h2.0", "[0] 0", "33", "float")
+               + Check("h2.1", "[1] 22", "22", "float")
+               + Check("h2.2", "[2] 11", "11", "float")
 
                + Check("h3", "<1 items>", "@QHash<@QString, int>")
                + Check("h3.0", "[0]", "", "@QHashNode<@QString, int>")
@@ -3864,8 +3866,8 @@ void tst_Dumpers::dumper_data()
                + Check("l3.1", "[1]", "0x0", "int *")
                + Check("l3.2", "[2]", "2", "int")
 
-               + Check("l4.@1.0", "[0]", "1", "int")
-               + Check("l4.@1.1", "[1]", "2", "int");
+               + Check("l4.@2.0", "[0]", "1", "int")
+               + Check("l4.@2.1", "[1]", "2", "int");
 
 
     QTest::newRow("StdListQt")
@@ -5649,10 +5651,10 @@ void tst_Dumpers::dumper_data()
                     "unused(&c.S2::v);\n")
                 + NoLldbEngine
                 + Check("c.c", "1", "int")
-                + Check("c.@1.@2.a", "42", "int")
-                + Check("c.@1.@4.v", "45", "int")
-                + Check("c.@2.@2.a", "43", "int")
-                + Check("c.@2.@4.v", "45", "int");
+                + Check("c.@1.@1.a", "42", "int")
+                + Check("c.@1.@3.v", "45", "int")
+                + Check("c.@2.@1.a", "43", "int")
+                + Check("c.@2.@3.v", "45", "int");
 
     // FIXME: Virtual inheritance doesn't work with LLDB 300
     QTest::newRow("InheritanceLldb")

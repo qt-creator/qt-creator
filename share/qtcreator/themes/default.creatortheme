@@ -12,6 +12,7 @@ BackgroundColorDark=ff232323
 BackgroundColorHover=ff515151
 BackgroundColorNormal=ffffffff
 BackgroundColorSelected=ff151515
+BackgroundColorDisabled=ffefebe7
 BadgeLabelBackgroundColorChecked=ffe0e0e0
 BadgeLabelBackgroundColorUnchecked=ff808080
 BadgeLabelTextColorChecked=ff606060

@@ -28,26 +28,30 @@
 **
 ****************************************************************************/
 
-// Expected:
-//   (List, List<$class Item$>),
-//   (Tuple, Tuple<$class First$, $class Second$, $typename Third$>)
 
-template <class Item>
-class List
+#ifndef CODEPASTERSERVICE_H
+#define CODEPASTERSERVICE_H
+
+#include <QObject>
+#include <QString>
+
+namespace CodePaster {
+
+class Service
 {
-    Item *data;
+public:
+    virtual ~Service() {}
+
+    virtual void postText(const QString &text, const QString &mimeType) = 0;
+    virtual void postCurrentEditor() = 0;
+    virtual void postClipboard() = 0;
 };
 
-template <class First, class Second, typename Third>
-class Tuple
-{
-    First *data;
-    Second *data2;
-    Third *data3;
-};
+} // CodePaster
 
-void check()
-{
-    <<<<
-}
+QT_BEGIN_NAMESPACE
+Q_DECLARE_INTERFACE(CodePaster::Service, "CodePaster::Service")
+QT_END_NAMESPACE
+
+#endif // CODEPASTERSERVICE_H
 

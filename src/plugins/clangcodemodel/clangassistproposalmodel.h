@@ -28,24 +28,37 @@
 **
 ****************************************************************************/
 
-/*
- * Expected: 'i_first' 'c_first'
- * Not expected: 'i_second' 'c_second' 'f_second'
- */
+#ifndef CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALMODEL_H
+#define CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALMODEL_H
 
-typedef struct {
-    int i_first;
-    char c_first;
-} S1;
+#include <cplusplus/Token.h>
 
-typedef struct {
-    int i_second;
-    char c_second;
-    float f_second;
-} S2;
+#include <texteditor/codeassist/genericproposalmodel.h>
 
-void foo()
+namespace ClangCodeModel {
+namespace Internal {
+
+class ClangAssistProposalModel : public TextEditor::GenericProposalModel
 {
-    S1 s;
-    s.<<<<;
-}
+public:
+    ClangAssistProposalModel()
+        : m_sortable(false)
+        , m_completionOperator(CPlusPlus::T_EOF_SYMBOL)
+        , m_replaceDotForArrow(false)
+    {}
+
+    bool isSortable(const QString &prefix) const override;
+    void sort(const QString &prefix) override;
+
+    static bool replaceDotForArrow(IAssistProposalModel *model);
+
+private:
+    bool m_sortable;
+    unsigned m_completionOperator;
+    bool m_replaceDotForArrow;
+};
+
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALMODEL_H
