@@ -217,19 +217,15 @@ def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
     test.compare(manual.data().toString(), "Manual", "Verifying label for section")
     if isRegex:
         pattern = re.compile(itemText)
-    found = False
     for section in [autoDetected, manual]:
         for dumpedItem in dumpItems(model, section):
             if (isRegex and pattern.match(dumpedItem)
                 or itemText == dumpedItem):
-                found = True
                 item = ".".join([str(section.data().toString()),
                                  dumpedItem.replace(".", "\\.").replace("_", "\\_")])
                 clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
-                break
-        if found:
-            break
-    return found
+                return True
+    return False
 
 def __getTargetFromToolTip__(toolTip):
     if toolTip == None or not isinstance(toolTip, (str, unicode)):
