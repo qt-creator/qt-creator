@@ -163,8 +163,7 @@ void TranslationUnit::removeOutdatedTranslationUnit() const
 
 void TranslationUnit::createTranslationUnitIfNeeded() const
 {
-    const auto options = CXTranslationUnit_DetailedPreprocessingRecord
-            | CXTranslationUnit_CacheCompletionResults
+    const auto options = CXTranslationUnit_CacheCompletionResults
             | CXTranslationUnit_PrecompiledPreamble
             | CXTranslationUnit_SkipFunctionBodies;
 
