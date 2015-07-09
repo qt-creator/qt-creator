@@ -248,8 +248,8 @@ GccToolChain::GccToolChain(Detection d) :
     ToolChain(Constants::GCC_TOOLCHAIN_ID, d)
 { }
 
-GccToolChain::GccToolChain(const QByteArray &id, Detection d) :
-    ToolChain(id, d)
+GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
+    ToolChain(typeId, d)
 { }
 
 void GccToolChain::setCompilerCommand(const FileName &path)

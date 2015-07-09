@@ -83,6 +83,7 @@ public:
     virtual Utils::FileName suggestedDebugger() const;
 
     virtual QString type() const = 0;
+    Core::Id typeId() const;
     virtual QString typeDisplayName() const = 0;
     virtual Abi targetAbi() const = 0;
 
@@ -157,7 +158,7 @@ public:
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
 protected:
-    explicit ToolChain(const QByteArray &id, Detection d);
+    explicit ToolChain(Core::Id typeId, Detection d);
     explicit ToolChain(const ToolChain &);
 
     void toolChainUpdated();
@@ -191,7 +192,6 @@ public:
     virtual ToolChain *restore(const QVariantMap &data);
 
     static QByteArray idFromMap(const QVariantMap &data);
-    static void idToMap(QVariantMap &data, const QString id);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
 protected:

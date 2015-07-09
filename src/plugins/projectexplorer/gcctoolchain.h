@@ -57,7 +57,7 @@ class LinuxIccToolChainFactory;
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
-    GccToolChain(const QByteArray &id, Detection d);
+    GccToolChain(Core::Id typeId, Detection d);
     QString type() const override;
     QString typeDisplayName() const override;
     Abi targetAbi() const override;

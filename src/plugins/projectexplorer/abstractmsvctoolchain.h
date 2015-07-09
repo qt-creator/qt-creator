@@ -44,8 +44,8 @@ namespace Internal {
 class PROJECTEXPLORER_EXPORT AbstractMsvcToolChain : public ToolChain
 {
 public:
-    explicit AbstractMsvcToolChain(const QByteArray &id, Detection d, const Abi &abi, const QString& vcvarsBat);
-    explicit AbstractMsvcToolChain(const QByteArray &id, Detection d);
+    explicit AbstractMsvcToolChain(Core::Id typeId, Detection d, const Abi &abi, const QString& vcvarsBat);
+    explicit AbstractMsvcToolChain(Core::Id typeId, Detection d);
 
     Abi targetAbi() const override;
 

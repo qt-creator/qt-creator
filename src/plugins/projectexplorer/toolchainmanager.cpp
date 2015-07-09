@@ -299,7 +299,19 @@ ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
     if (id.isEmpty())
         return 0;
 
-    return Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, id));
+    ToolChain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, id));
+
+    // Compatibility with versions 3.5 and earlier:
+    if (!tc) {
+        const int pos = id.indexOf(':');
+        if (pos < 0)
+            return tc;
+
+        const QByteArray shortId = id.mid(pos + 1);
+
+        tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, shortId));
+    }
+    return tc;
 }
 
 FileName ToolChainManager::defaultDebugger(const Abi &abi)
