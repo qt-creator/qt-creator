@@ -157,6 +157,7 @@ public:
 
 signals:
     void qmlPuppetCrashed();
+    void qmlPuppetError(const QString &errorMessage);
 
 private: // functions
     void activateState(const NodeInstance &instance);

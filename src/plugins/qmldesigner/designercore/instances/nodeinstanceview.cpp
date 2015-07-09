@@ -69,6 +69,7 @@
 #include "componentcompletedcommand.h"
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
+#include "debugoutputcommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -1285,8 +1286,23 @@ void NodeInstanceView::token(const TokenCommand &command)
     emitInstanceToken(command.tokenName(), command.tokenNumber(), nodeVector);
 }
 
-void NodeInstanceView::debugOutput(const DebugOutputCommand & /*command*/)
+void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
+    if (command.instanceIds().isEmpty()) {
+        qmlPuppetError(command.text()); // TODO: connect that somewhere to show that to the user
+    } else {
+        QVector<qint32> instanceIdsWithChangedErrors;
+        foreach (qint32 instanceId, command.instanceIds()) {
+            NodeInstance instance = instanceForId(instanceId);
+            if (instance.isValid()) {
+                if (instance.setError(command.text()))
+                    instanceIdsWithChangedErrors.append(instanceId);
+            } else {
+                qmlPuppetError(command.text()); // TODO: connect that somewhere to show that to the user
+            }
+        }
+        emitInstanceErrorChange(instanceIdsWithChangedErrors);
+    }
 }
 
 void NodeInstanceView::sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
