@@ -131,12 +131,12 @@ QByteArray MakefileParser::defines() const
 
 QStringList MakefileParser::cflags() const
 {
-    return m_cflags;
+    return m_cppflags + m_cflags;
 }
 
 QStringList MakefileParser::cxxflags() const
 {
-    return m_cxxflags;
+    return m_cppflags + m_cxxflags;
 }
 
 void MakefileParser::cancel()
@@ -506,6 +506,15 @@ bool MakefileParser::maybeParseCXXFlag(const QString &term)
     return false;
 }
 
+bool MakefileParser::maybeParseCPPFlag(const QString &term)
+{
+    if (term.startsWith(QLatin1Char('-'))) {
+        m_cppflags += term;
+        return true;
+    }
+    return false;
+}
+
 void MakefileParser::addAllSources()
 {
     QStringList extensions;
@@ -550,11 +559,14 @@ void MakefileParser::parseIncludePaths()
             foreach (const QString &term, parseTermsAfterAssign(line))
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCFlag(term);
-        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))
-                   || varName.endsWith(QLatin1String("CXXFLAGS"))) {
+        } else if (varName.endsWith(QLatin1String("CXXFLAGS"))) {
             foreach (const QString &term, parseTermsAfterAssign(line))
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCXXFlag(term);
+        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseDefine(term) || maybeParseInclude(term, dirName)
+                        || maybeParseCPPFlag(term);
         }
     } while (!line.isNull());
 
