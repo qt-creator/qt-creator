@@ -39,15 +39,6 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-namespace {
-
-const ClangAssistProposalItem &toClangAssistProposalItem(TextEditor::AssistProposalItem *assistProposalItem)
-{
-    return *static_cast<ClangAssistProposalItem*>(assistProposalItem);
-}
-
-}
-
 bool ClangAssistProposalModel::replaceDotForArrow(TextEditor::IAssistProposalModel *model)
 {
     auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model);
