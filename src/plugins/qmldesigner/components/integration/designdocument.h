@@ -96,7 +96,7 @@ public:
 
     TextEditor::BaseTextEditor *textEditor() const;
     QPlainTextEdit *plainTextEdit() const;
-    QString fileName() const;
+    Utils::FileName fileName() const;
     ProjectExplorer::Kit *currentKit() const;
     bool isDocumentLoaded() const;
 

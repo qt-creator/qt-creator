@@ -162,7 +162,7 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
 
 void ViewManager::attachItemLibraryView()
 {
-    setItemLibraryViewResourcePath(QFileInfo(currentDesignDocument()->fileName()).absolutePath());
+    setItemLibraryViewResourcePath(QFileInfo(currentDesignDocument()->fileName().fileName()).absolutePath());
     currentModel()->attachView(&d->itemLibraryView);
 }
 

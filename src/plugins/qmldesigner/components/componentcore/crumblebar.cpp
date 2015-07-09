@@ -176,7 +176,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 
     m_isInternalCalled = true;
     if (!clickedCrumbleBarInfo.modelNode.isValid()
-            && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName()) {
+            && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName().fileName()) {
         nextFileIsCalledInternally();
         currentDesignDocument()->changeToDocumentModel();
         QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();

@@ -183,7 +183,7 @@ bool DesignDocument::hasQmlSyntaxErrors() const
 
 QString DesignDocument::displayName() const
 {
-    return fileName();
+    return fileName().toString();
 }
 
 QString DesignDocument::simplfiedDisplayName() const
@@ -193,8 +193,7 @@ QString DesignDocument::simplfiedDisplayName() const
     else
         return rootModelNode().simplifiedTypeName();
 
-    QStringList list = displayName().split(QLatin1Char('/'));
-    return list.last();
+    return fileName().fileName();
 }
 
 void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, const Utils::FileName &newFileName)
@@ -210,9 +209,9 @@ void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, con
     emit displayNameChanged(displayName());
 }
 
-QString DesignDocument::fileName() const
+Utils::FileName DesignDocument::fileName() const
 {
-    return editor()->document()->filePath().toString();
+    return editor()->document()->filePath();
 }
 
 Kit *DesignDocument::currentKit() const
@@ -246,7 +245,7 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     m_inFileComponentTextModifier.reset();
 
-    updateFileName(Utils::FileName(), Utils::FileName::fromString(fileName()));
+    updateFileName(Utils::FileName(), fileName());
 
     m_documentLoaded = true;
 }
@@ -301,7 +300,7 @@ void DesignDocument::changeToMaster()
     if (m_inFileComponentModel)
         changeToDocumentModel();
 
-    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName());
+    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName().toString());
     QmlDesignerPlugin::instance()->viewManager().setComponentNode(rootModelNode());
 }
 
@@ -339,7 +338,7 @@ void DesignDocument::close()
 void DesignDocument::updateSubcomponentManager()
 {
     Q_ASSERT(m_subComponentManager);
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), currentModel()->imports());
+    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toString()), currentModel()->imports());
 }
 
 void DesignDocument::deleteSelected()
@@ -632,7 +631,7 @@ void DesignDocument::redo()
 static bool isFileInProject(DesignDocument *designDocument, Project *project)
 {
     foreach (const QString &fileNameInProject, project->files(Project::ExcludeGeneratedFiles)) {
-        if (designDocument->fileName() == fileNameInProject)
+        if (designDocument->fileName().fileName() == fileNameInProject)
             return true;
     }
 
