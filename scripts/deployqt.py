@@ -188,7 +188,9 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
         target = os.path.join(install_dir, 'bin', 'imports', qtimport)
         if (os.path.exists(target)):
             shutil.rmtree(target)
-        shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
+        import_path = os.path.join(qt_import_dir, qtimport)
+        if os.path.exists(import_path):
+            shutil.copytree(import_path, target, ignore=copy_ignore_func, symlinks=True)
 
     if (os.path.exists(qt_qml_dir)):
         print "Copying qt quick 2 imports"
