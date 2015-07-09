@@ -1466,6 +1466,11 @@
 
     \endlist
 
+    The locations of search hits, breakpoints, and bookmarks in your document
+    are highlighted on the editor scroll bar. To turn highlighting off, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol {Highlight search results on the scrollbar}.
+
     \section1 Advanced Search
 
     To search through projects, files on a file system or currently open files:
