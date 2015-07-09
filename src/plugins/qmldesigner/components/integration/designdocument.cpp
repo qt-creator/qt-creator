@@ -679,7 +679,7 @@ void DesignDocument::updateActiveQtVersion()
 QString DesignDocument::contextHelpId() const
 {
     if (view())
-        view()->contextHelpId();
+        return view()->contextHelpId();
 
     return QString();
 }
