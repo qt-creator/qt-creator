@@ -349,6 +349,11 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     const int parallelRuns = ClangStaticAnalyzerSettings::instance()->simultaneousProcesses();
     QTC_ASSERT(parallelRuns >= 1, emit finished(); return false);
     m_success = true;
+
+    if (m_unitsToProcess.isEmpty()) {
+        finalize();
+        return false;
+    }
     while (m_runners.size() < parallelRuns && !m_unitsToProcess.isEmpty())
         analyzeNextFile();
     return true;
@@ -376,20 +381,8 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
         return; // The previous call already reported that we are finished.
 
     if (m_unitsToProcess.isEmpty()) {
-        if (m_runners.size() == 0) {
-            appendMessage(tr("Clang Static Analyzer finished: "
-                             "Processed %1 files successfully, %2 failed.")
-                                .arg(m_filesAnalyzed)
-                                .arg(m_filesNotAnalyzed)
-                             + QLatin1Char('\n'),
-                          Utils::NormalMessageFormat);
-            if (m_filesAnalyzed == 0 && m_filesNotAnalyzed != 0) {
-                AnalyzerUtils::logToIssuesPane(Task::Error,
-                        tr("Clang Static Analyzer: Failed to analyze any files."));
-            }
-            m_progress.reportFinished();
-            emit finished();
-        }
+        if (m_runners.isEmpty())
+            finalize();
         return;
     }
 
@@ -478,6 +471,24 @@ void ClangStaticAnalyzerRunControl::onProgressCanceled()
 void ClangStaticAnalyzerRunControl::updateProgressValue()
 {
     m_progress.setProgressValue(m_initialFilesToProcessSize - m_unitsToProcess.size());
+}
+
+void ClangStaticAnalyzerRunControl::finalize()
+{
+    appendMessage(tr("Clang Static Analyzer finished: "
+                     "Processed %1 files successfully, %2 failed.")
+                        .arg(m_filesAnalyzed)
+                        .arg(m_filesNotAnalyzed)
+                     + QLatin1Char('\n'),
+                  Utils::NormalMessageFormat);
+
+    if (m_filesAnalyzed == 0 && m_filesNotAnalyzed != 0) {
+        AnalyzerUtils::logToIssuesPane(Task::Error,
+                tr("Clang Static Analyzer: Failed to analyze any files."));
+    }
+
+    m_progress.reportFinished();
+    emit finished();
 }
 
 } // namespace Internal
