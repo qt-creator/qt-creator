@@ -185,7 +185,7 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_navigatorHistoryCounter(-1),
     m_keepNavigatorHistory(false)
 {
-    QObject::connect(viewManager().nodeInstanceView(), SIGNAL(qmlPuppetCrashed()), this, SLOT(qmlPuppetCrashed()));
+    QObject::connect(viewManager().nodeInstanceView(), SIGNAL(qmlPuppetCrashed()), this, SLOT(showQmlPuppetCrashedError()));
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -460,7 +460,7 @@ void DesignModeWidget::deleteSidebarWidgets()
     m_rightSideBar.reset();
 }
 
-void DesignModeWidget::qmlPuppetCrashed()
+void DesignModeWidget::showQmlPuppetCrashedError()
 {
     QList<RewriterError> errorList;
     RewriterError error(tr("Qt Quick emulation layer crashed"));

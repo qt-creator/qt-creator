@@ -125,7 +125,7 @@ private slots:
     void updateAvailableSidebarItemsRight();
 
     void deleteSidebarWidgets();
-    void qmlPuppetCrashed();
+    void showQmlPuppetCrashedError();
 
     void toolBarOnGoBackClicked();
     void toolBarOnGoForwardClicked();
