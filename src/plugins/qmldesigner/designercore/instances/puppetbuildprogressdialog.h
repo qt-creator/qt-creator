@@ -51,6 +51,7 @@ public:
     void setProgress(int progress);
     void newBuildOutput(const QByteArray &standardOutput);
     bool useFallbackPuppet() const;
+    void setErrorOutputFile(const QString &filePath);
 
 private slots:
     void setUseFallbackPuppet();

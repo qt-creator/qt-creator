@@ -67,6 +67,12 @@ bool PuppetBuildProgressDialog::useFallbackPuppet() const
     return m_useFallbackPuppet;
 }
 
+void PuppetBuildProgressDialog::setErrorOutputFile(const QString &filePath)
+{
+    ui->openErrorOutputFileLabel->setText(QString::fromLatin1("<a href='file:///%1'>%2</a>").arg(
+        filePath, ui->openErrorOutputFileLabel->text()));
+}
+
 void PuppetBuildProgressDialog::setUseFallbackPuppet()
 {
     m_useFallbackPuppet = true;

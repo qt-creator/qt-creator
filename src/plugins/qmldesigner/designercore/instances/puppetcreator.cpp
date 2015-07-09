@@ -391,21 +391,31 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     if (command.isEmpty())
         return false;
 
+    const QString errorOutputFilePath(buildDirectoryPath + QLatin1String("/build_error_output.txt"));
+    if (QFile::exists(errorOutputFilePath))
+        QFile(errorOutputFilePath).remove();
+    progressDialog->setErrorOutputFile(errorOutputFilePath);
+
     QProcess process;
+    process.setStandardErrorFile(errorOutputFilePath);
     process.setProcessChannelMode(QProcess::SeparateChannels);
     process.setProcessEnvironment(processEnvironment());
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
     process.waitForStarted();
-    while (process.waitForReadyRead(-1)) {
+    while (process.waitForReadyRead(100) || process.state() == QProcess::Running) {
         if (progressDialog->useFallbackPuppet())
             return false;
 
-        QByteArray newOutput = process.readAllStandardOutput();
-        if (progressDialog)
-            progressDialog->newBuildOutput(newOutput);
+        QApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
 
-        m_compileLog.append(newOutput);
+        QByteArray newOutput = process.readAllStandardOutput();
+        if (!newOutput.isEmpty()) {
+            if (progressDialog)
+                progressDialog->newBuildOutput(newOutput);
+
+            m_compileLog.append(QString::fromLatin1(newOutput));
+        }
     }
 
     process.waitForFinished();
