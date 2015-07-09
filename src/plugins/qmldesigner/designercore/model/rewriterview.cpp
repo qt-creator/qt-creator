@@ -180,10 +180,6 @@ void RewriterView::nodeCreated(const ModelNode &createdNode)
         applyChanges();
 }
 
-void RewriterView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
-{
-}
-
 void RewriterView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange)
 {
     Q_ASSERT(textModifier());
@@ -289,10 +285,6 @@ void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractPrope
         applyChanges();
 }
 
-void RewriterView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 void RewriterView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
     foreach (const Import &import, addedImports)
@@ -331,10 +323,6 @@ void RewriterView::importRemoved(const Import &import)
 
     if (!isModificationGroupActive())
         applyChanges();
-}
-
-void RewriterView::fileUrlChanged(const QUrl & /*oldUrl*/, const QUrl & /*newUrl*/)
-{
 }
 
 void RewriterView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
@@ -383,48 +371,6 @@ void RewriterView::customNotification(const AbstractView * /*view*/, const QStri
         return; // we emitted this ourselves, so just ignore these notifications.
 }
 
-void RewriterView::scriptFunctionsChanged(const ModelNode & /*node*/, const QStringList & /*scriptFunctionList*/)
-{
-}
-
-void RewriterView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
-{
-}
-
-void RewriterView::instancesCompleted(const QVector<ModelNode> & /*completedNodeList*/)
-{
-}
-
-void RewriterView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> & /* informationChangeHash */)
-{
-
-}
-
-void RewriterView::instancesRenderImageChanged(const QVector<ModelNode> & /*nodeList*/)
-{
-
-}
-
-void RewriterView::instancesPreviewImageChanged(const QVector<ModelNode> & /*nodeList*/)
-{
-
-}
-
-void RewriterView::instancesChildrenChanged(const QVector<ModelNode> & /*nodeList*/)
-{
-
-}
-
-void RewriterView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
-}
-
-void RewriterView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
-{
-
-}
-
 void RewriterView::rewriterBeginTransaction()
 {
     transactionLevel++;
@@ -440,14 +386,6 @@ void RewriterView::rewriterEndTransaction()
         setModificationGroupActive(false);
         applyModificationGroupChanges();
     }
-}
-
-void RewriterView::currentStateChanged(const ModelNode & /*node*/)
-{
-}
-
-void RewriterView::selectedNodesChanged(const QList<ModelNode> & /* selectedNodeList, */, const QList<ModelNode> & /*lastSelectedNodeList */)
-{
 }
 
 bool RewriterView::isModificationGroupActive() const
