@@ -540,11 +540,6 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
     }
 }
 
-void PropertyEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
-                                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 void PropertyEditorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     if (!m_selectedNode.isValid())
@@ -571,10 +566,6 @@ void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& new
         if (m_qmlBackEndForCurrentType)
             setValue(node, "id", newId);
     }
-}
-
-void PropertyEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
-{
 }
 
 void PropertyEditorView::select(const ModelNode &node)
@@ -637,84 +628,9 @@ void PropertyEditorView::instancePropertyChange(const QList<QPair<ModelNode, Pro
 
 }
 
-void PropertyEditorView::nodeCreated(const ModelNode &/*createdNode*/)
-{
-
-}
-
-void PropertyEditorView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void PropertyEditorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void PropertyEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void PropertyEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &/*propertyList*/)
-{
-
-}
-
 void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     // TODO: we should react to this case
-}
-
-void PropertyEditorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
-}
-
-void PropertyEditorView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
-{
-
-}
-
-void PropertyEditorView::rewriterBeginTransaction()
-{
-
-}
-
-void PropertyEditorView::rewriterEndTransaction()
-{
-
-}
-
-void PropertyEditorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
-{
-
-}
-
-void PropertyEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
-{
-
 }
 
 void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)
