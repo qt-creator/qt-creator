@@ -164,8 +164,8 @@ void AutotoolsProject::loadProjectTree()
         // The thread is still busy parsing a previus configuration.
         // Wait until the thread has been finished and delete it.
         // TODO: Discuss whether blocking is acceptable.
-        disconnect(m_makefileParserThread, SIGNAL(finished()),
-                   this, SLOT(makefileParsingFinished()));
+        disconnect(m_makefileParserThread, &QThread::finished,
+                   this, &AutotoolsProject::makefileParsingFinished);
         m_makefileParserThread->wait();
         delete m_makefileParserThread;
         m_makefileParserThread = 0;
