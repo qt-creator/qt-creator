@@ -73,7 +73,6 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QPlainTextEdit>
-#include <QTextBlock>
 #include <QTimer>
 
 #define DEBUG_QML 0
@@ -162,13 +161,11 @@ public:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void flushSendBuffer();
 
-    void updateStack(const QVariant &bodyVal, const QVariant &refsVal);
-    void expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal);
-    void updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal, const QVariant &refsVal);
-    void setCurrentFrameDetails(const QVariant &bodyVal, const QVariant &refsVal);
-    void updateScope(const QVariant &bodyVal, const QVariant &refsVal);
-    void createWatchDataList(const WatchItem *parent, const QVariantList &properties, const QVariant &refsVal);
-    void highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage);
+    void handleBacktrace(const QVariant &bodyVal, const QVariant &refsVal);
+    void handleLookup(const QVariant &bodyVal, const QVariant &refsVal);
+    void handleEvaluate(int sequence, bool success, const QVariant &bodyVal, const QVariant &refsVal);
+    void handleFrame(const QVariant &bodyVal, const QVariant &refsVal);
+    void handleScope(const QVariant &bodyVal, const QVariant &refsVal);
     StackFrame extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
 
     bool canEvaluateScript(const QString &script);
@@ -1921,21 +1918,21 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                 } else if (debugCommand == _(BACKTRACE)) {
                     if (success)
-                        updateStack(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleBacktrace(resp.value(_(BODY)), resp.value(_(REFS)));
 
                 } else if (debugCommand == _(LOOKUP)) {
                     if (success)
-                        expandLocalsAndWatchers(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleLookup(resp.value(_(BODY)), resp.value(_(REFS)));
 
                 } else if (debugCommand == _(EVALUATE)) {
                     int seq = resp.value(_("request_seq")).toInt();
                     if (success) {
-                        updateEvaluationResult(seq, success, resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleEvaluate(seq, success, resp.value(_(BODY)), resp.value(_(REFS)));
                     } else {
                         QVariantMap map;
                         map.insert(_(TYPE), QVariant(_("string")));
                         map.insert(_(VALUE), resp.value(_("message")));
-                        updateEvaluationResult(seq, success, QVariant(map), QVariant());
+                        handleEvaluate(seq, success, QVariant(map), QVariant());
                     }
 
                 } else if (debugCommand == _(SETBREAKPOINT)) {
@@ -1999,11 +1996,11 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                 } else if (debugCommand == _(FRAME)) {
                     if (success)
-                        setCurrentFrameDetails(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleFrame(resp.value(_(BODY)), resp.value(_(REFS)));
 
                 } else if (debugCommand == _(SCOPE)) {
                     if (success)
-                        updateScope(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleScope(resp.value(_(BODY)), resp.value(_(REFS)));
 
                 } else if (debugCommand == _(SCRIPTS)) {
                     //                { "seq"         : <number>,
@@ -2170,7 +2167,9 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     const QVariantMap exception = body.value(_("exception")).toMap();
                     QString errorMessage = exception.value(_("text")).toString();
 
-                    highlightExceptionCode(lineNumber, filePath, errorMessage);
+                    QStringList messages = highlightExceptionCode(lineNumber, filePath, errorMessage);
+                    foreach (const QString msg, messages)
+                        engine->showMessage(msg, ConsoleOutput);
 
                     if (engine->state() == InferiorRunOk) {
                         engine->notifyInferiorSpontaneousStop();
@@ -2196,7 +2195,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                      map.insert(_(VALUE), resp.value(_("message")));
                      //Since there is no sequence value, best estimate is
                      //last sequence value
-                     updateEvaluationResult(sequence, success, QVariant(map), QVariant());
+                     handleEvaluate(sequence, success, QVariant(map), QVariant());
                 }
 
             } //EVENT
@@ -2207,7 +2206,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
     }
 }
 
-void QmlEnginePrivate::updateStack(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2248,7 +2247,7 @@ void QmlEnginePrivate::updateStack(const QVariant &bodyVal, const QVariant &refs
     //Update all Locals visible in current scope
     //Traverse the scope chain and store the local properties
     //in a list and show them in the Locals Window.
-    setCurrentFrameDetails(frames.value(0), refsVal);
+    handleFrame(frames.value(0), refsVal);
 }
 
 StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal)
@@ -2312,7 +2311,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QV
     return stackFrame;
 }
 
-void QmlEnginePrivate::setCurrentFrameDetails(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2402,7 +2401,7 @@ void QmlEnginePrivate::setCurrentFrameDetails(const QVariant &bodyVal, const QVa
     engine->stackFrameCompleted();
 }
 
-void QmlEnginePrivate::updateScope(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2500,8 +2499,37 @@ ConsoleItem *constructLogItemTree(ConsoleItem *parent,
     return item;
 }
 
-void QmlEnginePrivate::updateEvaluationResult(int sequence, bool success,
-                                              const QVariant &bodyVal, const QVariant &refsVal)
+static void insertSubItems(WatchItem *parent, const QVariantList &properties, const QVariant &refsVal)
+{
+    QTC_ASSERT(parent, return);
+    foreach (const QVariant &property, properties) {
+        QmlV8ObjectData propertyData = extractData(property, refsVal);
+        auto item = new WatchItem;
+        item->name = QString::fromUtf8(propertyData.name);
+
+        // Check for v8 specific local data
+        if (item->name.startsWith(QLatin1Char('.')) || item->name.isEmpty())
+            continue;
+        if (parent->type == "object") {
+            if (parent->value == _("Array"))
+                item->exp = parent->exp + '[' + item->name.toLatin1() + ']';
+            else if (parent->value == _("Object"))
+                item->exp = parent->exp + '.' + item->name.toLatin1();
+        } else {
+            item->exp = item->name.toLatin1();
+        }
+
+        item->iname = parent->iname + '.' + item->name.toLatin1();
+        item->id = propertyData.handle;
+        item->type = propertyData.type;
+        item->value = propertyData.value.toString();
+        item->setHasChildren(propertyData.properties.count());
+        parent->appendChild(item);
+    }
+}
+
+void QmlEnginePrivate::handleEvaluate(int sequence, bool success,
+                                      const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2540,8 +2568,8 @@ void QmlEnginePrivate::updateEvaluationResult(int sequence, bool success,
             QString exp =  evaluatingExpression.take(sequence);
             //Do we have request to evaluate a local?
             if (exp.startsWith(QLatin1String("local."))) {
-                const WatchItem *item = watchHandler->findItem(exp.toLatin1());
-                createWatchDataList(item, body.properties, refsVal);
+                WatchItem *item = watchHandler->findItem(exp.toLatin1());
+                insertSubItems(item, body.properties, refsVal);
             } else {
                 QByteArray iname = watchHandler->watcherName(exp.toLatin1());
                 SDEBUG(QString(iname));
@@ -2558,14 +2586,14 @@ void QmlEnginePrivate::updateEvaluationResult(int sequence, bool success,
                     item->setError(body.value.toString());
                 }
                 watchHandler->insertItem(item);
-                createWatchDataList(item, body.properties, refsVal);
+                insertSubItems(item, body.properties, refsVal);
             }
             //Insert the newly evaluated expression to the Watchers Window
         }
     }
 }
 
-void QmlEnginePrivate::expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleLookup(const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2586,8 +2614,8 @@ void QmlEnginePrivate::expandLocalsAndWatchers(const QVariant &bodyVal, const QV
         if (prepend.startsWith("local.") || prepend.startsWith("watch.")) {
             // Data for expanded local/watch.
             // Could be an object or function.
-            const WatchItem *parent = watchHandler->findItem(prepend);
-            createWatchDataList(parent, bodyObjectData.properties, refsVal);
+            WatchItem *parent = watchHandler->findItem(prepend);
+            insertSubItems(parent, bodyObjectData.properties, refsVal);
         } else {
             //rest
             auto item = new WatchItem;
@@ -2605,79 +2633,6 @@ void QmlEnginePrivate::expandLocalsAndWatchers(const QVariant &bodyVal, const QV
         }
     }
     engine->watchHandler()->notifyUpdateFinished();
-}
-
-void QmlEnginePrivate::createWatchDataList(const WatchItem *parent,
-                                           const QVariantList &properties,
-                                           const QVariant &refsVal)
-{
-    if (properties.count()) {
-        QTC_ASSERT(parent, return);
-        foreach (const QVariant &property, properties) {
-            QmlV8ObjectData propertyData = extractData(property, refsVal);
-            auto item = new WatchItem;
-            item->name = QString::fromUtf8(propertyData.name);
-
-            //Check for v8 specific local data
-            if (item->name.startsWith(QLatin1Char('.')) || item->name.isEmpty())
-                continue;
-            if (parent->type == "object") {
-                if (parent->value == _("Array"))
-                    item->exp = parent->exp + '[' + item->name.toLatin1() + ']';
-                else if (parent->value == _("Object"))
-                    item->exp = parent->exp + '.' + item->name.toLatin1();
-            } else {
-                item->exp = item->name.toLatin1();
-            }
-
-            item->iname = parent->iname + '.' + item->name.toLatin1();
-            item->id = propertyData.handle;
-            item->type = propertyData.type;
-            item->value = propertyData.value.toString();
-            item->setHasChildren(propertyData.properties.count());
-            engine->watchHandler()->insertItem(item);
-        }
-    }
-}
-
-void QmlEnginePrivate::highlightExceptionCode(int lineNumber,
-                                              const QString &filePath,
-                                              const QString &errorMessage)
-{
-    QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
-
-    // set up the format for the errors
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-    errorFormat.setUnderlineColor(Qt::red);
-
-    foreach (IEditor *editor, editors) {
-        TextEditorWidget *ed = qobject_cast<TextEditorWidget *>(editor->widget());
-        if (!ed)
-            continue;
-
-        QList<QTextEdit::ExtraSelection> selections;
-        QTextEdit::ExtraSelection sel;
-        sel.format = errorFormat;
-        QTextCursor c(ed->document()->findBlockByNumber(lineNumber - 1));
-        const QString text = c.block().text();
-        for (int i = 0; i < text.size(); ++i) {
-            if (! text.at(i).isSpace()) {
-                c.setPosition(c.position() + i);
-                break;
-            }
-        }
-        c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-        sel.cursor = c;
-
-        sel.format.setToolTip(errorMessage);
-
-        selections.append(sel);
-        ed->setExtraSelections(TextEditorWidget::DebuggerExceptionSelection, selections);
-
-        QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber).arg(errorMessage);
-        engine->showMessage(message, ConsoleOutput);
-    }
 }
 
 void QmlEnginePrivate::stateChanged(State state)

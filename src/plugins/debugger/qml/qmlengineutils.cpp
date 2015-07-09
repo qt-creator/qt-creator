@@ -39,6 +39,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <QTextBlock>
+
 using namespace Core;
 using namespace QmlDebug;
 using namespace QmlJS;
@@ -264,6 +266,45 @@ void clearExceptionSelection()
         if (auto ed = qobject_cast<TextEditorWidget *>(editor->widget()))
             ed->setExtraSelections(TextEditorWidget::DebuggerExceptionSelection, selections);
     }
+}
+
+QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage)
+{
+    QStringList messages;
+    QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
+
+    // set up the format for the errors
+    QTextCharFormat errorFormat;
+    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    errorFormat.setUnderlineColor(Qt::red);
+
+    foreach (IEditor *editor, editors) {
+        TextEditorWidget *ed = qobject_cast<TextEditorWidget *>(editor->widget());
+        if (!ed)
+            continue;
+
+        QList<QTextEdit::ExtraSelection> selections;
+        QTextEdit::ExtraSelection sel;
+        sel.format = errorFormat;
+        QTextCursor c(ed->document()->findBlockByNumber(lineNumber - 1));
+        const QString text = c.block().text();
+        for (int i = 0; i < text.size(); ++i) {
+            if (!text.at(i).isSpace()) {
+                c.setPosition(c.position() + i);
+                break;
+            }
+        }
+        c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        sel.cursor = c;
+
+        sel.format.setToolTip(errorMessage);
+
+        selections.append(sel);
+        ed->setExtraSelections(TextEditorWidget::DebuggerExceptionSelection, selections);
+
+        messages.append(QString::fromLatin1("%1: %2: %3").arg(filePath).arg(lineNumber).arg(errorMessage));
+    }
+    return messages;
 }
 
 } // Internal

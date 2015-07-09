@@ -39,7 +39,9 @@ namespace Internal {
 
 bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line, quint32 *column, bool *valid);
 void appendDebugOutput(QtMsgType type, const QString &message, const QmlDebug::QDebugContextInfo &info);
+
 void clearExceptionSelection();
+QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage);
 
 } // namespace Internal
 } // namespace Debugger
