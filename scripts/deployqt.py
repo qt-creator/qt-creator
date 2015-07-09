@@ -229,20 +229,28 @@ def copyPreservingLinks(source, destination):
         shutil.copy(source, destination)
 
 def copy_libclang(install_dir, llvm_install_dir):
-    libsources = []
-    libtarget = ""
+    # contains pairs of (source, target directory)
+    deployinfo = []
     if sys.platform.startswith("win"):
-        libsources = [os.path.join(llvm_install_dir, 'bin', 'libclang.dll')]
-        libtarget = os.path.join(install_dir, 'bin')
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
+                           os.path.join(install_dir, 'bin')))
     else:
         libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))
-        libtarget = os.path.join(install_dir, 'lib', 'qtcreator')
+        for libsource in libsources:
+            deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
+
+    clangsources = glob(os.path.join(llvm_install_dir, 'bin', 'clang*'))
+    for clangsource in clangsources:
+        if not os.path.basename(clangsource).startswith('clang-check'):
+            deployinfo.append((clangsource, os.path.join(install_dir, 'bin')))
+
     resourcesource = os.path.join(llvm_install_dir, 'lib', 'clang')
     resourcetarget = os.path.join(install_dir, 'share', 'qtcreator', 'cplusplus', 'clang')
+
     print "copying libclang..."
-    for libsource in libsources:
-        print libsource, '->', libtarget
-        copyPreservingLinks(libsource, libtarget)
+    for source, target in deployinfo:
+        print source, '->', target
+        copyPreservingLinks(source, target)
     print resourcesource, '->', resourcetarget
     if (os.path.exists(resourcetarget)):
         shutil.rmtree(resourcetarget)
