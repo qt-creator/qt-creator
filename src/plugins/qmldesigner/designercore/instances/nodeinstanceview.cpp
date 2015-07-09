@@ -241,10 +241,6 @@ void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     removeInstanceAndSubInstances(removedNode);
 }
 
-void NodeInstanceView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 void NodeInstanceView::resetHorizontalAnchors(const ModelNode &modelNode)
 {
     QList<BindingProperty> bindingList;
@@ -340,10 +336,6 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
         removeInstanceNodeRelationship(node);
 }
 
-void NodeInstanceView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/)
-{
-}
-
 void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 {
     foreach (const ModelNode &subNode, node.allSubModelNodes()) {
@@ -363,11 +355,6 @@ void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorV
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
     nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(propertyList));
-}
-
-void NodeInstanceView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
-                                                      AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
 }
 
 /*!
@@ -401,11 +388,6 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
         nodeInstanceServer()->reparentInstances(createReparentInstancesCommand(node, newPropertyParent, oldPropertyParent));
     }
 }
-
-void NodeInstanceView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 
 void NodeInstanceView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &newUrl)
 {
@@ -442,61 +424,9 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
     nodeInstanceServer()->reparentInstances(ReparentInstancesCommand(containerList));
 }
 
-/*!
-    Notifies the view that the list of selected model nodes has changed to
-    \a selectedNodeList from \a lastSelectedNodeList.
-
-  Do nothing.
-
-    \sa ModelNode, NodeInstance
-*/
-void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
-                                              const QList<ModelNode> &/*lastSelectedNodeList*/)
-{
-}
-
-void NodeInstanceView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
-{
-
-}
-
-void NodeInstanceView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
-{
-
-}
-
-void NodeInstanceView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-}
-
 void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     restartProcess();
-}
-
-void NodeInstanceView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
-{
-
-}
-
-void NodeInstanceView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void NodeInstanceView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void NodeInstanceView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void NodeInstanceView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
 }
 
 void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
@@ -537,16 +467,6 @@ void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & 
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
          nodeInstanceServer()->changeNodeSource(changeNodeSourceCommand);
      }
-}
-
-void NodeInstanceView::rewriterBeginTransaction()
-{
-
-}
-
-void NodeInstanceView::rewriterEndTransaction()
-{
-
 }
 
 void NodeInstanceView::currentStateChanged(const ModelNode &node)
