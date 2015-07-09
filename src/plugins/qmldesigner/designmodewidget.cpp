@@ -350,9 +350,12 @@ void DesignModeWidget::setup()
     }
 
 
-    QToolBar *toolBar = new QToolBar(m_toolBar);
+
+    QToolBar *toolBar = new QToolBar;
 
     toolBar->addAction(viewManager().componentViewAction());
+
+    toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_toolBar->addCenterToolBar(toolBar);
 
     m_mainSplitter = new MiniSplitter(this);
