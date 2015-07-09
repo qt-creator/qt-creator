@@ -124,8 +124,7 @@ public:
     static QString parserName(OutputParser parser);
 
 protected:
-    explicit CustomToolChain(const QByteArray &id, Detection d);
-    CustomToolChain(const CustomToolChain &);
+    CustomToolChain(const CustomToolChain &) = default;
 
 private:
     explicit CustomToolChain(Detection d);

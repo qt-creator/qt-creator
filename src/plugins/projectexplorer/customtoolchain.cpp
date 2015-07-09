@@ -82,19 +82,6 @@ CustomToolChain::CustomToolChain(Detection d) :
     m_outputParser(Gcc)
 { }
 
-CustomToolChain::CustomToolChain(const QByteArray &id, Detection d) :
-    ToolChain(id, d)
-{ }
-
-CustomToolChain::CustomToolChain(const CustomToolChain &tc) :
-    ToolChain(tc),
-    m_compilerCommand(tc.m_compilerCommand),
-    m_makeCommand(tc.m_makeCommand),
-    m_targetAbi(tc.m_targetAbi),
-    m_predefinedMacros(tc.m_predefinedMacros),
-    m_systemHeaderPaths(tc.m_systemHeaderPaths)
-{ }
-
 QString CustomToolChain::type() const
 {
     return QLatin1String("custom");
