@@ -59,8 +59,8 @@ public:
     PropertyEditorView(QWidget *parent = 0);
     ~PropertyEditorView();
 
-    bool hasWidget() const;
-    WidgetInfo widgetInfo();
+    bool hasWidget() const override;
+    WidgetInfo widgetInfo() override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
