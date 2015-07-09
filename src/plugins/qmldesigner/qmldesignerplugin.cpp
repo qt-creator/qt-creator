@@ -316,7 +316,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     viewManager().attachComponentView();
     viewManager().attachViewsExceptRewriterAndComponetView();
 
-    QList<RewriterView::Error> errors = currentDesignDocument()->qmlSyntaxErrors();
+    QList<RewriterError> errors = currentDesignDocument()->qmlSyntaxErrors();
     if (errors.isEmpty()) {
         selectModelNodeUnderTextCursor();
         data->mainWidget->enableWidgets();
@@ -329,9 +329,9 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     currentDesignDocument()->updateSubcomponentManager();
 
     connect(rewriterView(),
-            SIGNAL(errorsChanged(QList<RewriterView::Error>)),
+            SIGNAL(errorsChanged(QList<RewriterError>)),
             data->mainWidget,
-            SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+            SLOT(updateErrorStatus(QList<RewriterError>)));
 }
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
@@ -342,9 +342,9 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
     documentManager().currentDesignDocument()->resetToDocumentModel();
 
     disconnect(rewriterView(),
-               SIGNAL(errorsChanged(QList<RewriterView::Error>)),
+               SIGNAL(errorsChanged(QList<RewriterError>)),
                data->mainWidget,
-               SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+               SLOT(updateErrorStatus(QList<RewriterError>)));
 
 }
 

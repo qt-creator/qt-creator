@@ -171,7 +171,7 @@ Model* DesignDocument::createInFileComponentModel()
 /*!
   Returns any errors that happened when parsing the latest qml file.
   */
-QList<RewriterView::Error> DesignDocument::qmlSyntaxErrors() const
+QList<RewriterError> DesignDocument::qmlSyntaxErrors() const
 {
     return m_rewriterView->errors();
 }

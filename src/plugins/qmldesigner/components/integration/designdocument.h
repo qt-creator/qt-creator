@@ -86,7 +86,7 @@ public:
     Model *documentModel() const;
 
     QString contextHelpId() const;
-    QList<RewriterView::Error> qmlSyntaxErrors() const;
+    QList<RewriterError> qmlSyntaxErrors() const;
     bool hasQmlSyntaxErrors() const;
 
     RewriterView *rewriterView() const;
@@ -111,7 +111,7 @@ signals:
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
     void designDocumentClosed();
-    void qmlErrorsChanged(const QList<RewriterView::Error> &errors);
+    void qmlErrorsChanged(const QList<RewriterError> &errors);
 
 public slots:
     void deleteSelected();

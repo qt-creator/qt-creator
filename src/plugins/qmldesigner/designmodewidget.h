@@ -73,7 +73,7 @@ class DocumentWarningWidget : public Utils::FakeToolTip
 public:
     explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
 
-    void setError(const RewriterView::Error &error);
+    void setError(const RewriterError &error);
 
 private slots:
     void goToError();
@@ -81,7 +81,7 @@ private slots:
 private:
     QLabel *m_errorMessage;
     QLabel *m_goToError;
-    RewriterView::Error m_error;
+    RewriterError m_error;
     DesignModeWidget *m_designModeWidget;
 };
 
@@ -109,12 +109,12 @@ public:
 
     void enableWidgets();
     void disableWidgets();
-    void showErrorMessage(const QList<RewriterView::Error> &errors);
+    void showErrorMessage(const QList<RewriterError> &errors);
 
     CrumbleBar* crumbleBar() const;
 
 public slots:
-    void updateErrorStatus(const QList<RewriterView::Error> &errors);
+    void updateErrorStatus(const QList<RewriterError> &errors);
     void restoreDefaultView();
     void toggleSidebars();
     void toggleLeftSidebar();

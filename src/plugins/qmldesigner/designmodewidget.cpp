@@ -98,14 +98,14 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     layout->addWidget(m_goToError, 1, Qt::AlignRight);
 }
 
-void DocumentWarningWidget::setError(const RewriterView::Error &error)
+void DocumentWarningWidget::setError(const RewriterError &error)
 {
     m_error = error;
     QString str;
-    if (error.type() == RewriterView::Error::ParseError) {
+    if (error.type() == RewriterError::ParseError) {
         str = tr("%3 (%1:%2)").arg(QString::number(error.line()), QString::number(error.column()), error.description());
         m_goToError->show();
-    }  else if (error.type() == RewriterView::Error::InternalError) {
+    }  else if (error.type() == RewriterError::InternalError) {
         str = tr("Internal error (%1)").arg(error.description());
         m_goToError->hide();
     }
@@ -278,7 +278,7 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
-void DesignModeWidget::updateErrorStatus(const QList<RewriterView::Error> &errors)
+void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << errors.count();
@@ -459,8 +459,8 @@ void DesignModeWidget::deleteSidebarWidgets()
 
 void DesignModeWidget::qmlPuppetCrashed()
 {
-    QList<RewriterView::Error> errorList;
-    RewriterView::Error error(tr("Qt Quick emulation layer crashed"));
+    QList<RewriterError> errorList;
+    RewriterError error(tr("Qt Quick emulation layer crashed"));
     errorList.append(error);
 
     disableWidgets();
@@ -616,7 +616,7 @@ QWidget *DesignModeWidget::createCrumbleBarFrame()
     return frame;
 }
 
-void DesignModeWidget::showErrorMessage(const QList<RewriterView::Error> &errors)
+void DesignModeWidget::showErrorMessage(const QList<RewriterError> &errors)
 {
     Q_ASSERT(!errors.isEmpty());
     m_warningWidget->setError(errors.first());

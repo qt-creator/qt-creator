@@ -50,14 +50,14 @@ using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
 
-RewriterView::Error::Error():
+RewriterError::RewriterError():
         m_type(NoError),
         m_line(-1),
         m_column(-1)
 {
 }
 
-RewriterView::Error::Error(const Exception *exception):
+RewriterError::RewriterError(Exception *exception):
         m_type(InternalError),
         m_line(exception->line()),
         m_column(-1),
@@ -66,7 +66,7 @@ RewriterView::Error::Error(const Exception *exception):
 {
 }
 
-RewriterView::Error::Error(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document):
+RewriterError::RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document):
         m_type(ParseError),
         m_line(qmlError.loc.startLine),
         m_column(qmlError.loc.startColumn),
@@ -75,7 +75,7 @@ RewriterView::Error::Error(const QmlJS::DiagnosticMessage &qmlError, const QUrl 
 {
 }
 
-RewriterView::Error::Error(const QString &shortDescription) :
+RewriterError::RewriterError(const QString &shortDescription) :
     m_type(ParseError),
     m_line(1),
     m_column(0),
@@ -85,33 +85,33 @@ RewriterView::Error::Error(const QString &shortDescription) :
 }
 
 
-QString RewriterView::Error::toString() const
+QString RewriterError::toString() const
 {
     QString str;
 
     if (m_type == ParseError)
-        str += tr("Error parsing");
+        str += RewriterView::tr("Error parsing");
     else if (m_type == InternalError)
-        str += tr("Internal error");
+        str += RewriterView::tr("Internal error");
 
     if (url().isValid()) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
 
-        str += tr("\"%1\"").arg(url().toString());
+        str += RewriterView::tr("\"%1\"").arg(url().toString());
     }
 
     if (line() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
-        str += tr("line %1").arg(line());
+        str += RewriterView::tr("line %1").arg(line());
     }
 
     if (column() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
 
-        str += tr("column %1").arg(column());
+        str += RewriterView::tr("column %1").arg(column());
     }
 
     if (!str.isEmpty())
@@ -541,7 +541,7 @@ void RewriterView::applyChanges()
     }
 }
 
-QList<RewriterView::Error> RewriterView::errors() const
+QList<RewriterError> RewriterView::errors() const
 {
     return m_errors;
 }
@@ -552,13 +552,13 @@ void RewriterView::clearErrors()
     emit errorsChanged(m_errors);
 }
 
-void RewriterView::setErrors(const QList<RewriterView::Error> &errors)
+void RewriterView::setErrors(const QList<RewriterError> &errors)
 {
     m_errors = errors;
     emit errorsChanged(m_errors);
 }
 
-void RewriterView::addError(const RewriterView::Error &error)
+void RewriterView::addError(const RewriterError &error)
 {
     m_errors.append(error);
     emit errorsChanged(m_errors);

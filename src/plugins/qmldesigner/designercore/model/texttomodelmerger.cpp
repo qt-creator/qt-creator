@@ -885,9 +885,9 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         doc->parseQml();
 
         if (!doc->isParsedCorrectly()) {
-            QList<RewriterView::Error> errors;
-            foreach (const DiagnosticMessage &message, doc->diagnosticMessages())
-                errors.append(RewriterView::Error(message, QUrl::fromLocalFile(doc->fileName())));
+            QList<RewriterError> errors;
+            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
+                errors.append(RewriterError(message, QUrl::fromLocalFile(doc->fileName())));
             m_rewriterView->setErrors(errors);
             setActive(false);
             return false;
@@ -899,66 +899,19 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                     new ScopeChain(ctxt.scopeChain()));
         m_document = doc;
 
-        QList<RewriterView::Error> errors;
-        QList<RewriterView::Error> warnings;
+        QList<RewriterError> errors;
+        QList<RewriterError> warnings;
 
-        foreach (const DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
-            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
-        }
+        collectLinkErrors(&errors, ctxt);
 
         setupImports(doc, differenceHandler);
         setupPossibleImports(snapshot, m_vContext);
 
-        if (m_rewriterView->model()->imports().isEmpty()) {
-            const DiagnosticMessage diagnosticMessage(Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
-            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
-        }
-
-        foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
-            if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick") && !supportedQtQuickVersion(import.version())) {
-                const DiagnosticMessage diagnosticMessage(Severity::Error, AST::SourceLocation(0, 0, 0, 0),
-                                                                 QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
-                errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
-            }
-        }
+        collectImportErrors(&errors);
 
         if (view()->checkSemanticErrors()) {
-            Check check(doc, m_scopeChain->context());
-            check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
-            check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
-            check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
 
-            foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
-                StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
-                if (prototypeMessageData.severity == Severity::MaybeWarning
-                        || prototypeMessageData.severity == Severity::Warning) {
-                    check.disableMessage(type);
-                }
-            }
-
-            check.enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
-            check.enableMessage(StaticAnalysis::ErrUnsupportedRootTypeInVisualDesigner);
-            //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
-
-            foreach (const StaticAnalysis::Message &message, check()) {
-                if (message.severity == Severity::Error) {
-                    if (message.type == StaticAnalysis::ErrUnknownComponent)
-                        warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                    else
-                        errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                }
-                if (message.severity == Severity::Warning) {
-                    if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
-                        errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                    } else {
-                        warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                    }
-                }
-            }
+            collectSemanticErrorsAndWarnings(&errors, &warnings);
 
             if (!errors.isEmpty()) {
                 m_rewriterView->setErrors(errors);
@@ -966,22 +919,17 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 return false;
             }
 
-            if (!warnings.isEmpty() && differenceHandler.isValidator() && !m_rewriterView->inErrorState()) {
-
-                QStringList message;
-
-                foreach (const RewriterView::Error &warning, warnings) {
-                    QString string = QStringLiteral("Line: ") +  QString::number(warning.line()) + QStringLiteral(": ")  + warning.description();
-                    //string += QStringLiteral(" <a href=\"") + QString::number(warning.line()) + QStringLiteral("\">Go to error</a>") + QStringLiteral("<p>");
-                    message << string;
-                }
-
-                QmlWarningDialog warningDialog(0, message);
-                if (warningDialog.warningsEnabled() && warningDialog.exec()) {
-                    m_rewriterView->setErrors(warnings);
-                    setActive(false);
-                    return false;
-                }
+            /*
+             * If there are warnings and we are validating the document, then show a warning dialog.
+             * If the warning dialog is not ignored we set the warnings as errors and do not load the document
+             */
+            if (!warnings.isEmpty()
+                    && differenceHandler.isValidator()
+                    && !m_rewriterView->inErrorState()
+                    && !showWarningsDialogIgnored(warnings)) {
+                m_rewriterView->setErrors(warnings);
+                setActive(false);
+                return false;
             }
         }
         setupUsedImports();
@@ -997,8 +945,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setActive(false);
         return true;
-    } catch (const Exception &e) {
-        RewriterView::Error error(&e);
+    } catch (Exception &e) {
+        RewriterError error(&e);
         // Somehow, the error below gets eaten in upper levels, so printing the
         // exception info here for debugging purposes:
         qDebug() << "*** An exception occurred while reading the QML file:"
@@ -1930,6 +1878,80 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
 
     if (node.nodeSource() != result)
         ModelNode(node).setNodeSource(result);
+}
+
+void TextToModelMerger::collectLinkErrors(QList<RewriterError> *errors, const ReadingContext &ctxt)
+{
+    foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
+        errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+    }
+}
+
+void TextToModelMerger::collectImportErrors(QList<RewriterError> *errors)
+{
+    if (m_rewriterView->model()->imports().isEmpty()) {
+        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+        errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+    }
+
+    foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
+        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick") && !supportedQtQuickVersion(import.version())) {
+            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
+                                                             QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
+            errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+        }
+    }
+}
+
+void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *errors, QList<RewriterError> *warnings)
+{
+    Check check(m_document, m_scopeChain->context());
+    check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
+    check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
+    check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
+
+    foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
+        StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
+        if (prototypeMessageData.severity == Severity::MaybeWarning
+                || prototypeMessageData.severity == Severity::Warning) {
+            check.disableMessage(type);
+        }
+    }
+
+    check.enableQmlDesignerChecks();
+
+    foreach (const StaticAnalysis::Message &message, check()) {
+        if (message.severity == Severity::Error) {
+            if (message.type == StaticAnalysis::ErrUnknownComponent)
+                warnings->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
+            else
+                errors->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
+        }
+        if (message.severity == Severity::Warning) {
+            if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
+                errors->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
+            } else {
+                warnings->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
+            }
+        }
+    }
+}
+
+bool TextToModelMerger::showWarningsDialogIgnored(const QList<RewriterError> &warnings)
+{
+    QStringList message;
+
+    foreach (const RewriterError &warning, warnings) {
+        QString string = QStringLiteral("Line: ") +  QString::number(warning.line()) + QStringLiteral(": ")  + warning.description();
+        message << string;
+    }
+
+    QmlWarningDialog warningDialog(0, message);
+    if (warningDialog.warningsEnabled() && warningDialog.exec()) {
+        return false;
+    }
+
+    return true;
 }
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)

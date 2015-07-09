@@ -62,6 +62,45 @@ class ModelNodePositionStorage;
 
 } //Internal
 
+class RewriterError {
+public:
+    enum Type {
+        NoError = 0,
+        InternalError = 1,
+        ParseError = 2
+    };
+
+public:
+    RewriterError();
+    RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
+    RewriterError(const QString &shortDescription);
+    RewriterError(Exception *exception);
+
+    Type type() const
+    { return m_type; }
+
+    int line() const
+    { return m_line; }
+
+    int column() const
+    { return m_column; }
+
+    QString description() const
+    { return m_description; }
+
+    QUrl url() const
+    { return m_url; }
+
+    QString toString() const;
+
+private:
+    Type m_type;
+    int m_line;
+    int m_column;
+    QString m_description;
+    QUrl m_url;
+};
+
 class QMLDESIGNERCORE_EXPORT RewriterView : public AbstractView
 {
     Q_OBJECT
@@ -70,45 +109,6 @@ public:
     enum DifferenceHandling {
         Validate,
         Amend
-    };
-
-    class Error {
-    public:
-        enum Type {
-            NoError = 0,
-            InternalError = 1,
-            ParseError = 2
-        };
-
-    public:
-        Error();
-        Error(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
-        Error(const QString &shortDescription);
-        Error(const Exception *exception);
-
-        Type type() const
-        { return m_type; }
-
-        int line() const
-        { return m_line; }
-
-        int column() const
-        { return m_column; }
-
-        QString description() const
-        { return m_description; }
-
-        QUrl url() const
-        { return m_url; }
-
-        QString toString() const;
-
-    private:
-        Type m_type;
-        int m_line;
-        int m_column;
-        QString m_description;
-        QUrl m_url;
     };
 
 public:
@@ -171,10 +171,10 @@ public:
     Internal::ModelNodePositionStorage *positionStorage() const
     { return m_positionStorage; }
 
-    QList<Error> errors() const;
+    QList<RewriterError> errors() const;
     void clearErrors();
-    void setErrors(const QList<Error> &errors);
-    void addError(const Error &error);
+    void setErrors(const QList<RewriterError> &errors);
+    void addError(const RewriterError &error);
 
     void enterErrorState(const QString &errorMessage);
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
@@ -209,7 +209,7 @@ public:
     QSet<QPair<QString, QString> > qrcMapping() const;
 
 signals:
-    void errorsChanged(const QList<RewriterView::Error> &errors);
+    void errorsChanged(const QList<RewriterError> &errors);
 
 public slots:
     void qmlTextChanged();
@@ -233,7 +233,7 @@ private: //variables
     QScopedPointer<Internal::ModelToTextMerger> m_modelToTextMerger;
     QScopedPointer<Internal::TextToModelMerger> m_textToModelMerger;
     TextModifier *m_textModifier;
-    QList<Error> m_errors;
+    QList<RewriterError> m_errors;
     int transactionLevel;
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;

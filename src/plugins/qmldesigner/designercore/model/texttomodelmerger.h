@@ -44,6 +44,7 @@
 namespace QmlDesigner {
 
 class RewriterView;
+class RewriterError;
 
 namespace Internal {
 
@@ -137,6 +138,11 @@ public:
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);
+    void collectLinkErrors(QList<RewriterError> *errors, const ReadingContext &ctxt);
+    void collectImportErrors(QList<RewriterError> *errors);
+    void collectSemanticErrorsAndWarnings(QList<RewriterError> *errors,
+                                          QList<RewriterError> *warnings);
+    bool showWarningsDialogIgnored(const QList<RewriterError> &warnings);
 
     void populateQrcMapping(const QString &filePath);
 
