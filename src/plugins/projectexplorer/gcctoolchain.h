@@ -99,7 +99,7 @@ public:
 protected:
     typedef QList<QPair<QStringList, QByteArray> > GccCache;
 
-    GccToolChain(const GccToolChain &);
+    GccToolChain(const GccToolChain &) = default;
 
     typedef QPair<QStringList, QByteArray> CacheItem;
 

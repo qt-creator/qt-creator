@@ -252,16 +252,6 @@ GccToolChain::GccToolChain(const QByteArray &id, Detection d) :
     ToolChain(id, d)
 { }
 
-GccToolChain::GccToolChain(const GccToolChain &tc) :
-    ToolChain(tc),
-    m_predefinedMacros(tc.m_predefinedMacros),
-    m_compilerCommand(tc.compilerCommand()),
-    m_targetAbi(tc.m_targetAbi),
-    m_supportedAbis(tc.m_supportedAbis),
-    m_headerPaths(tc.m_headerPaths),
-    m_version(tc.m_version)
-{ }
-
 void GccToolChain::setCompilerCommand(const FileName &path)
 {
     if (path == m_compilerCommand)
