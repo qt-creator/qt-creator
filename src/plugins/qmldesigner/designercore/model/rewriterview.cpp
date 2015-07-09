@@ -766,6 +766,11 @@ QStringList RewriterView::importDirectories() const
     return m_textToModelMerger->vContext().paths;
 }
 
+QSet<QPair<QString, QString> > RewriterView::qrcMapping() const
+{
+    return m_textToModelMerger->qrcMapping();
+}
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())

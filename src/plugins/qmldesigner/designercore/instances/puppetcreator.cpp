@@ -349,6 +349,10 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set("QML_USE_MOCKUPS", "true");
     environment.set("QML_PUPPET_MODE", "true");
 
+    if (!m_qrcMapping.isEmpty()) {
+        environment.set(QLatin1String("QMLDESIGNER_RC_PATHS"), m_qrcMapping);
+    }
+
     if (m_availablePuppetType != FallbackPuppet) {
         if (m_puppetVersion == Qml1Puppet)
             environment.appendOrSet("QML_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
@@ -383,6 +387,11 @@ QString PuppetCreator::qmakeCommand() const
 QString PuppetCreator::compileLog() const
 {
     return m_compileLog;
+}
+
+void PuppetCreator::setQrcMappingString(const QString qrcMapping)
+{
+    m_qrcMapping = qrcMapping;
 }
 
 bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,

@@ -131,9 +131,14 @@ public:
     void setupCustomParserNodeDelayed(const ModelNode &node, bool synchron);
 
     void delayedSetup();
+
+    QSet<QPair<QString, QString> > qrcMapping() const;
+
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);
+
+    void populateQrcMapping(const QString &filePath);
 
     static QString textAt(const QmlJS::Document::Ptr &doc,
                           const QmlJS::AST::SourceLocation &location);
@@ -150,6 +155,7 @@ private:
     QSet<ModelNode> m_setupComponentList;
     QSet<ModelNode> m_setupCustomParserList;
     QmlJS::ViewerContext m_vContext;
+    QSet<QPair<QString, QString> > m_qrcMapping;
 };
 
 class DifferenceHandler

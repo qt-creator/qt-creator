@@ -70,6 +70,8 @@ public:
 
     QString compileLog() const;
 
+    void setQrcMappingString(const QString qrcMapping);
+
 protected:
     bool build(const QString &qmlPuppetProjectFilePath) const;
 
@@ -121,6 +123,7 @@ private:
     static QHash<Core::Id, PuppetType> m_qml1PuppetForKitPuppetHash;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
     const Model *m_model;
+    QString m_qrcMapping;
     QmlPuppetVersion m_puppetVersion;
 };
 

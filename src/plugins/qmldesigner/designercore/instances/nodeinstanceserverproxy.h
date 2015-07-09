@@ -89,6 +89,7 @@ protected:
     void dispatchCommand(const QVariant &command, PuppetStreamType puppetStreamType);
     NodeInstanceClientInterface *nodeInstanceClient() const;
     void puppetAlive(PuppetStreamType puppetStreamType);
+    QString qrcMappingString() const;
 
 signals:
     void processCrashed();

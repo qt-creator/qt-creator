@@ -206,6 +206,8 @@ public:
 
     QStringList importDirectories() const;
 
+    QSet<QPair<QString, QString> > qrcMapping() const;
+
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);
 

@@ -865,6 +865,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     // maybe the project environment (kit, ...) changed, so we need to clean old caches
     NodeMetaInfo::clearCache();
 
+    m_qrcMapping.clear();
 
     const QUrl url = m_rewriterView->model()->fileUrl();
 
@@ -1411,11 +1412,33 @@ void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
     }
 }
 
+static QString fileForFullQrcPath(const QString &string)
+{
+    QStringList stringList = string.split(QLatin1String("/"));
+    if (stringList.isEmpty())
+        return QString();
+
+    return stringList.last();
+}
+
+static QString removeFileFromQrcPath(const QString &string)
+{
+    QStringList stringList = string.split(QLatin1String("/"));
+    if (stringList.isEmpty())
+        return QString();
+
+    stringList.removeLast();
+    return stringList.join(QLatin1String("/"));
+}
+
 void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
                                             const QVariant &astValue,
                                             const TypeName &astType,
                                             DifferenceHandler &differenceHandler)
 {
+    if (astValue.canConvert(QMetaType::QString))
+        populateQrcMapping(astValue.toString());
+
     if (modelProperty.isVariantProperty()) {
         VariantProperty modelVariantProperty = modelProperty.toVariantProperty();
 
@@ -1909,6 +1932,25 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
         ModelNode(node).setNodeSource(result);
 }
 
+void TextToModelMerger::populateQrcMapping(const QString &filePath)
+{
+    QString path = removeFileFromQrcPath(filePath);
+    QString fileName = fileForFullQrcPath(filePath);
+    if (path.contains(QLatin1String("qrc:"))) {
+        path.remove(QLatin1String("qrc:"));
+        QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
+        if (map.contains(fileName)) {
+            if (!map.value(fileName).isEmpty()) {
+                QString fileSystemPath =  map.value(fileName).first();
+                fileSystemPath.remove(fileName);
+                if (path.isEmpty())
+                    path.prepend(QLatin1String("/"));
+                m_qrcMapping.insert(qMakePair(path, fileSystemPath));
+            }
+        }
+    }
+}
+
 void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchron)
 {
     if (synchron) {
@@ -1955,6 +1997,11 @@ void TextToModelMerger::delayedSetup()
         setupCustomParserNode(node);
     m_setupCustomParserList.clear();
     m_setupComponentList.clear();
+}
+
+QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const
+{
+    return m_qrcMapping;
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,

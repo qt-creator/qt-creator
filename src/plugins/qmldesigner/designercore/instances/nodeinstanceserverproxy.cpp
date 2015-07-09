@@ -130,7 +130,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    PuppetCreator::QmlPuppetVersion puppetVersion = hasQtQuick1(nodeInstanceView) ? PuppetCreator::Qml1Puppet : PuppetCreator::Qml2Puppet;
    PuppetCreator puppetCreator(kit, QString(), nodeInstanceView->model(), puppetVersion);
-
+   puppetCreator.setQrcMappingString(qrcMappingString());
 
    puppetCreator.createPuppetExecutableIfMissing();
 
@@ -324,6 +324,30 @@ void NodeInstanceServerProxy::puppetAlive(NodeInstanceServerProxy::PuppetStreamT
     default:
         break;
     }
+}
+
+QString NodeInstanceServerProxy::qrcMappingString() const
+{
+    if (m_nodeInstanceView && m_nodeInstanceView.data()->model()) {
+        RewriterView *rewriterView = m_nodeInstanceView.data()->model()->rewriterView();
+        if (rewriterView) {
+            QString mappingString;
+
+            typedef QPair<QString, QString> StringPair;
+
+            foreach (const StringPair &pair, rewriterView->qrcMapping()) {
+                if (!mappingString.isEmpty())
+                    mappingString.append(QLatin1String(","));
+                mappingString.append(pair.first);
+                mappingString.append(QLatin1String("="));
+                mappingString.append(pair.second);
+            }
+
+            return mappingString;
+        }
+    }
+
+    return QString();
 }
 
 void NodeInstanceServerProxy::processFinished()
