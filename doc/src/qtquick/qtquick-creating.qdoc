@@ -46,6 +46,10 @@
         \li \uicontrol {Qt Quick Controls Application} is like
             \uicontrol {Qt Quick Application}, but using Qt Quick Controls.
 
+        \li \uicontrol {Qt Canvas 3D Application} creates a Qt Quick application
+            that imports the Qt Canvas 3D module and, optionally, includes
+            \l{http://threejs.org}{three.js}.
+
         \li \uicontrol {Qt Quick UI} (in the \uicontrol {Other Project}
             category) creates a Qt Quick UI project with a single QML file that
             contains the main view. You can review Qt Quick UI projects in a

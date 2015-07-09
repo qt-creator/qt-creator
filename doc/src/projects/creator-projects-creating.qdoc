@@ -114,6 +114,12 @@
 
                 Create a Qt Quick application using Qt Quick Controls
 
+            \li Qt Canvas 3D Application
+
+                Create a Qt Quick application that imports the Qt Canvas 3D
+                module and, optionally, includes \l{http://threejs.org}
+                {three.js}.
+
             \li Qt Console Application
 
                 Use a single main.cpp file
