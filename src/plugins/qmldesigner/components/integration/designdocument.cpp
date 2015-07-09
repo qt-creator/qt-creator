@@ -640,16 +640,14 @@ static bool isFileInProject(DesignDocument *designDocument, Project *project)
 
 static inline Kit *getActiveKit(DesignDocument *designDocument)
 {
-    Project *currentProject = ProjectTree::currentProject();
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
-        currentProject = SessionManager::projectForFile(Utils::FileName::fromString(designDocument->fileName()));
+        currentProject = ProjectExplorer::ProjectTree::currentProject();
 
     if (!currentProject)
         return 0;
 
-    if (!isFileInProject(designDocument, currentProject))
-        return 0;
 
     QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
@@ -663,6 +661,8 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
     if (!target)
         return 0;
 
+    if (!target->kit()->isValid())
+        return 0;
     QObject::connect(target, &Target::kitChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
