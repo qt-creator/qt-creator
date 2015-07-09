@@ -76,6 +76,8 @@ def main():
         if result == None:
             checkCompile()
         else:
-            logApplicationOutput()
+            appOutput = logApplicationOutput()
+            test.verify(not ("untitled.qml" in appOutput or "MainForm.ui.qml" in appOutput),
+                        "Does the Application Output indicate QML errors?")
         invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
