@@ -244,7 +244,7 @@ def copy_libclang(install_dir, llvm_install_dir):
         for libsource in libsources:
             deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
         clangbinary = os.path.join(llvm_install_dir, 'bin', 'clang')
-        clangbinary_targetdir = os.path.join(install_dir, 'bin')
+        clangbinary_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator')
         deployinfo.append((clangbinary, clangbinary_targetdir))
         # copy link target if clang is actually a symlink
         if os.path.islink(clangbinary):
