@@ -109,7 +109,7 @@ public:
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
-    static QString splitLineNumber(QString *fileName);
+    static QString splitLineAndColumnNumber(QString *fileName);
     static IEditor *openEditor(const QString &fileName, Id editorId = Id(),
         OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
