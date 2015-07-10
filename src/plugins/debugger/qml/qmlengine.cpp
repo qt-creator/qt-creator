@@ -139,8 +139,8 @@ public:
                   int frame = -1, bool addContext = false);
     void lookup(const QList<int> handles, bool includeSource = false);
     void backtrace(int fromFrame = -1, int toFrame = -1, bool bottom = false);
-    void frame(int number = -1);
-    void scope(int number = -1, int frameNumber = -1);
+    void frame(int number);
+    void scope(int number, int frameNumber = -1);
     void scripts(int types = 4, const QList<int> ids = QList<int>(),
                  bool includeSource = false, const QVariant filter = QVariant());
 
@@ -150,13 +150,9 @@ public:
     void clearBreakpoint(int breakpoint);
     void setExceptionBreak(Exceptions type, bool enabled = false);
 
-    void version();
     void clearCache();
 
-    void sendAndLogV8Request(const QJsonObject &request);
-
     QByteArray packMessage(const QByteArray &type, const QByteArray &message = QByteArray());
-    QJsonObject initObject();
 
     void expandObject(const QByteArray &iname, quint64 objectId);
     void flushSendBuffer();
@@ -170,6 +166,7 @@ public:
 
     bool canEvaluateScript(const QString &script);
     void updateScriptSource(const QString &fileName, int lineOffset, int columnOffset, const QString &source);
+    void runCommand(const DebuggerCommand &command);
 
 public:
     int sequence = -1;
@@ -1322,7 +1319,11 @@ void QmlEnginePrivate::disconnect()
     //      "type"    : "request",
     //      "command" : "disconnect",
     //    }
-    QJsonObject jsonVal = initObject();
+    QJsonObject jsonVal = {
+        {_(SEQ), ++sequence},
+        {_(TYPE), _(REQUEST)}
+    };
+
     jsonVal.insert(_(COMMAND), _(DISCONNECT));
 
     const QByteArray msg = QJsonDocument(jsonVal).toJson(QJsonDocument::Compact);
@@ -1339,27 +1340,18 @@ void QmlEnginePrivate::continueDebugging(StepAction action)
     //                      "stepcount"  : <number of steps (default 1)>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(CONTINEDEBUGGING));
 
-    if (action != Continue) {
-        QJsonObject args;
-        switch (action) {
-        case StepIn:
-            args.insert(_(STEPACTION), _(IN));
-            break;
-        case StepOut:
-            args.insert(_(STEPACTION), _(OUT));
-            break;
-        case Next:
-            args.insert(_(STEPACTION), _(NEXT));
-            break;
-        default:break;
-        }
+    DebuggerCommand cmd(CONTINEDEBUGGING);
 
-        jsonVal.insert(_(ARGUMENTS), args);
-    }
-    sendAndLogV8Request(jsonVal);
+    if (action == StepIn)
+        cmd.arg(STEPACTION, IN);
+    else if (action == StepOut)
+        cmd.arg(STEPACTION, OUT);
+    else if (action == Next)
+        cmd.arg(STEPACTION, NEXT);
+
+    runCommand(cmd);
+
     previousStepAction = action;
 }
 
@@ -1380,45 +1372,37 @@ void QmlEnginePrivate::evaluate(const QString expr, bool global,
     //                      ]
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(EVALUATE));
 
-    QJsonObject args {
-        { _(EXPRESSION), expr }
-    };
+    DebuggerCommand cmd(EVALUATE);
+
+    cmd.arg(EXPRESSION, expr);
 
     if (frame != -1)
-        args.insert(_(FRAME), frame);
+        cmd.arg(FRAME, frame);
 
     if (global)
-        args.insert(_(GLOBAL), global);
+        cmd.arg(GLOBAL, global);
 
     if (disableBreak)
-        args.insert(_(DISABLE_BREAK), disableBreak);
+        cmd.arg(DISABLE_BREAK, disableBreak);
 
     if (addContext) {
         WatchHandler *watchHandler = engine->watchHandler();
         QAbstractItemModel *watchModel = watchHandler->model();
         int rowCount = watchModel->rowCount();
 
-        QJsonArray ctxtList;
-        while (rowCount) {
-            QModelIndex index = watchModel->index(--rowCount, 0);
+        cmd.beginList(ADDITIONAL_CONTEXT);
+        for (int row = 0; row < rowCount; ++row) {
+            QModelIndex index = watchModel->index(row, 0); // FIXME: This looks wrong.
             const WatchData *data = watchHandler->watchItem(index);
-            const QJsonObject ctxt {
-                { _(NAME), data->name },
-                { _(HANDLE), int(data->id) }
-            };
-
-            ctxtList.push_front(ctxt);
+            cmd.beginGroup();
+            cmd.arg(NAME, data->name);
+            cmd.arg(HANDLE, int(data->id));
+            cmd.endGroup();
         }
-
-        args.insert(_(ADDITIONAL_CONTEXT), ctxtList);
     }
 
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::lookup(QList<int> handles, bool includeSource)
@@ -1432,22 +1416,15 @@ void QmlEnginePrivate::lookup(QList<int> handles, bool includeSource)
     //                                          script objects are returned>,
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(LOOKUP));
 
-    QJsonObject args;
+    DebuggerCommand cmd(LOOKUP);
 
-    QJsonArray array;
-    foreach (int handle, handles)
-        array.push_back(handle);
-    args.insert(_(HANDLES), array);
+    cmd.arg(HANDLES, handles);
 
     if (includeSource)
-        args.insert(_(INCLUDESOURCE), includeSource);
+        cmd.arg(INCLUDESOURCE, includeSource);
 
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::backtrace(int fromFrame, int toFrame, bool bottom)
@@ -1461,23 +1438,19 @@ void QmlEnginePrivate::backtrace(int fromFrame, int toFrame, bool bottom)
     //                          stack is requested>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(BACKTRACE));
 
-    QJsonObject args;
+    DebuggerCommand cmd(BACKTRACE);
 
     if (fromFrame != -1)
-        args.insert(_(FROMFRAME), fromFrame);
+        cmd.arg(FROMFRAME, fromFrame);
 
     if (toFrame != -1)
-        args.insert(_(TOFRAME), toFrame);
+        cmd.arg(TOFRAME, toFrame);
 
     if (bottom)
-        args.insert(_(BOTTOM), bottom);
+        cmd.arg(BOTTOM, bottom);
 
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::frame(int number)
@@ -1488,18 +1461,12 @@ void QmlEnginePrivate::frame(int number)
     //      "arguments" : { "number" : <frame number>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(FRAME));
 
-    if (number != -1) {
-        const QJsonObject args {
-            { _(NUMBER), number }
-        };
+    DebuggerCommand cmd(FRAME);
+    if (number != -1)
+        cmd.arg(NUMBER, number);
 
-        jsonVal.insert(_(ARGUMENTS), args);
-    }
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::scope(int number, int frameNumber)
@@ -1512,21 +1479,13 @@ void QmlEnginePrivate::scope(int number, int frameNumber)
     //                                      frame if missing>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(SCOPE));
 
-    if (number != -1) {
-        QJsonObject args {
-            { _(NUMBER), number }
-        };
+    DebuggerCommand cmd(SCOPE);
+    cmd.arg(NUMBER, number);
+    if (frameNumber != -1)
+        cmd.arg(FRAMENUMBER, frameNumber);
 
-        if (frameNumber != -1)
-            args.insert(_(FRAMENUMBER), frameNumber);
-
-        jsonVal.insert(_(ARGUMENTS), args);
-    }
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSource,
@@ -1547,37 +1506,24 @@ void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSour
     //                                         If a string is specified, then only scripts whose names contain the filter string will be retrieved.>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(SCRIPTS));
 
-    QJsonObject args {
-        { _(TYPES), types }
-    };
+    DebuggerCommand cmd(SCRIPTS);
+    cmd.arg(TYPES, types);
 
-    if (ids.count()) {
-        QJsonArray array;
-        foreach (int id, ids) {
-            array.push_back(id);
-        }
-        args.insert(_(IDS), array);
-    }
+    if (ids.count())
+        cmd.arg(IDS, ids);
 
     if (includeSource)
-        args.insert(_(INCLUDESOURCE), includeSource);
+        cmd.arg(INCLUDESOURCE, includeSource);
 
-    QJsonValue filterValue;
     if (filter.type() == QVariant::String)
-        filterValue = filter.toString();
+        cmd.arg(FILTER, filter.toString());
     else if (filter.type() == QVariant::Int)
-        filterValue = filter.toInt();
+        cmd.arg(FILTER, filter.toInt());
     else
         QTC_CHECK(!filter.isValid());
 
-    args.insert(_(FILTER), filterValue);
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
@@ -1604,33 +1550,25 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
         sendMessage(packMessage(BREAKONSIGNAL, params));
 
     } else {
-        QJsonObject jsonVal = initObject();
-        jsonVal.insert(_(COMMAND), _(SETBREAKPOINT));
+        DebuggerCommand cmd(SETBREAKPOINT);
+        cmd.arg(TYPE, type);
+        cmd.arg(ENABLED, enabled);
 
-        QJsonObject args {
-            { _(TYPE), type },
-            { _(ENABLED), enabled }
-        };
         if (type == _(SCRIPTREGEXP))
-            args.insert(_(TARGET), Utils::FileName::fromString(target).fileName());
+            cmd.arg(TARGET, Utils::FileName::fromString(target).fileName());
         else
-            args.insert(_(TARGET), target);
+            cmd.arg(TARGET, target);
 
         if (line)
-            args.insert(_(LINE), line - 1);
-
+            cmd.arg(LINE, line - 1);
         if (column)
-            args.insert(_(COLUMN), column - 1);
-
+            cmd.arg(COLUMN, column - 1);
         if (!condition.isEmpty())
-            args.insert(_(CONDITION), condition);
-
+            cmd.arg(CONDITION, condition);
         if (ignoreCount != -1)
-            args.insert(_(IGNORECOUNT), ignoreCount);
+            cmd.arg(IGNORECOUNT, ignoreCount);
 
-        jsonVal.insert(_(ARGUMENTS), args);
-
-        sendAndLogV8Request(jsonVal);
+        runCommand(cmd);
     }
 }
 
@@ -1642,16 +1580,10 @@ void QmlEnginePrivate::clearBreakpoint(int breakpoint)
     //      "arguments" : { "breakpoint" : <number of the break point to clear>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(CLEARBREAKPOINT));
 
-    QJsonObject args {
-        { _(BREAKPOINT), breakpoint }
-    };
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    DebuggerCommand cmd(CLEARBREAKPOINT);
+    cmd.arg(BREAKPOINT, breakpoint);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::setExceptionBreak(Exceptions type, bool enabled)
@@ -1663,35 +1595,19 @@ void QmlEnginePrivate::setExceptionBreak(Exceptions type, bool enabled)
     //                      "enabled" : <optional bool: enables the break type if true>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(SETEXCEPTIONBREAK));
 
-    QJsonObject args;
-
+    DebuggerCommand cmd(SETEXCEPTIONBREAK);
     if (type == AllExceptions)
-        args.insert(_(TYPE), _(ALL));
-    //Not Supported
-    //    else if (type == UncaughtExceptions)
-    //        args.setProperty(_(TYPE),QScriptValue(_(UNCAUGHT)));
+        cmd.arg(TYPE, ALL);
+
+    //Not Supported:
+    // else if (type == UncaughtExceptions)
+    //    cmd.args(TYPE, UNCAUGHT);
 
     if (enabled)
-        args.insert(_(ENABLED), enabled);
+        cmd.arg(ENABLED, enabled);
 
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
-}
-
-void QmlEnginePrivate::version()
-{
-    //    { "seq"       : <number>,
-    //      "type"      : "request",
-    //      "command"   : "version",
-    //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(VERSION));
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 QVariant valueFromRef(int handle, const QVariant &refsVal, bool *success)
@@ -1837,19 +1753,22 @@ QByteArray QmlEnginePrivate::packMessage(const QByteArray &type, const QByteArra
     return request;
 }
 
-QJsonObject QmlEnginePrivate::initObject()
+void QmlEnginePrivate::runCommand(const DebuggerCommand &command)
 {
-    return QJsonObject {
-        {_(SEQ), ++sequence},
-        {_(TYPE), _(REQUEST)}
-    };
-}
+    // Leave items as variables, serialization depends on it.
+    QByteArray cmd = V8DEBUG;
+    QByteArray type = V8REQUEST;
+    QByteArray msg = "{\"seq\":" + QByteArray::number(++sequence) + ","
+                   +  "\"type\":\"request\","
+                   +  "\"command\":\"" + command.function + "\","
+                   +  "\"arguments\":{" + command.arguments() + "}}";
 
-void QmlEnginePrivate::sendAndLogV8Request(const QJsonObject &request)
-{
-    const QByteArray msg = QJsonDocument(request).toJson(QJsonDocument::Compact);
     engine->showMessage(QString::fromLatin1("%1 %2").arg(_(V8REQUEST), QString::fromUtf8(msg)), LogInput);
-    sendMessage(packMessage(V8REQUEST, msg));
+
+    QByteArray request;
+    QmlDebugStream rs(&request, QIODevice::WriteOnly);
+    rs << cmd << type << msg;
+    sendMessage(request);
 }
 
 void QmlEnginePrivate::expandObject(const QByteArray &iname, quint64 objectId)
@@ -2643,9 +2562,8 @@ void QmlEnginePrivate::stateChanged(State state)
         /// Start session.
         flushSendBuffer();
         connect();
-        //Query for the V8 version. This is
-        //only for logging to the debuggerlog
-        version();
+        // Query for the V8 version. This is only for logging to the log.
+        runCommand(VERSION);
     }
 }
 

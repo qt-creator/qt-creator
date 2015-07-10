@@ -32,6 +32,7 @@
 #define DEBUGGER_PROTOCOL_H
 
 #include <QByteArray>
+#include <QList>
 #include <QString>
 
 #include <functional>
@@ -64,10 +65,13 @@ public:
     void arg(const char *name, const QString &value);
     void arg(const char *name, const QByteArray &value);
     void arg(const char *name, const char *value);
+    void arg(const char *name, const QList<int> &list);
+
     void beginList(const char *name = 0);
     void endList();
     void beginGroup(const char *name = 0);
     void endGroup();
+    QByteArray arguments() const;
 
     QByteArray function;
     QByteArray args;

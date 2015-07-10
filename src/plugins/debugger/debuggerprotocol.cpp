@@ -782,6 +782,16 @@ void DebuggerCommand::arg(const char *name, const char *value)
     args.append("\",");
 }
 
+void DebuggerCommand::arg(const char *name, const QList<int> &list)
+{
+    beginList(name);
+    foreach (int item, list) {
+        args.append(QByteArray::number(item));
+        args.append(',');
+    }
+    endList();
+}
+
 void DebuggerCommand::arg(const char *value)
 {
     args.append("\"");
@@ -821,6 +831,14 @@ void DebuggerCommand::endGroup()
     if (args.endsWith(','))
         args.chop(1);
     args += "},";
+}
+
+QByteArray DebuggerCommand::arguments() const
+{
+    QByteArray result = args;
+    if (result.endsWith(','))
+        result.chop(1);
+    return result;
 }
 
 } // namespace Internal
