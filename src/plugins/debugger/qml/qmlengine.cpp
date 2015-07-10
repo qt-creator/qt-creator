@@ -130,9 +130,6 @@ public:
     void messageReceived(const QByteArray &data);
     void stateChanged(State state);
 
-    void connect();
-    void disconnect();
-
     void continueDebugging(StepAction stepAction);
 
     void evaluate(const QString expr, bool global = false, bool disableBreak = false,
@@ -152,8 +149,6 @@ public:
 
     void clearCache();
 
-    QByteArray packMessage(const QByteArray &type, const QByteArray &message = QByteArray());
-
     void expandObject(const QByteArray &iname, quint64 objectId);
     void flushSendBuffer();
 
@@ -166,7 +161,9 @@ public:
 
     bool canEvaluateScript(const QString &script);
     void updateScriptSource(const QString &fileName, int lineOffset, int columnOffset, const QString &source);
+
     void runCommand(const DebuggerCommand &command);
+    void runDirectCommand(const QByteArray &type, const QByteArray &msg = QByteArray());
 
 public:
     int sequence = -1;
@@ -604,7 +601,11 @@ void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel,
 void QmlEngine::shutdownInferior()
 {
     // End session.
-    d->disconnect();
+    //    { "seq"     : <number>,
+    //      "type"    : "request",
+    //      "command" : "disconnect",
+    //    }
+    d->runCommand(DISCONNECT);
 
     if (isSlaveEngine())
         resetLocation();
@@ -661,7 +662,7 @@ void QmlEngine::continueInferior()
 void QmlEngine::interruptInferior()
 {
     showMessage(_(INTERRUPT), LogInput);
-    d->sendMessage(d->packMessage(INTERRUPT));
+    d->runDirectCommand(INTERRUPT);
     notifyInferiorStopOk();
 }
 
@@ -1307,30 +1308,6 @@ void QmlEngine::logServiceActivity(const QString &service, const QString &logMes
     showMessage(service + QLatin1Char(' ') + logMessage, LogDebug);
 }
 
-void QmlEnginePrivate::connect()
-{
-    engine->showMessage(_(CONNECT), LogInput);
-    sendMessage(packMessage(CONNECT));
-}
-
-void QmlEnginePrivate::disconnect()
-{
-    //    { "seq"     : <number>,
-    //      "type"    : "request",
-    //      "command" : "disconnect",
-    //    }
-    QJsonObject jsonVal = {
-        {_(SEQ), ++sequence},
-        {_(TYPE), _(REQUEST)}
-    };
-
-    jsonVal.insert(_(COMMAND), _(DISCONNECT));
-
-    const QByteArray msg = QJsonDocument(jsonVal).toJson(QJsonDocument::Compact);
-    engine->showMessage(QString::fromUtf8(msg), LogInput);
-    sendMessage(packMessage(DISCONNECT, msg));
-}
-
 void QmlEnginePrivate::continueDebugging(StepAction action)
 {
     //    { "seq"       : <number>,
@@ -1547,7 +1524,7 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
         QmlDebugStream rs(&params, QIODevice::WriteOnly);
         rs <<  target.toUtf8() << enabled;
         engine->showMessage(QString(_("%1 %2 %3")).arg(_(BREAKONSIGNAL), target, enabled ? _("enabled") : _("disabled")), LogInput);
-        sendMessage(packMessage(BREAKONSIGNAL, params));
+        runDirectCommand(BREAKONSIGNAL, params);
 
     } else {
         DebuggerCommand cmd(SETBREAKPOINT);
@@ -1743,27 +1720,21 @@ void QmlEnginePrivate::clearCache()
     updateLocalsAndWatchers.clear();
 }
 
-QByteArray QmlEnginePrivate::packMessage(const QByteArray &type, const QByteArray &message)
-{
-    SDEBUG(message);
-    QByteArray request;
-    QmlDebugStream rs(&request, QIODevice::WriteOnly);
-    QByteArray cmd = V8DEBUG;
-    rs << cmd << type << message;
-    return request;
-}
-
 void QmlEnginePrivate::runCommand(const DebuggerCommand &command)
 {
-    // Leave items as variables, serialization depends on it.
-    QByteArray cmd = V8DEBUG;
-    QByteArray type = V8REQUEST;
     QByteArray msg = "{\"seq\":" + QByteArray::number(++sequence) + ","
                    +  "\"type\":\"request\","
                    +  "\"command\":\"" + command.function + "\","
                    +  "\"arguments\":{" + command.arguments() + "}}";
+    runDirectCommand(V8REQUEST, msg);
+}
 
-    engine->showMessage(QString::fromLatin1("%1 %2").arg(_(V8REQUEST), QString::fromUtf8(msg)), LogInput);
+void QmlEnginePrivate::runDirectCommand(const QByteArray &type, const QByteArray &msg)
+{
+    // Leave item as variable, serialization depends on it.
+    QByteArray cmd = V8DEBUG;
+
+    engine->showMessage(QString::fromLatin1("%1 %2").arg(_(type), _(msg)), LogInput);
 
     QByteArray request;
     QmlDebugStream rs(&request, QIODevice::WriteOnly);
@@ -2561,9 +2532,8 @@ void QmlEnginePrivate::stateChanged(State state)
     if (state == QmlDebugClient::Enabled) {
         /// Start session.
         flushSendBuffer();
-        connect();
-        // Query for the V8 version. This is only for logging to the log.
-        runCommand(VERSION);
+        runDirectCommand(CONNECT);
+        runCommand(VERSION); // Only used for logging.
     }
 }
 
