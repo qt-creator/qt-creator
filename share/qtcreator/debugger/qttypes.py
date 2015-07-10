@@ -1031,6 +1031,13 @@ def qdump__QMultiMap(d, value):
     qdump__QMap(d, value)
 
 
+def qform__QVariantMap():
+    return mapForms()
+
+def qdump__QVariantMap(d, value):
+    qdump__QMap(d, value)
+
+
 def qdump__QMetaObjectPrivate(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
