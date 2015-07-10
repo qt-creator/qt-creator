@@ -43,7 +43,9 @@ namespace Utils {
 
 Q_DECLARE_LOGGING_CATEGORY(verboseRunLog)
 
-ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::WorkingCopy workingCopy);
+ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(
+        const CppTools::WorkingCopy &workingCopy,
+        const ::Utils::FileNameList &modifiedFiles);
 
 QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                CppTools::ProjectFile::Kind fileKind);

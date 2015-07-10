@@ -2188,7 +2188,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
     m_gotCppSpecifics = true;
 
     if (BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(fileName())) {
-        parser->update(m_workingCopy);
+        parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
         m_snapshot = parser->snapshot();
         m_headerPaths = parser->headerPaths();
         if (Document::Ptr document = parser->document())

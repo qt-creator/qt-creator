@@ -51,7 +51,7 @@ public:
     SemanticMarker::Ptr semanticMarker() const;
 
 private:
-    void updateHelper(CppTools::WorkingCopy workingCopy) override;
+    void updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info) override;
 
     SemanticMarker::Ptr m_marker;
 };

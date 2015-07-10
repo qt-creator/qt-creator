@@ -32,6 +32,7 @@
 
 #include "cpptoolsplugin.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <texteditor/convenience.h>
@@ -285,6 +286,15 @@ bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB)
     }
 
     return false;
+}
+
+Utils::FileNameList modifiedFiles()
+{
+    Utils::FileNameList files;
+    foreach (Core::IDocument *doc, Core::DocumentManager::modifiedDocuments())
+        files.append(doc->filePath());
+    files.removeDuplicates();
+    return files;
 }
 
 } // CppTools

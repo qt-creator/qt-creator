@@ -86,7 +86,7 @@ protected:
 
     static void runParser(QFutureInterface<void> &future,
                           CppTools::BaseEditorDocumentParser *parser,
-                          CppTools::WorkingCopy workingCopy);
+                          BaseEditorDocumentParser::InMemoryInfo info);
 
     // Convenience
     QString filePath() const { return m_baseTextDocument->filePath().toString(); }

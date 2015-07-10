@@ -44,16 +44,17 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::updateHelper(WorkingCopy workingCopy)
+void BuiltinEditorDocumentParser::updateHelper(const InMemoryInfo &info)
 {
+    if (filePath().isEmpty())
+        return;
+
     const Configuration baseConfig = configuration();
     const bool releaseSourceAndAST_ = releaseSourceAndAST();
 
     State baseState = state();
     ExtraState state = extraState();
-
-    if (filePath().isEmpty())
-        return;
+    WorkingCopy workingCopy = info.workingCopy;
 
     bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
 

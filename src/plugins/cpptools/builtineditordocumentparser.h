@@ -64,7 +64,7 @@ public:
     static BuiltinEditorDocumentParser *get(const QString &filePath);
 
 private:
-    void updateHelper(WorkingCopy workingCopy) override;
+    void updateHelper(const InMemoryInfo &info) override;
     void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
                                 QSet<Utils::FileName> *toRemove,
                                 const Utils::FileName &fileName) const;

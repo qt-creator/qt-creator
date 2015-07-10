@@ -33,6 +33,7 @@
 
 #include "cppmodelmanager.h"
 #include "cpptools_global.h"
+#include "cppworkingcopy.h"
 
 #include <QObject>
 
@@ -59,7 +60,13 @@ public:
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
-    void update(WorkingCopy workingCopy);
+    struct CPPTOOLS_EXPORT InMemoryInfo {
+        InMemoryInfo(bool withModifiedFiles);
+
+        WorkingCopy workingCopy;
+        Utils::FileNameList modifiedFiles;
+    };
+    void update(const InMemoryInfo &info);
 
     ProjectPart::Ptr projectPart() const;
 
@@ -78,7 +85,7 @@ protected:
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
-    virtual void updateHelper(WorkingCopy workingCopy) = 0;
+    virtual void updateHelper(const InMemoryInfo &inMemoryInfo) = 0;
 
     const QString m_filePath;
     Configuration m_configuration;

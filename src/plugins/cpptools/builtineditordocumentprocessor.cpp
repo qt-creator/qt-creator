@@ -43,8 +43,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 
@@ -166,7 +166,9 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 
 void BuiltinEditorDocumentProcessor::run()
 {
-    m_parserFuture = QtConcurrent::run(&runParser, parser(), CppTools::CppModelManager::instance()->workingCopy());
+    m_parserFuture = QtConcurrent::run(&runParser,
+                                       parser(),
+                                       BuiltinEditorDocumentParser::InMemoryInfo(false));
 }
 
 BaseEditorDocumentParser *BuiltinEditorDocumentProcessor::parser()

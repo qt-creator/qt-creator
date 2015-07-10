@@ -88,7 +88,7 @@ ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
 {
 }
 
-void ClangEditorDocumentParser::updateHelper(CppTools::WorkingCopy workingCopy)
+void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info)
 {
     QTC_ASSERT(m_marker, return);
 
@@ -107,7 +107,8 @@ void ClangEditorDocumentParser::updateHelper(CppTools::WorkingCopy workingCopy)
     QMutexLocker lock(m_marker->mutex());
     m_marker->setFileName(filePath());
     m_marker->setCompilationOptions(options);
-    const Internal::UnsavedFiles unsavedFiles = Utils::createUnsavedFiles(workingCopy);
+    const Internal::UnsavedFiles unsavedFiles = Utils::createUnsavedFiles(info.workingCopy,
+                                                                          info.modifiedFiles);
     m_marker->reparse(unsavedFiles);
     qCDebug(log) << "Reparse took" << t.elapsed() << "ms.";
 }
