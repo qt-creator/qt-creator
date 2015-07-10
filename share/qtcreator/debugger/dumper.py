@@ -1677,7 +1677,6 @@ class DumperBase:
             pass
 
     def setupDumpers(self, _ = {}):
-        self.typeCache = {}
         self.resetCaches()
 
         for mod in self.dumpermodules:
