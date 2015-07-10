@@ -658,6 +658,59 @@ bool MonitorGeneratedUiFile::waitUntilGenerated(int timeout) const
     return false;
 }
 
+class WriteFileAndWaitForReloadedDocument : public QObject
+{
+public:
+    WriteFileAndWaitForReloadedDocument(const QString &filePath,
+                                        const QByteArray &fileContents,
+                                        Core::IDocument *document)
+        : m_filePath(filePath)
+        , m_fileContents(fileContents)
+    {
+        QTC_CHECK(document);
+        connect(document, &Core::IDocument::reloadFinished,
+                this, &WriteFileAndWaitForReloadedDocument::onReloadFinished);
+    }
+
+    void onReloadFinished()
+    {
+        m_onReloadFinished = true;
+    }
+
+    bool wait() const
+    {
+        QTC_ASSERT(writeFile(m_filePath, m_fileContents), return false);
+
+        QTime totalTime;
+        totalTime.start();
+
+        QTime writeFileAgainTime;
+        writeFileAgainTime.start();
+
+        forever {
+            if (m_onReloadFinished)
+                return true;
+
+            if (totalTime.elapsed() > 10000)
+                return false;
+
+            if (writeFileAgainTime.elapsed() > 1000) {
+                // The timestamp did not change, try again now.
+                QTC_ASSERT(writeFile(m_filePath, m_fileContents), return false);
+                writeFileAgainTime.restart();
+            }
+
+            QCoreApplication::processEvents();
+            QThread::msleep(20);
+        }
+    }
+
+private:
+    bool m_onReloadFinished = false;
+    QString m_filePath;
+    QByteArray m_fileContents;
+};
+
 } // anonymous namespace
 
 namespace ClangCodeModel {
@@ -909,11 +962,11 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExt
     ProposalModel proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
-    // Simulate external modification
-    QThread::sleep(1); // Ensures different time stamp and thus that the difference will be noticed
-    QVERIFY(writeFile(headerDocument.filePath, "int globalFromHeaderReloaded;\n"));
-    QSignalSpy waitForReloadedDocument(openHeader.editor()->document(),
-                                       SIGNAL(reloadFinished(bool)));
+    // Simulate external modification and wait for reload
+    WriteFileAndWaitForReloadedDocument waitForReloadedDocument(
+                headerDocument.filePath,
+                "int globalFromHeaderReloaded;\n",
+                openHeader.editor()->document());
     QVERIFY(waitForReloadedDocument.wait());
 
     // Retrigger completion and check if its updated
