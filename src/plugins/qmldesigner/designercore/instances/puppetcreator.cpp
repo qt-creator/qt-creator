@@ -322,7 +322,7 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 
 QString PuppetCreator::qmlPuppetFallbackDirectory() const
 {
-    return QCoreApplication::applicationDirPath();
+    return Core::ICore::libexecPath();
 }
 
 QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
