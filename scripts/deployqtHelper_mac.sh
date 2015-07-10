@@ -82,11 +82,6 @@ fi
 
 if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
 
-    qmlpuppetapp="$1/Contents/MacOS/qmlpuppet"
-    if [ -f "$qmlpuppetapp" ]; then
-        qmlpuppetArgument="-executable=$qmlpuppetapp"
-    fi
-
     qml2puppetapp="$1/Contents/MacOS/qml2puppet"
     if [ -f "$qml2puppetapp" ]; then
         qml2puppetArgument="-executable=$qml2puppetapp"
@@ -111,6 +106,6 @@ if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$qbsapp-setup-android" \
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
-        "$qmlpuppetArgument" "$qml2puppetArgument" "$clangbackendArgument" || exit 1
+        "$qml2puppetArgument" "$clangbackendArgument" || exit 1
 
 fi
