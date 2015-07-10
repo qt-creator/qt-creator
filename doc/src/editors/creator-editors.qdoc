@@ -2465,6 +2465,8 @@
         \li Executing version control system commands (\c {git}). For more
             information, see \l{Using Version Control Systems}
 
+        \li Running external tools (\c x)
+
     \endlist
 
     To use a specific locator filter, type the assigned prefix followed by

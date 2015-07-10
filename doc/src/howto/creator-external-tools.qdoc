@@ -36,6 +36,9 @@
     for use. You can change their default configurations and configure new
     tools.
 
+    To run the tools, select \uicontrol Tools > \uicontrol External, or use the
+    \c x filter in the locator.
+
     \section1 Using Qt Linguist
 
     You can use the Qt Linguist release manager tools, lupdate and lrelease,
