@@ -69,6 +69,8 @@ private:
     void onProgressCanceled();
     void updateProgressValue();
 
+    void finalize();
+
 private:
     const CppTools::ProjectInfo m_projectInfo;
     const unsigned char m_wordWidth;
