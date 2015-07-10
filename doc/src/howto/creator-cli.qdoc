@@ -31,16 +31,16 @@
     \title Using Command Line Options
 
     You can start \QC and specify some options from the command line. For
-    example, you can open a file to any line.
+    example, you can open a file to any line and column.
 
     To specify command line options, enter the following command in the \QC
     installation or build directory:
 
-    \c {qtcreator [option] [filename[:line_number]]}
+    \c {qtcreator [option] [filename[:line_number[:column_number]]]}
 
     \note You can use either a colon (:) or a plus sign (+) as a separator
-    between the filename and line number. You can also use a space between the
-    separator and the line number.
+    between the filename and line number and the line number and the column
+    number. You can also use a space between the separator and the line number.
 
     For example, on Windows:
 
@@ -48,9 +48,9 @@
 
         \li \c {C:\qtcreator\bin>qtcreator -help}
 
-        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100:2}
 
-        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100+2}
 
     \endlist
 
