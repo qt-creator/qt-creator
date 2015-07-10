@@ -1466,6 +1466,11 @@
 
     \endlist
 
+    The locations of search hits, breakpoints, and bookmarks in your document
+    are highlighted on the editor scroll bar. To turn highlighting off, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol {Highlight search results on the scrollbar}.
+
     \section1 Advanced Search
 
     To search through projects, files on a file system or currently open files:
@@ -2403,9 +2408,10 @@
 
     \endlist
 
-    To move directly to a particular line in the document when you open the
-    document, append a plus sign (+) or a colon (:) to the file name in the
-    locator. For example, to open main.cpp to line 41, enter: \c {main.cpp:41}.
+    To move directly to a particular line and column in the document when you
+    open the document, append them to the file name in the locator, separated by
+    plus signs (+) or colons (:). For example, to open main.cpp to line 41 and
+    column 2, enter: \c {main.cpp:41:2}.
 
     If the path to a file is very long, it might not fit into the locator
     window. To view the full path, press \key Alt when the filename is selected
@@ -2446,7 +2452,7 @@
         \li Locating symbols in the current document (\c {.})
 
         \li Locating a specific line and column in the document displayed in
-            your editor (\c {l})
+            your editor (\c {l <line_number>:<column_number>})
 
         \li Opening help topics, including Qt documentation (\c {?})
 
@@ -2459,6 +2465,8 @@
 
         \li Executing version control system commands (\c {git}). For more
             information, see \l{Using Version Control Systems}
+
+        \li Running external tools (\c x)
 
     \endlist
 

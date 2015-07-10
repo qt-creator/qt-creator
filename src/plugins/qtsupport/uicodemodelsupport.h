@@ -73,11 +73,11 @@ private:
     QStringList environment() const;
 
 private slots:
-    bool finishProcess() const;
+    bool finishProcess();
 
 private:
     ProjectExplorer::Project *m_project;
-    enum State { BARE, RUNNING, FINISHED };
+    enum State { BARE, RUNNING, FINISHED, ABORTING };
 
     void init() const;
     bool runUic(const QString &ui) const;

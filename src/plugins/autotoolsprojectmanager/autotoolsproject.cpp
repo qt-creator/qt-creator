@@ -164,8 +164,8 @@ void AutotoolsProject::loadProjectTree()
         // The thread is still busy parsing a previus configuration.
         // Wait until the thread has been finished and delete it.
         // TODO: Discuss whether blocking is acceptable.
-        disconnect(m_makefileParserThread, SIGNAL(finished()),
-                   this, SLOT(makefileParsingFinished()));
+        disconnect(m_makefileParserThread, &QThread::finished,
+                   this, &AutotoolsProject::makefileParsingFinished);
         m_makefileParserThread->wait();
         delete m_makefileParserThread;
         m_makefileParserThread = 0;
@@ -402,6 +402,24 @@ QList<Node *> AutotoolsProject::nodes(FolderNode *parent) const
     return list;
 }
 
+static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,
+                                  const QStringList &in)
+{
+    QStringList result;
+    foreach (const QString i, in) {
+        QString out = i;
+        out.replace(QLatin1String("$(top_srcdir)"), absSrc);
+        out.replace(QLatin1String("$(abs_top_srcdir)"), absSrc);
+
+        out.replace(QLatin1String("$(top_builddir)"), absBuild);
+        out.replace(QLatin1String("$(abs_top_builddir)"), absBuild);
+
+        result << out;
+    }
+
+    return result;
+}
+
 void AutotoolsProject::updateCppCodeModel()
 {
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -427,7 +445,12 @@ void AutotoolsProject::updateCppCodeModel()
     ppBuilder.setCFlags(cflags);
     ppBuilder.setCxxFlags(cxxflags);
 
-    ppBuilder.setIncludePaths(m_makefileParserThread->includePaths());
+    const QString absSrc = projectDirectory().toString();
+    const Target *target = activeTarget();
+    const QString absBuild = (target && target->activeBuildConfiguration())
+            ? target->activeBuildConfiguration()->buildDirectory().toString() : QString();
+
+    ppBuilder.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
     ppBuilder.setDefines(m_makefileParserThread->defines());
 
     const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(m_files);

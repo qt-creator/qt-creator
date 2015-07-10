@@ -42,7 +42,6 @@ namespace CppTools {
 class CPPTOOLS_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocumentProcessor
 {
     Q_OBJECT
-    BuiltinEditorDocumentProcessor();
 
 public:
     BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document,

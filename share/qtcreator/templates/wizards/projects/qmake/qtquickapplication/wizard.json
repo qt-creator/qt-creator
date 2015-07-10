@@ -7,8 +7,8 @@
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application",
     "icon": "qml_wizard.png",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureQtQuick.2" ],
-    "enabled": "${JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 && [ %{Features} ].indexOf('QtSupport.Wizards.FeatureQt5.3') >= 0}",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.3" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 }",
 
     "options":
     [
@@ -38,6 +38,7 @@
                     "type": "ComboBox",
                     "data":
                     {
+                        "index": 2,
                         "items":
                         [
                             {
@@ -46,8 +47,7 @@
                                 "{
                                     'qtQuickVersion': '2.5',
                                     'qtQuickWindowVersion': '2.2'
-                                }",
-                                "condition": "%{JS: [ %{Features} ].indexOf('QtSupport.Wizards.FeatureQt5.5') >= 0}"
+                                }"
                             },
                             {
                                 "trKey": "Qt 5.4",
@@ -55,8 +55,7 @@
                                 "{
                                     'qtQuickVersion': '2.4',
                                     'qtQuickWindowVersion': '2.2'
-                                }",
-                                "condition": "%{JS: [ %{Features} ].indexOf('QtSupport.Wizards.FeatureQt5.4') >= 0}"
+                                }"
                             },
                             {
                                 "trKey": "Qt 5.3",
@@ -64,8 +63,7 @@
                                 "{
                                     'qtQuickVersion': '2.3',
                                     'qtQuickWindowVersion': '2.2'
-                                }",
-                                "condition": "%{JS: [ %{Features} ].indexOf('QtSupport.Wizards.FeatureQt5.3') >= 0}"
+                                }"
                             }
                         ]
                     }

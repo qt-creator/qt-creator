@@ -45,7 +45,7 @@ def main():
         return
     qmlProjFile = os.path.join(qmlProjDir, projName)
     # start Creator by passing a .qmlproject file
-    startApplication('qtcreator -load QmlProjectManager' + SettingsPath + ' "%s"' % qmlProjFile)
+    startApplication('qtcreator' + SettingsPath + ' "%s"' % qmlProjFile)
     if not startedWithoutPluginError():
         return
     waitFor('object.exists(":Qt Creator_Utils::NavigationTreeView")', 10000)
@@ -91,8 +91,8 @@ def main():
     checkForEmptyRows(items)
     check = [[None, 0, {"Properties":1, "Rectangle":2, "Text":1}, {"width":"360", "height":"360"}],
              ["Text", 1, {"Properties":1}, {"text":"Check"}],
-             ["Rectangle", 1, {"Properties":1}, {"width":"50", "height":"50", "color":"#008000"}],
-             ["Rectangle", 2, {"Properties":1}, {"width":"100", "height":"100", "color":"#ff0000"}]
+             ["Rectangle", 2, {"Properties":1}, {"width":"50", "height":"50", "color":"#008000"}],
+             ["Rectangle", 1, {"Properties":1}, {"width":"100", "height":"100", "color":"#ff0000"}]
              ]
     for current in check:
         if current[0]:
@@ -108,23 +108,19 @@ def main():
 def __unfoldTree__():
     rootIndex = getQModelIndexStr("text='Rectangle'",
                                   ':Locals and Expressions_Debugger::Internal::WatchTreeView')
-    if JIRA.isBugStillOpen(14210):
-        doubleClick(waitForObject(rootIndex))
-    else:
-        test.warning("QTCREATORBUG-14210 is not open anymore. Can the workaround be removed?")
     unfoldQModelIndexIncludingProperties(rootIndex)
-    if JIRA.isBugStillOpen(14210):
-        for item in ["text='Rectangle' occurrence='2'", "text='Rectangle' occurrence='2'", "text='Text'"]:
-            # both Rectangles will be clicked because they change their order
-            doubleClick(waitForObject(getQModelIndexStr(item, rootIndex)))
-            snooze(1)
-    subItems = ["text='Rectangle' occurrence='2'", "text='Rectangle'", "text='Text'"]
+    subItems = ["text='Rectangle'", "text='Rectangle' occurrence='2'", "text='Text'"]
     for item in subItems:
         unfoldQModelIndexIncludingProperties(getQModelIndexStr(item, rootIndex))
 
 def unfoldQModelIndexIncludingProperties(indexStr):
+    tv = waitForObject(':Locals and Expressions_Debugger::Internal::WatchTreeView')
+    # HACK to avoid failing clicks
+    tv.scrollToBottom()
     doubleClick(waitForObject(indexStr))
     propIndex = getQModelIndexStr("text='Properties'", indexStr)
+    # HACK to avoid failing clicks
+    tv.scrollToBottom()
     doubleClick(waitForObject(propIndex))
 
 def fetchItems(index, valIndex, treeView):

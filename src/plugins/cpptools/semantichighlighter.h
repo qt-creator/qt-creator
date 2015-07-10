@@ -49,7 +49,6 @@ namespace CppTools {
 class CPPTOOLS_EXPORT SemanticHighlighter : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SemanticHighlighter)
 
 public:
     enum Kind {

@@ -191,7 +191,9 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
         target = os.path.join(install_dir, 'bin', 'imports', qtimport)
         if (os.path.exists(target)):
             shutil.rmtree(target)
-        shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
+        import_path = os.path.join(qt_import_dir, qtimport)
+        if os.path.exists(import_path):
+            shutil.copytree(import_path, target, ignore=copy_ignore_func, symlinks=True)
 
     if (os.path.exists(qt_qml_dir)):
         print "Copying qt quick 2 imports"
@@ -230,20 +232,33 @@ def copyPreservingLinks(source, destination):
         shutil.copy(source, destination)
 
 def copy_libclang(install_dir, llvm_install_dir):
-    libsources = []
-    libtarget = ""
+    # contains pairs of (source, target directory)
+    deployinfo = []
     if sys.platform.startswith("win"):
-        libsources = [os.path.join(llvm_install_dir, 'bin', 'libclang.dll')]
-        libtarget = os.path.join(install_dir, 'bin')
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
+                           os.path.join(install_dir, 'bin')))
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-cl.exe'),
+                           os.path.join(install_dir, 'bin')))
     else:
         libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))
-        libtarget = os.path.join(install_dir, 'lib', 'qtcreator')
+        for libsource in libsources:
+            deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
+        clangbinary = os.path.join(llvm_install_dir, 'bin', 'clang')
+        clangbinary_targetdir = os.path.join(install_dir, 'bin')
+        deployinfo.append((clangbinary, clangbinary_targetdir))
+        # copy link target if clang is actually a symlink
+        if os.path.islink(clangbinary):
+            linktarget = os.readlink(clangbinary)
+            deployinfo.append((os.path.join(os.path.dirname(clangbinary), linktarget),
+                               os.path.join(clangbinary_targetdir, linktarget)))
+
     resourcesource = os.path.join(llvm_install_dir, 'lib', 'clang')
     resourcetarget = os.path.join(install_dir, 'share', 'qtcreator', 'cplusplus', 'clang')
+
     print "copying libclang..."
-    for libsource in libsources:
-        print libsource, '->', libtarget
-        copyPreservingLinks(libsource, libtarget)
+    for source, target in deployinfo:
+        print source, '->', target
+        copyPreservingLinks(source, target)
     print resourcesource, '->', resourcetarget
     if (os.path.exists(resourcetarget)):
         shutil.rmtree(resourcetarget)

@@ -51,6 +51,7 @@ public:
     virtual QString fileName() const = 0;
 
     void updateDocument();
+    void notifyAboutUpdatedContents() const;
     unsigned revision() const { return m_revision; }
 
     static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());

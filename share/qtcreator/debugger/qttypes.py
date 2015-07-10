@@ -1031,6 +1031,13 @@ def qdump__QMultiMap(d, value):
     qdump__QMap(d, value)
 
 
+def qform__QVariantMap():
+    return mapForms()
+
+def qdump__QVariantMap(d, value):
+    qdump__QMap(d, value)
+
+
 def qdump__QMetaObjectPrivate(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
@@ -1898,6 +1905,16 @@ def qdump__QUrl(d, value):
                 d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
                 d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
                 d.putFields(value)
+
+
+def qdump__QUuid(d, value):
+    v = value["data4"]
+    d.putValue("{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"
+                % (value["data1"], value["data2"], value["data3"],
+                   v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]))
+    d.putNumChild(1)
+    d.putPlainChildren(value)
+
 
 def qdumpHelper_QVariant_0(d, blob):
     # QVariant::Invalid

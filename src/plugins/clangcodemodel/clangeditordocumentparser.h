@@ -28,14 +28,12 @@
 **
 ****************************************************************************/
 
-
 #ifndef CLANGEDITORDOCUMENTPARSER_H
 #define CLANGEDITORDOCUMENTPARSER_H
 
 #include "semanticmarker.h"
 
 #include <cpptools/baseeditordocumentparser.h>
-
 
 namespace CppTools { class WorkingCopy; }
 
@@ -44,9 +42,6 @@ namespace ClangCodeModel {
 class ClangEditorDocumentParser : public CppTools::BaseEditorDocumentParser
 {
     Q_OBJECT
-
-public:
-    typedef QSharedPointer<ClangEditorDocumentParser> Ptr;
 
 public:
     ClangEditorDocumentParser(const QString &filePath);
@@ -59,8 +54,6 @@ public:
 
 private:
     SemanticMarker::Ptr m_marker;
-    QStringList m_options;
-    Internal::UnsavedFiles m_unsavedFiles;
 };
 
 } // namespace ClangCodeModel

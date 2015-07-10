@@ -258,6 +258,11 @@ private:
      */
     bool maybeParseCXXFlag(const QString &term);
 
+    /**
+     * If term is compiler flag -<flag>, adds it to cppflags and returns true.
+     */
+    bool maybeParseCPPFlag(const QString &term);
+
 private:
     bool m_success;             ///< Return value for MakefileParser::parse().
 
@@ -271,7 +276,8 @@ private:
     QStringList m_includePaths; ///< Return value for MakefileParser::includePaths()
     QByteArray m_defines;       ///< Return value for MakefileParser::defines()
     QStringList m_cflags;       ///< Return value for MakefileParser::cflags()
-    QStringList m_cxxflags;       ///< Return value for MakefileParser::cxxflags()
+    QStringList m_cxxflags;     ///< Return value for MakefileParser::cxxflags()
+    QStringList m_cppflags;     ///< The cpp flags, which will be part of both cflags and cxxflags
 
     QString m_line;             ///< Current line of the makefile
     QTextStream m_textStream;   ///< Textstream that represents the makefile

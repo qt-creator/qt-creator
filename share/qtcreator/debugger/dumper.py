@@ -387,12 +387,27 @@ class DumperBase:
         self.isCli = False
 
         # Later set, or not set:
-        # cachedQtVersion
         self.stringCutOff = 10000
         self.displayStringLimit = 100
 
+        self.resetCaches()
+
+        self.childrenPrefix = 'children=['
+        self.childrenSuffix = '],'
+
+        self.dumpermodules = [
+            "qttypes",
+            "stdtypes",
+            "misctypes",
+            "boosttypes",
+            "creatortypes",
+            "personaltypes",
+        ]
+
+
+    def resetCaches(self):
         # This is a cache mapping from 'type name' to 'display alternatives'.
-        self.qqFormats = {}
+        self.qqFormats = { "QVariant (QVariantMap)" : mapForms() }
 
         # This is a cache of all known dumpers.
         self.qqDumpers = {}
@@ -406,18 +421,6 @@ class DumperBase:
         # Maps type names to static metaobjects. If a type is known
         # to not be QObject derived, it contains a 0 value.
         self.knownStaticMetaObjects = {}
-
-        self.childrenPrefix = 'children=['
-        self.childrenSuffix = '],'
-
-        self.dumpermodules = [
-            "qttypes",
-            "stdtypes",
-            "misctypes",
-            "boosttypes",
-            "creatortypes",
-            "personaltypes",
-        ]
 
 
     def putNewline(self):
@@ -1674,10 +1677,7 @@ class DumperBase:
             pass
 
     def setupDumpers(self, _ = {}):
-        self.qqDumpers = {}
-        self.qqFormats = {}
-        self.qqEditable = {}
-        self.typeCache = {}
+        self.resetCaches()
 
         for mod in self.dumpermodules:
             m = importlib.import_module(mod)

@@ -144,6 +144,7 @@ ScanStackCommand()
 class PlainDumper:
     def __init__(self, printer):
         self.printer = printer
+        self.typeCache = {}
 
     def __call__(self, d, value):
         printer = self.printer.invoke(value)
@@ -223,6 +224,7 @@ class Dumper(DumperBase):
         # These values will be kept between calls to 'showData'.
         self.isGdb = True
         self.childEventAddress = None
+        self.typeCache = {}
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None

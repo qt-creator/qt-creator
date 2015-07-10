@@ -105,7 +105,7 @@
 :Hits_QCLuceneResultWidget	{aboveWidget=':Hits_QLabel' type='QCLuceneResultWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Hits_QLabel	{text~='\\\\d+ - \\\\d+ of \\\\d+ Hits' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :JavaScript.QmlProfilerEventsTable_QmlProfiler::Internal::QV8ProfilerEventsMainView	{container=':*Qt Creator.JavaScript_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QV8ProfilerEventsMainView' visible='1'}
-:Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' occurrence='5' type='QComboBox' unnamed='1' visible='1'}
+:Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':QtVersionLabel_KitPage' type='QComboBox' unnamed='1' visible='1'}
 :Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':DebugModeWidget.Locals and Expressions_QDockWidget' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1' windowTitle='Locals and Expressions'}
 :Minimal required Qt version:_QLabel	{text='Minimal required Qt version:' type='QLabel' unnamed='1' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
 :New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
@@ -182,6 +182,7 @@
 :QtSupport__Internal__QtVersionManager.errorLabel.QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='errorLabel' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qmake_QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qmakePath' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qtdirList' type='QTreeWidget' visible='1'}
+:QtVersionLabel_KitPage	{container=':qt_tabwidget_stackedwidget_QWidget' text='Qt version:' type='QLabel' unnamed='1' visible='1'}
 :Restart required.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Restart required_QMessageBox'}
 :Restart required_QMessageBox	{text='The language change will take effect after a restart of Qt Creator.' type='QMessageBox' unnamed='1' visible='1'}
 :Revert to Saved.Proceed_QPushButton	{text='Proceed' type='QPushButton' unnamed='1' visible='1' window=':Revert to Saved_QMessageBox'}

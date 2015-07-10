@@ -958,6 +958,17 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
         emit documentUpdated(doc);
 }
 
+void CppModelManager::emitAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                               const QByteArray &contents)
+{
+    emit abstractEditorSupportContentsUpdated(filePath, contents);
+}
+
+void CppModelManager::emitAbstractEditorSupportRemoved(const QString &filePath)
+{
+    emit abstractEditorSupportRemoved(filePath);
+}
+
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
 {
     QMutexLocker locker(&d->m_projectMutex);

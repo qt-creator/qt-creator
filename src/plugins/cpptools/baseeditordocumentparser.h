@@ -41,8 +41,6 @@ namespace CppTools {
 class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BaseEditorDocumentParser)
-    BaseEditorDocumentParser();
 
 public:
     BaseEditorDocumentParser(const QString &filePath);

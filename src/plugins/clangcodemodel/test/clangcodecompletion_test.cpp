@@ -615,6 +615,102 @@ bool hasSnippet(ProposalModel model, const QByteArray &text)
     return false;
 }
 
+class MonitorGeneratedUiFile : public QObject
+{
+    Q_OBJECT
+
+public:
+    MonitorGeneratedUiFile();
+    bool waitUntilGenerated(int timeout = 10000) const;
+
+private:
+    void onUiFileGenerated() { m_isGenerated = true; }
+
+    bool m_isGenerated = false;
+};
+
+MonitorGeneratedUiFile::MonitorGeneratedUiFile()
+{
+    connect(CppTools::CppModelManager::instance(),
+            &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
+            this, &MonitorGeneratedUiFile::onUiFileGenerated);
+}
+
+bool MonitorGeneratedUiFile::waitUntilGenerated(int timeout) const
+{
+    if (m_isGenerated)
+        return true;
+
+    QTime time;
+    time.start();
+
+    forever {
+        if (m_isGenerated)
+            return true;
+
+        if (time.elapsed() > timeout)
+            return false;
+
+        QCoreApplication::processEvents();
+        QThread::msleep(20);
+    }
+
+    return false;
+}
+
+class WriteFileAndWaitForReloadedDocument : public QObject
+{
+public:
+    WriteFileAndWaitForReloadedDocument(const QString &filePath,
+                                        const QByteArray &fileContents,
+                                        Core::IDocument *document)
+        : m_filePath(filePath)
+        , m_fileContents(fileContents)
+    {
+        QTC_CHECK(document);
+        connect(document, &Core::IDocument::reloadFinished,
+                this, &WriteFileAndWaitForReloadedDocument::onReloadFinished);
+    }
+
+    void onReloadFinished()
+    {
+        m_onReloadFinished = true;
+    }
+
+    bool wait() const
+    {
+        QTC_ASSERT(writeFile(m_filePath, m_fileContents), return false);
+
+        QTime totalTime;
+        totalTime.start();
+
+        QTime writeFileAgainTime;
+        writeFileAgainTime.start();
+
+        forever {
+            if (m_onReloadFinished)
+                return true;
+
+            if (totalTime.elapsed() > 10000)
+                return false;
+
+            if (writeFileAgainTime.elapsed() > 1000) {
+                // The timestamp did not change, try again now.
+                QTC_ASSERT(writeFile(m_filePath, m_fileContents), return false);
+                writeFileAgainTime.restart();
+            }
+
+            QCoreApplication::processEvents();
+            QThread::msleep(20);
+        }
+    }
+
+private:
+    bool m_onReloadFinished = false;
+    QString m_filePath;
+    QByteArray m_fileContents;
+};
+
 } // anonymous namespace
 
 namespace ClangCodeModel {
@@ -866,11 +962,11 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExt
     ProposalModel proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
-    // Simulate external modification
-    QThread::sleep(1); // Ensures different time stamp and thus that the difference will be noticed
-    QVERIFY(writeFile(headerDocument.filePath, "int globalFromHeaderReloaded;\n"));
-    QSignalSpy waitForReloadedDocument(openHeader.editor()->document(),
-                                       SIGNAL(reloadFinished(bool)));
+    // Simulate external modification and wait for reload
+    WriteFileAndWaitForReloadedDocument waitForReloadedDocument(
+                headerDocument.filePath,
+                "int globalFromHeaderReloaded;\n",
+                openHeader.editor()->document());
     QVERIFY(waitForReloadedDocument.wait());
 
     // Retrigger completion and check if its updated
@@ -882,6 +978,8 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByCompletingUiObject()
 {
     CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));
     QVERIFY(testDir.isValid());
+
+    MonitorGeneratedUiFile monitorGeneratedUiFile;
 
     // Open project
     const QString projectFilePath = testDir.absolutePath("qt-widgets-app.pro");
@@ -897,11 +995,11 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByCompletingUiObject()
     QVERIFY(openSource.succeeded());
 
     // ...and check comletions
+    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
     ProposalModel proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "menuBar"));
     QVERIFY(hasItem(proposal, "statusBar"));
     QVERIFY(hasItem(proposal, "centralWidget"));
-    QEXPECT_FAIL("", "Signals are not yet done", Abort);
     QVERIFY(hasItem(proposal, "setupUi"));
 }
 
@@ -921,6 +1019,7 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     // ... and modify it, so we have an unsaved file.
     insertTextAtTopOfEditor(openHeader.editor(), "int someGlobal;\n");
     // Open project ...
+    MonitorGeneratedUiFile monitorGeneratedUiFile;
     const QString projectFilePath = testDir.absolutePath("qt-widgets-app.pro");
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
@@ -931,6 +1030,7 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
     OpenEditorAtCursorPosition openSource(testDocument);
     QVERIFY(openSource.succeeded());
+    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
 
     // Check commands that would have been sent
     QVERIFY(compare(LogOutput(spy.senderLog),
@@ -939,6 +1039,8 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
                         "  ProjectPartContainer id: qt-widgets-app.pro\n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
                         "  Path: myheader.h ProjectPart: \n"
+                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "  Path: ui_mainwindow.h ProjectPart: \n"
                     )));
     spy.senderLog.clear();
 
@@ -966,3 +1068,5 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel
+
+#include "clangcodecompletion_test.moc"

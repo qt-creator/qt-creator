@@ -797,8 +797,6 @@ void QbsProject::updateCppCodeModel()
         }
     }
 
-    if (pinfo.projectParts().isEmpty())
-        return;
     pinfo.finish();
 
     QtSupport::UiCodeModelManager::update(this, uiFiles);

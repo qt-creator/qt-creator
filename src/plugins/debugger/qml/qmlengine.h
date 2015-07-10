@@ -31,28 +31,21 @@
 #ifndef QMLENGINE_H
 #define QMLENGINE_H
 
-#include "interactiveinterpreter.h"
-#include "qmladapter.h"
-#include "qmlinspectoradapter.h"
 #include <debugger/debuggerengine.h>
 
-#include <projectexplorer/applicationlauncher.h>
 #include <qmldebug/qdebugmessageclient.h>
+#include <qmldebug/qmldebugclient.h>
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/iscriptevaluator.h>
 #include <qmljs/qmljsdocument.h>
 
-QT_FORWARD_DECLARE_CLASS(QTextDocument)
-
-namespace Core { class IDocument; }
-
-namespace TextEditor { class BaseTextEditor; }
-
 namespace Debugger {
 namespace Internal {
 
+class WatchData;
+class WatchItem;
+class QmlEnginePrivate;
 class QmlAdapter;
-class WatchTreeView;
 
 class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
 {
@@ -63,31 +56,11 @@ public:
                        DebuggerEngine *masterEngine = 0);
     ~QmlEngine();
 
-    void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void filterApplicationMessage(const QString &msg, int channel) const;
 
-    bool canDisplayTooltip() const;
-
-    void showMessage(const QString &msg, int channel = LogDebug,
-                     int timeout = -1) const;
-    void gotoLocation(const Internal::Location &location);
-
-    void filterApplicationMessage(const QString &msg, int channel);
-    void inferiorSpontaneousStop();
-
-    enum LogDirection {
-        LogSend,
-        LogReceive
-    };
-
-    void logMessage(const QString &service, LogDirection direction,
-                    const QString &str);
-
-    void setSourceFiles(const QStringList &fileNames);
-    void updateScriptSource(const QString &fileName, int lineOffset,
-                            int columnOffset, const QString &source);
-
-    void insertBreakpoint(Breakpoint bp);
+    void logServiceStateChange(const QString &service, float version,
+                               QmlDebug::QmlDebugClient::State newState);
+    void logServiceActivity(const QString &service, const QString &logMessage);
 
 private slots:
     void disconnected();
@@ -96,23 +69,28 @@ private slots:
 
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
-    void appendDebugOutput(QtMsgType type, const QString &message,
-                           const QmlDebug::QDebugContextInfo &info);
 
     void tryToConnect(quint16 port = 0);
     void beginConnection(quint16 port = 0);
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);
-    void connectionError(QDebugSupport::Error error);
-    void serviceConnectionError(const QString &service);
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
     void synchronizeWatchers();
 
 private:
-    // DebuggerEngine implementation.
+    void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+
+    void showMessage(const QString &msg, int channel = LogDebug,
+                     int timeout = -1) const;
+    void gotoLocation(const Internal::Location &location);
+    void insertBreakpoint(Breakpoint bp);
+
     bool isSynchronous() const { return false; }
+    bool canDisplayTooltip() const { return false; }
+
     void executeStep();
     void executeStepOut();
     void executeNext();
@@ -153,7 +131,6 @@ private:
     void reloadSourceFiles();
     void reloadFullStack() {}
 
-    bool supportsThreads() const { return false; }
     void updateWatchData(const QByteArray &iname);
     void selectWatchData(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
@@ -162,36 +139,21 @@ private:
     bool hasCapability(unsigned) const;
     void quitDebugger();
 
-private:
     void closeConnection();
     void startApplicationLauncher();
     void stopApplicationLauncher();
 
-    bool isShadowBuildProject() const;
-    QString fromShadowBuildFilename(const QString &filename) const;
-    QString mangleFilenamePaths(const QString &filename,
-        const QString &oldBasePath, const QString &newBasePath) const;
-    QString qmlImportPath() const;
+    void connectionErrorOccurred(QDebugSupport::Error socketError);
+    void clientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void checkConnectionState();
+    void showConnectionStateMessage(const QString &message);
+    void showConnectionErrorMessage(const QString &message);
+    bool isConnected() const;
 
-    void updateDocument(Core::IDocument *document, const QTextDocument *textDocument);
-    bool canEvaluateScript(const QString &script);
-    bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
-                                       quint32 *column, bool *valid);
-
-    QmlAdapter m_adapter;
-    QmlInspectorAdapter m_inspectorAdapter;
-    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-    QTimer m_noDebugOutputTimer;
-    QmlDebug::QmlOutputParser m_outputParser;
-    QHash<QString, QTextDocument*> m_sourceDocuments;
-    QHash<QString, QWeakPointer<TextEditor::BaseTextEditor> > m_sourceEditors;
-    InteractiveInterpreter m_interpreter;
-    QHash<QString,Breakpoint> pendingBreakpoints;
-    QList<quint32> queryIds;
-    bool m_retryOnConnectFail;
-    bool m_automaticConnect;
-
+private:
     friend class QmlCppEngine;
+    friend class QmlEnginePrivate;
+    QmlEnginePrivate *d;
 };
 
 } // namespace Internal

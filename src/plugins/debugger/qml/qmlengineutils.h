@@ -28,47 +28,22 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.1
+#ifndef QMLENGINEUTILS_H
+#define QMLENGINEUTILS_H
 
-Rectangle {
-    id: rect
-    width: 200
-    height: 200
-    Text {
-        id: text
-        x: 66
-        y: 93
-        text: "Base State"
-    }
-    states: [
-        State {
-            name: "State1"
-            PropertyChanges {
-                target: rect
-                color: "blue"
-            }
-            PropertyChanges {
-                target: text
-                text: "State1"
-            }
-        },
-        State {
-            name: "State2"
-            PropertyChanges {
-                target: rect
-                color: "gray"
-            }
-            PropertyChanges {
-                target: text
-                text: "State2"
-            }
-        }
-    ]
+#include <qmldebug/qdebugmessageclient.h>
+#include <qmldebug/qmloutputparser.h>
 
-    Image {
-        id: image1
-        x: 41
-        y: 46
-        source: "images/qtcreator.png"
-    }
-}
+namespace Debugger {
+namespace Internal {
+
+bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line, quint32 *column, bool *valid);
+void appendDebugOutput(QtMsgType type, const QString &message, const QmlDebug::QDebugContextInfo &info);
+
+void clearExceptionSelection();
+QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage);
+
+} // namespace Internal
+} // namespace Debugger
+
+#endif // QMLENGINEUTILS_H

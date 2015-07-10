@@ -33,6 +33,7 @@
 #include "makefileparser.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QDir>
@@ -131,12 +132,12 @@ QByteArray MakefileParser::defines() const
 
 QStringList MakefileParser::cflags() const
 {
-    return m_cflags;
+    return m_cppflags + m_cflags;
 }
 
 QStringList MakefileParser::cxxflags() const
 {
-    return m_cxxflags;
+    return m_cppflags + m_cxxflags;
 }
 
 void MakefileParser::cancel()
@@ -443,9 +444,22 @@ QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
 QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
 {
     int assignPos = line.indexOf(QLatin1Char('=')) + 1;
-    if (assignPos >= line.size())
+    if (assignPos <= 0 || assignPos >= line.size())
         return QStringList();
-    return line.mid(assignPos).split(QLatin1Char(' '), QString::SkipEmptyParts);
+
+    const QStringList parts = Utils::QtcProcess::splitArgs(line.mid(assignPos));
+    QStringList result;
+    for (int i = 0; i < parts.count(); ++i) {
+        const QString cur = parts.at(i);
+        const QString next = (i == parts.count() - 1) ? QString() : parts.at(i + 1);
+        if (cur == QLatin1String("-D") || cur == QLatin1String("-U") || cur == QLatin1String("-I")) {
+            result << cur + next;
+            ++i;
+        } else {
+            result << cur;
+        }
+    }
+    return result;
 }
 
 bool MakefileParser::maybeParseDefine(const QString &term)
@@ -493,6 +507,15 @@ bool MakefileParser::maybeParseCXXFlag(const QString &term)
     return false;
 }
 
+bool MakefileParser::maybeParseCPPFlag(const QString &term)
+{
+    if (term.startsWith(QLatin1Char('-'))) {
+        m_cppflags += term;
+        return true;
+    }
+    return false;
+}
+
 void MakefileParser::addAllSources()
 {
     QStringList extensions;
@@ -523,6 +546,12 @@ void MakefileParser::parseIncludePaths()
     QString line;
     do {
         line = textStream.readLine();
+        while (line.endsWith(QLatin1Char('\\'))) {
+            line.chop(1);
+            QString next = textStream.readLine();
+            line.append(next);
+        }
+
         const QString varName = parseIdentifierBeforeAssign(line);
         if (varName.isEmpty())
             continue;
@@ -537,11 +566,14 @@ void MakefileParser::parseIncludePaths()
             foreach (const QString &term, parseTermsAfterAssign(line))
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCFlag(term);
-        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))
-                   || varName.endsWith(QLatin1String("CXXFLAGS"))) {
+        } else if (varName.endsWith(QLatin1String("CXXFLAGS"))) {
             foreach (const QString &term, parseTermsAfterAssign(line))
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCXXFlag(term);
+        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseDefine(term) || maybeParseInclude(term, dirName)
+                        || maybeParseCPPFlag(term);
         }
     } while (!line.isNull());
 

@@ -64,8 +64,19 @@
 
         \li Select a command from the list.
 
-        \li In \uicontrol{Key Sequence} enter the shortcut key you want to associate
-            with the selected command.
+        \li In the \uicontrol{Key Sequence} field, you have the following
+            options:
+
+            \list
+
+                \li Enter the shortcut key you want to associate with the
+                    selected command.
+
+                \li Select \uicontrol Record, press the keys to use as the
+                    keyboard shortcut, and select \uicontrol {Stop Recording}
+                    when you are done.
+
+            \endlist
 
         \li To revert to the default shortcut, select \uicontrol Reset.
 
