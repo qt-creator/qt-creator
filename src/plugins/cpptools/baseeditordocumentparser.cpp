@@ -31,6 +31,7 @@
 #include "baseeditordocumentparser.h"
 #include "baseeditordocumentprocessor.h"
 
+#include "cppworkingcopy.h"
 #include "editordocumenthandle.h"
 
 namespace CppTools {
@@ -44,14 +45,13 @@ namespace CppTools {
     It's meant to be used in the C++ editor to get precise results by using
     the "best" project part for a file.
 
-    Derived classes are expected to implement update() this way:
+    Derived classes are expected to implement updateHelper() this way:
 
     \list
         \li Get a copy of the configuration and the last state.
-        \li Acquire the protected m_updateIsRunning for the duration of update().
         \li Work on the data and do whatever is necessary. At least, update
             the project part with the help of determineProjectPart().
-        \li Ensure the new state is set before update() returns.
+        \li Ensure the new state is set before updateHelper() returns.
     \endlist
 */
 
@@ -79,6 +79,12 @@ void BaseEditorDocumentParser::setConfiguration(const Configuration &configurati
 {
     QMutexLocker locker(&m_stateAndConfigurationMutex);
     m_configuration = configuration;
+}
+
+void BaseEditorDocumentParser::update(WorkingCopy workingCopy)
+{
+    QMutexLocker locker(&m_updateIsRunning);
+    updateHelper(workingCopy);
 }
 
 BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const

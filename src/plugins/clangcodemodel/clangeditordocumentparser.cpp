@@ -88,10 +88,9 @@ ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
 {
 }
 
-void ClangEditorDocumentParser::update(CppTools::WorkingCopy workingCopy)
+void ClangEditorDocumentParser::updateHelper(CppTools::WorkingCopy workingCopy)
 {
     QTC_ASSERT(m_marker, return);
-    QMutexLocker locker(&m_updateIsRunning);
 
     // Determine project part
     State state_ = state();

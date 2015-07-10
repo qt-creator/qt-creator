@@ -44,10 +44,8 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
+void BuiltinEditorDocumentParser::updateHelper(WorkingCopy workingCopy)
 {
-    QMutexLocker locker(&m_updateIsRunning);
-
     const Configuration baseConfig = configuration();
     const bool releaseSourceAndAST_ = releaseSourceAndAST();
 

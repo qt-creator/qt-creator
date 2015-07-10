@@ -51,8 +51,6 @@ public:
     bool releaseSourceAndAST() const;
     void setReleaseSourceAndAST(bool release);
 
-    void update(WorkingCopy workingCopy) override;
-
     CPlusPlus::Document::Ptr document() const;
     CPlusPlus::Snapshot snapshot() const;
     ProjectPart::HeaderPaths headerPaths() const;
@@ -66,6 +64,7 @@ public:
     static BuiltinEditorDocumentParser *get(const QString &filePath);
 
 private:
+    void updateHelper(WorkingCopy workingCopy) override;
     void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
                                 QSet<Utils::FileName> *toRemove,
                                 const Utils::FileName &fileName) const;
@@ -80,7 +79,6 @@ private:
         CPlusPlus::Snapshot snapshot;
         bool forceSnapshotInvalidation = false;
     };
-
     ExtraState extraState() const;
     void setExtraState(const ExtraState &extraState);
 

@@ -46,13 +46,13 @@ class ClangEditorDocumentParser : public CppTools::BaseEditorDocumentParser
 public:
     ClangEditorDocumentParser(const QString &filePath);
 
-    void update(CppTools::WorkingCopy workingCopy) override;
-
     QList<Diagnostic> diagnostics() const;
     QList<SemanticMarker::Range> ifdefedOutBlocks() const;
     SemanticMarker::Ptr semanticMarker() const;
 
 private:
+    void updateHelper(CppTools::WorkingCopy workingCopy) override;
+
     SemanticMarker::Ptr m_marker;
 };
 

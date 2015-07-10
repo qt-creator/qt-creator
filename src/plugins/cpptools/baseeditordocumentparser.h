@@ -56,11 +56,10 @@ public:
     virtual ~BaseEditorDocumentParser();
 
     QString filePath() const;
-
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
-    virtual void update(WorkingCopy workingCopy) = 0;
+    void update(WorkingCopy workingCopy);
 
     ProjectPart::Ptr projectPart() const;
 
@@ -69,7 +68,6 @@ protected:
         QByteArray editorDefines;
         ProjectPart::Ptr projectPart;
     };
-
     State state() const;
     void setState(const State &state);
 
@@ -77,14 +75,15 @@ protected:
                                                  const Configuration &config,
                                                  const State &state);
 
-    mutable QMutex m_updateIsRunning;
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
-    const QString m_filePath;
+    virtual void updateHelper(WorkingCopy workingCopy) = 0;
 
+    const QString m_filePath;
     Configuration m_configuration;
     State m_state;
+    mutable QMutex m_updateIsRunning;
 };
 
 } // namespace CppTools
