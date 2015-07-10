@@ -234,15 +234,20 @@ def copy_libclang(install_dir, llvm_install_dir):
     if sys.platform.startswith("win"):
         deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
                            os.path.join(install_dir, 'bin')))
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-cl.exe'),
+                           os.path.join(install_dir, 'bin')))
     else:
         libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))
         for libsource in libsources:
             deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
-
-    clangsources = glob(os.path.join(llvm_install_dir, 'bin', 'clang*'))
-    for clangsource in clangsources:
-        if not os.path.basename(clangsource).startswith('clang-check'):
-            deployinfo.append((clangsource, os.path.join(install_dir, 'bin')))
+        clangbinary = os.path.join(llvm_install_dir, 'bin', 'clang')
+        clangbinary_targetdir = os.path.join(install_dir, 'bin')
+        deployinfo.append((clangbinary, clangbinary_targetdir))
+        # copy link target if clang is actually a symlink
+        if os.path.islink(clangbinary):
+            linktarget = os.readlink(clangbinary)
+            deployinfo.append((os.path.join(os.path.dirname(clangbinary), linktarget),
+                               os.path.join(clangbinary_targetdir, linktarget)))
 
     resourcesource = os.path.join(llvm_install_dir, 'lib', 'clang')
     resourcetarget = os.path.join(install_dir, 'share', 'qtcreator', 'cplusplus', 'clang')
