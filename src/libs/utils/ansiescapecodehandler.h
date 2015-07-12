@@ -62,6 +62,7 @@ private:
 
     bool            m_previousFormatClosed;
     QTextCharFormat m_previousFormat;
+    QString         m_pendingText;
 };
 
 } // namespace Utils
