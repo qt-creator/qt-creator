@@ -66,7 +66,7 @@ void printHelp(const Operation *op)
 void printHelp(const QList<Operation *> &operations)
 {
     std::cout << "Qt Creator SDK setup tool." << std::endl;
-    std::cout << "    Usage:" << qPrintable(qApp->arguments().at(0))
+    std::cout << "    Usage: " << qPrintable(qApp->arguments().at(0))
               << " <ARGS> <OPERATION> <OPERATION_ARGS>" << std::endl << std::endl;
     std::cout << "ARGS:" << std::endl;
     std::cout << "    --help|-h                Print this help text" << std::endl;
