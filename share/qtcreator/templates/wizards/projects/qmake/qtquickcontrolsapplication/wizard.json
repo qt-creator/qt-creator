@@ -18,7 +18,9 @@
         { "key": "QtQuickControlsVersion", "value": "%{JS: %{QtVersion}.qtQuickControlsVersion}" },
         { "key": "QtQuickDialogsVersion", "value": "%{JS: %{QtVersion}.qtQuickDialogsVersion}" },
         { "key": "QtQuickLayoutsVersion", "value": "%{JS: %{QtVersion}.qtQuickLayoutsVersion}" },
-        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" }
+        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
     ],
 
     "pages":
@@ -77,9 +79,10 @@
                     }
                 },
                 {
-                    "name": "QmlUISplit",
+                    "name": "QmlUiSplit",
                     "trDisplayName": "With ui.qml file",
                     "type": "CheckBox",
+                    "visible": "%{UiSupport}",
                     "data":
                     {
                         "checked": true
@@ -132,7 +135,7 @@
                 },
                 {
                     "source": "MainForm.ui.qml",
-                    "condition": "%{QmlUISplit}"
+                    "condition": "%{IsUiFileInUse}"
                 },
                 {
                     "source": "qml.qrc"

@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-@if %{QmlUISplit}
+@if %{IsUiFileInUse}
         <file>MainForm.ui.qml</file>
 @endif
     </qresource>
