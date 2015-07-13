@@ -10,11 +10,6 @@ QtcTool {
     Depends { name: "Core" }
     Depends { name: "CppTools" }
 
-    cpp.rpaths: [
-        "$ORIGIN/../" + project.libDirName + "/qtcreator",
-        "$ORIGIN/../" + project.libDirName + "/qtcreator/plugins",
-    ]
-
     Group {
         name: "Frontend Sources"
         files: [
