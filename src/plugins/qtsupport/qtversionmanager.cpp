@@ -354,7 +354,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
             qDebug() << "";
         }
     }
-    foreach (BaseQtVersion *qtVersion, QtVersionManager::versions()) {
+    foreach (BaseQtVersion *qtVersion, m_versions) {
         if (qtVersion->autodetectionSource().startsWith(QLatin1String("SDK."))) {
             if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
                 if (debug)
@@ -513,6 +513,13 @@ void QtVersionManager::updateDumpFor(const FileName &qmakeCommand)
 int QtVersionManager::getUniqueId()
 {
     return m_idcount++;
+}
+
+QList<BaseQtVersion *> QtVersionManager::unsortedVersions()
+{
+    QList<BaseQtVersion *> versions;
+    QTC_ASSERT(isLoaded(), return versions);
+    return m_versions.values();
 }
 
 QList<BaseQtVersion *> QtVersionManager::versions()

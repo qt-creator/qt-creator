@@ -1302,7 +1302,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     QHash<Abi, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
-    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
+    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::unsortedVersions()) {
         if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
             continue;
         QList<Abi> qtAbis = qtVersion->qtAbis();
