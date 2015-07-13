@@ -152,12 +152,12 @@ public:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void flushSendBuffer();
 
-    void handleBacktrace(const QVariant &bodyVal, const QVariant &refsVal);
-    void handleLookup(const QVariant &bodyVal, const QVariant &refsVal);
-    void handleEvaluate(int sequence, bool success, const QVariant &bodyVal, const QVariant &refsVal);
-    void handleFrame(const QVariant &bodyVal, const QVariant &refsVal);
-    void handleScope(const QVariant &bodyVal, const QVariant &refsVal);
-    StackFrame extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
+    void handleBacktrace(const QVariant &bodyVal);
+    void handleLookup(const QVariant &bodyVal);
+    void handleEvaluate(int sequence, bool success, const QVariant &bodyVal);
+    void handleFrame(const QVariant &bodyVal);
+    void handleScope(const QVariant &bodyVal);
+    StackFrame extractStackFrame(const QVariant &bodyVal);
 
     bool canEvaluateScript(const QString &script);
     void updateScriptSource(const QString &fileName, int lineOffset, int columnOffset, const QString &source);
@@ -165,7 +165,14 @@ public:
     void runCommand(const DebuggerCommand &command);
     void runDirectCommand(const QByteArray &type, const QByteArray &msg = QByteArray());
 
+    void clearRefs() { refVals.clear(); }
+    void memorizeRefs(const QVariant &refs);
+    QmlV8ObjectData extractData(const QVariant &data) const;
+    void insertSubItems(WatchItem *parent, const QVariantList &properties);
+    ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QmlV8ObjectData &objectData);
+
 public:
+    QHash<int, QVariant> refVals; // The mapping of target object handles to retrieved values.
     int sequence = -1;
     QmlEngine *engine;
     QHash<BreakpointModelId, int> breakpoints;
@@ -1587,23 +1594,7 @@ void QmlEnginePrivate::setExceptionBreak(Exceptions type, bool enabled)
     runCommand(cmd);
 }
 
-QVariant valueFromRef(int handle, const QVariant &refsVal, bool *success)
-{
-    *success = false;
-    QVariant variant;
-    const QVariantList refs = refsVal.toList();
-    foreach (const QVariant &ref, refs) {
-        const QVariantMap refData = ref.toMap();
-        if (refData.value(_(HANDLE)).toInt() == handle) {
-            variant = refData;
-            *success = true;
-            break;
-        }
-    }
-    return variant;
-}
-
-QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
+QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
 {
     //    { "handle" : <handle>,
     //      "type"   : <"undefined", "null", "boolean", "number", "string", "object", "function" or "frame">
@@ -1663,10 +1654,8 @@ QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
 
     if (dataMap.contains(_(REF))) {
         objectData.handle = dataMap.value(_(REF)).toInt();
-        bool success;
-        QVariant dataFromRef = valueFromRef(objectData.handle, refsVal, &success);
-        if (success) {
-            QmlV8ObjectData data = extractData(dataFromRef, refsVal);
+        if (refVals.contains(objectData.handle)) {
+            QmlV8ObjectData data = extractData(refVals.value(objectData.handle));
             objectData.type = data.type;
             objectData.value = data.value;
             objectData.properties = data.properties;
@@ -1760,6 +1749,17 @@ void QmlEnginePrivate::expandObject(const QByteArray &iname, quint64 objectId)
     lookup(QList<int>() << objectId);
 }
 
+void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
+{
+    if (refs.isValid()) {
+        foreach (const QVariant &ref, refs.toList()) {
+            const QVariantMap refData = ref.toMap();
+            int handle = refData.value(_(HANDLE)).toInt();
+            refVals[handle] = refData;
+        }
+    }
+}
+
 void QmlEnginePrivate::messageReceived(const QByteArray &data)
 {
     QmlDebugStream ds(data);
@@ -1793,6 +1793,8 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
             if (type == _("response")) {
 
+                memorizeRefs(resp.value(_(REFS)));
+
                 bool success = resp.value(_("success")).toBool();
                 if (!success) {
                     SDEBUG("Request was unsuccessful");
@@ -1808,21 +1810,21 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                 } else if (debugCommand == _(BACKTRACE)) {
                     if (success)
-                        handleBacktrace(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleBacktrace(resp.value(_(BODY)));
 
                 } else if (debugCommand == _(LOOKUP)) {
                     if (success)
-                        handleLookup(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleLookup(resp.value(_(BODY)));
 
                 } else if (debugCommand == _(EVALUATE)) {
                     int seq = resp.value(_("request_seq")).toInt();
                     if (success) {
-                        handleEvaluate(seq, success, resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleEvaluate(seq, success, resp.value(_(BODY)));
                     } else {
                         QVariantMap map;
                         map.insert(_(TYPE), QVariant(_("string")));
                         map.insert(_(VALUE), resp.value(_("message")));
-                        handleEvaluate(seq, success, QVariant(map), QVariant());
+                        handleEvaluate(seq, success, QVariant(map));
                     }
 
                 } else if (debugCommand == _(SETBREAKPOINT)) {
@@ -1886,11 +1888,11 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                 } else if (debugCommand == _(FRAME)) {
                     if (success)
-                        handleFrame(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleFrame(resp.value(_(BODY)));
 
                 } else if (debugCommand == _(SCOPE)) {
                     if (success)
-                        handleScope(resp.value(_(BODY)), resp.value(_(REFS)));
+                        handleScope(resp.value(_(BODY)));
 
                 } else if (debugCommand == _(SCRIPTS)) {
                     //                { "seq"         : <number>,
@@ -1962,6 +1964,8 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                 const QString eventType(resp.value(_(EVENT)).toString());
 
                 if (eventType == _("break")) {
+
+                    clearRefs();
                     const QVariantMap breakData = resp.value(_(BODY)).toMap();
                     const QString invocationText = breakData.value(_("invocationText")).toString();
                     const QString scriptUrl = breakData.value(_("script")).toMap().value(_("name")).toString();
@@ -2085,7 +2089,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                      map.insert(_(VALUE), resp.value(_("message")));
                      //Since there is no sequence value, best estimate is
                      //last sequence value
-                     handleEvaluate(sequence, success, QVariant(map), QVariant());
+                     handleEvaluate(sequence, success, QVariant(map));
                 }
 
             } //EVENT
@@ -2096,7 +2100,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
     }
 }
 
-void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2123,7 +2127,7 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &
     int i = 0;
     stackIndexLookup.clear();
     foreach (const QVariant &frame, frames) {
-        StackFrame stackFrame = extractStackFrame(frame, refsVal);
+        StackFrame stackFrame = extractStackFrame(frame);
         if (stackFrame.level < 0)
             continue;
         stackIndexLookup.insert(i, stackFrame.level);
@@ -2137,10 +2141,10 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &
     //Update all Locals visible in current scope
     //Traverse the scope chain and store the local properties
     //in a list and show them in the Locals Window.
-    handleFrame(frames.value(0), refsVal);
+    handleFrame(frames.value(0));
 }
 
-StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal)
+StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2183,17 +2187,17 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QV
         return stackFrame;
     }
 
-    QmlV8ObjectData objectData = extractData(body.value(_("func")), refsVal);
+    QmlV8ObjectData objectData = extractData(body.value(_("func")));
     QString functionName = objectData.value.toString();
     if (functionName.isEmpty())
         functionName = tr("Anonymous Function");
     stackFrame.function = functionName;
 
-    objectData = extractData(body.value(_("script")), refsVal);
+    objectData = extractData(body.value(_("script")));
     stackFrame.file = engine->toFileInProject(objectData.value.toString());
     stackFrame.usable = QFileInfo(stackFrame.file).isReadable();
 
-    objectData = extractData(body.value(_("receiver")), refsVal);
+    objectData = extractData(body.value(_("receiver")));
     stackFrame.to = objectData.value.toString();
 
     stackFrame.line = body.value(_("line")).toInt() + 1;
@@ -2201,7 +2205,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QV
     return stackFrame;
 }
 
-void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleFrame(const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2258,7 +2262,7 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refs
     //Set "this" variable
     {
         auto item = new WatchItem("local.this", QLatin1String("this"));
-        QmlV8ObjectData objectData = extractData(currentFrame.value(_("receiver")), refsVal);
+        QmlV8ObjectData objectData = extractData(currentFrame.value(_("receiver")));
         item->id = objectData.handle;
         item->type = objectData.type;
         item->value = objectData.value.toString();
@@ -2291,7 +2295,7 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refs
     engine->stackFrameCompleted();
 }
 
-void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleScope(const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2321,11 +2325,11 @@ void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refs
     if (bodyMap.value(_("frameIndex")).toInt() != stackHandler->currentIndex())
         return;
 
-    QmlV8ObjectData objectData = extractData(bodyMap.value(_("object")), refsVal);
+    QmlV8ObjectData objectData = extractData(bodyMap.value(_("object")));
 
     QList<int> handlesToLookup;
     foreach (const QVariant &property, objectData.properties) {
-        QmlV8ObjectData localData = extractData(property, refsVal);
+        QmlV8ObjectData localData = extractData(property);
         auto item = new WatchItem;
         item->exp = localData.name;
         //Check for v8 specific local data
@@ -2354,9 +2358,8 @@ void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refs
         engine->watchHandler()->notifyUpdateFinished();
 }
 
-ConsoleItem *constructLogItemTree(ConsoleItem *parent,
-                                  const QmlV8ObjectData &objectData,
-                                  const QVariant &refsVal)
+ConsoleItem *QmlEnginePrivate::constructLogItemTree(ConsoleItem *parent,
+                                                    const QmlV8ObjectData &objectData)
 {
     bool sorted = boolSetting(SortStructMembers);
     if (!objectData.value.isValid())
@@ -2373,10 +2376,10 @@ ConsoleItem *constructLogItemTree(ConsoleItem *parent,
 
     QSet<QString> childrenFetched;
     foreach (const QVariant &property, objectData.properties) {
-        const QmlV8ObjectData childObjectData = extractData(property, refsVal);
+        const QmlV8ObjectData childObjectData = extractData(property);
         if (childObjectData.handle == objectData.handle)
             continue;
-        ConsoleItem *child = constructLogItemTree(item, childObjectData, refsVal);
+        ConsoleItem *child = constructLogItemTree(item, childObjectData);
         if (child) {
             const QString text = child->text();
             if (childrenFetched.contains(text))
@@ -2389,11 +2392,11 @@ ConsoleItem *constructLogItemTree(ConsoleItem *parent,
     return item;
 }
 
-static void insertSubItems(WatchItem *parent, const QVariantList &properties, const QVariant &refsVal)
+void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &properties)
 {
     QTC_ASSERT(parent, return);
     foreach (const QVariant &property, properties) {
-        QmlV8ObjectData propertyData = extractData(property, refsVal);
+        QmlV8ObjectData propertyData = extractData(property);
         auto item = new WatchItem;
         item->name = QString::fromUtf8(propertyData.name);
 
@@ -2418,8 +2421,7 @@ static void insertSubItems(WatchItem *parent, const QVariantList &properties, co
     }
 }
 
-void QmlEnginePrivate::handleEvaluate(int sequence, bool success,
-                                      const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleEvaluate(int sequence, bool success, const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2443,9 +2445,9 @@ void QmlEnginePrivate::handleEvaluate(int sequence, bool success,
 
     } else if (debuggerCommands.contains(sequence)) {
         updateLocalsAndWatchers.removeOne(sequence);
-        QmlV8ObjectData body = extractData(bodyVal, refsVal);
+        QmlV8ObjectData body = extractData(bodyVal);
         if (auto consoleManager = ConsoleManagerInterface::instance()) {
-            if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body, refsVal))
+            if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body))
                 consoleManager->printToConsolePane(item);
         }
         //Update the locals
@@ -2453,13 +2455,13 @@ void QmlEnginePrivate::handleEvaluate(int sequence, bool success,
             scope(index);
 
     } else {
-        QmlV8ObjectData body = extractData(bodyVal, refsVal);
+        QmlV8ObjectData body = extractData(bodyVal);
         if (evaluatingExpression.contains(sequence)) {
             QString exp =  evaluatingExpression.take(sequence);
             //Do we have request to evaluate a local?
             if (exp.startsWith(QLatin1String("local."))) {
                 WatchItem *item = watchHandler->findItem(exp.toLatin1());
-                insertSubItems(item, body.properties, refsVal);
+                insertSubItems(item, body.properties);
             } else {
                 QByteArray iname = watchHandler->watcherName(exp.toLatin1());
                 SDEBUG(QString(iname));
@@ -2476,14 +2478,14 @@ void QmlEnginePrivate::handleEvaluate(int sequence, bool success,
                     item->setError(body.value.toString());
                 }
                 watchHandler->insertItem(item);
-                insertSubItems(item, body.properties, refsVal);
+                insertSubItems(item, body.properties);
             }
             //Insert the newly evaluated expression to the Watchers Window
         }
     }
 }
 
-void QmlEnginePrivate::handleLookup(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleLookup(const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2498,14 +2500,14 @@ void QmlEnginePrivate::handleLookup(const QVariant &bodyVal, const QVariant &ref
     QStringList handlesList = body.keys();
     WatchHandler *watchHandler = engine->watchHandler();
     foreach (const QString &handle, handlesList) {
-        QmlV8ObjectData bodyObjectData = extractData(body.value(handle), refsVal);
+        QmlV8ObjectData bodyObjectData = extractData(body.value(handle));
         QByteArray prepend = localsAndWatchers.take(handle.toInt());
 
         if (prepend.startsWith("local.") || prepend.startsWith("watch.")) {
             // Data for expanded local/watch.
             // Could be an object or function.
             WatchItem *parent = watchHandler->findItem(prepend);
-            insertSubItems(parent, bodyObjectData.properties, refsVal);
+            insertSubItems(parent, bodyObjectData.properties);
         } else {
             //rest
             auto item = new WatchItem;
