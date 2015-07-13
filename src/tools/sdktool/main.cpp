@@ -193,11 +193,17 @@ int main(int argc, char *argv[])
                << new FindValueOperation;
 
 #ifdef WITH_TESTS
-    std::cerr << std::endl << std::endl << "Starting tests..." << std::endl;
-    foreach (Operation *o, operations)
-        if (!o->test())
-            std::cerr << "!!!! Test failed for: " << qPrintable(o->name()) << " !!!!" << std::endl;
-    std::cerr << "Tests done." << std::endl << std::endl;
+    if (argc == 2 && !strcmp(argv[1], "-test")) {
+        std::cerr << std::endl << std::endl << "Starting tests..." << std::endl;
+        int res = 0;
+        foreach (Operation *o, operations)
+            if (!o->test()) {
+                std::cerr << "!!!! Test failed for: " << qPrintable(o->name()) << " !!!!" << std::endl;
+                ++res;
+            }
+        std::cerr << "Tests done." << std::endl << std::endl;
+        return res;
+    }
 #endif
 
     int result = parseArguments(a.arguments(), &settings, operations);
