@@ -172,7 +172,7 @@ public:
     ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QmlV8ObjectData &objectData);
 
 public:
-    QHash<int, QVariant> refVals; // The mapping of target object handles to retrieved values.
+    QHash<int, QmlV8ObjectData> refVals; // The mapping of target object handles to retrieved values.
     int sequence = -1;
     QmlEngine *engine;
     QHash<BreakpointModelId, int> breakpoints;
@@ -1655,7 +1655,7 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
     if (dataMap.contains(_(REF))) {
         objectData.handle = dataMap.value(_(REF)).toInt();
         if (refVals.contains(objectData.handle)) {
-            QmlV8ObjectData data = extractData(refVals.value(objectData.handle));
+            QmlV8ObjectData data = refVals.value(objectData.handle);
             objectData.type = data.type;
             objectData.value = data.value;
             objectData.properties = data.properties;
@@ -1755,7 +1755,7 @@ void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
         foreach (const QVariant &ref, refs.toList()) {
             const QVariantMap refData = ref.toMap();
             int handle = refData.value(_(HANDLE)).toInt();
-            refVals[handle] = refData;
+            refVals[handle] = extractData(refData);
         }
     }
 }
