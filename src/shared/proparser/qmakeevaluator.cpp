@@ -1006,6 +1006,8 @@ void QMakeEvaluator::loadDefaults()
         vars[ProKey("QMAKE_QMAKE")] << ProString(m_option->qmake_abslocation);
     if (!m_option->qmake_args.isEmpty())
         vars[ProKey("QMAKE_ARGS")] = ProStringList(m_option->qmake_args);
+    if (!m_option->qtconf.isEmpty())
+        vars[ProKey("QMAKE_QTCONF")] = ProString(m_option->qtconf);
     vars[ProKey("QMAKE_HOST.cpu_count")] = ProString(QString::number(idealThreadCount()));
 #if defined(Q_OS_WIN32)
     vars[ProKey("QMAKE_HOST.os")] << ProString("Windows");

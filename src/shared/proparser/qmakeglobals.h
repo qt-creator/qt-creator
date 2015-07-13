@@ -103,6 +103,7 @@ public:
     QString qmake_abslocation;
     QStringList qmake_args;
 
+    QString qtconf;
     QString qmakespec, xqmakespec;
     QString user_template, user_template_prefix;
     QString precmds, postcmds;

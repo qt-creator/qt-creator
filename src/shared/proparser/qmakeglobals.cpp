@@ -103,7 +103,7 @@ QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &s
 QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
         QMakeCmdLineParserState &state, QStringList &args, int *pos)
 {
-    enum { ArgNone, ArgConfig, ArgSpec, ArgXSpec, ArgTmpl, ArgTmplPfx, ArgCache } argState = ArgNone;
+    enum { ArgNone, ArgConfig, ArgSpec, ArgXSpec, ArgTmpl, ArgTmplPfx, ArgCache, ArgQtConf } argState = ArgNone;
     for (; *pos < args.count(); (*pos)++) {
         QString arg = args.at(*pos);
         switch (argState) {
@@ -128,6 +128,9 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
         case ArgCache:
             cachefile = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
             break;
+        case ArgQtConf:
+            qtconf = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
+            break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
                 if (arg == QLatin1String("-after"))
@@ -138,6 +141,8 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
                     do_cache = false;
                 else if (arg == QLatin1String("-cache"))
                     argState = ArgCache;
+                else if (arg == QLatin1String("-qtconf"))
+                    argState = ArgQtConf;
                 else if (arg == QLatin1String("-platform") || arg == QLatin1String("-spec"))
                     argState = ArgSpec;
                 else if (arg == QLatin1String("-xplatform") || arg == QLatin1String("-xspec"))
