@@ -1,10 +1,12 @@
 TEMPLATE = aux
 
-content.files = \
-    autotest
+STATIC_BASE = $$PWD
+STATIC_DIRS = templates
 
-content.path = $$QTC_PREFIX/share/qtcreator/templates/wizards
+for(data_dir, STATIC_DIRS) {
+    files = $$files($$STATIC_BASE/$$data_dir/*, true)
+    for(file, files): !exists($$file/*): STATIC_FILES += $$file
+}
 
-OTHER_FILES += $${content.files}
+include(../../qtcreator/share/qtcreator/static.pri)
 
-INSTALLS += content
