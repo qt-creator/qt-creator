@@ -1,5 +1,3 @@
-include(../../qtcreator.pri)
-
 TEMPLATE = app
 TARGET = phony_target
 CONFIG -= qt sdk separate_debug_info gdb_dwarf_index
@@ -23,6 +21,9 @@ isEmpty(vcproj) {
     QMAKE_EXTRA_COMPILERS += phony_src
 }
 
+STATIC_BASE = $$PWD
+
+# files/folders that are conditionally "deployed" to the build directory
 DATA_DIRS = \
     welcomescreen \
     examplebrowser \
@@ -46,28 +47,14 @@ macx: DATA_DIRS += scripts
 for(data_dir, DATA_DIRS) {
     files = $$files($$PWD/$$data_dir/*, true)
     # Info.plist.in are handled below
-    for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*):FILES += $$file
+    for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*): \
+        STATIC_FILES += $$file
 }
 
-# conditionally deployed data
-!isEmpty(copydata) {
-    copy2build.input = FILES
-    copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
-    isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
-    win32:copy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
-    unix:copy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
-    copy2build.name = COPY ${QMAKE_FILE_IN}
-    copy2build.CONFIG += no_link
-    QMAKE_EXTRA_COMPILERS += copy2build
-}
+include(static.pri)
 
-!macx {
-    for(data_dir, DATA_DIRS) {
-        eval($${data_dir}.files = $$quote($$PWD/$$data_dir))
-        eval($${data_dir}.path = $$QTC_PREFIX/share/qtcreator)
-        INSTALLS += $$data_dir
-    }
-} else {
+# stuff that cannot be handled by static.pri
+osx {
    # do version magic for app bundles
    dumpinfo.input = qml/qmldump/Info.plist.in
    dumpinfo.output = $$IDE_DATA_PATH/qml/qmldump/Info.plist
