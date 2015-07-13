@@ -265,7 +265,7 @@ static QStringList findFilesInProject(const QString &name,
     const QStringList::const_iterator pcend = projectFiles.constEnd();
     QStringList candidateList;
     for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {
-        if (it->endsWith(pattern))
+        if (it->endsWith(pattern, Utils::HostOsInfo::fileNameCaseSensitivity()))
             candidateList.append(*it);
     }
     return candidateList;
@@ -342,12 +342,17 @@ static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringL
     return result;
 }
 
-static int commonStringLength(const QString &s1, const QString &s2)
+static int commonFilePathLength(const QString &s1, const QString &s2)
 {
     int length = qMin(s1.length(), s2.length());
     for (int i = 0; i < length; ++i)
-        if (s1[i] != s2[i])
-            return i;
+        if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive) {
+            if (s1[i] != s2[i])
+                return i;
+        } else {
+            if (s1[i].toLower() != s2[i].toLower())
+                return i;
+        }
     return length;
 }
 
@@ -362,7 +367,7 @@ static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
         const QStringList projectFiles = findFilesInProject(candidateFileName, project);
         // Find the file having the most common path with fileName
         foreach (const QString &projectFile, projectFiles) {
-            int value = commonStringLength(filePath, projectFile);
+            int value = commonFilePathLength(filePath, projectFile);
             if (value > compareValue) {
                 compareValue = value;
                 bestFileName = projectFile;
