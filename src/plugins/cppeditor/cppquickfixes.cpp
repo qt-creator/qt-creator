@@ -1832,7 +1832,7 @@ NameAST *nameUnderCursor(const QList<AST *> &path)
 
 bool canLookupDefinition(const CppQuickFixInterface &interface, const NameAST *nameAst)
 {
-    QTC_ASSERT(nameAst, return false);
+    QTC_ASSERT(nameAst && nameAst->name, return false);
 
     // Find the enclosing scope
     unsigned line, column;
@@ -1909,7 +1909,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
                                              QuickFixOperations &result)
 {
     const NameAST *nameAst = nameUnderCursor(interface.path());
-    if (!nameAst)
+    if (!nameAst || !nameAst->name)
         return;
 
     if (canLookupDefinition(interface, nameAst))
@@ -5852,7 +5852,7 @@ bool onConnectOrDisconnectCall(AST *ast, const ExpressionListAST **arguments)
         return false;
 
     const IdExpressionAST *idExpr = call->base_expression->asIdExpression();
-    if (!idExpr)
+    if (!idExpr || !idExpr->name || !idExpr->name->name)
         return false;
 
     const ExpressionListAST *args = call->expression_list;
