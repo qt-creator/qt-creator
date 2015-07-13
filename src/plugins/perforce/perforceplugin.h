@@ -246,7 +246,6 @@ private:
     bool m_submitActionTriggered;
     QAction *m_diffSelectedFiles;
     QString m_commitMessageFileName;
-    QString m_commitWorkingDirectory;
     mutable QString m_tempFilePattern;
     QAction *m_undoAction;
     QAction *m_redoAction;

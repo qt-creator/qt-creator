@@ -668,7 +668,7 @@ IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentLogAction, m_diffSelectedFiles);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &PerforcePlugin::slotSubmitDiff);
-    submitEditor->setCheckScriptWorkingDirectory(m_commitWorkingDirectory);
+    submitEditor->setCheckScriptWorkingDirectory(m_settings.topLevel());
     return editor;
 }
 
@@ -1250,7 +1250,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
 
 void PerforcePlugin::slotSubmitDiff(const QStringList &files)
 {
-    p4Diff(m_commitWorkingDirectory, files);
+    p4Diff(m_settings.topLevel(), files);
 }
 
 struct PerforceDiffParameters
@@ -1368,7 +1368,6 @@ void PerforcePlugin::cleanCommitMessageFile()
     if (!m_commitMessageFileName.isEmpty()) {
         QFile::remove(m_commitMessageFileName);
         m_commitMessageFileName.clear();
-        m_commitWorkingDirectory.clear();
     }
 }
 
