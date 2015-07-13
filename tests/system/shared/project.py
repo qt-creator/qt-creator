@@ -634,7 +634,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.extend([Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
-        if not ("BlackBerry" in templateName or re.search("custom Qt Creator plugin", text)) and (version == None or version < "5.0"):
+        if not templateName == "Qt Creator Plugin" and (version == None or version < "5.0"):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         result = list(Targets.ALL_TARGETS)
