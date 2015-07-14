@@ -143,6 +143,7 @@ private:
 
     void onBackendRestarted();
     void onEditorAboutToClose(Core::IEditor *editor);
+    void onCoreAboutToClose();
 
     IpcReceiver m_ipcReceiver;
     ClangBackEnd::ConnectionClient m_connection;
