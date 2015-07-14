@@ -110,6 +110,8 @@ void DocumentWarningWidget::setError(const RewriterError &error)
         m_goToError->hide();
     }
 
+    str.prepend(tr("Cannot open this QML document because of an error in the QML file:\n\n"));
+
     m_errorMessage->setText(str);
     resize(layout()->totalSizeHint());
 }
