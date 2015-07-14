@@ -58,6 +58,8 @@ private Q_SLOTS:
     void testSimpleFormat_data();
     void testLineOverlappingFormat();
     void testSplitControlSequence();
+    void oneLineBenchmark();
+    void multiLineBenchmark();
 
 private:
     const QString red;
@@ -301,6 +303,36 @@ void tst_AnsiEscapeCodeHandler::testSplitControlSequence()
     QCOMPARE(result[0].format, defaultFormat);
     QCOMPARE(result[1].text, QLatin1String(" bold line"));
     QCOMPARE(result[1].format, boldFormat);
+}
+
+void tst_AnsiEscapeCodeHandler::oneLineBenchmark()
+{
+    const QString line = QLatin1String("Normal text")
+            + mustard256 + QLatin1String(" mustard text ")
+            + bold + QLatin1String(" bold text ")
+            + grayBackground256 + QLatin1String(" gray background text");
+    AnsiEscapeCodeHandler handler;
+    QTextCharFormat defaultFormat;
+
+    QBENCHMARK {
+        handler.parseText(FormattedText(line, defaultFormat));
+    }
+}
+
+void tst_AnsiEscapeCodeHandler::multiLineBenchmark()
+{
+    const QString line1 = QLatin1String("Normal text")
+            + mustard256 + QLatin1String(" mustard text ")
+            + bold;
+    const QString line2 = QLatin1String(" bold text ")
+            + grayBackground256 + QLatin1String(" gray background text");
+    AnsiEscapeCodeHandler handler;
+    QTextCharFormat defaultFormat;
+
+    QBENCHMARK {
+        handler.parseText(FormattedText(line1, defaultFormat));
+        handler.parseText(FormattedText(line2, defaultFormat));
+    }
 }
 
 QTEST_APPLESS_MAIN(tst_AnsiEscapeCodeHandler)
