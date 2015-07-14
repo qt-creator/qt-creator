@@ -81,7 +81,7 @@ private:
                            int order = 0,
                            const QVariant &data = QVariant());
 
-    void sendFileContent(const QString &projectFilePath, const QByteArray &modifiedFileContent);
+    void sendFileContent(const QString &projectPartId, const QByteArray &modifiedFileContent);
     void sendCompletionRequest(int position, const QByteArray &modifiedFileContent);
 
     void onCompletionsAvailable(const CodeCompletions &completions);

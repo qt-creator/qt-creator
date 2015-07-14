@@ -218,16 +218,16 @@ ProjectPart::Ptr projectPartForFile(const QString &filePath)
 bool isProjectPartValid(const ProjectPart::Ptr projectPart)
 {
     if (projectPart)
-        return CppModelManager::instance()->projectPartForProjectFile(projectPart->projectFile);
+        return CppModelManager::instance()->projectPartForId(projectPart->id());
     return false;
 }
 
-QString projectFilePathForFile(const QString &filePath)
+QString projectPartIdForFile(const QString &filePath)
 {
     const ProjectPart::Ptr projectPart = projectPartForFile(filePath);
 
     if (isProjectPartValid(projectPart))
-        return projectPart->projectFile; // OK, Project Part is still loaded
+        return projectPart->id(); // OK, Project Part is still loaded
     return QString();
 }
 

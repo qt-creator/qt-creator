@@ -310,8 +310,7 @@ static ClangBackEnd::ProjectPartContainer toProjectPartContainer(
         const CppTools::ProjectPart::Ptr &projectPart)
 {
     const QStringList arguments = projectPartCommandLine(projectPart);
-    return ClangBackEnd::ProjectPartContainer(projectPart->projectFile,
-                                                  Utf8StringVector(arguments));
+    return ClangBackEnd::ProjectPartContainer(projectPart->id(), Utf8StringVector(arguments));
 }
 
 static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
@@ -339,13 +338,13 @@ void IpcCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &file
 
 void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArray &contents)
 {
-    const QString projectFilePath = Utils::projectFilePathForFile(filePath);
+    const QString projectPartId = Utils::projectPartIdForFile(filePath);
     const bool hasUnsavedContent = true;
 
     // TODO: Send new only if changed
     registerFilesForCodeCompletion({
         ClangBackEnd::FileContainer(filePath,
-            projectFilePath,
+            projectPartId,
             Utf8String::fromByteArray(contents),
             hasUnsavedContent)
     });
@@ -432,12 +431,12 @@ void IpcCommunicator::registerProjectPartsForCodeCompletion(
     m_ipcSender->registerProjectPartsForCodeCompletion(command);
 }
 
-void IpcCommunicator::unregisterProjectPartsForCodeCompletion(const QStringList &filePaths)
+void IpcCommunicator::unregisterProjectPartsForCodeCompletion(const QStringList &projectPartIds)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const UnregisterProjectPartsForCodeCompletionCommand command((Utf8StringVector(filePaths)));
+    const UnregisterProjectPartsForCodeCompletionCommand command((Utf8StringVector(projectPartIds)));
     qCDebug(log) << ">>>" << command;
     m_ipcSender->unregisterProjectPartsForCodeCompletion(command);
 }

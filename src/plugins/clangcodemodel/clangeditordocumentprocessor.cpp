@@ -132,13 +132,13 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
     const CppTools::ProjectPart::Ptr projectPart = m_parser.projectPart();
     QTC_ASSERT(projectPart, return);
 
-    QString projectFilePath;
+    QString projectPartId;
     if (Utils::isProjectPartValid(projectPart))
-        projectFilePath = projectPart->projectFile; // OK, Project Part is still loaded
+        projectPartId = projectPart->id(); // OK, Project Part is still loaded
 
     QTC_ASSERT(m_modelManagerSupport, return);
     m_modelManagerSupport->ipcCommunicator().unregisterFilesForCodeCompletion(
-        {ClangBackEnd::FileContainer(filePath(), projectFilePath)});
+        {ClangBackEnd::FileContainer(filePath(), projectPartId)});
 }
 
 void ClangEditorDocumentProcessor::run()

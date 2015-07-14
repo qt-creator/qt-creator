@@ -137,7 +137,7 @@ public:
     mutable QMutex m_projectMutex;
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
     QMap<Utils::FileName, QList<ProjectPart::Ptr> > m_fileToProjectParts;
-    QMap<QString, ProjectPart::Ptr> m_projectFileToProjectPart;
+    QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
@@ -710,12 +710,12 @@ void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove
         d->m_snapshot.remove(i.next());
 }
 
-static QStringList projectFilePaths(const QSet<ProjectPart::Ptr> &projectParts)
+static QStringList projectPartIds(const QSet<ProjectPart::Ptr> &projectParts)
 {
     QStringList result;
     QSetIterator<ProjectPart::Ptr> it(projectParts);
     while (it.hasNext())
-        result << it.next()->projectFile;
+        result << it.next()->id();
     return result;
 }
 
@@ -752,7 +752,7 @@ public:
     {
         QSet<ProjectPart::Ptr> removed = m_old.projectParts().toSet();
         removed.subtract(m_new.projectParts().toSet());
-        return projectFilePaths(removed);
+        return projectPartIds(removed);
     }
 
     /// Returns a list of common files that have a changed timestamp.
@@ -781,13 +781,13 @@ private:
 };
 
 /// Make sure that m_projectMutex is locked when calling this.
-void CppModelManager::recalculateFileToProjectParts()
+void CppModelManager::recalculateProjectPartMappings()
 {
-    d->m_projectFileToProjectPart.clear();
+    d->m_projectPartIdToProjectProjectPart.clear();
     d->m_fileToProjectParts.clear();
     foreach (const ProjectInfo &projectInfo, d->m_projectToProjectsInfo) {
         foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
-            d->m_projectFileToProjectPart[projectPart->projectFile] = projectPart;
+            d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             foreach (const ProjectFile &cxxFile, projectPart->files)
                 d->m_fileToProjectParts[Utils::FileName::fromString(cxxFile.path)].append(
                             projectPart);
@@ -883,7 +883,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
 
         // Update Project/ProjectInfo and File/ProjectPart table
         d->m_projectToProjectsInfo.insert(project, newProjectInfo);
-        recalculateFileToProjectParts();
+        recalculateProjectPartMappings();
 
     } // Mutex scope
 
@@ -908,9 +908,9 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     return updateSourceFiles(filesToReindex, ForcedProgressNotification);
 }
 
-ProjectPart::Ptr CppModelManager::projectPartForProjectFile(const QString &projectFile) const
+ProjectPart::Ptr CppModelManager::projectPartForId(const QString &projectPartId) const
 {
-    return d->m_projectFileToProjectPart.value(projectFile);
+    return d->m_projectPartIdToProjectProjectPart.value(projectPartId);
 }
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const Utils::FileName &fileName) const
@@ -981,17 +981,17 @@ void CppModelManager::delayedGC()
         d->m_delayedGcTimer.start(500);
 }
 
-static QStringList pathsOfAllProjectParts(const ProjectInfo &projectInfo)
+static QStringList idsOfAllProjectParts(const ProjectInfo &projectInfo)
 {
     QStringList projectPaths;
     foreach (const ProjectPart::Ptr &part, projectInfo.projectParts())
-        projectPaths << part->projectFile;
+        projectPaths << part->id();
     return projectPaths;
 }
 
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
-    QStringList projectFilePaths;
+    QStringList projectPartIds;
 
     {
         QMutexLocker locker(&d->m_projectMutex);
@@ -999,14 +999,14 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 
         // Save paths
         const ProjectInfo projectInfo = d->m_projectToProjectsInfo.value(project, ProjectInfo());
-        projectFilePaths = pathsOfAllProjectParts(projectInfo);
+        projectPartIds = idsOfAllProjectParts(projectInfo);
 
         d->m_projectToProjectsInfo.remove(project);
-        recalculateFileToProjectParts();
+        recalculateProjectPartMappings();
     }
 
-    if (!projectFilePaths.isEmpty())
-        emit projectPartsRemoved(projectFilePaths);
+    if (!projectPartIds.isEmpty())
+        emit projectPartsRemoved(projectPartIds);
 
     delayedGC();
 }
@@ -1085,7 +1085,7 @@ void CppModelManager::onAboutToUnloadSession()
     do {
         QMutexLocker locker(&d->m_projectMutex);
         d->m_projectToProjectsInfo.clear();
-        recalculateFileToProjectParts();
+        recalculateProjectPartMappings();
         d->m_dirty = true;
     } while (0);
 }

@@ -302,7 +302,7 @@ static QByteArray modifyInput(QTextDocument *doc, int endOfExpression) {
 
 IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
 {
-    sendFileContent(Utils::projectFilePathForFile(m_interface->fileName()), QByteArray()); // TODO: Remoe
+    sendFileContent(Utils::projectPartIdForFile(m_interface->fileName()), QByteArray()); // TODO: Remove
 
     ClangCompletionContextAnalyzer analyzer(m_interface.data(), m_interface->languageFeatures());
     analyzer.analyze();
@@ -648,7 +648,7 @@ void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
     m_completions.append(item);
 }
 
-void ClangCompletionAssistProcessor::sendFileContent(const QString &projectFilePath,
+void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartId,
                                                      const QByteArray &modifiedFileContent)
 {
     const QString filePath = m_interface->fileName();
@@ -660,7 +660,7 @@ void ClangCompletionAssistProcessor::sendFileContent(const QString &projectFileP
     IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
     ipcCommunicator.registerFilesForCodeCompletion(
         {ClangBackEnd::FileContainer(filePath,
-                       projectFilePath,
+                       projectPartId,
                        Utf8String::fromByteArray(unsavedContent),
                        hasUnsavedContent)});
 }
@@ -673,9 +673,9 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     ++column;
 
     const QString filePath = m_interface->fileName();
-    const QString projectFilePath = Utils::projectFilePathForFile(filePath);
-    sendFileContent(projectFilePath, modifiedFileContent);
-    m_interface->ipcCommunicator().completeCode(this, filePath, line, column, projectFilePath);
+    const QString projectPartId = Utils::projectPartIdForFile(filePath);
+    sendFileContent(projectPartId, modifiedFileContent);
+    m_interface->ipcCommunicator().completeCode(this, filePath, line, column, projectPartId);
 }
 
 TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() const

@@ -159,9 +159,9 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
     if (!cppModelManager()->cppEditorDocument(filePath)) {
-        const QString projectFilePath = Utils::projectFilePathForFile(filePath);
+        const QString projectPartId = Utils::projectPartIdForFile(filePath);
         m_ipcCommunicator.unregisterFilesForCodeCompletion(
-            {ClangBackEnd::FileContainer(filePath, projectFilePath)});
+            {ClangBackEnd::FileContainer(filePath, projectPartId)});
     }
 }
 
@@ -173,9 +173,9 @@ void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *p
     m_ipcCommunicator.registerProjectsParts(projectInfo.projectParts());
 }
 
-void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectFiles)
+void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectPartIds)
 {
-    m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectFiles);
+    m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectPartIds);
 }
 
 #ifdef QT_TESTLIB_LIB

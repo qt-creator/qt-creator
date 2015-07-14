@@ -1048,7 +1048,7 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     QVERIFY(compare(LogOutput(spy.senderLog),
                     LogOutput(
                         "RegisterProjectPartsForCodeCompletionCommand\n"
-                        "  ProjectPartContainer id: qt-widgets-app.pro\n"
+                        "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
@@ -1069,7 +1069,7 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
                         "RegisterProjectPartsForCodeCompletionCommand\n"
                         "  ProjectPartContainer id: \n"
                         "RegisterProjectPartsForCodeCompletionCommand\n"
-                        "  ProjectPartContainer id: qt-widgets-app.pro\n"
+                        "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"

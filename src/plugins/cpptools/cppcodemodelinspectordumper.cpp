@@ -491,7 +491,7 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             }
             if (!part->projectConfigFile.isEmpty())
                 m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";
-            m_out << i2 << "Project Part \"" << part->projectFile << "\"{{{3\n";
+            m_out << i2 << "Project Part \"" << part->id() << "\"{{{3\n";
             m_out << i3 << "Project Part Name   : " << part->displayName << "\n";
             m_out << i3 << "Project Name        : " << projectName << "\n";
             m_out << i3 << "Project File        : " << projectFilePath << "\n";
