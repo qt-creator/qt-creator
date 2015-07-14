@@ -130,7 +130,6 @@ GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const 
     CoreInfo cinfo;
 #if 0
     ElfReader reader(coreFile);
-    cinfo.isCore = false;
     cinfo.rawStringFromCore = QString::fromLocal8Bit(reader.readCoreName(&cinfo.isCore));
     cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
 #else
@@ -161,7 +160,6 @@ GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const 
             }
         }
     }
-    cinfo.isCore = false;
 #endif
     return cinfo;
 }
