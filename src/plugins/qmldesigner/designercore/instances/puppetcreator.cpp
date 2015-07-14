@@ -407,7 +407,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
         if (progressDialog->useFallbackPuppet())
             return false;
 
-        QApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+        QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
 
         QByteArray newOutput = process.readAllStandardOutput();
         if (!newOutput.isEmpty()) {
