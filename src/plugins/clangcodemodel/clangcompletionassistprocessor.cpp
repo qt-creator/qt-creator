@@ -302,8 +302,6 @@ static QByteArray modifyInput(QTextDocument *doc, int endOfExpression) {
 
 IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
 {
-    sendFileContent(Utils::projectPartIdForFile(m_interface->fileName()), QByteArray()); // TODO: Remove
-
     ClangCompletionContextAnalyzer analyzer(m_interface.data(), m_interface->languageFeatures());
     analyzer.analyze();
     m_completionOperator = analyzer.completionOperator();
@@ -649,24 +647,29 @@ void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
 }
 
 void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartId,
-                                                     const QByteArray &modifiedFileContent)
+                                                     const QByteArray &customFileContent)
 {
-    const QString filePath = m_interface->fileName();
-    const QByteArray unsavedContent = modifiedFileContent.isEmpty()
-            ? m_interface->textDocument()->toPlainText().toUtf8()
-            : modifiedFileContent;
-    const bool hasUnsavedContent = true; // TODO
+    const QTextDocument *textDocument = m_interface->textDocument();
+    const bool hasCustomModification = !customFileContent.isEmpty();
+    const bool documentIsModified = hasCustomModification || textDocument->isModified();
+    // TODO: Revert custom modification after the completions
+    QByteArray unsavedContent;
+    if (documentIsModified) {
+        unsavedContent = hasCustomModification
+                       ? customFileContent
+                       : m_interface->textDocument()->toPlainText().toUtf8();
+    }
 
     IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
     ipcCommunicator.registerFilesForCodeCompletion(
-        {ClangBackEnd::FileContainer(filePath,
+        {ClangBackEnd::FileContainer(m_interface->fileName(),
                        projectPartId,
                        Utf8String::fromByteArray(unsavedContent),
-                       hasUnsavedContent)});
+                       documentIsModified)});
 }
 
 void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
-                                                           const QByteArray &modifiedFileContent)
+                                                           const QByteArray &customFileContent)
 {
     int line, column;
     TextEditor::Convenience::convertPosition(m_interface->textDocument(), position, &line, &column);
@@ -674,7 +677,7 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
 
     const QString filePath = m_interface->fileName();
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
-    sendFileContent(projectPartId, modifiedFileContent);
+    sendFileContent(projectPartId, customFileContent);
     m_interface->ipcCommunicator().completeCode(this, filePath, line, column, projectPartId);
 }
 
