@@ -69,14 +69,13 @@ public:
     static QString findCbpFile(const QDir &);
 
 private:
-    void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
+    void updateRunCmakeAction();
     void runCMake(ProjectExplorer::Project *project);
 
 private:
     CMakeSettingsPage *m_settingsPage;
     QAction *m_runCMakeAction;
     QAction *m_runCMakeActionContextMenu;
-    ProjectExplorer::Project *m_contextProject;
 };
 
 } // namespace Internal

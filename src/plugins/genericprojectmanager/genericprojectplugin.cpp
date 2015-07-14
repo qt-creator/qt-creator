@@ -58,10 +58,6 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-GenericProjectPlugin::GenericProjectPlugin()
-    : m_contextMenuProject(0)
-{ }
-
 bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -85,15 +81,14 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 
     connect(editFilesAction, &QAction::triggered, this, &GenericProjectPlugin::editFiles);
 
-    connect(ProjectTree::instance(), &ProjectTree::aboutToShowContextMenu,
-            [this] (Project *project, Node *) { m_contextMenuProject = project; });
-
     return true;
 }
 
 void GenericProjectPlugin::editFiles()
 {
-    GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
+    auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject());
+    if (!genericProject)
+        return;
     SelectableFilesDialogEditFiles sfd(genericProject->projectFilePath().toFileInfo().path(), genericProject->files(),
                               ICore::mainWindow());
     if (sfd.exec() == QDialog::Accepted)

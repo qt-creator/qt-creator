@@ -50,8 +50,6 @@ class GenericProjectPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
 
 public:
-    GenericProjectPlugin();
-
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized() {}
 
@@ -64,9 +62,6 @@ private slots:
     void test_mixed1();
     void test_mixed2();
 #endif // WITH_TESTS
-
-private:
-    ProjectExplorer::Project *m_contextMenuProject;
 };
 
 } // namespace Internal
