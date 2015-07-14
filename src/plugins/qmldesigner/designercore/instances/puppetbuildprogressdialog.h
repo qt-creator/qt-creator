@@ -52,6 +52,7 @@ public:
     void newBuildOutput(const QByteArray &standardOutput);
     bool useFallbackPuppet() const;
     void setErrorOutputFile(const QString &filePath);
+    void setErrorMessage(const QString &message);
 
 private slots:
     void setUseFallbackPuppet();

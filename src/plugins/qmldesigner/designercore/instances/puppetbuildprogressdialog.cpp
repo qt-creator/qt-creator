@@ -59,7 +59,6 @@ PuppetBuildProgressDialog::~PuppetBuildProgressDialog()
 void PuppetBuildProgressDialog::setProgress(int progress)
 {
     ui->buildProgressBar->setValue(progress);
-    QApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
 }
 
 bool PuppetBuildProgressDialog::useFallbackPuppet() const
@@ -71,6 +70,13 @@ void PuppetBuildProgressDialog::setErrorOutputFile(const QString &filePath)
 {
     ui->openErrorOutputFileLabel->setText(QString::fromLatin1("<a href='file:///%1'>%2</a>").arg(
         filePath, ui->openErrorOutputFileLabel->text()));
+}
+
+void PuppetBuildProgressDialog::setErrorMessage(const QString &message)
+{
+    ui->label->setText(QString::fromLatin1("<font color='red'>%1</font>").arg(message));
+    ui->useFallbackPuppetPushButton->setText(tr("OK"));
+    connect(ui->useFallbackPuppetPushButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 void PuppetBuildProgressDialog::setUseFallbackPuppet()

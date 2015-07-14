@@ -228,15 +228,17 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                     buildArguments.append(idealProcessCount());
                 }
                 buildSucceeded = startBuildProcess(buildDirectory.path(), buildingCommand, buildArguments, &progressDialog);
-                progressDialog.close();
             }
 
-            if (!buildSucceeded)
-                Core::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "QML Emulation Layer (QML Puppet) Building was Unsuccessful"),
-                                                       QCoreApplication::translate("PuppetCreator",
-                                                                     "The QML emulation layer (QML Puppet) cannot be built. "
-                                                                     "The fallback emulation layer, which does not support all features, will be used."
-                                                                     ));
+            if (!buildSucceeded) {
+                progressDialog.setWindowTitle(QCoreApplication::translate("PuppetCreator", "QML Emulation Layer (QML Puppet) Building was Unsuccessful"));
+                progressDialog.setErrorMessage(QCoreApplication::translate("PuppetCreator",
+                                                                           "The QML emulation layer (QML Puppet) cannot be built. "
+                                                                           "The fallback emulation layer, which does not support all features, will be used."
+                                                                           ));
+                // now we want to keep the dialog open
+                progressDialog.exec();
+            }
         }
     } else {
         Core::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
