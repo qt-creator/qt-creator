@@ -83,6 +83,8 @@
 #endif
 # define XSDEBUG(s) qDebug() << s
 
+#define CB(callback) [this](const QVariantMap &r) { callback(r); }
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QmlDebug;
@@ -116,6 +118,8 @@ struct QmlV8ObjectData
     QVariantList properties;
 };
 
+typedef std::function<void(const QVariantMap &)> QmlCallback;
+
 class QmlEnginePrivate : QmlDebugClient
 {
 public:
@@ -134,8 +138,8 @@ public:
 
     void evaluate(const QString expr, bool global = false, bool disableBreak = false,
                   int frame = -1, bool addContext = false);
-    void lookup(const QList<int> handles, bool includeSource = false);
-    void backtrace(int fromFrame = -1, int toFrame = -1, bool bottom = false);
+    void lookup(const QList<int> handles);
+    void backtrace();
     void frame(int number);
     void scope(int number, int frameNumber = -1);
     void scripts(int types = 4, const QList<int> ids = QList<int>(),
@@ -152,17 +156,19 @@ public:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void flushSendBuffer();
 
-    void handleBacktrace(const QVariant &bodyVal);
-    void handleLookup(const QVariant &bodyVal);
+    void handleBacktrace(const QVariantMap &response);
+    void handleLookup(const QVariantMap &response);
     void handleEvaluate(int sequence, bool success, const QVariant &bodyVal);
-    void handleFrame(const QVariant &bodyVal);
-    void handleScope(const QVariant &bodyVal);
+    void handleFrame(const QVariantMap &response);
+    void handleFrameHelper(const QVariantMap &currentFrame);
+    void handleScope(const QVariantMap &response);
+    void handleVersion(const QVariantMap &response);
     StackFrame extractStackFrame(const QVariant &bodyVal);
 
     bool canEvaluateScript(const QString &script);
     void updateScriptSource(const QString &fileName, int lineOffset, int columnOffset, const QString &source);
 
-    void runCommand(const DebuggerCommand &command);
+    void runCommand(const DebuggerCommand &command, const QmlCallback &cb = QmlCallback());
     void runDirectCommand(const QByteArray &type, const QByteArray &msg = QByteArray());
 
     void clearRefs() { refVals.clear(); }
@@ -208,6 +214,8 @@ public:
     QTimer connectionTimer;
     QmlDebug::QmlDebugConnection *connection;
     QmlDebug::QDebugMessageClient *msgClient = 0;
+
+    QHash<int, QmlCallback> callbackForToken;
 };
 
 static void updateDocument(IDocument *document, const QTextDocument *textDocument)
@@ -1389,7 +1397,7 @@ void QmlEnginePrivate::evaluate(const QString expr, bool global,
     runCommand(cmd);
 }
 
-void QmlEnginePrivate::lookup(QList<int> handles, bool includeSource)
+void QmlEnginePrivate::lookup(QList<int> handles)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1402,16 +1410,11 @@ void QmlEnginePrivate::lookup(QList<int> handles, bool includeSource)
     //    }
 
     DebuggerCommand cmd(LOOKUP);
-
     cmd.arg(HANDLES, handles);
-
-    if (includeSource)
-        cmd.arg(INCLUDESOURCE, includeSource);
-
-    runCommand(cmd);
+    runCommand(cmd, CB(handleLookup));
 }
 
-void QmlEnginePrivate::backtrace(int fromFrame, int toFrame, bool bottom)
+void QmlEnginePrivate::backtrace()
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1424,17 +1427,7 @@ void QmlEnginePrivate::backtrace(int fromFrame, int toFrame, bool bottom)
     //    }
 
     DebuggerCommand cmd(BACKTRACE);
-
-    if (fromFrame != -1)
-        cmd.arg(FROMFRAME, fromFrame);
-
-    if (toFrame != -1)
-        cmd.arg(TOFRAME, toFrame);
-
-    if (bottom)
-        cmd.arg(BOTTOM, bottom);
-
-    runCommand(cmd);
+    runCommand(cmd, CB(handleBacktrace));
 }
 
 void QmlEnginePrivate::frame(int number)
@@ -1450,7 +1443,7 @@ void QmlEnginePrivate::frame(int number)
     if (number != -1)
         cmd.arg(NUMBER, number);
 
-    runCommand(cmd);
+    runCommand(cmd, CB(handleFrame));
 }
 
 void QmlEnginePrivate::scope(int number, int frameNumber)
@@ -1469,7 +1462,7 @@ void QmlEnginePrivate::scope(int number, int frameNumber)
     if (frameNumber != -1)
         cmd.arg(FRAMENUMBER, frameNumber);
 
-    runCommand(cmd);
+    runCommand(cmd, CB(handleScope));
 }
 
 void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSource,
@@ -1709,12 +1702,15 @@ void QmlEnginePrivate::clearCache()
     updateLocalsAndWatchers.clear();
 }
 
-void QmlEnginePrivate::runCommand(const DebuggerCommand &command)
+void QmlEnginePrivate::runCommand(const DebuggerCommand &command, const QmlCallback &cb)
 {
     QByteArray msg = "{\"seq\":" + QByteArray::number(++sequence) + ","
                    +  "\"type\":\"request\","
                    +  "\"command\":\"" + command.function + "\","
                    +  "\"arguments\":{" + command.arguments() + "}}";
+    if (cb)
+        callbackForToken[sequence] = cb;
+
     runDirectCommand(V8REQUEST, msg);
 }
 
@@ -1793,6 +1789,8 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
             if (type == _("response")) {
 
+                const QString debugCommand(resp.value(_(COMMAND)).toString());
+
                 memorizeRefs(resp.value(_(REFS)));
 
                 bool success = resp.value(_("success")).toBool();
@@ -1800,21 +1798,15 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     SDEBUG("Request was unsuccessful");
                 }
 
-                const QString debugCommand(resp.value(_(COMMAND)).toString());
+                int requestSeq = resp.value(_("request_seq")).toInt();
+                if (callbackForToken.contains(requestSeq)) {
+                    callbackForToken[requestSeq](resp);
 
-                if (debugCommand == _(DISCONNECT)) {
+                } else if (debugCommand == _(DISCONNECT)) {
                     //debugging session ended
 
                 } else if (debugCommand == _(CONTINEDEBUGGING)) {
                     //do nothing, wait for next break
-
-                } else if (debugCommand == _(BACKTRACE)) {
-                    if (success)
-                        handleBacktrace(resp.value(_(BODY)));
-
-                } else if (debugCommand == _(LOOKUP)) {
-                    if (success)
-                        handleLookup(resp.value(_(BODY)));
 
                 } else if (debugCommand == _(EVALUATE)) {
                     int seq = resp.value(_("request_seq")).toInt();
@@ -1886,14 +1878,6 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     //                }
 
 
-                } else if (debugCommand == _(FRAME)) {
-                    if (success)
-                        handleFrame(resp.value(_(BODY)));
-
-                } else if (debugCommand == _(SCOPE)) {
-                    if (success)
-                        handleScope(resp.value(_(BODY)));
-
                 } else if (debugCommand == _(SCRIPTS)) {
                     //                { "seq"         : <number>,
                     //                  "type"        : "response",
@@ -1951,11 +1935,6 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         engine->sourceFilesHandler()->setSourceFiles(files);
                         //update open editors
                     }
-                } else if (debugCommand == _(VERSION)) {
-                    engine->showMessage(QString(_("Using V8 Version: %1")).arg(
-                                             resp.value(_(BODY)).toMap().
-                                             value(_("V8Version")).toString()), LogOutput);
-
                 } else {
                     // DO NOTHING
                 }
@@ -2100,7 +2079,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
     }
 }
 
-void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal)
+void QmlEnginePrivate::handleBacktrace(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2115,7 +2094,7 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal)
     //      "success"     : true
     //    }
 
-    const QVariantMap body = bodyVal.toMap();
+    const QVariantMap body = response.value(_(BODY)).toMap();
     const QVariantList frames = body.value(_("frames")).toList();
 
     int fromFrameIndex = body.value(_("fromFrame")).toInt();
@@ -2141,7 +2120,7 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal)
     //Update all Locals visible in current scope
     //Traverse the scope chain and store the local properties
     //in a list and show them in the Locals Window.
-    handleFrame(frames.value(0));
+    handleFrameHelper(frames.value(0).toMap());
 }
 
 StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
@@ -2205,7 +2184,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     return stackFrame;
 }
 
-void QmlEnginePrivate::handleFrame(const QVariant &bodyVal)
+void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2237,8 +2216,11 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal)
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
-    QVariantMap currentFrame = bodyVal.toMap();
+    handleFrameHelper(response.value(_(BODY)).toMap());
+}
 
+void QmlEnginePrivate::handleFrameHelper(const QVariantMap &currentFrame)
+{
     StackHandler *stackHandler = engine->stackHandler();
     WatchHandler * watchHandler = engine->watchHandler();
     watchHandler->notifyUpdateStarted();
@@ -2295,7 +2277,7 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal)
     engine->stackFrameCompleted();
 }
 
-void QmlEnginePrivate::handleScope(const QVariant &bodyVal)
+void QmlEnginePrivate::handleScope(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2318,7 +2300,7 @@ void QmlEnginePrivate::handleScope(const QVariant &bodyVal)
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
-    QVariantMap bodyMap = bodyVal.toMap();
+    QVariantMap bodyMap = response.value(_(BODY)).toMap();
 
     //Check if the frameIndex is same as current Stack Index
     StackHandler *stackHandler = engine->stackHandler();
@@ -2485,7 +2467,7 @@ void QmlEnginePrivate::handleEvaluate(int sequence, bool success, const QVariant
     }
 }
 
-void QmlEnginePrivate::handleLookup(const QVariant &bodyVal)
+void QmlEnginePrivate::handleLookup(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2495,7 +2477,7 @@ void QmlEnginePrivate::handleLookup(const QVariant &bodyVal)
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
-    const QVariantMap body = bodyVal.toMap();
+    const QVariantMap body = response.value(_(BODY)).toMap();
 
     QStringList handlesList = body.keys();
     WatchHandler *watchHandler = engine->watchHandler();
@@ -2537,6 +2519,13 @@ void QmlEnginePrivate::stateChanged(State state)
         runDirectCommand(CONNECT);
         runCommand(VERSION); // Only used for logging.
     }
+}
+
+void QmlEnginePrivate::handleVersion(const QVariantMap &response)
+{
+    engine->showMessage(QString(_("Using V8 Version: %1")).arg(
+                                response.value(_(BODY)).toMap().
+                                value(_("V8Version")).toString()), LogOutput);
 }
 
 void QmlEnginePrivate::sendMessage(const QByteArray &msg)
