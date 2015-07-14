@@ -216,6 +216,7 @@ CMakeToolManager::CMakeToolManager(QObject *parent) :
 CMakeToolManager::~CMakeToolManager()
 {
     delete d->m_writer;
+    qDeleteAll(d->m_cmakeTools);
     delete d;
     d = 0;
 }
