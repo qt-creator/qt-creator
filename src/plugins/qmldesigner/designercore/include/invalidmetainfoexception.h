@@ -39,8 +39,8 @@ class QMLDESIGNERCORE_EXPORT InvalidMetaInfoException : public Exception
 {
 public:
     InvalidMetaInfoException(int line,
-                             const QString &function,
-                             const QString &file);
+                             const QByteArray &function,
+                             const QByteArray &file);
 
     QString type() const;
 

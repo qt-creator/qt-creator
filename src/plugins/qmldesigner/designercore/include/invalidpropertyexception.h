@@ -39,9 +39,9 @@ class QMLDESIGNERCORE_EXPORT InvalidPropertyException : public Exception
 {
 public:
     InvalidPropertyException(int line,
-                             const QString &function,
-                             const QString &file,
-                             const QString &argument);
+                             const QByteArray &function,
+                             const QByteArray &file,
+                             const QByteArray &argument);
 
     QString type() const;
     QString argument() const;

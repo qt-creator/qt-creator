@@ -45,8 +45,8 @@ namespace QmlDesigner {
     the __FILE__ macro.
 */
 InvalidMetaInfoException::InvalidMetaInfoException(int line,
-                                                           const QString &function,
-                                                           const QString &file)
+                                                           const QByteArray &function,
+                                                           const QByteArray &file)
  : Exception(line, function, file)
 {
     createWarning();

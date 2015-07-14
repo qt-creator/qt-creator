@@ -44,11 +44,11 @@ namespace QmlDesigner {
     the __FILE__ macro.
 */
 InvalidQmlSourceException::InvalidQmlSourceException(int line,
-                              const QString &function,
-                              const QString &file,
-                              const QString &qmlSource)
+                              const QByteArray &function,
+                              const QByteArray &file,
+                              const QByteArray &qmlSource)
  :  Exception(line, function, file),
-    m_qmlSource(qmlSource)
+    m_qmlSource(QString::fromUtf8(qmlSource))
 {
     createWarning();
 }

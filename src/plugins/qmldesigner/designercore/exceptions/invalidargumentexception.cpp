@@ -46,10 +46,10 @@ namespace QmlDesigner {
     the __FILE__ macro.
 */
 InvalidArgumentException::InvalidArgumentException(int line,
-                                                   const QString &function,
-                                                   const QString &file,
-                                                   const QString &argument)
- : Exception(line, function, file), m_argument(argument)
+                                                   const QByteArray &function,
+                                                   const QByteArray &file,
+                                                   const QByteArray &argument)
+ : Exception(line, function, file), m_argument(QString::fromLatin1(argument))
 {
     createWarning();
 }

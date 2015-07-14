@@ -193,13 +193,13 @@ void ModelNode::setIdWithoutRefactoring(const QString &id)
     }
 
     if (!isValidId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, InvalidIdException::InvalidCharacters);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toLatin1(), InvalidIdException::InvalidCharacters);
 
     if (id == m_internalNode->id())
         return;
 
     if (view()->hasId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, InvalidIdException::DuplicateId);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toLatin1(), InvalidIdException::DuplicateId);
 
     m_model.data()->d->changeNodeId(internalNode(), id);
 }

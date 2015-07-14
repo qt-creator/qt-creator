@@ -35,12 +35,12 @@
 namespace QmlDesigner {
 
 InvalidIdException::InvalidIdException(int line,
-                                       const QString &function,
-                                       const QString &file,
-                                       const QString &id,
+                                       const QByteArray &function,
+                                       const QByteArray &file,
+                                       const QByteArray &id,
                                        Reason reason) :
     InvalidArgumentException(line, function, file, "id"),
-    m_id(id)
+    m_id(QString::fromLatin1(id))
 {
     if (reason == InvalidCharacters)
         m_description = QCoreApplication::translate("InvalidIdException", "Only alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
@@ -49,13 +49,13 @@ InvalidIdException::InvalidIdException(int line,
 }
 
 InvalidIdException::InvalidIdException(int line,
-                                       const QString &function,
-                                       const QString &file,
-                                       const QString &id,
-                                       const QString &description) :
+                                       const QByteArray &function,
+                                       const QByteArray &file,
+                                       const QByteArray &id,
+                                       const QByteArray &description) :
     InvalidArgumentException(line, function, file, "id"),
-    m_id(id),
-    m_description(description)
+    m_id(QString::fromLatin1(id)),
+    m_description(QString::fromLatin1(description))
 {
     createWarning();
 }

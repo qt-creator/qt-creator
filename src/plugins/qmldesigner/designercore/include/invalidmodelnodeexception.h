@@ -39,8 +39,8 @@ class QMLDESIGNERCORE_EXPORT InvalidModelNodeException : public Exception
 {
 public:
     InvalidModelNodeException(int line,
-                              const QString &function,
-                              const QString &file);
+                              const QByteArray &function,
+                              const QByteArray &file);
 
     QString type() const;
 

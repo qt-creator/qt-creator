@@ -39,9 +39,9 @@ class QMLDESIGNERCORE_EXPORT RewritingException: public Exception
 {
 public:
     RewritingException(int line,
-                       const QString &function,
-                       const QString &file,
-                       const QString &description,
+                       const QByteArray &function,
+                       const QByteArray &file,
+                       const QByteArray &description,
                        const QString &documentTextContent);
 
     virtual QString type() const;

@@ -41,16 +41,16 @@ public:
     enum Reason { InvalidCharacters, DuplicateId };
 
     InvalidIdException(int line,
-                       const QString &function,
-                       const QString &file,
-                       const QString &id,
+                       const QByteArray &function,
+                       const QByteArray &file,
+                       const QByteArray &id,
                        Reason reason);
 
     InvalidIdException(int line,
-                       const QString &function,
-                       const QString &file,
-                       const QString &id,
-                       const QString &description);
+                       const QByteArray &function,
+                       const QByteArray &file,
+                       const QByteArray &id,
+                       const QByteArray &description);
 
     QString type() const;
     QString description() const;

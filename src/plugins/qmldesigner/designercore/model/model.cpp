@@ -201,7 +201,7 @@ InternalNode::Pointer ModelPrivate::createNode(const TypeName &typeName,
                                                bool isRootNode)
 {
     if (typeName.isEmpty())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type"));
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type").toLatin1());
 
     qint32 internalId = 0;
 
@@ -309,8 +309,10 @@ void ModelPrivate::changeNodeId(const InternalNode::Pointer& internalNodePointer
 
     try {
         notifyNodeIdChanged(internalNodePointer, id, oldId);
+
     } catch (const RewritingException &e) {
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, e.description());
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toLatin1(), e.description().toLatin1());
+
     }
 }
 
@@ -321,9 +323,9 @@ void ModelPrivate::checkPropertyName(const QString &propertyName)
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<empty property name>");
     }
 
-    if (propertyName == "id") {
-        Q_ASSERT_X(propertyName != "id", Q_FUNC_INFO, "cannot add property id");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName);
+    if (propertyName == QLatin1String("id")) {
+        Q_ASSERT_X(propertyName != QLatin1String("id"), Q_FUNC_INFO, "cannot add property id");
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName.toLatin1());
     }
 }
 
@@ -821,7 +823,7 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
     if (rewriterView())
         rewriterView()->resetToLastCorrectQml();
 
-    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description, rewriterView()->textModifierContent());
+    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description.toLatin1(), rewriterView()->textModifierContent());
 }
 
 

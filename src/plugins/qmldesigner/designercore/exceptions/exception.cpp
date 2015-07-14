@@ -100,11 +100,11 @@ bool Exception::warnAboutException()
     the __FILE__ macro.
 */
 Exception::Exception(int line,
-              const QString &function,
-              const QString &file)
+              const QByteArray &_function,
+              const QByteArray &_file)
   : m_line(line),
-    m_function(function),
-    m_file(file)
+    m_function(QString::fromLatin1(_function)),
+    m_file(QString::fromLatin1(_file))
 {
 #ifdef Q_OS_LINUX
     void * array[50];
@@ -120,7 +120,7 @@ Exception::Exception(int line,
 #endif
 
 if (s_shouldAssert)
-    Q_ASSERT_X(false, function.toUtf8(), QString("%1:%2 - %3").arg(file).arg(line).arg(function).toUtf8());
+    Q_ASSERT_X(false, _function, QString(QStringLiteral("%1:%2 - %3")).arg(m_file).arg(m_line).arg(m_function).toLatin1());
 }
 
 Exception::~Exception()

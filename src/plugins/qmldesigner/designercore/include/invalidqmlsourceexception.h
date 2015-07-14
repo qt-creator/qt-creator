@@ -39,9 +39,9 @@ class QMLDESIGNERCORE_EXPORT InvalidQmlSourceException : public QmlDesigner::Exc
 {
 public:
     InvalidQmlSourceException(int line,
-                              const QString &function,
-                              const QString &file,
-                              const QString &qmlSource = QString());
+                              const QByteArray &function,
+                              const QByteArray &file,
+                              const QByteArray &qmlSource = QByteArray());
 
     QString type() const;
     QString description() const;

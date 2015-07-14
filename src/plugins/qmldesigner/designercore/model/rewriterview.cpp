@@ -537,7 +537,7 @@ void RewriterView::applyChanges()
         qDebug() << "Content:" << content;
         if (!errors().isEmpty())
             qDebug() << "Error:" << errors().first().description();
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage, content);
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage.toLatin1(), content.toLatin1());
     }
 }
 

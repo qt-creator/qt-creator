@@ -40,9 +40,9 @@ class QMLDESIGNERCORE_EXPORT InvalidArgumentException : public Exception
 {
 public:
     InvalidArgumentException(int line,
-                             const QString &function,
-                             const QString &file,
-                             const QString &argument);
+                             const QByteArray &function,
+                             const QByteArray &file,
+                             const QByteArray &argument);
 
     QString type() const;
     QString argument() const;

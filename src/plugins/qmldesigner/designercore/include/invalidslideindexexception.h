@@ -39,8 +39,8 @@ class QMLDESIGNERCORE_EXPORT InvalidSlideIndexException : public Exception
 {
 public:
     InvalidSlideIndexException(int line,
-                               const QString &function,
-                               const QString &file);
+                               const QByteArray &function,
+                               const QByteArray &file);
     QString type() const;
 };
 

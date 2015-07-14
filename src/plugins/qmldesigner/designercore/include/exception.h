@@ -42,8 +42,8 @@ class QMLDESIGNERCORE_EXPORT Exception
 {
 public:
     Exception(int line,
-              const QString &function,
-              const QString &file);
+              const QByteArray &function,
+              const QByteArray &file);
     virtual ~Exception();
 
     virtual QString type() const = 0;

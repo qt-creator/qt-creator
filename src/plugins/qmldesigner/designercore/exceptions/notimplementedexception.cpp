@@ -33,8 +33,8 @@
 namespace QmlDesigner {
 
 NotImplementedException::NotImplementedException(int line,
-                                       const QString &function,
-                                       const QString &file):
+                                       const QByteArray &function,
+                                       const QByteArray &file):
     Exception(line, function, file)
 {
 }
