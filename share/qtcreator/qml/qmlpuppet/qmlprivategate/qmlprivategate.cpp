@@ -57,7 +57,7 @@
 #include <private/qquickstateoperations_p.h>
 
 
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 
 namespace QmlDesigner {
 

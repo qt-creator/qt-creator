@@ -36,7 +36,7 @@
 #include "removesharedmemorycommand.h"
 #include <QQuickView>
 #include <QQuickItem>
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 
 namespace QmlDesigner {
 

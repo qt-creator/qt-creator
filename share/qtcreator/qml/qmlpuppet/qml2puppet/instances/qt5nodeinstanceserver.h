@@ -34,7 +34,7 @@
 #include <QtGlobal>
 
 #include "nodeinstanceserver.h"
-#include "designersupport.h"
+#include <designersupportdelegate.h>
 
 QT_BEGIN_NAMESPACE
 class QQuickItem;
