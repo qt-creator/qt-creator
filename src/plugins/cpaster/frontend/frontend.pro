@@ -10,8 +10,6 @@ include(../../../qtcreatortool.pri)
 
 QT += network
 
-linux-*: QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,\$\$ORIGIN/$$relative_path($$IDE_PLUGIN_PATH, $$DESTDIR)\'
-
 HEADERS = ../protocol.h \
     ../cpasterconstants.h \
     ../pastebindotcomprotocol.h \
