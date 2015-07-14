@@ -330,7 +330,7 @@ QString toString(const UnregisterProjectPartsForCodeCompletionCommand &command)
     QTextStream ts(&out);
 
     ts << "UnregisterProjectPartsForCodeCompletionCommand\n"
-       << command.filePaths().join(Utf8String::fromUtf8(",")).toByteArray() << "\n";
+       << command.projectPartIds().join(Utf8String::fromUtf8(",")).toByteArray() << "\n";
     return out;
 }
 

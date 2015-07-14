@@ -49,12 +49,12 @@ class CMBIPC_EXPORT UnregisterProjectPartsForCodeCompletionCommand
 
 public:
     UnregisterProjectPartsForCodeCompletionCommand() = default;
-    UnregisterProjectPartsForCodeCompletionCommand(const Utf8StringVector &filePaths);
+    UnregisterProjectPartsForCodeCompletionCommand(const Utf8StringVector &projectPartIds);
 
-    const Utf8StringVector &filePaths() const;
+    const Utf8StringVector &projectPartIds() const;
 
 private:
-    Utf8StringVector filePaths_;
+    Utf8StringVector projectPartIds_;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionCommand &command);

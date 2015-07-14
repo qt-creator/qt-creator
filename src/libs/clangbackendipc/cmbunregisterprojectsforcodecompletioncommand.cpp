@@ -42,44 +42,44 @@ namespace ClangBackEnd {
 
 
 UnregisterProjectPartsForCodeCompletionCommand::UnregisterProjectPartsForCodeCompletionCommand(const Utf8StringVector &filePaths)
-    : filePaths_(filePaths)
+    : projectPartIds_(filePaths)
 {
 }
 
-const Utf8StringVector &UnregisterProjectPartsForCodeCompletionCommand::filePaths() const
+const Utf8StringVector &UnregisterProjectPartsForCodeCompletionCommand::projectPartIds() const
 {
-    return filePaths_;
+    return projectPartIds_;
 }
 
 QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionCommand &command)
 {
-    out << command.filePaths_;
+    out << command.projectPartIds_;
 
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionCommand &command)
 {
-    in >> command.filePaths_;
+    in >> command.projectPartIds_;
 
     return in;
 }
 
 bool operator==(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
 {
-    return first.filePaths_ == second.filePaths_;
+    return first.projectPartIds_ == second.projectPartIds_;
 }
 
 bool operator<(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
 {
-    return compareContainer(first.filePaths_, second.filePaths_);
+    return compareContainer(first.projectPartIds_, second.projectPartIds_);
 }
 
 QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCommand &command)
 {
     debug.nospace() << "UnregisterProjectPartsForCodeCompletionCommand(";
 
-    for (const Utf8String &fileNames_ : command.filePaths())
+    for (const Utf8String &fileNames_ : command.projectPartIds())
         debug.nospace() << fileNames_ << ", ";
 
     debug.nospace() << ")";
@@ -91,7 +91,7 @@ void PrintTo(const UnregisterProjectPartsForCodeCompletionCommand &command, ::st
 {
     *os << "UnregisterProjectPartsForCodeCompletionCommand(";
 
-    for (const Utf8String &fileNames_ : command.filePaths())
+    for (const Utf8String &fileNames_ : command.projectPartIds())
         *os << fileNames_.constData() << ", ";
 
     *os << ")";
