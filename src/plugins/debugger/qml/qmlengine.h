@@ -77,8 +77,6 @@ private slots:
     void appStartupFailed(const QString &errorMessage);
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
-    void synchronizeWatchers();
-
 private:
     void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
