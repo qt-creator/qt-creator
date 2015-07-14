@@ -1677,8 +1677,9 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
             objectData.value = dataMap.value(_(VALUE));
 
         } else if (type == _("string")) {
+            QLatin1Char quote('"');
             objectData.type = QByteArray("string");
-            objectData.value = dataMap.value(_(VALUE));
+            objectData.value = QString(quote + dataMap.value(_(VALUE)).toString() + quote);
 
         } else if (type == _("object")) {
             objectData.type = QByteArray("object");
