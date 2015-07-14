@@ -196,7 +196,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     int pos = id.indexOf(QLatin1Char(':'));
     QTC_ASSERT(pos > 0, return false);
     d->m_typeId = Core::Id::fromString(id.left(pos));
-    d->m_id = id.mid(pos).toUtf8();
+    d->m_id = id.mid(pos + 1).toUtf8();
 
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
