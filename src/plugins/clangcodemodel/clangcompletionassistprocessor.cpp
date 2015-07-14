@@ -37,6 +37,7 @@
 #include "clangcompletioncontextanalyzer.h"
 #include "clangfunctionhintmodel.h"
 #include "clangutils.h"
+#include "completionchunkstotextconverter.h"
 
 #include <utils/qtcassert.h>
 
@@ -86,14 +87,19 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
         if (slotCompletion && ccr.completionKind() != CodeCompletion::SlotCompletionKind)
             continue;
 
-        const QString txt(ccr.text().toString());
-        ClangAssistProposalItem *item = items.value(txt, 0);
+        QString name;
+        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
+            name = CompletionChunksToTextConverter::convertToName(ccr.chunks());
+        else
+            name = ccr.text().toString();
+
+        ClangAssistProposalItem *item = items.value(name, 0);
         if (item) {
             item->addOverload(ccr);
         } else {
             item = new ClangAssistProposalItem;
-            items.insert(txt, item);
-            item->setText(txt);
+            items.insert(name, item);
+            item->setText(name);
             item->setDetail(ccr.hint().toString());
             item->setOrder(ccr.priority());
 

@@ -30,10 +30,13 @@
 
 #include "clangassistproposalitem.h"
 
+#include "completionchunkstotextconverter.h"
+
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/Token.h>
 
 #include <texteditor/completionsettings.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -64,6 +67,21 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return applies;
 }
 
+static bool hasOnlyBlanksBeforeCursorInLine(QTextCursor textCursor)
+{
+    textCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+
+    const auto textBeforeCursor = textCursor.selectedText();
+
+    const auto nonSpace = std::find_if(textBeforeCursor.cbegin(),
+                                       textBeforeCursor.cend(),
+                                       [] (const QChar &signBeforeCursor) {
+        return !signBeforeCursor.isSpace();
+    });
+
+    return nonSpace == textBeforeCursor.cend();
+}
+
 void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
                                                      int basePosition) const
 {
@@ -86,6 +104,17 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
             if (m_typedChar == QLatin1Char('/')) // Eat the slash
                 m_typedChar = QChar();
         }
+    } else if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+        CompletionChunksToTextConverter converter;
+        converter.setAddPlaceHolderPositions(true);
+        converter.setAddSpaces(true);
+        converter.setAddExtraVerticalSpaceBetweenBraces(true);
+
+        converter.parseChunks(ccr.chunks());
+
+        toInsert = converter.text();
+        if (converter.hasPlaceholderPositions())
+            cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
     } else if (!ccr.text().isEmpty()) {
         const TextEditor::CompletionSettings &completionSettings =
                 TextEditor::TextEditorSettings::instance()->completionSettings();
@@ -165,7 +194,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
     const int endsPosition = editorWidget->position(TextEditor::EndOfLinePosition);
     const QString existingText = editorWidget->textAt(editorWidget->position(), endsPosition - editorWidget->position());
     int existLength = 0;
-    if (!existingText.isEmpty()) {
+    if (!existingText.isEmpty() && ccr.completionKind() != CodeCompletion::KeywordCompletionKind) {
         // Calculate the exist length in front of the extra chars
         existLength = toInsert.length() - (editorWidget->position() - basePosition);
         while (!existingText.startsWith(toInsert.right(existLength))) {
@@ -189,6 +218,18 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
     editorWidget->replace(length, toInsert);
     if (cursorOffset)
         editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
+
+    // indent the statement
+    if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+        auto selectionCursor = editorWidget->textCursor();
+        selectionCursor.setPosition(basePosition);
+        selectionCursor.setPosition(basePosition + toInsert.size(), QTextCursor::KeepAnchor);
+
+        auto basePositionCursor = editorWidget->textCursor();
+        basePositionCursor.setPosition(basePosition);
+        if (hasOnlyBlanksBeforeCursorInLine(basePositionCursor))
+            editorWidget->textDocument()->autoIndent(selectionCursor);
+    }
 }
 
 void ClangAssistProposalItem::keepCompletionOperator(unsigned compOp)
