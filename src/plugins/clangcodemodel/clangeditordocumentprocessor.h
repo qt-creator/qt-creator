@@ -63,13 +63,23 @@ public:
     CPlusPlus::Snapshot snapshot() override;
     bool isParserRunning() const override;
 
+    CppTools::ProjectPart::Ptr projectPart() const;
+
+public:
+    static ClangEditorDocumentProcessor *get(const QString &filePath);
+
 private slots:
     void onParserFinished();
+    void onProjectPartsRemoved(const QStringList &projectPartIds);
 
 private:
+    void updateProjectPartAndTranslationUnitForCompletion();
+    void updateTranslationUnitForCompletion(CppTools::ProjectPart &projectPart);
+
     QPointer<ModelManagerSupportClang> m_modelManagerSupport;
 
     ClangEditorDocumentParser m_parser;
+    CppTools::ProjectPart::Ptr m_projectPart;
     QFutureWatcher<void> m_parserWatcher;
     unsigned m_parserRevision;
 

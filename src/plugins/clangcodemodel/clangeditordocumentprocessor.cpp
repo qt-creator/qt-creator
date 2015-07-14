@@ -112,6 +112,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
             this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
 
+    connect(CppTools::CppModelManager::instance(), &CppTools::CppModelManager::projectPartsRemoved,
+            this, &ClangEditorDocumentProcessor::onProjectPartsRemoved);
+
     m_semanticHighlighter.setHighlightingRunner(
         [this]() -> QFuture<TextEditor::HighlightingResult> {
             const int firstLine = 1;
@@ -129,16 +132,11 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
     m_parserWatcher.cancel();
     m_parserWatcher.waitForFinished();
 
-    const CppTools::ProjectPart::Ptr projectPart = m_parser.projectPart();
-    QTC_ASSERT(projectPart, return);
-
-    QString projectPartId;
-    if (Utils::isProjectPartValid(projectPart))
-        projectPartId = projectPart->id(); // OK, Project Part is still loaded
-
-    QTC_ASSERT(m_modelManagerSupport, return);
-    m_modelManagerSupport->ipcCommunicator().unregisterFilesForCodeCompletion(
-        {ClangBackEnd::FileContainer(filePath(), projectPartId)});
+    if (m_projectPart) {
+        QTC_ASSERT(m_modelManagerSupport, return);
+        m_modelManagerSupport->ipcCommunicator().unregisterFilesForCodeCompletion(
+            {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
+    }
 }
 
 void ClangEditorDocumentProcessor::run()
@@ -192,6 +190,25 @@ bool ClangEditorDocumentProcessor::isParserRunning() const
     return m_parserWatcher.isRunning();
 }
 
+CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const
+{
+    return m_projectPart;
+}
+
+ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
+{
+    return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));
+}
+
+void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForCompletion()
+{
+    const CppTools::ProjectPart::Ptr projectPart = m_parser.projectPart();
+    QTC_ASSERT(projectPart, return);
+
+    updateTranslationUnitForCompletion(*projectPart.data());
+    m_projectPart = projectPart;
+}
+
 void ClangEditorDocumentProcessor::onParserFinished()
 {
     if (revision() != m_parserRevision)
@@ -208,6 +225,34 @@ void ClangEditorDocumentProcessor::onParserFinished()
 
     // Run semantic highlighter
     m_semanticHighlighter.run();
+
+    updateProjectPartAndTranslationUnitForCompletion();
+}
+
+void ClangEditorDocumentProcessor::onProjectPartsRemoved(const QStringList &projectPartIds)
+{
+    if (m_projectPart && projectPartIds.contains(m_projectPart->id()))
+        m_projectPart.clear();
+}
+
+void ClangEditorDocumentProcessor::updateTranslationUnitForCompletion(
+        CppTools::ProjectPart &projectPart)
+{
+    QTC_ASSERT(m_modelManagerSupport, return);
+    IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
+
+    if (m_projectPart) {
+        if (projectPart.id() != m_projectPart->id()) {
+            auto container1 = {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())};
+            ipcCommunicator.unregisterFilesForCodeCompletion(container1);
+
+            auto container2 = {ClangBackEnd::FileContainer(filePath(), projectPart.id())};
+            ipcCommunicator.registerFilesForCodeCompletion(container2);
+        }
+    } else {
+        auto container = {ClangBackEnd::FileContainer(filePath(), projectPart.id())};
+        ipcCommunicator.registerFilesForCodeCompletion(container);
+    }
 }
 
 } // namespace Internal

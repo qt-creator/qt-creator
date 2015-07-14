@@ -47,6 +47,7 @@ public:
     static BaseEditorDocumentParser *get(const QString &filePath);
 
     struct Configuration {
+        bool stickToPreviousProjectPart = true;
         bool usePrecompiledHeaders = false;
         QByteArray editorDefines;
         ProjectPart::Ptr manuallySetProjectPart;
