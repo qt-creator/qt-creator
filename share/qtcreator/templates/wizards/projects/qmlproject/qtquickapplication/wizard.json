@@ -15,7 +15,9 @@
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qmlproject')}" },
         { "key": "MainQmlFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qml')}" },
         { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
-        { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" }
+        { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
     ],
 
     "pages":
@@ -67,9 +69,10 @@
                     }
                 },
                 {
-                    "name": "QmlUISplit",
+                    "name": "QmlUiSplit",
                     "trDisplayName": "With ui.qml file",
                     "type": "CheckBox",
+                    "visible": "%{UiSupport}",
                     "data":
                     {
                         "checked": false
@@ -102,7 +105,7 @@
                 {
                     "source": "../../qmake/qtquickapplication/MainForm.ui.qml",
                     "target": "%{ProjectDirectory}/MainForm.ui.qml",
-                    "condition": "%{QmlUISplit}"
+                    "condition": "%{IsUiFileInUse}"
                 },
                 {
                     "source": "../../git.ignore",
