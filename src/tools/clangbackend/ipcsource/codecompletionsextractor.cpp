@@ -109,6 +109,7 @@ void CodeCompletionsExtractor::extractCompletionKind()
             extractMethodCompletionKind();
             break;
         case CXCursor_FunctionDecl:
+        case CXCursor_ConversionFunction:
             currentCodeCompletion_.setCompletionKind(CodeCompletion::FunctionCompletionKind);
             break;
         case CXCursor_VariableRef:
@@ -259,6 +260,7 @@ void CodeCompletionsExtractor::adaptPriority()
     decreasePriorityForNonAvailableCompletions();
     decreasePriorityForQObjectInternals();
     decreasePriorityForSignals();
+    decreasePriorityForOperators();
 }
 
 void CodeCompletionsExtractor::decreasePriorityForNonAvailableCompletions()
@@ -290,6 +292,23 @@ void CodeCompletionsExtractor::decreasePriorityForQObjectInternals()
         priority *= 10;
 
     if (currentCodeCompletion_.text() == Utf8StringLiteral("staticMetaObject"))
+        priority *= 100;
+
+    currentCodeCompletion_.setPriority(priority);
+}
+
+bool isOperator(CXCursorKind cxCursorKind, const Utf8String &name)
+{
+    return cxCursorKind == CXCursor_ConversionFunction
+            || (cxCursorKind == CXCursor_CXXMethod
+                && name.startsWith(Utf8StringLiteral("operator")));
+}
+
+void CodeCompletionsExtractor::decreasePriorityForOperators()
+{
+    quint32 priority = currentCodeCompletion_.priority();
+
+    if (isOperator(currentCxCodeCompleteResult.CursorKind, currentCodeCompletion().text()))
         priority *= 100;
 
     currentCodeCompletion_.setPriority(priority);
