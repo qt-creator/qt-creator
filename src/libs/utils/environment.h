@@ -105,6 +105,7 @@ public:
     FileName searchInPath(const QString &executable,
                           const QStringList &additionalDirs = QStringList()) const;
     QStringList path() const;
+    QStringList appendExeExtensions(const QString &executable) const;
 
     QString expandVariables(const QString &input) const;
     QStringList expandVariables(const QStringList &input) const;
