@@ -191,7 +191,8 @@ public:
     DebuggerRunParameters &runParameters();
 
     virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
-    virtual void updateWatchData(const QByteArray &iname);
+    virtual void expandItem(const QByteArray &iname); // Called when item in tree gets expanded.
+    virtual void updateItem(const QByteArray &iname); // Called for fresh watch items.
     virtual void selectWatchData(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);

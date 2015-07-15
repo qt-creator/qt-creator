@@ -1976,11 +1976,16 @@ bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) con
     return state() == InferiorStopOk && context.isCppEditor;
 }
 
-void DebuggerEngine::updateWatchData(const QByteArray &iname)
+void DebuggerEngine::updateItem(const QByteArray &iname)
 {
     UpdateParameters params;
     params.partialVariable = iname;
     doUpdateLocals(params);
+}
+
+void DebuggerEngine::expandItem(const QByteArray &iname)
+{
+    updateItem(iname);
 }
 
 } // namespace Internal

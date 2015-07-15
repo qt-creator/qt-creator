@@ -683,7 +683,7 @@ void WatchItem::fetchMore()
     model->m_fetchTriggered.insert(iname);
     if (children().isEmpty()) {
         setChildrenNeeded();
-        model->m_engine->updateWatchData(iname);
+        model->m_engine->expandItem(iname);
     }
 }
 
@@ -940,12 +940,12 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
         case LocalsTypeFormatRole:
             setTypeFormat(item->type, value.toInt());
-            m_engine->updateWatchData(item->iname);
+            m_engine->updateLocals();
             break;
 
         case LocalsIndividualFormatRole: {
             setIndividualFormat(item->iname, value.toInt());
-            m_engine->updateWatchData(item->iname);
+            m_engine->updateLocals();
             break;
         }
     }
@@ -1304,14 +1304,14 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
     item->exp = exp;
     item->name = name.isEmpty() ? exp0 : name;
     item->iname = watcherName(exp);
+    m_model->insertItem(item);
     saveWatchers();
 
     if (m_model->m_engine->state() == DebuggerNotReady) {
         item->setAllUnneeded();
         item->setValue(QString(QLatin1Char(' ')));
-        m_model->insertItem(item);
     } else {
-        m_model->m_engine->updateWatchData(item->iname);
+        m_model->m_engine->updateItem(item->iname);
     }
     updateWatchersWindow();
 }

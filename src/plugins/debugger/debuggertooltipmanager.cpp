@@ -1222,7 +1222,7 @@ static void slotTooltipOverrideRequested
             m_tooltips.push_back(tooltip);
             tooltip->setState(PendingUnshown);
             if (engine->canHandleToolTip(context)) {
-                engine->updateWatchData(context.iname);
+                engine->updateItem(context.iname);
             } else {
                 ToolTip::show(point, DebuggerToolTipManager::tr("Expression too complex"),
                               Internal::mainWindow());

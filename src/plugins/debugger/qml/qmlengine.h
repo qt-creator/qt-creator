@@ -129,7 +129,8 @@ private:
     void reloadSourceFiles();
     void reloadFullStack() {}
 
-    void updateWatchData(const QByteArray &iname);
+    void updateItem(const QByteArray &iname);
+    void expandItem(const QByteArray &iname);
     void selectWatchData(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScript(const QString &expression);

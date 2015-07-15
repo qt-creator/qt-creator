@@ -394,7 +394,7 @@ void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, co
     updateLocals();
 }
 
-void PdbEngine::updateWatchData(const QByteArray &iname)
+void PdbEngine::updateItem(const QByteArray &iname)
 {
     Q_UNUSED(iname);
     updateAll();

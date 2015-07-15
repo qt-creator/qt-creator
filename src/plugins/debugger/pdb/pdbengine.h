@@ -96,7 +96,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchData(const QByteArray &iname);
+    void updateItem(const QByteArray &iname);
 
     QString mainPythonFile() const;
     QString pythonInterpreter() const;

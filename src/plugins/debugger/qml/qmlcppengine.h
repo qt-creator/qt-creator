@@ -48,7 +48,7 @@ public:
 
     bool canDisplayTooltip() const;
     bool canHandleToolTip(const DebuggerToolTipContext &) const;
-    void updateWatchData(const QByteArray &iname);
+    void updateItem(const QByteArray &iname);
     void selectWatchData(const QByteArray &iname);
 
     void watchPoint(const QPoint &);

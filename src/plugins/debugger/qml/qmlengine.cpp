@@ -969,24 +969,29 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     }
 }
 
-void QmlEngine::updateWatchData(const QByteArray &iname)
+void QmlEngine::expandItem(const QByteArray &iname)
 {
     const WatchItem *item = watchHandler()->findItem(iname);
-    // invalid expressions or out of scope variables
-    if (!item)
-        return;
+    QTC_ASSERT(item, return);
 
     if (item->isInspect()) {
         d->inspectorAdapter.agent()->updateWatchData(*item);
     } else {
-        if (!item->name.isEmpty()) {
-            if (item->isChildrenNeeded() && watchHandler()->isExpandedIName(item->iname)) {
-                LookupItems items;
-                items.insert(int(item->id), {item->iname, item->name});
-                d->lookup(items);
-            }
-        }
+        LookupItems items;
+        items.insert(int(item->id), {item->iname, item->name});
+        d->lookup(items);
     }
+}
+
+void QmlEngine::updateItem(const QByteArray &iname)
+{
+    const WatchItem *item = watchHandler()->findItem(iname);
+    QTC_ASSERT(item, return);
+
+    QString exp = QString::fromUtf8(item->exp);
+    d->evaluate(exp, [this, exp](const QVariantMap &response) {
+        d->handleEvaluateWatcher(response, exp);
+    });
 }
 
 void QmlEngine::selectWatchData(const QByteArray &iname)
