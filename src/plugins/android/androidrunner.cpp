@@ -555,8 +555,7 @@ void AndroidRunner::logcatProcess(const QByteArray &text, QByteArray &buffer, bo
                 if (onlyError
                         || messagetype == QLatin1String("F")
                         || messagetype == QLatin1String("E")
-                        || messagetype == QLatin1String("W")
-                        || messagetype == QLatin1String("D"))
+                        || messagetype == QLatin1String("W"))
                     emit remoteErrorOutput(output);
                 else
                     emit remoteOutput(output);
@@ -564,7 +563,6 @@ void AndroidRunner::logcatProcess(const QByteArray &text, QByteArray &buffer, bo
         } else {
             if (onlyError || line.startsWith(_("F/"))
                     || line.startsWith(_("E/"))
-                    || line.startsWith(_("D/Qt"))
                     || line.startsWith(_("W/")))
                 emit remoteErrorOutput(line);
             else
