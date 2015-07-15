@@ -37,6 +37,7 @@ namespace ClangBackEnd {
 void CodeCompletionChunkConverter::extractCompletionChunks(CXCompletionString completionString)
 {
     const uint completionChunkCount = clang_getNumCompletionChunks(completionString);
+    chunks.reserve(completionChunkCount);
 
     for (uint chunkIndex = 0; chunkIndex < completionChunkCount; ++chunkIndex) {
         const CodeCompletionChunk::Kind kind = chunkKind(completionString, chunkIndex);
