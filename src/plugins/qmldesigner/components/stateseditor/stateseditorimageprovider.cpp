@@ -43,34 +43,31 @@ StatesEditorImageProvider::StatesEditorImageProvider()
 
 QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    QImage image;
 
-    QSize newSize = requestedSize;
+    bool nodeInstanceViewIsDetached = m_nodeInstanceView.isNull() || !m_nodeInstanceView->model();
+    if (!nodeInstanceViewIsDetached) {
+        QString imageId = id.split(QLatin1Char('-')).first();
+        if (imageId == QLatin1String("baseState")) {
+            image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->rootModelNode());
+        } else {
+            bool canBeConverted;
+            int instanceId = imageId.toInt(&canBeConverted);
+            if (canBeConverted && m_nodeInstanceView->hasModelNodeForInternalId(instanceId)) {
+                image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
+            }
+        }
+    }
 
-    if (newSize.isEmpty())
-        newSize = QSize (100, 100);
+    if (image.isNull()) {
+        //creating white QImage
+        QSize newSize = requestedSize;
+        if (newSize.isEmpty())
+            newSize = QSize (100, 100);
 
-    if (m_nodeInstanceView.isNull() || !m_nodeInstanceView->model()) {
-        //NodeInstanceView might be detached
-        //Return white QImage
         QImage image(newSize, QImage::Format_ARGB32);
         image.fill(0xFFFFFFFF);
         return image;
-    }
-
-    QString imageId = id.split(QLatin1Char('-')).first();
-    QImage image;
-
-    if (imageId == "baseState") {
-        image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->rootModelNode());
-    } else {
-        bool canBeConverted;
-        int instanceId = imageId.toInt(&canBeConverted);
-        if (canBeConverted && m_nodeInstanceView->hasModelNodeForInternalId(instanceId)) {
-                image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
-        } else {
-            image = QImage(newSize, QImage::Format_ARGB32);
-            image.fill(0xFFFFFFFF);
-        }
     }
 
     *size = image.size();
