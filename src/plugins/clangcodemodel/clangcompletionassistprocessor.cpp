@@ -103,7 +103,7 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
             if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
                 item->setDetail(CompletionChunksToTextConverter::convertToToolTip(ccr.chunks()));
 
-            item->setData(QVariant::fromValue(ccr));
+            item->setCodeCompletion(ccr);
         }
 
         // FIXME: show the effective accessebility instead of availability

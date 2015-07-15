@@ -52,13 +52,14 @@ public:
     bool isOverloaded() const;
     void addOverload(const ClangBackEnd::CodeCompletion &ccr);
 
-    ClangBackEnd::CodeCompletion codeCompletion() const;
+    void setCodeCompletion(const ClangBackEnd::CodeCompletion &codeCompletion);
+    const ClangBackEnd::CodeCompletion &codeCompletion() const;
 
-    bool isCodeCompletion() const;
 private:
+    ClangBackEnd::CodeCompletion m_codeCompletion;
+    QList<ClangBackEnd::CodeCompletion> m_overloads;
     unsigned m_completionOperator;
     mutable QChar m_typedChar;
-    QList<ClangBackEnd::CodeCompletion> m_overloads;
 };
 
 } // namespace Internal
