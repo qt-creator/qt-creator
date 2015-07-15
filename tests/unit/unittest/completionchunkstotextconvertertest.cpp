@@ -76,6 +76,9 @@ protected:
     CodeCompletionChunk constCastName{CodeCompletionChunk::TypedText, Utf8StringLiteral("const_cast")};
     CodeCompletionChunk leftAngle{CodeCompletionChunk::LeftAngle, Utf8StringLiteral("<")};
     CodeCompletionChunk rightAngle{CodeCompletionChunk::RightAngle, Utf8StringLiteral(">")};
+    CodeCompletionChunk elseName{CodeCompletionChunk::TypedText, Utf8StringLiteral("else")};
+    CodeCompletionChunk ifName{CodeCompletionChunk::TypedText, Utf8StringLiteral("if")};
+    CodeCompletionChunk horizontalSpace{CodeCompletionChunk::HorizontalSpace, Utf8StringLiteral(" ")};
     CodeCompletionChunk optional{CodeCompletionChunk::Optional, Utf8String(), {comma, functionArgumentY, comma, functionArgumentZ}};
 };
 
@@ -201,7 +204,6 @@ TEST_F(CompletionChunksToTextConverter, const_cast)
     converter.parseChunks(completionChunks);
 
     ASSERT_THAT(converter.text(), QStringLiteral("const_cast<>()"));
-
 }
 
 TEST_F(CompletionChunksToTextConverter, Throw)
@@ -211,6 +213,25 @@ TEST_F(CompletionChunksToTextConverter, Throw)
     auto completionName = Converter::convertToName(completionChunks);
 
     ASSERT_THAT(completionName, QStringLiteral("throw"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ElseIf)
+{
+    QVector<CodeCompletionChunk> completionChunks({elseName,
+                                                   horizontalSpace,
+                                                   ifName,
+                                                   horizontalSpace,
+                                                   leftBrace,
+                                                   verticalSpace,
+                                                   statements,
+                                                   verticalSpace,
+                                                   rightBrace});
+
+    setupConverterForKeywords();
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("else if {\n\n}"));
 }
 
 void CompletionChunksToTextConverter::setupConverterForKeywords()

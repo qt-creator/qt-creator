@@ -71,6 +71,8 @@ private:
     void addExtraVerticalSpaceBetweenBraces();
     void addExtraVerticalSpaceBetweenBraces(const QVector<ClangBackEnd::CodeCompletionChunk>::iterator &);
 
+    bool canAddSpace() const;
+
 private:
     std::vector<int> m_placeholderPositions;
     QVector<ClangBackEnd::CodeCompletionChunk> m_codeCompletionChunks;
