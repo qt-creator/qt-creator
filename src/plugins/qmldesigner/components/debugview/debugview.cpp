@@ -38,6 +38,8 @@
 #include <nodeabstractproperty.h>
 #include <variantproperty.h>
 
+#include <qmlitemnode.h>
+
 namespace   {
 const QString lineBreak = QStringLiteral("<br>");
 
@@ -116,8 +118,12 @@ void DebugView::nodeAboutToBeRemoved(const ModelNode &removedNode)
         QTextStream message;
         QString string;
         message.setString(&string);
-        message << removedNode;
-        log(tr("Node removed:"), message.readAll());
+        message << removedNode << lineBreak;
+        foreach (const ModelNode &modelNode, removedNode.allSubModelNodes()) {
+            message << tr("ChildNode:") << modelNode << lineBreak;
+        }
+
+        log(tr("Node about to be removed:"), message.readAll());
     }
 }
 
@@ -304,6 +310,10 @@ void DebugView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName
     }
 }
 
+void DebugView::instanceErrorChange(const QVector<ModelNode> &/*errorNodeList*/)
+{
+}
+
 void DebugView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
     if (isDebugViewEnabled()) {
@@ -312,7 +322,10 @@ void DebugView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
         message.setString(&string);
 
         foreach (const ModelNode &modelNode, completedNodeList) {
-            message << modelNode;
+            message << modelNode << lineBreak;
+            if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+                message << tr("parent: ") << QmlItemNode(modelNode).instanceParent() << lineBreak;
+            }
         }
 
         logInstance(tr("Instance Completed"), string);
@@ -344,8 +357,22 @@ void DebugView::instancesPreviewImageChanged(const QVector<ModelNode> & /*nodeLi
 {
 }
 
-void DebugView::instancesChildrenChanged(const QVector<ModelNode> & /*nodeList*/)
+void DebugView::instancesChildrenChanged(const QVector<ModelNode> & nodeList)
 {
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
+
+        foreach (const ModelNode &modelNode, nodeList) {
+            message << modelNode << lineBreak;
+            if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+                message << tr("parent: ") << QmlItemNode(modelNode).instanceParent() << lineBreak;
+            }
+        }
+
+        logInstance(tr("Instances children changed:"), string);
+    }
 }
 
 void DebugView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
@@ -383,9 +410,17 @@ void DebugView::nodeSourceChanged(const ModelNode &modelNode, const QString &new
     }
 }
 
-void DebugView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+void DebugView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
 
+        message << removedNode;
+
+        log(tr("Node Removed:"), string);
+    }
 }
 
 void DebugView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)

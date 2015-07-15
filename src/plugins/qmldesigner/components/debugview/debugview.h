@@ -79,6 +79,7 @@ public:
     bool hasWidget() const override;
 
     void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+    void instanceErrorChange(const QVector<ModelNode> &errorNodeList) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) override;
