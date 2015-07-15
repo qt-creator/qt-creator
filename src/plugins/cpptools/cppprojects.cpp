@@ -146,7 +146,10 @@ ProjectPart::Ptr ProjectPart::copy() const
 
 QString ProjectPart::id() const
 {
-    return QDir::fromNativeSeparators(projectFile) + QLatin1Char(' ') + displayName;
+    QString projectPartId = QDir::fromNativeSeparators(projectFile);
+    if (!displayName.isEmpty())
+        projectPartId.append(QLatin1Char(' ') + displayName);
+    return projectPartId;
 }
 
 QByteArray ProjectPart::readProjectConfigFile(const ProjectPart::Ptr &part)
