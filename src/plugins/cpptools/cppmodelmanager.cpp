@@ -54,6 +54,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -710,13 +711,11 @@ void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove
         d->m_snapshot.remove(i.next());
 }
 
-static QStringList projectPartIds(const QSet<ProjectPart::Ptr> &projectParts)
+static QSet<QString> projectPartIds(const QSet<ProjectPart::Ptr> &projectParts)
 {
-    QStringList result;
-    QSetIterator<ProjectPart::Ptr> it(projectParts);
-    while (it.hasNext())
-        result << it.next()->id();
-    return result;
+    return Utils::transform(projectParts, [](const ProjectPart::Ptr &projectPart) {
+        return projectPart->id();
+    });
 }
 
 class ProjectInfoComparer
@@ -750,9 +749,9 @@ public:
 
     QStringList removedProjectParts()
     {
-        QSet<ProjectPart::Ptr> removed = m_old.projectParts().toSet();
-        removed.subtract(m_new.projectParts().toSet());
-        return projectPartIds(removed);
+        QSet<QString> removed = projectPartIds(m_old.projectParts().toSet());
+        removed.subtract(projectPartIds(m_new.projectParts().toSet()));
+        return removed.toList();
     }
 
     /// Returns a list of common files that have a changed timestamp.
