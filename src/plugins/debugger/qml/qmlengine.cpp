@@ -62,6 +62,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -90,6 +91,7 @@ using namespace ProjectExplorer;
 using namespace QmlDebug;
 using namespace QmlJS;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -935,6 +937,11 @@ void QmlEngine::reloadModules()
 void QmlEngine::reloadSourceFiles()
 {
     d->scripts(4, QList<int>(), true, QVariant());
+}
+
+void QmlEngine::updateAll()
+{
+    d->updateLocals();
 }
 
 void QmlEngine::requestModuleSymbols(const QString &moduleName)
@@ -2354,6 +2361,12 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         item->setHasChildren(propertyData.properties.count());
         parent->appendChild(item);
     }
+
+    if (boolSetting(SortStructMembers))
+        parent->sortChildren([](const TreeItem *item1, const TreeItem *item2) -> bool {
+            return static_cast<const WatchItem *>(item1)->name
+                 < static_cast<const WatchItem *>(item2)->name;
+        });
 }
 
 void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)

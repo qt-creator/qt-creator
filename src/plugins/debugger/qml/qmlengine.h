@@ -129,6 +129,7 @@ private:
     void reloadSourceFiles();
     void reloadFullStack() {}
 
+    void updateAll();
     void updateItem(const QByteArray &iname);
     void expandItem(const QByteArray &iname);
     void selectWatchData(const QByteArray &iname);
