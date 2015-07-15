@@ -157,7 +157,7 @@ void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistC
 
 void IpcReceiver::projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command)
 {
-    QTC_CHECK(!"Got ProjectDoesNotExistCommand");
+    QTC_CHECK(!"Got ProjectPartsDoNotExistCommand");
     qCDebug(log) << "<<< ERROR:" << command;
 }
 
