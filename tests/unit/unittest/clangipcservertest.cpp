@@ -149,8 +149,6 @@ TEST_F(ClangIpcServer, GetCodeCompletion)
                                             1,
                                             projectPartId);
     CodeCompletion codeCompletion(Utf8StringLiteral("Function"),
-                                  Utf8String(),
-                                  Utf8String(),
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
@@ -167,8 +165,6 @@ TEST_F(ClangIpcServer, GetCodeCompletionDependingOnArgumets)
                                             1,
                                             projectPartId);
     CodeCompletion codeCompletion(Utf8StringLiteral("ArgumentDefinitionVariable"),
-                                  Utf8String(),
-                                  Utf8String(),
                                   34,
                                   CodeCompletion::VariableCompletionKind);
 
@@ -214,8 +210,6 @@ TEST_F(ClangIpcServer, GetCodeCompletionForUnsavedFile)
                                             1,
                                             projectPartId);
     CodeCompletion codeCompletion(Utf8StringLiteral("Method2"),
-                                  Utf8String(),
-                                  Utf8String(),
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
@@ -233,8 +227,6 @@ TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
                                             1,
                                             projectPartId);
     CodeCompletion codeCompletion(Utf8StringLiteral("Method2"),
-                                  Utf8String(),
-                                  Utf8String(),
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
@@ -255,8 +247,6 @@ TEST_F(ClangIpcServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
                                             1,
                                             projectPartId);
     CodeCompletion codeCompletion(Utf8StringLiteral("Method3"),
-                                  Utf8String(),
-                                  Utf8String(),
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
@@ -367,8 +357,6 @@ TEST_F(ClangIpcServer, TicketNumberIsForwarded)
                                             1,
                                             projectPartId);
     CodeCompletion codeCompletion(Utf8StringLiteral("Function"),
-                                  Utf8String(),
-                                  Utf8String(),
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 

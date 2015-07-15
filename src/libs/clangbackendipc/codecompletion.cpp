@@ -38,15 +38,11 @@
 namespace ClangBackEnd {
 
 CodeCompletion::CodeCompletion(const Utf8String &text,
-                               const Utf8String &hint,
-                               const Utf8String &snippet,
                                quint32 priority,
                                Kind completionKind,
                                Availability availability,
                                bool hasParameters)
     : text_(text),
-      hint_(hint),
-      snippet_(snippet),
       priority_(priority),
       completionKind_(completionKind),
       availability_(availability),
@@ -62,15 +58,6 @@ void CodeCompletion::setText(const Utf8String &text)
 const Utf8String &CodeCompletion::text() const
 {
     return text_;
-}
-const Utf8String &CodeCompletion::hint() const
-{
-    return hint_;
-}
-
-const Utf8String &CodeCompletion::snippet() const
-{
-    return snippet_;
 }
 
 void CodeCompletion::setCompletionKind(CodeCompletion::Kind completionKind)
@@ -136,8 +123,6 @@ quint32 &CodeCompletion::availabilityAsInt()
 QDataStream &operator<<(QDataStream &out, const CodeCompletion &command)
 {
     out << command.text_;
-    out << command.hint_;
-    out << command.snippet_;
     out << command.chunks_;
     out << command.priority_;
     out << command.completionKind_;
@@ -150,8 +135,6 @@ QDataStream &operator<<(QDataStream &out, const CodeCompletion &command)
 QDataStream &operator>>(QDataStream &in, CodeCompletion &command)
 {
     in >> command.text_;
-    in >> command.hint_;
-    in >> command.snippet_;
     in >> command.chunks_;
     in >> command.priority_;
     in >> command.completionKindAsInt();
@@ -213,8 +196,6 @@ QDebug operator<<(QDebug debug, const CodeCompletion &command)
     debug.nospace() << "CodeCompletion(";
 
     debug.nospace() << command.text_ << ", ";
-    debug.nospace() << command.hint_ << ", ";
-    debug.nospace() << command.snippet_ << ", ";
     debug.nospace() << command.priority_ << ", ";
     debug.nospace() << completionKindToString(command.completionKind_) << ", ";
     debug.nospace() << availabilityToString(command.availability_) << ", ";
@@ -230,8 +211,6 @@ void PrintTo(const CodeCompletion &command, ::std::ostream* os)
     *os << "CodeCompletion(";
 
     *os << command.text_.constData() << ", ";
-    *os << command.hint_.constData() << ", ";
-    *os << command.snippet_.constData() << ", ";
     *os << command.priority_ << ", ";
     *os << completionKindToString(command.completionKind_) << ", ";
     *os << availabilityToString(command.availability_) << ", ";
