@@ -163,10 +163,6 @@ void TranslationUnit::removeOutdatedTranslationUnit() const
 
 void TranslationUnit::createTranslationUnitIfNeeded() const
 {
-    const auto options = CXTranslationUnit_CacheCompletionResults
-            | CXTranslationUnit_PrecompiledPreamble
-            | CXTranslationUnit_SkipFunctionBodies;
-
     if (!d->translationUnit) {
         d->translationUnit = CXTranslationUnit();
         CXErrorCode errorCode = clang_parseTranslationUnit2(index(),
@@ -175,10 +171,14 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
                                                             d->projectPart.argumentCount(),
                                                             d->unsavedFiles.cxUnsavedFiles(),
                                                             d->unsavedFiles.count(),
-                                                            options,
+                                                            defaultOptions(),
                                                             &d->translationUnit);
 
         checkTranslationUnitErrorCode(errorCode);
+
+        // We need to reparse to create the precompiled preamble, which will speed up further calls,
+        // e.g. clang_codeCompleteAt() dramatically.
+        reparseTranslationUnit();
 
         updateLastChangeTimePoint();
     }
@@ -190,6 +190,21 @@ void TranslationUnit::checkTranslationUnitErrorCode(CXErrorCode errorCode) const
         case CXError_Success: break;
         default: throw TranslationUnitParseErrorException(d->filePath, d->projectPart.projectPartId());
     }
+}
+
+void TranslationUnit::reparseTranslationUnit() const
+{
+    clang_reparseTranslationUnit(d->translationUnit,
+                                 d->unsavedFiles.count(),
+                                 d->unsavedFiles.cxUnsavedFiles(),
+                                 clang_defaultReparseOptions(d->translationUnit));
+}
+
+int TranslationUnit::defaultOptions()
+{
+    return CXTranslationUnit_CacheCompletionResults
+         | CXTranslationUnit_PrecompiledPreamble
+         | CXTranslationUnit_SkipFunctionBodies;
 }
 
 uint TranslationUnit::unsavedFilesCount() const

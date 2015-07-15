@@ -91,6 +91,8 @@ private:
     void removeOutdatedTranslationUnit() const;
     void createTranslationUnitIfNeeded() const;
     void checkTranslationUnitErrorCode(CXErrorCode errorCode) const;
+    void reparseTranslationUnit() const;
+    static int defaultOptions();
 
 private:
     mutable std::shared_ptr<TranslationUnitData> d;
