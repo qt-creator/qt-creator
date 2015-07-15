@@ -175,7 +175,8 @@ void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *p
 
 void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectPartIds)
 {
-    m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectPartIds);
+    if (!projectPartIds.isEmpty())
+        m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectPartIds);
 }
 
 #ifdef QT_TESTLIB_LIB
