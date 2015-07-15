@@ -37,6 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <bindingproperty.h>
 #include <designmodecontext.h>
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
@@ -85,8 +86,13 @@ NavigatorView::NavigatorView(QObject* parent) :
     NameItemDelegate *idDelegate = new NameItemDelegate(this,
                                                         m_treeModel.data());
     IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,
-                                                                          ":/qmldesigner/images/eye_open.png",
-                                                                          ":/qmldesigner/images/placeholder.png",
+                                                                          QLatin1String(":/navigator/icon/eye_open.png"),
+                                                                          QLatin1String(":/navigator/icon/eye_closed.png"),
+                                                                          m_treeModel.data());
+
+    IconCheckboxItemDelegate *exportDelegate = new IconCheckboxItemDelegate(this,
+                                                                          QLatin1String(":/navigator/icon/export_checked.png"),
+                                                                          QLatin1String(":/navigator/icon/export_unchecked.png"),
                                                                           m_treeModel.data());
 
 #ifdef _LOCK_ITEMS_
@@ -100,7 +106,8 @@ NavigatorView::NavigatorView(QObject* parent) :
     treeWidget()->setItemDelegateForColumn(1,lockDelegate);
     treeWidget()->setItemDelegateForColumn(2,showDelegate);
 #else
-    treeWidget()->setItemDelegateForColumn(1,showDelegate);
+    treeWidget()->setItemDelegateForColumn(1,exportDelegate);
+    treeWidget()->setItemDelegateForColumn(2,showDelegate);
 #endif
 
 }
@@ -153,6 +160,17 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
 void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     treeWidget()->update();
+}
+
+void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & propertyList, PropertyChangeFlags /*propertyChange*/)
+{
+    foreach (const BindingProperty &bindingProperty, propertyList) {
+        /* If a binding property that exports an item using an alias property has
+         * changed, we have to update the affected item.
+         */
+        if (bindingProperty.isAliasExport())
+            m_treeModel->updateItemRow(modelNodeForId(bindingProperty.expression()));
+    }
 }
 
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
@@ -218,6 +236,12 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const Prope
             treeWidget()->update(index.sibling(index.row(),index.column()+1));
         }
     }
+}
+
+void NavigatorView::instanceErrorChange(const QVector<ModelNode> &errorNodeList)
+{
+    foreach (const ModelNode &currentModelNode, errorNodeList)
+        m_treeModel->updateItemRow(currentModelNode);
 }
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int /*oldIndex*/)

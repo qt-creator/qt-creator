@@ -79,7 +79,8 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
-    const int offset = 2;
+    const int yOffset = (styleOption.rect.height() - onPixmap.height()) / 2;
+    const int xOffset = 2;
     if (indexIsHolingModelNode(modelIndex)) {
         painter->save();
         if (styleOption.state & QStyle::State_Selected)
@@ -91,9 +92,9 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                 painter->setOpacity(0.5);
 
             if (isChecked(m_navigatorTreeModel, modelIndex))
-                painter->drawPixmap(styleOption.rect.x() + offset, styleOption.rect.y() + offset, onPixmap);
+                painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset, onPixmap);
             else
-                painter->drawPixmap(styleOption.rect.x() + offset, styleOption.rect.y() + offset, offPixmap);
+                painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset, offPixmap);
         }
 
         painter->restore();

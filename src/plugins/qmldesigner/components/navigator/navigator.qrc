@@ -4,5 +4,10 @@
         <file>arrowleft.png</file>
         <file>arrowright.png</file>
         <file>arrowup.png</file>
+        <file>export_checked.png</file>
+        <file>export_unchecked.png</file>
+        <file>eye_open.png</file>
+        <file>eye_closed.png</file>
+        <file>warning.png</file>
     </qresource>
 </RCC>

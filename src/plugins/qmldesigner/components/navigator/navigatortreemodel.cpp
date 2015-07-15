@@ -30,6 +30,7 @@
 
 #include "navigatortreemodel.h"
 
+#include <bindingproperty.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
@@ -261,21 +262,41 @@ static inline QString msgUnknownItem(const QString &t)
     return NavigatorTreeModel::tr("Unknown item: %1").arg(t);
 }
 
-ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
+static QIcon getTypeIcon(const ModelNode &modelNode)
 {
-    Q_ASSERT(node.isValid());
+    if (modelNode.isValid()) {
+        // if node has no own icon, search for it in the itemlibrary
+        const ItemLibraryInfo *libraryInfo = modelNode.model()->metaInfo().itemLibraryInfo();
+        QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
+            modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
+        if (!itemLibraryEntryList.isEmpty())
+            return itemLibraryEntryList.first().typeIcon();
+        else if (modelNode.metaInfo().isValid())
+            return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
+    }
 
-    const bool dropEnabled = node.metaInfo().isValid();
+    return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
+}
+
+ItemRow NavigatorTreeModel::createItemRow(const ModelNode &modelNode)
+{
+    Q_ASSERT(modelNode.isValid());
+
+    const bool dropEnabled = modelNode.metaInfo().isValid();
 
     QStandardItem *idItem = new QStandardItem;
     idItem->setDragEnabled(true);
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
-    idItem->setData(node.internalId(), InternalIdRole);
-    if (node.metaInfo().isValid())
-        idItem->setToolTip(node.type());
+    idItem->setData(modelNode.internalId(), InternalIdRole);
+    idItem->setData(modelNode.simplifiedTypeName(), SimplifiedTypeNameRole);
+    if (modelNode.hasId())
+        idItem->setText(modelNode.id());
+    idItem->setIcon(getTypeIcon(modelNode));
+    if (modelNode.metaInfo().isValid())
+        idItem->setToolTip(QString::fromLatin1(modelNode.type()));
     else
-        idItem->setToolTip(msgUnknownItem(node.type()));
+        idItem->setToolTip(msgUnknownItem(QString::fromLatin1(modelNode.type())));
 #    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
     lockItem->setDragEnabled(true);
@@ -285,12 +306,24 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
     lockItem->setData(hash, NavigatorRole);
 #    endif
 
+    QStandardItem *exportItem = new QStandardItem;
+    exportItem->setDropEnabled(dropEnabled);
+    exportItem->setCheckable(true);
+    exportItem->setEditable(false);
+    exportItem->setData(modelNode.internalId(), InternalIdRole);
+    exportItem->setToolTip(tr("Toggles whether this item is exported as an "
+        "alias property of the root item."));
+    if (modelNode.isRootNode())
+        exportItem->setCheckable(false);
+
     QStandardItem *visibilityItem = new QStandardItem;
     visibilityItem->setDropEnabled(dropEnabled);
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
-    visibilityItem->setData(node.internalId(), InternalIdRole);
-    if (node.isRootNode())
+    visibilityItem->setData(modelNode.internalId(), InternalIdRole);
+    visibilityItem->setToolTip(tr("Toggles the visibility of this item in the form editor.\n"
+        "This is independent of the visibility property in QML."));
+    if (modelNode.isRootNode())
         visibilityItem->setCheckable(false);
 
     QMap<QString, QStandardItem *> propertyItems;
@@ -310,25 +343,55 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
 #   ifdef _LOCK_ITEMS_
     ItemRow newRow =  ItemRow(idItem, lockItem, visibilityItem, propertyItems);
 #   else
-    ItemRow newRow = ItemRow(idItem, visibilityItem, propertyItems);
+    ItemRow newRow = ItemRow(idItem, exportItem, visibilityItem, propertyItems);
 #   endif
 
-    m_nodeItemHash.insert(node, newRow);
-    updateItemRow(node, newRow);
+    m_nodeItemHash.insert(modelNode, newRow);
+    updateItemRow(modelNode, newRow);
 
     return newRow;
 }
 
-void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
+static bool isModelNodeExported(const ModelNode &modelNode)
+{
+    if (!modelNode.id().isEmpty()) {
+         PropertyName modelNodeId = modelNode.id().toLatin1();
+         ModelNode rootModelNode = modelNode.view()->rootModelNode();
+         Q_ASSERT(rootModelNode.isValid());
+         if (rootModelNode.hasBindingProperty(modelNodeId)
+                 && rootModelNode.bindingProperty(modelNodeId).isDynamic()
+                 && rootModelNode.bindingProperty(modelNodeId).expression().toLatin1() == modelNodeId)
+             return true;
+    }
+
+    return false;
+}
+
+void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items)
 {
     bool blockSignal = blockItemChangedSignal(true);
 
-    items.idItem->setText(node.id());
-    items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
-    if (node.metaInfo().isValid())
-        items.idItem->setToolTip(node.type());
-    else
-        items.idItem->setToolTip(msgUnknownItem(node.type()));
+    items.idItem->setText(modelNode.id());
+    items.idItem->setData(modelNode.simplifiedTypeName(), SimplifiedTypeNameRole);
+
+    bool isInvisible = modelNode.auxiliaryData("invisible").toBool();
+    items.idItem->setData(isInvisible, InvisibleRole);
+
+    items.visibilityItem->setCheckState(isInvisible ? Qt::Unchecked : Qt::Checked);
+    items.exportItem->setCheckState(isModelNodeExported(modelNode) ? Qt::Checked : Qt::Unchecked);
+
+    QmlObjectNode currentQmlObjectNode(modelNode);
+    if (currentQmlObjectNode.hasError()) {
+        items.idItem->setData(true, ErrorRole);
+        items.idItem->setToolTip(currentQmlObjectNode.error());
+        items.idItem->setIcon(QIcon(":/navigator/icon/warning.png"));
+    } else {
+        items.idItem->setData(false, ErrorRole);
+        if (modelNode.metaInfo().isValid())
+            items.idItem->setToolTip(QString::fromLatin1(modelNode.type()));
+        else
+            items.idItem->setToolTip(msgUnknownItem(QString::fromLatin1(modelNode.type())));
+    }
 
     blockItemChangedSignal(blockSignal);
 }
@@ -365,6 +428,30 @@ void NavigatorTreeModel::handleChangedIdItem(QStandardItem *idItem, ModelNode &m
     }
 }
 
+void NavigatorTreeModel::handleChangedExportItem(QStandardItem *exportItem, ModelNode &modelNode)
+{
+    bool exported = (exportItem->checkState() == Qt::Checked);
+
+    ModelNode rootModelNode = m_view->rootModelNode();
+    Q_ASSERT(rootModelNode.isValid());
+    PropertyName modelNodeId = modelNode.id().toLatin1();
+    if (rootModelNode.hasProperty(modelNodeId))
+        rootModelNode.removeProperty(modelNodeId);
+    if (exported) {
+
+        try {
+            RewriterTransaction transaction =
+                    m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+
+            modelNode.validId();
+            modelNodeId = modelNode.id().toLatin1();
+            rootModelNode.bindingProperty(modelNodeId).setDynamicTypeNameAndExpression("alias", modelNodeId);
+        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+            exception.showException();
+        }
+    }
+}
+
 void NavigatorTreeModel::handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode)
 {
     bool invisible = (visibilityItem->checkState() == Qt::Unchecked);
@@ -383,6 +470,8 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         ItemRow itemRow = itemRowForNode(modelNode);
         if (item == itemRow.idItem) {
             handleChangedIdItem(item, modelNode);
+        } else if (item == itemRow.exportItem) {
+            handleChangedExportItem(item, modelNode);
         } else if (item == itemRow.visibilityItem) {
             handleChangedVisibilityItem(item, modelNode);
         }
@@ -730,6 +819,14 @@ void NavigatorTreeModel::setVisible(const QModelIndex &index, bool visible)
     ItemRow itemRow = itemRowForNode(node);
     itemRow.visibilityItem->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
 }
+
+void NavigatorTreeModel::setExported(const QModelIndex &index, bool exported)
+{
+    ModelNode node = nodeForIndex(index);
+    ItemRow itemRow = itemRowForNode(node);
+    itemRow.exportItem->setCheckState(exported ? Qt::Checked : Qt::Unchecked);
+}
+
 
 void NavigatorTreeModel::openContextMenu(const QPoint &position)
 {

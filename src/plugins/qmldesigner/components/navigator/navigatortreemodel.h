@@ -64,14 +64,15 @@ class ModelNode;
     struct ItemRow {
         ItemRow()
             : idItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
-            : idItem(id), visibilityItem(visibility), propertyItems(properties) {}
+        ItemRow(QStandardItem *id, QStandardItem *exportI, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
+            : idItem(id), exportItem(exportI), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
-            return QList<QStandardItem*>() << idItem << visibilityItem;
+            return QList<QStandardItem*>() << idItem << exportItem << visibilityItem;
         }
 
         QStandardItem *idItem;
+        QStandardItem *exportItem;
         QStandardItem *visibilityItem;
         QMap<QString, QStandardItem *> propertyItems;
     };
@@ -83,7 +84,10 @@ class NavigatorTreeModel : public QStandardItemModel
 
 public:
     enum {
-        InternalIdRole = Qt::UserRole
+         InternalIdRole = Qt::UserRole
+        ,InvisibleRole = Qt::UserRole + 1
+        ,SimplifiedTypeNameRole = Qt::UserRole + 2
+        ,ErrorRole = Qt::UserRole + 3
     };
 
 
@@ -117,6 +121,7 @@ public:
     void updateItemRow(const ModelNode &node);
 
     void setId(const QModelIndex &index, const QString &id);
+    void setExported(const QModelIndex &index, bool exported);
     void setVisible(const QModelIndex &index, bool visible);
 
     void openContextMenu(const QPoint &p);
@@ -131,6 +136,7 @@ private:
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
     void handleChangedIdItem(QStandardItem *idItem, ModelNode &modelNode);
+    void handleChangedExportItem(QStandardItem *exportItem, ModelNode &modelNode);
     void handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode);
 
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);

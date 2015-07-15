@@ -109,81 +109,37 @@ NameItemDelegate::NameItemDelegate(QObject *parent, NavigatorTreeModel *treeMode
 {
 }
 
-static QIcon getTypeIcon(const ModelNode &modelNode)
+static int drawIcon(QPainter *painter, const QStyleOptionViewItem &styleOption, const QModelIndex &modelIndex)
 {
-    QIcon icon;
-
-    if (modelNode.isValid()) {
-        // if node has no own icon, search for it in the itemlibrary
-        const ItemLibraryInfo *libraryInfo = modelNode.model()->metaInfo().itemLibraryInfo();
-        QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(modelNode.type(),
-                                                                        modelNode.majorVersion(),
-                                                                        modelNode.minorVersion());
-        if (!itemLibraryEntryList.isEmpty())
-            return  itemLibraryEntryList.first().typeIcon();
-        else if (modelNode.metaInfo().isValid())
-            return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
-        else
-            return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
-    }
-
-    return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
-}
-
-static int drawTypeIcon(QPainter *painter,
-                    const QStyleOptionViewItem &styleOption,
-                    const QModelIndex &modelIndex,
-                    NavigatorTreeModel *navigatorTreeModel
-                    )
-{
+    QIcon icon = modelIndex.data(Qt::DecorationRole).value<QIcon>();
     int pixmapSize = 16;
 
-    if (navigatorTreeModel->hasNodeForIndex(modelIndex)) {
-        ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
-
-        // If no icon is present, leave an empty space of 24 pixels anyway
-        QPixmap pixmap = getTypeIcon(modelNode).pixmap(pixmapSize, pixmapSize);
-        painter->drawPixmap(styleOption.rect.x() +1 , styleOption.rect.y() + 2, pixmap);
-    }
+    QPixmap pixmap = icon.pixmap(pixmapSize, pixmapSize);
+    painter->drawPixmap(styleOption.rect.x() + 1 , styleOption.rect.y() + 2, pixmap);
 
     return pixmapSize;
-}
-
-static QString getDisplayString(const QModelIndex &modelIndex, NavigatorTreeModel *navigatorTreeModel)
-{
-    ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
-    if (modelNode.hasId())
-        return modelNode.id();
-
-    return modelNode.simplifiedTypeName();
 }
 
 static QRect drawText(QPainter *painter,
                      const QStyleOptionViewItem &styleOption,
                      const QModelIndex &modelIndex,
-                     int iconOffset,
-                     NavigatorTreeModel *navigatorTreeModel)
+                     int iconOffset)
 {
-    QString displayString;
+    QString displayString = modelIndex.data(Qt::DisplayRole).toString();
+    if (displayString.isEmpty())
+        displayString = modelIndex.data(NavigatorTreeModel::SimplifiedTypeNameRole).toString();
     QPoint displayStringOffset;
     int width = 0;
 
-    if (navigatorTreeModel->hasNodeForIndex(modelIndex)) {
-        if (navigatorTreeModel->isNodeInvisible( modelIndex ))
-            painter->setOpacity(0.5);
+    if (modelIndex.data(NavigatorTreeModel::InvisibleRole).toBool())
+        painter->setOpacity(0.5);
 
-        displayString = getDisplayString(modelIndex, navigatorTreeModel);
+    // Check text length does not exceed available space
+    int extraSpace = 12 + iconOffset;
 
-        // Check text length does not exceed available space
-        int extraSpace = 12 + iconOffset;
-
-        displayString = styleOption.fontMetrics.elidedText(displayString, Qt::ElideMiddle, styleOption.rect.width() - extraSpace);
-        displayStringOffset = QPoint(5 + iconOffset, -5);
-        width = styleOption.fontMetrics.width(displayString);
-    } else {
-        displayString = modelIndex.data(Qt::DisplayRole).toString();
-        displayStringOffset = QPoint(0, -2);
-    }
+    displayString = styleOption.fontMetrics.elidedText(displayString, Qt::ElideMiddle, styleOption.rect.width() - extraSpace);
+    displayStringOffset = QPoint(5 + iconOffset, -5);
+    width = styleOption.fontMetrics.width(displayString);
 
     QPoint textPosition = styleOption.rect.bottomLeft() + displayStringOffset;
     painter->drawText(textPosition, displayString);
@@ -197,25 +153,17 @@ static QRect drawText(QPainter *painter,
 
 static void drawRedWavyUnderLine(QPainter *painter,
                                  const QStyleOptionViewItem &styleOption,
-                                 const QModelIndex &modelIndex,
-                                 const QRect &textFrame ,
-                                 NavigatorTreeModel *navigatorTreeModel)
+                                 const QRect &textFrame)
 {
-    if (navigatorTreeModel->hasNodeForIndex(modelIndex)) {
-        ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
+    painter->translate(0, textFrame.y() + 1);
+    QPen pen;
+    pen.setColor(Qt::red);
+    const qreal underlineOffset = styleOption.fontMetrics.underlinePos();
+    const QPixmap wave = getWavyPixmap(qMax(underlineOffset, pen.widthF()), pen);
+    const int descent = styleOption.fontMetrics.descent();
 
-        if (!modelNode.metaInfo().isValid()) {
-            painter->translate(0, textFrame.y() + 1);
-            QPen pen;
-            pen.setColor(Qt::red);
-            const qreal underlineOffset = styleOption.fontMetrics.underlinePos();
-            const QPixmap wave = getWavyPixmap(qMax(underlineOffset, pen.widthF()), pen);
-            const int descent = styleOption.fontMetrics.descent();
-
-            painter->setBrushOrigin(painter->brushOrigin().x(), 0);
-            painter->fillRect(textFrame.x(), 0, qCeil(textFrame.width()), qMin(wave.height(), descent), wave);
-        }
-    }
+    painter->setBrushOrigin(painter->brushOrigin().x(), 0);
+    painter->fillRect(textFrame.x(), 0, qCeil(textFrame.width()), qMin(wave.height(), descent), wave);
 }
 
 void NameItemDelegate::paint(QPainter *painter,
@@ -223,15 +171,15 @@ void NameItemDelegate::paint(QPainter *painter,
                              const QModelIndex &modelIndex) const
 {
     painter->save();
-
     if (styleOption.state & QStyle::State_Selected)
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
 
-    int iconOffset = drawTypeIcon(painter, styleOption, modelIndex, m_navigatorTreeModel);
+    int iconOffset = drawIcon(painter, styleOption, modelIndex);
 
-    QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset, m_navigatorTreeModel);
+    QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
 
-    drawRedWavyUnderLine(painter, styleOption, modelIndex, textFrame, m_navigatorTreeModel);
+    if (modelIndex.data(NavigatorTreeModel::ErrorRole).toBool())
+        drawRedWavyUnderLine(painter, styleOption, textFrame);
 
     painter->restore();
 }

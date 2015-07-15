@@ -42,8 +42,8 @@ class NameItemDelegate : public QStyledItemDelegate
 public:
     explicit NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel);
 
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &styleOption,
+        const QModelIndex &index) const;
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
