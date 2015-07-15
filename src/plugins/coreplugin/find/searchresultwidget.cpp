@@ -39,6 +39,8 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreplugin.h>
+
+#include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
 #include <QDir>
@@ -75,12 +77,6 @@ public:
 public slots:
     void updateGeometry() { QLineEdit::updateGeometry(); }
 };
-
-} // namespace Internal
-} // namespace Core
-
-using namespace Core;
-using namespace Core::Internal;
 
 SearchResultWidget::SearchResultWidget(QWidget *parent) :
     QWidget(parent),
@@ -140,7 +136,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     layout->addWidget(m_messageWidget);
     m_messageWidget->setVisible(false);
 
-    m_searchResultTreeView = new Internal::SearchResultTreeView(this);
+    m_searchResultTreeView = new SearchResultTreeView(this);
     m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
     m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
@@ -497,15 +493,16 @@ void SearchResultWidget::searchAgain()
 QList<SearchResultItem> SearchResultWidget::checkedItems() const
 {
     QList<SearchResultItem> result;
-    Internal::SearchResultTreeModel *model = m_searchResultTreeView->model();
-    const int fileCount = model->rowCount(QModelIndex());
+    SearchResultTreeModel *model = m_searchResultTreeView->model();
+    const int fileCount = model->rowCount();
     for (int i = 0; i < fileCount; ++i) {
-        QModelIndex fileIndex = model->index(i, 0, QModelIndex());
-        Internal::SearchResultTreeItem *fileItem = static_cast<Internal::SearchResultTreeItem *>(fileIndex.internalPointer());
-        Q_ASSERT(fileItem != 0);
+        QModelIndex fileIndex = model->index(i, 0);
+        SearchResultTreeItem *fileItem = static_cast<SearchResultTreeItem *>(fileIndex.internalPointer());
+        QTC_ASSERT(fileItem != 0, continue);
         for (int rowIndex = 0; rowIndex < fileItem->childrenCount(); ++rowIndex) {
             QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
-            Internal::SearchResultTreeItem *rowItem = static_cast<Internal::SearchResultTreeItem *>(textIndex.internalPointer());
+            SearchResultTreeItem *rowItem = static_cast<SearchResultTreeItem *>(textIndex.internalPointer());
+            QTC_ASSERT(rowItem != 0, continue);
             if (rowItem->checkState())
                 result << rowItem->item;
         }
@@ -520,5 +517,8 @@ void SearchResultWidget::updateMatchesFoundLabel()
     else
         m_matchesFoundLabel->setText(tr("%n matches found.", 0, m_count));
 }
+
+} // namespace Internal
+} // namespace Core
 
 #include "searchresultwidget.moc"
