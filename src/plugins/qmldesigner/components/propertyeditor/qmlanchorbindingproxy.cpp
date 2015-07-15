@@ -295,7 +295,7 @@ RewriterTransaction QmlAnchorBindingProxy::beginRewriterTransaction(const QByteA
      return m_qmlItemNode.modelNode().view()->beginRewriterTransaction(identifier);
 }
 
-bool QmlAnchorBindingProxy::hasParent()
+bool QmlAnchorBindingProxy::hasParent() const
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.hasNodeParent();
 }
@@ -305,7 +305,7 @@ bool QmlAnchorBindingProxy::isInLayout() const
     return false;
 }
 
-bool QmlAnchorBindingProxy::isFilled()
+bool QmlAnchorBindingProxy::isFilled() const
 {
     return m_qmlItemNode.isValid()
             && hasAnchors()
@@ -319,27 +319,27 @@ bool QmlAnchorBindingProxy::isFilled()
             && (m_qmlItemNode.instanceValue("anchors.rightMargin").toInt() == 0);
 }
 
-bool QmlAnchorBindingProxy::topAnchored()
+bool QmlAnchorBindingProxy::topAnchored() const
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineTop);
 }
 
-bool QmlAnchorBindingProxy::bottomAnchored()
+bool QmlAnchorBindingProxy::bottomAnchored() const
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineBottom);
 }
 
-bool QmlAnchorBindingProxy::leftAnchored()
+bool QmlAnchorBindingProxy::leftAnchored() const
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineLeft);
 }
 
-bool QmlAnchorBindingProxy::rightAnchored()
+bool QmlAnchorBindingProxy::rightAnchored() const
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineRight);
 }
 
-bool QmlAnchorBindingProxy::hasAnchors()
+bool QmlAnchorBindingProxy::hasAnchors() const
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchors();
 }

@@ -96,13 +96,13 @@ public:
     void setup(const QmlItemNode &itemNode);
     void invalidate(const QmlItemNode &itemNode);
 
-    bool topAnchored();
-    bool bottomAnchored();
-    bool leftAnchored();
-    bool rightAnchored();
+    bool topAnchored() const;
+    bool bottomAnchored() const;
+    bool leftAnchored() const;
+    bool rightAnchored() const;
 
-    bool hasParent();
-    bool isFilled();
+    bool hasParent() const;
+    bool isFilled() const;
 
     bool isInLayout() const;
 
@@ -110,7 +110,7 @@ public:
     void removeBottomAnchor();
     void removeLeftAnchor();
     void removeRightAnchor();
-    bool hasAnchors();
+    bool hasAnchors() const;
 
     bool horizontalCentered();
     bool verticalCentered();
