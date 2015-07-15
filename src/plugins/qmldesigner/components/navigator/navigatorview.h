@@ -54,7 +54,7 @@ public:
     NavigatorView(QObject* parent = 0);
     ~NavigatorView();
 
-    bool hasWidget() const;
+    bool hasWidget() const override;
     WidgetInfo widgetInfo();
 
     // AbstractView
