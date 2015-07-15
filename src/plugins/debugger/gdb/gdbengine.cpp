@@ -4260,6 +4260,14 @@ void GdbEngine::loadInitScript()
     }
 }
 
+void GdbEngine::setEnvironmentVariables()
+{
+    if (runParameters().environment.size()) {
+        foreach (const QString &env, runParameters().environment.toStringList())
+            postCommand("-gdb-set environment " + env.toUtf8());
+    }
+}
+
 void GdbEngine::reloadDebuggingHelpers()
 {
     runCommand("reloadDumpers");
@@ -4570,7 +4578,7 @@ bool GdbEngine::prepareCommand()
         QtcProcess::SplitError perr;
         rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
                                                  HostOsInfo::hostOs(),
-                    &rp.environment, &rp.workingDirectory).toWindowsArgs();
+                    nullptr, &rp.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809

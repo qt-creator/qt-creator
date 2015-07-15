@@ -182,7 +182,7 @@ bool LldbEngine::prepareCommand()
         QtcProcess::SplitError perr;
         rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
                                                  HostOsInfo::hostOs(),
-                    &rp.environment, &rp.workingDirectory).toWindowsArgs();
+                    nullptr, &rp.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -290,6 +290,11 @@ void LldbEngine::startLldbStage2()
 
 void LldbEngine::setupInferior()
 {
+    if (runParameters().environment.size()) {
+        foreach (const QString &env, runParameters().environment.toStringList())
+            runCommand("env " + env.toUtf8());
+    }
+
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");

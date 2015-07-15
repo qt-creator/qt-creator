@@ -59,8 +59,6 @@ void GdbAttachEngine::setupEngine()
 
     if (!runParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
-    if (runParameters().environment.size())
-        m_gdbProc.setEnvironment(runParameters().environment);
 
     startGdb();
 }

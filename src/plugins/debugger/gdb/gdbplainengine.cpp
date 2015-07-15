@@ -57,6 +57,7 @@ GdbPlainEngine::GdbPlainEngine(const DebuggerRunParameters &startParameters)
 void GdbPlainEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    setEnvironmentVariables();
     if (!runParameters().processArgs.isEmpty()) {
         QString args = runParameters().processArgs;
         postCommand("-exec-arguments " + toLocalEncoding(args));
@@ -127,9 +128,6 @@ void GdbPlainEngine::setupEngine()
 
     if (!runParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
-    Utils::Environment env = runParameters().environment;
-    if (env.size())
-        m_gdbProc.setEnvironment(env);
 
     startGdb(gdbArgs);
 }
