@@ -383,13 +383,17 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
     m_lineEditModule->setEnabled(partsMask & ModulePart);
 
     m_labelTracepoint->setEnabled(partsMask & TracePointPart);
+    m_labelTracepoint->hide();
     m_checkBoxTracepoint->setEnabled(partsMask & TracePointPart);
+    m_checkBoxTracepoint->hide();
 
     m_labelCommands->setEnabled(partsMask & TracePointPart);
     m_textEditCommands->setEnabled(partsMask & TracePointPart);
 
     m_labelMessage->setEnabled(partsMask & TracePointPart);
+    m_labelMessage->hide();
     m_lineEditMessage->setEnabled(partsMask & TracePointPart);
+    m_lineEditMessage->hide();
 }
 
 void BreakpointDialog::clearOtherParts(unsigned partsMask)
