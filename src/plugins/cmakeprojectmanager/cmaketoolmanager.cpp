@@ -163,20 +163,29 @@ static void readAndDeleteLegacyCMakeSettings ()
 
 static QList<CMakeTool *> autoDetectCMakeTools()
 {
-    QStringList filters;
-    filters.append(QStringLiteral("cmake"));
-
     QList<FileName> suspects;
 
-    QStringList path = Environment::systemEnvironment().path();
+    Utils::Environment env = Environment::systemEnvironment();
+
+    QStringList path = env.path();
     path.removeDuplicates();
-    QDir dir;
-    dir.setNameFilters(filters);
-    dir.setFilter(QDir::Files | QDir::Executable);
-    foreach (const QString &base, path) {
-        dir.setPath(base);
-        foreach (const QString &entry, dir.entryList())
-            suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
+
+    QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
+
+    foreach (QString base, path) {
+        const QChar slash = QLatin1Char('/');
+        if (base.isEmpty())
+            continue;
+        // Avoid turning '/' into '//' on Windows which triggers Windows to check
+        // for network drives!
+        if (!base.endsWith(slash))
+            base += slash;
+
+        foreach (const QString &exec, execs) {
+            QFileInfo fi(base + exec);
+            if (fi.exists() && fi.isFile() && fi.isExecutable())
+                suspects << FileName::fromString(fi.absoluteFilePath());
+        }
     }
 
     QList<CMakeTool *> found;
