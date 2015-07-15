@@ -1,9 +1,14 @@
 import qbs 1.0
+import qbs.FileInfo
 
 QtcLibrary {
     name: "Utils"
 
-    cpp.defines: base.concat("QTCREATOR_UTILS_LIB")
+    cpp.defines: base.concat([
+        "QTCREATOR_UTILS_LIB",
+        "QTC_REL_TOOLS_PATH=\"" + FileInfo.relativePath(project.ide_bin_path,
+                                                        project.ide_libexec_path) + "\""
+    ])
 
     Properties {
         condition: qbs.targetOS.contains("windows")

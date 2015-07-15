@@ -151,12 +151,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         }
     }
 
-    QString stubPath = QCoreApplication::applicationDirPath();
-    if (HostOsInfo::isMacHost())
-        stubPath.append(QLatin1String("/../Resources/qtcreator_process_stub"));
-    else
-        stubPath.append(QLatin1String("/qtcreator_process_stub"));
-
+    const QString stubPath = QCoreApplication::applicationDirPath()
+            + QLatin1String("/" QTC_REL_TOOLS_PATH "/qtcreator_process_stub");
     QStringList allArgs = xtermArgs.toUnixArgs();
     allArgs << stubPath
               << modeOption(d->m_mode)
