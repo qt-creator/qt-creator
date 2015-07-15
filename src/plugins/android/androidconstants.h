@@ -58,7 +58,6 @@ const char ANDROID_SETTINGS_CATEGORY[] = "XA.Android";
 const char ANDROID_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Android", "Android");
 const char ANDROID_SETTINGS_CATEGORY_ICON[] = ":/android/images/QtAndroid.png";
 const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
-const char ANDROID_TOOLCHAIN_TYPE[] = "androidgcc";
 const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
 
 const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
