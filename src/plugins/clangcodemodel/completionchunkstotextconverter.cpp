@@ -114,6 +114,18 @@ QString CompletionChunksToTextConverter::convertToName(const QVector<ClangBackEn
     return converter.text();
 }
 
+QString CompletionChunksToTextConverter::convertToToolTip(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+{
+    CompletionChunksToTextConverter converter;
+    converter.setAddPlaceHolderText(true);
+    converter.setAddSpaces(true);
+    converter.setAddExtraVerticalSpaceBetweenBraces(true);
+
+    converter.parseChunks(codeCompletionChunks);
+
+    return converter.text();
+}
+
 void CompletionChunksToTextConverter::parse(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     using ClangBackEnd::CodeCompletionChunk;

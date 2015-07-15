@@ -59,7 +59,7 @@ public:
 
     static QString convertToFunctionSignature(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
     static QString convertToName(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
-
+    static QString convertToToolTip(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
 private:
     void parse(const ClangBackEnd::CodeCompletionChunk & codeCompletionChunk);
     void parseResultType(const Utf8String &text);

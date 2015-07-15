@@ -100,14 +100,12 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
             item = new ClangAssistProposalItem;
             items.insert(name, item);
             item->setText(name);
-            item->setDetail(ccr.hint().toString());
             item->setOrder(ccr.priority());
 
-            const QString snippet = ccr.snippet().toString();
-            if (!snippet.isEmpty())
-                item->setData(snippet);
-            else
-                item->setData(qVariantFromValue(ccr));
+            if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
+                item->setDetail(CompletionChunksToTextConverter::convertToToolTip(ccr.chunks()));
+
+            item->setData(QVariant::fromValue(ccr));
         }
 
         // FIXME: show the effective accessebility instead of availability
