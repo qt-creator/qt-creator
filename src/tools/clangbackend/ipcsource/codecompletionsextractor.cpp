@@ -91,6 +91,7 @@ bool CodeCompletionsExtractor::peek(const Utf8String &name)
 QVector<CodeCompletion> CodeCompletionsExtractor::extractAll()
 {
     QVector<CodeCompletion> codeCompletions;
+    codeCompletions.reserve(cxCodeCompleteResults->NumResults);
 
     while (next())
         codeCompletions.append(currentCodeCompletion_);
