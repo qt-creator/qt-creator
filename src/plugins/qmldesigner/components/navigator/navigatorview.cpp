@@ -160,7 +160,7 @@ void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     m_treeModel->removeSubTree(removedNode);
 }
 
-void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & /*newPropertyParent*/, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & newPropertyParent, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     bool blocked = blockSelectionChangedSignal(true);
 
@@ -171,6 +171,11 @@ void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProp
 
     // make sure selection is in sync again
     updateItemSelection();
+
+    if (newPropertyParent.parentModelNode().isValid()) {
+        QModelIndex index = m_treeModel->indexForNode(newPropertyParent.parentModelNode());
+        treeWidget()->expand(index);
+    }
 
     blockSelectionChangedSignal(blocked);
 }
@@ -223,6 +228,10 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const
         if (node.isInHierarchy())
             m_treeModel->addSubTree(listProperty.parentModelNode());
 
+        if (listProperty.parentModelNode().isValid()) {
+            QModelIndex index = m_treeModel->indexForNode(listProperty.parentModelNode());
+            treeWidget()->expand(index);
+        }
     }
 }
 
