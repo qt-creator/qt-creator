@@ -155,38 +155,9 @@ void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const 
     treeWidget()->update();
 }
 
-void NavigatorView::nodeCreated(const ModelNode & /*createdNode*/)
-{
-}
-
-void NavigatorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty & /*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::propertiesRemoved(const QList<AbstractProperty> & /*propertyList*/)
-{
-}
-
-void NavigatorView::variantPropertiesChanged(const QList<VariantProperty> & /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
-                                                   AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     m_treeModel->removeSubTree(removedNode);
-}
-
-void NavigatorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
 }
 
 void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & /*newPropertyParent*/, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -242,57 +213,6 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const Prope
             treeWidget()->update(index.sibling(index.row(),index.column()+1));
         }
     }
-}
-
-void NavigatorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
-{
-}
-
-void NavigatorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
-{
-}
-
-void NavigatorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-}
-
-void NavigatorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
-{
-}
-
-void NavigatorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-}
-
-void NavigatorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-}
-
-void NavigatorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void NavigatorView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
-{
-
-}
-
-void NavigatorView::rewriterBeginTransaction()
-{
-}
-
-void NavigatorView::rewriterEndTransaction()
-{
-}
-
-void NavigatorView::currentStateChanged(const ModelNode &/*node*/)
-{
-}
-
-void NavigatorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
 }
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int /*oldIndex*/)
