@@ -72,8 +72,6 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
 {
     static CPlusPlus::Icons m_icons; // de-deduplicate
 
-    QList<AssistProposalItem *> result;
-
     bool signalCompletion = false; // TODO
     bool slotCompletion = false; // TODO
 
@@ -179,10 +177,11 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
         }
     }
 
-    foreach (ClangAssistProposalItem *item, items.values())
-        result.append(item);
+    QList<AssistProposalItem *> results;
+    results.reserve(items.size());
+    std::copy(items.cbegin(), items.cend(), std::back_inserter(results));
 
-    return result;
+    return results;
 }
 
 bool isFunctionHintLikeCompletion(CodeCompletion::Kind kind)
