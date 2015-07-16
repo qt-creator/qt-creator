@@ -331,7 +331,7 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         this, &WatchModel::updateStarted);
 
     connect(action(SortStructMembers), &SavedAction::valueChanged,
-        m_engine, &DebuggerEngine::updateAll);
+        m_engine, &DebuggerEngine::updateLocals);
     connect(action(ShowStdNamespace), &SavedAction::valueChanged,
         m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowQtNamespace), &SavedAction::valueChanged,
