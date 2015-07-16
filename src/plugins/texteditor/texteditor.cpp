@@ -1495,12 +1495,26 @@ void TextEditorWidget::lowercaseSelection()
 
 void TextEditorWidget::indent()
 {
-    setTextCursor(textDocument()->indent(textCursor()));
+    int offset = 0;
+    doSetTextCursor(textDocument()->indent(textCursor(), d->m_inBlockSelectionMode,
+                                           d->m_blockSelection.positionColumn, &offset),
+                    d->m_inBlockSelectionMode);
+    if (d->m_inBlockSelectionMode) {
+        d->m_blockSelection.anchorColumn += offset;
+        d->m_blockSelection.positionColumn += offset;
+    }
 }
 
 void TextEditorWidget::unindent()
 {
-    setTextCursor(textDocument()->unindent(textCursor()));
+    int offset = 0;
+    doSetTextCursor(textDocument()->unindent(textCursor(), d->m_inBlockSelectionMode,
+                                             d->m_blockSelection.positionColumn, &offset),
+                    d->m_inBlockSelectionMode);
+    if (d->m_inBlockSelectionMode) {
+        d->m_blockSelection.anchorColumn += offset;
+        d->m_blockSelection.positionColumn += offset;
+    }
 }
 
 void TextEditorWidget::undo()
@@ -2254,10 +2268,15 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
             d->m_document->autoIndent(cursor);
         } else {
-            if (e->key() == Qt::Key_Tab)
-                indent();
-            else
-                unindent();
+            if (d->m_inBlockSelectionMode
+                    && d->m_blockSelection.firstVisualColumn() != d->m_blockSelection.lastVisualColumn()) {
+                d->removeBlockSelection();
+            } else {
+                if (e->key() == Qt::Key_Tab)
+                    indent();
+                else
+                    unindent();
+            }
         }
         e->accept();
         return;

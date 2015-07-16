@@ -87,7 +87,8 @@ public:
     {
     }
 
-    QTextCursor indentOrUnindent(const QTextCursor &textCursor, bool doIndent);
+    QTextCursor indentOrUnindent(const QTextCursor &textCursor, bool doIndent,
+                                 bool blockSelection = false, int column = 0, int *offset = 0);
     void resetRevisions();
     void updateRevisions();
 
@@ -111,56 +112,84 @@ public:
     TextMarks m_marksCache; // Marks not owned
 };
 
-QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent)
+QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent,
+                                                  bool blockSelection, int columnIn, int *offset)
 {
     QTextCursor cursor = textCursor;
     cursor.beginEditBlock();
 
-    if (cursor.hasSelection()) {
-        // Indent or unindent the selected lines
-        int pos = cursor.position();
-        int anchor = cursor.anchor();
-        int start = qMin(anchor, pos);
-        int end = qMax(anchor, pos);
+    TabSettings &ts = m_tabSettings;
 
-        QTextBlock startBlock = m_document.findBlock(start);
-        QTextBlock endBlock = m_document.findBlock(end-1).next();
+    // Indent or unindent the selected lines
+    int pos = cursor.position();
+    int column = blockSelection ? columnIn
+               : ts.columnAt(cursor.block().text(), cursor.positionInBlock());
+    int anchor = cursor.anchor();
+    int start = qMin(anchor, pos);
+    int end = qMax(anchor, pos);
+    bool modified = true;
 
-        if (startBlock.next() == endBlock
-                && (start > startBlock.position() || end < endBlock.position() - 1)) {
-            // Only one line partially selected.
+    QTextBlock startBlock = m_document.findBlock(start);
+    QTextBlock endBlock = m_document.findBlock(end).next();
+
+    const bool oneLinePartial = (startBlock.next() == endBlock)
+                              && (start > startBlock.position() || end < endBlock.position() - 1);
+
+    // Make sure one line selection will get processed in "for" loop
+    if (startBlock == endBlock)
+        endBlock = endBlock.next();
+
+    if (cursor.hasSelection() && !blockSelection && !oneLinePartial) {
+        for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
+            const QString text = block.text();
+            int indentPosition = ts.lineIndentPosition(text);
+            if (!doIndent && !indentPosition)
+                indentPosition = ts.firstNonSpace(text);
+            int targetColumn = ts.indentedColumn(ts.columnAt(text, indentPosition), doIndent);
+            cursor.setPosition(block.position() + indentPosition);
+            cursor.insertText(ts.indentationString(0, targetColumn, block));
+            cursor.setPosition(block.position());
+            cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
-        } else {
-            for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
-                QString text = block.text();
-                int indentPosition = m_tabSettings.lineIndentPosition(text);
-                if (!doIndent && !indentPosition)
-                    indentPosition = m_tabSettings.firstNonSpace(text);
-                int targetColumn = m_tabSettings.indentedColumn(m_tabSettings.columnAt(text, indentPosition), doIndent);
-                cursor.setPosition(block.position() + indentPosition);
-                cursor.insertText(m_tabSettings.indentationString(0, targetColumn, block));
-                cursor.setPosition(block.position());
-                cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
-                cursor.removeSelectedText();
+            modified = false;
+        }
+    } else if (cursor.hasSelection() && !blockSelection && oneLinePartial) {
+        // Only one line partially selected.
+        cursor.removeSelectedText();
+    } else {
+        // Indent or unindent at cursor position
+        for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
+            QString text = block.text();
+
+            int blockColumn = ts.columnAt(text, text.size());
+            if (blockColumn < column) {
+                cursor.setPosition(block.position() + text.size());
+                cursor.insertText(ts.indentationString(blockColumn, column, block));
+                text = block.text();
             }
-            cursor.endEditBlock();
-            return textCursor;
+
+            int indentPosition = ts.positionAtColumn(text, column, 0, true);
+            int spaces = ts.spacesLeftFromPosition(text, indentPosition);
+            int startColumn = ts.columnAt(text, indentPosition - spaces);
+            int targetColumn = ts.indentedColumn(ts.columnAt(text, indentPosition), doIndent);
+            cursor.setPosition(block.position() + indentPosition);
+            cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
+            cursor.insertText(ts.indentationString(startColumn, targetColumn, block));
+        }
+        // Preserve initial anchor of block selection
+        if (blockSelection) {
+            end = cursor.position();
+            if (offset)
+                *offset = ts.columnAt(cursor.block().text(), cursor.positionInBlock()) - column;
+            cursor.setPosition(start);
+            cursor.setPosition(end, QTextCursor::KeepAnchor);
         }
     }
 
-    // Indent or unindent at cursor position
-    QTextBlock block = cursor.block();
-    QString text = block.text();
-    int indentPosition = cursor.positionInBlock();
-    int spaces = m_tabSettings.spacesLeftFromPosition(text, indentPosition);
-    int startColumn = m_tabSettings.columnAt(text, indentPosition - spaces);
-    int targetColumn = m_tabSettings.indentedColumn(m_tabSettings.columnAt(text, indentPosition), doIndent);
-    cursor.setPosition(block.position() + indentPosition);
-    cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
-    cursor.removeSelectedText();
-    cursor.insertText(m_tabSettings.indentationString(startColumn, targetColumn, block));
     cursor.endEditBlock();
-    return cursor;
+
+    return modified ? cursor : textCursor;
 }
 
 void TextDocumentPrivate::resetRevisions()
@@ -359,14 +388,16 @@ void TextDocument::autoReindent(const QTextCursor &cursor)
     d->m_indenter->reindent(&d->m_document, cursor, d->m_tabSettings);
 }
 
-QTextCursor TextDocument::indent(const QTextCursor &cursor)
+QTextCursor TextDocument::indent(const QTextCursor &cursor, bool blockSelection, int column,
+                                 int *offset)
 {
-    return d->indentOrUnindent(cursor, true);
+    return d->indentOrUnindent(cursor, true, blockSelection, column, offset);
 }
 
-QTextCursor TextDocument::unindent(const QTextCursor &cursor)
+QTextCursor TextDocument::unindent(const QTextCursor &cursor, bool blockSelection, int column,
+                                   int *offset)
 {
-    return d->indentOrUnindent(cursor, false);
+    return d->indentOrUnindent(cursor, false, blockSelection, column, offset);
 }
 
 const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const

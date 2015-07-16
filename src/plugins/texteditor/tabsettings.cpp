@@ -198,12 +198,13 @@ int TabSettings::columnAt(const QString &text, int position) const
     return column;
 }
 
-int TabSettings::positionAtColumn(const QString &text, int column, int *offset) const
+int TabSettings::positionAtColumn(const QString &text, int column, int *offset, bool allowOverstep) const
 {
     int col = 0;
     int i = 0;
-    while (i < text.size() && col < column) {
-        if (text.at(i) == QLatin1Char('\t'))
+    int textSize = text.size();
+    while ((i < textSize || allowOverstep) && col < column) {
+        if (i < textSize && text.at(i) == QLatin1Char('\t'))
             col = col - (col % m_tabSize) + m_tabSize;
         else
             ++col;
@@ -228,6 +229,8 @@ int TabSettings::columnCountForText(const QString &text, int startColumn) const
 
 int TabSettings::spacesLeftFromPosition(const QString &text, int position)
 {
+    if (position >= text.size())
+        return 0;
     int i = position;
     while (i > 0) {
         if (!text.at(i-1).isSpace())

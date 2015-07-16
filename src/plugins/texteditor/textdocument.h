@@ -89,8 +89,10 @@ public:
     Indenter *indenter() const;
     void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null);
     void autoReindent(const QTextCursor &cursor);
-    QTextCursor indent(const QTextCursor &cursor);
-    QTextCursor unindent(const QTextCursor &cursor);
+    QTextCursor indent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
+                       int *offset = 0);
+    QTextCursor unindent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
+                         int *offset = 0);
 
     TextMarks marks() const;
     bool addMark(TextMark *mark);
