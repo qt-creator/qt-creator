@@ -311,7 +311,7 @@ void LldbEngine::setupInferior()
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
         DebuggerCommand cmd("executeDebuggerCommand");
-        cmd.arg("commands", commands.toUtf8());
+        cmd.arg("command", commands.toUtf8());
         runCommand(cmd);
     }
 
