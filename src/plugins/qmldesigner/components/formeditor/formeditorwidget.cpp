@@ -189,7 +189,7 @@ void FormEditorWidget::changeBackgound(const QColor &color)
 void FormEditorWidget::resetNodeInstanceView()
 {
     m_formEditorView->setCurrentStateNode(m_formEditorView->rootModelNode());
-    m_formEditorView->emitCustomNotification(QStringLiteral("reset QmlPuppet"));
+    m_formEditorView->resetPuppet();
 }
 
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
