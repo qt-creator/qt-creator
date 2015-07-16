@@ -995,10 +995,14 @@ void QmlEngine::updateItem(const QByteArray &iname)
     const WatchItem *item = watchHandler()->findItem(iname);
     QTC_ASSERT(item, return);
 
-    QString exp = QString::fromUtf8(item->exp);
-    d->evaluate(exp, [this, iname, exp](const QVariantMap &response) {
-        d->handleEvaluateExpression(response, iname, exp);
-    });
+    if (state() == InferiorStopOk) {
+        // The Qt side Q_ASSERTs otherwise. So postpone the evaluation,
+        // it will be triggered from from upateLocals() later.
+        QString exp = QString::fromUtf8(item->exp);
+        d->evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+            d->handleEvaluateExpression(response, iname, exp);
+        });
+    }
 }
 
 void QmlEngine::selectWatchData(const QByteArray &iname)
@@ -1347,6 +1351,10 @@ void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
     //                      ]
     //                    }
     //    }
+
+    // The Qt side Q_ASSERTs otherwise. So ignore the request and hope
+    // it will be repeated soon enough (which it will, e.g. in updateLocals)
+    QTC_ASSERT(engine->state() == InferiorStopOk, return);
 
     DebuggerCommand cmd(EVALUATE);
 
