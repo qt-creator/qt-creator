@@ -475,6 +475,23 @@ void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, Info
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);
             if (qmlItemNode.isRootModelNode() && informationChangeHash.values(node).contains(Size)) {
+                if (qmlItemNode.instanceBoundingRect().isEmpty() &&
+                        !(qmlItemNode.propertyAffectedByCurrentState("width")
+                          && qmlItemNode.propertyAffectedByCurrentState("height"))) {
+                    rootModelNode().setAuxiliaryData("width", 640);
+                    rootModelNode().setAuxiliaryData("height", 480);
+                    rootModelNode().setAuxiliaryData("autoSize", true);
+                    formEditorWidget()->updateActions();
+                } else {
+                    if (rootModelNode().hasAuxiliaryData("autoSize")
+                            && (qmlItemNode.propertyAffectedByCurrentState("width")
+                                || qmlItemNode.propertyAffectedByCurrentState("height"))) {
+                        rootModelNode().setAuxiliaryData("width", QVariant());
+                        rootModelNode().setAuxiliaryData("height", QVariant());
+                        rootModelNode().removeAuxiliaryData("autoSize");
+                        formEditorWidget()->updateActions();
+                    }
+                }
                 formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
                 formEditorWidget()->centerScene();
             }
