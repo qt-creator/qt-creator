@@ -45,43 +45,29 @@ class DesignerActionManagerView : public AbstractView
 public:
     DesignerActionManagerView();
 
-    void modelAttached(Model *model);
-    void modelAboutToBeDetached(Model *model);
-    void nodeCreated(const ModelNode &);
-    void nodeAboutToBeRemoved(const ModelNode &);
-    void nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags);
+    void modelAttached(Model *model) override;
+    void modelAboutToBeDetached(Model *model) override;
+    void nodeCreated(const ModelNode &) override;
+    void nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags) override;
     void nodeAboutToBeReparented(const ModelNode &,
                                          const NodeAbstractProperty &,
                                          const NodeAbstractProperty &,
-                                         AbstractView::PropertyChangeFlags );
+                                         AbstractView::PropertyChangeFlags ) override;
     void nodeReparented(const ModelNode &, const NodeAbstractProperty &,
                                 const NodeAbstractProperty &,
-                                AbstractView::PropertyChangeFlags);
-    void nodeIdChanged(const ModelNode&, const QString&, const QString&);
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty>&);
-    void propertiesRemoved(const QList<AbstractProperty>&);
-    void variantPropertiesChanged(const QList<VariantProperty>&, PropertyChangeFlags);
-    void bindingPropertiesChanged(const QList<BindingProperty>&, PropertyChangeFlags);
-    void rootNodeTypeChanged(const QString &, int , int );
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &);
-    void instancesCompleted(const QVector<ModelNode> &);
-    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &);
-    void instancesRenderImageChanged(const QVector<ModelNode> &);
-    void instancesPreviewImageChanged(const QVector<ModelNode> &);
-    void instancesChildrenChanged(const QVector<ModelNode> &);
-    void instancesToken(const QString &, int , const QVector<ModelNode> &);
-    void nodeSourceChanged(const ModelNode &, const QString &);
-    void rewriterBeginTransaction();
-    void rewriterEndTransaction();
-    void currentStateChanged(const ModelNode &);
+                                AbstractView::PropertyChangeFlags) override;
+    void propertiesRemoved(const QList<AbstractProperty>&) override;
+    void rootNodeTypeChanged(const QString &, int , int ) override;
+    void rewriterBeginTransaction() override;
+    void rewriterEndTransaction() override;
+    void currentStateChanged(const ModelNode &) override;
     void selectedNodesChanged(const QList<ModelNode> &,
-                                      const QList<ModelNode> &);
-    void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int );
-    void importsChanged(const QList<Import> &, const QList<Import> &);
-    void scriptFunctionsChanged(const ModelNode &, const QStringList &);
-    void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
-    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/);
+                                      const QList<ModelNode> &) override;
+    void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int ) override;
+    void importsChanged(const QList<Import> &, const QList<Import> &) override;
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/) override;
 
+    void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
 

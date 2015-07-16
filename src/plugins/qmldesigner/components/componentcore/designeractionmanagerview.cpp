@@ -61,9 +61,6 @@ void DesignerActionManagerView::nodeCreated(const ModelNode &)
     setupContext();
 }
 
-void DesignerActionManagerView::nodeAboutToBeRemoved(const ModelNode &)
-{}
-
 void DesignerActionManagerView::nodeRemoved(const ModelNode &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
 {
     setupContext();
@@ -79,51 +76,15 @@ void DesignerActionManagerView::nodeReparented(const ModelNode &, const NodeAbst
     setupContext();
 }
 
-void DesignerActionManagerView::nodeIdChanged(const ModelNode &, const QString &, const QString &)
-{}
-
-void DesignerActionManagerView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &)
-{}
-
 void DesignerActionManagerView::propertiesRemoved(const QList<AbstractProperty> &)
 {
     setupContext();
 }
 
-void DesignerActionManagerView::variantPropertiesChanged(const QList<VariantProperty> &, AbstractView::PropertyChangeFlags)
-{}
-
-void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProperty> &, AbstractView::PropertyChangeFlags)
-{}
-
 void DesignerActionManagerView::rootNodeTypeChanged(const QString &, int, int)
 {
     setupContext();
 }
-
-void DesignerActionManagerView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &)
-{}
-
-void DesignerActionManagerView::instancesCompleted(const QVector<ModelNode> &)
-{}
-
-void DesignerActionManagerView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &)
-{}
-
-void DesignerActionManagerView::instancesRenderImageChanged(const QVector<ModelNode> &)
-{}
-
-void DesignerActionManagerView::instancesPreviewImageChanged(const QVector<ModelNode> &)
-{}
-
-void DesignerActionManagerView::instancesChildrenChanged(const QVector<ModelNode> &)
-{}
-
-void DesignerActionManagerView::instancesToken(const QString &, int, const QVector<ModelNode> &)
-{}
-
-void DesignerActionManagerView::nodeSourceChanged(const ModelNode &, const QString &)
-{}
 
 void DesignerActionManagerView::rewriterBeginTransaction()
 {
@@ -157,9 +118,6 @@ void DesignerActionManagerView::importsChanged(const QList<Import> &, const QLis
 {
     setupContext();
 }
-
-void DesignerActionManagerView::scriptFunctionsChanged(const ModelNode &, const QStringList &)
-{}
 
 void DesignerActionManagerView::setDesignerActionList(const QList<ActionInterface *> &designerActionList)
 {
