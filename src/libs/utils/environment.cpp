@@ -390,7 +390,8 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
             result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else {
-            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
+            if (thisIt.value() != otherIt.value())
+                result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
             ++thisIt;
         }
