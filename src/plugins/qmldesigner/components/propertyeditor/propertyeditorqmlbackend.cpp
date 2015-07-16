@@ -205,7 +205,7 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
         qmlObjectNode.modelNode().property(propertyName).isBindingProperty()) {
         valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(propertyName).expression());
     } else {
-        if (qmlObjectNode.hasBindingProperty(propertyName))
+        if (qmlObjectNode.hasBindingProperty(name))
             valueObject->setExpression(qmlObjectNode.expression(name));
         else
             valueObject->setExpression(qmlObjectNode.instanceValue(name).toString());
