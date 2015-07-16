@@ -75,16 +75,10 @@ public:
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) override;
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
-    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
-    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) override;
-    void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
-
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     // FormEditorView
@@ -111,10 +105,8 @@ public:
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) override;
-    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) override;
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList) override;
     void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
-    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) override;
 
     void rewriterBeginTransaction() override;
     void rewriterEndTransaction() override;
@@ -123,13 +115,6 @@ public:
     double spacing() const;
     void deActivateItemCreator();
 
-    void currentStateChanged(const ModelNode &node) override;
-
-    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) override;
-    void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, PropertyChangeFlags propertyChange) override;
-    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
-    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) override;
-
 protected:
     void reset();
 
@@ -137,7 +122,6 @@ protected slots:
     void delayedReset();
     QList<ModelNode> adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const;
     void updateGraphicsIndicators();
-    void setSelectOnlyContentItemsAction(bool selectOnlyContentItems);
     bool isMoveToolAvailable() const;
 
 private: //functions

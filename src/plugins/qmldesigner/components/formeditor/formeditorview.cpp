@@ -131,6 +131,7 @@ void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
         nodeList.append(qmlItemNode);
 
         QList<FormEditorItem*> removedItemList;
+
         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
         m_currentTool->itemsAboutToRemoved(removedItemList);
 
@@ -252,18 +253,6 @@ void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractPro
         hideNodeFromScene(node);
 }
 
-void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void FormEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 WidgetInfo FormEditorView::widgetInfo()
 {
     return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
@@ -290,14 +279,6 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)));
 
     m_scene->update();
-}
-
-void FormEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
-{
-}
-
-void FormEditorView::propertiesRemoved(const QList<AbstractProperty> &/*propertyList*/)
-{
 }
 
 void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
@@ -503,15 +484,6 @@ void FormEditorView::instancesRenderImageChanged(const QVector<ModelNode> &nodeL
     }
 }
 
-void FormEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void FormEditorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-}
-
 void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
 {
     QList<FormEditorItem*> itemNodeList;
@@ -595,12 +567,6 @@ void FormEditorView::updateGraphicsIndicators()
     m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
 }
 
-
-void FormEditorView::setSelectOnlyContentItemsAction(bool selectOnlyContentItems)
-{
-    m_selectionTool->setSelectOnlyContentItems(selectOnlyContentItems);
-}
-
 bool FormEditorView::isMoveToolAvailable() const
 {
     if (hasSingleSelectedModelNode() && QmlItemNode::isValidQmlItemNode(singleSelectedModelNode())) {
@@ -611,30 +577,6 @@ bool FormEditorView::isMoveToolAvailable() const
     }
 
     return true;
-}
-
-void FormEditorView::currentStateChanged(const ModelNode &/*node*/)
-{
-}
-
-void FormEditorView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void FormEditorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void FormEditorView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
-{
-
-}
-
-void FormEditorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
-{
-
 }
 
 void FormEditorView::reset()
