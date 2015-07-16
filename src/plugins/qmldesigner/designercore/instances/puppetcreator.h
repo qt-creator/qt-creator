@@ -33,6 +33,9 @@
 
 #include <QString>
 #include <QProcessEnvironment>
+
+#include <designersettings.h>
+
 #include <coreplugin/id.h>
 
 namespace ProjectExplorer {
@@ -41,17 +44,16 @@ class Kit;
 
 namespace QmlDesigner {
 
-class Model;
 class PuppetBuildProgressDialog;
+class Model;
 
 class PuppetCreator
 {
+public:
     enum PuppetType {
         FallbackPuppet,
         UserSpacePuppet
     };
-
-public:
     enum QmlPuppetVersion {
         Qml1Puppet,
         Qml2Puppet
@@ -72,14 +74,17 @@ public:
 
     void setQrcMappingString(const QString qrcMapping);
 
+    static QString defaultPuppetToplevelBuildDirectory();
+    static QString defaultPuppetFallbackDirectory();
 protected:
     bool build(const QString &qmlPuppetProjectFilePath) const;
 
     void createQml1PuppetExecutableIfMissing();
     void createQml2PuppetExecutableIfMissing();
 
-    QString qmlPuppetDirectory(PuppetType puppetPathType) const;
+    QString qmlPuppetToplevelBuildDirectory() const;
     QString qmlPuppetFallbackDirectory() const;
+    QString qmlPuppetDirectory(PuppetType puppetPathType) const;
     QString qml2PuppetPath(PuppetType puppetType) const;
     QString qmlPuppetPath(PuppetType puppetPathType) const;
 
@@ -123,6 +128,7 @@ private:
     static QHash<Core::Id, PuppetType> m_qml1PuppetForKitPuppetHash;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
     const Model *m_model;
+    const DesignerSettings m_designerSettings;
     QString m_qrcMapping;
     QmlPuppetVersion m_puppetVersion;
 };

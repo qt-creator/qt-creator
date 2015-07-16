@@ -70,6 +70,13 @@ void DesignerSettings::fromSettings(QSettings *settings)
                 QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), QVariant(false)).toBool();
     useOnlyFallbackPuppet = settings->value(
                 QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), QVariant(true)).toBool();
+    puppetFallbackDirectory = settings->value(
+                QLatin1String(QmlDesigner::Constants::QML_PUPPET_FALLBACK_DIRECTORY)).toString();
+    puppetToplevelBuildDirectory = settings->value(
+                QLatin1String(QmlDesigner::Constants::QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY)).toString();
+    controlsStyle = settings->value(
+                QLatin1String(QmlDesigner::Constants::QML_CONTROLS_STYLE)).toString();
+
 
     settings->endGroup();
     settings->endGroup();
@@ -89,6 +96,9 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), enableDebugView);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), alwaysSaveInCrumbleBar);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), useOnlyFallbackPuppet);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_PUPPET_FALLBACK_DIRECTORY), puppetFallbackDirectory);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY), puppetToplevelBuildDirectory);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTROLS_STYLE), controlsStyle);
 
     settings->endGroup();
     settings->endGroup();
@@ -104,5 +114,8 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
             && showDebugView == other.showDebugView
             && enableDebugView == other.enableDebugView
             && alwaysSaveInCrumbleBar == other.alwaysSaveInCrumbleBar
-            && useOnlyFallbackPuppet == other.useOnlyFallbackPuppet;
+            && useOnlyFallbackPuppet == other.useOnlyFallbackPuppet
+            && puppetFallbackDirectory == other.puppetFallbackDirectory
+            && puppetToplevelBuildDirectory == other.puppetToplevelBuildDirectory
+            && controlsStyle == other.controlsStyle;
 }

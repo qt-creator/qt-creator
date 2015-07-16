@@ -61,6 +61,9 @@ public:
 
 public slots:
     void debugViewEnabledToggled(bool b);
+    void resetFallbackPuppetPath();
+    void resetQmlPuppetBuildPath();
+    void resetQmlStyle();
 
 private:
     Ui::SettingsPage m_ui;

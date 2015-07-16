@@ -64,7 +64,10 @@ const char QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY[] = "WarnAboutQtQuickD
 const char QML_SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
 const char QML_ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
 const char QML_ALWAYS_SAFE_IN_CRUMBLEBAR[] = "AlwaysSafeInCrumbleBar";
-const char QML_USE_ONLY_FALLBACK_PUPPET[] = "AseOnlyFallbackPuppet";
+const char QML_USE_ONLY_FALLBACK_PUPPET[] = "UseOnlyFallbackPuppet";
+const char QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";
+const char QML_PUPPET_FALLBACK_DIRECTORY[] = "PuppetFallbackDirectory";
+const char QML_CONTROLS_STYLE[] = "ControlsStyle";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 

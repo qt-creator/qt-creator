@@ -50,7 +50,6 @@
 
 
 #include <qmldesignerplugin.h>
-#include <designersettings.h>
 #include "puppetbuildprogressdialog.h"
 
 
@@ -111,7 +110,7 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
 bool PuppetCreator::useOnlyFallbackPuppet() const
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return  settings.useOnlyFallbackPuppet
+    return settings.useOnlyFallbackPuppet
             || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty() || m_kit == 0 || !m_kit->isValid();
 }
 
@@ -120,6 +119,7 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreator
       m_kit(kit),
       m_availablePuppetType(FallbackPuppet),
       m_model(model),
+      m_designerSettings(QmlDesignerPlugin::instance()->settings()),
       m_puppetVersion(puppetVersion)
 {
 }
@@ -307,22 +307,38 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
     }
 }
 
+QString PuppetCreator::defaultPuppetToplevelBuildDirectory()
+{
+    return Core::ICore::userResourcePath()
+            + QStringLiteral("/qmlpuppet/");
+}
+
+QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
+{
+    if (m_designerSettings.puppetToplevelBuildDirectory.isEmpty())
+        return defaultPuppetToplevelBuildDirectory();
+    return QmlDesignerPlugin::instance()->settings().puppetToplevelBuildDirectory;
+}
+
 QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 {
-
     if (puppetType == UserSpacePuppet)
-        return Core::ICore::userResourcePath()
-                + QStringLiteral("/qmlpuppet/")
-                + QCoreApplication::applicationVersion() + QStringLiteral("/")
-                + qtHash();
-
+        return qmlPuppetToplevelBuildDirectory() + QStringLiteral("/")
+            + QCoreApplication::applicationVersion() + QStringLiteral("/") + QString::fromLatin1(qtHash());
 
     return qmlPuppetFallbackDirectory();
 }
 
-QString PuppetCreator::qmlPuppetFallbackDirectory() const
+QString PuppetCreator::defaultPuppetFallbackDirectory()
 {
     return Core::ICore::libexecPath();
+}
+
+QString PuppetCreator::qmlPuppetFallbackDirectory() const
+{
+    if (m_designerSettings.puppetFallbackDirectory.isEmpty())
+        return defaultPuppetFallbackDirectory();
+    return QmlDesignerPlugin::instance()->settings().puppetFallbackDirectory;
 }
 
 QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
@@ -348,6 +364,10 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     environment.set("QML_USE_MOCKUPS", "true");
     environment.set("QML_PUPPET_MODE", "true");
+
+    const QString controlsStyle = QmlDesignerPlugin::instance()->settings().controlsStyle;
+    if (!controlsStyle.isEmpty())
+        environment.set(QLatin1String("QT_QUICK_CONTROLS_STYLE"), controlsStyle);
 
     if (!m_qrcMapping.isEmpty()) {
         environment.set(QLatin1String("QMLDESIGNER_RC_PATHS"), m_qrcMapping);

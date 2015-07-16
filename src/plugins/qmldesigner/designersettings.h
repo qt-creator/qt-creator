@@ -33,6 +33,7 @@
 #define DESIGNERSETTINGS_H
 
 #include <QtGlobal>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -58,6 +59,9 @@ public:
     bool enableDebugView;
     bool alwaysSaveInCrumbleBar;
     bool useOnlyFallbackPuppet;
+    QString puppetFallbackDirectory;
+    QString puppetToplevelBuildDirectory;
+    QString controlsStyle;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)
