@@ -127,7 +127,7 @@ void EnterTabDesignerAction::createActionForTab(const ModelNode &modelNode)
         QmlDesigner::QmlItemNode itemNode(modelNode);
 
         if (itemNode.isValid()) {
-            QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Step into: %1")).
+            QString what = tr("Step into: %1").
                     arg(itemNode.instanceValue("title").toString());
             EnterTabAction *selectionAction = new EnterTabAction(what);
 

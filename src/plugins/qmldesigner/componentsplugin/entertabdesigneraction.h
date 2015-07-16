@@ -33,10 +33,14 @@
 
 #include <abstractactiongroup.h>
 
+#include <QCoreApplication>
+
 namespace QmlDesigner {
 
 class EnterTabDesignerAction : public AbstractActionGroup
 {
+    Q_DECLARE_TR_FUNCTIONS(EnterTabDesignerAction)
+
 public:
     EnterTabDesignerAction();
 
