@@ -171,6 +171,28 @@ void FormEditorItem::setFormEditorVisible(bool isVisible)
     setVisible(isVisible);
 }
 
+QPointF FormEditorItem::center() const
+{
+    return mapToScene(qmlItemNode().instanceBoundingRect().center());
+}
+
+qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
+{
+    if (!qmlItemNode().isValid())
+        return 100000;
+
+    QRectF boundingRect = mapRectToScene(qmlItemNode().instanceBoundingRect());
+
+    float weight = point.x()- boundingRect.left()
+            + point.y() - boundingRect.top()
+            + boundingRect.right()- point.x()
+            + boundingRect.bottom() - point.y()
+            + (center() - point).manhattanLength()
+            + sqrt(boundingRect.width() * boundingRect.height()) / 2 * iteration;
+
+    return weight;
+}
+
 FormEditorItem::~FormEditorItem()
 {
     scene()->removeItemFromHash(this);

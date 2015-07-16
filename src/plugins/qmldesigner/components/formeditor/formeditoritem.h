@@ -112,6 +112,9 @@ public:
     bool isFormEditorVisible() const;
     void setFormEditorVisible(bool isVisible);
 
+    QPointF center() const;
+    qreal selectionWeigth(const QPointF &point, int iteration);
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
