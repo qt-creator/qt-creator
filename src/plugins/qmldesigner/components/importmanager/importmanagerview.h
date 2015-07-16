@@ -45,54 +45,16 @@ public:
     explicit ImportManagerView(QObject *parent = 0);
     ~ImportManagerView();
 
-    bool hasWidget() const;
-    WidgetInfo widgetInfo();
+    bool hasWidget() const override;
+    WidgetInfo widgetInfo() override;
 
-    void modelAttached(Model *model);
-    void modelAboutToBeDetached(Model *model);
+    void modelAttached(Model *model) override;
+    void modelAboutToBeDetached(Model *model) override;
 
-    void nodeCreated(const ModelNode &createdNode);
-    void nodeAboutToBeRemoved(const ModelNode &removedNode);
-    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
-    void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
-    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
-    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
+    void nodeCreated(const ModelNode &createdNode) override;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
 
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
-    void instancesCompleted(const QVector<ModelNode> &completedNodeList);
-    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
-    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
-    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
-    void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
-    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector);
-
-    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
-
-    void rewriterBeginTransaction();
-    void rewriterEndTransaction();
-
-    void currentStateChanged(const ModelNode &node); // base state is a invalid model node
-
-    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                      const QList<ModelNode> &lastSelectedNodeList);
-
-    void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
-
-    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
-
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
-
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
-
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
-
-    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
 
 private slots:
     void removeImport(const Import &import);
