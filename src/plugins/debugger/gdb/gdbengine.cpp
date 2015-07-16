@@ -598,8 +598,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     // This also triggers when a temporary breakpoint is hit.
                     // We do not really want that, as this loses all information.
                     // FIXME: Use a special marker for this case?
-                    if (!bp.isOneShot())
-                        bp.removeAlienBreakpoint();
+                    // if (!bp.isOneShot()) ... is not sufficient.
+                    // It keeps temporary "Jump" breakpoints alive.
+                    bp.removeAlienBreakpoint();
                 }
             } else if (asyncClass == "cmd-param-changed") {
                 // New since 2012-08-09
