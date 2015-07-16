@@ -43,12 +43,14 @@ const char selectionCategory[] = "Selection";
 const char stackCategory[] = "Stack (z)";
 const char editCategory[] = "Edit";
 const char anchorsCategory[] = "Anchors";
+const char positionCategory[] = "Position";
 const char layoutCategory[] = "Layout";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
 const char editCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit");
 const char anchorsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Anchors");
+const char positionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position");
 const char layoutCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout");
 
 const char selectParentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select Parent: %1");
@@ -84,10 +86,10 @@ const char resetZDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Re
 const char anchorsFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill");
 const char anchorsResetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset");
 
-const char layoutColumnPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Column (Positioner)");
-const char layoutRowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Row (Positioner)");
-const char layoutGridPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Grid (Positioner)");
-const char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Flow (Positioner)");
+const char layoutColumnPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position in Column");
+const char layoutRowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position in Row");
+const char layoutGridPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position in Grid");
+const char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position in Flow");
 const char removePositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Positioner");
 const char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Layout");
 
@@ -104,6 +106,7 @@ const int prioritySelectionCategory = 200;
 const int priorityStackCategory = 180;
 const int priorityEditCategory = 160;
 const int priorityAnchorsCategory = 140;
+const int priorityPositionCategory = 130;
 const int priorityLayoutCategory = 120;
 const int priorityTopLevelSeperator = 100;
 const int priorityCustomActions = 80;

@@ -34,6 +34,9 @@
 #include <nodemetainfo.h>
 #include "designeractionmanagerview.h"
 
+#include <documentmanager.h>
+#include <qmldesignerplugin.h>
+
 namespace QmlDesigner {
 
 static inline QString captionForModelNode(const ModelNode &modelNode)
@@ -249,24 +252,15 @@ bool isNotInLayout(const SelectionContext &context)
 
 bool selectionCanBeLayouted(const SelectionContext &context)
 {
-    return selectionHasSameParentAndInBaseState(context)
+    return  multiSelection(context)
+            && selectionHasSameParentAndInBaseState(context)
             && inBaseState(context)
             && isNotInLayout(context);
 }
 
-bool hasQtQuickLayoutImport(const SelectionContext &context)
+bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)
 {
-    if (context.view() && context.view()->model()) {
-        Import import = Import::createLibraryImport(QStringLiteral("QtQuick.Layouts"), QStringLiteral("1.0"));
-        return context.view()->model()->hasImport(import, true, true);
-    }
-
-    return false;
-}
-
-bool selectionCanBeLayoutedAndasQtQuickLayoutImport(const SelectionContext &context)
-{
-    return selectionCanBeLayouted(context) && hasQtQuickLayoutImport(context);
+    return selectionCanBeLayouted(context) && context.view()->majorQtQuickVersion() > 1;
 }
 
 bool selectionNotEmptyAndHasZProperty(const SelectionContext &context)
@@ -360,8 +354,30 @@ bool isPositioner(const SelectionContext &context)
 bool layoutOptionVisible(const SelectionContext &context)
 {
     return multiSelectionAndInBaseState(context)
-            || singleSelectionAndInQtQuickLayout(context);
+            || singleSelectionAndInQtQuickLayout(context)
+            || isLayout(context);
 }
+
+bool positionOptionVisible(const SelectionContext &context)
+{
+    return multiSelectionAndInBaseState(context)
+            || isPositioner(context);
+}
+
+bool singleSelectedAndUiFile(const SelectionContext &context)
+{
+    if (!singleSelection(context))
+            return false;
+
+    DesignDocument *designDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
+
+    if (!designDocument)
+        return false;
+
+    return designDocument->fileName().toFileInfo().completeSuffix()
+            == QLatin1String("ui.qml");
+}
+
 
 void DesignerActionManager::createDefaultDesignerActions()
 {
@@ -399,8 +415,11 @@ void DesignerActionManager::createDefaultDesignerActions()
         addDesignerAction(new ModelNodeAction
                    (anchorsResetDisplayName, anchorsCategory, 180, &anchorsReset, &singleSelectionItemIsAnchored));
 
-    addDesignerAction(new ActionGroup(layoutCategoryDisplayName, layoutCategory,
+        addDesignerAction(new ActionGroup(positionCategoryDisplayName, positionCategory,
+                                          priorityPositionCategory, &positionOptionVisible));
+        addDesignerAction(new ActionGroup(layoutCategoryDisplayName, layoutCategory,
                     priorityLayoutCategory, &layoutOptionVisible));
+
         addDesignerAction(new ModelNodeAction
                           (removePositionerDisplayName,
                            positionCategory,
@@ -408,37 +427,38 @@ void DesignerActionManager::createDefaultDesignerActions()
                            &removePositioner,
                            &isPositioner,
                            &isPositioner));
+
         addDesignerAction(new ModelNodeAction
                    (layoutRowPositionerDisplayName,
-                    layoutCategory,
+                    positionCategory,
                     200,
                     &layoutRowPositioner,
                     &selectionCanBeLayouted,
-                    selectionCanBeLayouted));
+                    &selectionCanBeLayouted));
 
         addDesignerAction(new ModelNodeAction
                    (layoutColumnPositionerDisplayName,
-                    layoutCategory,
+                    positionCategory,
                     180,
                     &layoutColumnPositioner,
                     &selectionCanBeLayouted,
-                    selectionCanBeLayouted));
+                    &selectionCanBeLayouted));
 
         addDesignerAction(new ModelNodeAction
                    (layoutGridPositionerDisplayName,
-                    layoutCategory,
+                    positionCategory,
                     160,
                     &layoutGridPositioner,
                     &selectionCanBeLayouted,
-                    selectionCanBeLayouted));
+                    &selectionCanBeLayouted));
 
         addDesignerAction(new ModelNodeAction
                    (layoutFlowPositionerDisplayName,
-                    layoutCategory,
+                    positionCategory,
                     140,
                     &layoutFlowPositioner,
                     &selectionCanBeLayouted,
-                    selectionCanBeLayouted));
+                    &selectionCanBeLayouted));
 
         addDesignerAction(new SeperatorDesignerAction(layoutCategory, 120));
 
@@ -455,40 +475,40 @@ void DesignerActionManager::createDefaultDesignerActions()
                     layoutCategory,
                     100,
                     &layoutRowLayout,
-                    &selectionCanBeLayoutedAndasQtQuickLayoutImport,
-                    &selectionCanBeLayoutedAndasQtQuickLayoutImport));
+                    &selectionCanBeLayoutedAndQtQuickLayoutPossible,
+                    &selectionCanBeLayoutedAndQtQuickLayoutPossible));
 
         addDesignerAction(new ModelNodeAction
                    (layoutColumnLayoutDisplayName,
                     layoutCategory,
                     80,
                     &layoutColumnLayout,
-                    &selectionCanBeLayoutedAndasQtQuickLayoutImport,
-                    &selectionCanBeLayoutedAndasQtQuickLayoutImport));
+                    &selectionCanBeLayoutedAndQtQuickLayoutPossible,
+                    &selectionCanBeLayoutedAndQtQuickLayoutPossible));
 
         addDesignerAction(new ModelNodeAction
                    (layoutGridLayoutDisplayName,
                     layoutCategory,
                     60,
                     &layoutGridLayout,
-                    &selectionCanBeLayoutedAndasQtQuickLayoutImport,
-                    &selectionCanBeLayoutedAndasQtQuickLayoutImport));
+                    &selectionCanBeLayoutedAndQtQuickLayoutPossible,
+                    &selectionCanBeLayoutedAndQtQuickLayoutPossible));
 
         addDesignerAction(new FillWidthModelNodeAction
                           (layoutFillWidthDisplayName,
                            layoutCategory,
                            40,
                            &setFillWidth,
-                           singleSelectionAndInQtQuickLayout,
-                           singleSelectionAndInQtQuickLayout));
+                           &singleSelectionAndInQtQuickLayout,
+                           &singleSelectionAndInQtQuickLayout));
 
         addDesignerAction(new FillHeightModelNodeAction
                           (layoutFillHeightDisplayName,
                            layoutCategory,
                            20,
                            &setFillHeight,
-                           singleSelectionAndInQtQuickLayout,
-                           singleSelectionAndInQtQuickLayout));
+                           &singleSelectionAndInQtQuickLayout,
+                           &singleSelectionAndInQtQuickLayout));
 
     addDesignerAction(new SeperatorDesignerAction(rootCategory, priorityTopLevelSeperator));
     addDesignerAction(new ModelNodeAction
