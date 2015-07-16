@@ -75,6 +75,7 @@ const char resetSizeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", 
 const char resetPositionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset Position");
 
 const char goIntoComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go into Component");
+const char goToImplementation[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 
 const char setIdDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Id");
 

@@ -493,6 +493,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new SeperatorDesignerAction(rootCategory, priorityTopLevelSeperator));
     addDesignerAction(new ModelNodeAction
                (goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent, &goIntoComponent, &selectionIsComponent));
+    addDesignerAction(new ModelNodeAction
+               (goToImplementation, rootCategory, 42, &gotoImplementation, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
 
 }
 
