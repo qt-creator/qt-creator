@@ -280,12 +280,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Layouts.RowLayout"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/componentsplugin/images/row-layouts-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Row Layout"
             category: "Qt Quick - Layouts"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/componentsplugin/images/row-layouts-icon.png"
             version: "1.0"
             requiredImport: "QtQuick.Layouts"
 
@@ -296,12 +296,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Layouts.ColumnLayout"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/componentsplugin/images/column-layouts-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Column Layout"
             category: "Qt Quick - Layouts"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/componentsplugin/images/column-layouts-icon.png"
             version: "1.0"
             requiredImport: "QtQuick.Layouts"
 
@@ -312,12 +312,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Layouts.GridLayout"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/componentsplugin/images/grid-layouts-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Grid Layout"
             category: "Qt Quick - Layouts"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/componentsplugin/images/grid-layouts-icon.png"
             version: "1.0"
             requiredImport: "QtQuick.Layouts"
 
@@ -328,12 +328,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.SplitView"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/componentsplugin/images/splitview-layouts-icon-16px.png"
 
         ItemLibraryEntry {
             name: "SplitView"
             category: "Qt Quick - Layouts"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/componentsplugin/images/splitview-layouts-icon.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
@@ -341,5 +341,48 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 100; }
         }
     }
+
+    Type {
+        name: "QtQuick.Controls.TabView"
+        icon: ":/componentsplugin/images/window16.png"
+
+        ItemLibraryEntry {
+            name: "Tab View"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/componentsplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Controls"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 300; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Controls.Calendar"
+        icon: ":/componentsplugin/images/window16.png"
+
+        ItemLibraryEntry {
+            name: "Calendar"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/componentsplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Controls"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Controls.TableView"
+        icon: ":/componentsplugin/images/window16.png"
+
+        ItemLibraryEntry {
+            name: "TableView"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/componentsplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Controls"
+        }
+    }
+
 
 }
