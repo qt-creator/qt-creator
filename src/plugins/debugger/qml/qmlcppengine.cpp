@@ -122,6 +122,14 @@ void QmlCppEngine::updateItem(const QByteArray &iname)
         m_activeEngine->updateItem(iname);
 }
 
+void QmlCppEngine::expandItem(const QByteArray &iname)
+{
+    if (iname.startsWith("inspect."))
+        m_qmlEngine->expandItem(iname);
+    else
+        m_activeEngine->expandItem(iname);
+}
+
 void QmlCppEngine::selectWatchData(const QByteArray &iname)
 {
     if (iname.startsWith("inspect."))
