@@ -207,9 +207,9 @@ bool QmakeAndroidBuildApkStep::init()
         return true;
 
     QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
-    if (inputFile.isEmpty()) { // should never happen
-        emit addOutput(tr("Internal Error: Unknown Android deployment JSON file location."), BuildStep::ErrorMessageOutput);
-        return false;
+    if (inputFile.isEmpty()) {
+        m_skipBuilding = true;
+        return true;
     }
 
     QStringList arguments;
