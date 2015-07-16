@@ -48,6 +48,7 @@
         <file>Controls/CurrentIndexComboBox.qml</file>
         <file>Controls/SplitViewSpecifics.qml</file>
         <file>Controls/SliderSpecifics.qml</file>
+        <file>Controls/ApplicationWindowSpecifics.qml</file>
         <file>Controls/OrientationCombobox.qml</file>
     </qresource>
 </RCC>
