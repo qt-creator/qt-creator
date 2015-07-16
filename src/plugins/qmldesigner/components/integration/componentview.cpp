@@ -218,10 +218,6 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
     }
 }
 
-void ComponentView::nodeRemoved(const ModelNode & /* removedNode */, const NodeAbstractProperty & /*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
 {
     QList<ModelNode> nodeList;
@@ -238,8 +234,6 @@ void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
         removeMasterDocument();
 }
 
-void ComponentView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
-
 void ComponentView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     searchForComponentAndAddToList(node);
@@ -251,38 +245,4 @@ void ComponentView::nodeIdChanged(const ModelNode& node, const QString& /*newId*
 {
     updateDescription(node);
 }
-
-void ComponentView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
-void ComponentView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
-void ComponentView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
-void ComponentView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
-void ComponentView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
-void ComponentView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
-void ComponentView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
-void ComponentView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/) {}
-void ComponentView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/) {}
-void ComponentView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/) {}
-void ComponentView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
-void ComponentView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
-void ComponentView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/) {}
-void ComponentView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/) {}
-
-void ComponentView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/) {}
-
-void ComponentView::rewriterBeginTransaction() {}
-void ComponentView::rewriterEndTransaction() {}
-void ComponentView::currentStateChanged(const ModelNode &/*node*/) {}
-void ComponentView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
-                                  const QList<ModelNode> &/*lastSelectedNodeList*/) {}
-
-void ComponentView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/) {}
-
-void ComponentView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode & /*movedNode*/, int /*oldIndex*/) {}
-
-
-void ComponentView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/) {}
-
-void ComponentView::customNotification(const AbstractView * /*view*/, const QString &/*identifier*/, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/) {}
-void ComponentView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/) {}
-
 } // namespace QmlDesigner
