@@ -55,7 +55,7 @@ public:
     void update(const QPointF& updatePoint);
     void end(const QPointF& updatePoint);
 
-    void select(SelectionType selectionType, bool selectOnlyContentItems);
+    void select(SelectionType selectionType);
 
     void clear();
 

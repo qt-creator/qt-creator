@@ -105,15 +105,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());
 
-    m_selectOnlyContentItemsAction = new QAction(tr("Only select items with content (S)."), this);
-    m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
-    m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_selectOnlyContentItemsAction->setCheckable(true);
-    m_selectOnlyContentItemsAction->setChecked(false);
-    m_selectOnlyContentItemsAction->setIcon(QPixmap(":/icon/selection/selectonlycontentitems.png"));
-
-    addAction(m_selectOnlyContentItemsAction.data());
-    upperActions.append(m_selectOnlyContentItemsAction.data());
+    separatorAction = new QAction(this);
+    separatorAction->setSeparator(true);
+    addAction(separatorAction);
+    upperActions.append(separatorAction);
 
     m_rootWidthAction = new LineEditAction(tr("Width"), this);
     connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
@@ -253,11 +248,6 @@ ZoomAction *FormEditorWidget::zoomAction() const
 QAction *FormEditorWidget::showBoundingRectAction() const
 {
     return m_showBoundingRectAction.data();
-}
-
-QAction *FormEditorWidget::selectOnlyContentItemsAction() const
-{
-    return m_selectOnlyContentItemsAction.data();
 }
 
 QAction *FormEditorWidget::snappingAction() const

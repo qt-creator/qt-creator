@@ -84,8 +84,6 @@ public:
 
     void selectUnderPoint(QGraphicsSceneMouseEvent *event);
 
-    void setSelectOnlyContentItems(bool selectOnlyContentItems);
-
     void setCursor(const QCursor &cursor);
 
 private:
@@ -97,7 +95,6 @@ private:
     BindingIndicator m_bindingIndicator;
     ContentNotEditableIndicator m_contentNotEditableIndicator;
     QTime m_mousePressTimer;
-    bool m_selectOnlyContentItems;
     QCursor m_cursor;
 };
 

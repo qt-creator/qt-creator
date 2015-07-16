@@ -31,6 +31,7 @@
 #include "abstractformeditortool.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
+#include "formeditorscene.h"
 
 #include <modelnodecontextmenu.h>
 
@@ -169,26 +170,22 @@ FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGr
     return 0;
 }
 
-FormEditorItem* AbstractFormEditorTool::topFormEditorItem(const QList<QGraphicsItem*> & itemList)
+FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> & itemList)
 {
+    FormEditorItem* nearestItem = 0;
     foreach (QGraphicsItem *item, itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-        if (formEditorItem && !formEditorItem->qmlItemNode().isRootNode())
-            return formEditorItem;
+
+        if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
+            continue;
+
+        if (!nearestItem)
+            nearestItem = formEditorItem;
+        else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0))
+            nearestItem = formEditorItem;
     }
 
-    return 0;
-}
-
-FormEditorItem* AbstractFormEditorTool::topFormEditorItemWithRootItem(const QList<QGraphicsItem*> & itemList)
-{
-    foreach (QGraphicsItem *item, itemList) {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-        if (formEditorItem)
-            return formEditorItem;
-    }
-
-    return 0;
+    return nearestItem;
 }
 
 QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const QList<FormEditorItem *> &itemList) const
@@ -225,9 +222,43 @@ void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*ite
         event->accept();
 }
 
-void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
+static bool containsItemNode(const QList<QGraphicsItem*> & itemList, const QmlItemNode &itemNode)
+{
+    foreach (QGraphicsItem *item, itemList) {
+        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (formEditorItem && formEditorItem->qmlItemNode() == itemNode)
+            return true;
+    }
+
+    return false;
+}
+
+void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & itemList, QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::RightButton) {
+
+        QmlItemNode currentSelectedNode;
+
+        if (view()->selectedModelNodes().count() == 1) {
+            currentSelectedNode = view()->selectedModelNodes().first();
+
+            if (!containsItemNode(itemList, currentSelectedNode)) {
+                QmlItemNode selectedNode;
+
+                FormEditorItem *formEditorItem = nearestFormEditorItem(event->scenePos(), itemList);
+
+                if (formEditorItem && formEditorItem->qmlItemNode().isValid())
+                    selectedNode = formEditorItem->qmlItemNode();
+
+                if (selectedNode.isValid()) {
+                    QList<ModelNode> nodeList;
+                    nodeList.append(selectedNode);
+
+                    view()->setSelectedModelNodes(nodeList);
+                }
+            }
+        }
+
         showContextMenu(event);
         event->accept();
     }
@@ -236,7 +267,7 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*i
 void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        FormEditorItem *formEditorItem = topFormEditorItem(itemList);
+        FormEditorItem *formEditorItem = nearestFormEditorItem(event->pos(), itemList);
         if (formEditorItem) {
             view()->setSelectedModelNode(formEditorItem->qmlItemNode().modelNode());
             view()->changeToCustomTool();

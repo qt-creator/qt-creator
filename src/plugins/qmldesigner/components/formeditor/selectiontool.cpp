@@ -52,8 +52,7 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
     m_anchorIndicator(editorView->scene()->manipulatorLayerItem()),
     m_bindingIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_selectOnlyContentItems(false)
+    m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem())
 {
     m_selectionIndicator.setCursor(Qt::ArrowCursor);
 }
@@ -68,28 +67,28 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 {
     if (event->button() == Qt::LeftButton) {
         m_mousePressTimer.start();
-        FormEditorItem* formEditorItem = topFormEditorItem(itemList);
+        FormEditorItem* formEditorItem = nearestFormEditorItem(event->scenePos(), itemList);
         if (formEditorItem
                 && formEditorItem->qmlItemNode().isValid()
                 && !formEditorItem->qmlItemNode().hasChildren()) {
             m_singleSelectionManipulator.begin(event->scenePos());
 
             if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
             else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
             else
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection, m_selectOnlyContentItems);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
         } else {
             if (event->modifiers().testFlag(Qt::AltModifier)) {
                 m_singleSelectionManipulator.begin(event->scenePos());
 
                 if (event->modifiers().testFlag(Qt::ControlModifier))
-                    m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
                 else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                    m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
                 else
-                    m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection, m_selectOnlyContentItems);
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
 
                 m_singleSelectionManipulator.end(event->scenePos());
                 view()->changeToMoveTool(event->scenePos());
@@ -130,7 +129,7 @@ void SelectionTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
 }
 
 void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent * /*event*/)
+                        QGraphicsSceneMouseEvent * event)
 {
     if (!itemList.isEmpty()) {
 
@@ -146,7 +145,7 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
         }
     }
 
-    FormEditorItem *topSelectableItem = topMovableFormEditorItem(itemList, m_selectOnlyContentItems);
+    FormEditorItem *topSelectableItem = nearestFormEditorItem(event->scenePos(), itemList);
 
     scene()->highlightBoundingRect(topSelectableItem);
 
@@ -156,33 +155,35 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                       QGraphicsSceneMouseEvent *event)
 {
-    if (m_singleSelectionManipulator.isActive()) {
-        m_singleSelectionManipulator.end(event->scenePos());
-    } else if (m_rubberbandSelectionManipulator.isActive()) {
-
-        QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->scenePos();
-        if (mouseMovementVector.toPoint().manhattanLength() < s_startDragDistance) {
-            m_singleSelectionManipulator.begin(event->scenePos());
-
-            if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
-            else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
-            else
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection, m_selectOnlyContentItems);
-
+    if (event->button() == Qt::LeftButton) {
+        if (m_singleSelectionManipulator.isActive()) {
             m_singleSelectionManipulator.end(event->scenePos());
-        } else {
-            m_rubberbandSelectionManipulator.update(event->scenePos());
+        } else if (m_rubberbandSelectionManipulator.isActive()) {
 
-            if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::RemoveFromSelection);
-            else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::AddToSelection);
-            else
-                m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::ReplaceSelection);
+            QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->scenePos();
+            if (mouseMovementVector.toPoint().manhattanLength() < s_startDragDistance) {
+                m_singleSelectionManipulator.begin(event->scenePos());
 
-            m_rubberbandSelectionManipulator.end();
+                if (event->modifiers().testFlag(Qt::ControlModifier))
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
+                else if (event->modifiers().testFlag(Qt::ShiftModifier))
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
+                else
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
+
+                m_singleSelectionManipulator.end(event->scenePos());
+            } else {
+                m_rubberbandSelectionManipulator.update(event->scenePos());
+
+                if (event->modifiers().testFlag(Qt::ControlModifier))
+                    m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::RemoveFromSelection);
+                else if (event->modifiers().testFlag(Qt::ShiftModifier))
+                    m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::AddToSelection);
+                else
+                    m_rubberbandSelectionManipulator.select(RubberBandSelectionManipulator::ReplaceSelection);
+
+                m_rubberbandSelectionManipulator.end();
+            }
         }
     }
 
@@ -218,11 +219,6 @@ void SelectionTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QG
 
 void SelectionTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
-}
-
-void SelectionTool::setSelectOnlyContentItems(bool selectOnlyContentItems)
-{
-    m_selectOnlyContentItems = selectOnlyContentItems;
 }
 
 void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &/*itemList*/)
@@ -294,11 +290,11 @@ void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
     m_singleSelectionManipulator.begin(event->scenePos());
 
     if (event->modifiers().testFlag(Qt::ControlModifier))
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
     else if (event->modifiers().testFlag(Qt::ShiftModifier))
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
     else
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection, m_selectOnlyContentItems);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
 
     m_singleSelectionManipulator.end(event->scenePos());
 }

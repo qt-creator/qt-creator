@@ -91,10 +91,9 @@ public:
     bool topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList);
     bool topItemIsResizeHandle(const QList<QGraphicsItem*> &itemList);
 
-    static FormEditorItem* topFormEditorItem(const QList<QGraphicsItem*> &itemList);
-    static FormEditorItem* topFormEditorItemWithRootItem(const QList<QGraphicsItem*> &itemList);
-
     QList<FormEditorItem*> filterSelectedModelNodes(const QList<FormEditorItem*> &itemList) const;
+
+    FormEditorItem *nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem *> &itemList);
 
 protected:
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;

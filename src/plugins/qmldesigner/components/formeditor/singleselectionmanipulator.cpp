@@ -68,24 +68,16 @@ void SingleSelectionManipulator::end(const QPointF &/*updatePoint*/)
     m_isActive = false;
 }
 
-void SingleSelectionManipulator::select(SelectionType selectionType, bool selectOnlyContentItems)
+void SingleSelectionManipulator::select(SelectionType selectionType)
 {
     QList<QGraphicsItem*> itemList = m_editorView->scene()->items(m_beginPoint);
 
     QmlItemNode selectedNode;
 
-    foreach (QGraphicsItem* item, itemList)
-    {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+    FormEditorItem *formEditorItem = m_editorView->currentTool()->nearestFormEditorItem(m_beginPoint, itemList);
 
-        if (formEditorItem
-           && formEditorItem->qmlItemNode().isValid()
-           && (formEditorItem->qmlItemNode().instanceHasShowContent() || !selectOnlyContentItems))
-        {
-            selectedNode = formEditorItem->qmlItemNode();
-            break;
-        }
-    }
+    if (formEditorItem && formEditorItem->qmlItemNode().isValid())
+        selectedNode = formEditorItem->qmlItemNode();
 
     QList<QmlItemNode> nodeList;
 

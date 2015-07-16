@@ -58,7 +58,6 @@ public:
 
     ZoomAction *zoomAction() const;
     QAction *showBoundingRectAction() const;
-    QAction *selectOnlyContentItemsAction() const;
     QAction *snappingAction() const;
     QAction *snappingAndAnchoringAction() const;
 
@@ -103,7 +102,6 @@ private:
     QPointer<QAction> m_snappingAndAnchoringAction;
     QPointer<QAction> m_noSnappingAction;
     QPointer<QAction> m_showBoundingRectAction;
-    QPointer<QAction> m_selectOnlyContentItemsAction;
     QPointer<LineEditAction> m_rootWidthAction;
     QPointer<LineEditAction> m_rootHeightAction;
     QPointer<BackgroundAction> m_backgroundAction;
