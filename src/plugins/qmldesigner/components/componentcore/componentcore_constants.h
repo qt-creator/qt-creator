@@ -87,6 +87,8 @@ const char layoutColumnPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerC
 const char layoutRowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Row (Positioner)");
 const char layoutGridPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Grid (Positioner)");
 const char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Flow (Positioner)");
+const char removePositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Positioner");
+const char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Layout");
 
 const char layoutColumnLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in ColumnLayout");
 const char layoutRowLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in RowLayout");

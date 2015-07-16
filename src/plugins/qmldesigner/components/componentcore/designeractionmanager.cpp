@@ -314,6 +314,49 @@ bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
     return metaInfo.isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
 }
 
+bool isLayout(const SelectionContext &context)
+{
+    if (!inBaseState(context))
+        return false;
+
+    if (!singleSelection(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    if (!currentSelectedNode.isValid())
+        return false;
+
+    NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
+
+    if (!metaInfo.isValid())
+        return false;
+
+    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+}
+
+bool isPositioner(const SelectionContext &context)
+{
+     if (!inBaseState(context))
+         return false;
+
+    if (!singleSelection(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    if (!currentSelectedNode.isValid())
+        return false;
+
+    NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
+
+    if (!metaInfo.isValid())
+        return false;
+
+    return metaInfo.isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1)
+            || metaInfo.isSubclassOf("QtQuick.Positioner", -1, -1);
+}
+
 bool layoutOptionVisible(const SelectionContext &context)
 {
     return multiSelectionAndInBaseState(context)
@@ -359,6 +402,13 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(layoutCategoryDisplayName, layoutCategory,
                     priorityLayoutCategory, &layoutOptionVisible));
         addDesignerAction(new ModelNodeAction
+                          (removePositionerDisplayName,
+                           positionCategory,
+                           210,
+                           &removePositioner,
+                           &isPositioner,
+                           &isPositioner));
+        addDesignerAction(new ModelNodeAction
                    (layoutRowPositionerDisplayName,
                     layoutCategory,
                     200,
@@ -391,6 +441,14 @@ void DesignerActionManager::createDefaultDesignerActions()
                     selectionCanBeLayouted));
 
         addDesignerAction(new SeperatorDesignerAction(layoutCategory, 120));
+
+        addDesignerAction(new ModelNodeAction
+                          (removeLayoutDisplayName,
+                           layoutCategory,
+                           110,
+                           &removeLayout,
+                           &isLayout,
+                           &isLayout));
 
         addDesignerAction(new ModelNodeAction
                    (layoutRowLayoutDisplayName,
