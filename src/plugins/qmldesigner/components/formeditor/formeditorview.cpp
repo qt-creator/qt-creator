@@ -121,6 +121,16 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
             setupFormEditorItemTree(nextNode.toQmlItemNode());
 }
 
+static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
+{
+    foreach (FormEditorItem *item, items) {
+        foreach (QGraphicsItem *child, item->childItems()) {
+            child->setParentItem(item->scene()->rootFormEditorItem());
+        }
+        delete item;
+    }
+}
+
 void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
 {
     if (qmlItemNode.isValid()) {
@@ -133,7 +143,10 @@ void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
         m_currentTool->itemsAboutToRemoved(removedItemList);
 
-        qDeleteAll(removedItemList);
+        //The destructor of QGraphicsItem does delete all its children.
+        //We have to keep the children if they are not children in the model anymore.
+        //Otherwise we delete the children explicitly anyway.
+        deleteWithoutChildren(removedItemList);
     }
 }
 
