@@ -65,6 +65,7 @@ class MemoryAgent;
 class WatchData;
 class WatchItem;
 class BreakHandler;
+class LocationMark;
 class ModulesHandler;
 class RegisterHandler;
 class StackHandler;
@@ -441,6 +442,7 @@ private:
     virtual void setState(DebuggerState state, bool forced = false);
 
     friend class DebuggerEnginePrivate;
+    friend class LocationMark;
     DebuggerEnginePrivate *d;
 };
 
