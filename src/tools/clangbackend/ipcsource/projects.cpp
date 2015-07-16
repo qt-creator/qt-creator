@@ -51,7 +51,7 @@ void ProjectParts::remove(const Utf8StringVector &projectPartIds)
             const bool isRemoved = processedProjectPartFilePaths.removeFast(project.projectPartId());
 
             if (isRemoved)
-                project.clearProjectPartId();
+                project.clear();
 
             return isRemoved;
         });

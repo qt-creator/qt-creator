@@ -165,16 +165,20 @@ TEST(ProjectPart, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
     ASSERT_THAT(projects.projects(), Not(Contains(project)));
 }
 
-TEST(ProjectPart, ProjectPartIdIsEmptyAfterRemove)
+TEST(ProjectPart, ProjectPartIsClearedAfterRemove)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral("pathToProjectPart.pro"));
     ClangBackEnd::ProjectParts projects;
     projects.createOrUpdate({projectContainer});
     ClangBackEnd::ProjectPart project = *projects.findProjectPart(projectContainer.projectPartId());
+    const auto lastChangeTimePoint = project.lastChangeTimePoint();
+    std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
 
     projects.remove({projectContainer.projectPartId()});
 
     ASSERT_THAT(project.projectPartId(), Utf8String());
+    ASSERT_THAT(project.argumentCount(), 0);
+    ASSERT_THAT(project.lastChangeTimePoint(), Gt(lastChangeTimePoint));
 }
 
 TEST(ProjectPart, HasProjectPart)

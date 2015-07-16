@@ -98,9 +98,11 @@ ProjectPart &ProjectPart::operator=(ProjectPart &&other)
     return *this;
 }
 
-void ProjectPart::clearProjectPartId()
+void ProjectPart::clear()
 {
     d->projectPartId.clear();
+    d->clearArguments();
+    updateLastChangeTimePoint();
 }
 
 const Utf8String &ProjectPart::projectPartId() const

@@ -58,7 +58,7 @@ public:
     ProjectPart(ProjectPart &&project);
     ProjectPart &operator=(ProjectPart &&project);
 
-    void clearProjectPartId();
+    void clear();
 
     const Utf8String &projectPartId() const;
 
