@@ -61,6 +61,15 @@ void ProFileCache::discardFile(const QString &fileName)
 #endif
     QHash<QString, Entry>::Iterator it = parsed_files.find(fileName);
     if (it != parsed_files.end()) {
+        if (it->locker) {
+            if (!it->locker->done)
+                it->locker->cond.wait(&mutex);
+            do {
+                lck.unlock();
+                QThread::sleep(100);
+                lck.relock();
+            } while (it->locker);
+        }
         if (it->pro)
             it->pro->deref();
         parsed_files.erase(it);
@@ -77,6 +86,15 @@ void ProFileCache::discardFiles(const QString &prefix)
             end = parsed_files.end();
     while (it != end)
         if (it.key().startsWith(prefix)) {
+            if (it->locker) {
+                if (!it->locker->done)
+                    it->locker->cond.wait(&mutex);
+                do {
+                    lck.unlock();
+                    QThread::sleep(100);
+                    lck.relock();
+                } while (it->locker);
+            }
             if (it->pro)
                 it->pro->deref();
             it = parsed_files.erase(it);
