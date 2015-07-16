@@ -165,7 +165,7 @@ public:
     void handleBacktrace(const QVariantMap &response);
     void handleLookup(const QVariantMap &response);
     void handleExecuteDebuggerCommand(const QVariantMap &response);
-    void handleEvaluateWatcher(const QVariantMap &response, const QString &expr);
+    void handleEvaluateExpression(const QVariantMap &response, const QByteArray &iname, const QString &expr);
     void handleFrame(const QVariantMap &response);
     void handleScope(const QVariantMap &response);
     void handleVersion(const QVariantMap &response);
@@ -996,8 +996,8 @@ void QmlEngine::updateItem(const QByteArray &iname)
     QTC_ASSERT(item, return);
 
     QString exp = QString::fromUtf8(item->exp);
-    d->evaluate(exp, [this, exp](const QVariantMap &response) {
-        d->handleEvaluateWatcher(response, exp);
+    d->evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+        d->handleEvaluateExpression(response, iname, exp);
     });
 }
 
@@ -1356,7 +1356,9 @@ void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
     runCommand(cmd, cb);
 }
 
-void QmlEnginePrivate::handleEvaluateWatcher(const QVariantMap &response, const QString &exp)
+void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
+                                                const QByteArray &iname,
+                                                const QString &exp)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -1371,8 +1373,6 @@ void QmlEnginePrivate::handleEvaluateWatcher(const QVariantMap &response, const 
     QmlV8ObjectData body = extractData(bodyVal);
     WatchHandler *watchHandler = engine->watchHandler();
 
-    QByteArray iname = watchHandler->watcherName(exp.toLatin1());
-
     auto item = new WatchItem(iname, exp);
     item->exp = exp.toLatin1();
     item->id = body.handle;
@@ -1385,8 +1385,8 @@ void QmlEnginePrivate::handleEvaluateWatcher(const QVariantMap &response, const 
         //Do not set type since it is unknown
         item->setError(body.value.toString());
     }
-    watchHandler->insertItem(item);
     insertSubItems(item, body.properties);
+    watchHandler->insertItem(item);
 }
 
 void QmlEnginePrivate::lookup(const LookupItems &items)
@@ -2188,7 +2188,10 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     // Always add a "this" variable
     {
-        auto item = new WatchItem("local.this", QLatin1String("this"));
+        QByteArray iname = "local.this";
+        QString exp = QLatin1String("this");
+
+        auto item = new WatchItem(iname, exp);
         QmlV8ObjectData objectData = extractData(body.value(_("receiver")));
         item->id = objectData.handle;
         item->type = objectData.type;
@@ -2201,6 +2204,9 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
             item->id = 0;
         }
         watchHandler->insertItem(item);
+        evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+            handleEvaluateExpression(response, iname, exp);
+        });
     }
 
     currentFrameScopes.clear();
@@ -2220,8 +2226,9 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
         QStringList watchers = watchHandler->watchedExpressions();
         foreach (const QString &exp, watchers) {
-            evaluate(exp, [this, exp](const QVariantMap &response) {
-                handleEvaluateWatcher(response, exp);
+            const QByteArray iname = watchHandler->watcherName(exp.toLatin1());
+            evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+                handleEvaluateExpression(response, iname, exp);
             });
         }
     }
