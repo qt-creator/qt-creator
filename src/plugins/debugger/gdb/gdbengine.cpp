@@ -4263,9 +4263,13 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::setEnvironmentVariables()
 {
-    if (runParameters().environment.size()) {
-        foreach (const QString &env, runParameters().environment.toStringList())
-            postCommand("-gdb-set environment " + env.toUtf8());
+    Environment sysEnv = Environment::systemEnvironment();
+    Environment runEnv = runParameters().environment;
+    foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
+        if (item.unset)
+            postCommand("unset environment " + item.name.toUtf8());
+        else
+            postCommand("-gdb-set environment " + item.name.toUtf8() + '=' + item.value.toUtf8());
     }
 }
 

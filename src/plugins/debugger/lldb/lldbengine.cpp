@@ -290,9 +290,15 @@ void LldbEngine::startLldbStage2()
 
 void LldbEngine::setupInferior()
 {
-    if (runParameters().environment.size()) {
-        foreach (const QString &env, runParameters().environment.toStringList())
-            runCommand("env " + env.toUtf8());
+    Environment sysEnv = Environment::systemEnvironment();
+    Environment runEnv = runParameters().environment;
+    foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
+        DebuggerCommand cmd("executeDebuggerCommand");
+        if (item.unset)
+            cmd.arg("command", "settings remove target.env-vars " + item.name.toUtf8());
+        else
+            cmd.arg("command", "settings set target.env-vars " + item.name.toUtf8() + '=' + item.value.toUtf8());
+        runCommand(cmd);
     }
 
     const QString path = stringSetting(ExtraDumperFile);
