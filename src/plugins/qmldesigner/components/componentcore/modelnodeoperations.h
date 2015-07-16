@@ -69,6 +69,9 @@ void layoutFlowPositioner(const SelectionContext &selectionState);
 void layoutRowLayout(const SelectionContext &selectionState);
 void layoutColumnLayout(const SelectionContext &selectionState);
 void layoutGridLayout(const SelectionContext &selectionState);
+void gotoImplementation(const SelectionContext &selectionState);
+void removeLayout(const SelectionContext &selectionContext);
+void removePositioner(const SelectionContext &selectionContext);
 
 
 } // namespace ModelNodeOperationso

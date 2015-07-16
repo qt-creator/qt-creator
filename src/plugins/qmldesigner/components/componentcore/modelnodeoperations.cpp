@@ -30,6 +30,7 @@
 
 #include "modelnodeoperations.h"
 #include "modelnodecontextmenu_helper.h"
+#include "layoutingridlayout.h"
 
 #include <cmath>
 #include <nodeabstractproperty.h>
@@ -41,11 +42,23 @@
 #include <rewritertransaction.h>
 #include <documentmanager.h>
 #include <qmlanchors.h>
-#include <limits>
+#include <nodelistproperty.h>
 
+#include <limits>
+#include <qmldesignerplugin.h>
+
+#include <coreplugin/messagebox.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+#include <qmljseditor/qmljsfindreferences.h>
+
+#include <QCoreApplication>
 #include <QByteArray>
+
+#include <functional>
 
 namespace QmlDesigner {
 
@@ -101,15 +114,6 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
             parentProperty = parent.nodeAbstractProperty("data");
 
         parentProperty.reparentHere(node);
-    }
-}
-
-static void reparentToNodeAndRemovePositionForModelNodes(const ModelNode &parentModelNode, const QList<ModelNode> &modelNodeList)
-{
-    foreach (ModelNode modelNode, modelNodeList) {
-        reparentTo(modelNode, parentModelNode);
-        modelNode.removeProperty("x");
-        modelNode.removeProperty("y");
     }
 }
 
@@ -417,38 +421,38 @@ void anchorsReset(const SelectionContext &selectionState)
     }
 }
 
-typedef bool (*LessThan)(const ModelNode &node1, const ModelNode &node2);
+typedef std::function<bool(const ModelNode &node1, const ModelNode &node2)> LessThan;
 
 bool compareByX(const ModelNode &node1, const ModelNode &node2)
 {
-        QmlItemNode itemNode1 = QmlItemNode(node1);
-        QmlItemNode itemNode2 = QmlItemNode(node2);
-        if (itemNode1.isValid() && itemNode2.isValid())
-            return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
-        return false;
+    QmlItemNode itemNode1 = QmlItemNode(node1);
+    QmlItemNode itemNode2 = QmlItemNode(node2);
+    if (itemNode1.isValid() && itemNode2.isValid())
+        return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
+    return false;
 }
 
 bool compareByY(const ModelNode &node1, const ModelNode &node2)
 {
-        QmlItemNode itemNode1 = QmlItemNode(node1);
-        QmlItemNode itemNode2 = QmlItemNode(node2);
-        if (itemNode1.isValid() && itemNode2.isValid())
-            return itemNode1.instancePosition().y() < itemNode2.instancePosition().y();
-        return false;
+    QmlItemNode itemNode1 = QmlItemNode(node1);
+    QmlItemNode itemNode2 = QmlItemNode(node2);
+    if (itemNode1.isValid() && itemNode2.isValid())
+        return itemNode1.instancePosition().y() < itemNode2.instancePosition().y();
+    return false;
 }
 
 bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
 {
-        QmlItemNode itemNode1 = QmlItemNode(node1);
-        QmlItemNode itemNode2 = QmlItemNode(node2);
-        if (itemNode1.isValid() && itemNode2.isValid()) {
-            if ((itemNode1.instancePosition().y() + itemNode1.instanceSize().height())  < itemNode2.instancePosition().y())
-                return true;
-            if ((itemNode2.instancePosition().y() + itemNode2.instanceSize().height())  < itemNode1.instancePosition().y())
-                return false; //first sort y (rows)
-            return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
-        }
-        return false;
+    QmlItemNode itemNode1 = QmlItemNode(node1);
+    QmlItemNode itemNode2 = QmlItemNode(node2);
+    if (itemNode1.isValid() && itemNode2.isValid()) {
+        if ((itemNode1.instancePosition().y() + itemNode1.instanceSize().height())  < itemNode2.instancePosition().y())
+            return true;
+        if ((itemNode2.instancePosition().y() + itemNode2.instanceSize().height())  < itemNode1.instancePosition().y() +  itemNode1.instanceSize().height())
+            return false; //first sort y (rows)
+        return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
+    }
+    return false;
 }
 
 
@@ -486,7 +490,9 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                 Utils::sort(sortedSelectedNodes, lessThan);
 
                 setUpperLeftPostionToNode(layoutNode, sortedSelectedNodes);
-                reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
+                LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
+                if (layoutType.contains("Layout"))
+                    LayoutInGridLayout::setSizeAsPreferredSize(sortedSelectedNodes);
             }
         }
     }
@@ -514,17 +520,98 @@ void layoutFlowPositioner(const SelectionContext &selectionContext)
 
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+    try {
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+    } catch (RewritingException &e) { //better save then sorry
+        e.showException();
+    }
 }
 
 void layoutColumnLayout(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+    try {
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+    } catch (RewritingException &e) { //better save then sorry
+        e.showException();
+    }
 }
 
 void layoutGridLayout(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Layouts.GridLayout", compareByGrid);
+    try {
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        LayoutInGridLayout::layout(selectionContext);
+    } catch (RewritingException &e) { //better save then sorry
+        e.showException();
+    }
+}
+
+void gotoImplementation(const SelectionContext &/*selectionState*/)
+{
+    const QString fileName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toString();
+    const QString typeName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().baseName();
+
+    QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
+
+    if (usages.isEmpty()) {
+        QString title = QCoreApplication::translate("ModelNodeOperations", "Goto implementation");
+        QString description = QCoreApplication::translate("ModelNodeOperations", "Cannot find any implementation.");
+        Core::AsynchronousMessageBox::warning(title, description);
+        return;
+    }
+
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
+
+}
+
+void removeLayout(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.view()
+            || !selectionContext.hasSingleSelectedModelNode())
+        return;
+
+    ModelNode layout = selectionContext.currentSingleSelectedNode();
+
+    if (!QmlItemNode::isValidQmlItemNode(layout))
+        return;
+
+    QmlItemNode layoutItem(layout);
+
+    QmlItemNode parent = layoutItem.instanceParentItem();
+
+    if (!parent.isValid())
+        return;
+
+    {
+        RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|removeLayout"));
+
+        foreach (const ModelNode &modelNode, selectionContext.currentSingleSelectedNode().directSubModelNodes()) {
+            if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+
+                QmlItemNode qmlItem(modelNode);
+                if (modelNode.simplifiedTypeName() == "Item"
+                        && modelNode.id().contains("spacer")) {
+                    qmlItem.destroy();
+                } else {
+                    QPointF pos = qmlItem.instancePosition();
+                    pos = layoutItem.instanceTransform().map(pos);
+                    modelNode.variantProperty("x").setValue(pos.x());
+                    modelNode.variantProperty("y").setValue(pos.y());
+                }
+            }
+            if (modelNode.isValid())
+                parent.modelNode().defaultNodeListProperty().reparentHere(modelNode);
+        }
+        layoutItem.destroy();
+    }
+}
+
+void removePositioner(const SelectionContext &selectionContext)
+{
+    removeLayout(selectionContext);
 }
 
 } // namespace Mode
