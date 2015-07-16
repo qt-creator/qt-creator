@@ -65,6 +65,11 @@ enum {
 
 namespace QmlDesigner {
 
+static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
+{
+    return propertyName.contains("Layout.");
+}
+
 PropertyEditorView::PropertyEditorView(QWidget *parent) :
         AbstractView(parent),
         m_parent(parent),
@@ -177,6 +182,8 @@ void PropertyEditorView::changeValue(const QString &name)
 
     if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName)) {
         castedValue = qmlObjectNode.modelNode().metaInfo().propertyCastedValue(propertyName, value->value());
+    } else if (propertyIsAttachedLayoutProperty(propertyName)) {
+        castedValue = value->value();
     } else {
         qWarning() << "PropertyEditor:" <<propertyName << "cannot be casted (metainfo)";
         return ;
@@ -491,6 +498,16 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
         ModelNode node(property.parentModelNode());
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+
+            if (propertyIsAttachedLayoutProperty(property.name()))
+                m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
+
+            if ("width" == property.name() || "height" == property.name()) {
+                QmlItemNode qmlItemNode = m_selectedNode;
+                if (qmlItemNode.isValid() && qmlItemNode.isInLayout())
+                    resetPuppet();
+            }
+
             if (property.name().contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
         }
@@ -508,6 +525,9 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
 
     foreach (const VariantProperty &property, propertyList) {
         ModelNode node(property.parentModelNode());
+
+        if (propertyIsAttachedLayoutProperty(property.name()))
+            m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             if ( QmlObjectNode(m_selectedNode).modelNode().property(property.name()).isBindingProperty())
