@@ -153,7 +153,7 @@ TEST(ProjectPart, ProjectPartProjectPartIdIsEmptyfterRemoving)
     ASSERT_TRUE(project.projectPartId().isEmpty());
 }
 
-TEST(Project, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
+TEST(ProjectPart, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral("pathToProjectPart.pro"));
     ClangBackEnd::ProjectParts projects;
@@ -163,6 +163,18 @@ TEST(Project, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
     EXPECT_THROW(projects.remove({Utf8StringLiteral("doesnotexist.pro"), projectContainer.projectPartId()}),  ClangBackEnd::ProjectPartDoNotExistException);
 
     ASSERT_THAT(projects.projects(), Not(Contains(project)));
+}
+
+TEST(ProjectPart, ProjectPartIdIsEmptyAfterRemove)
+{
+    ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral("pathToProjectPart.pro"));
+    ClangBackEnd::ProjectParts projects;
+    projects.createOrUpdate({projectContainer});
+    ClangBackEnd::ProjectPart project = *projects.findProjectPart(projectContainer.projectPartId());
+
+    projects.remove({projectContainer.projectPartId()});
+
+    ASSERT_THAT(project.projectPartId(), Utf8String());
 }
 
 TEST(ProjectPart, HasProjectPart)
