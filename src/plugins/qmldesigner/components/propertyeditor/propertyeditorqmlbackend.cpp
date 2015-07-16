@@ -130,6 +130,53 @@ void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name
 
 }
 
+static PropertyNameList layoutAttachedPropertiesNames()
+{
+    PropertyNameList propertyNames;
+    propertyNames << "alignment" << "column" << "columnSpan" << "fillHeight" << "fillWidth"
+                  << "maximumHeight" << "maximumWidth" << "minimumHeight" << "minimumWidth"
+                  << "preferredHeight" << "preferredWidth" << "row"<< "rowSpan";
+
+    return propertyNames;
+}
+
+QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &propertyName)
+{
+    QVariant value = qmlObjectNode.modelValue(propertyName);
+
+    if (value.isValid())
+        return value;
+
+    if ("fillHeight" == propertyName || "fillWidth" == propertyName)
+        return false;
+
+      if ("minimumWidth" == propertyName || "minimumHeight" == propertyName)
+          return 0;
+
+      if ("preferredWidth" == propertyName || "preferredHeight" == propertyName)
+          return -1;
+
+      if ("maximumWidth" == propertyName || "maximumHeight" == propertyName)
+          return 0xffff;
+
+     if ("columnSpan" == propertyName || "rowSpan" == propertyName)
+         return 1;
+
+    return QVariant();
+}
+
+void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
+{
+    if (QmlItemNode(qmlObjectNode).isInLayout()) {
+
+        static const PropertyNameList propertyNames = layoutAttachedPropertiesNames();
+
+        foreach (const PropertyName &propertyName, propertyNames) {
+            createPropertyEditorValue(qmlObjectNode, "Layout." + propertyName, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName), propertyEditor);
+        }
+    }
+}
+
 void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                              const PropertyName &name,
                                              const QVariant &value,
@@ -222,6 +269,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
     if (qmlObjectNode.isValid()) {
         foreach (const PropertyName &propertyName, qmlObjectNode.modelNode().metaInfo().propertyNames())
             createPropertyEditorValue(qmlObjectNode, propertyName, qmlObjectNode.instanceValue(propertyName), propertyEditor);
+
+        setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
 
         // className
         PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value("className")));
@@ -447,6 +496,13 @@ void PropertyEditorQmlBackend::emitSelectionToBeChanged()
 void PropertyEditorQmlBackend::emitSelectionChanged()
 {
     m_backendModelNode.emitSelectionChanged();
+}
+
+void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name)
+{
+    PropertyName propertyName = name;
+    propertyName.replace("Layout.", "");
+    setValue(qmlObjectNode,  name, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName));
 }
 
 QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)

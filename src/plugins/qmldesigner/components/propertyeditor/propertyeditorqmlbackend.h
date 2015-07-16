@@ -83,6 +83,10 @@ public:
     void emitSelectionToBeChanged();
     void emitSelectionChanged();
 
+    void setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name);
+
+    void setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
+
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    const PropertyName &name, const QVariant &value,
