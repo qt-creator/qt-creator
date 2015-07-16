@@ -132,15 +132,75 @@ TEST(TranslationUnit, ResetedTranslationUnitIsNull)
     ASSERT_TRUE(translationUnit.isNull());
 }
 
-TEST(TranslationUnit, TimeStampIsUpdatedAsNewCxTranslationUnitIsGenerated)
+TEST(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)
 {
     TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
-    auto lastChangeTimePoint = translationUnit.lastChangeTimePoint();
+    auto lastChangeTimePoint = translationUnit.lastProjectPartChangeTimePoint();
     std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
 
     translationUnit.cxTranslationUnit();
 
-    ASSERT_THAT(translationUnit.lastChangeTimePoint(), Gt(lastChangeTimePoint));
+    ASSERT_THAT(translationUnit.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
+}
+
+TEST(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsProjectPartIsCleared)
+{
+    ProjectPart projectPart(Utf8StringLiteral("/path/to/projectfile"));
+    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), projectPart);
+    translationUnit.cxTranslationUnit();
+    auto lastChangeTimePoint = translationUnit.lastProjectPartChangeTimePoint();
+    std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
+
+    projectPart.clear();
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_THAT(translationUnit.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
+}
+
+TEST(TranslationUnit, ReparseIsNeededAfterUnsavedFilesAreChanged)
+{
+    UnsavedFiles unsavedFiles;
+    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                                    unsavedFiles,
+                                    ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
+    translationUnit.cxTranslationUnit();
+    unsavedFiles.clear();
+    translationUnit.cxTranslationUnit();
+
+    unsavedFiles.clear();
+
+    ASSERT_TRUE(translationUnit.isNeedingReparse());
+}
+
+TEST(TranslationUnit, NeedsNoReparseAfterUnsavedFilesAreNotChanged)
+{
+    UnsavedFiles unsavedFiles;
+    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                                    unsavedFiles,
+                                    ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
+    translationUnit.cxTranslationUnit();
+    unsavedFiles.clear();
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+TEST(TranslationUnit, TimeStampForUnsavedFilesChange)
+{
+    UnsavedFiles unsavedFiles;
+    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                                    unsavedFiles,
+                                    ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
+    translationUnit.cxTranslationUnit();
+    unsavedFiles.clear();
+    translationUnit.cxTranslationUnit();
+    auto lastChangeTimePoint = translationUnit.lastUnsavedFilesChangeTimePoint();
+    std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
+
+    unsavedFiles.clear();
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_THAT(translationUnit.lastUnsavedFilesChangeTimePoint(), Gt(lastChangeTimePoint));
 }
 
 
