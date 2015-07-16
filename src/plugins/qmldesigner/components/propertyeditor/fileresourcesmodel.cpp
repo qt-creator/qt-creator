@@ -41,7 +41,7 @@
 static QString s_lastBrowserPath;
 
 FileResourcesModel::FileResourcesModel(QObject *parent) :
-    QObject(parent), m_filter("(*.*)"), m_lock(false)
+    QObject(parent), m_filter(QLatin1String("(*.*)")), m_lock(false)
 {
 }
 
@@ -168,7 +168,7 @@ void FileResourcesModel::setupModel()
 
     dir = QFileInfo(m_path.toLocalFile()).dir();
 
-    QStringList filterList = m_filter.split(' ');
+    QStringList filterList = m_filter.split(QLatin1Char(' '));
 
     QDirIterator it(dir.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {

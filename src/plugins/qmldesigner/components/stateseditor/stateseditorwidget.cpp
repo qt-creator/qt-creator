@@ -76,7 +76,7 @@ void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 
 void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
 {
-    rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
+    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), showAddNewStatesButton);
 }
 
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
@@ -101,7 +101,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
 
-    rootContext()->setContextProperty("canAddNewStates", true);
+    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
 
     setWindowTitle(tr("States", "Title of Editor widget"));
 

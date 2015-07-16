@@ -107,7 +107,7 @@ void CrumbleBar::pushFile(const QString &fileName)
     CrumbleBarInfo crumbleBarInfo;
     crumbleBarInfo.fileName = fileName;
 
-    crumblePath()->pushElement(fileName.split("/").last(), QVariant::fromValue(crumbleBarInfo));
+    crumblePath()->pushElement(fileName.split(QLatin1String("/")).last(), QVariant::fromValue(crumbleBarInfo));
 
     m_isInternalCalled = false;
 
@@ -176,7 +176,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 
     m_isInternalCalled = true;
     if (!clickedCrumbleBarInfo.modelNode.isValid()
-            && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName().fileName()) {
+            && Utils::FileName::fromString(clickedCrumbleBarInfo.fileName) == currentDesignDocument()->fileName()) {
         nextFileIsCalledInternally();
         currentDesignDocument()->changeToDocumentModel();
         QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();

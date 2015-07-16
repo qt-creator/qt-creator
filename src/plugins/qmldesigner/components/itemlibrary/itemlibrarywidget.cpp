@@ -144,8 +144,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     setSearchFilter(QString());
 
     /* style sheets */
-    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
-    m_resourcesView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css"))));
+    m_resourcesView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
@@ -180,7 +180,7 @@ void ItemLibraryWidget::updateImports()
         foreach (const Import &import, m_model->imports())
             if (import.isLibraryImport())
                 imports << import.url();
-        if (imports.contains("com.nokia.meego", Qt::CaseInsensitive))
+        if (imports.contains(QLatin1String("com.nokia.meego"), Qt::CaseInsensitive))
             filter = Meego;
     }
 
@@ -232,11 +232,11 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
         m_itemViewQuickWidget->update();
     } else {
         QStringList nameFilterList;
-        if (searchFilter.contains('.')) {
-            nameFilterList.append(QString("*%1*").arg(searchFilter));
+        if (searchFilter.contains(QLatin1Char('.'))) {
+            nameFilterList.append(QString(QStringLiteral("*%1*")).arg(searchFilter));
         } else {
             foreach (const QByteArray &extension, QImageReader::supportedImageFormats()) {
-                nameFilterList.append(QString("*%1*.%2").arg(searchFilter, QString::fromUtf8(extension)));
+                nameFilterList.append(QString(QStringLiteral("*%1*.%2")).arg(searchFilter, QString::fromUtf8(extension)));
             }
         }
 
@@ -267,9 +267,9 @@ void ItemLibraryWidget::emitImportChecked()
 
     foreach (const Import &import, m_model->imports()) {
         if (import.isLibraryImport()) {
-            if (import.url().contains(QString("meego"), Qt::CaseInsensitive))
+            if (import.url().contains(QLatin1String("meego"), Qt::CaseInsensitive))
                 meegoImport = true;
-            if (import.url().contains(QString("Qt"), Qt::CaseInsensitive) || import.url().contains(QString("QtQuick"), Qt::CaseInsensitive))
+            if (import.url().contains(QLatin1String("Qt"), Qt::CaseInsensitive) || import.url().contains(QLatin1String("QtQuick"), Qt::CaseInsensitive))
                 qtOnlyImport = true;
         }
     }

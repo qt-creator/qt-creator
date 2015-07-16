@@ -64,7 +64,7 @@ WidgetInfo ImportManagerView::widgetInfo()
             m_importsWidget->setImports(model()->imports());
     }
 
-    return createWidgetInfo(m_importsWidget, 0, "ImportManager", WidgetInfo::LeftPane, 1);
+    return createWidgetInfo(m_importsWidget, 0, QLatin1String("ImportManager"), WidgetInfo::LeftPane, 1);
 }
 
 void ImportManagerView::modelAttached(Model *model)

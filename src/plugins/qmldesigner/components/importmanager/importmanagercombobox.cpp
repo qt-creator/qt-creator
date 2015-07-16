@@ -37,7 +37,7 @@
 ImportManagerComboBox::ImportManagerComboBox(QWidget *parent) :
     QComboBox(parent)
 {
-    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/importmanager/importmanager.css")));
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/importmanager/importmanager.css"))));
     setToolTip(tr("Add new import"));
 }
 

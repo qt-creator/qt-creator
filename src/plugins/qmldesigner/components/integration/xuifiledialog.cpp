@@ -45,7 +45,7 @@ void XUIFileDialog::runOpenFileDialog(const QString& path, QWidget* parent, QObj
         dir = XUIFileDialog::defaultFolder();
 
     QString caption = QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Open File");
-    QString fileName = QFileDialog::getOpenFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(";;"), 0, QFileDialog::ReadOnly);
+    QString fileName = QFileDialog::getOpenFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(QLatin1String(";;")), 0, QFileDialog::ReadOnly);
 
     QmlDesigner::Internal::SignalEmitter emitter;
     QObject::connect(&emitter, SIGNAL(fileNameSelected(QString)), receiver, member);
@@ -67,7 +67,7 @@ void XUIFileDialog::runSaveFileDialog(const QString& path, QWidget* parent, QObj
         dialog->open(receiver, member);
     } else {
         QString caption = QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Save File");
-        QString fileName = QFileDialog::getSaveFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(";;"));
+        QString fileName = QFileDialog::getSaveFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(QLatin1String(";;")));
 
         QmlDesigner::Internal::SignalEmitter emitter;
         QObject::connect(&emitter, SIGNAL(fileNameSelected(QString)), receiver, member);

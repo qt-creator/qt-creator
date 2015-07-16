@@ -120,7 +120,7 @@ static ComponentTextModifier *createComponentTextModifier(TextModifier *original
                                                           const QString &componentText,
                                                           const ModelNode &componentNode)
 {
-    bool explicitComponent = componentText.contains("Component");
+    bool explicitComponent = componentText.contains(QLatin1String("Component"));
 
     ModelNode rootModelNode = rewriterView->rootModelNode();
 
@@ -406,7 +406,7 @@ void DesignDocument::copySelected()
             node.destroy();
         }
         view.changeRootNodeType("QtQuick.Rectangle", 1, 0);
-        view.rootModelNode().setIdWithRefactoring("designer__Selection");
+        view.rootModelNode().setIdWithRefactoring(QLatin1String("designer__Selection"));
 
         foreach (const ModelNode &selectedNode, selectedNodes) {
             ModelNode newNode(view.insertModel(selectedNode));
@@ -477,7 +477,7 @@ void DesignDocument::paste()
     if (rootNode.type() == "empty")
         return;
 
-    if (rootNode.id() == "designer__Selection") {
+    if (rootNode.id() == QLatin1String("designer__Selection")) {
         QList<ModelNode> selectedNodes = rootNode.directSubModelNodes();
         pasteModel->detachView(&view);
         currentModel()->attachView(&view);

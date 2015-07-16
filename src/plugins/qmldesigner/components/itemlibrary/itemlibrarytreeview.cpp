@@ -124,7 +124,7 @@ void ItemLibraryTreeView::startDrag(Qt::DropActions /* supportedActions */)
         QDrag *drag = new QDrag(this);
         drag->setPixmap(QIcon(pixmap).pixmap(128, 128));
         QMimeData *mimeData = new QMimeData;
-        mimeData->setData("application/vnd.bauhaus.libraryresource", fileInfo.absoluteFilePath().toUtf8());
+        mimeData->setData(QLatin1String("application/vnd.bauhaus.libraryresource"), fileInfo.absoluteFilePath().toUtf8());
         drag->setMimeData(mimeData);
         drag->exec();
     }
@@ -155,7 +155,7 @@ void ItemLibraryTreeView::activateItem( const QModelIndex & /*index*/)
     QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().front());
     QPixmap pixmap(fileInfo.absoluteFilePath());
     if (!pixmap.isNull()) {
-        name = "image^" + fileInfo.absoluteFilePath();
+        name = QLatin1String("image^") + fileInfo.absoluteFilePath();
         emit itemActivated(name);
     }
 }

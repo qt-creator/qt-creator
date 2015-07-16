@@ -118,7 +118,7 @@ bool ComponentView::hasEntryForNode(const ModelNode &node) const
 void ComponentView::addMasterDocument()
 {
     if (!hasMasterEntry()) {
-        QStandardItem *item = new QStandardItem("master");
+        QStandardItem *item = new QStandardItem(QLatin1String("master"));
         item->setData(QVariant::fromValue(0), ModelNodeRole);
         item->setEditable(false);
         m_standardItemModel->appendRow(item);
@@ -140,11 +140,11 @@ QString ComponentView::descriptionForNode(const ModelNode &node) const
         ModelNode parentNode = node.parentProperty().parentModelNode();
 
         if (parentNode.id().isEmpty())
-            description = parentNode.simplifiedTypeName() + QLatin1Char(' ');
+            description = QString::fromLatin1(parentNode.simplifiedTypeName()) + QLatin1Char(' ');
         else
             description = parentNode.id() + QLatin1Char(' ');
 
-        description += node.parentProperty().name();
+        description += QString::fromLatin1(node.parentProperty().name());
     }
 
     return description;

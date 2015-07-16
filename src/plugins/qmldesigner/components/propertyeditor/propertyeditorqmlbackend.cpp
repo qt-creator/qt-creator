@@ -93,7 +93,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
         m_view(new Quick2PropertyEditorView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
         m_contextObject(new PropertyEditorContextObject())
 {
-    Q_ASSERT(QFileInfo::exists(":/images/button_normal.png"));
+    Q_ASSERT(QFileInfo(QLatin1String(":/images/button_normal.png")).exists());
 
     m_view->engine()->setOutputWarningsToStandardError(
                 !qgetenv("QTCREATOR_QTQUICKDESIGNER_PROPERTYEDITOR_SHOW_WARNINGS").isEmpty());
@@ -295,22 +295,22 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         // anchors
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
-        context()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+        context()->setContextProperty(QLatin1String("anchorBackend"), &m_backendAnchorBinding);
 
 
-        context()->setContextProperty("transaction", m_propertyEditorTransaction.data());
+        context()->setContextProperty(QLatin1String("transaction"), m_propertyEditorTransaction.data());
 
 
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
-        context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+        context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
 
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
         contextObject()->setStateName(stateName);
         if (!qmlObjectNode.isValid())
             return;
-        context()->setContextProperty("propertyCount", QVariant(qmlObjectNode.modelNode().properties().count()));
+        context()->setContextProperty(QLatin1String("propertyCount"), QVariant(qmlObjectNode.modelNode().properties().count()));
 
         contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
         contextObject()->setSelectionChanged(false);
@@ -359,9 +359,9 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     QObject::connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)));
     m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
 
-    context()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
-    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
-    context()->setContextProperty("transaction", m_propertyEditorTransaction.data());
+    context()->setContextProperty(QLatin1String("anchorBackend"), &m_backendAnchorBinding);
+    context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
+    context()->setContextProperty(QLatin1String("transaction"), m_propertyEditorTransaction.data());
 
     contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
@@ -520,7 +520,7 @@ QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode,
             }
         }
     }
-    return fileToUrl(QDir(propertyEditorResourcesPath()).filePath("QtQuick/emptyPane.qml"));
+    return fileToUrl(QDir(propertyEditorResourcesPath()).filePath(QLatin1String("QtQuick/emptyPane.qml")));
 }
 
 QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)

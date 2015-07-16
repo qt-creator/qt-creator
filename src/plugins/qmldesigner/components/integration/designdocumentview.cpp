@@ -52,14 +52,14 @@ DesignDocumentView::~DesignDocumentView()
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {
     QString str(QString::fromUtf8(byteArray));
-    return str.split('\n');
+    return str.split(QLatin1Char('\n'));
 }
 
 static QByteArray stringListToArray(const QStringList &stringList)
 {
     QString str;
     foreach (const QString &subString, stringList)
-        str += subString + '\n';
+        str += subString + QLatin1Char('\n');
     return str.toUtf8();
 }
 
@@ -74,7 +74,7 @@ void DesignDocumentView::toClipboard() const
     foreach (const Import &import, model()->imports())
         imports.append(import.toImportString());
 
-    data->setData("QmlDesigner::imports", stringListToArray(imports));
+    data->setData(QLatin1String("QmlDesigner::imports"), stringListToArray(imports));
     clipboard->setMimeData(data);
 }
 
@@ -82,7 +82,7 @@ void DesignDocumentView::fromClipboard()
 {
     QClipboard *clipboard = QApplication::clipboard();
     fromText(clipboard->text());
-    QStringList imports = arrayToStringList(clipboard->mimeData()->data("QmlDesigner::imports"));
+    QStringList imports = arrayToStringList(clipboard->mimeData()->data(QLatin1String("QmlDesigner::imports")));
 //    foreach (const QString &importString, imports) {
 //        Import import(Import::createLibraryImport();
 //        model()->addImport(import); //### imports

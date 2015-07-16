@@ -45,7 +45,7 @@ ImportLabel::ImportLabel(QWidget *parent) :
 
 
     m_removeButton = new QPushButton(this);
-    m_removeButton->setIcon(QIcon(Core::Constants::ICON_BUTTON_CLOSE));
+    m_removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
     m_removeButton->setFlat(true);
     m_removeButton->setMaximumWidth(20);
     m_removeButton->setMaximumHeight(20);
@@ -79,7 +79,7 @@ void ImportLabel::setReadOnly(bool readOnly) const
     if (readOnly)
          m_removeButton->setIcon(QIcon());
     else
-         m_removeButton->setIcon(QIcon(Core::Constants::ICON_BUTTON_CLOSE));
+         m_removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
 }
 
 void ImportLabel::emitRemoveImport()

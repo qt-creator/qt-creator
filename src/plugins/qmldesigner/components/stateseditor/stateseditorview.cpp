@@ -138,15 +138,15 @@ void StatesEditorView::addState()
     QString newStateName;
     int index = 1;
     while (true) {
-        newStateName = QString("State%1").arg(index++);
+        newStateName = QString(QStringLiteral("State%1")).arg(index++);
         if (!modelStateNames.contains(newStateName))
             break;
     }
 
     try {
         if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
-            (!model()->hasImport(Import::createLibraryImport("QtQuick", "1.0"), true, true)))
-            model()->changeImports(QList<Import>() << Import::createLibraryImport("QtQuick", "1.0"), QList<Import>());
+            (!model()->hasImport(Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), true, true)))
+            model()->changeImports(QList<Import>() << Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), QList<Import>());
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
     }  catch (const RewritingException &e) {
@@ -176,7 +176,7 @@ void StatesEditorView::duplicateCurrentState()
     QString newName = state.name();
 
     // Strip out numbers at the end of the string
-    QRegExp regEx(QString("[0-9]+$"));
+    QRegExp regEx(QLatin1String("[0-9]+$"));
     int numberIndex = newName.indexOf(regEx);
     if ((numberIndex != -1) && (numberIndex+regEx.matchedLength()==newName.length()))
         newName = newName.left(numberIndex);

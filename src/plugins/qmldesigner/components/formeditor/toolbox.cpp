@@ -39,8 +39,8 @@ namespace QmlDesigner {
 
 ToolBox::ToolBox(QWidget *parentWidget)
     : Utils::StyledBar(parentWidget),
-  m_leftToolBar(new QToolBar("LeftSidebar", this)),
-  m_rightToolBar(new QToolBar("RightSidebar", this))
+  m_leftToolBar(new QToolBar(QLatin1String("LeftSidebar"), this)),
+  m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this))
 {
     setMaximumHeight(22);
     m_leftToolBar->setFloatable(true);

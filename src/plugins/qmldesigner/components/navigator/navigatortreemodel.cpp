@@ -138,9 +138,9 @@ Qt::DropActions NavigatorTreeModel::supportedDragActions() const
 QStringList NavigatorTreeModel::mimeTypes() const
 {
      QStringList types;
-     types.append("application/vnd.modelnode.list");
-     types.append("application/vnd.bauhaus.itemlibraryinfo");
-     types.append("application/vnd.bauhaus.libraryresource");
+     types.append(QLatin1String("application/vnd.modelnode.list"));
+     types.append(QLatin1String("application/vnd.bauhaus.itemlibraryinfo"));
+     types.append(QLatin1String("application/vnd.bauhaus.libraryresource"));
 
      return types;
 }
@@ -170,14 +170,14 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &modelIndexList) c
 
      QByteArray encodedModelNodeData = encodeModelNodes(modelIndexList);
 
-     mimeData->setData("application/vnd.modelnode.list", encodedModelNodeData);
+     mimeData->setData(QLatin1String("application/vnd.modelnode.list"), encodedModelNodeData);
 
      return mimeData;
 }
 
 static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, AbstractView *view)
 {
-    QByteArray encodedModelNodeData = mineData->data("application/vnd.modelnode.list");
+    QByteArray encodedModelNodeData = mineData->data(QLatin1String("application/vnd.modelnode.list"));
     QDataStream modelNodeStream(&encodedModelNodeData, QIODevice::ReadOnly);
 
     QList<ModelNode> modelNodeList;
@@ -245,11 +245,11 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
         return true;
 
     if (dropModelIndex.model() == this) {
-        if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
+        if (mimeData->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo"))) {
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
-        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource")) {
+        } else if (mimeData->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource"))) {
             handleItemLibraryImageDrop(mimeData, rowNumber, dropModelIndex);
-        } else if (mimeData->hasFormat("application/vnd.modelnode.list")) {
+        } else if (mimeData->hasFormat(QLatin1String("application/vnd.modelnode.list"))) {
             handleInternalDrop(mimeData, rowNumber, dropModelIndex);
         }
     }
@@ -765,7 +765,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
     bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
 
     if (foundTarget) {
-        ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
+        ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(mimeData->data(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")));
         QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNode(m_view, itemLibraryEntry, QPointF(), targetProperty);
 
         if (newQmlItemNode.isValid() && targetProperty.isNodeListProperty()) {
