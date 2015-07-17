@@ -95,28 +95,18 @@ TEST_F(CodeCompleter, FunctionInUnsavedFile)
 {
     ASSERT_THAT(completer.complete(100, 1),
                 AllOf(Contains(CodeCompletion(Utf8StringLiteral("functionWithArguments"),
-                                              Utf8String(),
-                                              Utf8String(),
                                               0,
                                               CodeCompletion::FunctionCompletionKind)),
                       Contains(CodeCompletion(Utf8StringLiteral("function"),
-                                              Utf8String(),
-                                              Utf8String(),
                                               0,
                                               CodeCompletion::FunctionCompletionKind)),
                       Contains(CodeCompletion(Utf8StringLiteral("newFunction"),
-                                              Utf8String(),
-                                              Utf8String(),
                                               0,
                                               CodeCompletion::FunctionCompletionKind)),
                       Contains(CodeCompletion(Utf8StringLiteral("f"),
-                                              Utf8String(),
-                                              Utf8String(),
                                               0,
                                               CodeCompletion::FunctionCompletionKind)),
                       Not(Contains(CodeCompletion(Utf8StringLiteral("otherFunction"),
-                                                  Utf8String(),
-                                                  Utf8String(),
                                                   0,
                                                   CodeCompletion::FunctionCompletionKind)))));
 }
@@ -126,8 +116,6 @@ TEST_F(CodeCompleter, Macro)
 {
     ASSERT_THAT(completer.complete(100, 1),
                 Contains(CodeCompletion(Utf8StringLiteral("Macro"),
-                                              Utf8String(),
-                                              Utf8String(),
                                               0,
                                               CodeCompletion::PreProcessorCompletionKind)));
 }
@@ -136,8 +124,6 @@ TEST_F(CodeCompleter, Keyword)
 {
     ASSERT_THAT(completer.complete(100, 1),
                 Contains(CodeCompletion(Utf8StringLiteral("switch"),
-                                              Utf8String(),
-                                              Utf8String(),
                                               0,
                                               CodeCompletion::KeywordCompletionKind)));
 }

@@ -56,6 +56,9 @@ public:
     static QList<BaseQtVersion *> versions();
     static QList<BaseQtVersion *> validVersions();
 
+    // Sorting is slow due to needing to potentially run qmake --query for each version
+    static QList<BaseQtVersion *> unsortedVersions();
+
     // Note: DO NOT STORE THIS POINTER!
     //       The QtVersionManager will delete it at random times and you will
     //       need to get a new pointer by calling this function again!

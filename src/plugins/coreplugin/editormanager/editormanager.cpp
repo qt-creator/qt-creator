@@ -180,7 +180,7 @@ void EditorManagerPlaceHolder::currentModeChanged(IMode *mode)
 static EditorManager *m_instance = 0;
 static EditorManagerPrivate *d;
 
-static int extractNumericSuffix(QString *fileName)
+static int extractNumericSuffix(QString *fileName, QString *postfix = 0)
 {
     int i = fileName->length() - 1;
     for (; i >= 0; --i) {
@@ -195,6 +195,8 @@ static int extractNumericSuffix(QString *fileName)
         const QString suffix = fileName->mid(i + 1);
         const int result = suffix.toInt(&ok);
         if (suffix.isEmpty() || ok) {
+            if (postfix)
+                *postfix = fileName->mid(i);
             fileName->truncate(i);
             return result;
         }
@@ -2552,25 +2554,15 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
                                               fileName, line, column, editorId, flags, newEditor);
 }
 
-// Extract line number suffix. Return the suffix (e.g. ":132") and truncates the filename accordingly.
-QString EditorManager::splitLineNumber(QString *fileName)
+// Extract line and column number suffix. Return the suffix (e.g. ":132") and truncates the filename accordingly.
+QString EditorManager::splitLineAndColumnNumber(QString *fileName)
 {
-    int i = fileName->length() - 1;
-    for (; i >= 0; --i) {
-        if (!fileName->at(i).isNumber())
-            break;
-    }
-    if (i == -1)
-        return QString();
-    const QChar c = fileName->at(i);
-    if (c == QLatin1Char(':') || c == QLatin1Char('+')) {
-        const QString result = fileName->mid(i + 1);
-        bool ok;
-        result.toInt(&ok);
-        if (result.isEmpty() || ok) {
-            fileName->truncate(i);
-            return QString(c) + result;
-        }
+    QString postfix;
+    if (extractNumericSuffix(fileName, &postfix)) {
+        QString previousPostfix;
+        if (extractNumericSuffix(fileName, &previousPostfix))
+            postfix.prepend(previousPostfix);
+        return postfix;
     }
     return QString();
 }

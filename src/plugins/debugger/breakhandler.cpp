@@ -802,6 +802,7 @@ bool Breakpoint::isOneShot() const { return parameters().oneShot; }
 
 void Breakpoint::removeAlienBreakpoint()
 {
+    b->m_state = BreakpointRemoveProceeding;
     b->deleteThis();
 }
 

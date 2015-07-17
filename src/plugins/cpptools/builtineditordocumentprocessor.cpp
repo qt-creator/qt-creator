@@ -43,8 +43,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 
@@ -134,7 +134,10 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
     using namespace Internal;
 
     QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    m_parser.setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
+
+    BaseEditorDocumentParser::Configuration config = m_parser.configuration();
+    config.usePrecompiledHeaders = cms->pchUsage() != CppCodeModelSettings::PchUse_None;
+    m_parser.setConfiguration(config);
 
     if (m_semanticHighlighter) {
         m_semanticHighlighter->setHighlightingRunner(
@@ -163,7 +166,9 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 
 void BuiltinEditorDocumentProcessor::run()
 {
-    m_parserFuture = QtConcurrent::run(&runParser, parser(), CppTools::CppModelManager::instance()->workingCopy());
+    m_parserFuture = QtConcurrent::run(&runParser,
+                                       parser(),
+                                       BuiltinEditorDocumentParser::InMemoryInfo(false));
 }
 
 BaseEditorDocumentParser *BuiltinEditorDocumentProcessor::parser()

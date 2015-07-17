@@ -380,7 +380,7 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
         if (thisIt == constEnd()) {
             result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
-        } else if (otherIt == constEnd()) {
+        } else if (otherIt == other.constEnd()) {
             EnvironmentItem item(thisIt.key(), QString());
             item.unset = true;
             result.append(item);
@@ -394,7 +394,8 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
             result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else {
-            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
+            if (thisIt.value() != otherIt.value())
+                result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
             ++thisIt;
         }

@@ -99,7 +99,7 @@ void ClangIpcServer::registerProjectPartsForCodeCompletion(const RegisterProject
 void ClangIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command)
 {
     try {
-        projects.remove(command.filePaths());
+        projects.remove(command.projectPartIds());
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistCommand(exception.projectPartIds()));
     } catch (const std::exception &exception) {

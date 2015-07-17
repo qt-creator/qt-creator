@@ -76,7 +76,7 @@ QString ClangFunctionHintModel::text(int index) const
     hintText += prettyMethod.mid(end).toHtmlEscaped());
     return hintText;
 #endif
-    return CompletionChunksToTextConverter::convert(m_functionSymbols.at(index).chunks());
+    return CompletionChunksToTextConverter::convertToFunctionSignature(m_functionSymbols.at(index).chunks());
 }
 
 int ClangFunctionHintModel::activeArgument(const QString &prefix) const

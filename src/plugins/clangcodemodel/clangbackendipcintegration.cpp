@@ -157,7 +157,7 @@ void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistC
 
 void IpcReceiver::projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command)
 {
-    QTC_CHECK(!"Got ProjectDoesNotExistCommand");
+    QTC_CHECK(!"Got ProjectPartsDoNotExistCommand");
     qCDebug(log) << "<<< ERROR:" << command;
 }
 
@@ -223,10 +223,8 @@ IpcCommunicator::IpcCommunicator()
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
             this, &IpcCommunicator::onEditorAboutToClose);
-
-    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, [this]() {
-        m_sendMode = IgnoreSendRequests;
-    });
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
+            this, &IpcCommunicator::onCoreAboutToClose);
 
     initializeBackend();
 }
@@ -374,6 +372,11 @@ void IpcCommunicator::onEditorAboutToClose(Core::IEditor *editor)
 {
     if (auto *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
         m_ipcReceiver.deleteProcessorsOfEditorWidget(textEditor->editorWidget());
+}
+
+void IpcCommunicator::onCoreAboutToClose()
+{
+    m_sendMode = IgnoreSendRequests;
 }
 
 void IpcCommunicator::initializeBackendWithCurrentData()

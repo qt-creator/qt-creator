@@ -72,6 +72,7 @@ private:
     void decreasePriorityForDestructors();
     void decreasePriorityForSignals();
     void decreasePriorityForQObjectInternals();
+    void decreasePriorityForOperators();
 
     bool hasText(const Utf8String &text, CXCompletionString cxCompletionString) const;
 

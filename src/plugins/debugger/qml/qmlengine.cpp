@@ -62,6 +62,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -83,11 +84,14 @@
 #endif
 # define XSDEBUG(s) qDebug() << s
 
+#define CB(callback) [this](const QVariantMap &r) { callback(r); }
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QmlDebug;
 using namespace QmlJS;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -116,6 +120,16 @@ struct QmlV8ObjectData
     QVariantList properties;
 };
 
+typedef std::function<void(const QVariantMap &)> QmlCallback;
+
+struct LookupData
+{
+    QByteArray iname;
+    QString name;
+};
+
+typedef QMultiHash<int, LookupData> LookupItems; // id -> (iname, exp)
+
 class QmlEnginePrivate : QmlDebugClient
 {
 public:
@@ -130,17 +144,13 @@ public:
     void messageReceived(const QByteArray &data);
     void stateChanged(State state);
 
-    void connect();
-    void disconnect();
-
     void continueDebugging(StepAction stepAction);
 
-    void evaluate(const QString expr, bool global = false, bool disableBreak = false,
-                  int frame = -1, bool addContext = false);
-    void lookup(const QList<int> handles, bool includeSource = false);
-    void backtrace(int fromFrame = -1, int toFrame = -1, bool bottom = false);
-    void frame(int number = -1);
-    void scope(int number = -1, int frameNumber = -1);
+    void evaluate(const QString expr, const QmlCallback &cb);
+    void lookup(const LookupItems &items);
+    void backtrace();
+    void updateLocals();
+    void scope(int number, int frameNumber = -1);
     void scripts(int types = 4, const QList<int> ids = QList<int>(),
                  bool includeSource = false, const QVariant filter = QVariant());
 
@@ -150,38 +160,39 @@ public:
     void clearBreakpoint(int breakpoint);
     void setExceptionBreak(Exceptions type, bool enabled = false);
 
-    void version();
-    void clearCache();
-
-    void sendAndLogV8Request(const QJsonObject &request);
-
-    QByteArray packMessage(const QByteArray &type, const QByteArray &message = QByteArray());
-    QJsonObject initObject();
-
-    void expandObject(const QByteArray &iname, quint64 objectId);
     void flushSendBuffer();
 
-    void handleBacktrace(const QVariant &bodyVal, const QVariant &refsVal);
-    void handleLookup(const QVariant &bodyVal, const QVariant &refsVal);
-    void handleEvaluate(int sequence, bool success, const QVariant &bodyVal, const QVariant &refsVal);
-    void handleFrame(const QVariant &bodyVal, const QVariant &refsVal);
-    void handleScope(const QVariant &bodyVal, const QVariant &refsVal);
-    StackFrame extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
+    void handleBacktrace(const QVariantMap &response);
+    void handleLookup(const QVariantMap &response);
+    void handleExecuteDebuggerCommand(const QVariantMap &response);
+    void handleEvaluateExpression(const QVariantMap &response, const QByteArray &iname, const QString &expr);
+    void handleFrame(const QVariantMap &response);
+    void handleScope(const QVariantMap &response);
+    void handleVersion(const QVariantMap &response);
+    StackFrame extractStackFrame(const QVariant &bodyVal);
 
     bool canEvaluateScript(const QString &script);
     void updateScriptSource(const QString &fileName, int lineOffset, int columnOffset, const QString &source);
 
+    void runCommand(const DebuggerCommand &command, const QmlCallback &cb = QmlCallback());
+    void runDirectCommand(const QByteArray &type, const QByteArray &msg = QByteArray());
+
+    void clearRefs() { refVals.clear(); }
+    void memorizeRefs(const QVariant &refs);
+    QmlV8ObjectData extractData(const QVariant &data) const;
+    void insertSubItems(WatchItem *parent, const QVariantList &properties);
+    void checkForFinishedUpdate();
+    ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QmlV8ObjectData &objectData);
+
 public:
+    QHash<int, QmlV8ObjectData> refVals; // The mapping of target object handles to retrieved values.
     int sequence = -1;
     QmlEngine *engine;
     QHash<BreakpointModelId, int> breakpoints;
     QHash<int, BreakpointModelId> breakpointsSync;
     QList<int> breakpointsTemp;
 
-    QHash<int, QString> evaluatingExpression;
-    QHash<int, QByteArray> localsAndWatchers;
-    QList<int> updateLocalsAndWatchers;
-    QList<int> debuggerCommands;
+    LookupItems currentlyLookingUp; // Id -> inames
 
     //Cache
     QList<int> currentFrameScopes;
@@ -207,6 +218,8 @@ public:
     QTimer connectionTimer;
     QmlDebug::QmlDebugConnection *connection;
     QmlDebug::QDebugMessageClient *msgClient = 0;
+
+    QHash<int, QmlCallback> callbackForToken;
 };
 
 static void updateDocument(IDocument *document, const QTextDocument *textDocument)
@@ -334,11 +347,6 @@ void QmlEngine::appendMessage(const QString &msg, Utils::OutputFormat /* format 
 void QmlEngine::connectionEstablished()
 {
     attemptBreakpointSynchronization();
-
-    if (!watchHandler()->watcherNames().isEmpty())
-        synchronizeWatchers();
-    connect(watchModel(), &QAbstractItemModel::layoutChanged,
-            this, &QmlEngine::synchronizeWatchers);
 
     if (state() == EngineRunRequested)
         notifyEngineRunAndInferiorRunOk();
@@ -512,9 +520,6 @@ void QmlEngine::gotoLocation(const Location &location)
 
 void QmlEngine::closeConnection()
 {
-    disconnect(watchModel(), &QAbstractItemModel::layoutChanged,
-               this, &QmlEngine::synchronizeWatchers);
-
     if (d->connectionTimer.isActive()) {
         d->connectionTimer.stop();
     } else {
@@ -607,7 +612,11 @@ void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel,
 void QmlEngine::shutdownInferior()
 {
     // End session.
-    d->disconnect();
+    //    { "seq"     : <number>,
+    //      "type"    : "request",
+    //      "command" : "disconnect",
+    //    }
+    d->runCommand(DISCONNECT);
 
     if (isSlaveEngine())
         resetLocation();
@@ -664,7 +673,7 @@ void QmlEngine::continueInferior()
 void QmlEngine::interruptInferior()
 {
     showMessage(_(INTERRUPT), LogInput);
-    d->sendMessage(d->packMessage(INTERRUPT));
+    d->runDirectCommand(INTERRUPT);
     notifyInferiorStopOk();
 }
 
@@ -742,11 +751,10 @@ void QmlEngine::activateFrame(int index)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    if (index != stackHandler()->currentIndex())
-        d->frame(d->stackIndexLookup.value(index));
-
     stackHandler()->setCurrentIndex(index);
     gotoLocation(stackHandler()->frames().value(index));
+
+    d->updateLocals();
 }
 
 void QmlEngine::selectThread(ThreadId threadId)
@@ -931,6 +939,11 @@ void QmlEngine::reloadSourceFiles()
     d->scripts(4, QList<int>(), true, QVariant());
 }
 
+void QmlEngine::updateAll()
+{
+    d->updateLocals();
+}
+
 void QmlEngine::requestModuleSymbols(const QString &moduleName)
 {
     Q_UNUSED(moduleName)
@@ -945,17 +958,16 @@ bool QmlEngine::canHandleToolTip(const DebuggerToolTipContext &) const
 }
 
 void QmlEngine::assignValueInDebugger(WatchItem *item,
-    const QString &expression, const QVariant &valueV)
+    const QString &expression, const QVariant &value)
 {
     if (!expression.isEmpty()) {
         if (item->isInspect() && d->inspectorAdapter.agent()) {
-            d->inspectorAdapter.agent()->assignValue(item, expression, valueV);
+            d->inspectorAdapter.agent()->assignValue(item, expression, value);
         } else {
             StackHandler *handler = stackHandler();
-            QString expression = QString(_("%1 = %2;")).arg(expression).arg(valueV.toString());
+            QString exp = QString(_("%1 = %2;")).arg(expression).arg(value.toString());
             if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-                d->evaluate(expression, false, false, handler->currentIndex());
-                d->updateLocalsAndWatchers.append(d->sequence);
+                d->evaluate(exp, [this](const QVariantMap &) { d->updateLocals(); });
             } else {
                 showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(
                             expression), ConsoleOutput);
@@ -964,23 +976,32 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     }
 }
 
-void QmlEngine::updateWatchData(const QByteArray &iname)
+void QmlEngine::expandItem(const QByteArray &iname)
 {
-//    qDebug() << "UPDATE WATCH DATA" << data.toString();
-    //showStatusMessage(tr("Stopped."), 5000);
     const WatchItem *item = watchHandler()->findItem(iname);
-    // invalid expressions or out of scope variables
-    if (!item)
-        return;
+    QTC_ASSERT(item, return);
 
     if (item->isInspect()) {
         d->inspectorAdapter.agent()->updateWatchData(*item);
     } else {
-        if (!item->name.isEmpty()) {
-            if (item->isChildrenNeeded() && watchHandler()->isExpandedIName(item->iname))
-                d->expandObject(item->iname, item->id);
-        }
-        synchronizeWatchers();
+        LookupItems items;
+        items.insert(int(item->id), {item->iname, item->name});
+        d->lookup(items);
+    }
+}
+
+void QmlEngine::updateItem(const QByteArray &iname)
+{
+    const WatchItem *item = watchHandler()->findItem(iname);
+    QTC_ASSERT(item, return);
+
+    if (state() == InferiorStopOk) {
+        // The Qt side Q_ASSERTs otherwise. So postpone the evaluation,
+        // it will be triggered from from upateLocals() later.
+        QString exp = QString::fromUtf8(item->exp);
+        d->evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+            d->handleEvaluateExpression(response, iname, exp);
+        });
     }
 }
 
@@ -989,23 +1010,6 @@ void QmlEngine::selectWatchData(const QByteArray &iname)
     const WatchItem *item = watchHandler()->findItem(iname);
     if (item && item->isInspect())
         d->inspectorAdapter.agent()->watchDataSelected(item->id);
-}
-
-void QmlEngine::synchronizeWatchers()
-{
-    if (state() != InferiorStopOk)
-        return;
-
-    QStringList watchers = watchHandler()->watchedExpressions();
-
-    // send watchers list
-    foreach (const QString &exp, watchers) {
-        StackHandler *handler = stackHandler();
-        if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-            d->evaluate(exp, false, false, handler->currentIndex());
-            d->evaluatingExpression.insert(d->sequence, exp);
-        }
-    }
 }
 
 static ConsoleItem *constructLogItemTree(ConsoleItem *parent,
@@ -1123,8 +1127,6 @@ void QmlEngine::updateCurrentContext()
             context = grandParentData->name;
     }
 
-    synchronizeWatchers();
-
     if (auto consoleManager = ConsoleManagerInterface::instance())
         consoleManager->setContext(tr("Context:") + QLatin1Char(' ') + context);
 }
@@ -1136,8 +1138,7 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
 
     StackHandler *handler = stackHandler();
     if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-        d->evaluate(command, false, false, handler->currentIndex());
-        d->debuggerCommands.append(d->sequence);
+        d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
     } else {
         //Currently cannot evaluate if not in a javascript break
         d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(
@@ -1310,26 +1311,6 @@ void QmlEngine::logServiceActivity(const QString &service, const QString &logMes
     showMessage(service + QLatin1Char(' ') + logMessage, LogDebug);
 }
 
-void QmlEnginePrivate::connect()
-{
-    engine->showMessage(_(CONNECT), LogInput);
-    sendMessage(packMessage(CONNECT));
-}
-
-void QmlEnginePrivate::disconnect()
-{
-    //    { "seq"     : <number>,
-    //      "type"    : "request",
-    //      "command" : "disconnect",
-    //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(DISCONNECT));
-
-    const QByteArray msg = QJsonDocument(jsonVal).toJson(QJsonDocument::Compact);
-    engine->showMessage(QString::fromUtf8(msg), LogInput);
-    sendMessage(packMessage(DISCONNECT, msg));
-}
-
 void QmlEnginePrivate::continueDebugging(StepAction action)
 {
     //    { "seq"       : <number>,
@@ -1339,32 +1320,22 @@ void QmlEnginePrivate::continueDebugging(StepAction action)
     //                      "stepcount"  : <number of steps (default 1)>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(CONTINEDEBUGGING));
 
-    if (action != Continue) {
-        QJsonObject args;
-        switch (action) {
-        case StepIn:
-            args.insert(_(STEPACTION), _(IN));
-            break;
-        case StepOut:
-            args.insert(_(STEPACTION), _(OUT));
-            break;
-        case Next:
-            args.insert(_(STEPACTION), _(NEXT));
-            break;
-        default:break;
-        }
+    DebuggerCommand cmd(CONTINEDEBUGGING);
 
-        jsonVal.insert(_(ARGUMENTS), args);
-    }
-    sendAndLogV8Request(jsonVal);
+    if (action == StepIn)
+        cmd.arg(STEPACTION, IN);
+    else if (action == StepOut)
+        cmd.arg(STEPACTION, OUT);
+    else if (action == Next)
+        cmd.arg(STEPACTION, NEXT);
+
+    runCommand(cmd);
+
     previousStepAction = action;
 }
 
-void QmlEnginePrivate::evaluate(const QString expr, bool global,
-                                bool disableBreak, int frame, bool addContext)
+void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1380,48 +1351,53 @@ void QmlEnginePrivate::evaluate(const QString expr, bool global,
     //                      ]
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(EVALUATE));
 
-    QJsonObject args {
-        { _(EXPRESSION), expr }
-    };
+    // The Qt side Q_ASSERTs otherwise. So ignore the request and hope
+    // it will be repeated soon enough (which it will, e.g. in updateLocals)
+    QTC_ASSERT(engine->state() == InferiorStopOk, return);
 
-    if (frame != -1)
-        args.insert(_(FRAME), frame);
+    DebuggerCommand cmd(EVALUATE);
 
-    if (global)
-        args.insert(_(GLOBAL), global);
+    cmd.arg(EXPRESSION, expr);
+    cmd.arg(FRAME, engine->stackHandler()->currentIndex());
 
-    if (disableBreak)
-        args.insert(_(DISABLE_BREAK), disableBreak);
-
-    if (addContext) {
-        WatchHandler *watchHandler = engine->watchHandler();
-        QAbstractItemModel *watchModel = watchHandler->model();
-        int rowCount = watchModel->rowCount();
-
-        QJsonArray ctxtList;
-        while (rowCount) {
-            QModelIndex index = watchModel->index(--rowCount, 0);
-            const WatchData *data = watchHandler->watchItem(index);
-            const QJsonObject ctxt {
-                { _(NAME), data->name },
-                { _(HANDLE), int(data->id) }
-            };
-
-            ctxtList.push_front(ctxt);
-        }
-
-        args.insert(_(ADDITIONAL_CONTEXT), ctxtList);
-    }
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd, cb);
 }
 
-void QmlEnginePrivate::lookup(QList<int> handles, bool includeSource)
+void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
+                                                const QByteArray &iname,
+                                                const QString &exp)
+{
+    //    { "seq"         : <number>,
+    //      "type"        : "response",
+    //      "request_seq" : <number>,
+    //      "command"     : "evaluate",
+    //      "body"        : ...
+    //      "running"     : <is the VM running after sending this response>
+    //      "success"     : true
+    //    }
+
+    QVariant bodyVal = response.value(_(BODY)).toMap();
+    QmlV8ObjectData body = extractData(bodyVal);
+    WatchHandler *watchHandler = engine->watchHandler();
+
+    auto item = new WatchItem(iname, exp);
+    item->exp = exp.toLatin1();
+    item->id = body.handle;
+    bool success = response.value(_("success")).toBool();
+    if (success) {
+        item->type = body.type;
+        item->value = body.value.toString();
+        item->wantsChildren = body.properties.count();
+    } else {
+        //Do not set type since it is unknown
+        item->setError(body.value.toString());
+    }
+    insertSubItems(item, body.properties);
+    watchHandler->insertItem(item);
+}
+
+void QmlEnginePrivate::lookup(const LookupItems &items)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1432,25 +1408,19 @@ void QmlEnginePrivate::lookup(QList<int> handles, bool includeSource)
     //                                          script objects are returned>,
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(LOOKUP));
 
-    QJsonObject args;
+    if (items.isEmpty())
+        return;
 
-    QJsonArray array;
-    foreach (int handle, handles)
-        array.push_back(handle);
-    args.insert(_(HANDLES), array);
+    QList<int> handles = items.keys();
+    currentlyLookingUp += items;
 
-    if (includeSource)
-        args.insert(_(INCLUDESOURCE), includeSource);
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    DebuggerCommand cmd(LOOKUP);
+    cmd.arg(HANDLES, handles);
+    runCommand(cmd, CB(handleLookup));
 }
 
-void QmlEnginePrivate::backtrace(int fromFrame, int toFrame, bool bottom)
+void QmlEnginePrivate::backtrace()
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1461,45 +1431,22 @@ void QmlEnginePrivate::backtrace(int fromFrame, int toFrame, bool bottom)
     //                          stack is requested>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(BACKTRACE));
 
-    QJsonObject args;
-
-    if (fromFrame != -1)
-        args.insert(_(FROMFRAME), fromFrame);
-
-    if (toFrame != -1)
-        args.insert(_(TOFRAME), toFrame);
-
-    if (bottom)
-        args.insert(_(BOTTOM), bottom);
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    DebuggerCommand cmd(BACKTRACE);
+    runCommand(cmd, CB(handleBacktrace));
 }
 
-void QmlEnginePrivate::frame(int number)
+void QmlEnginePrivate::updateLocals()
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
     //      "command"   : "frame",
-    //      "arguments" : { "number" : <frame number>
-    //                    }
+    //      "arguments" : { "number" : <frame number> }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(FRAME));
 
-    if (number != -1) {
-        const QJsonObject args {
-            { _(NUMBER), number }
-        };
-
-        jsonVal.insert(_(ARGUMENTS), args);
-    }
-
-    sendAndLogV8Request(jsonVal);
+    DebuggerCommand cmd(FRAME);
+    cmd.arg(NUMBER, stackIndexLookup.value(engine->stackHandler()->currentIndex()));
+    runCommand(cmd, CB(handleFrame));
 }
 
 void QmlEnginePrivate::scope(int number, int frameNumber)
@@ -1512,21 +1459,13 @@ void QmlEnginePrivate::scope(int number, int frameNumber)
     //                                      frame if missing>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(SCOPE));
 
-    if (number != -1) {
-        QJsonObject args {
-            { _(NUMBER), number }
-        };
+    DebuggerCommand cmd(SCOPE);
+    cmd.arg(NUMBER, number);
+    if (frameNumber != -1)
+        cmd.arg(FRAMENUMBER, frameNumber);
 
-        if (frameNumber != -1)
-            args.insert(_(FRAMENUMBER), frameNumber);
-
-        jsonVal.insert(_(ARGUMENTS), args);
-    }
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd, CB(handleScope));
 }
 
 void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSource,
@@ -1547,37 +1486,24 @@ void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSour
     //                                         If a string is specified, then only scripts whose names contain the filter string will be retrieved.>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(SCRIPTS));
 
-    QJsonObject args {
-        { _(TYPES), types }
-    };
+    DebuggerCommand cmd(SCRIPTS);
+    cmd.arg(TYPES, types);
 
-    if (ids.count()) {
-        QJsonArray array;
-        foreach (int id, ids) {
-            array.push_back(id);
-        }
-        args.insert(_(IDS), array);
-    }
+    if (ids.count())
+        cmd.arg(IDS, ids);
 
     if (includeSource)
-        args.insert(_(INCLUDESOURCE), includeSource);
+        cmd.arg(INCLUDESOURCE, includeSource);
 
-    QJsonValue filterValue;
     if (filter.type() == QVariant::String)
-        filterValue = filter.toString();
+        cmd.arg(FILTER, filter.toString());
     else if (filter.type() == QVariant::Int)
-        filterValue = filter.toInt();
+        cmd.arg(FILTER, filter.toInt());
     else
         QTC_CHECK(!filter.isValid());
 
-    args.insert(_(FILTER), filterValue);
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
@@ -1601,36 +1527,28 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
         QmlDebugStream rs(&params, QIODevice::WriteOnly);
         rs <<  target.toUtf8() << enabled;
         engine->showMessage(QString(_("%1 %2 %3")).arg(_(BREAKONSIGNAL), target, enabled ? _("enabled") : _("disabled")), LogInput);
-        sendMessage(packMessage(BREAKONSIGNAL, params));
+        runDirectCommand(BREAKONSIGNAL, params);
 
     } else {
-        QJsonObject jsonVal = initObject();
-        jsonVal.insert(_(COMMAND), _(SETBREAKPOINT));
+        DebuggerCommand cmd(SETBREAKPOINT);
+        cmd.arg(TYPE, type);
+        cmd.arg(ENABLED, enabled);
 
-        QJsonObject args {
-            { _(TYPE), type },
-            { _(ENABLED), enabled }
-        };
         if (type == _(SCRIPTREGEXP))
-            args.insert(_(TARGET), Utils::FileName::fromString(target).fileName());
+            cmd.arg(TARGET, Utils::FileName::fromString(target).fileName());
         else
-            args.insert(_(TARGET), target);
+            cmd.arg(TARGET, target);
 
         if (line)
-            args.insert(_(LINE), line - 1);
-
+            cmd.arg(LINE, line - 1);
         if (column)
-            args.insert(_(COLUMN), column - 1);
-
+            cmd.arg(COLUMN, column - 1);
         if (!condition.isEmpty())
-            args.insert(_(CONDITION), condition);
-
+            cmd.arg(CONDITION, condition);
         if (ignoreCount != -1)
-            args.insert(_(IGNORECOUNT), ignoreCount);
+            cmd.arg(IGNORECOUNT, ignoreCount);
 
-        jsonVal.insert(_(ARGUMENTS), args);
-
-        sendAndLogV8Request(jsonVal);
+        runCommand(cmd);
     }
 }
 
@@ -1642,16 +1560,10 @@ void QmlEnginePrivate::clearBreakpoint(int breakpoint)
     //      "arguments" : { "breakpoint" : <number of the break point to clear>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(CLEARBREAKPOINT));
 
-    QJsonObject args {
-        { _(BREAKPOINT), breakpoint }
-    };
-
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    DebuggerCommand cmd(CLEARBREAKPOINT);
+    cmd.arg(BREAKPOINT, breakpoint);
+    runCommand(cmd);
 }
 
 void QmlEnginePrivate::setExceptionBreak(Exceptions type, bool enabled)
@@ -1663,54 +1575,22 @@ void QmlEnginePrivate::setExceptionBreak(Exceptions type, bool enabled)
     //                      "enabled" : <optional bool: enables the break type if true>
     //                    }
     //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(SETEXCEPTIONBREAK));
 
-    QJsonObject args;
-
+    DebuggerCommand cmd(SETEXCEPTIONBREAK);
     if (type == AllExceptions)
-        args.insert(_(TYPE), _(ALL));
-    //Not Supported
-    //    else if (type == UncaughtExceptions)
-    //        args.setProperty(_(TYPE),QScriptValue(_(UNCAUGHT)));
+        cmd.arg(TYPE, ALL);
+
+    //Not Supported:
+    // else if (type == UncaughtExceptions)
+    //    cmd.args(TYPE, UNCAUGHT);
 
     if (enabled)
-        args.insert(_(ENABLED), enabled);
+        cmd.arg(ENABLED, enabled);
 
-    jsonVal.insert(_(ARGUMENTS), args);
-
-    sendAndLogV8Request(jsonVal);
+    runCommand(cmd);
 }
 
-void QmlEnginePrivate::version()
-{
-    //    { "seq"       : <number>,
-    //      "type"      : "request",
-    //      "command"   : "version",
-    //    }
-    QJsonObject jsonVal = initObject();
-    jsonVal.insert(_(COMMAND), _(VERSION));
-
-    sendAndLogV8Request(jsonVal);
-}
-
-QVariant valueFromRef(int handle, const QVariant &refsVal, bool *success)
-{
-    *success = false;
-    QVariant variant;
-    const QVariantList refs = refsVal.toList();
-    foreach (const QVariant &ref, refs) {
-        const QVariantMap refData = ref.toMap();
-        if (refData.value(_(HANDLE)).toInt() == handle) {
-            variant = refData;
-            *success = true;
-            break;
-        }
-    }
-    return variant;
-}
-
-QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
+QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
 {
     //    { "handle" : <handle>,
     //      "type"   : <"undefined", "null", "boolean", "number", "string", "object", "function" or "frame">
@@ -1770,10 +1650,8 @@ QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
 
     if (dataMap.contains(_(REF))) {
         objectData.handle = dataMap.value(_(REF)).toInt();
-        bool success;
-        QVariant dataFromRef = valueFromRef(objectData.handle, refsVal, &success);
-        if (success) {
-            QmlV8ObjectData data = extractData(dataFromRef, refsVal);
+        if (refVals.contains(objectData.handle)) {
+            QmlV8ObjectData data = refVals.value(objectData.handle);
             objectData.type = data.type;
             objectData.value = data.value;
             objectData.properties = data.properties;
@@ -1821,53 +1699,40 @@ QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
     return objectData;
 }
 
-void QmlEnginePrivate::clearCache()
+void QmlEnginePrivate::runCommand(const DebuggerCommand &command, const QmlCallback &cb)
 {
-    currentFrameScopes.clear();
-    updateLocalsAndWatchers.clear();
+    QByteArray msg = "{\"seq\":" + QByteArray::number(++sequence) + ","
+                   +  "\"type\":\"request\","
+                   +  "\"command\":\"" + command.function + "\","
+                   +  "\"arguments\":{" + command.arguments() + "}}";
+    if (cb)
+        callbackForToken[sequence] = cb;
+
+    runDirectCommand(V8REQUEST, msg);
 }
 
-QByteArray QmlEnginePrivate::packMessage(const QByteArray &type, const QByteArray &message)
+void QmlEnginePrivate::runDirectCommand(const QByteArray &type, const QByteArray &msg)
 {
-    SDEBUG(message);
+    // Leave item as variable, serialization depends on it.
+    QByteArray cmd = V8DEBUG;
+
+    engine->showMessage(QString::fromLatin1("%1 %2").arg(_(type), _(msg)), LogInput);
+
     QByteArray request;
     QmlDebugStream rs(&request, QIODevice::WriteOnly);
-    QByteArray cmd = V8DEBUG;
-    rs << cmd << type << message;
-    return request;
+    rs << cmd << type << msg;
+    sendMessage(request);
 }
 
-QJsonObject QmlEnginePrivate::initObject()
+void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
 {
-    return QJsonObject {
-        {_(SEQ), ++sequence},
-        {_(TYPE), _(REQUEST)}
-    };
-}
-
-void QmlEnginePrivate::sendAndLogV8Request(const QJsonObject &request)
-{
-    const QByteArray msg = QJsonDocument(request).toJson(QJsonDocument::Compact);
-    engine->showMessage(QString::fromLatin1("%1 %2").arg(_(V8REQUEST), QString::fromUtf8(msg)), LogInput);
-    sendMessage(packMessage(V8REQUEST, msg));
-}
-
-void QmlEnginePrivate::expandObject(const QByteArray &iname, quint64 objectId)
-{
-    if (objectId == 0) {
-        //We may have got the global object
-        const WatchItem *watch = engine->watchHandler()->findItem(iname);
-        if (watch->value == QLatin1String("global")) {
-            StackHandler *stackHandler = engine->stackHandler();
-            if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
-                evaluate(watch->name, false, false, stackHandler->currentIndex());
-                evaluatingExpression.insert(sequence, QLatin1String(iname));
-            }
-            return;
+    if (refs.isValid()) {
+        foreach (const QVariant &ref, refs.toList()) {
+            const QVariantMap refData = ref.toMap();
+            int handle = refData.value(_(HANDLE)).toInt();
+            refVals[handle] = extractData(refData);
         }
     }
-    localsAndWatchers.insertMulti(objectId, iname);
-    lookup(QList<int>() << objectId);
 }
 
 void QmlEnginePrivate::messageReceived(const QByteArray &data)
@@ -1903,37 +1768,24 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
             if (type == _("response")) {
 
+                const QString debugCommand(resp.value(_(COMMAND)).toString());
+
+                memorizeRefs(resp.value(_(REFS)));
+
                 bool success = resp.value(_("success")).toBool();
                 if (!success) {
                     SDEBUG("Request was unsuccessful");
                 }
 
-                const QString debugCommand(resp.value(_(COMMAND)).toString());
+                int requestSeq = resp.value(_("request_seq")).toInt();
+                if (callbackForToken.contains(requestSeq)) {
+                    callbackForToken[requestSeq](resp);
 
-                if (debugCommand == _(DISCONNECT)) {
+                } else if (debugCommand == _(DISCONNECT)) {
                     //debugging session ended
 
                 } else if (debugCommand == _(CONTINEDEBUGGING)) {
                     //do nothing, wait for next break
-
-                } else if (debugCommand == _(BACKTRACE)) {
-                    if (success)
-                        handleBacktrace(resp.value(_(BODY)), resp.value(_(REFS)));
-
-                } else if (debugCommand == _(LOOKUP)) {
-                    if (success)
-                        handleLookup(resp.value(_(BODY)), resp.value(_(REFS)));
-
-                } else if (debugCommand == _(EVALUATE)) {
-                    int seq = resp.value(_("request_seq")).toInt();
-                    if (success) {
-                        handleEvaluate(seq, success, resp.value(_(BODY)), resp.value(_(REFS)));
-                    } else {
-                        QVariantMap map;
-                        map.insert(_(TYPE), QVariant(_("string")));
-                        map.insert(_(VALUE), resp.value(_("message")));
-                        handleEvaluate(seq, success, QVariant(map), QVariant());
-                    }
 
                 } else if (debugCommand == _(SETBREAKPOINT)) {
                     //                { "seq"         : <number>,
@@ -1994,14 +1846,6 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     //                }
 
 
-                } else if (debugCommand == _(FRAME)) {
-                    if (success)
-                        handleFrame(resp.value(_(BODY)), resp.value(_(REFS)));
-
-                } else if (debugCommand == _(SCOPE)) {
-                    if (success)
-                        handleScope(resp.value(_(BODY)), resp.value(_(REFS)));
-
                 } else if (debugCommand == _(SCRIPTS)) {
                     //                { "seq"         : <number>,
                     //                  "type"        : "response",
@@ -2059,11 +1903,6 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         engine->sourceFilesHandler()->setSourceFiles(files);
                         //update open editors
                     }
-                } else if (debugCommand == _(VERSION)) {
-                    engine->showMessage(QString(_("Using V8 Version: %1")).arg(
-                                             resp.value(_(BODY)).toMap().
-                                             value(_("V8Version")).toString()), LogOutput);
-
                 } else {
                     // DO NOTHING
                 }
@@ -2072,6 +1911,8 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                 const QString eventType(resp.value(_(EVENT)).toString());
 
                 if (eventType == _("break")) {
+
+                    clearRefs();
                     const QVariantMap breakData = resp.value(_(BODY)).toMap();
                     const QString invocationText = breakData.value(_("invocationText")).toString();
                     const QString scriptUrl = breakData.value(_("script")).toMap().value(_("name")).toString();
@@ -2189,13 +2030,13 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                 //This is most probably due to a wrong eval expression.
                 //Redirect output to console.
                 if (eventType.isEmpty()) {
-                     bool success = resp.value(_("success")).toBool();
-                     QVariantMap map;
-                     map.insert(_(TYPE), QVariant(_("string")));
-                     map.insert(_(VALUE), resp.value(_("message")));
-                     //Since there is no sequence value, best estimate is
-                     //last sequence value
-                     handleEvaluate(sequence, success, QVariant(map), QVariant());
+                     QmlV8ObjectData entry;
+                     entry.type = "string";
+                     entry.value = resp.value(_("message"));
+                     if (auto consoleManager = ConsoleManagerInterface::instance()) {
+                         if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), entry))
+                             consoleManager->printToConsolePane(item);
+                     }
                 }
 
             } //EVENT
@@ -2206,7 +2047,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
     }
 }
 
-void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleBacktrace(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2221,7 +2062,7 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &
     //      "success"     : true
     //    }
 
-    const QVariantMap body = bodyVal.toMap();
+    const QVariantMap body = response.value(_(BODY)).toMap();
     const QVariantList frames = body.value(_("frames")).toList();
 
     int fromFrameIndex = body.value(_("fromFrame")).toInt();
@@ -2233,7 +2074,7 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &
     int i = 0;
     stackIndexLookup.clear();
     foreach (const QVariant &frame, frames) {
-        StackFrame stackFrame = extractStackFrame(frame, refsVal);
+        StackFrame stackFrame = extractStackFrame(frame);
         if (stackFrame.level < 0)
             continue;
         stackIndexLookup.insert(i, stackFrame.level);
@@ -2242,15 +2083,12 @@ void QmlEnginePrivate::handleBacktrace(const QVariant &bodyVal, const QVariant &
         i++;
     }
     stackHandler->setFrames(stackFrames);
+    stackHandler->setCurrentIndex(0);
 
-    //Populate locals and watchers wrt top frame
-    //Update all Locals visible in current scope
-    //Traverse the scope chain and store the local properties
-    //in a list and show them in the Locals Window.
-    handleFrame(frames.value(0), refsVal);
+    updateLocals();
 }
 
-StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal)
+StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2293,17 +2131,17 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QV
         return stackFrame;
     }
 
-    QmlV8ObjectData objectData = extractData(body.value(_("func")), refsVal);
+    QmlV8ObjectData objectData = extractData(body.value(_("func")));
     QString functionName = objectData.value.toString();
     if (functionName.isEmpty())
         functionName = tr("Anonymous Function");
     stackFrame.function = functionName;
 
-    objectData = extractData(body.value(_("script")), refsVal);
+    objectData = extractData(body.value(_("script")));
     stackFrame.file = engine->toFileInProject(objectData.value.toString());
     stackFrame.usable = QFileInfo(stackFrame.file).isReadable();
 
-    objectData = extractData(body.value(_("receiver")), refsVal);
+    objectData = extractData(body.value(_("receiver")));
     stackFrame.to = objectData.value.toString();
 
     stackFrame.line = body.value(_("line")).toInt() + 1;
@@ -2311,7 +2149,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal, const QV
     return stackFrame;
 }
 
-void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2343,32 +2181,26 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refs
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
-    QVariantMap currentFrame = bodyVal.toMap();
+    QVariantMap body = response.value(_(BODY)).toMap();
 
     StackHandler *stackHandler = engine->stackHandler();
     WatchHandler * watchHandler = engine->watchHandler();
     watchHandler->notifyUpdateStarted();
-    clearCache();
 
     const int frameIndex = stackHandler->currentIndex();
-    QSet<QByteArray> expandedInames = watchHandler->expandedINames();
-    QHash<quint64, QByteArray> handlesToLookup;
-    // Store handles of all expanded watch data
-    foreach (const QByteArray &iname, expandedInames) {
-        const WatchItem *item = watchHandler->findItem(iname);
-        if (item && item->isLocal())
-            handlesToLookup.insert(item->id, iname);
-    }
     if (frameIndex < 0)
         return;
     const StackFrame frame = stackHandler->currentFrame();
     if (!frame.isUsable())
         return;
 
-    //Set "this" variable
+    // Always add a "this" variable
     {
-        auto item = new WatchItem("local.this", QLatin1String("this"));
-        QmlV8ObjectData objectData = extractData(currentFrame.value(_("receiver")), refsVal);
+        QByteArray iname = "local.this";
+        QString exp = QLatin1String("this");
+
+        auto item = new WatchItem(iname, exp);
+        QmlV8ObjectData objectData = extractData(body.value(_("receiver")));
         item->id = objectData.handle;
         item->type = objectData.type;
         item->value = objectData.value.toString();
@@ -2380,9 +2212,13 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refs
             item->id = 0;
         }
         watchHandler->insertItem(item);
+        evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+            handleEvaluateExpression(response, iname, exp);
+        });
     }
 
-    const QVariantList scopes = currentFrame.value(_("scopes")).toList();
+    currentFrameScopes.clear();
+    const QVariantList scopes = body.value(_("scopes")).toList();
     foreach (const QVariant &scope, scopes) {
         //Do not query for global types (0)
         //Showing global properties increases clutter.
@@ -2394,14 +2230,28 @@ void QmlEnginePrivate::handleFrame(const QVariant &bodyVal, const QVariant &refs
     }
     engine->gotoLocation(stackHandler->currentFrame());
 
-    // Expand watch data that were previously expanded
-    QHash<quint64, QByteArray>::const_iterator itEnd = handlesToLookup.constEnd();
-    for (QHash<quint64, QByteArray>::const_iterator it = handlesToLookup.constBegin(); it != itEnd; ++it)
-        expandObject(it.value(), it.key());
-    engine->stackFrameCompleted();
+    // Send watchers list
+    if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
+        QStringList watchers = watchHandler->watchedExpressions();
+        foreach (const QString &exp, watchers) {
+            const QByteArray iname = watchHandler->watcherName(exp.toLatin1());
+            evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+                handleEvaluateExpression(response, iname, exp);
+            });
+        }
+    }
+
+    // Expand locals and watchers that were previously expanded
+    LookupItems itemsToLookup;
+    foreach (const QByteArray &iname, watchHandler->expandedINames()) {
+        const WatchItem *item = watchHandler->findItem(iname);
+        if (item && item->isLocal())
+            itemsToLookup.insert(int(item->id), {item->iname, item->name});
+    }
+    lookup(itemsToLookup);
 }
 
-void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleScope(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2424,18 +2274,18 @@ void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refs
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
-    QVariantMap bodyMap = bodyVal.toMap();
+    QVariantMap bodyMap = response.value(_(BODY)).toMap();
 
     //Check if the frameIndex is same as current Stack Index
     StackHandler *stackHandler = engine->stackHandler();
     if (bodyMap.value(_("frameIndex")).toInt() != stackHandler->currentIndex())
         return;
 
-    QmlV8ObjectData objectData = extractData(bodyMap.value(_("object")), refsVal);
+    QmlV8ObjectData objectData = extractData(bodyMap.value(_("object")));
 
-    QList<int> handlesToLookup;
+    LookupItems itemsToLookup;
     foreach (const QVariant &property, objectData.properties) {
-        QmlV8ObjectData localData = extractData(property, refsVal);
+        QmlV8ObjectData localData = extractData(property);
         auto item = new WatchItem;
         item->exp = localData.name;
         //Check for v8 specific local data
@@ -2444,29 +2294,29 @@ void QmlEnginePrivate::handleScope(const QVariant &bodyVal, const QVariant &refs
 
         item->name = QLatin1String(item->exp);
         item->iname = QByteArray("local.") + item->exp;
+        item->id = localData.handle;
 
-        int handle = localData.handle;
         if (localData.value.isValid()) {
-            item->id = handle;
             item->type = localData.type;
             item->value = localData.value.toString();
             item->setHasChildren(localData.properties.count());
             engine->watchHandler()->insertItem(item);
         } else {
-            handlesToLookup << handle;
-            localsAndWatchers.insertMulti(handle, item->exp);
+            itemsToLookup.insert(int(item->id), {item->iname, item->name});
         }
     }
+    lookup(itemsToLookup);
+    checkForFinishedUpdate();
+}
 
-    if (!handlesToLookup.isEmpty())
-        lookup(handlesToLookup);
-    else
+void QmlEnginePrivate::checkForFinishedUpdate()
+{
+    if (currentlyLookingUp.isEmpty())
         engine->watchHandler()->notifyUpdateFinished();
 }
 
-ConsoleItem *constructLogItemTree(ConsoleItem *parent,
-                                  const QmlV8ObjectData &objectData,
-                                  const QVariant &refsVal)
+ConsoleItem *QmlEnginePrivate::constructLogItemTree(ConsoleItem *parent,
+                                                    const QmlV8ObjectData &objectData)
 {
     bool sorted = boolSetting(SortStructMembers);
     if (!objectData.value.isValid())
@@ -2483,10 +2333,10 @@ ConsoleItem *constructLogItemTree(ConsoleItem *parent,
 
     QSet<QString> childrenFetched;
     foreach (const QVariant &property, objectData.properties) {
-        const QmlV8ObjectData childObjectData = extractData(property, refsVal);
+        const QmlV8ObjectData childObjectData = extractData(property);
         if (childObjectData.handle == objectData.handle)
             continue;
-        ConsoleItem *child = constructLogItemTree(item, childObjectData, refsVal);
+        ConsoleItem *child = constructLogItemTree(item, childObjectData);
         if (child) {
             const QString text = child->text();
             if (childrenFetched.contains(text))
@@ -2499,11 +2349,11 @@ ConsoleItem *constructLogItemTree(ConsoleItem *parent,
     return item;
 }
 
-static void insertSubItems(WatchItem *parent, const QVariantList &properties, const QVariant &refsVal)
+void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &properties)
 {
     QTC_ASSERT(parent, return);
     foreach (const QVariant &property, properties) {
-        QmlV8ObjectData propertyData = extractData(property, refsVal);
+        QmlV8ObjectData propertyData = extractData(property);
         auto item = new WatchItem;
         item->name = QString::fromUtf8(propertyData.name);
 
@@ -2526,74 +2376,27 @@ static void insertSubItems(WatchItem *parent, const QVariantList &properties, co
         item->setHasChildren(propertyData.properties.count());
         parent->appendChild(item);
     }
+
+    if (boolSetting(SortStructMembers))
+        parent->sortChildren([](const TreeItem *item1, const TreeItem *item2) -> bool {
+            return static_cast<const WatchItem *>(item1)->name
+                 < static_cast<const WatchItem *>(item2)->name;
+        });
 }
 
-void QmlEnginePrivate::handleEvaluate(int sequence, bool success,
-                                      const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)
 {
-    //    { "seq"         : <number>,
-    //      "type"        : "response",
-    //      "request_seq" : <number>,
-    //      "command"     : "evaluate",
-    //      "body"        : ...
-    //      "running"     : <is the VM running after sending this response>
-    //      "success"     : true
-    //    }
-    WatchHandler *watchHandler = engine->watchHandler();
-    if (updateLocalsAndWatchers.contains(sequence)) {
-        updateLocalsAndWatchers.removeOne(sequence);
-        //Update the locals
-        foreach (int index, currentFrameScopes)
-            scope(index);
-        //Also update "this"
-        QByteArray iname("local.this");
-        const WatchItem *parent = watchHandler->findItem(iname);
-        localsAndWatchers.insertMulti(parent->id, iname);
-        lookup(QList<int>() << parent->id);
-
-    } else if (debuggerCommands.contains(sequence)) {
-        updateLocalsAndWatchers.removeOne(sequence);
-        QmlV8ObjectData body = extractData(bodyVal, refsVal);
-        if (auto consoleManager = ConsoleManagerInterface::instance()) {
-            if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body, refsVal))
-                consoleManager->printToConsolePane(item);
-        }
-        //Update the locals
-        foreach (int index, currentFrameScopes)
-            scope(index);
-
-    } else {
-        QmlV8ObjectData body = extractData(bodyVal, refsVal);
-        if (evaluatingExpression.contains(sequence)) {
-            QString exp =  evaluatingExpression.take(sequence);
-            //Do we have request to evaluate a local?
-            if (exp.startsWith(QLatin1String("local."))) {
-                WatchItem *item = watchHandler->findItem(exp.toLatin1());
-                insertSubItems(item, body.properties, refsVal);
-            } else {
-                QByteArray iname = watchHandler->watcherName(exp.toLatin1());
-                SDEBUG(QString(iname));
-
-                auto item = new WatchItem(iname, exp);
-                item->exp = exp.toLatin1();
-                item->id = body.handle;
-                if (success) {
-                    item->type = body.type;
-                    item->value = body.value.toString();
-                    item->wantsChildren = body.properties.count();
-                } else {
-                    //Do not set type since it is unknown
-                    item->setError(body.value.toString());
-                }
-                watchHandler->insertItem(item);
-                insertSubItems(item, body.properties, refsVal);
-            }
-            //Insert the newly evaluated expression to the Watchers Window
-        }
+    QmlV8ObjectData body = extractData(response.value(_(BODY)));
+    if (auto consoleManager = ConsoleManagerInterface::instance()) {
+        if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body))
+            consoleManager->printToConsolePane(item);
     }
+    // Update the locals
+    foreach (int index, currentFrameScopes)
+        scope(index);
 }
 
-void QmlEnginePrivate::handleLookup(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlEnginePrivate::handleLookup(const QVariantMap &response)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -2603,36 +2406,30 @@ void QmlEnginePrivate::handleLookup(const QVariant &bodyVal, const QVariant &ref
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
-    const QVariantMap body = bodyVal.toMap();
+    const QVariantMap body = response.value(_(BODY)).toMap();
 
     QStringList handlesList = body.keys();
-    WatchHandler *watchHandler = engine->watchHandler();
-    foreach (const QString &handle, handlesList) {
-        QmlV8ObjectData bodyObjectData = extractData(body.value(handle), refsVal);
-        QByteArray prepend = localsAndWatchers.take(handle.toInt());
-
-        if (prepend.startsWith("local.") || prepend.startsWith("watch.")) {
-            // Data for expanded local/watch.
-            // Could be an object or function.
-            WatchItem *parent = watchHandler->findItem(prepend);
-            insertSubItems(parent, bodyObjectData.properties, refsVal);
-        } else {
-            //rest
+    foreach (const QString &handleString, handlesList) {
+        int handle = handleString.toInt();
+        QmlV8ObjectData bodyObjectData = extractData(body.value(handleString));
+        QList<LookupData> vals = currentlyLookingUp.values(handle);
+        currentlyLookingUp.remove(handle);
+        foreach (const LookupData &res, vals) {
             auto item = new WatchItem;
-            item->exp = prepend;
-            item->name = QLatin1String(item->exp);
-            item->iname = QByteArray("local.") + item->exp;
-            item->id = handle.toInt();
+            item->iname = res.iname;
+            item->name = res.name;
+            item->id = handle;
 
             item->type = bodyObjectData.type;
             item->value = bodyObjectData.value.toString();
 
             item->setHasChildren(bodyObjectData.properties.count());
+            insertSubItems(item, bodyObjectData.properties);
 
             engine->watchHandler()->insertItem(item);
         }
     }
-    engine->watchHandler()->notifyUpdateFinished();
+    checkForFinishedUpdate();
 }
 
 void QmlEnginePrivate::stateChanged(State state)
@@ -2642,11 +2439,16 @@ void QmlEnginePrivate::stateChanged(State state)
     if (state == QmlDebugClient::Enabled) {
         /// Start session.
         flushSendBuffer();
-        connect();
-        //Query for the V8 version. This is
-        //only for logging to the debuggerlog
-        version();
+        runDirectCommand(CONNECT);
+        runCommand(VERSION); // Only used for logging.
     }
+}
+
+void QmlEnginePrivate::handleVersion(const QVariantMap &response)
+{
+    engine->showMessage(QString(_("Using V8 Version: %1")).arg(
+                                response.value(_(BODY)).toMap().
+                                value(_("V8Version")).toString()), LogOutput);
 }
 
 void QmlEnginePrivate::sendMessage(const QByteArray &msg)

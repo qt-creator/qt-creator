@@ -82,15 +82,24 @@ public:
     const Utf8String &filePath() const;
     const Utf8String &projectPartId() const;
 
-    const time_point &lastChangeTimePoint() const;
+    const time_point &lastProjectPartChangeTimePoint() const;
+    const time_point &lastUnsavedFilesChangeTimePoint() const;
+
+    bool isNeedingReparse() const;
 
 private:
     void checkIfNull() const;
     void checkIfFileExists() const;
-    void updateLastChangeTimePoint() const;
-    void removeOutdatedTranslationUnit() const;
+    void updateLastProjectPartChangeTimePoint() const;
+    void updateLastUnsavedFilesChangeTimePoint() const;
+    void removeTranslationUnitIfProjectPartWasChanged() const;
+    bool projectPartIsOutdated() const;
     void createTranslationUnitIfNeeded() const;
     void checkTranslationUnitErrorCode(CXErrorCode errorCode) const;
+    void reparseTranslationUnit() const;
+    void reparseTranslationUnitIfUnsavedFilesAreChanged() const;
+    void printIncludes() const;
+    static int defaultOptions();
 
 private:
     mutable std::shared_ptr<TranslationUnitData> d;

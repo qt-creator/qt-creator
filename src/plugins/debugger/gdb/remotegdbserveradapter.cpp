@@ -91,8 +91,6 @@ void GdbRemoteServerEngine::setupEngine()
     }
     if (!runParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
-    if (runParameters().environment.size())
-        m_gdbProc.setEnvironment(runParameters().environment);
 
     if (runParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
@@ -185,6 +183,8 @@ void GdbRemoteServerEngine::setupInferior()
 
     if (!args.isEmpty())
         postCommand("-exec-arguments " + args.toLocal8Bit());
+
+    setEnvironmentVariables();
 
     // This has to be issued before 'target remote'. On pre-7.0 the
     // command is not present and will result in ' No symbol table is

@@ -30,12 +30,17 @@
 
 source("../../shared/qtcreator.py")
 
-import re
-
 def main():
     global tmpSettingsDir
-    quickCombinations = ["1.1", "2.1", "2.2", "2.3", "2.4",
-                         "Controls 1.0", "Controls 1.1", "Controls 1.2", "Controls 1.3"]
+    qtVersionsForQuick = ["5.3"]
+    availableBuildSystems = ["qmake", "Qbs"]
+    if platform.system() != 'Darwin':
+        qtVersionsForQuick.append("5.4")
+    if which("cmake"):
+        availableBuildSystems.append("CMake")
+    else:
+        test.warning("Could not find cmake in PATH - several tests won't run without.")
+
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
@@ -50,8 +55,11 @@ def main():
     comboBox = findObject(":New.comboBox_QComboBox")
     targets = zip(*kits.values())[0]
     test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
-    test.compare(comboBox.currentText, "Desktop Templates")
-    selectFromCombo(comboBox, "All Templates")
+    test.compare(comboBox.currentText, "All Templates")
+    try:
+        selectFromCombo(comboBox, "All Templates")
+    except:
+        test.warning("Could not explicitly select 'All Templates' from combobox.")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
         # skip non-configurable
         if "Import" in category:
@@ -62,27 +70,39 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if (template != "Qt Quick UI" and "(CMake Build)" not in template
-                and "(Qbs Build)" not in template):
+            if not template in ["Qt Quick UI", "Qt Quick Controls UI", "Qt Canvas 3D Application"]:
                 availableProjectTypes.append({category:template})
-    clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
+    safeClickButton("Cancel")
     for current in availableProjectTypes:
         category = current.keys()[0]
         template = current.values()[0]
         displayedPlatforms = __createProject__(category, template)
-        if template == "Qt Quick Application":
-            for counter, qComb in enumerate(quickCombinations):
-                requiredQtVersion = __createProjectHandleQtQuickSelection__(qComb)
+        if template == "Qt Quick Application" or template == "Qt Quick Controls Application":
+            for counter, qtVersion in enumerate(qtVersionsForQuick):
+                requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
                 __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
                 verifyKitCheckboxes(kits, displayedPlatforms)
                 # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
-                clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
+                safeClickButton("Cancel")
                 # are there more Quick combinations - then recreate this project
-                if counter < len(quickCombinations) - 1:
+                if counter < len(qtVersionsForQuick) - 1:
                     displayedPlatforms = __createProject__(category, template)
             continue
+        elif template.startswith("Plain C"):
+            for counter, buildSystem in enumerate(availableBuildSystems):
+                combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
+                selectFromCombo(combo, buildSystem)
+                clickButton(waitForObject(":Next_QPushButton"))
+                verifyKitCheckboxes(kits, displayedPlatforms)
+                # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
+                safeClickButton("Cancel")
+                if counter < len(availableBuildSystems) - 1:
+                    displayedPlatforms = __createProject__(category, template)
+            continue
+
         verifyKitCheckboxes(kits, displayedPlatforms)
-        clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
+        safeClickButton("Cancel")
+
     invokeMenuItem("File", "Exit")
 
 def verifyKitCheckboxes(kits, displayedPlatforms):
@@ -106,18 +126,41 @@ def verifyKitCheckboxes(kits, displayedPlatforms):
                   % str(availableCheckboxes))
 
 def __createProject__(category, template):
+    def safeGetTextBrowserText():
+        try:
+            return str(waitForObject(":frame.templateDescription_QTextBrowser", 500).plainText)
+        except:
+            return ""
+
     invokeMenuItem("File", "New File or Project...")
     selectFromCombo(waitForObject(":New.comboBox_QComboBox"), "All Templates")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
     templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
+
     test.log("Verifying '%s' -> '%s'" % (category.replace("\\.", "."), template.replace("\\.", ".")))
-    textBrowser = findObject(":frame.templateDescription_QTextBrowser")
-    origTxt = str(textBrowser.plainText)
+    origTxt = safeGetTextBrowserText()
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
-    waitFor("origTxt != str(textBrowser.plainText)", 2000)
-    displayedPlatforms = __getSupportedPlatforms__(str(textBrowser.plainText), template, True)[0]
-    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
+    waitFor("origTxt != safeGetTextBrowserText() != ''", 2000)
+    displayedPlatforms = __getSupportedPlatforms__(safeGetTextBrowserText(), template, True)[0]
+    safeClickButton("Choose...")
     # don't check because project could exist
     __createProjectSetNameAndPath__(os.path.expanduser("~"), 'untitled', False)
     return displayedPlatforms
+
+def safeClickButton(buttonLabel):
+    buttonString = "{type='QPushButton' text='%s' visible='1' unnamed='1'}"
+    for _ in range(5):
+        try:
+            clickButton(buttonString % buttonLabel)
+            return
+        except:
+            if buttonLabel == "Cancel":
+                try:
+                    clickButton("{name='qt_wizard_cancel' type='QPushButton' text='Cancel' "
+                                "visible='1'}")
+                    return
+                except:
+                    pass
+            snooze(1)
+    test.fatal("Even safeClickButton failed...")

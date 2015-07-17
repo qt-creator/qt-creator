@@ -301,7 +301,6 @@ public:
     SeparatedView *m_separatedView; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
-    QSet<QByteArray> m_fetchTriggered;
     QTimer m_requestUpdateTimer;
 
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -331,7 +330,7 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         this, &WatchModel::updateStarted);
 
     connect(action(SortStructMembers), &SavedAction::valueChanged,
-        m_engine, &DebuggerEngine::updateAll);
+        m_engine, &DebuggerEngine::updateLocals);
     connect(action(ShowStdNamespace), &SavedAction::valueChanged,
         m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowQtNamespace), &SavedAction::valueChanged,
@@ -670,20 +669,16 @@ bool WatchItem::canFetchMore() const
         return false;
     if (!model->m_contentsValid && !isInspect())
         return false;
-    return !model->m_fetchTriggered.contains(iname);
+    return true;
 }
 
 void WatchItem::fetchMore()
 {
     WatchModel *model = watchModel();
-    if (model->m_fetchTriggered.contains(iname))
-        return;
-
     model->m_expandedINames.insert(iname);
-    model->m_fetchTriggered.insert(iname);
     if (children().isEmpty()) {
         setChildrenNeeded();
-        model->m_engine->updateWatchData(iname);
+        model->m_engine->expandItem(iname);
     }
 }
 
@@ -940,12 +935,12 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
         case LocalsTypeFormatRole:
             setTypeFormat(item->type, value.toInt());
-            m_engine->updateWatchData(item->iname);
+            m_engine->updateLocals();
             break;
 
         case LocalsIndividualFormatRole: {
             setIndividualFormat(item->iname, value.toInt());
-            m_engine->updateWatchData(item->iname);
+            m_engine->updateLocals();
             break;
         }
     }
@@ -1177,6 +1172,8 @@ void WatchModel::insertItem(WatchItem *item)
     if (!found)
         parent->appendChild(item);
 
+    item->update();
+
     item->walkTree([this](TreeItem *sub) { showEditValue(static_cast<WatchItem *>(sub)); });
 }
 
@@ -1304,14 +1301,14 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
     item->exp = exp;
     item->name = name.isEmpty() ? exp0 : name;
     item->iname = watcherName(exp);
+    m_model->insertItem(item);
     saveWatchers();
 
     if (m_model->m_engine->state() == DebuggerNotReady) {
         item->setAllUnneeded();
         item->setValue(QString(QLatin1Char(' ')));
-        m_model->insertItem(item);
     } else {
-        m_model->m_engine->updateWatchData(item->iname);
+        m_model->m_engine->updateItem(item->iname);
     }
     updateWatchersWindow();
 }
@@ -1665,7 +1662,6 @@ QString WatchHandler::editorContents()
 
 void WatchHandler::scheduleResetLocation()
 {
-    m_model->m_fetchTriggered.clear();
     m_model->m_contentsValid = false;
     m_model->m_resetLocationScheduled = true;
 }

@@ -64,7 +64,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     QString entry = entry_;
-    const QString lineNoSuffix = EditorManager::splitLineNumber(&entry);
+    const QString lineNoSuffix = EditorManager::splitLineAndColumnNumber(&entry);
     const QChar asterisk = QLatin1Char('*');
     QString pattern = QString(asterisk);
     pattern += entry;

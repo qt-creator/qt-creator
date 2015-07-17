@@ -182,7 +182,7 @@ bool LldbEngine::prepareCommand()
         QtcProcess::SplitError perr;
         rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
                                                  HostOsInfo::hostOs(),
-                    &rp.environment, &rp.workingDirectory).toWindowsArgs();
+                    nullptr, &rp.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -290,6 +290,17 @@ void LldbEngine::startLldbStage2()
 
 void LldbEngine::setupInferior()
 {
+    Environment sysEnv = Environment::systemEnvironment();
+    Environment runEnv = runParameters().environment;
+    foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
+        DebuggerCommand cmd("executeDebuggerCommand");
+        if (item.unset)
+            cmd.arg("command", "settings remove target.env-vars " + item.name.toUtf8());
+        else
+            cmd.arg("command", "settings set target.env-vars " + item.name.toUtf8() + '=' + item.value.toUtf8());
+        runCommand(cmd);
+    }
+
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
@@ -300,7 +311,7 @@ void LldbEngine::setupInferior()
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
         DebuggerCommand cmd("executeDebuggerCommand");
-        cmd.arg("commands", commands.toUtf8());
+        cmd.arg("command", commands.toUtf8());
         runCommand(cmd);
     }
 

@@ -274,7 +274,7 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
     if (d->m_lockDepth == 0)
         d->m_aborted = false;
 
-    if (d->m_lockDepth > 3) { // Limit recursion.
+    if (d->m_lockDepth > 10) { // Limit recursion.
         d->m_aborted = true;
         return QString();
     }

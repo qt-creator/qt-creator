@@ -101,7 +101,6 @@ public:
     QModelIndex index() const;
 
     TreeModel *model() const { return m_model; }
-    void setModel(TreeModel *model);
 
     void walkTree(TreeItemVisitor *visitor);
     void walkTree(std::function<void(TreeItem *)> f);
@@ -117,7 +116,6 @@ private:
     TreeModel *m_model; // Not owned.
     QVector<TreeItem *> m_children; // Owned.
     QStringList *m_displays;
-    mutable bool m_populated;
     Qt::ItemFlags m_flags;
 
     friend class TreeModel;

@@ -31,6 +31,7 @@
 #include "baseeditordocumentparser.h"
 #include "baseeditordocumentprocessor.h"
 
+#include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
 namespace CppTools {
@@ -44,15 +45,18 @@ namespace CppTools {
     It's meant to be used in the C++ editor to get precise results by using
     the "best" project part for a file.
 
-    Derived classes are expected to implement update() by using the protected
-    mutex, updateProjectPart() and by respecting the options set by the client.
+    Derived classes are expected to implement updateHelper() this way:
+
+    \list
+        \li Get a copy of the configuration and the last state.
+        \li Work on the data and do whatever is necessary. At least, update
+            the project part with the help of determineProjectPart().
+        \li Ensure the new state is set before updateHelper() returns.
+    \endlist
 */
 
 BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
-    : m_mutex(QMutex::Recursive)
-    , m_filePath(filePath)
-    , m_usePrecompiledHeaders(false)
-    , m_editorDefinesChangedSinceLastUpdate(false)
+    : m_filePath(filePath)
 {
 }
 
@@ -65,44 +69,39 @@ QString BaseEditorDocumentParser::filePath() const
     return m_filePath;
 }
 
+BaseEditorDocumentParser::Configuration BaseEditorDocumentParser::configuration() const
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    return m_configuration;
+}
+
+void BaseEditorDocumentParser::setConfiguration(const Configuration &configuration)
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    m_configuration = configuration;
+}
+
+void BaseEditorDocumentParser::update(const InMemoryInfo &info)
+{
+    QMutexLocker locker(&m_updateIsRunning);
+    updateHelper(info);
+}
+
+BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    return m_state;
+}
+
+void BaseEditorDocumentParser::setState(const State &state)
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    m_state = state;
+}
+
 ProjectPart::Ptr BaseEditorDocumentParser::projectPart() const
 {
-    QMutexLocker locker(&m_mutex);
-    return m_projectPart;
-}
-
-void BaseEditorDocumentParser::setProjectPart(ProjectPart::Ptr projectPart)
-{
-    QMutexLocker locker(&m_mutex);
-    m_manuallySetProjectPart = projectPart;
-}
-
-bool BaseEditorDocumentParser::usePrecompiledHeaders() const
-{
-    QMutexLocker locker(&m_mutex);
-    return m_usePrecompiledHeaders;
-}
-
-void BaseEditorDocumentParser::setUsePrecompiledHeaders(bool usePrecompiledHeaders)
-{
-    QMutexLocker locker(&m_mutex);
-    m_usePrecompiledHeaders = usePrecompiledHeaders;
-}
-
-QByteArray BaseEditorDocumentParser::editorDefines() const
-{
-    QMutexLocker locker(&m_mutex);
-    return m_editorDefines;
-}
-
-void BaseEditorDocumentParser::setEditorDefines(const QByteArray &editorDefines)
-{
-    QMutexLocker locker(&m_mutex);
-
-    if (editorDefines != m_editorDefines) {
-        m_editorDefines = editorDefines;
-        m_editorDefinesChangedSinceLastUpdate = true;
-    }
+    return state().projectPart;
 }
 
 BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
@@ -115,43 +114,44 @@ BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
     return 0;
 }
 
-void BaseEditorDocumentParser::updateProjectPart()
+ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &filePath,
+                                                                const Configuration &config,
+                                                                const State &state)
 {
-    if (m_manuallySetProjectPart) {
-        m_projectPart = m_manuallySetProjectPart;
-        return;
-    }
+    if (config.manuallySetProjectPart)
+        return config.manuallySetProjectPart;
+
+    ProjectPart::Ptr projectPart = state.projectPart;
 
     CppModelManager *cmm = CppModelManager::instance();
-    QList<ProjectPart::Ptr> projectParts = cmm->projectPart(m_filePath);
+    QList<ProjectPart::Ptr> projectParts = cmm->projectPart(filePath);
     if (projectParts.isEmpty()) {
-        if (m_projectPart)
+        if (projectPart)
             // File is not directly part of any project, but we got one before. We will re-use it,
             // because re-calculating this can be expensive when the dependency table is big.
-            return;
+            return projectPart;
 
         // Fall-back step 1: Get some parts through the dependency table:
-        projectParts = cmm->projectPartFromDependencies(Utils::FileName::fromString(m_filePath));
+        projectParts = cmm->projectPartFromDependencies(Utils::FileName::fromString(filePath));
         if (projectParts.isEmpty())
             // Fall-back step 2: Use fall-back part from the model manager:
-            m_projectPart = cmm->fallbackProjectPart();
+            projectPart = cmm->fallbackProjectPart();
         else
-            m_projectPart = projectParts.first();
+            projectPart = projectParts.first();
     } else {
-        if (!projectParts.contains(m_projectPart))
+        if (!projectParts.contains(projectPart))
             // Apparently the project file changed, so update our project part.
-            m_projectPart = projectParts.first();
+            projectPart = projectParts.first();
     }
+
+    return projectPart;
 }
 
-bool BaseEditorDocumentParser::editorDefinesChanged() const
+BaseEditorDocumentParser::InMemoryInfo::InMemoryInfo(bool withModifiedFiles)
+    : workingCopy(CppTools::CppModelManager::instance()->workingCopy())
 {
-    return m_editorDefinesChangedSinceLastUpdate;
-}
-
-void BaseEditorDocumentParser::resetEditorDefinesChanged()
-{
-    m_editorDefinesChangedSinceLastUpdate = false;
+    if (withModifiedFiles)
+        modifiedFiles = CppTools::modifiedFiles();
 }
 
 } // namespace CppTools

@@ -83,7 +83,7 @@
 #include <QMutableVectorIterator>
 #include <QQuickView>
 
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 
 
 namespace {

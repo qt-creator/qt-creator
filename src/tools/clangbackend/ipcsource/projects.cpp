@@ -46,11 +46,16 @@ void ProjectParts::remove(const Utf8StringVector &projectPartIds)
 {
     Utf8StringVector processedProjectPartFilePaths = projectPartIds;
 
-    auto removeBeginIterator = std::remove_if(projects_.begin(), projects_.end(), [&processedProjectPartFilePaths] (const ProjectPart &project) {
-        return processedProjectPartFilePaths.removeFast(project.projectPartId());
-    });
+    const auto removeBeginIterator = std::remove_if(projects_.begin(), projects_.end(),
+        [&processedProjectPartFilePaths] (ProjectPart &project) {
+            const bool isRemoved = processedProjectPartFilePaths.removeFast(project.projectPartId());
 
-    std::for_each(removeBeginIterator, projects_.end(), [](ProjectPart &project) { project.clearProjectPartId(); });
+            if (isRemoved)
+                project.clear();
+
+            return isRemoved;
+        });
+
     projects_.erase(removeBeginIterator, projects_.end());
 
     if (!processedProjectPartFilePaths.isEmpty())

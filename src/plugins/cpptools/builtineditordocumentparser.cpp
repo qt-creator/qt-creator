@@ -40,18 +40,21 @@ using namespace CppTools::Internal;
 
 BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
-    , m_forceSnapshotInvalidation(false)
-    , m_releaseSourceAndAST(true)
 {
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
+void BuiltinEditorDocumentParser::updateHelper(const InMemoryInfo &info)
 {
-    QMutexLocker locker(&m_mutex);
-
     if (filePath().isEmpty())
         return;
+
+    const Configuration baseConfig = configuration();
+    const bool releaseSourceAndAST_ = releaseSourceAndAST();
+
+    State baseState = state();
+    ExtraState state = extraState();
+    WorkingCopy workingCopy = info.workingCopy;
 
     bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
 
@@ -62,52 +65,52 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    updateProjectPart();
+    baseState.projectPart = determineProjectPart(filePath(), baseConfig, baseState);
 
-    if (m_forceSnapshotInvalidation) {
+    if (state.forceSnapshotInvalidation) {
         invalidateSnapshot = true;
-        m_forceSnapshotInvalidation = false;
+        state.forceSnapshotInvalidation = false;
     }
 
-    if (const ProjectPart::Ptr part = projectPart()) {
+    if (const ProjectPart::Ptr part = baseState.projectPart) {
         configFile += part->toolchainDefines;
         configFile += part->projectDefines;
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
-        if (usePrecompiledHeaders())
+        if (baseConfig.usePrecompiledHeaders)
             precompiledHeaders = part->precompiledHeaders;
         features = part->languageFeatures;
     }
 
-    if (configFile != m_configFile) {
-        m_configFile = configFile;
+    if (configFile != state.configFile) {
+        state.configFile = configFile;
         invalidateSnapshot = true;
         invalidateConfig = true;
     }
 
-    if (editorDefinesChanged()) {
+    if (baseConfig.editorDefines != baseState.editorDefines) {
+        baseState.editorDefines = baseConfig.editorDefines;
         invalidateSnapshot = true;
         editorDefinesChanged_ = true;
-        resetEditorDefinesChanged();
     }
 
-    if (headerPaths != m_headerPaths) {
-        m_headerPaths = headerPaths;
+    if (headerPaths != state.headerPaths) {
+        state.headerPaths = headerPaths;
         invalidateSnapshot = true;
     }
 
-    if (projectConfigFile != m_projectConfigFile) {
-        m_projectConfigFile = projectConfigFile;
+    if (projectConfigFile != state.projectConfigFile) {
+        state.projectConfigFile = projectConfigFile;
         invalidateSnapshot = true;
     }
 
-    if (precompiledHeaders != m_precompiledHeaders) {
-        m_precompiledHeaders = precompiledHeaders;
+    if (precompiledHeaders != state.precompiledHeaders) {
+        state.precompiledHeaders = precompiledHeaders;
         invalidateSnapshot = true;
     }
 
     unsigned rev = 0;
-    if (Document::Ptr doc = document())
+    if (Document::Ptr doc = state.snapshot.document(filePath()))
         rev = doc->revision();
     else
         invalidateSnapshot = true;
@@ -115,26 +118,26 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
     Snapshot globalSnapshot = modelManager->snapshot();
 
     if (invalidateSnapshot) {
-        m_snapshot = Snapshot();
+        state.snapshot = Snapshot();
     } else {
         // Remove changed files from the snapshot
         QSet<Utils::FileName> toRemove;
-        foreach (const Document::Ptr &doc, m_snapshot) {
+        foreach (const Document::Ptr &doc, state.snapshot) {
             const Utils::FileName fileName = Utils::FileName::fromString(doc->fileName());
             if (workingCopy.contains(fileName)) {
                 if (workingCopy.get(fileName).second != doc->editorRevision())
-                    addFileAndDependencies(&toRemove, fileName);
+                    addFileAndDependencies(&state.snapshot, &toRemove, fileName);
                 continue;
             }
             Document::Ptr otherDoc = globalSnapshot.document(fileName);
             if (!otherDoc.isNull() && otherDoc->revision() != doc->revision())
-                addFileAndDependencies(&toRemove, fileName);
+                addFileAndDependencies(&state.snapshot, &toRemove, fileName);
         }
 
         if (!toRemove.isEmpty()) {
             invalidateSnapshot = true;
             foreach (const Utils::FileName &fileName, toRemove)
-                m_snapshot.remove(fileName);
+                state.snapshot.remove(fileName);
         }
     }
 
@@ -142,19 +145,19 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
     if (invalidateSnapshot) {
         const QString configurationFileName = modelManager->configurationFileName();
         if (invalidateConfig)
-            m_snapshot.remove(configurationFileName);
-        if (!m_snapshot.contains(configurationFileName))
-            workingCopy.insert(configurationFileName, m_configFile);
-        m_snapshot.remove(filePath());
+            state.snapshot.remove(configurationFileName);
+        if (!state.snapshot.contains(configurationFileName))
+            workingCopy.insert(configurationFileName, state.configFile);
+        state.snapshot.remove(filePath());
 
         static const QString editorDefinesFileName
             = CppModelManager::editorConfigurationFileName();
         if (editorDefinesChanged_) {
-            m_snapshot.remove(editorDefinesFileName);
-            workingCopy.insert(editorDefinesFileName, editorDefines());
+            state.snapshot.remove(editorDefinesFileName);
+            workingCopy.insert(editorDefinesFileName, baseState.editorDefines);
         }
 
-        CppSourceProcessor sourceProcessor(m_snapshot, [&](const Document::Ptr &doc) {
+        CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
             const QString fileName = doc->fileName();
             const bool isInEditor = fileName == filePath();
             Document::Ptr otherDoc = modelManager->document(fileName);
@@ -163,68 +166,64 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
                 newRev = qMax(rev + 1, newRev);
             doc->setRevision(newRev);
             modelManager->emitDocumentUpdated(doc);
-            if (m_releaseSourceAndAST)
+            if (releaseSourceAndAST_)
                 doc->releaseSourceAndAST();
         });
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(filePath());
         sourceProcessor.setGlobalSnapshot(globalSnapshot);
         sourceProcessor.setWorkingCopy(workingCopy);
-        sourceProcessor.setHeaderPaths(m_headerPaths);
+        sourceProcessor.setHeaderPaths(state.headerPaths);
         sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
-        if (!m_projectConfigFile.isEmpty())
-            sourceProcessor.run(m_projectConfigFile);
-        if (usePrecompiledHeaders()) {
-            foreach (const QString &precompiledHeader, m_precompiledHeaders)
+        if (!state.projectConfigFile.isEmpty())
+            sourceProcessor.run(state.projectConfigFile);
+        if (baseConfig.usePrecompiledHeaders) {
+            foreach (const QString &precompiledHeader, state.precompiledHeaders)
                 sourceProcessor.run(precompiledHeader);
         }
-        if (!editorDefines().isEmpty())
+        if (!baseState.editorDefines.isEmpty())
             sourceProcessor.run(editorDefinesFileName);
-        sourceProcessor.run(filePath(), usePrecompiledHeaders() ? m_precompiledHeaders
-                                                                    : QStringList());
-        m_snapshot = sourceProcessor.snapshot();
-        Snapshot newSnapshot = m_snapshot.simplified(document());
-        for (Snapshot::const_iterator i = m_snapshot.begin(), ei = m_snapshot.end(); i != ei; ++i) {
+        sourceProcessor.run(filePath(), baseConfig.usePrecompiledHeaders ? state.precompiledHeaders
+                                                                         : QStringList());
+        state.snapshot = sourceProcessor.snapshot();
+        Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
+        for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end(); i != ei; ++i) {
             if (Client::isInjectedFile(i.key().toString()))
                 newSnapshot.insert(i.value());
         }
-        m_snapshot = newSnapshot;
-        m_snapshot.updateDependencyTable();
-
-        emit finished(document(), m_snapshot);
+        state.snapshot = newSnapshot;
+        state.snapshot.updateDependencyTable();
     }
+
+    setState(baseState);
+    setExtraState(state);
+
+    if (invalidateSnapshot)
+        emit finished(state.snapshot.document(filePath()), state.snapshot);
 }
 
 void BuiltinEditorDocumentParser::releaseResources()
 {
-    QMutexLocker locker(&m_mutex);
-    m_snapshot = Snapshot();
-    m_forceSnapshotInvalidation = true;
+    ExtraState s = extraState();
+    s.snapshot = Snapshot();
+    s.forceSnapshotInvalidation = true;
+    setExtraState(s);
 }
 
 Document::Ptr BuiltinEditorDocumentParser::document() const
 {
-    QMutexLocker locker(&m_mutex);
-    return m_snapshot.document(filePath());
+    return extraState().snapshot.document(filePath());
 }
 
 Snapshot BuiltinEditorDocumentParser::snapshot() const
 {
-    QMutexLocker locker(&m_mutex);
-    return m_snapshot;
+    return extraState().snapshot;
 }
 
 ProjectPart::HeaderPaths BuiltinEditorDocumentParser::headerPaths() const
 {
-    QMutexLocker locker(&m_mutex);
-    return m_headerPaths;
-}
-
-void BuiltinEditorDocumentParser::setReleaseSourceAndAST(bool onoff)
-{
-    QMutexLocker locker(&m_mutex);
-    m_releaseSourceAndAST = onoff;
+    return extraState().headerPaths;
 }
 
 BuiltinEditorDocumentParser *BuiltinEditorDocumentParser::get(const QString &filePath)
@@ -234,12 +233,39 @@ BuiltinEditorDocumentParser *BuiltinEditorDocumentParser::get(const QString &fil
     return 0;
 }
 
-void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<Utils::FileName> *toRemove,
+void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,
+                                                         QSet<Utils::FileName> *toRemove,
                                                          const Utils::FileName &fileName) const
 {
+    QTC_ASSERT(snapshot, return);
+
     toRemove->insert(fileName);
     if (fileName != Utils::FileName::fromString(filePath())) {
-        Utils::FileNameList deps = m_snapshot.filesDependingOn(fileName);
+        Utils::FileNameList deps = snapshot->filesDependingOn(fileName);
         toRemove->unite(QSet<Utils::FileName>::fromList(deps));
     }
+}
+
+BuiltinEditorDocumentParser::ExtraState BuiltinEditorDocumentParser::extraState() const
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    return m_extraState;
+}
+
+void BuiltinEditorDocumentParser::setExtraState(const ExtraState &extraState)
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    m_extraState = extraState;
+}
+
+bool BuiltinEditorDocumentParser::releaseSourceAndAST() const
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    return m_releaseSourceAndAST;
+}
+
+void BuiltinEditorDocumentParser::setReleaseSourceAndAST(bool release)
+{
+    QMutexLocker locker(&m_stateAndConfigurationMutex);
+    m_releaseSourceAndAST = release;
 }

@@ -29,6 +29,10 @@
 ****************************************************************************/
 
 #include "cpptoolstestcase.h"
+
+#include "baseeditordocumentparser.h"
+#include "baseeditordocumentprocessor.h"
+#include "editordocumenthandle.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
 
@@ -138,6 +142,31 @@ bool TestCase::garbageCollectGlobalSnapshot()
 {
     CppModelManager::instance()->GC();
     return globalSnapshot().isEmpty();
+}
+
+static bool waitForProcessedEditorDocument_internal(CppEditorDocumentHandle *editorDocument,
+                                                    int timeOutInMs)
+{
+    QTC_ASSERT(editorDocument, return false);
+
+    QTime timer;
+    timer.start();
+
+    forever {
+        if (!editorDocument->processor()->isParserRunning())
+            return true;
+        if (timer.elapsed() > timeOutInMs)
+            return false;
+
+        QCoreApplication::processEvents();
+        QThread::msleep(20);
+    }
+}
+
+bool TestCase::waitForProcessedEditorDocument(const QString &filePath, int timeOutInMs)
+{
+    auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
+    return waitForProcessedEditorDocument_internal(editorDocument, timeOutInMs);
 }
 
 bool TestCase::parseFiles(const QSet<QString> &filePaths)

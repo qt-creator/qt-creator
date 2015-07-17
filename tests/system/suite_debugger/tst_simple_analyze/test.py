@@ -36,10 +36,10 @@ def main():
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    # we need a Qt >= 4.8
-    analyzerTargets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC
+    # we need a Qt >= 5.3 - we use checkedTargets, so we should get only valid targets
+    analyzerTargets = Targets.desktopTargetClasses()
     if platform.system() in ('Windows', 'Microsoft') and JIRA.isBugStillOpen(14307):
-        analyzerTargets &= ~Targets.DESKTOP_480_DEFAULT & ~Targets.DESKTOP_541_GCC
+        analyzerTargets &= ~Targets.DESKTOP_541_GCC
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
@@ -59,13 +59,12 @@ def main():
         invokeMenuItem("File", "Save All")
         availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
         if not availableConfigs:
-            test.fatal("Haven't found a suitable Qt version (need Qt 4.8) - leaving without debugging.")
+            test.fatal("Haven't found a suitable Qt version (need Qt 5.3+) - leaving without debugging.")
         else:
-            performTest(workingDir, projectName, len(checkedTargets), availableConfigs, False)
-            performTest(workingDir, projectName, len(checkedTargets), availableConfigs, True)
+            performTest(workingDir, projectName, len(checkedTargets), availableConfigs)
     invokeMenuItem("File", "Exit")
 
-def performTest(workingDir, projectName, targetCount, availableConfigs, disableOptimizer):
+def performTest(workingDir, projectName, targetCount, availableConfigs):
     def __elapsedTime__(elapsedTimeLabelText):
         return float(re.search("Elapsed:\s+(-?\d+\.\d+) s", elapsedTimeLabelText).group(1))
 
@@ -75,9 +74,6 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
         invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
         qtVersion = verifyBuildConfig(targetCount, kit, config, True, enableQmlDebug=True)[0]
         test.log("Selected kit using Qt %s" % qtVersion)
-        if disableOptimizer:
-            batchEditRunEnvironment(targetCount, kit, ["QML_DISABLE_OPTIMIZER=1"])
-            switchViewTo(ViewConstants.EDIT)
         # explicitly build before start debugging for adding the executable as allowed program to WinFW
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()
@@ -106,30 +102,18 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
                         "Elapsed time should be positive in string '%s'" % str(elapsedLabel.text))
         except:
             test.fatal("Could not read elapsed time from '%s'" % str(elapsedLabel.text))
-        if safeClickTab("V8"):
-            model = findObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
-                               "Internal::QV8ProfilerEventsMainView").model()
-            test.compare(model.rowCount(), 0)
         if safeClickTab("Events"):
             colPercent, colTotal, colCalls, colMean, colMedian, colLongest, colShortest = range(2, 9)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerEventsMainView").model()
-            if qtVersion.startswith("5."):
-                if disableOptimizer:
-                    compareEventsTab(model, "events_qt50_nonOptimized.tsv")
-                else:
-                    compareEventsTab(model, "events_qt50.tsv")
-                numberOfMsRows = 3
-            else:
-                if disableOptimizer:
-                    compareEventsTab(model, "events_qt48_nonOptimized.tsv")
-                else:
-                    compareEventsTab(model, "events_qt48.tsv")
-                numberOfMsRows = 2
+            compareEventsTab(model, "events_qt5.tsv")
+            numberOfMsRows = 3
             test.compare(dumpItems(model, column=colPercent)[0], '100.00 %')
-            for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
+            # cannot run following test on colShortest (unstable)
+            for i in [colTotal, colMean, colMedian, colLongest]:
                 for item in dumpItems(model, column=i)[:numberOfMsRows]:
                     test.verify(item.endswith(' ms'), "Verify that '%s' ends with ' ms'" % item)
+            for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
                 for item in dumpItems(model, column=i):
                     test.verify(not item.startswith('0.000 '),
                                 "Check for implausible durations (QTCREATORBUG-8996): %s" % item)

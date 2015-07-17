@@ -60,7 +60,7 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     Q_UNUSED(k);
 
     // find "Qt in PATH":
-    QList<BaseQtVersion *> versionList = QtVersionManager::versions();
+    QList<BaseQtVersion *> versionList = QtVersionManager::unsortedVersions();
     BaseQtVersion *result = findOrDefault(versionList, [](const BaseQtVersion *v) {
         return v->autodetectionSource() == QLatin1String("PATH");
     });
@@ -174,7 +174,7 @@ int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
             id = -1;
     } else {
         QString source = data.toString();
-        foreach (BaseQtVersion *v, QtVersionManager::versions()) {
+        foreach (BaseQtVersion *v, QtVersionManager::unsortedVersions()) {
             if (v->autodetectionSource() != source)
                 continue;
             id = v->uniqueId();

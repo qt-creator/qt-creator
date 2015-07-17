@@ -1,5 +1,4 @@
-QT       += core network testlib
-QT       -= gui
+QT       += core network testlib widgets
 
 TARGET = unittest
 CONFIG   += console c++14 testcase

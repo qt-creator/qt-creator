@@ -50,7 +50,7 @@ public:
     {
         QString rawStringFromCore;
         QString foundExecutableName; // empty if no corresponding exec could be found
-        bool isCore;
+        bool isCore = false;
     };
     static CoreInfo readExecutableNameFromCore(const QString &debuggerCmd, const QString &coreFile);
 

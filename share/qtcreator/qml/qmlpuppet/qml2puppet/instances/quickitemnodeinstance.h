@@ -36,7 +36,7 @@
 #include "objectnodeinstance.h"
 
 #include <QQuickItem>
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 
 namespace QmlDesigner {
 namespace Internal {

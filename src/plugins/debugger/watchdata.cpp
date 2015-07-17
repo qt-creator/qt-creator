@@ -645,7 +645,12 @@ template <class T>
 void readNumericVectorHelper(std::vector<double> *v, const QByteArray &ba)
 {
     const T *p = (const T *) ba.data();
-    std::copy(p, p + ba.size() / sizeof(T), std::back_insert_iterator<std::vector<double> >(*v));
+    const int n = ba.size() / sizeof(T);
+    v->resize(n);
+    // Losing precision in case of 64 bit ints is ok here, as the result
+    // is only used to plot data.
+    for (int i = 0; i != n; ++i)
+        (*v)[i] = static_cast<double>(p[i]);
 }
 
 void readNumericVector(std::vector<double> *v, const QByteArray &rawData, DebuggerEncoding encoding)

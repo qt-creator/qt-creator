@@ -37,7 +37,6 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <QMutex>
 #include <QString>
 
 namespace CppTools {
@@ -49,14 +48,14 @@ class CPPTOOLS_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentPar
 public:
     BuiltinEditorDocumentParser(const QString &filePath);
 
-    void update(WorkingCopy workingCopy) override;
-    void releaseResources();
+    bool releaseSourceAndAST() const;
+    void setReleaseSourceAndAST(bool release);
 
     CPlusPlus::Document::Ptr document() const;
     CPlusPlus::Snapshot snapshot() const;
     ProjectPart::HeaderPaths headerPaths() const;
 
-    void setReleaseSourceAndAST(bool onoff);
+    void releaseResources();
 
 signals:
     void finished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
@@ -65,18 +64,26 @@ public:
     static BuiltinEditorDocumentParser *get(const QString &filePath);
 
 private:
-    void addFileAndDependencies(QSet<Utils::FileName> *toRemove, const Utils::FileName &fileName) const;
+    void updateHelper(const InMemoryInfo &info) override;
+    void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
+                                QSet<Utils::FileName> *toRemove,
+                                const Utils::FileName &fileName) const;
 
-private:
-    QByteArray m_configFile;
+    struct ExtraState {
+        QByteArray configFile;
 
-    ProjectPart::HeaderPaths m_headerPaths;
-    QString m_projectConfigFile;
-    QStringList m_precompiledHeaders;
+        ProjectPart::HeaderPaths headerPaths;
+        QString projectConfigFile;
+        QStringList precompiledHeaders;
 
-    CPlusPlus::Snapshot m_snapshot;
-    bool m_forceSnapshotInvalidation;
-    bool m_releaseSourceAndAST;
+        CPlusPlus::Snapshot snapshot;
+        bool forceSnapshotInvalidation = false;
+    };
+    ExtraState extraState() const;
+    void setExtraState(const ExtraState &extraState);
+
+    bool m_releaseSourceAndAST = true;
+    ExtraState m_extraState;
 };
 
 } // namespace CppTools

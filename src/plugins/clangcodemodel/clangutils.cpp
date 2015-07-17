@@ -32,7 +32,6 @@
 
 #include <clang-c/Index.h>
 
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
@@ -58,15 +57,9 @@ namespace Utils {
 
 Q_LOGGING_CATEGORY(verboseRunLog, "qtc.clangcodemodel.verboserun")
 
-UnsavedFiles createUnsavedFiles(WorkingCopy workingCopy)
+UnsavedFiles createUnsavedFiles(const WorkingCopy &workingCopy,
+                                const ::Utils::FileNameList &modifiedFiles)
 {
-    // TODO: change the modelmanager to hold one working copy, and amend it every time we ask for one.
-    // TODO: Reason: the UnsavedFile needs a QByteArray.
-
-    QSet< ::Utils::FileName> modifiedFiles;
-    foreach (IDocument *doc, DocumentManager::modifiedDocuments())
-        modifiedFiles.insert(doc->filePath());
-
     UnsavedFiles result;
     QHashIterator< ::Utils::FileName, QPair<QByteArray, unsigned> > wcIter = workingCopy.iterator();
     while (wcIter.hasNext()) {

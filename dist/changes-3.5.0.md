@@ -127,7 +127,7 @@ FakeVim
 
 Todo
 
-* Added option to excluding file patterns from parsing
+* Added option to exclude file patterns from parsing
 
 Beautifier
 

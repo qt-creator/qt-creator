@@ -88,24 +88,28 @@ ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
 {
 }
 
-void ClangEditorDocumentParser::update(CppTools::WorkingCopy workingCopy)
+void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info)
 {
     QTC_ASSERT(m_marker, return);
-    QMutexLocker lock(m_marker->mutex());
-    QMutexLocker lock2(&m_mutex);
 
-    updateProjectPart();
-    const QStringList options = createOptions(filePath(), projectPart(), true);
+    // Determine project part
+    State state_ = state();
+    state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
+    setState(state_);
 
+    // Determine command line arguments
+    const QStringList options = createOptions(filePath(), state_.projectPart, true);
     qCDebug(log, "Reparse options (cmd line equivalent): %s",
            commandLine(options, filePath()).toUtf8().constData());
-    QTime t; t.start();
 
+    // Run
+    QTime t; t.start();
+    QMutexLocker lock(m_marker->mutex());
     m_marker->setFileName(filePath());
     m_marker->setCompilationOptions(options);
-    const Internal::UnsavedFiles unsavedFiles = Utils::createUnsavedFiles(workingCopy);
+    const Internal::UnsavedFiles unsavedFiles = Utils::createUnsavedFiles(info.workingCopy,
+                                                                          info.modifiedFiles);
     m_marker->reparse(unsavedFiles);
-
     qCDebug(log) << "Reparse took" << t.elapsed() << "ms.";
 }
 

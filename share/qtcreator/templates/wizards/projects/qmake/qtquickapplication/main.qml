@@ -4,7 +4,7 @@ import QtQuick.Window %{QtQuickWindowVersion}
 Window {
     visible: true
 
-@if %{QmlUISplit}
+@if %{IsUiFileInUse}
     MainForm {
         anchors.fill: parent
         mouseArea.onClicked: {

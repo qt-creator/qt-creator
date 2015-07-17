@@ -16,7 +16,9 @@
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
         { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" },
-        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" }
+        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
     ],
 
     "pages":
@@ -69,12 +71,13 @@
                     }
                 },
                 {
-                    "name": "QmlUISplit",
+                    "name": "QmlUiSplit",
                     "trDisplayName": "With ui.qml file",
                     "type": "CheckBox",
+                    "visible": "%{UiSupport}",
                     "data":
                     {
-                        "checked": false
+                        "checked": true
                     }
                 }
             ]
@@ -115,7 +118,7 @@
                 },
                 {
                     "source": "MainForm.ui.qml",
-                    "condition": "%{QmlUISplit}"
+                    "condition": "%{IsUiFileInUse}"
                 },
                 {
                     "source": "qml.qrc"

@@ -137,6 +137,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
     const QString filePath = editor->document()->filePath().toString();
     auto *processor = BaseEditorDocumentProcessor::get(filePath);
     QVERIFY(processor);
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath));
     Snapshot snapshot = processor->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included
 

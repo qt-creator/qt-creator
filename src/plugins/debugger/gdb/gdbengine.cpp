@@ -598,8 +598,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     // This also triggers when a temporary breakpoint is hit.
                     // We do not really want that, as this loses all information.
                     // FIXME: Use a special marker for this case?
-                    if (!bp.isOneShot())
-                        bp.removeAlienBreakpoint();
+                    // if (!bp.isOneShot()) ... is not sufficient.
+                    // It keeps temporary "Jump" breakpoints alive.
+                    bp.removeAlienBreakpoint();
                 }
             } else if (asyncClass == "cmd-param-changed") {
                 // New since 2012-08-09
@@ -4260,6 +4261,18 @@ void GdbEngine::loadInitScript()
     }
 }
 
+void GdbEngine::setEnvironmentVariables()
+{
+    Environment sysEnv = Environment::systemEnvironment();
+    Environment runEnv = runParameters().environment;
+    foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
+        if (item.unset)
+            postCommand("unset environment " + item.name.toUtf8());
+        else
+            postCommand("-gdb-set environment " + item.name.toUtf8() + '=' + item.value.toUtf8());
+    }
+}
+
 void GdbEngine::reloadDebuggingHelpers()
 {
     runCommand("reloadDumpers");
@@ -4570,7 +4583,7 @@ bool GdbEngine::prepareCommand()
         QtcProcess::SplitError perr;
         rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
                                                  HostOsInfo::hostOs(),
-                    &rp.environment, &rp.workingDirectory).toWindowsArgs();
+                    nullptr, &rp.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809

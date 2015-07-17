@@ -37,6 +37,8 @@
 
 #include <QString>
 
+#include <vector>
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -45,18 +47,42 @@ class CompletionChunksToTextConverter
 public:
     void parseChunks(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
 
+    void setAddPlaceHolderText(bool addPlaceHolderText);
+    void setAddPlaceHolderPositions(bool addPlaceHolderPositions);
+    void setAddResultType(bool addResultType);
+    void setAddSpaces(bool addSpaces);
+    void setAddExtraVerticalSpaceBetweenBraces(bool addExtraVerticalSpaceBetweenBraces);
+
     const QString &text() const;
+    const std::vector<int> &placeholderPositions() const;
+    bool hasPlaceholderPositions() const;
 
-    static QString convert(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
-
+    static QString convertToFunctionSignature(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
+    static QString convertToName(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
+    static QString convertToToolTip(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
 private:
     void parse(const ClangBackEnd::CodeCompletionChunk & codeCompletionChunk);
     void parseResultType(const Utf8String &text);
     void parseText(const Utf8String &text);
-    void parseOptional(const ClangBackEnd::CodeCompletionChunk & optionalCodeCompletionChunk);
+    void parseOptional(const ClangBackEnd::CodeCompletionChunk &optionalCodeCompletionChunk);
+    void parsePlaceHolder(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
+    void parseLeftParen(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
+    void parseLeftBrace(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
+    void addExtraVerticalSpaceBetweenBraces();
+    void addExtraVerticalSpaceBetweenBraces(const QVector<ClangBackEnd::CodeCompletionChunk>::iterator &);
+
+    bool canAddSpace() const;
 
 private:
+    std::vector<int> m_placeholderPositions;
+    QVector<ClangBackEnd::CodeCompletionChunk> m_codeCompletionChunks;
+    ClangBackEnd::CodeCompletionChunk m_previousCodeCompletionChunk;
     QString m_text;
+    bool m_addPlaceHolderText = false;
+    bool m_addPlaceHolderPositions = false;
+    bool m_addResultType = false;
+    bool m_addSpaces = false;
+    bool m_addExtraVerticalSpaceBetweenBraces = false;
 };
 
 } // namespace Internal

@@ -240,7 +240,7 @@ private:
     bool                        m_submitActionTriggered;
 };
 
-} // namespace Git
 } // namespace Internal
+} // namespace Git
 
 #endif // GITPLUGIN_H

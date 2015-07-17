@@ -167,13 +167,11 @@ private:
     const QString &m_filePath;
 };
 
-void waitForProcessedEditorDocument(const QString &filePath)
+ProjectPart::Ptr projectPartOfEditorDocument(const QString &filePath)
 {
-    CppEditorDocumentHandle *editorDocument
-            = CppModelManager::instance()->cppEditorDocument(filePath);
-    QVERIFY(editorDocument);
-    while (editorDocument->processor()->isParserRunning())
-        QCoreApplication::processEvents();
+    auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
+    QTC_ASSERT(editorDocument, return ProjectPart::Ptr());
+    return editorDocument->processor()->parser()->projectPart();
 }
 
 } // anonymous namespace
@@ -914,8 +912,10 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
 
         auto *parser = BuiltinEditorDocumentParser::get(fileName);
         QVERIFY(parser);
-        parser->setUsePrecompiledHeaders(true);
-        parser->update(mm->workingCopy());
+        BaseEditorDocumentParser::Configuration config = parser->configuration();
+        config.usePrecompiledHeaders = true;
+        parser->setConfiguration(config);
+        parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
 
         // Check if defines from pch are considered
         Document::Ptr document = mm->document(fileName);
@@ -995,8 +995,10 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
 
         const QString filePath = editor->document()->filePath().toString();
         BaseEditorDocumentParser *parser = BaseEditorDocumentParser::get(filePath);
-        parser->setEditorDefines(editorDefines.toUtf8());
-        parser->update(mm->workingCopy());
+        BaseEditorDocumentParser::Configuration config = parser->configuration();
+        config.editorDefines = editorDefines.toUtf8();
+        parser->setConfiguration(config);
+        parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
 
         Document::Ptr doc = mm->document(main1File);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
@@ -1006,7 +1008,6 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
 void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
 {
     ModelManagerTestHelper helper;
-    CppModelManager *mm = CppModelManager::instance();
 
     MyTestDataDir testDataDirectory(_("testdata_defines"));
     const QString fileA = testDataDirectory.file(_("main1.cpp")); // content not relevant
@@ -1017,10 +1018,8 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     QVERIFY(editorA);
     EditorCloser closerA(editorA);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
-
-    CppEditorDocumentHandle *editorDocumentA = mm->cppEditorDocument(fileA);
-    QVERIFY(editorDocumentA);
-    ProjectPart::Ptr documentAProjectPart = editorDocumentA->processor()->parser()->projectPart();
+    QVERIFY(TestCase::waitForProcessedEditorDocument(fileA));
+    ProjectPart::Ptr documentAProjectPart = projectPartOfEditorDocument(fileA);
     QVERIFY(!documentAProjectPart->project);
 
     // Open file B in editor
@@ -1028,10 +1027,8 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     QVERIFY(editorB);
     EditorCloser closerB(editorB);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
-
-    CppEditorDocumentHandle *editorDocumentB = mm->cppEditorDocument(fileB);
-    QVERIFY(editorDocumentB);
-    ProjectPart::Ptr documentBProjectPart = editorDocumentB->processor()->parser()->projectPart();
+    QVERIFY(TestCase::waitForProcessedEditorDocument(fileB));
+    ProjectPart::Ptr documentBProjectPart = projectPartOfEditorDocument(fileB);
     QVERIFY(!documentBProjectPart->project);
 
     // Switch back to document A
@@ -1053,16 +1050,14 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     helper.updateProjectInfo(pi);
 
     // ... and check for updated editor document A
-    while (editorDocumentA->processor()->isParserRunning())
-        QCoreApplication::processEvents();
-    documentAProjectPart = editorDocumentA->processor()->parser()->projectPart();
+    QVERIFY(TestCase::waitForProcessedEditorDocument(fileA));
+    documentAProjectPart = projectPartOfEditorDocument(fileA);
     QCOMPARE(documentAProjectPart->project, project);
 
     // Switch back to document B and check if that's updated, too
     Core::EditorManager::activateEditor(editorB);
-    while (editorDocumentB->processor()->isParserRunning())
-        QCoreApplication::processEvents();
-    documentBProjectPart = editorDocumentB->processor()->parser()->projectPart();
+    QVERIFY(TestCase::waitForProcessedEditorDocument(fileB));
+    documentBProjectPart = projectPartOfEditorDocument(fileB);
     QCOMPARE(documentBProjectPart->project, project);
 }
 
@@ -1131,7 +1126,7 @@ void CppToolsPlugin::test_modelmanager_documentsAndRevisions()
     TextEditor::BaseTextEditor *editor1;
     QVERIFY(helper.openBaseTextEditor(filePath1, &editor1));
     helper.closeEditorAtEndOfTestCase(editor1);
-    waitForProcessedEditorDocument(filePath1);
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 2U);
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 1U);
 
@@ -1144,7 +1139,7 @@ void CppToolsPlugin::test_modelmanager_documentsAndRevisions()
     TextEditor::BaseTextEditor *editor2;
     QVERIFY(helper.openBaseTextEditor(filePath2, &editor2));
     helper.closeEditorAtEndOfTestCase(editor2);
-    waitForProcessedEditorDocument(filePath2);
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 3U);
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 3U);
 

@@ -134,6 +134,29 @@ Location::Location(const StackFrame &frame, bool marker)
 }
 
 
+class LocationMark : public TextMark
+{
+public:
+    LocationMark(DebuggerEngine *engine, const QString &file, int line)
+        : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
+    {}
+
+private:
+    bool isDraggable() const { return true; }
+
+    void dragToLine(int line)
+    {
+        if (m_engine) {
+            ContextData data;
+            data.fileName = fileName();
+            data.lineNumber = line;
+            m_engine->executeJumpToLine(data);
+        }
+    }
+
+    QPointer<DebuggerEngine> m_engine;
+};
+
 //////////////////////////////////////////////////////////////////////
 //
 // DebuggerEnginePrivate
@@ -319,7 +342,7 @@ public:
 
     DisassemblerAgent m_disassemblerAgent;
     MemoryAgent m_memoryAgent;
-    QScopedPointer<TextMark> m_locationMark;
+    QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
 
     bool m_isStateDebugging;
@@ -610,7 +633,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION));
+        d->m_locationMark.reset(new LocationMark(this, file, line));
         d->m_locationMark->setIcon(Internal::locationMarkIcon());
         d->m_locationMark->setPriority(TextMark::HighPriority);
     }
@@ -1976,11 +1999,16 @@ bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) con
     return state() == InferiorStopOk && context.isCppEditor;
 }
 
-void DebuggerEngine::updateWatchData(const QByteArray &iname)
+void DebuggerEngine::updateItem(const QByteArray &iname)
 {
     UpdateParameters params;
     params.partialVariable = iname;
     doUpdateLocals(params);
+}
+
+void DebuggerEngine::expandItem(const QByteArray &iname)
+{
+    updateItem(iname);
 }
 
 } // namespace Internal

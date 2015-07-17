@@ -144,9 +144,6 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 void ClangEditorDocumentProcessor::run()
 {
     // Run clang parser
-    const CppTools::WorkingCopy workingCopy
-        = CppTools::CppModelManager::instance()->workingCopy();
-
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
                this, &ClangEditorDocumentProcessor::onParserFinished);
     m_parserWatcher.cancel();
@@ -155,7 +152,9 @@ void ClangEditorDocumentProcessor::run()
     m_parserRevision = revision();
     connect(&m_parserWatcher, &QFutureWatcher<void>::finished,
             this, &ClangEditorDocumentProcessor::onParserFinished);
-    const QFuture<void> future = QtConcurrent::run(&runParser, parser(), workingCopy);
+    const QFuture<void> future = QtConcurrent::run(&runParser,
+                                                   parser(),
+                                                   ClangEditorDocumentParser::InMemoryInfo(true));
     m_parserWatcher.setFuture(future);
 
     // Run builtin processor

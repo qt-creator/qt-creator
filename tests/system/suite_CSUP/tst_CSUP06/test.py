@@ -94,7 +94,7 @@ def checkIncludeCompletion(editor):
         if inclSnippet in missing:
             test.compare(changedLine, currentLine.lstrip("/"), "Include has not been modified.")
         else:
-            test.verify(changedLine.endswith('>') or changedLine.endswith('"'),
+            test.verify(changedLine[-1] in '>"/',
                         "'%s' has been completed to '%s'" % (currentLine.lstrip("/"), changedLine))
 
     performAutoCompletionTest(editor, ".*Complete includes.*", "//#include",
@@ -118,9 +118,12 @@ def checkSymbolCompletion(editor, isClangCodeModel):
     if not isClangCodeModel:
         expectedSuggestion["using namespace st"] = ["std", "st"]
         missing.remove("using namespace st")
-    elif platform.system() in ('Microsoft', 'Windows'):
-        expectedSuggestion["using namespace st"] = ["std", "stdext"]
-        missing.remove("using namespace st")
+    else:
+        missing.remove("internal.o")
+        expectedSuggestion["internal.o"] = ["one", "operator="]
+        if platform.system() in ('Microsoft', 'Windows'):
+            expectedSuggestion["using namespace st"] = ["std", "stdext"]
+            missing.remove("using namespace st")
     # define test function to perform the _real_ auto completion test on the current line
     def testSymb(currentLine, *args):
         missing, expectedSug, expectedRes = args

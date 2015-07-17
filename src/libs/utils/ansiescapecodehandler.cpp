@@ -86,53 +86,83 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
         DefaultBackgroundColor = 49
     };
 
-    QList<FormattedText> outputData;
-
-    QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
-
     const QString escape = QLatin1String("\x1b[");
-    const int escapePos = input.text.indexOf(escape);
-    if (escapePos < 0) {
-        outputData << FormattedText(input.text, charFormat);
-        return outputData;
-    } else if (escapePos != 0) {
-        outputData << FormattedText(input.text.left(escapePos), charFormat);
-    }
-
     const QChar semicolon       = QLatin1Char(';');
     const QChar colorTerminator = QLatin1Char('m');
     const QChar eraseToEol      = QLatin1Char('K');
-    // strippedText always starts with "\e["
-    QString strippedText = input.text.mid(escapePos);
+
+    QList<FormattedText> outputData;
+    QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
+    QString strippedText;
+    if (m_pendingText.isEmpty()) {
+        strippedText = input.text;
+    } else {
+        strippedText = m_pendingText.append(input.text);
+        m_pendingText.clear();
+    }
+
     while (!strippedText.isEmpty()) {
-        while (strippedText.startsWith(escape)) {
-            strippedText.remove(0, 2);
+        QTC_ASSERT(m_pendingText.isEmpty(), break);
+        const int escapePos = strippedText.indexOf(escape[0]);
+        if (escapePos < 0) {
+            outputData << FormattedText(strippedText, charFormat);
+            break;
+        } else if (escapePos != 0) {
+            outputData << FormattedText(strippedText.left(escapePos), charFormat);
+            strippedText.remove(0, escapePos);
+        }
+        QTC_ASSERT(strippedText[0] == escape[0], break);
+
+        while (!strippedText.isEmpty() && escape[0] == strippedText[0]) {
+            if (escape.startsWith(strippedText)) {
+                // control secquence is not complete
+                m_pendingText += strippedText;
+                strippedText.clear();
+                break;
+            }
+            if (!strippedText.startsWith(escape)) {
+                // not a control sequence
+                m_pendingText.clear();
+                outputData << FormattedText(strippedText.left(1), charFormat);
+                strippedText.remove(0, 1);
+                continue;
+            }
+            m_pendingText += strippedText.mid(0, escape.length());
+            strippedText.remove(0, escape.length());
 
             // \e[K is not supported. Just strip it.
             if (strippedText.startsWith(eraseToEol)) {
+                m_pendingText.clear();
                 strippedText.remove(0, 1);
                 continue;
             }
             // get the number
             QString strNumber;
             QStringList numbers;
-            while (strippedText.at(0).isDigit() || strippedText.at(0) == semicolon) {
+            while (!strippedText.isEmpty()) {
                 if (strippedText.at(0).isDigit()) {
                     strNumber += strippedText.at(0);
                 } else {
-                    numbers << strNumber;
+                    if (!strNumber.isEmpty())
+                        numbers << strNumber;
+                    if (strNumber.isEmpty() || strippedText.at(0) != semicolon)
+                        break;
                     strNumber.clear();
                 }
+                m_pendingText += strippedText.mid(0, 1);
                 strippedText.remove(0, 1);
             }
-            if (!strNumber.isEmpty())
-                numbers << strNumber;
+            if (strippedText.isEmpty())
+                break;
 
             // remove terminating char
             if (!strippedText.startsWith(colorTerminator)) {
+                m_pendingText.clear();
                 strippedText.remove(0, 1);
-                continue;
+                break;
             }
+            // got consistent control sequence, ok to clear pending text
+            m_pendingText.clear();
             strippedText.remove(0, 1);
 
             if (numbers.isEmpty()) {
@@ -223,17 +253,6 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                     }
                 }
             }
-        }
-
-        if (strippedText.isEmpty())
-            break;
-        int index = strippedText.indexOf(escape);
-        if (index > 0) {
-            outputData << FormattedText(strippedText.left(index), charFormat);
-            strippedText.remove(0, index);
-        } else if (index == -1) {
-            outputData << FormattedText(strippedText, charFormat);
-            break;
         }
     }
     return outputData;

@@ -103,7 +103,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> betterEntries;
     QList<LocatorFilterEntry> goodEntries;
     QString needle = trimWildcards(QDir::fromNativeSeparators(origEntry));
-    const QString lineNoSuffix = EditorManager::splitLineNumber(&needle);
+    const QString lineNoSuffix = EditorManager::splitLineAndColumnNumber(&needle);
     QStringMatcher matcher(needle, Qt::CaseInsensitive);
     const QChar asterisk = QLatin1Char('*');
     QRegExp regexp(asterisk + needle+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);

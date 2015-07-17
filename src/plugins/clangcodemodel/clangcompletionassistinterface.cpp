@@ -33,6 +33,7 @@
 #include "clangutils.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 
 #include <texteditor/texteditor.h>
@@ -58,7 +59,9 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(
     , m_languageFeatures(features)
     , m_textEditorWidget(textEditorWidget)
 {
-    m_unsavedFiles = Utils::createUnsavedFiles(CppTools::CppModelManager::instance()->workingCopy());
+    m_unsavedFiles = Utils::createUnsavedFiles(
+                CppTools::CppModelManager::instance()->workingCopy(),
+                CppTools::modifiedFiles());
 }
 
 bool ClangCompletionAssistInterface::objcEnabled() const

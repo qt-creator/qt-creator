@@ -103,6 +103,7 @@ protected: ////////// Gdb Process Management //////////
     void handleGdbExit(const DebuggerResponse &response);
 
     void loadInitScript();
+    void setEnvironmentVariables();
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.

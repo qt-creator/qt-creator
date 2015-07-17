@@ -77,8 +77,6 @@ private slots:
     void appStartupFailed(const QString &errorMessage);
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
-    void synchronizeWatchers();
-
 private:
     void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
@@ -131,7 +129,9 @@ private:
     void reloadSourceFiles();
     void reloadFullStack() {}
 
-    void updateWatchData(const QByteArray &iname);
+    void updateAll();
+    void updateItem(const QByteArray &iname);
+    void expandItem(const QByteArray &iname);
     void selectWatchData(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScript(const QString &expression);

@@ -17,7 +17,9 @@
         { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
         { "key": "QtQuickControlsVersion", "value": "%{JS: %{QtVersion}.qtQuickControlsVersion}" },
         { "key": "QtQuickDialogsVersion", "value": "%{JS: %{QtVersion}.qtQuickDialogsVersion}" },
-        { "key": "QtQuickLayoutsVersion", "value": "%{JS: %{QtVersion}.qtQuickLayoutsVersion}" }
+        { "key": "QtQuickLayoutsVersion", "value": "%{JS: %{QtVersion}.qtQuickLayoutsVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
     ],
 
     "pages":
@@ -75,9 +77,10 @@
                     }
                 },
                 {
-                    "name": "QmlUISplit",
+                    "name": "QmlUiSplit",
                     "trDisplayName": "With ui.qml file",
                     "type": "CheckBox",
+                    "visible": "%{UiSupport}",
                     "data":
                     {
                         "checked": true
@@ -110,7 +113,7 @@
                 {
                     "source": "../../qmake/qtquickcontrolsapplication/MainForm.ui.qml",
                     "target": "%{ProjectDirectory}/MainForm.ui.qml",
-                    "condition": "%{QmlUISplit}"
+                    "condition": "%{IsUiFileInUse}"
                 },
                 {
                     "source": "../../git.ignore",

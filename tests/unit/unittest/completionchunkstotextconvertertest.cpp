@@ -39,11 +39,15 @@
 namespace {
 
 using ClangBackEnd::CodeCompletionChunk;
+using Converter = ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
 class CompletionChunksToTextConverter : public ::testing::Test
 {
 protected:
-    ClangCodeModel::Internal::CompletionChunksToTextConverter converter;
+    void setupConverterForKeywords();
+
+protected:
+    Converter converter;
     CodeCompletionChunk integerResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("int")};
     CodeCompletionChunk enumerationResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")};
     CodeCompletionChunk functionName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Function")};
@@ -52,18 +56,36 @@ protected:
     CodeCompletionChunk enumerationName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")};
     CodeCompletionChunk className{CodeCompletionChunk::TypedText, Utf8StringLiteral("Class")};
     CodeCompletionChunk leftParen{CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")};
-    CodeCompletionChunk rightParen{CodeCompletionChunk::LeftParen, Utf8StringLiteral(")")};
+    CodeCompletionChunk rightParen{CodeCompletionChunk::RightParen, Utf8StringLiteral(")")};
     CodeCompletionChunk comma{CodeCompletionChunk::Comma, Utf8StringLiteral(", ")};
+    CodeCompletionChunk semicolon{CodeCompletionChunk::SemiColon, Utf8StringLiteral(";")};
     CodeCompletionChunk functionArgumentX{CodeCompletionChunk::Placeholder, Utf8StringLiteral("char x")};
     CodeCompletionChunk functionArgumentY{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int y")};
     CodeCompletionChunk functionArgumentZ{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")};
+    CodeCompletionChunk switchName{CodeCompletionChunk::TypedText, Utf8StringLiteral("switch")};
+    CodeCompletionChunk condition{CodeCompletionChunk::Placeholder, Utf8StringLiteral("condition")};
+    CodeCompletionChunk leftBrace{CodeCompletionChunk::LeftBrace, Utf8StringLiteral("{")};
+    CodeCompletionChunk rightBrace{CodeCompletionChunk::RightBrace, Utf8StringLiteral("}")};
+    CodeCompletionChunk verticalSpace{CodeCompletionChunk::VerticalSpace, Utf8StringLiteral("\n")};
+    CodeCompletionChunk throwName{CodeCompletionChunk::TypedText, Utf8StringLiteral("throw")};
+    CodeCompletionChunk voidResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")};
+    CodeCompletionChunk forName{CodeCompletionChunk::TypedText, Utf8StringLiteral("for")};
+    CodeCompletionChunk initStatement{CodeCompletionChunk::Placeholder, Utf8StringLiteral("init-statement")};
+    CodeCompletionChunk initExpression{CodeCompletionChunk::Placeholder, Utf8StringLiteral("init-expression")};
+    CodeCompletionChunk statements{CodeCompletionChunk::Placeholder, Utf8StringLiteral("statements")};
+    CodeCompletionChunk constCastName{CodeCompletionChunk::TypedText, Utf8StringLiteral("const_cast")};
+    CodeCompletionChunk leftAngle{CodeCompletionChunk::LeftAngle, Utf8StringLiteral("<")};
+    CodeCompletionChunk rightAngle{CodeCompletionChunk::RightAngle, Utf8StringLiteral(">")};
+    CodeCompletionChunk elseName{CodeCompletionChunk::TypedText, Utf8StringLiteral("else")};
+    CodeCompletionChunk ifName{CodeCompletionChunk::TypedText, Utf8StringLiteral("if")};
+    CodeCompletionChunk horizontalSpace{CodeCompletionChunk::HorizontalSpace, Utf8StringLiteral(" ")};
     CodeCompletionChunk optional{CodeCompletionChunk::Optional, Utf8String(), {comma, functionArgumentY, comma, functionArgumentZ}};
 };
 
 TEST_F(CompletionChunksToTextConverter, ParseIsClearingText)
 {
     QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, rightParen});
-    converter.parseChunks(completionChunks);
+    converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
 
@@ -73,6 +95,7 @@ TEST_F(CompletionChunksToTextConverter, ParseIsClearingText)
 TEST_F(CompletionChunksToTextConverter, ConvertFunction)
 {
     QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, rightParen});
+    converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
 
@@ -82,6 +105,8 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunction)
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithParameters)
 {
     QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, functionArgumentX,rightParen});
+    converter.setAddResultType(true);
+    converter.setAddPlaceHolderText(true);
 
     converter.parseChunks(completionChunks);
 
@@ -91,6 +116,8 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithParameters)
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 {
     QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, functionArgumentX, optional,rightParen});
+    converter.setAddResultType(true);
+    converter.setAddPlaceHolderText(true);
 
     converter.parseChunks(completionChunks);
 
@@ -100,6 +127,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 TEST_F(CompletionChunksToTextConverter, ConvertVariable)
 {
     QVector<CodeCompletionChunk> completionChunks({integerResultType, variableName});
+    converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
 
@@ -109,6 +137,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertVariable)
 TEST_F(CompletionChunksToTextConverter, Enumerator)
 {
     QVector<CodeCompletionChunk> completionChunks({enumerationResultType, enumeratorName});
+    converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
 
@@ -124,4 +153,91 @@ TEST_F(CompletionChunksToTextConverter, Enumeration)
     ASSERT_THAT(converter.text(), QStringLiteral("Class"));
 }
 
+TEST_F(CompletionChunksToTextConverter, Switch)
+{
+    QVector<CodeCompletionChunk> completionChunks({switchName,
+                                                   leftParen,
+                                                   condition,
+                                                   rightParen,
+                                                   leftBrace,
+                                                   verticalSpace,
+                                                   rightBrace});
+    setupConverterForKeywords();
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("switch () {\n\n}"));
+    ASSERT_THAT(converter.placeholderPositions().at(0), 8);
+}
+
+TEST_F(CompletionChunksToTextConverter, For)
+{
+    QVector<CodeCompletionChunk> completionChunks({forName,
+                                                   leftParen,
+                                                   initStatement,
+                                                   semicolon,
+                                                   initExpression,
+                                                   semicolon,
+                                                   condition,
+                                                   rightParen,
+                                                   leftBrace,
+                                                   verticalSpace,
+                                                   statements,
+                                                   verticalSpace,
+                                                   rightBrace});
+    setupConverterForKeywords();
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("for (;;) {\n\n}"));
+}
+
+TEST_F(CompletionChunksToTextConverter, const_cast)
+{
+    QVector<CodeCompletionChunk> completionChunks({constCastName,
+                                                   leftAngle,
+                                                   rightAngle,
+                                                   leftParen,
+                                                   rightParen});
+    setupConverterForKeywords();
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("const_cast<>()"));
+}
+
+TEST_F(CompletionChunksToTextConverter, Throw)
+{
+    QVector<CodeCompletionChunk> completionChunks({voidResultType, throwName});
+
+    auto completionName = Converter::convertToName(completionChunks);
+
+    ASSERT_THAT(completionName, QStringLiteral("throw"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ElseIf)
+{
+    QVector<CodeCompletionChunk> completionChunks({elseName,
+                                                   horizontalSpace,
+                                                   ifName,
+                                                   horizontalSpace,
+                                                   leftBrace,
+                                                   verticalSpace,
+                                                   statements,
+                                                   verticalSpace,
+                                                   rightBrace});
+
+    setupConverterForKeywords();
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("else if {\n\n}"));
+}
+
+void CompletionChunksToTextConverter::setupConverterForKeywords()
+{
+    converter.setAddPlaceHolderPositions(true);
+    converter.setAddSpaces(true);
+    converter.setAddExtraVerticalSpaceBetweenBraces(true);
+}
 }

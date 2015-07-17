@@ -76,7 +76,7 @@ bool operator<(const RegisterProjectPartsForCodeCompletionCommand &first, const 
 
 QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command)
 {
-    debug.nospace() << "RegisterProjectPartsForCodeCompletion(";
+    debug.nospace() << "RegisterProjectPartsForCodeCompletionCommand(";
 
     for (const ProjectPartContainer &projectContainer : command.projectContainers())
         debug.nospace() << projectContainer<< ", ";
@@ -88,7 +88,7 @@ QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionComma
 
 void PrintTo(const RegisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os)
 {
-    *os << "RegisterProjectPartsForCodeCompletion(";
+    *os << "RegisterProjectPartsForCodeCompletionCommand(";
 
     for (const ProjectPartContainer &projectContainer : command.projectContainers())
         PrintTo(projectContainer, os);

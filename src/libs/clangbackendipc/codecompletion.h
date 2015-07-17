@@ -80,8 +80,6 @@ public:
 public:
     CodeCompletion() = default;
     CodeCompletion(const Utf8String &text,
-                   const Utf8String &hint = Utf8String(),
-                   const Utf8String &snippet = Utf8String(),
                    quint32 priority = 0,
                    Kind completionKind = Other,
                    Availability availability = Available,
@@ -89,9 +87,6 @@ public:
 
     void setText(const Utf8String &text);
     const Utf8String &text() const;
-
-    const Utf8String &hint() const;
-    const Utf8String &snippet() const;
 
     void setCompletionKind(Kind completionKind);
     Kind completionKind() const;
@@ -114,8 +109,6 @@ private:
 
 private:
     Utf8String text_;
-    Utf8String hint_;
-    Utf8String snippet_;
     QVector<CodeCompletionChunk> chunks_;
     quint32 priority_ = 0;
     Kind completionKind_ = Other;

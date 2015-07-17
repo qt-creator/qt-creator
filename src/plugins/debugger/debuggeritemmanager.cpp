@@ -252,8 +252,10 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     foreach (const QString &base, path) {
         dir.setPath(base);
         foreach (const QString &entry, dir.entryList()) {
-            if (entry.startsWith(QLatin1String("lldb-platform-")))
+            if (entry.startsWith(QLatin1String("lldb-platform-"))
+                    || entry.startsWith(QLatin1String("lldb-gdbserver-"))) {
                 continue;
+            }
             suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
         }
     }

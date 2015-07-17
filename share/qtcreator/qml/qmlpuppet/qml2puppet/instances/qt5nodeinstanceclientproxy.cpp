@@ -37,7 +37,7 @@
 #include "qt5rendernodeinstanceserver.h"
 #include "qt5testnodeinstanceserver.h"
 
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 
 #if defined(Q_OS_UNIX)
 #include <unistd.h>

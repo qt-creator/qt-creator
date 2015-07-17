@@ -44,6 +44,10 @@ class QStringRef;
 class QTextCursor;
 QT_END_NAMESPACE
 
+namespace Utils {
+class FileNameList;
+} // namespace Utils
+
 namespace CPlusPlus {
 class Macro;
 class Symbol;
@@ -51,6 +55,8 @@ class LookupContext;
 } // namespace CPlusPlus
 
 namespace CppTools {
+
+Utils::FileNameList CPPTOOLS_EXPORT modifiedFiles();
 
 void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPTOOLS_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);

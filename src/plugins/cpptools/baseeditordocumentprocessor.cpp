@@ -31,6 +31,7 @@
 #include "baseeditordocumentprocessor.h"
 #include "cppworkingcopy.h"
 
+#include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
 #include <utils/qtcassert.h>
@@ -118,7 +119,7 @@ QList<QTextEdit::ExtraSelection> BaseEditorDocumentProcessor::toTextEditorSelect
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser *parser,
-                                            WorkingCopy workingCopy)
+                                            BaseEditorDocumentParser::InMemoryInfo info)
 {
     future.setProgressRange(0, 1);
     if (future.isCanceled()) {
@@ -126,7 +127,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
         return;
     }
 
-    parser->update(workingCopy);
+    parser->update(info);
     CppModelManager::instance()
         ->finishedRefreshingSourceFiles(QSet<QString>() << parser->filePath());
 

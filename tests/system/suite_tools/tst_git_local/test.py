@@ -109,9 +109,11 @@ def __clickCommit__(count):
     description = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
     waitFor('len(str(description.plainText)) != 0', 5000)
     show = str(description.plainText)
+    id = "Nobody <nobody@nowhere\.com>"
+    time = "\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.* seconds ago\)"
     expected = [{"commit %s" % commit:False},
-                {"Author: Nobody <nobody@nowhere.com>": False},
-                {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True}]
+                {"Author: %s, %s" % (id, time): True},
+                {"Committer: %s, %s" % (id, time): True}]
     for line, exp in zip(show.splitlines(), expected):
         expLine = exp.keys()[0]
         isRegex = exp.values()[0]

@@ -34,7 +34,7 @@
 #include <QQuickItem>
 #include <QQuickView>
 
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>

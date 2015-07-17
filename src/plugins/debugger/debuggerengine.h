@@ -65,6 +65,7 @@ class MemoryAgent;
 class WatchData;
 class WatchItem;
 class BreakHandler;
+class LocationMark;
 class ModulesHandler;
 class RegisterHandler;
 class StackHandler;
@@ -191,7 +192,8 @@ public:
     DebuggerRunParameters &runParameters();
 
     virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
-    virtual void updateWatchData(const QByteArray &iname);
+    virtual void expandItem(const QByteArray &iname); // Called when item in tree gets expanded.
+    virtual void updateItem(const QByteArray &iname); // Called for fresh watch items.
     virtual void selectWatchData(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);
@@ -440,6 +442,7 @@ private:
     virtual void setState(DebuggerState state, bool forced = false);
 
     friend class DebuggerEnginePrivate;
+    friend class LocationMark;
     DebuggerEnginePrivate *d;
 };
 

@@ -770,15 +770,6 @@ QModelIndex TreeItem::index() const
     return m_model->indexForItem(this);
 }
 
-void TreeItem::setModel(TreeModel *model)
-{
-    if (m_model == model)
-        return;
-    m_model = model;
-    foreach (TreeItem *item, m_children)
-        item->setModel(model);
-}
-
 void TreeItem::walkTree(TreeItemVisitor *visitor)
 {
     if (visitor->preVisit(this)) {
@@ -972,6 +963,9 @@ int TreeModel::topLevelItemCount() const
 
 void TreeModel::setRootItem(TreeItem *item)
 {
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(item->m_model == 0, return);
+    QTC_ASSERT(item->m_parent == 0, return);
     QTC_CHECK(m_root);
     if (m_root) {
         QTC_CHECK(m_root->m_parent == 0);
@@ -980,7 +974,7 @@ void TreeModel::setRootItem(TreeItem *item)
         delete m_root;
     }
     m_root = item;
-    item->setModel(this);
+    item->propagateModel(this);
     emit layoutChanged();
 }
 

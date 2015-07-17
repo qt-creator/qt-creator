@@ -33,6 +33,7 @@
 
 #include "cppmodelmanager.h"
 #include "cpptools_global.h"
+#include "cppworkingcopy.h"
 
 #include <QObject>
 
@@ -43,44 +44,53 @@ class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
     Q_OBJECT
 
 public:
+    static BaseEditorDocumentParser *get(const QString &filePath);
+
+    struct Configuration {
+        bool usePrecompiledHeaders = false;
+        QByteArray editorDefines;
+        ProjectPart::Ptr manuallySetProjectPart;
+    };
+
+public:
     BaseEditorDocumentParser(const QString &filePath);
     virtual ~BaseEditorDocumentParser();
 
     QString filePath() const;
+    Configuration configuration() const;
+    void setConfiguration(const Configuration &configuration);
 
-    virtual void update(WorkingCopy workingCopy) = 0;
+    struct CPPTOOLS_EXPORT InMemoryInfo {
+        InMemoryInfo(bool withModifiedFiles);
+
+        WorkingCopy workingCopy;
+        Utils::FileNameList modifiedFiles;
+    };
+    void update(const InMemoryInfo &info);
 
     ProjectPart::Ptr projectPart() const;
-    void setProjectPart(ProjectPart::Ptr projectPart);
-
-    bool usePrecompiledHeaders() const;
-    void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
-
-    QByteArray editorDefines() const;
-    void setEditorDefines(const QByteArray &editorDefines);
-
-public:
-    static BaseEditorDocumentParser *get(const QString &filePath);
 
 protected:
-    void updateProjectPart();
+    struct State {
+        QByteArray editorDefines;
+        ProjectPart::Ptr projectPart;
+    };
+    State state() const;
+    void setState(const State &state);
 
-    bool editorDefinesChanged() const;
-    void resetEditorDefinesChanged();
+    static ProjectPart::Ptr determineProjectPart(const QString &filePath,
+                                                 const Configuration &config,
+                                                 const State &state);
 
-protected:
-    mutable QMutex m_mutex;
+    mutable QMutex m_stateAndConfigurationMutex;
 
 private:
+    virtual void updateHelper(const InMemoryInfo &inMemoryInfo) = 0;
+
     const QString m_filePath;
-
-    ProjectPart::Ptr m_projectPart;
-    ProjectPart::Ptr m_manuallySetProjectPart;
-
-    bool m_usePrecompiledHeaders;
-
-    QByteArray m_editorDefines;
-    bool m_editorDefinesChangedSinceLastUpdate;
+    Configuration m_configuration;
+    State m_state;
+    mutable QMutex m_updateIsRunning;
 };
 
 } // namespace CppTools
