@@ -125,7 +125,7 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxBringToForegroundOnInterrrupt->setText(tr("Bring Qt Creator to foreground when application interrupts"));
 
     checkBoxShowQmlObjectTree = new QCheckBox(behaviorBox);
-    checkBoxShowQmlObjectTree->setToolTip(tr("Shows QML object tree in Locals & Expressions when connected and not stepping."));
+    checkBoxShowQmlObjectTree->setToolTip(tr("Shows QML object tree in Locals and Expressions when connected and not stepping."));
     checkBoxShowQmlObjectTree->setText(tr("Show QML object tree"));
 
     checkBoxBreakpointsFullPath = new QCheckBox(behaviorBox);
