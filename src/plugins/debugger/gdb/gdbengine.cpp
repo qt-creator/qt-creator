@@ -241,6 +241,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
     m_rerunPending = false;
+    m_inUpdateLocals = false;
 
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
@@ -442,23 +443,31 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 }
             }
             if (asyncClass == "stopped") {
-                handleStopResponse(result);
-                m_pendingLogStreamOutput.clear();
-                m_pendingConsoleStreamOutput.clear();
-            } else if (asyncClass == "running") {
-                GdbMi threads = result["thread-id"];
-                threadsHandler()->notifyRunning(threads.data());
-                if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
-                    // We get multiple *running after thread creation and in Windows terminals.
-                    showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
-                                arg(QLatin1String(DebuggerEngine::stateName(state()))));
-                } else if (HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
-                               || state() == InferiorShutdownRequested)) {
-                    // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
-                    // created threads so we have to filter out the running threads messages when
-                    // we request a stop.
+                if (m_inUpdateLocals) {
+                    showMessage(_("UNEXPECTED *stopped NOTIFICATION IGNORED"), LogWarning);
                 } else {
-                    notifyInferiorRunOk();
+                    handleStopResponse(result);
+                    m_pendingLogStreamOutput.clear();
+                    m_pendingConsoleStreamOutput.clear();
+                }
+            } else if (asyncClass == "running") {
+                if (m_inUpdateLocals) {
+                    showMessage(_("UNEXPECTED *running NOTIFICATION IGNORED"), LogWarning);
+                } else {
+                    GdbMi threads = result["thread-id"];
+                    threadsHandler()->notifyRunning(threads.data());
+                    if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
+                        // We get multiple *running after thread creation and in Windows terminals.
+                        showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
+                            arg(QLatin1String(DebuggerEngine::stateName(state()))));
+                    } else if (HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
+                               || state() == InferiorShutdownRequested)) {
+                        // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
+                        // created threads so we have to filter out the running threads messages when
+                        // we request a stop.
+                    } else {
+                        notifyInferiorRunOk();
+                    }
                 }
             } else if (asyncClass == "library-loaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
@@ -1186,6 +1195,8 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (!(cmd.flags & Discardable))
         --m_nonDiscardableCount;
+
+    m_inUpdateLocals = (cmd.flags & InUpdateLocals);
 
     if (cmd.callback)
         cmd.callback(*response);
@@ -4758,7 +4769,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialVariable", params.partialVariable);
     cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
-    cmd.flags = Discardable;
+    cmd.flags = Discardable | InUpdateLocals;
     cmd.callback = [this](const DebuggerResponse &r) { handleStackFrame(r); };
     runCommand(cmd);
 
@@ -4768,6 +4779,8 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
 void GdbEngine::handleStackFrame(const DebuggerResponse &response)
 {
+    m_inUpdateLocals = false;
+
     if (response.resultClass == ResultDone) {
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
