@@ -36,6 +36,7 @@
 #include "debuggerstartparameters.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <texteditor/textmark.h>
 
 #include <QObject>
 #include <QProcess>
@@ -444,6 +445,18 @@ private:
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
     DebuggerEnginePrivate *d;
+};
+
+class LocationMark : public TextEditor::TextMark
+{
+public:
+    LocationMark(DebuggerEngine *engine, const QString &file, int line);
+
+private:
+    bool isDraggable() const;
+    void dragToLine(int line);
+
+    QPointer<DebuggerEngine> m_engine;
 };
 
 DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors);

@@ -552,25 +552,6 @@ static Kit *findUniversalCdbKit()
     return KitManager::find(cdbMatcher());
 }
 
-static bool currentTextEditorPosition(ContextData *data)
-{
-    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
-    if (!textEditor)
-        return false;
-    const TextDocument *document = textEditor->textDocument();
-    QTC_ASSERT(document, return false);
-    data->fileName = document->filePath().toString();
-    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        int lineNumber = textEditor->currentLine();
-        QString line = textEditor->textDocument()->plainText()
-            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-        data->address = DisassemblerLine::addressFromDisassemblyLine(line);
-    } else {
-        data->lineNumber = textEditor->currentLine();
-    }
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPluginPrivate
@@ -848,17 +829,17 @@ public slots:
     void handleExecJumpToLine()
     {
         currentEngine()->resetLocation();
-        ContextData data;
-        if (currentTextEditorPosition(&data))
-            currentEngine()->executeJumpToLine(data);
+        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor())
+            currentEngine()->executeJumpToLine(getLocationContext(textEditor->textDocument(),
+                                                                  textEditor->currentLine()));
     }
 
     void handleExecRunToLine()
     {
         currentEngine()->resetLocation();
-        ContextData data;
-        if (currentTextEditorPosition(&data))
-            currentEngine()->executeRunToLine(data);
+        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor())
+            currentEngine()->executeRunToLine(getLocationContext(textEditor->textDocument(),
+                                                                 textEditor->currentLine()));
     }
 
     void handleExecRunToSelectedFunction()

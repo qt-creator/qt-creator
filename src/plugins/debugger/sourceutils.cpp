@@ -30,6 +30,9 @@
 
 #include "sourceutils.h"
 
+#include "debuggerinternalconstants.h"
+#include "debuggerengine.h"
+#include "disassemblerlines.h"
 #include "watchdata.h"
 #include "watchutils.h"
 
@@ -331,6 +334,20 @@ QString fixCppExpression(const QString &expIn)
     }
     exp = exp.mid(pos1, pos2 - pos1);
     return removeObviousSideEffects(exp);
+}
+
+ContextData getLocationContext(TextDocument *document, int lineNumber)
+{
+    ContextData data;
+    QTC_ASSERT(document, return data);
+    data.fileName = document->filePath().toString();
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
+        QString line = document->plainText().section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
+        data.address = DisassemblerLine::addressFromDisassemblyLine(line);
+    } else {
+        data.lineNumber = lineNumber;
+    }
+    return data;
 }
 
 } // namespace Internal

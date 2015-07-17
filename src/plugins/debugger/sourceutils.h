@@ -33,11 +33,17 @@
 
 #include <QString>
 
-namespace TextEditor { class TextEditorWidget; }
+namespace TextEditor {
+class TextDocument;
+class TextEditorWidget;
+}
+
 namespace CPlusPlus { class Snapshot; }
 
 namespace Debugger {
 namespace Internal {
+
+class ContextData;
 
 // Editor tooltip support
 QString cppExpressionAt(TextEditor::TextEditorWidget *editorWidget, int pos,
@@ -52,6 +58,8 @@ QString cppFunctionAt(const QString &fileName, int line, int column = 0);
 bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
    const QString &function, const QString &file, int line,
    QStringList *uninitializedVariables);
+
+ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumber);
 
 } // namespace Internal
 } // namespace Debugger

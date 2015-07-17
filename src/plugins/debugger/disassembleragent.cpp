@@ -98,7 +98,7 @@ typedef QPair<FrameKey, DisassemblerLines> CacheEntry;
 class DisassemblerAgentPrivate
 {
 public:
-    DisassemblerAgentPrivate();
+    DisassemblerAgentPrivate(DebuggerEngine *engine);
     ~DisassemblerAgentPrivate();
     void configureMimeType();
     DisassemblerLines contentsAtCurrentLocation() const;
@@ -107,22 +107,20 @@ public:
     QPointer<TextDocument> document;
     Location location;
     QPointer<DebuggerEngine> engine;
-    TextMark locationMark;
+    LocationMark locationMark;
     QList<TextMark *> breakpointMarks;
     QList<CacheEntry> cache;
     QString mimeType;
     bool resetLocationScheduled;
 };
 
-DisassemblerAgentPrivate::DisassemblerAgentPrivate()
+DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
   : document(0),
-    locationMark(QString(), 0, Constants::TEXT_MARK_CATEGORY_LOCATION),
+    engine(engine),
+    locationMark(engine, QString(), 0),
     mimeType(_("text/x-qtcreator-generic-asm")),
     resetLocationScheduled(false)
-{
-    locationMark.setIcon(Internal::locationMarkIcon());
-    locationMark.setPriority(TextMark::HighPriority);
-}
+{}
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
@@ -157,10 +155,8 @@ DisassemblerLines DisassemblerAgentPrivate::contentsAtCurrentLocation() const
 */
 
 DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
-    : QObject(0), d(new DisassemblerAgentPrivate)
-{
-    d->engine = engine;
-}
+    : d(new DisassemblerAgentPrivate(engine))
+{}
 
 DisassemblerAgent::~DisassemblerAgent()
 {
