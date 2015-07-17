@@ -301,7 +301,6 @@ public:
     SeparatedView *m_separatedView; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
-    QSet<QByteArray> m_fetchTriggered;
     QTimer m_requestUpdateTimer;
 
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -670,17 +669,13 @@ bool WatchItem::canFetchMore() const
         return false;
     if (!model->m_contentsValid && !isInspect())
         return false;
-    return !model->m_fetchTriggered.contains(iname);
+    return true;
 }
 
 void WatchItem::fetchMore()
 {
     WatchModel *model = watchModel();
-    if (model->m_fetchTriggered.contains(iname))
-        return;
-
     model->m_expandedINames.insert(iname);
-    model->m_fetchTriggered.insert(iname);
     if (children().isEmpty()) {
         setChildrenNeeded();
         model->m_engine->expandItem(iname);
@@ -1177,6 +1172,8 @@ void WatchModel::insertItem(WatchItem *item)
     if (!found)
         parent->appendChild(item);
 
+    item->update();
+
     item->walkTree([this](TreeItem *sub) { showEditValue(static_cast<WatchItem *>(sub)); });
 }
 
@@ -1665,7 +1662,6 @@ QString WatchHandler::editorContents()
 
 void WatchHandler::scheduleResetLocation()
 {
-    m_model->m_fetchTriggered.clear();
     m_model->m_contentsValid = false;
     m_model->m_resetLocationScheduled = true;
 }
