@@ -71,9 +71,14 @@ using namespace ClangCodeModel::Internal;
 
 namespace {
 
-QString _(const char text[]) { return QString::fromUtf8(text); }
+QString _(const char text[])
+{ return QString::fromUtf8(text); }
+
 QString qrcPath(const QByteArray relativeFilePath)
 { return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath); }
+
+QString fileName(const QString &filePath)
+{ return QFileInfo(filePath).fileName(); }
 
 struct LogOutput
 {
@@ -260,8 +265,8 @@ QString toString(const FileContainer &fileContainer)
 {
     QString out;
     QTextStream ts(&out);
-    ts << "  Path: " << QFileInfo(fileContainer.filePath().toString()).fileName()
-       << " ProjectPart: " << fileContainer.projectPartId().toString() << "\n";
+    ts << "  Path: " << fileName(fileContainer.filePath().toString())
+       << " ProjectPart: " << fileName(fileContainer.projectPartId().toString()) << "\n";
     return out;
 }
 
@@ -279,7 +284,7 @@ QString toString(const ProjectPartContainer &projectPartContainer)
     QString out;
     QTextStream ts(&out);
     ts << "  ProjectPartContainer"
-       << " id: " << QFileInfo(projectPartContainer.projectPartId().toString()).fileName();
+       << " id: " << fileName(projectPartContainer.projectPartId().toString());
     return out;
 }
 
