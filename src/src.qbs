@@ -38,7 +38,6 @@ Project {
         property string relativePluginsPath: FileInfo.relativePath(appInstallDir, pluginsInstallDir)
         property string relativeSearchPath: FileInfo.relativePath(appInstallDir,
                                                                   resourcesInstallDir)
-        property bool enableJava: project.enableQbsJavaSupport
 
         references: [
             qbsBaseDir + "/src/lib/libs.qbs",
