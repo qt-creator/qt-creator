@@ -1364,7 +1364,6 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     rp.startMode = AttachToRemoteServer;
     if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
         rp.closeMode = KillAtClose;
-        rp.serverStartScript.clear();
         createAndScheduleRun(rp, kit);
     }
 }
