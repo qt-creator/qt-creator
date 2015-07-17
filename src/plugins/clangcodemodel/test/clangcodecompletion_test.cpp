@@ -80,6 +80,13 @@ QString qrcPath(const QByteArray relativeFilePath)
 QString fileName(const QString &filePath)
 { return QFileInfo(filePath).fileName(); }
 
+CppTools::Tests::TemporaryDir *globalTemporaryDir()
+{
+    static CppTools::Tests::TemporaryDir dir;
+    QTC_CHECK(dir.isValid());
+    return &dir;
+}
+
 struct LogOutput
 {
     LogOutput(const QString &text) : text(text.toUtf8()) {}
@@ -576,7 +583,7 @@ public:
         CppTools::Tests::TestCase garbageCollectionGlobalSnapshot;
         QVERIFY(garbageCollectionGlobalSnapshot.succeededSoFar());
 
-        const TestDocument testDocument(testFileName);
+        const TestDocument testDocument(testFileName, globalTemporaryDir());
         QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
         OpenEditorAtCursorPosition openEditor(testDocument);
 
