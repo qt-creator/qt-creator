@@ -116,7 +116,6 @@ private:
     TreeModel *m_model; // Not owned.
     QVector<TreeItem *> m_children; // Owned.
     QStringList *m_displays;
-    mutable bool m_populated;
     Qt::ItemFlags m_flags;
 
     friend class TreeModel;
