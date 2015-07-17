@@ -160,6 +160,8 @@ private: // variables
     QStringList m_navigatorHistory;
     int m_navigatorHistoryCounter;
     bool m_keepNavigatorHistory;
+
+    QList<QPointer<QWidget> >m_viewWidgets;
 };
 
 } // namespace Internal

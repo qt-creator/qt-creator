@@ -192,6 +192,13 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
 
 DesignModeWidget::~DesignModeWidget()
 {
+    m_leftSideBar.reset();
+    m_rightSideBar.reset();
+
+    foreach (QPointer<QWidget> widget, m_viewWidgets) {
+        if (widget)
+            widget.clear();
+    }
 }
 
 void DesignModeWidget::restoreDefaultView()
@@ -382,7 +389,9 @@ void DesignModeWidget::setup()
             Core::SideBarItem *sideBarItem = new DesignerSideBarItem(widgetInfo.widget, widgetInfo.toolBarWidgetFactory, widgetInfo.uniqueId);
             sideBarItems.append(sideBarItem);
             rightSideBarItems.append(sideBarItem);
+
         }
+        m_viewWidgets.append(widgetInfo.widget);
     }
 
     if (projectsExplorer) {
