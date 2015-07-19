@@ -101,7 +101,7 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     AndroidToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect() override;
+    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
     bool canRestore(const QVariantMap &data) override;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 

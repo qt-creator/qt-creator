@@ -219,7 +219,7 @@ void ToolChainManager::restoreToolChains()
     QList<ToolChain *> detectedTcs;
     QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
     foreach (ToolChainFactory *f, factories)
-        detectedTcs.append(f->autoDetect());
+        detectedTcs.append(f->autoDetect(tcsToCheck));
 
     // Find/update autodetected tool chains:
     ToolChain *toStore = 0;

@@ -56,7 +56,7 @@ class GccToolChainFactory : public ToolChainFactory
 public:
     GccToolChainFactory();
 
-    QList<ToolChain *> autoDetect();
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     bool canCreate();
     ToolChain *create();
@@ -67,7 +67,8 @@ public:
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
     QList<ToolChain *> autoDetectToolchains(const QString &compiler,
-                                            const Abi &);
+                                            const Abi &,
+                                            const QList<ToolChain *> &alreadyKnown);
 };
 
 // --------------------------------------------------------------------------
@@ -114,7 +115,7 @@ class ClangToolChainFactory : public GccToolChainFactory
 public:
     ClangToolChainFactory();
 
-    QList<ToolChain *> autoDetect();
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     bool canRestore(const QVariantMap &data);
 
@@ -133,7 +134,7 @@ class MingwToolChainFactory : public GccToolChainFactory
 public:
     MingwToolChainFactory();
 
-    QList<ToolChain *> autoDetect();
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     bool canRestore(const QVariantMap &data);
 
@@ -152,7 +153,7 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
 public:
     LinuxIccToolChainFactory();
 
-    QList<ToolChain *> autoDetect();
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     bool canRestore(const QVariantMap &data);
 

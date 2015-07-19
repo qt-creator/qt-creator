@@ -526,8 +526,9 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChai
     return vcVarsBatFor(basePath, platformName(platform));
 }
 
-QList<ToolChain *> MsvcToolChainFactory::autoDetect()
+QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
+    Q_UNUSED(alreadyKnown);
     QList<ToolChain *> results;
 
     // 1) Installed SDKs preferred over standalone Visual studio

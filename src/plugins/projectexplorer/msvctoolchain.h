@@ -100,7 +100,7 @@ class MsvcToolChainFactory : public ToolChainFactory
 public:
     MsvcToolChainFactory();
 
-    QList<ToolChain *> autoDetect() override;
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
     bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override

@@ -774,15 +774,15 @@ ToolChain *GccToolChainFactory::create()
     return createToolChain(false);
 }
 
-QList<ToolChain *> GccToolChainFactory::autoDetect()
+QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> tcs;
     if (HostOsInfo::isMacHost()) {
         // Old mac compilers needed to support macx-gccXY mkspecs:
-        tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), Abi::hostAbi()));
-        tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), Abi::hostAbi()));
+        tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), Abi::hostAbi(), alreadyKnown));
+        tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), Abi::hostAbi(), alreadyKnown));
     }
-    tcs.append(autoDetectToolchains(QLatin1String("g++"), Abi::hostAbi()));
+    tcs.append(autoDetectToolchains(QLatin1String("g++"), Abi::hostAbi(), alreadyKnown));
 
     return tcs;
 }
@@ -809,13 +809,17 @@ GccToolChain *GccToolChainFactory::createToolChain(bool autoDetect)
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &compiler,
-                                                                       const Abi &requiredAbi)
+                                                             const Abi &requiredAbi,
+                                                             const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> result;
 
     Environment systemEnvironment = Environment::systemEnvironment();
     const FileName compilerPath = systemEnvironment.searchInPath(compiler);
     if (compilerPath.isEmpty())
+        return result;
+
+    if (Utils::findOrDefault(alreadyKnown, Utils::equal(&ToolChain::compilerCommand, compilerPath)))
         return result;
 
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
@@ -1107,10 +1111,9 @@ ClangToolChainFactory::ClangToolChainFactory()
     setDisplayName(tr("Clang"));
 }
 
-QList<ToolChain *> ClangToolChainFactory::autoDetect()
+QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    Abi ha = Abi::hostAbi();
-    return autoDetectToolchains(QLatin1String("clang++"), ha);
+    return autoDetectToolchains(QLatin1String("clang++"), Abi::hostAbi(), alreadyKnown);
 }
 
 bool ClangToolChainFactory::canRestore(const QVariantMap &data)
@@ -1186,11 +1189,11 @@ MingwToolChainFactory::MingwToolChainFactory()
     setDisplayName(tr("MinGW"));
 }
 
-QList<ToolChain *> MingwToolChainFactory::autoDetect()
+QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    Abi ha = Abi::hostAbi();
-    return autoDetectToolchains(QLatin1String("g++"),
-                                Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth()));
+    const Abi ha = Abi(Abi::hostAbi().architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor,
+                       Abi::PEFormat, ha.wordWidth());
+    return autoDetectToolchains(QLatin1String("g++"), ha, alreadyKnown);
 }
 
 bool MingwToolChainFactory::canRestore(const QVariantMap &data)
@@ -1263,9 +1266,9 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
     setDisplayName(tr("Linux ICC"));
 }
 
-QList<ToolChain *> LinuxIccToolChainFactory::autoDetect()
+QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    return autoDetectToolchains(QLatin1String("icpc"), Abi::hostAbi());
+    return autoDetectToolchains(QLatin1String("icpc"), Abi::hostAbi(), alreadyKnown);
 }
 
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)

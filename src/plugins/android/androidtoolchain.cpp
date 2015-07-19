@@ -258,8 +258,9 @@ AndroidToolChainFactory::AndroidToolChainFactory()
     setDisplayName(tr("Android GCC"));
 }
 
-QList<ToolChain *> AndroidToolChainFactory::autoDetect()
+QList<ToolChain *> AndroidToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
+    Q_UNUSED(alreadyKnown);
     return createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
 }
 
