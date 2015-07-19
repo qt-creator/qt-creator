@@ -96,41 +96,34 @@ const char PLUGINPATH_OPTION[] = "-pluginpath";
 typedef QList<PluginSpec *> PluginSpecSet;
 
 // Helpers for displaying messages. Note that there is no console on Windows.
-#ifdef Q_OS_WIN
+
 // Format as <pre> HTML
-static inline void toHtml(QString &t)
+static inline QString toHtml(const QString &t)
 {
-    t.replace(QLatin1Char('&'), QLatin1String("&amp;"));
-    t.replace(QLatin1Char('<'), QLatin1String("&lt;"));
-    t.replace(QLatin1Char('>'), QLatin1String("&gt;"));
-    t.insert(0, QLatin1String("<html><pre>"));
-    t.append(QLatin1String("</pre></html>"));
+    QString res = t;
+    res.replace(QLatin1Char('&'), QLatin1String("&amp;"));
+    res.replace(QLatin1Char('<'), QLatin1String("&lt;"));
+    res.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+    res.insert(0, QLatin1String("<html><pre>"));
+    res.append(QLatin1String("</pre></html>"));
+    return res;
 }
-
-static void displayHelpText(QString t) // No console on Windows.
-{
-    toHtml(t);
-    QMessageBox::information(0, QLatin1String(appNameC), t);
-}
-
-static void displayError(const QString &t) // No console on Windows.
-{
-    QMessageBox::critical(0, QLatin1String(appNameC), t);
-}
-
-#else
 
 static void displayHelpText(const QString &t)
 {
-    qWarning("%s", qPrintable(t));
+    if (Utils::HostOsInfo::isWindowsHost())
+        QMessageBox::information(0, QLatin1String(appNameC), toHtml(t));
+    else
+        qWarning("%s", qPrintable(t));
 }
 
 static void displayError(const QString &t)
 {
-    qCritical("%s", qPrintable(t));
+    if (Utils::HostOsInfo::isWindowsHost())
+        QMessageBox::critical(0, QLatin1String(appNameC), t);
+    else
+        qCritical("%s", qPrintable(t));
 }
-
-#endif
 
 static void printVersion(const PluginSpec *coreplugin)
 {
@@ -200,19 +193,19 @@ static inline QStringList getPluginPaths()
     QDir rootDir = QApplication::applicationDirPath();
     rootDir.cdUp();
     const QString rootDirPath = rootDir.canonicalPath();
-#if !defined(Q_OS_MAC)
-    // 1) "plugins" (Win/Linux)
-    QString pluginPath = rootDirPath;
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
-    pluginPath += QLatin1String("/qtcreator/plugins");
-    rc.push_back(pluginPath);
-#else
-    // 2) "PlugIns" (OS X)
-    QString pluginPath = rootDirPath;
-    pluginPath += QLatin1String("/PlugIns");
-    rc.push_back(pluginPath);
-#endif
+    QString pluginPath;
+    if (Utils::HostOsInfo::isMacHost()) {
+        // 1) "PlugIns" (OS X)
+        pluginPath = rootDirPath + QLatin1String("/PlugIns");
+        rc.push_back(pluginPath);
+    } else {
+        // 2) "plugins" (Win/Linux)
+        pluginPath = rootDirPath;
+        pluginPath += QLatin1Char('/');
+        pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
+        pluginPath += QLatin1String("/qtcreator/plugins");
+        rc.push_back(pluginPath);
+    }
     // 3) <localappdata>/plugins/<ideversion>
     //    where <localappdata> is e.g.
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
@@ -225,11 +218,7 @@ static inline QStringList getPluginPaths()
     pluginPath += QLatin1Char('/')
             + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
             + QLatin1Char('/');
-#if !defined(Q_OS_MAC)
-    pluginPath += QLatin1String("qtcreator");
-#else
-    pluginPath += QLatin1String("Qt Creator");
-#endif
+    pluginPath += QLatin1String(Utils::HostOsInfo::isMacHost() ? "Qt Creator" : "qtcreator");
     pluginPath += QLatin1String("/plugins/");
     pluginPath += QLatin1String(Core::Constants::IDE_VERSION_LONG);
     rc.push_back(pluginPath);
@@ -286,11 +275,8 @@ static inline QSettings *userSettings()
     return createUserSettings();
 }
 
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources"
-#else
-#  define SHARE_PATH "/../share/qtcreator"
-#endif
+static const char *SHARE_PATH =
+        Utils::HostOsInfo::isMacHost() ? "/../Resources" : "/../share/qtcreator";
 
 int main(int argc, char **argv)
 {
@@ -391,7 +377,7 @@ int main(int argc, char **argv)
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
-            + QLatin1String(SHARE_PATH "/translations");
+            + QLatin1String(SHARE_PATH) + QLatin1String("/translations");
     foreach (QString locale, uiLanguages) {
         locale = QLocale(locale).name();
         if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
