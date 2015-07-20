@@ -98,6 +98,10 @@ inline const char *botanEmsaAlgoName(const QByteArray &rfcAlgoName)
         return "EMSA3(SHA-1)";
     if (rfcAlgoName == SshCapabilities::PubKeyEcdsa256)
         return "EMSA1_BSI(SHA-256)";
+    if (rfcAlgoName == SshCapabilities::PubKeyEcdsa384)
+        return "EMSA1_BSI(SHA-384)";
+    if (rfcAlgoName == SshCapabilities::PubKeyEcdsa521)
+        return "EMSA1_BSI(SHA-512)";
     throw SshClientException(SshInternalError, SSH_TR("Unexpected host key algorithm \"%1\"")
                              .arg(QString::fromLatin1(rfcAlgoName)));
 }

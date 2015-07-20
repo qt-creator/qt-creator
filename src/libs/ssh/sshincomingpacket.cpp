@@ -185,7 +185,7 @@ static void getHostKeySpecificReplyData(SshKeyExchangeReply &replyData,
             replyData.hostKeyParameters << SshPacketParser::asBigInt(input, &offset);
         }
     } else {
-        QSSH_ASSERT_AND_RETURN(hostKeyAlgo == SshCapabilities::PubKeyEcdsa256);
+        QSSH_ASSERT_AND_RETURN(hostKeyAlgo.startsWith(SshCapabilities::PubKeyEcdsaPrefix));
         if (SshPacketParser::asString(input, &offset)
                 != hostKeyAlgo.mid(11)) { // Without "ecdsa-sha2-" prefix.
             throw SshPacketParseException();
@@ -226,7 +226,7 @@ SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray 
         if (SshPacketParser::asString(fullSignature, &sigOffset) != hostKeyAlgo)
             throw SshPacketParseException();
         replyData.signatureBlob = SshPacketParser::asString(fullSignature, &sigOffset);
-        if (hostKeyAlgo == SshCapabilities::PubKeyEcdsa256) {
+        if (hostKeyAlgo.startsWith(SshCapabilities::PubKeyEcdsaPrefix)) {
             // Botan's PK_Verifier wants the signature in this format.
             quint32 blobOffset = 0;
             const Botan::BigInt r = SshPacketParser::asBigInt(replyData.signatureBlob, &blobOffset);
