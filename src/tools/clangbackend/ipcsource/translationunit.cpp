@@ -52,8 +52,7 @@ public:
     ~TranslationUnitData();
 
 public:
-    time_point lastProjectPartChangeTimePoint;
-    time_point lastUnsavedFilesChangeTimePoint;
+    time_point lastChangeTimePoint;
     ProjectPart projectPart;
     Utf8String filePath;
     CXTranslationUnit translationUnit = nullptr;
@@ -64,8 +63,7 @@ public:
 TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
                                          const UnsavedFiles &unsavedFiles,
                                          const ProjectPart &projectPart)
-    : lastProjectPartChangeTimePoint(std::chrono::steady_clock::now()),
-      lastUnsavedFilesChangeTimePoint(lastProjectPartChangeTimePoint),
+    : lastChangeTimePoint(std::chrono::steady_clock::now()),
       projectPart(projectPart),
       filePath(filePath),
       unsavedFiles(unsavedFiles)
@@ -111,9 +109,10 @@ CXIndex TranslationUnit::index() const
 CXTranslationUnit TranslationUnit::cxTranslationUnit() const
 {
     checkIfNull();
-    removeTranslationUnitIfProjectPartWasChanged();
+
+    removeOutdatedTranslationUnit();
+
     createTranslationUnitIfNeeded();
-    reparseTranslationUnitIfUnsavedFilesAreChanged();
 
     return d->translationUnit;
 }
@@ -132,19 +131,9 @@ const Utf8String &TranslationUnit::projectPartId() const
     return d->projectPart.projectPartId();
 }
 
-const time_point &TranslationUnit::lastProjectPartChangeTimePoint() const
+const time_point &TranslationUnit::lastChangeTimePoint() const
 {
-    return d->lastProjectPartChangeTimePoint;
-}
-
-const time_point &TranslationUnit::lastUnsavedFilesChangeTimePoint() const
-{
-    return d->lastUnsavedFilesChangeTimePoint;
-}
-
-bool TranslationUnit::isNeedingReparse() const
-{
-    return d->lastUnsavedFilesChangeTimePoint < d->unsavedFiles.lastChangeTimePoint();
+    return d->lastChangeTimePoint;
 }
 
 void TranslationUnit::checkIfNull() const
@@ -159,27 +148,17 @@ void TranslationUnit::checkIfFileExists() const
         throw TranslationUnitFileNotExitsException(d->filePath);
 }
 
-void TranslationUnit::updateLastProjectPartChangeTimePoint() const
+void TranslationUnit::updateLastChangeTimePoint() const
 {
-    d->lastProjectPartChangeTimePoint = std::chrono::steady_clock::now();
+    d->lastChangeTimePoint = std::chrono::steady_clock::now();
 }
 
-void TranslationUnit::updateLastUnsavedFilesChangeTimePoint() const
+void TranslationUnit::removeOutdatedTranslationUnit() const
 {
-    d->lastUnsavedFilesChangeTimePoint = std::chrono::steady_clock::now();
-}
-
-void TranslationUnit::removeTranslationUnitIfProjectPartWasChanged() const
-{
-    if (projectPartIsOutdated()) {
+    if (d->projectPart.lastChangeTimePoint() >= d->lastChangeTimePoint) {
         clang_disposeTranslationUnit(d->translationUnit);
         d->translationUnit = nullptr;
     }
-}
-
-bool TranslationUnit::projectPartIsOutdated() const
-{
-    return d->projectPart.lastChangeTimePoint() >= d->lastProjectPartChangeTimePoint;
 }
 
 void TranslationUnit::createTranslationUnitIfNeeded() const
@@ -201,7 +180,7 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
         // e.g. clang_codeCompleteAt() dramatically.
         reparseTranslationUnit();
 
-        updateLastProjectPartChangeTimePoint();
+        updateLastChangeTimePoint();
     }
 }
 
@@ -219,14 +198,6 @@ void TranslationUnit::reparseTranslationUnit() const
                                  d->unsavedFiles.count(),
                                  d->unsavedFiles.cxUnsavedFiles(),
                                  clang_defaultReparseOptions(d->translationUnit));
-
-    updateLastUnsavedFilesChangeTimePoint();
-}
-
-void TranslationUnit::reparseTranslationUnitIfUnsavedFilesAreChanged() const
-{
-    if (isNeedingReparse())
-        reparseTranslationUnit();
 }
 
 int TranslationUnit::defaultOptions()
