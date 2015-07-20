@@ -32,6 +32,7 @@
 #include "cppcreatemarkers.h"
 
 #include <cplusplus/CppDocument.h>
+#include <utils/executeondestruction.h>
 #include <utils/runextensions.h>
 
 #include <QCoreApplication>
@@ -77,6 +78,9 @@ CreateMarkers::~CreateMarkers()
 void CreateMarkers::run()
 {
     QMutexLocker lock(m_marker->mutex());
+
+    ::Utils::ExecuteOnDestruction reportFinishedOnDestruction([this]() { reportFinished(); });
+
     if (isCanceled())
         return;
 
@@ -86,23 +90,18 @@ void CreateMarkers::run()
 
     m_usages.clear();
 
-    if (isCanceled()) {
-        reportFinished();
+    if (isCanceled())
         return;
-    }
 
     const QList<ClangCodeModel::SourceMarker> markers
         = m_marker->sourceMarkersInRange(m_firstLine, m_lastLine);
     foreach (const ClangCodeModel::SourceMarker &m, markers)
         addUse(SourceMarker(m.location().line(), m.location().column(), m.length(), m.kind()));
 
-    if (isCanceled()) {
-        reportFinished();
+    if (isCanceled())
         return;
-    }
 
     flush();
-    reportFinished();
 
     qCDebug(log) << "Creating markers took" << t.elapsed() << "ms in total.";
 }
