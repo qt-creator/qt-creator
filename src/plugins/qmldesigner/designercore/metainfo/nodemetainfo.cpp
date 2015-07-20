@@ -1121,6 +1121,11 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
                     const QString targetPath = QDir(importPath).filePath(importInfo.path());
                     if (QDir(targetPath).exists())
                         return targetPath;
+                    const QString targetPathVersion = QDir(importPath).filePath(importInfo.path()
+                                                                                + QLatin1Char('.')
+                                                                                + QString::number(importInfo.version().majorVersion()));
+                    if (QDir(targetPathVersion).exists())
+                        return targetPathVersion;
                 }
             }
         }
