@@ -38,6 +38,7 @@
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 #include "disassemblerlines.h"
+#include "sourceutils.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -292,10 +293,13 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
             widget->setReadOnly(true);
             widget->setRequestMarkEnabled(true);
         }
+        // FIXME: This is accumulating quite a bit out-of-band data.
+        // Make that a proper TextDocument reimplementation.
         d->document = qobject_cast<TextDocument *>(editor->document());
         QTC_ASSERT(d->document, return);
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
+        d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName());
         d->configureMimeType();
     } else {
         EditorManager::activateEditorForDocument(d->document);
@@ -345,9 +349,19 @@ void DisassemblerAgent::updateBreakpointMarkers()
         const quint64 address = bp.response().address;
         if (!address)
             continue;
-        const int lineNumber = contents.lineForAddress(address);
+        int lineNumber = contents.lineForAddress(address);
         if (!lineNumber)
             continue;
+
+        // HACK: If it's a FileAndLine breakpoint, and there's a source line
+        // above, move the marker up there. That allows setting and removing
+        // normal breakpoints from within the disassembler view.
+        if (bp.type() == BreakpointByFileAndLine) {
+            ContextData context = getLocationContext(d->document, lineNumber - 1);
+            if (context.type == LocationByFile)
+                --lineNumber;
+        }
+
         TextMark *marker = new TextMark(QString(), lineNumber,
                                         Constants::TEXT_MARK_CATEGORY_BREAKPOINT);
         marker->setIcon(bp.icon());

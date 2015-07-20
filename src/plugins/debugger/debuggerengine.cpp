@@ -150,8 +150,11 @@ bool LocationMark::isDraggable() const
 void LocationMark::dragToLine(int line)
 {
     if (m_engine) {
-        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor())
-            m_engine->executeJumpToLine(getLocationContext(textEditor->textDocument(), line));
+        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
+            ContextData location = getLocationContext(textEditor->textDocument(), line);
+            if (location.isValid())
+                m_engine->executeJumpToLine(location);
+        }
     }
 }
 

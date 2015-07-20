@@ -170,15 +170,18 @@ private:
     quint64 m_address;
 };
 
+enum LocationType { UnknownLocation, LocationByFile, LocationByAddress };
+
 class ContextData
 {
 public:
-    ContextData() : lineNumber(0), address(0) {}
+    bool isValid() const { return type != UnknownLocation; }
 
 public:
+    LocationType type = UnknownLocation;
     QString fileName;
-    int lineNumber;
-    quint64 address;
+    int lineNumber = 0;
+    quint64 address = 0;
 };
 
 class DebuggerEngine : public QObject

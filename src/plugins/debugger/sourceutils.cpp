@@ -48,6 +48,8 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QTextDocument>
+#include <QTextBlock>
 
 #include <string.h>
 #include <ctype.h>
@@ -340,11 +342,29 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
 {
     ContextData data;
     QTC_ASSERT(document, return data);
-    data.fileName = document->filePath().toString();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        QString line = document->plainText().section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-        data.address = DisassemblerLine::addressFromDisassemblyLine(line);
+        QString line = document->document()->findBlockByNumber(lineNumber - 1).text();
+        DisassemblerLine l;
+        l.fromString(line);
+        if (l.address) {
+            data.type = LocationByAddress;
+            data.address = l.address;
+        } else {
+            QString fileName = document->property(Constants::DISASSEMBLER_SOURCE_FILE).toString();
+            if (!fileName.isEmpty()) {
+                // Possibly one of the  "27 [1] foo = x" lines
+                int pos = line.indexOf(QLatin1Char('['));
+                int ln = line.left(pos - 1).toInt();
+                if (ln > 0) {
+                    data.type = LocationByFile;
+                    data.fileName = fileName;
+                    data.lineNumber = ln;
+                }
+            }
+        }
     } else {
+        data.type = LocationByFile;
+        data.fileName = document->filePath().toString();
         data.lineNumber = lineNumber;
     }
     return data;
