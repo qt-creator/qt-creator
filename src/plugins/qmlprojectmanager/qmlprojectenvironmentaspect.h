@@ -51,7 +51,8 @@ public:
 
 private:
     enum BaseEnvironmentBase {
-        SystemEnvironmentBase = 0
+        SystemEnvironmentBase = 0,
+        KitEnvironmentBase
     };
 };
 

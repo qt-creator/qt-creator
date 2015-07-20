@@ -30,6 +30,8 @@
 
 #include "qmlprojectenvironmentaspect.h"
 
+#include <projectexplorer/target.h>
+#include <projectexplorer/kit.h>
 #include <utils/qtcassert.h>
 
 namespace QmlProjectManager {
@@ -40,19 +42,27 @@ namespace QmlProjectManager {
 
 QList<int> QmlProjectEnvironmentAspect::possibleBaseEnvironments() const
 {
-    return QList<int>() << static_cast<int>(SystemEnvironmentBase);
+    return QList<int>() << static_cast<int>(KitEnvironmentBase)
+                        << static_cast<int>(SystemEnvironmentBase);
 }
 
 QString QmlProjectEnvironmentAspect::baseEnvironmentDisplayName(int base) const
 {
     if (base == static_cast<int>(SystemEnvironmentBase))
         return tr("System Environment");
+    if (base == static_cast<int>(KitEnvironmentBase))
+        return tr("Kit Environment");
     return QString();
 }
 
-Utils::Environment QmlProjectManager::QmlProjectEnvironmentAspect::baseEnvironment() const
+Utils::Environment QmlProjectEnvironmentAspect::baseEnvironment() const
 {
-    return Utils::Environment::systemEnvironment();
+    int base = baseEnvironmentBase();
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    if (base == static_cast<int>(KitEnvironmentBase))
+        runConfiguration()->target()->kit()->addToEnvironment(env);
+
+    return env;
 }
 
 QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
