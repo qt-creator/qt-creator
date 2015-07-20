@@ -221,10 +221,12 @@ public:
     void buildProjectOnly();
     void handleBuildProject();
     void buildProjectContextMenu();
+    void buildProjectDependenciesContextMenu();
     void buildSession();
     void rebuildProjectOnly();
     void rebuildProject();
     void rebuildProjectContextMenu();
+    void rebuildProjectDependenciesContextMenu();
     void rebuildSession();
     void deployProjectOnly();
     void deployProject();
@@ -233,6 +235,7 @@ public:
     void cleanProjectOnly();
     void cleanProject();
     void cleanProjectContextMenu();
+    void cleanProjectDependenciesContextMenu();
     void cleanSession();
     void cancelBuild();
     void loadAction();
@@ -303,10 +306,12 @@ public:
     QAction *m_buildProjectOnlyAction;
     Utils::ParameterAction *m_buildAction;
     QAction *m_buildActionContextMenu;
+    QAction *m_buildDependenciesActionContextMenu;
     QAction *m_buildSessionAction;
     QAction *m_rebuildProjectOnlyAction;
     Utils::ParameterAction *m_rebuildAction;
     QAction *m_rebuildActionContextMenu;
+    QAction *m_rebuildDependenciesActionContextMenu;
     QAction *m_rebuildSessionAction;
     QAction *m_cleanProjectOnlyAction;
     QAction *m_deployProjectOnlyAction;
@@ -315,6 +320,7 @@ public:
     QAction *m_deploySessionAction;
     Utils::ParameterAction *m_cleanAction;
     QAction *m_cleanActionContextMenu;
+    QAction *m_cleanDependenciesActionContextMenu;
     QAction *m_cleanSessionAction;
     QAction *m_runAction;
     QAction *m_runActionContextMenu;
@@ -924,20 +930,38 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
+    // build action with dependencies (context menu)
+    dd->m_buildDependenciesActionContextMenu = new QAction(tr("Build"), this);
+    cmd = ActionManager::registerAction(dd->m_buildDependenciesActionContextMenu, Constants::BUILDDEPENDCM, projecTreeContext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
+
     // build action (context menu)
-    dd->m_buildActionContextMenu = new QAction(tr("Build"), this);
+    dd->m_buildActionContextMenu = new QAction(tr("Build Without Dependencies"), this);
     cmd = ActionManager::registerAction(dd->m_buildActionContextMenu, Constants::BUILDCM, projecTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
+    // rebuild action with dependencies (context menu)
+    dd->m_rebuildDependenciesActionContextMenu = new QAction(tr("Rebuild"), this);
+    cmd = ActionManager::registerAction(dd->m_rebuildDependenciesActionContextMenu, Constants::REBUILDDEPENDCM, projecTreeContext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
+
     // rebuild action (context menu)
-    dd->m_rebuildActionContextMenu = new QAction(tr("Rebuild"), this);
+    dd->m_rebuildActionContextMenu = new QAction(tr("Rebuild Without Dependencies"), this);
     cmd = ActionManager::registerAction(dd->m_rebuildActionContextMenu, Constants::REBUILDCM, projecTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
 
+    // clean action with dependencies (context menu)
+    dd->m_cleanDependenciesActionContextMenu = new QAction(tr("Clean"), this);
+    cmd = ActionManager::registerAction(dd->m_cleanDependenciesActionContextMenu, Constants::CLEANDEPENDCM, projecTreeContext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
+
     // clean action (context menu)
-    dd->m_cleanActionContextMenu = new QAction(tr("Clean"), this);
+    dd->m_cleanActionContextMenu = new QAction(tr("Clean Without Dependencies"), this);
     cmd = ActionManager::registerAction(dd->m_cleanActionContextMenu, Constants::CLEANCM, projecTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
@@ -1151,6 +1175,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::handleBuildProject);
     connect(dd->m_buildActionContextMenu, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::buildProjectContextMenu);
+    connect(dd->m_buildDependenciesActionContextMenu, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::buildProjectDependenciesContextMenu);
     connect(dd->m_buildSessionAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::buildSession);
     connect(dd->m_rebuildProjectOnlyAction, &QAction::triggered,
@@ -1159,6 +1185,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::rebuildProject);
     connect(dd->m_rebuildActionContextMenu, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::rebuildProjectContextMenu);
+    connect(dd->m_rebuildDependenciesActionContextMenu, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::rebuildProjectDependenciesContextMenu);
     connect(dd->m_rebuildSessionAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::rebuildSession);
     connect(dd->m_deployProjectOnlyAction, &QAction::triggered,
@@ -1175,6 +1203,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::cleanProject);
     connect(dd->m_cleanActionContextMenu, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::cleanProjectContextMenu);
+    connect(dd->m_cleanDependenciesActionContextMenu, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::cleanProjectDependenciesContextMenu);
     connect(dd->m_cleanSessionAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::cleanSession);
     connect(dd->m_runAction, &QAction::triggered,
@@ -2110,18 +2140,22 @@ void ProjectExplorerPluginPrivate::updateActions()
 
     bool hasDependencies = SessionManager::projectOrder(currentProject).size() > 1;
     if (hasDependencies) {
-        m_buildActionContextMenu->setText(tr("Build Without Dependencies"));
-        m_rebuildActionContextMenu->setText(tr("Rebuild Without Dependencies"));
-        m_cleanActionContextMenu->setText(tr("Clean Without Dependencies"));
+        m_buildActionContextMenu->setVisible(true);
+        m_rebuildActionContextMenu->setVisible(true);
+        m_cleanActionContextMenu->setVisible(true);
     } else {
-        m_buildActionContextMenu->setText(tr("Build"));
-        m_rebuildActionContextMenu->setText(tr("Rebuild"));
-        m_cleanActionContextMenu->setText(tr("Clean"));
+        m_buildActionContextMenu->setVisible(false);
+        m_rebuildActionContextMenu->setVisible(false);
+        m_cleanActionContextMenu->setVisible(false);
     }
 
     m_buildActionContextMenu->setEnabled(buildActionContextState.first);
     m_rebuildActionContextMenu->setEnabled(buildActionContextState.first);
     m_cleanActionContextMenu->setEnabled(buildActionContextState.first);
+
+    m_buildDependenciesActionContextMenu->setEnabled(buildActionContextState.first);
+    m_rebuildDependenciesActionContextMenu->setEnabled(buildActionContextState.first);
+    m_cleanDependenciesActionContextMenu->setEnabled(buildActionContextState.first);
 
     m_buildActionContextMenu->setToolTip(buildActionState.second);
     m_rebuildActionContextMenu->setToolTip(buildActionState.second);
@@ -2292,6 +2326,12 @@ void ProjectExplorerPluginPrivate::buildProjectContextMenu()
           QList<Id>() << Id(Constants::BUILDSTEPS_BUILD));
 }
 
+void ProjectExplorerPluginPrivate::buildProjectDependenciesContextMenu()
+{
+    queue(SessionManager::projectOrder(ProjectTree::currentProject()),
+          QList<Id>() << Id(Constants::BUILDSTEPS_BUILD));
+}
+
 void ProjectExplorerPluginPrivate::buildSession()
 {
     queue(SessionManager::projectOrder(),
@@ -2313,6 +2353,12 @@ void ProjectExplorerPluginPrivate::rebuildProject()
 void ProjectExplorerPluginPrivate::rebuildProjectContextMenu()
 {
     queue(QList<Project *>() <<  ProjectTree::currentProject(),
+          QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN) << Id(Constants::BUILDSTEPS_BUILD));
+}
+
+void ProjectExplorerPluginPrivate::rebuildProjectDependenciesContextMenu()
+{
+    queue(SessionManager::projectOrder(ProjectTree::currentProject()),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN) << Id(Constants::BUILDSTEPS_BUILD));
 }
 
@@ -2357,6 +2403,12 @@ void ProjectExplorerPluginPrivate::cleanProject()
 void ProjectExplorerPluginPrivate::cleanProjectContextMenu()
 {
     queue(QList<Project *>() <<  ProjectTree::currentProject(),
+          QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN));
+}
+
+void ProjectExplorerPluginPrivate::cleanProjectDependenciesContextMenu()
+{
+    queue(SessionManager::projectOrder(ProjectTree::currentProject()),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN));
 }
 
