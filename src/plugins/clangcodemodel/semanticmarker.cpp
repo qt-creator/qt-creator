@@ -333,9 +333,8 @@ QList<SourceMarker> SemanticMarker::sourceMarkersInRange(unsigned firstLine,
                                                          unsigned lastLine)
 {
     QList<SourceMarker> result;
-    QTC_ASSERT(m_unit, return result);
 
-    if (!m_unit->isLoaded())
+    if (!m_unit || !m_unit->isLoaded())
         return result;
 
     // Highlighting called asynchronously, and a few lines at the end can be deleted for this time.
