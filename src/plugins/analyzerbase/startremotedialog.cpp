@@ -46,24 +46,10 @@ using namespace Utils;
 namespace Analyzer {
 namespace Internal {
 
-class SshKitChooser : public KitChooser
-{
-public:
-    SshKitChooser(QWidget *parent = 0) : KitChooser(parent) { }
-
-private:
-    bool kitMatches(const Kit *kit) const {
-        if (!KitChooser::kitMatches(kit))
-            return false;
-        const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-        return device && !device->sshParameters().host.isEmpty();
-    }
-};
-
 class StartRemoteDialogPrivate
 {
 public:
-    SshKitChooser *kitChooser;
+    KitChooser *kitChooser;
     QLineEdit *executable;
     QLineEdit *arguments;
     QLineEdit *workingDirectory;
@@ -79,7 +65,11 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Remote Analysis"));
 
-    d->kitChooser = new Internal::SshKitChooser(this);
+    d->kitChooser = new KitChooser(this);
+    d->kitChooser->setKitMatcher([](const Kit *kit) {
+        const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+        return kit->isValid() && device && !device->sshParameters().host.isEmpty();
+    });
     d->executable = new QLineEdit(this);
     d->arguments = new QLineEdit(this);
     d->workingDirectory = new QLineEdit(this);

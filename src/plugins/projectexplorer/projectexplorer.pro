@@ -130,7 +130,6 @@ HEADERS += projectexplorer.h \
     devicesupport/devicesettingswidget.h \
     devicesupport/devicesettingspage.h \
     devicesupport/devicetestdialog.h \
-    devicesupport/devicetypekitchooser.h \
     devicesupport/deviceusedportsgatherer.h \
     devicesupport/deviceapplicationrunner.h \
     devicesupport/localprocesslist.h \
@@ -272,7 +271,6 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicesettingswidget.cpp \
     devicesupport/devicesettingspage.cpp \
     devicesupport/devicetestdialog.cpp \
-    devicesupport/devicetypekitchooser.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
     devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \

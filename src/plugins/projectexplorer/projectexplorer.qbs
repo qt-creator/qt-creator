@@ -213,7 +213,6 @@ QtcPlugin {
             "devicesettingspage.cpp", "devicesettingspage.h",
             "devicesettingswidget.cpp", "devicesettingswidget.h", "devicesettingswidget.ui",
             "devicetestdialog.cpp", "devicetestdialog.h", "devicetestdialog.ui",
-            "devicetypekitchooser.cpp", "devicetypekitchooser.h",
             "deviceusedportsgatherer.cpp", "deviceusedportsgatherer.h",
             "idevice.cpp", "idevice.h",
             "idevicefactory.cpp", "idevicefactory.h",

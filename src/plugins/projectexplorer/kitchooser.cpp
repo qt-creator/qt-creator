@@ -47,7 +47,10 @@ namespace ProjectExplorer {
 const char lastKitKey[] = "LastSelectedKit";
 
 KitChooser::KitChooser(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent),
+    m_kitMatcher([](const Kit *k) {
+        return k->isValid();
+    })
 {
     m_chooser = new QComboBox(this);
     m_chooser->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -79,11 +82,6 @@ void KitChooser::onCurrentIndexChanged(int index)
     emit currentIndexChanged(index);
 }
 
-bool KitChooser::kitMatches(const Kit *k) const
-{
-    return k->isValid();
-}
-
 QString KitChooser::kitText(const Kit *k) const
 {
     return k->displayName();
@@ -98,7 +96,7 @@ void KitChooser::populate()
 {
     m_chooser->clear();
     foreach (Kit *kit, KitManager::sortKits(KitManager::kits())) {
-        if (kitMatches(kit)) {
+        if (m_kitMatcher(kit)) {
             m_chooser->addItem(kitText(kit), qVariantFromValue(kit->id()));
             m_chooser->setItemData(m_chooser->count() - 1, kitToolTip(kit), Qt::ToolTipRole);
         }
@@ -138,6 +136,12 @@ Core::Id KitChooser::currentKitId() const
 {
     Kit *kit = currentKit();
     return kit ? kit->id() : Core::Id();
+}
+
+void KitChooser::setKitMatcher(const KitChooser::KitMatcher &matcher)
+{
+    m_kitMatcher = matcher;
+    populate();
 }
 
 Kit *KitChooser::kitAt(int index) const

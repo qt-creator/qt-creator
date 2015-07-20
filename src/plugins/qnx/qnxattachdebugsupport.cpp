@@ -40,10 +40,10 @@
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <projectexplorer/devicesupport/devicetypekitchooser.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
@@ -74,7 +74,11 @@ QnxAttachDebugSupport::QnxAttachDebugSupport(QObject *parent)
 
 void QnxAttachDebugSupport::showProcessesDialog()
 {
-    ProjectExplorer::DeviceTypeKitChooser *kitChooser = new ProjectExplorer::DeviceTypeKitChooser(Core::Id(Constants::QNX_QNX_OS_TYPE));
+    auto kitChooser = new ProjectExplorer::KitChooser;
+    kitChooser->setKitMatcher([](const ProjectExplorer::Kit *k){
+        return k->isValid() && ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) == Core::Id(Constants::QNX_QNX_OS_TYPE);
+    });
+
     QnxAttachDebugDialog dlg(kitChooser, 0);
     dlg.addAcceptButton(ProjectExplorer::DeviceProcessesDialog::tr("&Attach to Process"));
     dlg.showAllDevices();
