@@ -3088,6 +3088,12 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
     IEditor *editor = EditorManager::openEditorWithContents(
                 CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8(), QString(),
                 EditorManager::IgnoreNavigationHistory);
+    if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+        QString suggestion = titlePattern;
+        if (!suggestion.contains(QLatin1Char('.')))
+            suggestion.append(QLatin1String(".txt"));
+        textEditor->textDocument()->setSuggestedFileName(suggestion);
+    }
     QTC_ASSERT(editor, return);
 }
 
