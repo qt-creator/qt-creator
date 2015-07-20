@@ -115,27 +115,7 @@ SQLITE_EXPORT QDataStream &operator>>(QDataStream &datastream, Utf8String &text)
 SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8String &text);
 SQLITE_EXPORT void PrintTo(const Utf8String &text, ::std::ostream* os);
 
-#if defined(Q_COMPILER_LAMBDA)
-
-#  define Utf8StringLiteral(str) \
-    ([]() -> Utf8String { \
-        enum { Size = sizeof(str) - 1 }; \
-        static const QStaticByteArrayData<Size> qbytearray_literal = { \
-            Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER(Size), \
-            str }; \
-        QByteArrayDataPtr holder = { qbytearray_literal.data_ptr() }; \
-        const QByteArray byteArray(holder); \
-        return Utf8String::fromByteArray(byteArray); \
-    }()) \
-    /**/
-
-#endif
-
-#ifndef Utf8StringLiteral
-// no lambdas, not GCC, just return a temporary QByteArray
-
-# define Utf8StringLiteral(str) Utf8String(str, sizeof(str) - 1)
-#endif
+#define Utf8StringLiteral(str) Utf8String::fromByteArray(QByteArrayLiteral(str))
 
 Q_DECLARE_METATYPE(Utf8String)
 
