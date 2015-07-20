@@ -81,6 +81,12 @@ private:
                            int order = 0,
                            const QVariant &data = QVariant());
 
+    struct UnsavedFileContentInfo {
+        QByteArray unsavedContent;
+        bool isDocumentModified = false;
+    };
+    UnsavedFileContentInfo unsavedFileContent(const QByteArray &customFileContent) const;
+
     void sendFileContent(const QString &projectPartId, const QByteArray &customFileContent);
     void sendCompletionRequest(int position, const QByteArray &customFileContent);
 

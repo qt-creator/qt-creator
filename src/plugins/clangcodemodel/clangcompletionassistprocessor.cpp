@@ -645,26 +645,31 @@ void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
     m_completions.append(item);
 }
 
+ClangCompletionAssistProcessor::UnsavedFileContentInfo
+ClangCompletionAssistProcessor::unsavedFileContent(const QByteArray &customFileContent) const
+{
+    const bool hasCustomModification = !customFileContent.isEmpty();
+
+    UnsavedFileContentInfo info;
+    info.isDocumentModified = hasCustomModification || m_interface->textDocument()->isModified();
+    info.unsavedContent = hasCustomModification
+                        ? customFileContent
+                        : m_interface->textDocument()->toPlainText().toUtf8();
+    return info;
+}
+
 void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartId,
                                                      const QByteArray &customFileContent)
 {
-    const QTextDocument *textDocument = m_interface->textDocument();
-    const bool hasCustomModification = !customFileContent.isEmpty();
-    const bool documentIsModified = hasCustomModification || textDocument->isModified();
     // TODO: Revert custom modification after the completions
-    QByteArray unsavedContent;
-    if (documentIsModified) {
-        unsavedContent = hasCustomModification
-                       ? customFileContent
-                       : m_interface->textDocument()->toPlainText().toUtf8();
-    }
+    const UnsavedFileContentInfo info = unsavedFileContent(customFileContent);
 
     IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
     ipcCommunicator.registerFilesForCodeCompletion(
         {ClangBackEnd::FileContainer(m_interface->fileName(),
                        projectPartId,
-                       Utf8String::fromByteArray(unsavedContent),
-                       documentIsModified)});
+                       Utf8String::fromByteArray(info.unsavedContent),
+                       info.isDocumentModified)});
 }
 
 void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
