@@ -240,7 +240,17 @@ enum DebuggerEncoding
     Hex2EncodedFloat8                      = 26,
     IPv6AddressAndHexScopeId               = 27,
     Hex2EncodedUtf8WithoutQuotes           = 28,
-    DateTimeInternal                       = 29
+    DateTimeInternal                       = 29,
+    SpecialEmptyValue                      = 30,
+    SpecialUninitializedValue              = 31,
+    SpecialInvalidValue                    = 32,
+    SpecialNotAccessibleValue              = 33,
+    SpecialItemCountValue                  = 34,
+    SpecialMinimumItemCountValue           = 35,
+    SpecialNotCallableValue                = 36,
+    SpecialNullReferenceValue              = 37,
+    SpecialOptimizedOutValue               = 38,
+    SpecialEmptyStructureValue             = 39
 };
 
 // Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB

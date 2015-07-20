@@ -1552,7 +1552,7 @@ def qdump__QRegExp(d, value):
 def qdump__QRegion(d, value):
     p = value["d"].dereference()["qt_rgn"]
     if d.isNull(p):
-        d.putValue("<empty>")
+        d.putSpecialValue(SpecialEmptyValue)
         d.putNumChild(0)
     else:
         # struct QRegionPrivate:

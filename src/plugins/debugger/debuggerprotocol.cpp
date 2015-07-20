@@ -728,6 +728,36 @@ QString decodeData(const QByteArray &ba, int encoding)
             union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
             return QString::number(u.d);
         }
+        case SpecialEmptyValue: {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<empty>");
+        }
+        case SpecialUninitializedValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<uninitialized>");
+        }
+        case SpecialInvalidValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<invalid>");
+        }
+        case SpecialNotAccessibleValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not accessible>");
+        }
+        case SpecialItemCountValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", nullptr, ba.toInt());
+        }
+        case SpecialMinimumItemCountValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", nullptr, ba.toInt());
+        }
+        case SpecialNotCallableValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not callable>");
+        }
+        case SpecialNullReferenceValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<null reference>");
+        }
+        case SpecialOptimizedOutValue:  {
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<optimized out>");
+        }
+        case SpecialEmptyStructureValue:  {
+            return QLatin1String("{...}");
+        }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");
