@@ -148,7 +148,6 @@ void KitManager::restoreKits()
             k->setAutoDetected(true);
             k->setSdkProvided(true);
             k->makeSticky();
-            k->setup();
         }
 
         // SDK kits are always considered to be up for validation since they might have been
@@ -191,6 +190,8 @@ void KitManager::restoreKits()
                 break;
             }
         }
+        if (toStore == current)
+            toStore->setup();
         addKit(toStore);
     }
 
