@@ -3557,7 +3557,9 @@ void GdbEngine::reloadRegisters()
 
     if (true) {
         if (!m_registerNamesListed) {
-            postCommand("-data-list-register-names", NoFlags, CB(handleRegisterListNames));
+            // The MI version does not give register size.
+            // postCommand("-data-list-register-names", NoFlags, CB(handleRegisterListNames));
+            postCommand("maintenance print raw-registers", NoFlags, CB(handleRegisterListing));
             m_registerNamesListed = true;
         }
         // Can cause i386-linux-nat.c:571: internal-error: Got request
@@ -3638,12 +3640,44 @@ void GdbEngine::handleRegisterListNames(const DebuggerResponse &response)
     }
 
     GdbMi names = response.data["register-names"];
-    m_registerNames.clear();
+    m_registers.clear();
     int gdbRegisterNumber = 0;
     foreach (const GdbMi &item, names.children()) {
-        if (!item.data().isEmpty())
-            m_registerNames[gdbRegisterNumber] = item.data();
+        if (!item.data().isEmpty()) {
+            Register reg;
+            reg.name = item.data();
+            m_registers[gdbRegisterNumber] = reg;
+        }
         ++gdbRegisterNumber;
+    }
+}
+
+void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
+{
+    if (response.resultClass != ResultDone) {
+        m_registerNamesListed = false;
+        return;
+    }
+
+    // &"maintenance print raw-registers\n"
+    // >~" Name         Nr  Rel Offset    Size  Type            Raw value\n"
+    // >~" rax           0    0      0       8 int64_t         0x0000000000000005\n"
+    // >~" rip          16   16    128       8 *1              0x000000000040232a\n"
+    // >~" ''          145  145    536       0 int0_t          <invalid>\n"
+
+    m_registers.clear();
+    QList<QByteArray> lines = response.consoleStreamOutput.split('\n');
+    for (int i = 1; i < lines.size(); ++i) {
+        QStringList parts = QString::fromLatin1(lines.at(i))
+                .split(QLatin1Char(' '), QString::SkipEmptyParts);
+        if (parts.size() < 7)
+            continue;
+        int gdbRegisterNumber = parts.at(1).toInt();
+        Register reg;
+        reg.name = parts.at(0).toLatin1();
+        reg.size = parts.at(4).toInt();
+        reg.reportedType = parts.at(5).toLatin1();
+        m_registers[gdbRegisterNumber] = reg;
     }
 }
 
@@ -3656,9 +3690,8 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data["register-values"];
     foreach (const GdbMi &item, values.children()) {
-        Register reg;
         const int number = item["number"].toInt();
-        reg.name = m_registerNames[number];
+        Register reg = m_registers[number];
         QByteArray data = item["value"].data();
         if (data.startsWith("0x")) {
             reg.value = data;
