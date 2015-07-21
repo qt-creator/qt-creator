@@ -73,6 +73,7 @@ public:
     bool isNull() const;
 
     void reset();
+    void reparse();
 
     CXIndex index() const;
     CXTranslationUnit cxTranslationUnit() const;

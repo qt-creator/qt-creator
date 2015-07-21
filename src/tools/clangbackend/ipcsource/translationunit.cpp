@@ -96,6 +96,13 @@ void TranslationUnit::reset()
     d.reset();
 }
 
+void TranslationUnit::reparse()
+{
+    cxTranslationUnit();
+
+    reparseTranslationUnit();
+}
+
 CXIndex TranslationUnit::index() const
 {
     checkIfNull();
