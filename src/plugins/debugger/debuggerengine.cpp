@@ -1336,6 +1336,11 @@ QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
     return d->m_fileFinder.findFile(fileUrl);
 }
 
+void DebuggerEngine::updateBreakpointMarkers()
+{
+    d->m_disassemblerAgent.updateBreakpointMarkers();
+}
+
 bool DebuggerEngine::debuggerActionsEnabled() const
 {
     return debuggerActionsEnabled(d->m_state);

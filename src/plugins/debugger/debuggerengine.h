@@ -313,6 +313,7 @@ public:
     virtual void notifyInferiorIll();
 
     QString toFileInProject(const QUrl &fileUrl);
+    void updateBreakpointMarkers();
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
