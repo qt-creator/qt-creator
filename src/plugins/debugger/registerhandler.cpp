@@ -267,7 +267,8 @@ static QString subTypeName(RegisterKind kind, int size, RegisterFormat format)
     switch (format) {
         case BinaryFormat: name += QLatin1Char('b'); break;
         case OctalFormat: name += QLatin1Char('o'); break;
-        case DecimalFormat: name += QLatin1Char('d'); break;
+        case DecimalFormat: name += QLatin1Char('u'); break;
+        case SignedDecimalFormat: name += QLatin1Char('s'); break;
         case HexadecimalFormat: name += QLatin1Char('x'); break;
         case CharacterFormat: name += QLatin1Char('c'); break;
     }
@@ -328,6 +329,18 @@ static QByteArray formatRegister(quint64 v, int size, RegisterFormat format)
         result.prepend(QByteArray(2*size - result.size(), '0'));
     } else if (format == DecimalFormat) {
         result = QByteArray::number(v, 10);
+        result.prepend(QByteArray(2*size - result.size(), ' '));
+    } else if (format == SignedDecimalFormat) {
+        qint64 sv;
+        if (size >= 8)
+            sv = qint64(v);
+        else if (size >= 4)
+            sv = qint32(v);
+        else if (size >= 2)
+            sv = qint16(v);
+        else
+            sv = qint8(v);
+        result = QByteArray::number(sv, 10);
         result.prepend(QByteArray(2*size - result.size(), ' '));
     } else if (format == CharacterFormat) {
         if (v >= 32 && v < 127) {
@@ -436,8 +449,13 @@ RegisterItem::RegisterItem(const Register &reg) :
         m_reg.guessMissingData();
 
     if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
+        if (m_reg.size <= 8) {
+            appendChild(new RegisterSubItem(IntegerRegister, m_reg.size, 1, SignedDecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, m_reg.size, 1, DecimalFormat));
+        }
         for (int s = m_reg.size / 2; s; s = s / 2) {
             appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, HexadecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, SignedDecimalFormat));
             appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, DecimalFormat));
             if (s == 1)
                 appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, CharacterFormat));
@@ -548,8 +566,16 @@ QVariant RegisterSubItem::data(int column, int role) const
             if (m_subKind == IntegerRegister) {
                 if (m_subFormat == CharacterFormat)
                     return RegisterHandler::tr("Content as ASCII Characters");
-                else
-                    return RegisterHandler::tr("Content as %1-bit Integer Values").arg(8 * m_subSize);
+                if (m_subFormat == SignedDecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Signed Decimal Values").arg(8 * m_subSize);
+                if (m_subFormat == DecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Unsigned Decimal Values").arg(8 * m_subSize);
+                if (m_subFormat == HexadecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Hexadecimal Values").arg(8 * m_subSize);
+                if (m_subFormat == OctalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Octal Values").arg(8 * m_subSize);
+                if (m_subFormat == BinaryFormat)
+                    return RegisterHandler::tr("Content as %1-bit Binary Values").arg(8 * m_subSize);
             }
             if (m_subKind == FloatRegister)
                 return RegisterHandler::tr("Contents as %1-bit Floating Point Values").arg(8 * m_subSize);

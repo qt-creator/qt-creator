@@ -71,6 +71,7 @@ enum RegisterFormat
     CharacterFormat,
     HexadecimalFormat,
     DecimalFormat,
+    SignedDecimalFormat,
     OctalFormat,
     BinaryFormat
 };

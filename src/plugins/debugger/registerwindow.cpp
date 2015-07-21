@@ -71,7 +71,7 @@ public:
         // Big integers are assumed to be hexadecimal.
         int base = 16;
         if (!big) {
-            if (format == DecimalFormat)
+            if (format == DecimalFormat || format == SignedDecimalFormat)
                 base = 10;
             else if (format == OctalFormat)
                 base = 8;
