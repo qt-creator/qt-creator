@@ -93,15 +93,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     QWidget *inner = new QWidget;
     inner->setLayout(m_layout);
 
-    QScrollArea *scroll = new QScrollArea;
-    scroll->setWidget(inner);
-    scroll->setFrameShape(QFrame::NoFrame);
-    scroll->setWidgetResizable(true);
-    scroll->setFocusPolicy(Qt::NoFocus);
-
     QGridLayout *mainLayout = new QGridLayout(this);
     mainLayout->setMargin(1);
-    mainLayout->addWidget(scroll, 0, 0);
+    mainLayout->addWidget(inner, 0, 0);
 
     toolTip = tr("Kit name and icon.");
     label = createLabel(tr("Name:"), toolTip);
