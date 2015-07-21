@@ -115,6 +115,8 @@ private:
     static const QByteArray PrivKeyFileStartLineDsa;
     static const QByteArray PrivKeyFileEndLineRsa;
     static const QByteArray PrivKeyFileEndLineDsa;
+    static const QByteArray PrivKeyFileStartLineEcdsa;
+    static const QByteArray PrivKeyFileEndLineEcdsa;
 
     QByteArray m_authKeyAlgoName;
     QByteArray m_authPubKeyBlob;

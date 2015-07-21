@@ -177,6 +177,8 @@ const QByteArray SshEncryptionFacility::PrivKeyFileStartLineRsa("-----BEGIN RSA 
 const QByteArray SshEncryptionFacility::PrivKeyFileStartLineDsa("-----BEGIN DSA PRIVATE KEY-----");
 const QByteArray SshEncryptionFacility::PrivKeyFileEndLineRsa("-----END RSA PRIVATE KEY-----");
 const QByteArray SshEncryptionFacility::PrivKeyFileEndLineDsa("-----END DSA PRIVATE KEY-----");
+const QByteArray SshEncryptionFacility::PrivKeyFileStartLineEcdsa("-----BEGIN EC PRIVATE KEY-----");
+const QByteArray SshEncryptionFacility::PrivKeyFileEndLineEcdsa("-----END EC PRIVATE KEY-----");
 
 QByteArray SshEncryptionFacility::cryptAlgoName(const SshKeyExchange &kex) const
 {
@@ -210,6 +212,7 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
     if (privKeyFileContents == m_cachedPrivKeyContents)
         return;
 
+    m_authKeyAlgoName.clear();
 #ifdef CREATOR_SSH_DEBUG
     qDebug("%s: Key not cached, reading", Q_FUNC_INFO);
 #endif
@@ -235,8 +238,15 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
     }
 
     m_authPubKeyBlob = AbstractSshPacket::encodeString(m_authKeyAlgoName);
-    foreach (const BigInt &b, pubKeyParams)
-        m_authPubKeyBlob += AbstractSshPacket::encodeMpInt(b);
+    auto * const ecdsaKey = dynamic_cast<ECDSA_PrivateKey *>(m_authKey.data());
+    if (ecdsaKey) {
+        m_authPubKeyBlob += AbstractSshPacket::encodeString(m_authKeyAlgoName.mid(11)); // Without "ecdsa-sha2-" prefix.
+        m_authPubKeyBlob += AbstractSshPacket::encodeString(
+                    convertByteArray(EC2OSP(ecdsaKey->public_point(), PointGFp::UNCOMPRESSED)));
+    } else {
+        foreach (const BigInt &b, pubKeyParams)
+            m_authPubKeyBlob += AbstractSshPacket::encodeMpInt(b);
+    }
     m_cachedPrivKeyContents = privKeyFileContents;
 }
 
@@ -294,6 +304,10 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
                 syntaxOk = false;
             else
                 m_authKeyAlgoName = SshCapabilities::PubKeyDss;
+        } else if (lines.first() == PrivKeyFileStartLineEcdsa) {
+            if (lines.last() != PrivKeyFileEndLineEcdsa)
+                syntaxOk = false;
+            // m_authKeyAlgoName set below, as we don't know the size yet.
         } else {
             syntaxOk = false;
         }
@@ -311,8 +325,10 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
         BER_Decoder sequence = decoder.start_cons(SEQUENCE);
         size_t version;
         sequence.decode (version);
-        if (version != 0) {
-            error = SSH_TR("Key encoding has version %1, expected 0.").arg(version);
+        const size_t expectedVersion = m_authKeyAlgoName.isEmpty() ? 1 : 0;
+        if (version != expectedVersion) {
+            error = SSH_TR("Key encoding has version %1, expected %2.")
+                    .arg(version).arg(expectedVersion);
             return false;
         }
 
@@ -323,13 +339,37 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
             m_authKey.reset(dsaKey);
             pubKeyParams << p << q << g << y;
             allKeyParams << pubKeyParams << x;
-        } else {
+        } else if (m_authKeyAlgoName == SshCapabilities::PubKeyRsa) {
             BigInt p, q, e, d, n;
             sequence.decode(n).decode(e).decode(d).decode(p).decode(q);
             RSA_PrivateKey * const rsaKey = new RSA_PrivateKey(m_rng, p, q, e, d, n);
             m_authKey.reset(rsaKey);
             pubKeyParams << e << n;
             allKeyParams << pubKeyParams << p << q << d;
+        } else {
+            BigInt privKey;
+            sequence.decode_octet_string_bigint(privKey);
+            switch (privKey.bytes()) {
+            case 32:
+                m_authKeyAlgoName = SshCapabilities::PubKeyEcdsa256;
+                break;
+            case 48:
+                m_authKeyAlgoName = SshCapabilities::PubKeyEcdsa384;
+                break;
+            case 66:
+                m_authKeyAlgoName = SshCapabilities::PubKeyEcdsa521;
+                break;
+            default:
+                error = SSH_TR("Unexpected ECDSA key width %1").arg(privKey.bytes());
+                return false;
+            }
+
+            const EC_Group group(SshCapabilities::oid(m_authKeyAlgoName));
+            auto * const key = new ECDSA_PrivateKey(m_rng, group, privKey);
+            m_authKey.reset(key);
+            pubKeyParams << key->public_point().get_affine_x()
+                         << key->public_point().get_affine_y();
+            allKeyParams << pubKeyParams << privKey;
         }
 
         sequence.discard_remaining();
@@ -360,6 +400,13 @@ QByteArray SshEncryptionFacility::authenticationKeySignature(const QByteArray &d
     QByteArray signature
         = convertByteArray(signer->sign_message(convertByteArray(dataToSign),
               dataToSign.size(), m_rng));
+    if (m_authKeyAlgoName.startsWith(SshCapabilities::PubKeyEcdsaPrefix)) {
+        // The Botan output is not quite in the format that SSH defines.
+        const int halfSize = signature.count() / 2;
+        const BigInt r = BigInt::decode(convertByteArray(signature), halfSize);
+        const BigInt s = BigInt::decode(convertByteArray(signature.mid(halfSize)), halfSize);
+        signature = AbstractSshPacket::encodeMpInt(r) + AbstractSshPacket::encodeMpInt(s);
+    }
     return AbstractSshPacket::encodeString(m_authKeyAlgoName)
         + AbstractSshPacket::encodeString(signature);
 }
