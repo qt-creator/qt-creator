@@ -1156,7 +1156,13 @@ class Dumper(DumperBase):
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
             if self.sortStructMembers:
-                fields.sort(key = lambda field: "%d%s" % (not field.is_base_class, field.name))
+                def sortOrder(field):
+                    if field.is_base_class:
+                        return 0
+                    if field.name.startswith("_vptr."):
+                        return 1
+                    return 2
+                fields.sort(key = lambda field: "%d%s" % (sortOrder(field), field.name))
 
             #warn("TYPE: %s" % value.type)
             #warn("FIELDS: %s" % fields)
