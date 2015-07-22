@@ -837,6 +837,13 @@ public:
         return ast;
     }
 
+    NoExceptOperatorExpressionAST *NoExceptOperatorExpression(ExpressionAST *expression = 0)
+    {
+        NoExceptOperatorExpressionAST *ast = new (&pool) NoExceptOperatorExpressionAST;
+        ast->expression = expression;
+        return ast;
+    }
+
     TranslationUnitAST *TranslationUnit(DeclarationListAST *declaration_list = 0)
     {
         TranslationUnitAST *ast = new (&pool) TranslationUnitAST;

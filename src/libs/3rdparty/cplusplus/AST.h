@@ -206,6 +206,7 @@ public:
     virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return 0; }
     virtual NewExpressionAST *asNewExpression() { return 0; }
     virtual NewTypeIdAST *asNewTypeId() { return 0; }
+    virtual NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() { return 0; }
     virtual NoExceptSpecificationAST *asNoExceptSpecification() { return 0; }
     virtual NumericLiteralAST *asNumericLiteral() { return 0; }
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return 0; }
@@ -3391,6 +3392,30 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ThrowExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT NoExceptOperatorExpressionAST: public ExpressionAST
+{
+public:
+    unsigned noexcept_token;
+    ExpressionAST *expression;
+
+public:
+    NoExceptOperatorExpressionAST()
+        : noexcept_token(0)
+        , expression(0)
+    {}
+
+    virtual NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual NoExceptOperatorExpressionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

@@ -5238,6 +5238,14 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         return true;
     }
 
+
+    case T_NOEXCEPT: {
+        if (!_languageFeatures.cxx11Enabled)
+            break;
+
+        return parseNoExceptOperatorExpression(node);
+    }
+
     default:
         break;
     } // switch
@@ -5668,6 +5676,19 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
         ThrowExpressionAST *ast = new (_pool) ThrowExpressionAST;
         ast->throw_token = consumeToken();
         parseAssignmentExpression(ast->expression);
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseNoExceptOperatorExpression(ExpressionAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (_languageFeatures.cxx11Enabled && LA() == T_NOEXCEPT) {
+        NoExceptOperatorExpressionAST *ast = new (_pool) NoExceptOperatorExpressionAST;
+        ast->noexcept_token = consumeToken();
+        parseExpression(ast->expression);
         node = ast;
         return true;
     }

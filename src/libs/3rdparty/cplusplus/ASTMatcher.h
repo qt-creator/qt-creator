@@ -106,6 +106,7 @@ public:
     virtual bool match(NewArrayDeclaratorAST *node, NewArrayDeclaratorAST *pattern);
     virtual bool match(NewExpressionAST *node, NewExpressionAST *pattern);
     virtual bool match(NewTypeIdAST *node, NewTypeIdAST *pattern);
+    virtual bool match(NoExceptOperatorExpressionAST *node, NoExceptOperatorExpressionAST *pattern);
     virtual bool match(NoExceptSpecificationAST *node, NoExceptSpecificationAST *pattern);
     virtual bool match(NumericLiteralAST *node, NumericLiteralAST *pattern);
     virtual bool match(ObjCClassDeclarationAST *node, ObjCClassDeclarationAST *pattern);

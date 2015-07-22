@@ -148,6 +148,7 @@ public:
     virtual bool visit(NewArrayDeclaratorAST *) { return true; }
     virtual bool visit(NewExpressionAST *) { return true; }
     virtual bool visit(NewTypeIdAST *) { return true; }
+    virtual bool visit(NoExceptOperatorExpressionAST *) { return true; }
     virtual bool visit(NoExceptSpecificationAST *) { return true; }
     virtual bool visit(NumericLiteralAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
@@ -298,6 +299,7 @@ public:
     virtual void endVisit(NewArrayDeclaratorAST *) {}
     virtual void endVisit(NewExpressionAST *) {}
     virtual void endVisit(NewTypeIdAST *) {}
+    virtual void endVisit(NoExceptOperatorExpressionAST *) {}
     virtual void endVisit(NoExceptSpecificationAST *) {}
     virtual void endVisit(NumericLiteralAST *) {}
     virtual void endVisit(ObjCClassDeclarationAST *) {}

@@ -1237,6 +1237,14 @@ virtual bool visit(ThrowExpressionAST *ast)
     return false;
 }
 
+virtual bool visit(NoExceptOperatorExpressionAST *ast)
+{
+    if (ast->noexcept_token)
+        terminal(ast->noexcept_token, ast);
+    nonterminal(ast->expression);
+    return false;
+}
+
 virtual bool visit(TranslationUnitAST *ast)
 {
     for (DeclarationListAST *iter = ast->declaration_list; iter; iter = iter->next)

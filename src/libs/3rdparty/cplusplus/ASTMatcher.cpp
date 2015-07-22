@@ -2145,6 +2145,21 @@ bool ASTMatcher::match(ThrowExpressionAST *node, ThrowExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(NoExceptOperatorExpressionAST *node, NoExceptOperatorExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->noexcept_token = node->noexcept_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(TranslationUnitAST *node, TranslationUnitAST *pattern)
 {
     (void) node;

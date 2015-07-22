@@ -113,6 +113,7 @@ class NestedNameSpecifierAST;
 class NewArrayDeclaratorAST;
 class NewExpressionAST;
 class NewTypeIdAST;
+class NoExceptOperatorExpressionAST;
 class NoExceptSpecificationAST;
 class NumericLiteralAST;
 class ObjCClassDeclarationAST;

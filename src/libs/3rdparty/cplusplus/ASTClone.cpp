@@ -1267,6 +1267,15 @@ ThrowExpressionAST *ThrowExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+NoExceptOperatorExpressionAST *NoExceptOperatorExpressionAST::clone(MemoryPool *pool) const
+{
+    NoExceptOperatorExpressionAST *ast = new (pool) NoExceptOperatorExpressionAST;
+    ast->noexcept_token = noexcept_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
+}
+
 TranslationUnitAST *TranslationUnitAST::clone(MemoryPool *pool) const
 {
     TranslationUnitAST *ast = new (pool) TranslationUnitAST;

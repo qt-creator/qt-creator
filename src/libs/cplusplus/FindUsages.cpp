@@ -1381,6 +1381,12 @@ bool FindUsages::visit(ThrowExpressionAST *ast)
     return false;
 }
 
+bool FindUsages::visit(NoExceptOperatorExpressionAST* ast)
+{
+    this->expression(ast->expression);
+    return false;
+}
+
 bool FindUsages::visit(TypeIdAST *ast)
 {
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {

@@ -205,6 +205,7 @@ protected:
     virtual bool visit(NestedExpressionAST *ast);
     virtual bool visit(StringLiteralAST *ast);
     virtual bool visit(ThrowExpressionAST *ast);
+    virtual bool visit(NoExceptOperatorExpressionAST *ast);
     virtual bool visit(TypeIdAST *ast);
     virtual bool visit(UnaryExpressionAST *ast);
     virtual bool visit(ObjCMessageExpressionAST *ast);

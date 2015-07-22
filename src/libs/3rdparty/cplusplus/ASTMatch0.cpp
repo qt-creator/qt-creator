@@ -880,6 +880,14 @@ bool ThrowExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool NoExceptOperatorExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (NoExceptOperatorExpressionAST *_other = pattern->asNoExceptOperatorExpression())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool TranslationUnitAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (TranslationUnitAST *_other = pattern->asTranslationUnit())

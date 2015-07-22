@@ -4560,3 +4560,25 @@ unsigned AlignmentSpecifierAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned NoExceptOperatorExpressionAST::firstToken() const
+{
+    if (noexcept_token)
+        return noexcept_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    return 0;
+}
+
+/** \generated */
+unsigned NoExceptOperatorExpressionAST::lastToken() const
+{
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (noexcept_token)
+        return noexcept_token + 1;
+    return 1;
+}
+
