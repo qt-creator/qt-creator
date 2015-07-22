@@ -2483,21 +2483,24 @@ QString QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
     return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));
 }
 
-QString QmakeProFileNode::uiDirectory(const QString &buildDir) const
+Utils::FileName QmakeProFileNode::uiDirectory(const Utils::FileName &buildDir) const
 {
+    if (buildDir.isEmpty())
+        return buildDir;
     const QmakeVariablesHash::const_iterator it = m_varValues.constFind(UiDirVar);
     if (it != m_varValues.constEnd() && !it.value().isEmpty())
-        return it.value().front();
+        return Utils::FileName::fromString(it.value().front());
     return buildDir;
 }
 
-QString QmakeProFileNode::uiHeaderFile(const QString &uiDir, const FileName &formFile)
+QString QmakeProFileNode::uiHeaderFile(const Utils::FileName &uiDir, const FileName &formFile)
 {
-    QString uiHeaderFilePath = uiDir;
-    uiHeaderFilePath += QLatin1String("/ui_");
-    uiHeaderFilePath += formFile.toFileInfo().completeBaseName();
-    uiHeaderFilePath += QLatin1String(".h");
-    return QDir::cleanPath(uiHeaderFilePath);
+    if (uiDir.isEmpty())
+        return QString();
+
+    Utils::FileName uiHeaderFilePath = uiDir;
+    uiHeaderFilePath.appendPath(QLatin1String("ui_") + formFile.toFileInfo().completeBaseName() + QLatin1String(".h"));
+    return QDir::cleanPath(uiHeaderFilePath.toString());
 }
 
 void QmakeProFileNode::updateUiFiles(const QString &buildDir)
@@ -2514,8 +2517,11 @@ void QmakeProFileNode::updateUiFiles(const QString &buildDir)
         const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
         // Find the UiDir, there can only ever be one
-        const  QString uiDir = uiDirectory(buildDir);
-        foreach (const FileNode *uiFile, uiFiles)
-            m_uiFiles.insert(uiFile->path().toString(), uiHeaderFile(uiDir, uiFile->path()));
+        const Utils::FileName uiDir = uiDirectory(Utils::FileName::fromString(buildDir));
+        foreach (const FileNode *uiFile, uiFiles) {
+            QString headerFile = uiHeaderFile(uiDir, uiFile->path());
+            if (!headerFile.isEmpty())
+                m_uiFiles.insert(uiFile->path().toString(), headerFile);
+        }
     }
 }

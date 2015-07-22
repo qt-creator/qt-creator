@@ -337,8 +337,8 @@ public:
     QString sourceDir() const;
     QString buildDir(QmakeBuildConfiguration *bc = 0) const;
 
-    QString uiDirectory(const QString &buildDir) const;
-    static QString uiHeaderFile(const QString &uiDir, const Utils::FileName &formFile);
+    Utils::FileName uiDirectory(const Utils::FileName &buildDir) const;
+    static QString uiHeaderFile(const Utils::FileName &uiDir, const Utils::FileName &formFile);
     QHash<QString, QString> uiFiles() const;
 
     QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
