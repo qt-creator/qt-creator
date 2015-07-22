@@ -28,6 +28,8 @@
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -41,11 +43,7 @@ namespace Core {
 
 class Context;
 
-#ifdef Q_OS_MAC
-enum { UseMacShortcuts = 1 };
-#else
-enum { UseMacShortcuts = 0 };
-#endif
+enum { UseMacShortcuts = Utils::HostOsInfo::isMacHost() ? 1 : 0 };
 
 class CORE_EXPORT Command : public QObject
 {
