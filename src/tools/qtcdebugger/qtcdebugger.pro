@@ -1,5 +1,6 @@
 include(../../shared/registryaccess/registryaccess.pri)
 include(../../qtcreatortool.pri)
+CONFIG -= console
 QT += widgets
 TARGET = qtcdebugger
 SOURCES += main.cpp
