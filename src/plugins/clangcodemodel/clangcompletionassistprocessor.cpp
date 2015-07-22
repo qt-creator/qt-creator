@@ -232,14 +232,15 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
     return startCompletionHelper(); // == 0 if results are calculated asynchronously
 }
 
-void ClangCompletionAssistProcessor::asyncCompletionsAvailable(const CodeCompletions &completions)
+void ClangCompletionAssistProcessor::handleAvailableAsyncCompletions(
+        const CodeCompletions &completions)
 {
     switch (m_sentRequestType) {
     case CompletionRequestType::NormalCompletion:
-        onCompletionsAvailable(completions);
+        handleAvailableCompletions(completions);
         break;
     case CompletionRequestType::FunctionHintCompletion:
-        onFunctionHintCompletionsAvailable(completions);
+        handleAvailableFunctionHintCompletions(completions);
         break;
     default:
         QTC_CHECK(!"Unhandled ClangCompletionAssistProcessor::CompletionRequestType");
@@ -692,7 +693,7 @@ TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() co
     return new ClangAssistProposal(m_positionForProposal, model);
 }
 
-void ClangCompletionAssistProcessor::onCompletionsAvailable(const CodeCompletions &completions)
+void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeCompletions &completions)
 {
     QTC_CHECK(m_completions.isEmpty());
 
@@ -703,15 +704,15 @@ void ClangCompletionAssistProcessor::onCompletionsAvailable(const CodeCompletion
     setAsyncProposalAvailable(createProposal());
 }
 
-void ClangCompletionAssistProcessor::onFunctionHintCompletionsAvailable(
+void ClangCompletionAssistProcessor::handleAvailableFunctionHintCompletions(
         const CodeCompletions &completions)
 {
     QTC_CHECK(!m_functionName.isEmpty());
     const auto relevantCompletions = matchingFunctionCompletions(completions, m_functionName);
 
     if (!relevantCompletions.isEmpty()) {
-        TextEditor::IFunctionHintProposalModel *model = new ClangFunctionHintModel(relevantCompletions);
-        TextEditor::FunctionHintProposal *proposal = new FunctionHintProposal(m_positionForProposal, model);
+        auto *model = new ClangFunctionHintModel(relevantCompletions);
+        auto *proposal = new FunctionHintProposal(m_positionForProposal, model);
 
         setAsyncProposalAvailable(proposal);
     } else {
