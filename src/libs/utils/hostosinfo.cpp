@@ -38,12 +38,20 @@
 
 using namespace Utils;
 
+#ifdef Q_OS_WIN
+static WORD hostProcessorArchitecture()
+{
+    SYSTEM_INFO info;
+    GetNativeSystemInfo(&info);
+    return info.wProcessorArchitecture;
+}
+#endif
+
 HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
 {
 #ifdef Q_OS_WIN
-    SYSTEM_INFO info;
-    GetNativeSystemInfo(&info);
-    switch (info.wProcessorArchitecture) {
+    static const WORD processorArchitecture = hostProcessorArchitecture();
+    switch (processorArchitecture) {
     case PROCESSOR_ARCHITECTURE_AMD64:
         return HostOsInfo::HostArchitectureAMD64;
     case PROCESSOR_ARCHITECTURE_INTEL:
