@@ -256,19 +256,23 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
     try {
         Pipe pipe;
         pipe.process_msg(convertByteArray(privKeyFileContents), privKeyFileContents.size());
-        Private_Key * const key = PKCS8::load_key(pipe, m_rng, SshKeyPasswordRetriever());
-        if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(key)) {
+        m_authKey.reset(PKCS8::load_key(pipe, m_rng, SshKeyPasswordRetriever()));
+        if (auto * const dsaKey = dynamic_cast<DSA_PrivateKey *>(m_authKey.data())) {
             m_authKeyAlgoName = SshCapabilities::PubKeyDss;
-            m_authKey.reset(dsaKey);
             pubKeyParams << dsaKey->group_p() << dsaKey->group_q()
                          << dsaKey->group_g() << dsaKey->get_y();
             allKeyParams << pubKeyParams << dsaKey->get_x();
-        } else if (RSA_PrivateKey * const rsaKey = dynamic_cast<RSA_PrivateKey *>(key)) {
+        } else if (auto * const rsaKey = dynamic_cast<RSA_PrivateKey *>(m_authKey.data())) {
             m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
-            m_authKey.reset(rsaKey);
             pubKeyParams << rsaKey->get_e() << rsaKey->get_n();
             allKeyParams << pubKeyParams << rsaKey->get_p() << rsaKey->get_q()
                          << rsaKey->get_d();
+        } else if (auto * const ecdsaKey = dynamic_cast<ECDSA_PrivateKey *>(m_authKey.data())) {
+            const BigInt value = ecdsaKey->private_value();
+            m_authKeyAlgoName = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(value.bytes());
+            pubKeyParams << ecdsaKey->public_point().get_affine_x()
+                         << ecdsaKey->public_point().get_affine_y();
+            allKeyParams << pubKeyParams << value;
         } else {
             qWarning("%s: Unexpected code flow, expected success or exception.", Q_FUNC_INFO);
             return false;

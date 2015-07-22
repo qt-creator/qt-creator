@@ -47,7 +47,7 @@ class QSSH_EXPORT SshKeyGenerator
 {
     Q_DECLARE_TR_FUNCTIONS(SshKeyGenerator)
 public:
-    enum KeyType { Rsa, Dsa };
+    enum KeyType { Rsa, Dsa, Ecdsa };
     enum PrivateKeyFormat { Pkcs8, OpenSsl, Mixed };
     enum EncryptionMode { DoOfferEncryption, DoNotOfferEncryption }; // Only relevant for Pkcs8 format.
 
