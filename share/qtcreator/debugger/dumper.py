@@ -909,21 +909,28 @@ class DumperBase:
             p = None
 
         displayFormat = self.currentItemFormat()
-        n = int(arrayType.sizeof / ts)
+        arrayByteSize = arrayType.sizeof
+        if arrayByteSize == 0:
+            # This should not happen. But it does, see QTCREATORBUG-14755.
+            # GDB/GCC produce sizeof == 0 for QProcess arr[3]
+            s = str(value.type)
+            arrayByteSize = int(s[s.find('[')+1:s.find(']')]) * ts;
 
+        n = int(arrayByteSize / ts)
         if displayFormat != RawFormat:
             if innerTypeName == "char":
                 # Use Latin1 as default for char [].
-                blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
+                blob = self.readMemory(self.addressOf(value), arrayByteSize)
                 self.putValue(blob, Hex2EncodedLatin1)
             elif innerTypeName == "wchar_t":
-                blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
+                blob = self.readMemory(self.addressOf(value), arrayByteSize)
                 if innerType.sizeof == 2:
                     self.putValue(blob, Hex4EncodedLittleEndian)
                 else:
                     self.putValue(blob, Hex8EncodedLittleEndian)
             elif p:
-                self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName, displayFormat, arrayType.sizeof)
+                self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
+                    displayFormat, arrayByteSize)
         self.putNumChild(n)
 
         if self.isExpanded():
