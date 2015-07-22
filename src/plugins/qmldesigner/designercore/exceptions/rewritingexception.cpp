@@ -37,7 +37,7 @@ RewritingException::RewritingException(int line,
                                        const QByteArray &file,
                                        const QByteArray &description,
                                        const QString &documentTextContent):
-        Exception(line, function, file), m_description(QString::fromLatin1(description)), m_documentTextContent(documentTextContent)
+        Exception(line, function, file), m_description(QString::fromUtf8(description)), m_documentTextContent(documentTextContent)
 {
     createWarning();
 }

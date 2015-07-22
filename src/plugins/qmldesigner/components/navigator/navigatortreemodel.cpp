@@ -294,9 +294,9 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &modelNode)
         idItem->setText(modelNode.id());
     idItem->setIcon(getTypeIcon(modelNode));
     if (modelNode.metaInfo().isValid())
-        idItem->setToolTip(QString::fromLatin1(modelNode.type()));
+        idItem->setToolTip(QString::fromUtf8(modelNode.type()));
     else
-        idItem->setToolTip(msgUnknownItem(QString::fromLatin1(modelNode.type())));
+        idItem->setToolTip(msgUnknownItem(QString::fromUtf8(modelNode.type())));
 #    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
     lockItem->setDragEnabled(true);
@@ -355,12 +355,12 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &modelNode)
 static bool isModelNodeExported(const ModelNode &modelNode)
 {
     if (!modelNode.id().isEmpty()) {
-         PropertyName modelNodeId = modelNode.id().toLatin1();
+         PropertyName modelNodeId = modelNode.id().toUtf8();
          ModelNode rootModelNode = modelNode.view()->rootModelNode();
          Q_ASSERT(rootModelNode.isValid());
          if (rootModelNode.hasBindingProperty(modelNodeId)
                  && rootModelNode.bindingProperty(modelNodeId).isDynamic()
-                 && rootModelNode.bindingProperty(modelNodeId).expression().toLatin1() == modelNodeId)
+                 && rootModelNode.bindingProperty(modelNodeId).expression().toUtf8() == modelNodeId)
              return true;
     }
 
@@ -388,9 +388,9 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items
     } else {
         items.idItem->setData(false, ErrorRole);
         if (modelNode.metaInfo().isValid())
-            items.idItem->setToolTip(QString::fromLatin1(modelNode.type()));
+            items.idItem->setToolTip(QString::fromUtf8(modelNode.type()));
         else
-            items.idItem->setToolTip(msgUnknownItem(QString::fromLatin1(modelNode.type())));
+            items.idItem->setToolTip(msgUnknownItem(QString::fromUtf8(modelNode.type())));
     }
 
     blockItemChangedSignal(blockSignal);
@@ -434,7 +434,7 @@ void NavigatorTreeModel::handleChangedExportItem(QStandardItem *exportItem, Mode
 
     ModelNode rootModelNode = m_view->rootModelNode();
     Q_ASSERT(rootModelNode.isValid());
-    PropertyName modelNodeId = modelNode.id().toLatin1();
+    PropertyName modelNodeId = modelNode.id().toUtf8();
     if (rootModelNode.hasProperty(modelNodeId))
         rootModelNode.removeProperty(modelNodeId);
     if (exported) {
@@ -444,7 +444,7 @@ void NavigatorTreeModel::handleChangedExportItem(QStandardItem *exportItem, Mode
                     m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
 
             modelNode.validId();
-            modelNodeId = modelNode.id().toLatin1();
+            modelNodeId = modelNode.id().toUtf8();
             rootModelNode.bindingProperty(modelNodeId).setDynamicTypeNameAndExpression("alias", modelNodeId);
         }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
             exception.showException();

@@ -40,7 +40,7 @@ InvalidIdException::InvalidIdException(int line,
                                        const QByteArray &id,
                                        Reason reason) :
     InvalidArgumentException(line, function, file, "id"),
-    m_id(QString::fromLatin1(id))
+    m_id(QString::fromUtf8(id))
 {
     if (reason == InvalidCharacters)
         m_description = QCoreApplication::translate("InvalidIdException", "Only alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
@@ -54,8 +54,8 @@ InvalidIdException::InvalidIdException(int line,
                                        const QByteArray &id,
                                        const QByteArray &description) :
     InvalidArgumentException(line, function, file, "id"),
-    m_id(QString::fromLatin1(id)),
-    m_description(QString::fromLatin1(description))
+    m_id(QString::fromUtf8(id)),
+    m_description(QString::fromUtf8(description))
 {
     createWarning();
 }

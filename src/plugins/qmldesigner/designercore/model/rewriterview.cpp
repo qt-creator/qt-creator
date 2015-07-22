@@ -475,7 +475,7 @@ void RewriterView::applyChanges()
         qDebug() << "Content:" << content;
         if (!errors().isEmpty())
             qDebug() << "Error:" << errors().first().description();
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage.toLatin1(), content.toLatin1());
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage.toUtf8(), content.toUtf8());
     }
 }
 
@@ -605,7 +605,7 @@ ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
 {
     if (textModifier()) {
-        PropertyName propertyName = oldId.toLatin1();
+        PropertyName propertyName = oldId.toUtf8();
 
         bool hasAliasExport = rootModelNode().isValid()
                 && rootModelNode().hasBindingProperty(propertyName)
@@ -615,7 +615,7 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
 
         if (refactoring && hasAliasExport) { //Keep export alias properties
             rootModelNode().removeProperty(propertyName);
-            PropertyName newPropertyName = newId.toLatin1();
+            PropertyName newPropertyName = newId.toUtf8();
             rootModelNode().bindingProperty(newPropertyName).setDynamicTypeNameAndExpression("alias", newPropertyName);
         }
         return refactoring;

@@ -303,7 +303,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
             continue;
         }
         // oldFileInfo > newFileInfo
-        parseFile(newFileInfo.filePath(), addToLibrary, QString::fromLatin1(qualification));
+        parseFile(newFileInfo.filePath(), addToLibrary, QString::fromUtf8(qualification));
         ++newIter;
     }
 
@@ -314,7 +314,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
     }
 
     while (newIter != newList.constEnd()) {
-        parseFile(newIter->filePath(), addToLibrary, QString::fromLatin1(qualification));
+        parseFile(newIter->filePath(), addToLibrary, QString::fromUtf8(qualification));
         if (debug)
             qDebug() << "m_watcher.addPath(" << newIter->filePath() << ')';
         ++newIter;

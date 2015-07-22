@@ -193,13 +193,13 @@ void ModelNode::setIdWithoutRefactoring(const QString &id)
     }
 
     if (!isValidId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toLatin1(), InvalidIdException::InvalidCharacters);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::InvalidCharacters);
 
     if (id == m_internalNode->id())
         return;
 
     if (view()->hasId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toLatin1(), InvalidIdException::DuplicateId);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::DuplicateId);
 
     m_model.data()->d->changeNodeId(internalNode(), id);
 }
@@ -589,7 +589,7 @@ void ModelNode::removeProperty(const PropertyName &name) const
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    model()->d->checkPropertyName(QString::fromLatin1(name));
+    model()->d->checkPropertyName(QString::fromUtf8(name));
 
     if (internalNode()->hasProperty(name))
         model()->d->removeProperty(internalNode()->property(name));

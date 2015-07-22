@@ -276,7 +276,7 @@ static void removeStateOperationsForChildren(const QmlObjectNode &node)
 static void removeAliasExports(const QmlObjectNode &node)
 {
 
-    PropertyName propertyName = node.id().toLatin1();
+    PropertyName propertyName = node.id().toUtf8();
 
     ModelNode rootNode = node.view()->rootModelNode();
     bool hasAliasExport = !propertyName.isEmpty()

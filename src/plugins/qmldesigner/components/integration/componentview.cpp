@@ -140,11 +140,11 @@ QString ComponentView::descriptionForNode(const ModelNode &node) const
         ModelNode parentNode = node.parentProperty().parentModelNode();
 
         if (parentNode.id().isEmpty())
-            description = QString::fromLatin1(parentNode.simplifiedTypeName()) + QLatin1Char(' ');
+            description = QString::fromUtf8(parentNode.simplifiedTypeName()) + QLatin1Char(' ');
         else
             description = parentNode.id() + QLatin1Char(' ');
 
-        description += QString::fromLatin1(node.parentProperty().name());
+        description += QString::fromUtf8(node.parentProperty().name());
     }
 
     return description;

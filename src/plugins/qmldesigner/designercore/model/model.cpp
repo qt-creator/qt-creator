@@ -201,7 +201,7 @@ InternalNode::Pointer ModelPrivate::createNode(const TypeName &typeName,
                                                bool isRootNode)
 {
     if (typeName.isEmpty())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type").toLatin1());
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type").toUtf8());
 
     qint32 internalId = 0;
 
@@ -311,7 +311,7 @@ void ModelPrivate::changeNodeId(const InternalNode::Pointer& internalNodePointer
         notifyNodeIdChanged(internalNodePointer, id, oldId);
 
     } catch (const RewritingException &e) {
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toLatin1(), e.description().toLatin1());
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), e.description().toUtf8());
 
     }
 }
@@ -325,7 +325,7 @@ void ModelPrivate::checkPropertyName(const QString &propertyName)
 
     if (propertyName == QLatin1String("id")) {
         Q_ASSERT_X(propertyName != QLatin1String("id"), Q_FUNC_INFO, "cannot add property id");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName.toLatin1());
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName.toUtf8());
     }
 }
 
@@ -836,7 +836,7 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
     if (rewriterView())
         rewriterView()->resetToLastCorrectQml();
 
-    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description.toLatin1(), rewriterView()->textModifierContent());
+    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description.toUtf8(), rewriterView()->textModifierContent());
 }
 
 
@@ -1585,7 +1585,7 @@ void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, in
     rootNode()->setType(type);
     rootNode()->setMajorVersion(majorVersion);
     rootNode()->setMinorVersion(minorVersion);
-    notifyRootNodeTypeChanged(QString::fromLatin1(type), majorVersion, minorVersion);
+    notifyRootNodeTypeChanged(QString::fromUtf8(type), majorVersion, minorVersion);
 }
 
 void ModelPrivate::setScriptFunctions(const InternalNode::Pointer &internalNodePointer, const QStringList &scriptFunctionList)

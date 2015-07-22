@@ -103,8 +103,8 @@ Exception::Exception(int line,
               const QByteArray &_function,
               const QByteArray &_file)
   : m_line(line),
-    m_function(QString::fromLatin1(_function)),
-    m_file(QString::fromLatin1(_file))
+    m_function(QString::fromUtf8(_function)),
+    m_file(QString::fromUtf8(_file))
 {
 #ifdef Q_OS_LINUX
     void * array[50];
@@ -120,7 +120,7 @@ Exception::Exception(int line,
 #endif
 
 if (s_shouldAssert)
-    Q_ASSERT_X(false, _function, QString(QStringLiteral("%1:%2 - %3")).arg(m_file).arg(m_line).arg(m_function).toLatin1());
+    Q_ASSERT_X(false, _function, QString(QStringLiteral("%1:%2 - %3")).arg(m_file).arg(m_line).arg(m_function).toUtf8());
 }
 
 Exception::~Exception()

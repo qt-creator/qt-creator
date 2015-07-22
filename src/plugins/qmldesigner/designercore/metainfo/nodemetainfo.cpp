@@ -1225,7 +1225,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
                     QString uri = importInfo.name();
                     uri.replace(QStringLiteral(","), QStringLiteral("."));
                     if (!uri.isEmpty())
-                        description.className = QString(uri + QString::fromLatin1(".") + QString::fromLatin1(description.className)).toLatin1();
+                        description.className = QString(uri + QString::fromLatin1(".") + QString::fromUtf8(description.className)).toUtf8();
                 }
 
                 m_prototypes.append(description);

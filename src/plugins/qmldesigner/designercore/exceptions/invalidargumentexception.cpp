@@ -49,7 +49,7 @@ InvalidArgumentException::InvalidArgumentException(int line,
                                                    const QByteArray &function,
                                                    const QByteArray &file,
                                                    const QByteArray &argument)
- : Exception(line, function, file), m_argument(QString::fromLatin1(argument))
+ : Exception(line, function, file), m_argument(QString::fromUtf8(argument))
 {
     createWarning();
 }
