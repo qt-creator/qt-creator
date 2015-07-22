@@ -48,14 +48,14 @@ class CMBIPC_EXPORT CodeCompletedCommand
     friend void PrintTo(const CodeCompletedCommand &command, ::std::ostream* os);
 public:
     CodeCompletedCommand() = default;
-    CodeCompletedCommand(const QVector<CodeCompletion> &codeCompletions, quint64 ticketNumber);
+    CodeCompletedCommand(const CodeCompletions &codeCompletions, quint64 ticketNumber);
 
-    const QVector<CodeCompletion> &codeCompletions() const;
+    const CodeCompletions &codeCompletions() const;
 
     quint64 ticketNumber() const;
 
 private:
-    QVector<CodeCompletion> codeCompletions_;
+    CodeCompletions codeCompletions_;
     quint64 ticketNumber_ = 0;
 };
 

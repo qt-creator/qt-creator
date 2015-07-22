@@ -61,6 +61,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+using ClangBackEnd::CodeCompletion;
 using TextEditor::AssistProposalItem;
 
 namespace {
@@ -107,7 +108,6 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
         }
 
         // FIXME: show the effective accessebility instead of availability
-        using ClangBackEnd::CodeCompletion;
         using CPlusPlus::Icons;
 
         switch (ccr.completionKind()) {
@@ -193,10 +193,10 @@ bool isFunctionHintLikeCompletion(CodeCompletion::Kind kind)
         || kind == CodeCompletion::SlotCompletionKind;
 }
 
-QVector<CodeCompletion> matchingFunctionCompletions(const QVector<CodeCompletion> completions,
-                                                    const QString &functionName)
+CodeCompletions matchingFunctionCompletions(const CodeCompletions completions,
+                                            const QString &functionName)
 {
-    QVector<CodeCompletion> matching;
+    CodeCompletions matching;
 
     foreach (const CodeCompletion &completion, completions) {
         if (isFunctionHintLikeCompletion(completion.completionKind())

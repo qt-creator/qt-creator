@@ -44,7 +44,7 @@ CodeCompletionChunk::CodeCompletionChunk()
 
 CodeCompletionChunk::CodeCompletionChunk(CodeCompletionChunk::Kind kind,
                                          const Utf8String &text,
-                                         const QVector<CodeCompletionChunk> &optionalChunks)
+                                         const CodeCompletionChunks &optionalChunks)
     : text_(text),
       optionalChunks_(optionalChunks),
       kind_(kind)
@@ -61,7 +61,7 @@ const Utf8String &CodeCompletionChunk::text() const
     return text_;
 }
 
-const QVector<CodeCompletionChunk> &CodeCompletionChunk::optionalChunks() const
+const CodeCompletionChunks &CodeCompletionChunk::optionalChunks() const
 {
     return optionalChunks_;
 }

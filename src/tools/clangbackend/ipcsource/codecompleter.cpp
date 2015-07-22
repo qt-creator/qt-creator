@@ -47,7 +47,7 @@ CodeCompleter::CodeCompleter(TranslationUnit translationUnit)
 {
 }
 
-QVector<CodeCompletion> CodeCompleter::complete(uint line, uint column)
+CodeCompletions CodeCompleter::complete(uint line, uint column)
 {
     translationUnit.reparse();
 

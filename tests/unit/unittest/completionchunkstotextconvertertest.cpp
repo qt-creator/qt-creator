@@ -39,6 +39,7 @@
 namespace {
 
 using ClangBackEnd::CodeCompletionChunk;
+using ClangBackEnd::CodeCompletionChunks;
 using Converter = ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
 class CompletionChunksToTextConverter : public ::testing::Test
@@ -84,7 +85,7 @@ protected:
 
 TEST_F(CompletionChunksToTextConverter, ParseIsClearingText)
 {
-    QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, rightParen});
+    CodeCompletionChunks completionChunks({integerResultType, functionName, leftParen, rightParen});
     converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
@@ -94,7 +95,7 @@ TEST_F(CompletionChunksToTextConverter, ParseIsClearingText)
 
 TEST_F(CompletionChunksToTextConverter, ConvertFunction)
 {
-    QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, rightParen});
+    CodeCompletionChunks completionChunks({integerResultType, functionName, leftParen, rightParen});
     converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
@@ -104,7 +105,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunction)
 
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithParameters)
 {
-    QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, functionArgumentX,rightParen});
+    CodeCompletionChunks completionChunks({integerResultType, functionName, leftParen, functionArgumentX,rightParen});
     converter.setAddResultType(true);
     converter.setAddPlaceHolderText(true);
 
@@ -115,7 +116,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithParameters)
 
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 {
-    QVector<CodeCompletionChunk> completionChunks({integerResultType, functionName, leftParen, functionArgumentX, optional,rightParen});
+    CodeCompletionChunks completionChunks({integerResultType, functionName, leftParen, functionArgumentX, optional,rightParen});
     converter.setAddResultType(true);
     converter.setAddPlaceHolderText(true);
 
@@ -126,7 +127,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 
 TEST_F(CompletionChunksToTextConverter, ConvertVariable)
 {
-    QVector<CodeCompletionChunk> completionChunks({integerResultType, variableName});
+    CodeCompletionChunks completionChunks({integerResultType, variableName});
     converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
@@ -136,7 +137,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertVariable)
 
 TEST_F(CompletionChunksToTextConverter, Enumerator)
 {
-    QVector<CodeCompletionChunk> completionChunks({enumerationResultType, enumeratorName});
+    CodeCompletionChunks completionChunks({enumerationResultType, enumeratorName});
     converter.setAddResultType(true);
 
     converter.parseChunks(completionChunks);
@@ -146,7 +147,7 @@ TEST_F(CompletionChunksToTextConverter, Enumerator)
 
 TEST_F(CompletionChunksToTextConverter, Enumeration)
 {
-    QVector<CodeCompletionChunk> completionChunks({className});
+    CodeCompletionChunks completionChunks({className});
 
     converter.parseChunks(completionChunks);
 
@@ -155,7 +156,7 @@ TEST_F(CompletionChunksToTextConverter, Enumeration)
 
 TEST_F(CompletionChunksToTextConverter, Switch)
 {
-    QVector<CodeCompletionChunk> completionChunks({switchName,
+    CodeCompletionChunks completionChunks({switchName,
                                                    leftParen,
                                                    condition,
                                                    rightParen,
@@ -172,7 +173,7 @@ TEST_F(CompletionChunksToTextConverter, Switch)
 
 TEST_F(CompletionChunksToTextConverter, For)
 {
-    QVector<CodeCompletionChunk> completionChunks({forName,
+    CodeCompletionChunks completionChunks({forName,
                                                    leftParen,
                                                    initStatement,
                                                    semicolon,
@@ -194,7 +195,7 @@ TEST_F(CompletionChunksToTextConverter, For)
 
 TEST_F(CompletionChunksToTextConverter, const_cast)
 {
-    QVector<CodeCompletionChunk> completionChunks({constCastName,
+    CodeCompletionChunks completionChunks({constCastName,
                                                    leftAngle,
                                                    rightAngle,
                                                    leftParen,
@@ -208,7 +209,7 @@ TEST_F(CompletionChunksToTextConverter, const_cast)
 
 TEST_F(CompletionChunksToTextConverter, Throw)
 {
-    QVector<CodeCompletionChunk> completionChunks({voidResultType, throwName});
+    CodeCompletionChunks completionChunks({voidResultType, throwName});
 
     auto completionName = Converter::convertToName(completionChunks);
 
@@ -217,7 +218,7 @@ TEST_F(CompletionChunksToTextConverter, Throw)
 
 TEST_F(CompletionChunksToTextConverter, ElseIf)
 {
-    QVector<CodeCompletionChunk> completionChunks({elseName,
+    CodeCompletionChunks completionChunks({elseName,
                                                    horizontalSpace,
                                                    ifName,
                                                    horizontalSpace,

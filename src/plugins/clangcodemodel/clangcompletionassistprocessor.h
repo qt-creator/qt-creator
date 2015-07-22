@@ -34,20 +34,16 @@
 #include "clangcompletionassistinterface.h"
 
 #include <cpptools/cppcompletionassistprocessor.h>
-
 #include <texteditor/texteditor.h>
 
-#include <QCoreApplication>
+#include <clangbackendipc/codecompletion.h>
 
-namespace ClangBackEnd {
-class CodeCompletion;
-}
+#include <QCoreApplication>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-using CodeCompletions = QVector<ClangBackEnd::CodeCompletion>;
-using ClangBackEnd::CodeCompletion;
+using ClangBackEnd::CodeCompletions;
 
 class ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
 {

@@ -38,12 +38,10 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-using CodeCompletions = QVector<ClangBackEnd::CodeCompletion>;
-
 class ClangFunctionHintModel : public TextEditor::IFunctionHintProposalModel
 {
 public:
-    ClangFunctionHintModel(const CodeCompletions &functionSymbols);
+    ClangFunctionHintModel(const ClangBackEnd::CodeCompletions &functionSymbols);
 
     void reset() override;
     int size() const override;
@@ -51,7 +49,7 @@ public:
     int activeArgument(const QString &prefix) const override;
 
 private:
-    CodeCompletions m_functionSymbols;
+    ClangBackEnd::CodeCompletions m_functionSymbols;
     mutable int m_currentArg;
 };
 

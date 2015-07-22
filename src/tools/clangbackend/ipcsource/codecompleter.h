@@ -47,7 +47,7 @@ public:
     CodeCompleter() = default;
     CodeCompleter(TranslationUnit translationUnit);
 
-    QVector<CodeCompletion> complete(uint line, uint column);
+    CodeCompletions complete(uint line, uint column);
 
 private:
     Utf8String filePath() const;

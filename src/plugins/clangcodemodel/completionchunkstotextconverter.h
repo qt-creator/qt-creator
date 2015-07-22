@@ -45,7 +45,7 @@ namespace Internal {
 class CompletionChunksToTextConverter
 {
 public:
-    void parseChunks(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
+    void parseChunks(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
 
     void setAddPlaceHolderText(bool addPlaceHolderText);
     void setAddPlaceHolderPositions(bool addPlaceHolderPositions);
@@ -57,9 +57,9 @@ public:
     const std::vector<int> &placeholderPositions() const;
     bool hasPlaceholderPositions() const;
 
-    static QString convertToFunctionSignature(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
-    static QString convertToName(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
-    static QString convertToToolTip(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks);
+    static QString convertToFunctionSignature(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToToolTip(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
 private:
     void parse(const ClangBackEnd::CodeCompletionChunk & codeCompletionChunk);
     void parseResultType(const Utf8String &text);
@@ -69,13 +69,13 @@ private:
     void parseLeftParen(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parseLeftBrace(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void addExtraVerticalSpaceBetweenBraces();
-    void addExtraVerticalSpaceBetweenBraces(const QVector<ClangBackEnd::CodeCompletionChunk>::iterator &);
+    void addExtraVerticalSpaceBetweenBraces(const ClangBackEnd::CodeCompletionChunks::iterator &);
 
     bool canAddSpace() const;
 
 private:
     std::vector<int> m_placeholderPositions;
-    QVector<ClangBackEnd::CodeCompletionChunk> m_codeCompletionChunks;
+    ClangBackEnd::CodeCompletionChunks m_codeCompletionChunks;
     ClangBackEnd::CodeCompletionChunk m_previousCodeCompletionChunk;
     QString m_text;
     bool m_addPlaceHolderText = false;

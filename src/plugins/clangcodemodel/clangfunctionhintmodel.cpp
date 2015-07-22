@@ -39,7 +39,7 @@ namespace Internal {
 
 using namespace CPlusPlus;
 
-ClangFunctionHintModel::ClangFunctionHintModel(const CodeCompletions &functionSymbols)
+ClangFunctionHintModel::ClangFunctionHintModel(const ClangBackEnd::CodeCompletions &functionSymbols)
     : m_functionSymbols(functionSymbols)
     , m_currentArg(-1)
 {

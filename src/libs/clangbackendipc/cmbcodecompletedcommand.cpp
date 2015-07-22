@@ -37,13 +37,13 @@
 
 namespace ClangBackEnd {
 
-CodeCompletedCommand::CodeCompletedCommand(const QVector<CodeCompletion> &codeCompletions, quint64 ticketNumber)
+CodeCompletedCommand::CodeCompletedCommand(const CodeCompletions &codeCompletions, quint64 ticketNumber)
     : codeCompletions_(codeCompletions),
       ticketNumber_(ticketNumber)
 {
 }
 
-const QVector<CodeCompletion> &CodeCompletedCommand::codeCompletions() const
+const CodeCompletions &CodeCompletedCommand::codeCompletions() const
 {
     return codeCompletions_;
 }
