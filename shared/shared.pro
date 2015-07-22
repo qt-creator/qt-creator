@@ -1,3 +1,6 @@
+isEmpty(IDE_SOURCE_TREE): IDE_SOURCE_TREE=$$(QTC_SOURCE)
+isEmpty(IDE_SOURCE_TREE): error(Set QTC_SOURCE environment variable)
+
 TEMPLATE = aux
 
 STATIC_BASE = $$PWD
@@ -8,5 +11,5 @@ for(data_dir, STATIC_DIRS) {
     for(file, files): !exists($$file/*): STATIC_FILES += $$file
 }
 
-include(../../qtcreator/share/qtcreator/static.pri)
+include($$IDE_SOURCE_TREE/share/qtcreator/static.pri)
 
