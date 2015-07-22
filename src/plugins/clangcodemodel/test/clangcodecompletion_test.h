@@ -57,6 +57,7 @@ private slots:
     void testCompleteGlobals();
     void testCompleteMembers();
     void testCompleteFunctions();
+    void testCompleteConstructorAndFallbackToGlobalCompletion();
 
     void testProjectDependentCompletion();
     void testChangingProjectDependentCompletion();

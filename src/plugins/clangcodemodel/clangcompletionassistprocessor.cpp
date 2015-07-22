@@ -232,20 +232,24 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
     return startCompletionHelper(); // == 0 if results are calculated asynchronously
 }
 
-void ClangCompletionAssistProcessor::handleAvailableAsyncCompletions(
+bool ClangCompletionAssistProcessor::handleAvailableAsyncCompletions(
         const CodeCompletions &completions)
 {
+    bool handled = true;
+
     switch (m_sentRequestType) {
     case CompletionRequestType::NormalCompletion:
         handleAvailableCompletions(completions);
         break;
     case CompletionRequestType::FunctionHintCompletion:
-        handleAvailableFunctionHintCompletions(completions);
+        handled = handleAvailableFunctionHintCompletions(completions);
         break;
     default:
         QTC_CHECK(!"Unhandled ClangCompletionAssistProcessor::CompletionRequestType");
         break;
     }
+
+    return handled;
 }
 
 const TextEditorWidget *ClangCompletionAssistProcessor::textEditorWidget() const
@@ -704,7 +708,7 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeComple
     setAsyncProposalAvailable(createProposal());
 }
 
-void ClangCompletionAssistProcessor::handleAvailableFunctionHintCompletions(
+bool ClangCompletionAssistProcessor::handleAvailableFunctionHintCompletions(
         const CodeCompletions &completions)
 {
     QTC_CHECK(!m_functionName.isEmpty());
@@ -715,9 +719,13 @@ void ClangCompletionAssistProcessor::handleAvailableFunctionHintCompletions(
         auto *proposal = new FunctionHintProposal(m_positionForProposal, model);
 
         setAsyncProposalAvailable(proposal);
+        return true;
     } else {
-        QTC_CHECK(!"Function completion failed. Would fallback to global completion here...");
-        // TODO: If we need this, the processor can't be deleted in IpcClient.
+        m_addSnippets = false;
+        m_functionName.clear();
+        m_sentRequestType = NormalCompletion;
+        sendCompletionRequest(m_interface->position(), QByteArray());
+        return false; // We are not yet finished.
     }
 }
 

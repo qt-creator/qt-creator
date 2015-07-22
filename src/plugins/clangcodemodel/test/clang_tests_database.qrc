@@ -20,5 +20,6 @@
         <file>exampleIncludeDir/otherFile.h</file>
         <file>exampleIncludeDir/mylib/mylib.h</file>
         <file>globalCompletion.cpp</file>
+        <file>constructorCompletion.cpp</file>
     </qresource>
 </RCC>

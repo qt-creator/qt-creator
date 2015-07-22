@@ -59,7 +59,7 @@ public:
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
-    void handleAvailableAsyncCompletions(const CodeCompletions &completions);
+    bool handleAvailableAsyncCompletions(const CodeCompletions &completions);
 
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
@@ -91,7 +91,7 @@ private:
     void sendCompletionRequest(int position, const QByteArray &customFileContent);
 
     void handleAvailableCompletions(const CodeCompletions &completions);
-    void handleAvailableFunctionHintCompletions(const CodeCompletions &completions);
+    bool handleAvailableFunctionHintCompletions(const CodeCompletions &completions);
 
 private:
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;

@@ -145,8 +145,11 @@ void IpcReceiver::codeCompleted(const CodeCompletedCommand &command)
 
     const quint64 ticket = command.ticketNumber();
     QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
-    if (processor)
-        processor->handleAvailableAsyncCompletions(command.codeCompletions());
+    if (processor) {
+        const bool finished = processor->handleAvailableAsyncCompletions(command.codeCompletions());
+        if (!finished)
+            processor.take();
+    }
 }
 
 void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistCommand &command)

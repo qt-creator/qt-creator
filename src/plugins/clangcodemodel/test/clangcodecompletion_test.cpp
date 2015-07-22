@@ -874,6 +874,15 @@ void ClangCodeCompletionTest::testCompleteFunctions()
     QVERIFY(hasItem(t.proposal, "TType<QString> f(bool)"));
 }
 
+void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompletion()
+{
+    ProjectLessCompletionTest t("constructorCompletion.cpp");
+
+    QVERIFY(hasItem(t.proposal, "globalVariable"));
+    QVERIFY(hasItem(t.proposal, "GlobalClassWithCustomConstructor"));
+    QVERIFY(!hasSnippet(t.proposal, "class"));
+}
+
 void ClangCodeCompletionTest::testProjectDependentCompletion()
 {
     const TestDocument testDocument("completionWithProject.cpp");
