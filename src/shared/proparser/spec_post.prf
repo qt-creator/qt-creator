@@ -7,6 +7,7 @@ isEmpty(QMAKE_PLATFORM) {
             else: \
                 TARGET_PLATFORM = unix
         } else:if(equals(MAKEFILE_GENERATOR, MSVC.NET) \
+                 |equals(MAKEFILE_GENERATOR, MSVC) \
                  |equals(MAKEFILE_GENERATOR, BMAKE) \
                  |equals(MAKEFILE_GENERATOR, MSBUILD) \
                  |equals(MAKEFILE_GENERATOR, MINGW)) {
