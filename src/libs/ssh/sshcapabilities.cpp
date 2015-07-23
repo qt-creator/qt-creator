@@ -147,6 +147,18 @@ int SshCapabilities::ecdsaIntegerWidthInBytes(const QByteArray &ecdsaAlgo)
                              .arg(QString::fromLatin1(ecdsaAlgo)));
 }
 
+QByteArray SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(int keyWidthInBytes)
+{
+    if (keyWidthInBytes <= 32)
+        return PubKeyEcdsa256;
+    if (keyWidthInBytes <= 48)
+        return PubKeyEcdsa384;
+    if (keyWidthInBytes <= 66)
+        return PubKeyEcdsa521;
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected ecdsa key size (%1 bytes)")
+                             .arg(keyWidthInBytes));
+}
+
 const char *SshCapabilities::oid(const QByteArray &ecdsaAlgo)
 {
     if (ecdsaAlgo == PubKeyEcdsa256)

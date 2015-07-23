@@ -349,21 +349,7 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
         } else {
             BigInt privKey;
             sequence.decode_octet_string_bigint(privKey);
-            switch (privKey.bytes()) {
-            case 32:
-                m_authKeyAlgoName = SshCapabilities::PubKeyEcdsa256;
-                break;
-            case 48:
-                m_authKeyAlgoName = SshCapabilities::PubKeyEcdsa384;
-                break;
-            case 66:
-                m_authKeyAlgoName = SshCapabilities::PubKeyEcdsa521;
-                break;
-            default:
-                error = SSH_TR("Unexpected ECDSA key width %1").arg(privKey.bytes());
-                return false;
-            }
-
+            m_authKeyAlgoName = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(privKey.bytes());
             const EC_Group group(SshCapabilities::oid(m_authKeyAlgoName));
             auto * const key = new ECDSA_PrivateKey(m_rng, group, privKey);
             m_authKey.reset(key);

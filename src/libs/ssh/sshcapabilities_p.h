@@ -81,6 +81,7 @@ public:
         const QList<QByteArray> &serverCapabilities);
 
     static int ecdsaIntegerWidthInBytes(const QByteArray &ecdsaAlgo);
+    static QByteArray ecdsaPubKeyAlgoForKeyWidth(int keyWidthInBytes);
     static const char *oid(const QByteArray &ecdsaAlgo);
 };
 
