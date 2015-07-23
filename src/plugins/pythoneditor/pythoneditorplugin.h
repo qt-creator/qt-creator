@@ -32,6 +32,9 @@
 #define PYTHONEDITOR_PLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
+
 #include <QSet>
 
 namespace PythonEditor {

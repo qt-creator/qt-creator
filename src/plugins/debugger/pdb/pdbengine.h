@@ -98,9 +98,6 @@ private:
     bool isSynchronous() const { return true; }
     void updateItem(const QByteArray &iname);
 
-    QString mainPythonFile() const;
-    QString pythonInterpreter() const;
-
     void runCommand(const DebuggerCommand &cmd);
     void postDirectCommand(const QByteArray &command);
 
@@ -124,6 +121,7 @@ private:
 
     QByteArray m_inbuffer;
     QProcess m_proc;
+    QString m_interpreter;
 };
 
 } // namespace Internal

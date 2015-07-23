@@ -110,6 +110,10 @@ public:
     QString projectSourceDirectory;
     QStringList projectSourceFiles;
 
+    // Used by Script debugging
+    QString interpreter;
+    QString mainScript;
+
     // Used by AttachCrashedExternal.
     QString crashParameter;
 

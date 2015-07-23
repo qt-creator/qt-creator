@@ -232,8 +232,8 @@ class PythonProjectManager : public IProjectManager
 public:
     PythonProjectManager() {}
 
-    QString mimeType() const { return QLatin1String(PythonMimeType); }
-    Project *openProject(const QString &fileName, QString *errorString);
+    QString mimeType() const override { return QLatin1String(PythonMimeType); }
+    Project *openProject(const QString &fileName, QString *errorString) override;
 
     void registerProject(PythonProject *project) { m_projects.append(project); }
     void unregisterProject(PythonProject *project) { m_projects.removeAll(project); }
@@ -248,12 +248,12 @@ public:
     PythonProject(PythonProjectManager *manager, const QString &filename);
     ~PythonProject();
 
-    QString displayName() const { return m_projectName; }
-    IDocument *document() const;
-    IProjectManager *projectManager() const { return m_manager; }
+    QString displayName() const override { return m_projectName; }
+    IDocument *document() const override;
+    IProjectManager *projectManager() const override { return m_manager; }
 
-    ProjectNode *rootProjectNode() const;
-    QStringList files(FilesMode) const { return m_files; }
+    ProjectNode *rootProjectNode() const override;
+    QStringList files(FilesMode) const override { return m_files; }
     QStringList files() const { return m_files; }
 
     bool addFiles(const QStringList &filePaths);
@@ -262,10 +262,9 @@ public:
     bool renameFile(const QString &filePath, const QString &newFilePath);
     void refresh();
 
-protected:
-    bool fromMap(const QVariantMap &map);
-
 private:
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parseProject();
@@ -295,7 +294,7 @@ public:
         setFilePath(FileName::fromString(fileName));
     }
 
-    bool save(QString *errorString, const QString &fileName, bool autoSave)
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override
     {
         Q_UNUSED(errorString)
         Q_UNUSED(fileName)
@@ -303,20 +302,20 @@ public:
         return false;
     }
 
-    QString defaultPath() const { return QString(); }
-    QString suggestedFileName() const { return QString(); }
+    QString defaultPath() const override { return QString(); }
+    QString suggestedFileName() const override { return QString(); }
 
-    bool isModified() const { return false; }
-    bool isSaveAsAllowed() const { return false; }
+    bool isModified() const override { return false; }
+    bool isSaveAsAllowed() const override { return false; }
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
     {
         Q_UNUSED(state)
         Q_UNUSED(type)
         return BehaviorSilent;
     }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type)
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
     {
         Q_UNUSED(errorString)
         Q_UNUSED(flag)
@@ -338,19 +337,19 @@ public:
     Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
-    bool showInSimpleTree() const;
+    bool showInSimpleTree() const override;
 
-    QList<ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectAction> supportedActions(Node *node) const override;
 
-    bool canAddSubProject(const QString &proFilePath) const;
+    bool canAddSubProject(const QString &proFilePath) const override;
 
-    bool addSubProjects(const QStringList &proFilePaths);
-    bool removeSubProjects(const QStringList &proFilePaths);
+    bool addSubProjects(const QStringList &proFilePaths) override;
+    bool removeSubProjects(const QStringList &proFilePaths) override;
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool deleteFiles(const QStringList &filePaths);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool deleteFiles(const QStringList &filePaths) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     void refresh(QSet<QString> oldFileList = QSet<QString>());
 
@@ -379,26 +378,34 @@ private:
     QLabel *m_scriptLabel;
 };
 
-class PythonRunConfiguration : public RunConfiguration
+class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+
+    Q_PROPERTY(bool supportsDebugger READ supportsDebugger)
+    Q_PROPERTY(QString interpreter READ interpreter)
+    Q_PROPERTY(QString mainScript READ mainScript)
+    Q_PROPERTY(QString arguments READ arguments)
+
 public:
-    PythonRunConfiguration(Target *parent, Core::Id id);
+    PythonRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    QWidget *createConfigurationWidget();
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
-    bool isEnabled() const { return m_enabled; }
-    QString disabledReason() const;
+    QWidget *createConfigurationWidget() override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
+    bool isEnabled() const override { return m_enabled; }
+    QString disabledReason() const override;
 
+    bool supportsDebugger() const { return true; }
     QString mainScript() const { return m_mainScript; }
+    QString arguments() const;
     QString interpreter() const { return m_interpreter; }
     void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
     void setEnabled(bool b);
 
 private:
     friend class PythonRunConfigurationFactory;
-    PythonRunConfiguration(Target *parent, PythonRunConfiguration *source);
+    PythonRunConfiguration(ProjectExplorer::Target *parent, PythonRunConfiguration *source);
     QString defaultDisplayName() const;
 
     QString m_interpreter;
@@ -412,9 +419,9 @@ class PythonRunControl : public RunControl
 public:
     PythonRunControl(PythonRunConfiguration *runConfiguration, Core::Id mode);
 
-    void start();
-    StopResult stop();
-    bool isRunning() const { return m_running; }
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override { return m_running; }
 
 private:
     void processStarted();
@@ -501,6 +508,13 @@ QString PythonRunConfiguration::disabledReason() const
     return QString();
 }
 
+QString PythonRunConfiguration::arguments() const
+{
+    auto aspect = extraAspect<ArgumentsAspect>();
+    QTC_ASSERT(aspect, return QString());
+    return aspect->arguments();
+}
+
 PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration, QWidget *parent)
     : QWidget(parent), m_runConfiguration(runConfiguration)
 {
@@ -555,7 +569,7 @@ public:
         setObjectName(QLatin1String("PythonRunConfigurationFactory"));
     }
 
-    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const
+    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override
     {
         Q_UNUSED(mode);
         if (!canHandle(parent))
@@ -569,12 +583,12 @@ public:
         return allIds;
     }
 
-    QString displayNameForId(Core::Id id) const
+    QString displayNameForId(Core::Id id) const override
     {
         return scriptFromId(id);
     }
 
-    bool canCreate(Target *parent, Core::Id id) const
+    bool canCreate(Target *parent, Core::Id id) const override
     {
         if (!canHandle(parent))
             return false;
@@ -582,20 +596,20 @@ public:
         return project->files().contains(scriptFromId(id));
     }
 
-    bool canRestore(Target *parent, const QVariantMap &map) const
+    bool canRestore(Target *parent, const QVariantMap &map) const override
     {
         Q_UNUSED(parent);
         return idFromMap(map).name().startsWith(PythonRunConfigurationPrefix);
     }
 
-    bool canClone(Target *parent, RunConfiguration *source) const
+    bool canClone(Target *parent, RunConfiguration *source) const override
     {
         if (!canHandle(parent))
             return false;
         return source->id().name().startsWith(PythonRunConfigurationPrefix);
     }
 
-    RunConfiguration *clone(Target *parent, RunConfiguration *source)
+    RunConfiguration *clone(Target *parent, RunConfiguration *source) override
     {
         if (!canClone(parent, source))
             return 0;
@@ -605,12 +619,12 @@ public:
 private:
     bool canHandle(Target *parent) const { return dynamic_cast<PythonProject *>(parent->project()); }
 
-    RunConfiguration *doCreate(Target *parent, Core::Id id)
+    RunConfiguration *doCreate(Target *parent, Core::Id id) override
     {
         return new PythonRunConfiguration(parent, id);
     }
 
-    RunConfiguration *doRestore(Target *parent, const QVariantMap &map)
+    RunConfiguration *doRestore(Target *parent, const QVariantMap &map) override
     {
         Core::Id id(idFromMap(map));
         return new PythonRunConfiguration(parent, id);
@@ -855,24 +869,24 @@ ProjectNode *PythonProject::rootProjectNode() const
     return m_rootNode;
 }
 
-bool PythonProject::fromMap(const QVariantMap &map)
+Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (Project::fromMap(map, 0) != RestoreResult::Ok)
-        return false;
+    Project::RestoreResult res = Project::fromMap(map, errorMessage);
+    if (res == RestoreResult::Ok) {
+        Kit *defaultKit = KitManager::defaultKit();
+        if (!activeTarget() && defaultKit)
+            addTarget(createTarget(defaultKit));
 
-    Kit *defaultKit = KitManager::defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
+        refresh();
 
-    refresh();
-
-    QList<Target *> targetList = targets();
-    foreach (Target *t, targetList) {
-        foreach (const QString &file, m_files)
-            t->addRunConfiguration(new PythonRunConfiguration(t, idFromScript(file)));
+        QList<Target *> targetList = targets();
+        foreach (Target *t, targetList) {
+            foreach (const QString &file, m_files)
+                t->addRunConfiguration(new PythonRunConfiguration(t, idFromScript(file)));
+        }
     }
 
-    return true;
+    return res;
 }
 
 PythonProjectNode::PythonProjectNode(PythonProject *project, Core::IDocument *projectFile)
@@ -1108,7 +1122,8 @@ public:
 
 bool PythonRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE && dynamic_cast<PythonRunConfiguration *>(runConfiguration);
+    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE
+        && dynamic_cast<PythonRunConfiguration *>(runConfiguration);
 }
 
 RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)

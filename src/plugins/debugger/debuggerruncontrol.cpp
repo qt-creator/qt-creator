@@ -147,7 +147,8 @@ void DebuggerRunControl::start()
     QTC_ASSERT(m_engine, return);
     // User canceled input dialog asking for executable when working on library project.
     if (m_engine->runParameters().startMode == StartInternal
-        && m_engine->runParameters().executable.isEmpty()) {
+            && m_engine->runParameters().executable.isEmpty()
+            && m_engine->runParameters().interpreter.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
         emit started();
         emit finished();
@@ -438,6 +439,22 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (m_runConfig)
         m_debuggerAspect = m_runConfig->extraAspect<DebuggerRunConfigurationAspect>();
 
+    if (m_rp.displayName.isEmpty() && m_runConfig)
+        m_rp.displayName = m_runConfig->displayName();
+
+    if (runConfig->property("supportsDebugger").toBool()) {
+        QString mainScript = runConfig->property("mainScript").toString();
+        QString interpreter = runConfig->property("interpreter").toString();
+        if (!interpreter.isEmpty() && mainScript.endsWith(_(".py"))) {
+            m_rp.mainScript = mainScript;
+            m_rp.interpreter = interpreter;
+            QString args = runConfig->property("arguments").toString();
+            if (!args.isEmpty())
+                QtcProcess::addArg(&m_rp.processArgs, args);
+            m_rp.masterEngineType = PdbEngineType;
+        }
+    }
+
     if (m_debuggerAspect) {
         m_rp.multiProcess = m_debuggerAspect->useMultiProcess();
 
@@ -466,17 +483,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 QtcProcess::addArg(&m_rp.processArgs, QmlDebug::qmlDebugCommandLineArguments(
                                        QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort));
             }
-        }
-    }
-
-    if (m_rp.displayName.isEmpty() && m_runConfig)
-        m_rp.displayName = m_runConfig->displayName();
-
-    if (m_rp.masterEngineType == NoEngineType) {
-        if (m_rp.executable.endsWith(_(".py"))
-            || m_rp.executable == _("/usr/bin/python")
-            || m_rp.executable == _("/usr/bin/python3")) {
-                m_rp.masterEngineType = PdbEngineType;
         }
     }
 
@@ -566,6 +572,12 @@ void DebuggerRunControlCreator::createRunControl(Core::Id runMode)
 //
 ////////////////////////////////////////////////////////////////////////
 
+static bool isDebuggableScript(RunConfiguration *runConfig)
+{
+    QString mainScript = runConfig->property("mainScript").toString();
+    return mainScript.endsWith(_(".py")); // Only Python for now.
+}
+
 class DebuggerRunControlFactory : public IRunControlFactory
 {
 public:
@@ -592,7 +604,8 @@ public:
     bool canRun(RunConfiguration *runConfig, Core::Id mode) const override
     {
         return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
-                && qobject_cast<LocalApplicationRunConfiguration *>(runConfig);
+            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfig)
+                || isDebuggableScript(runConfig));
     }
 
     IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
