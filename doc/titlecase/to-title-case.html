@@ -4,17 +4,18 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Qt Title Case</title>
-  <script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="to-title-case.js"></script>
 
   <script type="text/javascript">
-    $(document).ready(function(){
-    $('#tester').submit(function(){
-    $('#titled').val($('#untitled').attr('value').toTitleCase());
-    return false;
+    document.addEventListener('DOMContentLoaded', function() {
+      var button = document.getElementById('button');
+      var untitled = document.getElementById('untitled');
+      var titled = document.getElementById('titled');
+      button.addEventListener('click', function() {
+        titled.value = untitled.value.toTitleCase();
+      });
     });
-    });
-    </script>
+  </script>
 </head>
 <body><div id="container">
 <h1>Qt to Title Case</h1>
@@ -23,7 +24,7 @@
 <form id="tester" action="">
   <p>
     <input id="untitled" type="text" value="Turn me into a title" />
-    <input type="submit" value="Convert &rarr;" />
+    <input id="button" type="button" value="Convert &rarr;" />
     <input id="titled" type="text">
   </p>
 </form>
