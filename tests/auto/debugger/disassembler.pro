@@ -1,5 +1,5 @@
 QTC_LIB_DEPENDS += utils
-QT = core network
+QT = core network widgets
 include(../qttest.pri)
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
