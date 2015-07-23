@@ -109,6 +109,7 @@ private:
 
 class AndroidDeviceModelDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
 public:
     AndroidDeviceModelDelegate(QObject * parent = 0)
         : QStyledItemDelegate(parent)
@@ -239,6 +240,7 @@ public:
 
 class AndroidDeviceModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     AndroidDeviceModel(int apiLevel, const QString &abi, AndroidConfigurations::Options options);
     QModelIndex index(int row, int column,
@@ -663,3 +665,5 @@ void AndroidDeviceDialog::defaultDeviceClear()
     m_ui->lookingForDeviceCancel->setVisible(false);
     m_defaultDevice.clear();
 }
+
+#include "androiddevicedialog.moc"
