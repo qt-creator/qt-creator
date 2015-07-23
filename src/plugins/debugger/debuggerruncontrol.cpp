@@ -350,8 +350,8 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
             m_kit = m_target->kit();
     }
 
-    // We might have get an executable from a local PID.
-    if (m_rp.executable.isEmpty()) {
+    // We might get an executable from a local PID.
+    if (m_rp.executable.isEmpty() && m_rp.attachPID != InvalidPid) {
         foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
             if (p.pid == m_rp.attachPID)
                 m_rp.executable = p.exe;
