@@ -76,14 +76,6 @@ TestCodeParser::~TestCodeParser()
     clearCache();
 }
 
-ProjectExplorer::Project *currentProject()
-{
-    const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
-    if (!session || !session->hasProjects())
-        return 0;
-    return session->startupProject();
-}
-
 void TestCodeParser::setState(State state)
 {
     // avoid triggering parse before code model parsing has finished
@@ -98,7 +90,8 @@ void TestCodeParser::setState(State state)
     if (m_parserState == Disabled) {
         m_fullUpdatePostponed = m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
-    } else if (m_parserState == Idle && m_dirty && currentProject()) {
+    } else if (m_parserState == Idle && m_dirty
+               && ProjectExplorer::SessionManager::startupProject()) {
         scanForTests(m_postponedFiles.toList());
     }
 }
@@ -115,7 +108,7 @@ void TestCodeParser::updateTestTree()
         return;
     }
 
-    if (ProjectExplorer::Project *project = currentProject()) {
+    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject()) {
         if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project)) {
             if (qmakeProject->asyncUpdateState() != QmakeProjectManager::QmakeProject::Base) {
                 m_fullUpdatePostponed = true;
@@ -490,7 +483,7 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
         return;
     }
 
-    ProjectExplorer::Project *project = currentProject();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project)
         return;
     const QString fileName = document->fileName();
@@ -515,7 +508,7 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
         return;
     }
 
-    ProjectExplorer::Project *project = currentProject();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project)
         return;
     const QString fileName = document->fileName();
@@ -545,7 +538,7 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 
 void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
-    if (project != currentProject())
+    if (project != ProjectExplorer::SessionManager::startupProject())
         return;
     if (!m_parserEnabled || m_parserState == Disabled)
         m_fullUpdatePostponed = true;
@@ -628,7 +621,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     bool isSmallChange = !isFullParse && fileList.size() < 6;
     QStringList list;
     if (isFullParse) {
-        list = currentProject()->files(ProjectExplorer::Project::AllFiles);
+        list = ProjectExplorer::SessionManager::startupProject()->files(ProjectExplorer::Project::AllFiles);
         if (list.isEmpty())
             return;
         m_parserState = FullParse;
@@ -896,7 +889,7 @@ void TestCodeParser::removeUnnamedQuickTestsByName(const QString &fileName)
 
 void TestCodeParser::onProFileEvaluated()
 {
-    ProjectExplorer::Project *project = currentProject();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project)
         return;
 
