@@ -111,7 +111,7 @@ private:
     QMap<QString, TestInfo> m_cppDocMap;
     QMap<QString, TestInfo> m_quickDocMap;
     QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
-    bool m_parserEnabled;
+    bool m_codeModelParsing;
     bool m_fullUpdatePostponed;
     bool m_partialUpdatePostponed;
     bool m_dirty;

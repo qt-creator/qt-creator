@@ -55,7 +55,7 @@ namespace Internal {
 TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
       m_model(parent),
-      m_parserEnabled(true),
+      m_codeModelParsing(false),
       m_fullUpdatePostponed(false),
       m_partialUpdatePostponed(false),
       m_dirty(true),
@@ -79,7 +79,7 @@ TestCodeParser::~TestCodeParser()
 void TestCodeParser::setState(State state)
 {
     // avoid triggering parse before code model parsing has finished
-    if (!m_parserEnabled)
+    if (m_codeModelParsing)
         return;
 
     if ((state == Disabled || state == Idle)
@@ -103,7 +103,7 @@ void TestCodeParser::emitUpdateTestTree()
 
 void TestCodeParser::updateTestTree()
 {
-    if (!m_parserEnabled) {
+    if (m_codeModelParsing) {
         m_fullUpdatePostponed = true;
         return;
     }
@@ -475,7 +475,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
 
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
-    if (!m_parserEnabled) {
+    if (m_codeModelParsing) {
         if (!m_fullUpdatePostponed) {
             m_partialUpdatePostponed = true;
             m_postponedFiles.insert(document->fileName());
@@ -500,7 +500,7 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
 
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 {
-    if (!m_parserEnabled) {
+    if (m_codeModelParsing) {
         if (!m_fullUpdatePostponed) {
             m_partialUpdatePostponed = true;
             m_postponedFiles.insert(document->fileName());
@@ -540,7 +540,7 @@ void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     if (project != ProjectExplorer::SessionManager::startupProject())
         return;
-    if (!m_parserEnabled || m_parserState == Disabled)
+    if (m_codeModelParsing || m_parserState == Disabled)
         m_fullUpdatePostponed = true;
     else
         emitUpdateTestTree();
@@ -727,9 +727,8 @@ void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
 
 void TestCodeParser::onTaskStarted(Core::Id type)
 {
-    if (type != CppTools::Constants::TASK_INDEX)
-        return;
-    m_parserEnabled = false;
+    if (type == CppTools::Constants::TASK_INDEX)
+        m_codeModelParsing = true;
 }
 
 void TestCodeParser::onAllTasksFinished(Core::Id type)
@@ -737,7 +736,7 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
     // only CPP parsing is relevant as we trigger Qml parsing internally anyway
     if (type != CppTools::Constants::TASK_INDEX)
         return;
-    m_parserEnabled = true;
+    m_codeModelParsing = false;
     // avoid illegal parser state if respective widgets became hidden while parsing
     setState(Idle);
 
