@@ -28,9 +28,7 @@
 **
 ****************************************************************************/
 
-
-#include <clangcompletioncontextanalyzer.h>
-
+#include <clangcodemodel/clangcompletioncontextanalyzer.h>
 #include <clangcodemodel/clangcompletionassistinterface.h>
 
 #include <utils/qtcassert.h>
@@ -44,7 +42,9 @@
 
 namespace ClangCodeModel {
 namespace Internal {
-void PrintTo(const ClangCompletionContextAnalyzer::CompletionAction &completionAction, ::std::ostream* os)
+
+void PrintTo(const ClangCompletionContextAnalyzer::CompletionAction &completionAction,
+             ::std::ostream* os)
 {
     using CCA = ClangCompletionContextAnalyzer;
 
@@ -58,12 +58,15 @@ void PrintTo(const ClangCompletionContextAnalyzer::CompletionAction &completionA
         case CCA::CompleteSlot: *os << "CompleteSlot"; break;
     }
 }
-}
-}
+
+} // Internal
+} // ClangCodeModel
 
 namespace {
 
+using ::testing::PrintToString;
 using ClangCodeModel::Internal::ClangCompletionAssistInterface;
+using CCA = ClangCodeModel::Internal::ClangCompletionContextAnalyzer;
 
 class TestDocument
 {
@@ -79,49 +82,6 @@ public:
     int position;
 };
 
-using ::testing::PrintToString;
-
-MATCHER_P4(HasResult, completionAction, positionForClang, positionForProposal, positionInText,
-           std::string(negation ? "hasn't" : "has")
-           + " result of completion action " + PrintToString(completionAction)
-           + " and position for clang " + PrintToString(positionForClang)
-           + " and position for proprosal " + PrintToString(positionForProposal))
-{
-    int positionForClangDifference = arg.positionForClang() - positionInText;
-    int positionForProposalDifference = arg.positionForProposal() - positionInText;
-    if (arg.completionAction() != completionAction
-            || positionForClangDifference != positionForClang
-            || positionForProposalDifference != positionForProposal) {
-        *result_listener << "completion action is " << PrintToString(arg.completionAction())
-                         << " and position for clang is " <<  PrintToString(positionForClangDifference)
-                         << " and position for proprosal is " <<  PrintToString(positionForProposalDifference);
-        return false;
-    }
-
-    return true;
-}
-
-MATCHER_P4(HasResultWithoutClangDifference, completionAction, positionForClang, positionForProposal, positionInText,
-           std::string(negation ? "hasn't" : "has")
-           + " result of completion action " + PrintToString(completionAction)
-           + " and position for clang " + PrintToString(positionForClang)
-           + " and position for proprosal " + PrintToString(positionForProposal))
-{
-    int positionForProposalDifference = arg.positionForProposal() - positionInText;
-    if (arg.completionAction() != completionAction
-            || arg.positionForClang() != positionForClang
-            || positionForProposalDifference != positionForProposal) {
-        *result_listener << "completion action is " << PrintToString(arg.completionAction())
-                         << " and position for clang is " <<  PrintToString(arg.positionForClang())
-                         << " and position for proprosal is " <<  PrintToString(positionForProposalDifference);
-        return false;
-    }
-
-    return true;
-}
-
-using CCA = ClangCodeModel::Internal::ClangCompletionContextAnalyzer;
-
 bool isPassThrough(CCA::CompletionAction completionAction)
 {
     return completionAction != CCA::PassThroughToLibClang
@@ -130,11 +90,60 @@ bool isPassThrough(CCA::CompletionAction completionAction)
 
 MATCHER(IsPassThroughToClang, std::string(negation ? "isn't" : "is") + " passed through to Clang")
 {
-    auto completionAction = arg.completionAction();
-
+    const auto completionAction = arg.completionAction();
     if (isPassThrough(completionAction)) {
         *result_listener << "completion action is " << PrintToString(completionAction);
+        return false;
+    }
 
+    return true;
+}
+
+// Offsets are relative to positionInText
+MATCHER_P4(HasResult,
+           completionAction,
+           positionForClangOffset,
+           positionForProposalOffset,
+           positionInText,
+           std::string(negation ? "hasn't" : "has")
+           + " result of completion action " + PrintToString(completionAction)
+           + " and offset for clang " + PrintToString(positionForClangOffset)
+           + " and offset for proprosal " + PrintToString(positionForProposalOffset))
+{
+    const int actualPositionForClangOffset = arg.positionForClang() - positionInText;
+    const int actualPositionForProposalOffset = arg.positionForProposal() - positionInText;
+
+    if (arg.completionAction() != completionAction
+            || actualPositionForClangOffset != positionForClangOffset
+            || actualPositionForProposalOffset != positionForProposalOffset) {
+        *result_listener << "completion action is " << PrintToString(arg.completionAction())
+                         << " and offset for clang is " <<  PrintToString(actualPositionForClangOffset)
+                         << " and offset for proprosal is " <<  PrintToString(actualPositionForProposalOffset);
+        return false;
+    }
+
+    return true;
+}
+
+// Offsets are relative to positionInText
+MATCHER_P4(HasResultWithoutClangDifference,
+           completionAction,
+           positionForClangOffset,
+           positionForProposalOffset,
+           positionInText,
+           std::string(negation ? "hasn't" : "has")
+           + " result of completion action " + PrintToString(completionAction)
+           + " and offset for clang " + PrintToString(positionForClangOffset)
+           + " and offset for proprosal " + PrintToString(positionForProposalOffset))
+{
+    const int actualPositionForProposalOffset = arg.positionForProposal() - positionInText;
+
+    if (arg.completionAction() != completionAction
+            || arg.positionForClang() != positionForClangOffset
+            || actualPositionForProposalOffset != positionForProposalOffset) {
+        *result_listener << "completion action is " << PrintToString(arg.completionAction())
+                         << " and offset for clang is " <<  PrintToString(arg.positionForClang())
+                         << " and offset for proprosal is " <<  PrintToString(actualPositionForProposalOffset);
         return false;
     }
 
@@ -144,18 +153,17 @@ MATCHER(IsPassThroughToClang, std::string(negation ? "isn't" : "is") + " passed 
 class ClangCompletionContextAnalyzer : public ::testing::Test
 {
 protected:
-    ClangCodeModel::Internal::ClangCompletionContextAnalyzer runAnalyzer(const char *text);
+    CCA runAnalyzer(const char *text);
 
 protected:
     int positionInText = 0;
 };
 
-ClangCodeModel::Internal::ClangCompletionContextAnalyzer ClangCompletionContextAnalyzer::runAnalyzer(const char *text)
+CCA ClangCompletionContextAnalyzer::runAnalyzer(const char *text)
 {
     const TestDocument testDocument(text);
     ClangCompletionAssistInterface assistInterface(testDocument.source, testDocument.position);
-    ClangCodeModel::Internal::ClangCompletionContextAnalyzer analyzer(&assistInterface,
-                                                                      CPlusPlus::LanguageFeatures::defaultFeatures());
+    CCA analyzer(&assistInterface, CPlusPlus::LanguageFeatures::defaultFeatures());
 
     positionInText = testDocument.position;
 
@@ -163,7 +171,6 @@ ClangCodeModel::Internal::ClangCompletionContextAnalyzer ClangCompletionContextA
 
     return analyzer;
 }
-
 
 TEST_F(ClangCompletionContextAnalyzer, AtEndOfDotMember)
 {
@@ -430,6 +437,5 @@ TEST_F(ClangCompletionContextAnalyzer, AsteriskLeftParen)
 
     ASSERT_THAT(analyzer, IsPassThroughToClang());
 }
+
 }
-
-

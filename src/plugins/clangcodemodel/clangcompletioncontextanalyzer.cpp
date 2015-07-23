@@ -91,15 +91,14 @@ void ClangCompletionContextAnalyzer::analyze()
     m_positionForProposal = activationSequenceContextProcessor.positionAfterOperator();
 
     const bool actionIsSet = handleNonFunctionCall(afterOperatorPosition);
-
     if (!actionIsSet) {
         handleCommaInFunctionCall();
         handleFunctionCall(afterOperatorPosition);
     }
 }
 
-ClangCompletionContextAnalyzer::FunctionInfo ClangCompletionContextAnalyzer::analyzeFunctionCall(
-        int endOfOperator) const
+ClangCompletionContextAnalyzer::FunctionInfo
+ClangCompletionContextAnalyzer::analyzeFunctionCall(int endOfOperator) const
 {
     int index = skipPrecedingWhitespace(endOfOperator);
     QTextCursor textCursor(m_interface->textDocument());
@@ -150,7 +149,8 @@ void ClangCompletionContextAnalyzer::setActionAndClangPosition(CompletionAction 
     m_positionForClang = position;
 }
 
-void ClangCompletionContextAnalyzer::setAction(ClangCompletionContextAnalyzer::CompletionAction action)
+void
+ClangCompletionContextAnalyzer::setAction(ClangCompletionContextAnalyzer::CompletionAction action)
 {
     setActionAndClangPosition(action, -1);
 }
