@@ -50,15 +50,16 @@ public:
     ActivationSequenceContextProcessor(const ClangCompletionAssistInterface *assistInterface);
 
     CPlusPlus::Kind completionKind() const;
+    int startOfNamePosition() const;   // e.g. points to 'b' in "foo.bar<CURSOR>"
+    int operatorStartPosition() const; // e.g. points to '.' for "foo.bar<CURSOR>"
 
     const QTextCursor &textCursor_forTestOnly() const;
 
-    int positionAfterOperator() const;
-    int positionBeforeOperator() const;
-
 protected:
     void process();
-    void skipeWhiteSpacesAndIdentifierBeforeCursor();
+    int findStartOfNonSpaceChar(int startPosition);
+    int findStartOfName(int startPosition);
+    void goBackToStartOfName();
     void processActivationSequence();
     void processStringLiteral();
     void processComma();
@@ -69,7 +70,7 @@ protected:
     void processSlashOutsideOfAString();
     void processLeftParen();
     void processPreprocessorInclude();
-    void resetPositionForEOFCompletionKind();
+    void resetPositionsForEOFCompletionKind();
 
     bool isCompletionKindStringLiteralOrSlash() const;
     bool isProbablyPreprocessorIncludeDirective() const;
@@ -80,9 +81,9 @@ private:
     CPlusPlus::Token m_token;
     const ClangCompletionAssistInterface *m_assistInterface;
     int m_tokenIndex;
-    int m_positionInDocument;
-    int m_positionAfterOperator;
-    int m_positionBeforeOperator;
+    const int m_positionInDocument;
+    int m_startOfNamePosition;
+    int m_operatorStartPosition;
     CPlusPlus::Kind m_completionKind;
 };
 

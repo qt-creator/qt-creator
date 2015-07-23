@@ -172,6 +172,20 @@ CCA ClangCompletionContextAnalyzer::runAnalyzer(const char *text)
     return analyzer;
 }
 
+TEST_F(ClangCompletionContextAnalyzer, WordsBeforeCursor)
+{
+    auto analyzer = runAnalyzer("foo bar@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -3, -3, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, AfterSpace)
+{
+    auto analyzer = runAnalyzer("foo @");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, AtEndOfDotMember)
 {
     auto analyzer = runAnalyzer("o.mem@");
@@ -183,7 +197,7 @@ TEST_F(ClangCompletionContextAnalyzer, AtEndOfDotMemberWithSpaceInside)
 {
     auto analyzer = runAnalyzer("o. mem@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -4, -4, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -3, -3, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, AtBeginOfDotMember)
@@ -197,7 +211,7 @@ TEST_F(ClangCompletionContextAnalyzer, AtBeginOfDotMemberWithSpaceInside)
 {
     auto analyzer = runAnalyzer("o. @mem");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -1, -1, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, AtEndOfArrow)
@@ -211,7 +225,7 @@ TEST_F(ClangCompletionContextAnalyzer, AtEndOfArrowWithSpaceInside)
 {
     auto analyzer = runAnalyzer("o-> mem@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -4, -4, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -3, -3, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, AtBeginOfArrow)
@@ -225,7 +239,7 @@ TEST_F(ClangCompletionContextAnalyzer, AtBeginOfArrowWithSpaceInside)
 {
     auto analyzer = runAnalyzer("o-> @mem");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -1, -1, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtCall)
@@ -246,7 +260,7 @@ TEST_F(ClangCompletionContextAnalyzer, ParameteTwoWithSpaceAtCall)
 {
     auto analyzer = runAnalyzer("f(1, @");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -1, -1, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, -3, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtSignal)
@@ -396,11 +410,43 @@ TEST_F(ClangCompletionContextAnalyzer, DoxygenMarkerInNonDoxygenComment2)
     ASSERT_THAT(analyzer, IsPassThroughToClang());
 }
 
-TEST_F(ClangCompletionContextAnalyzer, OneLineComment)
+TEST_F(ClangCompletionContextAnalyzer, AtEndOfOneLineComment)
 {
-    auto analyzer = runAnalyzer("// text@");
+    auto analyzer = runAnalyzer("// comment@");
 
     ASSERT_THAT(analyzer, IsPassThroughToClang());
+}
+
+TEST_F(ClangCompletionContextAnalyzer, AfterOneLineCommentLine)
+{
+    auto analyzer = runAnalyzer("// comment\n"
+                                "@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, AfterEmptyOneLineComment)
+{
+    auto analyzer = runAnalyzer("//\n"
+                                "@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, AfterOneLineDoxygenComment1)
+{
+    auto analyzer = runAnalyzer("/// comment\n"
+                                "@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, AfterOneLineDoxygenComment2)
+{
+    auto analyzer = runAnalyzer("//! comment \n"
+                                "@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, BeginEndComment)

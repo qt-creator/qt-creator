@@ -47,14 +47,14 @@ MATCHER_P3(HasResult, completionKind, offset, newPosition,
            std::string(negation ? "hasn't" : "has")
            + " result of completion kind " + PrintToString(Token::name(completionKind))
            + ", offset " + PrintToString(offset)
-           + " and new position in document" + PrintToString(newPosition))
+           + " and new operator start position" + PrintToString(newPosition))
 {
     if (arg.completionKind() != completionKind
             || arg.offset() != offset
-            || arg.position() != newPosition) {
+            || arg.operatorStartPosition() != newPosition) {
         *result_listener << "completion kind is " << PrintToString(Token::name(arg.completionKind()))
                          << ", offset is " <<  PrintToString(arg.offset())
-                         << " and new position in document is " <<  PrintToString(arg.position());
+                         << " and new operator start position is " <<  PrintToString(arg.operatorStartPosition());
         return false;
     }
 

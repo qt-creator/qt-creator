@@ -71,7 +71,7 @@ int ActivationSequenceProcessor::offset() const
     return m_offset;
 }
 
-int ActivationSequenceProcessor::position() const
+int ActivationSequenceProcessor::operatorStartPosition() const
 {
     return m_positionInDocument - m_offset;
 }

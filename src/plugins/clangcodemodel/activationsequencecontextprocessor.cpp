@@ -46,8 +46,8 @@ ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(const Cla
     : m_textCursor(assistInterface->textDocument()),
       m_assistInterface(assistInterface),
       m_positionInDocument(assistInterface->position()),
-      m_positionAfterOperator(m_positionInDocument),
-      m_positionBeforeOperator(m_positionAfterOperator)
+      m_startOfNamePosition(m_positionInDocument),
+      m_operatorStartPosition(m_positionInDocument)
 
 {
     m_textCursor.setPosition(m_positionInDocument);
@@ -65,19 +65,19 @@ const QTextCursor &ActivationSequenceContextProcessor::textCursor_forTestOnly() 
     return m_textCursor;
 }
 
-int ActivationSequenceContextProcessor::positionAfterOperator() const
+int ActivationSequenceContextProcessor::startOfNamePosition() const
 {
-    return m_positionAfterOperator;
+    return m_startOfNamePosition;
 }
 
-int ActivationSequenceContextProcessor::positionBeforeOperator() const
+int ActivationSequenceContextProcessor::operatorStartPosition() const
 {
-    return m_positionBeforeOperator;
+    return m_operatorStartPosition;
 }
 
 void ActivationSequenceContextProcessor::process()
 {
-    skipeWhiteSpacesAndIdentifierBeforeCursor();
+    goBackToStartOfName();
     processActivationSequence();
 
     if (m_completionKind != CPlusPlus::T_EOF_SYMBOL) {
@@ -90,20 +90,21 @@ void ActivationSequenceContextProcessor::process()
         processSlashOutsideOfAString();
         processLeftParen();
         processPreprocessorInclude();
-        resetPositionForEOFCompletionKind();
     }
+
+    resetPositionsForEOFCompletionKind();
 }
 
 void ActivationSequenceContextProcessor::processActivationSequence()
 {
-    const auto activationSequence = m_assistInterface->textAt(m_positionInDocument - 3, 3);
+    const int nonSpacePosition = findStartOfNonSpaceChar(m_startOfNamePosition);
+    const auto activationSequence = m_assistInterface->textAt(nonSpacePosition - 3, 3);
     ActivationSequenceProcessor activationSequenceProcessor(activationSequence,
-                                                            m_positionInDocument,
+                                                            nonSpacePosition,
                                                             true);
 
     m_completionKind = activationSequenceProcessor.completionKind();
-    m_positionBeforeOperator = activationSequenceProcessor.position();
-
+    m_operatorStartPosition = activationSequenceProcessor.operatorStartPosition();
 }
 
 void ActivationSequenceContextProcessor::processStringLiteral()
@@ -221,27 +222,37 @@ void ActivationSequenceContextProcessor::processPreprocessorInclude()
     }
 }
 
-void ActivationSequenceContextProcessor::resetPositionForEOFCompletionKind()
+void ActivationSequenceContextProcessor::resetPositionsForEOFCompletionKind()
 {
     if (m_completionKind == CPlusPlus::T_EOF_SYMBOL)
-        m_positionBeforeOperator = m_positionInDocument;
+        m_operatorStartPosition = m_positionInDocument;
 }
 
-void ActivationSequenceContextProcessor::skipeWhiteSpacesAndIdentifierBeforeCursor()
+int ActivationSequenceContextProcessor::findStartOfNonSpaceChar(int startPosition)
 {
-    QTextDocument *document = m_assistInterface->textDocument();
+    int position = startPosition;
+    while (m_assistInterface->characterAt(position - 1).isSpace())
+        --position;
+    return position;
+}
 
-    const QRegExp findNonWhiteSpaceRegularExpression(QStringLiteral("[^\\s\\w]"));
+int ActivationSequenceContextProcessor::findStartOfName(int startPosition)
+{
+    int position = startPosition;
+    QChar character;
+    do {
+        character = m_assistInterface->characterAt(--position);
+    } while (character.isLetterOrNumber() || character == QLatin1Char('_'));
 
-    auto nonWhiteSpaceTextCursor = document->find(findNonWhiteSpaceRegularExpression,
-                                                  m_positionInDocument,
-                                                  QTextDocument::FindBackward);
+    return position + 1;
+}
 
-    if (!nonWhiteSpaceTextCursor.isNull()) {
-        m_positionInDocument = nonWhiteSpaceTextCursor.position();
-        m_positionAfterOperator = m_positionInDocument;
-        m_textCursor.setPosition(m_positionInDocument);
-    }
+void ActivationSequenceContextProcessor::goBackToStartOfName()
+{
+    m_startOfNamePosition = findStartOfName(m_positionInDocument);
+
+    if (m_startOfNamePosition != m_positionInDocument)
+        m_textCursor.setPosition(m_startOfNamePosition);
 }
 
 } // namespace Internal

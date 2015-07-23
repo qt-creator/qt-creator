@@ -363,7 +363,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
 
     *kind = activationSequenceProcessor.completionKind();
 
-    int start = activationSequenceProcessor.position();
+    int start = activationSequenceProcessor.operatorStartPosition();
     if (start != positionInDocument) {
         QTextCursor tc(m_interface->textDocument());
         tc.setPosition(positionInDocument);

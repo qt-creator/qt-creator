@@ -86,9 +86,9 @@ void ClangCompletionContextAnalyzer::analyze()
 
     ActivationSequenceContextProcessor activationSequenceContextProcessor(m_interface);
     m_completionOperator = activationSequenceContextProcessor.completionKind();
-    int afterOperatorPosition = activationSequenceContextProcessor.positionAfterOperator();
-    m_positionEndOfExpression = activationSequenceContextProcessor.positionBeforeOperator();
-    m_positionForProposal = activationSequenceContextProcessor.positionAfterOperator();
+    int afterOperatorPosition = activationSequenceContextProcessor.startOfNamePosition();
+    m_positionEndOfExpression = activationSequenceContextProcessor.operatorStartPosition();
+    m_positionForProposal = activationSequenceContextProcessor.startOfNamePosition();
 
     const bool actionIsSet = handleNonFunctionCall(afterOperatorPosition);
     if (!actionIsSet) {

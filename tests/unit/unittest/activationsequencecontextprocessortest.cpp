@@ -54,7 +54,7 @@ TEST(ActivationSequeneContextProcessor, TextCursorPosition)
     ClangCompletionAssistInterface interface("foobar", 4);
     ContextProcessor processor{&interface};
 
-    ASSERT_THAT(processor.textCursor_forTestOnly().position(), 4);
+    ASSERT_THAT(processor.textCursor_forTestOnly().position(), 0);
 }
 
 TEST(ActivationSequeneContextProcessor, StringLiteral)

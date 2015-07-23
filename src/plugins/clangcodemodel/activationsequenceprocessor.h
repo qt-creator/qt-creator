@@ -47,7 +47,7 @@ public:
 
     CPlusPlus::Kind completionKind() const;
     int offset() const;
-    int position() const;
+    int operatorStartPosition() const; // e.g. points to '.' for "foo.bar<CURSOR>"
 
 private:
     void extractCharactersBeforePosition(const QString &activationString);
