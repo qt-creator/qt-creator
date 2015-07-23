@@ -133,14 +133,14 @@ TEST(ActivationSequenceProcessor, ArrowStar)
 
 TEST(ActivationSequenceProcessor, DoxyGenCommentBackSlash)
 {
-    ActivationSequenceProcessor processor(QStringLiteral("\\ "), 3, true);
+    ActivationSequenceProcessor processor(QStringLiteral(" \\"), 3, true);
 
     ASSERT_THAT(processor, HasResult(T_DOXY_COMMENT, 1, 2));
 }
 
 TEST(ActivationSequenceProcessor, DoxyGenCommentAt)
 {
-    ActivationSequenceProcessor processor(QStringLiteral("@ "), 2, true);
+    ActivationSequenceProcessor processor(QStringLiteral(" @"), 2, true);
 
     ASSERT_THAT(processor, HasResult(T_DOXY_COMMENT, 1, 1));
 }
@@ -182,7 +182,7 @@ TEST(ActivationSequenceProcessor, PositionIsOne)
 
 TEST(ActivationSequenceProcessor, PositionIsTwo)
 {
-    ActivationSequenceProcessor processor(QStringLiteral("@ x"), 2, true);
+    ActivationSequenceProcessor processor(QStringLiteral(" @x"), 2, true);
 
     ASSERT_THAT(processor, HasResult(T_DOXY_COMMENT, 1, 1));
 }

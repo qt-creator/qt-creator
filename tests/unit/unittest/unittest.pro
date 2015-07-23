@@ -12,6 +12,7 @@ GTEST_DIR = $$GMOCK_DIR/gtest
 requires(exists($$GMOCK_DIR))
 !exists($$GMOCK_DIR):message("No gmock is found! To enabe unit tests set GMOCK_DIR")
 
+INCLUDEPATH += ../mockup
 INCLUDEPATH += $$GTEST_DIR $$GTEST_DIR/include $$GMOCK_DIR $$GMOCK_DIR/include
 
 include(../../../src/libs/sqlite/sqlite-lib.pri)
@@ -47,7 +48,6 @@ SOURCES += main.cpp \
     clientserverinprocesstest.cpp \
     clientserveroutsideprocess.cpp \
     codecompletiontest.cpp \
-    ../../../src/libs/utils/qtcassert.cpp \
     clangstringtest.cpp \
     translationunittest.cpp \
     clangcodecompleteresultstest.cpp \
@@ -58,12 +58,13 @@ SOURCES += main.cpp \
     translationunitstest.cpp \
     completionchunkstotextconvertertest.cpp \
     lineprefixertest.cpp \
-    activationsequenceprocessortest.cpp
+    activationsequenceprocessortest.cpp \
+    clangcompletioncontextanalyzertest.cpp \
+    activationsequencecontextprocessortest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \
     spydummy.h \
-    ../../../src/libs/utils/qtcassert.h \
     mockipclient.h \
     mockipcserver.h
 

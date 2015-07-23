@@ -28,32 +28,25 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCOMPLETIONCONTEXTANALYZERTEST_H
-#define CLANGCOMPLETIONCONTEXTANALYZERTEST_H
+#ifndef ASSISTENUMS_H
+#define ASSISTENUMS_H
 
-#include <QObject>
+namespace TextEditor {
 
-namespace ClangCodeModel {
-namespace Internal {
-namespace Tests {
-
-class ClangCompletionContextAnalyzerTest : public QObject
+enum AssistKind
 {
-    Q_OBJECT
-
-private slots:
-    void testPassThroughToClangAndSignalSlotRecognition();
-    void testPassThroughToClangAndSignalSlotRecognition_data();
-
-    void testSpecialCompletionRecognition();
-    void testSpecialCompletionRecognition_data();
-
-    void testAvoidSpecialCompletionRecognition();
-    void testAvoidSpecialCompletionRecognition_data();
+    Completion,
+    QuickFix,
+    FollowSymbol
 };
 
-} // namespace Tests
-} // namespace Internal
-} // namespace ClangCodeModel
+enum AssistReason
+{
+    IdleEditor,
+    ActivationCharacter,
+    ExplicitlyInvoked
+};
 
-#endif // CLANGCOMPLETIONCONTEXTANALYZERTEST_H
+} // TextEditor
+
+#endif // ASSISTENUMS_H
