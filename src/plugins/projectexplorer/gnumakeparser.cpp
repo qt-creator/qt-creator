@@ -204,8 +204,6 @@ QStringList GnuMakeParser::searchDirectories() const
 #   include "projectexplorer.h"
 #   include "projectexplorerconstants.h"
 
-#   include "metatypedeclarations.h"
-
 GnuMakeParserTester::GnuMakeParserTester(GnuMakeParser *p, QObject *parent) :
     QObject(parent),
     parser(p)

@@ -91,4 +91,3 @@ bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
 } //namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Task)
-Q_DECLARE_METATYPE(QList<ProjectExplorer::Task>)

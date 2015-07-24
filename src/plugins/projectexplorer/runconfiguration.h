@@ -406,6 +406,3 @@ private:
 
 } // namespace ProjectExplorer
 
-// Allow a RunConfiguration to be stored in a QVariant
-Q_DECLARE_METATYPE(ProjectExplorer::RunConfiguration*)
-Q_DECLARE_METATYPE(ProjectExplorer::RunControl*)

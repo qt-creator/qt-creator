@@ -30,7 +30,6 @@
 #include "projectexplorer_export.h"
 
 #include "ioutputparser.h"
-#include "metatypedeclarations.h"
 #include "task.h"
 
 namespace ProjectExplorer {

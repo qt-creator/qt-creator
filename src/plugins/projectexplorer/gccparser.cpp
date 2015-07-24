@@ -186,7 +186,6 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
 #   include <QTest>
 
 #   include "projectexplorer.h"
-#   include "metatypedeclarations.h"
 #   include "outputparser_test.h"
 
 void ProjectExplorerPlugin::testGccOutputParsers_data()

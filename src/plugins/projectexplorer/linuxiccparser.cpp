@@ -128,7 +128,6 @@ void LinuxIccParser::doFlush()
 #ifdef WITH_TESTS
 #   include <QTest>
 #   include "projectexplorer.h"
-#   include "metatypedeclarations.h"
 #   include "outputparser_test.h"
 
 void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()

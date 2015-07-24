@@ -121,8 +121,6 @@ void XcodebuildParser::stdError(const QString &line)
 #   include "outputparser_test.h"
 #   include "projectexplorer.h"
 
-#   include "metatypedeclarations.h"
-
 using namespace ProjectExplorer;
 
 Q_DECLARE_METATYPE(ProjectExplorer::XcodebuildParser::XcodebuildStatus)

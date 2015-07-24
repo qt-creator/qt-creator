@@ -85,7 +85,6 @@ void QtParser::stdError(const QString &line)
 
 #   include "qtsupportplugin.h"
 #   include <projectexplorer/projectexplorerconstants.h>
-#   include <projectexplorer/metatypedeclarations.h>
 #   include <projectexplorer/outputparser_test.h>
 
 using namespace ProjectExplorer;

@@ -82,4 +82,3 @@ PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::ProjectConfiguration *)

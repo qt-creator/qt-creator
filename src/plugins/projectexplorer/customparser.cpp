@@ -178,7 +178,6 @@ bool CustomParser::parseLine(const QString &rawLine, CustomParserExpression::Cus
 #   include <QTest>
 
 #   include "projectexplorer.h"
-#   include "metatypedeclarations.h"
 #   include "outputparser_test.h"
 
 void ProjectExplorerPlugin::testCustomOutputParsers_data()

@@ -42,4 +42,3 @@ public:
 };
 
 }
-Q_DECLARE_METATYPE(ProjectExplorer::IPotentialKit*)

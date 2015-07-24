@@ -153,4 +153,3 @@ signals:
 
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::BuildConfiguration *)

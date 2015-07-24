@@ -95,7 +95,6 @@ QtcPlugin {
             "linuxiccparser.cpp", "linuxiccparser.h",
             "localapplicationruncontrol.cpp", "localapplicationruncontrol.h",
             "localenvironmentaspect.cpp", "localenvironmentaspect.h",
-            "metatypedeclarations.h",
             "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
             "namedwidget.cpp", "namedwidget.h",
             "nodesvisitor.cpp", "nodesvisitor.h",

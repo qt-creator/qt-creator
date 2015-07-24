@@ -105,7 +105,6 @@ HEADERS += projectexplorer.h \
     abstractprocessstep.h \
     taskhub.h \
     localapplicationruncontrol.h \
-    metatypedeclarations.h \
     headerpath.h \
     gcctoolchainfactories.h \
     appoutputpane.h \

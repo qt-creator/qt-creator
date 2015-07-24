@@ -127,7 +127,6 @@ void ClangParser::stdError(const QString &line)
 #   include <QTest>
 
 #   include "projectexplorer.h"
-#   include "metatypedeclarations.h"
 #   include "outputparser_test.h"
 
 void ProjectExplorerPlugin::testClangOutputParser_data()
