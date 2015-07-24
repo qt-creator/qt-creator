@@ -42,8 +42,6 @@ const char UCMANGLER_ID[] = "TextEditor::UppercaseMangler";
 const char LCMANGLER_ID[] = "TextEditor::LowercaseMangler";
 const char TCMANGLER_ID[] = "TextEditor::TitlecaseMangler";
 
-Q_DECLARE_METATYPE(QList<int>)
-
 // --------------------------------------------------------------------
 // Manglers:
 // --------------------------------------------------------------------

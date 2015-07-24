@@ -50,8 +50,6 @@ using namespace Core;
 using namespace Help;
 using namespace Help::Internal;
 
-Q_DECLARE_METATYPE(ILocatorFilter*)
-
 HelpIndexFilter::HelpIndexFilter()
     : m_needsUpdate(true)
 {

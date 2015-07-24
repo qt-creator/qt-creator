@@ -191,7 +191,7 @@ void DiffEditorPlugin::diff()
 #include "diffutils.h"
 
 Q_DECLARE_METATYPE(DiffEditor::ChunkData)
-Q_DECLARE_METATYPE(QList<DiffEditor::FileData>)
+Q_DECLARE_METATYPE(DiffEditor::FileData)
 
 static inline QString _(const char *string) { return QString::fromLatin1(string); }
 

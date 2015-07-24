@@ -37,8 +37,7 @@
 
 #include <diffeditor/differ.h>
 
-Q_DECLARE_METATYPE(DiffEditor::Diff);
-Q_DECLARE_METATYPE(QList<DiffEditor::Diff>);
+Q_DECLARE_METATYPE(DiffEditor::Diff)
 
 using namespace DiffEditor;
 

@@ -215,6 +215,5 @@ QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelN
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)
-Q_DECLARE_METATYPE(QList<QmlDesigner::ModelNode>)
 
 #endif // MODELNODE_H

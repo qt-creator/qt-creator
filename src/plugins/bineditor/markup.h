@@ -53,6 +53,6 @@ public:
 
 } // namespace BinEditor
 
-Q_DECLARE_METATYPE(QList<BinEditor::Markup>)
+Q_DECLARE_METATYPE(BinEditor::Markup)
 
 #endif // MARKUP_H

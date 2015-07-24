@@ -49,8 +49,6 @@
 
 using namespace TextEditor;
 
-Q_DECLARE_METATYPE(TextEditor::ICodeStylePreferences *)
-
 namespace TextEditor {
 namespace Internal {
 
