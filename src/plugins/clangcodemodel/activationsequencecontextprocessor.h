@@ -55,10 +55,13 @@ public:
 
     const QTextCursor &textCursor_forTestOnly() const;
 
+    static int findStartOfName(const TextEditor::AssistInterface *assistInterface,
+                               int startPosition);
+    static int skipPrecedingWhitespace(const TextEditor::AssistInterface *assistInterface,
+                                       int startPosition);
+
 protected:
     void process();
-    int findStartOfNonSpaceChar(int startPosition);
-    int findStartOfName(int startPosition);
     void goBackToStartOfName();
     void processActivationSequence();
     void processStringLiteral();

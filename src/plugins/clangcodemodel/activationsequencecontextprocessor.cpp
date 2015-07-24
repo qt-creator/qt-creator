@@ -97,7 +97,7 @@ void ActivationSequenceContextProcessor::process()
 
 void ActivationSequenceContextProcessor::processActivationSequence()
 {
-    const int nonSpacePosition = findStartOfNonSpaceChar(m_startOfNamePosition);
+    const int nonSpacePosition = skipPrecedingWhitespace(m_assistInterface, m_startOfNamePosition);
     const auto activationSequence = m_assistInterface->textAt(nonSpacePosition - 3, 3);
     ActivationSequenceProcessor activationSequenceProcessor(activationSequence,
                                                             nonSpacePosition,
@@ -228,28 +228,40 @@ void ActivationSequenceContextProcessor::resetPositionsForEOFCompletionKind()
         m_operatorStartPosition = m_positionInDocument;
 }
 
-int ActivationSequenceContextProcessor::findStartOfNonSpaceChar(int startPosition)
+int ActivationSequenceContextProcessor::skipPrecedingWhitespace(
+        const TextEditor::AssistInterface *assistInterface,
+        int startPosition)
 {
     int position = startPosition;
-    while (m_assistInterface->characterAt(position - 1).isSpace())
+    while (assistInterface->characterAt(position - 1).isSpace())
         --position;
     return position;
 }
 
-int ActivationSequenceContextProcessor::findStartOfName(int startPosition)
+static bool isValidIdentifierChar(const QChar &character)
+{
+    return character.isLetterOrNumber()
+        || character == QLatin1Char('_')
+        || character.isHighSurrogate()
+        || character.isLowSurrogate();
+}
+
+int ActivationSequenceContextProcessor::findStartOfName(
+        const TextEditor::AssistInterface *assistInterface,
+        int startPosition)
 {
     int position = startPosition;
     QChar character;
     do {
-        character = m_assistInterface->characterAt(--position);
-    } while (character.isLetterOrNumber() || character == QLatin1Char('_'));
+        character = assistInterface->characterAt(--position);
+    } while (isValidIdentifierChar(character));
 
     return position + 1;
 }
 
 void ActivationSequenceContextProcessor::goBackToStartOfName()
 {
-    m_startOfNamePosition = findStartOfName(m_positionInDocument);
+    m_startOfNamePosition = findStartOfName(m_assistInterface, m_positionInDocument);
 
     if (m_startOfNamePosition != m_positionInDocument)
         m_textCursor.setPosition(m_startOfNamePosition);

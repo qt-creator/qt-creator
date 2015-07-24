@@ -100,13 +100,15 @@ void ClangCompletionContextAnalyzer::analyze()
 ClangCompletionContextAnalyzer::FunctionInfo
 ClangCompletionContextAnalyzer::analyzeFunctionCall(int endOfOperator) const
 {
-    int index = skipPrecedingWhitespace(endOfOperator);
+    int index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface,
+                                                                            endOfOperator);
     QTextCursor textCursor(m_interface->textDocument());
     textCursor.setPosition(index);
 
     ExpressionUnderCursor euc(m_languageFeatures);
     index = euc.startOfFunctionCall(textCursor);
-    const int functionNameStart = findStartOfName(index);
+    const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(m_interface,
+                                                                                      index);
 
     QTextCursor textCursor2(m_interface->textDocument());
     textCursor2.setPosition(functionNameStart);
@@ -116,29 +118,6 @@ ClangCompletionContextAnalyzer::analyzeFunctionCall(int endOfOperator) const
     info.functionNamePosition = functionNameStart;
     info.functionName = textCursor2.selectedText().trimmed();
     return info;
-}
-
-int ClangCompletionContextAnalyzer::findStartOfName(int position) const
-{
-    if (position == -1)
-        position = m_interface->position();
-    QChar chr;
-
-    do {
-        chr = m_interface->characterAt(--position);
-        // TODO: Check also chr.isHighSurrogate() / ch.isLowSurrogate()?
-        // See also CppTools::isValidFirstIdentifierChar
-    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
-
-    return position + 1;
-}
-
-int ClangCompletionContextAnalyzer::skipPrecedingWhitespace(int position) const
-{
-    QTC_ASSERT(position >= 0, return position);
-    while (m_interface->characterAt(position - 1).isSpace())
-        --position;
-    return position;
 }
 
 void ClangCompletionContextAnalyzer::setActionAndClangPosition(CompletionAction action,

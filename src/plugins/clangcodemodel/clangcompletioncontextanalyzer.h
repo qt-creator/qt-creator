@@ -72,9 +72,6 @@ private:
     struct FunctionInfo { int functionNamePosition; QString functionName; };
     FunctionInfo analyzeFunctionCall(int endOfExpression) const;
 
-    int findStartOfName(int position = -1) const;
-    int skipPrecedingWhitespace(int position) const;
-
     void setActionAndClangPosition(CompletionAction action, int position);
     void setAction(CompletionAction action);
 
