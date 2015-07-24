@@ -173,14 +173,6 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
             qCDebug(logs) << "  No parsed spec or default spec => parsed spec now:" << parsedSpec;
         }
 
-        QString specArgument;
-        // Compare mkspecs and add to additional arguments
-        if (parsedSpec != versionSpec) {
-            specArgument = QLatin1String("-spec ") + QtcProcess::quoteArg(parsedSpec.toUserOutput());
-            QtcProcess::addArgs(&specArgument, additionalArguments);
-            qCDebug(logs) << "  custom spec added to additionalArguments:" << additionalArguments;
-        }
-
         qCDebug(logs) << "*******************";
         qCDebug(logs) << "* Looking for kits";
         // Find kits (can be more than one, e.g. (Linux-)Desktop and embedded linux):
@@ -372,7 +364,8 @@ Kit *QmakeProjectImporter::createTemporaryKit(BaseQtVersion *version,
 
         QtKitInformation::setQtVersion(k, version);
         ToolChainKitInformation::setToolChain(k, preferredToolChain(version, parsedSpec, archConfig));
-        QmakeKitInformation::setMkspec(k, parsedSpec);
+        if (parsedSpec != version->mkspec())
+            QmakeKitInformation::setMkspec(k, parsedSpec);
 
         markTemporary(k);
         if (temporaryVersion)
