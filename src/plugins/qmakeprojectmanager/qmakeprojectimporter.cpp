@@ -92,6 +92,8 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
         // find interesting makefiles
         QString makefile = importPath.toString() + QLatin1Char('/') + file;
         MakeFileParse parse(makefile);
+        if (parse.makeFileState() != MakeFileParse::Okay)
+            continue;
         QFileInfo qmakeFi = parse.qmakePath().toFileInfo();
         FileName canonicalQmakeBinary = FileName::fromString(qmakeFi.canonicalFilePath());
         if (canonicalQmakeBinary.isEmpty()) {
