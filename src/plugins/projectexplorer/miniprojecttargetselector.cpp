@@ -444,7 +444,7 @@ void GenericListWidget::addProjectConfiguration(ProjectConfiguration *pc)
     int pos = count();
     for (int i = 0; i < count(); ++i) {
         ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        if (pc->displayName() < p->displayName()) {
+        if (caseFriendlyCompare(pc->displayName(), p->displayName()) < 0) {
             pos = i;
             break;
         }
@@ -512,7 +512,7 @@ void GenericListWidget::displayNameChanged()
     int pos = count();
     for (int i = 0; i < count(); ++i) {
         ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        if (pc->displayName() < p->displayName()) {
+        if (caseFriendlyCompare(pc->displayName(), p->displayName()) < 0) {
             pos = i;
             break;
         }
