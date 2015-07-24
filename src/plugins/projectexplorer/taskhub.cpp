@@ -39,7 +39,7 @@
 using namespace ProjectExplorer;
 
 TaskHub *m_instance = 0;
-QSet<Core::Id> TaskHub::m_registeredCategories;
+QVector<Core::Id> TaskHub::m_registeredCategories;
 
 static Core::Id categoryForType(Task::TaskType type)
 {
@@ -122,7 +122,7 @@ void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool 
 {
     QTC_CHECK(!displayName.isEmpty());
     QTC_ASSERT(!m_registeredCategories.contains(categoryId), return);
-    m_registeredCategories.insert(categoryId);
+    m_registeredCategories.push_back(categoryId);
     emit m_instance->categoryAdded(categoryId, displayName, visible);
 }
 
