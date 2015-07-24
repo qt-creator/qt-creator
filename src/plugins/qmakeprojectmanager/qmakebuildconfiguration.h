@@ -91,7 +91,7 @@ public:
     QString makefile() const;
 
     enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };
-    MakefileState compareToImportFrom(const QString &makefile);
+    MakefileState compareToImportFrom(const QString &makefile, QString *errorString = 0);
     static Utils::FileName extractSpecFromArguments(QString *arguments,
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
                                             QStringList *outArgs = 0);

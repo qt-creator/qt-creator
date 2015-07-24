@@ -308,7 +308,7 @@ MakeStep *QmakeBuildConfiguration::makeStep() const
 }
 
 // Returns true if both are equal.
-QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile)
+QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile, QString *errorString)
 {
     const QLoggingCategory &logs = MakeFileParse::logging();
     qCDebug(logs) << "QMakeBuildConfiguration::compareToImport";
@@ -322,6 +322,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     }
     if (parse.makeFileState() == MakeFileParse::CouldNotParse) {
         qCDebug(logs) << "**Makefile incompatible";
+        if (errorString)
+            *errorString = tr("Could not parse Makefile.");
         return MakefileIncompatible;
     }
 
@@ -339,6 +341,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     if (parse.srcProFile() != qs->project()->projectFilePath().toString()) {
         qCDebug(logs) << "**Different profile used to generate the Makefile:"
                       << parse.srcProFile() << " expected profile:" << qs->project()->projectFilePath();
+        if (errorString)
+            *errorString = tr("The Makefile is for a different project.");
         return MakefileIncompatible;
     }
 
@@ -353,6 +357,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     if (qmakeBuildConfiguration() != buildConfig) {
         qCDebug(logs) << "**Different qmake buildconfigurations buildconfiguration:"
                       << qmakeBuildConfiguration() << " Makefile:" << buildConfig;
+        if (errorString)
+            *errorString = tr("The build type has changed.");
         return MakefileIncompatible;
     }
 
@@ -396,12 +402,16 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     actualArgs.sort();
     parsedArgs.sort();
     if (actualArgs != parsedArgs) {
-        qCDebug(logs) << "**Mismateched args";
+        qCDebug(logs) << "**Mismatched args";
+        if (errorString)
+            *errorString = tr("The qmake arguments have changed.");
         return MakefileIncompatible;
     }
 
     if (parse.config() != qs->deducedArguments()) {
         qCDebug(logs) << "**Mismatched config";
+        if (errorString)
+            *errorString = tr("The qmake arguments have changed.");
         return MakefileIncompatible;
     }
 
@@ -419,6 +429,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     }
 
     qCDebug(logs) << "**Incompatible specs";
+    if (errorString)
+        *errorString = tr("The mkspec has changed.");
     return MakefileIncompatible;
 }
 

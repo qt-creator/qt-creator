@@ -213,6 +213,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
     bool incompatibleBuild = false;
     bool allGood = false;
     // we only show if we actually have a qmake and makestep
+    QString errorString;
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
         QString makefile = m_buildConfiguration->buildDirectory().toString() + QLatin1Char('/');
         if (m_buildConfiguration->makefile().isEmpty())
@@ -220,7 +221,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         else
             makefile.append(m_buildConfiguration->makefile());
 
-        switch (m_buildConfiguration->compareToImportFrom(makefile)) {
+        switch (m_buildConfiguration->compareToImportFrom(makefile, &errorString)) {
         case QmakeBuildConfiguration::MakefileMatches:
             allGood = true;
             break;
@@ -274,8 +275,9 @@ void QmakeProjectConfigWidget::updateProblemLabel()
                         .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
         return;
     } else if (incompatibleBuild) {
-        setProblemLabel(tr("An incompatible build exists in %1, which will be overwritten.",
-                           "%1 build directory")
+        setProblemLabel(tr("%1 The build in %2 will be overwritten.",
+                           "%1 error message, %2 build directory")
+                        .arg(errorString)
                         .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
         return;
     }
