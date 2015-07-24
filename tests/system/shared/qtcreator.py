@@ -39,6 +39,8 @@ import sys
 import errno;
 from datetime import datetime,timedelta;
 
+isQt54Build = os.getenv("SYSTEST_ISQT54BUILD") != "0"
+
 srcPath = ''
 SettingsPath = ''
 tmpSettingsDir = ''
