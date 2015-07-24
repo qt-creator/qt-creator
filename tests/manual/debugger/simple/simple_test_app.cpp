@@ -4292,8 +4292,6 @@ namespace qthread {
 
 
 Q_DECLARE_METATYPE(QHostAddress)
-Q_DECLARE_METATYPE(QList<int>)
-Q_DECLARE_METATYPE(QStringList)
 
 typedef QMap<uint, QStringList> QMapUIntQStringList;
 Q_DECLARE_METATYPE(QMapUIntQStringList)

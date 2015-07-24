@@ -170,6 +170,6 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormats)
+Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormat)
 
 #endif // DEBUGGER_WATCHHANDLER_H

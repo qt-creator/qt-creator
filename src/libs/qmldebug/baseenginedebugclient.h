@@ -245,7 +245,6 @@ private:
 
 Q_DECLARE_METATYPE(QmlDebug::ObjectReference)
 Q_DECLARE_METATYPE(QmlDebug::EngineReference)
-Q_DECLARE_METATYPE(QList<QmlDebug::EngineReference>)
 Q_DECLARE_METATYPE(QmlDebug::ContextReference)
 
 QT_BEGIN_NAMESPACE

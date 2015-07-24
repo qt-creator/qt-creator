@@ -76,9 +76,6 @@
 
 #include <cctype>
 
-Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgent*)
-Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgent*)
-
 enum { debug = 0 };
 enum { debugLocals = 0 };
 enum { debugSourceMapping = 0 };
