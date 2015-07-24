@@ -315,8 +315,6 @@ typedef QSharedPointer<CppQuickFixFactory> CppQuickFixFactoryPtr;
 
 } // namespace CppEditor
 
-Q_DECLARE_METATYPE(CppEditor::CppQuickFixFactoryPtr)
-
 namespace CppEditor {
 namespace Internal {
 

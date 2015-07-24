@@ -35,8 +35,6 @@
 #include <QList>
 #include <QtTest>
 
-Q_DECLARE_METATYPE(QList<QByteArray>)
-
 using namespace CPlusPlus;
 using namespace CppTools;
 

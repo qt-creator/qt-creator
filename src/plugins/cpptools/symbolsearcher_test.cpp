@@ -126,7 +126,6 @@ private:
 } // anonymous namespace
 
 Q_DECLARE_METATYPE(ResultData)
-Q_DECLARE_METATYPE(ResultDataList)
 
 QT_BEGIN_NAMESPACE
 namespace QTest {

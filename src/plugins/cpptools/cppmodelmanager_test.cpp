@@ -57,7 +57,7 @@ using namespace ProjectExplorer;
 
 typedef CPlusPlus::Document Document;
 
-Q_DECLARE_METATYPE(QVector<ProjectFile>)
+Q_DECLARE_METATYPE(ProjectFile)
 
 namespace {
 

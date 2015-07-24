@@ -33,8 +33,6 @@
 
 #include <cassert>
 
-Q_DECLARE_METATYPE(QSet<QString>)
-
 using namespace CppTools::Internal;
 using namespace CppTools::Tests;
 

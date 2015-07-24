@@ -115,7 +115,6 @@ struct Result
 } // anonymous namespace
 
 Q_DECLARE_METATYPE(Result)
-Q_DECLARE_METATYPE(QList<Result>)
 
 QT_BEGIN_NAMESPACE
 namespace QTest {

@@ -67,8 +67,6 @@
 #include <sstream>
 #endif
 
-Q_DECLARE_METATYPE(QSet<QString>)
-
 static const bool DumpProjectInfo = qgetenv("QTC_DUMP_PROJECT_INFO") == "1";
 
 using namespace CppTools;
