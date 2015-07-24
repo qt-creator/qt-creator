@@ -123,7 +123,6 @@ void TestCodeParser::updateTestTree()
     m_fullUpdatePostponed = false;
 
     clearCache();
-    emit cacheCleared();
     scanForTests();
 }
 
@@ -659,6 +658,7 @@ void TestCodeParser::clearCache()
     m_cppDocMap.clear();
     m_quickDocMap.clear();
     m_unnamedQuickDocList.clear();
+    emit cacheCleared();
 }
 
 void TestCodeParser::removeTestsIfNecessary(const QString &fileName)
