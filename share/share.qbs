@@ -10,6 +10,7 @@ Product {
         qbs.installSourceBase: "qtcreator"
         prefix: "qtcreator/"
         files: [
+            "cplusplus/**/*",
             "debugger/**/*",
             "designer/**/*",
             "generic-highlighter/**/*",
