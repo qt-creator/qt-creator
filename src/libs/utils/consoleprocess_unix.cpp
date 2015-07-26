@@ -344,6 +344,7 @@ struct Terminal {
 
 static const Terminal knownTerminals[] =
 {
+    {"x-terminal-emulator", "-e"},
     {"xterm", "-e"},
     {"aterm", "-e"},
     {"Eterm", "-e"},
