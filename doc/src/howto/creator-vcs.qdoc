@@ -722,6 +722,12 @@
     deselect the \uicontrol Load check box for the \uicontrol Perforce plugin in the
     \uicontrol {Version Control} group.
 
+    In the Perforce options, you can specify workspace details:
+    \uicontrol {P4 user}, \uicontrol {P4 client}, and \uicontrol {P4 port}. To
+    specify the details individually for several projects, use configuration
+    files instead. Create a \c {p4config.txt} configuration file for each
+    project in the top level project directory.
+
     The \uicontrol Perforce submenu contains the following additional items:
 
     \table
