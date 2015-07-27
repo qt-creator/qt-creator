@@ -139,7 +139,7 @@ int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
     QTC_CHECK(m_currentWidget);
     int count = m_currentFind->replaceAll(before, after, findFlags);
     Utils::FadingIndicator::showText(m_currentWidget,
-                                     tr("%1 occurrences replaced.").arg(count),
+                                     tr("%n occurrences replaced.", 0, count),
                                      Utils::FadingIndicator::SmallText);
     return count;
 }
