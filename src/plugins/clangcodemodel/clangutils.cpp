@@ -114,53 +114,27 @@ static bool maybeIncludeBorlandExtensions()
 class LibClangOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
-    static QStringList build(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
+    static QStringList build(const ProjectPart::Ptr &projectPart, ProjectFile::Kind fileKind)
     {
-        if (pPart.isNull())
+        if (projectPart.isNull())
             return QStringList();
 
-        LibClangOptionsBuilder optionsBuilder(pPart);
+        LibClangOptionsBuilder optionsBuilder(projectPart);
 
         if (verboseRunLog().isDebugEnabled())
             optionsBuilder.add(QLatin1String("-v"));
 
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(maybeIncludeBorlandExtensions());
+
         optionsBuilder.addToolchainAndProjectDefines();
 
-        static const QString resourceDir = getResourceDir();
-        if (!resourceDir.isEmpty()) {
-            optionsBuilder.add(QLatin1String("-nostdlibinc"));
-            optionsBuilder.add(QLatin1String("-I") + resourceDir);
-            optionsBuilder.add(QLatin1String("-undef"));
-        }
-
+        optionsBuilder.addResourceDirOptions();
         optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addInjectedHeaderWithCustomQtMacros();
+        optionsBuilder.addProjectConfigFileInclude();
 
-        // Inject header file
-        static const QString injectedHeader = ICore::instance()->resourcePath()
-                + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
-
-//        if (pPart->qtVersion == ProjectPart::Qt4) {
-//            builder.addOption(QLatin1String("-include"));
-//            builder.addOption(injectedHeader.arg(QLatin1Char('4')));
-//        }
-
-        if (pPart->qtVersion == ProjectPart::Qt5) {
-            optionsBuilder.add(QLatin1String("-include"));
-            optionsBuilder.add(injectedHeader.arg(QLatin1Char('5')));
-        }
-
-        if (!pPart->projectConfigFile.isEmpty()) {
-            optionsBuilder.add(QLatin1String("-include"));
-            optionsBuilder.add(pPart->projectConfigFile);
-        }
-
-        optionsBuilder.add(QLatin1String("-fmessage-length=0"));
-        optionsBuilder.add(QLatin1String("-fdiagnostics-show-note-include-stack"));
-        optionsBuilder.add(QLatin1String("-fmacro-backtrace-limit=0"));
-        optionsBuilder.add(QLatin1String("-fretain-comments-from-system-headers"));
-        // TODO: -Xclang -ferror-limit -Xclang 0 ?
+        optionsBuilder.addExtraOptions();
 
         return optionsBuilder.options();
     }
@@ -174,6 +148,49 @@ private:
     bool excludeHeaderPath(const QString &path) const override
     {
         return path.contains(QLatin1String("lib/gcc/i686-apple-darwin"));
+    }
+
+    void addResourceDirOptions()
+    {
+        static const QString resourceDir = getResourceDir();
+        if (!resourceDir.isEmpty()) {
+            add(QLatin1String("-nostdlibinc"));
+            add(QLatin1String("-I") + resourceDir);
+            add(QLatin1String("-undef"));
+        }
+    }
+
+    void addInjectedHeaderWithCustomQtMacros()
+    {
+        static const QString injectedHeader = ICore::instance()->resourcePath()
+                + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
+
+//        if (pPart->qtVersion == ProjectPart::Qt4) {
+//            builder.addOption(QLatin1String("-include"));
+//            builder.addOption(injectedHeader.arg(QLatin1Char('4')));
+//        }
+
+        if (m_projectPart->qtVersion == ProjectPart::Qt5) {
+            add(QLatin1String("-include"));
+            add(injectedHeader.arg(QLatin1Char('5')));
+        }
+    }
+
+    void addProjectConfigFileInclude()
+    {
+        if (!m_projectPart->projectConfigFile.isEmpty()) {
+            add(QLatin1String("-include"));
+            add(m_projectPart->projectConfigFile);
+        }
+    }
+
+    void addExtraOptions()
+    {
+        add(QLatin1String("-fmessage-length=0"));
+        add(QLatin1String("-fdiagnostics-show-note-include-stack"));
+        add(QLatin1String("-fmacro-backtrace-limit=0"));
+        add(QLatin1String("-fretain-comments-from-system-headers"));
+        // TODO: -Xclang -ferror-limit -Xclang 0 ?
     }
 };
 
