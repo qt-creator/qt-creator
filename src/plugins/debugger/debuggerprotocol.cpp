@@ -741,10 +741,10 @@ QString decodeData(const QByteArray &ba, int encoding)
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not accessible>");
         }
         case SpecialItemCountValue:  {
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", nullptr, ba.toInt());
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", 0, ba.toInt());
         }
         case SpecialMinimumItemCountValue:  {
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", nullptr, ba.toInt());
+            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", 0, ba.toInt());
         }
         case SpecialNotCallableValue:  {
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not callable>");
