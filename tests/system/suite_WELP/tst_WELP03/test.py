@@ -50,6 +50,10 @@ def main():
         test.log("Welcome mode is not scriptable with this Squish version")
         return
     global sdkPath
+    if isQt54Build:
+        welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+    else:
+        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -59,7 +63,7 @@ def main():
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
     setAlwaysStartFullHelp()
-    getStartedNow = getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
+    getStartedNow = getQmlItem("Button", welcomePage, False,
                                "text='Get Started Now' id='gettingStartedButton'")
     if not test.verify(checkIfObjectExists(getStartedNow),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
@@ -67,11 +71,9 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     # select "Examples" topic
-    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                        False, "text='Examples'")), 5, 5, 0, Qt.LeftButton)
-    test.verify(checkIfObjectExists(getQmlItem("Text",
-                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                               False, "text='Examples'")),
+    mouseClick(waitForObject(getQmlItem("Button", welcomePage, False, "text='Examples'")),
+               5, 5, 0, Qt.LeftButton)
+    test.verify(checkIfObjectExists(getQmlItem("Text", welcomePage, False, "text='Examples'")),
                 "Verifying: 'Examples' topic is opened and the examples are shown.")
     basePath = "opengl/2dpainting/2dpainting.pro"
     qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
@@ -83,19 +85,18 @@ def main():
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
-    examplesLineEdit = getQmlItem("TextField", ":WelcomePageStyledBar.WelcomePage_QQuickView",
+    examplesLineEdit = getQmlItem("TextField", welcomePage,
                                   False, "id='lineEdit' placeholderText='Search in Examples...'")
     mouseClick(waitForObject(examplesLineEdit), 5, 5, 0, Qt.LeftButton)
     test.log("Using examples from Kit %s."
-             % (waitForObject(getQmlItem("ComboBox", ":WelcomePageStyledBar.WelcomePage_QQuickView",
+             % (waitForObject(getQmlItem("ComboBox", welcomePage,
                                          False, "id='comboBox'")).currentText))
     replaceEditorContent(waitForObject(examplesLineEdit), "qwerty")
-    test.verify(checkIfObjectExists(getQmlItem("Delegate",
-                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
+    test.verify(checkIfObjectExists(getQmlItem("Delegate", welcomePage,
                                                False, "id='delegate' radius='0' caption~='.*'"),
                                     False), "Verifying: No example is shown.")
     replaceEditorContent(waitForObject(examplesLineEdit), "2d painting")
-    twoDPainting = getQmlItem("Delegate", ":WelcomePageStyledBar.WelcomePage_QQuickView",
+    twoDPainting = getQmlItem("Delegate", welcomePage,
                               False, "id='delegate' radius='0' caption~='2D Painting.*'")
     test.verify(checkIfObjectExists(twoDPainting),
                 "Verifying: Example (2D Painting) is shown.")
@@ -132,8 +133,10 @@ def main():
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
-    replaceEditorContent(waitForObject(examplesLineEdit), "address book")
-    addressBook = getQmlItem("Delegate", ":WelcomePageStyledBar.WelcomePage_QQuickView",
+    examplesLineEditWidget = waitForObject(examplesLineEdit)
+    mouseClick(examplesLineEditWidget)
+    replaceEditorContent(examplesLineEditWidget, "address book")
+    addressBook = getQmlItem("Delegate", welcomePage,
                               False, "id='delegate' radius='0' caption~='Address Book.*'")
     test.verify(checkIfObjectExists(addressBook), "Verifying: Example (address book) is shown.")
     mouseClick(waitForObject(addressBook), 5, 5, 0, Qt.LeftButton)

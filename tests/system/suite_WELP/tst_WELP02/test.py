@@ -31,11 +31,14 @@
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
+if isQt54Build:
+    welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+else:
+    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+
 def checkTypeAndProperties(typePropertiesDetails):
     for (qType, props, detail) in typePropertiesDetails:
-        test.verify(checkIfObjectExists(getQmlItem(qType,
-                                                   ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                                   False, props)),
+        test.verify(checkIfObjectExists(getQmlItem(qType, welcomePage, False, props)),
                     "Verifying: Qt Creator displays %s." % detail)
 
 def main():
@@ -85,13 +88,10 @@ def main():
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
     # go to "Welcome page" again and check if there is an information about recent projects
     switchViewTo(ViewConstants.WELCOME)
-    test.verify(checkIfObjectExists(getQmlItem("LinkedText",
-                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                               False,
+    test.verify(checkIfObjectExists(getQmlItem("LinkedText", welcomePage, False,
                                                "text='propertyanimation' id='projectNameText'")) and
-                checkIfObjectExists(getQmlItem("LinkedText",
-                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                               False, "text='SampleApp' id='projectNameText'")),
+                checkIfObjectExists(getQmlItem("LinkedText", welcomePage, False,
+                                               "text='SampleApp' id='projectNameText'")),
                 "Verifying: 'Welcome page' displays information about recently created and "
                 "opened projects.")
     # exit Qt Creator
