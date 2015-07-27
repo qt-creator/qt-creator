@@ -14,6 +14,7 @@ QTC_LIB_DEPENDS += \
     utils
 
 QTC_TEST_DEPENDS += \
+    qbsprojectmanager \
     qmakeprojectmanager \
     qtsupport
 

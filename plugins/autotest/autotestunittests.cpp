@@ -117,6 +117,66 @@ void AutoTestUnitTests::testCodeParser_data()
     QTest::newRow("mixedAutoTestAndQuickTests")
             << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.pro"))
             << 3 << 5 << 3;
+    QTest::newRow("plainAutoTestQbs")
+            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.qbs"))
+            << 1 << 0 << 0;
+    QTest::newRow("mixedAuotTestAndQuickTestsQbs")
+            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.qbs"))
+            << 3 << 5 << 3;
+}
+
+void AutoTestUnitTests::testCodeParserSwitchStartup()
+{
+    QFETCH(QStringList, projectFilePaths);
+    QFETCH(QList<int>, expectedAutoTestsCount);
+    QFETCH(QList<int>, expectedNamedQuickTestsCount);
+    QFETCH(QList<int>, expectedUnnamedQuickTestsCount);
+
+    NavigationWidget *navigation = NavigationWidget::instance();
+    navigation->activateSubWidget(Constants::AUTOTEST_ID);
+
+    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    for (int i = 0; i < projectFilePaths.size(); ++i) {
+        qDebug() << "Opening project" << projectFilePaths.at(i);
+        CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePaths.at(i), true);
+        QVERIFY(projectInfo.isValid());
+
+        QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
+        QVERIFY(parserSpy.wait(20000));
+
+        QCOMPARE(m_model->autoTestsCount(), expectedAutoTestsCount.at(i));
+        QCOMPARE(m_model->namedQuickTestsCount(),
+                 m_isQt4 ? 0 : expectedNamedQuickTestsCount.at(i));
+        QCOMPARE(m_model->unnamedQuickTestsCount(),
+                 m_isQt4 ? 0 : expectedUnnamedQuickTestsCount.at(i));
+
+        QCOMPARE(m_model->parser()->autoTestsCount(), expectedAutoTestsCount.at(i));
+        QCOMPARE(m_model->parser()->namedQuickTestsCount(),
+                 m_isQt4 ? 0 : expectedNamedQuickTestsCount.at(i));
+        QCOMPARE(m_model->parser()->unnamedQuickTestsCount(),
+                 m_isQt4 ? 0 : expectedUnnamedQuickTestsCount.at(i));
+    }
+}
+
+void AutoTestUnitTests::testCodeParserSwitchStartup_data()
+{
+    QTest::addColumn<QStringList>("projectFilePaths");
+    QTest::addColumn<QList<int> >("expectedAutoTestsCount");
+    QTest::addColumn<QList<int> >("expectedNamedQuickTestsCount");
+    QTest::addColumn<QList<int> >("expectedUnnamedQuickTestsCount");
+
+    QStringList projects = QStringList()
+            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.pro"))
+            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.pro"))
+            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.qbs"))
+            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.qbs"));
+
+    QList<int> expectedAutoTests = QList<int>()         << 1 << 3 << 1 << 3;
+    QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 5 << 0 << 5;
+    QList<int> expectedUnnamedQuickTests = QList<int>() << 0 << 3 << 0 << 3;
+
+    QTest::newRow("loadMultipleProjects")
+            << projects << expectedAutoTests << expectedNamedQuickTests << expectedUnnamedQuickTests;
 }
 
 } // namespace Internal

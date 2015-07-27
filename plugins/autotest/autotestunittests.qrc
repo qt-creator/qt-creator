@@ -28,5 +28,16 @@
         <file>unit_test/mixed_atp/tests/auto/quickauto/quickauto.pro</file>
         <file>unit_test/mixed_atp/tests/auto/quickauto2/quickauto2.pro</file>
         <file>unit_test/mixed_atp/tests/auto/auto.pro</file>
+        <file>unit_test/plain/plain.qbs</file>
+        <file>unit_test/plain/test_plain/test_plain.qbs</file>
+        <file>unit_test/mixed_atp/mixed_atp.qbs</file>
+        <file>unit_test/mixed_atp/src/src.qbs</file>
+        <file>unit_test/mixed_atp/tests/tests.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/auto.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/bench/bench.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/dummy/dummy.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/gui/gui.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto/quickauto.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto2/quickauto2.qbs</file>
     </qresource>
 </RCC>

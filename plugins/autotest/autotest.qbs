@@ -12,6 +12,7 @@ QtcCommercialPlugin {
     Depends { name: "Utils" }
 
     pluginTestDepends: [
+        "QbsProjectManager",
         "QmakeProjectManager"
     ]
 

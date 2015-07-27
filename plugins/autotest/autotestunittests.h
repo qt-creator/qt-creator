@@ -43,6 +43,8 @@ private slots:
     void cleanupTestCase();
     void testCodeParser();
     void testCodeParser_data();
+    void testCodeParserSwitchStartup();
+    void testCodeParserSwitchStartup_data();
 
 private:
     TestTreeModel *m_model;
