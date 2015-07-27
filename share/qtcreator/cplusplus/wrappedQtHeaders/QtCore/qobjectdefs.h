@@ -28,44 +28,35 @@
 **
 ****************************************************************************/
 
-#define QT_NO_META_MACROS
+// Include qobjectdefs.h from Qt ...
+#include_next <qobjectdefs.h>
 
-#if defined(QT_NO_KEYWORDS)
-# define QT_NO_EMIT
-#else
-#  ifndef QT_NO_SIGNALS_SLOTS_KEYWORDS
-#    define signals public __attribute__((annotate("qt_signal")))
-#    define slots __attribute__((annotate("qt_slot")))
-#  endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+
+// ...and redefine macros for tagging signals/slots
+#ifdef signals
+#  define signals public __attribute__((annotate("qt_signal")))
 #endif
-#define Q_SIGNALS public __attribute__((annotate("qt_signal")))
-#define Q_SLOTS slots __attribute__((annotate("qt_slot")))
-#define Q_SIGNAL __attribute__((annotate("qt_signal")))
-#define Q_SLOT __attribute__((annotate("qt_slot")))
-#define Q_PRIVATE_SLOT(d, signature)
 
-#define Q_EMIT
-#ifndef QT_NO_EMIT
-# define emit
+#ifdef slots
+#  define slots __attribute__((annotate("qt_slot")))
 #endif
-#define Q_CLASSINFO(name, value)
-#define Q_PLUGIN_METADATA(x)
-#define Q_INTERFACES(x)
-#define Q_PROPERTY(text)
-#define Q_PRIVATE_PROPERTY(d, text)
-#define Q_REVISION(v)
-#define Q_OVERRIDE(text)
-#define Q_ENUMS(x)
-#define Q_FLAGS(x)
-#define Q_ENUM(x)
-#define Q_FLAG(x)
-#define Q_SCRIPTABLE
-#define Q_INVOKABLE
 
-#define Q_GADGET \
-public: \
-    static const QMetaObject staticMetaObject; \
-private:
+#ifdef Q_SIGNALS
+#  define Q_SIGNALS public __attribute__((annotate("qt_signal")))
+#endif
 
-#define SIGNAL(a) #a
-#define SLOT(a) #a
+#ifdef Q_SLOTS
+#  define Q_SLOTS slots __attribute__((annotate("qt_slot")))
+#endif
+
+#ifdef Q_SIGNAL
+#  define Q_SIGNAL __attribute__((annotate("qt_signal")))
+#endif
+
+#ifdef Q_SLOT
+#  define Q_SLOT __attribute__((annotate("qt_slot")))
+#endif
+
+#pragma clang diagnostic pop

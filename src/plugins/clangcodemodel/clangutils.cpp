@@ -130,8 +130,8 @@ public:
         optionsBuilder.addToolchainAndProjectDefines();
 
         optionsBuilder.addResourceDirOptions();
+        optionsBuilder.addWrappedQtHeadersIncludePath();
         optionsBuilder.addHeaderPathOptions();
-        optionsBuilder.addInjectedHeaderWithCustomQtMacros();
         optionsBuilder.addProjectConfigFileInclude();
 
         optionsBuilder.addExtraOptions();
@@ -160,19 +160,14 @@ private:
         }
     }
 
-    void addInjectedHeaderWithCustomQtMacros()
+    void addWrappedQtHeadersIncludePath()
     {
-        static const QString injectedHeader = ICore::instance()->resourcePath()
-                + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
+        static const QString wrappedQtHeaders = ICore::instance()->resourcePath()
+                + QLatin1String("/cplusplus/wrappedQtHeaders");
 
-//        if (pPart->qtVersion == ProjectPart::Qt4) {
-//            builder.addOption(QLatin1String("-include"));
-//            builder.addOption(injectedHeader.arg(QLatin1Char('4')));
-//        }
-
-        if (m_projectPart->qtVersion == ProjectPart::Qt5) {
-            add(QLatin1String("-include"));
-            add(injectedHeader.arg(QLatin1Char('5')));
+        if (m_projectPart->qtVersion != ProjectPart::NoQt) {
+            add(QLatin1String("-I") + wrappedQtHeaders);
+            add(QLatin1String("-I") + wrappedQtHeaders + QLatin1String("/QtCore"));
         }
     }
 
