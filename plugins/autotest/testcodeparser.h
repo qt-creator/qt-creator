@@ -84,6 +84,7 @@ public slots:
 
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
+    void onStartupProjectChanged(ProjectExplorer::Project *);
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void removeFiles(const QStringList &files);
     void onProFileEvaluated();
@@ -115,6 +116,7 @@ private:
     bool m_fullUpdatePostponed;
     bool m_partialUpdatePostponed;
     bool m_dirty;
+    bool m_waitForParseTaskFinish;
     QSet<QString> m_postponedFiles;
     State m_parserState;
 };

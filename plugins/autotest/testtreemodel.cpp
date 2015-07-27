@@ -102,7 +102,7 @@ void TestTreeModel::enableParsing()
 
     ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
     connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
-            m_parser, &TestCodeParser::emitUpdateTestTree);
+            m_parser, &TestCodeParser::onStartupProjectChanged);
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     connect(cppMM, &CppTools::CppModelManager::documentUpdated,

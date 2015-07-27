@@ -59,6 +59,7 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
       m_fullUpdatePostponed(false),
       m_partialUpdatePostponed(false),
       m_dirty(true),
+      m_waitForParseTaskFinish(false),
       m_parserState(Disabled)
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
@@ -78,9 +79,11 @@ TestCodeParser::~TestCodeParser()
 
 void TestCodeParser::setState(State state)
 {
-    // avoid triggering parse before code model parsing has finished
-    if (m_codeModelParsing)
+    // avoid triggering parse before code model parsing has finished, but mark as dirty
+    if (m_codeModelParsing) {
+        m_dirty = true;
         return;
+    }
 
     if ((state == Disabled || state == Idle)
             && (m_parserState == PartialParse || m_parserState == FullParse))
@@ -90,9 +93,13 @@ void TestCodeParser::setState(State state)
     if (m_parserState == Disabled) {
         m_fullUpdatePostponed = m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
-    } else if (m_parserState == Idle && m_dirty
-               && ProjectExplorer::SessionManager::startupProject()) {
-        scanForTests(m_postponedFiles.toList());
+    } else if (m_parserState == Idle && ProjectExplorer::SessionManager::startupProject()) {
+        if (m_fullUpdatePostponed || m_dirty) {
+            emitUpdateTestTree();
+        } else if (m_partialUpdatePostponed) {
+            m_partialUpdatePostponed = false;
+            scanForTests(m_postponedFiles.toList());
+        }
     }
 }
 
@@ -535,6 +542,17 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     }
 }
 
+void TestCodeParser::onStartupProjectChanged(ProjectExplorer::Project *)
+{
+    if (m_parserState == FullParse || m_parserState == PartialParse) {
+        m_waitForParseTaskFinish = true;
+        Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+    } else {
+        clearCache();
+        emitUpdateTestTree();
+    }
+}
+
 void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     if (project != ProjectExplorer::SessionManager::startupProject())
@@ -713,6 +731,8 @@ void TestCodeParser::onTaskStarted(Core::Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX)
         m_codeModelParsing = true;
+    else if (type == Constants::TASK_PARSE)
+        m_waitForParseTaskFinish = true;
 }
 
 void TestCodeParser::onAllTasksFinished(Core::Id type)
@@ -721,19 +741,16 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
     if (type != CppTools::Constants::TASK_INDEX)
         return;
     m_codeModelParsing = false;
+
+    if (m_waitForParseTaskFinish && type == Constants::TASK_PARSE) {
+        m_waitForParseTaskFinish = false;
+        clearCache();
+        emitUpdateTestTree();
+        return;
+    }
+
     // avoid illegal parser state if respective widgets became hidden while parsing
     setState(Idle);
-
-    if (m_fullUpdatePostponed)
-        updateTestTree();
-    else if (m_partialUpdatePostponed) {
-        m_partialUpdatePostponed = false;
-        QStringList tmp;
-        foreach (const QString &file, m_postponedFiles)
-            tmp << file;
-        m_postponedFiles.clear();
-        scanForTests(tmp);
-    }
 }
 
 void TestCodeParser::onFinished()
