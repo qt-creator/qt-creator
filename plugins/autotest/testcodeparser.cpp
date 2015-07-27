@@ -557,7 +557,8 @@ bool TestCodeParser::postponed(const QStringList &fileList)
     case Idle:
         return false;
     case PartialParse:
-        // partial is running, postponing a full parse
+    case FullParse:
+        // parse is running, postponing a full parse
         if (fileList.isEmpty()) {
             m_partialUpdatePostponed = false;
             m_postponedFiles.clear();
@@ -566,23 +567,6 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             // partial parse triggered, but full parse is postponed already, ignoring this
             if (m_fullUpdatePostponed)
                 return true;
-            // partial parse triggered, postpone or add current files to already postponed partial
-            foreach (const QString &file, fileList)
-                    m_postponedFiles.insert(file);
-            m_partialUpdatePostponed = true;
-        }
-        return true;
-    case FullParse:
-        // full parse is running, postponing another full parse
-        if (fileList.isEmpty()) {
-            m_partialUpdatePostponed = false;
-            m_postponedFiles.clear();
-            m_fullUpdatePostponed = true;
-        } else {
-            // full parse already postponed, ignoring triggering a partial parse
-            if (m_fullUpdatePostponed) {
-                return true;
-            }
             // partial parse triggered, postpone or add current files to already postponed partial
             foreach (const QString &file, fileList)
                 m_postponedFiles.insert(file);
