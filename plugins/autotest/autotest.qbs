@@ -7,10 +7,13 @@ QtcCommercialPlugin {
     Depends { name: "CppTools" }
     Depends { name: "CPlusPlus" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QmakeProjectManager" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
     Depends { name: "Utils" }
+
+    pluginTestDepends: [
+        "QmakeProjectManager"
+    ]
 
     Depends {
         name: "QtSupport"

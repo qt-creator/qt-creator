@@ -75,6 +75,8 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             this, &TestNavigationWidget::onParsingStarted);
     connect(m_model->parser(), &TestCodeParser::parsingFinished,
             this, &TestNavigationWidget::onParsingFinished);
+    connect(m_model->parser(), &TestCodeParser::parsingFailed,
+            this, &TestNavigationWidget::onParsingFinished);
     connect(m_progressTimer, &QTimer::timeout,
             m_progressIndicator, &Utils::ProgressIndicator::show);
 }

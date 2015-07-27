@@ -56,6 +56,7 @@ public:
     virtual ~TestCodeParser();
     void setState(State state);
     State state() const { return m_parserState; }
+    void setDirty() { m_dirty = true; }
 
 #ifdef WITH_TESTS
     int autoTestsCount() const;
@@ -74,6 +75,7 @@ signals:
     void unnamedQuickTestsRemoved(const QString &filePath);
     void parsingStarted();
     void parsingFinished();
+    void parsingFailed();
     void partialParsingFinished();
 
 public slots:
@@ -87,14 +89,12 @@ public slots:
     void onStartupProjectChanged(ProjectExplorer::Project *);
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void removeFiles(const QStringList &files);
-    void onProFileEvaluated();
 
 private:
     bool postponed(const QStringList &fileList);
     void scanForTests(const QStringList &fileList = QStringList());
     void clearCache();
     void removeTestsIfNecessary(const QString &fileName);
-    void removeTestsIfNecessaryByProFile(const QString &proFile);
 
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
@@ -117,6 +117,7 @@ private:
     bool m_partialUpdatePostponed;
     bool m_dirty;
     bool m_waitForParseTaskFinish;
+    bool m_singleShotScheduled;
     QSet<QString> m_postponedFiles;
     State m_parserState;
 };

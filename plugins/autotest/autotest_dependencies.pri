@@ -4,8 +4,7 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
     cpptools \
-    qmljstools \
-    qmakeprojectmanager
+    qmljstools
 
 CONFIG(licensechecker): QTC_PLUGIN_DEPENDS += licensechecker
 
@@ -13,5 +12,9 @@ QTC_LIB_DEPENDS += \
     cplusplus \
     qmljs \
     utils
+
+QTC_TEST_DEPENDS += \
+    qmakeprojectmanager \
+    qtsupport
 
 #QTC_PLUGIN_RECOMMENDS += \

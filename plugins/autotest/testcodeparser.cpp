@@ -33,10 +33,8 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
@@ -46,8 +44,10 @@
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
 
+#include <QDirIterator>
 #include <QFuture>
 #include <QFutureInterface>
+#include <QTimer>
 
 namespace Autotest {
 namespace Internal {
@@ -58,8 +58,9 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
       m_codeModelParsing(false),
       m_fullUpdatePostponed(false),
       m_partialUpdatePostponed(false),
-      m_dirty(true),
+      m_dirty(false),
       m_waitForParseTaskFinish(false),
+      m_singleShotScheduled(false),
       m_parserState(Disabled)
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
@@ -105,26 +106,22 @@ void TestCodeParser::setState(State state)
 
 void TestCodeParser::emitUpdateTestTree()
 {
+    if (m_singleShotScheduled)
+        return;
+
+    m_singleShotScheduled = true;
     QTimer::singleShot(1000, this, SLOT(updateTestTree()));
 }
 
 void TestCodeParser::updateTestTree()
 {
+    m_singleShotScheduled = false;
     if (m_codeModelParsing) {
         m_fullUpdatePostponed = true;
         return;
     }
 
-    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject()) {
-        if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project)) {
-            if (qmakeProject->asyncUpdateState() != QmakeProjectManager::QmakeProject::Base) {
-                m_fullUpdatePostponed = true;
-                return;
-            }
-            connect(qmakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
-                    this, &TestCodeParser::onProFileEvaluated, Qt::UniqueConnection);
-        }
-    } else
+    if (!ProjectExplorer::SessionManager::startupProject())
         return;
 
     m_fullUpdatePostponed = false;
@@ -369,6 +366,10 @@ static TestTreeItem constructTestTreeItem(const QString &fileName,
 
 /****** end of helpers ******/
 
+// used internally to indicate a parse that failed due to having triggered a parse for a file that
+// is not (yet) part of the CppModelManager's snapshot
+static bool parsingHasFailed;
+
 void performParse(QFutureInterface<void> &futureInterface, QStringList list,
                   TestCodeParser *testCodeParser)
 {
@@ -383,6 +384,9 @@ void performParse(QFutureInterface<void> &futureInterface, QStringList list,
             CPlusPlus::Document::Ptr doc = snapshot.find(file).value();
             futureInterface.setProgressValue(++progressValue);
             testCodeParser->checkDocumentForTestCode(doc);
+        } else {
+            parsingHasFailed |= (CppTools::ProjectFile::classify(file)
+                                 != CppTools::ProjectFile::Unclassified);
         }
     }
     futureInterface.setProgressValue(list.size());
@@ -618,6 +622,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     if (postponed(fileList))
         return;
 
+    m_postponedFiles.clear();
     bool isFullParse = fileList.isEmpty();
     bool isSmallChange = !isFullParse && fileList.size() < 6;
     QStringList list;
@@ -631,6 +636,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         m_parserState = PartialParse;
     }
 
+    parsingHasFailed = false;
     if (isSmallChange) { // no need to do this async or should we do this always async?
         CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
         CPlusPlus::Snapshot snapshot = cppMM->snapshot();
@@ -638,9 +644,12 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
             if (snapshot.contains(file)) {
                 CPlusPlus::Document::Ptr doc = snapshot.find(file).value();
                 checkDocumentForTestCode(doc);
+            } else {
+                parsingHasFailed |= (CppTools::ProjectFile::classify(file)
+                                     != CppTools::ProjectFile::Unclassified);
             }
         }
-        emit onFinished();
+        onFinished();
         return;
     }
 
@@ -699,34 +708,6 @@ void TestCodeParser::removeTestsIfNecessary(const QString &fileName)
     }
 }
 
-void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
-{
-    QList<QString> fList;
-    foreach (const QString &fileName, m_cppDocMap.keys()) {
-        if (m_cppDocMap[fileName].proFile() == proFile)
-            fList.append(fileName);
-    }
-    foreach (const QString &fileName, fList) {
-        m_cppDocMap.remove(fileName);
-        emit testItemsRemoved(fileName, TestTreeModel::AutoTest);
-    }
-    fList.clear();
-    foreach (const QString &fileName, m_quickDocMap.keys()) {
-       if (m_quickDocMap[fileName].proFile() == proFile)
-           fList.append(fileName);
-    }
-    foreach (const QString &fileName, fList) {
-        m_quickDocMap.remove(fileName);
-        emit testItemsRemoved(fileName, TestTreeModel::QuickTest);
-    }
-    // handle unnamed Quick Tests
-    const QSet<QString> &filePaths = m_model->qmlFilesForProFile(proFile);
-    foreach (const QString &fileName, filePaths) {
-        removeUnnamedQuickTestsByName(fileName);
-        emit unnamedQuickTestsRemoved(fileName);
-    }
-}
-
 void TestCodeParser::onTaskStarted(Core::Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX)
@@ -762,7 +743,11 @@ void TestCodeParser::onFinished()
         break;
     case FullParse:
         m_parserState = Idle;
-        emit parsingFinished();
+        m_dirty = parsingHasFailed;
+        if (m_partialUpdatePostponed || m_fullUpdatePostponed || parsingHasFailed)
+            emit partialParsingFinished();
+        else
+            emit parsingFinished();
         m_dirty = false;
         break;
     case Disabled: // can happen if all Test related widgets become hidden while parsing
@@ -784,14 +769,13 @@ void TestCodeParser::onPartialParsingFinished()
         updateTestTree();
     } else if (m_partialUpdatePostponed) {
         m_partialUpdatePostponed = false;
-        QStringList tmp;
-        foreach (const QString &file, m_postponedFiles)
-            tmp << file;
-        m_postponedFiles.clear();
-        scanForTests(tmp);
+        scanForTests(m_postponedFiles.toList());
     } else {
-        m_dirty = false;
-        emit parsingFinished();
+        m_dirty |= m_codeModelParsing;
+        if (m_dirty)
+            emit parsingFailed();
+        else if (!m_singleShotScheduled)
+            emit parsingFinished();
     }
 }
 
@@ -884,28 +868,6 @@ void TestCodeParser::removeUnnamedQuickTestsByName(const QString &fileName)
     for (int i = m_unnamedQuickDocList.size() - 1; i >= 0; --i) {
         if (m_unnamedQuickDocList.at(i).fileName() == fileName)
             m_unnamedQuickDocList.removeAt(i);
-    }
-}
-
-void TestCodeParser::onProFileEvaluated()
-{
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project)
-        return;
-
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::Ptr> pp = modelManager->projectInfo(project).projectParts();
-    foreach (const CppTools::ProjectPart::Ptr &p, pp) {
-        if (!p->selectedForBuilding)
-            removeTestsIfNecessaryByProFile(p->projectFile);
-        else {
-            QStringList files;
-            foreach (auto projectFile, p->files)
-                files.append(projectFile.path);
-            // avoid illegal parser state when respective widgets became hidden while evaluating
-            setState(Idle);
-            scanForTests(files);
-        }
     }
 }
 

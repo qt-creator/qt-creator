@@ -96,6 +96,10 @@ TestTreeModel::~TestTreeModel()
 void TestTreeModel::enableParsing()
 {
     m_refCounter.ref();
+
+    if (!m_connectionsInitialized)
+        m_parser->setDirty();
+
     m_parser->setState(TestCodeParser::Idle);
     if (m_connectionsInitialized)
         return;
