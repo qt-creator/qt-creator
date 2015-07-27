@@ -1159,7 +1159,7 @@ class Dumper(DumperBase):
                 def sortOrder(field):
                     if field.is_base_class:
                         return 0
-                    if field.name.startswith("_vptr."):
+                    if field.name and field.name.startswith("_vptr."):
                         return 1
                     return 2
                 fields.sort(key = lambda field: "%d%s" % (sortOrder(field), field.name))
