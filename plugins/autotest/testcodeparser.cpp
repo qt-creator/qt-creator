@@ -47,7 +47,10 @@
 #include <QDirIterator>
 #include <QFuture>
 #include <QFutureInterface>
+#include <QLoggingCategory>
 #include <QTimer>
+
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser")
 
 namespace Autotest {
 namespace Internal {
@@ -79,15 +82,19 @@ TestCodeParser::~TestCodeParser()
 
 void TestCodeParser::setState(State state)
 {
+    qCDebug(LOG) << "setState(" << state << "), currentState:" << m_parserState;
     // avoid triggering parse before code model parsing has finished, but mark as dirty
     if (m_codeModelParsing) {
         m_dirty = true;
+        qCDebug(LOG) << "Not setting new state - code model parsing is running, just marking dirty";
         return;
     }
 
     if ((state == Disabled || state == Idle)
-            && (m_parserState == PartialParse || m_parserState == FullParse))
+            && (m_parserState == PartialParse || m_parserState == FullParse)) {
+        qCDebug(LOG) << "Not setting state, parse is running";
         return;
+    }
     m_parserState = state;
 
     if (m_parserState == Disabled) {
@@ -98,6 +105,7 @@ void TestCodeParser::setState(State state)
             emitUpdateTestTree();
         } else if (m_partialUpdatePostponed) {
             m_partialUpdatePostponed = false;
+            qCDebug(LOG) << "calling scanForTests with postponed files (setState)";
             scanForTests(m_postponedFiles.toList());
         }
     }
@@ -105,9 +113,12 @@ void TestCodeParser::setState(State state)
 
 void TestCodeParser::emitUpdateTestTree()
 {
-    if (m_singleShotScheduled)
+    if (m_singleShotScheduled) {
+        qCDebug(LOG) << "not scheduling another updateTestTree";
         return;
+    }
 
+    qCDebug(LOG) << "adding singleShot";
     m_singleShotScheduled = true;
     QTimer::singleShot(1000, this, SLOT(updateTestTree()));
 }
@@ -128,6 +139,7 @@ void TestCodeParser::updateTestTree()
     m_fullUpdatePostponed = false;
 
     clearCache();
+    qCDebug(LOG) << "calling scanForTests (updateTestTree)";
     scanForTests();
 }
 
@@ -506,6 +518,7 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
     } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
         return;
     }
+    qCDebug(LOG) << "calling scanForTests (onCppDocumentUpdated)";
     scanForTests(QStringList(fileName));
 }
 
@@ -534,8 +547,11 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
     if (m_quickDocMap.contains(fileName)
             && snapshot.contains(m_quickDocMap[fileName].referencingFile())) {
-            if (!m_quickDocMap[fileName].referencingFile().isEmpty())
+            if (!m_quickDocMap[fileName].referencingFile().isEmpty()) {
+                qCDebug(LOG) << "calling scanForTests with cached referencing files"
+                             << "(onQmlDocumentUpdated)";
                 scanForTests(QStringList(m_quickDocMap[fileName].referencingFile()));
+            }
     }
     if (m_unnamedQuickDocList.size() == 0)
         return;
@@ -543,6 +559,7 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     // special case of having unnamed TestCases
     const QString &mainFile = m_model->getMainFileForUnnamedQuickTest(fileName);
     if (!mainFile.isEmpty() && snapshot.contains(mainFile)) {
+        qCDebug(LOG) << "calling scanForTests with mainfile (onQmlDocumentUpdated)";
         scanForTests(QStringList(mainFile));
     }
 }
@@ -630,9 +647,11 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         list = ProjectExplorer::SessionManager::startupProject()->files(ProjectExplorer::Project::AllFiles);
         if (list.isEmpty())
             return;
+        qCDebug(LOG) << "setting state to FullParse (scanForTests)";
         m_parserState = FullParse;
     } else {
         list << fileList;
+        qCDebug(LOG) << "setting state to PartialParse (scanForTests)";
         m_parserState = PartialParse;
     }
 
@@ -729,19 +748,25 @@ void TestCodeParser::onFinished()
 {
     switch (m_parserState) {
     case PartialParse:
+        qCDebug(LOG) << "setting state to Idle (onFinished, PartialParse)";
         m_parserState = Idle;
         emit partialParsingFinished();
         break;
     case FullParse:
+        qCDebug(LOG) << "setting state to Idle (onFinished, FullParse)";
         m_parserState = Idle;
         m_dirty = parsingHasFailed;
-        if (m_partialUpdatePostponed || m_fullUpdatePostponed || parsingHasFailed)
+        if (m_partialUpdatePostponed || m_fullUpdatePostponed || parsingHasFailed) {
             emit partialParsingFinished();
-        else
+        } else {
+            qCDebug(LOG) << "emitting parsingFinished"
+                         << "(onFinished, FullParse, nothing postponed, parsing succeeded)";
             emit parsingFinished();
+        }
         m_dirty = false;
         break;
     case Disabled: // can happen if all Test related widgets become hidden while parsing
+        qCDebug(LOG) << "emitting parsingFinished (onFinished, Disabled)";
         emit parsingFinished();
         break;
     default:
@@ -757,16 +782,24 @@ void TestCodeParser::onPartialParsingFinished()
                m_partialUpdatePostponed = false;m_postponedFiles.clear(););
     if (m_fullUpdatePostponed) {
         m_fullUpdatePostponed = false;
+        qCDebug(LOG) << "calling updateTestTree (onPartialParsingFinished)";
         updateTestTree();
     } else if (m_partialUpdatePostponed) {
         m_partialUpdatePostponed = false;
+        qCDebug(LOG) << "calling scanForTests with postponed files (onPartialParsingFinished)";
         scanForTests(m_postponedFiles.toList());
     } else {
         m_dirty |= m_codeModelParsing;
-        if (m_dirty)
+        if (m_dirty) {
             emit parsingFailed();
-        else if (!m_singleShotScheduled)
+        } else if (!m_singleShotScheduled) {
+            qCDebug(LOG) << "emitting parsingFinished"
+                         << "(onPartialParsingFinished, nothing postponed, not dirty)";
             emit parsingFinished();
+        } else {
+            qCDebug(LOG) << "not emitting parsingFinished"
+                         << "(on PartialParsingFinished, singleshot scheduled)";
+        }
     }
 }
 
