@@ -206,15 +206,15 @@ void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
 
 void QmlProfilerStateWidget::updateDisplay()
 {
-    // When datamodel is acquiring data
-    if (!d->loadingDone && !d->emptyList && !d->appKilled) {
-        showText(tr("Loading data"), true);
-        return;
-    }
-
     // When application is being profiled
     if (d->isRecording) {
         showText(tr("Profiling application"));
+        return;
+    }
+
+    // When datamodel is acquiring data
+    if (!d->loadingDone && !d->emptyList && !d->appKilled) {
+        showText(tr("Loading data"), true);
         return;
     }
 
