@@ -40,6 +40,9 @@
 #include <utf8string.h>
 
 #include <QFileInfo>
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(verboseLibLog, "qtc.clangbackend.verboselib");
 
 namespace ClangBackEnd {
 
@@ -107,8 +110,10 @@ CXIndex TranslationUnit::index() const
 {
     checkIfNull();
 
-    if (!d->index)
-        d->index = clang_createIndex(1, 1);
+    if (!d->index) {
+        const bool displayDiagnostics = verboseLibLog().isDebugEnabled();
+        d->index = clang_createIndex(1, displayDiagnostics);
+    }
 
     return d->index;
 }
