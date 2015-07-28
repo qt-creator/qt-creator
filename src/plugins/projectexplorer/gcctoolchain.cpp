@@ -394,7 +394,8 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
         if (a == QLatin1String("-arch")) {
             if (++iArg < allCxxflags.length() && !arguments.contains(a))
                 arguments << a << allCxxflags.at(iArg);
-        } else if (a == QLatin1String("--sysroot") || a == QLatin1String("-isysroot")) {
+        } else if (a == QLatin1String("--sysroot") || a == QLatin1String("-isysroot")
+                   || a == QLatin1String("-D") ||a == QLatin1String("-U")) {
             if (++iArg < allCxxflags.length())
                 arguments << a << allCxxflags.at(iArg);
         } else if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
