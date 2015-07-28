@@ -118,16 +118,7 @@ private:
                                          CppEditor *editor, const Actions &tokenActions);
 
     static void undoAllChangesAndCloseAllEditors();
-
-    /// This function expects:
-    /// (1) Only Qt4 projects are loaded (qmake in PATH should point to Qt4/bin).
-    /// (2) No *.pro.user file exists for the projects.
-    static void configureAllProjects(const QList<QPointer<ProjectExplorer::Project> > &projects);
-
-    static bool allProjectsConfigured;
 };
-
-bool TestActionsTestCase::allProjectsConfigured = false;
 
 typedef TestActionsTestCase::Actions Actions;
 typedef TestActionsTestCase::ActionPointer ActionPointer;
@@ -137,18 +128,35 @@ Actions singleAction(const ActionPointer &action)
     return Actions() << action;
 }
 
+static bool waitUntilAProjectIsLoaded(int timeOutInMs = 30000)
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    while (timer.elapsed() < timeOutInMs) {
+        if (!CppModelManager::instance()->projectInfos().isEmpty())
+            return true;
+
+        QCoreApplication::processEvents();
+        QThread::msleep(20);
+    }
+
+    return false;
+}
+
 TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Actions &fileActions)
     : Tests::TestCase(/*runGarbageCollector=*/false)
 {
     QVERIFY(succeededSoFar());
 
+    if (qgetenv("QTC_TEST_WAIT_FOR_LOADED_PROJECT") != "1")
+        QSKIP("Environment variable QTC_TEST_WAIT_FOR_LOADED_PROJECT=1 not set.");
+    QVERIFY(waitUntilAProjectIsLoaded());
+
     // Collect files to process
     QStringList filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
-    const QList<ProjectInfo> projectInfos
-            = m_modelManager->projectInfos();
-    if (projectInfos.isEmpty())
-        QSKIP("No project(s) loaded. Test operates only on loaded projects.");
+    const QList<ProjectInfo> projectInfos = m_modelManager->projectInfos();
 
     foreach (const ProjectInfo &info, projectInfos) {
         QPointer<ProjectExplorer::Project> project = info.project();
@@ -158,12 +166,6 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
                  << info.sourceFiles().size();
         foreach (const QString &sourceFile, info.sourceFiles())
             filesToOpen << sourceFile;
-    }
-
-    // Configure all projects on first execution of this function (= very first test)
-    if (!TestActionsTestCase::allProjectsConfigured) {
-        configureAllProjects(projects);
-        TestActionsTestCase::allProjectsConfigured = true;
     }
 
     Utils::sort(filesToOpen);
@@ -309,15 +311,6 @@ void TestActionsTestCase::undoAllChangesAndCloseAllEditors()
     EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
     QApplication::processEvents();
     QCOMPARE(DocumentModel::openedDocuments().size(), 0);
-}
-
-void TestActionsTestCase::configureAllProjects(const QList<QPointer<ProjectExplorer::Project> >
-                                               &projects)
-{
-    foreach (const QPointer<ProjectExplorer::Project> &project, projects) {
-        qDebug() << "*** Configuring project" << project->displayName();
-        project->configureAsExampleProject(QStringList());
-    }
 }
 
 class NoOpTokenAction : public TestActionsTestCase::AbstractAction
