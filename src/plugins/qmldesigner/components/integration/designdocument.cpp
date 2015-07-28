@@ -628,16 +628,6 @@ void DesignDocument::redo()
     viewManager().resetPropertyEditorView();
 }
 
-static bool isFileInProject(DesignDocument *designDocument, Project *project)
-{
-    foreach (const QString &fileNameInProject, project->files(Project::ExcludeGeneratedFiles)) {
-        if (designDocument->fileName().fileName() == fileNameInProject)
-            return true;
-    }
-
-    return false;
-}
-
 static inline Kit *getActiveKit(DesignDocument *designDocument)
 {
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
