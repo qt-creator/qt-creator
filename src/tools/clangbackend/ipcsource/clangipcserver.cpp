@@ -120,7 +120,7 @@ void ClangIpcServer::completeCode(const ClangBackEnd::CompleteCodeCommand &comma
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistCommand(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::unregisterProjectPartsForCodeCompletion:" << exception.what();
+        qWarning() << "Error in ClangIpcServer::completeCode:" << exception.what();
     }
 }
 
