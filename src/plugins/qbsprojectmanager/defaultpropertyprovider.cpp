@@ -31,11 +31,12 @@
 #include "defaultpropertyprovider.h"
 #include "qbsconstants.h"
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qtsupport/baseqtversion.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
