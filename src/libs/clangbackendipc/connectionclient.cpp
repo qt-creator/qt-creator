@@ -56,8 +56,8 @@ QString connectionName()
 ConnectionClient::ConnectionClient(IpcClientInterface *client)
     : serverProxy_(client, &localSocket),
       isAliveTimerResetted(false),
-      stdErrPrefixer("ClangBackEnd-StdErr: "),
-      stdOutPrefixer("ClangBackEnd: ")
+      stdErrPrefixer("clangbackend.stderr: "),
+      stdOutPrefixer("clangbackend.stdout: ")
 {
     processAliveTimer.setInterval(10000);
 
