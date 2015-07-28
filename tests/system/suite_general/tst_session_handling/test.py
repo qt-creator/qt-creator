@@ -111,19 +111,22 @@ def createAndSwitchToSession(toSession):
                               "window=%s}" % sessionInputDialog))
 
 def checkWelcomePage(sessionName, isCurrent=False):
+    if isQt54Build:
+        welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+    else:
+        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     switchViewTo(ViewConstants.WELCOME)
-    mouseClick(waitForObject("{container=':WelcomePageStyledBar.WelcomePage_QQuickView' text='Projects' "
-                             "type='Button' unnamed='1' visible='true'}"), 5, 5, Qt.LeftButton)
-    waitForObject("{container=':WelcomePageStyledBar.WelcomePage_QQuickView' id='sessionsTitle' "
-                  "text='Sessions' type='Text' unnamed='1' visible='true'}")
+    mouseClick(waitForObject("{container='%s' text='Projects' type='Button' "
+                             "unnamed='1' visible='true'}" % welcomePage))
+    waitForObject("{container='%s' id='sessionsTitle' text='Sessions' type='Text' "
+                  "unnamed='1' visible='true'}" % welcomePage)
     if isCurrent:
         sessions = ["default", "%s (current session)" % sessionName]
     else:
         sessions = ["default (current session)", sessionName]
     for sessionName in sessions:
-        test.verify(object.exists("{container=':WelcomePageStyledBar.WelcomePage_QQuickView' "
-                                  "enabled='true' type='LinkedText' "
-                                  "unnamed='1' visible='true' text='%s'}" % sessionName),
+        test.verify(object.exists("{container='%s' enabled='true' type='LinkedText' unnamed='1' "
+                                  "visible='true' text='%s'}" % (welcomePage, sessionName)),
                                   "Verifying session '%s' exists." % sessionName)
 
 def checkNavigator(expectedRows, message):
