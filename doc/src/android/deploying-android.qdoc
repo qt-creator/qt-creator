@@ -291,6 +291,7 @@
     \li In the \uicontrol Application group, you can give the application a name and
     select an icon for it. The three icon fields can contain different versions
     of the icon with low, medium, and high DPI values, from left to right.
+    You can also give an activity a name and select the activity to run.
 
     \li In the \uicontrol Permissions field, you can specify the permissions that your
     application needs. Users are asked to grant the permissions when they
