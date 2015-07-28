@@ -76,7 +76,7 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording)
-        stream << requestedFeatures;
+        stream << requestedFeatures << quint32(1000); // flush interval. Fixed to 1000ms for now
     q->sendMessage(ba);
 }
 
