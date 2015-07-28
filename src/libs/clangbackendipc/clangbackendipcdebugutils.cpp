@@ -35,11 +35,14 @@
 #include <utf8string.h>
 
 #include <QDir>
+#include <QLoggingCategory>
 #include <QString>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 
 namespace {
+
+Q_LOGGING_CATEGORY(timersLog, "qtc.clangbackend.timers");
 
 class DebugInspectionDir : public QTemporaryDir
 {
@@ -94,6 +97,18 @@ Utf8String debugId(const FileContainer &fileContainer)
     Utf8String id(Utf8StringLiteral("unsavedfilecontent-"));
     id.append(QFileInfo(filePath).fileName());
     return id;
+}
+
+VerboseScopeDurationTimer::VerboseScopeDurationTimer(const char *id)
+    : id(id)
+{
+    if (timersLog().isDebugEnabled())
+        timer.start();
+}
+
+VerboseScopeDurationTimer::~VerboseScopeDurationTimer()
+{
+    qCDebug(timersLog) << id << "needed" << timer.elapsed() << "ms";
 }
 
 } // namespace ClangBackEnd

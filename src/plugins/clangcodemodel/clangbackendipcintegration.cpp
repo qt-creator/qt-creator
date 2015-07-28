@@ -236,13 +236,10 @@ static bool areCommandsRegistered = false;
 
 void IpcCommunicator::initializeBackend()
 {
-    // TODO: Add a asynchron API to ConnectionClient, otherwise we might hang here
-
     if (!areCommandsRegistered) {
         areCommandsRegistered = true;
         Commands::registerCommands();
     }
-    QElapsedTimer timer; timer.start();
 
     const QString clangBackEndProcessPath = backendProcessPath();
     qCDebug(log) << "Starting" << clangBackEndProcessPath;
@@ -254,12 +251,9 @@ void IpcCommunicator::initializeBackend()
     connect(&m_connection, &ConnectionClient::processRestarted,
             this, &IpcCommunicator::onBackendRestarted);
 
-    if (m_connection.connectToServer()) {
-        qCDebug(log) << "...started and connected in" << timer.elapsed() << "ms.";
+    // TODO: Add a asynchron API to ConnectionClient, otherwise we might hang here
+    if (m_connection.connectToServer())
         initializeBackendWithCurrentData();
-    } else {
-        qCDebug(log) << "...failed.";
-    }
 }
 
 void IpcCommunicator::registerEmptyProjectForProjectLessFiles()

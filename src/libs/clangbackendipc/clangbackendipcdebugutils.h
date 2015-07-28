@@ -31,6 +31,10 @@
 #ifndef CLANGBACKENDIPCDEBUGUTILS_H
 #define CLANGBACKENDIPCDEBUGUTILS_H
 
+#include "clangbackendipc_global.h"
+
+#include <QElapsedTimer>
+
 class FileContainer;
 class Utf8String;
 
@@ -39,6 +43,19 @@ namespace ClangBackEnd {
 Utf8String debugWriteFileForInspection(const Utf8String &fileContent, const Utf8String &id);
 Utf8String debugId(const FileContainer &fileContainer);
 
+class CMBIPC_EXPORT VerboseScopeDurationTimer
+{
+public:
+    VerboseScopeDurationTimer(const char *id = 0);
+    ~VerboseScopeDurationTimer();
+
+private:
+    const char * const id;
+    QElapsedTimer timer;
+};
+
 } // namespace ClangBackEnd
+
+#define TIME_SCOPE_DURATION(id) ClangBackEnd::VerboseScopeDurationTimer scopeDurationTimer(id)
 
 #endif // CLANGBACKENDIPCDEBUGUTILS_H

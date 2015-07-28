@@ -30,6 +30,7 @@
 
 #include "clangipcserver.h"
 
+#include <clangbackendipcdebugutils.h>
 #include <cmbcodecompletedcommand.h>
 #include <cmbcompletecodecommand.h>
 #include <cmbregisterprojectsforcodecompletioncommand.h>
@@ -64,6 +65,8 @@ void ClangIpcServer::end()
 
 void ClangIpcServer::registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionCommand &command)
 {
+    TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForCodeCompletion");
+
     try {
         translationUnits.createOrUpdate(command.fileContainers());
         unsavedFiles.createOrUpdate(command.fileContainers());
@@ -76,6 +79,8 @@ void ClangIpcServer::registerTranslationUnitsForCodeCompletion(const ClangBackEn
 
 void ClangIpcServer::unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionCommand &command)
 {
+    TIME_SCOPE_DURATION("ClangIpcServer::unregisterTranslationUnitsForCodeCompletion");
+
     try {
         translationUnits.remove(command.fileContainers());
     } catch (const TranslationUnitDoesNotExistException &exception) {
@@ -89,6 +94,8 @@ void ClangIpcServer::unregisterTranslationUnitsForCodeCompletion(const ClangBack
 
 void ClangIpcServer::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command)
 {
+    TIME_SCOPE_DURATION("ClangIpcServer::registerProjectPartsForCodeCompletion");
+
     try {
         projects.createOrUpdate(command.projectContainers());
     } catch (const std::exception &exception) {
@@ -98,6 +105,8 @@ void ClangIpcServer::registerProjectPartsForCodeCompletion(const RegisterProject
 
 void ClangIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command)
 {
+    TIME_SCOPE_DURATION("ClangIpcServer::unregisterProjectPartsForCodeCompletion");
+
     try {
         projects.remove(command.projectPartIds());
     } catch (const ProjectPartDoNotExistException &exception) {
@@ -109,6 +118,8 @@ void ClangIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterPro
 
 void ClangIpcServer::completeCode(const ClangBackEnd::CompleteCodeCommand &command)
 {
+    TIME_SCOPE_DURATION("ClangIpcServer::completeCode");
+
     try {
         CodeCompleter codeCompleter(translationUnits.translationUnit(command.filePath(), command.projectPartId()));
 
