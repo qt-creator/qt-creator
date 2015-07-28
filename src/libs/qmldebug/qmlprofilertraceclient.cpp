@@ -255,6 +255,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
     }
     case Complete:
         emit complete(d->maximumTime);
+        setRecordingFromServer(false);
         break;
     case SceneGraphFrame: {
         if (!d->updateFeatures(ProfileSceneGraph))
@@ -380,8 +381,4 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
     default:
         break;
     }
-
-    // stop with the first data
-    if (messageType != Event || subtype != StartTrace)
-        setRecordingFromServer(false);
 }
