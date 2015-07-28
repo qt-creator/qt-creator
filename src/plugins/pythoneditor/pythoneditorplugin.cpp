@@ -853,7 +853,7 @@ ProjectNode *PythonProject::rootProjectNode() const
 
 bool PythonProject::fromMap(const QVariantMap &map)
 {
-    if (!Project::fromMap(map))
+    if (Project::fromMap(map, 0) != RestoreResult::Ok)
         return false;
 
     Kit *defaultKit = KitManager::defaultKit();
