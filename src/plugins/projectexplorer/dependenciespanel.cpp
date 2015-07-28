@@ -40,7 +40,8 @@
 #include <QSize>
 #include <QCoreApplication>
 
-#include <QHBoxLayout>
+#include <QCheckBox>
+#include <QGridLayout>
 #include <QTreeView>
 #include <QSpacerItem>
 #include <QMessageBox>
@@ -223,13 +224,20 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
 
     QWidget *detailsWidget = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(detailsWidget);
-    QHBoxLayout *layout = new QHBoxLayout(detailsWidget);
+    QGridLayout *layout = new QGridLayout(detailsWidget);
     layout->setContentsMargins(0, -1, 0, -1);
     DependenciesView *treeView = new DependenciesView(this);
     treeView->setModel(m_model);
     treeView->setHeaderHidden(true);
-    layout->addWidget(treeView);
-    layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
+    layout->addWidget(treeView, 0 ,0);
+    layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
+
+    m_cascadeSetActiveCheckBox = new QCheckBox;
+    m_cascadeSetActiveCheckBox->setText(tr("Synchronize active kit, build, and deploy configuration between projects."));
+    m_cascadeSetActiveCheckBox->setChecked(SessionManager::isProjectConfigurationCascading());
+    connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
+            SessionManager::instance(), &SessionManager::setProjectConfigurationCascading);
+    layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
 }
 
 } // namespace Internal

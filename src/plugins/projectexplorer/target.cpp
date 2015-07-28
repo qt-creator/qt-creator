@@ -40,6 +40,7 @@
 #include "deployconfiguration.h"
 #include "project.h"
 #include "runconfiguration.h"
+#include "session.h"
 
 #include <limits>
 #include <coreplugin/coreconstants.h>
@@ -276,9 +277,9 @@ bool Target::removeBuildConfiguration(BuildConfiguration *configuration)
 
     if (activeBuildConfiguration() == configuration) {
         if (d->m_buildConfigurations.isEmpty())
-            setActiveBuildConfiguration(0);
+            SessionManager::setActiveBuildConfiguration(this, 0, SetActive::Cascade);
         else
-            setActiveBuildConfiguration(d->m_buildConfigurations.at(0));
+            SessionManager::setActiveBuildConfiguration(this, d->m_buildConfigurations.at(0), SetActive::Cascade);
     }
 
     delete configuration;
@@ -349,9 +350,10 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
 
     if (activeDeployConfiguration() == dc) {
         if (d->m_deployConfigurations.isEmpty())
-            setActiveDeployConfiguration(0);
+            SessionManager::setActiveDeployConfiguration(this, 0, SetActive::Cascade);
         else
-            setActiveDeployConfiguration(d->m_deployConfigurations.at(0));
+            SessionManager::setActiveDeployConfiguration(this, d->m_deployConfigurations.at(0),
+                                                         SetActive::Cascade);
     }
 
     delete dc;

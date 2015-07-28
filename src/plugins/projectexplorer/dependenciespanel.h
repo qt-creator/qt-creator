@@ -35,6 +35,10 @@
 
 #include <QTreeView>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
+
 namespace Utils { class DetailsWidget; }
 
 namespace ProjectExplorer {
@@ -96,6 +100,7 @@ private:
     Project *m_project;
     DependenciesModel *m_model;
     Utils::DetailsWidget *m_detailsContainer;
+    QCheckBox *m_cascadeSetActiveCheckBox;
 };
 
 } // namespace Internal

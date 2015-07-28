@@ -40,6 +40,7 @@
 #include "projectwindow.h"
 #include "propertiespanel.h"
 #include "runsettingspropertiespage.h"
+#include "session.h"
 #include "target.h"
 #include "targetsettingswidget.h"
 
@@ -290,8 +291,7 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     delete m_panelWidgets[1];
     m_panelWidgets[1] = runPanel;
 
-
-    m_project->setActiveTarget(target);
+    SessionManager::setActiveTarget(m_project, target, SetActive::Cascade);
 }
 
 void TargetSettingsPanelWidget::menuShown(int targetIndex)
@@ -307,7 +307,7 @@ void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 
     if (newTarget) {
         m_project->addTarget(newTarget);
-        m_project->setActiveTarget(newTarget);
+        SessionManager::setActiveTarget(m_project, newTarget, SetActive::Cascade);
         m_project->removeTarget(sourceTarget);
     }
 }
@@ -319,7 +319,7 @@ void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 
     if (newTarget) {
         m_project->addTarget(newTarget);
-        m_project->setActiveTarget(newTarget);
+        SessionManager::setActiveTarget(m_project, newTarget, SetActive::Cascade);
     }
 }
 
@@ -363,12 +363,12 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
         newBc->setDisplayName(sourceBc->displayName());
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
-            newTarget->setActiveBuildConfiguration(newBc);
+            SessionManager::setActiveBuildConfiguration(newTarget, newBc, SetActive::NoCascade);
     }
     if (!newTarget->activeBuildConfiguration()) {
         QList<BuildConfiguration *> bcs = newTarget->buildConfigurations();
         if (!bcs.isEmpty())
-            newTarget->setActiveBuildConfiguration(bcs.first());
+            SessionManager::setActiveBuildConfiguration(newTarget, bcs.first(), SetActive::NoCascade);
     }
 
     foreach (DeployConfiguration *sourceDc, sourceTarget->deployConfigurations()) {
@@ -385,12 +385,12 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
         newDc->setDisplayName(sourceDc->displayName());
         newTarget->addDeployConfiguration(newDc);
         if (sourceTarget->activeDeployConfiguration() == sourceDc)
-            newTarget->setActiveDeployConfiguration(newDc);
+            SessionManager::setActiveDeployConfiguration(newTarget, newDc, SetActive::NoCascade);
     }
     if (!newTarget->activeBuildConfiguration()) {
         QList<DeployConfiguration *> dcs = newTarget->deployConfigurations();
         if (!dcs.isEmpty())
-            newTarget->setActiveDeployConfiguration(dcs.first());
+            SessionManager::setActiveDeployConfiguration(newTarget, dcs.first(), SetActive::NoCascade);
     }
 
     foreach (RunConfiguration *sourceRc, sourceTarget->runConfigurations()) {
@@ -671,9 +671,11 @@ void TargetSettingsPanelWidget::importTarget(const Utils::FileName &path)
         QTC_ASSERT(bc, continue);
         target->addBuildConfiguration(bc);
     }
-    m_project->setActiveTarget(target);
+
+    SessionManager::setActiveTarget(m_project, target, SetActive::Cascade);
+
     if (target && bc)
-        target->setActiveBuildConfiguration(bc);
+        SessionManager::setActiveBuildConfiguration(target, bc, SetActive::Cascade);
 
     qDeleteAll(toImport);
 }

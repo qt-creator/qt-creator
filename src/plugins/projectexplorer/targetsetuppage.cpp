@@ -36,6 +36,7 @@
 #include "importwidget.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "session.h"
 #include "target.h"
 #include "targetsetupwidget.h"
 
@@ -576,7 +577,7 @@ bool TargetSetupPage::setupProject(Project *project)
     if (m_importer)
         activeTarget = m_importer->preferredTarget(project->targets());
     if (activeTarget)
-        project->setActiveTarget(activeTarget);
+        SessionManager::setActiveTarget(project, activeTarget, SetActive::NoCascade);
 
     return true;
 }

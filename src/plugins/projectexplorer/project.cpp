@@ -35,6 +35,7 @@
 #include "editorconfiguration.h"
 #include "projectexplorer.h"
 #include "target.h"
+#include "session.h"
 #include "settingsaccessor.h"
 
 #include <coreplugin/idocument.h>
@@ -200,11 +201,11 @@ bool Project::removeTarget(Target *target)
 
     if (target == activeTarget()) {
         if (d->m_targets.size() == 1)
-            setActiveTarget(0);
+            SessionManager::setActiveTarget(this, 0, SetActive::Cascade);
         else if (d->m_targets.first() == target)
-            setActiveTarget(d->m_targets.at(1));
+            SessionManager::setActiveTarget(this, d->m_targets.at(1), SetActive::Cascade);
         else
-            setActiveTarget(d->m_targets.at(0));
+            SessionManager::setActiveTarget(this, d->m_targets.at(0), SetActive::Cascade);
     }
 
     emit aboutToRemoveTarget(target);

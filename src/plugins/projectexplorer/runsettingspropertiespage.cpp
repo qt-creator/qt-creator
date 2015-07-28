@@ -37,6 +37,7 @@
 #include "runconfiguration.h"
 #include "target.h"
 #include "project.h"
+#include "session.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -364,9 +365,10 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
     if (m_ignoreChange)
         return;
     if (index == -1)
-        m_target->setActiveDeployConfiguration(0);
+        SessionManager::setActiveDeployConfiguration(m_target, 0, SetActive::Cascade);
     else
-        m_target->setActiveDeployConfiguration(m_deployConfigurationModel->deployConfigurationAt(index));
+        SessionManager::setActiveDeployConfiguration(m_target, m_deployConfigurationModel->deployConfigurationAt(index),
+                                                     SetActive::Cascade);
 }
 
 void RunSettingsWidget::aboutToShowDeployMenu()
@@ -390,7 +392,7 @@ void RunSettingsWidget::aboutToShowDeployMenu()
                     return;
                 QTC_CHECK(!newDc || newDc->id() == id);
                 m_target->addDeployConfiguration(newDc);
-                m_target->setActiveDeployConfiguration(newDc);
+                SessionManager::setActiveDeployConfiguration(m_target, newDc, SetActive::Cascade);
                 m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
             });
         }

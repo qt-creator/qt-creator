@@ -35,6 +35,7 @@
 #include "target.h"
 #include "buildconfiguration.h"
 #include "buildconfigurationmodel.h"
+#include "session.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
@@ -223,7 +224,7 @@ void BuildSettingsWidget::currentIndexChanged(int index)
 {
     BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
     BuildConfiguration *buildConfiguration = model->buildConfigurationAt(index);
-    m_target->setActiveBuildConfiguration(buildConfiguration);
+    SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
 }
 
 void BuildSettingsWidget::updateActiveConfiguration()
@@ -259,7 +260,7 @@ void BuildSettingsWidget::createConfiguration(BuildInfo *info)
         return;
 
     m_target->addBuildConfiguration(bc);
-    m_target->setActiveBuildConfiguration(bc);
+    SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
     info->displayName = originalDisplayName;
 }
 
@@ -327,7 +328,7 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
 
     bc->setDisplayName(name);
     m_target->addBuildConfiguration(bc);
-    m_target->setActiveBuildConfiguration(bc);
+    SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
 }
 
 void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfiguration)

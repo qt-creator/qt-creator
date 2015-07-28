@@ -55,6 +55,7 @@ class TargetPrivate;
 
 class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
 {
+    friend class SessionManager; // for setActiveBuild and setActiveDeployConfiguration
     Q_OBJECT
 
 public:
@@ -72,7 +73,6 @@ public:
 
     QList<BuildConfiguration *> buildConfigurations() const;
     BuildConfiguration *activeBuildConfiguration() const;
-    void setActiveBuildConfiguration(BuildConfiguration *configuration);
 
     // DeployConfiguration
     void addDeployConfiguration(DeployConfiguration *dc);
@@ -80,7 +80,6 @@ public:
 
     QList<DeployConfiguration *> deployConfigurations() const;
     DeployConfiguration *activeDeployConfiguration() const;
-    void setActiveDeployConfiguration(DeployConfiguration *configuration);
 
     void setDeploymentData(const DeploymentData &deploymentData);
     DeploymentData deploymentData() const;
@@ -179,6 +178,8 @@ private slots:
     void handleKitRemoval(ProjectExplorer::Kit *k);
 
 private:
+    void setActiveBuildConfiguration(BuildConfiguration *configuration);
+    void setActiveDeployConfiguration(DeployConfiguration *configuration);
     TargetPrivate *d;
 
     friend class Project;

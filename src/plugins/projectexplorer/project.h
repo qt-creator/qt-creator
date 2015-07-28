@@ -64,6 +64,7 @@ class ProjectPrivate;
 class PROJECTEXPLORER_EXPORT Project
     : public QObject
 {
+    friend class SessionManager; // for setActiveTarget
     Q_OBJECT
 
 public:
@@ -96,7 +97,6 @@ public:
     QList<Target *> targets() const;
     // Note: activeTarget can be 0 (if no targets are defined).
     Target *activeTarget() const;
-    void setActiveTarget(Target *target);
     Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
     virtual bool supportsKit(Kit *k, QString *errorMessage = 0) const;
@@ -185,6 +185,7 @@ private slots:
     void onBuildDirectoryChanged();
 
 private:
+    void setActiveTarget(Target *target);
     ProjectPrivate *d;
 };
 

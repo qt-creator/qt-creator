@@ -54,8 +54,13 @@ class IEditor;
 namespace ProjectExplorer {
 
 class Project;
+class Target;
+class BuildConfiguration;
+class DeployConfiguration;
 class Node;
 class SessionNode;
+
+enum class SetActive { Cascade, NoCascade };
 
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
 {
@@ -97,6 +102,13 @@ public:
     static bool canAddDependency(const Project *project, const Project *depProject);
     static bool addDependency(Project *project, Project *depProject);
     static void removeDependency(Project *project, Project *depProject);
+
+    static bool isProjectConfigurationCascading();
+    static void setProjectConfigurationCascading(bool b);
+
+    static void setActiveTarget(Project *p, Target *t, SetActive cascade);
+    static void setActiveBuildConfiguration(Target *t, BuildConfiguration *bc, SetActive cascade);
+    static void setActiveDeployConfiguration(Target *t, DeployConfiguration *dc, SetActive cascade);
 
     static Utils::FileName sessionNameToFileName(const QString &session);
     static Project *startupProject();

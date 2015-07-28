@@ -960,17 +960,18 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
 
 void MiniProjectTargetSelector::setActiveTarget(ProjectConfiguration *pc)
 {
-    m_project->setActiveTarget(static_cast<Target *>(pc));
+    SessionManager::setActiveTarget(m_project, static_cast<Target *>(pc),
+                                    SetActive::Cascade);
 }
 
 void MiniProjectTargetSelector::setActiveBuildConfiguration(ProjectConfiguration *pc)
 {
-    m_target->setActiveBuildConfiguration(static_cast<BuildConfiguration *>(pc));
+    SessionManager::setActiveBuildConfiguration(m_target, static_cast<BuildConfiguration *>(pc), SetActive::Cascade);
 }
 
 void MiniProjectTargetSelector::setActiveDeployConfiguration(ProjectConfiguration *pc)
 {
-    m_target->setActiveDeployConfiguration(static_cast<DeployConfiguration *>(pc));
+    SessionManager::setActiveDeployConfiguration(m_target, static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
 }
 
 void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectConfiguration *pc)

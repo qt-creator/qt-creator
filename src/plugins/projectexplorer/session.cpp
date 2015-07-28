@@ -31,6 +31,10 @@
 #include "session.h"
 
 #include "project.h"
+#include "target.h"
+#include "kit.h"
+#include "buildconfiguration.h"
+#include "deployconfiguration.h"
 #include "projectexplorer.h"
 #include "nodesvisitor.h"
 #include "editorconfiguration.h"
@@ -112,6 +116,7 @@ public:
     mutable QHash<Project *, QStringList> m_projectFileCache;
     bool m_loadingSession;
 
+    bool m_casadeSetActive;
     Project *m_startupProject;
     QList<Project *> m_projects;
     QStringList m_failedProjects;
@@ -275,6 +280,98 @@ void SessionManager::removeDependency(Project *project, Project *depProject)
     emit m_instance->dependencyChanged(project, depProject);
 }
 
+bool SessionManager::isProjectConfigurationCascading()
+{
+    return d->m_casadeSetActive;
+}
+
+void SessionManager::setProjectConfigurationCascading(bool b)
+{
+    d->m_casadeSetActive = b;
+    markSessionFileDirty();
+}
+
+void SessionManager::setActiveTarget(Project *project, Target *target, SetActive cascade)
+{
+    QTC_ASSERT(project, return);
+
+    project->setActiveTarget(target);
+
+    if (!target) // never cascade setting no target
+        return;
+
+    if (cascade != SetActive::Cascade || !d->m_casadeSetActive)
+        return;
+
+    Core::Id kitId = target->kit()->id();
+    foreach (Project *otherProject, SessionManager::projects()) {
+        if (otherProject == project)
+            continue;
+        foreach (Target *otherTarget, otherProject->targets()) {
+            if (otherTarget->kit()->id() == kitId) {
+                otherProject->setActiveTarget(otherTarget);
+                break;
+            }
+        }
+    }
+}
+
+void SessionManager::setActiveBuildConfiguration(Target *target, BuildConfiguration *bc, SetActive cascade)
+{
+    QTC_ASSERT(target, return);
+    target->setActiveBuildConfiguration(bc);
+
+    if (!bc)
+        return;
+    if (cascade != SetActive::Cascade || !d->m_casadeSetActive)
+        return;
+
+    Core::Id kitId = target->kit()->id();
+    QString name = bc->displayName(); // We match on displayname
+    foreach (Project *otherProject, SessionManager::projects()) {
+        if (otherProject == target->project())
+            continue;
+        Target *otherTarget = otherProject->activeTarget();
+        if (otherTarget->kit()->id() != kitId)
+            continue;
+
+        foreach (BuildConfiguration *otherBc, otherTarget->buildConfigurations()) {
+            if (otherBc->displayName() == name) {
+                otherTarget->setActiveBuildConfiguration(otherBc);
+                break;
+            }
+        }
+    }
+}
+
+void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfiguration *dc, SetActive cascade)
+{
+    QTC_ASSERT(target, return);
+    target->setActiveDeployConfiguration(dc);
+
+    if (!dc)
+        return;
+    if (cascade != SetActive::Cascade || !d->m_casadeSetActive)
+        return;
+
+    Core::Id kitId = target->kit()->id();
+    QString name = dc->displayName(); // We match on displayname
+    foreach (Project *otherProject, SessionManager::projects()) {
+        if (otherProject == target->project())
+            continue;
+        Target *otherTarget = otherProject->activeTarget();
+        if (otherTarget->kit()->id() != kitId)
+            continue;
+
+        foreach (DeployConfiguration *otherDc, otherTarget->deployConfigurations()) {
+            if (otherDc->displayName() == name) {
+                otherTarget->setActiveDeployConfiguration(otherDc);
+                break;
+            }
+        }
+    }
+}
+
 void SessionManager::setStartupProject(Project *startupProject)
 {
     if (debug)
@@ -388,6 +485,7 @@ bool SessionManager::save()
             projectFiles << failed;
 
     data.insert(QLatin1String("ProjectList"), projectFiles);
+    data.insert(QLatin1String("CascadeSetActive"), d->m_casadeSetActive);
 
     QMap<QString, QVariant> depMap;
     QMap<QString, QStringList>::const_iterator i = d->m_depMap.constBegin();
@@ -943,6 +1041,7 @@ bool SessionManager::loadSession(const QString &session)
     d->m_failedProjects.clear();
     d->m_depMap.clear();
     d->m_values.clear();
+    d->m_casadeSetActive = false;
 
     d->m_sessionName = session;
     delete d->m_writer;
@@ -994,6 +1093,9 @@ bool SessionManager::loadSession(const QString &session)
         ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
         ModeManager::setFocusToCurrentMode();
     }
+
+    d->m_casadeSetActive = reader.restoreValue(QLatin1String("CascadeSetActive"), false).toBool();
+
     emit m_instance->sessionLoaded(session);
 
     // Starts a event loop, better do that at the very end
