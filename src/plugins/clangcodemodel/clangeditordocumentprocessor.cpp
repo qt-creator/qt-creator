@@ -44,10 +44,6 @@
 #include <utils/qtcassert.h>
 #include <utils/QtConcurrentTools>
 
-#include <QLoggingCategory>
-
-static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.clangeditordocumentprocessor")
-
 namespace {
 
 typedef CPlusPlus::Document::DiagnosticMessage CppToolsDiagnostic;
@@ -59,8 +55,6 @@ QList<CppToolsDiagnostic> toCppToolsDiagnostics(
 
     QList<CppToolsDiagnostic> converted;
     foreach (const ClangCodeModel::Diagnostic &d, diagnostics) {
-        qCDebug(log) << "diagnostic" << d.severityAsString() << d.location() << d.spelling();
-
         if (d.location().fileName() != filePath)
             continue;
 
