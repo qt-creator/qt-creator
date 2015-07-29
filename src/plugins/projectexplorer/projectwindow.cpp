@@ -96,11 +96,7 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::aboutToShutdown()
 {
-    showProperties(-1, -1); // that's a bit stupid, but otherwise stuff is still
-                            // connected to the session
-    m_cache.clear();
-    disconnect(KitManager::instance(), 0, this, 0);
-    disconnect(SessionManager::instance(), 0, this, 0);
+    showProperties(-1, -1);
 }
 
 void ProjectWindow::removedTarget(Target *)
@@ -179,13 +175,14 @@ bool ProjectWindow::deregisterProject(Project *project)
     if (index == -1)
         return false;
 
+    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+
     QVector<QWidget *> deletedWidgets = m_cache.deregisterProject(project);
     if (deletedWidgets.contains(m_currentWidget))
         m_currentWidget = 0;
 
     m_tabWidget->removeTab(index);
-    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            this, SLOT(removedTarget(ProjectExplorer::Target*)));
     return true;
 }
 
@@ -383,8 +380,3 @@ int WidgetCache::recheckFactories(Project *project, int oldSupportsIndex)
     return newIndex;
 }
 
-void WidgetCache::clear()
-{
-    while (!m_projects.isEmpty())
-        deregisterProject(m_projects.first().project);
-}
