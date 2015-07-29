@@ -229,8 +229,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     m_assistKind = kind;
     IAssistProcessor *processor = provider->createProcessor();
     AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
-    if (!assistInterface)
+    if (!assistInterface) {
+        delete processor;
         return;
+    }
 
     switch (provider->runType()) {
     case IAssistProvider::Synchronous: {
