@@ -281,6 +281,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         if (IAssistProposal *newProposal = processor->perform(assistInterface)) {
             displayProposal(newProposal, reason);
             delete processor;
+        } else if (!processor->performWasApplicable()) {
+            delete processor;
         }
 
         // ...otherwise the async request was triggered

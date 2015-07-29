@@ -226,8 +226,10 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
 {
     m_interface.reset(static_cast<const ClangCompletionAssistInterface *>(interface));
 
-    if (interface->reason() != ExplicitlyInvoked && !accepts())
+    if (interface->reason() != ExplicitlyInvoked && !accepts()) {
+        setPerformWasApplicable(false);
         return 0;
+    }
 
     return startCompletionHelper(); // == 0 if results are calculated asynchronously
 }
