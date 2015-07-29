@@ -55,20 +55,22 @@
     developers working on the same projects.
 
     For example, if you work on a project and need to switch to another project
-    for a while, you can save your workspace as a session and then close the
-    project and all the files in it. Everything that you open after saving the
-    session becomes a part of a new session. When you want to return to working
-    on the first project, open the saved session. \QC opens the projects and
-    files that belong to the session.
+    for a while, you can clone the current session to save it under a name and
+    create a new session for the other project. Everything that you open after
+    switching to the new session becomes a part of it. When you want to return
+    to working on the first project, switch to the saved session. \QC opens the
+    projects and files that belong to the session.
 
-    To create a new session or remove existing sessions, select \uicontrol File >
-    \uicontrol{Session Manager}.
+    To save a session under a new name, select \uicontrol File >
+    \uicontrol {Session Manager} > \uicontrol Clone.
+
+    To create a new session, select \uicontrol File >
+    \uicontrol {Session Manager} > \uicontrol New.
 
     \image qtcreator-session-manager.png
 
-    To switch between sessions, choose \uicontrol {File > Session Manager}. If you do
-    not create or select a session, \QC always uses the default session, which
-    was created the last time you exited \QC.
+    To switch between sessions, choose \uicontrol {File > Session Manager} >
+    \uicontrol {Switch to}.
 
     When you launch \QC, a list of existing sessions is displayed in the
     \uicontrol Welcome mode.
