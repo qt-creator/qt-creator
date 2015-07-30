@@ -49,12 +49,8 @@ public:
         FallbackPuppet,
         UserSpacePuppet
     };
-    enum QmlPuppetVersion {
-        Qml1Puppet,
-        Qml2Puppet
-    };
 
-    PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model, QmlPuppetVersion puppetVersion);
+    PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model);
     ~PuppetCreator();
 
     void createPuppetExecutableIfMissing();
@@ -74,14 +70,12 @@ public:
 protected:
     bool build(const QString &qmlPuppetProjectFilePath) const;
 
-    void createQml1PuppetExecutableIfMissing();
     void createQml2PuppetExecutableIfMissing();
 
     QString qmlPuppetToplevelBuildDirectory() const;
     QString qmlPuppetFallbackDirectory() const;
     QString qmlPuppetDirectory(PuppetType puppetPathType) const;
     QString qml2PuppetPath(PuppetType puppetType) const;
-    QString qmlPuppetPath(PuppetType puppetPathType) const;
 
     bool startBuildProcess(const QString &buildDirectoryPath,
                            const QString &command,
@@ -93,7 +87,6 @@ protected:
 
     bool checkPuppetIsReady(const QString &puppetPath) const;
     bool checkQml2PuppetIsReady() const;
-    bool checkQmlpuppetIsReady() const;
     bool qtIsSupported() const;
     static bool checkPuppetVersion(const QString &qmlPuppetPath);
     QProcess *puppetProcess(const QString &puppetPath,
@@ -120,12 +113,10 @@ private:
     mutable QString m_compileLog;
     ProjectExplorer::Kit *m_kit;
     PuppetType m_availablePuppetType;
-    static QHash<Core::Id, PuppetType> m_qml1PuppetForKitPuppetHash;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
     const Model *m_model;
     const DesignerSettings m_designerSettings;
     QString m_qrcMapping;
-    QmlPuppetVersion m_puppetVersion;
 };
 
 } // namespace QmlDesigner

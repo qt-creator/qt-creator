@@ -50,7 +50,6 @@
 
 namespace QmlDesigner {
 
-QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml1PuppetForKitPuppetHash;
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPuppetHash;
 
 QByteArray PuppetCreator::qtHash() const
@@ -109,13 +108,12 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
             || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty() || m_kit == 0 || !m_kit->isValid();
 }
 
-PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model, QmlPuppetVersion puppetVersion)
+PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model)
     : m_qtCreatorVersion(qtCreatorVersion),
       m_kit(kit),
       m_availablePuppetType(FallbackPuppet),
       m_model(model),
-      m_designerSettings(QmlDesignerPlugin::instance()->settings()),
-      m_puppetVersion(puppetVersion)
+      m_designerSettings(QmlDesignerPlugin::instance()->settings())
 {
 }
 
@@ -125,24 +123,13 @@ PuppetCreator::~PuppetCreator()
 
 void PuppetCreator::createPuppetExecutableIfMissing()
 {
-    if (m_puppetVersion == Qml1Puppet)
-        createQml1PuppetExecutableIfMissing();
-    else
-        createQml2PuppetExecutableIfMissing();
+    createQml2PuppetExecutableIfMissing();
 }
 
 QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode, const QString &socketToken, QObject *handlerObject, const char *outputSlot, const char *finishSlot) const
 {
-    QString puppetPath;
-    if (m_puppetVersion == Qml1Puppet)
-        puppetPath = qmlPuppetPath(m_availablePuppetType);
-     else
-        puppetPath = qml2PuppetPath(m_availablePuppetType);
-
-    const QString workingDirectory = qmlPuppetDirectory(m_availablePuppetType);
-
-    return puppetProcess(puppetPath,
-                         workingDirectory,
+    return puppetProcess(qml2PuppetPath(m_availablePuppetType),
+                         qmlPuppetDirectory(m_availablePuppetType),
                          puppetMode,
                          socketToken,
                          handlerObject,
@@ -258,28 +245,6 @@ static void warnAboutInvalidKit()
                                                                        ));
 }
 
-void PuppetCreator::createQml1PuppetExecutableIfMissing()
-{
-    m_availablePuppetType = FallbackPuppet;
-
-    if (!useOnlyFallbackPuppet()) {
-        if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
-            m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
-        } else if (checkQmlpuppetIsReady()) {
-            m_availablePuppetType = UserSpacePuppet;
-        } else {
-            if (m_kit->isValid()) {
-                bool buildSucceeded = build(qmlPuppetProjectFile());
-                if (buildSucceeded)
-                    m_availablePuppetType = UserSpacePuppet;
-            } else {
-                warnAboutInvalidKit();
-            }
-            m_qml1PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
-        }
-    }
-}
-
 void PuppetCreator::createQml2PuppetExecutableIfMissing()
 {
     m_availablePuppetType = FallbackPuppet;
@@ -341,11 +306,6 @@ QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
     return qmlPuppetDirectory(puppetType) + QStringLiteral("/qml2puppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
-QString PuppetCreator::qmlPuppetPath(PuppetType puppetType) const
-{
-    return qmlPuppetDirectory(puppetType) + QStringLiteral("/qmlpuppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
-}
-
 QProcessEnvironment PuppetCreator::processEnvironment() const
 {
 #if defined(Q_OS_WIN)
@@ -369,10 +329,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     }
 
     if (m_availablePuppetType != FallbackPuppet) {
-        if (m_puppetVersion == Qml1Puppet)
-            environment.appendOrSet("QML_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
-        else
-            environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
+        environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
     }
     return environment.toProcessEnvironment();
 }
@@ -482,11 +439,6 @@ bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
 bool PuppetCreator::checkQml2PuppetIsReady() const
 {
     return checkPuppetIsReady(qml2PuppetPath(UserSpacePuppet));
-}
-
-bool PuppetCreator::checkQmlpuppetIsReady() const
-{
-    return checkPuppetIsReady(qmlPuppetPath(UserSpacePuppet));
 }
 
 static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersionNumber)
