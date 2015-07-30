@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/findcdbbreakpoint.h>
 
@@ -48,6 +49,8 @@ private slots:
     void findBreakpoints();
     void findBreakpoints2();
     void findBreakpoints3();
+
+    void astPathOnGeneratedTokens();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -200,6 +203,45 @@ void tst_Misc::findBreakpoints3()
     QCOMPARE(findBreakpoint(4), 5U);
     QCOMPARE(findBreakpoint(5), 5U);
     QCOMPARE(findBreakpoint(7), 7U);
+}
+
+static Document::Ptr documentCreatedWithFastPreprocessor(const QByteArray source)
+{
+    Snapshot snapshot;
+    auto document = snapshot.preprocessedDocument(source, QLatin1String("test.cpp"));
+    document->check();
+    return document;
+}
+
+void tst_Misc::astPathOnGeneratedTokens()
+{
+    const QByteArray source =
+        "#define INT int\n"
+        "#define S ;\n"
+        "INT x S\n";
+    const auto document = documentCreatedWithFastPreprocessor(source);
+    ASTPath astPath(document);
+
+    // Check start
+    auto paths = astPath(3, 1);
+    QCOMPARE(paths.size(), 0);
+
+    // Check middle
+    paths = astPath(3, 5);
+    QCOMPARE(paths.size(), 5);
+    QVERIFY(paths.at(0)->asTranslationUnit());
+    QVERIFY(paths.at(1)->asSimpleDeclaration());
+    QVERIFY(paths.at(2)->asDeclarator());
+    QVERIFY(paths.at(3)->asDeclaratorId());
+    QVERIFY(paths.at(4)->asSimpleName());
+
+    // Check end
+    for (auto i : { 7, 8, 9 }) {
+        paths = astPath(3, i);
+        QCOMPARE(paths.size(), 2);
+        QVERIFY(paths.at(0)->asTranslationUnit());
+        QVERIFY(paths.at(1)->asSimpleDeclaration());
+    }
 }
 
 QTEST_MAIN(tst_Misc)

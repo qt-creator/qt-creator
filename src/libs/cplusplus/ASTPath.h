@@ -62,7 +62,11 @@ public:
 #endif
 
 protected:
-    virtual bool preVisit(AST *ast);
+    bool preVisit(AST *ast) override;
+
+private:
+    unsigned firstNonGeneratedToken(AST *ast) const;
+    unsigned lastNonGeneratedToken(AST *ast) const;
 
 private:
     Document::Ptr _doc;

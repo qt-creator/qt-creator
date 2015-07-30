@@ -256,7 +256,6 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<QuickFixTestDocument::P
         removeTrailingWhitespace(result);
         if (!expectedFailMessage.isEmpty())
             QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
-        QEXPECT_FAIL("ConvertToPointerWithMacro", "QTCREATORBUG-14801", Abort);
         QCOMPARE(result, testDocument->m_expectedSource);
 
         // Undo the change
