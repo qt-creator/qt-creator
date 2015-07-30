@@ -114,6 +114,11 @@
             configuration that should be used by qmake. If you leave this field
             empty, the default mkspec of the selected Qt version is used.
 
+        \li In the \uicontrol {CMake Tool} field, select the CMake tool to use
+            for building the project. Select \uicontrol Manage to add installed
+            CMake tools to the list. For more information, see
+            \l{Adding CMake Tools}.
+
     \endlist
 
 */
