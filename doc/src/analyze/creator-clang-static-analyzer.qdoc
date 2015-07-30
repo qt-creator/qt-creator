@@ -44,7 +44,9 @@
     \l{http://clang-analyzer.llvm.org/available_checks.html}{Available Checkers}.
 
     To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} in the
-    context menu.
+    context menu. To view the suppression list for a project and to remove
+    diagnostics from it, select \uicontrol {Clang Static Analyzer Settings} in
+    the \uicontrol Projects mode.
 
     \section1 Setting Up Clang Static Analyzer
 
