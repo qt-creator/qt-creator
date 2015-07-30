@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include <QCoreApplication>
+#include <QLoggingCategory>
 
 #include <connectionserver.h>
 #include <cmbcommands.h>
@@ -36,6 +37,8 @@
 
 int main(int argc, char *argv[])
 {
+    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
     QCoreApplication::setApplicationName(QStringLiteral("ClangBackend"));
