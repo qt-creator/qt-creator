@@ -672,13 +672,15 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
         opts << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
         break;
     case ProjectPart::CXX03:
+        // Clang 3.6 does not know -std=gnu++03.
         opts << QLatin1String("-std=c++03");
         break;
     case ProjectPart::CXX14:
-        opts << QLatin1String("-std=c++1y"); // TODO: change to c++14 after 3.5
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++14") : QLatin1String("-std=c++14"));
         break;
     case ProjectPart::CXX17:
-        opts << QLatin1String("-std=c++1z"); // TODO: change to c++17 at some point in the future
+        // TODO: Change to (probably) "gnu++17"/"c++17" at some point in the future.
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++1z") : QLatin1String("-std=c++1z"));
         break;
     }
 
