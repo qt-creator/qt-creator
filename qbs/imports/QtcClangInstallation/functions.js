@@ -1,3 +1,5 @@
+var File = loadExtension("qbs.File")
+
 function llvmConfig(qbs)
 {
     var llvmInstallDirFromEnv = qbs.getEnv("LLVM_INSTALL_DIR")
