@@ -62,6 +62,6 @@ ScrollViewStyle {
     corner: Item {}
 
     //Even if the platform style reports touch support a scrollview should not be flickable.
-    Component.onCompleted: control.flickableItem.interactive = true
+    Component.onCompleted: control.flickableItem.interactive = false
     transientScrollBars: false
 }
