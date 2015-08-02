@@ -46,8 +46,11 @@ def extractPointerType(d, value):
     try:
         return readLiteral(d, value["_name"]) + postfix
     except:
-        if str(value.type.unqualified().target()) == "CPlusPlus::IntegerType":
+        typeName = str(value.type.unqualified().target())
+        if typeName == "CPlusPlus::IntegerType":
             return "int" + postfix
+        elif typeName == "CPlusPlus::VoidType":
+            return "void" + postfix
         return "<unsupported>"
 
 def readTemplateName(d, value):
