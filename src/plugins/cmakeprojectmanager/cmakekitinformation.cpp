@@ -47,6 +47,7 @@ CMakeKitInformation::CMakeKitInformation()
 {
     setObjectName(QLatin1String("CMakeKitInformation"));
     setId(CMakeKitInformation::id());
+    setPriority(20000);
 
     //make sure the default value is set if a selected CMake is removed
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
