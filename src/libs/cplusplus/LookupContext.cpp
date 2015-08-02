@@ -1971,8 +1971,9 @@ FullySpecifiedType CreateBindings::resolveTemplateArgument(Clone &cloner,
 {
     FullySpecifiedType ty;
 
-    const TypenameArgument *tParam
-            = specialization->templateParameterAt(index)->asTypenameArgument();
+    const TypenameArgument *tParam = 0;
+    if (Symbol *tArgument = specialization->templateParameterAt(index))
+        tParam = tArgument->asTypenameArgument();
     if (!tParam)
         return ty;
 
