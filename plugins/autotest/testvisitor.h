@@ -27,6 +27,8 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/SymbolVisitor.h>
 
+#include <cpptools/symbolfinder.h>
+
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
 
@@ -47,6 +49,7 @@ public:
     bool visit(CPlusPlus::Class *symbol);
 
 private:
+    CppTools::SymbolFinder m_symbolFinder;
     QString m_className;
     QMap<QString, TestCodeLocationAndType> m_privSlots;
 };

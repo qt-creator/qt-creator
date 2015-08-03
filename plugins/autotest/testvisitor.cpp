@@ -68,11 +68,19 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
         if (const auto func = type->asFunctionType()) {
             if (func->isSlot() && member->isPrivate()) {
                 const QString name = o.prettyName(func->name());
-                // TODO use definition of function instead of declaration!
                 TestCodeLocationAndType locationAndType;
-                locationAndType.m_fileName = QLatin1String(member->fileName());
-                locationAndType.m_line = member->line();
-                locationAndType.m_column = member->column() - 1;
+
+                CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
+                            func, CppTools::CppModelManager::instance()->snapshot(), true);
+                if (functionDefinition) {
+                    locationAndType.m_fileName = QString::fromUtf8(functionDefinition->fileName());
+                    locationAndType.m_line = functionDefinition->line();
+                    locationAndType.m_column = functionDefinition->column() - 1;
+                } else { // if we cannot find the definition use declaration as fallback
+                    locationAndType.m_fileName = QString::fromUtf8(member->fileName());
+                    locationAndType.m_line = member->line();
+                    locationAndType.m_column = member->column() - 1;
+                }
                 if (specialFunctions.contains(name))
                     locationAndType.m_type = TestTreeItem::TEST_SPECIALFUNCTION;
                 else if (name.endsWith(QLatin1String("_data")))
