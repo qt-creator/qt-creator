@@ -57,10 +57,10 @@ class QtOutputFormatterPrivate
 {
 public:
     QtOutputFormatterPrivate(Project *proj)
-        : qmlError(QLatin1String("^(" QML_URL_REGEXP    // url
-                                   ":\\d+"           // colon, line
-                                   "(?::\\d+)?)"     // colon, column (optional)
-                                   "[: \t]"))        // colon, space or tab
+        : qmlError(QLatin1String("(" QML_URL_REGEXP    // url
+                                  ":\\d+"           // colon, line
+                                  "(?::\\d+)?)"     // colon, column (optional)
+                                  "[: \t]"))        // colon, space or tab
         , qtError(QLatin1String("Object::.*in (.*:\\d+)"))
         , qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
         , qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))
