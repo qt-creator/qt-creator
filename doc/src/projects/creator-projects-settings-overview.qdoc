@@ -91,6 +91,8 @@
         \li \l{Using Clang Static Analyzer}{Clang Static Analyzer Settings}
             (commercial only)
 
+        \li \l{To-Do List}{To-Do Settings} (experimental)
+
     \endlist
 
     Use the \uicontrol Build and \uicontrol Run buttons to switch between the build and
