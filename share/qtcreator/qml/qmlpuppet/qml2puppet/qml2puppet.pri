@@ -1,18 +1,5 @@
-
 QT += core gui widgets qml quick network
-!isEmpty(QT.webkit.name) {
-    QT += webkit
-}
-
-!isEmpty(QT.v8.name) {
-    QT += v8
-}
-
 QT += core-private qml-private quick-private gui-private
-
-!isEmpty(QT.v8.name) {
-    QT += v8-private
-}
 
 CONFIG += c++11
 
