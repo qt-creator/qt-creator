@@ -347,6 +347,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     if (bc) {
         connect(bc, SIGNAL(buildDirectoryChanged()),
                 this, SLOT(updateDetails()));
+        connect(bc, &BuildConfiguration::environmentChanged,
+                this, &MakeStepConfigWidget::updateDetails);
     }
 
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -359,6 +361,8 @@ void MakeStepConfigWidget::activeBuildConfigurationChanged()
     if (m_bc) {
         disconnect(m_bc, SIGNAL(buildDirectoryChanged()),
                 this, SLOT(updateDetails()));
+        disconnect(m_bc, &BuildConfiguration::environmentChanged,
+                   this, &MakeStepConfigWidget::updateDetails);
     }
 
     m_bc = m_makeStep->target()->activeBuildConfiguration();
@@ -367,6 +371,8 @@ void MakeStepConfigWidget::activeBuildConfigurationChanged()
     if (m_bc) {
         connect(m_bc, SIGNAL(buildDirectoryChanged()),
                 this, SLOT(updateDetails()));
+        connect(m_bc, &BuildConfiguration::environmentChanged,
+                this, &MakeStepConfigWidget::updateDetails);
     }
 }
 
