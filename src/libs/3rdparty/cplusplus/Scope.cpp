@@ -117,6 +117,7 @@ void SymbolTable::enterSymbol(Symbol *symbol)
             _allocatedSymbols = DefaultInitialSize;
 
         _symbols = reinterpret_cast<Symbol **>(realloc(_symbols, sizeof(Symbol *) * _allocatedSymbols));
+        memset(_symbols + _symbolCount, 0, sizeof(Symbol *) * (_allocatedSymbols - _symbolCount));
     }
 
     symbol->_index = _symbolCount;
