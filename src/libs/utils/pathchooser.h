@@ -140,11 +140,17 @@ public:
 
     void triggerChanged();
 
+    // global handler for adding context menus to ALL pathchooser
+    // used by the coreplugin to add "Open in Terminal" and "Open in Explorer" context menu actions
+    using AboutToShowContextMenuHandler = std::function<void (Utils::PathChooser *, QMenu *)>;
+    static void setAboutToShowContextMenuHandler(AboutToShowContextMenuHandler handler);
+
 private:
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
     void slotBrowse();
+    void contextMenuRequested(const QPoint &pos);
 
 signals:
     void validChanged(bool validState);
@@ -161,6 +167,7 @@ public slots:
 
 private:
     PathChooserPrivate *d;
+    static AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 };
 
 } // namespace Utils

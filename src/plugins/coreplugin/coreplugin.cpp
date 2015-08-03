@@ -44,9 +44,11 @@
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/locator/locator.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/fileutils.h>
 
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/pathchooser.h>
 #include <utils/macroexpander.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
@@ -57,6 +59,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDir>
+#include <QMenu>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -229,6 +232,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // Make sure all wizards are there when the user might access the keyboard shortcuts:
     connect(ICore::instance(), &ICore::optionsDialogRequested, []() { IWizardFactory::allWizardFactories(); });
 
+    Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
+
     return success;
 }
 
@@ -269,6 +274,27 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
 void CorePlugin::fileOpenRequest(const QString &f)
 {
     remoteCommand(QStringList(), QString(), QStringList(f));
+}
+
+void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu)
+{
+    QList<QAction*> actions = menu->actions();
+    QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
+
+    auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
+    connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
+        Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->path());
+    });
+    menu->insertAction(firstAction, showInGraphicalShell);
+
+    auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalAction(), menu);
+    connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
+        Core::FileUtils::openTerminal(pathChooser->path());
+    });
+    menu->insertAction(firstAction, showInTerminal);
+
+    if (firstAction)
+        menu->insertSeparator(firstAction);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()

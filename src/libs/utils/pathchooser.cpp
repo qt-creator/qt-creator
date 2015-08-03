@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QPushButton>
 #include <QStandardPaths>
 
@@ -65,6 +66,8 @@ static QString appBundleExpandedPath(const QString &path)
     }
     return path;
 }
+
+Utils::PathChooser::AboutToShowContextMenuHandler Utils::PathChooser::s_aboutToShowContextMenuHandler;
 
 namespace Utils {
 
@@ -221,6 +224,9 @@ PathChooser::PathChooser(QWidget *parent) :
 {
     d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
+    d->m_lineEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(d->m_lineEdit, &FancyLineEdit::customContextMenuRequested, this, &PathChooser::contextMenuRequested);
     connect(d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit changed(rawPath()); });
     connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
@@ -422,6 +428,18 @@ void PathChooser::slotBrowse()
     triggerChanged();
 }
 
+void PathChooser::contextMenuRequested(const QPoint &pos)
+{
+    if (QMenu *menu = d->m_lineEdit->createStandardContextMenu()) {
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        if (s_aboutToShowContextMenuHandler)
+            s_aboutToShowContextMenuHandler(this, menu);
+
+        menu->popup(d->m_lineEdit->mapToGlobal(pos));
+    }
+}
+
 bool PathChooser::isValid() const
 {
     return d->m_lineEdit->isValid();
@@ -435,6 +453,11 @@ QString PathChooser::errorMessage() const
 void PathChooser::triggerChanged()
 {
     d->m_lineEdit->triggerChanged();
+}
+
+void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowContextMenuHandler handler)
+{
+    s_aboutToShowContextMenuHandler = handler;
 }
 
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const

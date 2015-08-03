@@ -33,7 +33,14 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Utils { class Theme; }
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
+
+namespace Utils {
+class PathChooser;
+class Theme;
+}
 
 namespace Core {
 
@@ -77,6 +84,7 @@ private slots:
 
 private:
     void parseArguments(const QStringList & arguments);
+    static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
 
     MainWindow *m_mainWindow;
     EditMode *m_editMode;
