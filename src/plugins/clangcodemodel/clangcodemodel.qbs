@@ -1,6 +1,7 @@
 import qbs
 import qbs.File
 import QtcClangInstallation as Clang
+import QtcFunctions
 import QtcProcessOutputReader
 
 QtcPlugin {
@@ -23,7 +24,7 @@ QtcPlugin {
     property bool clangHighlighting: true
     property bool clangIndexing: false
 
-    property string llvmConfig: Clang.llvmConfig(qbs)
+    property string llvmConfig: Clang.llvmConfig(qbs, QtcFunctions, QtcProcessOutputReader)
     property string llvmIncludeDir: Clang.includeDir(llvmConfig, QtcProcessOutputReader)
     property string llvmLibDir: Clang.libDir(llvmConfig, QtcProcessOutputReader)
     property string llvmLibs: Clang.libraries(qbs.targetOS)
