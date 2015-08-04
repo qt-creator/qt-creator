@@ -14,23 +14,10 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QTreeWidget" name="qtdirList">
+      <widget class="QTreeView" name="qtdirList">
        <property name="uniformRowHeights">
         <bool>true</bool>
        </property>
-       <property name="columnCount">
-        <number>2</number>
-       </property>
-       <column>
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>qmake Location</string>
-        </property>
-       </column>
       </widget>
      </item>
      <item>

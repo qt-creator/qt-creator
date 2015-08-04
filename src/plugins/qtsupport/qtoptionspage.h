@@ -39,12 +39,16 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QTreeWidgetItem;
+class QSortFilterProxyModel;
 class QTextBrowser;
 class QUrl;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class ToolChain; }
+namespace Utils {
+class TreeModel;
+class TreeItem;
+}
 
 namespace QtSupport {
 
@@ -52,6 +56,8 @@ class BaseQtVersion;
 class QtConfigWidget;
 
 namespace Internal {
+class QtVersionItem;
+
 namespace Ui {
 class QtVersionManager;
 class QtVersionInfo;
@@ -73,11 +79,9 @@ private:
     void userChangedCurrentVersion();
     void updateWidgets();
     void updateDebuggingHelperUi();
-    int indexForTreeItem(const QTreeWidgetItem *item) const;
-    QTreeWidgetItem *treeItemForIndex(int index) const;
     BaseQtVersion *currentVersion() const;
-    int currentIndex() const;
-    void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);
+    QtVersionItem *currentItem() const;
+    void showDebuggingBuildLog(const QtVersionItem *item);
 
     const QString m_specifyNameString;
 
@@ -85,7 +89,6 @@ private:
     Internal::Ui::QtVersionInfo *m_versionUi;
     Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
     QTextBrowser *m_infoBrowser;
-    QList<BaseQtVersion *> m_versions;
     int m_defaultVersion;
     QIcon m_invalidVersionIcon;
     QIcon m_warningVersionIcon;
@@ -95,7 +98,7 @@ private:
 private slots:
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
     void qtVersionChanged();
-    void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
+    void versionChanged(const QModelIndex &current, const QModelIndex &previous);
     void addQtDir();
     void removeQtDir();
     void editPath();
@@ -127,10 +130,12 @@ private:
     QByteArray defaultToolChainId(const BaseQtVersion *version);
 
     bool isNameUnique(const BaseQtVersion *version);
-    void updateVersionItem(BaseQtVersion *version);
+    void updateVersionItem(QtVersionItem *item);
 
-    QTreeWidgetItem *m_autoItem;
-    QTreeWidgetItem *m_manualItem;
+    Utils::TreeModel *m_model;
+    QSortFilterProxyModel *m_filterModel;
+    Utils::TreeItem *m_autoItem;
+    Utils::TreeItem *m_manualItem;
 };
 
 class QtOptionsPage : public Core::IOptionsPage

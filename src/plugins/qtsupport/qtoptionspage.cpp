@@ -50,12 +50,16 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/algorithm.h>
+#include <utils/treemodel.h>
 
 #include <QDir>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextBrowser>
 #include <QDesktopServices>
+#include <QSortFilterProxyModel>
+
+#include <utility>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -63,7 +67,100 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, BuildRunningRole};
+class QtVersionItem : public TreeItem
+{
+public:
+    QtVersionItem(const QString &name) // for auto/manual node
+        : TreeItem({name})
+    {}
+
+    QtVersionItem(BaseQtVersion *version) // for versions
+        : TreeItem(),
+          m_version(version)
+    {}
+
+    ~QtVersionItem()
+    {
+
+    }
+
+    void setVersion(BaseQtVersion *version)
+    {
+        m_version = version;
+        update();
+    }
+
+    int uniqueId() const
+    {
+        return m_version ? m_version->uniqueId() : -1;
+    }
+
+    BaseQtVersion *version() const
+    {
+        return m_version;
+    }
+
+    QVariant data(int column, int role) const
+    {
+        if (!m_version)
+            return TreeItem::data(column, role);
+
+        if (role == Qt::DisplayRole) {
+            if (column == 0)
+                return m_version->displayName();
+            if (column == 1)
+                return m_version->qmakeCommand().toUserOutput();
+        }
+
+        if (role == Qt::DecorationRole && column == 0)
+            return m_icon;
+
+        return QVariant();
+    }
+
+    void setIcon(const QIcon &icon)
+    {
+        m_icon = icon;
+        update();
+    }
+
+    QString buildLog() const
+    {
+        return m_buildLog;
+    }
+
+    void setBuildLog(const QString &buildLog)
+    {
+        m_buildLog = buildLog;
+    }
+
+    QByteArray toolChainId() const
+    {
+        return m_toolChainId;
+    }
+
+    void setToolChainId(const QByteArray &id)
+    {
+        m_toolChainId = id;
+    }
+
+    DebuggingHelperBuildTask::Tools buildFlags() const
+    {
+        return m_buildFlags;
+    }
+
+    void setBuildFlags(DebuggingHelperBuildTask::Tools flags)
+    {
+        m_buildFlags = flags;
+    }
+
+private:
+    BaseQtVersion *m_version = 0; // not owned
+    QIcon m_icon;
+    QString m_buildLog;
+    QByteArray m_toolChainId;
+    DebuggingHelperBuildTask::Tools m_buildFlags;
+};
 
 ///
 // QtOptionsPage
@@ -139,19 +236,30 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     connect(m_ui->debuggingHelperWidget, &DetailsWidget::expanded,
             this, &QtOptionsPageWidget::setInfoWidgetVisibility);
 
-    // setup parent items for auto-detected and manual versions
+    auto rootItem = new QtVersionItem(QLatin1String("root"));
+    m_autoItem = new QtVersionItem(tr("Auto-detected"));
+    rootItem->appendChild(m_autoItem);
+    m_manualItem = new QtVersionItem(tr("Manual"));
+    rootItem->appendChild(m_manualItem);
+
+    m_model = new TreeModel(rootItem);
+    m_model->setHeader({tr("Name"), tr("qmake Location"), tr("Type")});
+
+    m_filterModel = new QSortFilterProxyModel(this);
+    m_filterModel->setSourceModel(m_model);
+    m_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+
+    m_ui->qtdirList->setModel(m_filterModel);
+    m_ui->qtdirList->setSortingEnabled(true);
+
+    m_ui->qtdirList->setFirstColumnSpanned(0, QModelIndex(), true);
+    m_ui->qtdirList->setFirstColumnSpanned(1, QModelIndex(), true);
+
     m_ui->qtdirList->header()->setStretchLastSection(false);
     m_ui->qtdirList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_ui->qtdirList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_ui->qtdirList->setTextElideMode(Qt::ElideNone);
-    m_autoItem = new QTreeWidgetItem(m_ui->qtdirList);
-    m_autoItem->setText(0, tr("Auto-detected"));
-    m_autoItem->setFirstColumnSpanned(true);
-    m_autoItem->setFlags(Qt::ItemIsEnabled);
-    m_manualItem = new QTreeWidgetItem(m_ui->qtdirList);
-    m_manualItem->setText(0, tr("Manual"));
-    m_manualItem->setFirstColumnSpanned(true);
-    m_manualItem->setFlags(Qt::ItemIsEnabled);
+    m_ui->qtdirList->sortByColumn(0, Qt::AscendingOrder);
 
     QList<int> additions = transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
 
@@ -170,7 +278,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     connect(m_ui->delButton, &QAbstractButton::clicked,
             this, &QtOptionsPageWidget::removeQtDir);
 
-    connect(m_ui->qtdirList, &QTreeWidget::currentItemChanged,
+    connect(m_ui->qtdirList->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &QtOptionsPageWidget::versionChanged);
 
     connect(m_debuggingHelperUi->rebuildButton, &QAbstractButton::clicked,
@@ -206,51 +314,50 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
         });
 }
 
-int QtOptionsPageWidget::currentIndex() const
-{
-    if (QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem())
-        return indexForTreeItem(currentItem);
-    return -1;
-}
-
 BaseQtVersion *QtOptionsPageWidget::currentVersion() const
 {
-    const int currentItemIndex = currentIndex();
-    if (currentItemIndex >= 0 && currentItemIndex < m_versions.size())
-        return m_versions.at(currentItemIndex);
-    return 0;
+    QtVersionItem *item = currentItem();
+    if (!item)
+        return 0;
+    return item->version();
 }
 
-static inline int findVersionById(const QList<BaseQtVersion *> &l, int id)
+QtVersionItem *QtOptionsPageWidget::currentItem() const
 {
-    const int size = l.size();
-    for (int i = 0; i < size; i++)
-        if (l.at(i)->uniqueId() == id)
-            return i;
-    return -1;
+    QModelIndex idx = m_ui->qtdirList->selectionModel()->currentIndex();
+    QModelIndex sourceIdx = m_filterModel->mapToSource(idx);
+    QtVersionItem *item = static_cast<QtVersionItem *>(m_model->itemForIndex(sourceIdx));
+    return item;
 }
 
 // Update with results of terminated helper build
 void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools)
 {
-    const int index = findVersionById(m_versions, qtVersionId);
-    if (index == -1)
-        return; // Oops, somebody managed to delete the version
+    auto findItem = [qtVersionId](Utils::TreeItem *parent) {
+        foreach (Utils::TreeItem *child, parent->children()) {
+            auto item = static_cast<QtVersionItem *>(child);
+            if (item->version()->uniqueId() == qtVersionId)
+                return item;
+        }
+        return (QtVersionItem *)nullptr;
+    };
 
-    BaseQtVersion *version = m_versions.at(index);
+    QtVersionItem *item = findItem(m_manualItem);
+    if (!item)
+        item = findItem(m_autoItem);
 
-    // Update item view
-    QTreeWidgetItem *item = treeItemForIndex(index);
-    QTC_ASSERT(item, return);
-    DebuggingHelperBuildTask::Tools buildFlags
-            = item->data(0, BuildRunningRole).value<DebuggingHelperBuildTask::Tools>();
+    if (!item)
+        return;
+
+
+    DebuggingHelperBuildTask::Tools buildFlags = item->buildFlags();
     buildFlags &= ~tools;
-    item->setData(0, BuildRunningRole,  QVariant::fromValue(buildFlags));
-    item->setData(0, BuildLogRole, output);
+    item->setBuildFlags(buildFlags);
+    item->setBuildLog(output);
 
     bool success = true;
     if (tools & DebuggingHelperBuildTask::QmlDump)
-        success &= version->hasQmlDump();
+        success &= item->version()->hasQmlDump();
 
     if (!success)
         showDebuggingBuildLog(item);
@@ -260,67 +367,79 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
 
 void QtOptionsPageWidget::cleanUpQtVersions()
 {
-    QStringList toRemove;
-    foreach (const BaseQtVersion *v, m_versions) {
-        if (!v->isValid())
-            toRemove.append(v->displayName());
+    QVector<QtVersionItem *> toRemove;
+    QString text;
+
+    foreach (Utils::TreeItem *child, m_manualItem->children()) {
+        auto item = static_cast<QtVersionItem *>(child);
+        if (item->version() && !item->version()->isValid()) {
+            toRemove.append(item);
+            if (!text.isEmpty())
+                text.append(QLatin1String("</li><li>"));
+            text.append(item->version()->displayName());
+        }
     }
 
     if (toRemove.isEmpty())
         return;
 
+
     if (QMessageBox::warning(0, tr("Remove Invalid Qt Versions"),
                              tr("Do you want to remove all invalid Qt Versions?<br>"
                                 "<ul><li>%1</li></ul><br>"
-                                "will be removed.").arg(toRemove.join(QLatin1String("</li><li>"))),
+                                "will be removed.").arg(text),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    for (int i = m_versions.count() - 1; i >= 0; --i) {
-        if (!m_versions.at(i)->isValid()) {
-            QTreeWidgetItem *item = treeItemForIndex(i);
-            delete item;
-
-            delete m_versions.at(i);
-            m_versions.removeAt(i);
-        }
+    foreach (QtVersionItem *item, toRemove) {
+        m_model->takeItem(item);
+        delete item->version();
+        delete item;
     }
+
     updateCleanUpButton();
 }
 
 void QtOptionsPageWidget::toolChainsUpdated()
 {
-    for (int i = 0; i < m_versions.count(); ++i) {
-        QTreeWidgetItem *item = treeItemForIndex(i);
-        if (item == m_ui->qtdirList->currentItem()) {
-            updateDescriptionLabel();
-            updateDebuggingHelperUi();
-        } else {
-            updateVersionItem(m_versions.at(i));
+    auto update = [this](Utils::TreeItem *parent) {
+        foreach (Utils::TreeItem *child, parent->children()) {
+            if (child == currentItem()) {
+                updateDescriptionLabel();
+                updateDebuggingHelperUi();
+            } else {
+                updateVersionItem(static_cast<QtVersionItem *>(child));
+            }
         }
-    }
+    };
+
+    update(m_autoItem);
+    update(m_manualItem);
 }
 
 void QtOptionsPageWidget::selectedToolChainChanged(int comboIndex)
 {
-    const int index = currentIndex();
-    if (index < 0)
+    QtVersionItem *item = currentItem();
+    if (!item)
         return;
 
-    QTreeWidgetItem *item = treeItemForIndex(index);
-    QTC_ASSERT(item, return);
-
     QByteArray toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(comboIndex).toByteArray();
-
-    item->setData(0, ToolChainIdRole, toolChainId);
+    item->setToolChainId(toolChainId);
 }
 
 void QtOptionsPageWidget::qtVersionsDumpUpdated(const FileName &qmakeCommand)
 {
-    foreach (BaseQtVersion *version, m_versions) {
-        if (version->qmakeCommand() == qmakeCommand)
-            version->recheckDumper();
-    }
+    auto recheck = [qmakeCommand](Utils::TreeItem *parent) {
+        foreach (Utils::TreeItem *child, parent->children()) {
+            auto item = static_cast<QtVersionItem *>(child);
+            if (item->version()->qmakeCommand() == qmakeCommand)
+                item->version()->recheckDumper();
+        }
+    };
+
+    recheck(m_autoItem);
+    recheck(m_manualItem);
+
     if (currentVersion()
             && currentVersion()->qmakeCommand() == qmakeCommand) {
         updateWidgets();
@@ -427,44 +546,48 @@ QByteArray QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
 bool QtOptionsPageWidget::isNameUnique(const BaseQtVersion *version)
 {
     const QString name = version->displayName().trimmed();
-    foreach (const BaseQtVersion *i, m_versions) {
-        if (i == version)
-            continue;
-        if (i->displayName().trimmed() == name)
-            return false;
-    }
-    return true;
+
+    auto isUnique = [name, version](Utils::TreeItem *parent) {
+        foreach (Utils::TreeItem *child, parent->children()) {
+            auto item = static_cast<QtVersionItem *>(child);
+            if (item->version() == version)
+                continue;
+            if (item->version()->displayName().trimmed() == name)
+                return false;
+        }
+        return true;
+    };
+
+    return isUnique(m_manualItem) && isUnique(m_autoItem);
 }
 
-void QtOptionsPageWidget::updateVersionItem(BaseQtVersion *version)
+void QtOptionsPageWidget::updateVersionItem(QtVersionItem *item)
 {
-    const ValidityInfo info = validInformation(version);
-    QTreeWidgetItem *item = treeItemForIndex(m_versions.indexOf(version));
-    item->setText(0, version->displayName());
-    item->setText(1, version->qmakeCommand().toUserOutput());
-    item->setIcon(0, info.icon);
+    if (!item)
+        return;
+    if (!item->version())
+        return;
+
+    const ValidityInfo info = validInformation(item->version());
+    item->update();
+    item->setIcon(info.icon);
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
 {
-    const int index = currentIndex();
-    if (index < 0)
+    QtVersionItem *item = currentItem();
+    if (!item)
+        return;
+
+    if (!item->version())
         return;
 
     // remove tools that cannot be build
     tools &= DebuggingHelperBuildTask::availableTools(currentVersion());
 
-    QTreeWidgetItem *item = treeItemForIndex(index);
-    QTC_ASSERT(item, return);
-
-    DebuggingHelperBuildTask::Tools buildFlags
-            = item->data(0, BuildRunningRole).value<DebuggingHelperBuildTask::Tools>();
+    DebuggingHelperBuildTask::Tools buildFlags = item->buildFlags();
     buildFlags |= tools;
-    item->setData(0, BuildRunningRole, QVariant::fromValue(buildFlags));
-
-    BaseQtVersion *version = m_versions.at(index);
-    if (!version)
-        return;
+    item->setBuildFlags(buildFlags);
 
     updateDebuggingHelperUi();
 
@@ -475,7 +598,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     if (!toolChain)
         return;
 
-    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, toolChain, tools);
+    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(item->version(), toolChain, tools);
     // Don't open General Messages pane with errors
     buildTask->showOutputOnError(false);
     connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
@@ -517,37 +640,37 @@ void BuildLogDialog::setText(const QString &text)
 
 void QtOptionsPageWidget::slotShowDebuggingBuildLog()
 {
-    if (const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem())
-        showDebuggingBuildLog(currentItem);
+    if (const QtVersionItem *item = currentItem())
+        showDebuggingBuildLog(item);
 }
 
-void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentItem)
+void QtOptionsPageWidget::showDebuggingBuildLog(const QtVersionItem *item)
 {
-    const int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
+    BaseQtVersion *version = item->version();
+    if (!version)
         return;
     BuildLogDialog *dialog = new BuildLogDialog(this->window());
-    dialog->setWindowTitle(tr("Debugging Helper Build Log for \"%1\"").arg(currentItem->text(0)));
-    dialog->setText(currentItem->data(0, BuildLogRole).toString());
+    dialog->setWindowTitle(tr("Debugging Helper Build Log for \"%1\"").arg(version->displayName()));
+    dialog->setText(item->buildLog());
     dialog->show();
 }
 
 void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
                                            const QList<int> &changes)
 {
-    QList<QTreeWidgetItem *> toRemove;
+    QList<QtVersionItem *> toRemove;
     QList<int> toAdd = additions;
 
     // Generate list of all existing items:
-    QList<QTreeWidgetItem *> itemList;
+    QList<QtVersionItem *> itemList;
     for (int i = 0; i < m_autoItem->childCount(); ++i)
-        itemList.append(m_autoItem->child(i));
+        itemList.append(static_cast<QtVersionItem *>(m_autoItem->child(i)));
     for (int i = 0; i < m_manualItem->childCount(); ++i)
-        itemList.append(m_manualItem->child(i));
+        itemList.append(static_cast<QtVersionItem *>(m_manualItem->child(i)));
 
     // Find existing items to remove/change:
-    foreach (QTreeWidgetItem *item, itemList) {
-        int id = item->data(0, VersionIdRole).toInt();
+    foreach (QtVersionItem *item, itemList) {
+        int id = item->uniqueId();
         if (removals.contains(id)) {
             toRemove.append(item);
             continue;
@@ -561,40 +684,32 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     }
 
     // Remove changed/removed items:
-    foreach (QTreeWidgetItem *item, toRemove) {
-        int index = indexForTreeItem(item);
-        delete m_versions.at(index);
-        m_versions.removeAt(index);
+    foreach (QtVersionItem *item, toRemove) {
+        m_model->takeItem(item);
+        delete item->version();
         delete item;
     }
 
     // Add changed/added items:
     foreach (int a, toAdd) {
         BaseQtVersion *version = QtVersionManager::version(a)->clone();
-        m_versions.append(version);
-        QTreeWidgetItem *item = new QTreeWidgetItem;
+        //m_versions.append(version);
+        auto *item = new QtVersionItem(version);
 
-        item->setData(0, VersionIdRole, version->uniqueId());
-        item->setData(0, ToolChainIdRole, defaultToolChainId(version));
+        item->setToolChainId(defaultToolChainId(version));
 
         // Insert in the right place:
-        QTreeWidgetItem *parent = version->isAutodetected()? m_autoItem : m_manualItem;
-        for (int i = 0; i < parent->childCount(); ++i) {
-            BaseQtVersion *currentVersion = m_versions.at(indexForTreeItem(parent->child(i)));
-            if (currentVersion->qtVersion() > version->qtVersion())
-                continue;
-            parent->insertChild(i, item);
-            parent = 0;
-            break;
-        }
-
-        if (parent)
-            parent->addChild(item);
+        Utils::TreeItem *parent = version->isAutodetected()? m_autoItem : m_manualItem;
+        parent->appendChild(item);
     }
 
-    // Only set the icon after all versions are there to make sure all names are known:
-    foreach (BaseQtVersion *i, m_versions)
-        updateVersionItem(i);
+    auto update = [this](Utils::TreeItem *parent) {
+        foreach (Utils::TreeItem *child, parent->children())
+            updateVersionItem(static_cast<QtVersionItem *>(child));
+    };
+
+    update(m_autoItem);
+    update(m_manualItem);
 }
 
 QtOptionsPageWidget::~QtOptionsPageWidget()
@@ -603,7 +718,6 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
     delete m_versionUi;
     delete m_debuggingHelperUi;
     delete m_configurationWidget;
-    qDeleteAll(m_versions);
 }
 
 void QtOptionsPageWidget::addQtDir()
@@ -623,28 +737,40 @@ void QtOptionsPageWidget::addQtDir()
     if (BuildableHelperLibrary::isQtChooser(fi))
         qtVersion = FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
 
-    BaseQtVersion *version = Utils::findOrDefault(m_versions,
-                                                  Utils::equal(&BaseQtVersion::qmakeCommand, qtVersion));
-    if (version) {
+    auto checkAlreadyExists = [qtVersion](Utils::TreeItem *parent) {
+        for (int i = 0; i < parent->childCount(); ++i) {
+            auto item = static_cast<QtVersionItem *>(parent->childAt(i));
+            if (item->version()->qmakeCommand() == qtVersion) {
+                return std::make_pair(true, item->version()->displayName());
+            }
+        }
+        return std::make_pair(false, QString());
+    };
+
+    bool alreadyExists;
+    QString otherName;
+    std::tie(alreadyExists, otherName) = checkAlreadyExists(m_autoItem);
+    if (!alreadyExists)
+        std::tie(alreadyExists, otherName) = checkAlreadyExists(m_manualItem);
+
+    if (alreadyExists) {
         // Already exist
         QMessageBox::warning(this, tr("Qt Version Already Known"),
                              tr("This Qt version was already registered as \"%1\".")
-                             .arg(version->displayName()));
+                             .arg(otherName));
         return;
     }
 
     QString error;
-    version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
+    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
     if (version) {
-        m_versions.append(version);
+        auto item = new QtVersionItem(version);
+        item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+        m_manualItem->appendChild(item);
+        item->setToolChainId(defaultToolChainId(version));
 
-        QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
-        item->setText(0, version->displayName());
-        item->setText(1, version->qmakeCommand().toUserOutput());
-        item->setData(0, VersionIdRole, version->uniqueId());
-        item->setData(0, ToolChainIdRole, defaultToolChainId(version));
-        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
-        m_ui->qtdirList->setCurrentItem(item); // should update the rest of the ui
+        QModelIndex source = m_model->indexForItem(item);
+        m_ui->qtdirList->setCurrentIndex(m_filterModel->mapFromSource(source)); // should update the rest of the ui
         m_versionUi->nameEdit->setFocus();
         m_versionUi->nameEdit->selectAll();
     } else {
@@ -657,16 +783,14 @@ void QtOptionsPageWidget::addQtDir()
 
 void QtOptionsPageWidget::removeQtDir()
 {
-    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    int index = indexForTreeItem(item);
-    if (index < 0)
+    QtVersionItem *item = currentItem();
+    if (!item)
         return;
 
+    m_model->takeItem(item);
+    delete item->version();
     delete item;
 
-    BaseQtVersion *version = m_versions.at(index);
-    m_versions.removeAt(index);
-    delete version;
     updateCleanUpButton();
 }
 
@@ -699,23 +823,20 @@ void QtOptionsPageWidget::editPath()
     version->setId(current->uniqueId());
     if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName(current->qmakeCommand()))
         version->setUnexpandedDisplayName(current->displayName());
-    m_versions.replace(m_versions.indexOf(current), version);
     delete current;
 
     // Update ui
     userChangedCurrentVersion();
-    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    item->setText(0, version->displayName());
-    item->setText(1, version->qmakeCommand().toUserOutput());
-    item->setData(0, VersionIdRole, version->uniqueId());
-    item->setData(0, ToolChainIdRole, defaultToolChainId(version));
-    item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+    QtVersionItem *item = currentItem();
+    item->setVersion(version);
+    item->setToolChainId(defaultToolChainId(version));
+    item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
 }
 
 void QtOptionsPageWidget::updateDebuggingHelperUi()
 {
     BaseQtVersion *version = currentVersion();
-    const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+    const QtVersionItem *item = currentItem();
 
     QList<ToolChain*> toolchains = toolChains(currentVersion());
 
@@ -730,9 +851,8 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
         bool isBuildingQmlDumper = false;
 
-        if (currentItem) {
-            DebuggingHelperBuildTask::Tools buildingTools
-                    = currentItem->data(0, BuildRunningRole).value<DebuggingHelperBuildTask::Tools>();
+        if (item) {
+            DebuggingHelperBuildTask::Tools buildingTools = item->buildFlags();
             isBuildingQmlDumper = buildingTools & DebuggingHelperBuildTask::QmlDump;
         }
 
@@ -780,7 +900,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(canBuildQmlDumper & !isBuildingQmlDumper);
 
         QList<ToolChain*> toolchains = toolChains(currentVersion());
-        QByteArray selectedToolChainId = currentItem->data(0, ToolChainIdRole).toByteArray();
+        QByteArray selectedToolChainId = item->toolChainId();
         m_debuggingHelperUi->toolChainComboBox->clear();
         for (int i = 0; i < toolchains.size(); ++i) {
             if (!toolchains.at(i)->isValid())
@@ -793,7 +913,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                 m_debuggingHelperUi->toolChainComboBox->setCurrentIndex(i);
         }
 
-        const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
+        const bool hasLog = item && !item->buildLog().isEmpty();
         m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
 
         const bool canBuild = canBuildQmlDumper;
@@ -809,12 +929,14 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 void QtOptionsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
-    for (int i = 0; i < m_versions.count(); ++i) {
-        if (!m_versions.at(i)->isValid()) {
+    foreach (Utils::TreeItem *child, m_manualItem->children()) {
+        auto item = static_cast<QtVersionItem *>(child);
+        if (item->version() && !item->version()->isValid()) {
             hasInvalidVersion = true;
             break;
         }
     }
+
     m_ui->cleanUpButton->setEnabled(hasInvalidVersion);
 }
 
@@ -833,8 +955,8 @@ void QtOptionsPageWidget::qtVersionChanged()
 
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
-    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    const BaseQtVersion *version = currentVersion();
+    QtVersionItem *item = currentItem();
+    const BaseQtVersion *version = item->version();
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
         m_versionUi->errorLabel->setVisible(false);
@@ -845,7 +967,7 @@ void QtOptionsPageWidget::updateDescriptionLabel()
     }
     m_ui->infoWidget->setSummaryText(info.description);
     if (item)
-        item->setIcon(0, info.icon);
+        item->setIcon(info.icon);
 
     if (version) {
         m_infoBrowser->setHtml(version->toHtml(true));
@@ -858,36 +980,10 @@ void QtOptionsPageWidget::updateDescriptionLabel()
     }
 }
 
-int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
+void QtOptionsPageWidget::versionChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    if (!item || !item->parent())
-        return -1;
-    const int uniqueId = item->data(0, VersionIdRole).toInt();
-    for (int index = 0; index < m_versions.size(); ++index) {
-        if (m_versions.at(index)->uniqueId() == uniqueId)
-            return index;
-    }
-    return -1;
-}
-
-QTreeWidgetItem *QtOptionsPageWidget::treeItemForIndex(int index) const
-{
-    const int uniqueId = m_versions.at(index)->uniqueId();
-    for (int i = 0; i < m_ui->qtdirList->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *toplevelItem = m_ui->qtdirList->topLevelItem(i);
-        for (int j = 0; j < toplevelItem->childCount(); ++j) {
-            QTreeWidgetItem *item = toplevelItem->child(j);
-            if (item->data(0, VersionIdRole).toInt() == uniqueId)
-                return item;
-        }
-    }
-    return 0;
-}
-
-void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *newItem, QTreeWidgetItem *old)
-{
-    Q_UNUSED(newItem);
-    Q_UNUSED(old);
+    Q_UNUSED(current);
+    Q_UNUSED(previous);
     userChangedCurrentVersion();
 }
 
@@ -920,18 +1016,21 @@ void QtOptionsPageWidget::updateWidgets()
 
 void QtOptionsPageWidget::updateCurrentQtName()
 {
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
+    QtVersionItem *item = currentItem();
+    if (!item || !item->version())
         return;
 
-    BaseQtVersion *version = m_versions[currentItemIndex];
-    version->setUnexpandedDisplayName(m_versionUi->nameEdit->text());
+    item->version()->setUnexpandedDisplayName(m_versionUi->nameEdit->text());
+
     updateDescriptionLabel();
 
-    foreach (BaseQtVersion *i, m_versions)
-        updateVersionItem(i);
+    auto update = [this](Utils::TreeItem *parent) {
+        foreach (Utils::TreeItem *child, parent->children())
+            updateVersionItem(static_cast<QtVersionItem *>(child));
+    };
+
+    update(m_autoItem);
+    update(m_manualItem);
 }
 
 void QtOptionsPageWidget::apply()
@@ -948,8 +1047,15 @@ void QtOptionsPageWidget::apply()
 QList<BaseQtVersion *> QtOptionsPageWidget::versions() const
 {
     QList<BaseQtVersion *> result;
-    for (int i = 0; i < m_versions.count(); ++i)
-        result.append(m_versions.at(i)->clone());
+    auto gather = [&result](TreeItem *parent) {
+        result.reserve(result.size() + parent->childCount());
+        for (int i = 0; i < parent->childCount(); ++i)
+            result.append(static_cast<QtVersionItem *>(parent->childAt(i))->version());
+    };
+
+    gather(m_autoItem);
+    gather(m_manualItem);
+
     return result;
 }
 
