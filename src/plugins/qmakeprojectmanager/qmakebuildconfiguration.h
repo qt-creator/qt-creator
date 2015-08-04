@@ -127,7 +127,6 @@ protected:
 
 private:
     void ctor();
-    QString defaultShadowBuildDirectory() const;
 
     class LastKitState
     {

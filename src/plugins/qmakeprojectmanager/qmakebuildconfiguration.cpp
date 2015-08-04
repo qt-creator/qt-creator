@@ -186,13 +186,6 @@ NamedWidget *QmakeBuildConfiguration::createConfigWidget()
     return new QmakeProjectConfigWidget(this);
 }
 
-QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
-{
-    // todo displayName isn't ideal
-    return shadowBuildDirectory(target()->project()->projectFilePath().toString(),
-                                target()->kit(), displayName());
-}
-
 /// If only a sub tree should be build this function returns which sub node
 /// should be build
 /// \see QMakeBuildConfiguration::setSubNodeBuild
