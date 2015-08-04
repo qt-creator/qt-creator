@@ -37,8 +37,6 @@
 
 namespace Ios {
 
-typedef QSharedPointer<QSettings> QSettingsPtr;
-
 class Platform
 {
 public:
@@ -56,8 +54,6 @@ public:
     Utils::FileName compilerPath;
     QString architecture;
     QStringList backendFlags;
-    QSettingsPtr platformInfo;
-    QSettingsPtr sdkSettings;
 };
 
 class IosProbe
