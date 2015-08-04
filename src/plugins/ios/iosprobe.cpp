@@ -146,6 +146,8 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 continue;
             }
 
+            const QString platformSdkVersion = infoSettings.value(QLatin1String("Version")).toString();
+
             // prepare default platform properties
             QVariantMap defaultProp = infoSettings.value(QLatin1String("DefaultProperties"))
                     .toMap();
@@ -225,6 +227,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 if (defaultProp.contains(QLatin1String("SDKROOT")))
                     sdkName = defaultProp.value(QLatin1String("SDKROOT")).toString();
                 QString sdkPath;
+                QString sdkPathWithSameVersion;
                 QDir sdks(fInfo.absoluteFilePath() + QLatin1String("/Developer/SDKs"));
                 QString maxVersion;
                 foreach (const QFileInfo &sdkDirInfo, sdks.entryInfoList(QDir::Dirs
@@ -249,11 +252,15 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                         }
                     } else if (currentSdkName == sdkName) {
                         sdkPath = sdkDirInfo.canonicalFilePath();
-                    }
+                    } else if (currentSdkName.toString().startsWith(sdkName) /*if sdkName doesn't contain version*/
+                            && compareVersions(platformSdkVersion, versionStr) == 0)
+                        sdkPathWithSameVersion = sdkDirInfo.canonicalFilePath();
                 }
-                if (!sdkPath.isEmpty())
+                if (sdkPath.isEmpty())
+                    sysRoot = sdkPathWithSameVersion;
+                else
                     sysRoot = sdkPath;
-                else if (!sdkName.isEmpty())
+                if (sysRoot.isEmpty() && !sdkName.isEmpty())
                     qCDebug(probeLog) << indent << QString::fromLatin1("Failed to find sysroot %1").arg(sdkName);
             }
             if (hasClang && !sysRoot.isEmpty()) {
