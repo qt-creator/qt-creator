@@ -743,6 +743,9 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
                               const QString &title,
                               std::function<DiffEditorController *(IDocument *)> factory) const
 {
+    // Creating document might change the referenced source. Store a copy and use it.
+    const QString sourceCopy = source;
+
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
     DiffEditorController *controller = factory(document);
@@ -753,7 +756,7 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     connect(controller, &DiffEditorController::requestInformationForCommit,
             this, &GitClient::branchesForCommit);
 
-    VcsBasePlugin::setSource(document, source);
+    VcsBasePlugin::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
     controller->requestReload();
 }
@@ -843,19 +846,21 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
         msgArg = args.first();
     else
         msgArg = workingDirectory;
+    // Creating document might change the referenced workingDirectory. Store a copy and use it.
+    const QString workingDir = workingDirectory;
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
+    const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
                                                   codecFor(CodecLogOutput), "logTitle", msgArg);
     if (!editor->configurationWidget()) {
         auto *argWidget = new GitLogArgumentsWidget(settings());
         connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
-                [=]() { this->log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
+                [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
         editor->setConfigurationWidget(argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
-    editor->setWorkingDirectory(workingDirectory);
+    editor->setWorkingDirectory(workingDir);
 
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
@@ -874,7 +879,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (!fileName.isEmpty())
         arguments << QLatin1String("--follow") << QLatin1String("--") << fileName;
 
-    vcsExec(workingDirectory, arguments, editor);
+    vcsExec(workingDir, arguments, editor);
 }
 
 void GitClient::reflog(const QString &workingDirectory)
