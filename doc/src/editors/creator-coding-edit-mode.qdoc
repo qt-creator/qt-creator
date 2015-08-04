@@ -197,5 +197,5 @@
 
     \QC underlines semantic errors in olive in the C++ code editor. To check the
     correct paths for includes that are not resolved or that are resolved to the
-    wrong file, select \uicontrol {Project Parts} > \uicontrol {Include Paths}.
+    wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
 */
