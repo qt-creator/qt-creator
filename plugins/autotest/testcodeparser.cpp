@@ -117,6 +117,8 @@ void TestCodeParser::updateTestTree()
     m_singleShotScheduled = false;
     if (m_codeModelParsing) {
         m_fullUpdatePostponed = true;
+        m_partialUpdatePostponed = false;
+        m_postponedFiles.clear();
         return;
     }
 
