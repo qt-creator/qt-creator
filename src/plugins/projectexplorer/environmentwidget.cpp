@@ -37,14 +37,84 @@
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QString>
 #include <QPushButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QKeyEvent>
+#include <QStyledItemDelegate>
+#include <QLineEdit>
+#include <QDebug>
 
 namespace ProjectExplorer {
+
+class EnvironmentValidator : public QValidator
+{
+public:
+    EnvironmentValidator(QWidget *parent, Utils::EnvironmentModel *model,
+                         QTreeView *view,
+                         const QModelIndex &index)
+        : QValidator(parent), m_model(model), m_view(view), m_index(index)
+    {
+        m_hideTipTimer.setInterval(2000);
+        m_hideTipTimer.setSingleShot(true);
+        connect(&m_hideTipTimer, &QTimer::timeout,
+                this, [](){Utils::ToolTip::hide();});
+    }
+
+    QValidator::State validate(QString &in, int &pos) const override
+    {
+        Q_UNUSED(pos)
+        QModelIndex idx = m_model->variableToIndex(in);
+        if (idx.isValid() && idx != m_index)
+            return QValidator::Intermediate;
+        Utils::ToolTip::hide();
+        m_hideTipTimer.stop();
+        return QValidator::Acceptable;
+    }
+
+    void fixup(QString &input) const override
+    {
+        Q_UNUSED(input)
+
+        QPoint pos = m_view->mapToGlobal(m_view->visualRect(m_index).topLeft());
+        pos -= Utils::ToolTip::offsetFromPosition();
+        Utils::ToolTip::show(pos, tr("Variable already exists."));
+        m_hideTipTimer.start();
+        // do nothing
+    }
+private:
+    Utils::EnvironmentModel *m_model;
+    QTreeView *m_view;
+    QModelIndex m_index;
+    mutable QTimer m_hideTipTimer;
+};
+
+class EnvironmentDelegate : public QStyledItemDelegate
+{
+public:
+    EnvironmentDelegate(Utils::EnvironmentModel *model,
+                        QTreeView *view)
+        : QStyledItemDelegate(view), m_model(model), m_view(view)
+    {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QWidget *w = QStyledItemDelegate::createEditor(parent, option, index);
+        if (index.column() != 0)
+            return w;
+
+        if (QLineEdit *edit = qobject_cast<QLineEdit *>(w))
+            edit->setValidator(new EnvironmentValidator(edit, m_model, m_view, index));
+        return w;
+    }
+private:
+    Utils::EnvironmentModel *m_model;
+    QTreeView *m_view;
+};
+
 
 ////
 // EnvironmentWidget::EnvironmentWidget
@@ -96,6 +166,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     horizontalLayout->setMargin(0);
     d->m_environmentView = new Internal::EnvironmentTreeView(this);
     d->m_environmentView->setModel(d->m_model);
+    d->m_environmentView->setItemDelegate(new EnvironmentDelegate(d->m_model, d->m_environmentView));
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setRootIsDecorated(false);
     d->m_environmentView->setUniformRowHeights(true);
