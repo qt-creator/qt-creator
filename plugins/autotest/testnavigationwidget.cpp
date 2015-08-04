@@ -249,7 +249,7 @@ void TestNavigationWidget::onRunThisTestTriggered()
         if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
             TestRunner *runner = TestRunner::instance();
             runner->setSelectedTests( {configuration} );
-            runner->runTests();
+            runner->prepareToRunTests();
         }
     }
 }

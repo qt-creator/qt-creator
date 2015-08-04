@@ -168,7 +168,7 @@ void AutotestPlugin::onRunAllTriggered()
     TestRunner *runner = TestRunner::instance();
     TestTreeModel *model = TestTreeModel::instance();
     runner->setSelectedTests(model->getAllTestCases());
-    runner->runTests();
+    runner->prepareToRunTests();
 }
 
 void AutotestPlugin::onRunSelectedTriggered()
@@ -176,7 +176,7 @@ void AutotestPlugin::onRunSelectedTriggered()
     TestRunner *runner = TestRunner::instance();
     TestTreeModel *model = TestTreeModel::instance();
     runner->setSelectedTests(model->getSelectedTests());
-    runner->runTests();
+    runner->prepareToRunTests();
 }
 
 void AutotestPlugin::updateMenuItemsEnabledState()

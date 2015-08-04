@@ -288,14 +288,14 @@ void TestResultsPane::onRunAllTriggered()
 {
     TestRunner *runner = TestRunner::instance();
     runner->setSelectedTests(TestTreeModel::instance()->getAllTestCases());
-    runner->runTests();
+    runner->prepareToRunTests();
 }
 
 void TestResultsPane::onRunSelectedTriggered()
 {
     TestRunner *runner = TestRunner::instance();
     runner->setSelectedTests(TestTreeModel::instance()->getSelectedTests());
-    runner->runTests();
+    runner->prepareToRunTests();
 }
 
 void TestResultsPane::initializeFilterMenu()

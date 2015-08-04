@@ -51,7 +51,7 @@ signals:
     void requestStopTestRun();
 
 public slots:
-    void runTests();
+    void prepareToRunTests();
 
 private slots:
     void buildProject(ProjectExplorer::Project *project);
@@ -59,13 +59,14 @@ private slots:
     void onFinished();
 
 private:
+    void runTests();
     explicit TestRunner(QObject *parent = 0);
 
     QList<TestConfiguration *> m_selectedTests;
-    bool m_building;
-    bool m_buildSucceeded;
     bool m_executingTests;
 
+    // temporarily used if building before running is necessary
+    QMetaObject::Connection m_buildConnect;
 };
 
 } // namespace Internal
