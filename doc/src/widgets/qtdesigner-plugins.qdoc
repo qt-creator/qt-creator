@@ -50,19 +50,20 @@
     and integrated into \QC. The correct folder to place the plugins depends on
     whether you use the standalone \QD or the integrated \QD.
 
-    The integrated \QD fetches plugins from the \c {%SDK%\bin\designer} folder
-    on Windows and Linux. For information about how to configure plugins on
-    OS X, see \l{Configuring Qt Designer Plugins on OS X}.
+    The integrated \QD fetches plugins from the \c {\bin\plugins\designer}
+    directory in the \QC installation directory on Windows and Linux. For
+    information about how to configure plugins on OS X, see
+    \l{Configuring Qt Designer Plugins on OS X}.
 
-    To check which plugins
-    were loaded successfully and which failed, choose \uicontrol{Tools > Form Editor >
-    About Qt Designer Plugins}.
+    To check which plugins were loaded successfully and which failed, choose
+    \uicontrol Tools > \uicontrol {Form Editor} >
+    \uicontrol {About Qt Designer Plugins}.
 
     The standalone \QD is part of the Qt library used for building projects,
-    located under \c {%SDK%\qt}. Therefore, it fetches plugins from the
-    following folder: \c {%SDK%\qt\plugins\designer}. To check which plugins
-    were loaded successfully and which failed, choose \uicontrol{Help >
-    About Plugins}.
+    located in \c {<Qt_version>\<compiler>\bin} in the Qt installation
+    directory. It fetches plugins from the \c {\plugins\designer} subdirectory
+    of \c bin. To check which plugins were loaded successfully and which failed,
+    choose \uicontrol Help > \uicontrol {About Plugins}.
 
     \section2 Configuring Qt Designer Plugins on OS X
 
