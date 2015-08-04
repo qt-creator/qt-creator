@@ -24,6 +24,7 @@
 
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/Overview.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/SymbolVisitor.h>
 
@@ -70,6 +71,32 @@ private:
     CPlusPlus::Scope *m_currentScope;
     CPlusPlus::Document::Ptr m_currentDoc;
 
+};
+
+class TestDataFunctionVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc);
+    virtual ~TestDataFunctionVisitor();
+
+    bool visit(CPlusPlus::UsingDirectiveAST *ast);
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast);
+    bool visit(CPlusPlus::CallAST *ast);
+    bool preVisit(CPlusPlus::AST *ast);
+    void postVisit(CPlusPlus::AST *ast);
+    QMap<QString, TestCodeLocationList> dataTags() const { return m_dataTags; }
+
+private:
+    bool newRowCallFound(CPlusPlus::CallAST *ast, unsigned *firstToken) const;
+
+    CPlusPlus::Document::Ptr m_currentDoc;
+    CPlusPlus::Overview m_overview;
+    QString m_currentFunction;
+    QMap<QString, TestCodeLocationList> m_dataTags;
+    TestCodeLocationList m_currentTags;
+    unsigned m_currentAstDepth;
+    unsigned m_insideUsingQTestDepth;
+    bool m_insideUsingQTest;
 };
 
 class TestQmlVisitor : public QmlJS::AST::Visitor

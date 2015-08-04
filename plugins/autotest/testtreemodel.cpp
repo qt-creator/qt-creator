@@ -180,12 +180,13 @@ int TestTreeModel::columnCount(const QModelIndex &) const
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
 {
-    static QIcon icons[3] = {
+    static QIcon icons[] = {
         QIcon(),
         QIcon(QLatin1String(":/images/class.png")),
-        QIcon(QLatin1String(":/images/func.png"))
+        QIcon(QLatin1String(":/images/func.png")),
+        QIcon(QLatin1String(":/images/data.png"))
     };
-    if (type >= 3)
+    if (type >= sizeof(icons) / sizeof(icons[0]))
         return icons[2];
     return icons[type];
 }
@@ -204,7 +205,7 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
                 || (item == m_quickTestRootItem && m_quickTestRootItem->childCount() == 0)) {
             return QString(item->name() + tr(" (none)"));
         } else {
-            if (item->name().isEmpty())
+            if (item->name().isEmpty() && item->type() == TestTreeItem::TEST_CLASS)
                 return tr(Constants::UNNAMED_QUICKTESTS);
             return item->name();
         }
@@ -222,6 +223,7 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         switch (item->type()) {
         case TestTreeItem::ROOT:
+        case TestTreeItem::TEST_DATATAG:
         case TestTreeItem::TEST_DATAFUNCTION:
         case TestTreeItem::TEST_SPECIALFUNCTION:
             return QVariant();
@@ -682,7 +684,7 @@ void TestTreeModel::updateUnnamedQuickTest(const QString &fileName, const QStrin
 
     foreach (const QString &functionName, functions.keys()) {
         const TestCodeLocationAndType locationAndType = functions.value(functionName);
-        TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_fileName,
+        TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
                                                       locationAndType.m_type, &unnamed);
         testFunction->setLine(locationAndType.m_line);
         testFunction->setColumn(locationAndType.m_column);
@@ -819,6 +821,19 @@ void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem
         TestTreeItem *modifiedChild = newItem.child(row);
         if (toBeModifiedChild->modifyContent(modifiedChild))
             emit dataChanged(child, child, modificationRoles);
+
+        // handle data tags - just remove old and add them
+        if (modifiedChild->childCount() || toBeModifiedChild->childCount()) {
+            beginRemoveRows(child, 0, toBeModifiedChild->childCount());
+            toBeModifiedChild->removeChildren();
+            endRemoveRows();
+            const int count = modifiedChild->childCount();
+            beginInsertRows(child, 0, count);
+            for (int childRow = 0; childRow < count; ++childRow)
+                toBeModifiedChild->appendChild(new TestTreeItem(*modifiedChild->child(childRow)));
+            endInsertRows();
+        }
+
         if (checkStates.contains(toBeModifiedChild->name())) {
                 Qt::CheckState state = checkStates.value(toBeModifiedChild->name());
                 if (state != toBeModifiedChild->checked()) {

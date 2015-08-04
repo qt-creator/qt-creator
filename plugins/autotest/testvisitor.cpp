@@ -21,13 +21,14 @@
 
 #include <cplusplus/FullySpecifiedType.h>
 #include <cplusplus/LookupContext.h>
-#include <cplusplus/Overview.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <cpptools/cppmodelmanager.h>
 
 #include <qmljs/parser/qmljsast_p.h>
+
+#include <utils/qtcassert.h>
 
 #include <QList>
 
@@ -73,11 +74,11 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, CppTools::CppModelManager::instance()->snapshot(), true);
                 if (functionDefinition) {
-                    locationAndType.m_fileName = QString::fromUtf8(functionDefinition->fileName());
+                    locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
                     locationAndType.m_line = functionDefinition->line();
                     locationAndType.m_column = functionDefinition->column() - 1;
                 } else { // if we cannot find the definition use declaration as fallback
-                    locationAndType.m_fileName = QString::fromUtf8(member->fileName());
+                    locationAndType.m_name = QString::fromUtf8(member->fileName());
                     locationAndType.m_line = member->line();
                     locationAndType.m_column = member->column() - 1;
                 }
@@ -145,6 +146,132 @@ bool TestAstVisitor::visit(CPlusPlus::CompoundStatementAST *ast)
     return true;
 }
 
+/********************** Test Data Function AST Visitor ************************/
+
+TestDataFunctionVisitor::TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc)
+    : CPlusPlus::ASTVisitor(doc->translationUnit()),
+      m_currentDoc(doc),
+      m_currentAstDepth(0),
+      m_insideUsingQTestDepth(0),
+      m_insideUsingQTest(false)
+{
+}
+
+TestDataFunctionVisitor::~TestDataFunctionVisitor()
+{
+}
+
+bool TestDataFunctionVisitor::visit(CPlusPlus::UsingDirectiveAST *ast)
+{
+    if (auto nameAST = ast->name) {
+        if (m_overview.prettyName(nameAST->name) == QLatin1String("QTest")) {
+            m_insideUsingQTest = true;
+            // we need the surrounding AST depth as using directive is an AST itself
+            m_insideUsingQTestDepth = m_currentAstDepth - 1;
+        }
+    }
+    return true;
+}
+
+bool TestDataFunctionVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
+{
+    if (ast->declarator) {
+        CPlusPlus::DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
+        if (!id)
+            return false;
+
+        const QString prettyName = m_overview.prettyName(id->name->name);
+        // do not handle functions that aren't real test data functions
+        if (!prettyName.endsWith(QLatin1String("_data")) || !ast->symbol
+                || ast->symbol->argumentCount() != 0) {
+            return false;
+        }
+
+        m_currentFunction = prettyName.left(prettyName.size() - 5);
+        m_currentTags.clear();
+        return true;
+    }
+
+    return false;
+}
+
+bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
+{
+    if (m_currentFunction.isEmpty())
+        return true;
+
+    unsigned firstToken;
+    if (newRowCallFound(ast, &firstToken)) {
+        if (const auto expressionListAST = ast->expression_list) {
+            // first argument is the one we need
+            if (const auto argumentExpressionAST = expressionListAST->value) {
+                if (const auto stringLiteral = argumentExpressionAST->asStringLiteral()) {
+                    auto token = m_currentDoc->translationUnit()->tokenAt(
+                                stringLiteral->literal_token);
+                    if (token.isStringLiteral()) {
+                        unsigned line = 0;
+                        unsigned column = 0;
+                        m_currentDoc->translationUnit()->getTokenStartPosition(
+                                    firstToken, &line, &column);
+                        TestCodeLocationAndType locationAndType;
+                        locationAndType.m_name = QString::fromUtf8(token.spell());
+                        locationAndType.m_column = column - 1;
+                        locationAndType.m_line = line;
+                        locationAndType.m_type = TestTreeItem::TEST_DATATAG;
+                        m_currentTags.append(locationAndType);
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool TestDataFunctionVisitor::preVisit(CPlusPlus::AST *)
+{
+    ++m_currentAstDepth;
+    return true;
+}
+
+void TestDataFunctionVisitor::postVisit(CPlusPlus::AST *ast)
+{
+    --m_currentAstDepth;
+    m_insideUsingQTest &= m_currentAstDepth >= m_insideUsingQTestDepth;
+
+    if (!ast->asFunctionDefinition())
+        return;
+
+    if (!m_currentFunction.isEmpty() && !m_currentTags.isEmpty())
+        m_dataTags.insert(m_currentFunction, m_currentTags);
+
+    m_currentFunction.clear();
+    m_currentTags.clear();
+}
+
+bool TestDataFunctionVisitor::newRowCallFound(CPlusPlus::CallAST *ast, unsigned *firstToken) const
+{
+    QTC_ASSERT(firstToken, return false);
+
+    if (!ast->base_expression)
+        return false;
+
+    bool found = false;
+
+    if (const CPlusPlus::IdExpressionAST *exp = ast->base_expression->asIdExpression()) {
+        if (!exp->name)
+            return false;
+
+        if (const auto qualifiedNameAST = exp->name->asQualifiedName()) {
+            found = m_overview.prettyName(qualifiedNameAST->name) == QLatin1String("QTest::newRow");
+            *firstToken = qualifiedNameAST->firstToken();
+        } else if (m_insideUsingQTest) {
+            found = m_overview.prettyName(exp->name->name) == QLatin1String("newRow");
+            *firstToken = exp->name->firstToken();
+        }
+    }
+    return found;
+}
+
 /*************************** Quick Test AST Visitor ***************************/
 
 TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc)
@@ -164,7 +291,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
     m_currentTestCaseName.clear();
     const auto sourceLocation = ast->firstSourceLocation();
-    m_testCaseLocation.m_fileName = m_currentDoc->fileName();
+    m_testCaseLocation.m_name = m_currentDoc->fileName();
     m_testCaseLocation.m_line = sourceLocation.startLine;
     m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
     m_testCaseLocation.m_type = TestTreeItem::TEST_CLASS;
@@ -192,7 +319,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
             || specialFunctions.contains(name.toString())) {
         const auto sourceLocation = ast->firstSourceLocation();
         TestCodeLocationAndType locationAndType;
-        locationAndType.m_fileName = m_currentDoc->fileName();
+        locationAndType.m_name = m_currentDoc->fileName();
         locationAndType.m_line = sourceLocation.startLine;
         locationAndType.m_column = sourceLocation.startColumn - 1;
         if (specialFunctions.contains(name.toString()))

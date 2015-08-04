@@ -35,6 +35,7 @@ public:
         ROOT,
         TEST_CLASS,
         TEST_FUNCTION,
+        TEST_DATATAG,
         TEST_DATAFUNCTION,
         TEST_SPECIALFUNCTION
     };
@@ -84,11 +85,13 @@ private:
 };
 
 struct TestCodeLocationAndType {
-    QString m_fileName;
+    QString m_name;     // tag name for m_type == TEST_DATATAG, file name for other values
     unsigned m_line;
     unsigned m_column;
     TestTreeItem::Type m_type;
 };
+
+typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
 
 } // namespace Internal
 } // namespace Autotest

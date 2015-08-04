@@ -355,11 +355,40 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     return declaringDoc;
 }
 
+static bool hasFunctionWithDataTagUsage(const QMap<QString, TestCodeLocationAndType> &testFunctions)
+{
+    foreach (const QString &functionName, testFunctions.keys()) {
+        if (functionName.endsWith(QLatin1String("_data")) &&
+                testFunctions.contains(functionName.left(functionName.size() - 5))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName,
+            const QMap<QString, TestCodeLocationAndType> &testFunctions)
+{
+    if (hasFunctionWithDataTagUsage(testFunctions)) {
+        const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
+        const QByteArray fileContent = getFileContent(fileName);
+        CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
+        document->check();
+        CPlusPlus::AST *ast = document->translationUnit()->ast();
+        TestDataFunctionVisitor visitor(document);
+        visitor.accept(ast);
+        return visitor.dataTags();
+    }
+    return QMap<QString, TestCodeLocationList>();
+}
+
+
 static TestTreeItem constructTestTreeItem(const QString &fileName,
                                           const QString &mainFile,  // used for Quick Tests only
                                           const QString &testCaseName,
                                           int line, int column,
-                                          const QMap<QString, TestCodeLocationAndType> functions)
+                                          const QMap<QString, TestCodeLocationAndType> functions,
+                                          const QMap<QString, TestCodeLocationList> dataTags = QMap<QString, TestCodeLocationList>())
 {
     TestTreeItem treeItem(testCaseName, fileName, TestTreeItem::TEST_CLASS);
     treeItem.setMainFile(mainFile); // used for Quick Tests only
@@ -368,10 +397,24 @@ static TestTreeItem constructTestTreeItem(const QString &fileName,
 
     foreach (const QString &functionName, functions.keys()) {
         const TestCodeLocationAndType locationAndType = functions.value(functionName);
-        TestTreeItem *treeItemChild = new TestTreeItem(functionName, locationAndType.m_fileName,
+        TestTreeItem *treeItemChild = new TestTreeItem(functionName, locationAndType.m_name,
                                                        locationAndType.m_type, &treeItem);
         treeItemChild->setLine(locationAndType.m_line);
         treeItemChild->setColumn(locationAndType.m_column);
+        // check for data tags and if there are any for this function add them
+        const QString qualifiedFunctionName = testCaseName + QLatin1String("::") + functionName;
+        if (dataTags.contains(qualifiedFunctionName)) {
+            const TestCodeLocationList &tags = dataTags.value(qualifiedFunctionName);
+            foreach (const TestCodeLocationAndType &tagLocation, tags) {
+                TestTreeItem *tagTreeItem = new TestTreeItem(tagLocation.m_name,
+                                                             locationAndType.m_name,
+                                                             tagLocation.m_type, treeItemChild);
+                tagTreeItem->setLine(tagLocation.m_line);
+                tagTreeItem->setColumn(tagLocation.m_column);
+                treeItemChild->appendChild(tagTreeItem);
+            }
+        }
+
         treeItem.appendChild(treeItemChild);
     }
     return treeItem;
@@ -437,8 +480,11 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
             visitor.accept(declaringDoc->globalNamespace());
             const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
 
+            const QMap<QString, TestCodeLocationList> dataTags =
+                    checkForDataTags(declaringDoc->fileName(), testFunctions);
             TestTreeItem item = constructTestTreeItem(declaringDoc->fileName(), QString(),
-                                                      testCaseName, line, column, testFunctions);
+                                                      testCaseName, line, column, testFunctions,
+                                                      dataTags);
             updateModelAndCppDocMap(document, declaringDoc->fileName(), item);
             return;
         }
@@ -487,7 +533,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
 
         // construct new/modified TestTreeItem
         TestTreeItem testTreeItem
-                = constructTestTreeItem(tcLocationAndType.m_fileName, cppFileName, testCaseName,
+                = constructTestTreeItem(tcLocationAndType.m_name, cppFileName, testCaseName,
                                         tcLocationAndType.m_line, tcLocationAndType.m_column,
                                         testFunctions);
 

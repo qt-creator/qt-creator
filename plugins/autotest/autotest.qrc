@@ -21,5 +21,6 @@
         <file>images/run.png</file>
         <file>images/runselected.png</file>
         <file>images/stop.png</file>
+        <file>images/data.png</file>
     </qresource>
 </RCC>
