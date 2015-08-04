@@ -28,107 +28,200 @@
 **
 ****************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gtest-qt-printing.h"
-
 #include <codecompleter.h>
 #include <filecontainer.h>
+#include <projectpart.h>
 #include <translationunit.h>
 #include <unsavedfiles.h>
 #include <utf8stringvector.h>
-#include <projectpart.h>
 
 #include <QFile>
+#include <QTemporaryDir>
 
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include "gtest-qt-printing.h"
 
 using ::testing::ElementsAreArray;
 using ::testing::Contains;
 using ::testing::AllOf;
 using ::testing::Not;
+using ::testing::PrintToString;
 
 using ClangBackEnd::CodeCompletion;
 using ClangBackEnd::CodeCompleter;
 
 namespace {
 
+MATCHER_P2(IsCodeCompletion, text, completionKind,
+           std::string(negation ? "isn't" : "is") + " code completion with text "
+           + PrintToString(text) + " and kind " + PrintToString(completionKind)
+           )
+{
+    if (arg.text() != text) {
+        *result_listener << "text is " + PrintToString(arg.text()) + " and not " +  PrintToString(text);
+        return false;
+    }
+
+    if (arg.completionKind() != completionKind) {
+        *result_listener << "kind is " + PrintToString(arg.completionKind()) + " and not " +  PrintToString(completionKind);
+        return false;
+    }
+
+    return true;
+}
+
 class CodeCompleter : public ::testing::Test
 {
-public:
-    static void SetUpTestCase();
-    static void TearDownTestCase();
+protected:
+    void SetUp();
+    void copyTargetHeaderToTemporaryIncludeDirecory();
+    void copyChangedTargetHeaderToTemporaryIncludeDirecory();
+    static Utf8String readFileContent(const QString &fileName);
 
 protected:
-    static ClangBackEnd::ProjectPart projectPart;
-    static ClangBackEnd::UnsavedFiles unsavedFiles;
-    static ClangBackEnd::TranslationUnit translationUnit;
-    static ClangBackEnd::CodeCompleter completer;
+    QTemporaryDir includeDirectory;
+    QString targetHeaderPath{includeDirectory.path() + QStringLiteral("/complete_target_header.h")};
+    ClangBackEnd::ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_completer_main.cpp"),
+                                                  unsavedFiles,
+                                                  projectPart};
+    ClangBackEnd::CodeCompleter completer{translationUnit};
+    ClangBackEnd::FileContainer unsavedMainFileContainer{translationUnit.filePath(),
+                                                         projectPart.projectPartId(),
+                                                         readFileContent(QStringLiteral("/complete_completer_main_unsaved.cpp")),
+                                                         true};
+    ClangBackEnd::FileContainer unsavedTargetHeaderFileContainer{targetHeaderPath,
+                                                                 projectPart.projectPartId(),
+                                                                 readFileContent(QStringLiteral("/complete_target_header_unsaved.h")),
+                                                                 true};
 };
 
-ClangBackEnd::ProjectPart CodeCompleter::projectPart(Utf8StringLiteral("projectPartId"));
-ClangBackEnd::UnsavedFiles CodeCompleter::unsavedFiles;
-ClangBackEnd::TranslationUnit CodeCompleter::translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_completer.cpp"), unsavedFiles, projectPart);
-ClangBackEnd::CodeCompleter CodeCompleter::completer = translationUnit;
-
-void CodeCompleter::SetUpTestCase()
+Utf8String CodeCompleter::readFileContent(const QString &fileName)
 {
-    QFile unsavedFileContentFile(QStringLiteral(TESTDATA_DIR) + QStringLiteral("/complete_completer_unsaved.cpp"));
-    unsavedFileContentFile.open(QIODevice::ReadOnly);
+    QFile readFileContentFile(QStringLiteral(TESTDATA_DIR) + fileName);
+    bool hasOpened = readFileContentFile.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    const Utf8String unsavedFileContent = Utf8String::fromByteArray(unsavedFileContentFile.readAll());
-    const ClangBackEnd::FileContainer unsavedDataFileContainer(translationUnit.filePath(),
-                                                                   projectPart.projectPartId(),
-                                                                   unsavedFileContent,
-                                                                   true);
+    EXPECT_TRUE(hasOpened);
 
-    unsavedFiles.createOrUpdate({unsavedDataFileContainer});
+    return Utf8String::fromByteArray(readFileContentFile.readAll());
 }
 
-void CodeCompleter::TearDownTestCase()
+void CodeCompleter::copyTargetHeaderToTemporaryIncludeDirecory()
 {
-    translationUnit.reset();
-    completer = ClangBackEnd::CodeCompleter();
+    QFile::remove(targetHeaderPath);
+    bool hasCopied = QFile::copy(QStringLiteral(TESTDATA_DIR "/complete_target_header.h"),
+                                 targetHeaderPath);
+    EXPECT_TRUE(hasCopied);
 }
 
+void CodeCompleter::copyChangedTargetHeaderToTemporaryIncludeDirecory()
+{
+    QFile::remove(targetHeaderPath);
+    bool hasCopied = QFile::copy(QStringLiteral(TESTDATA_DIR "/complete_target_header_changed.h"),
+                                 targetHeaderPath);
+    EXPECT_TRUE(hasCopied);
+}
+
+void CodeCompleter::SetUp()
+{
+    EXPECT_TRUE(includeDirectory.isValid());
+
+    Utf8String includePath(QStringLiteral("-I") + includeDirectory.path());
+    projectPart.setArguments({includePath});
+
+    copyTargetHeaderToTemporaryIncludeDirecory();
+
+    translationUnit.cxTranslationUnit(); // initialize translation unit so we check changes
+}
 
 TEST_F(CodeCompleter, FunctionInUnsavedFile)
 {
-    ASSERT_THAT(completer.complete(100, 1),
-                AllOf(Contains(CodeCompletion(Utf8StringLiteral("functionWithArguments"),
-                                              0,
-                                              CodeCompletion::FunctionCompletionKind)),
-                      Contains(CodeCompletion(Utf8StringLiteral("function"),
-                                              0,
-                                              CodeCompletion::FunctionCompletionKind)),
-                      Contains(CodeCompletion(Utf8StringLiteral("newFunction"),
-                                              0,
-                                              CodeCompletion::FunctionCompletionKind)),
-                      Contains(CodeCompletion(Utf8StringLiteral("f"),
-                                              0,
-                                              CodeCompletion::FunctionCompletionKind)),
-                      Not(Contains(CodeCompletion(Utf8StringLiteral("otherFunction"),
-                                                  0,
-                                                  CodeCompletion::FunctionCompletionKind)))));
+    unsavedFiles.createOrUpdate({unsavedMainFileContainer});
+
+    ASSERT_THAT(completer.complete(27, 1),
+                AllOf(Contains(IsCodeCompletion(Utf8StringLiteral("FunctionWithArguments"),
+                                                CodeCompletion::FunctionCompletionKind)),
+                      Contains(IsCodeCompletion(Utf8StringLiteral("Function"),
+                                                CodeCompletion::FunctionCompletionKind)),
+                      Contains(IsCodeCompletion(Utf8StringLiteral("UnsavedFunction"),
+                                                CodeCompletion::FunctionCompletionKind)),
+                      Contains(IsCodeCompletion(Utf8StringLiteral("f"),
+                                                CodeCompletion::FunctionCompletionKind)),
+                      Not(Contains(IsCodeCompletion(Utf8StringLiteral("SavedFunction"),
+                                                    CodeCompletion::FunctionCompletionKind)))));
 }
 
+TEST_F(CodeCompleter, VariableInUnsavedFile)
+{
+    unsavedFiles.createOrUpdate({unsavedMainFileContainer});
+
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("VariableInUnsavedFile"),
+                                          CodeCompletion::VariableCompletionKind)));
+}
+
+TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
+{
+    unsavedFiles.createOrUpdate({unsavedMainFileContainer});
+
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("GlobalVariableInUnsavedFile"),
+                                          CodeCompletion::VariableCompletionKind)));
+}
 
 TEST_F(CodeCompleter, Macro)
 {
-    ASSERT_THAT(completer.complete(100, 1),
-                Contains(CodeCompletion(Utf8StringLiteral("Macro"),
-                                              0,
-                                              CodeCompletion::PreProcessorCompletionKind)));
+    unsavedFiles.createOrUpdate({unsavedMainFileContainer});
+
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("Macro"),
+                                          CodeCompletion::PreProcessorCompletionKind)));
 }
 
 TEST_F(CodeCompleter, Keyword)
 {
-    ASSERT_THAT(completer.complete(100, 1),
-                Contains(CodeCompletion(Utf8StringLiteral("switch"),
-                                              0,
-                                              CodeCompletion::KeywordCompletionKind)));
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("switch"),
+                                          CodeCompletion::KeywordCompletionKind)));
 }
 
-
+TEST_F(CodeCompleter, FunctionInIncludedHeader)
+{
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeader"),
+                                          CodeCompletion::FunctionCompletionKind)));
 }
 
+TEST_F(CodeCompleter, FunctionInUnsavedIncludedHeader)
+{
+    unsavedFiles.createOrUpdate({unsavedTargetHeaderFileContainer});
 
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderUnsaved"),
+                                          CodeCompletion::FunctionCompletionKind)));
+}
+
+TEST_F(CodeCompleter, FunctionInChangedIncludedHeader)
+{
+    copyChangedTargetHeaderToTemporaryIncludeDirecory();
+
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderChanged"),
+                                          CodeCompletion::FunctionCompletionKind)));
+}
+
+TEST_F(CodeCompleter, FunctionInChangedIncludedHeaderWithUnsavedContentInMainFile)
+{
+    unsavedFiles.createOrUpdate({unsavedMainFileContainer});
+
+    copyChangedTargetHeaderToTemporaryIncludeDirecory();
+
+    ASSERT_THAT(completer.complete(27, 1),
+                Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderChanged"),
+                                          CodeCompletion::FunctionCompletionKind)));
+}
+
+}
