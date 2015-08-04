@@ -36,7 +36,6 @@
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"
-#  include "test/clangcompletioncontextanalyzertest.h"
 #endif
 
 #include <cpptools/cppmodelmanager.h>
@@ -93,7 +92,6 @@ QList<QObject *> ClangCodeModelPlugin::createTestObjects() const
 {
     return {
         new Tests::ClangCodeCompletionTest,
-        new Tests::ClangCompletionContextAnalyzerTest
     };
 }
 #endif

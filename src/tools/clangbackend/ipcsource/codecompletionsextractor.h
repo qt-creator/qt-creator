@@ -53,7 +53,7 @@ public:
     bool next();
     bool peek(const Utf8String &name);
 
-    QVector<CodeCompletion> extractAll();
+    CodeCompletions extractAll();
 
     const CodeCompletion &currentCodeCompletion() const;
 

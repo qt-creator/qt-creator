@@ -69,7 +69,6 @@ public:
     explicit DebuggerKitChooser(Mode mode = AnyDebugging, QWidget *parent = 0);
 
 protected:
-    bool kitMatches(const ProjectExplorer::Kit *k) const;
     QString kitToolTip(ProjectExplorer::Kit *k) const;
 
 private:

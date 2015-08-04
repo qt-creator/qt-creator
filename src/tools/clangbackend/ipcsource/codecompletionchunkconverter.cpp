@@ -71,7 +71,7 @@ CodeCompletionChunk::Kind CodeCompletionChunkConverter::chunkKind(CXCompletionSt
     return CodeCompletionChunk::Kind(clang_getCompletionChunkKind(completionString, chunkIndex));
 }
 
-QVector<CodeCompletionChunk> CodeCompletionChunkConverter::extract(CXCompletionString completionString)
+CodeCompletionChunks CodeCompletionChunkConverter::extract(CXCompletionString completionString)
 {
     CodeCompletionChunkConverter converter;
 
@@ -85,7 +85,7 @@ Utf8String CodeCompletionChunkConverter::chunkText(CXCompletionString completion
     return ClangString(clang_getCompletionChunkText(completionString, chunkIndex));
 }
 
-QVector<CodeCompletionChunk> CodeCompletionChunkConverter::optionalChunks(CXCompletionString completionString, uint chunkIndex)
+CodeCompletionChunks CodeCompletionChunkConverter::optionalChunks(CXCompletionString completionString, uint chunkIndex)
 {
     CodeCompletionChunkConverter converter;
 

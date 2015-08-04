@@ -486,6 +486,11 @@
     To determine whether the keywords in the whole project or in the current
     file are displayed by default, select \uicontrol {Scanning scope}.
 
+    To exclude files from scanning, select \uicontrol {To-Do Settings} in the
+    \uicontrol Projects mode. Select \uicontrol Add and enter a regular
+    expression that matches the path to files to exclude. Use a forward slash
+    (/) as a separator in the path also on Windows.
+
     The Todo plugin is disabled by default. To enable the plugin, select
     \uicontrol Help > \uicontrol {About Plugins} > \uicontrol Utilities >
     \uicontrol Todo and restart

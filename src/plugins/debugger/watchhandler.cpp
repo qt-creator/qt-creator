@@ -511,34 +511,6 @@ static QString quoteUnprintable(const QString &str)
     return encoded;
 }
 
-static QString translate(const QString &str)
-{
-    if (str.startsWith(QLatin1Char('<'))) {
-        if (str == QLatin1String("<empty>"))
-            return WatchHandler::tr("<empty>");
-        if (str == QLatin1String("<uninitialized>"))
-            return WatchHandler::tr("<uninitialized>");
-        if (str == QLatin1String("<invalid>"))
-            return WatchHandler::tr("<invalid>");
-        if (str == QLatin1String("<not accessible>"))
-            return WatchHandler::tr("<not accessible>");
-        if (str.endsWith(QLatin1String(" items>"))) {
-            // '<10 items>' or '<>10 items>' (more than)
-            bool ok;
-            const bool moreThan = str.at(1) == QLatin1Char('>');
-            const int numberPos = moreThan ? 2 : 1;
-            const int len = str.indexOf(QLatin1Char(' ')) - numberPos;
-            const int size = str.mid(numberPos, len).toInt(&ok);
-            QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'",
-                qPrintable(str)));
-            return moreThan ?
-                     WatchHandler::tr("<more than %n items>", 0, size) :
-                     WatchHandler::tr("<%n items>", 0, size);
-        }
-    }
-    return quoteUnprintable(str);
-}
-
 QString WatchItem::formattedValue() const
 {
     if (type == "bool") {
@@ -594,12 +566,11 @@ QString WatchItem::formattedValue() const
     if (elided) {
         QString v = value;
         v.chop(1);
-        v = translate(v);
         QString len = elided > 0 ? QString::number(elided) : QLatin1String("unknown length");
         return v + QLatin1String("\"... (") + len  + QLatin1Char(')');
     }
 
-    return translate(value);
+    return quoteUnprintable(value);
 }
 
 // Get a pointer address from pointer values reported by the debugger.
@@ -657,7 +628,7 @@ QVariant WatchItem::editValue() const
             stringValue.replace(QLatin1String("\n"), QLatin1String("\\n"));
         }
     }
-    return QVariant(translate(stringValue));
+    return QVariant(quoteUnprintable(stringValue));
 }
 
 bool WatchItem::canFetchMore() const

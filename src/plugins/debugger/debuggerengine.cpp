@@ -46,6 +46,7 @@
 #include "gdb/gdbengine.h" // REMOVE
 #include "registerhandler.h"
 #include "sourcefileshandler.h"
+#include "sourceutils.h"
 #include "stackhandler.h"
 #include "terminal.h"
 #include "threadshandler.h"
@@ -134,28 +135,28 @@ Location::Location(const StackFrame &frame, bool marker)
 }
 
 
-class LocationMark : public TextMark
+LocationMark::LocationMark(DebuggerEngine *engine, const QString &file, int line)
+    : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
 {
-public:
-    LocationMark(DebuggerEngine *engine, const QString &file, int line)
-        : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
-    {}
+    setIcon(Internal::locationMarkIcon());
+    setPriority(TextMark::HighPriority);
+}
 
-private:
-    bool isDraggable() const { return true; }
+bool LocationMark::isDraggable() const
+{
+    return m_engine->hasCapability(JumpToLineCapability);
+}
 
-    void dragToLine(int line)
-    {
-        if (m_engine) {
-            ContextData data;
-            data.fileName = fileName();
-            data.lineNumber = line;
-            m_engine->executeJumpToLine(data);
+void LocationMark::dragToLine(int line)
+{
+    if (m_engine) {
+        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
+            ContextData location = getLocationContext(textEditor->textDocument(), line);
+            if (location.isValid())
+                m_engine->executeJumpToLine(location);
         }
     }
-
-    QPointer<DebuggerEngine> m_engine;
-};
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -632,11 +633,8 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     if (newEditor)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
-    if (loc.needsMarker()) {
+    if (loc.needsMarker())
         d->m_locationMark.reset(new LocationMark(this, file, line));
-        d->m_locationMark->setIcon(Internal::locationMarkIcon());
-        d->m_locationMark->setPriority(TextMark::HighPriority);
-    }
 
     //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
 }
@@ -1339,6 +1337,11 @@ QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
     d->m_fileFinder.setSysroot(rp.sysRoot);
 
     return d->m_fileFinder.findFile(fileUrl);
+}
+
+void DebuggerEngine::updateBreakpointMarkers()
+{
+    d->m_disassemblerAgent.updateBreakpointMarkers();
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const

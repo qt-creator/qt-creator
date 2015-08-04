@@ -3,6 +3,25 @@ LLVM_INSTALL_DIR = $$clean_path($$LLVM_INSTALL_DIR)
 isEmpty(LLVM_INSTALL_DIR): error("No LLVM_INSTALL_DIR provided")
 !exists($$LLVM_INSTALL_DIR): error("LLVM_INSTALL_DIR does not exist: $$LLVM_INSTALL_DIR")
 
+defineReplace(extractVersion)      { return($$replace(1, ^(\\d+\\.\\d+\\.\\d+)$, \\1)) }
+defineReplace(extractMajorVersion) { return($$replace(1, ^(\\d+)\\.\\d+\\.\\d+$, \\1)) }
+defineReplace(extractMinorVersion) { return($$replace(1, ^\\d+\\.(\\d+)\\.\\d+$, \\1)) }
+
+defineTest(versionIsAtLeast) {
+    actual_major_version = $$extractMajorVersion($$1)
+    actual_minor_version = $$extractMinorVersion($$1)
+    required_min_major_version = $$2
+    required_min_minor_version = $$3
+
+    isEqual(actual_major_version, $$required_min_major_version) {
+        isEqual(actual_minor_version, $$required_min_minor_version): return(true)
+        greaterThan(actual_minor_version, $$required_min_minor_version): return(true)
+    }
+    greaterThan(actual_major_version, $$required_min_major_version): return(true)
+
+    return(false)
+}
+
 defineReplace(findLLVMVersionFromLibDir) {
     libdir = $$1
     version_dirs = $$files($$libdir/clang/*)
@@ -60,7 +79,7 @@ unix {
         LLVM_LIBDIR = $$system($$llvm_config --libdir 2>/dev/null)
         LLVM_INCLUDEPATH = $$system($$llvm_config --includedir 2>/dev/null)
         output = $$system($$llvm_config --version 2>/dev/null)
-        LLVM_VERSION = $$replace(output, ^(\\d+\\.\\d+\\.\\d+)$, \\1)
+        LLVM_VERSION = $$extractVersion($$output)
     } else {
         #message("llvm-config not found, concluding paths and version from LLVM_INSTALL_DIR")
         LLVM_INCLUDEPATH = $$LLVM_INSTALL_DIR/include
@@ -70,9 +89,13 @@ unix {
 
     !exists($$LLVM_INCLUDEPATH): error("Cannot detect include dir for clang, candidate: $$LLVM_INCLUDEPATH")
     !exists($$LLVM_LIBDIR): error("Cannot detect lib dir for clang, candidate: $$LLVM_LIBDIR")
-    isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
     clang_lib = $$findClangLibInLibDir($$LLVM_LIBDIR)
     isEmpty(clang_lib): error("Cannot find Clang shared library in $$LLVM_LIBDIR")
 
     LLVM_LIBS = -L$${LLVM_LIBDIR} -l$${clang_lib}
+}
+
+isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
+!versionIsAtLeast($$LLVM_VERSION, 3, 6): {
+    error("LLVM/Clang version >= 3.6.0 required, version provided: $$LLVM_VERSION")
 }

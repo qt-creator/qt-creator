@@ -58,7 +58,6 @@ Project {
         "QT_NO_CAST_FROM_ASCII"
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
     qbsSearchPaths: "qbs"
-    property bool enableQbsJavaSupport: false
 
     references: [
         "src/src.qbs",

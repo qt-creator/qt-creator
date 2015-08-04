@@ -54,8 +54,6 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
         applies = QString::fromLatin1("(,").contains(typedChar);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
         applies = (typedChar == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
-    else if (!isCodeCompletion())
-        applies = (typedChar == QLatin1Char('(')); /* && data().canConvert<CompleteFunctionDeclaration>()*/ //###
     else if (codeCompletion().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
         applies = QString::fromLatin1(";.,").contains(typedChar);
     else
@@ -247,18 +245,14 @@ void ClangAssistProposalItem::addOverload(const CodeCompletion &ccr)
     m_overloads.append(ccr);
 }
 
-CodeCompletion ClangAssistProposalItem::codeCompletion() const
+void ClangAssistProposalItem::setCodeCompletion(const CodeCompletion &codeCompletion)
 {
-    const QVariant &value = data();
-    if (value.canConvert<CodeCompletion>())
-        return value.value<CodeCompletion>();
-    else
-        return CodeCompletion();
+    m_codeCompletion = codeCompletion;
 }
 
-bool ClangAssistProposalItem::isCodeCompletion() const
+const ClangBackEnd::CodeCompletion &ClangAssistProposalItem::codeCompletion() const
 {
-    return data().canConvert<CodeCompletion>();
+    return m_codeCompletion;
 }
 
 } // namespace Internal

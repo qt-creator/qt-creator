@@ -378,7 +378,7 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     writeCommandToIODecive(command, m_thirdSocket.data(), m_writeCommandCounter);
 
     if (m_captureFileForTest.isWritable()) {
-        qDebug() << "Write strean to file: " << m_captureFileForTest.fileName();
+        qDebug() << "Write stream to file: " << m_captureFileForTest.fileName();
         writeCommandToIODecive(command, &m_captureFileForTest, m_writeCommandCounter);
         qDebug() << "\twrite file: " << m_captureFileForTest.pos();
     }

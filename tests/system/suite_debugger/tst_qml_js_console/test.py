@@ -151,7 +151,7 @@ def main():
         checks = [("color", u"#\u200b008000"), ("width", "50"),
                   ("color ='silver'", "silver", "color", u"#\u200bc0c0c0"),
                   ("width=66", "66", "width"), ("anchors.centerIn", "<unnamed object>"),
-                  ("opacity", "1"), ("opacity = .2", u"0.\u200b2", "opacity")]
+                  ("opacity", "1"), ("opacity = .1875", u"0.\u200b1875", "opacity")]
         # check red inner Rectangle
         runChecks("text='Rectangle' occurrence='2'", rootIndex, checks)
 

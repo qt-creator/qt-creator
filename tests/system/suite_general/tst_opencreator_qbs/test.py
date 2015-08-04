@@ -31,6 +31,8 @@
 source("../../shared/qtcreator.py")
 
 def main():
+    test.warning("This test is known to fail, see QTCREATORBUG-14828. Skipping it.")
+    return
     pathCreator = os.path.join(srcPath, "creator", "qtcreator.qbs")
     if not neededFilePresent(pathCreator):
         return

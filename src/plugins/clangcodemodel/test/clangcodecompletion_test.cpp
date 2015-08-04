@@ -34,6 +34,7 @@
 #include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
 
+#include <clangcodemodel/clangeditordocumentprocessor.h>
 #include <clangcodemodel/constants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -79,6 +80,13 @@ QString qrcPath(const QByteArray relativeFilePath)
 
 QString fileName(const QString &filePath)
 { return QFileInfo(filePath).fileName(); }
+
+CppTools::Tests::TemporaryDir *globalTemporaryDir()
+{
+    static CppTools::Tests::TemporaryDir dir;
+    QTC_CHECK(dir.isValid());
+    return &dir;
+}
 
 struct LogOutput
 {
@@ -469,11 +477,13 @@ public:
     OpenEditorAtCursorPosition(const TestDocument &testDocument);
     ~OpenEditorAtCursorPosition(); // Close editor
 
-    bool succeeded() const { return m_editor; }
+    bool succeeded() const { return m_editor && m_backendIsNotified; }
+    bool waitUntilBackendIsNotified(int timeout = 10000);
     TextEditor::BaseTextEditor *editor() const { return m_editor; }
 
 private:
     TextEditor::BaseTextEditor *m_editor;
+    bool m_backendIsNotified = false;
 };
 
 OpenEditorAtCursorPosition::OpenEditorAtCursorPosition(const TestDocument &testDocument)
@@ -483,12 +493,38 @@ OpenEditorAtCursorPosition::OpenEditorAtCursorPosition(const TestDocument &testD
     QTC_CHECK(m_editor);
     if (m_editor && testDocument.hasValidCursorPosition())
         m_editor->setCursorPosition(testDocument.cursorPosition);
+    m_backendIsNotified = waitUntilBackendIsNotified();
+    QTC_CHECK(m_backendIsNotified);
 }
 
 OpenEditorAtCursorPosition::~OpenEditorAtCursorPosition()
 {
     if (m_editor)
         Core::EditorManager::closeEditor(m_editor, /* askAboutModifiedEditors= */ false);
+}
+
+bool OpenEditorAtCursorPosition::waitUntilBackendIsNotified(int timeout)
+{
+    QTC_ASSERT(m_editor, return false);
+
+    const QString filePath = m_editor->document()->filePath().toString();
+
+    QTime time;
+    time.start();
+
+    forever {
+        if (time.elapsed() > timeout)
+            return false;
+
+        const auto *processor = ClangEditorDocumentProcessor::get(filePath);
+        if (processor && processor->projectPart())
+            return true;
+
+        QCoreApplication::processEvents();
+        QThread::msleep(20);
+    }
+
+    return false;
 }
 
 CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
@@ -576,7 +612,7 @@ public:
         CppTools::Tests::TestCase garbageCollectionGlobalSnapshot;
         QVERIFY(garbageCollectionGlobalSnapshot.succeededSoFar());
 
-        const TestDocument testDocument(testFileName);
+        const TestDocument testDocument(testFileName, globalTemporaryDir());
         QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
         OpenEditorAtCursorPosition openEditor(testDocument);
 
@@ -838,6 +874,15 @@ void ClangCodeCompletionTest::testCompleteFunctions()
     QVERIFY(hasItem(t.proposal, "TType<QString> f(bool)"));
 }
 
+void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompletion()
+{
+    ProjectLessCompletionTest t("constructorCompletion.cpp");
+
+    QVERIFY(hasItem(t.proposal, "globalVariable"));
+    QVERIFY(hasItem(t.proposal, "GlobalClassWithCustomConstructor"));
+    QVERIFY(!hasSnippet(t.proposal, "class"));
+}
+
 void ClangCodeCompletionTest::testProjectDependentCompletion()
 {
     const TestDocument testDocument("completionWithProject.cpp");
@@ -1029,23 +1074,27 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
+    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
     // ...and a file of the project
     const QString completionFile = testDir.absolutePath("mainwindow.cpp");
     const TestDocument testDocument = TestDocument::fromExistingFile(completionFile);
     QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
     OpenEditorAtCursorPosition openSource(testDocument);
     QVERIFY(openSource.succeeded());
-    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
 
     // Check commands that would have been sent
     QVERIFY(compare(LogOutput(spy.senderLog),
                     LogOutput(
+                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "  Path: myheader.h ProjectPart: \n"
                         "RegisterProjectPartsForCodeCompletionCommand\n"
-                        "  ProjectPartContainer id: qt-widgets-app.pro\n"
+                        "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
+                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "  Path: ui_mainwindow.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
-                        "  Path: ui_mainwindow.h ProjectPart: \n"
+                        "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
                     )));
     spy.senderLog.clear();
 
@@ -1062,7 +1111,7 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
                         "RegisterProjectPartsForCodeCompletionCommand\n"
                         "  ProjectPartContainer id: \n"
                         "RegisterProjectPartsForCodeCompletionCommand\n"
-                        "  ProjectPartContainer id: qt-widgets-app.pro\n"
+                        "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionCommand\n"

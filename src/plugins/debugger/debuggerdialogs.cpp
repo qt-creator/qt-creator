@@ -110,18 +110,16 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
     , m_hostAbi(Abi::hostAbi())
     , m_mode(mode)
 {
-}
-
-// Match valid debuggers and restrict local debugging to compatible toolchains.
-bool DebuggerKitChooser::kitMatches(const Kit *k) const
-{
-    if (!DebuggerKitInformation::isValidDebugger(k))
-        return false;
-    if (m_mode == LocalDebugging) {
-        const ToolChain *tc = ToolChainKitInformation::toolChain(k);
-        return tc && tc->targetAbi().os() == m_hostAbi.os();
-    }
-    return true;
+    setKitMatcher([this](const Kit *k) {
+        // Match valid debuggers and restrict local debugging to compatible toolchains.
+        if (!DebuggerKitInformation::isValidDebugger(k))
+            return false;
+        if (m_mode == LocalDebugging) {
+            const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+            return tc && tc->targetAbi().os() == m_hostAbi.os();
+        }
+        return true;
+    });
 }
 
 QString DebuggerKitChooser::kitToolTip(Kit *k) const

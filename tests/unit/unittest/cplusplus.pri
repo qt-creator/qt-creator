@@ -1,5 +1,4 @@
 INCLUDEPATH += $$PWD
 
-SOURCES += $$PWD/../../../src/libs/3rdparty/cplusplus/Token.cpp
-
-HEADERS += $$PWD/../../../src/libs/3rdparty/cplusplus/Token.h
+include($$PWD/../../../src/libs/utils/utils-lib.pri)
+include($$PWD/../../../src/libs/cplusplus/cplusplus-lib.pri)

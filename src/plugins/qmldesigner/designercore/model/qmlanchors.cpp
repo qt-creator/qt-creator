@@ -366,6 +366,9 @@ void QmlAnchors::removeAnchors()
 
 bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine) const
 {
+    if (!qmlItemNode().isValid())
+        return false;
+
     const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
 
     if (sourceAnchorLine & AnchorLineFill)
@@ -453,6 +456,9 @@ bool QmlAnchors::instanceHasMargin(AnchorLineType sourceAnchorLineType) const
 
 static bool checkForHorizontalCycleRecusive(const QmlAnchors &anchors, QList<QmlItemNode> &visitedItems)
 {
+    if (!anchors.isValid())
+        return false;
+
     visitedItems.append(anchors.qmlItemNode());
     if (anchors.instanceHasAnchor(AnchorLineLeft)) {
         AnchorLine leftAnchorLine = anchors.instanceAnchor(AnchorLineLeft);
@@ -477,6 +483,9 @@ static bool checkForHorizontalCycleRecusive(const QmlAnchors &anchors, QList<Qml
 
 static bool checkForVerticalCycleRecusive(const QmlAnchors &anchors, QList<QmlItemNode> &visitedItems)
 {
+    if (!anchors.isValid())
+        return false;
+
     visitedItems.append(anchors.qmlItemNode());
 
     if (anchors.instanceHasAnchor(AnchorLineTop)) {

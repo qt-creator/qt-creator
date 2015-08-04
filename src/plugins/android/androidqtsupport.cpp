@@ -48,9 +48,9 @@ Utils::FileName Android::AndroidQtSupport::apkPath(ProjectExplorer::Target *targ
 
     QString apkPath;
     if (buildApkStep->useGradle())
-        apkPath = QLatin1String("/build/outputs/apk/android-build-");
+        apkPath = QLatin1String("build/outputs/apk/android-build-");
     else
-        apkPath = QLatin1String("/bin/QtApp-");
+        apkPath = QLatin1String("bin/QtApp-");
     if (buildApkStep->signPackage())
         apkPath += QLatin1String("release.apk");
     else

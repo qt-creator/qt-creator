@@ -31,7 +31,11 @@
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
-gettingStartedText = getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
+if isQt54Build:
+    welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+else:
+    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+gettingStartedText = getQmlItem("Button", welcomePage, False,
                                 "text='Get Started Now' id='gettingStartedButton'")
 
 def clickItemVerifyHelpCombo(qmlItem, expectedHelpComboRegex, testDetails):
@@ -47,12 +51,9 @@ def clickItemVerifyHelpCombo(qmlItem, expectedHelpComboRegex, testDetails):
                 "Verifying: Get Started Now button is being displayed.")
 
 def waitForButtonsState(projectsChecked, examplesChecked, tutorialsChecked, timeout=5000):
-    projButton = waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                          False, "text='Projects'"))
-    exmpButton = waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                          False, "text='Examples'"))
-    tutoButton = waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                          False, "text='Tutorials'"))
+    projButton = waitForObject(getQmlItem("Button", welcomePage, False, "text='Projects'"))
+    exmpButton = waitForObject(getQmlItem("Button", welcomePage, False, "text='Examples'"))
+    tutoButton = waitForObject(getQmlItem("Button", welcomePage, False, "text='Tutorials'"))
     return waitFor('projButton.checked == projectsChecked '
                    'and exmpButton.checked == examplesChecked '
                    'and tutoButton.checked == tutorialsChecked', timeout)
@@ -73,8 +74,7 @@ def main():
     buttonsAndState = {'Projects':True, 'Examples':False, 'Tutorials':False, 'New Project':False,
                        'Open Project':False}
     for button, state in buttonsAndState.items():
-        qmlItem = getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
-                             "text='%s'" % button)
+        qmlItem = getQmlItem("Button", welcomePage, False, "text='%s'" % button)
         if test.verify(checkIfObjectExists(qmlItem),
                        "Verifying whether '%s' button is shown." % button):
             buttonObj = findObject(qmlItem)
@@ -92,8 +92,7 @@ def main():
                 'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                 }
     for text, url in textUrls.items():
-        qmlItem = getQmlItem("LinkedText", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
-                             "text='%s'" % text)
+        qmlItem = getQmlItem("LinkedText", welcomePage, False, "text='%s'" % text)
         if test.verify(checkIfObjectExists(qmlItem),
                        "Verifying: Link to %s exists." % text):
             itemObj = findObject(qmlItem)
@@ -116,8 +115,8 @@ def main():
     test.verify(checkIfObjectExists(gettingStartedText),
                 "Verifying: Getting Started topic is being displayed.")
     # select Examples and roughly check them
-    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                        False, "text='Examples'")), 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObject(getQmlItem("Button", welcomePage, False, "text='Examples'")),
+               5, 5, 0, Qt.LeftButton)
     waitForButtonsState(False, True, False)
     expect = (("Rectangle", "id='rectangle1' radius='0'", "examples rectangle"),
               ("TextField", "id='lineEdit' placeholderText='Search in Examples...'",
@@ -126,13 +125,11 @@ def main():
               ("Delegate", "id='delegate' radius='0' caption~='.*Example'", "at least one example")
               )
     for (qType, prop, info) in expect:
-        test.verify(checkIfObjectExists(getQmlItem(qType,
-                                                   ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                                   None, prop)),
+        test.verify(checkIfObjectExists(getQmlItem(qType, welcomePage, None, prop)),
                     "Verifying whether %s is shown" % info)
     # select Tutorials and roughly check them
-    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                        False, "text='Tutorials'")), 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObject(getQmlItem("Button", welcomePage, False, "text='Tutorials'")),
+               5, 5, 0, Qt.LeftButton)
     waitForButtonsState(False, False, True)
     expect = (("Rectangle", "id='rectangle1' radius='0'", "tutorials rectangle"),
               ("TextField", "id='lineEdit' placeholderText='Search in Tutorials...'",
@@ -140,9 +137,7 @@ def main():
               ("Delegate", "id='delegate' radius='0' caption~='Creating.*'", "at least one tutorial")
               )
     for (qType, prop, info) in expect:
-        test.verify(checkIfObjectExists(getQmlItem(qType,
-                                                   ":WelcomePageStyledBar.WelcomePage_QQuickView",
-                                                   None, prop)),
+        test.verify(checkIfObjectExists(getQmlItem(qType, welcomePage, None, prop)),
                     "Verifying whether %s is shown" % info)
     # exit Qt Creator
     invokeMenuItem("File", "Exit")

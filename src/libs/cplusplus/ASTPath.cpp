@@ -65,8 +65,8 @@ void ASTPath::dump(const QList<AST *> nodes)
 
 bool ASTPath::preVisit(AST *ast)
 {
-    unsigned firstToken = ast->firstToken();
-    unsigned lastToken = ast->lastToken();
+    const unsigned firstToken = firstNonGeneratedToken(ast);
+    const unsigned lastToken = lastNonGeneratedToken(ast);
 
     if (firstToken > 0) {
         if (lastToken <= firstToken)
@@ -88,4 +88,25 @@ bool ASTPath::preVisit(AST *ast)
     }
 
     return false;
+}
+
+unsigned ASTPath::firstNonGeneratedToken(AST *ast) const
+{
+    const unsigned lastTokenIndex = ast->lastToken();
+    unsigned tokenIndex = ast->firstToken();
+    while (tokenIndex <= lastTokenIndex && tokenAt(tokenIndex).generated())
+        ++tokenIndex;
+    return tokenIndex;
+}
+
+unsigned ASTPath::lastNonGeneratedToken(AST *ast) const
+{
+    const unsigned firstTokenIndex = ast->firstToken();
+    const unsigned lastTokenIndex = ast->lastToken();
+    unsigned tokenIndex = lastTokenIndex;
+    while (firstTokenIndex <= tokenIndex && tokenAt(tokenIndex).generated())
+        --tokenIndex;
+    return tokenIndex != lastTokenIndex
+            ? tokenIndex + 1
+            : tokenIndex;
 }

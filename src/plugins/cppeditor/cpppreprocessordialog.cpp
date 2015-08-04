@@ -70,7 +70,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(QWidget *parent, const QString &fil
         ProjectPartAddition addition;
         addition.projectPart = projectPart;
         addition.additionalDirectives = ProjectExplorer::SessionManager::value(
-                    projectPart->projectFile + QLatin1Char(',') +  m_filePath).toString();
+                    projectPart->id() + QLatin1Char(',') +  m_filePath).toString();
         if (projectPart->id() == projectPartIdToUse)
             currentIndex = m_ui->projectComboBox->count() - 1;
         m_partAdditions << addition;
@@ -96,16 +96,16 @@ int CppPreProcessorDialog::exec()
 
     ProjectExplorer::SessionManager::setValue(
                 QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + m_filePath,
-                m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart->projectFile);
+                m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart->id());
 
     foreach (ProjectPartAddition partAddition, m_partAdditions) {
         const QString &previousDirectives = ProjectExplorer::SessionManager::value(
-                    partAddition.projectPart->projectFile
+                    partAddition.projectPart->id()
                     + QLatin1Char(',')
                     + m_filePath).toString();
         if (previousDirectives != partAddition.additionalDirectives) {
             ProjectExplorer::SessionManager::setValue(
-                        partAddition.projectPart->projectFile + QLatin1Char(',') +  m_filePath,
+                        partAddition.projectPart->id() + QLatin1Char(',') +  m_filePath,
                         partAddition.additionalDirectives);
         }
     }

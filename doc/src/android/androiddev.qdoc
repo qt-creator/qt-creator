@@ -67,6 +67,8 @@
             \l{http://developer.android.com/tools/sdk/ndk/index.html}
             {Android NDK} from Google.
 
+            \note Android Studio is currently not supported by \QC.
+
         \li On Windows, you also need the following:
 
           \list

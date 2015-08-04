@@ -39,7 +39,12 @@
     \note GIMP does not support grouping, and therefore, each layer is exported
     as an item in GIMP.
 
-    You can open the QML file in \QC for editing. If you edit the file in Adobe
+    You can open the QML file in \QC for editing. By default, the export scripts
+    generate Qt Quick 1 files. To edit the files in \QMLD, change the import
+    statements in the export scripts to import Qt Quick 2. Or, you can change
+    the import statement in each file after generating the files.
+
+    If you edit the file in Adobe
     Photoshop and export it to the same directory again, any changes you made in
     \QC are overwritten. However, you can re-export graphical assets without
     recreating the QML code.
@@ -114,12 +119,20 @@
 
     \list 1
 
-        \li Download the export script, \e{Export QML.jx}, from
-            \l{https://code.qt.io/cgit/qt-labs/photoshop-qmlexporter.git/}
-            {code.qt.io}.
+        \li Clone the repository that contains the export script,
+            \e{Export QML.jx}, from
+            \l{https://codereview.qt-project.org/#/admin/projects/qt-labs/photoshop-qmlexporter}
+            {Qt Code Review}.
 
             \note Read the README.txt file in the repository for latest
             information about the script.
+
+        \li To generate QML files that you can edit in \QMLD, edit the import
+            statement in \e {Export QML.jx}. For example:
+
+            \code
+            qmlfile.write("import QtQuick 2.5\n");
+            \endcode
 
         \li Double-click the export script to add the export command to the
             \uicontrol Scripts menu. You can also copy the script file to the Adobe
@@ -160,21 +173,12 @@
     The script has been tested to work on GIMP 2. You can download GIMP 2 from
     \l{http://www.gimp.org/downloads/}{GIMP Downloads}.
 
-    To use the export script on Microsoft Windows, you also need to install the
-    GIMP Python extension (Python, PyCairo, PyGobject, PyGTK). However, GIMP is
-    not officially supported on Windows, so we cannot guarantee that this will
-    work.
-
     \list 1
 
-        \li On Microsoft Windows, you must first add Python support to your GIMP
-            installation, as instructed in
-            \l {http://www.gimpusers.com/tutorials/install-python-for-gimp-2-6-windows}
-            {Tutorial: Installing Python for GIMP 2.6 (Windows)}.
-
-        \li Download the export script, \e qmlexporter.py, from
-            \l{https://code.qt.io/cgit/qt-labs/gimp-qmlexporter.git/}
-            {code.qt.io}.
+        \li Clone the repository that contains the export script,
+            \e qmlexporter.py, from
+            \l{https://codereview.qt-project.org/#/admin/projects/qt-labs/gimp-qmlexporter}
+            {Qt Code Review}.
 
             \note Read the INSTALL.txt in the repository for latest information
             about the script.
@@ -185,6 +189,13 @@
         \li Check the properties of the file to make sure that it is executable.
 
             On Linux, run the following command: \c {chmod u+rx}
+
+        \li To generate QML files that you can edit in \QMLD, edit the import
+            statement in \e qmlexporter.py. For example:
+
+            \code
+            f.write('import QtQuick 2.5\n')
+            \endcode
 
         \li Restart GIMP to have the export command added to the \uicontrol File menu.
 

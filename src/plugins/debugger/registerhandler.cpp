@@ -42,214 +42,22 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
-static struct RegisterNameAndType
-{
-    const char *name;
-    RegisterKind kind;
-    int size;
-} theNameAndType[] = {
-    // ARM
-    { "r0", IntegerRegister, 4 },
-    { "r1", IntegerRegister, 4 },
-    { "r2", IntegerRegister, 4 },
-    { "r3", IntegerRegister, 4 },
-    { "r4", IntegerRegister, 4 },
-    { "r5", IntegerRegister, 4 },
-    { "r6", IntegerRegister, 4 },
-    { "r7", IntegerRegister, 4 },
-    { "r8", IntegerRegister, 4 },
-    { "r9", IntegerRegister, 4 },
-    { "r10", IntegerRegister, 4 },
-    { "r11", IntegerRegister, 4 },
-    { "r12", IntegerRegister, 4 },
-    { "sp", IntegerRegister, 4 },
-    { "lr", IntegerRegister, 4 },
-    { "pc", IntegerRegister, 4 },
-    { "cpsr", FlagRegister, 4 },
-    { "d0", IntegerRegister, 8 },
-    { "d1", IntegerRegister, 8 },
-    { "d2", IntegerRegister, 8 },
-    { "d3", IntegerRegister, 8 },
-    { "d4", IntegerRegister, 8 },
-    { "d5", IntegerRegister, 8 },
-    { "d6", IntegerRegister, 8 },
-    { "d7", IntegerRegister, 8 },
-    { "d8", IntegerRegister, 8 },
-    { "d9", IntegerRegister, 8 },
-    { "d10", IntegerRegister, 8 },
-    { "d11", IntegerRegister, 8 },
-    { "d12", IntegerRegister, 8 },
-    { "d13", IntegerRegister, 8 },
-    { "d14", IntegerRegister, 8 },
-    { "d15", IntegerRegister, 8 },
-    { "d16", IntegerRegister, 8 },
-    { "d17", IntegerRegister, 8 },
-    { "d18", IntegerRegister, 8 },
-    { "d19", IntegerRegister, 8 },
-    { "d20", IntegerRegister, 8 },
-    { "d21", IntegerRegister, 8 },
-    { "d22", IntegerRegister, 8 },
-    { "d23", IntegerRegister, 8 },
-    { "d24", IntegerRegister, 8 },
-    { "d25", IntegerRegister, 8 },
-    { "d26", IntegerRegister, 8 },
-    { "d27", IntegerRegister, 8 },
-    { "d28", IntegerRegister, 8 },
-    { "d29", IntegerRegister, 8 },
-    { "d30", IntegerRegister, 8 },
-    { "d31", IntegerRegister, 8 },
-    { "fpscr", FlagRegister, 4 },
-    { "s0", IntegerRegister, 4 },
-    { "s1", IntegerRegister, 4 },
-    { "s2", IntegerRegister, 4 },
-    { "s3", IntegerRegister, 4 },
-    { "s4", IntegerRegister, 4 },
-    { "s5", IntegerRegister, 4 },
-    { "s6", IntegerRegister, 4 },
-    { "s7", IntegerRegister, 4 },
-    { "s8", IntegerRegister, 4 },
-    { "s9", IntegerRegister, 4 },
-    { "s10", IntegerRegister, 4 },
-    { "s11", IntegerRegister, 4 },
-    { "s12", IntegerRegister, 4 },
-    { "s13", IntegerRegister, 4 },
-    { "s14", IntegerRegister, 4 },
-    { "s15", IntegerRegister, 4 },
-    { "s16", IntegerRegister, 4 },
-    { "s17", IntegerRegister, 4 },
-    { "s18", IntegerRegister, 4 },
-    { "s19", IntegerRegister, 4 },
-    { "s20", IntegerRegister, 4 },
-    { "s21", IntegerRegister, 4 },
-    { "s22", IntegerRegister, 4 },
-    { "s23", IntegerRegister, 4 },
-    { "s24", IntegerRegister, 4 },
-    { "s25", IntegerRegister, 4 },
-    { "s26", IntegerRegister, 4 },
-    { "s27", IntegerRegister, 4 },
-    { "s28", IntegerRegister, 4 },
-    { "s29", IntegerRegister, 4 },
-    { "s30", IntegerRegister, 4 },
-    { "s31", IntegerRegister, 4 },
-    { "q0", IntegerRegister, 16 },
-    { "q1", IntegerRegister, 16 },
-    { "q2", IntegerRegister, 16 },
-    { "q3", IntegerRegister, 16 },
-    { "q4", IntegerRegister, 16 },
-    { "q5", IntegerRegister, 16 },
-    { "q6", IntegerRegister, 16 },
-    { "q7", IntegerRegister, 16 },
-    { "q8", IntegerRegister, 16 },
-    { "q9", IntegerRegister, 16 },
-    { "q10", IntegerRegister, 16 },
-    { "q11", IntegerRegister, 16 },
-    { "q12", IntegerRegister, 16 },
-    { "q13", IntegerRegister, 16 },
-    { "q14", IntegerRegister, 16 },
-    { "q15", IntegerRegister, 16 },
-
-    // Intel
-    { "eax", IntegerRegister, 4 },
-    { "ecx", IntegerRegister, 4 },
-    { "edx", IntegerRegister, 4 },
-    { "ebx", IntegerRegister, 4 },
-    { "esp", IntegerRegister, 4 },
-    { "ebp", IntegerRegister, 4 },
-    { "esi", IntegerRegister, 4 },
-    { "edi", IntegerRegister, 4 },
-    { "eip", IntegerRegister, 4 },
-    { "rax", IntegerRegister, 8 },
-    { "rcx", IntegerRegister, 8 },
-    { "rdx", IntegerRegister, 8 },
-    { "rbx", IntegerRegister, 8 },
-    { "rsp", IntegerRegister, 8 },
-    { "rbp", IntegerRegister, 8 },
-    { "rsi", IntegerRegister, 8 },
-    { "rdi", IntegerRegister, 8 },
-    { "rip", IntegerRegister, 8 },
-    { "eflags", FlagRegister, 4 },
-    { "cs", IntegerRegister, 2 },
-    { "ss", IntegerRegister, 2 },
-    { "ds", IntegerRegister, 2 },
-    { "es", IntegerRegister, 2 },
-    { "fs", IntegerRegister, 2 },
-    { "gs", IntegerRegister, 2 },
-    { "st0", FloatRegister, 10 },
-    { "st1", FloatRegister, 10 },
-    { "st2", FloatRegister, 10 },
-    { "st3", FloatRegister, 10 },
-    { "st4", FloatRegister, 10 },
-    { "st5", FloatRegister, 10 },
-    { "st6", FloatRegister, 10 },
-    { "st7", FloatRegister, 10 },
-    { "fctrl", FlagRegister, 4 },
-    { "fstat", FlagRegister, 4 },
-    { "ftag", FlagRegister, 4 },
-    { "fiseg", FlagRegister, 4 },
-    { "fioff", FlagRegister, 4 },
-    { "foseg", FlagRegister, 4 },
-    { "fooff", FlagRegister, 4 },
-    { "fop", FlagRegister, 4 },
-    { "mxcsr", FlagRegister, 4 },
-    { "orig_eax", IntegerRegister, 4 },
-    { "al", IntegerRegister, 1 },
-    { "cl", IntegerRegister, 1 },
-    { "dl", IntegerRegister, 1 },
-    { "bl", IntegerRegister, 1 },
-    { "ah", IntegerRegister, 1 },
-    { "ch", IntegerRegister, 1 },
-    { "dh", IntegerRegister, 1 },
-    { "bh", IntegerRegister, 1 },
-    { "ax", IntegerRegister, 2 },
-    { "cx", IntegerRegister, 2 },
-    { "dx", IntegerRegister, 2 },
-    { "bx", IntegerRegister, 2 },
-    { "bp", IntegerRegister, 2 },
-    { "si", IntegerRegister, 2 },
-    { "di", IntegerRegister, 2 }
- };
-
-//////////////////////////////////////////////////////////////////
-//
-// RegisterValue
-//
-//////////////////////////////////////////////////////////////////
-
-// FIXME: This should not really be needed. Instead the guessing, if any,
-// should done by the engines.
-static void fixup(Register *reg, RegisterKind kind, int size)
-{
-    reg->kind = kind;
-    if (!reg->size)
-        reg->size = size;
-}
-
 void Register::guessMissingData()
 {
-    if (name.startsWith("xmm")) {
-        fixup(this, VectorRegister, 16);
-        return;
-    }
-
-    for (int i = 0; i != sizeof(theNameAndType) / sizeof(theNameAndType[0]); ++i) {
-        if (theNameAndType[i].name == name) {
-            fixup(this, theNameAndType[i].kind, theNameAndType[i].size);
-            return;
-        }
-    }
-
     if (reportedType == "int")
-        fixup(this, IntegerRegister, 4);
+        kind = IntegerRegister;
     else if (reportedType == "float")
-        fixup(this, IntegerRegister, 8);
+        kind = FloatRegister;
     else if (reportedType == "_i387_ext")
-        fixup(this, IntegerRegister, 10);
+        kind = FloatRegister;
     else if (reportedType == "*1" || reportedType == "long")
-        fixup(this, IntegerRegister, 0);
+        kind = IntegerRegister;
     else if (reportedType.contains("vec"))
-        fixup(this, VectorRegister, 0);
+        kind = VectorRegister;
     else if (reportedType.startsWith("int"))
-        fixup(this, IntegerRegister, 0);
+        kind = IntegerRegister;
+    else if (name.startsWith("xmm") || name.startsWith("ymm"))
+        kind = VectorRegister;
 }
 
 static QString subTypeName(RegisterKind kind, int size, RegisterFormat format)
@@ -267,7 +75,8 @@ static QString subTypeName(RegisterKind kind, int size, RegisterFormat format)
     switch (format) {
         case BinaryFormat: name += QLatin1Char('b'); break;
         case OctalFormat: name += QLatin1Char('o'); break;
-        case DecimalFormat: name += QLatin1Char('d'); break;
+        case DecimalFormat: name += QLatin1Char('u'); break;
+        case SignedDecimalFormat: name += QLatin1Char('s'); break;
         case HexadecimalFormat: name += QLatin1Char('x'); break;
         case CharacterFormat: name += QLatin1Char('c'); break;
     }
@@ -328,6 +137,18 @@ static QByteArray formatRegister(quint64 v, int size, RegisterFormat format)
         result.prepend(QByteArray(2*size - result.size(), '0'));
     } else if (format == DecimalFormat) {
         result = QByteArray::number(v, 10);
+        result.prepend(QByteArray(2*size - result.size(), ' '));
+    } else if (format == SignedDecimalFormat) {
+        qint64 sv;
+        if (size >= 8)
+            sv = qint64(v);
+        else if (size >= 4)
+            sv = qint32(v);
+        else if (size >= 2)
+            sv = qint16(v);
+        else
+            sv = qint8(v);
+        result = QByteArray::number(sv, 10);
         result.prepend(QByteArray(2*size - result.size(), ' '));
     } else if (format == CharacterFormat) {
         if (v >= 32 && v < 127) {
@@ -436,8 +257,13 @@ RegisterItem::RegisterItem(const Register &reg) :
         m_reg.guessMissingData();
 
     if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
+        if (m_reg.size <= 8) {
+            appendChild(new RegisterSubItem(IntegerRegister, m_reg.size, 1, SignedDecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, m_reg.size, 1, DecimalFormat));
+        }
         for (int s = m_reg.size / 2; s; s = s / 2) {
             appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, HexadecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, SignedDecimalFormat));
             appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, DecimalFormat));
             if (s == 1)
                 appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, CharacterFormat));
@@ -548,8 +374,16 @@ QVariant RegisterSubItem::data(int column, int role) const
             if (m_subKind == IntegerRegister) {
                 if (m_subFormat == CharacterFormat)
                     return RegisterHandler::tr("Content as ASCII Characters");
-                else
-                    return RegisterHandler::tr("Content as %1-bit Integer Values").arg(8 * m_subSize);
+                if (m_subFormat == SignedDecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Signed Decimal Values").arg(8 * m_subSize);
+                if (m_subFormat == DecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Unsigned Decimal Values").arg(8 * m_subSize);
+                if (m_subFormat == HexadecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Hexadecimal Values").arg(8 * m_subSize);
+                if (m_subFormat == OctalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Octal Values").arg(8 * m_subSize);
+                if (m_subFormat == BinaryFormat)
+                    return RegisterHandler::tr("Content as %1-bit Binary Values").arg(8 * m_subSize);
             }
             if (m_subKind == FloatRegister)
                 return RegisterHandler::tr("Contents as %1-bit Floating Point Values").arg(8 * m_subSize);

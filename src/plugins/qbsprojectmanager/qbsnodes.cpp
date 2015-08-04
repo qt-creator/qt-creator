@@ -245,6 +245,23 @@ public:
     bool m_isFile;
 };
 
+
+static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplorer::Node *node,
+                                                                  bool managesFiles)
+{
+    QList<ProjectExplorer::ProjectAction> actions;
+    const QbsProject * const project = parentQbsProjectNode(node)->project();
+    if (!project->isProjectEditable())
+        return actions;
+    if (managesFiles)
+        actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile;
+    if (node->nodeType() == ProjectExplorer::FileNodeType
+            && !project->qbsProject().buildSystemFiles().contains(node->path().toString())) {
+        actions << ProjectExplorer::RemoveFile << ProjectExplorer::Rename;
+    }
+    return actions;
+}
+
 // ----------------------------------------------------------------------
 // QbsFileNode:
 // ----------------------------------------------------------------------
@@ -273,8 +290,7 @@ QbsFolderNode::QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer:
 
 QList<ProjectExplorer::ProjectAction> QbsFolderNode::supportedActions(ProjectExplorer::Node *node) const
 {
-    Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectAction>();
+    return supportedNodeActions(node, false);
 }
 
 // ---------------------------------------------------------------------------
@@ -341,22 +357,6 @@ bool QbsBaseProjectNode::renameFile(const QString &filePath, const QString &newF
     return false;
 }
 
-
-static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplorer::Node *node)
-{
-    QList<ProjectExplorer::ProjectAction> actions;
-    const QbsProject * const project = parentQbsProjectNode(node)->project();
-    if (!project->isProjectEditable())
-        return actions;
-    actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile;
-    if (node->nodeType() == ProjectExplorer::FileNodeType
-            && !project->qbsProject().buildSystemFiles().contains(node->path().toString())) {
-        actions << ProjectExplorer::RemoveFile;
-        actions << ProjectExplorer::Rename;
-    }
-    return actions;
-}
-
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------
@@ -387,7 +387,7 @@ bool QbsGroupNode::isEnabled() const
 
 QList<ProjectExplorer::ProjectAction> QbsGroupNode::supportedActions(ProjectExplorer::Node *node) const
 {
-    return supportedNodeActions(node);
+    return supportedNodeActions(node, true);
 }
 
 bool QbsGroupNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
@@ -634,7 +634,7 @@ bool QbsProductNode::showInSimpleTree() const
 
 QList<ProjectExplorer::ProjectAction> QbsProductNode::supportedActions(ProjectExplorer::Node *node) const
 {
-    return supportedNodeActions(node);
+    return supportedNodeActions(node, true);
 }
 
 bool QbsProductNode::addFiles(const QStringList &filePaths, QStringList *notAdded)

@@ -56,8 +56,12 @@ public:
     using AsyncCompletionsAvailableHandler = std::function<void (IAssistProposal *proposal)>;
     void setAsyncCompletionAvailableHandler(const AsyncCompletionsAvailableHandler &finalizer);
 
+    bool performWasApplicable() { return m_performWasApplicable; }
+    void setPerformWasApplicable(bool applicable) { m_performWasApplicable = applicable; }
+
 private:
     AsyncCompletionsAvailableHandler m_asyncCompletionsAvailableHandler;
+    bool m_performWasApplicable = true;
 };
 
 } // TextEditor

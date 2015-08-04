@@ -73,7 +73,7 @@ private:
     void onAbstractEditorSupportRemoved(const QString &filePath);
 
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
-    void onProjectPartsRemoved(const QStringList &projectFiles);
+    void onProjectPartsRemoved(const QStringList &projectPartIds);
 
     IpcCommunicator m_ipcCommunicator;
     ClangCompletionAssistProvider m_completionAssistProvider;

@@ -36,7 +36,8 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/codecompletionchunk.cpp \
     $$PWD/projectpartcontainer.cpp \
     $$PWD/projectpartsdonotexistcommand.cpp \
-    $$PWD/lineprefixer.cpp
+    $$PWD/lineprefixer.cpp \
+    $$PWD/clangbackendipcdebugutils.cpp
 
 HEADERS += \
     $$PWD/ipcserverinterface.h \
@@ -67,6 +68,7 @@ HEADERS += \
     $$PWD/projectpartsdonotexistcommand.h \
     $$PWD/container_common.h \
     $$PWD/clangbackendipc_global.h \
-    $$PWD/lineprefixer.h
+    $$PWD/lineprefixer.h \
+    $$PWD/clangbackendipcdebugutils.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

@@ -29,7 +29,9 @@
 ****************************************************************************/
 
 #include "disassemblerlines.h"
+#include "debuggerengine.h"
 #include "debuggerstringutils.h"
+#include "sourceutils.h"
 
 #include <QDebug>
 #include <QFile>
@@ -70,13 +72,6 @@ void DisassemblerLine::fromString(const QString &unparsed)
         data = unparsed.mid(pos + 1);
     else
         data = unparsed;
-}
-
-quint64 DisassemblerLine::addressFromDisassemblyLine(const QString &line)
-{
-    DisassemblerLine l;
-    l.fromString(line);
-    return l.address;
 }
 
 quint64 DisassemblerLines::startAddress() const

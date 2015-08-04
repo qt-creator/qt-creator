@@ -47,6 +47,7 @@ namespace Internal {
 
 const char OPENED_BY_DEBUGGER[]         = "OpenedByDebugger";
 const char OPENED_WITH_DISASSEMBLY[]    = "DisassemblerView";
+const char DISASSEMBLER_SOURCE_FILE[]   = "DisassemblerSourceFile";
 
 // Debug action
 const char DEBUG[]                      = "Debugger.Debug";

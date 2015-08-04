@@ -36,7 +36,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-void CompletionChunksToTextConverter::parseChunks(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+void CompletionChunksToTextConverter::parseChunks(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     m_text.clear();
     m_placeholderPositions.clear();
@@ -94,7 +94,7 @@ bool CompletionChunksToTextConverter::hasPlaceholderPositions() const
     return m_placeholderPositions.size() > 0;
 }
 
-QString CompletionChunksToTextConverter::convertToFunctionSignature(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convertToFunctionSignature(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
@@ -105,7 +105,7 @@ QString CompletionChunksToTextConverter::convertToFunctionSignature(const QVecto
     return converter.text();
 }
 
-QString CompletionChunksToTextConverter::convertToName(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
 
@@ -114,7 +114,7 @@ QString CompletionChunksToTextConverter::convertToName(const QVector<ClangBackEn
     return converter.text();
 }
 
-QString CompletionChunksToTextConverter::convertToToolTip(const QVector<ClangBackEnd::CodeCompletionChunk> &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convertToToolTip(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
@@ -196,7 +196,7 @@ void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces()
         addExtraVerticalSpaceBetweenBraces(m_codeCompletionChunks.begin());
 }
 
-void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(const QVector<ClangBackEnd::CodeCompletionChunk>::iterator &begin)
+void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(const ClangBackEnd::CodeCompletionChunks::iterator &begin)
 {
     using ClangBackEnd::CodeCompletionChunk;
 

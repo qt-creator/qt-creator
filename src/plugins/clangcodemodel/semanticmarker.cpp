@@ -33,6 +33,7 @@
 #include "utils_p.h"
 #include "cxraii.h"
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 using namespace ClangCodeModel;
@@ -131,11 +132,22 @@ static void appendDiagnostic(const CXDiagnostic &diag,
     }
 }
 
+static bool isBlackListedDiagnostic(const Utils::MimeType &mimeType, const QString &diagnostic)
+{
+    static QString pragmaOnceInMainFile = QLatin1String("#pragma once in main file");
+
+    return diagnostic == pragmaOnceInMainFile
+        && mimeType.inherits(QLatin1String("text/x-chdr"));
+}
+
 QList<Diagnostic> SemanticMarker::diagnostics() const
 {
     QList<Diagnostic> diagnostics;
     if (!m_unit || !m_unit->isLoaded())
         return diagnostics;
+
+    Utils::MimeDatabase mimeDatabase;
+    const Utils::MimeType mimeType = mimeDatabase.mimeTypeForFile(fileName());
 
     const unsigned diagCount = m_unit->getNumDiagnostics();
     for (unsigned i = 0; i < diagCount; ++i) {
@@ -147,6 +159,9 @@ QList<Diagnostic> SemanticMarker::diagnostics() const
 
         CXSourceLocation cxLocation = clang_getDiagnosticLocation(diag);
         QString spelling = Internal::getQString(clang_getDiagnosticSpelling(diag));
+
+        if (isBlackListedDiagnostic(mimeType, spelling))
+            continue;
 
         // Attach messages with Diagnostic::Note severity
         ScopedCXDiagnosticSet cxChildren(clang_getChildDiagnostics(diag));
@@ -333,9 +348,8 @@ QList<SourceMarker> SemanticMarker::sourceMarkersInRange(unsigned firstLine,
                                                          unsigned lastLine)
 {
     QList<SourceMarker> result;
-    QTC_ASSERT(m_unit, return result);
 
-    if (!m_unit->isLoaded())
+    if (!m_unit || !m_unit->isLoaded())
         return result;
 
     // Highlighting called asynchronously, and a few lines at the end can be deleted for this time.

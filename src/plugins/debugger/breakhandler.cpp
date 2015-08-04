@@ -1331,6 +1331,8 @@ BreakpointItem::~BreakpointItem()
 
 void BreakpointItem::destroyMarker()
 {
+    if (m_engine)
+        m_engine->updateBreakpointMarkers();
     if (m_marker) {
         BreakpointMarker *m = m_marker;
         m->m_bp = 0;

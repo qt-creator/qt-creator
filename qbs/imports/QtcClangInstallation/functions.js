@@ -1,4 +1,17 @@
-function llvmConfig(qbs)
+var File = loadExtension("qbs.File")
+var MinimumLLVMVersion = "3.6.0"
+
+function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions, processOutputReader)
+{
+    if (File.exists(llvmConfigCandidate)) {
+        var candidateVersion = version(llvmConfigCandidate, processOutputReader);
+        if (candidateVersion && candidateVersion.length)
+            return qtcFunctions.versionIsAtLeast(candidateVersion, MinimumLLVMVersion)
+    }
+    return false;
+}
+
+function llvmConfig(qbs, qtcFunctions, processOutputReader)
 {
     var llvmInstallDirFromEnv = qbs.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
@@ -10,7 +23,7 @@ function llvmConfig(qbs)
     if (llvmInstallDirFromEnv) {
         for (var i = 0; i < llvmConfigVariants.length; ++i) {
             var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i];
-            if (File.exists(variant))
+            if (isSuitableLLVMConfig(variant, qtcFunctions, processOutputReader))
                 return variant;
         }
     }
@@ -22,7 +35,7 @@ function llvmConfig(qbs)
     for (var i = 0; i < llvmConfigVariants.length; ++i) {
         for (var j = 0; j < pathList.length; ++j) {
             var variant = pathList[j] + "/" + llvmConfigVariants[i];
-            if (File.exists(variant))
+            if (isSuitableLLVMConfig(variant, qtcFunctions, processOutputReader))
                 return variant;
         }
     }

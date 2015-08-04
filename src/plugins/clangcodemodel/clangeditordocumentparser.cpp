@@ -86,6 +86,9 @@ ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
     , m_marker(new ClangCodeModel::SemanticMarker)
 {
+    BaseEditorDocumentParser::Configuration config = configuration();
+    config.stickToPreviousProjectPart = false;
+    setConfiguration(config);
 }
 
 void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info)

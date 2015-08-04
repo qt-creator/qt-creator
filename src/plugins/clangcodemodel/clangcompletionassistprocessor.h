@@ -34,20 +34,16 @@
 #include "clangcompletionassistinterface.h"
 
 #include <cpptools/cppcompletionassistprocessor.h>
-
 #include <texteditor/texteditor.h>
 
-#include <QCoreApplication>
+#include <clangbackendipc/codecompletion.h>
 
-namespace ClangBackEnd {
-class CodeCompletion;
-}
+#include <QCoreApplication>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-using CodeCompletions = QVector<ClangBackEnd::CodeCompletion>;
-using ClangBackEnd::CodeCompletion;
+using ClangBackEnd::CodeCompletions;
 
 class ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
 {
@@ -59,7 +55,7 @@ public:
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
-    void asyncCompletionsAvailable(const CodeCompletions &completions);
+    bool handleAvailableAsyncCompletions(const CodeCompletions &completions);
 
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
@@ -81,11 +77,17 @@ private:
                            int order = 0,
                            const QVariant &data = QVariant());
 
-    void sendFileContent(const QString &projectFilePath, const QByteArray &modifiedFileContent);
-    void sendCompletionRequest(int position, const QByteArray &modifiedFileContent);
+    struct UnsavedFileContentInfo {
+        QByteArray unsavedContent;
+        bool isDocumentModified = false;
+    };
+    UnsavedFileContentInfo unsavedFileContent(const QByteArray &customFileContent) const;
 
-    void onCompletionsAvailable(const CodeCompletions &completions);
-    void onFunctionHintCompletionsAvailable(const CodeCompletions &completions);
+    void sendFileContent(const QString &projectPartId, const QByteArray &customFileContent);
+    void sendCompletionRequest(int position, const QByteArray &customFileContent);
+
+    void handleAvailableCompletions(const CodeCompletions &completions);
+    bool handleAvailableFunctionHintCompletions(const CodeCompletions &completions);
 
 private:
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;

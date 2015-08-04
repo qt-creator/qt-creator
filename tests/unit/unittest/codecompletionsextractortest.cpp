@@ -51,8 +51,7 @@ using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::CodeCompletion;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::CodeCompletionChunk;
-
-
+using ClangBackEnd::CodeCompletionChunks;
 
 namespace {
 
@@ -591,10 +590,10 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksFunction)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Function"),
-                                               QVector<CodeCompletionChunk>({{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")},
-                                                                             {CodeCompletionChunk::TypedText, Utf8StringLiteral("Function")},
-                                                                             {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
-                                                                             {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")}})));
+                                               CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")},
+                                                                     {CodeCompletionChunk::TypedText, Utf8StringLiteral("Function")},
+                                                                     {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
+                                                                     {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")}})));
 }
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksFunctionWithOptionalChunks)
@@ -604,16 +603,16 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksFunctionWithOptionalChunks)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("FunctionWithOptional"),
-                                               QVector<CodeCompletionChunk>({{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")},
-                                                                             {CodeCompletionChunk::TypedText, Utf8StringLiteral("FunctionWithOptional")},
-                                                                             {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
-                                                                             {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int x")},
-                                                                             {CodeCompletionChunk::Optional, Utf8String(), QVector<CodeCompletionChunk>({
-                                                                                  {CodeCompletionChunk::Comma, Utf8StringLiteral(", ")},
-                                                                                  {CodeCompletionChunk::Placeholder, Utf8StringLiteral("char y")},
-                                                                                  {CodeCompletionChunk::Comma, Utf8StringLiteral(", ")},
-                                                                                  {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")}})},
-                                                                             {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")}})));
+                                               CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")},
+                                                                     {CodeCompletionChunk::TypedText, Utf8StringLiteral("FunctionWithOptional")},
+                                                                     {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
+                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int x")},
+                                                                     {CodeCompletionChunk::Optional, Utf8String(), CodeCompletionChunks({
+                                                                          {CodeCompletionChunk::Comma, Utf8StringLiteral(", ")},
+                                                                          {CodeCompletionChunk::Placeholder, Utf8StringLiteral("char y")},
+                                                                          {CodeCompletionChunk::Comma, Utf8StringLiteral(", ")},
+                                                                          {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")}})},
+                                                                     {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")}})));
 }
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksField)
@@ -623,8 +622,8 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksField)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Field"),
-                                               QVector<CodeCompletionChunk>({{CodeCompletionChunk::ResultType, Utf8StringLiteral("int")},
-                                                                             {CodeCompletionChunk::TypedText, Utf8StringLiteral("Field")}})));
+                                               CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("int")},
+                                                                     {CodeCompletionChunk::TypedText, Utf8StringLiteral("Field")}})));
 }
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksEnumerator)
@@ -634,8 +633,8 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksEnumerator)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Enumerator"),
-                                               QVector<CodeCompletionChunk>({{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")},
-                                                                             {CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumerator")}})));
+                                               CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")},
+                                                                     {CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumerator")}})));
 }
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksEnumeration)
@@ -645,7 +644,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksEnumeration)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Enumeration"),
-                                               QVector<CodeCompletionChunk>({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")}})));
+                                               CodeCompletionChunks({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")}})));
 }
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
@@ -655,7 +654,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Class"),
-                                               QVector<CodeCompletionChunk>({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Class")}})));
+                                               CodeCompletionChunks({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Class")}})));
 }
 
 

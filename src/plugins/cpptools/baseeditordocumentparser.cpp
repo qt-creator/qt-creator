@@ -126,7 +126,7 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &f
     CppModelManager *cmm = CppModelManager::instance();
     QList<ProjectPart::Ptr> projectParts = cmm->projectPart(filePath);
     if (projectParts.isEmpty()) {
-        if (projectPart)
+        if (projectPart && config.stickToPreviousProjectPart)
             // File is not directly part of any project, but we got one before. We will re-use it,
             // because re-calculating this can be expensive when the dependency table is big.
             return projectPart;

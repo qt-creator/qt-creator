@@ -552,25 +552,6 @@ static Kit *findUniversalCdbKit()
     return KitManager::find(cdbMatcher());
 }
 
-static bool currentTextEditorPosition(ContextData *data)
-{
-    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
-    if (!textEditor)
-        return false;
-    const TextDocument *document = textEditor->textDocument();
-    QTC_ASSERT(document, return false);
-    data->fileName = document->filePath().toString();
-    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        int lineNumber = textEditor->currentLine();
-        QString line = textEditor->textDocument()->plainText()
-            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-        data->address = DisassemblerLine::addressFromDisassemblyLine(line);
-    } else {
-        data->lineNumber = textEditor->currentLine();
-    }
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPluginPrivate
@@ -637,7 +618,7 @@ public:
     {
         QString message;
         if (isMessageOnly) {
-            if (data.address) {
+            if (data.type == LocationByAddress) {
                 //: Message tracepoint: Address hit.
                 message = tr("0x%1 hit").arg(data.address, 0, 16);
             } else {
@@ -657,10 +638,7 @@ public:
                 return;
             message = dialog.textValue();
         }
-        if (data.address)
-            toggleBreakpointByAddress(data.address, message);
-        else
-            toggleBreakpointByFileAndLine(data.fileName, data.lineNumber, message);
+        toggleBreakpoint(data, message);
     }
 
     void updateWatchersHeader(int section, int, int newSize)
@@ -706,11 +684,8 @@ public:
 
     void activatePreviousMode();
     void activateDebugMode();
-    void toggleBreakpoint();
-    void toggleBreakpointByFileAndLine(const QString &fileName, int lineNumber,
-                                       const QString &tracePointMessage = QString());
-    void toggleBreakpointByAddress(quint64 address,
-                                   const QString &tracePointMessage = QString());
+    void toggleBreakpointHelper();
+    void toggleBreakpoint(const ContextData &location, const QString &tracePointMessage = QString());
     void onModeChanged(IMode *mode);
     void onCoreAboutToOpen();
     void updateDebugWithoutDeployMenu();
@@ -848,17 +823,23 @@ public slots:
     void handleExecJumpToLine()
     {
         currentEngine()->resetLocation();
-        ContextData data;
-        if (currentTextEditorPosition(&data))
-            currentEngine()->executeJumpToLine(data);
+        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
+            ContextData location = getLocationContext(textEditor->textDocument(),
+                                                      textEditor->currentLine());
+            if (location.isValid())
+                currentEngine()->executeJumpToLine(location);
+        }
     }
 
     void handleExecRunToLine()
     {
         currentEngine()->resetLocation();
-        ContextData data;
-        if (currentTextEditorPosition(&data))
-            currentEngine()->executeRunToLine(data);
+        if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
+            ContextData location = getLocationContext(textEditor->textDocument(),
+                                                      textEditor->currentLine());
+            if (location.isValid())
+                currentEngine()->executeRunToLine(location);
+        }
     }
 
     void handleExecRunToSelectedFunction()
@@ -1383,7 +1364,6 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     rp.startMode = AttachToRemoteServer;
     if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
         rp.closeMode = KillAtClose;
-        rp.serverStartScript.clear();
         createAndScheduleRun(rp, kit);
     }
 }
@@ -1593,26 +1573,18 @@ void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
-    ContextData args;
-    args.lineNumber = lineNumber;
-    bool contextUsable = true;
-
     Breakpoint bp;
     TextDocument *document = widget->textDocument();
-    args.fileName = document->filePath().toString();
-    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        QString line = document->plainText()
-            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
+
+    ContextData args = getLocationContext(document, lineNumber);
+    if (args.type == LocationByAddress) {
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
-        needle.address = DisassemblerLine::addressFromDisassemblyLine(line);
-        args.address = needle.address;
+        needle.address = args.address;
         needle.lineNumber = -1;
         bp = breakHandler()->findSimilarBreakpoint(needle);
-        contextUsable = args.address != 0;
-    } else {
-        bp = breakHandler()
-            ->findBreakpointByFileAndLine(args.fileName, lineNumber);
+    } else if (args.type == LocationByFile) {
+        bp = breakHandler()->findBreakpointByFileAndLine(args.fileName, lineNumber);
         if (!bp)
             bp = breakHandler()->findBreakpointByFileAndLine(args.fileName, lineNumber, false);
     }
@@ -1645,7 +1617,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             ? tr("Set Breakpoint at 0x%1").arg(args.address, 0, 16)
             : tr("Set Breakpoint at Line %1").arg(lineNumber);
         auto act = menu->addAction(text);
-        act->setEnabled(contextUsable);
+        act->setEnabled(args.isValid());
         connect(act, &QAction::triggered, [this, args] {
             breakpointSetMarginActionTriggered(false, args);
         });
@@ -1655,14 +1627,14 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             ? tr("Set Message Tracepoint at 0x%1...").arg(args.address, 0, 16)
             : tr("Set Message Tracepoint at Line %1...").arg(lineNumber);
         act = menu->addAction(tracePointText);
-        act->setEnabled(contextUsable);
+        act->setEnabled(args.isValid());
         connect(act, &QAction::triggered, [this, args] {
             breakpointSetMarginActionTriggered(true, args);
         });
     }
 
     // Run to, jump to line below in stopped state.
-    if (currentEngine()->state() == InferiorStopOk && contextUsable) {
+    if (currentEngine()->state() == InferiorStopOk && args.isValid()) {
         menu->addSeparator();
         if (currentEngine()->hasCapability(RunToLineCapability)) {
             auto act = menu->addAction(args.address
@@ -1698,72 +1670,58 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     }
 }
 
-void DebuggerPluginPrivate::toggleBreakpoint()
+void DebuggerPluginPrivate::toggleBreakpoint(const ContextData &location, const QString &tracePointMessage)
 {
-    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
-    QTC_ASSERT(textEditor, return);
-    const int lineNumber = textEditor->currentLine();
-    if (textEditor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        QString line = textEditor->textDocument()->plainText()
-            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-        quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
-        toggleBreakpointByAddress(address);
-    } else if (lineNumber >= 0) {
-        toggleBreakpointByFileAndLine(textEditor->document()->filePath().toString(), lineNumber);
-    }
-}
-
-void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileName,
-    int lineNumber, const QString &tracePointMessage)
-{
+    QTC_ASSERT(location.isValid(), return);
     BreakHandler *handler = m_breakHandler;
-    Breakpoint bp = handler->findBreakpointByFileAndLine(fileName, lineNumber, true);
-    if (!bp)
-        bp = handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
+    Breakpoint bp;
+    if (location.type == LocationByFile) {
+        bp = handler->findBreakpointByFileAndLine(location.fileName, location.lineNumber, true);
+        if (!bp)
+            bp = handler->findBreakpointByFileAndLine(location.fileName, location.lineNumber, false);
+    } else if (location.type == LocationByAddress) {
+        bp = handler->findBreakpointByAddress(location.address);
+    }
 
     if (bp) {
         bp.removeBreakpoint();
     } else {
-        BreakpointParameters data(BreakpointByFileAndLine);
-        if (boolSetting(BreakpointsFullPathByDefault))
-            data.pathUsage = BreakpointUseFullPath;
-        data.tracepoint = !tracePointMessage.isEmpty();
-        data.message = tracePointMessage;
-        data.fileName = fileName;
-        data.lineNumber = lineNumber;
+        BreakpointParameters data;
+        if (location.type == LocationByFile) {
+            data.type = BreakpointByFileAndLine;
+            if (boolSetting(BreakpointsFullPathByDefault))
+                data.pathUsage = BreakpointUseFullPath;
+            data.tracepoint = !tracePointMessage.isEmpty();
+            data.message = tracePointMessage;
+            data.fileName = location.fileName;
+            data.lineNumber = location.lineNumber;
+        } else if (location.type == LocationByAddress) {
+            data.type = BreakpointByAddress;
+            data.tracepoint = !tracePointMessage.isEmpty();
+            data.message = tracePointMessage;
+            data.address = location.address;
+        }
         handler->appendBreakpoint(data);
     }
 }
 
-void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
-                                                      const QString &tracePointMessage)
+void DebuggerPluginPrivate::toggleBreakpointHelper()
 {
-    BreakHandler *handler = m_breakHandler;
-    if (Breakpoint bp = handler->findBreakpointByAddress(address)) {
-        bp.removeBreakpoint();
-    } else {
-        BreakpointParameters data(BreakpointByAddress);
-        data.tracepoint = !tracePointMessage.isEmpty();
-        data.message = tracePointMessage;
-        data.address = address;
-        handler->appendBreakpoint(data);
-    }
+    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    const int lineNumber = textEditor->currentLine();
+    ContextData location = getLocationContext(textEditor->textDocument(), lineNumber);
+    if (location.isValid())
+        toggleBreakpoint(location);
 }
 
 void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber,
                                         TextMarkRequestKind kind)
 {
-    if (kind != BreakpointRequest)
-        return;
-
-    TextDocument *document = widget->textDocument();
-    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        QString line = document->plainText()
-                .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-        quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
-        toggleBreakpointByAddress(address);
-    } else {
-        toggleBreakpointByFileAndLine(document->filePath().toString(), lineNumber);
+    if (kind == BreakpointRequest) {
+        ContextData location = getLocationContext(widget->textDocument(), lineNumber);
+        if (location.isValid())
+            toggleBreakpoint(location);
     }
 }
 
@@ -2821,7 +2779,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("F8") : tr("F9")));
     debugMenu->addAction(cmd);
     connect(m_breakAction, &QAction::triggered,
-        this, &DebuggerPluginPrivate::toggleBreakpoint);
+        this, &DebuggerPluginPrivate::toggleBreakpointHelper);
 
     debugMenu->addSeparator();
 
@@ -3130,6 +3088,12 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
     IEditor *editor = EditorManager::openEditorWithContents(
                 CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8(), QString(),
                 EditorManager::IgnoreNavigationHistory);
+    if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+        QString suggestion = titlePattern;
+        if (!suggestion.contains(QLatin1Char('.')))
+            suggestion.append(QLatin1String(".txt"));
+        textEditor->textDocument()->setSuggestedFileName(suggestion);
+    }
     QTC_ASSERT(editor, return);
 }
 

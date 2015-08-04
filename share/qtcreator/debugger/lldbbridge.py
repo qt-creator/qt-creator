@@ -266,14 +266,15 @@ class Dumper(DumperBase):
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putNumChild(0)
-            self.putValue("<not accessible>")
+            self.putSpecialValue(SpecialNotAccessibleValue)
         try:
             if self.currentType.value:
                 typeName = self.currentType.value
                 if len(typeName) > 0 and typeName != self.currentChildType:
                     self.put('type="%s",' % typeName) # str(type.unqualified()) ?
             if  self.currentValue.value is None:
-                self.put('value="<not accessible>",numchild="0",')
+                self.put('value="",encoding="%d",numchild="0",'
+                        % SpecialNotAccessibleValue)
             else:
                 if not self.currentValue.encoding is None:
                     self.put('valueencoded="%s",' % self.currentValue.encoding)

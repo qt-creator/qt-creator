@@ -36,6 +36,7 @@
 #include "debuggerstartparameters.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <texteditor/textmark.h>
 
 #include <QObject>
 #include <QProcess>
@@ -169,15 +170,18 @@ private:
     quint64 m_address;
 };
 
+enum LocationType { UnknownLocation, LocationByFile, LocationByAddress };
+
 class ContextData
 {
 public:
-    ContextData() : lineNumber(0), address(0) {}
+    bool isValid() const { return type != UnknownLocation; }
 
 public:
+    LocationType type = UnknownLocation;
     QString fileName;
-    int lineNumber;
-    quint64 address;
+    int lineNumber = 0;
+    quint64 address = 0;
 };
 
 class DebuggerEngine : public QObject
@@ -312,6 +316,7 @@ public:
     virtual void notifyInferiorIll();
 
     QString toFileInProject(const QUrl &fileUrl);
+    void updateBreakpointMarkers();
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
@@ -444,6 +449,18 @@ private:
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
     DebuggerEnginePrivate *d;
+};
+
+class LocationMark : public TextEditor::TextMark
+{
+public:
+    LocationMark(DebuggerEngine *engine, const QString &file, int line);
+
+private:
+    bool isDraggable() const;
+    void dragToLine(int line);
+
+    QPointer<DebuggerEngine> m_engine;
 };
 
 DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors);

@@ -34,6 +34,7 @@
 #include "iassistprocessor.h"
 #include "textdocument.h"
 #include "iassistproposal.h"
+#include "iassistproposalmodel.h"
 #include "iassistproposalwidget.h"
 #include "assistinterface.h"
 #include "assistproposalitem.h"
@@ -229,8 +230,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     m_assistKind = kind;
     IAssistProcessor *processor = provider->createProcessor();
     AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
-    if (!assistInterface)
+    if (!assistInterface) {
+        delete processor;
         return;
+    }
 
     switch (provider->runType()) {
     case IAssistProvider::Synchronous: {
@@ -261,8 +264,11 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     case IAssistProvider::Asynchronous: {
         processor->setAsyncCompletionAvailableHandler(
             [this, processor, reason](IAssistProposal *newProposal){
-                if (m_asyncProcessor != processor)
+                if (m_asyncProcessor != processor) {
+                    delete newProposal->model();
+                    delete newProposal;
                     return;
+                }
 
                 invalidateCurrentRequestData();
                 QTC_CHECK(newProposal);
@@ -274,6 +280,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         // If there is a proposal, nothing asynchronous happened...
         if (IAssistProposal *newProposal = processor->perform(assistInterface)) {
             displayProposal(newProposal, reason);
+            delete processor;
+        } else if (!processor->performWasApplicable()) {
             delete processor;
         }
 

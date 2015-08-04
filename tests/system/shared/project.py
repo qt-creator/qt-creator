@@ -39,7 +39,13 @@ def openQbsProject(projectPath):
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
-        mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
+        if isQt54Build:
+            welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+        else:
+            welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+        mouseClick(waitForObject("{clip='false' container='%s' enabled='true' text='Open Project' "
+                                 "type='Button' unnamed='1' visible='true'}" % welcomePage),
+                   5, 5, 0, Qt.LeftButton)
     else:
         invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
@@ -94,7 +100,13 @@ def __handleCmakeWizardPage__():
 # this list can be used in __chooseTargets__()
 def __createProjectOrFileSelectType__(category, template, fromWelcome = False, isProject=True):
     if fromWelcome:
-        mouseClick(waitForObject(":CreateProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
+        if isQt54Build:
+            welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+        else:
+            welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+        mouseClick(waitForObject("{clip='false' container='%s' enabled='true' text='New Project' "
+                                 "type='Button' unnamed='1' visible='true'}" % welcomePage),
+                   5, 5, 0, Qt.LeftButton)
     else:
         invokeMenuItem("File", "New File or Project...")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")

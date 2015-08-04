@@ -131,15 +131,14 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
     foreach (const QFileInfo &fInfo, platforms) {
         if (fInfo.isDir() && fInfo.suffix() == QLatin1String("platform")) {
             qCDebug(probeLog) << indent << QString::fromLatin1("Setting up %1").arg(fInfo.fileName());
-            QSettingsPtr infoSettings(new QSettings(
-                                   fInfo.absoluteFilePath() + QLatin1String("/Info.plist"),
-                                   QSettings::NativeFormat));
-            if (!infoSettings->contains(QLatin1String("Name"))) {
+            QSettings infoSettings(fInfo.absoluteFilePath() + QLatin1String("/Info.plist"),
+                                   QSettings::NativeFormat);
+            if (!infoSettings.contains(QLatin1String("Name"))) {
                 qCWarning(probeLog) << indent << QString::fromLatin1("Missing platform name in Info.plist of %1")
                              .arg(fInfo.absoluteFilePath());
                 continue;
             }
-            QString name = infoSettings->value(QLatin1String("Name")).toString();
+            QString name = infoSettings.value(QLatin1String("Name")).toString();
             if (name != QLatin1String("macosx") && name != QLatin1String("iphoneos")
                     && name != QLatin1String("iphonesimulator"))
             {
@@ -147,10 +146,12 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 continue;
             }
 
+            const QString platformSdkVersion = infoSettings.value(QLatin1String("Version")).toString();
+
             // prepare default platform properties
-            QVariantMap defaultProp = infoSettings->value(QLatin1String("DefaultProperties"))
+            QVariantMap defaultProp = infoSettings.value(QLatin1String("DefaultProperties"))
                     .toMap();
-            QVariantMap overrideProp = infoSettings->value(QLatin1String("OverrideProperties"))
+            QVariantMap overrideProp = infoSettings.value(QLatin1String("OverrideProperties"))
                     .toMap();
             QMapIterator<QString, QVariant> i(overrideProp);
             while (i.hasNext()) {
@@ -184,7 +185,6 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 clangProfile.platformKind = 0;
                 clangProfile.name = clangFullName;
                 clangProfile.platformPath = Utils::FileName(fInfo);
-                clangProfile.platformInfo = infoSettings;
                 clangProfile.compilerPath = Utils::FileName(clangFileInfo);
                 QStringList flags = extraFlags;
                 flags << QLatin1String("-dumpmachine");
@@ -208,7 +208,6 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 gccProfile.platformKind = 0;
                 // use the arm-apple-darwin10-llvm-* variant and avoid the extraFlags if available???
                 gccProfile.platformPath = Utils::FileName(fInfo);
-                gccProfile.platformInfo = infoSettings;
                 gccProfile.compilerPath = Utils::FileName(gccFileInfo);
                 QStringList flags = extraFlags;
                 flags << QLatin1String("-dumpmachine");
@@ -223,23 +222,23 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
 
             // set SDKs/sysroot
             QString sysRoot;
-            QSettingsPtr sdkSettings;
             {
                 QString sdkName;
                 if (defaultProp.contains(QLatin1String("SDKROOT")))
                     sdkName = defaultProp.value(QLatin1String("SDKROOT")).toString();
                 QString sdkPath;
+                QString sdkPathWithSameVersion;
                 QDir sdks(fInfo.absoluteFilePath() + QLatin1String("/Developer/SDKs"));
                 QString maxVersion;
                 foreach (const QFileInfo &sdkDirInfo, sdks.entryInfoList(QDir::Dirs
                                                                          | QDir::NoDotAndDotDot)) {
                     indent = QLatin1String("    ");
-                    QSettingsPtr sdkInfo(new QSettings(sdkDirInfo.absoluteFilePath()
-                                                       + QLatin1String("/SDKSettings.plist"),
-                                                       QSettings::NativeFormat));
-                    QString versionStr = sdkInfo->value(QLatin1String("Version")).toString();
-                    QVariant currentSdkName = sdkInfo->value(QLatin1String("CanonicalName"));
-                    bool isBaseSdk = sdkInfo->value((QLatin1String("isBaseSDK"))).toString()
+                    QSettings sdkInfo(sdkDirInfo.absoluteFilePath()
+                                      + QLatin1String("/SDKSettings.plist"),
+                                      QSettings::NativeFormat);
+                    QString versionStr = sdkInfo.value(QLatin1String("Version")).toString();
+                    QVariant currentSdkName = sdkInfo.value(QLatin1String("CanonicalName"));
+                    bool isBaseSdk = sdkInfo.value((QLatin1String("isBaseSDK"))).toString()
                             .toLower() != QLatin1String("no");
                     if (!isBaseSdk) {
                         qCDebug(probeLog) << indent << QString::fromLatin1("Skipping non base Sdk %1")
@@ -250,30 +249,29 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                         if (maxVersion.isEmpty() || compareVersions(maxVersion, versionStr) > 0) {
                             maxVersion = versionStr;
                             sdkPath = sdkDirInfo.canonicalFilePath();
-                            sdkSettings = sdkInfo;
                         }
                     } else if (currentSdkName == sdkName) {
                         sdkPath = sdkDirInfo.canonicalFilePath();
-                        sdkSettings = sdkInfo;
-                    }
+                    } else if (currentSdkName.toString().startsWith(sdkName) /*if sdkName doesn't contain version*/
+                            && compareVersions(platformSdkVersion, versionStr) == 0)
+                        sdkPathWithSameVersion = sdkDirInfo.canonicalFilePath();
                 }
-                if (!sdkPath.isEmpty())
+                if (sdkPath.isEmpty())
+                    sysRoot = sdkPathWithSameVersion;
+                else
                     sysRoot = sdkPath;
-                else if (!sdkName.isEmpty())
+                if (sysRoot.isEmpty() && !sdkName.isEmpty())
                     qCDebug(probeLog) << indent << QString::fromLatin1("Failed to find sysroot %1").arg(sdkName);
             }
             if (hasClang && !sysRoot.isEmpty()) {
                 m_platforms[clangFullName].platformKind |= Platform::BasePlatform;
                 m_platforms[clangFullName].sdkPath = Utils::FileName::fromString(sysRoot);
-                m_platforms[clangFullName].sdkSettings = sdkSettings;
                 m_platforms[clang11FullName].platformKind |= Platform::BasePlatform;
                 m_platforms[clang11FullName].sdkPath = Utils::FileName::fromString(sysRoot);
-                m_platforms[clang11FullName].sdkSettings = sdkSettings;
             }
             if (hasGcc && !sysRoot.isEmpty()) {
                 m_platforms[gccFullName].platformKind |= Platform::BasePlatform;
                 m_platforms[gccFullName].sdkPath = Utils::FileName::fromString(sysRoot);
-                m_platforms[gccFullName].sdkSettings = sdkSettings;
             }
         }
         indent = QLatin1String("  ");

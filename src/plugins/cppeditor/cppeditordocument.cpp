@@ -254,13 +254,13 @@ void CppEditorDocument::updatePreprocessorSettings()
         return;
 
     const QString prefix = QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX);
-    const QString &projectFile = ProjectExplorer::SessionManager::value(
+    const QString &projectPartId = ProjectExplorer::SessionManager::value(
                 prefix + filePath().toString()).toString();
-    const QString directivesKey = projectFile + QLatin1Char(',') + filePath().toString();
+    const QString directivesKey = projectPartId + QLatin1Char(',') + filePath().toString();
     const QByteArray additionalDirectives = ProjectExplorer::SessionManager::value(
                 directivesKey).toString().toUtf8();
 
-    setPreprocessorSettings(mm()->projectPartForProjectFile(projectFile), additionalDirectives);
+    setPreprocessorSettings(mm()->projectPartForId(projectPartId), additionalDirectives);
 }
 
 void CppEditorDocument::setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,

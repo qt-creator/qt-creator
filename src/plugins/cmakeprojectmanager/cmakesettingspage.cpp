@@ -378,6 +378,7 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
 
 class CMakeToolConfigWidget : public QWidget
 {
+    Q_OBJECT
 public:
     CMakeToolConfigWidget() : m_currentItem(0)
     {
@@ -572,3 +573,5 @@ void CMakeSettingsPage::finish()
 
 } // namespace Internal
 } // namespace CMakeProjectManager
+
+#include "cmakesettingspage.moc"

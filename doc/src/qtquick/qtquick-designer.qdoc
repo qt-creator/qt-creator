@@ -469,7 +469,7 @@
     \section2 Previewing Component Size
 
     The width and height of the root item in a QML file determine the size of
-    the component. You can reuse component, such as buttons, in different
+    the component. You can reuse components, such as buttons, in different
     sizes in other QML files and design screens for use with different device
     profiles, screen resolution, or screen orientation. The component size
     might also be zero (0,0) if its final size is determined by property

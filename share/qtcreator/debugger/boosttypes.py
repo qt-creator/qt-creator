@@ -41,7 +41,7 @@ def qdump__boost__bimaps__bimap(d, value):
 
 def qdump__boost__optional(d, value):
     if int(value["m_initialized"]) == 0:
-        d.putValue("<uninitialized>")
+        d.putSpecialValue(SpecialUninitializedValue)
         d.putNumChild(0)
     else:
         type = d.templateArgument(value.type, 0)

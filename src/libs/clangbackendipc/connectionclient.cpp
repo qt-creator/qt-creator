@@ -30,6 +30,7 @@
 
 #include "connectionclient.h"
 
+#include "clangbackendipcdebugutils.h"
 #include "cmbcompletecodecommand.h"
 #include "cmbregistertranslationunitsforcodecompletioncommand.h"
 #include "cmbunregistertranslationunitsforcodecompletioncommand.h"
@@ -55,8 +56,8 @@ QString connectionName()
 ConnectionClient::ConnectionClient(IpcClientInterface *client)
     : serverProxy_(client, &localSocket),
       isAliveTimerResetted(false),
-      stdErrPrefixer("ClangBackEnd-StdErr: "),
-      stdOutPrefixer("ClangBackEnd: ")
+      stdErrPrefixer("clangbackend.stderr: "),
+      stdOutPrefixer("clangbackend.stdout: ")
 {
     processAliveTimer.setInterval(10000);
 
@@ -76,6 +77,8 @@ ConnectionClient::~ConnectionClient()
 
 bool ConnectionClient::connectToServer()
 {
+    TIME_SCOPE_DURATION("ConnectionClient::connectToServer");
+
     startProcess();
     resetProcessAliveTimer();
     const bool isConnected = connectToLocalSocket();
@@ -123,6 +126,8 @@ void ConnectionClient::setProcessAliveTimerInterval(int processTimerInterval)
 
 void ConnectionClient::startProcess()
 {
+    TIME_SCOPE_DURATION("ConnectionClient::startProcess");
+
     if (!isProcessIsRunning()) {
         connectProcessFinished();
         connectStandardOutputAndError();
@@ -216,6 +221,8 @@ void ConnectionClient::printStandardError()
 
 void ConnectionClient::finishProcess()
 {
+    TIME_SCOPE_DURATION("ConnectionClient::finishProcess");
+
     processAliveTimer.stop();
 
     disconnectProcessFinished();

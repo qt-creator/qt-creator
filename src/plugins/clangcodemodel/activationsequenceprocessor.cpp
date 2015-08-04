@@ -71,7 +71,7 @@ int ActivationSequenceProcessor::offset() const
     return m_offset;
 }
 
-int ActivationSequenceProcessor::position() const
+int ActivationSequenceProcessor::operatorStartPosition() const
 {
     return m_positionInDocument - m_offset;
 }
@@ -164,8 +164,8 @@ void ActivationSequenceProcessor::processArrowStar()
 
 void ActivationSequenceProcessor::processDoxyGenComment()
 {
-    if ((m_char2 == QLatin1Char('\\') || m_char2 == QLatin1Char('@'))
-            && (m_char3.isNull() || m_char3.isSpace())) {
+    if ((m_char2.isNull() || m_char2.isSpace())
+            && (m_char3 == QLatin1Char('\\') || m_char3 == QLatin1Char('@'))) {
         m_completionKind = CPlusPlus::T_DOXY_COMMENT;
         m_offset = 1;
     }

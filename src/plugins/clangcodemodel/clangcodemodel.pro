@@ -12,6 +12,7 @@ DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/incl
 unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
 
 SOURCES += \
+    activationsequencecontextprocessor.cpp \
     activationsequenceprocessor.cpp \
     clangassistproposal.cpp \
     clangassistproposalitem.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
 
 
 HEADERS += \
+    activationsequencecontextprocessor.h \
     activationsequenceprocessor.h \
     clangassistproposal.h \
     clangassistproposalitem.h \
@@ -107,13 +109,10 @@ equals(TEST, 1) {
         test/clang_tests_database.qrc
 
     HEADERS += \
-        test/clangcodecompletion_test.h \
-        test/clangcompletioncontextanalyzertest.h
+        test/clangcodecompletion_test.h
 
     SOURCES += \
-        test/clangcodecompletion_test.cpp \
-        test/clangcompletioncontextanalyzertest.cpp
-
+        test/clangcodecompletion_test.cpp
 
     DISTFILES += \
         test/mysource.cpp \

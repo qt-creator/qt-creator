@@ -1720,6 +1720,23 @@ void CppEditorPlugin::test_quickfix_data()
              "    f2(str);\n"
              "}\n");
 
+    QTest::newRow("ConvertToPointerWithMacro")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("#define BAR bar\n"
+             "void func()\n"
+             "{\n"
+             "    int @foo = 42;\n"
+             "    int bar;\n"
+             "    BAR = foo;\n"
+             "}\n")
+        << _("#define BAR bar\n"
+             "void func()\n"
+             "{\n"
+             "    int *foo = 42;\n"
+             "    int bar;\n"
+             "    BAR = *foo;\n"
+             "}\n");
+
     QTest::newRow("InsertQtPropertyMembers_noTriggerInvalidCode")
         << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
         << _("class C { @Q_PROPERTY(typeid foo READ foo) };\n")

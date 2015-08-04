@@ -42,18 +42,18 @@ namespace ClangBackEnd {
 class CodeCompletionChunkConverter
 {
 public:
-    static QVector<CodeCompletionChunk> extract(CXCompletionString completionString);
+    static CodeCompletionChunks extract(CXCompletionString completionString);
 
     static Utf8String chunkText(CXCompletionString completionString, uint chunkIndex);
 
 private:
-    QVector<CodeCompletionChunk>  optionalChunks(CXCompletionString completionString, uint chunkIndex);
+    CodeCompletionChunks  optionalChunks(CXCompletionString completionString, uint chunkIndex);
     static CodeCompletionChunk::Kind chunkKind(CXCompletionString completionString, uint chunkIndex);
     void extractCompletionChunks(CXCompletionString completionString);
     void extractOptionalCompletionChunks(CXCompletionString completionString);
 
 private:
-    QVector<CodeCompletionChunk> chunks;
+    CodeCompletionChunks chunks;
 };
 
 } // namespace ClangBackEnd

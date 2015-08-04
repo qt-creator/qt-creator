@@ -28,44 +28,34 @@
 **
 ****************************************************************************/
 
-#define QT_NO_META_MACROS
+#include <QCoreApplication>
+#include <QDebug>
+#include <QProcess>
+#include <QtTest>
 
-#if defined(QT_NO_KEYWORDS)
-# define QT_NO_EMIT
-#else
-#  ifndef QT_NO_SIGNALS_SLOTS_KEYWORDS
-#    define signals public __attribute__((annotate("qt_signal")))
-#    define slots __attribute__((annotate("qt_slot")))
-#  endif
-#endif
-#define Q_SIGNALS public __attribute__((annotate("qt_signal")))
-#define Q_SLOTS slots __attribute__((annotate("qt_slot")))
-#define Q_SIGNAL __attribute__((annotate("qt_signal")))
-#define Q_SLOT __attribute__((annotate("qt_slot")))
-#define Q_PRIVATE_SLOT(d, signature)
+class SdktoolTest : public QObject
+{
+    Q_OBJECT
 
-#define Q_EMIT
-#ifndef QT_NO_EMIT
-# define emit
-#endif
-#define Q_CLASSINFO(name, value)
-#define Q_PLUGIN_METADATA(x)
-#define Q_INTERFACES(x)
-#define Q_PROPERTY(text)
-#define Q_PRIVATE_PROPERTY(d, text)
-#define Q_REVISION(v)
-#define Q_OVERRIDE(text)
-#define Q_ENUMS(x)
-#define Q_FLAGS(x)
-#define Q_ENUM(x)
-#define Q_FLAG(x)
-#define Q_SCRIPTABLE
-#define Q_INVOKABLE
+private slots:
+    void testSdktool();
+};
 
-#define Q_GADGET \
-public: \
-    static const QMetaObject staticMetaObject; \
-private:
+void SdktoolTest::testSdktool()
+{
+    QDir rootDir = QCoreApplication::applicationDirPath();
+    rootDir.cdUp();
+    rootDir.cdUp();
+    rootDir.cdUp();
+    rootDir.cd(QLatin1String("bin"));
+    QProcess process;
+    process.start(rootDir.absoluteFilePath(QLatin1String("sdktool")),
+                  QStringList() << QLatin1String("-test"));
+    process.waitForFinished();
+    qDebug() << process.readAllStandardError();
+    QCOMPARE(process.exitCode(), 0);
+}
 
-#define SIGNAL(a) #a
-#define SLOT(a) #a
+QTEST_MAIN(SdktoolTest)
+
+#include "tst_sdktool.moc"

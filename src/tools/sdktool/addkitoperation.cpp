@@ -245,9 +245,6 @@ bool AddKitOperation::setArguments(const QStringList &args)
         return false;
     }
 
-    if (m_debuggerId.isEmpty() && m_debugger.isEmpty())
-        m_debugger = QLatin1String("auto");
-
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_deviceType.isEmpty();
 }
 
@@ -622,7 +619,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
     data << KeyValuePair(QStringList() << kit << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << kit << QLatin1String(SDK), QVariant(true));
 
-    if (!debuggerId.isNull() || !debugger.isNull()) {
+    if (!debuggerId.isEmpty() || !debugger.isEmpty()) {
         if (debuggerId.isEmpty()) {
             data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
                                  << QLatin1String(DEBUGGER) << QLatin1String(DEBUGGER_ENGINE), QVariant(debuggerType));

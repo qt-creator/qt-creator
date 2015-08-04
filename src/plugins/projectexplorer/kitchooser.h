@@ -35,6 +35,8 @@
 
 #include <QWidget>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QPushButton;
@@ -57,6 +59,9 @@ public:
     void setCurrentKitId(Core::Id id);
     Core::Id currentKitId() const;
 
+    typedef std::function<bool(const Kit *k)> KitMatcher;
+    void setKitMatcher(const KitMatcher &matcher);
+
     Kit *currentKit() const;
 
 signals:
@@ -71,11 +76,11 @@ private slots:
     void onManageButtonClicked();
 
 protected:
-    virtual bool kitMatches(const Kit *k) const;
     virtual QString kitText(const Kit *k) const;
     virtual QString kitToolTip(Kit *k) const;
 
 private:
+    KitMatcher m_kitMatcher;
     Kit *kitAt(int index) const;
     QComboBox *m_chooser;
     QPushButton *m_manageButton;

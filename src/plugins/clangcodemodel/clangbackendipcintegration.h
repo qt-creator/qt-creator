@@ -112,7 +112,7 @@ public:
     void registerFilesForCodeCompletion(const FileContainers &fileContainers);
     void unregisterFilesForCodeCompletion(const FileContainers &fileContainers);
     void registerProjectPartsForCodeCompletion(const ProjectPartContainers &projectPartContainers);
-    void unregisterProjectPartsForCodeCompletion(const QStringList &filePaths);
+    void unregisterProjectPartsForCodeCompletion(const QStringList &projectPartIds);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,

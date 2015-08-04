@@ -41,6 +41,7 @@
 #include <cplusplus/Names.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Control.h>
+#include <cplusplus/cppassert.h>
 
 #include <QStack>
 #include <QHash>
@@ -1255,12 +1256,14 @@ LookupScopePrivate *LookupScopePrivate::nestedType(const Name *name, LookupScope
                     if (baseTemplate)
                         break;
                 }
-                if (LookupScopePrivate *specialization =
-                        findSpecialization(baseTemplate, templId, specializations, origin)) {
-                    reference = specialization;
-                    if (Q_UNLIKELY(debug)) {
-                        Overview oo;
-                        qDebug() << "picked specialization" << oo(specialization->_name);
+                if (baseTemplate) {
+                    if (LookupScopePrivate *specialization =
+                            findSpecialization(baseTemplate, templId, specializations, origin)) {
+                        reference = specialization;
+                        if (Q_UNLIKELY(debug)) {
+                            Overview oo;
+                            qDebug() << "picked specialization" << oo(specialization->_name);
+                        }
                     }
                 }
             }
@@ -1970,9 +1973,11 @@ FullySpecifiedType CreateBindings::resolveTemplateArgument(Clone &cloner,
                                                            unsigned index)
 {
     FullySpecifiedType ty;
+    CPP_ASSERT(specialization && instantiation, return ty);
 
-    const TypenameArgument *tParam
-            = specialization->templateParameterAt(index)->asTypenameArgument();
+    const TypenameArgument *tParam = 0;
+    if (Symbol *tArgument = specialization->templateParameterAt(index))
+        tParam = tArgument->asTypenameArgument();
     if (!tParam)
         return ty;
 

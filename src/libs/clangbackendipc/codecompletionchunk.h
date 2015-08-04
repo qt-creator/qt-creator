@@ -39,6 +39,9 @@
 
 namespace ClangBackEnd {
 
+class CodeCompletionChunk;
+using CodeCompletionChunks = QVector<CodeCompletionChunk>;
+
 class CMBIPC_EXPORT CodeCompletionChunk
 {
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk);
@@ -73,18 +76,18 @@ public:
     CodeCompletionChunk();
     CodeCompletionChunk(Kind kind,
                         const Utf8String &text,
-                        const QVector<CodeCompletionChunk> &optionalChunks = QVector<CodeCompletionChunk>());
+                        const CodeCompletionChunks &optionalChunks = CodeCompletionChunks());
 
     Kind kind() const;
     const Utf8String &text() const;
-    const QVector<CodeCompletionChunk> &optionalChunks() const;
+    const CodeCompletionChunks &optionalChunks() const;
 
 private:
     quint32 &kindAsInt();
 
 private:
     Utf8String text_;
-    QVector<CodeCompletionChunk> optionalChunks_;
+    CodeCompletionChunks optionalChunks_;
     Kind kind_ = Invalid;
 
 };

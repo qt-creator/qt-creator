@@ -70,12 +70,12 @@ CodeCompletion::Kind CodeCompletion::completionKind() const
     return completionKind_;
 }
 
-void CodeCompletion::setChunks(const QVector<CodeCompletionChunk> &chunks)
+void CodeCompletion::setChunks(const CodeCompletionChunks &chunks)
 {
     chunks_ = chunks;
 }
 
-const QVector<CodeCompletionChunk> &CodeCompletion::chunks() const
+const CodeCompletionChunks &CodeCompletion::chunks() const
 {
     return chunks_;
 }

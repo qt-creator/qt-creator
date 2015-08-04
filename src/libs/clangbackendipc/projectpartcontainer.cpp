@@ -30,9 +30,10 @@
 
 #include "projectpartcontainer.h"
 
-#include <QDebug>
+#include "clangbackendipcdebugutils.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 #include <ostream>
 
@@ -91,10 +92,15 @@ static Utf8String quotedArguments(const Utf8StringVector &arguments)
 
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
 {
+    const Utf8String arguments = quotedArguments(container.arguments());
+    const Utf8String fileWithArguments = debugWriteFileForInspection(
+                                            arguments,
+                                            Utf8StringLiteral("projectpartargs-"));
+
     debug.nospace() << "ProjectPartContainer("
                     << container.projectPartId()
                     << ","
-                    << quotedArguments(container.arguments())
+                    << "<" << fileWithArguments << ">"
                     << ")";
 
     return debug;

@@ -114,6 +114,10 @@
     the build step and add a custom build step that specifies another shell
     command.
 
+    To generate debug symbols also for applications compiled in release mode,
+    select the \uicontrol {Generate separate debug info} check box. For more
+    information, see \l{Using the CPU Usage Analyzer}.
+
     \QC is integrated to \l{http://doc.qt.io/QtQuickCompiler/}
     {Qt Quick Compiler} (commercial only) that enables you to compile QML source
     code into the final binary. This

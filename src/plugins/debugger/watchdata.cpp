@@ -300,14 +300,15 @@ QString WatchData::toString() const
     return res + QLatin1Char('}');
 }
 
-// Format a tooltip fow with aligned colon.
-static void formatToolTipRow(QTextStream &str,
-    const QString &category, const QString &value)
+// Format a tooltip row with aligned colon.
+static void formatToolTipRow(QTextStream &str, const QString &category, const QString &value)
 {
     QString val = value.toHtmlEscaped();
     val.replace(QLatin1Char('\n'), QLatin1String("<br>"));
-    str << "<tr><td>" << category << "</td><td> : </td><td>"
-        << val << "</td></tr>";
+    str << "<tr><td>" << category << "</td><td>";
+    if (!category.isEmpty())
+        str << ':';
+    str << "</td><td>" << val << "</td></tr>";
 }
 
 QString WatchData::toToolTip() const
@@ -320,20 +321,22 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
     if (!displayedType.isEmpty())
         formatToolTipRow(str, tr("Displayed Type"), displayedType);
-    QString val = value;
-    // Automatically display hex value for unsigned integers.
-    if (!val.isEmpty() && val.at(0).isDigit() && isIntType(type)) {
-        bool ok;
-        const quint64 intValue = val.toULongLong(&ok);
-        if (ok && intValue)
-            val += QLatin1String(" (hex) ") + QString::number(intValue, 16);
+    bool ok;
+    const quint64 intValue = value.toULongLong(&ok);
+    if (ok && intValue) {
+        formatToolTipRow(str, tr("Value"), QLatin1String("(dec)  ") + value);
+        formatToolTipRow(str, QString(), QLatin1String("(hex)  ") + QString::number(intValue, 16));
+        formatToolTipRow(str, QString(), QLatin1String("(oct)  ") + QString::number(intValue, 8));
+        formatToolTipRow(str, QString(), QLatin1String("(bin)  ") + QString::number(intValue, 2));
+    } else {
+        QString val = value;
+        if (val.size() > 1000) {
+            val.truncate(1000);
+            val += QLatin1Char(' ');
+            val += tr("... <cut off>");
+        }
+        formatToolTipRow(str, tr("Value"), val);
     }
-    if (val.size() > 1000) {
-        val.truncate(1000);
-        val += QLatin1Char(' ');
-        val += tr("... <cut off>");
-    }
-    formatToolTipRow(str, tr("Value"), val);
     if (address)
         formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
     if (origaddr)

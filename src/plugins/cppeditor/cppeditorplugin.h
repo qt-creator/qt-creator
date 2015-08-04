@@ -213,8 +213,17 @@ private slots:
     void test_includehierarchy_data();
     void test_includehierarchy();
 
-    // The following tests depend on the projects that are loaded on startup
-    // and will be skipped in case no projects are loaded.
+    // The following tests operate on a project and require special invocation:
+    //
+    // Ensure that the project is properly configured for a given settings path:
+    //   $ ./qtcreator -settingspath /your/settings/path /path/to/project
+    //
+    // ...and that it builds, which might prevent blocking dialogs for not
+    // existing files (e.g. ui_*.h).
+    //
+    // Run a test:
+    //   $ export QTC_TEST_WAIT_FOR_LOADED_PROJECT=1
+    //   $ ./qtcreator -settingspath /your/settings/path -test CppEditor,test_openEachFile /path/to/project
     void test_openEachFile();
     void test_switchHeaderSourceOnEachFile();
     void test_moveTokenWiseThroughEveryFile();

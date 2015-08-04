@@ -156,7 +156,7 @@ TEST_F(ReadAndWriteCommandBlockTest, CompareCompleteCodeCommand)
 
 TEST_F(ReadAndWriteCommandBlockTest, CompareCodeCompletedCommand)
 {
-    QVector<ClangBackEnd::CodeCompletion> codeCompletions({Utf8StringLiteral("newFunction()")});
+    ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
 
     CompareCommand(ClangBackEnd::CodeCompletedCommand(codeCompletions, 1));
 }
@@ -183,7 +183,7 @@ TEST_F(ReadAndWriteCommandBlockTest, ReadCommandAfterInterruption)
 
 QVariant ReadAndWriteCommandBlockTest::writeCodeCompletedCommand()
 {
-    ClangBackEnd::CodeCompletedCommand command(QVector<ClangBackEnd::CodeCompletion>({Utf8StringLiteral("newFunction()")}), 1);
+    ClangBackEnd::CodeCompletedCommand command(ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}), 1);
     const QVariant writeCommand = QVariant::fromValue(command);
     writeCommandBlock.write(writeCommand);
 

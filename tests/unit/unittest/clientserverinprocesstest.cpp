@@ -145,7 +145,7 @@ TEST_F(ClientServerInProcess, SendCompleteCodeCommand)
 
 TEST_F(ClientServerInProcess, SendCodeCompletedCommand)
 {
-    QVector<ClangBackEnd::CodeCompletion> codeCompletions({Utf8StringLiteral("newFunction()")});
+    ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
     ClangBackEnd::CodeCompletedCommand command(codeCompletions, 1);
 
     EXPECT_CALL(mockIpcClient, codeCompleted(command))

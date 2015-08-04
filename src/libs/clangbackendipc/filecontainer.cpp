@@ -30,6 +30,8 @@
 
 #include "filecontainer.h"
 
+#include "clangbackendipcdebugutils.h"
+
 #include <QDataStream>
 #include <QDebug>
 
@@ -108,9 +110,13 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
                     << ", "
                     << container.projectPartId();
 
-    if (container.hasUnsavedFileContent())
+    if (container.hasUnsavedFileContent()) {
+        const Utf8String fileWithContent = debugWriteFileForInspection(
+                    container.unsavedFileContent(),
+                    debugId(container));
         debug.nospace() << ", "
-                        << container.unsavedFileContent();
+                        << "<" << fileWithContent << ">";
+    }
 
     debug.nospace() << ")";
 

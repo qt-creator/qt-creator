@@ -210,7 +210,7 @@ void BaseFileFind::doReplace(const QString &text,
     QStringList files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
         Utils::FadingIndicator::showText(ICore::mainWindow(),
-            tr("%1 occurrences replaced.").arg(items.size()),
+            tr("%n occurrences replaced.", 0, items.size()),
             Utils::FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();

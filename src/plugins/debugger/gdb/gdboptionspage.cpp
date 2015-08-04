@@ -63,6 +63,7 @@ namespace Internal {
 
 class GdbOptionsPageWidget : public QWidget
 {
+    Q_OBJECT
 public:
     GdbOptionsPageWidget();
     Utils::SavedActionSet group;
@@ -70,6 +71,7 @@ public:
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
     GdbOptionsPage();
 
@@ -337,6 +339,7 @@ void GdbOptionsPage::finish()
 
 class GdbOptionsPageWidget2 : public QWidget
 {
+    Q_OBJECT
 public:
     GdbOptionsPageWidget2();
 
@@ -437,6 +440,7 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
 // The "Dangerous" options.
 class GdbOptionsPage2 : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
     GdbOptionsPage2();
 
@@ -488,3 +492,5 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "gdboptionspage.moc"

@@ -129,8 +129,18 @@ Hex2EncodedFloat4, \
 Hex2EncodedFloat8, \
 IPv6AddressAndHexScopeId, \
 Hex2EncodedUtf8WithoutQuotes, \
-DateTimeInternal \
-    = range(30)
+DateTimeInternal, \
+SpecialEmptyValue, \
+SpecialUninitializedValue, \
+SpecialInvalidValue, \
+SpecialNotAccessibleValue, \
+SpecialItemCountValue, \
+SpecialMinimumItemCountValue, \
+SpecialNotCallableValue, \
+SpecialNullReferenceValue, \
+SpecialOptimizedOutValue, \
+SpecialEmptyStructureValue, \
+    = range(40)
 
 # Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
 StopDisplay, \
@@ -292,7 +302,7 @@ class Children:
             if self.d.passExceptions:
                 showException("CHILDREN", exType, exValue, exTraceBack)
             self.d.putNumChild(0)
-            self.d.putValue("<not accessible>")
+            self.d.putSpecialValue(SpecialNotAccessibleValue)
         if not self.d.currentMaxNumChild is None:
             if self.d.currentMaxNumChild < self.d.currentNumChild:
                 self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
@@ -692,7 +702,7 @@ class DumperBase:
                 self.putItem(result)
         except:
             with SubItem(self, name):
-                self.putValue("<not callable>")
+                self.putSpecialValue(SpecialNotCallableValue);
                 self.putNumChild(0)
 
     def call(self, value, func, *args):
@@ -816,9 +826,9 @@ class DumperBase:
     def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
         if count > maximum:
-            self.putValue('<>%s items>' % maximum)
+            self.putSpeciaValue(SpecialMinimumItemCountValue, maximum)
         else:
-            self.putValue('<%s items>' % count)
+            self.putSpecialValue(SpecialItemCountValue, count)
         self.putNumChild(count)
 
     def putField(self, name, value):
@@ -836,6 +846,9 @@ class DumperBase:
         # otherwise it's the true length.
         if priority >= self.currentValue.priority:
             self.currentValue = ReportItem(value, encoding, priority, elided)
+
+    def putSpecialValue(self, encoding, value = ""):
+        self.putValue(value, encoding)
 
     def putEmptyValue(self, priority = -10):
         if priority >= self.currentValue.priority:
@@ -896,21 +909,28 @@ class DumperBase:
             p = None
 
         displayFormat = self.currentItemFormat()
-        n = int(arrayType.sizeof / ts)
+        arrayByteSize = arrayType.sizeof
+        if arrayByteSize == 0:
+            # This should not happen. But it does, see QTCREATORBUG-14755.
+            # GDB/GCC produce sizeof == 0 for QProcess arr[3]
+            s = str(value.type)
+            arrayByteSize = int(s[s.find('[')+1:s.find(']')]) * ts;
 
+        n = int(arrayByteSize / ts)
         if displayFormat != RawFormat:
             if innerTypeName == "char":
                 # Use Latin1 as default for char [].
-                blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
+                blob = self.readMemory(self.addressOf(value), arrayByteSize)
                 self.putValue(blob, Hex2EncodedLatin1)
             elif innerTypeName == "wchar_t":
-                blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
+                blob = self.readMemory(self.addressOf(value), arrayByteSize)
                 if innerType.sizeof == 2:
                     self.putValue(blob, Hex4EncodedLittleEndian)
                 else:
                     self.putValue(blob, Hex8EncodedLittleEndian)
             elif p:
-                self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName, displayFormat, arrayType.sizeof)
+                self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
+                    displayFormat, arrayByteSize)
         self.putNumChild(n)
 
         if self.isExpanded():
@@ -1413,7 +1433,7 @@ class DumperBase:
             else:
                 connections = connections.dereference()
                 connections = connections.cast(self.directBaseClass(connections.type))
-                self.putValue('<>0 items>')
+                self.putSpecialValue(SpecialMinimumItemCountValue, 0)
                 self.putNumChild(1)
             if self.isExpanded():
                 pp = 0

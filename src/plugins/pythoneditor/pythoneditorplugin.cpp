@@ -228,6 +228,7 @@ static Core::Id idFromScript(const QString &target)
 
 class PythonProjectManager : public IProjectManager
 {
+    Q_OBJECT
 public:
     PythonProjectManager() {}
 
@@ -366,6 +367,7 @@ private:
 
 class PythonRunConfigurationWidget : public QWidget
 {
+    Q_OBJECT
 public:
     PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration, QWidget *parent = 0);
     void setInterpreter(const QString &interpreter);
@@ -379,6 +381,7 @@ private:
 
 class PythonRunConfiguration : public RunConfiguration
 {
+    Q_OBJECT
 public:
     PythonRunConfiguration(Target *parent, Core::Id id);
 
@@ -405,6 +408,7 @@ private:
 
 class PythonRunControl : public RunControl
 {
+    Q_OBJECT
 public:
     PythonRunControl(PythonRunConfiguration *runConfiguration, Core::Id mode);
 
@@ -1270,3 +1274,5 @@ QSet<QString> PythonEditorPlugin::builtins()
 
 } // namespace Internal
 } // namespace PythonEditor
+
+#include "pythoneditorplugin.moc"

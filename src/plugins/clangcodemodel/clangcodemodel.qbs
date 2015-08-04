@@ -1,6 +1,7 @@
 import qbs
 import qbs.File
 import QtcClangInstallation as Clang
+import QtcFunctions
 import QtcProcessOutputReader
 
 QtcPlugin {
@@ -23,7 +24,7 @@ QtcPlugin {
     property bool clangHighlighting: true
     property bool clangIndexing: false
 
-    property string llvmConfig: Clang.llvmConfig(qbs)
+    property string llvmConfig: Clang.llvmConfig(qbs, QtcFunctions, QtcProcessOutputReader)
     property string llvmIncludeDir: Clang.includeDir(llvmConfig, QtcProcessOutputReader)
     property string llvmLibDir: Clang.libDir(llvmConfig, QtcProcessOutputReader)
     property string llvmLibs: Clang.libraries(qbs.targetOS)
@@ -53,6 +54,8 @@ QtcPlugin {
         name: "Completion support"
         condition: product.clangCompletion
         files: [
+            "activationsequencecontextprocessor.cpp",
+            "activationsequencecontextprocessor.h",
             "activationsequenceprocessor.cpp",
             "activationsequenceprocessor.h",
             "clangassistproposal.cpp",
@@ -104,8 +107,6 @@ QtcPlugin {
             "clang_tests_database.qrc",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
-            "clangcompletioncontextanalyzertest.cpp",
-            "clangcompletioncontextanalyzertest.h",
         ]
     }
 

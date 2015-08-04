@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 Klarälvdalens Datakonsult AB, a KDAB Group company
-** Contact: info@kdab.com
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -28,22 +28,34 @@
 **
 ****************************************************************************/
 
-#include "devicetypekitchooser.h"
+#ifndef CLANGBACKENDIPCDEBUGUTILS_H
+#define CLANGBACKENDIPCDEBUGUTILS_H
 
-#include "../kitinformation.h"
+#include "clangbackendipc_global.h"
 
-using namespace ProjectExplorer;
+#include <QElapsedTimer>
 
-DeviceTypeKitChooser::DeviceTypeKitChooser(Core::Id deviceType, QWidget *parent)
-    : KitChooser(parent)
-    , m_deviceType(deviceType)
+class FileContainer;
+class Utf8String;
+
+namespace ClangBackEnd {
+
+Utf8String debugWriteFileForInspection(const Utf8String &fileContent, const Utf8String &id);
+Utf8String debugId(const FileContainer &fileContainer);
+
+class CMBIPC_EXPORT VerboseScopeDurationTimer
 {
-}
+public:
+    VerboseScopeDurationTimer(const char *id = 0);
+    ~VerboseScopeDurationTimer();
 
-bool DeviceTypeKitChooser::kitMatches(const Kit *k) const
-{
-    if (!KitChooser::kitMatches(k))
-        return false;
+private:
+    const char * const id;
+    QElapsedTimer timer;
+};
 
-    return DeviceTypeKitInformation::deviceTypeId(k) == m_deviceType;
-}
+} // namespace ClangBackEnd
+
+#define TIME_SCOPE_DURATION(id) ClangBackEnd::VerboseScopeDurationTimer scopeDurationTimer(id)
+
+#endif // CLANGBACKENDIPCDEBUGUTILS_H

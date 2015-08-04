@@ -40,10 +40,12 @@ namespace TextEditor { class AssistInterface; }
 namespace ClangCodeModel {
 namespace Internal {
 
+class ClangCompletionAssistInterface;
+
 class ClangCompletionContextAnalyzer
 {
 public:
-    ClangCompletionContextAnalyzer(const TextEditor::AssistInterface *assistInterface,
+    ClangCompletionContextAnalyzer(const ClangCompletionAssistInterface *assistInterface,
                                    CPlusPlus::LanguageFeatures languageFeatures);
     void analyze();
 
@@ -70,18 +72,20 @@ private:
     struct FunctionInfo { int functionNamePosition; QString functionName; };
     FunctionInfo analyzeFunctionCall(int endOfExpression) const;
 
-    int findStartOfName(int position = -1) const;
-    int skipPrecedingWhitespace(int position) const;
-    int startOfOperator(int position, unsigned *kind, bool wantFunctionCall) const;
-
     void setActionAndClangPosition(CompletionAction action, int position);
+    void setAction(CompletionAction action);
 
-    const TextEditor::AssistInterface * const m_interface; // Not owned
+    bool handleNonFunctionCall(int position);
+    void handleCommaInFunctionCall();
+    void handleFunctionCall(int endOfOperator);
+
+private:
+    const ClangCompletionAssistInterface *m_interface; // Not owned
     const CPlusPlus::LanguageFeatures m_languageFeatures; // TODO: Get from assistInterface?!
 
     // Results
     CompletionAction m_completionAction = PassThroughToLibClang;
-    unsigned m_completionOperator = CPlusPlus::T_EOF_SYMBOL;
+    CPlusPlus::Kind m_completionOperator = CPlusPlus::T_EOF_SYMBOL;
     int m_positionForProposal = -1;
     int m_positionForClang = -1;
     int m_positionEndOfExpression = -1;

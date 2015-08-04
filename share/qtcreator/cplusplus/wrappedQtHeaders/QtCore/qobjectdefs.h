@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 Klarälvdalens Datakonsult AB, a KDAB Group company
-** Contact: info@kdab.com
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -28,29 +28,35 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_DEVICETYPEKITCHOOSER_H
-#define PROJECTEXPLORER_DEVICETYPEKITCHOOSER_H
+// Include qobjectdefs.h from Qt ...
+#include_next <qobjectdefs.h>
 
-#include "../kitchooser.h"
-#include "../projectexplorer_export.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmacro-redefined"
 
-#include <coreplugin/id.h>
+// ...and redefine macros for tagging signals/slots
+#ifdef signals
+#  define signals public __attribute__((annotate("qt_signal")))
+#endif
 
-namespace ProjectExplorer {
+#ifdef slots
+#  define slots __attribute__((annotate("qt_slot")))
+#endif
 
-class PROJECTEXPLORER_EXPORT DeviceTypeKitChooser : public KitChooser
-{
-    Q_OBJECT
-public:
-    explicit DeviceTypeKitChooser(Core::Id deviceType, QWidget *parent = 0);
+#ifdef Q_SIGNALS
+#  define Q_SIGNALS public __attribute__((annotate("qt_signal")))
+#endif
 
-protected:
-    bool kitMatches(const Kit *k) const;
+#ifdef Q_SLOTS
+#  define Q_SLOTS slots __attribute__((annotate("qt_slot")))
+#endif
 
-private:
-    Core::Id m_deviceType;
-};
+#ifdef Q_SIGNAL
+#  define Q_SIGNAL __attribute__((annotate("qt_signal")))
+#endif
 
-} // namespace ProjectExplorer
+#ifdef Q_SLOT
+#  define Q_SLOT __attribute__((annotate("qt_slot")))
+#endif
 
-#endif // PROJECTEXPLORER_DEVICETYPEKITCHOOSER_H
+#pragma clang diagnostic pop

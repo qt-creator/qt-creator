@@ -16,6 +16,7 @@ SUBDIRS += \
     qtcprocess \
     utils \
     filesearch \
+    sdktool \
     valgrind
 
 qtHaveModule(declarative) {

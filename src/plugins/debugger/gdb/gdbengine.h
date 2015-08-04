@@ -34,6 +34,7 @@
 #include <debugger/debuggerengine.h>
 
 #include <debugger/breakhandler.h>
+#include <debugger/registerhandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 #include <debugger/debuggertooltipmanager.h>
@@ -170,7 +171,9 @@ private: ////////// Gdb Command Management //////////
         // This command needs to be send immediately.
         Immediate = 256,
         // This is a command that needs to be wrapped into -interpreter-exec console
-        ConsoleCommand = 512
+        ConsoleCommand = 512,
+        // This is the UpdateLocals commannd during which we ignore notifications
+        InUpdateLocals = 1024
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
@@ -327,9 +330,10 @@ private: ////////// View & Data Stuff //////////
     Q_SLOT void reloadRegisters();
     void setRegisterValue(const QByteArray &name, const QString &value);
     void handleRegisterListNames(const DebuggerResponse &response);
+    void handleRegisterListing(const DebuggerResponse &response);
     void handleRegisterListValues(const DebuggerResponse &response);
     void handleMaintPrintRegisters(const DebuggerResponse &response);
-    QHash<int, QByteArray> m_registerNames; // Map GDB register numbers to indices
+    QHash<int, Register> m_registers; // Map GDB register numbers to indices
 
     //
     // Disassembler specific stuff
@@ -429,6 +433,10 @@ protected:
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;
+
+    // For suppressing processing *stopped and *running responses
+    // while updating locals.
+    bool m_inUpdateLocals;
 
     bool isQFatalBreakpoint(const BreakpointResponseId &id) const;
     bool isHiddenBreakpoint(const BreakpointResponseId &id) const;
