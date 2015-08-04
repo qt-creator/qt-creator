@@ -31,8 +31,12 @@ inline bool enterpriseFeaturesAvailable()
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
     if (licenseChecker && licenseChecker->hasValidLicense()) {
-        if (licenseChecker->enterpriseFeatures())
+        if (licenseChecker->enterpriseFeatures()) {
             return true;
+        } else {
+            qWarning() << "License does not cover enterprise features, "
+                          "disabling Clang Static Analyzer";
+        }
     } else {
         qWarning() << "Invalid license, disabling Clang Static Analyzer";
     }

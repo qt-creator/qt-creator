@@ -46,14 +46,34 @@ ClangStaticAnalyzerSettings *ClangStaticAnalyzerSettings::instance()
     return &instance;
 }
 
-QString ClangStaticAnalyzerSettings::clangExecutable() const
+static QString clangExecutableFileName()
 {
+    return QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "clang-cl.exe" : "clang");
+}
+
+QString ClangStaticAnalyzerSettings::defaultClangExecutable() const
+{
+    const QString shippedBinary = Core::ICore::libexecPath() + QLatin1Char('/')
+            + clangExecutableFileName();
+    if (QFileInfo(shippedBinary).isExecutable())
+        return shippedBinary;
+    return clangExecutableFileName();
+}
+
+QString ClangStaticAnalyzerSettings::clangExecutable(bool *isSet) const
+{
+    if (m_clangExecutable.isEmpty()) {
+        if (isSet)
+            *isSet = false;
+        return defaultClangExecutable();
+    }
+    if (isSet)
+        *isSet = true;
     return m_clangExecutable;
 }
 
 void ClangStaticAnalyzerSettings::setClangExecutable(const QString &exectuable)
 {
-    QTC_ASSERT(!exectuable.isEmpty(), return);
     m_clangExecutable = exectuable;
 }
 
@@ -73,10 +93,7 @@ void ClangStaticAnalyzerSettings::readSettings()
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
 
-    const QString defaultClangExecutable = Utils::HostOsInfo::withExecutableSuffix(
-                QLatin1String(Constants::CLANG_EXECUTABLE_BASE_NAME));
-    setClangExecutable(settings->value(QLatin1String(clangExecutableKey),
-                                       defaultClangExecutable).toString());
+    setClangExecutable(settings->value(QLatin1String(clangExecutableKey)).toString());
 
     const int defaultSimultaneousProcesses = qMax(0, QThread::idealThreadCount() / 2);
     setSimultaneousProcesses(settings->value(QLatin1String(simultaneousProcessesKey),
@@ -89,7 +106,7 @@ void ClangStaticAnalyzerSettings::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
-    settings->setValue(QLatin1String(clangExecutableKey), clangExecutable());
+    settings->setValue(QLatin1String(clangExecutableKey), m_clangExecutable);
     settings->setValue(QLatin1String(simultaneousProcessesKey), simultaneousProcesses());
     settings->endGroup();
 }

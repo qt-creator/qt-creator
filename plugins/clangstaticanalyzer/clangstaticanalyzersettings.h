@@ -31,7 +31,8 @@ public:
 
     void writeSettings() const;
 
-    QString clangExecutable() const;
+    QString defaultClangExecutable() const;
+    QString clangExecutable(bool *isSet = nullptr) const;
     void setClangExecutable(const QString &exectuable);
 
     int simultaneousProcesses() const;

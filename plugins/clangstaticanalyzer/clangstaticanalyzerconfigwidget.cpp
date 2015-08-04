@@ -40,11 +40,31 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
     chooser->setHistoryCompleter(QLatin1String("ClangStaticAnalyzer.ClangCommand.History"));
     chooser->setPromptDialogTitle(tr("Clang Command"));
     const auto validator = [chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
-        return chooser->defaultValidationFunction()(edit, errorMessage)
-                && isClangExecutableUsable(chooser->fileName().toString(), errorMessage);
+        const QString currentFilePath = chooser->fileName().toString();
+        Utils::PathChooser pc;
+        Utils::PathChooser *helperPathChooser;
+        if (currentFilePath.isEmpty()) {
+            pc.setExpectedKind(chooser->expectedKind());
+            pc.setPath(edit->placeholderText());
+            helperPathChooser = &pc;
+        } else {
+            helperPathChooser = chooser;
+        }
+        return chooser->defaultValidationFunction()(helperPathChooser->lineEdit(), errorMessage)
+                && isClangExecutableUsable(helperPathChooser->fileName().toString(), errorMessage);
     };
     chooser->setValidationFunction(validator);
-    chooser->setPath(settings->clangExecutable());
+    bool clangExeIsSet;
+    const QString clangExe = settings->clangExecutable(&clangExeIsSet);
+    chooser->lineEdit()->setPlaceholderText(settings->defaultClangExecutable());
+    if (clangExeIsSet) {
+        chooser->setPath(clangExe);
+    } else {
+        // Setting an empty string does not trigger the validator, as that is the initial value
+        // in the line edit.
+        chooser->setPath(QLatin1String(" "));
+        chooser->lineEdit()->clear();
+    }
     connect(m_ui->clangExecutableChooser, &Utils::PathChooser::changed,
             [settings](const QString &path) { settings->setClangExecutable(path); });
 
