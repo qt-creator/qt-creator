@@ -177,14 +177,13 @@
     \QC validates instances of JSON entities against
     \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
     {A JSON Media Type for Describing the Structure and Meaning of JSON Documents}.
-    However, this feature is still under development, and \QC does not yet
-    understand the entire specification.
+    However, \QC does not understand the entire specification.
 
     A JSON schema defines the structure of JSON data. It determines what JSON
     data is required for an application and how to interact with it.
 
     The specification does not define how to map JSON instances with JSON
-    schemas. As a temporary solution, \QC looks for a JSON schema file with a
+    schemas. \QC looks for a JSON schema file with a
     name that matches the name of the JSON instance file in the user
     configuration folder. For example, \c {~/config/QtProject/qtcreator/json} on
     Linux and OS X and
@@ -203,8 +202,7 @@
     \section1 List of JavaScript and QML Checks
 
     Many of the JavaScript checks are similar to the ones in Douglas Crockford's
-    JSLint tool and are explained well on
-    \l{http://www.jslint.com/lint.html}{the JSLint website}.
+    \l{http://www.jslint.com}{JSLint} tool.
 
     \table
     \header
