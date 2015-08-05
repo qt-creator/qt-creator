@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -64,7 +65,6 @@ namespace Internal {
 
 static QPointer<SettingsDialog> m_instance = 0;
 
-// Helpers to sort by category. id
 bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
     if (p1->category() != p2->category())
@@ -212,6 +212,9 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         category->providers.append(provider);
     }
 
+    Utils::sort(m_categories, [](const Category *c1, const Category *c2) {
+       return c1->id.alphabeticallyBefore(c2->id);
+    });
     endResetModel();
 }
 
