@@ -1291,7 +1291,8 @@
 
     \section2 Specifying Tabs and Indentation
 
-    You can specify tab policy and tab size in the \uicontrol Typing group. In
+    You can specify tab policy and tab size in the
+    \uicontrol {Tabs and Indentation} group. In
     the \uicontrol {Tab policy} field, select whether to use only spaces or
     only tabs for indentation, or to use a mixture of them.
 
