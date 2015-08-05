@@ -1417,7 +1417,7 @@
         \li To search only whole words, select \uicontrol {Whole Words Only}.
 
         \li To search using regular expressions, select
-            \uicontrol {Regular Expressions}. Regular expressions used in \QC
+            \uicontrol {Use Regular Expressions}. Regular expressions used in \QC
             are modeled on Perl regular expressions. For more information on
             using regular expressions, see the documentation for the
             QRegularExpression Class.
@@ -1445,7 +1445,7 @@
 
     The \uicontrol {Preserve Case when Replacing} option can be selected to
     preserve the case of the original text when replacing. This option is not
-    compatible with the \uicontrol {Regular Expressions} search option, and will
+    compatible with the \uicontrol {Use Regular Expressions} search option, and will
     thus be disabled when regular expressions are used. When the option is used,
     the case of the occurrence will be conserved, according to the following
     rules:
@@ -1470,7 +1470,7 @@
     The locations of search hits, breakpoints, and bookmarks in your document
     are highlighted on the editor scroll bar. To turn highlighting off, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol {Highlight search results on the scrollbar}.
+    \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
 
     \section1 Advanced Search
 
