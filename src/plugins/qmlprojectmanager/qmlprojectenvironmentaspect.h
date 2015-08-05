@@ -35,8 +35,6 @@
 
 namespace QmlProjectManager {
 
-namespace Internal { class QmlProjectRunControlFactory; }
-
 class QmlProjectEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 {
     Q_OBJECT
