@@ -202,7 +202,7 @@ QStringList CdbOptionsPageWidget::breakEvents() const
 
 CdbOptionsPage::CdbOptionsPage()
 {
-    setId("F.Cda");
+    setId("F.Debugger.Cda");
     setDisplayName(tr("CDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger",
@@ -281,7 +281,7 @@ CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :
 CdbPathsPage::CdbPathsPage()
     : m_widget(0)
 {
-    setId("F.Cdb");
+    setId("F.Debugger.Cdb");
     setDisplayName(tr("CDB Paths"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger",

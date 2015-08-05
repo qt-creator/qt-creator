@@ -339,7 +339,7 @@ QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *functio
 
 LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
 {
-    setId("Z.LocalsAndExpressions");
+    setId("Z.Debugger.LocalsAndExpressions");
     //: '&&' will appear as one (one is marking keyboard shortcut)
     setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
