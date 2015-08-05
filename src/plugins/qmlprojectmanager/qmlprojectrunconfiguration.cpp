@@ -46,6 +46,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/winutils.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -266,23 +267,24 @@ void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
 void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
-    Utils::MimeDatabase mdb;
     if (mainScriptSource() == FileInEditor) {
+        Utils::MimeDatabase mimeDataBase;
         IDocument *document = EditorManager::currentDocument();
+        Utils::MimeType mainScriptMimeType = mimeDataBase.mimeTypeForFile(mainScript());
         if (document) {
             m_currentFileFilename = document->filePath().toString();
-            if (mdb.mimeTypeForFile(mainScript()).matchesName(QLatin1String("text/x-qml")))
+            if (mainScriptMimeType.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
                 qmlFileFound = true;
         }
         if (!document
-                || mdb.mimeTypeForFile(mainScript()).matchesName(QLatin1String("application/x-qmlproject"))) {
+                || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             foreach (const QString &filename, target()->project()->files(Project::AllFiles)) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                        && mdb.mimeTypeForFile(fi).matchesName(QLatin1String("text/x-qml")))
+                        && mimeDataBase.mimeTypeForFile(fi).matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
                 {
                     m_currentFileFilename = filename;
                     qmlFileFound = true;
@@ -296,9 +298,9 @@ void QmlProjectRunConfiguration::updateEnabled()
     }
 
     bool newValue = QFileInfo::exists(executable()) && qmlFileFound;
+    m_isEnabled = newValue;
 
     // Always emit change signal to force reevaluation of run/debug buttons
-    m_isEnabled = newValue;
     emit enabledChanged();
 }
 
