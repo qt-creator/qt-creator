@@ -787,9 +787,9 @@
     Select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
     > \uicontrol Completion.
 
-    By default, code completion considers only the first letter case-sensitive.
-    To apply full or no case-sensitivity, select the option in the
-    \uicontrol {Case-sensitivity} field.
+    By default, code completion does not consider case. To apply full or
+    first-letter case-sensitivity, select \uicontrol Full or
+    \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
 
     \section2 Summary of Available Types
 
