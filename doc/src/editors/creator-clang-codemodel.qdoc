@@ -55,19 +55,20 @@
 
     \endlist
 
-    An IDE needs a parser for the language and the semantic analyzes. The only
-    difference between a code model and a compiler is that a code model does not
-    generate an executable.
+    An IDE needs a parser for the language and the semantic analyzes.
 
-    As \l{http://clang.llvm.org/}{Clang} is a compiler, as well as a code model,
-    it provides accurate information. The feedback you get through warning and
-    error markers is the same as the compiler will give you, not an incomplete
+    \section1 Using Clang Code Model
+
+    The \l{http://clang.llvm.org/}{Clang} project provides libraries for parsing
+    C and C++ source files. The feedback you get through warning and
+    error markers is the same as a compiler will give you, not an incomplete
     set or a close approximation, as when using the built-in \QC code model.
     Clang focuses on detailed information for diagnostics, which is really
     useful if the code contains typos, for example.
 
-    Also, Clang already supports C++98/03, C89 and C99, Objective-C (and
-    Objective-C++), and C++11 support is in active development.
+    Clang keeps up with the development of the C++ language. At the time of this
+    writing, it supports C++98/03, C++11, C++14, C89, C99, Objective-C, and
+    Objective-C++.
 
     On the downside, for large projects using Clang as code model is slower than
     using the built-in code model. Clang does not need to generate object files,
@@ -84,14 +85,14 @@
 
     \list
 
-        \li Highlighting
         \li Code completion
+        \li Syntactic and semantic highlighting
 
     \endlist
 
     To use the plugin, you must build it and configure it in \QC.
 
-    \section1 Building Clang Code Model Plugin
+    \section2 Building Clang Code Model Plugin
 
     \list 1
 
@@ -138,7 +139,7 @@
 
                 \li Installed via package manager on Linux:
 
-                    \c {LLVM_INSTALL_DIR=/usr/lib/llvm-3.4}
+                    \c {LLVM_INSTALL_DIR=/usr/lib/llvm-3.6}
 
                 \li Manually built on Unix in release mode:
 
@@ -154,7 +155,7 @@
 
     \endlist
 
-    \section1 Configuring Clang Code Model Plugin
+    \section2 Configuring Clang Code Model Plugin
 
     \list 1
 
