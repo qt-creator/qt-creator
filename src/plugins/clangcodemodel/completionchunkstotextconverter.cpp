@@ -79,6 +79,16 @@ void CompletionChunksToTextConverter::setAddExtraVerticalSpaceBetweenBraces(bool
     m_addExtraVerticalSpaceBetweenBraces = addExtraVerticalSpaceBetweenBraces;
 }
 
+void CompletionChunksToTextConverter::setAddHtmlTags(bool addHtmlTags)
+{
+    m_addHtmlTags = addHtmlTags;
+}
+
+void CompletionChunksToTextConverter::setAddOptional(bool addOptional)
+{
+    m_addOptional = addOptional;
+}
+
 const QString &CompletionChunksToTextConverter::text() const
 {
     return m_text;
@@ -99,6 +109,7 @@ QString CompletionChunksToTextConverter::convertToFunctionSignature(const ClangB
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
     converter.setAddResultType(true);
+    converter.setAddOptional(true);
 
     converter.parseChunks(codeCompletionChunks);
 
@@ -120,6 +131,9 @@ QString CompletionChunksToTextConverter::convertToToolTip(const ClangBackEnd::Co
     converter.setAddPlaceHolderText(true);
     converter.setAddSpaces(true);
     converter.setAddExtraVerticalSpaceBetweenBraces(true);
+    converter.setAddOptional(true);
+    converter.setAddHtmlTags(true);
+    converter.setAddResultType(true);
 
     converter.parseChunks(codeCompletionChunks);
 
@@ -158,11 +172,15 @@ void CompletionChunksToTextConverter::parseText(const Utf8String &text)
 
 void CompletionChunksToTextConverter::parseOptional(const ClangBackEnd::CodeCompletionChunk &optionalCodeCompletionChunk)
 {
-    m_text += QStringLiteral("<i>");
+    if (m_addOptional) {
+        if (m_addHtmlTags)
+            m_text += QStringLiteral("<i>");
 
-    m_text += convertToFunctionSignature(optionalCodeCompletionChunk.optionalChunks());
+        m_text += convertToFunctionSignature(optionalCodeCompletionChunk.optionalChunks());
 
-    m_text += QStringLiteral("</i>");
+        if (m_addHtmlTags)
+            m_text += QStringLiteral("</i>");
+    }
 }
 
 void CompletionChunksToTextConverter::parsePlaceHolder(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)

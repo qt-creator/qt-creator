@@ -81,6 +81,9 @@ protected:
     CodeCompletionChunk ifName{CodeCompletionChunk::TypedText, Utf8StringLiteral("if")};
     CodeCompletionChunk horizontalSpace{CodeCompletionChunk::HorizontalSpace, Utf8StringLiteral(" ")};
     CodeCompletionChunk optional{CodeCompletionChunk::Optional, Utf8String(), {comma, functionArgumentY, comma, functionArgumentZ}};
+    CodeCompletionChunk enableIfT{CodeCompletionChunk::TypedText, Utf8StringLiteral("enable_if_t")};
+    CodeCompletionChunk enableIfTCondition{CodeCompletionChunk::Placeholder, Utf8StringLiteral("_Cond")};
+    CodeCompletionChunk enableIfTType{CodeCompletionChunk::Placeholder, Utf8StringLiteral("_Tp")};
 };
 
 TEST_F(CompletionChunksToTextConverter, ParseIsClearingText)
@@ -117,12 +120,9 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithParameters)
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 {
     CodeCompletionChunks completionChunks({integerResultType, functionName, leftParen, functionArgumentX, optional,rightParen});
-    converter.setAddResultType(true);
-    converter.setAddPlaceHolderText(true);
 
-    converter.parseChunks(completionChunks);
-
-    ASSERT_THAT(converter.text(), QStringLiteral("int Function(char x<i>, int y, int z</i>)"));
+    ASSERT_THAT(Converter::convertToToolTip(completionChunks),
+                QStringLiteral("int Function (char x<i>, int y, int z</i>)"));
 }
 
 TEST_F(CompletionChunksToTextConverter, ConvertVariable)
@@ -227,12 +227,25 @@ TEST_F(CompletionChunksToTextConverter, ElseIf)
                                                    statements,
                                                    verticalSpace,
                                                    rightBrace});
-
     setupConverterForKeywords();
 
     converter.parseChunks(completionChunks);
 
     ASSERT_THAT(converter.text(), QStringLiteral("else if {\n\n}"));
+}
+
+TEST_F(CompletionChunksToTextConverter, EnableIfT)
+{
+    CodeCompletionChunks completionChunks({enableIfT,
+                                           leftAngle,
+                                           enableIfTCondition,
+                                           CodeCompletionChunk(CodeCompletionChunk::Optional, Utf8String(), {comma, enableIfTType}),
+                                           rightAngle});
+    setupConverterForKeywords();
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t<>"));
 }
 
 void CompletionChunksToTextConverter::setupConverterForKeywords()
