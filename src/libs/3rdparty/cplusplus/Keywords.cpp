@@ -1324,6 +1324,22 @@ static inline int classify11(const char *s, LanguageFeatures features)
               }
             }
           }
+        } else if (s[3] == 'l') {
+          if (s[4] == 'i') {
+            if (s[5] == 'g') {
+              if (s[6] == 'n') {
+                if (s[7] == 'o') {
+                  if (s[8] == 'f') {
+                    if (s[9] == '_') {
+                      if (s[10] == '_') {
+                        return T___ALIGNOF__;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

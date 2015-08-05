@@ -286,6 +286,7 @@ enum Kind {
     T___VOLATILE__ = T_VOLATILE,
 
     T___ATTRIBUTE = T___ATTRIBUTE__,
+    T___ALIGNOF__ = T_ALIGNOF,
     T_LAST_TOKEN
 };
 
