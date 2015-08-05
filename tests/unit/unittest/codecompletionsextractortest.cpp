@@ -366,7 +366,7 @@ TEST_F(CodeCompletionsExtractor, Enumerator)
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractor, Constructor)
+TEST_F(CodeCompletionsExtractor, DISABLED_Constructor)
 {
     ClangCodeCompleteResults completeResults(getResults(constructorTranslationUnit, 20));
 
