@@ -896,6 +896,8 @@ void IosTool::stopRelayServers(int errorCode)
 
 int main(int argc, char *argv[])
 {
+    //This keeps iostool from stealing focus
+    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
     // We do not pass the real arguments to QCoreApplication because this wrapper needs to be able
     // to forward arguments like -qmljsdebugger=... that are filtered by QCoreApplication
     QStringList args;
