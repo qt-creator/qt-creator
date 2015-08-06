@@ -116,7 +116,6 @@ private:
     bool m_fullUpdatePostponed;
     bool m_partialUpdatePostponed;
     bool m_dirty;
-    bool m_waitForParseTaskFinish;
     bool m_singleShotScheduled;
     QSet<QString> m_postponedFiles;
     State m_parserState;

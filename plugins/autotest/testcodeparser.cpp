@@ -59,7 +59,6 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
       m_fullUpdatePostponed(false),
       m_partialUpdatePostponed(false),
       m_dirty(false),
-      m_waitForParseTaskFinish(false),
       m_singleShotScheduled(false),
       m_parserState(Disabled)
 {
@@ -549,7 +548,6 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 void TestCodeParser::onStartupProjectChanged(ProjectExplorer::Project *)
 {
     if (m_parserState == FullParse || m_parserState == PartialParse) {
-        m_waitForParseTaskFinish = true;
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
     } else {
         clearCache();
@@ -712,8 +710,6 @@ void TestCodeParser::onTaskStarted(Core::Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX)
         m_codeModelParsing = true;
-    else if (type == Constants::TASK_PARSE)
-        m_waitForParseTaskFinish = true;
 }
 
 void TestCodeParser::onAllTasksFinished(Core::Id type)
@@ -722,13 +718,6 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
     if (type != CppTools::Constants::TASK_INDEX)
         return;
     m_codeModelParsing = false;
-
-    if (m_waitForParseTaskFinish && type == Constants::TASK_PARSE) {
-        m_waitForParseTaskFinish = false;
-        clearCache();
-        emitUpdateTestTree();
-        return;
-    }
 
     // avoid illegal parser state if respective widgets became hidden while parsing
     setState(Idle);
