@@ -847,7 +847,6 @@ void PluginManagerPrivate::nextDelayedInitialize()
     \internal
 */
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
-    m_failedTests(0),
     delayedInitializeTimer(0),
     shutdownEventLoop(0),
     m_profileElapsedMS(0),
@@ -1127,6 +1126,7 @@ void PluginManagerPrivate::startTests()
         return;
     }
 
+    int failedTests = 0;
     foreach (const PluginManagerPrivate::TestSpec &testSpec, testSpecs) {
         IPlugin *plugin = testSpec.pluginSpec->plugin();
         if (!plugin)
@@ -1144,10 +1144,10 @@ void PluginManagerPrivate::startTests()
                 ? generateCompleteTestPlan(plugin, testObjects)
                 : generateCustomTestPlan(plugin, testObjects, testSpec.testFunctionsOrObjects);
 
-        m_failedTests += executeTestPlan(testPlan);
+        failedTests += executeTestPlan(testPlan);
     }
-    if (!testSpecs.isEmpty())
-        QTimer::singleShot(1, this, SLOT(exitWithNumberOfFailedTests()));
+
+    QTimer::singleShot(0, this, [failedTests]() { emit m_instance->testsFinished(failedTests); });
 }
 #endif
 
@@ -1268,14 +1268,6 @@ void PluginManagerPrivate::asyncShutdownFinished()
     asynchronousPlugins.removeAll(plugin->pluginSpec());
     if (asynchronousPlugins.isEmpty())
         shutdownEventLoop->exit();
-}
-
-/*!
-    \internal
-*/
-void PluginManagerPrivate::exitWithNumberOfFailedTests()
-{
-    QCoreApplication::exit(m_failedTests);
 }
 
 /*!

@@ -56,6 +56,6 @@ QtcProduct {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: project.ide_app_path
+        qbs.installDir: project.ide_bin_path
     }
 }

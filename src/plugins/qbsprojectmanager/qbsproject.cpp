@@ -858,6 +858,13 @@ void QbsProject::updateQmlJsCodeModel()
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             modelManager->defaultProjectInfoForProject(this);
+    foreach (const qbs::ProductData &product, m_projectData.allProducts()) {
+        static const QString propertyName = QLatin1String("qmlImportPaths");
+        foreach (const QString &path, product.properties().value(propertyName).toStringList()) {
+            projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(path),
+                                                QmlJS::Dialect::Qml);
+        }
+    }
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo, this);

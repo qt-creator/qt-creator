@@ -44,6 +44,7 @@
 #include <QDir>
 #include <QFile>
 #include <QLoggingCategory>
+#include <QRegExp>
 #include <QSet>
 #include <QString>
 
@@ -147,7 +148,17 @@ private:
 
     bool excludeHeaderPath(const QString &path) const override
     {
-        return path.contains(QLatin1String("lib/gcc/i686-apple-darwin"));
+        if (path.contains(QLatin1String("lib/gcc/i686-apple-darwin")))
+            return true;
+
+        // We already provide a custom clang include path matching the used libclang version,
+        // so better ignore the clang include paths from the system as this might lead to an
+        // unfavorable order with regard to include_next.
+        static QRegExp clangIncludeDir(QLatin1String(".*/lib/clang/\\d+\\.\\d+\\.\\d+/include"));
+        if (clangIncludeDir.exactMatch(path))
+            return true;
+
+        return false;
     }
 
     void addResourceDirOptions()

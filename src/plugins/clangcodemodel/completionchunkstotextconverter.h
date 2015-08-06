@@ -52,6 +52,8 @@ public:
     void setAddResultType(bool addResultType);
     void setAddSpaces(bool addSpaces);
     void setAddExtraVerticalSpaceBetweenBraces(bool addExtraVerticalSpaceBetweenBraces);
+    void setAddHtmlTags(bool addHtmlTags);
+    void setAddOptional(bool addOptional);
 
     const QString &text() const;
     const std::vector<int> &placeholderPositions() const;
@@ -83,6 +85,8 @@ private:
     bool m_addResultType = false;
     bool m_addSpaces = false;
     bool m_addExtraVerticalSpaceBetweenBraces = false;
+    bool m_addHtmlTags = false;
+    bool m_addOptional = false;
 };
 
 } // namespace Internal

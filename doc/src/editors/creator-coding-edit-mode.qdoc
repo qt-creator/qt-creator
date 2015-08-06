@@ -168,8 +168,8 @@
     \key {Ctrl+E,F2} to follow the symbol in the next split. If necessary, the
     view is automatically split. To change the default behavior, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol Display, and then select
-    \uicontrol {Always Open Links in Next Split}. Additional symbols are
+    \uicontrol Display > \uicontrol {Always open links in another split}.
+    Additional symbols are
     displayed and switching between definition and declaration is done in
     another split. If you change the default behavior, the shortcuts for opening
     link targets in the next split are used to open them in the current split.
@@ -197,5 +197,5 @@
 
     \QC underlines semantic errors in olive in the C++ code editor. To check the
     correct paths for includes that are not resolved or that are resolved to the
-    wrong file, select \uicontrol {Project Parts} > \uicontrol {Include Paths}.
+    wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
 */

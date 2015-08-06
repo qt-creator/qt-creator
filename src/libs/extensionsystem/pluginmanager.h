@@ -158,6 +158,7 @@ signals:
 
     void pluginsChanged();
     void initializationDone();
+    void testsFinished(int failedTests);
 
 public slots:
     void remoteArguments(const QString &serializedArguments, QObject *socket);

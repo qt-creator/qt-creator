@@ -102,7 +102,6 @@ public:
     QHash<QString, PluginCollection *> pluginCategories;
     QList<PluginSpec *> pluginSpecs;
     QList<TestSpec> testSpecs;
-    int m_failedTests;
     QStringList pluginPaths;
     QString pluginIID;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
@@ -138,7 +137,6 @@ public:
 private slots:
     void nextDelayedInitialize();
     void asyncShutdownFinished();
-    void exitWithNumberOfFailedTests();
 
 private:
     PluginCollection *defaultCollection;

@@ -787,9 +787,9 @@
     Select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
     > \uicontrol Completion.
 
-    By default, code completion considers only the first letter case-sensitive.
-    To apply full or no case-sensitivity, select the option in the
-    \uicontrol {Case-sensitivity} field.
+    By default, code completion does not consider case. To apply full or
+    first-letter case-sensitivity, select \uicontrol Full or
+    \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
 
     \section2 Summary of Available Types
 
@@ -1291,7 +1291,8 @@
 
     \section2 Specifying Tabs and Indentation
 
-    You can specify tab policy and tab size in the \uicontrol Typing group. In
+    You can specify tab policy and tab size in the
+    \uicontrol {Tabs and Indentation} group. In
     the \uicontrol {Tab policy} field, select whether to use only spaces or
     only tabs for indentation, or to use a mixture of them.
 
@@ -1416,7 +1417,7 @@
         \li To search only whole words, select \uicontrol {Whole Words Only}.
 
         \li To search using regular expressions, select
-            \uicontrol {Regular Expressions}. Regular expressions used in \QC
+            \uicontrol {Use Regular Expressions}. Regular expressions used in \QC
             are modeled on Perl regular expressions. For more information on
             using regular expressions, see the documentation for the
             QRegularExpression Class.
@@ -1444,7 +1445,7 @@
 
     The \uicontrol {Preserve Case when Replacing} option can be selected to
     preserve the case of the original text when replacing. This option is not
-    compatible with the \uicontrol {Regular Expressions} search option, and will
+    compatible with the \uicontrol {Use Regular Expressions} search option, and will
     thus be disabled when regular expressions are used. When the option is used,
     the case of the occurrence will be conserved, according to the following
     rules:
@@ -1469,7 +1470,7 @@
     The locations of search hits, breakpoints, and bookmarks in your document
     are highlighted on the editor scroll bar. To turn highlighting off, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol {Highlight search results on the scrollbar}.
+    \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
 
     \section1 Advanced Search
 
@@ -2532,8 +2533,8 @@
 
         \li Specify the prefix string.
 
-        \li To show only results matching this filter, select
-            \uicontrol {Limit to prefix}.
+        \li To implicitly include the filter even when not typing a prefix as a
+            part of the search string, select \uicontrol {Include by default}.
 
         \li Specify other available options. For more information, see
             \l{Adding Web Search Engines}.
@@ -2601,8 +2602,9 @@
 
             \li Specify the prefix string.
 
-                To show only results matching this filter, select
-                \uicontrol {Limit to prefix}.
+                To implicitly include the filter even when not typing a prefix
+                as a part of the search string, select
+                \uicontrol {Include by default}.
 
                 \image qtcreator-navigate-customfilter.png
 

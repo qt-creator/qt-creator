@@ -100,7 +100,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui.prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
     m_ui.prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
     m_ui.defaultFlag->setText(ILocatorFilter::msgIncludeByDefault());
-    m_ui.defaultFlag->setText(ILocatorFilter::msgIncludeByDefaultToolTip());
+    m_ui.defaultFlag->setToolTip(ILocatorFilter::msgIncludeByDefaultToolTip());
     connect(m_ui.addButton, &QPushButton::clicked,
             this, &DirectoryFilter::addDirectory, Qt::DirectConnection);
     connect(m_ui.editButton, &QPushButton::clicked,
