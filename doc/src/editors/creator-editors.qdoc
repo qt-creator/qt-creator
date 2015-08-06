@@ -1051,13 +1051,14 @@
     For example, you might ask colleagues to review a change that you plan to
     submit to a version control system. If you use the Git version control
     system, you can create a \e{diff} view by selecting \uicontrol Tools >
-    \uicontrol Git > \uicontrol {Diff Repository}. You can then upload its
-    contents to the server by choosing \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Local Repository} > \uicontrol Diff. You can
+    then upload its contents to the server by selecting \uicontrol Tools >
     \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}. The reviewers can
     retrieve the code snippet by selecting \uicontrol Tools >
     \uicontrol {Code Pasting} > \uicontrol {Fetch Snippet}. If they have the
     project currently opened in \QC, they can apply and test the change by
-    choosing \uicontrol Tools > \uicontrol Git > \uicontrol {Apply Patch}.
+    choosing \uicontrol Tools > \uicontrol Git > \uicontrol {Patch} >
+    \uicontrol {Apply from Editor}.
 
 */
 
