@@ -2533,8 +2533,8 @@
 
         \li Specify the prefix string.
 
-        \li To show only results matching this filter, select
-            \uicontrol {Limit to prefix}.
+        \li To implicitly include the filter even when not typing a prefix as a
+            part of the search string, select \uicontrol {Include by default}.
 
         \li Specify other available options. For more information, see
             \l{Adding Web Search Engines}.
@@ -2602,8 +2602,9 @@
 
             \li Specify the prefix string.
 
-                To show only results matching this filter, select
-                \uicontrol {Limit to prefix}.
+                To implicitly include the filter even when not typing a prefix
+                as a part of the search string, select
+                \uicontrol {Include by default}.
 
                 \image qtcreator-navigate-customfilter.png
 
