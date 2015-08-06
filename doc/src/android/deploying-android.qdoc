@@ -121,8 +121,8 @@
 
     \endlist
 
-    The Gradle wrappers and scripts are bundled only if you use Gradle, which is
-    the default. To use Ant instead, deselect the \uicontrol {Use Gradle} check box.
+    The Gradle wrappers and scripts are bundled only if you use
+    \l{Selecting the APK Build Tool}{Gradle} to build the application packages.
 
     To view the packages that the \c androiddeployqt tool created, select the
     \uicontrol {Open package location after build} check box.
