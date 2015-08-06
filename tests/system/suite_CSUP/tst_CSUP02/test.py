@@ -61,25 +61,25 @@ def main():
             type(editorWidget, "<Meta+Space>")
         else:
             type(editorWidget, "<Ctrl+Space>")
-        type(waitForObject(":popupFrame_Proposal_QListView"), "<Down>")
-        if current == "Clang":
-            # different order with Clang code model
-            type(waitForObject(":popupFrame_Proposal_QListView"), "<Down>")
         listView = waitForObject(":popupFrame_Proposal_QListView")
-        test.compare("class derived from QObject", str(listView.model().data(listView.currentIndex())),
-                     "Verifying selecting the correct entry.")
-        type(waitForObject(":popupFrame_Proposal_QListView"), "<Return>")
-        test.verify(str(editorWidget.plainText).startswith("class name : public QObject"),
-                    "Steps 3&4: Verifying if: The list of suggestions is opened. It is "
-                    "possible to select one of the suggestions. Code with several "
-                    "variables is inserted.")
+        shownProposals = dumpItems(listView.model())
+        usedProposal = "class derived from QObject"
+        expectedProposals = ["class", "class ", "class template",
+                             usedProposal, "class derived from QWidget"]
+        test.compare(len(shownProposals), len(expectedProposals), "Number of proposed templates")
+        test.compare(set(shownProposals), set(expectedProposals),
+                     "Expected proposals shown, ignoring order?")
+        doubleClickItem(listView, usedProposal, 5, 5, 0, Qt.LeftButton)
+        pattern = ("(?<=class)\s+name\s*:\s*public\s+QObject\s*\{\s*Q_OBJECT\s+"
+                   "public:\s+name\(\)\s*\{\}\s+virtual\s+~name\(\)\s*\{\}\s+\};")
+        test.verify(re.search(pattern, str(editorWidget.plainText)),
+                    "Code with several variables is inserted?")
 # Step 5: Press Tab to move between the variables and specify values for them. For example write "Myname" for variable "name".
         type(editorWidget, "<Tab>")
         type(editorWidget, "<Tab>")
         type(editorWidget, "<Tab>")
         type(editorWidget, "Myname")
-        pattern = "(?<=class)\s+Myname\s*:\s*public\s+QObject\s*\{\s*Q_OBJECT\s+public:\s+Myname\(\)\s*\{\}\s+virtual\s+~Myname\(\)\s*\{\}\s+\};"
-        result = re.search(pattern, str(editorWidget.plainText))
+        result = re.search(pattern.replace("name", "Myname"), str(editorWidget.plainText))
         if result:
             test.passes("Step 5: Verifying if: A value for a variable is inserted and all "
                         "instances of the variable within the snippet are renamed.")
