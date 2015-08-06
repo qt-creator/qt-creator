@@ -245,7 +245,7 @@ void IpcCommunicator::initializeBackend()
     qCDebug(log) << "Starting" << clangBackEndProcessPath;
     QTC_ASSERT(QFileInfo(clangBackEndProcessPath).exists(), return);
 
-    m_connection.setProcessAliveTimerInterval(10 * 1000);
+    m_connection.setProcessAliveTimerInterval(30 * 1000);
     m_connection.setProcessPath(clangBackEndProcessPath);
 
     connect(&m_connection, &ConnectionClient::processRestarted,
