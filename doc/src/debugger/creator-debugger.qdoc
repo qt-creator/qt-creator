@@ -111,8 +111,7 @@
     parameters.
 
     \note Starting a C++ program in the debugger can take a long time, typically
-    in the range of several seconds to minutes if complex features (like
-    QtWebKit) are used.
+    in the range of several seconds to minutes if complex features are used.
 
 
     \section1 Launching the Debugger in Different Modes
