@@ -100,10 +100,7 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
             items.insert(name, item);
             item->setText(name);
             item->setOrder(ccr.priority());
-
-            if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
-                item->setDetail(CompletionChunksToTextConverter::convertToToolTip(ccr.chunks()));
-
+            item->setDetail(CompletionChunksToTextConverter::convertToToolTip(ccr.chunks()));
             item->setCodeCompletion(ccr);
         }
 
