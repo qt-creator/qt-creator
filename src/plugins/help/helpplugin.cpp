@@ -559,9 +559,6 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
 
 void HelpPlugin::showContextHelp()
 {
-    if (ModeManager::currentMode() == m_mode)
-        return;
-
     // Find out what to show
     QMap<QString, QUrl> links;
     QString idFromContext;
