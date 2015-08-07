@@ -38,12 +38,8 @@
 #include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
-class QUndoStack;
 class QWidget;
-class QIODevice;
-class QProcess;
 class QPlainTextEdit;
-class QDeclarativeError;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
