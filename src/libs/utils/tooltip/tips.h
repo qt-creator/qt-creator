@@ -56,7 +56,12 @@ public:
     virtual int showTime() const = 0;
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
     virtual bool canHandleContentReplacement(int typeId) const = 0;
-    virtual bool equals(int typeId, const QVariant &other) const = 0;
+    virtual bool equals(int typeId, const QVariant &other, const QString &helpId) const = 0;
+    virtual void setHelpId(const QString &id);
+    virtual QString helpId() const;
+
+private:
+    QString m_helpId;
 };
 
 class TextTip : public QTipLabel
@@ -68,7 +73,7 @@ public:
     virtual void configure(const QPoint &pos, QWidget *w);
     virtual bool canHandleContentReplacement(int typeId) const;
     virtual int showTime() const;
-    virtual bool equals(int typeId, const QVariant &other) const;
+    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
     virtual void paintEvent(QPaintEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
 
@@ -85,7 +90,7 @@ public:
     virtual void configure(const QPoint &pos, QWidget *w);
     virtual bool canHandleContentReplacement(int typeId) const;
     virtual int showTime() const { return 4000; }
-    virtual bool equals(int typeId, const QVariant &other) const;
+    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
     virtual void paintEvent(QPaintEvent *event);
 
 private:
@@ -105,7 +110,7 @@ public:
     virtual void configure(const QPoint &pos, QWidget *w);
     virtual bool canHandleContentReplacement(int typeId) const;
     virtual int showTime() const { return 30000; }
-    virtual bool equals(int typeId, const QVariant &other) const;
+    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
     virtual bool isInteractive() const { return true; }
 
 private:

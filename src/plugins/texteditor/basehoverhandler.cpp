@@ -82,13 +82,6 @@ void BaseHoverHandler::appendToolTip(const QString &extension)
     m_toolTip.append(extension);
 }
 
-void BaseHoverHandler::addF1ToToolTip()
-{
-    m_toolTip = QString::fromLatin1("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
-                                    "<img src=\":/texteditor/images/f1.png\"></td>"
-                                    "</tr></table>").arg(m_toolTip);
-}
-
 void BaseHoverHandler::setIsDiagnosticTooltip(bool isDiagnosticTooltip)
 {
     m_diagnosticTooltip = isDiagnosticTooltip;
@@ -133,7 +126,6 @@ void BaseHoverHandler::decorateToolTip()
         if (!contents.isEmpty()) {
             setToolTip(toolTip().toHtmlEscaped());
             appendToolTip(contents);
-            addF1ToToolTip();
         }
     }
 }
@@ -143,7 +135,9 @@ void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoi
     if (m_toolTip.isEmpty())
         Utils::ToolTip::hide();
     else
-        Utils::ToolTip::show(point, m_toolTip, editorWidget);
+        Utils::ToolTip::show(point, m_toolTip, editorWidget, m_lastHelpItemIdentified.isValid()
+                             ? m_lastHelpItemIdentified.helpId()
+                             : QString());
 }
 
 } // namespace TextEditor

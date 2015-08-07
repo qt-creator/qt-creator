@@ -65,6 +65,11 @@ class CORE_EXPORT ICore : public QObject
     ~ICore();
 
 public:
+    enum class ContextPriority {
+        High,
+        Low
+    };
+
     // This should only be used to acccess the signals, so it could
     // theoretically return an QObject *. For source compatibility
     // it returns a ICore.
@@ -107,8 +112,10 @@ public:
     static IContext *currentContextObject();
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
-    static void updateAdditionalContexts(const Context &remove, const Context &add);
-    static void addAdditionalContext(const Context &context);
+    static void updateAdditionalContexts(const Context &remove, const Context &add,
+                                         ContextPriority priority = ContextPriority::Low);
+    static void addAdditionalContext(const Context &context,
+                                     ContextPriority priority = ContextPriority::Low);
     static void removeAdditionalContext(const Context &context);
     static void addContextObject(IContext *context);
     static void removeContextObject(IContext *context);

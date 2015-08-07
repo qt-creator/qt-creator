@@ -75,9 +75,12 @@ public:
 
     static ToolTip *instance();
 
-    static void show(const QPoint &pos, const QString &content, QWidget *w = 0, const QRect &rect = QRect());
-    static void show(const QPoint &pos, const QColor &color, QWidget *w = 0, const QRect &rect = QRect());
-    static void show(const QPoint &pos, QWidget *content, QWidget *w = 0, const QRect &rect = QRect());
+    static void show(const QPoint &pos, const QString &content, QWidget *w = 0,
+                     const QString &helpId = QString(), const QRect &rect = QRect());
+    static void show(const QPoint &pos, const QColor &color, QWidget *w = 0,
+                     const QString &helpId = QString(), const QRect &rect = QRect());
+    static void show(const QPoint &pos, QWidget *content, QWidget *w = 0,
+                     const QString &helpId = QString(), const QRect &rect = QRect());
     static void move(const QPoint &pos, QWidget *w);
     static void hide();
     static bool isVisible();
@@ -88,12 +91,21 @@ public:
     // using WidgetContent
     static bool pinToolTip(QWidget *w, QWidget *parent);
 
+    static QString contextHelpId();
+
+signals:
+    void shown();
+    void hidden();
+
 private:
-    void showInternal(const QPoint &pos, const QVariant &content, int typeId, QWidget *w, const QRect &rect);
+    void showInternal(const QPoint &pos, const QVariant &content, int typeId, QWidget *w,
+                      const QString &helpId, const QRect &rect);
     void hideTipImmediately();
-    bool acceptShow(const QVariant &content, int typeId, const QPoint &pos, QWidget *w, const QRect &rect);
+    bool acceptShow(const QVariant &content, int typeId, const QPoint &pos, QWidget *w,
+                    const QString &helpId, const QRect &rect);
     void setUp(const QPoint &pos, QWidget *w, const QRect &rect);
-    bool tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w) const;
+    bool tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w,
+                    const QString &helpId) const;
     void setTipRect(QWidget *w, const QRect &rect);
     void placeTip(const QPoint &pos, QWidget *w);
     void showTip();
@@ -104,6 +116,7 @@ private:
     QRect m_rect;
     QTimer m_showTimer;
     QTimer m_hideDelayTimer;
+    QString m_helpId;
 };
 
 } // namespace Utils

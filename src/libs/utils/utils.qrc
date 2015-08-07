@@ -14,5 +14,6 @@
         <file>images/progressindicator_small.png</file>
         <file>images/progressindicator_small@2x.png</file>
         <file>images/triangle_vert.png</file>
+        <file>tooltip/images/f1.png</file>
     </qresource>
 </RCC>

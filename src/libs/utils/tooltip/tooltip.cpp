@@ -66,28 +66,28 @@ ToolTip *ToolTip::instance()
     return &tooltip;
 }
 
-void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QRect &rect)
+void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QString &helpId, const QRect &rect)
 {
     if (content.isEmpty())
         instance()->hideTipWithDelay();
     else
-        instance()->showInternal(pos, QVariant(content), TextContent, w, rect);
+        instance()->showInternal(pos, QVariant(content), TextContent, w, helpId, rect);
 }
 
-void ToolTip::show(const QPoint &pos, const QColor &color, QWidget *w, const QRect &rect)
+void ToolTip::show(const QPoint &pos, const QColor &color, QWidget *w, const QString &helpId, const QRect &rect)
 {
     if (!color.isValid())
         instance()->hideTipWithDelay();
     else
-        instance()->showInternal(pos, QVariant(color), ColorContent, w, rect);
+        instance()->showInternal(pos, QVariant(color), ColorContent, w, helpId, rect);
 }
 
-void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QRect &rect)
+void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QString &helpId, const QRect &rect)
 {
     if (!content)
         instance()->hideTipWithDelay();
     else
-        instance()->showInternal(pos, QVariant::fromValue(content), WidgetContent, w, rect);
+        instance()->showInternal(pos, QVariant::fromValue(content), WidgetContent, w, helpId, rect);
 }
 
 void ToolTip::move(const QPoint &pos, QWidget *w)
@@ -111,10 +111,15 @@ bool ToolTip::pinToolTip(QWidget *w, QWidget *parent)
     return false;
 }
 
+QString ToolTip::contextHelpId()
+{
+    return instance()->m_tip ? instance()->m_tip->helpId() : QString();
+}
+
 bool ToolTip::acceptShow(const QVariant &content,
                          int typeId,
                          const QPoint &pos,
-                         QWidget *w,
+                         QWidget *w, const QString &helpId,
                          const QRect &rect)
 {
     if (isVisible()) {
@@ -123,8 +128,9 @@ bool ToolTip::acceptShow(const QVariant &content,
             QPoint localPos = pos;
             if (w)
                 localPos = w->mapFromGlobal(pos);
-            if (tipChanged(localPos, content, typeId, w)) {
+            if (tipChanged(localPos, content, typeId, w, helpId)) {
                 m_tip->setContent(content);
+                m_tip->setHelpId(helpId);
                 setUp(pos, w, rect);
             }
             return false;
@@ -155,9 +161,10 @@ void ToolTip::setUp(const QPoint &pos, QWidget *w, const QRect &rect)
     m_showTimer.start(m_tip->showTime());
 }
 
-bool ToolTip::tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w) const
+bool ToolTip::tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w,
+                         const QString &helpId) const
 {
-    if (!m_tip->equals(typeId, content) || m_widget != w)
+    if (!m_tip->equals(typeId, content, helpId) || m_widget != w)
         return true;
     if (!m_rect.isNull())
         return !m_rect.contains(pos);
@@ -220,12 +227,13 @@ void ToolTip::hideTipImmediately()
     m_showTimer.stop();
     m_hideDelayTimer.stop();
     qApp->removeEventFilter(this);
+    emit hidden();
 }
 
 void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
-                           int typeId, QWidget *w, const QRect &rect)
+                           int typeId, QWidget *w, const QString &helpId, const QRect &rect)
 {
-    if (acceptShow(content, typeId, pos, w, rect)) {
+    if (acceptShow(content, typeId, pos, w, helpId, rect)) {
         QWidget *target = 0;
         if (HostOsInfo::isWindowsHost())
             target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
@@ -244,10 +252,12 @@ void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
                 break;
         }
         m_tip->setContent(content);
+        m_tip->setHelpId(helpId);
         setUp(pos, w, rect);
         qApp->installEventFilter(this);
         showTip();
     }
+    emit shown();
 }
 
 void ToolTip::placeTip(const QPoint &pos, QWidget *w)

@@ -78,6 +78,7 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/theme/theme.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -101,6 +102,7 @@
 using namespace Help::Internal;
 
 static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
+static const char kToolTipHelpContext[] = "Help.ToolTip";
 
 using namespace Core;
 using namespace Utils;
@@ -169,6 +171,13 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(HelpManager::instance(), SIGNAL(collectionFileChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
 
+    connect(ToolTip::instance(), &ToolTip::shown, ICore::instance(), []() {
+        ICore::addAdditionalContext(Context(kToolTipHelpContext), ICore::ContextPriority::High);
+    });
+    connect(ToolTip::instance(), &ToolTip::hidden,ICore::instance(), []() {
+        ICore::removeAdditionalContext(Context(kToolTipHelpContext));
+    });
+
     Command *cmd;
     QAction *action;
 
@@ -185,7 +194,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
     action = new QAction(tr("Context Help"), this);
-    cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP);
+    cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP,
+                                        Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(showContextHelp()));
@@ -560,40 +570,43 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
 void HelpPlugin::showContextHelp()
 {
     // Find out what to show
-    QMap<QString, QUrl> links;
-    QString idFromContext;
-    if (IContext *context = ICore::currentContextObject()) {
-        idFromContext = context->contextHelpId();
-        links = HelpManager::linksForIdentifier(idFromContext);
-        // Maybe the id is already an URL
-        if (links.isEmpty() && LocalHelpManager::isValidUrl(idFromContext))
-            links.insert(idFromContext, idFromContext);
-    }
+    QString contextHelpId = Utils::ToolTip::contextHelpId();
+    IContext *context = ICore::currentContextObject();
+    if (contextHelpId.isEmpty() && context)
+        contextHelpId = context->contextHelpId();
 
-    if (HelpViewer *viewer = viewerForContextHelp()) {
-        QUrl source = findBestLink(links, &m_contextHelpHighlightId);
-        if (!source.isValid()) {
-            // No link found or no context object
-            viewer->setSource(QUrl(Help::Constants::AboutBlank));
-            viewer->setHtml(tr("<html><head><title>No Documentation</title>"
-                "</head><body><br/><center>"
-                "<font color=\"%1\"><b>%2</b></font><br/>"
-                "<font color=\"%3\">No documentation available.</font>"
-                "</center></body></html>")
-                .arg(creatorTheme()->color(Theme::TextColorNormal).name())
-                .arg(idFromContext)
-                .arg(creatorTheme()->color(Theme::TextColorNormal).name()));
+    // get the viewer after getting the help id,
+    // because a new window might be opened and therefore focus be moved
+    HelpViewer *viewer = viewerForContextHelp();
+    QTC_ASSERT(viewer, return);
+
+    QMap<QString, QUrl> links = HelpManager::linksForIdentifier(contextHelpId);
+    // Maybe the id is already an URL
+    if (links.isEmpty() && LocalHelpManager::isValidUrl(contextHelpId))
+        links.insert(contextHelpId, contextHelpId);
+
+    QUrl source = findBestLink(links, &m_contextHelpHighlightId);
+    if (!source.isValid()) {
+        // No link found or no context object
+        viewer->setSource(QUrl(Help::Constants::AboutBlank));
+        viewer->setHtml(tr("<html><head><title>No Documentation</title>"
+            "</head><body><br/><center>"
+            "<font color=\"%1\"><b>%2</b></font><br/>"
+            "<font color=\"%3\">No documentation available.</font>"
+            "</center></body></html>")
+            .arg(creatorTheme()->color(Theme::TextColorNormal).name())
+            .arg(contextHelpId)
+            .arg(creatorTheme()->color(Theme::TextColorNormal).name()));
+    } else {
+        const QUrl &oldSource = viewer->source();
+        if (source != oldSource) {
+            viewer->stop();
+            viewer->setSource(source); // triggers loadFinished which triggers id highlighting
         } else {
-            const QUrl &oldSource = viewer->source();
-            if (source != oldSource) {
-                viewer->stop();
-                viewer->setSource(source); // triggers loadFinished which triggers id highlighting
-            } else {
-                viewer->scrollToAnchor(source.fragment());
-            }
-            viewer->setFocus();
-            ICore::raiseWindow(viewer);
+            viewer->scrollToAnchor(source.fragment());
         }
+        viewer->setFocus();
+        ICore::raiseWindow(viewer);
     }
 }
 

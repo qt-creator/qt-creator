@@ -103,7 +103,8 @@ public:
     IContext * currentContextObject() const;
     QStatusBar *statusBar() const;
 
-    void updateAdditionalContexts(const Context &remove, const Context &add);
+    void updateAdditionalContexts(const Context &remove, const Context &add,
+                                  ICore::ContextPriority priority);
 
     void setSuppressNavigationWidget(bool suppress);
 
@@ -151,7 +152,8 @@ private:
     void writeSettings();
 
     ICore *m_coreImpl;
-    Context m_additionalContexts;
+    Context m_highPrioAdditionalContexts;
+    Context m_lowPrioAdditionalContexts;
     SettingsDatabase *m_settingsDatabase;
     mutable QPrinter *m_printer;
     WindowSupport *m_windowSupport;

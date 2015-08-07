@@ -55,6 +55,17 @@ QTipLabel::QTipLabel(QWidget *parent) :
     QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
 {}
 
+void QTipLabel::setHelpId(const QString &id)
+{
+    m_helpId = id;
+    update();
+}
+
+QString QTipLabel::helpId() const
+{
+    return m_helpId;
+}
+
 
 ColorTip::ColorTip(QWidget *parent)
     : QTipLabel(parent)
@@ -88,9 +99,9 @@ bool ColorTip::canHandleContentReplacement(int typeId) const
     return typeId == ToolTip::ColorContent;
 }
 
-bool ColorTip::equals(int typeId, const QVariant &other) const
+bool ColorTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
 {
-    return typeId == ToolTip::ColorContent && other == m_color;
+    return typeId == ToolTip::ColorContent && otherHelpId == helpId() && other == m_color;
 }
 
 void ColorTip::paintEvent(QPaintEvent *event)
@@ -131,7 +142,12 @@ void TextTip::setContent(const QVariant &content)
 
 void TextTip::configure(const QPoint &pos, QWidget *w)
 {
-    setText(m_text);
+    if (helpId().isEmpty())
+        setText(m_text);
+    else
+        setText(QString::fromLatin1("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
+                                    "<img src=\":/utils/tooltip/images/f1.png\"></td>"
+                                    "</tr></table>").arg(m_text));
 
     // Make it look good with the default ToolTip font on Mac, which has a small descent.
     QFontMetrics fm(font());
@@ -166,9 +182,9 @@ int TextTip::showTime() const
     return 10000 + 40 * qMax(0, m_text.size() - 100);
 }
 
-bool TextTip::equals(int typeId, const QVariant &other) const
+bool TextTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
 {
-    return typeId == ToolTip::TextContent && other.toString() == m_text;
+    return typeId == ToolTip::TextContent && otherHelpId == helpId() && other.toString() == m_text;
 }
 
 void TextTip::paintEvent(QPaintEvent *event)
@@ -245,9 +261,10 @@ bool WidgetTip::canHandleContentReplacement(int typeId) const
     return false;
 }
 
-bool WidgetTip::equals(int typeId, const QVariant &other) const
+bool WidgetTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
 {
-    return typeId == ToolTip::WidgetContent && other.value<QWidget *>() == m_widget;
+    return typeId == ToolTip::WidgetContent && otherHelpId == helpId()
+            && other.value<QWidget *>() == m_widget;
 }
 
 // need to include it here to force it to be inside the namespaces

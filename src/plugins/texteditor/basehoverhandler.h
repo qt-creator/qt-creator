@@ -59,8 +59,6 @@ protected:
     void appendToolTip(const QString &extension);
     const QString &toolTip() const;
 
-    void addF1ToToolTip();
-
     void setIsDiagnosticTooltip(bool isDiagnosticTooltip);
     bool isDiagnosticTooltip() const;
 

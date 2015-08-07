@@ -119,7 +119,6 @@ void CppHoverHandler::decorateToolTip()
                 prefix = QLatin1String("enum ");
             setToolTip(prefix + help.helpId());
         }
-        addF1ToToolTip();
     }
 }
 

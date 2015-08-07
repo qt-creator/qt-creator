@@ -112,7 +112,7 @@ enum { debugMainWindow = 0 };
 MainWindow::MainWindow() :
     AppMainWindow(),
     m_coreImpl(new ICore(this)),
-    m_additionalContexts(Constants::C_GLOBAL),
+    m_lowPrioAdditionalContexts(Constants::C_GLOBAL),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(PluginManager::settings()->fileName()).path(),
                                             QLatin1String("QtCreator"),
                                             this)),
@@ -985,23 +985,27 @@ void MainWindow::writeSettings()
     m_navigationWidget->saveSettings(settings);
 }
 
-void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add)
+void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add,
+                                          ICore::ContextPriority priority)
 {
     foreach (const Id id, remove) {
         if (!id.isValid())
             continue;
-
-        int index = m_additionalContexts.indexOf(id);
+        int index = m_lowPrioAdditionalContexts.indexOf(id);
         if (index != -1)
-            m_additionalContexts.removeAt(index);
+            m_lowPrioAdditionalContexts.removeAt(index);
+        index = m_highPrioAdditionalContexts.indexOf(id);
+        if (index != -1)
+            m_highPrioAdditionalContexts.removeAt(index);
     }
 
     foreach (const Id id, add) {
         if (!id.isValid())
             continue;
-
-        if (!m_additionalContexts.contains(id))
-            m_additionalContexts.prepend(id);
+        Context &cref = (priority == ICore::ContextPriority::High ? m_highPrioAdditionalContexts
+                                                                  : m_lowPrioAdditionalContexts);
+        if (!cref.contains(id))
+            cref.prepend(id);
     }
 
     updateContext();
@@ -1009,12 +1013,12 @@ void MainWindow::updateAdditionalContexts(const Context &remove, const Context &
 
 void MainWindow::updateContext()
 {
-    Context contexts;
+    Context contexts = m_highPrioAdditionalContexts;
 
     foreach (IContext *context, m_activeContext)
         contexts.add(context->context());
 
-    contexts.add(m_additionalContexts);
+    contexts.add(m_lowPrioAdditionalContexts);
 
     Context uniquecontexts;
     for (int i = 0; i < contexts.size(); ++i) {
