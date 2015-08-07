@@ -217,7 +217,7 @@
     The \QC installation program asks you whether you want to register \QC as a
     post-mortem debugger. To change the setting, select
     \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
-    \uicontrol General > \uicontrol {Use QtCreator for post-mortem debugging}.
+    \uicontrol General > \uicontrol {Use Qt Creator for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
     crashes on Windows. Click the \uicontrol {Debug in \QC} button in the error
