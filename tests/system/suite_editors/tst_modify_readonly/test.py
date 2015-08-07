@@ -106,9 +106,8 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
                                   "window=':WritePermissions_Core::Internal::ReadOnlyFilesDialog'}")
         items = map(os.path.expanduser, map(os.path.join, dumpItems(filesTree.model(), column=4),
                                             dumpItems(filesTree.model(), column=3)))
-        difference = set(readOnlyFiles) ^ set(items)
-        test.verify(len(difference) == 0, "Verifying whether all modified files without write "
-                    "permission are listed.")
+        test.compare(set(readOnlyFiles), set(items),
+                     "Verifying whether all modified files without write permission are listed.")
         clickButton("{text='Change Permission' type='QPushButton' visible='1' unnamed='1' "
                     "window=':WritePermissions_Core::Internal::ReadOnlyFilesDialog'}")
     except:

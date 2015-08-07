@@ -299,12 +299,8 @@ def __compareDebuggers__(foundDebuggers, expectedDebuggers):
     else:
         foundSet = set(foundDebuggers)
         expectedSet = set(expectedDebuggers)
-    if not (test.verify(not foundSet.symmetric_difference(expectedSet),
-                        "Verifying expected and found debuggers match.")):
-        test.log("Found debuggers: %s" % foundDebuggers,
-                 "Expected debuggers: %s" % expectedDebuggers)
-        return False
-    return True
+    return test.compare(foundSet, expectedSet,
+                        "Verifying expected and found debuggers match.")
 
 def __lowerStrs__(iterable):
     for it in iterable:
