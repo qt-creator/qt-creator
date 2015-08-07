@@ -34,6 +34,7 @@
 
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QApplication>
@@ -201,7 +202,8 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
             d->m_escapePressed = true;
             e->accept();
         }
-        if (d->m_model->size() > 1) {
+        QTC_CHECK(d->m_model);
+        if (d->m_model && d->m_model->size() > 1) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Up) {
                 previousPage();
@@ -220,10 +222,13 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
                 emit explicitlyAborted();
                 return false;
             } else if (ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down) {
-                if (d->m_model->size() > 1)
+                QTC_CHECK(d->m_model);
+                if (d->m_model && d->m_model->size() > 1)
                     return false;
             }
-            d->m_assistant->notifyChange();
+            QTC_CHECK(d->m_assistant);
+            if (d->m_assistant)
+                d->m_assistant->notifyChange();
         }
         break;
     case QEvent::WindowDeactivate:
