@@ -444,6 +444,11 @@ public:
         connect(diffButton, &QAction::toggled, m_ignoreWSButton, &QAction::setVisible);
         m_patienceButton->setVisible(diffButton->isChecked());
         m_ignoreWSButton->setVisible(diffButton->isChecked());
+        QAction *firstParentButton =
+                addToggleButton({ "-m", "--first-parent" },
+                                tr("First Parent"),
+                                tr("Follow only the first parent on merge commits."));
+        mapSetting(firstParentButton, settings.boolPointer(GitSettings::firstParentKey));
         const QStringList graphArguments = {
             "--graph", "--oneline", "--topo-order",
             QLatin1String("--pretty=format:") + graphLogFormatC
