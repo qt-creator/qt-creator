@@ -42,6 +42,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 
@@ -98,7 +99,8 @@ void QnxAnalyzeSupport::startExecution()
 
     const QStringList args = QStringList()
             << Utils::QtcProcess::splitArgs(m_runControl->startParameters().debuggeeArgs)
-            << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_qmlPort);
+            << QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
+
     appRunner()->setEnvironment(environment());
     appRunner()->setWorkingDirectory(workingDirectory());
     appRunner()->start(device(), executable(), args);

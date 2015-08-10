@@ -23,6 +23,7 @@ QtcLibrary {
         "qmldebug_global.h",
         "qmldebugclient.cpp",
         "qmldebugclient.h",
+        "qmldebugcommandlinearguments.h",
         "qmldebugconstants.h",
         "qmlenginecontrolclient.cpp",
         "qmlenginecontrolclient.h",

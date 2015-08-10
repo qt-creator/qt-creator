@@ -45,6 +45,7 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -104,7 +105,8 @@ void QnxDebugSupport::startExecution()
     setState(StartingRemoteProcess);
 
     if (m_useQmlDebugger)
-        m_runControl->startParameters().processArgs += QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
+        m_runControl->startParameters().processArgs +=
+                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, m_qmlPort);
 
     QStringList arguments;
     if (m_useCppDebugger)

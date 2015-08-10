@@ -34,6 +34,7 @@
 #include "androidconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QObject>
 #include <QTimer>
@@ -103,8 +104,7 @@ private:
     QString m_deviceSerialNumber;
     qint64 m_processPID;
     bool m_useCppDebugger;
-    bool m_useQmlDebugger;
-    bool m_useQmlProfiler;
+    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     ushort m_localGdbServerPort; // Local end of forwarded debug socket.
     quint16 m_qmlPort;
     bool m_useLocalQtLibs;

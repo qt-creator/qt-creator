@@ -35,6 +35,7 @@
 #include "iossimulator.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QObject>
 #include <QTimer>
@@ -52,7 +53,8 @@ class IosRunner : public QObject
     Q_OBJECT
 
 public:
-    IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDebug, bool qmlDebug);
+    IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDebug,
+              QmlDebug::QmlDebugServicesPreset qmlDebugServices);
     ~IosRunner();
 
     QString displayName() const;
@@ -62,7 +64,7 @@ public:
     QString deviceId();
     IosToolHandler::RunKind runType();
     bool cppDebug() const;
-    bool qmlDebug() const;
+    QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
 public slots:
     void start();
     void stop();
@@ -92,7 +94,8 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_device;
     IosDeviceType m_deviceType;
     bool m_cppDebug;
-    bool m_qmlDebug;
+    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
+
     bool m_cleanExit;
     quint16 m_qmlPort;
     Q_PID m_pid;

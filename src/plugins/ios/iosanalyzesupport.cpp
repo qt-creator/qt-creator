@@ -100,7 +100,8 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
 IosAnalyzeSupport::IosAnalyzeSupport(IosRunConfiguration *runConfig,
     AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug)
     : QObject(runControl), m_runControl(runControl),
-      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug))
+      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug ? QmlDebug::QmlProfilerServices :
+                                                                   QmlDebug::NoQmlDebugServices))
 {
     connect(m_runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
             m_runner, SLOT(start()));

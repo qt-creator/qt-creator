@@ -41,6 +41,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QTcpServer>
 
@@ -119,7 +120,8 @@ LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 
 void LocalQmlProfilerRunner::start()
 {
-    QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
+    QString arguments = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices,
+                                                               m_configuration.port);
 
     if (!m_configuration.executableArguments.isEmpty())
         arguments += QLatin1Char(' ') + m_configuration.executableArguments;

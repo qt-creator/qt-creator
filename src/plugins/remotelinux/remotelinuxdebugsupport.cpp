@@ -45,6 +45,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QPointer>
 
@@ -101,7 +102,8 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
         aspect->setUseMultiProcess(true);
         QStringList args = runConfig->arguments();
         if (aspect->useQmlDebugger())
-            args.prepend(QString::fromLatin1("-qmljsdebugger=port:%qml_port%,block"));
+            args.prepend(QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices));
+
         params.processArgs = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
@@ -164,7 +166,8 @@ void LinuxDeviceDebugSupport::startExecution()
     QString command;
 
     if (d->qmlDebugging)
-        args.prepend(QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort));
+        args.prepend(QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices,
+                                                            d->qmlPort));
 
     if (d->qmlDebugging && !d->cppDebugging) {
         command = remoteFilePath();

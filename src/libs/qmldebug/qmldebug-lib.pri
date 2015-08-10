@@ -21,7 +21,8 @@ HEADERS += \
     $$PWD/basetoolsclient.h \
     $$PWD/declarativetoolsclient.h \
     $$PWD/qmltoolsclient.h \
-    $$PWD/qmlenginecontrolclient.h
+    $$PWD/qmlenginecontrolclient.h \
+    $$PWD/qmldebugcommandlinearguments.h
 
 SOURCES += \
     $$PWD/qmldebugclient.cpp \

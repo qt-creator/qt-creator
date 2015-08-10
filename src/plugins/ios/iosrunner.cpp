@@ -43,6 +43,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QDir>
 #include <QTime>
@@ -56,11 +57,12 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDebug, bool qmlDebug)
+IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDebug,
+                     QmlDebug::QmlDebugServicesPreset qmlDebugServices)
     : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDirectory().toString()),
       m_arguments(runConfig->commandLineArguments()),
       m_device(DeviceKitInformation::device(runConfig->target()->kit())),
-      m_cppDebug(cppDebug), m_qmlDebug(qmlDebug), m_cleanExit(false),
+      m_cppDebug(cppDebug), m_qmlDebugServices(qmlDebugServices), m_cleanExit(false),
       m_qmlPort(0), m_pid(0)
 {
     m_deviceType = runConfig->deviceType();
@@ -80,7 +82,7 @@ QStringList IosRunner::extraArgs()
 {
     QStringList res = m_arguments;
     if (m_qmlPort != 0)
-        res << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_qmlPort);
+        res << QmlDebug::qmlDebugCommandLineArguments(m_qmlDebugServices, m_qmlPort);
     return res;
 }
 
@@ -104,9 +106,9 @@ bool IosRunner::cppDebug() const
     return m_cppDebug;
 }
 
-bool IosRunner::qmlDebug() const
+QmlDebug::QmlDebugServicesPreset IosRunner::qmlDebugServices() const
 {
-    return m_qmlDebug;
+    return m_qmlDebugServices;
 }
 
 void IosRunner::start()
@@ -130,7 +132,7 @@ void IosRunner::start()
             emit finished(m_cleanExit);
             return;
         }
-        if (m_qmlDebug)
+        if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices)
             m_qmlPort = iosDevice->nextPort();
     } else {
         IosSimulator::ConstPtr sim = m_device.dynamicCast<const IosSimulator>();
@@ -138,7 +140,7 @@ void IosRunner::start()
             emit finished(m_cleanExit);
             return;
         }
-        if (m_qmlDebug)
+        if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices)
             m_qmlPort = sim->nextPort();
     }
 

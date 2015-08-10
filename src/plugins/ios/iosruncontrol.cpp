@@ -42,7 +42,7 @@ namespace Internal {
 
 IosRunControl::IosRunControl(IosRunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
-    , m_runner(new IosRunner(this, rc, false, false))
+    , m_runner(new IosRunner(this, rc, false, QmlDebug::NoQmlDebugServices))
     , m_running(false)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));

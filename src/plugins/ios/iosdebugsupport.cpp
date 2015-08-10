@@ -161,7 +161,8 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
 IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
     DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug)
     : QObject(runControl), m_runControl(runControl),
-      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug))
+      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug ? QmlDebug::QmlDebuggerServices :
+                                                                   QmlDebug::NoQmlDebugServices))
 {
     connect(m_runControl, SIGNAL(requestRemoteSetup()),
             m_runner, SLOT(start()));

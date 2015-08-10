@@ -57,6 +57,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QTcpServer>
 
@@ -462,7 +463,8 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 if (!m_rp.environment.hasKey(optimizerKey))
                     m_rp.environment.set(optimizerKey, _("1"));
 
-                QtcProcess::addArg(&m_rp.processArgs, QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_rp.qmlServerPort));
+                QtcProcess::addArg(&m_rp.processArgs, QmlDebug::qmlDebugCommandLineArguments(
+                                       QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort));
             }
         }
     }

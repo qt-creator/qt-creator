@@ -43,6 +43,7 @@
 
 #include <utils/qtcassert.h>
 #include <qmldebug/qmloutputparser.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QPointer>
 
@@ -147,7 +148,8 @@ void RemoteLinuxAnalyzeSupport::startExecution()
             this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
     const QStringList args = arguments()
-            << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort);
+            << QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
+
     runner->setWorkingDirectory(workingDirectory());
     runner->setEnvironment(environment());
     runner->start(device(), remoteFilePath(), args);
