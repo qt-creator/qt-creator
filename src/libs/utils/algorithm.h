@@ -150,11 +150,6 @@ auto equal(R S::*member, T value)
 /////////////////
 
 namespace {
-// needed for msvc 2010, that doesn't have a declval
-// can be removed once we stop supporting it
-template<typename T>
-T &&declval();
-
 /////////////////
 // helper code for transform to use back_inserter and thus push_back for everything
 // and insert for QSet<>
@@ -201,12 +196,9 @@ inserter(QSet<X> &container)
     return QSetInsertIterator<QSet<X>>(container);
 }
 
-// helper: removes const, volatile and references from a type
+// decay_t is C++14, so provide it here, remove once we require C++14
 template<typename T>
-struct RemoveCvAndReference
-{
-    typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
-};
+using decay_t = typename std::decay<T>::type;
 
 // abstraction to treat Container<T> and QStringList similarly
 template<typename T>
@@ -225,19 +217,24 @@ struct ContainerType<T_Container<T_Type>> {
     {
         typedef T_Container<NewElementType> type;
     };
+
+    template<class F, template<typename> class C = T_Container>
+    struct ResultOfTransform
+    {
+        typedef C<decay_t<typename std::result_of<F (ElementType)>::type>> type;
+    };
+
+    template<class R>
+    struct ResultOfTransformPMF
+    {
+        typedef typename WithElementType<decay_t<R>>::type type;
+    };
 };
 
 // specialization for QStringList
 template<>
-struct ContainerType<QStringList>
+struct ContainerType<QStringList> : ContainerType<QList<QString>>
 {
-    typedef QString ElementType;
-
-    template<class NewElementType>
-    struct WithElementType
-    {
-        typedef QList<NewElementType> type;
-    };
 };
 
 }
@@ -273,18 +270,10 @@ template<typename C, // container
          typename F>
 Q_REQUIRED_RESULT
 auto transform(const C &container, F function)
--> typename ContainerType<C>::template WithElementType< // the type C<stripped return type of F>
-        typename RemoveCvAndReference< // the return type of F stripped
-            decltype(declval<F>()(declval<typename ContainerType<C>::ElementType>())) // the return type of F
-        >::type
-    >::type
+-> typename ContainerType<C>::template ResultOfTransform<F>::type
 {
     return TransformImpl<
-                typename ContainerType<C>::template WithElementType< // the type C<stripped return type>
-                    typename RemoveCvAndReference< // the return type stripped
-                        decltype(declval<F>()(declval<typename ContainerType<C>::ElementType>())) // the return type of F
-                    >::type
-                >::type,
+                typename ContainerType<C>::template ResultOfTransform<F>::type,
                 C
             >::call(container, function);
 }
@@ -295,12 +284,10 @@ template<typename C,
         typename S>
 Q_REQUIRED_RESULT
 auto transform(const C &container, R (S::*p)() const)
-    ->typename ContainerType<C>::template WithElementType<typename RemoveCvAndReference<R>::type>::type
+    ->typename ContainerType<C>::template ResultOfTransformPMF<R>::type
 {
     return TransformImpl<
-                typename ContainerType<C>::template WithElementType< // the type C<stripped R>
-                    typename RemoveCvAndReference<R>::type // stripped R
-                >::type,
+                typename ContainerType<C>::template ResultOfTransformPMF<R>::type,
                 C
             >::call(container, p);
 }
@@ -311,16 +298,10 @@ template<template<typename> class C, // result container type
          typename F> // function type
 Q_REQUIRED_RESULT
 auto transform(const SC &container, F function)
-     -> C< // container C<stripped return type of F>
-            typename RemoveCvAndReference< // stripped return type of F
-                decltype(declval<F>()(declval<typename ContainerType<SC>::ElementType>())) // return type of F
-            >::type>
+     -> typename ContainerType<SC>::template ResultOfTransform<F, C>::type
 {
     return TransformImpl<
-                C< // result container type
-                    typename RemoveCvAndReference< // stripped
-                        decltype(declval<F>()(declval<typename ContainerType<SC>::ElementType>())) // return type of F
-                    >::type>,
+                typename ContainerType<SC>::template ResultOfTransform<F, C>::type,
                 SC
             >::call(container, function);
 }
@@ -333,10 +314,10 @@ template<template<typename> class C, // result container type
          typename S>
 Q_REQUIRED_RESULT
 auto transform(const SC &container, R (S::*p)() const)
-     -> C<typename RemoveCvAndReference<R>::type>
+     -> C<decay_t<R>>
 {
     return TransformImpl<
-                C<typename RemoveCvAndReference<R>::type>,
+                C<decay_t<R>>,
                 SC
             >::call(container, p);
 }
