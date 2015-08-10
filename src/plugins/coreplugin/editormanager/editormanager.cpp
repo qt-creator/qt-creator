@@ -1774,10 +1774,13 @@ void EditorManagerPrivate::autoSave()
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
         if (!document->isModified() || !document->shouldAutoSave())
             continue;
-        if (document->filePath().isEmpty()) // FIXME: save them to a dedicated directory
+        const QString saveName = autoSaveName(document->filePath().toString());
+        const QString savePath = QFileInfo(saveName).absolutePath();
+        if (document->filePath().isEmpty()
+                || !QFileInfo(savePath).isWritable()) // FIXME: save them to a dedicated directory
             continue;
         QString errorString;
-        if (!document->autoSave(&errorString, autoSaveName(document->filePath().toString())))
+        if (!document->autoSave(&errorString, saveName))
             errors << errorString;
     }
     if (!errors.isEmpty())
