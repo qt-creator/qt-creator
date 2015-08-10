@@ -117,11 +117,8 @@
 
         \endlist
 
-        \li Select \uicontrol Run to specify run settings.
-
-                \image qtcreator-run-settings-linux-devices.png "Run settings for embedded Linux devices"
-
-            Usually, you can use the default settings.
+        \li Select \uicontrol Run to specify run settings. Usually, you can use
+            the default settings.
 
     When you run the project, \QC deploys the application as specified by the
     deploy steps. By default, \QC copies the application files to the device.

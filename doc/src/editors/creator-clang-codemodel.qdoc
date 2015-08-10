@@ -96,35 +96,30 @@
 
     \list 1
 
-        \li To build the Clang code model plugin, you must acquire Clang and
-            LLVM in one of the following ways:
+        \li Acquire Clang 3.6.0 or higher in one of the following ways:
 
             \list
 
-                \li Build optimized versions of LLVM and Clang, as instructed in
-                    \l{http://clang.llvm.org/get_started.html}
-                    {Getting Started: Building and Running Clang}.
-
-                    The instructions describe how to build debug versions. To
-                    build optimized versions, enter the following command
-                    instead of just \c make:
-
-                    \c{make ENABLE_OPTIMIZED=1}
-
-                    For information about Git mirrors, see
-                    \l{http://llvm.org/docs/GettingStarted.html#git-mirror}
-                    {Git Mirror}.
-
-                    Install the built versions by entering the following
-                    command:
-
-                    \c{make install}
+                \li Use the package manager of your system.
 
                 \li Download and install LLVM from the
                     \l{http://llvm.org/releases/}{LLVM Download Page} or
                     \l{http://llvm.org/builds/}{LLVM Snapshot Builds}.
 
-                \li Use the package manager of your system.
+                \li Build Clang by following
+                    \l{http://clang.llvm.org/get_started.html}
+                    {Getting Started: Building and Running Clang}.
+
+                    Add the following options to the \c cmake call in order to
+                    build an optimized version and to specify the installation
+                    directory:
+
+                        \c -DCMAKE_BUILD_TYPE=Release
+                        \c -DCMAKE_INSTALL_PREFIX=/your/install/dir
+
+                    After building, install with
+
+                        \c {make install}
 
             \endlist
 
@@ -132,26 +127,7 @@
             of LLVM either as part of the build environment or pass it directly
             to qmake when you build \QC.
 
-            The following are examples of the LLVM_INSTALL_DIR values to use
-            depending on the installation method:
-
-            \list
-
-                \li Installed via package manager on Linux:
-
-                    \c {LLVM_INSTALL_DIR=/usr/lib/llvm-3.6}
-
-                \li Manually built on Unix in release mode:
-
-                    \c {LLVM_INSTALL_DIR=$HOME/llvm-build/Release+Asserts}
-
-                \li Installed from a snapshot on Windows:
-
-                    \c {LLVM_INSTALL_DIR=C:\llvm}
-
-            \endlist
-
-    \li Rebuild \QC.
+    \li Rerun \c qmake and build \QC.
 
     \endlist
 

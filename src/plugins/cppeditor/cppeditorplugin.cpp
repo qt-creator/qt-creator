@@ -107,18 +107,6 @@ public:
                               | TextEditorActionHandler::FollowSymbolUnderCursor);
 
         addHoverHandler(new CppHoverHandler);
-
-        if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
-            FileIconProvider::registerIconOverlayForMimeType(
-                        QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),
-                        Constants::CPP_SOURCE_MIMETYPE);
-            FileIconProvider::registerIconOverlayForMimeType(
-                        QIcon(creatorTheme()->imageFile(Theme::IconOverlayCSource, QLatin1String(":/cppeditor/images/qt_c.png"))),
-                        Constants::C_SOURCE_MIMETYPE);
-            FileIconProvider::registerIconOverlayForMimeType(
-                        QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppHeader, QLatin1String(":/cppeditor/images/qt_h.png"))),
-                        Constants::CPP_HEADER_MIMETYPE);
-        }
     }
 };
 
@@ -280,6 +268,17 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
 void CppEditorPlugin::extensionsInitialized()
 {
+    if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
+        FileIconProvider::registerIconOverlayForMimeType(
+                    QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),
+                    Constants::CPP_SOURCE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(
+                    QIcon(creatorTheme()->imageFile(Theme::IconOverlayCSource, QLatin1String(":/cppeditor/images/qt_c.png"))),
+                    Constants::C_SOURCE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(
+                    QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppHeader, QLatin1String(":/cppeditor/images/qt_h.png"))),
+                    Constants::CPP_HEADER_MIMETYPE);
+    }
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CppEditorPlugin::aboutToShutdown()

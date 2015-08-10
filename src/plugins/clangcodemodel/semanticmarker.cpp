@@ -134,10 +134,12 @@ static void appendDiagnostic(const CXDiagnostic &diag,
 
 static bool isBlackListedDiagnostic(const Utils::MimeType &mimeType, const QString &diagnostic)
 {
-    static QString pragmaOnceInMainFile = QLatin1String("#pragma once in main file");
+    static const QStringList blackList {
+        QLatin1String("#pragma once in main file"),
+        QLatin1String("#include_next in primary source file")
+    };
 
-    return diagnostic == pragmaOnceInMainFile
-        && mimeType.inherits(QLatin1String("text/x-chdr"));
+    return mimeType.inherits(QLatin1String("text/x-chdr")) && blackList.contains(diagnostic);
 }
 
 QList<Diagnostic> SemanticMarker::diagnostics() const
