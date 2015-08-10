@@ -44,9 +44,6 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -58,7 +55,6 @@
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {

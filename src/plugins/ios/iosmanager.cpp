@@ -32,14 +32,11 @@
 #include "iosconfigurations.h"
 #include "iosrunconfiguration.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -67,9 +64,7 @@ bool IosManager::supportsIos(Target *target)
 
 QString IosManager::resDirForTarget(Target *target)
 {
-    QmakeBuildConfiguration *bc =
-            qobject_cast<QmakeBuildConfiguration *>(target->activeBuildConfiguration());
-    return bc->buildDirectory().toString();
+    return target->activeBuildConfiguration()->buildDirectory().toString();
 }
 
 } // namespace Internal

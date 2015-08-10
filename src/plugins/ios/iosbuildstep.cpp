@@ -44,11 +44,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-#include <qmakeprojectmanager/qmakeprojectmanager.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
 #include <utils/stringutils.h>
@@ -57,7 +52,6 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {

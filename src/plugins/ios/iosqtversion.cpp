@@ -36,9 +36,6 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
@@ -48,7 +45,6 @@
 
 using namespace Ios::Internal;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 IosQtVersion::IosQtVersion()
     : QtSupport::BaseQtVersion()

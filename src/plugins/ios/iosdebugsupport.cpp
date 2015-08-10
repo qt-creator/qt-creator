@@ -42,13 +42,11 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
+#include <QDateTime>
 #include <QDir>
 #include <QTcpServer>
 #include <QSettings>
@@ -63,7 +61,6 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {

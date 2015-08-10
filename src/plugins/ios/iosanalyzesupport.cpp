@@ -42,9 +42,6 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
 #include <analyzerbase/ianalyzertool.h>
@@ -68,7 +65,6 @@
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {
