@@ -882,7 +882,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         case Qt::EditRole:
             switch (idx.column()) {
             case 0: {
-                m_handler->watchExpression(value.toString().trimmed());
+                m_handler->updateWatchExpression(item, value.toString().trimmed().toUtf8());
                 break;
             }
             case 1: // Change value
@@ -1278,6 +1278,30 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
     if (m_model->m_engine->state() == DebuggerNotReady) {
         item->setAllUnneeded();
         item->setValue(QString(QLatin1Char(' ')));
+        item->update();
+    } else {
+        m_model->m_engine->updateItem(item->iname);
+    }
+    updateWatchersWindow();
+}
+
+void WatchHandler::updateWatchExpression(WatchItem *item, const QByteArray &newExp)
+{
+    if (newExp.isEmpty())
+        return;
+
+    if (item->exp != newExp) {
+        theWatcherNames.insert(newExp, theWatcherNames.value(item->exp));
+        theWatcherNames.remove(item->exp);
+        item->exp = newExp;
+        item->name = QString::fromUtf8(item->exp);
+    }
+
+    saveWatchers();
+    if (m_model->m_engine->state() == DebuggerNotReady) {
+        item->setAllUnneeded();
+        item->setValue(QString(QLatin1Char(' ')));
+        item->update();
     } else {
         m_model->m_engine->updateItem(item->iname);
     }
