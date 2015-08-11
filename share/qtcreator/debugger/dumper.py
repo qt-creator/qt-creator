@@ -826,7 +826,7 @@ class DumperBase:
     def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
         if count > maximum:
-            self.putSpeciaValue(SpecialMinimumItemCountValue, maximum)
+            self.putSpecialValue(SpecialMinimumItemCountValue, maximum)
         else:
             self.putSpecialValue(SpecialItemCountValue, count)
         self.putNumChild(count)
