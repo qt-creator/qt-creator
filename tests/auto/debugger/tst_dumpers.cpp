@@ -3860,7 +3860,7 @@ void tst_Dumpers::dumper_data()
 
                + Check("l0", "<0 items>", "std::list<int>")
 
-               + Check("l1", "<>1000 items>", "std::list<int>")
+               + Check("l1", "<at least 1000 items>", "std::list<int>")
                + Check("l1.0", "[0]", "0", "int")
                + Check("l1.1", "[1]", "1", "int")
                + Check("l1.999", "[999]", "999", "int")
