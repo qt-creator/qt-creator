@@ -280,7 +280,7 @@ def qdump__QDateTime(d, value):
                 tz = ""
             else:
                 idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
-                tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
+                elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
             d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
                 DateTimeInternal)
     else:
