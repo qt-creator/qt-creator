@@ -115,8 +115,6 @@ FunctionHintProposalWidget::FunctionHintProposalWidget()
     connect(upArrow, SIGNAL(clicked()), SLOT(previousPage()));
     connect(downArrow, SIGNAL(clicked()), SLOT(nextPage()));
 
-    qApp->installEventFilter(this);
-
     setFocusPolicy(Qt::NoFocus);
 }
 
@@ -157,17 +155,16 @@ void FunctionHintProposalWidget::setIsSynchronized(bool)
 
 void FunctionHintProposalWidget::showProposal(const QString &prefix)
 {
+    QTC_ASSERT(d->m_model && d->m_assistant, abort(); return; );
+
     d->m_totalHints = d->m_model->size();
-    if (d->m_totalHints == 0) {
-        abort();
-        return;
-    }
+    QTC_ASSERT(d->m_totalHints != 0, abort(); return; );
+
     d->m_pager->setVisible(d->m_totalHints > 1);
     d->m_currentHint = 0;
-    if (!updateAndCheck(prefix)) {
-        abort();
-        return;
-    }
+    QTC_ASSERT(updateAndCheck(prefix), abort(); return; );
+
+    qApp->installEventFilter(this);
     d->m_popupFrame->show();
 }
 
@@ -185,6 +182,7 @@ void FunctionHintProposalWidget::abort()
 {
     if (d->m_popupFrame->isVisible())
         d->m_popupFrame->close();
+    qApp->removeEventFilter(this);
     deleteLater();
 }
 
@@ -240,8 +238,8 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
-    case QEvent::Wheel: {
-            QWidget *widget = qobject_cast<QWidget *>(obj);
+    case QEvent::Wheel:
+        if (QWidget *widget = qobject_cast<QWidget *>(obj)) {
             if (!d->m_popupFrame->isAncestorOf(widget)) {
                 abort();
             } else if (e->type() == QEvent::Wheel) {
