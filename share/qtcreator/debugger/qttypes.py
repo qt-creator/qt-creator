@@ -58,7 +58,7 @@ def qform__QByteArray():
 
 def qdump__QByteArray(d, value):
     data, size, alloc = d.byteArrayData(value)
-    d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 100)
+    d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putNumChild(size)
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     displayFormat = d.currentItemFormat()
@@ -79,7 +79,7 @@ def qdump__QByteArray(d, value):
 
 def qdump__QByteArrayData(d, value):
     data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
-    d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 100)
+    d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putValue(d.readMemory(data, size), Hex2EncodedLatin1)
     d.putNumChild(1)
     if d.isExpanded():
