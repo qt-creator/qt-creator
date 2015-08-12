@@ -569,7 +569,7 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putStdStringHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
+    def putCharArrayHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
@@ -917,18 +917,10 @@ class DumperBase:
             arrayByteSize = int(s[s.find('[')+1:s.find(']')]) * ts;
 
         n = int(arrayByteSize / ts)
-        if displayFormat != RawFormat:
-            if innerTypeName == "char":
-                # Use Latin1 as default for char [].
-                blob = self.readMemory(self.addressOf(value), arrayByteSize)
-                self.putValue(blob, Hex2EncodedLatin1)
-            elif innerTypeName == "wchar_t":
-                blob = self.readMemory(self.addressOf(value), arrayByteSize)
-                if innerType.sizeof == 2:
-                    self.putValue(blob, Hex4EncodedLittleEndian)
-                else:
-                    self.putValue(blob, Hex8EncodedLittleEndian)
-            elif p:
+        if displayFormat != RawFormat and p:
+            if innerTypeName == "char" or innerTypeName == "wchar_t":
+                self.putCharArrayHelper(p, n, ts, self.currentItemFormat())
+            else:
                 self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
                     displayFormat, arrayByteSize)
         self.putNumChild(n)

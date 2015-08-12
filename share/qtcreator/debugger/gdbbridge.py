@@ -155,7 +155,7 @@ class PlainDumper:
         if isinstance(val, str):
             d.putValue(val)
         else: # Assuming LazyString
-            d.putStdStringHelper(val.address, val.length, val.type.sizeof)
+            d.putCharArrayHelper(val.address, val.length, val.type.sizeof)
 
         d.putNumChild(len(children))
         if d.isExpanded():
