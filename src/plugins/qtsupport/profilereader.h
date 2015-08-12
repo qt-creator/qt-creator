@@ -38,6 +38,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QVector>
 #include <QTimer>
 
 namespace QtSupport {
@@ -75,15 +76,15 @@ public:
 
     void setCumulative(bool on);
 
-    QList<ProFile*> includeFiles() const;
-
-    ProFile *proFileFor(const QString &name);
+    QHash<ProFile *, QVector<ProFile *> > includeFiles() const;
 
     virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
     virtual void doneWithEval(ProFile *parent);
 
 private:
-    QMap<QString, ProFile *> m_includeFiles;
+    // Tree of ProFiles, mapping from parent to children
+    QHash<ProFile *, QVector<ProFile *> > m_includeFiles;
+    // One entry per ProFile::ref() call, might contain duplicates
     QList<ProFile *> m_proFiles;
     int m_ignoreLevel;
 };

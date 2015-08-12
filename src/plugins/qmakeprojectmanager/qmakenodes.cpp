@@ -215,6 +215,21 @@ public:
     QMap<FileType, QSet<FileName> > foundFiles;
 };
 
+class IncludedPriFile
+{
+public:
+    Utils::FileName name;
+    PriFileEvalResult result;
+    QMap<Utils::FileName, IncludedPriFile *> children;
+    QVector<ProFile *> proFilesExact;
+    QVector<ProFile *> proFilesCumulative;
+
+    ~IncludedPriFile()
+    {
+        qDeleteAll(children);
+    }
+};
+
 class EvalResult
 {
 public:
@@ -223,18 +238,12 @@ public:
     QmakeProjectType projectType;
 
     QStringList subProjectsNotToDeploy;
-    QHash<FileName, ProFile*> includeFilesExact;
-    FileNameList newProjectFilesExact;
     QSet<FileName> exactSubdirs;
-    ProFile *fileForCurrentProjectExact; // probably only used in parser thread
-    QHash<FileName, ProFile*> includeFilesCumlative;
-    FileNameList newProjectFilesCumlative;
-    ProFile *fileForCurrentProjectCumlative; // probably only used in parser thread
+    IncludedPriFile includedFiles;
     TargetInformation targetInformation;
     InstallsList installsList;
     QHash<QmakeVariable, QStringList> newVarValues;
     bool isDeployable;
-    QHash<FileName, PriFileEvalResult> priFileResults;
     QStringList errors;
 };
 }
@@ -643,14 +652,16 @@ QSet<FileName> QmakePriFileNode::recursiveEnumerate(const QString &folder)
     return result;
 }
 
-PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input, ProFile *includeFileExact, ProFile *includeFileCumlative,
+PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
+                                                  QVector<ProFile *> includeFilesExact,
+                                                  QVector<ProFile *> includeFilesCumlative,
                                                   const QList<QList<VariableAndVPathInformation>> &variableAndVPathInformation)
 {
     PriFileEvalResult result;
 
     // Figure out DEPLOYMENT and INSTALL folders
     QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.readerCumulative, input.isQt5);
-    if (includeFileExact)
+    foreach (ProFile *includeFileExact, includeFilesExact)
         foreach (const QString &dynamicVar, dynamicVariables) {
             result.folders += input.readerExact->values(dynamicVar, includeFileExact);
             // Ignore stuff from cumulative parse
@@ -698,7 +709,7 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input, ProFil
         const QList<VariableAndVPathInformation> &qmakeVariables = variableAndVPathInformation.at(i);
         QSet<FileName> newFilePaths;
         foreach (const VariableAndVPathInformation &qmakeVariable, qmakeVariables) {
-            if (includeFileExact) {
+            foreach (ProFile *includeFileExact, includeFilesExact) {
                 QStringList tmp = input.readerExact->absoluteFileValues(qmakeVariable.variable, input.projectDir, qmakeVariable.vPathsExact, includeFileExact);
                 foreach (const QString &t, tmp) {
                     tmpFi.setFile(t);
@@ -706,7 +717,7 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input, ProFil
                         newFilePaths += FileName::fromString(t);
                 }
             }
-            if (includeFileCumlative) {
+            foreach (ProFile *includeFileCumlative, includeFilesCumlative) {
                 QStringList tmp = input.readerCumulative->absoluteFileValues(qmakeVariable.variable, input.projectDir, qmakeVariable.vPathsCumulative, includeFileCumlative);
                 foreach (const QString &t, tmp) {
                     tmpFi.setFile(t);
@@ -1767,40 +1778,6 @@ void QmakeProFileNode::setupReader()
     m_readerCumulative->setCumulative(true);
 }
 
-static FileNameList mergeList(const FileNameList &listA, const FileNameList &listB)
-{
-    FileNameList result;
-    result.reserve(qMax(listA.size(), listB.size()));
-    auto ait = listA.constBegin();
-    auto aend = listA.constEnd();
-    auto bit = listB.constBegin();
-    auto bend = listB.constEnd();
-    while (ait != aend && bit != bend) {
-        const FileName &a = *ait;
-        const FileName &b = *bit;
-        if (a < b) {
-            result.append(a);
-            ++ait;
-        } else if (b < a) {
-            result.append(b);
-            ++bit;
-        } else {
-            result.append(a);
-            ++ait;
-            ++bit;
-        }
-    }
-    while (ait != aend) {
-        result.append(*ait);
-        ++ait;
-    }
-    while (bit != bend) {
-        result.append(*bit);
-        ++bit;
-    }
-    return result;
-}
-
 EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
 {
     EvalResult *result = new EvalResult;
@@ -1819,41 +1796,90 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
     result->projectType = proFileTemplateTypeToProjectType(
                 (result->state == EvalResult::EvalOk ? input.readerExact
                                                      : input.readerCumulative)->templateType());
-    result->fileForCurrentProjectExact = 0;
-    result->fileForCurrentProjectCumlative = 0;
-
     if (result->state == EvalResult::EvalOk) {
         if (result->projectType == SubDirsTemplate) {
             QStringList errors;
-            result->newProjectFilesExact = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
             result->errors.append(errors);
-            result->exactSubdirs = result->newProjectFilesExact.toSet();
+            FileNameList subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
+
+            foreach (const Utils::FileName &subDirName, subDirs) {
+                IncludedPriFile *subDir = new IncludedPriFile;
+                subDir->name = subDirName;
+                result->includedFiles.children.insert(subDirName, subDir);
+            }
+
+            result->exactSubdirs = subDirs.toSet();
         }
-        foreach (ProFile *includeFile, input.readerExact->includeFiles()) {
-            if (includeFile->fileName() == input.projectFilePath.toString()) { // this file
-                result->fileForCurrentProjectExact = includeFile;
-            } else {
-                const FileName includeFileName = FileName::fromString(includeFile->fileName());
-                result->newProjectFilesExact << includeFileName;
-                result->includeFilesExact.insert(includeFileName, includeFile);
+
+        QHash<ProFile *, QVector<ProFile *> > includeFiles = input.readerExact->includeFiles();
+        QVector<ProFile *> tmp = includeFiles.value(nullptr);
+
+        if (!tmp.isEmpty()) {
+            result->includedFiles.name = Utils::FileName::fromString(tmp.first()->fileName());
+            result->includedFiles.proFilesExact.append(tmp.first());
+        }
+
+        // Convert ProFileReader::includeFiles to IncludedPriFile structure
+        QList<IncludedPriFile *> toBuild = { &result->includedFiles };
+        while (!toBuild.isEmpty()) {
+            IncludedPriFile *current = toBuild.takeFirst();
+            foreach (ProFile *proFile, current->proFilesExact) {
+                QVector<ProFile *> children = includeFiles.value(proFile);
+                foreach (ProFile *child, children) {
+                    const Utils::FileName childName = Utils::FileName::fromString(child->fileName());
+                    auto it = current->children.find(childName);
+                    if (it == current->children.end()) {
+                        IncludedPriFile *childTree = new IncludedPriFile;
+                        childTree->name = childName;
+                        it = current->children.insert(childName, childTree);
+                    }
+                    (*it)->proFilesExact.append(child);
+                }
+            }
+            toBuild.append(current->children.values());
+        }
+    }
+
+    if (result->projectType == SubDirsTemplate) {
+        FileNameList subDirs = subDirsPaths(input.readerCumulative, input.projectDir, 0, 0);
+        foreach (const Utils::FileName &subDirName, subDirs) {
+            auto it = result->includedFiles.children.find(subDirName);
+            if (it == result->includedFiles.children.end()) {
+                IncludedPriFile *subDir = new IncludedPriFile;
+                subDir->name = subDirName;
+                result->includedFiles.children.insert(subDirName, subDir);
             }
         }
     }
 
-    if (result->projectType == SubDirsTemplate)
-        result->newProjectFilesCumlative = subDirsPaths(input.readerCumulative, input.projectDir, 0, 0);
-    foreach (ProFile *includeFile, input.readerCumulative->includeFiles()) {
-        if (includeFile->fileName() == input.projectFilePath.toString()) {
-            result->fileForCurrentProjectCumlative = includeFile;
-        } else {
-            const FileName includeFileName = FileName::fromString(includeFile->fileName());
-            result->newProjectFilesCumlative << includeFileName;
-            result->includeFilesCumlative.insert(includeFileName, includeFile);
-        }
+
+    QHash<ProFile *, QVector<ProFile *> > includeFiles = input.readerCumulative->includeFiles();
+    QVector<ProFile *> tmp = includeFiles.value(nullptr);
+
+    if (!tmp.isEmpty()) {
+        result->includedFiles.name = Utils::FileName::fromString(tmp.first()->fileName());
+        result->includedFiles.proFilesCumulative.append(tmp.first());
     }
-    SortByPath sortByPath;
-    Utils::sort(result->newProjectFilesExact, sortByPath);
-    Utils::sort(result->newProjectFilesCumlative, sortByPath);
+
+    QList<IncludedPriFile *> toBuild = { &result->includedFiles };
+    // Add ProFileReader::includeFiles information from cumulative paerse to IncludedPriFile structure
+    while (!toBuild.isEmpty()) {
+        IncludedPriFile *current = toBuild.takeFirst();
+        foreach (ProFile *proFile, current->proFilesCumulative) {
+            QVector<ProFile *> children = includeFiles.value(proFile);
+            foreach (ProFile *child, children) {
+                const Utils::FileName childName = Utils::FileName::fromString(child->fileName());
+                auto it = current->children.find(childName);
+                if (it == current->children.end()) {
+                    IncludedPriFile *childTree = new IncludedPriFile;
+                    childTree->name = childName;
+                    it = current->children.insert(childName, childTree);
+                }
+                (*it)->proFilesCumulative.append(child);
+            }
+        }
+        toBuild.append(current->children.values());
+    }
 
     if (result->state == EvalResult::EvalOk) {
         // create build_pass reader
@@ -1983,19 +2009,13 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
             }
         }
 
-        // extract values
-        FileNameList allFiles = mergeList(result->newProjectFilesExact, result->newProjectFilesCumlative);
-        foreach (const FileName &file, allFiles) {
-            ProFile *fileExact = result->includeFilesExact.value(file);
-            ProFile *fileCumlative = result->includeFilesCumlative.value(file);
-            if (fileExact || fileCumlative) {
-                result->priFileResults[file] = extractValues(input, fileExact, fileCumlative, variableAndVPathInformation);
-            }
+        // extract values for each .pri file and add it to IncludedPriFiles structure
+        QList<IncludedPriFile *> toExtract = { &result->includedFiles };
+        while (!toExtract.isEmpty()) {
+            IncludedPriFile *current = toExtract.takeFirst();
+            current->result = extractValues(input, current->proFilesExact, current->proFilesCumulative, variableAndVPathInformation);
+            toExtract.append(current->children.values());
         }
-        result->priFileResults[input.projectFilePath] = extractValues(input, result->fileForCurrentProjectExact,
-                                                                      result->fileForCurrentProjectCumlative,
-                                                                      variableAndVPathInformation);
-
     }
 
     return result;
@@ -2089,150 +2109,118 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     // Add/Remove pri files, sub projects
     //
 
-    QList<ProjectNode*> existingProjectNodes = subProjectNodes();
-
     QString buildDirectory = buildDir();
     SortByPath sortByPath;
-    Utils::sort(existingProjectNodes, sortByPath);
-    // result is already sorted
 
-    QList<ProjectNode*> toAdd;
-    QList<ProjectNode*> toRemove;
-    QList<QmakePriFileNode *> toUpdate;
+    QList<QPair<QmakePriFileNode *, IncludedPriFile *>> toCompare;
 
-    QList<ProjectNode*>::const_iterator existingIt = existingProjectNodes.constBegin();
-    FileNameList::const_iterator newExactIt = result->newProjectFilesExact.constBegin();
-    FileNameList::const_iterator newCumlativeIt = result->newProjectFilesCumlative.constBegin();
+    toCompare.append(qMakePair(this, &result->includedFiles));
 
-    forever {
-        bool existingAtEnd = (existingIt == existingProjectNodes.constEnd());
-        bool newExactAtEnd = (newExactIt == result->newProjectFilesExact.constEnd());
-        bool newCumlativeAtEnd = (newCumlativeIt == result->newProjectFilesCumlative.constEnd());
+    while (!toCompare.isEmpty()) {
+        QmakePriFileNode *pn = toCompare.first().first;
+        IncludedPriFile *tree = toCompare.first().second;
+        toCompare.pop_front();
 
-        if (existingAtEnd && newExactAtEnd && newCumlativeAtEnd)
-            break; // we are done, hurray!
+        QList<ProjectNode*> existingProjectNodes = pn->subProjectNodes();
+        Utils::sort(existingProjectNodes, sortByPath);
+        // result is already sorted
 
-        // So this is one giant loop comparing 3 lists at once and sorting the comparison
-        // into mainly 2 buckets: toAdd and toRemove
-        // We need to distinguish between nodes that came from exact and cumalative
-        // parsing, since the update call is diffrent for them
-        // I believe this code to be correct, be careful in changing it
+        QList<ProjectNode*> toAdd;
+        QList<ProjectNode*> toRemove;
 
-        FileName nodeToAdd;
-        if (! existingAtEnd
-            && (newExactAtEnd || (*existingIt)->path() < *newExactIt)
-            && (newCumlativeAtEnd || (*existingIt)->path() < *newCumlativeIt)) {
-            // Remove case
-            toRemove << *existingIt;
-            ++existingIt;
-        } else if (! newExactAtEnd
-                  && (existingAtEnd || *newExactIt < (*existingIt)->path())
-                  && (newCumlativeAtEnd || *newExactIt < *newCumlativeIt)) {
-            // Mark node from exact for adding
-            nodeToAdd = *newExactIt;
-            ++newExactIt;
-        } else if (! newCumlativeAtEnd
-                   && (existingAtEnd ||  *newCumlativeIt < (*existingIt)->path())
-                   && (newExactAtEnd || *newCumlativeIt < *newExactIt)) {
-            // Mark node from cumalative for adding
-            nodeToAdd = *newCumlativeIt;
-            ++newCumlativeIt;
-        } else if (!newExactAtEnd
-                   && !newCumlativeAtEnd
-                   && (existingAtEnd || *newExactIt < (*existingIt)->path())
-                   && (existingAtEnd || *newCumlativeIt < (*existingIt)->path())) {
-            // Mark node from both for adding
-            nodeToAdd = *newExactIt;
-            ++newExactIt;
-            ++newCumlativeIt;
-        } else {
-            Q_ASSERT(!newExactAtEnd || !newCumlativeAtEnd);
-            // update case, figure out which case exactly
-            if (newExactAtEnd) {
-                ++newCumlativeIt;
-            } else if (newCumlativeAtEnd) {
-                ++newExactIt;
-            } else if (*newExactIt < *newCumlativeIt) {
-                ++newExactIt;
-            } else if (*newCumlativeIt < *newExactIt) {
-                ++newCumlativeIt;
-            } else {
-                ++newExactIt;
-                ++newCumlativeIt;
-            }
-            // Update existingNodeIte
-            ProFile *fileExact = result->includeFilesExact.value((*existingIt)->path());
-            ProFile *fileCumlative = result->includeFilesCumlative.value((*existingIt)->path());
-            if (fileExact || fileCumlative) {
-                QmakePriFileNode *priFileNode = static_cast<QmakePriFileNode *>(*existingIt);
-                priFileNode->update(result->priFileResults[(*existingIt)->path()]);
-                priFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-            } else {
-                // We always parse exactly, because we later when async parsing don't know whether
-                // the .pro file is included in this .pro file
-                // So to compare that later parse with the sync one
-                QmakeProFileNode *proFileNode = static_cast<QmakeProFileNode *>(*existingIt);
-                proFileNode->setIncludedInExactParse(result->exactSubdirs.contains(proFileNode->path())
-                                                     && includedInExactParse());
-                proFileNode->asyncUpdate();
-            }
-            ++existingIt;
-            // newCumalativeIt and newExactIt are already incremented
+        QList<ProjectNode*>::const_iterator existingIt = existingProjectNodes.constBegin();
+        auto newIt = tree->children.constBegin();
 
-        }
-        // If we found something to add, do it
-        if (!nodeToAdd.isEmpty()) {
-            ProFile *fileExact = result->includeFilesExact.value(nodeToAdd);
-            ProFile *fileCumlative = result->includeFilesCumlative.value(nodeToAdd);
+        forever {
+            bool existingAtEnd = (existingIt == existingProjectNodes.constEnd());
+            bool newAtEnd = (newIt == tree->children.constEnd());
 
-            // Loop preventation, make sure that exact same node is not in our parent chain
-            bool loop = false;
-            Node *n = this;
-            while ((n = n->parentFolderNode())) {
-                if (dynamic_cast<QmakePriFileNode *>(n) && n->path() == nodeToAdd) {
-                    loop = true;
-                    break;
+            if (existingAtEnd && newAtEnd)
+                break; // we are done, hurray!
+
+            if (! existingAtEnd
+                    && (newAtEnd || (*existingIt)->path() < (*newIt)->name)) {
+                // Remove case
+                toRemove << *existingIt;
+                ++existingIt;
+            } else if (! newAtEnd
+                       && (existingAtEnd || (*newIt)->name < (*existingIt)->path())) {
+                // Adding a node
+                IncludedPriFile *nodeToAdd = *newIt;
+                ++newIt;
+
+                QVector<ProFile *> filesExact = nodeToAdd->proFilesExact;
+                QVector<ProFile *> filesCumlative = nodeToAdd->proFilesCumulative;
+
+                // Loop preventation, make sure that exact same node is not in our parent chain
+                bool loop = false;
+                Node *n = pn;
+                while ((n = n->parentFolderNode())) {
+                    if (dynamic_cast<QmakePriFileNode *>(n) && n->path() == nodeToAdd->name) {
+                        loop = true;
+                        break;
+                    }
                 }
-            }
 
-            if (loop) {
-                // Do nothing
-            } else {
-                if (fileExact || fileCumlative) {
-                    QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
-                    qmakePriFileNode->setParentFolderNode(this); // Needed for loop detection
-                    qmakePriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-                    toAdd << qmakePriFileNode;
-                    toUpdate << qmakePriFileNode;
+                if (loop) {
+                    // Do nothing
                 } else {
-                    QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
-                    qmakeProFileNode->setParentFolderNode(this); // Needed for loop detection
-                    qmakeProFileNode->setIncludedInExactParse(
-                                result->exactSubdirs.contains(qmakeProFileNode->path())
-                                && includedInExactParse());
-                    qmakeProFileNode->asyncUpdate();
-                    toAdd << qmakeProFileNode;
+                    if (!filesExact.isEmpty() || !filesCumlative.isEmpty()) {
+                        QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd->name);
+                        qmakePriFileNode->setParentFolderNode(pn); // Needed for loop detection
+                        qmakePriFileNode->setIncludedInExactParse(!filesExact.isEmpty() && pn->includedInExactParse());
+                        toAdd << qmakePriFileNode;
+                        qmakePriFileNode->update(nodeToAdd->result);
+                        toCompare.append(qMakePair(qmakePriFileNode, nodeToAdd));
+                    } else {
+                        QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd->name);
+                        qmakeProFileNode->setParentFolderNode(pn); // Needed for loop detection
+                        qmakeProFileNode->setIncludedInExactParse(
+                                    result->exactSubdirs.contains(qmakeProFileNode->path())
+                                    && pn->includedInExactParse());
+                        qmakeProFileNode->asyncUpdate();
+                        toAdd << qmakeProFileNode;
+                    }
                 }
+            } else {
+                // Update existingNodeIte
+                QVector<ProFile *> filesExact = (*newIt)->proFilesExact;
+                QVector<ProFile *> filesCumlative = (*newIt)->proFilesCumulative;
+                if (!filesExact.isEmpty() || !filesCumlative.isEmpty()) {
+                    QmakePriFileNode *priFileNode = static_cast<QmakePriFileNode *>(*existingIt);
+                    priFileNode->update((*newIt)->result);
+                    priFileNode->setIncludedInExactParse(!filesExact.isEmpty() && pn->includedInExactParse());
+                    toCompare.append(qMakePair(priFileNode, *newIt));
+                } else {
+                    // We always parse exactly, because we later when async parsing don't know whether
+                    // the .pro file is included in this .pro file
+                    // So to compare that later parse with the sync one
+                    QmakeProFileNode *proFileNode = static_cast<QmakeProFileNode *>(*existingIt);
+                    proFileNode->setIncludedInExactParse(result->exactSubdirs.contains(proFileNode->path())
+                                                         && pn->includedInExactParse());
+                    proFileNode->asyncUpdate();
+                }
+                ++newIt;
+                ++existingIt;
+                // newCumalativeIt and newExactIt are already incremented
+
+            }
+        } // for
+
+        foreach (ProjectNode *node, toRemove) {
+            if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(node)) {
+                qmakeProFileNode->setValidParseRecursive(false);
+                qmakeProFileNode->setParseInProgressRecursive(false);
             }
         }
-    } // for
 
-    foreach (ProjectNode *node, toRemove) {
-        if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(node)) {
-            qmakeProFileNode->setValidParseRecursive(false);
-            qmakeProFileNode->setParseInProgressRecursive(false);
-        }
+        if (!toRemove.isEmpty())
+            pn->removeProjectNodes(toRemove);
+        if (!toAdd.isEmpty())
+            pn->addProjectNodes(toAdd);
     }
 
-    if (!toRemove.isEmpty())
-        removeProjectNodes(toRemove);
-    if (!toAdd.isEmpty())
-        addProjectNodes(toAdd);
-
-    foreach (QmakePriFileNode *qmakePriFileNode, toUpdate)
-        qmakePriFileNode->update(result->priFileResults[qmakePriFileNode->path()]);
-
-    QmakePriFileNode::update(result->priFileResults[m_projectFilePath]);
+    QmakePriFileNode::update(result->includedFiles.result);
 
     m_validParse = (result->state == EvalResult::EvalOk);
     if (m_validParse) {

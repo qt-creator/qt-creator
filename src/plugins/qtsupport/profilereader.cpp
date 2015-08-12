@@ -86,14 +86,17 @@ void ProFileReader::setCumulative(bool on)
     ProFileEvaluator::setCumulative(on);
 }
 
-void ProFileReader::aboutToEval(ProFile *, ProFile *pro, EvalFileType type)
+void ProFileReader::aboutToEval(ProFile *parent, ProFile *pro, EvalFileType type)
 {
     if (m_ignoreLevel || (type != EvalProjectFile && type != EvalIncludeFile)) {
         m_ignoreLevel++;
-    } else if (!m_includeFiles.contains(pro->fileName())) {
-        m_includeFiles.insert(pro->fileName(), pro);
-        m_proFiles.append(pro);
-        pro->ref();
+    } else {
+        QVector<ProFile *> children = m_includeFiles[parent];
+        if (!children.contains(pro)) {
+            children.append(pro);
+            m_proFiles.append(pro);
+            pro->ref();
+        }
     }
 }
 
@@ -103,14 +106,9 @@ void ProFileReader::doneWithEval(ProFile *)
         m_ignoreLevel--;
 }
 
-QList<ProFile*> ProFileReader::includeFiles() const
+QHash<ProFile *, QVector<ProFile *> > ProFileReader::includeFiles() const
 {
-    return m_includeFiles.values();
-}
-
-ProFile *ProFileReader::proFileFor(const QString &name)
-{
-    return m_includeFiles.value(name);
+    return m_includeFiles;
 }
 
 ProFileCacheManager *ProFileCacheManager::s_instance = 0;
