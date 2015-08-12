@@ -60,7 +60,6 @@ class CdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    enum CommandFlags { QuietCommand = 0x1 };
     // Flag bits for a sequence of commands
     enum CommandSequenceFlags {
         CommandListStack = 0x1,
@@ -137,15 +136,13 @@ private slots:
     void readyReadStandardError();
     void processError();
     void processFinished();
-    void postCommand(const QByteArray &cmd, unsigned flags);
+    void postCommand(const QByteArray &cmd);
     void postBuiltinCommand(const QByteArray &cmd,
-                            unsigned flags,
                             CommandHandler handler,
                             unsigned nextCommandFlag = 0);
 
     void postExtensionCommand(const QByteArray &cmd,
                               const QByteArray &arguments,
-                              unsigned flags,
                               CommandHandler handler,
                               unsigned nextCommandFlag = 0);
 
