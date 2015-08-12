@@ -2532,14 +2532,15 @@ void CdbEngine::parseOutputLine(QByteArray line)
                             + QString::fromLatin1("based breakpoint correction."), LogMisc);
             }
         }
-    }
-    // output(64): ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL
-    // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
-    if (line.startsWith("ModLoad: ")) {
+    } else if (line.startsWith("ModLoad: ")) {
+        // output(64): ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL
+        // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
         QRegExp moduleRegExp(QLatin1String(
                                  "[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)"));
         if (moduleRegExp.indexIn(QLatin1String(line)) > -1)
             showStatusMessage(tr("Module loaded: ") + moduleRegExp.cap(3).trimmed(), 3000);
+    } else {
+        showMessage(QString::fromLocal8Bit(line), LogMisc);
     }
 }
 
