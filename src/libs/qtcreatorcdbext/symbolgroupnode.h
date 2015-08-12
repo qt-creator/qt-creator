@@ -230,7 +230,8 @@ public:
         AdditionalSymbol = 0x20, // Introduced by addSymbol, should not be visible
         Obscured = 0x40,    // Symbol is obscured by (for example) fake container children
         ComplexDumperOk = 0x80,
-        WatchNode = 0x100
+        WatchNode = 0x100,
+        PreSortedChildren = 0x200
     };
 
     ~SymbolGroupNode();

@@ -1104,6 +1104,7 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
     }
     if (!size)
         return AbstractSymbolGroupNodePtrVector();
+    node->addFlags(SymbolGroupNode::PreSortedChildren);
     const unsigned maxArraySize = ExtensionContext::instance().parameters().maxArraySize;
     if (size > maxArraySize)
         size = maxArraySize;
