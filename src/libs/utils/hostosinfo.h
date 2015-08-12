@@ -64,9 +64,14 @@ public:
         return hostOsAspects().withExecutableSuffix(executable);
     }
 
+    static void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity);
+    static void unsetOverrideFileNameCaseSensitivity();
+
     static Qt::CaseSensitivity fileNameCaseSensitivity()
     {
-        return hostOsAspects().fileNameCaseSensitivity();
+        return m_useOverrideFileNameCaseSensitivity
+                ? m_overrideFileNameCaseSensitivity
+                : hostOsAspects().fileNameCaseSensitivity();
     }
 
     static QChar pathListSeparator()
@@ -81,6 +86,9 @@ public:
 
 private:
     static OsSpecificAspects hostOsAspects() { return OsSpecificAspects(hostOs()); }
+
+    static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;
+    static bool m_useOverrideFileNameCaseSensitivity;
 };
 
 

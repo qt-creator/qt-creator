@@ -12,6 +12,7 @@ SOURCES += \
     ../../libs/utils/checkablemessagebox.cpp \
     ../../libs/utils/environment.cpp \
     ../../libs/utils/fileutils.cpp \
+    ../../libs/utils/hostosinfo.cpp \
     ../../libs/utils/savefile.cpp
 
 
@@ -24,6 +25,7 @@ HEADERS += \
     ../../libs/utils/checkablemessagebox.h \
     ../../libs/utils/environment.h \
     ../../libs/utils/fileutils.h \
+    ../../libs/utils/hostosinfo.h \
     ../../libs/utils/savefile.h
 
 FORMS += \
