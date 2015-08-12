@@ -558,7 +558,7 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
     *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
 
-QString decodeData(const QByteArray &ba, int encoding)
+QString decodeData(const QByteArray &ba, DebuggerEncoding encoding)
 {
     switch (encoding) {
         case Unencoded8Bit: // 0
@@ -657,16 +657,38 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QDate date = dateFromData(ba.toInt());
             return date.isValid() ? date.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
-        case MillisecondsSinceMidnight: {
+        case MillisecondsSinceMidnight: { // 15
             const QTime time = timeFromData(ba.toInt());
             return time.isValid() ? time.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
-        case JulianDateAndMillisecondsSinceMidnight: {
+        case JulianDateAndMillisecondsSinceMidnight: { // 16
             const int p = ba.indexOf('/');
             const QDate date = dateFromData(ba.left(p).toInt());
             const QTime time = timeFromData(ba.mid(p + 1 ).toInt());
             const QDateTime dateTime = QDateTime(date, time);
             return dateTime.isValid() ? dateTime.toString(Qt::TextDate) : QLatin1String("(invalid)");
+        }
+        case Hex2EncodedInt1:   // 17
+        case Hex2EncodedInt2:   // 18
+        case Hex2EncodedInt4:   // 19
+        case Hex2EncodedInt8:   // 20
+        case Hex2EncodedUInt1:  // 21
+        case Hex2EncodedUInt2:  // 22
+        case Hex2EncodedUInt4:  // 23
+        case Hex2EncodedUInt8:  // 24
+            qDebug("not implemented"); // Only used in Arrays, see watchdata.cpp
+            return QString();
+        case Hex2EncodedFloat4: { // 25
+            const QByteArray s = QByteArray::fromHex(ba);
+            QTC_ASSERT(s.size() == 4, break);
+            union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
+            return QString::number(u.f);
+        }
+        case Hex2EncodedFloat8: { // 26
+            const QByteArray s = QByteArray::fromHex(ba);
+            QTC_ASSERT(s.size() == 8, break);
+            union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
+            return QString::number(u.d);
         }
         case IPv6AddressAndHexScopeId: { // 27, 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');
@@ -716,46 +738,34 @@ QString decodeData(const QByteArray &ba, int encoding)
             }
             return dateTime.toString();
         }
-        case Hex2EncodedFloat4: {
-            const QByteArray s = QByteArray::fromHex(ba);
-            QTC_ASSERT(s.size() == 4, break);
-            union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
-            return QString::number(u.f);
-        }
-        case Hex2EncodedFloat8: {
-            const QByteArray s = QByteArray::fromHex(ba);
-            QTC_ASSERT(s.size() == 8, break);
-            union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
-            return QString::number(u.d);
-        }
-        case SpecialEmptyValue: {
+        case SpecialEmptyValue: { // 30
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<empty>");
         }
-        case SpecialUninitializedValue:  {
+        case SpecialUninitializedValue:  { // 31
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<uninitialized>");
         }
-        case SpecialInvalidValue:  {
+        case SpecialInvalidValue:  { // 32
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<invalid>");
         }
-        case SpecialNotAccessibleValue:  {
+        case SpecialNotAccessibleValue:  { // 33
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not accessible>");
         }
-        case SpecialItemCountValue:  {
+        case SpecialItemCountValue:  { // 34
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", 0, ba.toInt());
         }
-        case SpecialMinimumItemCountValue:  {
+        case SpecialMinimumItemCountValue:  { // 35
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", 0, ba.toInt());
         }
-        case SpecialNotCallableValue:  {
+        case SpecialNotCallableValue:  { // 36
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not callable>");
         }
-        case SpecialNullReferenceValue:  {
+        case SpecialNullReferenceValue:  { // 37
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<null reference>");
         }
-        case SpecialOptimizedOutValue:  {
+        case SpecialOptimizedOutValue:  { // 38
             return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<optimized out>");
         }
-        case SpecialEmptyStructureValue:  {
+        case SpecialEmptyStructureValue:  { // 39
             return QLatin1String("{...}");
         }
     }

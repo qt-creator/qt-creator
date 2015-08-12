@@ -59,7 +59,7 @@ StartRemoteProcess, \
     = range(0, 9)
 
 
-# Known special formats. Keep in sync with DisplayFormat in watchhandler.h
+# Known special formats. Keep in sync with DisplayFormat in debuggerprotocol.h
 AutomaticFormat, \
 RawFormat, \
 SimpleFormat, \
@@ -142,7 +142,7 @@ SpecialOptimizedOutValue, \
 SpecialEmptyStructureValue, \
     = range(40)
 
-# Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
+# Display modes. Keep that synchronized with DebuggerDisplay in debuggerprotocol.h
 StopDisplay, \
 DisplayImageData, \
 DisplayUtf16String, \

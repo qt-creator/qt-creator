@@ -393,7 +393,7 @@ void WatchData::updateValue(const GdbMi &item)
     GdbMi value = item["value"];
     if (value.isValid()) {
         int encoding = item["valueencoded"].toInt();
-        setValue(decodeData(value.data(), encoding));
+        setValue(decodeData(value.data(), DebuggerEncoding(encoding)));
     } else {
         setValueNeeded();
     }
@@ -620,7 +620,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
             QByteArray key = child["key"].data();
             if (!key.isEmpty()) {
                 int encoding = child["keyencoded"].toInt();
-                data1.name = decodeData(key, encoding);
+                data1.name = decodeData(key, DebuggerEncoding(encoding));
             }
             childHandler(data1, child);
         }

@@ -208,7 +208,13 @@ public:
 void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb);
 
+
+// These enum values correspond to encodings produced by the dumpers
+// and consumed by \c decodeData(const QByteArray &baIn, DebuggerEncoding encoding);
+// They are never stored in settings.
+//
 // Keep in sync with dumper.py
+
 enum DebuggerEncoding
 {
     Unencoded8Bit                          =  0,
@@ -253,8 +259,68 @@ enum DebuggerEncoding
     SpecialEmptyStructureValue             = 39
 };
 
+// Decode string data as returned by the dumper helpers.
+QString decodeData(const QByteArray &baIn, DebuggerEncoding encoding);
+
+
+// These enum values correspond to possible value display format requests,
+// typically selected by the user using the L&E context menu, under
+// "Change Value Display Format". They are passed from the frontend to
+// the dumpers.
+//
+// Keep in sync with dumper.py.
+//
+// \note Add new enum values only at the end, as the numeric values are
+// persisted in user settings.
+
+enum DisplayFormat
+{
+    AutomaticFormat             =  0, // Based on type for individuals, dumper default for types.
+                                      // Could be anything reasonably cheap.
+    RawFormat                   =  1, // No formatting at all.
+
+    SimpleFormat                =  2, // Typical simple format (e.g. for QModelIndex row/column)
+    EnhancedFormat              =  3, // Enhanced format (e.g. for QModelIndex with resolved display)
+    SeparateFormat              =  4, // Display in separate Window
+
+    Latin1StringFormat          =  5,
+    SeparateLatin1StringFormat  =  6,
+    Utf8StringFormat            =  7,
+    SeparateUtf8StringFormat    =  8,
+    Local8BitStringFormat       =  9,
+    Utf16StringFormat           = 10,
+    Ucs4StringFormat            = 11,
+
+    Array10Format               = 12,
+    Array100Format              = 13,
+    Array1000Format             = 14,
+    Array10000Format            = 15,
+    ArrayPlotFormat             = 16,
+
+    CompactMapFormat            = 17,
+    DirectQListStorageFormat    = 18,
+    IndirectQListStorageFormat  = 19,
+
+    BoolTextFormat              = 20, // Bools as "true" or "false" - Frontend internal only.
+    BoolIntegerFormat           = 21, // Bools as "0" or "1" - Frontend internal only
+
+    DecimalIntegerFormat        = 22, // Frontend internal only
+    HexadecimalIntegerFormat    = 23, // Frontend internal only
+    BinaryIntegerFormat         = 24, // Frontend internal only
+    OctalIntegerFormat          = 25, // Frontend internal only
+
+    CompactFloatFormat          = 26, // Frontend internal only
+    ScientificFloatFormat       = 27  // Frontend internal only
+};
+
+
+// These enum values are passed from the dumper to the frontend,
+// typically as a result of passing a related DisplayFormat value.
+// They are never stored in settings.
+
 // Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB
-enum DebuggerDisplay {
+enum DebuggerDisplay
+{
     StopDisplay                            = 0,
     DisplayImageData                       = 1,
     DisplayUtf16String                     = 2,
@@ -263,8 +329,6 @@ enum DebuggerDisplay {
     DisplayUtf8String                      = 5,
     DisplayPlotData                        = 6
 };
-// Decode string data as returned by the dumper helpers.
-QString decodeData(const QByteArray &baIn, int encoding);
 
 } // namespace Internal
 } // namespace Debugger

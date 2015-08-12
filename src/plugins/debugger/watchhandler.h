@@ -44,47 +44,6 @@ class DebuggerCommand;
 class DebuggerEngine;
 class WatchModel;
 
-// Special formats. Keep in sync with dumper.py.
-enum DisplayFormat
-{
-    AutomaticFormat, // Based on type for individuals, dumper default for types.
-    RawFormat,
-
-    SimpleFormat,    // Typical simple format (e.g. for QModelIndex row/column)
-    EnhancedFormat,  // Enhanced format (e.g. for QModelIndex with resolved display)
-    SeparateFormat,  // Display in separate Window
-
-    Latin1StringFormat,
-    SeparateLatin1StringFormat,
-    Utf8StringFormat,
-    SeparateUtf8StringFormat,
-    Local8BitStringFormat,
-    Utf16StringFormat,
-    Ucs4StringFormat,
-
-    Array10Format,
-    Array100Format,
-    Array1000Format,
-    Array10000Format,
-    ArrayPlotFormat,
-
-    CompactMapFormat,
-    DirectQListStorageFormat,
-    IndirectQListStorageFormat,
-
-    // Not used in *.py.
-    BoolTextFormat,
-    BoolIntegerFormat,
-
-    DecimalIntegerFormat,
-    HexadecimalIntegerFormat,
-    BinaryIntegerFormat,
-    OctalIntegerFormat,
-
-    CompactFloatFormat,
-    ScientificFloatFormat,
-};
-
 typedef QVector<DisplayFormat> DisplayFormats;
 
 class WatchItem : public Utils::TreeItem, public WatchData
