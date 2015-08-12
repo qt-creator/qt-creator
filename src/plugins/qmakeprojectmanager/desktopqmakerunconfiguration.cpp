@@ -140,6 +140,7 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool su
 
     if (!parseInProgress) {
         emit effectiveTargetInformationChanged();
+        setDefaultDisplayName(defaultDisplayName());
         LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
         QTC_ASSERT(aspect, return);
         aspect->buildEnvironmentHasChanged();
@@ -539,6 +540,14 @@ Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const
 
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
+    auto project = static_cast<QmakeProject *>(target()->project());
+    const QmakeProFileNode *root = project->rootQmakeProjectNode();
+    if (root) {
+        const QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
+        if (node) // should always be found
+            return node->displayName();
+    }
+
     QString defaultName;
     if (!m_proFilePath.isEmpty())
         defaultName = m_proFilePath.toFileInfo().completeBaseName();

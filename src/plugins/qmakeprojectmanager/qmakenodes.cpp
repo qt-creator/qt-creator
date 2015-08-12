@@ -1965,6 +1965,7 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[AndroidPackageSourceDir] = input.readerExact->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
         result->newVarValues[AndroidExtraLibs] = input.readerExact->values(QLatin1String("ANDROID_EXTRA_LIBS"));
         result->newVarValues[IsoIconsVar] = input.readerExact->values(QLatin1String("ISO_ICONS"));
+        result->newVarValues[QmakeProjectName] = input.readerExact->values(QLatin1String("QMAKE_PROJECT_NAME"));
 
         result->isDeployable = false;
         if (result->projectType == ApplicationTemplate) {
@@ -2234,6 +2235,12 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
         if (m_varValues != result->newVarValues)
             m_varValues = result->newVarValues;
+
+        const QString projectName = singleVariableValue(QmakeProjectName);
+        if (projectName.isEmpty())
+            setDisplayName(m_projectFilePath.toFileInfo().completeBaseName());
+        else
+            setDisplayName(projectName);
     } // result == EvalOk
 
     setParseInProgress(false);

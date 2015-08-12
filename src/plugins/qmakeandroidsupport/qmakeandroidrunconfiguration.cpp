@@ -111,6 +111,14 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
 
 QString QmakeAndroidRunConfiguration::defaultDisplayName()
 {
+    auto project = static_cast<QmakeProject *>(target()->project());
+    const QmakeProjectManager::QmakeProFileNode *root = project->rootQmakeProjectNode();
+    if (root) {
+        const QmakeProjectManager::QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
+        if (node) // should always be found
+            return node->displayName();
+    }
+
     return QFileInfo(pathFromId(id())).completeBaseName();
 }
 
@@ -145,6 +153,9 @@ void QmakeAndroidRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProF
     m_parseInProgress = parseInProgress;
     if (enabled != isEnabled() || reason != disabledReason())
         emit enabledChanged();
+
+    if (!parseInProgress)
+        setDefaultDisplayName(defaultDisplayName());
 }
 
 Utils::FileName QmakeAndroidRunConfiguration::proFilePath() const
