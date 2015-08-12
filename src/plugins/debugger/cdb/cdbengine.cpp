@@ -218,12 +218,11 @@ class CdbCommand
 {
 public:
     CdbCommand()
-        : token(0), isBuiltin(true)
+        : token(0)
     {}
 
-    CdbCommand(bool builtin, const QByteArray &cmd, int token,
-               CdbEngine::CommandHandler h, unsigned nc)
-        : token(token), isBuiltin(builtin), handler(h)
+    CdbCommand(const QByteArray &cmd, int token, CdbEngine::CommandHandler h, unsigned nc)
+        : token(token), handler(h)
     {
         response.command = cmd;
         response.commandSequence = nc;
@@ -231,7 +230,6 @@ public:
 
     int token;
 
-    bool isBuiltin;
     CdbEngine::CommandHandler handler;
 
     CdbResponse response; // FIXME: remove.
@@ -1237,7 +1235,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
     showMessage(QString::fromLocal8Bit(cmd), LogInput);
 
     const int token = m_nextCommandToken++;
-    CdbCommandPtr pendingCommand(new CdbCommand(true, cmd, token, handler, nextCommandFlag));
+    CdbCommandPtr pendingCommand(new CdbCommand(cmd, token, handler, nextCommandFlag));
 
     m_builtinCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
@@ -1280,7 +1278,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
 
     showMessage(QString::fromLocal8Bit(fullCmd), LogInput);
 
-    CdbCommandPtr pendingCommand(new CdbCommand(false, fullCmd, token, handler, nextCommandFlag));
+    CdbCommandPtr pendingCommand(new CdbCommand(fullCmd, token, handler, nextCommandFlag));
 
     m_extensionCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
