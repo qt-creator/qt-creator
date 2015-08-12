@@ -748,7 +748,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actRemoveAllWatchExpression.setEnabled(canRemoveWatches
                                            && !handler->watchedExpressions().isEmpty());
 
-    QMenu formatMenu(tr("Change Local Display Format"));
+    QMenu formatMenu(tr("Change Value Display Format"));
     if (mi0.isValid())
         fillFormatMenu(&formatMenu, mi0);
 

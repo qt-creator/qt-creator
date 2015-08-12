@@ -714,7 +714,7 @@
     a compact option using the \c{name} column for keys, resulting in a concise
     display of containers with short keys, such as numbers or short strings. For
     example, to expand all the values of QMap, select
-    \uicontrol {Change Local Display Format} > \uicontrol Compact.
+    \uicontrol {Change Value Display Format} > \uicontrol Compact.
 
     You can use the \uicontrol {Locals and Expressions} view to change the
     contents of variables of simple data types, for example, \c int, \c float,
