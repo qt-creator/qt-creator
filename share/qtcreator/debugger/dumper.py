@@ -1653,7 +1653,6 @@ class DumperBase:
 
         with TopLevelItem(self, iname):
             self.put('iname="%s",' % iname)
-            self.put('name="%s",' % exp)
             self.put('wname="%s",' % escapedExp)
             try:
                 value = self.parseAndEvaluate(exp)
