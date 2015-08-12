@@ -705,9 +705,13 @@ bool SettingsDialog::execDialog()
     if (!m_running) {
         m_running = true;
         m_finished = false;
+        static const QLatin1String kPreferenceDialogSize("Core/PreferenceDialogSize");
+        if (ICore::settings()->contains(kPreferenceDialogSize))
+            resize(ICore::settings()->value(kPreferenceDialogSize).toSize());
         exec();
         m_running = false;
         m_instance = 0;
+        ICore::settings()->setValue(kPreferenceDialogSize, size());
         // make sure that the current "single" instance is deleted
         // we can't delete right away, since we still access the m_applied member
         deleteLater();
