@@ -299,7 +299,7 @@ void ProgressManagerPrivate::readSettings()
 {
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String(kSettingsGroup));
-    m_progressViewPinned = settings->value(QLatin1String(kDetailsPinned), true).toBool();
+    m_progressViewPinned = settings->value(QLatin1String(kDetailsPinned), false).toBool();
     settings->endGroup();
 }
 
