@@ -1441,7 +1441,7 @@ QIcon BreakpointItem::icon() const
         return BreakHandler::watchpointIcon();
     if (!m_params.enabled)
         return BreakHandler::disabledBreakpointIcon();
-    if (m_state == BreakpointInserted)
+    if (m_state == BreakpointInserted && !m_response.pending)
         return BreakHandler::breakpointIcon();
     return BreakHandler::pendingBreakpointIcon();
 }

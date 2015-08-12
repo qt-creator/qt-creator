@@ -753,6 +753,9 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
 
     const BreakpointParameters &params = bp.parameters();
     if (params.type == BreakpointAtJavaScriptThrow) {
+        BreakpointResponse br = bp.response();
+        br.pending = false;
+        bp.setResponse(br);
         bp.notifyBreakpointInsertOk();
         d->setExceptionBreak(AllExceptions, params.enabled);
 
@@ -763,6 +766,9 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
 
     } else if (params.type == BreakpointOnQmlSignalEmit) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName, params.enabled);
+        BreakpointResponse br = bp.response();
+        br.pending = false;
+        bp.setResponse(br);
         bp.notifyBreakpointInsertOk();
     }
 
@@ -1798,6 +1804,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                             if (bp.state() != BreakpointInserted) {
                                 BreakpointResponse br = bp.response();
                                 br.lineNumber = breakpointData.value(_("line")).toInt() + 1;
+                                br.pending = false;
                                 bp.setResponse(br);
                                 bp.notifyBreakpointInsertOk();
                             }
@@ -1958,6 +1965,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                                 if (bp.state() != BreakpointInserted) {
                                     br.lineNumber = breakData.value(
                                                 _("sourceLine")).toInt() + 1;
+                                    br.pending = false;
                                     bp.setResponse(br);
                                     bp.notifyBreakpointInsertOk();
                                 }
