@@ -55,7 +55,7 @@ public:
     }
 
     Qt::CaseSensitivity fileNameCaseSensitivity() const {
-        return m_osType == OsTypeWindows ? Qt::CaseInsensitive : Qt::CaseSensitive;
+        return m_osType == OsTypeWindows || m_osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
     }
 
     QChar pathListSeparator() const {
