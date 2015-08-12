@@ -2609,11 +2609,11 @@ def qdumpHelper__QJsonArray(d, data, array):
     array is passed as integer pointer to the QJsonPrivate::Base object.
     """
 
-    if d.isNull(data):
-        n = 0
-    else:
+    if data:
         # The 'length' part of the _dummy member:
         n = qdumpHelper_qle_cutBits(d.extractUInt(array + 4), 1, 31)
+    else:
+        n = 0
 
     d.putItemCount(n)
     d.putNumChild(1)
@@ -2634,11 +2634,11 @@ def qdumpHelper__QJsonObject(d, data, obj):
     obj is passed as integer pointer to the QJsonPrivate::Base object.
     """
 
-    if d.isNull(data):
-        n = 0
-    else:
+    if data:
         # The 'length' part of the _dummy member:
         n = qdumpHelper_qle_cutBits(d.extractUInt(obj + 4), 1, 31)
+    else:
+        n = 0
 
     d.putItemCount(n)
     d.putNumChild(1)
