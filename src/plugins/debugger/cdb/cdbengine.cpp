@@ -1209,7 +1209,7 @@ void CdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
         postCommand(command.toLocal8Bit());
 }
 
-// Post command without callback
+// Post command to the cdb process
 void CdbEngine::postCommand(const QByteArray &cmd)
 {
     if (debug)
@@ -1232,8 +1232,6 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
         showMessage(msg, LogError);
         return;
     }
-    showMessage(QString::fromLocal8Bit(cmd), LogInput);
-
     const int token = m_nextCommandToken++;
     CdbCommandPtr pendingCommand(new CdbCommand(cmd, token, handler, nextCommandFlag));
 
@@ -1242,7 +1240,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
     QByteArray fullCmd;
     ByteArrayInputStream str(fullCmd);
     str << ".echo \"" << m_tokenPrefix << token << "<\"\n"
-            << cmd << "\n.echo \"" << m_tokenPrefix << token << ">\"\n";
+            << cmd << "\n.echo \"" << m_tokenPrefix << token << ">\"";
     if (debug)
         qDebug("CdbEngine::postBuiltinCommand %dms '%s' token=%d %s next=%u, pending=%d, sequence=0x%x",
                elapsedLogTime(), cmd.constData(), token, stateName(state()), nextCommandFlag,
@@ -1250,7 +1248,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
     if (debug > 1)
         qDebug("CdbEngine::postBuiltinCommand: resulting command '%s'\n",
                fullCmd.constData());
-    m_process.write(fullCmd);
+    postCommand(fullCmd);
 }
 
 // Post an extension command producing one-line output with a callback,
@@ -1276,8 +1274,6 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
     if (!arguments.isEmpty())
         str <<  ' ' << arguments;
 
-    showMessage(QString::fromLocal8Bit(fullCmd), LogInput);
-
     CdbCommandPtr pendingCommand(new CdbCommand(fullCmd, token, handler, nextCommandFlag));
 
     m_extensionCommandQueue.push_back(pendingCommand);
@@ -1286,7 +1282,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
         qDebug("CdbEngine::postExtensionCommand %dms '%s' token=%d %s next=%u, pending=%d, sequence=0x%x",
                elapsedLogTime(), fullCmd.constData(), token, stateName(state()), nextCommandFlag,
                m_extensionCommandQueue.size(), nextCommandFlag);
-    m_process.write(fullCmd + '\n');
+    postCommand(fullCmd);
 }
 
 void CdbEngine::activateFrame(int index)
