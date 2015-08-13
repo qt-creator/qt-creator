@@ -1857,7 +1857,7 @@ void tst_Dumpers::dumper_data()
                     "pain.drawLine(2, 2, 130, 130);\n"
                     "pain.end();\n"
                     "QPixmap pm = QPixmap::fromImage(im);\n"
-                    "unused(&pm);\n")
+                    "unused(&app, &pm);\n")
 
                + GuiProfile()
 
@@ -5814,7 +5814,7 @@ void tst_Dumpers::dumper_data()
                     "pol.append(QPointF(2, 4));\n"
                     "pol.append(QPointF(1, 4));\n"
                     "QGraphicsPolygonItem *p = sc.addPolygon(pol);\n"
-                    "unused(&p);\n")
+                    "unused(&app, &p);\n")
                + GuiProfile()
                + Check("pol", "<5 items>", "@QPolygonF")
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");
