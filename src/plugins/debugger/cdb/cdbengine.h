@@ -210,7 +210,7 @@ private:
     void handleExpression(const CdbResponse &command, BreakpointModelId id, const GdbMi &stopReason);
     void handleResolveSymbol(const CdbResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
-    void handleBreakInsert(const CdbResponse &response);
+    void handleBreakInsert(const CdbResponse &response, const BreakpointModelId &bpId);
     void handleCheckWow64(const CdbResponse &response, const GdbMi &stack);
     void ensureUsing32BitStackInWow64(const CdbResponse &response, const GdbMi &stack);
     void handleSwitchWow64Stack(const CdbResponse &response);
