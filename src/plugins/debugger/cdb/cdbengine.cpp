@@ -193,20 +193,6 @@ static inline bool isCreatorConsole(const DebuggerRunParameters &sp)
            && (sp.startMode == StartInternal || sp.startMode == StartExternal);
 }
 
-class CdbResponse
-{
-public:
-    CdbResponse()
-        : success(false)
-    {}
-
-    QByteArray command;
-
-    QByteArray reply;
-    QByteArray errorMessage;
-    bool success;
-};
-
 // Base data structure for command queue entries with callback
 class CdbCommand
 {
@@ -269,7 +255,6 @@ CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
     m_accessible(false),
     m_specialStopMode(NoSpecialStop),
     m_nextCommandToken(0),
-    m_currentBuiltinCommandIndex(-1),
     m_extensionCommandPrefixBA("!" QT_CREATOR_CDB_EXT "."),
     m_operateByInstructionPending(true),
     m_operateByInstruction(true), // Default CDB setting
@@ -308,7 +293,6 @@ void CdbEngine::init()
     m_accessible = false;
     m_specialStopMode = NoSpecialStop;
     m_nextCommandToken  = 0;
-    m_currentBuiltinCommandIndex = -1;
     m_operateByInstructionPending = action(OperateByInstruction)->isChecked();
     m_verboseLogPending = boolSetting(VerboseLog);
     m_operateByInstruction = true; // Default CDB setting
@@ -2443,46 +2427,42 @@ void CdbEngine::parseOutputLine(QByteArray line)
     bool isStartToken = false;
     const bool isCommandToken = checkCommandToken(m_tokenPrefix, line, &token, &isStartToken);
     if (debug > 1)
-        qDebug("Reading CDB stdout '%s',\n  isCommand=%d, token=%d, isStart=%d, current=%d",
-               line.constData(), isCommandToken, token, isStartToken, m_currentBuiltinCommandIndex);
+        qDebug("Reading CDB stdout '%s',\n  isCommand=%d, token=%d, isStart=%d",
+               line.constData(), isCommandToken, token, isStartToken);
 
     // If there is a current command, wait for end of output indicated by token,
     // command, trigger handler and finish, else append to its output.
-    if (m_currentBuiltinCommandIndex != -1) {
-        QTC_ASSERT(!isStartToken && m_currentBuiltinCommandIndex < m_builtinCommandQueue.size(), return; );
-        const CdbCommandPtr &currentCommand = m_builtinCommandQueue.at(m_currentBuiltinCommandIndex);
+    if (m_currentBuiltinResponse.token != -1) {
+        QTC_ASSERT(!isStartToken, return);
         if (isCommandToken) {
             // Did the command finish? Invoke callback and remove from queue.
             if (debug)
                 qDebug("### Completed builtin command for token=%d, %d lines, pending=%d",
-                       currentCommand->token,
-                       m_currentBuiltinCommandReply.count('\n'), m_builtinCommandQueue.size() - 1);
-            QTC_ASSERT(token == currentCommand->token, return; );
+                       m_currentBuiltinResponse.token, m_currentBuiltinResponse.reply.count('\n'),
+                       m_builtinCommandQueue.size() - 1);
+            QTC_ASSERT(token == m_currentBuiltinResponse.token, return);
             if (boolSetting(VerboseLog))
-                showMessage(QLatin1String(m_currentBuiltinCommandReply), LogMisc);
-            CdbResponse response;
-            response.reply = m_currentBuiltinCommandReply;
+                showMessage(QLatin1String(m_currentBuiltinResponse.reply), LogMisc);
+            const int commandIndex = indexOfCommand(m_builtinCommandQueue, m_currentBuiltinResponse.token);
+            QTC_ASSERT(commandIndex >= 0 && commandIndex < m_builtinCommandQueue.size(), return);
+            const CdbCommandPtr &currentCommand = m_builtinCommandQueue.at(commandIndex);
             if (currentCommand->handler)
-                currentCommand->handler(response);
-            m_builtinCommandQueue.removeAt(m_currentBuiltinCommandIndex);
-            m_currentBuiltinCommandIndex = -1;
-            m_currentBuiltinCommandReply.clear();
+                currentCommand->handler(m_currentBuiltinResponse);
+            m_builtinCommandQueue.removeAt(commandIndex);
+            m_currentBuiltinResponse.clear();
         } else {
             // Record output of current command
-            if (!m_currentBuiltinCommandReply.isEmpty())
-                m_currentBuiltinCommandReply.push_back('\n');
-            m_currentBuiltinCommandReply.push_back(line);
+            if (!m_currentBuiltinResponse.reply.isEmpty())
+                m_currentBuiltinResponse.reply.push_back('\n');
+            m_currentBuiltinResponse.reply.push_back(line);
         }
         return;
-    } // m_currentCommandIndex
+    }
     if (isCommandToken) {
         // Beginning command token encountered, start to record output.
-        const int index = indexOfCommand(m_builtinCommandQueue, token);
-        QTC_ASSERT(isStartToken && index != -1, return; );
-        m_currentBuiltinCommandIndex = index;
-        const CdbCommandPtr &currentCommand = m_builtinCommandQueue.at(m_currentBuiltinCommandIndex);
+        m_currentBuiltinResponse.token = token;
         if (debug)
-            qDebug("### Gathering output for token %d", currentCommand->token);
+            qDebug("### Gathering output for token %d", token);
         return;
     }
     const char versionString[] = "Microsoft (R) Windows Debugger Version";

@@ -50,10 +50,31 @@ namespace Internal {
 
 class DisassemblerAgent;
 class CdbCommand;
-class CdbResponse;
 struct MemoryViewCookie;
 class ByteArrayInputStream;
 class GdbMi;
+
+class CdbResponse
+{
+    // TODO: replace with DebuggerResponse
+public:
+    CdbResponse()
+        : token(-1), success(false)
+    {}
+
+    void clear()
+    {
+        token = -1;
+        reply.clear();
+        errorMessage.clear();
+        success = false;
+    }
+
+    int token;
+    QByteArray reply;
+    QByteArray errorMessage;
+    bool success;
+};
 
 class CdbEngine : public DebuggerEngine
 {
@@ -248,8 +269,7 @@ private:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
     QList<CdbCommandPtr> m_builtinCommandQueue;
-    int m_currentBuiltinCommandIndex; //!< Current command whose output is recorded.
-    QByteArray m_currentBuiltinCommandReply;
+    CdbResponse m_currentBuiltinResponse; //!< Current command whose output is recorded.
     QList<CdbCommandPtr> m_extensionCommandQueue;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
