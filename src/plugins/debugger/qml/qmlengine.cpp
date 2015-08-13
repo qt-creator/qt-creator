@@ -2353,6 +2353,8 @@ ConsoleItem *QmlEnginePrivate::constructLogItemTree(ConsoleItem *parent,
 void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &properties)
 {
     QTC_ASSERT(parent, return);
+    LookupItems itemsToLookup;
+
     foreach (const QVariant &property, properties) {
         QmlV8ObjectData propertyData = extractData(property);
         auto item = new WatchItem;
@@ -2374,15 +2376,20 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         item->id = propertyData.handle;
         item->type = propertyData.type;
         item->value = propertyData.value.toString();
-        item->setHasChildren(propertyData.properties.count());
+        if (item->type.isEmpty())
+            itemsToLookup.insert(propertyData.handle, {item->iname, item->name});
+        item->setHasChildren(propertyData.properties.count() > 0);
         parent->appendChild(item);
     }
 
-    if (boolSetting(SortStructMembers))
+    if (boolSetting(SortStructMembers)) {
         parent->sortChildren([](const TreeItem *item1, const TreeItem *item2) -> bool {
             return static_cast<const WatchItem *>(item1)->name
-                 < static_cast<const WatchItem *>(item2)->name;
+                    < static_cast<const WatchItem *>(item2)->name;
         });
+    }
+
+    lookup(itemsToLookup);
 }
 
 void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)
