@@ -215,17 +215,13 @@ public:
         : token(0)
     {}
 
-    CdbCommand(const QByteArray &cmd, int token, CdbEngine::CommandHandler h)
+    CdbCommand(int token, CdbEngine::CommandHandler h)
         : token(token), handler(h)
-    {
-        response.command = cmd;
-    }
+    {}
 
     int token;
 
     CdbEngine::CommandHandler handler;
-
-    CdbResponse response; // FIXME: remove.
 };
 
 template <class CommandPtrType>
@@ -1212,7 +1208,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
         return;
     }
     const int token = m_nextCommandToken++;
-    CdbCommandPtr pendingCommand(new CdbCommand(cmd, token, handler));
+    CdbCommandPtr pendingCommand(new CdbCommand(token, handler));
 
     m_builtinCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
@@ -1252,7 +1248,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
     if (!arguments.isEmpty())
         str <<  ' ' << arguments;
 
-    CdbCommandPtr pendingCommand(new CdbCommand(fullCmd, token, handler));
+    CdbCommandPtr pendingCommand(new CdbCommand(token, handler));
 
     m_extensionCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
@@ -2286,19 +2282,21 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         if (index != -1) {
             // Did the command finish? Take off queue and complete, invoke CB
             const CdbCommandPtr command = m_extensionCommandQueue.takeAt(index);
-            if (t == 'R') {
-                command->response.success = true;
-                command->response.reply = message;
-            } else {
-                command->response.success = false;
-                command->response.errorMessage = message;
-            }
             if (debug)
-                qDebug("### Completed extension command '%s', token=%d, pending=%d",
-                       command->response.command.constData(), command->token, m_extensionCommandQueue.size());
-            if (command->handler) {
-                command->handler(command->response);
+                qDebug("### Completed extension command for token=%d, pending=%d",
+                       command->token, m_extensionCommandQueue.size());
+
+            if (!command->handler)
+                return;
+            CdbResponse response;
+            if (t == 'R') {
+                response.success = true;
+                response.reply = message;
+            } else {
+                response.success = false;
+                response.errorMessage = message;
             }
+            command->handler(response);
             return;
         }
     }
@@ -2456,22 +2454,24 @@ void CdbEngine::parseOutputLine(QByteArray line)
         if (isCommandToken) {
             // Did the command finish? Invoke callback and remove from queue.
             if (debug)
-                qDebug("### Completed builtin command '%s', token=%d, %d lines, pending=%d",
-                       currentCommand->response.command.constData(), currentCommand->token,
-                       currentCommand->response.reply.count('\n'), m_builtinCommandQueue.size() - 1);
+                qDebug("### Completed builtin command for token=%d, %d lines, pending=%d",
+                       currentCommand->token,
+                       m_currentBuiltinCommandReply.count('\n'), m_builtinCommandQueue.size() - 1);
             QTC_ASSERT(token == currentCommand->token, return; );
             if (boolSetting(VerboseLog))
-                showMessage(QLatin1String(currentCommand->response.reply), LogMisc);
-            if (currentCommand->handler) {
-                currentCommand->handler(currentCommand->response);
-            }
+                showMessage(QLatin1String(m_currentBuiltinCommandReply), LogMisc);
+            CdbResponse response;
+            response.reply = m_currentBuiltinCommandReply;
+            if (currentCommand->handler)
+                currentCommand->handler(response);
             m_builtinCommandQueue.removeAt(m_currentBuiltinCommandIndex);
             m_currentBuiltinCommandIndex = -1;
+            m_currentBuiltinCommandReply.clear();
         } else {
             // Record output of current command
-            if (!currentCommand->response.reply.isEmpty())
-                currentCommand->response.reply.push_back('\n');
-            currentCommand->response.reply.push_back(line);
+            if (!m_currentBuiltinCommandReply.isEmpty())
+                m_currentBuiltinCommandReply.push_back('\n');
+            m_currentBuiltinCommandReply.push_back(line);
         }
         return;
     } // m_currentCommandIndex
@@ -2482,8 +2482,7 @@ void CdbEngine::parseOutputLine(QByteArray line)
         m_currentBuiltinCommandIndex = index;
         const CdbCommandPtr &currentCommand = m_builtinCommandQueue.at(m_currentBuiltinCommandIndex);
         if (debug)
-            qDebug("### Gathering output for '%s' token %d",
-                   currentCommand->response.command.constData(), currentCommand->token);
+            qDebug("### Gathering output for token %d", currentCommand->token);
         return;
     }
     const char versionString[] = "Microsoft (R) Windows Debugger Version";

@@ -249,6 +249,7 @@ private:
     int m_nextCommandToken;
     QList<CdbCommandPtr> m_builtinCommandQueue;
     int m_currentBuiltinCommandIndex; //!< Current command whose output is recorded.
+    QByteArray m_currentBuiltinCommandReply;
     QList<CdbCommandPtr> m_extensionCommandQueue;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
