@@ -197,13 +197,10 @@ class CdbResponse
 {
 public:
     CdbResponse()
-        : commandSequence(0), success(false)
+        : success(false)
     {}
 
     QByteArray command;
-
-    // Continue with other commands as specified in CommandSequenceFlags
-    unsigned commandSequence;
 
     QByteArray reply;
     QByteArray errorMessage;
@@ -218,11 +215,10 @@ public:
         : token(0)
     {}
 
-    CdbCommand(const QByteArray &cmd, int token, CdbEngine::CommandHandler h, unsigned nc)
+    CdbCommand(const QByteArray &cmd, int token, CdbEngine::CommandHandler h)
         : token(token), handler(h)
     {
         response.command = cmd;
-        response.commandSequence = nc;
     }
 
     int token;
@@ -1181,7 +1177,7 @@ void CdbEngine::handleThreads(const CdbResponse &response)
         data.fromString(response.reply);
         threadsHandler()->updateThreads(data);
         // Continue sequence
-        postCommandSequence(response.commandSequence);
+        reloadFullStack();
     } else {
         showMessage(QString::fromLatin1(response.errorMessage), LogError);
     }
@@ -1207,8 +1203,7 @@ void CdbEngine::postCommand(const QByteArray &cmd)
 // In order to catch the output, it is enclosed in 'echo' commands
 // printing a specially formatted token to be identifiable in the output.
 void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
-                                   CommandHandler handler,
-                                   unsigned nextCommandFlag)
+                                   CommandHandler handler)
 {
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue builtin command \"%1\" to non-accessible session (%2)")
@@ -1217,7 +1212,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
         return;
     }
     const int token = m_nextCommandToken++;
-    CdbCommandPtr pendingCommand(new CdbCommand(cmd, token, handler, nextCommandFlag));
+    CdbCommandPtr pendingCommand(new CdbCommand(cmd, token, handler));
 
     m_builtinCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
@@ -1226,9 +1221,9 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
     str << ".echo \"" << m_tokenPrefix << token << "<\"\n"
             << cmd << "\n.echo \"" << m_tokenPrefix << token << ">\"";
     if (debug)
-        qDebug("CdbEngine::postBuiltinCommand %dms '%s' token=%d %s next=%u, pending=%d, sequence=0x%x",
-               elapsedLogTime(), cmd.constData(), token, stateName(state()), nextCommandFlag,
-               m_builtinCommandQueue.size(), nextCommandFlag);
+        qDebug("CdbEngine::postBuiltinCommand %dms '%s' token=%d %s, pending=%d",
+               elapsedLogTime(), cmd.constData(), token, stateName(state()),
+               m_builtinCommandQueue.size());
     if (debug > 1)
         qDebug("CdbEngine::postBuiltinCommand: resulting command '%s'\n",
                fullCmd.constData());
@@ -1239,8 +1234,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
 // pass along token for identification in queue.
 void CdbEngine::postExtensionCommand(const QByteArray &cmd,
                                      const QByteArray &arguments,
-                                     CommandHandler handler,
-                                     unsigned nextCommandFlag)
+                                     CommandHandler handler)
 {
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue extension command \"%1\" to non-accessible session (%2)")
@@ -1258,14 +1252,14 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
     if (!arguments.isEmpty())
         str <<  ' ' << arguments;
 
-    CdbCommandPtr pendingCommand(new CdbCommand(fullCmd, token, handler, nextCommandFlag));
+    CdbCommandPtr pendingCommand(new CdbCommand(fullCmd, token, handler));
 
     m_extensionCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
     if (debug)
-        qDebug("CdbEngine::postExtensionCommand %dms '%s' token=%d %s next=%u, pending=%d, sequence=0x%x",
-               elapsedLogTime(), fullCmd.constData(), token, stateName(state()), nextCommandFlag,
-               m_extensionCommandQueue.size(), nextCommandFlag);
+        qDebug("CdbEngine::postExtensionCommand %dms '%s' token=%d %s, pending=%d",
+               elapsedLogTime(), fullCmd.constData(), token, stateName(state()),
+               m_extensionCommandQueue.size());
     postCommand(fullCmd);
 }
 
@@ -1401,7 +1395,9 @@ void CdbEngine::selectThread(ThreadId threadId)
     threadsHandler()->setCurrentThread(threadId);
 
     const QByteArray cmd = '~' + QByteArray::number(threadId.raw()) + " s";
-    postBuiltinCommand(cmd, CB(dummyHandler), CommandListStack);
+    postBuiltinCommand(cmd, [this](const CdbResponse &){
+        postExtensionCommand("stack", "unlimited", CB(handleStackTrace));
+    });
 }
 
 // Default address range for showing disassembly.
@@ -1637,7 +1633,7 @@ void CdbEngine::handleMemory(const CdbResponse &response, const MemoryViewCookie
 
 void CdbEngine::reloadModules()
 {
-    postCommandSequence(CommandListModules);
+    postExtensionCommand("modules", QByteArray(), CB(handleModules));
 }
 
 void CdbEngine::loadSymbols(const QString & /* moduleName */)
@@ -1655,7 +1651,8 @@ void CdbEngine::requestModuleSymbols(const QString &moduleName)
 
 void CdbEngine::reloadRegisters()
 {
-    postCommandSequence(CommandListRegisters);
+    QTC_ASSERT(threadsHandler()->currentThreadIndex() >= 0,  return);
+    postExtensionCommand("registers", QByteArray(), CB(handleRegistersExt));
 }
 
 void CdbEngine::reloadSourceFiles()
@@ -1666,7 +1663,12 @@ void CdbEngine::reloadFullStack()
 {
     if (debug)
         qDebug("%s", Q_FUNC_INFO);
-    postCommandSequence(CommandListStack);
+    postExtensionCommand("stack", "unlimited", CB(handleStackTrace));
+}
+
+void CdbEngine::listBreakpoints()
+{
+    postExtensionCommand("breakpoints", QByteArray("-v"), CB(handleBreakPoints));
 }
 
 void CdbEngine::handlePid(const CdbResponse &response)
@@ -1712,8 +1714,6 @@ void CdbEngine::handleModules(const CdbResponse &response)
         showMessage(QString::fromLatin1("Failed to determine modules: %1").
                     arg(QLatin1String(response.errorMessage)), LogError);
     }
-    postCommandSequence(response.commandSequence);
-
 }
 
 void CdbEngine::handleRegistersExt(const CdbResponse &response)
@@ -1741,7 +1741,6 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
         showMessage(QString::fromLatin1("Failed to determine registers: %1").
                     arg(QLatin1String(response.errorMessage)), LogError);
     }
-    postCommandSequence(response.commandSequence);
 }
 
 void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
@@ -2058,7 +2057,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
             postCommand("~0 s");
             forcedThreadId = ThreadId(0);
             // Re-fetch stack again.
-            postCommandSequence(CommandListStack);
+            reloadFullStack();
         } else {
             const GdbMi stack = stopReason["stack"];
             if (stack.isValid()) {
@@ -2088,11 +2087,11 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         }
         // Fire off remaining commands asynchronously
         if (!m_pendingBreakpointMap.isEmpty() && !m_pendingSubBreakpointMap.isEmpty())
-            postCommandSequence(CommandListBreakPoints);
+            listBreakpoints();
         if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
-            postCommandSequence(CommandListRegisters);
+            reloadRegisters();
         if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_MODULES)))
-            postCommandSequence(CommandListModules);
+            reloadModules();
     }
     // After the sequence has been sent off and CDB is pondering the commands,
     // pop up a message box for exceptions.
@@ -2208,7 +2207,7 @@ void CdbEngine::handleSwitchWow64Stack(const CdbResponse &response)
     else
         m_wow64State = noWow64Stack;
     // reload threads and the stack after switching the mode
-    postCommandSequence(CommandListThreads | CommandListStack);
+    postExtensionCommand("threads", QByteArray(), CB(handleThreads));
 }
 
 void CdbEngine::handleSessionAccessible(unsigned long cdbExState)
@@ -2792,7 +2791,7 @@ void CdbEngine::attemptBreakpointSynchronization()
     }
     // List breakpoints and send responses
     if (addedChanged)
-        postCommandSequence(CommandListBreakPoints);
+        listBreakpoints();
 }
 
 // Pass a file name through source mapping and normalize upper/lower case (for the editor
@@ -2964,7 +2963,6 @@ void CdbEngine::handleStackTrace(const CdbResponse &response)
             postBuiltinCommand("lm m wow64",
                                [this, stack](const CdbResponse &r) { handleCheckWow64(r, stack); });
         }
-        postCommandSequence(response.commandSequence);
     } else {
         showMessage(QString::fromLocal8Bit(response.errorMessage), LogError);
     }
@@ -2989,43 +2987,6 @@ void CdbEngine::handleExpression(const CdbResponse &response, BreakpointModelId 
         processStop(stopReason, true);
     else
         doContinueInferior();
-}
-
-void CdbEngine::dummyHandler(const CdbResponse &command)
-{
-    postCommandSequence(command.commandSequence);
-}
-
-// Post a sequence of standard commands: Trigger next once one completes successfully
-void CdbEngine::postCommandSequence(unsigned mask)
-{
-    if (debug)
-        qDebug("postCommandSequence 0x%x\n", mask);
-
-    if (!mask)
-        return;
-    if (mask & CommandListThreads) {
-        postExtensionCommand("threads", QByteArray(), CB(handleThreads), mask & ~CommandListThreads);
-        return;
-    }
-    if (mask & CommandListStack) {
-        postExtensionCommand("stack", "unlimited", CB(handleStackTrace), mask & ~CommandListStack);
-        return;
-    }
-    if (mask & CommandListRegisters) {
-        QTC_ASSERT(threadsHandler()->currentThreadIndex() >= 0,  return);
-        postExtensionCommand("registers", QByteArray(), CB(handleRegistersExt), mask & ~CommandListRegisters);
-        return;
-    }
-    if (mask & CommandListModules) {
-        postExtensionCommand("modules", QByteArray(), CB(handleModules), mask & ~CommandListModules);
-        return;
-    }
-    if (mask & CommandListBreakPoints) {
-        postExtensionCommand("breakpoints", QByteArray("-v"),
-                             CB(handleBreakPoints), mask & ~CommandListBreakPoints);
-        return;
-    }
 }
 
 void CdbEngine::handleWidgetAt(const CdbResponse &response)

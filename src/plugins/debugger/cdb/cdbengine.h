@@ -60,15 +60,6 @@ class CdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    // Flag bits for a sequence of commands
-    enum CommandSequenceFlags {
-        CommandListStack = 0x1,
-        CommandListThreads = 0x2,
-        CommandListRegisters = 0x4,
-        CommandListModules = 0x8,
-        CommandListBreakPoints = 0x10
-    };
-
     typedef QSharedPointer<CdbCommand> CdbCommandPtr;
     typedef std::function<void(const CdbResponse &)> CommandHandler;
 
@@ -128,6 +119,7 @@ public:
     void reloadSourceFiles() override;
     void reloadFullStack() override;
     void loadAdditionalQmlStack() override;
+    void listBreakpoints();
 
     static QString extensionLibraryName(bool is64Bit);
 
@@ -138,15 +130,12 @@ private slots:
     void processFinished();
     void postCommand(const QByteArray &cmd);
     void postBuiltinCommand(const QByteArray &cmd,
-                            CommandHandler handler,
-                            unsigned nextCommandFlag = 0);
+                            CommandHandler handler);
 
     void postExtensionCommand(const QByteArray &cmd,
                               const QByteArray &arguments,
-                              CommandHandler handler,
-                              unsigned nextCommandFlag = 0);
+                              CommandHandler handler);
 
-    void postCommandSequence(unsigned mask);
     void operateByInstructionTriggered(bool);
     void verboseLogTriggered(bool);
 
@@ -214,7 +203,6 @@ private:
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
     // Builtin commands
-    void dummyHandler(const CdbResponse &);
     void handleStackTrace(const CdbResponse &);
     void handleRegisters(const CdbResponse &);
     void handleDisassembler(const CdbResponse &, DisassemblerAgent *agent);
