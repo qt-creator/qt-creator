@@ -30,6 +30,7 @@
 
 #include "unsavedfiles.h"
 
+#include <algorithm>
 #include <cstring>
 
 namespace ClangBackEnd {
@@ -154,12 +155,12 @@ void UnsavedFiles::updateCXUnsavedFileWithFileContainer(const FileContainer &fil
 void UnsavedFiles::removeCXUnsavedFile(const FileContainer &fileContainer)
 {
     const Utf8String filePath = fileContainer.filePath();
-    auto removeBeginIterator = std::remove_if(d->cxUnsavedFiles.begin(),
+    auto removeBeginIterator = std::partition(d->cxUnsavedFiles.begin(),
                                               d->cxUnsavedFiles.end(),
-                                              [filePath] (const CXUnsavedFile &cxUnsavedFile) { return filePath == cxUnsavedFile.Filename; });
+                                              [filePath] (const CXUnsavedFile &cxUnsavedFile) { return filePath != cxUnsavedFile.Filename; });
 
     std::for_each(removeBeginIterator, d->cxUnsavedFiles.end(), UnsavedFiles::deleteCXUnsavedFile);
-    d->cxUnsavedFiles.erase( removeBeginIterator, d->cxUnsavedFiles.end());
+    d->cxUnsavedFiles.erase(removeBeginIterator, d->cxUnsavedFiles.end());
 }
 
 void UnsavedFiles::addOrUpdateCXUnsavedFile(const FileContainer &fileContainer)
@@ -182,6 +183,4 @@ void UnsavedFiles::updateLastChangeTimePoint()
     d->lastChangeTimePoint = std::chrono::steady_clock::now();
 }
 
-
 } // namespace ClangBackEnd
-
