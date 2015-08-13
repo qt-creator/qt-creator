@@ -812,6 +812,14 @@ class Dumper(DumperBase):
 
     def qtVersion(self):
         try:
+            # Only available with Qt 5.3+
+            qtversion = int(gdb.parse_and_eval("((void**)&qtHookData)[2]"))
+            self.qtVersion = lambda: qtversion
+            return qtversion
+        except:
+            pass
+
+        try:
             version = self.qtVersionString()
             (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
             qtversion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
