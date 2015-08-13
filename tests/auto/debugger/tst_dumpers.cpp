@@ -4613,7 +4613,9 @@ void tst_Dumpers::dumper_data()
                     "unused(&s, &t, &w);\n")
 
                + CheckType("s", "char [5]")
+               + Check("s.0", "[0]", "97", "char")
                + CheckType("t", "char [6]")
+               + Check("t.0", "[0]", "97", "char")
                + CheckType("w", "wchar_t [4]");
 
 

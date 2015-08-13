@@ -587,7 +587,6 @@ class DumperBase:
             encodingType = Hex8EncodedLittleEndian
             displayType = DisplayUtf16String
 
-        self.putNumChild(0)
         self.putValue(mem, encodingType, elided=elided)
 
         if displayFormat == SeparateLatin1StringFormat \
