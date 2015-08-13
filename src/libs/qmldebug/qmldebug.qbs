@@ -37,8 +37,6 @@ QtcLibrary {
         "qmltoolsclient.h",
         "qpacketprotocol.cpp",
         "qpacketprotocol.h",
-        "qv8profilerclient.cpp",
-        "qv8profilerclient.h",
     ]
 }
 
