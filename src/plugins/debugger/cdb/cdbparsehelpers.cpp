@@ -548,7 +548,7 @@ bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint
     return true;
 }
 
-DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
+DisassemblerLines parseCdbDisassembler(const QByteArray &a)
 {
     DisassemblerLines result;
     quint64 functionAddress = 0;
@@ -557,7 +557,7 @@ DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
     quint64 functionOffset = 0;
     QString sourceFile;
 
-    foreach (const QByteArray &lineBA, a) {
+    foreach (const QByteArray &lineBA, a.split('\n')) {
         const QString line = QString::fromLatin1(lineBA);
         // New function. Append as comment line.
         if (parseCdbDisassemblerFunctionLine(line, &currentFunction, &functionOffset, &sourceFile)) {

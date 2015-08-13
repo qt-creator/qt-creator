@@ -82,7 +82,7 @@ QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 QString debugByteArray(const QByteArray &a);
 QString StringFromBase64EncodedUtf16(const QByteArray &a);
 
-DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a);
+DisassemblerLines parseCdbDisassembler(const QByteArray &a);
 
 // Model EXCEPTION_RECORD + firstchance
 struct WinException

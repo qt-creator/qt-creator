@@ -200,15 +200,12 @@ public:
         : commandSequence(0), success(false)
     {}
 
-    QByteArray joinedReply() const;
-
     QByteArray command;
 
     // Continue with other commands as specified in CommandSequenceFlags
     unsigned commandSequence;
 
-    QList<QByteArray> builtinReply;
-    QByteArray extensionReply;
+    QByteArray reply;
     QByteArray errorMessage;
     bool success;
 };
@@ -234,19 +231,6 @@ public:
 
     CdbResponse response; // FIXME: remove.
 };
-
-QByteArray CdbResponse::joinedReply() const
-{
-    if (builtinReply.isEmpty())
-        return QByteArray();
-    QByteArray answer;
-    answer.reserve(120  * builtinReply.size());
-    foreach (const QByteArray &l, builtinReply) {
-        answer += l;
-        answer += '\n';
-    }
-    return answer;
-}
 
 template <class CommandPtrType>
 int indexOfCommand(const QList<CommandPtrType> &l, int token)
@@ -537,7 +521,7 @@ void CdbEngine::createFullBacktrace()
 
 void CdbEngine::handleCreateFullBackTrace(const CdbResponse &response)
 {
-    Internal::openTextEditor(QLatin1String("Backtrace $"), QLatin1String(response.joinedReply()));
+    Internal::openTextEditor(QLatin1String("Backtrace $"), QLatin1String(response.reply));
 }
 
 void CdbEngine::setupEngine()
@@ -1122,11 +1106,11 @@ void CdbEngine::jumpToAddress(quint64 address)
 
 void CdbEngine::handleJumpToLineAddressResolution(const CdbResponse &response, const ContextData &context)
 {
-    if (response.builtinReply.isEmpty())
+    if (response.reply.isEmpty())
         return;
     // Evaluate expression: 5365511549 = 00000001`3fcf357d
     // Set register 'rip' to hex address and goto lcoation
-    QByteArray answer = response.builtinReply.front().trimmed();
+    QByteArray answer = response.reply.trimmed();
     const int equalPos = answer.indexOf(" = ");
     if (equalPos == -1)
         return;
@@ -1194,7 +1178,7 @@ void CdbEngine::handleThreads(const CdbResponse &response)
         qDebug("CdbEngine::handleThreads success=%d", response.success);
     if (response.success) {
         GdbMi data;
-        data.fromString(response.extensionReply);
+        data.fromString(response.reply);
         threadsHandler()->updateThreads(data);
         // Continue sequence
         postCommandSequence(response.commandSequence);
@@ -1505,17 +1489,17 @@ void CdbEngine::handleResolveSymbol(const CdbResponse &response, const QString &
                                     DisassemblerAgent *agent)
 {
     // Insert all matches of (potentially) ambiguous symbols
-    if (const int size = response.builtinReply.size()) {
-        for (int i = 0; i < size; i++) {
-            if (const quint64 address = resolvedAddress(response.builtinReply.at(i))) {
+    if (!response.reply.isEmpty()) {
+        foreach (QByteArray line, response.reply.split('\n')) {
+            if (const quint64 address = resolvedAddress(line)) {
                 m_symbolAddressCache.insert(symbol, address);
-                showMessage(QString::fromLatin1("Obtained 0x%1 for %2 (#%3)").
-                            arg(address, 0, 16).arg(symbol).arg(i + 1), LogMisc);
+                showMessage(QString::fromLatin1("Obtained 0x%1 for %2").
+                            arg(address, 0, 16).arg(symbol), LogMisc);
             }
         }
     } else {
         showMessage(QLatin1String("Symbol resolution failed: ")
-                    + QString::fromLatin1(response.joinedReply()),
+                    + QString::fromLatin1(response.reply),
                     LogError);
     }
     handleResolveSymbolHelper(m_symbolAddressCache.values(symbol), agent);
@@ -1605,7 +1589,7 @@ void CdbEngine::handleResolveSymbolHelper(const QList<quint64> &addresses, Disas
 // Parse: "00000000`77606060 cc              int     3"
 void CdbEngine::handleDisassembler(const CdbResponse &response, DisassemblerAgent *agent)
 {
-    agent->setContents(parseCdbDisassembler(response.builtinReply));
+    agent->setContents(parseCdbDisassembler(response.reply));
 }
 
 void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
@@ -1642,7 +1626,7 @@ void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, c
 void CdbEngine::handleMemory(const CdbResponse &response, const MemoryViewCookie &memViewCookie)
 {
     if (response.success && memViewCookie.agent) {
-        const QByteArray data = QByteArray::fromBase64(response.extensionReply);
+        const QByteArray data = QByteArray::fromBase64(response.reply);
         if (unsigned(data.size()) == memViewCookie.length)
             memViewCookie.agent->addLazyData(memViewCookie.editorToken,
                                              memViewCookie.address, data);
@@ -1689,7 +1673,7 @@ void CdbEngine::handlePid(const CdbResponse &response)
 {
     // Fails for core dumps.
     if (response.success)
-        notifyInferiorPid(response.extensionReply.toULongLong());
+        notifyInferiorPid(response.reply.toULongLong());
     if (response.success || runParameters().startMode == AttachCore) {
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupOk")
         notifyInferiorSetupOk();
@@ -1705,7 +1689,7 @@ void CdbEngine::handleModules(const CdbResponse &response)
 {
     if (response.success) {
         GdbMi value;
-        value.fromString(response.extensionReply);
+        value.fromString(response.reply);
         if (value.type() == GdbMi::List) {
             ModulesHandler *handler = modulesHandler();
             handler->beginUpdateAll();
@@ -1722,7 +1706,7 @@ void CdbEngine::handleModules(const CdbResponse &response)
             handler->endUpdateAll();
         } else {
             showMessage(QString::fromLatin1("Parse error in modules response."), LogError);
-            qWarning("Parse error in modules response:\n%s", response.extensionReply.constData());
+            qWarning("Parse error in modules response:\n%s", response.reply.constData());
         }
     }  else {
         showMessage(QString::fromLatin1("Failed to determine modules: %1").
@@ -1736,7 +1720,7 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
 {
     if (response.success) {
         GdbMi value;
-        value.fromString(response.extensionReply);
+        value.fromString(response.reply);
         if (value.type() == GdbMi::List) {
             RegisterHandler *handler = registerHandler();
             foreach (const GdbMi &item, value.children()) {
@@ -1751,7 +1735,7 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
             handler->commitUpdates();
         } else {
             showMessage(QString::fromLatin1("Parse error in registers response."), LogError);
-            qWarning("Parse error in registers response:\n%s", response.extensionReply.constData());
+            qWarning("Parse error in registers response:\n%s", response.reply.constData());
         }
     }  else {
         showMessage(QString::fromLatin1("Failed to determine registers: %1").
@@ -1764,10 +1748,10 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool partialUpdate)
 {
     if (response.success) {
         if (boolSetting(VerboseLog))
-            showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
+            showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.reply), LogDebug);
 
         GdbMi data;
-        data.fromString(response.extensionReply);
+        data.fromString(response.reply);
         QTC_ASSERT(data.type() == GdbMi::List, return);
         data.m_name = "data";
 
@@ -2118,7 +2102,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
 
 void CdbEngine::handleBreakInsert(const CdbResponse &response)
 {
-    const QList<QByteArray> &reply = response.builtinReply;
+    const QList<QByteArray> &reply = response.reply.split('\n');
     if (reply.isEmpty())
         return;
     foreach (const QByteArray &line, reply)
@@ -2186,7 +2170,7 @@ void CdbEngine::handleCheckWow64(const CdbResponse &response, const GdbMi &stack
     // expected reply if there is a 32 bit stack:
     // start             end                 module name
     // 00000000`77490000 00000000`774d5000   wow64      (deferred)
-    if (response.builtinReply.value(1).contains("wow64")) {
+    if (response.reply.contains("wow64")) {
         postBuiltinCommand("k", [this, stack](const CdbResponse &r) { ensureUsing32BitStackInWow64(r, stack); });
         return;
     }
@@ -2198,7 +2182,7 @@ void CdbEngine::ensureUsing32BitStackInWow64(const CdbResponse &response, const 
 {
     // Parsing the header of the stack output to check which bitness
     // the cdb is currently using.
-    foreach (const QByteArray &line, response.builtinReply) {
+    foreach (const QByteArray &line, response.reply.split('\n')) {
         if (!line.startsWith("Child"))
             continue;
         if (line.startsWith("ChildEBP")) {
@@ -2217,9 +2201,9 @@ void CdbEngine::ensureUsing32BitStackInWow64(const CdbResponse &response, const 
 
 void CdbEngine::handleSwitchWow64Stack(const CdbResponse &response)
 {
-    if (response.builtinReply.first() == "Switched to 32bit mode")
+    if (response.reply == "Switched to 32bit mode")
         m_wow64State = wow64Stack32Bit;
-    else if (response.builtinReply.first() == "Switched to 64bit mode")
+    else if (response.reply == "Switched to 64bit mode")
         m_wow64State = wow64Stack64Bit;
     else
         m_wow64State = noWow64Stack;
@@ -2314,7 +2298,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
             const CdbCommandPtr command = m_extensionCommandQueue.takeAt(index);
             if (t == 'R') {
                 command->response.success = true;
-                command->response.extensionReply = message;
+                command->response.reply = message;
             } else {
                 command->response.success = false;
                 command->response.errorMessage = message;
@@ -2484,10 +2468,10 @@ void CdbEngine::parseOutputLine(QByteArray line)
             if (debug)
                 qDebug("### Completed builtin command '%s', token=%d, %d lines, pending=%d",
                        currentCommand->response.command.constData(), currentCommand->token,
-                       currentCommand->response.builtinReply.size(), m_builtinCommandQueue.size() - 1);
+                       currentCommand->response.reply.count('\n'), m_builtinCommandQueue.size() - 1);
             QTC_ASSERT(token == currentCommand->token, return; );
             if (boolSetting(VerboseLog))
-                showMessage(QLatin1String(currentCommand->response.builtinReply.join(' ')), LogMisc);
+                showMessage(QLatin1String(currentCommand->response.reply), LogMisc);
             if (currentCommand->handler) {
                 currentCommand->handler(currentCommand->response);
             }
@@ -2495,7 +2479,9 @@ void CdbEngine::parseOutputLine(QByteArray line)
             m_currentBuiltinCommandIndex = -1;
         } else {
             // Record output of current command
-            currentCommand->response.builtinReply.push_back(line);
+            if (!currentCommand->response.reply.isEmpty())
+                currentCommand->response.reply.push_back('\n');
+            currentCommand->response.reply.push_back(line);
         }
         return;
     } // m_currentCommandIndex
@@ -2939,7 +2925,7 @@ void CdbEngine::handleAdditionalQmlStack(const CdbResponse &response)
             break;
         }
         GdbMi stackGdbMi;
-        stackGdbMi.fromString(response.extensionReply);
+        stackGdbMi.fromString(response.reply);
         if (!stackGdbMi.isValid()) {
             errorMessage = QLatin1String("GDBMI parser error");
             break;
@@ -2973,7 +2959,7 @@ void CdbEngine::handleStackTrace(const CdbResponse &response)
 {
     if (response.success) {
         GdbMi stack;
-        stack.fromString(response.extensionReply);
+        stack.fromString(response.reply);
         if (parseStackTrace(stack, false) == ParseStackWow64) {
             postBuiltinCommand("lm m wow64",
                                [this, stack](const CdbResponse &r) { handleCheckWow64(r, stack); });
@@ -2988,7 +2974,7 @@ void CdbEngine::handleExpression(const CdbResponse &response, BreakpointModelId 
 {
     int value = 0;
     if (response.success)
-        value = response.extensionReply.toInt();
+        value = response.reply.toInt();
     else
         showMessage(QString::fromLocal8Bit(response.errorMessage), LogError);
     // Is this a conditional breakpoint?
@@ -3052,7 +3038,7 @@ void CdbEngine::handleWidgetAt(const CdbResponse &response)
             break;
         }
         // Should be "namespace::QWidget:0x555"
-        QString watchExp = QString::fromLatin1(response.extensionReply);
+        QString watchExp = QString::fromLatin1(response.reply);
         const int sepPos = watchExp.lastIndexOf(QLatin1Char(':'));
         if (sepPos == -1) {
             message = QString::fromLatin1("Invalid output: %1").arg(watchExp);
@@ -3095,13 +3081,13 @@ static inline void formatCdbBreakPointResponse(BreakpointModelId id, const Break
 void CdbEngine::handleBreakPoints(const CdbResponse &response)
 {
     if (debugBreakpoints)
-        qDebug("CdbEngine::handleBreakPoints: success=%d: %s", response.success, response.extensionReply.constData());
+        qDebug("CdbEngine::handleBreakPoints: success=%d: %s", response.success, response.reply.constData());
     if (!response.success) {
         showMessage(QString::fromLatin1(response.errorMessage), LogError);
         return;
     }
     GdbMi value;
-    value.fromString(response.extensionReply);
+    value.fromString(response.reply);
     if (value.type() != GdbMi::List) {
         showMessage(QString::fromLatin1("Unabled to parse breakpoints reply"), LogError);
         return;
