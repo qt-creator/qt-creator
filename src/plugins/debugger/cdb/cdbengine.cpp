@@ -210,8 +210,7 @@ public:
     CdbEngine::CommandHandler handler;
 };
 
-template <class CommandPtrType>
-int indexOfCommand(const QList<CommandPtrType> &l, int token)
+int indexOfCommand(const QList<QSharedPointer<CdbCommand> > &l, int token)
 {
     const int count = l.size();
     for (int i = 0; i < count; i++)
@@ -307,9 +306,8 @@ void CdbEngine::init()
     m_wow64State = wow64Uninitialized;
 
     m_outputBuffer.clear();
-    m_builtinCommandQueue.clear();
+    m_commandQueue.clear();
     m_currentBuiltinResponse.clear();
-    m_extensionCommandQueue.clear();
     m_extensionMessageBuffer.clear();
     m_pendingBreakpointMap.clear();
     m_insertSubBreakpointMap.clear();
@@ -782,7 +780,7 @@ void CdbEngine::runEngine()
 
 bool CdbEngine::commandsPending() const
 {
-    return !m_builtinCommandQueue.isEmpty() || !m_extensionCommandQueue.isEmpty();
+    return !m_commandQueue.isEmpty();
 }
 
 void CdbEngine::shutdownInferior()
@@ -1197,7 +1195,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
     const int token = m_nextCommandToken++;
     CdbCommandPtr pendingCommand(new CdbCommand(token, handler));
 
-    m_builtinCommandQueue.push_back(pendingCommand);
+    m_commandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
     QByteArray fullCmd;
     ByteArrayInputStream str(fullCmd);
@@ -1206,7 +1204,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd,
     if (debug)
         qDebug("CdbEngine::postBuiltinCommand %dms '%s' token=%d %s, pending=%d",
                elapsedLogTime(), cmd.constData(), token, stateName(state()),
-               m_builtinCommandQueue.size());
+               m_commandQueue.size());
     if (debug > 1)
         qDebug("CdbEngine::postBuiltinCommand: resulting command '%s'\n",
                fullCmd.constData());
@@ -1237,12 +1235,12 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
 
     CdbCommandPtr pendingCommand(new CdbCommand(token, handler));
 
-    m_extensionCommandQueue.push_back(pendingCommand);
+    m_commandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
     if (debug)
         qDebug("CdbEngine::postExtensionCommand %dms '%s' token=%d %s, pending=%d",
                elapsedLogTime(), fullCmd.constData(), token, stateName(state()),
-               m_extensionCommandQueue.size());
+               m_commandQueue.size());
     postCommand(fullCmd);
 }
 
@@ -2256,13 +2254,13 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
             showMessage(QString::fromLatin1(message), LogMisc);
             return;
         }
-        const int index = indexOfCommand(m_extensionCommandQueue, token);
+        const int index = indexOfCommand(m_commandQueue, token);
         if (index != -1) {
             // Did the command finish? Take off queue and complete, invoke CB
-            const CdbCommandPtr command = m_extensionCommandQueue.takeAt(index);
+            const CdbCommandPtr command = m_commandQueue.takeAt(index);
             if (debug)
                 qDebug("### Completed extension command for token=%d, pending=%d",
-                       command->token, m_extensionCommandQueue.size());
+                       command->token, m_commandQueue.size());
 
             if (!command->handler)
                 return;
@@ -2443,13 +2441,13 @@ void CdbEngine::parseOutputLine(QByteArray line)
             if (debug)
                 qDebug("### Completed builtin command for token=%d, %d lines, pending=%d",
                        m_currentBuiltinResponseToken, m_currentBuiltinResponse.count('\n'),
-                       m_builtinCommandQueue.size() - 1);
+                       m_commandQueue.size() - 1);
             QTC_ASSERT(token == m_currentBuiltinResponseToken, return);
             if (boolSetting(VerboseLog))
                 showMessage(QLatin1String(m_currentBuiltinResponse), LogMisc);
-            const int commandIndex = indexOfCommand(m_builtinCommandQueue, m_currentBuiltinResponseToken);
-            QTC_ASSERT(commandIndex >= 0 && commandIndex < m_builtinCommandQueue.size(), return);
-            const CdbCommandPtr &currentCommand = m_builtinCommandQueue.at(commandIndex);
+            const int commandIndex = indexOfCommand(m_commandQueue, m_currentBuiltinResponseToken);
+            QTC_ASSERT(commandIndex >= 0 && commandIndex < m_commandQueue.size(), return);
+            const CdbCommandPtr &currentCommand = m_commandQueue.at(commandIndex);
             DebuggerResponse response;
             response.token = token;
             response.data.m_name = "data";
@@ -2458,7 +2456,7 @@ void CdbEngine::parseOutputLine(QByteArray line)
             response.resultClass = ResultDone;
             if (currentCommand->handler)
                 currentCommand->handler(response);
-            m_builtinCommandQueue.removeAt(commandIndex);
+            m_commandQueue.removeAt(commandIndex);
             m_currentBuiltinResponseToken = -1;
             m_currentBuiltinResponse.clear();
         } else {

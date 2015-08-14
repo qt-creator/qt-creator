@@ -245,10 +245,9 @@ private:
     SpecialStopMode m_specialStopMode;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
-    QList<CdbCommandPtr> m_builtinCommandQueue;
+    QList<CdbCommandPtr> m_commandQueue;
     QByteArray m_currentBuiltinResponse;
     int m_currentBuiltinResponseToken;
-    QList<CdbCommandPtr> m_extensionCommandQueue;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
     bool m_operateByInstructionPending; //!< Creator operate by instruction action changed.
