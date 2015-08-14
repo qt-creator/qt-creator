@@ -53,6 +53,9 @@ public:
     DebuggerCommand(const char *f, int flags = 0, Callback cb = Callback())
         : function(f), callback(cb), flags(flags)
     {}
+    DebuggerCommand(const char *f, const char *a, int flags = 0, Callback cb = Callback())
+        : function(f), args(a), callback(cb), flags(flags)
+    {}
     DebuggerCommand(const char *f, Callback cb)
         : function(f), callback(cb), flags(0)
     {}

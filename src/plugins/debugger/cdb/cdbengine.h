@@ -127,14 +127,7 @@ private slots:
     void readyReadStandardError();
     void processError();
     void processFinished();
-    void postCommand(const QByteArray &cmd);
-    void postBuiltinCommand(const QByteArray &cmd,
-                            CommandHandler handler);
-
-    void postExtensionCommand(const QByteArray &cmd,
-                              const QByteArray &arguments,
-                              CommandHandler handler);
-
+    void postCommand(const DebuggerCommand &cmd);
     void operateByInstructionTriggered(bool);
     void verboseLogTriggered(bool);
 
@@ -170,7 +163,11 @@ private:
         ParseStackStepOut = 2, // Need to step out, hit on a frame without debug information
         ParseStackWow64 = 3 // Hit on a frame with 32bit emulation, switch debugger to 32 bit mode
     };
-
+    enum CommandFlags {
+        NoCallBack = 0,
+        BuiltinCommand,
+        ExtensionCommand,
+    };
 
     bool startConsole(const DebuggerRunParameters &sp, QString *errorMessage);
     void init();
@@ -245,7 +242,7 @@ private:
     SpecialStopMode m_specialStopMode;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
-    QHash<int, CdbCommandPtr> m_commandForToken;
+    QHash<int, DebuggerCommand> m_commandForToken;
     QByteArray m_currentBuiltinResponse;
     int m_currentBuiltinResponseToken;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
