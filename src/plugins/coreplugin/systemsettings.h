@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#ifndef SYSTEMSETTINGS_H
+#define SYSTEMSETTINGS_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
@@ -41,30 +41,28 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-namespace Ui { class GeneralSettings; }
+namespace Ui { class SystemSettings; }
 
-class GeneralSettings : public IOptionsPage
+class SystemSettings : public IOptionsPage
 {
     Q_OBJECT
 
 public:
-    GeneralSettings();
+    SystemSettings();
 
     QWidget *widget();
     void apply();
     void finish();
 
 private slots:
-    void resetInterfaceColor();
-    void resetWarnings();
-    void resetLanguage();
+    void showHelpForFileBrowser();
+    void resetFileBrowser();
+    void resetTerminal();
+    void updatePath();
 
 private:
-    bool canResetWarnings() const;
-    void fillLanguageBox() const;
-    QString language() const;
-    void setLanguage(const QString&);
-    Ui::GeneralSettings *m_page;
+    void variableHelpDialogCreator(const QString &helpText);
+    Ui::SystemSettings *m_page;
     QPointer<QMessageBox> m_dialog;
     QPointer<QWidget> m_widget;
 };
@@ -72,4 +70,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // GENERALSETTINGS_H
+#endif // SYSTEMSETTINGS_H

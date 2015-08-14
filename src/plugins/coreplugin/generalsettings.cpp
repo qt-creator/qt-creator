@@ -32,23 +32,15 @@
 #include "coreconstants.h"
 #include "icore.h"
 #include "infobar.h"
-#include "patchtool.h"
-#include "vcsmanager.h"
-#include "editormanager/editormanager_p.h"
 
 #include <utils/checkablemessagebox.h>
-#include <utils/consoleprocess.h>
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
-#include <utils/unixutils.h>
 
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QSettings>
-#include <QTextStream>
 
 #include "ui_generalsettings.h"
 
@@ -60,8 +52,8 @@ namespace Internal {
 GeneralSettings::GeneralSettings()
     : m_page(0), m_dialog(0)
 {
-    setId(Constants::SETTINGS_ID_ENVIRONMENT);
-    setDisplayName(tr("General"));
+    setId(Constants::SETTINGS_ID_INTERFACE);
+    setDisplayName(tr("Interface"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
@@ -114,58 +106,12 @@ QWidget *GeneralSettings::widget()
         fillLanguageBox();
 
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
-        m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
-        if (HostOsInfo::isAnyUnixHost()) {
-            const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
-            const QString currentTerminal = ConsoleProcess::terminalEmulator(ICore::settings(), false);
-            m_page->terminalComboBox->addItems(availableTerminals);
-            m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
-            m_page->terminalComboBox->lineEdit()->setPlaceholderText(ConsoleProcess::defaultTerminalEmulator());
-        } else {
-            m_page->terminalLabel->hide();
-            m_page->terminalComboBox->hide();
-            m_page->resetTerminalButton->hide();
-        }
-
-        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
-        } else {
-            m_page->externalFileBrowserLabel->hide();
-            m_page->externalFileBrowserEdit->hide();
-            m_page->resetFileBrowserButton->hide();
-            m_page->helpExternalFileBrowserButton->hide();
-        }
-
-        const QString patchToolTip = tr("Command used for reverting diff chunks.");
-        m_page->patchCommandLabel->setToolTip(patchToolTip);
-        m_page->patchChooser->setToolTip(patchToolTip);
-        m_page->patchChooser->setExpectedKind(PathChooser::ExistingCommand);
-        m_page->patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
-        m_page->patchChooser->setPath(PatchTool::patchCommand());
-        m_page->autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
-        m_page->autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
-        m_page->warnBeforeOpeningBigFiles->setChecked(
-                    EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled());
-        m_page->bigFilesLimitSpinBox->setValue(EditorManagerPrivate::bigFileSizeLimit());
         m_page->resetWarningsButton->setEnabled(canResetWarnings());
 
         connect(m_page->resetColorButton, SIGNAL(clicked()),
                 this, SLOT(resetInterfaceColor()));
         connect(m_page->resetWarningsButton, SIGNAL(clicked()),
                 this, SLOT(resetWarnings()));
-        if (HostOsInfo::isAnyUnixHost()) {
-            connect(m_page->resetTerminalButton, SIGNAL(clicked()), this, SLOT(resetTerminal()));
-            if (!HostOsInfo::isMacHost()) {
-                connect(m_page->resetFileBrowserButton, SIGNAL(clicked()), this, SLOT(resetFileBrowser()));
-                connect(m_page->helpExternalFileBrowserButton, SIGNAL(clicked()),
-                        this, SLOT(showHelpForFileBrowser()));
-            }
-        }
-
-        updatePath();
-
-        connect(VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
-                this, SLOT(updatePath()));
     }
     return m_widget;
 }
@@ -178,21 +124,6 @@ void GeneralSettings::apply()
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
-    EditorManager::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
-    if (HostOsInfo::isAnyUnixHost()) {
-        ConsoleProcess::setTerminalEmulator(ICore::settings(),
-                                            m_page->terminalComboBox->lineEdit()->text());
-        if (!HostOsInfo::isMacHost()) {
-            UnixUtils::setFileBrowser(ICore::settings(),
-                                      m_page->externalFileBrowserEdit->text());
-        }
-    }
-    PatchTool::setPatchCommand(m_page->patchChooser->path());
-    EditorManagerPrivate::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
-    EditorManagerPrivate::setAutoSaveInterval(m_page->autoSaveInterval->value());
-    EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(
-                m_page->warnBeforeOpeningBigFiles->isChecked());
-    EditorManagerPrivate::setBigFileSizeLimit(m_page->bigFilesLimitSpinBox->value());
     m_page->themeWidget->apply();
 }
 
@@ -215,57 +146,10 @@ void GeneralSettings::resetWarnings()
     m_page->resetWarningsButton->setEnabled(false);
 }
 
-void GeneralSettings::resetTerminal()
-{
-    if (HostOsInfo::isAnyUnixHost())
-        m_page->terminalComboBox->lineEdit()->clear();
-}
-
-void GeneralSettings::resetFileBrowser()
-{
-    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        m_page->externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
-}
-
-void GeneralSettings::updatePath()
-{
-    Environment env = Environment::systemEnvironment();
-    QStringList toAdd = VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
-    m_page->patchChooser->setEnvironment(env);
-}
-
 bool GeneralSettings::canResetWarnings() const
 {
     return InfoBar::anyGloballySuppressed()
         || CheckableMessageBox::hasSuppressedQuestions(ICore::settings());
-}
-
-void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
-{
-    if (m_dialog) {
-        if (m_dialog->text() != helpText)
-            m_dialog->setText(helpText);
-
-        m_dialog->show();
-        ICore::raiseWindow(m_dialog);
-        return;
-    }
-    QMessageBox *mb = new QMessageBox(QMessageBox::Information,
-                                  tr("Variables"),
-                                  helpText,
-                                  QMessageBox::Close,
-                                  m_widget);
-    mb->setWindowModality(Qt::NonModal);
-    m_dialog = mb;
-    mb->show();
-}
-
-
-void GeneralSettings::showHelpForFileBrowser()
-{
-    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        variableHelpDialogCreator(UnixUtils::fileBrowserHelpText());
 }
 
 void GeneralSettings::resetLanguage()
