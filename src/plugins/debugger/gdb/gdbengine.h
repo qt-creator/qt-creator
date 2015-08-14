@@ -168,8 +168,6 @@ private: ////////// Gdb Command Management //////////
         LosesChild = 64,
         // Trigger breakpoint model rebuild when no such commands are pending anymore.
         RebuildBreakpointModel = 128,
-        // This command needs to be send immediately.
-        Immediate = 256,
         // This is a command that needs to be wrapped into -interpreter-exec console
         ConsoleCommand = 512,
         // This is the UpdateLocals commannd during which we ignore notifications
@@ -188,7 +186,6 @@ protected:
                      int flags = NoFlags,
                      DebuggerCommand::Callback callback = DebuggerCommand::Callback());
 private:
-    void flushQueuedCommands();
     Q_SLOT void commandTimeout();
     void setTokenBarrier();
 
@@ -214,7 +211,6 @@ private:
     // This function is called after all previous responses have been received.
     CommandsDoneCallback m_commandsDoneCallback;
 
-    QList<DebuggerCommand> m_commandsToRunOnTemporaryBreak;
     bool m_rerunPending;
 
 private: ////////// Gdb Output, State & Capability Handling //////////
@@ -259,7 +255,6 @@ private: ////////// Inferior Management //////////
     void continueInferior();
     void interruptInferior();
     virtual void interruptInferior2() {}
-    void interruptInferiorTemporarily();
 
     void executeRunToLine(const ContextData &data);
     void executeRunToFunction(const QString &functionName);
@@ -447,7 +442,7 @@ protected:
     QString m_lastMissingDebugInfo;
     BreakpointResponseId m_qFatalBreakpointResponseId;
     bool m_terminalTrap;
-
+    bool m_temporaryStopPending;
     bool usesExecInterrupt() const;
 
     QHash<int, QByteArray> m_scheduledTestResponses;

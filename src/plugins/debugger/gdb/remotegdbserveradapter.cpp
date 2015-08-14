@@ -401,7 +401,6 @@ void GdbRemoteServerEngine::handleSetNtoExecutable(const DebuggerResponse &respo
         QString msg = QString::fromLocal8Bit(response.data["msg"].data());
         notifyInferiorSetupFailed(msg);
     }
-
 }
 
 void GdbRemoteServerEngine::runEngine()
@@ -435,8 +434,7 @@ void GdbRemoteServerEngine::interruptInferior2()
 {
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
     if (boolSetting(TargetAsync)) {
-        postCommand("-exec-interrupt", GdbEngine::Immediate,
-            CB(handleInterruptInferior));
+        postCommand("-exec-interrupt", NoFlags, CB(handleInterruptInferior));
     } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
         m_gdbProc.interrupt();
     } else {

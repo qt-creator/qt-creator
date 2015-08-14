@@ -238,6 +238,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_commandsDoneCallback = 0;
     m_stackNeeded = false;
     m_terminalTrap = startParameters.useTerminal;
+    m_temporaryStopPending = false;
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
     m_rerunPending = false;
@@ -831,7 +832,7 @@ void GdbEngine::interruptInferior()
         return;
 
     if (usesExecInterrupt()) {
-        postCommand("-exec-interrupt", Immediate);
+        postCommand("-exec-interrupt");
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage(_("TRYING TO INTERRUPT INFERIOR"));
@@ -862,17 +863,6 @@ void GdbEngine::handleInterruptDeviceInferior(const QString &error)
     }
     m_signalOperation->disconnect(this);
     m_signalOperation.clear();
-}
-
-void GdbEngine::interruptInferiorTemporarily()
-{
-    foreach (const DebuggerCommand &cmd, m_commandsToRunOnTemporaryBreak) {
-        if (cmd.flags & LosesChild) {
-            notifyInferiorIll();
-            return;
-        }
-    }
-    requestInterruptInferior();
 }
 
 void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
@@ -922,48 +912,24 @@ void GdbEngine::postCommand(const QByteArray &command, int flags,
     if (!(cmd.flags & Discardable))
         ++m_nonDiscardableCount;
 
-    // FIXME: clean up logic below
-    if (cmd.flags & Immediate) {
-        // This should always be sent.
-        flushCommand(cmd);
-    } else if ((cmd.flags & NeedsStop)
-            || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        if (state() == InferiorStopOk || state() == InferiorUnrunnable
-            || state() == InferiorSetupRequested || state() == EngineSetupOk
-            || state() == InferiorShutdownRequested) {
-            // Can be safely sent now.
-            flushCommand(cmd);
-        } else {
-            // Queue the commands that we cannot send at once.
-            showMessage(_("QUEUING COMMAND " + cmd.function));
-            m_commandsToRunOnTemporaryBreak.append(cmd);
-            if (state() == InferiorStopRequested) {
-                if (cmd.flags & LosesChild)
-                    notifyInferiorIll();
-                showMessage(_("CHILD ALREADY BEING INTERRUPTED. STILL HOPING."));
-                // Calling shutdown() here breaks all situations where two
-                // NeedsStop commands are issued in quick succession.
-            } else if (state() == InferiorRunOk) {
-                showStatusMessage(tr("Stopping temporarily"), 1000);
-                interruptInferiorTemporarily();
-            } else {
-                qDebug() << "ATTEMPTING TO QUEUE COMMAND "
-                    << cmd.function << "IN INAPPROPRIATE STATE" << state();
+    if (cmd.flags & NeedsStop) {
+        showMessage(_("RUNNING NEEDS-STOP COMMAND " + cmd.function));
+        if (state() == InferiorStopRequested) {
+            if (cmd.flags & LosesChild) {
+                notifyInferiorIll();
+                return;
             }
+            showMessage(_("CHILD ALREADY BEING INTERRUPTED. STILL HOPING."));
+            // Calling shutdown() here breaks all situations where two
+            // NeedsStop commands are issued in quick succession.
+        } else if (!m_temporaryStopPending && state() == InferiorRunOk) {
+            showStatusMessage(tr("Stopping temporarily"), 1000);
+            m_temporaryStopPending = true;
+            requestInterruptInferior();
         }
-    } else if (!cmd.function.isEmpty()) {
-        flushCommand(cmd);
     }
-}
 
-void GdbEngine::flushQueuedCommands()
-{
-    showStatusMessage(tr("Processing queued commands"), 1000);
-    while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        DebuggerCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
-        showMessage(_("RUNNING QUEUED COMMAND " + cmd.function));
-        flushCommand(cmd);
-    }
+    flushCommand(cmd);
 }
 
 void GdbEngine::flushCommand(const DebuggerCommand &cmd0)
@@ -1213,13 +1179,6 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
-    // Commands were queued, but we were in RunningRequested state, so the interrupt
-    // was postponed.
-    // This is done after the command callbacks so the running-requesting commands
-    // can assert on the right state.
-    if (state() == InferiorRunOk && !m_commandsToRunOnTemporaryBreak.isEmpty())
-        interruptInferiorTemporarily();
-
     // Continue only if there are no commands wire anymore, so this will
     // be fully synchronous.
     // This is somewhat inefficient, as it makes the last command synchronous.
@@ -1403,6 +1362,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    if (m_temporaryStopPending) {
+        showMessage(_("INTERNAL CONTINUE AFTER TEMPORARY STOP"), LogMisc);
+        m_temporaryStopPending = false;
+        notifyInferiorStopOk();
+        continueInferiorInternal();
+        return;
+    }
+
     bool gotoHandleStop1 = true;
     if (!m_fullStartDone) {
         m_fullStartDone = true;
@@ -1451,19 +1418,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             && !isQFatalBreakpoint(rid)
             && function != "qt_v4TriggeredBreakpointHook")
         gotoLocation(Location(fullName, lineNumber));
-
-    if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        CHECK_STATE(InferiorStopRequested);
-        notifyInferiorStopOk();
-        flushQueuedCommands();
-        if (state() == InferiorStopOk) {
-            QTC_CHECK(m_commandsDoneCallback == 0);
-            m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
-        } else {
-            CHECK_STATE(InferiorShutdownRequested);
-        }
-        return;
-    }
 
     if (state() == InferiorRunOk) {
         // Stop triggered by a breakpoint or otherwise not directly
@@ -1785,8 +1739,6 @@ void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
         notifyInferiorRunFailed();
         if (isDying())
             return;
-        if (!m_commandsToRunOnTemporaryBreak.isEmpty())
-            flushQueuedCommands();
         CHECK_STATE(InferiorStopOk);
         showStatusMessage(tr("Stopped."), 5000);
         reloadStack();
@@ -1873,7 +1825,6 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
-    m_commandsToRunOnTemporaryBreak.clear();
     switch (runParameters().closeMode) {
         case KillAtClose:
         case KillAndExitMonitorAtClose:
@@ -2109,8 +2060,6 @@ void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
         notifyInferiorRunFailed();
         if (isDying())
             return;
-        if (!m_commandsToRunOnTemporaryBreak.isEmpty())
-            flushQueuedCommands();
         executeStepI(); // Fall back to instruction-wise stepping.
     } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
         showExecutionError(QString::fromLocal8Bit(msg));
@@ -2185,8 +2134,6 @@ void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
     QByteArray msg = response.data["msg"].data();
     if (msg.startsWith("Cannot find bounds of current function")
             || msg.contains("Error accessing memory address ")) {
-        if (!m_commandsToRunOnTemporaryBreak.isEmpty())
-            flushQueuedCommands();
         notifyInferiorRunFailed();
         if (!isDying())
             executeNextI(); // Fall back to instruction-wise stepping.
@@ -4265,7 +4212,7 @@ void GdbEngine::startGdb(const QStringList &args)
     const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
             + "/data-directory/python";
 
-    const GdbCommandFlags flags = ConsoleCommand | Immediate;
+    const GdbCommandFlags flags = ConsoleCommand;
     postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", flags);
     postCommand("python sys.path.append('" + uninstalledData + "')", flags);
     postCommand("python from gdbbridge import *", flags);
@@ -4377,15 +4324,8 @@ void GdbEngine::resetInferior()
         QByteArray commands = globalMacroExpander()->expand(runParameters().commandsForReset);
         foreach (QByteArray command, commands.split('\n')) {
             command = command.trimmed();
-            if (!command.isEmpty()) {
-                if (state() == InferiorStopOk) {
-                    postCommand(command, ConsoleCommand|Immediate);
-                } else {
-                    DebuggerCommand cmd(command);
-                    cmd.flags = ConsoleCommand;
-                    m_commandsToRunOnTemporaryBreak.append(cmd);
-                }
-            }
+            if (!command.isEmpty())
+                postCommand(command, ConsoleCommand|NeedsStop);
         }
     }
     m_rerunPending = true;
