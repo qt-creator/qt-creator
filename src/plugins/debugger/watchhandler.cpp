@@ -949,13 +949,13 @@ Qt::ItemFlags WatchItem::flags(int column) const
             // FIXME: Forcing types is not implemented yet.
             //if (idx.column() == 2)
             //    return editable; // Watcher types can be set by force.
-            if (column == 1 && valueEditable)
+            if (column == 1 && valueEditable && !elided)
                 return editable; // Watcher values are sometimes editable.
         }
     } else if (isLocal()) {
         if (state != InferiorStopOk && !engine->hasCapability(AddWatcherWhileRunningCapability))
            return Qt::ItemFlags();
-        if (column == 1 && valueEditable)
+        if (column == 1 && valueEditable && !elided)
             return editable; // Locals values are sometimes editable.
     } else if (isInspect()) {
         if (column == 1 && valueEditable)
