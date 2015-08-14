@@ -106,7 +106,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         }
 
         DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
-        DebuggerRunControl * const runControl = createDebuggerRunControl(params, runConfig, errorMessage);
+        DebuggerRunControl * const runControl = createDebuggerRunControl(params, runConfig, errorMessage, mode);
         if (!runControl)
             return 0;
         LinuxDeviceDebugSupport * const debugSupport =
