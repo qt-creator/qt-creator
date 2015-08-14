@@ -407,15 +407,6 @@ protected:
         return false;
     }
 
-    bool firstOnLine()
-    {
-        foreach (const QChar &c, _line) {
-            if (!c.isSpace())
-                return false;
-        }
-        return true;
-    }
-
     void addPossibleSplit(qreal badness, int offset = 0)
     {
         Split s;
