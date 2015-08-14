@@ -85,7 +85,7 @@ void Lexer::setSource(const char *firstChar, const char *lastChar)
     _firstChar = firstChar;
     _lastChar = lastChar;
     _currentChar = _firstChar - 1;
-    _currentCharUtf16 = -1;
+    _currentCharUtf16 = ~0;
     _tokenStart = _currentChar;
     _yychar = '\n';
 }
