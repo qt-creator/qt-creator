@@ -46200,7 +46200,7 @@ bool caseless_cmp(char a, char b)
 #elif defined(BOTAN_BUILD_COMPILER_IS_INTEL)
 
   #include <ia32intrin.h>
-  #define CALL_CPUID(type, out) do { __cpuid(out, type); } while(0)
+  #define CALL_CPUID(type, out) do { __cpuid((int*)out, type); } while(0)
 
 #elif defined(BOTAN_BUILD_COMPILER_IS_GCC) && (BOTAN_GCC_VERSION >= 430)
 
@@ -46223,7 +46223,7 @@ namespace {
 }
 
 #elif defined(BOTAN_TARGET_ARCH_IS_X86_64) && \
-    (defined(BOTAN_BUILD_COMPILER_IS_CLANG) || defined(BOTAN_BUILD_COMPILER_IS_GCC) || defined(BOTAN_BUILD_COMPILER_IS_INTEL))
+    (defined(BOTAN_BUILD_COMPILER_IS_CLANG) || defined(BOTAN_BUILD_COMPILER_IS_GCC))
 
   /*
   * We can't safely use this on x86-32 as some 32-bit ABIs use ebx as
