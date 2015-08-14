@@ -245,7 +245,7 @@ private:
     SpecialStopMode m_specialStopMode;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
-    QList<CdbCommandPtr> m_commandQueue;
+    QHash<int, CdbCommandPtr> m_commandForToken;
     QByteArray m_currentBuiltinResponse;
     int m_currentBuiltinResponseToken;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
