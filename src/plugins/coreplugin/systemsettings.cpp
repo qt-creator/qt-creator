@@ -112,6 +112,31 @@ QWidget *SystemSettings::widget()
             }
         }
 
+        if (HostOsInfo::isMacHost()) {
+            Qt::CaseSensitivity defaultSensitivity
+                    = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+            if (defaultSensitivity == Qt::CaseSensitive) {
+                m_page->fileSystemCaseSensitivityChooser->addItem(tr("Case Sensitive (Default)"),
+                                                                  Qt::CaseSensitive);
+            } else {
+                m_page->fileSystemCaseSensitivityChooser->addItem(tr("Case Sensitive"),
+                                                                  Qt::CaseSensitive);
+            }
+            if (defaultSensitivity == Qt::CaseInsensitive) {
+                m_page->fileSystemCaseSensitivityChooser->addItem(tr("Case Insensitive (Default)"),
+                                                                  Qt::CaseInsensitive);
+            } else {
+                m_page->fileSystemCaseSensitivityChooser->addItem(tr("Case Insensitive"),
+                                                                  Qt::CaseInsensitive);
+            }
+            if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive)
+                m_page->fileSystemCaseSensitivityChooser->setCurrentIndex(0);
+            else
+                m_page->fileSystemCaseSensitivityChooser->setCurrentIndex(1);
+        } else {
+            m_page->fileSystemCaseSensitivityWidget->hide();
+        }
+
         updatePath();
 
         connect(VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
@@ -139,6 +164,17 @@ void SystemSettings::apply()
     EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(
                 m_page->warnBeforeOpeningBigFiles->isChecked());
     EditorManagerPrivate::setBigFileSizeLimit(m_page->bigFilesLimitSpinBox->value());
+
+    if (HostOsInfo::isMacHost()) {
+        Qt::CaseSensitivity defaultSensitivity
+                = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+        Qt::CaseSensitivity selectedSensitivity = Qt::CaseSensitivity(
+                m_page->fileSystemCaseSensitivityChooser->currentData().toInt());
+        if (defaultSensitivity == selectedSensitivity)
+            HostOsInfo::unsetOverrideFileNameCaseSensitivity();
+        else
+            HostOsInfo::setOverrideFileNameCaseSensitivity(selectedSensitivity);
+    }
 }
 
 void SystemSettings::finish()

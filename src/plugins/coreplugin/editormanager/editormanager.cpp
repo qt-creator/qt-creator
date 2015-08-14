@@ -110,6 +110,7 @@ static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
 static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
 static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
 static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
+static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
 
@@ -1014,6 +1015,14 @@ void EditorManagerPrivate::saveSettings()
     qsettings->setValue(QLatin1String(warnBeforeOpeningBigTextFilesKey),
                         d->m_warnBeforeOpeningBigFilesEnabled);
     qsettings->setValue(QLatin1String(bigTextFileSizeLimitKey), d->m_bigFileSizeLimitInMB);
+
+    Qt::CaseSensitivity defaultSensitivity
+            = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+    Qt::CaseSensitivity sensitivity = HostOsInfo::fileNameCaseSensitivity();
+    if (defaultSensitivity == sensitivity)
+        qsettings->remove(QLatin1String(fileSystemCaseSensitivityKey));
+    else
+        qsettings->setValue(QLatin1String(fileSystemCaseSensitivityKey), sensitivity);
 }
 
 void EditorManagerPrivate::readSettings()
@@ -1031,6 +1040,27 @@ void EditorManagerPrivate::readSettings()
         d->m_warnBeforeOpeningBigFilesEnabled
                 = qs->value(QLatin1String(warnBeforeOpeningBigTextFilesKey)).toBool();
         d->m_bigFileSizeLimitInMB = qs->value(QLatin1String(bigTextFileSizeLimitKey)).toInt();
+    }
+
+    if (qs->contains(QLatin1String(fileSystemCaseSensitivityKey))) {
+        Qt::CaseSensitivity defaultSensitivity
+                = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+        bool ok = false;
+        Qt::CaseSensitivity sensitivity = defaultSensitivity;
+        int sensitivitySetting = qs->value(QLatin1String(fileSystemCaseSensitivityKey)).toInt(&ok);
+        if (ok) {
+            switch (Qt::CaseSensitivity(sensitivitySetting)) {
+            case Qt::CaseSensitive:
+                sensitivity = Qt::CaseSensitive;
+                break;
+            case Qt::CaseInsensitive:
+                sensitivity = Qt::CaseInsensitive;
+            }
+        }
+        if (sensitivity == defaultSensitivity)
+            HostOsInfo::unsetOverrideFileNameCaseSensitivity();
+        else
+            HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
     }
 
     SettingsDatabase *settings = ICore::settingsDatabase();
