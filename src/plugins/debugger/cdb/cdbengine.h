@@ -54,35 +54,13 @@ struct MemoryViewCookie;
 class ByteArrayInputStream;
 class GdbMi;
 
-class CdbResponse
-{
-    // TODO: replace with DebuggerResponse
-public:
-    CdbResponse()
-        : token(-1), success(false)
-    {}
-
-    void clear()
-    {
-        token = -1;
-        reply.clear();
-        errorMessage.clear();
-        success = false;
-    }
-
-    int token;
-    QByteArray reply;
-    QByteArray errorMessage;
-    bool success;
-};
-
 class CdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
     typedef QSharedPointer<CdbCommand> CdbCommandPtr;
-    typedef std::function<void(const CdbResponse &)> CommandHandler;
+    typedef std::function<void(const DebuggerResponse &)> CommandHandler;
 
     CdbEngine(const DebuggerRunParameters &sp);
     ~CdbEngine();
@@ -224,32 +202,31 @@ private:
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
     // Builtin commands
-    void handleStackTrace(const CdbResponse &);
-    void handleRegisters(const CdbResponse &);
-    void handleDisassembler(const CdbResponse &, DisassemblerAgent *agent);
-    void handleJumpToLineAddressResolution(const CdbResponse &response, const ContextData &context);
-    void handleExpression(const CdbResponse &command, BreakpointModelId id, const GdbMi &stopReason);
-    void handleResolveSymbol(const CdbResponse &command, const QString &symbol, DisassemblerAgent *agent);
+    void handleStackTrace(const DebuggerResponse &);
+    void handleRegisters(const DebuggerResponse &);
+    void handleDisassembler(const DebuggerResponse &, DisassemblerAgent *agent);
+    void handleJumpToLineAddressResolution(const DebuggerResponse &response, const ContextData &context);
+    void handleExpression(const DebuggerResponse &command, BreakpointModelId id, const GdbMi &stopReason);
+    void handleResolveSymbol(const DebuggerResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
-    void handleBreakInsert(const CdbResponse &response, const BreakpointModelId &bpId);
-    void handleCheckWow64(const CdbResponse &response, const GdbMi &stack);
-    void ensureUsing32BitStackInWow64(const CdbResponse &response, const GdbMi &stack);
-    void handleSwitchWow64Stack(const CdbResponse &response);
+    void handleBreakInsert(const DebuggerResponse &response, const BreakpointModelId &bpId);
+    void handleCheckWow64(const DebuggerResponse &response, const GdbMi &stack);
+    void ensureUsing32BitStackInWow64(const DebuggerResponse &response, const GdbMi &stack);
+    void handleSwitchWow64Stack(const DebuggerResponse &response);
     void jumpToAddress(quint64 address);
-    void handleCreateFullBackTrace(const CdbResponse &response);
+    void handleCreateFullBackTrace(const DebuggerResponse &response);
 
     // Extension commands
-    void handleThreads(const CdbResponse &response);
-    void handlePid(const CdbResponse &response);
-    void handleLocals(const CdbResponse &response, bool partialUpdate);
-    void handleExpandLocals(const CdbResponse &response);
-    void handleRegistersExt(const CdbResponse &response);
-    void handleModules(const CdbResponse &response);
-    void handleMemory(const CdbResponse &response, const MemoryViewCookie &memViewCookie);
-    void handleWidgetAt(const CdbResponse &response);
-    void handleBreakPoints(const CdbResponse &response);
-    void handleBreakPoints(const GdbMi &value);
-    void handleAdditionalQmlStack(const CdbResponse &response);
+    void handleThreads(const DebuggerResponse &response);
+    void handlePid(const DebuggerResponse &response);
+    void handleLocals(const DebuggerResponse &response, bool partialUpdate);
+    void handleExpandLocals(const DebuggerResponse &response);
+    void handleRegistersExt(const DebuggerResponse &response);
+    void handleModules(const DebuggerResponse &response);
+    void handleMemory(const DebuggerResponse &response, const MemoryViewCookie &memViewCookie);
+    void handleWidgetAt(const DebuggerResponse &response);
+    void handleBreakPoints(const DebuggerResponse &response);
+    void handleAdditionalQmlStack(const DebuggerResponse &response);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
@@ -269,7 +246,8 @@ private:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
     QList<CdbCommandPtr> m_builtinCommandQueue;
-    CdbResponse m_currentBuiltinResponse; //!< Current command whose output is recorded.
+    QByteArray m_currentBuiltinResponse;
+    int m_currentBuiltinResponseToken;
     QList<CdbCommandPtr> m_extensionCommandQueue;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
