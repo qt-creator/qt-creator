@@ -93,8 +93,6 @@ public:
                m_processedDiagnostics, qPrintable(m_file.fileName()));
     }
 
-    int processedDiagnostics() const { return m_processedDiagnostics; }
-
     void process(const CPlusPlus::Document::Ptr document)
     {
         using namespace CPlusPlus;
