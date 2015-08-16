@@ -9,6 +9,7 @@ Project {
         "extensionsystem/extensionsystem.qbs",
         "glsl/glsl.qbs",
         "languageutils/languageutils.qbs",
+        "modelinglib/modelinglib.qbs",
         "qmleditorwidgets/qmleditorwidgets.qbs",
         "qmljs/qmljs.qbs",
         "qmldebug/qmldebug.qbs",

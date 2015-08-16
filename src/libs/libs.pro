@@ -8,6 +8,7 @@ SUBDIRS   = \
     utils \
     languageutils \
     cplusplus \
+    modelinglib \
     qmljs \
     qmldebug \
     qmleditorwidgets \

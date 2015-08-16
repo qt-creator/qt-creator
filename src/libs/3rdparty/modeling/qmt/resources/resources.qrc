@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/modelinglib">
+        <file>25x25/align-bottom.png</file>
+        <file>25x25/align-horizontal.png</file>
+        <file>25x25/align-left.png</file>
+        <file>25x25/align-right.png</file>
+        <file>25x25/align-top.png</file>
+        <file>25x25/align-vertical.png</file>
+        <file>25x25/even-horizontal.png</file>
+        <file>25x25/even-vertical.png</file>
+        <file>25x25/same-height.png</file>
+        <file>25x25/same-width.png</file>
+        <file>48x48/annotation.png</file>
+        <file>48x48/association.png</file>
+        <file>48x48/boundary.png</file>
+        <file>48x48/canvas-diagram.png</file>
+        <file>48x48/class.png</file>
+        <file>48x48/component.png</file>
+        <file>48x48/dependency.png</file>
+        <file>48x48/generic.png</file>
+        <file>48x48/inheritance.png</file>
+        <file>48x48/item.png</file>
+        <file>48x48/package.png</file>
+    </qresource>
+</RCC>
