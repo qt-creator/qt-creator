@@ -75,6 +75,7 @@ public:
     Internal::SemanticHighlighter *m_semanticHighlighter;
     bool m_semanticHighlightingNecessary;
     bool m_outlineModelNeedsUpdate;
+    bool m_firstSementicInfo = true;
     QTimer m_updateOutlineModelTimer;
     Internal::QmlOutlineModel *m_outlineModel;
 };

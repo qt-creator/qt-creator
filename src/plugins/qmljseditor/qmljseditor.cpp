@@ -58,7 +58,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -112,7 +111,6 @@ QmlJSEditorWidget::QmlJSEditorWidget()
 {
     m_outlineCombo = 0;
     m_contextPane = 0;
-    m_firstSementicInfo = true;
     m_findReferences = new FindReferences(this);
 
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
@@ -946,16 +944,6 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
         if (newNode) {
             m_contextPane->apply(this, semanticInfo.document, 0, newNode, true);
             m_contextPaneTimer.start(); //update text marker
-        }
-    }
-
-    if (m_firstSementicInfo) {
-        m_firstSementicInfo = false;
-        if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui) {
-            InfoBarEntry info(Id(Constants::QML_UI_FILE_WARNING),
-                                    tr("This file should only be edited in <b>Design</b> mode."));
-            info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
-            textDocument()->infoBar()->addInfo(info);
         }
     }
 
