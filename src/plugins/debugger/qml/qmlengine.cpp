@@ -1664,8 +1664,8 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
             objectData.type = QByteArray("undefined");
             objectData.value = QVariant(_("undefined"));
 
-        } else if (type == _("null")) {
-            objectData.type = QByteArray("null");
+        } else if (type == _("null")) { // Deprecated. typeof(null) == "object" in JavaScript
+            objectData.type = QByteArray("object");
             objectData.value= QVariant(_("null"));
 
         } else if (type == _("boolean")) {
@@ -1683,9 +1683,12 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
 
         } else if (type == _("object")) {
             objectData.type = QByteArray("object");
-            objectData.value = dataMap.value(_("className"));
-            objectData.properties = dataMap.value(_("properties")).toList();
+            // ignore "className": it doesn't make any sense.
 
+            if (dataMap.contains(_("properties")))
+                objectData.properties = dataMap.value(_("properties")).toList();
+            else if (dataMap.value(_("value")).isNull())
+                objectData.value = QVariant(_("null")); // Yes, null is an object.
         } else if (type == _("function")) {
             objectData.type = QByteArray("function");
             objectData.value = dataMap.value(_(NAME));
