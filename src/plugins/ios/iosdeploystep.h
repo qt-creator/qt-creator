@@ -73,7 +73,7 @@ public:
 
     void run(QFutureInterface<bool> &fi) override;
     void cleanup();
-    void cancel();
+    void cancel() override;
 signals:
     //void done();
     //void error();

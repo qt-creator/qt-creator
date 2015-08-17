@@ -65,8 +65,8 @@ public:
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;
     Utils::FileName localExecutable() const;
-    bool isEnabled() const;
-    QString disabledReason() const;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
 
