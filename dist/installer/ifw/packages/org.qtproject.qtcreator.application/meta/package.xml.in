@@ -17,4 +17,5 @@
         <UserInterface>associatecommonfiletypesform.ui</UserInterface>
         <UserInterface>launchqtcreatorcheckboxform.ui</UserInterface>
     </UserInterfaces>
+    <StartMenuDir>Qt Creator {version}</StartMenuDir>
 </Package>
