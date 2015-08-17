@@ -38,9 +38,12 @@
 
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/find/basetextfind.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/behaviorsettings.h>
 #include <utils/ansiescapecodehandler.h>
 #include <utils/theme/theme.h>
 
@@ -56,6 +59,7 @@ using namespace ProjectExplorer::Internal;
 
 namespace {
 const int MAX_LINECOUNT = 100000;
+const char SETTINGS_KEY[] = "ProjectExplorer/CompileOutput/Zoom";
 }
 
 namespace ProjectExplorer {
@@ -65,11 +69,28 @@ class CompileOutputTextEdit : public Core::OutputWindow
 {
     Q_OBJECT
 public:
-    CompileOutputTextEdit(const Core::Context &context) : Core::OutputWindow(context)
+    CompileOutputTextEdit(const Core::Context &context)
+        : Core::OutputWindow(context)
     {
+        setWheelZoomEnabled(true);
+
+        QSettings *settings = Core::ICore::settings();
+        float zoom = settings->value(QLatin1String(SETTINGS_KEY), 0).toFloat();
+        setFontZoom(zoom);
+
         fontSettingsChanged();
+
         connect(TextEditor::TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
                 this, SLOT(fontSettingsChanged()));
+
+        connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+                this, &CompileOutputTextEdit::saveSettings);
+    }
+
+    void saveSettings()
+    {
+        QSettings *settings = Core::ICore::settings();
+        settings->setValue(QLatin1String(SETTINGS_KEY), fontZoom());
     }
 
     void addTask(const Task &task, int blocknumber)
@@ -84,17 +105,10 @@ public:
 private slots:
     void fontSettingsChanged()
     {
-        setFont(TextEditor::TextEditorSettings::fontSettings().font());
+        setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     }
 
 protected:
-    void wheelEvent(QWheelEvent *ev)
-    {
-        // from QPlainTextEdit, but without scroll wheel zooming
-        QAbstractScrollArea::wheelEvent(ev);
-        updateMicroFocus();
-    }
-
     void mouseDoubleClickEvent(QMouseEvent *ev)
     {
         int line = cursorForPosition(ev->pos()).block().blockNumber();
@@ -113,6 +127,8 @@ private:
 
 CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
+    m_zoomInButton(new QToolButton),
+    m_zoomOutButton(new QToolButton),
     m_escapeCodeHandler(new Utils::AnsiEscapeCodeHandler)
 {
     Core::Context context(Constants::C_COMPILE_OUTPUT);
@@ -133,6 +149,19 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setPalette(p);
 
     m_cancelBuildButton->setDefaultAction(cancelBuildAction);
+    m_zoomInButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
+    m_zoomOutButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
+
+    updateZoomEnabled();
+
+    connect(TextEditor::TextEditorSettings::instance(),
+            &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+            this, &CompileOutputWindow::updateZoomEnabled);
+
+    connect(m_zoomInButton, &QToolButton::clicked,
+            this, [this]() { m_outputWindow->zoomIn(1); });
+    connect(m_zoomOutButton, &QToolButton::clicked,
+            this, [this]() { m_outputWindow->zoomOut(1); });
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
@@ -152,7 +181,19 @@ CompileOutputWindow::~CompileOutputWindow()
     ExtensionSystem::PluginManager::removeObject(m_handler);
     delete m_handler;
     delete m_cancelBuildButton;
+    delete m_zoomInButton;
+    delete m_zoomOutButton;
     delete m_escapeCodeHandler;
+}
+
+void CompileOutputWindow::updateZoomEnabled()
+{
+    const TextEditor::BehaviorSettings &settings
+            = TextEditor::TextEditorSettings::behaviorSettings();
+    bool zoomEnabled  = settings.m_scrollWheelZooming;
+    m_zoomInButton->setEnabled(zoomEnabled);
+    m_zoomOutButton->setEnabled(zoomEnabled);
+    m_outputWindow->setWheelZoomEnabled(zoomEnabled);
 }
 
 void CompileOutputWindow::updateWordWrapMode()
@@ -182,7 +223,9 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
 {
-     return QList<QWidget *>() << m_cancelBuildButton;
+     return QList<QWidget *>() << m_cancelBuildButton
+                               << m_zoomInButton
+                               << m_zoomOutButton;
 }
 
 void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)

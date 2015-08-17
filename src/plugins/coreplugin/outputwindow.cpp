@@ -56,6 +56,8 @@ public:
         , scrollToBottom(false)
         , linksActive(true)
         , mousePressed(false)
+        , m_zoomEnabled(false)
+        , m_originalFontSize(0)
         , maxLineCount(100000)
         , cursor(document)
     {
@@ -74,6 +76,8 @@ public:
     bool scrollToBottom;
     bool linksActive;
     bool mousePressed;
+    bool m_zoomEnabled;
+    float m_originalFontSize;
     int maxLineCount;
     QTextCursor cursor;
 };
@@ -133,6 +137,8 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     connect(&m_scrollTimer, &QTimer::timeout,
             this, &OutputWindow::scrollToBottom);
     m_lastMessage.start();
+
+    d->m_originalFontSize = font().pointSizeF();
 }
 
 OutputWindow::~OutputWindow()
@@ -213,6 +219,51 @@ void OutputWindow::showEvent(QShowEvent *e)
     if (d->scrollToBottom)
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     d->scrollToBottom = false;
+}
+
+void OutputWindow::wheelEvent(QWheelEvent *e)
+{
+    if (d->m_zoomEnabled) {
+        if (e->modifiers() & Qt::ControlModifier) {
+            float delta = e->angleDelta().y() / 120.f;
+            zoomInF(delta);
+            emit wheelZoom();
+            return;
+        }
+    } else {
+        QAbstractScrollArea::wheelEvent(e);
+        updateMicroFocus();
+    }
+}
+
+void OutputWindow::setBaseFont(const QFont &newFont)
+{
+    float zoom = fontZoom();
+    d->m_originalFontSize = newFont.pointSizeF();
+    QFont tmp = newFont;
+    float newZoom = qMax(d->m_originalFontSize + zoom, 4.0f);
+    tmp.setPointSizeF(newZoom);
+    setFont(tmp);
+}
+
+float OutputWindow::fontZoom() const
+{
+    return font().pointSizeF() - d->m_originalFontSize;
+}
+
+void OutputWindow::setFontZoom(float zoom)
+{
+    QFont f = font();
+    if (f.pointSizeF() == d->m_originalFontSize + zoom)
+        return;
+    float newZoom = qMax(d->m_originalFontSize + zoom, 4.0f);
+    f.setPointSizeF(newZoom);
+    setFont(f);
+}
+
+void OutputWindow::setWheelZoomEnabled(bool enabled)
+{
+    d->m_zoomEnabled = enabled;
 }
 
 QString OutputWindow::doNewlineEnforcement(const QString &out)

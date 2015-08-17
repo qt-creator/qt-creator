@@ -88,12 +88,15 @@ public:
 
 private slots:
     void updateWordWrapMode();
+    void updateZoomEnabled();
 
 private:
     CompileOutputTextEdit *m_outputWindow;
     QHash<unsigned int, QPair<int, int>> m_taskPositions;
     ShowOutputTaskHandler * m_handler;
     QToolButton *m_cancelBuildButton;
+    QToolButton *m_zoomInButton;
+    QToolButton *m_zoomOutButton;
     Utils::AnsiEscapeCodeHandler *m_escapeCodeHandler;
 };
 

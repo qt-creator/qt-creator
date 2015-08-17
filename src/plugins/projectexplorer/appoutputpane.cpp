@@ -40,8 +40,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/find/basetextfind.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/behaviorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
@@ -73,6 +76,10 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
     return handleDescription.isEmpty() ?
            AppOutputPane::tr("Attach debugger to this process") :
            AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
+}
+
+namespace {
+const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
 }
 
 namespace ProjectExplorer {
@@ -149,7 +156,9 @@ AppOutputPane::AppOutputPane() :
     m_closeOtherTabsAction(new QAction(tr("Close Other Tabs"), this)),
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton),
-    m_attachButton(new QToolButton)
+    m_attachButton(new QToolButton),
+    m_zoomInButton(new QToolButton),
+    m_zoomOutButton(new QToolButton)
 {
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
 
@@ -185,6 +194,20 @@ AppOutputPane::AppOutputPane() :
     connect(m_attachButton, SIGNAL(clicked()),
             this, SLOT(attachToRunControl()));
 
+    m_zoomInButton->setToolTip(tr("Increase Font Size"));
+    m_zoomInButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
+    m_zoomInButton->setAutoRaise(true);
+
+    connect(m_zoomInButton, &QToolButton::clicked,
+            this, &AppOutputPane::zoomIn);
+
+    m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
+    m_zoomOutButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
+    m_zoomOutButton->setAutoRaise(true);
+
+    connect(m_zoomOutButton, &QToolButton::clicked,
+            this, &AppOutputPane::zoomOut);
+
     // Spacer (?)
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -200,6 +223,12 @@ AppOutputPane::AppOutputPane() :
 
     m_mainWidget->setLayout(layout);
 
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+            this, &AppOutputPane::updateFontSettings);
+
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+            this, &AppOutputPane::updateBehaviorSettings);
+
     connect(SessionManager::instance(), SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(aboutToUnloadSession()));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -209,6 +238,12 @@ AppOutputPane::AppOutputPane() :
     connect(this, &AppOutputPane::allRunControlsFinished,
             WinDebugInterface::instance(), &WinDebugInterface::stop);
 #endif
+
+    QSettings *settings = Core::ICore::settings();
+    m_zoom = settings->value(QLatin1String(SETTINGS_KEY), 0).toFloat();
+
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &AppOutputPane::saveSettings);
 }
 
 AppOutputPane::~AppOutputPane()
@@ -219,6 +254,12 @@ AppOutputPane::~AppOutputPane()
     foreach (const RunControlTab &rt, m_runControlTabs)
         delete rt.runControl;
     delete m_mainWidget;
+}
+
+void AppOutputPane::saveSettings()
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->setValue(QLatin1String(SETTINGS_KEY), m_zoom);
 }
 
 int AppOutputPane::currentIndex() const
@@ -286,7 +327,8 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
 
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_reRunButton << m_stopButton << m_attachButton;
+    return QList<QWidget*>() << m_reRunButton << m_stopButton << m_attachButton
+                             << m_zoomInButton << m_zoomOutButton;
 }
 
 QString AppOutputPane::displayName() const
@@ -329,6 +371,20 @@ void AppOutputPane::setFocus()
         m_tabWidget->currentWidget()->setFocus();
 }
 
+void AppOutputPane::updateFontSettings()
+{
+    QFont f = TextEditor::TextEditorSettings::fontSettings().font();
+    foreach (const RunControlTab &rcTab, m_runControlTabs)
+        rcTab.window->setBaseFont(f);
+}
+
+void AppOutputPane::updateBehaviorSettings()
+{
+    bool zoomEnabled = TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming;
+    foreach (const RunControlTab &rcTab, m_runControlTabs)
+        rcTab.window->setWheelZoomEnabled(zoomEnabled);
+}
+
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
     connect(rc, SIGNAL(started()),
@@ -341,7 +397,6 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
 
     Utils::OutputFormatter *formatter = rc->outputFormatter();
-    formatter->setFont(TextEditor::TextEditorSettings::fontSettings().font());
 
     // First look if we can reuse a tab
     const int size = m_runControlTabs.size();
@@ -369,6 +424,17 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setFormatter(formatter);
     ow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
     ow->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
+    ow->setWheelZoomEnabled(TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
+    ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+    ow->setFontZoom(m_zoom);
+
+    connect(ow, &Core::OutputWindow::wheelZoom,
+            this, [this, ow]() {
+        m_zoom = ow->fontZoom();
+        foreach (const RunControlTab &tab, m_runControlTabs)
+            tab.window->setFontZoom(m_zoom);
+    });
+
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(ow);
     agg->add(new Core::BaseTextFind(ow));
@@ -545,6 +611,24 @@ void AppOutputPane::enableButtons()
     enableButtons(rc, isRunning);
 }
 
+void AppOutputPane::zoomIn()
+{
+    foreach (const RunControlTab &tab, m_runControlTabs)
+        tab.window->zoomIn(1);
+    if (m_runControlTabs.isEmpty())
+        return;
+    m_zoom = m_runControlTabs.first().window->fontZoom();
+}
+
+void AppOutputPane::zoomOut()
+{
+    foreach (const RunControlTab &tab, m_runControlTabs)
+        tab.window->zoomOut(1);
+    if (m_runControlTabs.isEmpty())
+        return;
+    m_zoom = m_runControlTabs.first().window->fontZoom();
+}
+
 void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning /*  = false */)
 {
     if (rc) {
@@ -558,12 +642,16 @@ void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning
             m_attachButton->setEnabled(false);
             m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         }
+        m_zoomInButton->setEnabled(true);
+        m_zoomOutButton->setEnabled(true);
     } else {
         m_reRunButton->setEnabled(false);
         m_reRunButton->setIcon(QIcon(QLatin1String(Constants::ICON_RUN_SMALL)));
         m_attachButton->setEnabled(false);
         m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         m_stopAction->setEnabled(false);
+        m_zoomInButton->setEnabled(false);
+        m_zoomOutButton->setEnabled(false);
     }
 }
 

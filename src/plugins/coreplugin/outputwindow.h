@@ -71,6 +71,14 @@ public:
     void setMaxLineCount(int count);
     int maxLineCount() const;
 
+    void setBaseFont(const QFont &newFont);
+    float fontZoom() const;
+    void setFontZoom(float zoom);
+    void setWheelZoomEnabled(bool enabled);
+
+signals:
+    void wheelZoom();
+
 public slots:
     void setWordWrapEnabled(bool wrap);
 
@@ -82,8 +90,10 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
     virtual void keyPressEvent(QKeyEvent *ev);
+    virtual void wheelEvent(QWheelEvent *e);
 
 private:
+    using QPlainTextEdit::setFont; // call setBaseFont instead, which respects the zoom factor
     QTimer m_scrollTimer;
     QTime m_lastMessage;
     void enableUndoRedo();

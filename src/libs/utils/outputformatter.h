@@ -60,8 +60,6 @@ public:
     QPlainTextEdit *plainTextEdit() const;
     virtual void setPlainTextEdit(QPlainTextEdit *plainText);
 
-    QFont font() const;
-    void setFont(const QFont &font);
     void flush();
 
     virtual void appendMessage(const QString &text, OutputFormat format);

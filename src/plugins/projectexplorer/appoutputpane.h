@@ -119,6 +119,9 @@ private slots:
     void updateFromSettings();
     void enableButtons();
 
+    void zoomIn();
+    void zoomOut();
+
 private:
     void enableButtons(const RunControl *rc, bool isRunning);
 
@@ -143,6 +146,9 @@ private:
     int tabWidgetIndexOf(int runControlIndex) const;
     void handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
+    void updateFontSettings();
+    void saveSettings();
+    void updateBehaviorSettings();
 
     QWidget *m_mainWidget;
     class TabWidget *m_tabWidget;
@@ -154,6 +160,9 @@ private:
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
     QToolButton *m_attachButton;
+    QToolButton *m_zoomInButton;
+    QToolButton *m_zoomOutButton;
+    float m_zoom;
 };
 
 } // namespace Internal

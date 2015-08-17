@@ -135,47 +135,36 @@ void OutputFormatter::initFormats()
     if (!plainTextEdit())
         return;
 
-    QFont boldFont = d->font;
+    QFont boldFont;
     boldFont.setBold(true);
 
     Theme *theme = creatorTheme();
 
     // NormalMessageFormat
-    d->formats[NormalMessageFormat].setFont(boldFont);
+    d->formats[NormalMessageFormat].setFont(boldFont, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputPanes_NormalMessageTextColor));
 
     // ErrorMessageFormat
-    d->formats[ErrorMessageFormat].setFont(boldFont);
+    d->formats[ErrorMessageFormat].setFont(boldFont, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
 
     // StdOutFormat
-    d->formats[StdOutFormat].setFont(d->font);
+    d->formats[StdOutFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputPanes_StdOutTextColor));
     d->formats[StdOutFormatSameLine] = d->formats[StdOutFormat];
 
     // StdErrFormat
-    d->formats[StdErrFormat].setFont(d->font);
+    d->formats[StdErrFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[StdErrFormat].setForeground(theme->color(Theme::OutputPanes_StdErrTextColor));
     d->formats[StdErrFormatSameLine] = d->formats[StdErrFormat];
 
-    d->formats[DebugFormat].setFont(d->font);
+    d->formats[DebugFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[DebugFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
 }
 
 void OutputFormatter::handleLink(const QString &href)
 {
     Q_UNUSED(href);
-}
-
-QFont OutputFormatter::font() const
-{
-    return d->font;
-}
-
-void OutputFormatter::setFont(const QFont &font)
-{
-    d->font = font;
-    initFormats();
 }
 
 void OutputFormatter::flush()
