@@ -3,7 +3,7 @@ include(../../../qttest.pri)
 include($$IDE_SOURCE_TREE/src/rpath.pri)
 DEFINES += QMLJS_BUILD_DIR
 
-QT +=script xml
+QT += qml xml
 # direct dependency on qmljs for quicker turnaround when editing them
 INCLUDEPATH+=$$IDE_SOURCE_TREE/src/libs
 INCLUDEPATH+=$$IDE_SOURCE_TREE/src/libs/qmljs
