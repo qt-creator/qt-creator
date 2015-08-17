@@ -78,56 +78,57 @@ public:
 
     // Factory function that returns 0 if the debug engine library cannot be found.
 
-    virtual bool canHandleToolTip(const DebuggerToolTipContext &context) const;
+    bool canHandleToolTip(const DebuggerToolTipContext &context) const override;
 
-    virtual DebuggerEngine *cppEngine() { return this; }
+    DebuggerEngine *cppEngine() override { return this; }
 
-    virtual void setupEngine();
-    virtual void setupInferior();
-    virtual void runEngine();
-    virtual void shutdownInferior();
-    virtual void shutdownEngine();
-    virtual void abortDebugger();
-    virtual void detachDebugger();
-    virtual bool hasCapability(unsigned cap) const;
-    virtual void watchPoint(const QPoint &);
-    virtual void setRegisterValue(const QByteArray &name, const QString &value);
+    void setupEngine() override;
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
+    void abortDebugger() override;
+    void detachDebugger() override;
+    bool hasCapability(unsigned cap) const override;
+    void watchPoint(const QPoint &) override;
+    void setRegisterValue(const QByteArray &name, const QString &value) override;
 
-    virtual void executeStep();
-    virtual void executeStepOut();
-    virtual void executeNext();
-    virtual void executeStepI();
-    virtual void executeNextI();
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
 
-    virtual void continueInferior();
-    virtual void interruptInferior();
+    void continueInferior() override;
+    void interruptInferior() override;
 
-    virtual void executeRunToLine(const ContextData &data);
-    virtual void executeRunToFunction(const QString &functionName);
-    virtual void executeJumpToLine(const ContextData &data);
-    virtual void assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value);
-    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
+    void assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
-    virtual void activateFrame(int index);
-    virtual void selectThread(ThreadId threadId);
+    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) override;
 
-    virtual bool stateAcceptsBreakpointChanges() const;
-    virtual bool acceptsBreakpoint(Breakpoint bp) const;
-    virtual void attemptBreakpointSynchronization();
+    bool stateAcceptsBreakpointChanges() const override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
+    void attemptBreakpointSynchronization() override;
 
-    virtual void fetchDisassembler(DisassemblerAgent *agent);
-    virtual void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);
-    virtual void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);
+    void fetchDisassembler(DisassemblerAgent *agent) override;
+    void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
+    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr,
+                      const QByteArray &data) override;
 
-    virtual void reloadModules();
-    virtual void loadSymbols(const QString &moduleName);
-    virtual void loadAllSymbols();
-    virtual void requestModuleSymbols(const QString &moduleName);
+    void reloadModules() override;
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
 
-    virtual void reloadRegisters();
-    virtual void reloadSourceFiles();
-    virtual void reloadFullStack();
-    void loadAdditionalQmlStack();
+    void reloadRegisters() override;
+    void reloadSourceFiles() override;
+    void reloadFullStack() override;
+    void loadAdditionalQmlStack() override;
 
     static QString extensionLibraryName(bool is64Bit);
 
