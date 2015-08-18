@@ -50,6 +50,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
+#include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -474,7 +475,16 @@ Core::Id TextEditorSettings::languageId(const QString &mimeType)
 void TextEditorSettings::fontZoomRequested(int zoom)
 {
     FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
-    fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
+    const int previousZoom = fs.fontZoom();
+    const int newZoom = qMax(10, previousZoom + zoom);
+    if (newZoom == previousZoom)
+        return;
+    fs.setFontZoom(newZoom);
+    if (QWidget *editor = qobject_cast<QWidget *>(sender())) {
+        Utils::FadingIndicator::showText(editor,
+                                         tr("Zoom: %1%").arg(newZoom),
+                                         Utils::FadingIndicator::SmallText);
+    }
     d->m_fontSettingsPage->saveSettings();
 }
 
