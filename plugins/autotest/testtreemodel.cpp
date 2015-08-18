@@ -558,6 +558,17 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         }
         break;
     }
+    case TestTreeItem::TEST_DATATAG: {
+        const TestTreeItem *function = item->parent();
+        const TestTreeItem *parent = function ? function->parent() : 0;
+        if (!parent)
+            return 0;
+        const QString functionWithTag = function->name() + QLatin1Char(':') + item->name();
+        config = new TestConfiguration(parent->name(), QStringList() << functionWithTag);
+        config->setMainFilePath(parent->filePath());
+        config->setProject(project);
+        break;
+    }
     // not supported items
     default:
         return 0;
