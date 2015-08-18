@@ -2212,11 +2212,13 @@ public:
     bool preVisit(AST *ast) {
         if (CaseStatementAST *cs = ast->asCaseStatement()) {
             foundCaseStatementLevel = true;
-            if (ExpressionAST *expression = cs->expression->asIdExpression()) {
-                QList<LookupItem> candidates = typeOfExpression(expression, document, scope);
-                if (!candidates .isEmpty() && candidates.first().declaration()) {
-                    Symbol *decl = candidates.first().declaration();
-                    values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
+            if (ExpressionAST *csExpression = cs->expression) {
+                if (ExpressionAST *expression = csExpression->asIdExpression()) {
+                    QList<LookupItem> candidates = typeOfExpression(expression, document, scope);
+                    if (!candidates .isEmpty() && candidates.first().declaration()) {
+                        Symbol *decl = candidates.first().declaration();
+                        values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
+                    }
                 }
             }
             return true;
