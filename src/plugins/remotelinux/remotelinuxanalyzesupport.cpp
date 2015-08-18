@@ -42,6 +42,7 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <qmldebug/qmloutputparser.h>
 
 #include <QPointer>
@@ -83,6 +84,14 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConf
     params.displayName = runConfig->displayName();
     params.sysroot = SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     params.analyzerHost = params.connParams.host;
+
+    auto rc = qobject_cast<const AbstractRemoteLinuxRunConfiguration *>(runConfig);
+    QTC_ASSERT(rc, return params);
+
+    params.debuggee = rc->remoteExecutableFilePath();
+    params.debuggeeArgs = Utils::QtcProcess::Arguments::createUnixArgs(rc->arguments()).toString();
+    params.workingDirectory = rc->workingDirectory();
+    params.environment = rc->environment();
 
     return params;
 }
