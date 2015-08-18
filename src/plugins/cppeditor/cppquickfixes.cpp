@@ -2215,7 +2215,7 @@ public:
             if (ExpressionAST *csExpression = cs->expression) {
                 if (ExpressionAST *expression = csExpression->asIdExpression()) {
                     QList<LookupItem> candidates = typeOfExpression(expression, document, scope);
-                    if (!candidates .isEmpty() && candidates.first().declaration()) {
+                    if (!candidates.isEmpty() && candidates.first().declaration()) {
                         Symbol *decl = candidates.first().declaration();
                         values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
                     }
