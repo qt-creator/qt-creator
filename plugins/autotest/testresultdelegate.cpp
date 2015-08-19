@@ -126,32 +126,15 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     if (selected) {
-        int height = 0;
-        int leading = fm.leading();
-        int fontHeight = fm.height();
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
 
         if (AutotestPlugin::instance()->settings()->limitResultOutput
                 && output.length() > outputLimit)
             output = output.left(outputLimit).append(QLatin1String("..."));
 
-        QTextLayout tl(output);
-        tl.setFont(painter->font());
-        QTextOption txtOption;
-        txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-        tl.setTextOption(txtOption);
-        tl.beginLayout();
-        while (true) {
-            QTextLine tLine = tl.createLine();
-            if (!tLine.isValid())
-                break;
-            tLine.setLineWidth(positions.textAreaWidth());
-            height += leading;
-            tLine.setPosition(QPoint(0, height));
-            height += fontHeight;
-        }
-        tl.endLayout();
-        tl.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
+        recalculateTextLayout(index, output, painter->font(), positions.textAreaWidth());
+
+        m_lastCalculatedLayout.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
     } else {
         painter->setClipRect(positions.textArea());
         // cut output before generating elided text as this takes quite long for exhaustive output
@@ -234,31 +217,13 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
 
-        int height = 0;
-        int leading = fm.leading();
-
         if (AutotestPlugin::instance()->settings()->limitResultOutput
                 && output.length() > outputLimit)
             output = output.left(outputLimit).append(QLatin1String("..."));
 
-        QTextLayout tl(output);
-        tl.setFont(opt.font);
-        QTextOption txtOption;
-        txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-        tl.setTextOption(txtOption);
-        tl.beginLayout();
-        while (true) {
-            QTextLine line = tl.createLine();
-            if (!line.isValid())
-                break;
-            line.setLineWidth(positions.textAreaWidth());
-            height += leading;
-            line.setPosition(QPoint(0, height));
-            height += fontHeight;
-        }
-        tl.endLayout();
+        recalculateTextLayout(index, output, opt.font, positions.textAreaWidth());
 
-        s.setHeight(height + 3);
+        s.setHeight(m_lastCalculatedHeight + 3);
     } else {
         s.setHeight(fontHeight + 3);
     }
@@ -273,6 +238,38 @@ void TestResultDelegate::currentChanged(const QModelIndex &current, const QModel
 {
     emit sizeHintChanged(current);
     emit sizeHintChanged(previous);
+}
+
+void TestResultDelegate::recalculateTextLayout(const QModelIndex &index, const QString &output,
+                                               const QFont &font, int width) const
+{
+    if (m_lastProcessedIndex == index && m_lastProcessedFont == font)
+        return;
+
+    const QFontMetrics fm(font);
+    const int leading = fm.leading();
+    const int fontHeight = fm.height();
+
+    m_lastProcessedIndex = index;
+    m_lastProcessedFont = font;
+    m_lastCalculatedHeight = 0;
+    m_lastCalculatedLayout.clearLayout();
+    m_lastCalculatedLayout.setText(output);
+    m_lastCalculatedLayout.setFont(font);
+    QTextOption txtOption;
+    txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    m_lastCalculatedLayout.setTextOption(txtOption);
+    m_lastCalculatedLayout.beginLayout();
+    while (true) {
+        QTextLine line = m_lastCalculatedLayout.createLine();
+        if (!line.isValid())
+            break;
+        line.setLineWidth(width);
+        m_lastCalculatedHeight += leading;
+        line.setPosition(QPoint(0, m_lastCalculatedHeight));
+        m_lastCalculatedHeight += fontHeight;
+    }
+    m_lastCalculatedLayout.endLayout();
 }
 
 } // namespace Internal

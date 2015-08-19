@@ -23,6 +23,7 @@
 #include "testresultmodel.h"
 
 #include <QStyledItemDelegate>
+#include <QTextLayout>
 
 namespace Autotest {
 namespace Internal {
@@ -41,6 +42,14 @@ public slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
+    void recalculateTextLayout(const QModelIndex &index, const QString &output,
+                               const QFont &font, int width) const;
+
+    mutable QModelIndex m_lastProcessedIndex;
+    mutable QFont m_lastProcessedFont;
+    mutable QTextLayout m_lastCalculatedLayout;
+    mutable int m_lastCalculatedHeight;
+
     class LayoutPositions
     {
     public:
