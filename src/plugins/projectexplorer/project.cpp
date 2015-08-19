@@ -386,7 +386,7 @@ bool Project::fromMap(const QVariantMap &map)
         const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
         if (!map.contains(key)) {
             qWarning() << key << "was not found in data.";
-            return false;
+            continue;
         }
         QVariantMap targetMap = map.value(key).toMap();
 
