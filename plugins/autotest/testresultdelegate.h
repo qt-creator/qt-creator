@@ -37,10 +37,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-    void emitSizeHintChanged(const QModelIndex &index);
-
-signals:
-
 public slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 

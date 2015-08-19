@@ -269,11 +269,6 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     return s;
 }
 
-void TestResultDelegate::emitSizeHintChanged(const QModelIndex &index)
-{
-    emit sizeHintChanged(index);
-}
-
 void TestResultDelegate::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     emit sizeHintChanged(current);
