@@ -475,6 +475,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             int grandChildCount = child->childCount();
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
                 const TestTreeItem *grandChild = child->child(grandChildRow);
+                if (grandChild->type() != TestTreeItem::TEST_FUNCTION)
+                    continue;
                 if (grandChild->checked() == Qt::Checked)
                     testFunctions << child->name() + QLatin1String("::") + grandChild->name();
             }
