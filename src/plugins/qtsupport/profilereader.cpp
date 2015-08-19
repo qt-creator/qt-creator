@@ -91,7 +91,7 @@ void ProFileReader::aboutToEval(ProFile *parent, ProFile *pro, EvalFileType type
     if (m_ignoreLevel || (type != EvalProjectFile && type != EvalIncludeFile)) {
         m_ignoreLevel++;
     } else {
-        QVector<ProFile *> children = m_includeFiles[parent];
+        QVector<ProFile *> &children = m_includeFiles[parent];
         if (!children.contains(pro)) {
             children.append(pro);
             m_proFiles.append(pro);
