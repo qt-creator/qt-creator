@@ -60,6 +60,7 @@
 #include <QSettings>
 #include <QStringList>
 #include <QApplication>
+#include <QCheckBox>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -470,6 +471,14 @@ void CMakeRunPage::initWidgets()
     m_exitCodeLabel->setVisible(false);
     fl->addRow(m_exitCodeLabel);
 
+    m_continueCheckBox = new QCheckBox(this);
+    m_continueCheckBox->setVisible(false);
+    m_continueCheckBox->setText(tr("Open project with errors."));
+    fl->addRow(m_continueCheckBox);
+
+    connect(m_continueCheckBox, &QCheckBox::toggled,
+            this, &CMakeRunPage::completeChanged);
+
     setTitle(tr("Run CMake"));
     setMinimumSize(600, 400);
 }
@@ -705,8 +714,10 @@ void CMakeRunPage::cmakeFinished()
         m_exitCodeLabel->setText(tr("CMake exited with errors. Please check CMake output."));
         static_cast<Utils::HistoryCompleter *>(m_argumentsLineEdit->completer())->removeHistoryItem(0);
         m_haveCbpFile = false;
+        m_continueCheckBox->setVisible(true);
     } else {
         m_exitCodeLabel->setVisible(false);
+        m_continueCheckBox->setVisible(false);
         m_haveCbpFile = true;
     }
     m_cmakeProcess->deleteLater();
@@ -726,5 +737,5 @@ void CMakeRunPage::cleanupPage()
 bool CMakeRunPage::isComplete() const
 {
     int index = m_generatorComboBox->currentIndex();
-    return index != -1 && m_haveCbpFile;
+    return index != -1 && (m_haveCbpFile || m_continueCheckBox->isChecked());
 }

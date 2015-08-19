@@ -46,6 +46,10 @@
 #include <QLabel>
 #include <QPlainTextEdit>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
+
 namespace Utils {
 class FancyLineEdit;
 class PathChooser;
@@ -183,6 +187,7 @@ private:
     QLabel *m_generatorExtraText;
     QLabel *m_descriptionLabel;
     QLabel *m_exitCodeLabel;
+    QCheckBox *m_continueCheckBox;
     bool m_haveCbpFile;
     Mode m_mode;
     QString m_buildDirectory;
