@@ -153,6 +153,11 @@ bool Utf8String::startsWith(char character) const
     return byteArray.startsWith(character);
 }
 
+bool Utf8String::endsWith(const Utf8String &text) const
+{
+    return byteArray.endsWith(text.byteArray);
+}
+
 bool Utf8String::isEmpty() const
 {
     return byteArray.isEmpty();

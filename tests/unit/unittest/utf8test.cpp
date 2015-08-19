@@ -176,6 +176,13 @@ TEST(Utf8, StartsWith)
     ASSERT_FALSE(text.startsWith('@'));
 }
 
+TEST(Utf8, EndsWith)
+{
+    Utf8String text(Utf8StringLiteral("/my/path"));
+
+    ASSERT_TRUE(text.endsWith(Utf8StringLiteral("path")));
+}
+
 TEST(Utf8, Clear)
 {
     Utf8String text(Utf8StringLiteral("$column"));

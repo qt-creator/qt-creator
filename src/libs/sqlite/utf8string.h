@@ -82,6 +82,7 @@ public:
     bool startsWith(const Utf8String &text) const;
     bool startsWith(const char *text) const;
     bool startsWith(char character) const;
+    bool endsWith(const Utf8String &text) const;
     bool isEmpty() const;
     bool hasContent() const;
 
