@@ -222,6 +222,11 @@ bool operator==(const Utf8String &first, const char *second)
     return first.byteArray == second;
 }
 
+bool operator==(const Utf8String &first, const QString &second)
+{
+    return first.byteArray == second.toUtf8();
+}
+
 bool operator<(const Utf8String &first, const Utf8String &second)
 {
     if (first.byteSize() == second.byteSize())
