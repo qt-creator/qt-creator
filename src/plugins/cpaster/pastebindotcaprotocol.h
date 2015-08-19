@@ -44,7 +44,7 @@ public:
     bool hasSettings() const override { return false; }
     unsigned capabilities() const override;
 
-    void fetch(const QString &id);
+    void fetch(const QString &id) override;
     void paste(const QString &text,
                ContentType ct = Text,
                int expiryDays = 1,

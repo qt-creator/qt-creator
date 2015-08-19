@@ -40,11 +40,11 @@ class PasteBinDotComProtocol : public NetworkProtocol
     Q_OBJECT
 public:
     static QString protocolName();
-    QString name() const { return protocolName(); }
+    QString name() const override { return protocolName(); }
 
     unsigned capabilities() const override;
 
-    void fetch(const QString &id);
+    void fetch(const QString &id) override;
     void paste(const QString &text,
                ContentType ct = Text,
                int expiryDays = 1,
