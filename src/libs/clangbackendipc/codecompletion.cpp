@@ -120,26 +120,26 @@ quint32 &CodeCompletion::availabilityAsInt()
     return reinterpret_cast<quint32&>(availability_);
 }
 
-QDataStream &operator<<(QDataStream &out, const CodeCompletion &command)
+QDataStream &operator<<(QDataStream &out, const CodeCompletion &message)
 {
-    out << command.text_;
-    out << command.chunks_;
-    out << command.priority_;
-    out << command.completionKind_;
-    out << command.availability_;
-    out << command.hasParameters_;
+    out << message.text_;
+    out << message.chunks_;
+    out << message.priority_;
+    out << message.completionKind_;
+    out << message.availability_;
+    out << message.hasParameters_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, CodeCompletion &command)
+QDataStream &operator>>(QDataStream &in, CodeCompletion &message)
 {
-    in >> command.text_;
-    in >> command.chunks_;
-    in >> command.priority_;
-    in >> command.completionKindAsInt();
-    in >> command.availabilityAsInt();
-    in >> command.hasParameters_;
+    in >> message.text_;
+    in >> message.chunks_;
+    in >> message.priority_;
+    in >> message.completionKindAsInt();
+    in >> message.availabilityAsInt();
+    in >> message.hasParameters_;
 
     return in;
 }
@@ -191,30 +191,30 @@ static const char *availabilityToString(CodeCompletion::Availability availabilit
     return nullptr;
 }
 
-QDebug operator<<(QDebug debug, const CodeCompletion &command)
+QDebug operator<<(QDebug debug, const CodeCompletion &message)
 {
     debug.nospace() << "CodeCompletion(";
 
-    debug.nospace() << command.text_ << ", ";
-    debug.nospace() << command.priority_ << ", ";
-    debug.nospace() << completionKindToString(command.completionKind_) << ", ";
-    debug.nospace() << availabilityToString(command.availability_) << ", ";
-    debug.nospace() << command.hasParameters_;
+    debug.nospace() << message.text_ << ", ";
+    debug.nospace() << message.priority_ << ", ";
+    debug.nospace() << completionKindToString(message.completionKind_) << ", ";
+    debug.nospace() << availabilityToString(message.availability_) << ", ";
+    debug.nospace() << message.hasParameters_;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const CodeCompletion &command, ::std::ostream* os)
+void PrintTo(const CodeCompletion &message, ::std::ostream* os)
 {
     *os << "CodeCompletion(";
 
-    *os << command.text_.constData() << ", ";
-    *os << command.priority_ << ", ";
-    *os << completionKindToString(command.completionKind_) << ", ";
-    *os << availabilityToString(command.availability_) << ", ";
-    *os << command.hasParameters_;
+    *os << message.text_.constData() << ", ";
+    *os << message.priority_ << ", ";
+    *os << completionKindToString(message.completionKind_) << ", ";
+    *os << availabilityToString(message.availability_) << ", ";
+    *os << message.hasParameters_;
 
     *os << ")";
 }

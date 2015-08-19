@@ -38,16 +38,16 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RegisterTranslationUnitForCodeCompletionCommand
+class CMBIPC_EXPORT RegisterTranslationUnitForCodeCompletionMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionCommand &command);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionCommand &command);
-    friend CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
-    friend CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
-    friend void PrintTo(const RegisterTranslationUnitForCodeCompletionCommand &command, ::std::ostream* os);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionMessage &message);
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionMessage &message);
+    friend CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForCodeCompletionMessage &first, const RegisterTranslationUnitForCodeCompletionMessage &second);
+    friend CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForCodeCompletionMessage &first, const RegisterTranslationUnitForCodeCompletionMessage &second);
+    friend void PrintTo(const RegisterTranslationUnitForCodeCompletionMessage &message, ::std::ostream* os);
 public:
-    RegisterTranslationUnitForCodeCompletionCommand() = default;
-    RegisterTranslationUnitForCodeCompletionCommand(const QVector<FileContainer> &fileContainers);
+    RegisterTranslationUnitForCodeCompletionMessage() = default;
+    RegisterTranslationUnitForCodeCompletionMessage(const QVector<FileContainer> &fileContainers);
 
     const QVector<FileContainer> &fileContainers() const;
 
@@ -55,15 +55,15 @@ private:
     QVector<FileContainer> fileContainers_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionCommand &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionCommand &command);
-CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
-CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionMessage &message);
+CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForCodeCompletionMessage &first, const RegisterTranslationUnitForCodeCompletionMessage &second);
+CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForCodeCompletionMessage &first, const RegisterTranslationUnitForCodeCompletionMessage &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionCommand &command);
-void PrintTo(const RegisterTranslationUnitForCodeCompletionCommand &command, ::std::ostream* os);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionMessage &message);
+void PrintTo(const RegisterTranslationUnitForCodeCompletionMessage &message, ::std::ostream* os);
 } // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::RegisterTranslationUnitForCodeCompletionCommand)
+Q_DECLARE_METATYPE(ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage)
 
 #endif // CLANGBACKEND_REGISTERFILEFORCODECOMPLITION_H

@@ -46,12 +46,12 @@ using CodeCompletions = QVector<CodeCompletion>;
 
 class CMBIPC_EXPORT CodeCompletion
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletion &command);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletion &command);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletion &message);
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletion &message);
     friend CMBIPC_EXPORT bool operator==(const CodeCompletion &first, const CodeCompletion &second);
     friend CMBIPC_EXPORT bool operator<(const CodeCompletion &first, const CodeCompletion &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &command);
-    friend void PrintTo(const CodeCompletion &command, ::std::ostream* os);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
+    friend void PrintTo(const CodeCompletion &message, ::std::ostream* os);
 
 public:
     enum Kind : quint32 {
@@ -120,15 +120,15 @@ private:
     bool hasParameters_ = false;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletion &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletion &command);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletion &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletion &message);
 CMBIPC_EXPORT bool operator==(const CodeCompletion &first, const CodeCompletion &second);
 CMBIPC_EXPORT bool operator<(const CodeCompletion &first, const CodeCompletion &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &command);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, CodeCompletion::Kind kind);
 
-void PrintTo(const CodeCompletion &command, ::std::ostream* os);
+void PrintTo(const CodeCompletion &message, ::std::ostream* os);
 void PrintTo(CodeCompletion::Kind kind, ::std::ostream *os);
 void PrintTo(CodeCompletion::Availability availability, ::std::ostream *os);
 } // namespace ClangBackEnd

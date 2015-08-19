@@ -45,7 +45,7 @@ class CMBIPC_EXPORT IpcInterface
 {
 public:
     virtual ~IpcInterface();
-    virtual void dispatch(const QVariant &command) = 0;
+    virtual void dispatch(const QVariant &message) = 0;
 };
 
 } // namespace ClangBackEnd

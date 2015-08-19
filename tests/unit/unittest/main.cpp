@@ -30,7 +30,7 @@
 
 #include <sqliteglobal.h>
 
-#include <cmbcommands.h>
+#include <cmbmessages.h>
 
 #include <QCoreApplication>
 
@@ -39,7 +39,7 @@
 
 int main(int argc, char *argv[])
 {
-    ClangBackEnd::Commands::registerCommands();
+    ClangBackEnd::Messages::registerMessages();
     Sqlite::registerTypes();
 
     QCoreApplication application(argc, argv);

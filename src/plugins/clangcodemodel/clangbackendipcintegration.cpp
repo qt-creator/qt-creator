@@ -49,16 +49,16 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <clangbackendipc/cmbcodecompletedcommand.h>
-#include <clangbackendipc/cmbcompletecodecommand.h>
-#include <clangbackendipc/cmbechocommand.h>
-#include <clangbackendipc/cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbunregisterprojectsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbcommands.h>
-#include <clangbackendipc/projectpartsdonotexistcommand.h>
-#include <clangbackendipc/translationunitdoesnotexistcommand.h>
+#include <clangbackendipc/cmbcodecompletedmessage.h>
+#include <clangbackendipc/cmbcompletecodemessage.h>
+#include <clangbackendipc/cmbechomessage.h>
+#include <clangbackendipc/cmbregistertranslationunitsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbregisterprojectsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbunregisterprojectsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbmessages.h>
+#include <clangbackendipc/projectpartsdonotexistmessage.h>
+#include <clangbackendipc/translationunitdoesnotexistmessage.h>
 
 #include <cplusplus/Icons.h>
 
@@ -99,7 +99,7 @@ void IpcReceiver::setAliveHandler(const IpcReceiver::AliveHandler &handler)
     m_aliveHandler = handler;
 }
 
-void IpcReceiver::addExpectedCodeCompletedCommand(
+void IpcReceiver::addExpectedCodeCompletedMessage(
         quint64 ticket,
         ClangCompletionAssistProcessor *processor)
 {
@@ -129,39 +129,39 @@ void IpcReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *t
 
 void IpcReceiver::alive()
 {
-    qCDebug(log) << "<<< AliveCommand";
+    qCDebug(log) << "<<< AliveMessage";
     QTC_ASSERT(m_aliveHandler, return);
     m_aliveHandler();
 }
 
-void IpcReceiver::echo(const EchoCommand &command)
+void IpcReceiver::echo(const EchoMessage &message)
 {
-    qCDebug(log) << "<<<" << command;
+    qCDebug(log) << "<<<" << message;
 }
 
-void IpcReceiver::codeCompleted(const CodeCompletedCommand &command)
+void IpcReceiver::codeCompleted(const CodeCompletedMessage &message)
 {
-    qCDebug(log) << "<<< CodeCompletedCommand with" << command.codeCompletions().size() << "items";
+    qCDebug(log) << "<<< CodeCompletedMessage with" << message.codeCompletions().size() << "items";
 
-    const quint64 ticket = command.ticketNumber();
+    const quint64 ticket = message.ticketNumber();
     QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
     if (processor) {
-        const bool finished = processor->handleAvailableAsyncCompletions(command.codeCompletions());
+        const bool finished = processor->handleAvailableAsyncCompletions(message.codeCompletions());
         if (!finished)
             processor.take();
     }
 }
 
-void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistCommand &command)
+void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
-    QTC_CHECK(!"Got TranslationUnitDoesNotExistCommand");
-    qCDebug(log) << "<<< ERROR:" << command;
+    QTC_CHECK(!"Got TranslationUnitDoesNotExistMessage");
+    qCDebug(log) << "<<< ERROR:" << message;
 }
 
-void IpcReceiver::projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command)
+void IpcReceiver::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
-    QTC_CHECK(!"Got ProjectPartsDoNotExistCommand");
-    qCDebug(log) << "<<< ERROR:" << command;
+    QTC_CHECK(!"Got ProjectPartsDoNotExistMessage");
+    qCDebug(log) << "<<< ERROR:" << message;
 }
 
 class IpcSender : public IpcSenderInterface
@@ -172,11 +172,11 @@ public:
     {}
 
     void end() override;
-    void registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionCommand &command) override;
-    void unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionCommand &command) override;
-    void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionCommand &command) override;
-    void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionCommand &command) override;
-    void completeCode(const ClangBackEnd::CompleteCodeCommand &command) override;
+    void registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage &message) override;
+    void unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage &message) override;
+    void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message) override;
+    void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message) override;
+    void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
 
 private:
     ClangBackEnd::ConnectionClient &m_connection;
@@ -185,37 +185,37 @@ private:
 void IpcSender::end()
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.sendEndCommand();
+     m_connection.sendEndMessage();
 }
 
-void IpcSender::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command)
+void IpcSender::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().registerTranslationUnitsForCodeCompletion(command);
+     m_connection.serverProxy().registerTranslationUnitsForCodeCompletion(message);
 }
 
-void IpcSender::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionCommand &command)
+void IpcSender::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().unregisterTranslationUnitsForCodeCompletion(command);
+     m_connection.serverProxy().unregisterTranslationUnitsForCodeCompletion(message);
 }
 
-void IpcSender::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command)
+void IpcSender::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().registerProjectPartsForCodeCompletion(command);
+     m_connection.serverProxy().registerProjectPartsForCodeCompletion(message);
 }
 
-void IpcSender::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command)
+void IpcSender::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().unregisterProjectPartsForCodeCompletion(command);
+     m_connection.serverProxy().unregisterProjectPartsForCodeCompletion(message);
 }
 
-void IpcSender::completeCode(const CompleteCodeCommand &command)
+void IpcSender::completeCode(const CompleteCodeMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().completeCode(command);
+     m_connection.serverProxy().completeCode(message);
 }
 
 IpcCommunicator::IpcCommunicator()
@@ -232,13 +232,13 @@ IpcCommunicator::IpcCommunicator()
     initializeBackend();
 }
 
-static bool areCommandsRegistered = false;
+static bool areMessagesRegistered = false;
 
 void IpcCommunicator::initializeBackend()
 {
-    if (!areCommandsRegistered) {
-        areCommandsRegistered = true;
-        Commands::registerCommands();
+    if (!areMessagesRegistered) {
+        areMessagesRegistered = true;
+        Messages::registerMessages();
     }
 
     const QString clangBackEndProcessPath = backendProcessPath();
@@ -294,7 +294,7 @@ void IpcCommunicator::registerCurrrentCodeModelUiHeaders()
         updateUnsavedFile(es->fileName(), es->contents());
 }
 
-static QStringList projectPartCommandLine(const CppTools::ProjectPart::Ptr &projectPart)
+static QStringList projectPartMessageLine(const CppTools::ProjectPart::Ptr &projectPart)
 {
     QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
         CppTools::ProjectFile::Unclassified); // No language option
@@ -306,7 +306,7 @@ static QStringList projectPartCommandLine(const CppTools::ProjectPart::Ptr &proj
 static ClangBackEnd::ProjectPartContainer toProjectPartContainer(
         const CppTools::ProjectPart::Ptr &projectPart)
 {
-    const QStringList arguments = projectPartCommandLine(projectPart);
+    const QStringList arguments = projectPartMessageLine(projectPart);
     return ClangBackEnd::ProjectPartContainer(projectPart->id(), Utf8StringVector(arguments));
 }
 
@@ -387,9 +387,9 @@ void IpcCommunicator::initializeBackendWithCurrentData()
 
 IpcSenderInterface *IpcCommunicator::setIpcSender(IpcSenderInterface *ipcSender)
 {
-    IpcSenderInterface *previousCommandSender = m_ipcSender.take();
+    IpcSenderInterface *previousMessageSender = m_ipcSender.take();
     m_ipcSender.reset(ipcSender);
-    return previousCommandSender;
+    return previousMessageSender;
 }
 
 void IpcCommunicator::killBackendProcess()
@@ -402,9 +402,9 @@ void IpcCommunicator::registerFilesForCodeCompletion(const FileContainers &fileC
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const RegisterTranslationUnitForCodeCompletionCommand command(fileContainers);
-    qCDebug(log) << ">>>" << command;
-    m_ipcSender->registerTranslationUnitsForCodeCompletion(command);
+    const RegisterTranslationUnitForCodeCompletionMessage message(fileContainers);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->registerTranslationUnitsForCodeCompletion(message);
 }
 
 void IpcCommunicator::unregisterFilesForCodeCompletion(const FileContainers &fileContainers)
@@ -412,9 +412,9 @@ void IpcCommunicator::unregisterFilesForCodeCompletion(const FileContainers &fil
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const UnregisterTranslationUnitsForCodeCompletionCommand command(fileContainers);
-    qCDebug(log) << ">>>" << command;
-    m_ipcSender->unregisterTranslationUnitsForCodeCompletion(command);
+    const UnregisterTranslationUnitsForCodeCompletionMessage message(fileContainers);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->unregisterTranslationUnitsForCodeCompletion(message);
 }
 
 void IpcCommunicator::registerProjectPartsForCodeCompletion(
@@ -423,9 +423,9 @@ void IpcCommunicator::registerProjectPartsForCodeCompletion(
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const RegisterProjectPartsForCodeCompletionCommand command(projectPartContainers);
-    qCDebug(log) << ">>>" << command;
-    m_ipcSender->registerProjectPartsForCodeCompletion(command);
+    const RegisterProjectPartsForCodeCompletionMessage message(projectPartContainers);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->registerProjectPartsForCodeCompletion(message);
 }
 
 void IpcCommunicator::unregisterProjectPartsForCodeCompletion(const QStringList &projectPartIds)
@@ -433,9 +433,9 @@ void IpcCommunicator::unregisterProjectPartsForCodeCompletion(const QStringList 
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const UnregisterProjectPartsForCodeCompletionCommand command((Utf8StringVector(projectPartIds)));
-    qCDebug(log) << ">>>" << command;
-    m_ipcSender->unregisterProjectPartsForCodeCompletion(command);
+    const UnregisterProjectPartsForCodeCompletionMessage message((Utf8StringVector(projectPartIds)));
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->unregisterProjectPartsForCodeCompletion(message);
 }
 
 void IpcCommunicator::completeCode(ClangCompletionAssistProcessor *assistProcessor,
@@ -447,8 +447,8 @@ void IpcCommunicator::completeCode(ClangCompletionAssistProcessor *assistProcess
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const CompleteCodeCommand command(filePath, line, column, projectFilePath);
-    qCDebug(log) << ">>>" << command;
-    m_ipcSender->completeCode(command);
-    m_ipcReceiver.addExpectedCodeCompletedCommand(command.ticketNumber(), assistProcessor);
+    const CompleteCodeMessage message(filePath, line, column, projectFilePath);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->completeCode(message);
+    m_ipcReceiver.addExpectedCodeCompletedMessage(message.ticketNumber(), assistProcessor);
 }

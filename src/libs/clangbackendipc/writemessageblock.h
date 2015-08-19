@@ -28,51 +28,35 @@
 **
 ****************************************************************************/
 
-#include "writecommandblock.h"
+#ifndef CLANGBACKEND_WRITEMESSAGEBLOCK_H
+#define CLANGBACKEND_WRITEMESSAGEBLOCK_H
 
-#include <QDataStream>
-#include <QDebug>
-#include <QIODevice>
-#include <QVariant>
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+class QVariant;
+class QDataStream;
+class QIODevice;
+QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-WriteCommandBlock::WriteCommandBlock(QIODevice *ioDevice)
-    : commandCounter(0),
-      ioDevice(ioDevice)
+class WriteMessageBlock
 {
-}
+public:
+    WriteMessageBlock(QIODevice *ioDevice = nullptr);
 
-void WriteCommandBlock::write(const QVariant &command)
-{
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
+    void write(const QVariant &message);
 
-    const qint32 dummyBockSize = 0;
-    out << dummyBockSize;
+    qint64 counter() const;
 
-    out << commandCounter;
+    void resetCounter();
 
-    out << command;
-
-    out.device()->seek(0);
-    out << qint32(block.size() - sizeof(qint32));
-
-    ++commandCounter;
-
-    ioDevice->write(block);
-}
-
-qint64 WriteCommandBlock::counter() const
-{
-    return commandCounter;
-}
-
-void WriteCommandBlock::resetCounter()
-{
-    commandCounter = 0;
-}
-
+private:
+    qint64 messageCounter;
+    QIODevice *ioDevice;
+};
 
 } // namespace ClangBackEnd
 
+#endif // CLANGBACKEND_WRITEMESSAGEBLOCK_H

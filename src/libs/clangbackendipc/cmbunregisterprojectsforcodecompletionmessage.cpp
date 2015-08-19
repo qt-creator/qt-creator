@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbunregisterprojectsforcodecompletioncommand.h"
+#include "cmbunregisterprojectsforcodecompletionmessage.h"
 
 #include "container_common.h"
 
@@ -41,45 +41,45 @@
 namespace ClangBackEnd {
 
 
-UnregisterProjectPartsForCodeCompletionCommand::UnregisterProjectPartsForCodeCompletionCommand(const Utf8StringVector &filePaths)
+UnregisterProjectPartsForCodeCompletionMessage::UnregisterProjectPartsForCodeCompletionMessage(const Utf8StringVector &filePaths)
     : projectPartIds_(filePaths)
 {
 }
 
-const Utf8StringVector &UnregisterProjectPartsForCodeCompletionCommand::projectPartIds() const
+const Utf8StringVector &UnregisterProjectPartsForCodeCompletionMessage::projectPartIds() const
 {
     return projectPartIds_;
 }
 
-QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionCommand &command)
+QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionMessage &message)
 {
-    out << command.projectPartIds_;
+    out << message.projectPartIds_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionCommand &command)
+QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionMessage &message)
 {
-    in >> command.projectPartIds_;
+    in >> message.projectPartIds_;
 
     return in;
 }
 
-bool operator==(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
+bool operator==(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second)
 {
     return first.projectPartIds_ == second.projectPartIds_;
 }
 
-bool operator<(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second)
+bool operator<(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second)
 {
     return compareContainer(first.projectPartIds_, second.projectPartIds_);
 }
 
-QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCommand &command)
+QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionMessage &message)
 {
-    debug.nospace() << "UnregisterProjectPartsForCodeCompletionCommand(";
+    debug.nospace() << "UnregisterProjectPartsForCodeCompletionMessage(";
 
-    for (const Utf8String &fileNames_ : command.projectPartIds())
+    for (const Utf8String &fileNames_ : message.projectPartIds())
         debug.nospace() << fileNames_ << ", ";
 
     debug.nospace() << ")";
@@ -87,11 +87,11 @@ QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCom
     return debug;
 }
 
-void PrintTo(const UnregisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os)
+void PrintTo(const UnregisterProjectPartsForCodeCompletionMessage &message, ::std::ostream* os)
 {
-    *os << "UnregisterProjectPartsForCodeCompletionCommand(";
+    *os << "UnregisterProjectPartsForCodeCompletionMessage(";
 
-    for (const Utf8String &fileNames_ : command.projectPartIds())
+    for (const Utf8String &fileNames_ : message.projectPartIds())
         *os << fileNames_.constData() << ", ";
 
     *os << ")";

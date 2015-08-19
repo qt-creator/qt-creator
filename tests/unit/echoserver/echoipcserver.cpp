@@ -30,14 +30,14 @@
 
 #include "echoipcserver.h"
 
-#include "cmbcodecompletedcommand.h"
-#include "cmbcompletecodecommand.h"
-#include "cmbechocommand.h"
-#include "cmbendcommand.h"
-#include "cmbregisterprojectsforcodecompletioncommand.h"
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbunregisterprojectsforcodecompletioncommand.h"
-#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbcodecompletedmessage.h"
+#include "cmbcompletecodemessage.h"
+#include "cmbechomessage.h"
+#include "cmbendmessage.h"
+#include "cmbregisterprojectsforcodecompletionmessage.h"
+#include "cmbregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbunregisterprojectsforcodecompletionmessage.h"
+#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
 #include "connectionserver.h"
 
 #include <QCoreApplication>
@@ -46,9 +46,9 @@
 
 namespace ClangBackEnd {
 
-void EchoIpcServer::dispatch(const QVariant &command)
+void EchoIpcServer::dispatch(const QVariant &message)
 {
-    IpcServerInterface::dispatch(command);
+    IpcServerInterface::dispatch(message);
 }
 
 void EchoIpcServer::end()
@@ -57,34 +57,34 @@ void EchoIpcServer::end()
     QCoreApplication::quit();
 }
 
-void EchoIpcServer::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command)
+void EchoIpcServer::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message)
 {
-    echoCommand(QVariant::fromValue(command));
+    echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionCommand &command)
+void EchoIpcServer::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message)
 {
-    echoCommand(QVariant::fromValue(command));
+    echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command)
+void EchoIpcServer::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
 {
-    echoCommand(QVariant::fromValue(command));
+    echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command)
+void EchoIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
 {
-    echoCommand(QVariant::fromValue(command));
+    echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::completeCode(const CompleteCodeCommand &command)
+void EchoIpcServer::completeCode(const CompleteCodeMessage &message)
 {
-    echoCommand(QVariant::fromValue(command));
+    echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::echoCommand(const QVariant &command)
+void EchoIpcServer::echoMessage(const QVariant &message)
 {
-    client()->echo(EchoCommand(command));
+    client()->echo(EchoMessage(message));
 }
 
 } // namespace ClangBackEnd

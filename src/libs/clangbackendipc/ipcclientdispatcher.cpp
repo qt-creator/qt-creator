@@ -50,28 +50,28 @@ void IpcClientDispatcher::alive()
         client->alive();
 }
 
-void IpcClientDispatcher::echo(const EchoCommand &command)
+void IpcClientDispatcher::echo(const EchoMessage &message)
 {
     for (auto *client : clients)
-        client->echo(command);
+        client->echo(message);
 }
 
-void IpcClientDispatcher::codeCompleted(const CodeCompletedCommand &command)
+void IpcClientDispatcher::codeCompleted(const CodeCompletedMessage &message)
 {
     for (auto *client : clients)
-        client->codeCompleted(command);
+        client->codeCompleted(message);
 }
 
-void IpcClientDispatcher::translationUnitDoesNotExist(const TranslationUnitDoesNotExistCommand &command)
+void IpcClientDispatcher::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
     for (auto *client : clients)
-        client->translationUnitDoesNotExist(command);
+        client->translationUnitDoesNotExist(message);
 }
 
-void IpcClientDispatcher::projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command)
+void IpcClientDispatcher::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
     for (auto *client : clients)
-        client->projectPartsDoNotExist(command);
+        client->projectPartsDoNotExist(message);
 }
 
 } // namespace ClangBackEnd

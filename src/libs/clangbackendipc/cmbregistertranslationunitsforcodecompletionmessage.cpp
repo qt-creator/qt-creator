@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbregistertranslationunitsforcodecompletionmessage.h"
 
 #include "container_common.h"
 
@@ -39,45 +39,45 @@
 
 namespace ClangBackEnd {
 
-RegisterTranslationUnitForCodeCompletionCommand::RegisterTranslationUnitForCodeCompletionCommand(const QVector<FileContainer> &fileContainers)
+RegisterTranslationUnitForCodeCompletionMessage::RegisterTranslationUnitForCodeCompletionMessage(const QVector<FileContainer> &fileContainers)
     : fileContainers_(fileContainers)
 {
 }
 
-const QVector<FileContainer> &RegisterTranslationUnitForCodeCompletionCommand::fileContainers() const
+const QVector<FileContainer> &RegisterTranslationUnitForCodeCompletionMessage::fileContainers() const
 {
     return fileContainers_;
 }
 
-QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionCommand &command)
+QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForCodeCompletionMessage &message)
 {
-    out << command.fileContainers_;
+    out << message.fileContainers_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionCommand &command)
+QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForCodeCompletionMessage &message)
 {
-    in >> command.fileContainers_;
+    in >> message.fileContainers_;
 
     return in;
 }
 
-bool operator==(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second)
+bool operator==(const RegisterTranslationUnitForCodeCompletionMessage &first, const RegisterTranslationUnitForCodeCompletionMessage &second)
 {
     return first.fileContainers_ == second.fileContainers_;
 }
 
-bool operator<(const RegisterTranslationUnitForCodeCompletionCommand &first, const RegisterTranslationUnitForCodeCompletionCommand &second)
+bool operator<(const RegisterTranslationUnitForCodeCompletionMessage &first, const RegisterTranslationUnitForCodeCompletionMessage &second)
 {
     return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
-QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionCommand &command)
+QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionMessage &message)
 {
-    debug.nospace() << "RegisterTranslationUnitForCodeCompletionCommand(";
+    debug.nospace() << "RegisterTranslationUnitForCodeCompletionMessage(";
 
-    for (const FileContainer &fileContainer : command.fileContainers())
+    for (const FileContainer &fileContainer : message.fileContainers())
         debug.nospace() << fileContainer<< ", ";
 
     debug.nospace() << ")";
@@ -85,11 +85,11 @@ QDebug operator<<(QDebug debug, const RegisterTranslationUnitForCodeCompletionCo
     return debug;
 }
 
-void PrintTo(const RegisterTranslationUnitForCodeCompletionCommand &command, ::std::ostream* os)
+void PrintTo(const RegisterTranslationUnitForCodeCompletionMessage &message, ::std::ostream* os)
 {
-    *os << "RegisterTranslationUnitForCodeCompletionCommand(";
+    *os << "RegisterTranslationUnitForCodeCompletionMessage(";
 
-    for (const FileContainer &fileContainer : command.fileContainers())
+    for (const FileContainer &fileContainer : message.fileContainers())
         PrintTo(fileContainer, os);
 
     *os << ")";

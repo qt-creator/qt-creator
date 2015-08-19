@@ -80,7 +80,7 @@ int ConnectionServer::clientProxyCount() const
 void ConnectionServer::timerEvent(QTimerEvent *timerEvent)
 {
     if (aliveTimerId == timerEvent->timerId())
-        sendAliveCommand();
+        sendAliveMessage();
 }
 
 void ConnectionServer::handleNewConnection()
@@ -96,7 +96,7 @@ void ConnectionServer::handleNewConnection()
     emit newConnection();
 }
 
-void ConnectionServer::sendAliveCommand()
+void ConnectionServer::sendAliveMessage()
 {
     ipcServer->client()->alive();
 }

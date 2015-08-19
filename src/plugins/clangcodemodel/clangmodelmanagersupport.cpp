@@ -39,7 +39,7 @@
 #include <cpptools/editordocumenthandle.h>
 #include <projectexplorer/project.h>
 
-#include <clangbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbregisterprojectsforcodecompletionmessage.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartcontainer.h>
 #include <utils/qtcassert.h>

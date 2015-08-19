@@ -30,7 +30,7 @@
 
 #include "echoipcserver.h"
 
-#include <cmbcommands.h>
+#include <cmbmessages.h>
 #include <connectionserver.h>
 
 #include <QCoreApplication>
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ClangBackEnd::Commands::registerCommands();
+    ClangBackEnd::Messages::registerMessages();
 
     ClangBackEnd::EchoIpcServer echoIpcServer;
     ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);

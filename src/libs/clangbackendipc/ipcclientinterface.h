@@ -36,26 +36,26 @@
 namespace ClangBackEnd {
 
 class IpcServerInterface;
-class RegisterTranslationUnitForCodeCompletionCommand;
-class RegisterProjectPartsForCodeCompletionCommand;
-class UnregisterTranslationUnitsForCodeCompletionCommand;
-class UnregisterProjectPartsForCodeCompletionCommand;
-class EchoCommand;
-class CompleteCodeCommand;
-class CodeCompletedCommand;
-class TranslationUnitDoesNotExistCommand;
-class ProjectPartsDoNotExistCommand;
+class RegisterTranslationUnitForCodeCompletionMessage;
+class RegisterProjectPartsForCodeCompletionMessage;
+class UnregisterTranslationUnitsForCodeCompletionMessage;
+class UnregisterProjectPartsForCodeCompletionMessage;
+class EchoMessage;
+class CompleteCodeMessage;
+class CodeCompletedMessage;
+class TranslationUnitDoesNotExistMessage;
+class ProjectPartsDoNotExistMessage;
 
 class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
 {
 public:
-    void dispatch(const QVariant &command) override;
+    void dispatch(const QVariant &message) override;
 
     virtual void alive() = 0;
-    virtual void echo(const EchoCommand &command) = 0;
-    virtual void codeCompleted(const CodeCompletedCommand &command) = 0;
-    virtual void translationUnitDoesNotExist(const TranslationUnitDoesNotExistCommand &command) = 0;
-    virtual void projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command) = 0;
+    virtual void echo(const EchoMessage &message) = 0;
+    virtual void codeCompleted(const CodeCompletedMessage &message) = 0;
+    virtual void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) = 0;
+    virtual void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd

@@ -43,13 +43,13 @@ class MockIpcClient : public ClangBackEnd::IpcClientInterface {
   MOCK_METHOD0(alive,
       void());
   MOCK_METHOD1(echo,
-      void(const ClangBackEnd::EchoCommand &command));
+      void(const ClangBackEnd::EchoMessage &message));
   MOCK_METHOD1(codeCompleted,
-      void(const ClangBackEnd::CodeCompletedCommand &command));
+      void(const ClangBackEnd::CodeCompletedMessage &message));
   MOCK_METHOD1(translationUnitDoesNotExist,
-      void(const ClangBackEnd::TranslationUnitDoesNotExistCommand &command));
+      void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
   MOCK_METHOD1(projectPartsDoNotExist,
-      void(const ClangBackEnd::ProjectPartsDoNotExistCommand &command));
+      void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
 };
 
 #endif // MOCKIPCLIENT_H

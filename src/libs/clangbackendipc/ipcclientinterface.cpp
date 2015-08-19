@@ -30,10 +30,10 @@
 
 #include "ipcclientinterface.h"
 
-#include "cmbcodecompletedcommand.h"
-#include "cmbechocommand.h"
-#include "projectpartsdonotexistcommand.h"
-#include "translationunitdoesnotexistcommand.h"
+#include "cmbcodecompletedmessage.h"
+#include "cmbechomessage.h"
+#include "projectpartsdonotexistmessage.h"
+#include "translationunitdoesnotexistmessage.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -41,28 +41,28 @@
 namespace ClangBackEnd {
 
 
-void IpcClientInterface::dispatch(const QVariant &command)
+void IpcClientInterface::dispatch(const QVariant &message)
 {
-    static const int aliveCommandType = QMetaType::type("ClangBackEnd::AliveCommand");
-    static const int echoCommandType = QMetaType::type("ClangBackEnd::EchoCommand");
-    static const int codeCompletedCommandType = QMetaType::type("ClangBackEnd::CodeCompletedCommand");
-    static const int translationUnitDoesNotExistCommand = QMetaType::type("ClangBackEnd::TranslationUnitDoesNotExistCommand");
-    static const int projectPartsDoNotExistCommand = QMetaType::type("ClangBackEnd::ProjectPartsDoNotExistCommand");
+    static const int aliveMessageType = QMetaType::type("ClangBackEnd::AliveMessage");
+    static const int echoMessageType = QMetaType::type("ClangBackEnd::EchoMessage");
+    static const int codeCompletedMessageType = QMetaType::type("ClangBackEnd::CodeCompletedMessage");
+    static const int translationUnitDoesNotExistMessage = QMetaType::type("ClangBackEnd::TranslationUnitDoesNotExistMessage");
+    static const int projectPartsDoNotExistMessage = QMetaType::type("ClangBackEnd::ProjectPartsDoNotExistMessage");
 
-    int type = command.userType();
+    int type = message.userType();
 
-    if (type == aliveCommandType)
+    if (type == aliveMessageType)
         alive();
-    else if (type == echoCommandType)
-        echo(command.value<EchoCommand>());
-    else if (type == codeCompletedCommandType)
-        codeCompleted(command.value<CodeCompletedCommand>());
-    else if (type == translationUnitDoesNotExistCommand)
-        translationUnitDoesNotExist(command.value<TranslationUnitDoesNotExistCommand>());
-    else if (type == projectPartsDoNotExistCommand)
-        projectPartsDoNotExist(command.value<ProjectPartsDoNotExistCommand>());
+    else if (type == echoMessageType)
+        echo(message.value<EchoMessage>());
+    else if (type == codeCompletedMessageType)
+        codeCompleted(message.value<CodeCompletedMessage>());
+    else if (type == translationUnitDoesNotExistMessage)
+        translationUnitDoesNotExist(message.value<TranslationUnitDoesNotExistMessage>());
+    else if (type == projectPartsDoNotExistMessage)
+        projectPartsDoNotExist(message.value<ProjectPartsDoNotExistMessage>());
     else
-        qWarning() << "Unknown IpcClientCommand";
+        qWarning() << "Unknown IpcClientMessage";
 }
 
 } // namespace ClangBackEnd

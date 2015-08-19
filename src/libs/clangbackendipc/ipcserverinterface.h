@@ -42,14 +42,14 @@ class IpcClientInterface;
 class CMBIPC_EXPORT IpcServerInterface : public IpcInterface
 {
 public:
-    void dispatch(const QVariant &command) override;
+    void dispatch(const QVariant &message) override;
 
     virtual void end() = 0;
-    virtual void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command) = 0;
-    virtual void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionCommand &command) = 0;
-    virtual void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command) = 0;
-    virtual void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command) = 0;
-    virtual void completeCode(const CompleteCodeCommand &command) = 0;
+    virtual void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message) = 0;
+    virtual void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message) = 0;
+    virtual void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) = 0;
+    virtual void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) = 0;
+    virtual void completeCode(const CompleteCodeMessage &message) = 0;
 
     void addClient(IpcClientInterface *client);
     void removeClient(IpcClientInterface *client);

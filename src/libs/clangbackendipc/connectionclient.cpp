@@ -31,9 +31,9 @@
 #include "connectionclient.h"
 
 #include "clangbackendipcdebugutils.h"
-#include "cmbcompletecodecommand.h"
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbcompletecodemessage.h"
+#include "cmbregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
 
 #include <QCoreApplication>
 #include <QProcess>
@@ -100,17 +100,17 @@ bool ConnectionClient::isConnected() const
     return localSocket.state() == QLocalSocket::ConnectedState;
 }
 
-void ConnectionClient::ensureCommandIsWritten()
+void ConnectionClient::ensureMessageIsWritten()
 {
     while (isConnected() && localSocket.bytesToWrite() > 0)
         localSocket.waitForBytesWritten(50);
 }
 
-void ConnectionClient::sendEndCommand()
+void ConnectionClient::sendEndMessage()
 {
     serverProxy_.end();
     localSocket.flush();
-    ensureCommandIsWritten();
+    ensureMessageIsWritten();
 }
 
 void ConnectionClient::resetProcessAliveTimer()
@@ -180,7 +180,7 @@ bool ConnectionClient::connectToLocalSocket()
 void ConnectionClient::endProcess()
 {
     if (isProcessIsRunning()) {
-        sendEndCommand();
+        sendEndMessage();
         process()->waitForFinished();
     }
 }

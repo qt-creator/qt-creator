@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETEDCOMMAND_H
-#define CLANGBACKEND_CODECOMPLETEDCOMMAND_H
+#ifndef CLANGBACKEND_CODECOMPLETEDMESSAGE_H
+#define CLANGBACKEND_CODECOMPLETEDMESSAGE_H
 
 #include "codecompletion.h"
 
@@ -38,17 +38,17 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT CodeCompletedCommand
+class CMBIPC_EXPORT CodeCompletedMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedCommand &command);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletedCommand &command);
-    friend CMBIPC_EXPORT bool operator==(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
-    friend CMBIPC_EXPORT bool operator<(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedCommand &command);
-    friend void PrintTo(const CodeCompletedCommand &command, ::std::ostream* os);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message);
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message);
+    friend CMBIPC_EXPORT bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second);
+    friend CMBIPC_EXPORT bool operator<(const CodeCompletedMessage &first, const CodeCompletedMessage &second);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
+    friend void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os);
 public:
-    CodeCompletedCommand() = default;
-    CodeCompletedCommand(const CodeCompletions &codeCompletions, quint64 ticketNumber);
+    CodeCompletedMessage() = default;
+    CodeCompletedMessage(const CodeCompletions &codeCompletions, quint64 ticketNumber);
 
     const CodeCompletions &codeCompletions() const;
 
@@ -59,16 +59,16 @@ private:
     quint64 ticketNumber_ = 0;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedCommand &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletedCommand &command);
-CMBIPC_EXPORT bool operator==(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
-CMBIPC_EXPORT bool operator<(const CodeCompletedCommand &first, const CodeCompletedCommand &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message);
+CMBIPC_EXPORT bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second);
+CMBIPC_EXPORT bool operator<(const CodeCompletedMessage &first, const CodeCompletedMessage &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedCommand &command);
-void PrintTo(const CodeCompletedCommand &command, ::std::ostream* os);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
+void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os);
 
 } // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::CodeCompletedCommand)
+Q_DECLARE_METATYPE(ClangBackEnd::CodeCompletedMessage)
 
-#endif // CLANGBACKEND_CODECOMPLETEDCOMMAND_H
+#endif // CLANGBACKEND_CODECOMPLETEDMESSAGE_H

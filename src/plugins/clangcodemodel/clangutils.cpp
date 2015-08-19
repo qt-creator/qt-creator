@@ -74,7 +74,7 @@ UnsavedFiles createUnsavedFiles(const WorkingCopy &workingCopy,
 }
 
 /**
- * @brief Creates list of command-line arguments required for correct parsing
+ * @brief Creates list of message-line arguments required for correct parsing
  * @param pPart Null if file isn't part of any project
  * @param fileName Path to file, non-empty
  */
@@ -202,7 +202,7 @@ private:
 };
 
 /**
- * @brief Creates list of command-line arguments required for correct parsing
+ * @brief Creates list of message-line arguments required for correct parsing
  * @param pPart Null if file isn't part of any project
  * @param fileKind Determines language and source/header state
  */

@@ -28,41 +28,51 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_ECHOCOMMAND_H
-#define CLANGBACKEND_ECHOCOMMAND_H
+#include "writemessageblock.h"
 
-#include "clangbackendipc_global.h"
-
-#include <QMetaType>
+#include <QDataStream>
+#include <QDebug>
+#include <QIODevice>
 #include <QVariant>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT EchoCommand
+WriteMessageBlock::WriteMessageBlock(QIODevice *ioDevice)
+    : messageCounter(0),
+      ioDevice(ioDevice)
 {
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoCommand &command);
-    friend CMBIPC_EXPORT bool operator==(const EchoCommand &first, const EchoCommand &second);
-    friend CMBIPC_EXPORT bool operator<(const EchoCommand &first, const EchoCommand &second);
-public:
-    EchoCommand() = default;
-    explicit EchoCommand(const QVariant &command);
+}
 
-    const QVariant &command() const;
+void WriteMessageBlock::write(const QVariant &message)
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
 
-private:
-    QVariant command_;
-};
+    const qint32 dummyBockSize = 0;
+    out << dummyBockSize;
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EchoCommand &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoCommand &command);
-CMBIPC_EXPORT bool operator==(const EchoCommand &first, const EchoCommand &second);
-CMBIPC_EXPORT bool operator<(const EchoCommand &first, const EchoCommand &second);
+    out << messageCounter;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EchoCommand &command);
-void PrintTo(const EchoCommand &command, ::std::ostream* os);
+    out << message;
+
+    out.device()->seek(0);
+    out << qint32(block.size() - sizeof(qint32));
+
+    ++messageCounter;
+
+    ioDevice->write(block);
+}
+
+qint64 WriteMessageBlock::counter() const
+{
+    return messageCounter;
+}
+
+void WriteMessageBlock::resetCounter()
+{
+    messageCounter = 0;
+}
+
 
 } // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::EchoCommand)
-
-#endif // CLANGBACKEND_ECHOCOMMAND_H

@@ -28,18 +28,43 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_COMMANDS_H
-#define CLANGBACKEND_COMMANDS_H
+#include "cmbendmessage.h"
 
-#include <clangbackendipc_global.h>
+#include <QDataStream>
+#include <QDebug>
+
+#include <ostream>
 
 namespace ClangBackEnd {
 
-namespace Commands
+QDataStream &operator<<(QDataStream &out, const EndMessage &/*message*/)
 {
-CMBIPC_EXPORT void registerCommands();
+    return out;
 }
 
-} // namespace ClangBackEnd
+QDataStream &operator>>(QDataStream &in, EndMessage &/*message*/)
+{
+    return in;
+}
 
-#endif // CLANGBACKEND_COMMANDS_H
+bool operator==(const EndMessage &/*first*/, const EndMessage &/*second*/)
+{
+    return true;
+}
+
+bool operator<(const EndMessage &/*first*/, const EndMessage &/*second*/)
+{
+    return true;
+}
+
+QDebug operator<<(QDebug debug, const EndMessage &/*message*/)
+{
+    return debug.nospace() << "EndMessage()";
+}
+
+void PrintTo(const EndMessage &/*message*/, ::std::ostream* os)
+{
+    *os << "EndMessage()";
+}
+}
+

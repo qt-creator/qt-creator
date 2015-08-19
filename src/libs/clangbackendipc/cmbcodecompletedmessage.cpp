@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbcodecompletedcommand.h"
+#include "cmbcodecompletedmessage.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -37,66 +37,66 @@
 
 namespace ClangBackEnd {
 
-CodeCompletedCommand::CodeCompletedCommand(const CodeCompletions &codeCompletions, quint64 ticketNumber)
+CodeCompletedMessage::CodeCompletedMessage(const CodeCompletions &codeCompletions, quint64 ticketNumber)
     : codeCompletions_(codeCompletions),
       ticketNumber_(ticketNumber)
 {
 }
 
-const CodeCompletions &CodeCompletedCommand::codeCompletions() const
+const CodeCompletions &CodeCompletedMessage::codeCompletions() const
 {
     return codeCompletions_;
 }
 
-quint64 CodeCompletedCommand::ticketNumber() const
+quint64 CodeCompletedMessage::ticketNumber() const
 {
     return ticketNumber_;
 }
 
-QDataStream &operator<<(QDataStream &out, const CodeCompletedCommand &command)
+QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
 {
-    out << command.codeCompletions_;
-    out << command.ticketNumber_;
+    out << message.codeCompletions_;
+    out << message.ticketNumber_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, CodeCompletedCommand &command)
+QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message)
 {
-    in >> command.codeCompletions_;
-    in >> command.ticketNumber_;
+    in >> message.codeCompletions_;
+    in >> message.ticketNumber_;
 
     return in;
 }
 
-bool operator==(const CodeCompletedCommand &first, const CodeCompletedCommand &second)
+bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
 {
     return first.ticketNumber_ == second.ticketNumber_
             && first.codeCompletions_ == second.codeCompletions_;
 }
 
-bool operator<(const CodeCompletedCommand &first, const CodeCompletedCommand &second)
+bool operator<(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
 {
     return first.ticketNumber_ < second.ticketNumber_;
 }
 
-QDebug operator<<(QDebug debug, const CodeCompletedCommand &command)
+QDebug operator<<(QDebug debug, const CodeCompletedMessage &message)
 {
-    debug.nospace() << "CodeCompletedCommand(";
+    debug.nospace() << "CodeCompletedMessage(";
 
-    debug.nospace() << command.codeCompletions_ << ", " << command.ticketNumber_;
+    debug.nospace() << message.codeCompletions_ << ", " << message.ticketNumber_;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const CodeCompletedCommand &command, ::std::ostream* os)
+void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os)
 {
     QString output;
     QDebug debug(&output);
 
-    debug << command;
+    debug << message;
 
     *os << output.toUtf8().constData();
 }

@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "translationunitdoesnotexistcommand.h"
+#include "cmbechomessage.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -37,72 +37,52 @@
 
 namespace ClangBackEnd {
 
-TranslationUnitDoesNotExistCommand::TranslationUnitDoesNotExistCommand(const FileContainer &fileContainer)
-    : fileContainer_(fileContainer)
+EchoMessage::EchoMessage(const QVariant &message)
+    : message_(message)
 {
+
 }
 
-TranslationUnitDoesNotExistCommand::TranslationUnitDoesNotExistCommand(const Utf8String &filePath, const Utf8String &projectPartId)
-    : fileContainer_(filePath, projectPartId)
+const QVariant &EchoMessage::message() const
 {
+    return message_;
 }
 
-const FileContainer &TranslationUnitDoesNotExistCommand::fileContainer() const
+QDataStream &operator<<(QDataStream &out, const EchoMessage &message)
 {
-    return fileContainer_;
-}
-
-const Utf8String &TranslationUnitDoesNotExistCommand::filePath() const
-{
-    return fileContainer_.filePath();
-}
-
-const Utf8String &TranslationUnitDoesNotExistCommand::projectPartId() const
-{
-    return fileContainer_.projectPartId();
-}
-
-QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistCommand &command)
-{
-    out << command.fileContainer_;
+    out << message.message();
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistCommand &command)
+QDataStream &operator>>(QDataStream &in, EchoMessage &message)
 {
-    in >> command.fileContainer_;
+    in >> message.message_;
 
     return in;
 }
 
-bool operator==(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second)
+bool operator==(const EchoMessage &first, const EchoMessage &second)
 {
-    return first.fileContainer_ == second.fileContainer_;
+    return first.message_ == second.message_;
 }
 
-bool operator<(const TranslationUnitDoesNotExistCommand &first, const TranslationUnitDoesNotExistCommand &second)
+bool operator<(const EchoMessage &first, const EchoMessage &second)
 {
-    return first.fileContainer_ < second.fileContainer_;
+    return first.message_ < second.message_;
 }
 
-QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistCommand &command)
+QDebug operator<<(QDebug debug, const EchoMessage &message)
 {
-    debug.nospace() << "TranslationUnitDoesNotExistCommand(";
-
-    debug.nospace() << command.fileContainer_;
-
-    debug.nospace() << ")";
-
-    return debug;
+    return debug.nospace() << "EchoMessage(" << message.message() << ")";
 }
 
-void PrintTo(const TranslationUnitDoesNotExistCommand &command, ::std::ostream* os)
+void PrintTo(const EchoMessage &message, ::std::ostream* os)
 {
     QString output;
     QDebug debug(&output);
 
-    debug << command;
+    debug << message;
 
     *os << output.toUtf8().constData();
 }

@@ -28,28 +28,41 @@
 **
 ****************************************************************************/
 
-#ifndef CMBENDCOMMAND_H
-#define CMBENDCOMMAND_H
+#ifndef CLANGBACKEND_ECHOMESSAGE_H
+#define CLANGBACKEND_ECHOMESSAGE_H
 
 #include "clangbackendipc_global.h"
 
 #include <QMetaType>
+#include <QVariant>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT EndCommand
+class CMBIPC_EXPORT EchoMessage
 {
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoMessage &message);
+    friend CMBIPC_EXPORT bool operator==(const EchoMessage &first, const EchoMessage &second);
+    friend CMBIPC_EXPORT bool operator<(const EchoMessage &first, const EchoMessage &second);
+public:
+    EchoMessage() = default;
+    explicit EchoMessage(const QVariant &message);
+
+    const QVariant &message() const;
+
+private:
+    QVariant message_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EndCommand &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EndCommand &command);
-CMBIPC_EXPORT bool operator==(const EndCommand &first, const EndCommand &second);
-CMBIPC_EXPORT bool operator<(const EndCommand &first, const EndCommand &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EchoMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoMessage &message);
+CMBIPC_EXPORT bool operator==(const EchoMessage &first, const EchoMessage &second);
+CMBIPC_EXPORT bool operator<(const EchoMessage &first, const EchoMessage &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndCommand &command);
-void PrintTo(const EndCommand &command, ::std::ostream* os);
-}
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
+void PrintTo(const EchoMessage &message, ::std::ostream* os);
 
-Q_DECLARE_METATYPE(ClangBackEnd::EndCommand)
+} // namespace ClangBackEnd
 
-#endif // CMBENDCOMMAND_H
+Q_DECLARE_METATYPE(ClangBackEnd::EchoMessage)
+
+#endif // CLANGBACKEND_ECHOMESSAGE_H

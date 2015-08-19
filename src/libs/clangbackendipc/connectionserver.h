@@ -64,7 +64,7 @@ protected:
 
 private:
     void handleNewConnection();
-    void sendAliveCommand();
+    void sendAliveMessage();
     void handleSocketDisconnect();
     void removeClientProxyWithLocalSocket(QLocalSocket *localSocket);
     QLocalSocket *nextPendingConnection();

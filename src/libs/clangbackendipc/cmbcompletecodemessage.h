@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_COMPLETECODECOMMAND_H
-#define CLANGBACKEND_COMPLETECODECOMMAND_H
+#ifndef CLANGBACKEND_COMPLETECODEMESSAGE_H
+#define CLANGBACKEND_COMPLETECODEMESSAGE_H
 
 #include "clangbackendipc_global.h"
 
@@ -39,18 +39,18 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT CompleteCodeCommand
+class CMBIPC_EXPORT CompleteCodeMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CompleteCodeCommand &command);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CompleteCodeCommand &command);
-    friend CMBIPC_EXPORT bool operator==(const CompleteCodeCommand &first, const CompleteCodeCommand &second);
-    friend CMBIPC_EXPORT bool operator<(const CompleteCodeCommand &first, const CompleteCodeCommand &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeCommand &command);
-    friend void PrintTo(const CompleteCodeCommand &command, ::std::ostream* os);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message);
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message);
+    friend CMBIPC_EXPORT bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
+    friend CMBIPC_EXPORT bool operator<(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
+    friend void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os);
 
 public:
-    CompleteCodeCommand() = default;
-    CompleteCodeCommand(const Utf8String &filePath,
+    CompleteCodeMessage() = default;
+    CompleteCodeMessage(const Utf8String &filePath,
                         quint32 line,
                         quint32 column,
                         const Utf8String &projectPartId);
@@ -72,16 +72,16 @@ private:
     quint32 column_ = 0;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CompleteCodeCommand &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CompleteCodeCommand &command);
-CMBIPC_EXPORT bool operator==(const CompleteCodeCommand &first, const CompleteCodeCommand &second);
-CMBIPC_EXPORT bool operator<(const CompleteCodeCommand &first, const CompleteCodeCommand &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message);
+CMBIPC_EXPORT bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
+CMBIPC_EXPORT bool operator<(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeCommand &command);
-void PrintTo(const CompleteCodeCommand &command, ::std::ostream* os);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
+void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os);
 
 } // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::CompleteCodeCommand)
+Q_DECLARE_METATYPE(ClangBackEnd::CompleteCodeMessage)
 
-#endif // CLANGBACKEND_COMPLETECODECOMMAND_H
+#endif // CLANGBACKEND_COMPLETECODEMESSAGE_H

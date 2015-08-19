@@ -34,21 +34,21 @@
 
 #include <ipcclientproxy.h>
 #include <ipcserverproxy.h>
-#include <projectpartsdonotexistcommand.h>
+#include <projectpartsdonotexistmessage.h>
 
-#include <cmbalivecommand.h>
-#include <cmbcodecompletedcommand.h>
-#include <cmbcommands.h>
-#include <cmbcompletecodecommand.h>
-#include <cmbechocommand.h>
-#include <cmbendcommand.h>
-#include <cmbregisterprojectsforcodecompletioncommand.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregisterprojectsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
-#include <readcommandblock.h>
-#include <translationunitdoesnotexistcommand.h>
-#include <writecommandblock.h>
+#include <cmbalivemessage.h>
+#include <cmbcodecompletedmessage.h>
+#include <cmbmessages.h>
+#include <cmbcompletecodemessage.h>
+#include <cmbechomessage.h>
+#include <cmbendmessage.h>
+#include <cmbregisterprojectsforcodecompletionmessage.h>
+#include <cmbregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbunregisterprojectsforcodecompletionmessage.h>
+#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <readmessageblock.h>
+#include <translationunitdoesnotexistmessage.h>
+#include <writemessageblock.h>
 
 #include <QBuffer>
 #include <QString>
@@ -78,8 +78,8 @@ protected:
     void TearDown();
 
 
-    void scheduleServerCommands();
-    void scheduleClientCommands();
+    void scheduleServerMessages();
+    void scheduleClientMessages();
 
     QBuffer buffer;
     MockIpcClient mockIpcClient;
@@ -89,118 +89,118 @@ protected:
     ClangBackEnd::IpcClientProxy clientProxy;
 };
 
-TEST_F(ClientServerInProcess, SendEndCommand)
+TEST_F(ClientServerInProcess, SendEndMessage)
 {
     EXPECT_CALL(mockIpcServer, end())
         .Times(1);
 
     serverProxy.end();
-    scheduleServerCommands();
+    scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendAliveCommand)
+TEST_F(ClientServerInProcess, SendAliveMessage)
 {
     EXPECT_CALL(mockIpcClient, alive())
         .Times(1);
 
     clientProxy.alive();
-    scheduleClientCommands();
+    scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForCodeCompletionCommand)
+TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForCodeCompletionMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
                                                   Utf8StringLiteral("pathToProjectPart.pro"));
-    ClangBackEnd::RegisterTranslationUnitForCodeCompletionCommand command({fileContainer});
+    ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, registerTranslationUnitsForCodeCompletion(command))
+    EXPECT_CALL(mockIpcServer, registerTranslationUnitsForCodeCompletion(message))
         .Times(1);
 
-    serverProxy.registerTranslationUnitsForCodeCompletion(command);
-    scheduleServerCommands();
+    serverProxy.registerTranslationUnitsForCodeCompletion(message);
+    scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForCodeCompletionCommand)
+TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForCodeCompletionMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProjectPart.pro"));
-    ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionCommand command({fileContainer});
+    ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForCodeCompletion(command))
+    EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForCodeCompletion(message))
         .Times(1);
 
-    serverProxy.unregisterTranslationUnitsForCodeCompletion(command);
-    scheduleServerCommands();
+    serverProxy.unregisterTranslationUnitsForCodeCompletion(message);
+    scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendCompleteCodeCommand)
+TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
 {
-    ClangBackEnd::CompleteCodeCommand command(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
+    ClangBackEnd::CompleteCodeMessage message(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
 
-    EXPECT_CALL(mockIpcServer, completeCode(command))
+    EXPECT_CALL(mockIpcServer, completeCode(message))
         .Times(1);
 
-    serverProxy.completeCode(command);
-    scheduleServerCommands();
+    serverProxy.completeCode(message);
+    scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendCodeCompletedCommand)
+TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
-    ClangBackEnd::CodeCompletedCommand command(codeCompletions, 1);
+    ClangBackEnd::CodeCompletedMessage message(codeCompletions, 1);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(command))
+    EXPECT_CALL(mockIpcClient, codeCompleted(message))
         .Times(1);
 
-    clientProxy.codeCompleted(command);
-    scheduleClientCommands();
+    clientProxy.codeCompleted(message);
+    scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRegisterProjectPartsForCodeCompletionCommand)
+TEST_F(ClientServerInProcess, SendRegisterProjectPartsForCodeCompletionMessage)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::RegisterProjectPartsForCodeCompletionCommand command({projectContainer});
+    ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage message({projectContainer});
 
-    EXPECT_CALL(mockIpcServer, registerProjectPartsForCodeCompletion(command))
+    EXPECT_CALL(mockIpcServer, registerProjectPartsForCodeCompletion(message))
         .Times(1);
 
-    serverProxy.registerProjectPartsForCodeCompletion(command);
-    scheduleServerCommands();
+    serverProxy.registerProjectPartsForCodeCompletion(message);
+    scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForCodeCompletionCommand)
+TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForCodeCompletionMessage)
 {
-    ClangBackEnd::UnregisterProjectPartsForCodeCompletionCommand command({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
+    ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
 
-    EXPECT_CALL(mockIpcServer, unregisterProjectPartsForCodeCompletion(command))
+    EXPECT_CALL(mockIpcServer, unregisterProjectPartsForCodeCompletion(message))
         .Times(1);
 
-    serverProxy.unregisterProjectPartsForCodeCompletion(command);
-    scheduleServerCommands();
+    serverProxy.unregisterProjectPartsForCodeCompletion(message);
+    scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistCommand)
+TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
                                                   Utf8StringLiteral("pathToProjectPart.pro"));
-    ClangBackEnd::TranslationUnitDoesNotExistCommand command(fileContainer);
+    ClangBackEnd::TranslationUnitDoesNotExistMessage message(fileContainer);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(command))
+    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(message))
         .Times(1);
 
-    clientProxy.translationUnitDoesNotExist(command);
-    scheduleClientCommands();
+    clientProxy.translationUnitDoesNotExist(message);
+    scheduleClientMessages();
 }
 
 
-TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistCommand)
+TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
 {
-    ClangBackEnd::ProjectPartsDoNotExistCommand command({Utf8StringLiteral("pathToProjectPart.pro")});
+    ClangBackEnd::ProjectPartsDoNotExistMessage message({Utf8StringLiteral("pathToProjectPart.pro")});
 
-    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(command))
+    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(message))
         .Times(1);
 
-    clientProxy.projectPartsDoNotExist(command);
-    scheduleClientCommands();
+    clientProxy.projectPartsDoNotExist(message);
+    scheduleClientMessages();
 }
 ClientServerInProcess::ClientServerInProcess()
     : serverProxy(&mockIpcClient, &buffer),
@@ -218,17 +218,17 @@ void ClientServerInProcess::TearDown()
     buffer.close();
 }
 
-void ClientServerInProcess::scheduleServerCommands()
+void ClientServerInProcess::scheduleServerMessages()
 {
     buffer.seek(0);
-    clientProxy.readCommands();
+    clientProxy.readMessages();
     buffer.buffer().clear();
 }
 
-void ClientServerInProcess::scheduleClientCommands()
+void ClientServerInProcess::scheduleClientMessages()
 {
     buffer.seek(0);
-    serverProxy.readCommands();
+    serverProxy.readMessages();
     buffer.buffer().clear();
 }
 

@@ -28,39 +28,28 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_READCOMMANDBLOCK_H
-#define CLANGBACKEND_READCOMMANDBLOCK_H
+#ifndef CMBENDMESSAGE_H
+#define CMBENDMESSAGE_H
 
-#include <QtGlobal>
+#include "clangbackendipc_global.h"
 
-QT_BEGIN_NAMESPACE
-class QVariant;
-class QDataStream;
-class QIODevice;
-QT_END_NAMESPACE
+#include <QMetaType>
 
 namespace ClangBackEnd {
 
-class ReadCommandBlock
+class CMBIPC_EXPORT EndMessage
 {
-public:
-    ReadCommandBlock(QIODevice *ioDevice = nullptr);
-
-    QVariant read();
-    QVector<QVariant> readAll();
-
-    void resetCounter();
-
-private:
-    bool isTheWholeCommandReadable(QDataStream &in);
-    void checkIfCommandIsLost(QDataStream &in);
-
-private:
-    QIODevice *ioDevice;
-    qint64 commandCounter;
-    qint32 blockSize;
 };
 
-} // namespace ClangBackEnd
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EndMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EndMessage &message);
+CMBIPC_EXPORT bool operator==(const EndMessage &first, const EndMessage &second);
+CMBIPC_EXPORT bool operator<(const EndMessage &first, const EndMessage &second);
 
-#endif // CLANGBACKEND_READCOMMANDBLOCK_H
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
+void PrintTo(const EndMessage &message, ::std::ostream* os);
+}
+
+Q_DECLARE_METATYPE(ClangBackEnd::EndMessage)
+
+#endif // CMBENDMESSAGE_H

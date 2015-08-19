@@ -61,7 +61,7 @@ public:
     bool disconnectFromServer();
     bool isConnected() const;
 
-    void sendEndCommand();
+    void sendEndMessage();
 
     void resetProcessAliveTimer();
     void setProcessAliveTimerInterval(int processTimerInterval);
@@ -98,7 +98,7 @@ private:
     void disconnectProcessFinished() const;
     void connectStandardOutputAndError() const;
 
-    void ensureCommandIsWritten();
+    void ensureMessageIsWritten();
 
 private:
     mutable std::unique_ptr<QProcess> process_;

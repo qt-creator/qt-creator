@@ -28,43 +28,36 @@
 **
 ****************************************************************************/
 
-#include "cmbendcommand.h"
+#include "cmbalivemessage.h"
 
 #include <QDataStream>
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
-QDataStream &operator<<(QDataStream &out, const EndCommand &/*command*/)
+QDataStream &operator<<(QDataStream &out, const AliveMessage &/*message*/)
 {
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, EndCommand &/*command*/)
+QDataStream &operator>>(QDataStream &in, AliveMessage &/*message*/)
 {
     return in;
 }
 
-bool operator==(const EndCommand &/*first*/, const EndCommand &/*second*/)
+bool operator==(const AliveMessage &/*first*/, const AliveMessage &/*second*/)
 {
     return true;
 }
 
-bool operator<(const EndCommand &/*first*/, const EndCommand &/*second*/)
+bool operator<(const AliveMessage &/*first*/, const AliveMessage &/*second*/)
 {
     return true;
 }
 
-QDebug operator<<(QDebug debug, const EndCommand &/*command*/)
+QDebug operator<<(QDebug debug, const AliveMessage &/*message*/)
 {
-    return debug.nospace() << "EndCommand()";
+    return debug.nospace() << "AliveMessage()";
 }
 
-void PrintTo(const EndCommand &/*command*/, ::std::ostream* os)
-{
-    *os << "EndCommand()";
 }
-}
-

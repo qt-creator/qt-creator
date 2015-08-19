@@ -51,11 +51,11 @@ public:
     ClangIpcServer();
 
     void end() override;
-    void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command) override;
-    void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionCommand &command) override;
-    void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command) override;
-    void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command) override;
-    void completeCode(const CompleteCodeCommand &command) override;
+    void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message) override;
+    void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message) override;
+    void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) override;
+    void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) override;
+    void completeCode(const CompleteCodeMessage &message) override;
 
 private:
     ProjectParts projects;

@@ -67,17 +67,17 @@ public:
     using AliveHandler = std::function<void ()>;
     void setAliveHandler(const AliveHandler &handler);
 
-    void addExpectedCodeCompletedCommand(quint64 ticket, ClangCompletionAssistProcessor *processor);
+    void addExpectedCodeCompletedMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
     void deleteAndClearWaitingAssistProcessors();
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
 private:
     void alive() override;
-    void echo(const ClangBackEnd::EchoCommand &command) override;
-    void codeCompleted(const ClangBackEnd::CodeCompletedCommand &command) override;
+    void echo(const ClangBackEnd::EchoMessage &message) override;
+    void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
 
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistCommand &command) override;
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistCommand &command) override;
+    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message) override;
+    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &message) override;
 
 private:
     AliveHandler m_aliveHandler;
@@ -90,11 +90,11 @@ public:
     virtual ~IpcSenderInterface() {}
 
     virtual void end() = 0;
-    virtual void registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionCommand &command) = 0;
-    virtual void unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionCommand &command) = 0;
-    virtual void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionCommand &command) = 0;
-    virtual void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionCommand &command) = 0;
-    virtual void completeCode(const ClangBackEnd::CompleteCodeCommand &command) = 0;
+    virtual void registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage &message) = 0;
+    virtual void unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage &message) = 0;
+    virtual void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message) = 0;
+    virtual void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message) = 0;
+    virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
 };
 
 class IpcCommunicator : public QObject

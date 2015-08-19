@@ -33,8 +33,8 @@
 
 #include "clangbackendipc_global.h"
 #include "ipcclientinterface.h"
-#include "readcommandblock.h"
-#include "writecommandblock.h"
+#include "readmessageblock.h"
+#include "writemessageblock.h"
 
 #include <QtGlobal>
 
@@ -58,18 +58,18 @@ public:
     IpcClientProxy &operator=(IpcClientProxy&&other);
 
     void alive() override;
-    void echo(const EchoCommand &command) override;
-    void codeCompleted(const CodeCompletedCommand &command) override;
-    void translationUnitDoesNotExist(const TranslationUnitDoesNotExistCommand &command) override;
-    void projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command) override;
+    void echo(const EchoMessage &message) override;
+    void codeCompleted(const CodeCompletedMessage &message) override;
+    void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) override;
+    void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) override;
 
-    void readCommands();
+    void readMessages();
 
     bool isUsingThatIoDevice(QIODevice *ioDevice) const;
 
 private:
-    ClangBackEnd::WriteCommandBlock writeCommandBlock;
-    ClangBackEnd::ReadCommandBlock readCommandBlock;
+    ClangBackEnd::WriteMessageBlock writeMessageBlock;
+    ClangBackEnd::ReadMessageBlock readMessageBlock;
     IpcServerInterface *server = nullptr;
     QIODevice *ioDevice = nullptr;
 };

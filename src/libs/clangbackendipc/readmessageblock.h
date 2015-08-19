@@ -28,64 +28,39 @@
 **
 ****************************************************************************/
 
-#include "cmbechocommand.h"
+#ifndef CLANGBACKEND_READMESSAGEBLOCK_H
+#define CLANGBACKEND_READMESSAGEBLOCK_H
 
-#include <QDataStream>
-#include <QDebug>
+#include <QtGlobal>
 
-#include <ostream>
+QT_BEGIN_NAMESPACE
+class QVariant;
+class QDataStream;
+class QIODevice;
+QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-EchoCommand::EchoCommand(const QVariant &command)
-    : command_(command)
+class ReadMessageBlock
 {
+public:
+    ReadMessageBlock(QIODevice *ioDevice = nullptr);
 
-}
+    QVariant read();
+    QVector<QVariant> readAll();
 
-const QVariant &EchoCommand::command() const
-{
-    return command_;
-}
+    void resetCounter();
 
-QDataStream &operator<<(QDataStream &out, const EchoCommand &command)
-{
-    out << command.command();
+private:
+    bool isTheWholeMessageReadable(QDataStream &in);
+    void checkIfMessageIsLost(QDataStream &in);
 
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, EchoCommand &command)
-{
-    in >> command.command_;
-
-    return in;
-}
-
-bool operator==(const EchoCommand &first, const EchoCommand &second)
-{
-    return first.command_ == second.command_;
-}
-
-bool operator<(const EchoCommand &first, const EchoCommand &second)
-{
-    return first.command_ < second.command_;
-}
-
-QDebug operator<<(QDebug debug, const EchoCommand &command)
-{
-    return debug.nospace() << "EchoCommand(" << command.command() << ")";
-}
-
-void PrintTo(const EchoCommand &command, ::std::ostream* os)
-{
-    QString output;
-    QDebug debug(&output);
-
-    debug << command;
-
-    *os << output.toUtf8().constData();
-}
+private:
+    QIODevice *ioDevice;
+    qint64 messageCounter;
+    qint32 blockSize;
+};
 
 } // namespace ClangBackEnd
 
+#endif // CLANGBACKEND_READMESSAGEBLOCK_H

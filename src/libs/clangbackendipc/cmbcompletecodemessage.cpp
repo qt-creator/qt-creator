@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbcompletecodecommand.h"
+#include "cmbcompletecodemessage.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -37,9 +37,9 @@
 
 namespace ClangBackEnd {
 
-quint64 CompleteCodeCommand::ticketCounter = 0;
+quint64 CompleteCodeMessage::ticketCounter = 0;
 
-CompleteCodeCommand::CompleteCodeCommand(const Utf8String &filePath, quint32 line, quint32 column, const Utf8String &projectPartId)
+CompleteCodeMessage::CompleteCodeMessage(const Utf8String &filePath, quint32 line, quint32 column, const Utf8String &projectPartId)
     : filePath_(filePath),
       projectPartId_(projectPartId),
       ticketNumber_(++ticketCounter),
@@ -48,54 +48,54 @@ CompleteCodeCommand::CompleteCodeCommand(const Utf8String &filePath, quint32 lin
 {
 }
 
-const Utf8String &CompleteCodeCommand::filePath() const
+const Utf8String &CompleteCodeMessage::filePath() const
 {
     return filePath_;
 }
 
-const Utf8String &CompleteCodeCommand::projectPartId() const
+const Utf8String &CompleteCodeMessage::projectPartId() const
 {
     return projectPartId_;
 }
 
-quint32 CompleteCodeCommand::line() const
+quint32 CompleteCodeMessage::line() const
 {
     return line_;
 }
 
-quint32 CompleteCodeCommand::column() const
+quint32 CompleteCodeMessage::column() const
 {
     return column_;
 }
 
-quint64 CompleteCodeCommand::ticketNumber() const
+quint64 CompleteCodeMessage::ticketNumber() const
 {
     return ticketNumber_;
 }
 
-QDataStream &operator<<(QDataStream &out, const CompleteCodeCommand &command)
+QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message)
 {
-    out << command.filePath_;
-    out << command.projectPartId_;
-    out << command.ticketNumber_;
-    out << command.line_;
-    out << command.column_;
+    out << message.filePath_;
+    out << message.projectPartId_;
+    out << message.ticketNumber_;
+    out << message.line_;
+    out << message.column_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, CompleteCodeCommand &command)
+QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message)
 {
-    in >> command.filePath_;
-    in >> command.projectPartId_;
-    in >> command.ticketNumber_;
-    in >> command.line_;
-    in >> command.column_;
+    in >> message.filePath_;
+    in >> message.projectPartId_;
+    in >> message.ticketNumber_;
+    in >> message.line_;
+    in >> message.column_;
 
     return in;
 }
 
-bool operator==(const CompleteCodeCommand &first, const CompleteCodeCommand &second)
+bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second)
 {
     return first.ticketNumber_ == second.ticketNumber_
             && first.filePath_ == second.filePath_
@@ -104,7 +104,7 @@ bool operator==(const CompleteCodeCommand &first, const CompleteCodeCommand &sec
             && first.column_ == second.column_;
 }
 
-bool operator<(const CompleteCodeCommand &first, const CompleteCodeCommand &second)
+bool operator<(const CompleteCodeMessage &first, const CompleteCodeMessage &second)
 {
     return first.ticketNumber_ < second.ticketNumber_
             && first.filePath_ < second.filePath_
@@ -113,30 +113,30 @@ bool operator<(const CompleteCodeCommand &first, const CompleteCodeCommand &seco
             && first.column_ < second.column_;
 }
 
-QDebug operator<<(QDebug debug, const CompleteCodeCommand &command)
+QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
 {
-    debug.nospace() << "CompleteCodeCommand(";
+    debug.nospace() << "CompleteCodeMessage(";
 
-    debug.nospace() << command.filePath_ << ", ";
-    debug.nospace() << command.line_<< ", ";
-    debug.nospace() << command.column_<< ", ";
-    debug.nospace() << command.projectPartId_ << ", ";
-    debug.nospace() << command.ticketNumber_;
+    debug.nospace() << message.filePath_ << ", ";
+    debug.nospace() << message.line_<< ", ";
+    debug.nospace() << message.column_<< ", ";
+    debug.nospace() << message.projectPartId_ << ", ";
+    debug.nospace() << message.ticketNumber_;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const CompleteCodeCommand &command, ::std::ostream* os)
+void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os)
 {
-    *os << "CompleteCodeCommand(";
+    *os << "CompleteCodeMessage(";
 
-    *os << command.filePath_.constData() << ", ";
-    *os << command.line_ << ", ";
-    *os << command.column_ << ", ";
-    *os << command.projectPartId_.constData() << ", ";
-    *os << command.ticketNumber_;
+    *os << message.filePath_.constData() << ", ";
+    *os << message.line_ << ", ";
+    *os << message.column_ << ", ";
+    *os << message.projectPartId_.constData() << ", ";
+    *os << message.ticketNumber_;
 
     *os << ")";
 }

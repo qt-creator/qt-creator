@@ -30,13 +30,13 @@
 
 #include "ipcserverproxy.h"
 
-#include <cmbalivecommand.h>
-#include <cmbcompletecodecommand.h>
-#include <cmbendcommand.h>
-#include <cmbregisterprojectsforcodecompletioncommand.h>
-#include <cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <cmbunregisterprojectsforcodecompletioncommand.h>
-#include <cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <cmbalivemessage.h>
+#include <cmbcompletecodemessage.h>
+#include <cmbendmessage.h>
+#include <cmbregisterprojectsforcodecompletionmessage.h>
+#include <cmbregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbunregisterprojectsforcodecompletionmessage.h>
+#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
 #include <ipcclientinterface.h>
 
 #include <QLocalServer>
@@ -46,53 +46,53 @@
 namespace ClangBackEnd {
 
 IpcServerProxy::IpcServerProxy(IpcClientInterface *client, QIODevice *ioDevice)
-    : writeCommandBlock(ioDevice),
-      readCommandBlock(ioDevice),
+    : writeMessageBlock(ioDevice),
+      readMessageBlock(ioDevice),
       client(client)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {IpcServerProxy::readCommands();});
+    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {IpcServerProxy::readMessages();});
 }
 
-void IpcServerProxy::readCommands()
+void IpcServerProxy::readMessages()
 {
-    for (const QVariant &command : readCommandBlock.readAll())
-        client->dispatch(command);
+    for (const QVariant &message : readMessageBlock.readAll())
+        client->dispatch(message);
 }
 
 void IpcServerProxy::resetCounter()
 {
-    writeCommandBlock.resetCounter();
-    readCommandBlock.resetCounter();
+    writeMessageBlock.resetCounter();
+    readMessageBlock.resetCounter();
 }
 
 void IpcServerProxy::end()
 {
-    writeCommandBlock.write(QVariant::fromValue(EndCommand()));
+    writeMessageBlock.write(QVariant::fromValue(EndMessage()));
 }
 
-void IpcServerProxy::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command)
+void IpcServerProxy::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionCommand &command)
+void IpcServerProxy::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command)
+void IpcServerProxy::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command)
+void IpcServerProxy::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::completeCode(const CompleteCodeCommand &command)
+void IpcServerProxy::completeCode(const CompleteCodeMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
 } // namespace ClangBackEnd

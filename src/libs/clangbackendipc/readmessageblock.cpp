@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "readcommandblock.h"
+#include "readmessageblock.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -37,63 +37,63 @@
 
 namespace ClangBackEnd {
 
-ReadCommandBlock::ReadCommandBlock(QIODevice *ioDevice)
+ReadMessageBlock::ReadMessageBlock(QIODevice *ioDevice)
     : ioDevice(ioDevice),
-      commandCounter(0),
+      messageCounter(0),
       blockSize(0)
 {
 }
 
-void ReadCommandBlock::checkIfCommandIsLost(QDataStream &in)
+void ReadMessageBlock::checkIfMessageIsLost(QDataStream &in)
 {
-    qint64 currentCommandCounter;
+    qint64 currentMessageCounter;
 
-    in >> currentCommandCounter;
+    in >> currentMessageCounter;
 
-#ifndef DONT_CHECK_COMMAND_COUNTER
-    bool commandLost = !((currentCommandCounter == 0 && commandCounter == 0) || (commandCounter + 1 == currentCommandCounter));
-    if (commandLost)
-        qWarning() << "client command lost: " << commandCounter <<  currentCommandCounter;
+#ifndef DONT_CHECK_MESSAGE_COUNTER
+    bool messageLost = !((currentMessageCounter == 0 && messageCounter == 0) || (messageCounter + 1 == currentMessageCounter));
+    if (messageLost)
+        qWarning() << "client message lost: " << messageCounter <<  currentMessageCounter;
 #endif
 
-    commandCounter = currentCommandCounter;
+    messageCounter = currentMessageCounter;
 }
 
-QVariant ReadCommandBlock::read()
+QVariant ReadMessageBlock::read()
 {
     QDataStream in(ioDevice);
 
-    QVariant command;
+    QVariant message;
 
-    if (isTheWholeCommandReadable(in)) {
-        checkIfCommandIsLost(in);
-        in >> command;
+    if (isTheWholeMessageReadable(in)) {
+        checkIfMessageIsLost(in);
+        in >> message;
     }
 
-    return command;
+    return message;
 }
 
-QVector<QVariant> ReadCommandBlock::readAll()
+QVector<QVariant> ReadMessageBlock::readAll()
 {
-    QVector<QVariant> commands;
+    QVector<QVariant> messages;
 
     while (true) {
-        const QVariant command = read();
-        if (command.isValid())
-            commands.append(command);
+        const QVariant message = read();
+        if (message.isValid())
+            messages.append(message);
         else
-            return commands;
+            return messages;
     }
 
     Q_UNREACHABLE();
 }
 
-void ReadCommandBlock::resetCounter()
+void ReadMessageBlock::resetCounter()
 {
-    commandCounter = 0;
+    messageCounter = 0;
 }
 
-bool ReadCommandBlock::isTheWholeCommandReadable(QDataStream &in)
+bool ReadMessageBlock::isTheWholeMessageReadable(QDataStream &in)
 {
     if (ioDevice->bytesAvailable() == 0)
         return false;

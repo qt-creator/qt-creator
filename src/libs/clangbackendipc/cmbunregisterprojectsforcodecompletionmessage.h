@@ -39,17 +39,17 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT UnregisterProjectPartsForCodeCompletionCommand
+class CMBIPC_EXPORT UnregisterProjectPartsForCodeCompletionMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionCommand &command);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionCommand &command);
-    friend CMBIPC_EXPORT bool operator==(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second);
-    friend CMBIPC_EXPORT bool operator<(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second);
-    friend void PrintTo(const UnregisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionMessage &message);
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionMessage &message);
+    friend CMBIPC_EXPORT bool operator==(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second);
+    friend CMBIPC_EXPORT bool operator<(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second);
+    friend void PrintTo(const UnregisterProjectPartsForCodeCompletionMessage &message, ::std::ostream* os);
 
 public:
-    UnregisterProjectPartsForCodeCompletionCommand() = default;
-    UnregisterProjectPartsForCodeCompletionCommand(const Utf8StringVector &projectPartIds);
+    UnregisterProjectPartsForCodeCompletionMessage() = default;
+    UnregisterProjectPartsForCodeCompletionMessage(const Utf8StringVector &projectPartIds);
 
     const Utf8StringVector &projectPartIds() const;
 
@@ -57,15 +57,15 @@ private:
     Utf8StringVector projectPartIds_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionCommand &command);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionCommand &command);
-CMBIPC_EXPORT bool operator==(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second);
-CMBIPC_EXPORT bool operator<(const UnregisterProjectPartsForCodeCompletionCommand &first, const UnregisterProjectPartsForCodeCompletionCommand &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionMessage &message);
+CMBIPC_EXPORT bool operator==(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second);
+CMBIPC_EXPORT bool operator<(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionCommand &command);
-void PrintTo(const UnregisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionMessage &message);
+void PrintTo(const UnregisterProjectPartsForCodeCompletionMessage &message, ::std::ostream* os);
 } // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::UnregisterProjectPartsForCodeCompletionCommand)
+Q_DECLARE_METATYPE(ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage)
 
 #endif // CLANGBACKEND_UNREGISTERPROJECTSFORCODECOMPLETION_H

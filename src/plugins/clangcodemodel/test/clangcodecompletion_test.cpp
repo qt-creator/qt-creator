@@ -54,12 +54,12 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <clangbackendipc/cmbcompletecodecommand.h>
-#include <clangbackendipc/cmbendcommand.h>
-#include <clangbackendipc/cmbregisterprojectsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbregistertranslationunitsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbunregisterprojectsforcodecompletioncommand.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletioncommand.h>
+#include <clangbackendipc/cmbcompletecodemessage.h>
+#include <clangbackendipc/cmbendmessage.h>
+#include <clangbackendipc/cmbregisterprojectsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbregistertranslationunitsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbunregisterprojectsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletionmessage.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -305,73 +305,73 @@ QString toString(const QVector<ProjectPartContainer> &projectPartContainers)
     return out;
 }
 
-QString toString(const EndCommand &)
+QString toString(const EndMessage &)
 {
-    return QLatin1String("EndCommand\n");
+    return QLatin1String("EndMessage\n");
 }
 
-QString toString(const RegisterTranslationUnitForCodeCompletionCommand &command)
+QString toString(const RegisterTranslationUnitForCodeCompletionMessage &message)
 {
     QString out;
     QTextStream ts(&out);
 
-    ts << "RegisterTranslationUnitForCodeCompletionCommand\n"
-       << toString(command.fileContainers());
+    ts << "RegisterTranslationUnitForCodeCompletionMessage\n"
+       << toString(message.fileContainers());
     return out;
 
-    return QLatin1String("RegisterTranslationUnitForCodeCompletionCommand\n");
+    return QLatin1String("RegisterTranslationUnitForCodeCompletionMessage\n");
 }
 
-QString toString(const UnregisterTranslationUnitsForCodeCompletionCommand &)
+QString toString(const UnregisterTranslationUnitsForCodeCompletionMessage &)
 {
-    return QLatin1String("UnregisterTranslationUnitsForCodeCompletionCommand\n");
+    return QLatin1String("UnregisterTranslationUnitsForCodeCompletionMessage\n");
 }
 
-QString toString(const RegisterProjectPartsForCodeCompletionCommand &command)
+QString toString(const RegisterProjectPartsForCodeCompletionMessage &message)
 {
     QString out;
     QTextStream ts(&out);
 
-    ts << "RegisterProjectPartsForCodeCompletionCommand\n"
-       << toString(command.projectContainers()) << "\n";
+    ts << "RegisterProjectPartsForCodeCompletionMessage\n"
+       << toString(message.projectContainers()) << "\n";
     return out;
 }
 
-QString toString(const UnregisterProjectPartsForCodeCompletionCommand &command)
+QString toString(const UnregisterProjectPartsForCodeCompletionMessage &message)
 {
     QString out;
     QTextStream ts(&out);
 
-    ts << "UnregisterProjectPartsForCodeCompletionCommand\n"
-       << command.projectPartIds().join(Utf8String::fromUtf8(",")).toByteArray() << "\n";
+    ts << "UnregisterProjectPartsForCodeCompletionMessage\n"
+       << message.projectPartIds().join(Utf8String::fromUtf8(",")).toByteArray() << "\n";
     return out;
 }
 
-QString toString(const CompleteCodeCommand &)
+QString toString(const CompleteCodeMessage &)
 {
-    return QLatin1String("CompleteCodeCommand\n");
+    return QLatin1String("CompleteCodeMessage\n");
 }
 
 class IpcSenderSpy : public IpcSenderInterface
 {
 public:
     void end() override
-    { senderLog.append(toString(EndCommand())); }
+    { senderLog.append(toString(EndMessage())); }
 
-    void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionCommand &command) override
-    { senderLog.append(toString(command)); }
+    void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message) override
+    { senderLog.append(toString(message)); }
 
-    void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionCommand &command) override
-    { senderLog.append(toString(command)); }
+    void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message) override
+    { senderLog.append(toString(message)); }
 
-    void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionCommand &command) override
-    { senderLog.append(toString(command)); }
+    void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) override
+    { senderLog.append(toString(message)); }
 
-    void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionCommand &command) override
-    { senderLog.append(toString(command)); }
+    void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) override
+    { senderLog.append(toString(message)); }
 
-    void completeCode(const CompleteCodeCommand &command) override
-    { senderLog.append(toString(command)); }
+    void completeCode(const CompleteCodeMessage &message) override
+    { senderLog.append(toString(message)); }
 
 public:
     QString senderLog;
@@ -1100,18 +1100,18 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     OpenEditorAtCursorPosition openSource(testDocument);
     QVERIFY(openSource.succeeded());
 
-    // Check commands that would have been sent
+    // Check messages that would have been sent
     QVERIFY(compare(LogOutput(spy.senderLog),
                     LogOutput(
-                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
-                        "RegisterProjectPartsForCodeCompletionCommand\n"
+                        "RegisterProjectPartsForCodeCompletionMessage\n"
                         "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: ui_mainwindow.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
                     )));
     spy.senderLog.clear();
@@ -1126,13 +1126,13 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     // ...and check if code model backend would have been provided with current data
     QVERIFY(compare(LogOutput(spy.senderLog),
                     LogOutput(
-                        "RegisterProjectPartsForCodeCompletionCommand\n"
+                        "RegisterProjectPartsForCodeCompletionMessage\n"
                         "  ProjectPartContainer id: \n"
-                        "RegisterProjectPartsForCodeCompletionCommand\n"
+                        "RegisterProjectPartsForCodeCompletionMessage\n"
                         "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionCommand\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: ui_mainwindow.h ProjectPart: \n"
                     )));
 }

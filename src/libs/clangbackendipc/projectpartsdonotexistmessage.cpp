@@ -28,35 +28,73 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_WRITECOMMANDBLOCK_H
-#define CLANGBACKEND_WRITECOMMANDBLOCK_H
+#include "projectpartsdonotexistmessage.h"
 
-#include <QtGlobal>
+#include <QDataStream>
+#include <QDebug>
 
-QT_BEGIN_NAMESPACE
-class QVariant;
-class QDataStream;
-class QIODevice;
-QT_END_NAMESPACE
+#include <container_common.h>
+
+#include <ostream>
 
 namespace ClangBackEnd {
 
-class WriteCommandBlock
+ProjectPartsDoNotExistMessage::ProjectPartsDoNotExistMessage(const Utf8StringVector &projectPartIds)
+    : projectPartIds_(projectPartIds)
 {
-public:
-    WriteCommandBlock(QIODevice *ioDevice = nullptr);
+}
 
-    void write(const QVariant &command);
 
-    qint64 counter() const;
+const Utf8StringVector &ProjectPartsDoNotExistMessage::projectPartIds() const
+{
+    return projectPartIds_;
+}
 
-    void resetCounter();
+QDataStream &operator<<(QDataStream &out, const ProjectPartsDoNotExistMessage &message)
+{
+    out << message.projectPartIds_;
 
-private:
-    qint64 commandCounter;
-    QIODevice *ioDevice;
-};
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, ProjectPartsDoNotExistMessage &message)
+{
+    in >> message.projectPartIds_;
+
+    return in;
+}
+
+bool operator==(const ProjectPartsDoNotExistMessage &first, const ProjectPartsDoNotExistMessage &second)
+{
+    return first.projectPartIds_ == second.projectPartIds_;
+}
+
+bool operator<(const ProjectPartsDoNotExistMessage &first, const ProjectPartsDoNotExistMessage &second)
+{
+    return compareContainer(first.projectPartIds_, second.projectPartIds_);
+}
+
+QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistMessage &message)
+{
+    debug.nospace() << "ProjectPartDoesNotExistMessage(";
+
+    debug.nospace() << message.projectPartIds_;
+
+    debug.nospace() << ")";
+
+    return debug;
+}
+
+void PrintTo(const ProjectPartsDoNotExistMessage &message, ::std::ostream* os)
+{
+    QString output;
+    QDebug debug(&output);
+
+    debug << message;
+
+    *os << output.toUtf8().constData();
+}
+
 
 } // namespace ClangBackEnd
 
-#endif // CLANGBACKEND_WRITECOMMANDBLOCK_H

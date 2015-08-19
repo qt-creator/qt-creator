@@ -30,42 +30,42 @@
 
 #include "ipcserverinterface.h"
 
-#include "cmbcompletecodecommand.h"
-#include "cmbregisterprojectsforcodecompletioncommand.h"
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
-#include "cmbunregisterprojectsforcodecompletioncommand.h"
-#include "cmbunregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbcompletecodemessage.h"
+#include "cmbregisterprojectsforcodecompletionmessage.h"
+#include "cmbregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbunregisterprojectsforcodecompletionmessage.h"
+#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
 
 #include <QDebug>
 #include <QVariant>
 
 namespace ClangBackEnd {
 
-void IpcServerInterface::dispatch(const QVariant &command)
+void IpcServerInterface::dispatch(const QVariant &message)
 {
-    static const int endCommandType = QMetaType::type("ClangBackEnd::EndCommand");
-    static const int registerTranslationUnitsForCodeCompletionCommandType = QMetaType::type("ClangBackEnd::RegisterTranslationUnitForCodeCompletionCommand");
-    static const int unregisterTranslationUnitsForCodeCompletionCommandType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionCommand");
-    static const int registerProjectPartsForCodeCompletionCommandType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForCodeCompletionCommand");
-    static const int unregisterProjectPartsForCodeCompletionCommandType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForCodeCompletionCommand");
-    static const int completeCodeCommandType = QMetaType::type("ClangBackEnd::CompleteCodeCommand");
+    static const int endMessageType = QMetaType::type("ClangBackEnd::EndMessage");
+    static const int registerTranslationUnitsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage");
+    static const int unregisterTranslationUnitsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage");
+    static const int registerProjectPartsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage");
+    static const int unregisterProjectPartsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage");
+    static const int completeCodeMessageType = QMetaType::type("ClangBackEnd::CompleteCodeMessage");
 
-    int type = command.userType();
+    int type = message.userType();
 
-    if (type == endCommandType)
+    if (type == endMessageType)
         end();
-    else if (type == registerTranslationUnitsForCodeCompletionCommandType)
-        registerTranslationUnitsForCodeCompletion(command.value<RegisterTranslationUnitForCodeCompletionCommand>());
-    else if (type == unregisterTranslationUnitsForCodeCompletionCommandType)
-        unregisterTranslationUnitsForCodeCompletion(command.value<UnregisterTranslationUnitsForCodeCompletionCommand>());
-    else if (type == registerProjectPartsForCodeCompletionCommandType)
-        registerProjectPartsForCodeCompletion(command.value<RegisterProjectPartsForCodeCompletionCommand>());
-    else if (type == unregisterProjectPartsForCodeCompletionCommandType)
-        unregisterProjectPartsForCodeCompletion(command.value<UnregisterProjectPartsForCodeCompletionCommand>());
-    else if (type == completeCodeCommandType)
-        completeCode(command.value<CompleteCodeCommand>());
+    else if (type == registerTranslationUnitsForCodeCompletionMessageType)
+        registerTranslationUnitsForCodeCompletion(message.value<RegisterTranslationUnitForCodeCompletionMessage>());
+    else if (type == unregisterTranslationUnitsForCodeCompletionMessageType)
+        unregisterTranslationUnitsForCodeCompletion(message.value<UnregisterTranslationUnitsForCodeCompletionMessage>());
+    else if (type == registerProjectPartsForCodeCompletionMessageType)
+        registerProjectPartsForCodeCompletion(message.value<RegisterProjectPartsForCodeCompletionMessage>());
+    else if (type == unregisterProjectPartsForCodeCompletionMessageType)
+        unregisterProjectPartsForCodeCompletion(message.value<UnregisterProjectPartsForCodeCompletionMessage>());
+    else if (type == completeCodeMessageType)
+        completeCode(message.value<CompleteCodeMessage>());
     else
-        qWarning() << "Unknown IpcServerCommand";
+        qWarning() << "Unknown IpcServerMessage";
 }
 
 void IpcServerInterface::addClient(IpcClientInterface *client)

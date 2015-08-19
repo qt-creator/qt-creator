@@ -13,29 +13,29 @@ INCLUDEPATH += $$PWD
 SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/ipcserverproxy.cpp \
     $$PWD/ipcclientinterface.cpp \
-    $$PWD/cmbendcommand.cpp \
-    $$PWD/cmbalivecommand.cpp \
+    $$PWD/cmbendmessage.cpp \
+    $$PWD/cmbalivemessage.cpp \
     $$PWD/ipcclientproxy.cpp \
-    $$PWD/cmbcommands.cpp \
-    $$PWD/writecommandblock.cpp \
-    $$PWD/readcommandblock.cpp \
+    $$PWD/cmbmessages.cpp \
+    $$PWD/writemessageblock.cpp \
+    $$PWD/readmessageblock.cpp \
     $$PWD/ipcinterface.cpp \
     $$PWD/connectionserver.cpp \
     $$PWD/connectionclient.cpp \
-    $$PWD/cmbechocommand.cpp \
+    $$PWD/cmbechomessage.cpp \
     $$PWD/ipcclientdispatcher.cpp \
-    $$PWD/cmbregistertranslationunitsforcodecompletioncommand.cpp \
+    $$PWD/cmbregistertranslationunitsforcodecompletionmessage.cpp \
     $$PWD/filecontainer.cpp \
-    $$PWD/cmbunregistertranslationunitsforcodecompletioncommand.cpp \
-    $$PWD/cmbcompletecodecommand.cpp \
-    $$PWD/cmbcodecompletedcommand.cpp \
+    $$PWD/cmbunregistertranslationunitsforcodecompletionmessage.cpp \
+    $$PWD/cmbcompletecodemessage.cpp \
+    $$PWD/cmbcodecompletedmessage.cpp \
     $$PWD/codecompletion.cpp \
-    $$PWD/cmbregisterprojectsforcodecompletioncommand.cpp \
-    $$PWD/cmbunregisterprojectsforcodecompletioncommand.cpp \
-    $$PWD/translationunitdoesnotexistcommand.cpp \
+    $$PWD/cmbregisterprojectsforcodecompletionmessage.cpp \
+    $$PWD/cmbunregisterprojectsforcodecompletionmessage.cpp \
+    $$PWD/translationunitdoesnotexistmessage.cpp \
     $$PWD/codecompletionchunk.cpp \
     $$PWD/projectpartcontainer.cpp \
-    $$PWD/projectpartsdonotexistcommand.cpp \
+    $$PWD/projectpartsdonotexistmessage.cpp \
     $$PWD/lineprefixer.cpp \
     $$PWD/clangbackendipcdebugutils.cpp
 
@@ -43,29 +43,29 @@ HEADERS += \
     $$PWD/ipcserverinterface.h \
     $$PWD/ipcserverproxy.h \
     $$PWD/ipcclientinterface.h \
-    $$PWD/cmbendcommand.h \
-    $$PWD/cmbalivecommand.h \
+    $$PWD/cmbendmessage.h \
+    $$PWD/cmbalivemessage.h \
     $$PWD/ipcclientproxy.h \
-    $$PWD/cmbcommands.h \
-    $$PWD/writecommandblock.h \
-    $$PWD/readcommandblock.h \
+    $$PWD/cmbmessages.h \
+    $$PWD/writemessageblock.h \
+    $$PWD/readmessageblock.h \
     $$PWD/ipcinterface.h \
     $$PWD/connectionserver.h \
     $$PWD/connectionclient.h \
-    $$PWD/cmbechocommand.h \
+    $$PWD/cmbechomessage.h \
     $$PWD/ipcclientdispatcher.h \
-    $$PWD/cmbregistertranslationunitsforcodecompletioncommand.h \
+    $$PWD/cmbregistertranslationunitsforcodecompletionmessage.h \
     $$PWD/filecontainer.h \
-    $$PWD/cmbunregistertranslationunitsforcodecompletioncommand.h \
-    $$PWD/cmbcompletecodecommand.h \
-    $$PWD/cmbcodecompletedcommand.h \
+    $$PWD/cmbunregistertranslationunitsforcodecompletionmessage.h \
+    $$PWD/cmbcompletecodemessage.h \
+    $$PWD/cmbcodecompletedmessage.h \
     $$PWD/codecompletion.h \
-    $$PWD/cmbregisterprojectsforcodecompletioncommand.h \
-    $$PWD/cmbunregisterprojectsforcodecompletioncommand.h \
-    $$PWD/translationunitdoesnotexistcommand.h \
+    $$PWD/cmbregisterprojectsforcodecompletionmessage.h \
+    $$PWD/cmbunregisterprojectsforcodecompletionmessage.h \
+    $$PWD/translationunitdoesnotexistmessage.h \
     $$PWD/codecompletionchunk.h \
     $$PWD/projectpartcontainer.h \
-    $$PWD/projectpartsdonotexistcommand.h \
+    $$PWD/projectpartsdonotexistmessage.h \
     $$PWD/container_common.h \
     $$PWD/clangbackendipc_global.h \
     $$PWD/lineprefixer.h \

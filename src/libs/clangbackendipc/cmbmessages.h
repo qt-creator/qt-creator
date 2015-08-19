@@ -28,36 +28,18 @@
 **
 ****************************************************************************/
 
-#include "cmbalivecommand.h"
+#ifndef CLANGBACKEND_MESSAGES_H
+#define CLANGBACKEND_MESSAGES_H
 
-#include <QDataStream>
-#include <QDebug>
+#include <clangbackendipc_global.h>
 
 namespace ClangBackEnd {
 
-QDataStream &operator<<(QDataStream &out, const AliveCommand &/*command*/)
+namespace Messages
 {
-    return out;
+CMBIPC_EXPORT void registerMessages();
 }
 
-QDataStream &operator>>(QDataStream &in, AliveCommand &/*command*/)
-{
-    return in;
-}
+} // namespace ClangBackEnd
 
-bool operator==(const AliveCommand &/*first*/, const AliveCommand &/*second*/)
-{
-    return true;
-}
-
-bool operator<(const AliveCommand &/*first*/, const AliveCommand &/*second*/)
-{
-    return true;
-}
-
-QDebug operator<<(QDebug debug, const AliveCommand &/*command*/)
-{
-    return debug.nospace() << "AliveCommand()";
-}
-
-}
+#endif // CLANGBACKEND_MESSAGES_H

@@ -32,7 +32,7 @@
 #include <QLoggingCategory>
 
 #include <connectionserver.h>
-#include <cmbcommands.h>
+#include <cmbmessages.h>
 #include <clangipcserver.h>
 
 int main(int argc, char *argv[])
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ClangBackEnd::Commands::registerCommands();
+    ClangBackEnd::Messages::registerMessages();
 
     ClangBackEnd::ClangIpcServer clangIpcServer;
     ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);

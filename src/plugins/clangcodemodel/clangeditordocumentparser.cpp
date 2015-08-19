@@ -67,7 +67,7 @@ QStringList createOptions(const QString &filePath,
     return options;
 }
 
-QString commandLine(const QStringList &options, const QString &fileName)
+QString messageLine(const QStringList &options, const QString &fileName)
 {
     const QStringList allOptions = QStringList(options)
         << QLatin1String("-fsyntax-only") << fileName;
@@ -100,10 +100,10 @@ void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InM
     state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
     setState(state_);
 
-    // Determine command line arguments
+    // Determine message line arguments
     const QStringList options = createOptions(filePath(), state_.projectPart, true);
     qCDebug(log, "Reparse options (cmd line equivalent): %s",
-           commandLine(options, filePath()).toUtf8().constData());
+           messageLine(options, filePath()).toUtf8().constData());
 
     // Run
     QTime t; t.start();

@@ -13,7 +13,7 @@ osx:QMAKE_CXXFLAGS = -stdlib=libc++
 DEFINES += \
     QT_NO_CAST_FROM_ASCII \
     CLANGBACKEND_TESTS \
-    DONT_CHECK_COMMAND_COUNTER \
+    DONT_CHECK_MESSAGE_COUNTER \
     TESTDATA_DIR=\"R\\\"xxx($$PWD/data)xxx\\\"\"
 win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
 unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
@@ -34,7 +34,7 @@ SOURCES += \
     lineprefixertest.cpp \
     main.cpp \
     projecttest.cpp \
-    readandwritecommandblocktest.cpp \
+    readandwritemessageblocktest.cpp \
     spydummy.cpp \
     sqlitecolumntest.cpp \
     sqlitedatabasebackendtest.cpp \

@@ -28,72 +28,83 @@
 **
 ****************************************************************************/
 
-#include "cmbregisterprojectsforcodecompletioncommand.h"
-
-#include "container_common.h"
+#include "translationunitdoesnotexistmessage.h"
 
 #include <QDataStream>
 #include <QDebug>
 
-#include <algorithm>
 #include <ostream>
 
 namespace ClangBackEnd {
 
-RegisterProjectPartsForCodeCompletionCommand::RegisterProjectPartsForCodeCompletionCommand(const QVector<ProjectPartContainer> &projectContainers)
-    :projectContainers_(projectContainers)
+TranslationUnitDoesNotExistMessage::TranslationUnitDoesNotExistMessage(const FileContainer &fileContainer)
+    : fileContainer_(fileContainer)
 {
 }
 
-const QVector<ProjectPartContainer> &RegisterProjectPartsForCodeCompletionCommand::projectContainers() const
+TranslationUnitDoesNotExistMessage::TranslationUnitDoesNotExistMessage(const Utf8String &filePath, const Utf8String &projectPartId)
+    : fileContainer_(filePath, projectPartId)
 {
-    return projectContainers_;
 }
 
-QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForCodeCompletionCommand &command)
+const FileContainer &TranslationUnitDoesNotExistMessage::fileContainer() const
 {
-    out << command.projectContainers_;
+    return fileContainer_;
+}
+
+const Utf8String &TranslationUnitDoesNotExistMessage::filePath() const
+{
+    return fileContainer_.filePath();
+}
+
+const Utf8String &TranslationUnitDoesNotExistMessage::projectPartId() const
+{
+    return fileContainer_.projectPartId();
+}
+
+QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistMessage &message)
+{
+    out << message.fileContainer_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForCodeCompletionCommand &command)
+QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistMessage &message)
 {
-    in >> command.projectContainers_;
+    in >> message.fileContainer_;
 
     return in;
 }
 
-bool operator==(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
+bool operator==(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second)
 {
-    return first.projectContainers_ == second.projectContainers_;
+    return first.fileContainer_ == second.fileContainer_;
 }
 
-bool operator<(const RegisterProjectPartsForCodeCompletionCommand &first, const RegisterProjectPartsForCodeCompletionCommand &second)
+bool operator<(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second)
 {
-    return compareContainer(first.projectContainers_, second.projectContainers_);
+    return first.fileContainer_ < second.fileContainer_;
 }
 
-QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionCommand &command)
+QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message)
 {
-    debug.nospace() << "RegisterProjectPartsForCodeCompletionCommand(";
+    debug.nospace() << "TranslationUnitDoesNotExistMessage(";
 
-    for (const ProjectPartContainer &projectContainer : command.projectContainers())
-        debug.nospace() << projectContainer<< ", ";
+    debug.nospace() << message.fileContainer_;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const RegisterProjectPartsForCodeCompletionCommand &command, ::std::ostream* os)
+void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* os)
 {
-    *os << "RegisterProjectPartsForCodeCompletionCommand(";
+    QString output;
+    QDebug debug(&output);
 
-    for (const ProjectPartContainer &projectContainer : command.projectContainers())
-        PrintTo(projectContainer, os);
+    debug << message;
 
-    *os << ")";
+    *os << output.toUtf8().constData();
 }
 
 } // namespace ClangBackEnd

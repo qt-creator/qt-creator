@@ -30,13 +30,13 @@
 
 #include "ipcclientproxy.h"
 
-#include "cmbalivecommand.h"
-#include "cmbcodecompletedcommand.h"
-#include "cmbechocommand.h"
-#include "cmbregistertranslationunitsforcodecompletioncommand.h"
+#include "cmbalivemessage.h"
+#include "cmbcodecompletedmessage.h"
+#include "cmbechomessage.h"
+#include "cmbregistertranslationunitsforcodecompletionmessage.h"
 #include "ipcserverinterface.h"
-#include "projectpartsdonotexistcommand.h"
-#include "translationunitdoesnotexistcommand.h"
+#include "projectpartsdonotexistmessage.h"
+#include "translationunitdoesnotexistmessage.h"
 
 #include <QDebug>
 #include <QIODevice>
@@ -46,17 +46,17 @@
 namespace ClangBackEnd {
 
 IpcClientProxy::IpcClientProxy(IpcServerInterface *server, QIODevice *ioDevice)
-    : writeCommandBlock(ioDevice),
-      readCommandBlock(ioDevice),
+    : writeMessageBlock(ioDevice),
+      readMessageBlock(ioDevice),
       server(server),
       ioDevice(ioDevice)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {IpcClientProxy::readCommands();});
+    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {IpcClientProxy::readMessages();});
 }
 
 IpcClientProxy::IpcClientProxy(IpcClientProxy &&other)
-    : writeCommandBlock(std::move(other.writeCommandBlock)),
-      readCommandBlock(std::move(other.readCommandBlock)),
+    : writeMessageBlock(std::move(other.writeMessageBlock)),
+      readMessageBlock(std::move(other.readMessageBlock)),
       server(std::move(other.server)),
       ioDevice(std::move(other.ioDevice))
 {
@@ -65,8 +65,8 @@ IpcClientProxy::IpcClientProxy(IpcClientProxy &&other)
 
 IpcClientProxy &IpcClientProxy::operator=(IpcClientProxy &&other)
 {
-    writeCommandBlock = std::move(other.writeCommandBlock);
-    readCommandBlock = std::move(other.readCommandBlock);
+    writeMessageBlock = std::move(other.writeMessageBlock);
+    readMessageBlock = std::move(other.readMessageBlock);
     server = std::move(other.server);
     ioDevice = std::move(other.ioDevice);
 
@@ -75,33 +75,33 @@ IpcClientProxy &IpcClientProxy::operator=(IpcClientProxy &&other)
 
 void IpcClientProxy::alive()
 {
-    writeCommandBlock.write(QVariant::fromValue(AliveCommand()));
+    writeMessageBlock.write(QVariant::fromValue(AliveMessage()));
 }
 
-void IpcClientProxy::echo(const EchoCommand &command)
+void IpcClientProxy::echo(const EchoMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcClientProxy::codeCompleted(const CodeCompletedCommand &command)
+void IpcClientProxy::codeCompleted(const CodeCompletedMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistCommand &command)
+void IpcClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistCommand &command)
+void IpcClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
-    writeCommandBlock.write(QVariant::fromValue(command));
+    writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcClientProxy::readCommands()
+void IpcClientProxy::readMessages()
 {
-    for (const QVariant &command : readCommandBlock.readAll())
-        server->dispatch(command);
+    for (const QVariant &message : readMessageBlock.readAll())
+        server->dispatch(message);
 }
 
 bool IpcClientProxy::isUsingThatIoDevice(QIODevice *ioDevice) const
