@@ -49,20 +49,23 @@ bool ClangString::isNull() const
     return cxString.data == nullptr;
 }
 
-ClangString &ClangString::operator=(ClangString &&clangString)
+ClangString &ClangString::operator=(ClangString &&other)
 {
-    cxString = std::move(clangString.cxString);
-    clangString.cxString.data = nullptr;
-    clangString.cxString.private_flags = 0;
+    if (this != &other) {
+        clang_disposeString(cxString);
+        cxString = std::move(other.cxString);
+        other.cxString.data = nullptr;
+        other.cxString.private_flags = 0;
+    }
 
     return *this;
 }
 
-ClangString::ClangString(ClangString &&clangString)
-    : cxString(std::move(clangString.cxString))
+ClangString::ClangString(ClangString &&other)
+    : cxString(std::move(other.cxString))
 {
-    clangString.cxString.data = nullptr;
-    clangString.cxString.private_flags = 0;
+    other.cxString.data = nullptr;
+    other.cxString.private_flags = 0;
 }
 
 ClangString::operator Utf8String() const

@@ -43,11 +43,11 @@ public:
     ClangString(CXString cxString);
     ~ClangString();
 
-    ClangString(const ClangString &clangString) = delete;
-    const ClangString &operator=(const ClangString &clangString) = delete;
+    ClangString(const ClangString &) = delete;
+    const ClangString &operator=(const ClangString &) = delete;
 
-    ClangString(ClangString &&clangString);
-    ClangString &operator=(ClangString &&clangString);
+    ClangString(ClangString &&other);
+    ClangString &operator=(ClangString &&other);
 
     operator Utf8String() const;
 
