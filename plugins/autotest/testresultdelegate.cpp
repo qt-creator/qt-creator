@@ -42,6 +42,43 @@ TestResultDelegate::~TestResultDelegate()
 
 }
 
+QString TestResultDelegate::outputString(const TestResult &testResult, bool selected)
+{
+    const QString desc = testResult.description();
+    QString output;
+    switch (testResult.result()) {
+    case Result::PASS:
+    case Result::FAIL:
+    case Result::EXPECTED_FAIL:
+    case Result::UNEXPECTED_PASS:
+    case Result::BLACKLISTED_FAIL:
+    case Result::BLACKLISTED_PASS:
+        output = testResult.className() + QLatin1String("::") + testResult.testCase();
+        if (!testResult.dataTag().isEmpty())
+            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
+        if (selected && !desc.isEmpty()) {
+            output.append(QLatin1Char('\n')).append(desc);
+        }
+        break;
+    case Result::BENCHMARK:
+        output = testResult.className() + QLatin1String("::") + testResult.testCase();
+        if (!testResult.dataTag().isEmpty())
+            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
+        if (!desc.isEmpty()) {
+            int breakPos = desc.indexOf(QLatin1Char('('));
+            output.append(QLatin1String(": ")).append(desc.left(breakPos));
+            if (selected)
+                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
+        }
+        break;
+    default:
+        output = desc;
+        if (!selected)
+            output = output.split(QLatin1Char('\n')).first();
+    }
+    return output;
+}
+
 void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 opt = option;
@@ -75,7 +112,6 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     TestResultModel *resultModel = static_cast<TestResultModel *>(resultFilterModel->sourceModel());
     LayoutPositions positions(opt, resultModel);
     TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
-    Result::Type type = testResult.result();
 
     QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
     if (!icon.isNull())
@@ -92,38 +128,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setPen(tmp);
     }
 
-    const QString desc = testResult.description();
-    QString output;
-    switch (type) {
-    case Result::PASS:
-    case Result::FAIL:
-    case Result::EXPECTED_FAIL:
-    case Result::UNEXPECTED_PASS:
-    case Result::BLACKLISTED_FAIL:
-    case Result::BLACKLISTED_PASS:
-        output = testResult.className() + QLatin1String("::") + testResult.testCase();
-        if (!testResult.dataTag().isEmpty())
-            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-        if (selected && !desc.isEmpty()) {
-            output.append(QLatin1Char('\n')).append(desc);
-        }
-        break;
-    case Result::BENCHMARK:
-        output = testResult.className() + QLatin1String("::") + testResult.testCase();
-        if (!testResult.dataTag().isEmpty())
-            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-        if (!desc.isEmpty()) {
-            int breakPos = desc.indexOf(QLatin1Char('('));
-            output.append(QLatin1String(": ")).append(desc.left(breakPos));
-            if (selected)
-                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
-        }
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split(QLatin1Char('\n')).first();
-    }
+    QString output = outputString(testResult, selected);
 
     if (selected) {
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
@@ -184,37 +189,7 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     if (selected) {
         TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
 
-        QString desc = testResult.description();
-        QString output;
-        switch (testResult.result()) {
-        case Result::PASS:
-        case Result::FAIL:
-        case Result::EXPECTED_FAIL:
-        case Result::UNEXPECTED_PASS:
-        case Result::BLACKLISTED_FAIL:
-        case Result::BLACKLISTED_PASS:
-            output = testResult.className() + QLatin1String("::") + testResult.testCase();
-            if (!testResult.dataTag().isEmpty())
-                output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-            if (!desc.isEmpty()) {
-                output.append(QLatin1Char('\n')).append(desc);
-            }
-            break;
-        case Result::BENCHMARK:
-            output = testResult.className() + QLatin1String("::") + testResult.testCase();
-            if (!testResult.dataTag().isEmpty())
-                output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-            if (!desc.isEmpty()) {
-                int breakPos = desc.indexOf(QLatin1Char('('));
-                output.append(QLatin1String(" - ")).append(desc.left(breakPos));
-            if (selected)
-                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
-            }
-            break;
-        default:
-            output = desc;
-        }
-
+        QString output = outputString(testResult, selected);
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
 
         if (AutotestPlugin::instance()->settings()->limitResultOutput
