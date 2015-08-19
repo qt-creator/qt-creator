@@ -752,7 +752,9 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER == 1800
+#if _MSC_VER == 1900
+    subos = WindowsMsvc2015Flavor;
+#elif _MSC_VER == 1800
     subos = WindowsMsvc2013Flavor;
 #elif _MSC_VER == 1700
     subos = WindowsMsvc2012Flavor;
