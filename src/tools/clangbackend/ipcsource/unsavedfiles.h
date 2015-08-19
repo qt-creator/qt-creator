@@ -73,7 +73,7 @@ public:
 
 private:
     CXUnsavedFile createCxUnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
-    static void deleteCXUnsavedFile(const CXUnsavedFile &cxUnsavedFile);
+    static void deleteCXUnsavedFile(CXUnsavedFile &cxUnsavedFile);
     void updateCXUnsavedFileWithFileContainer(const FileContainer &fileContainer);
     void removeCXUnsavedFile(const FileContainer &fileContainer);
     void addOrUpdateCXUnsavedFile(const FileContainer &fileContainer);

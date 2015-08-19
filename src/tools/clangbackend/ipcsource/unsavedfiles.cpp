@@ -53,7 +53,7 @@ UnsavedFilesData::UnsavedFilesData()
 
 UnsavedFilesData::~UnsavedFilesData()
 {
-    for (const CXUnsavedFile &cxUnsavedFile : cxUnsavedFiles)
+    for (CXUnsavedFile &cxUnsavedFile : cxUnsavedFiles)
         UnsavedFiles::deleteCXUnsavedFile(cxUnsavedFile);
 
     cxUnsavedFiles.clear();
@@ -99,7 +99,7 @@ void UnsavedFiles::remove(const QVector<FileContainer> &fileContainers)
 
 void UnsavedFiles::clear()
 {
-    for (const CXUnsavedFile &cxUnsavedFile : d->cxUnsavedFiles)
+    for (CXUnsavedFile &cxUnsavedFile : d->cxUnsavedFiles)
         deleteCXUnsavedFile(cxUnsavedFile);
 
     d->cxUnsavedFiles.clear();
@@ -137,10 +137,13 @@ CXUnsavedFile UnsavedFiles::createCxUnsavedFile(const Utf8String &filePath, cons
     return CXUnsavedFile { cxUnsavedFilePath, cxUnsavedFileContent, ulong(fileContent.byteSize())};
 }
 
-void UnsavedFiles::deleteCXUnsavedFile(const CXUnsavedFile &cxUnsavedFile)
+void UnsavedFiles::deleteCXUnsavedFile(CXUnsavedFile &cxUnsavedFile)
 {
     delete [] cxUnsavedFile.Contents;
     delete [] cxUnsavedFile.Filename;
+    cxUnsavedFile.Contents = nullptr;
+    cxUnsavedFile.Filename = nullptr;
+    cxUnsavedFile.Length = 0;
 }
 
 void UnsavedFiles::updateCXUnsavedFileWithFileContainer(const FileContainer &fileContainer)
