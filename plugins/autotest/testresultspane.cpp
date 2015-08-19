@@ -28,15 +28,19 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
 #include <texteditor/texteditor.h>
 
-#include <utils/itemviews.h>
 #include <utils/theme/theme.h>
 
+#include <QApplication>
+#include <QClipboard>
 #include <QDebug>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMenu>
+#include <QMessageBox>
 #include <QScrollBar>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -44,11 +48,24 @@
 namespace Autotest {
 namespace Internal {
 
+ResultsTreeView::ResultsTreeView(QWidget *parent)
+    : Utils::TreeView(parent)
+{}
+
+void ResultsTreeView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->matches(QKeySequence::Copy)) {
+        emit copyShortcutTriggered();
+        event->accept();
+    }
+}
+
 TestResultsPane::TestResultsPane(QObject *parent) :
     Core::IOutputPane(parent),
     m_context(new Core::IContext(this)),
     m_wasVisibleBefore(false),
-    m_autoScroll(false)
+    m_autoScroll(false),
+    m_testRunning(false)
 {
     m_outputWidget = new QWidget;
     QVBoxLayout *outputLayout = new QVBoxLayout;
@@ -74,9 +91,10 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     outputLayout->addWidget(m_summaryWidget);
 
-    m_treeView = new Utils::TreeView(m_outputWidget);
+    m_treeView = new ResultsTreeView(m_outputWidget);
     m_treeView->setHeaderHidden(true);
     m_treeView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
@@ -91,6 +109,11 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(m_treeView, &Utils::TreeView::activated, this, &TestResultsPane::onItemActivated);
     connect(m_treeView->selectionModel(), &QItemSelectionModel::currentChanged,
             trd, &TestResultDelegate::currentChanged);
+    connect(m_treeView, &Utils::TreeView::customContextMenuRequested,
+            this, &TestResultsPane::onCustomContextMenuRequested);
+    connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, [this] () {
+       onCopyItemTriggered(m_treeView->currentIndex());
+    });
     connect(TestRunner::instance(), &TestRunner::testRunStarted,
             this, &TestResultsPane::onTestRunStarted);
     connect(TestRunner::instance(), &TestRunner::testRunFinished,
@@ -375,6 +398,7 @@ void TestResultsPane::filterMenuTriggered(QAction *action)
 
 void TestResultsPane::onTestRunStarted()
 {
+    m_testRunning = true;
     m_stopTestRun->setEnabled(true);
     m_runAll->setEnabled(false);
     m_runSelected->setEnabled(false);
@@ -383,6 +407,7 @@ void TestResultsPane::onTestRunStarted()
 
 void TestResultsPane::onTestRunFinished()
 {
+    m_testRunning = false;
     m_stopTestRun->setEnabled(false);
     m_runAll->setEnabled(true);
     m_runSelected->setEnabled(true);
@@ -404,6 +429,69 @@ void TestResultsPane::onTestTreeModelChanged()
     const bool enable = TestTreeModel::instance()->hasTests();
     m_runAll->setEnabled(enable);
     m_runSelected->setEnabled(enable);
+}
+
+void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
+{
+    const bool resultsAvailable = m_filterModel->hasResults();
+    const bool enabled = !m_testRunning && resultsAvailable;
+    const QModelIndex clicked = m_treeView->indexAt(pos);
+    QMenu menu;
+    QAction *action = new QAction(tr("Copy"), &menu);
+    action->setShortcut(QKeySequence(QKeySequence::Copy));
+    action->setEnabled(resultsAvailable);
+    connect(action, &QAction::triggered, [this, clicked] () {
+       onCopyItemTriggered(clicked);
+    });
+    menu.addAction(action);
+
+    action = new QAction(tr("Copy All"), &menu);
+    action->setEnabled(enabled);
+    connect(action, &QAction::triggered, this, &TestResultsPane::onCopyWholeTriggered);
+    menu.addAction(action);
+
+    action = new QAction(tr("Save Output to File..."), &menu);
+    action->setEnabled(enabled);
+    connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
+    menu.addAction(action);
+
+    menu.exec(m_treeView->mapToGlobal(pos));
+}
+
+void TestResultsPane::onCopyItemTriggered(const QModelIndex &idx)
+{
+    const TestResult result = m_filterModel->testResult(idx);
+    QApplication::clipboard()->setText(TestResultDelegate::outputString(result, true));
+}
+
+void TestResultsPane::onCopyWholeTriggered()
+{
+    QApplication::clipboard()->setText(getWholeOutput());
+}
+
+void TestResultsPane::onSaveWholeTriggered()
+{
+    const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+                                                          tr("Save Output To..."));
+    Utils::FileSaver saver(fileName, QIODevice::Text);
+    if (!saver.write(getWholeOutput().toUtf8()) || !saver.finalize()) {
+        QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
+                              tr("Failed to write \"%1\".\n\n%2").arg(fileName)
+                              .arg(saver.errorString()));
+    }
+}
+
+// helper for onCopyWholeTriggered() and onSaveWholeTriggered()
+QString TestResultsPane::getWholeOutput()
+{
+    QString output;
+    const QModelIndex invalid; // practically the invisible root item
+    for (int row = 0, count = m_model->rowCount(invalid); row < count; ++row) {
+        const TestResult result = m_model->testResult(m_model->index(row, 0, invalid));
+        output.append(TestResult::resultToString(result.result())).append(QLatin1Char('\t'));
+        output.append(TestResultDelegate::outputString(result, true)).append(QLatin1Char('\n'));
+    }
+    return output;
 }
 
 } // namespace Internal

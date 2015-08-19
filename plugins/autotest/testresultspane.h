@@ -22,9 +22,12 @@
 
 #include <coreplugin/ioutputpane.h>
 
+#include <utils/itemviews.h>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QFrame;
+class QKeyEvent;
 class QLabel;
 class QModelIndex;
 class QMenu;
@@ -35,16 +38,25 @@ namespace Core {
 class IContext;
 }
 
-namespace Utils {
-class TreeView;
-}
-
 namespace Autotest {
 namespace Internal {
 
 class TestResult;
 class TestResultModel;
 class TestResultFilterModel;
+
+class ResultsTreeView : public Utils::TreeView
+{
+    Q_OBJECT
+public:
+    ResultsTreeView(QWidget *parent = 0);
+
+signals:
+    void copyShortcutTriggered();
+
+protected:
+    void keyPressEvent(QKeyEvent *event);
+};
 
 class TestResultsPane : public Core::IOutputPane
 {
@@ -90,11 +102,16 @@ private:
     void onTestRunFinished();
     void onScrollBarRangeChanged(int, int max);
     void onTestTreeModelChanged();
+    void onCustomContextMenuRequested(const QPoint &pos);
+    void onCopyItemTriggered(const QModelIndex &idx);
+    void onCopyWholeTriggered();
+    void onSaveWholeTriggered();
+    QString getWholeOutput();
 
     QWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
-    Utils::TreeView *m_treeView;
+    ResultsTreeView *m_treeView;
     TestResultModel *m_model;
     TestResultFilterModel *m_filterModel;
     Core::IContext *m_context;
@@ -106,6 +123,7 @@ private:
     bool m_wasVisibleBefore;
     bool m_autoScroll;
     bool m_atEnd;
+    bool m_testRunning;
 };
 
 } // namespace Internal
