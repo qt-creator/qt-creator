@@ -890,6 +890,8 @@ bool SessionManager::loadSession(const QString &session)
     if (!sessions().contains(session))
         return false;
 
+
+    QStringList fileList;
     // Try loading the file
     FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
@@ -897,8 +899,10 @@ bool SessionManager::loadSession(const QString &session)
         if (!reader.load(fileName)) {
             QMessageBox::warning(ICore::dialogParent(), tr("Error while restoring session"),
                                  tr("Could not restore session %1").arg(fileName.toUserOutput()));
+
             return false;
         }
+        fileList = reader.restoreValue(QLatin1String("ProjectList")).toStringList();
     }
 
     d->m_loadingSession = true;
@@ -920,7 +924,22 @@ bool SessionManager::loadSession(const QString &session)
     }
 
     setStartupProject(0);
-    removeProjects(projects());
+
+    QList<Project *> oldProjects = projects();
+    auto it = oldProjects.begin();
+    auto end = oldProjects.end();
+
+    while (it != end) {
+        int index = fileList.indexOf((*it)->document()->filePath().toString());
+        if (index != -1) {
+            fileList.removeAt(index);
+            it = oldProjects.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    removeProjects(oldProjects);
 
     d->m_failedProjects.clear();
     d->m_depMap.clear();
@@ -949,9 +968,6 @@ bool SessionManager::loadSession(const QString &session)
         QColor c = QColor(reader.restoreValue(QLatin1String("Color")).toString());
         if (c.isValid())
             StyleHelper::setBaseColor(c);
-
-        QStringList fileList =
-            reader.restoreValue(QLatin1String("ProjectList")).toStringList();
 
         d->m_future.setProgressRange(0, fileList.count() + 1/*initialization above*/ + 1/*editors*/);
         d->m_future.setProgressValue(1);
