@@ -172,6 +172,14 @@ GdbServerProvider *GdbServerProviderManager::findProvider(const QString &id) con
     return Utils::findOrDefault(m_providers, Utils::equal(&GdbServerProvider::id, id));
 }
 
+GdbServerProvider *GdbServerProviderManager::findByDisplayName(const QString &displayName) const
+{
+    if (displayName.isEmpty())
+        return 0;
+
+    return Utils::findOrDefault(m_providers, Utils::equal(&GdbServerProvider::displayName, displayName));
+}
+
 void GdbServerProviderManager::notifyAboutUpdate(GdbServerProvider *provider)
 {
     if (!provider || !m_providers.contains(provider))
