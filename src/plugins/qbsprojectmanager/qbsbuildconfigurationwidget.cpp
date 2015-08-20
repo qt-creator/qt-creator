@@ -70,7 +70,7 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
     m_buildDirChooser->setEnvironment(bc->environment());
     layout->addWidget(m_buildDirChooser, 0, 1);
 
-    connect(m_buildDirChooser, SIGNAL(changed(QString)), this, SLOT(buildDirEdited()));
+    connect(m_buildDirChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(buildDirEdited()));
 
     buildDirectoryChanged();
 }

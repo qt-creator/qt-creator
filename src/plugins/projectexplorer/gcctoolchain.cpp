@@ -877,7 +877,7 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 
     setFromToolchain();
 
-    connect(m_compilerCommand, SIGNAL(changed(QString)), this, SLOT(handleCompilerCommandChange()));
+    connect(m_compilerCommand, SIGNAL(rawPathChanged(QString)), this, SLOT(handleCompilerCommandChange()));
     connect(m_platformCodeGenFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformCodeGenFlagsChange()));
     connect(m_platformLinkerFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformLinkerFlagsChange()));
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));

@@ -217,7 +217,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
     m_pathChooser->setHistoryCompleter(QLatin1String("Generic.BuildDir.History"));
     m_pathChooser->setEnabled(true);
     fl->addRow(tr("Build directory:"), m_pathChooser);
-    connect(m_pathChooser, &Utils::PathChooser::changed,
+    connect(m_pathChooser, &Utils::PathChooser::rawPathChanged,
             this, &GenericBuildSettingsWidget::buildDirectoryChanged);
 
     m_buildConfiguration = bc;

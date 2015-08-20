@@ -56,7 +56,7 @@ QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxQtVersion *version) :
     m_sdkPathChooser->setHistoryCompleter(QLatin1String("Qnx.Sdk.History"));
     m_sdkPathChooser->setPath(version->sdkPath());
 
-    connect(m_sdkPathChooser, &Utils::PathChooser::changed,
+    connect(m_sdkPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &QnxBaseQtConfigWidget::updateSdkPath);
 }
 

@@ -108,14 +108,14 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     changed();
 
     if (mode == InstantApply) {
-        connect(m_executableChooser, SIGNAL(changed(QString)),
+        connect(m_executableChooser, SIGNAL(rawPathChanged(QString)),
                 this, SLOT(executableEdited()));
-        connect(m_workingDirectory, SIGNAL(changed(QString)),
+        connect(m_workingDirectory, SIGNAL(rawPathChanged(QString)),
                 this, SLOT(workingDirectoryEdited()));
     } else {
-        connect(m_executableChooser, SIGNAL(changed(QString)),
+        connect(m_executableChooser, SIGNAL(rawPathChanged(QString)),
                 this, SIGNAL(validChanged()));
-        connect(m_workingDirectory, SIGNAL(changed(QString)),
+        connect(m_workingDirectory, SIGNAL(rawPathChanged(QString)),
                 this, SIGNAL(validChanged()));
     }
 

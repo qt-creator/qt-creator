@@ -64,7 +64,7 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfigu
     m_pathChooser->setEnvironment(bc->environment());
     m_pathChooser->setHistoryCompleter(QLatin1String("AutoTools.BuildDir.History"));
     fl->addRow(tr("Build directory:"), m_pathChooser);
-    connect(m_pathChooser, &Utils::PathChooser::changed,
+    connect(m_pathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AutotoolsBuildSettingsWidget::buildDirectoryChanged);
 
     m_pathChooser->setBaseFileName(bc->target()->project()->projectDirectory());

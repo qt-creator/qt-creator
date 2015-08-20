@@ -154,7 +154,7 @@ private:
 
 signals:
     void validChanged(bool validState);
-    void changed(const QString &text);
+    void rawPathChanged(const QString &text);
     void pathChanged(const QString &path);
     void editingFinished();
     void beforeBrowsing();

@@ -191,7 +191,7 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
     connect(checkbox, SIGNAL(toggled(bool)),
             this, SLOT(checkBoxToggled(bool)));
 
-    connect(pathChooser, SIGNAL(changed(QString)),
+    connect(pathChooser, SIGNAL(rawPathChanged(QString)),
             this, SLOT(pathChanged()));
 
     m_checkboxes.append(checkbox);

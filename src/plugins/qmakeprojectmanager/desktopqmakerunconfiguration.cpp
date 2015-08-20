@@ -252,7 +252,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     runConfigurationEnabledChange();
 
-    connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
+    connect(m_workingDirectoryEdit, SIGNAL(rawPathChanged(QString)),
             this, SLOT(workDirectoryEdited()));
 
     connect(resetButton, SIGNAL(clicked()),

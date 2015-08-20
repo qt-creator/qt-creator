@@ -343,7 +343,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     m_pc->setPath(m_cmakeWizard->buildDirectory());
     m_pc->setExpectedKind(Utils::PathChooser::Directory);
     m_pc->setHistoryCompleter(QLatin1String("Cmake.BuildDir.History"));
-    connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
+    connect(m_pc, SIGNAL(rawPathChanged(QString)), this, SLOT(buildDirectoryChanged()));
     fl->addRow(tr("Build directory:"), m_pc);
     setTitle(tr("Build Location"));
 }

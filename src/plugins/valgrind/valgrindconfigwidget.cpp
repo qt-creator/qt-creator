@@ -65,7 +65,7 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     updateUi();
     connect(m_settings, &ValgrindBaseSettings::changed, this, &ValgrindConfigWidget::updateUi);
 
-    connect(m_ui->valgrindExeChooser, &Utils::PathChooser::changed,
+    connect(m_ui->valgrindExeChooser, &Utils::PathChooser::rawPathChanged,
             m_settings, &ValgrindBaseSettings::setValgrindExecutable);
     connect(m_settings, &ValgrindBaseSettings::valgrindExecutableChanged,
             m_ui->valgrindExeChooser, &Utils::PathChooser::setPath);

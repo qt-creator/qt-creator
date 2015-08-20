@@ -183,7 +183,7 @@ void ChooseDirectoryPage::initializePage()
                           "Android directory and the default files are overwritten."));
 
         m_androidPackageSourceDir->setPath(m_wizard->node()->path().toFileInfo().absolutePath().append(QLatin1String("/android")));
-        connect(m_androidPackageSourceDir, SIGNAL(changed(QString)),
+        connect(m_androidPackageSourceDir, SIGNAL(rawPathChanged(QString)),
                 this, SLOT(checkPackageSourceDir()));
     } else {
         m_label->setText(tr("The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));

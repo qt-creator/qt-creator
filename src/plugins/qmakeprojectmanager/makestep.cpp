@@ -326,7 +326,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     updateDetails();
 
-    connect(m_ui->makePathChooser, SIGNAL(changed(QString)),
+    connect(m_ui->makePathChooser, SIGNAL(rawPathChanged(QString)),
             this, SLOT(makeEdited()));
     connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEdited()));

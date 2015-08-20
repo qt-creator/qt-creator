@@ -316,7 +316,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     verticalLayout->addWidget(line);
     verticalLayout->addWidget(d->buttonBox);
 
-    connect(d->localExecutablePathChooser, &PathChooser::changed,
+    connect(d->localExecutablePathChooser, &PathChooser::rawPathChanged,
             this, &StartApplicationDialog::updateState);
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

@@ -282,7 +282,8 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     m_ui->installRootChooser->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->installRootChooser->setHistoryCompleter(QLatin1String("Qbs.InstallRoot.History"));
 
-    connect(m_ui->installRootChooser, SIGNAL(changed(QString)), this, SLOT(changeInstallRoot()));
+    connect(m_ui->installRootChooser, SIGNAL(rawPathChanged(QString)), this,
+            SLOT(changeInstallRoot()));
     connect(m_ui->removeFirstCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeRemoveFirst(bool)));
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));

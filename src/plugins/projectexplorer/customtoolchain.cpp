@@ -494,8 +494,8 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_predefinedDetails->updateSummaryText();
     m_headerDetails->updateSummaryText();
 
-    connect(m_compilerCommand, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
-    connect(m_makeCommand, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
+    connect(m_compilerCommand, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
+    connect(m_makeCommand, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
     connect(m_predefinedMacros, SIGNAL(textChanged()), this, SLOT(updateSummaries()));
     connect(m_headerPaths, SIGNAL(textChanged()), this, SLOT(updateSummaries()));

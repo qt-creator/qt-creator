@@ -254,9 +254,9 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
 
     updateDetails();
 
-    connect(m_ui.command, SIGNAL(changed(QString)),
+    connect(m_ui.command, SIGNAL(rawPathChanged(QString)),
             this, SLOT(commandLineEditTextEdited()));
-    connect(m_ui.workingDirectory, SIGNAL(changed(QString)),
+    connect(m_ui.workingDirectory, SIGNAL(rawPathChanged(QString)),
             this, SLOT(workingDirectoryLineEditTextEdited()));
 
     connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(QString)),

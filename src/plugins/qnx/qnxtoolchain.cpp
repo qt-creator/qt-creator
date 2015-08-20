@@ -209,8 +209,8 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     m_mainLayout->addRow(tr("NDK/SDP path:"), m_ndkPath);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
-    connect(m_compilerCommand, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
-    connect(m_ndkPath, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
+    connect(m_compilerCommand, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
+    connect(m_ndkPath, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
 }
 

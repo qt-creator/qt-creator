@@ -103,7 +103,7 @@ LibraryDetailsController::LibraryDetailsController(
     if (creatorPlatform() != CreatorWindows)
         setLinkageRadiosVisible(false);
 
-    connect(m_libraryDetailsWidget->includePathChooser, SIGNAL(changed(QString)),
+    connect(m_libraryDetailsWidget->includePathChooser, SIGNAL(rawPathChanged(QString)),
             this, SLOT(slotIncludePathChanged()));
     connect(m_libraryDetailsWidget->frameworkRadio, SIGNAL(clicked(bool)),
             this, SLOT(slotMacLibraryTypeChanged()));
@@ -637,7 +637,7 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
 
     connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(validChanged(bool)),
             this, SIGNAL(completeChanged()));
-    connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(changed(QString)),
+    connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(rawPathChanged(QString)),
             this, SLOT(slotLibraryPathChanged()));
     connect(libraryDetailsWidget()->removeSuffixCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(slotRemoveSuffixChanged(bool)));

@@ -296,11 +296,11 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
 
     connect(m_hostWidget.data(), &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_executableFileChooser.data(), &Utils::PathChooser::changed,
+    connect(m_executableFileChooser.data(), &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_rootScriptsDirChooser.data(), &Utils::PathChooser::changed,
+    connect(m_rootScriptsDirChooser.data(), &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_configurationFileChooser.data(), &Utils::PathChooser::changed,
+    connect(m_configurationFileChooser.data(), &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_additionalArgumentsLineEdit.data(), &QLineEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);

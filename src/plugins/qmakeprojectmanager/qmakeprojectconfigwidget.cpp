@@ -91,7 +91,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
             this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
 
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(rawPathChanged(QString)),
             this, SLOT(shadowBuildEdited()));
 
     QmakeProject *project = static_cast<QmakeProject *>(bc->target()->project());

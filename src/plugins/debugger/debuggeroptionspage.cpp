@@ -249,7 +249,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model)
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
     formLayout->addRow(new QLabel(tr("Version:")), m_versionLabel);
 
-    connect(m_binaryChooser, &PathChooser::changed,
+    connect(m_binaryChooser, &PathChooser::rawPathChanged,
             this, &DebuggerItemConfigWidget::binaryPathHasChanged);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged,
             this, &DebuggerItemConfigWidget::store);

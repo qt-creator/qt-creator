@@ -568,8 +568,8 @@ void JsonFieldPage::PathChooserField::setEnabled(bool e)
 void JsonFieldPage::PathChooserField::setup(JsonFieldPage *page, const QString &name)
 {
     PathChooser *w = static_cast<PathChooser *>(m_widget);
-    page->registerFieldWithName(name, w, "path", SIGNAL(changed(QString)));
-    connect(w, &PathChooser::changed, page, [page](QString) { page->completeChanged(); });
+    page->registerFieldWithName(name, w, "path", SIGNAL(rawPathChanged(QString)));
+    connect(w, &PathChooser::rawPathChanged, page, [page](QString) { page->completeChanged(); });
 }
 
 bool JsonFieldPage::PathChooserField::validate(MacroExpander *expander, QString *message)

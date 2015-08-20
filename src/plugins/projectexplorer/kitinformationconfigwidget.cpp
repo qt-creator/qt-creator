@@ -74,7 +74,7 @@ SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, const Kit
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
     m_chooser->setFileName(SysRootKitInformation::sysRoot(k));
-    connect(m_chooser, SIGNAL(changed(QString)), this, SLOT(pathWasChanged()));
+    connect(m_chooser, SIGNAL(rawPathChanged(QString)), this, SLOT(pathWasChanged()));
 }
 
 SysRootInformationConfigWidget::~SysRootInformationConfigWidget()

@@ -294,7 +294,7 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
 
     connect(m_hostWidget.data(), &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_executableFileChooser.data(), &Utils::PathChooser::changed,
+    connect(m_executableFileChooser.data(), &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_verboseLevelSpinBox.data(),

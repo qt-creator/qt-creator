@@ -340,7 +340,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
 
-    connect(m_binaryChooser, &PathChooser::changed,
+    connect(m_binaryChooser, &PathChooser::rawPathChanged,
             this, &CMakeToolItemConfigWidget::store);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged,
             this, &CMakeToolItemConfigWidget::store);

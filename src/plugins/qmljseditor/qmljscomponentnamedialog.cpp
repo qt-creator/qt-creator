@@ -43,7 +43,7 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->pathEdit, SIGNAL(changed(QString)),
+    connect(ui->pathEdit, SIGNAL(rawPathChanged(QString)),
             this, SLOT(validate()));
     connect(ui->componentNameEdit, SIGNAL(textChanged(QString)),
             this, SLOT(validate()));

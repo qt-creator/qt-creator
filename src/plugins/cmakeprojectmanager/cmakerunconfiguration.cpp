@@ -266,7 +266,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     vbx->setMargin(0);
     vbx->addWidget(m_detailsContainer);
 
-    connect(m_workingDirectoryEdit, &Utils::PathChooser::changed,
+    connect(m_workingDirectoryEdit, &Utils::PathChooser::rawPathChanged,
             this, &CMakeRunConfigurationWidget::setWorkingDirectory);
 
     connect(resetButton, &QToolButton::clicked,

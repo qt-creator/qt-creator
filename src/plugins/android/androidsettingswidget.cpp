@@ -186,10 +186,10 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     connect(&m_futureWatcher, SIGNAL(finished()),
             this, SLOT(avdAdded()));
 
-    connect(m_ui->NDKLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(ndkLocationEditingFinished()));
-    connect(m_ui->SDKLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(sdkLocationEditingFinished()));
-    connect(m_ui->AntLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(antLocationEditingFinished()));
-    connect(m_ui->OpenJDKLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(openJDKLocationEditingFinished()));
+    connect(m_ui->NDKLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(ndkLocationEditingFinished()));
+    connect(m_ui->SDKLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(sdkLocationEditingFinished()));
+    connect(m_ui->AntLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(antLocationEditingFinished()));
+    connect(m_ui->OpenJDKLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(openJDKLocationEditingFinished()));
 
 }
 

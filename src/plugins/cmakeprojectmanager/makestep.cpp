@@ -382,7 +382,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     updateDetails();
 
-    connect(m_makePathChooser, &Utils::PathChooser::changed, this, &MakeStepConfigWidget::makeEdited);
+    connect(m_makePathChooser, &Utils::PathChooser::rawPathChanged, this, &MakeStepConfigWidget::makeEdited);
     connect(m_additionalArguments, &QLineEdit::textEdited, this, &MakeStepConfigWidget::additionalArgumentsEdited);
     connect(m_buildTargetsList, &QListWidget::itemChanged, this, &MakeStepConfigWidget::itemChanged);
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,

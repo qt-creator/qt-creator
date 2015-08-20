@@ -228,7 +228,8 @@ PathChooser::PathChooser(QWidget *parent) :
 
     connect(d->m_lineEdit, &FancyLineEdit::customContextMenuRequested, this, &PathChooser::contextMenuRequested);
     connect(d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit changed(rawPath()); });
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this,
+            [this] { emit rawPathChanged(rawPath()); });
     connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
     connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit pathChanged(path()); });
@@ -306,7 +307,7 @@ void PathChooser::setEnvironment(const Environment &env)
     d->m_environment = env;
     if (path() != oldExpand) {
         triggerChanged();
-        emit changed(rawPath());
+        emit rawPathChanged(rawPath());
     }
 }
 
