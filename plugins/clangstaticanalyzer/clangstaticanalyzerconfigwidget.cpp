@@ -65,7 +65,7 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
         chooser->setPath(QLatin1String(" "));
         chooser->lineEdit()->clear();
     }
-    connect(m_ui->clangExecutableChooser, &Utils::PathChooser::changed,
+    connect(m_ui->clangExecutableChooser, &Utils::PathChooser::rawPathChanged,
             [settings](const QString &path) { settings->setClangExecutable(path); });
 
     m_ui->simultaneousProccessesSpinBox->setValue(settings->simultaneousProcesses());
