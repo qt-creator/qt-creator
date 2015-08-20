@@ -91,7 +91,7 @@ TestSettings TestSettingsWidget::settings() const
 TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
     : m_settings(settings), m_widget(0)
 {
-    setId("A.General");
+    setId("A.AutoTest.General");
     setDisplayName(tr("General"));
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayCategory(tr("Test Settings"));
