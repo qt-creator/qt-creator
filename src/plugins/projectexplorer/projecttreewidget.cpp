@@ -110,7 +110,7 @@ public:
         m_cachedSize = -1;
     }
 
-    void setModel(QAbstractItemModel *newModel)
+    void setModel(QAbstractItemModel *newModel) override
     {
         // Note: Don't connect to column signals, as we have only one column
         if (model()) {

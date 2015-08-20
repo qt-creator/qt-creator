@@ -96,9 +96,9 @@ public:
 
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
     // called.
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 
     // Create all wizards. As other plugins might register factories for derived
     // classes, call it in extensionsInitialized().
@@ -139,9 +139,9 @@ public:
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
 
 protected:
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 
 signals:
     void projectLocationChanged(const QString &path);
