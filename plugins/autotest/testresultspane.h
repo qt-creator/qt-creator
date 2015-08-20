@@ -84,7 +84,7 @@ public:
 signals:
 
 public slots:
-    void addTestResult(const TestResult &result);
+    void addTestResult(TestResult *result);
 
 private slots:
     void onItemActivated(const QModelIndex &index);
@@ -106,7 +106,7 @@ private:
     void onCopyItemTriggered(const QModelIndex &idx);
     void onCopyWholeTriggered();
     void onSaveWholeTriggered();
-    QString getWholeOutput();
+    QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 
     QWidget *m_outputWidget;
     QFrame *m_summaryWidget;
@@ -115,6 +115,7 @@ private:
     TestResultModel *m_model;
     TestResultFilterModel *m_filterModel;
     Core::IContext *m_context;
+    QToolButton *m_expandCollapse;
     QToolButton *m_runAll;
     QToolButton *m_runSelected;
     QToolButton *m_stopTestRun;

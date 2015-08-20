@@ -45,7 +45,7 @@ public:
 public slots:
     void processOutput();
 signals:
-    void testResultCreated(const TestResult &testResult);
+    void testResultCreated(TestResult *testResult);
     void increaseProgress();
 private:
     QProcess *m_testApplication;

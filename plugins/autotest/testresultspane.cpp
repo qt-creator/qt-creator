@@ -114,6 +114,9 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, [this] () {
        onCopyItemTriggered(m_treeView->currentIndex());
     });
+    connect(m_model, &TestResultModel::requestExpansion, [this] (QModelIndex idx) {
+        m_treeView->expand(m_filterModel->mapFromSource(idx));
+    });
     connect(TestRunner::instance(), &TestRunner::testRunStarted,
             this, &TestResultsPane::onTestRunStarted);
     connect(TestRunner::instance(), &TestRunner::testRunFinished,
@@ -122,6 +125,18 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
 void TestResultsPane::createToolButtons()
 {
+    m_expandCollapse = new QToolButton(m_treeView);
+    m_expandCollapse->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
+    m_expandCollapse->setToolTip(tr("Expand All"));
+    m_expandCollapse->setCheckable(true);
+    m_expandCollapse->setChecked(false);
+    connect(m_expandCollapse, &QToolButton::clicked, [this] (bool checked) {
+        if (checked)
+            m_treeView->expandAll();
+        else
+            m_treeView->collapseAll();
+    });
+
     m_runAll = new QToolButton(m_treeView);
     m_runAll->setIcon(QIcon(QLatin1String(":/images/run.png")));
     m_runAll->setToolTip(tr("Run All Tests"));
@@ -167,12 +182,12 @@ TestResultsPane::~TestResultsPane()
     m_instance = 0;
 }
 
-void TestResultsPane::addTestResult(const TestResult &result)
+void TestResultsPane::addTestResult(TestResult *result)
 {
     const QScrollBar *scrollBar = m_treeView->verticalScrollBar();
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
 
-    m_model->addTestResult(result);
+    m_model->addTestResult(result, m_expandCollapse->isChecked());
     if (!m_treeView->isVisible())
         popup(Core::IOutputPane::NoModeSwitch);
     flash();
@@ -191,7 +206,8 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return QList<QWidget *>() << m_runAll << m_runSelected << m_stopTestRun << m_filterButton;
+    return QList<QWidget *>() << m_expandCollapse << m_runAll << m_runSelected << m_stopTestRun
+                              << m_filterButton;
 }
 
 QString TestResultsPane::displayName() const
@@ -266,17 +282,41 @@ void TestResultsPane::goToNext()
     if (!canNext())
         return;
 
-    QModelIndex currentIndex = m_treeView->currentIndex();
+    const QModelIndex currentIndex = m_treeView->currentIndex();
+    QModelIndex nextCurrentIndex;
+
     if (currentIndex.isValid()) {
-        int row = currentIndex.row() + 1;
-        if (row == m_filterModel->rowCount(QModelIndex()))
-            row = 0;
-        currentIndex = m_filterModel->index(row, 0, QModelIndex());
-    } else {
-        currentIndex = m_filterModel->index(0, 0, QModelIndex());
+        // try to set next to first child or next sibling
+        if (m_filterModel->rowCount(currentIndex)) {
+            nextCurrentIndex = currentIndex.child(0, 0);
+        } else {
+            nextCurrentIndex = currentIndex.sibling(currentIndex.row() + 1, 0);
+            // if it had no sibling check siblings of parent (and grandparents if necessary)
+            if (!nextCurrentIndex.isValid()) {
+
+                QModelIndex parent = currentIndex.parent();
+                do {
+                    if (!parent.isValid())
+                        break;
+                    nextCurrentIndex = parent.sibling(parent.row() + 1, 0);
+                    parent = parent.parent();
+                } while (!nextCurrentIndex.isValid());
+            }
+        }
     }
-    m_treeView->setCurrentIndex(currentIndex);
-    onItemActivated(currentIndex);
+
+    // if we have no current or could not find a next one, use the first item of the whole tree
+    if (!nextCurrentIndex.isValid()) {
+        Utils::TreeItem *rootItem = m_model->itemForIndex(QModelIndex());
+        // if the tree does not contain any item - don't do anything
+        if (!rootItem || !rootItem->childCount())
+            return;
+
+        nextCurrentIndex = m_filterModel->mapFromSource(m_model->indexForItem(rootItem->child(0)));
+    }
+
+    m_treeView->setCurrentIndex(nextCurrentIndex);
+    onItemActivated(nextCurrentIndex);
 }
 
 void TestResultsPane::goToPrev()
@@ -284,17 +324,37 @@ void TestResultsPane::goToPrev()
     if (!canPrevious())
         return;
 
-    QModelIndex currentIndex = m_treeView->currentIndex();
+    const QModelIndex currentIndex = m_treeView->currentIndex();
+    QModelIndex nextCurrentIndex;
+
     if (currentIndex.isValid()) {
-        int row = currentIndex.row() - 1;
-        if (row < 0)
-            row = m_filterModel->rowCount(QModelIndex()) - 1;
-        currentIndex = m_filterModel->index(row, 0, QModelIndex());
-    } else {
-        currentIndex = m_filterModel->index(m_filterModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
+        // try to set next to prior sibling or parent
+        if (currentIndex.row() > 0) {
+            nextCurrentIndex = currentIndex.sibling(currentIndex.row() - 1, 0);
+            // if the sibling has children, use the last one
+            while (int rowCount = m_filterModel->rowCount(nextCurrentIndex))
+                nextCurrentIndex = nextCurrentIndex.child(rowCount - 1, 0);
+        } else {
+            nextCurrentIndex = currentIndex.parent();
+        }
     }
-    m_treeView->setCurrentIndex(currentIndex);
-    onItemActivated(currentIndex);
+
+    // if we have no current or didn't find a sibling/parent use the last item of the whole tree
+    if (!nextCurrentIndex.isValid()) {
+        const QModelIndex rootIdx = m_filterModel->index(0, 0);
+        // if the tree does not contain any item - don't do anything
+        if (!rootIdx.isValid())
+            return;
+
+        // get the last (visible) top level index
+        nextCurrentIndex = m_filterModel->index(m_filterModel->rowCount(QModelIndex()) - 1, 0);
+        // step through until end
+        while (int rowCount = m_filterModel->rowCount(nextCurrentIndex))
+            nextCurrentIndex = nextCurrentIndex.child(rowCount - 1, 0);
+    }
+
+    m_treeView->setCurrentIndex(nextCurrentIndex);
+    onItemActivated(nextCurrentIndex);
 }
 
 void TestResultsPane::onItemActivated(const QModelIndex &index)
@@ -482,14 +542,15 @@ void TestResultsPane::onSaveWholeTriggered()
 }
 
 // helper for onCopyWholeTriggered() and onSaveWholeTriggered()
-QString TestResultsPane::getWholeOutput()
+QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
 {
     QString output;
-    const QModelIndex invalid; // practically the invisible root item
-    for (int row = 0, count = m_model->rowCount(invalid); row < count; ++row) {
-        const TestResult result = m_model->testResult(m_model->index(row, 0, invalid));
+    for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
+        QModelIndex current = m_model->index(row, 0, parent);
+        const TestResult result = m_model->testResult(current);
         output.append(TestResult::resultToString(result.result())).append(QLatin1Char('\t'));
         output.append(TestResultDelegate::outputString(result, true)).append(QLatin1Char('\n'));
+        output.append(getWholeOutput(current));
     }
     return output;
 }

@@ -37,11 +37,6 @@ TestResultDelegate::TestResultDelegate(QObject *parent)
 {
 }
 
-TestResultDelegate::~TestResultDelegate()
-{
-
-}
-
 QString TestResultDelegate::outputString(const TestResult &testResult, bool selected)
 {
     const QString desc = testResult.description();
@@ -88,7 +83,6 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->save();
 
     QFontMetrics fm(opt.font);
-    QColor background;
     QColor foreground;
 
     const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(opt.widget);
@@ -96,22 +90,23 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     if (selected) {
         painter->setBrush(opt.palette.highlight().color());
-        background = opt.palette.highlight().color();
         foreground = opt.palette.highlightedText().color();
     } else {
         painter->setBrush(opt.palette.background().color());
-        background = opt.palette.background().color();
         foreground = opt.palette.text().color();
     }
-
     painter->setPen(Qt::NoPen);
     painter->drawRect(opt.rect);
-
     painter->setPen(foreground);
+
     TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
-    TestResultModel *resultModel = static_cast<TestResultModel *>(resultFilterModel->sourceModel());
-    LayoutPositions positions(opt, resultModel);
-    TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
+    LayoutPositions positions(opt, resultFilterModel);
+    const TestResult &testResult = resultFilterModel->testResult(index);
+
+    // draw the indicator by ourself as we paint across it with the delegate
+    QStyleOptionViewItemV4 indicatorOpt = option;
+    indicatorOpt.rect = QRect(0, opt.rect.y(), positions.indentation(), opt.rect.height());
+    opt.widget->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &indicatorOpt, painter);
 
     QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
     if (!icon.isNull())
@@ -163,7 +158,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     painter->setClipRect(opt.rect);
-    painter->setPen(QColor::fromRgb(150, 150, 150));
+    painter->setPen(opt.palette.midlight().color());
     painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
     painter->restore();
 }
@@ -181,13 +176,12 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     QFontMetrics fm(opt.font);
     int fontHeight = fm.height();
     TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
-    TestResultModel *resultModel = static_cast<TestResultModel *>(resultFilterModel->sourceModel());
-    LayoutPositions positions(opt, resultModel);
+    LayoutPositions positions(opt, resultFilterModel);
     QSize s;
     s.setWidth(opt.rect.width());
 
     if (selected) {
-        TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
+        const TestResult &testResult = resultFilterModel->testResult(index);
 
         QString output = outputString(testResult, selected);
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);

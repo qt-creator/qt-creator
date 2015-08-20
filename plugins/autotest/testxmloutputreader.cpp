@@ -208,8 +208,12 @@ void TestXmlOutputReader::processOutput()
     while (m_testApplication->canReadLine()) {
         // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
         const QString line = QString::fromUtf8(m_testApplication->readLine()).trimmed();
-        if (line.isEmpty() || xmlStartsWith(line, QLatin1String("<TestCase name=\""), className))
+        if (line.isEmpty() || xmlStartsWith(line, QLatin1String("<TestCase name=\""), className)) {
+            testResultCreated(new TestResult(className, QString(), QString(),
+                                             Result::MESSAGE_TEST_CASE_START,
+                                             QObject::tr("Executing test case %1").arg(className)));
             continue;
+        }
         if (line.startsWith(QLatin1String("<?xml version"))) {
             className = QString();
             continue;
@@ -222,7 +226,7 @@ void TestXmlOutputReader::processOutput()
             result = Result::UNKNOWN;
             lineNumber = 0;
             readingDescription = false;
-            testResultCreated(TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,
+            testResultCreated(new TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,
                 QObject::tr("Entering test function %1::%2").arg(className).arg(testCase)));
             continue;
         }
@@ -240,39 +244,37 @@ void TestXmlOutputReader::processOutput()
         }
         if (xmlExtractTypeFileLine(line, QLatin1String("<Incident"), result, file, lineNumber)) {
             if (line.endsWith(QLatin1String("/>"))) {
-                TestResult testResult(className, testCase, dataTag, result, description);
+                TestResult *testResult = new TestResult(className, testCase, dataTag, result, description);
                 if (!file.isEmpty())
                     file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
                                                    m_testApplication->program());
-                testResult.setFileName(file);
-                testResult.setLine(lineNumber);
+                testResult->setFileName(file);
+                testResult->setLine(lineNumber);
                 testResultCreated(testResult);
             }
             continue;
         }
         if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), benchmarkDescription)) {
-            TestResult testResult(className, testCase, dataTag, Result::BENCHMARK, benchmarkDescription);
-            testResultCreated(testResult);
+            testResultCreated(new TestResult(className, testCase, dataTag, Result::BENCHMARK,
+                                             benchmarkDescription));
             continue;
         }
         if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
-            TestResult testResult(className, testCase, dataTag, result, description);
+            TestResult *testResult = new TestResult(className, testCase, dataTag, result, description);
             if (!file.isEmpty())
                 file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
                                                m_testApplication->program());
-            testResult.setFileName(file);
-            testResult.setLine(lineNumber);
+            testResult->setFileName(file);
+            testResult->setLine(lineNumber);
             testResultCreated(testResult);
             description = QString();
         } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
-            TestResult testResult(className, testCase, QString(), Result::MESSAGE_INTERNAL,
-                                  QObject::tr("Execution took %1 ms.").arg(duration));
-            testResultCreated(testResult);
+            testResultCreated(new TestResult(className, testCase, QString(), Result::MESSAGE_INTERNAL,
+                                             QObject::tr("Execution took %1 ms.").arg(duration)));
             emit increaseProgress();
         } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
-            TestResult testResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
-                                  QObject::tr("Test execution took %1 ms.").arg(duration));
-            testResultCreated(testResult);
+            testResultCreated(new TestResult(className, QString(), QString(), Result::MESSAGE_TEST_CASE_END,
+                                             QObject::tr("Test execution took %1 ms.").arg(duration)));
         } else if (readingDescription) {
             if (line.endsWith(QLatin1String("]]></Description>"))) {
                 description.append(QLatin1Char('\n'));
@@ -283,10 +285,10 @@ void TestXmlOutputReader::processOutput()
                 description.append(line);
             }
         } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
-            testResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
+            testResultCreated(new TestResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
                 QObject::tr("Qt version: %1").arg(qtVersion)));
         } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
-            testResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
+            testResultCreated(new TestResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
                 QObject::tr("QTest version: %1").arg(qtestVersion)));
         } else {
 //            qDebug() << "Unhandled line:" << line; // TODO remove

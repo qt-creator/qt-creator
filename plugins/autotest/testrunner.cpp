@@ -43,7 +43,7 @@ namespace Internal {
 
 static TestRunner *m_instance = 0;
 
-void emitTestResultCreated(const TestResult &testResult)
+void emitTestResultCreated(TestResult *testResult)
 {
     emit m_instance->testResultCreated(testResult);
 }
@@ -114,7 +114,7 @@ void performTestRun(QFutureInterface<void> &futureInterface,
         if (config->project()) {
             testCaseCount += config->testCaseCount();
         } else {
-            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_WARN,
+            emitTestResultCreated(new FaultyTestResult(Result::MESSAGE_WARN,
                 QObject::tr("Project is null for \"%1\". Removing from test run.\n"
                             "Check the test environment.").arg(config->displayName())));
         }
@@ -148,7 +148,7 @@ void performTestRun(QFutureInterface<void> &futureInterface,
         QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
         QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
         if (commandFilePath.isEmpty()) {
-            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
+            emitTestResultCreated(new FaultyTestResult(Result::MESSAGE_FATAL,
                 QObject::tr("Could not find command \"%1\". (%2)")
                                                    .arg(testConfiguration->targetFile())
                                                    .arg(testConfiguration->displayName())));
@@ -177,8 +177,8 @@ void performTestRun(QFutureInterface<void> &futureInterface,
                 if (futureInterface.isCanceled()) {
                     testProcess.kill();
                     testProcess.waitForFinished();
-                    emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                                                           QObject::tr("Test run canceled by user.")));
+                    emitTestResultCreated(new FaultyTestResult(Result::MESSAGE_FATAL,
+                                                        QObject::tr("Test run canceled by user.")));
                 }
                 qApp->processEvents();
             }
@@ -188,7 +188,7 @@ void performTestRun(QFutureInterface<void> &futureInterface,
             if (testProcess.state() != QProcess::NotRunning) {
                 testProcess.kill();
                 testProcess.waitForFinished();
-                emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL, QObject::tr(
+                emitTestResultCreated(new FaultyTestResult(Result::MESSAGE_FATAL, QObject::tr(
                     "Test case canceled due to timeout. \nMaybe raise the timeout?")));
             }
         }
@@ -208,14 +208,14 @@ void TestRunner::prepareToRunTests()
 
     foreach (TestConfiguration *config, m_selectedTests) {
         if (!omitRunConfigWarnings && config->guessedConfiguration()) {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
+            TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MESSAGE_WARN,
                 tr("Project's run configuration was guessed for \"%1\".\n"
                 "This might cause trouble during execution.").arg(config->displayName())));
         }
     }
 
     if (m_selectedTests.empty()) {
-        TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
+        TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MESSAGE_WARN,
             tr("No tests selected. Canceling test run.")));
         onFinished();
         return;
@@ -223,7 +223,7 @@ void TestRunner::prepareToRunTests()
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
     if (!project) {
-        TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
+        TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MESSAGE_WARN,
             tr("Project is null. Canceling test run.\n"
             "Only desktop kits are supported. Make sure the "
             "currently active kit is a desktop kit.")));
@@ -239,7 +239,7 @@ void TestRunner::prepareToRunTests()
         if (project->hasActiveBuildSettings()) {
             buildProject(project);
         } else {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
+            TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("Project is not configured. Canceling test run.")));
             onFinished();
             return;
@@ -284,7 +284,7 @@ void TestRunner::buildFinished(bool success)
     if (success) {
         runTests();
     } else {
-        TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
+        TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MESSAGE_FATAL,
             tr("Build failed. Canceling test run.")));
         onFinished();
     }

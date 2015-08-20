@@ -33,7 +33,6 @@ class TestResultDelegate : public QStyledItemDelegate
     Q_OBJECT
 public:
     explicit TestResultDelegate(QObject *parent = 0);
-    ~TestResultDelegate();
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -55,15 +54,19 @@ private:
     class LayoutPositions
     {
     public:
-        LayoutPositions(QStyleOptionViewItemV4 &options, TestResultModel *model)
+        LayoutPositions(QStyleOptionViewItemV4 &options, TestResultFilterModel *filterModel)
             : m_totalWidth(options.rect.width()),
-              m_maxFileLength(model->maxWidthOfFileName(options.font)),
-              m_maxLineLength(model->maxWidthOfLineNumber(options.font)),
-              m_realFileLength(m_maxFileLength),
               m_top(options.rect.top()),
               m_bottom(options.rect.bottom())
         {
+            TestResultModel *srcModel = static_cast<TestResultModel *>(filterModel->sourceModel());
+            m_maxFileLength = srcModel->maxWidthOfFileName(options.font);
+            m_maxLineLength = srcModel->maxWidthOfLineNumber(options.font);
+            m_realFileLength = m_maxFileLength;
             m_typeAreaWidth = QFontMetrics(options.font).width(QLatin1String("XXXXXXXX"));
+            m_indentation = options.widget ? options.widget->style()->pixelMetric(
+                                                 QStyle::PM_TreeViewIndentation, &options) : 0;
+            m_level = srcModel->hasChildren(filterModel->mapToSource(options.index)) ? 1 : 2;
             int flexibleArea = lineAreaLeft() - textAreaLeft() - ITEM_SPACING;
             if (m_maxFileLength > flexibleArea / 2)
                 m_realFileLength = flexibleArea / 2;
@@ -71,7 +74,7 @@ private:
         }
 
         int top() const { return m_top + ITEM_MARGIN; }
-        int left() const { return ITEM_MARGIN; }
+        int left() const { return ITEM_MARGIN + m_indentation * m_level; }
         int right() const { return m_totalWidth - ITEM_MARGIN; }
         int bottom() const { return m_bottom; }
         int minimumHeight() const { return ICON_SIZE + 2 * ITEM_MARGIN; }
@@ -80,17 +83,19 @@ private:
         int fontHeight() const { return m_fontHeight; }
         int typeAreaLeft() const { return left() + ICON_SIZE + ITEM_SPACING; }
         int typeAreaWidth() const { return m_typeAreaWidth; }
-        int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ITEM_SPACING; }
+        int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ITEM_SPACING
+                                          + (1 - m_level) * m_indentation; }
         int textAreaWidth() const { return fileAreaLeft() - ITEM_SPACING - textAreaLeft(); }
         int fileAreaLeft() const { return lineAreaLeft() - ITEM_SPACING - m_realFileLength; }
         int lineAreaLeft() const { return right() - m_maxLineLength; }
+        int indentation() const { return m_indentation; }
 
         QRect typeArea() const { return QRect(typeAreaLeft(), top(),
                                               typeAreaWidth(), m_fontHeight); }
         QRect textArea() const { return QRect(textAreaLeft(), top(),
-                                              fileAreaLeft() - ITEM_SPACING, m_fontHeight); }
+                                              textAreaWidth(), m_fontHeight); }
         QRect fileArea() const { return QRect(fileAreaLeft(), top(),
-                                              lineAreaLeft() - ITEM_SPACING, m_fontHeight); }
+                                              m_realFileLength + ITEM_SPACING, m_fontHeight); }
 
         QRect lineArea() const { return QRect(lineAreaLeft(), top(),
                                               m_maxLineLength, m_fontHeight); }
@@ -104,6 +109,8 @@ private:
         int m_bottom;
         int m_fontHeight;
         int m_typeAreaWidth;
+        int m_level;
+        int m_indentation;
 
         static const int ICON_SIZE = 16;
         static const int ITEM_MARGIN = 2;

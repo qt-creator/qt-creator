@@ -27,43 +27,47 @@
 #include <QFont>
 #include <QSet>
 
+#include <utils/treemodel.h>
+
 namespace Autotest {
 namespace Internal {
 
-class TestResultModel : public QAbstractItemModel
+class TestResultItem : public Utils::TreeItem
 {
-    Q_OBJECT
+public:
+    explicit TestResultItem(TestResult *testResult);
+    ~TestResultItem();
+    QVariant data(int column, int role) const;
+    const TestResult *testResult() const { return m_testResult; }
+    void updateDescription(const QString &description);
+    void updateResult();
+
+private:
+    TestResult *m_testResult;
+};
+
+class TestResultModel : public Utils::TreeModel
+{
 public:
     explicit TestResultModel(QObject *parent = 0);
-    ~TestResultModel();
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &idx, int role) const;
 
-    void addTestResult(const TestResult &testResult);
+    void addTestResult(TestResult *testResult, bool autoExpand = false);
     void removeCurrentTestMessage();
     void clearTestResults();
 
-    bool hasResults() const { return m_testResults.size() > 0; }
-    TestResult testResult(const QModelIndex &index) const;
+    TestResult testResult(const QModelIndex &idx);
 
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
-    int resultTypeCount(Result::Type type);
-
-signals:
-
-public slots:
+    int resultTypeCount(Result::Type type) const { return m_testResultCount.value(type, 0); }
 
 private:
-    QList<TestResult> m_testResults;
     QMap<Result::Type, int> m_testResultCount;
     int m_widthOfLineNumber;
     int m_maxWidthOfFileName;
-    int m_lastMaxWidthIndex;
+    QList<int> m_processedIndices;
     QFont m_measurementFont;
 };
 

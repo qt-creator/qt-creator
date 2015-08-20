@@ -47,7 +47,7 @@ public:
 signals:
     void testRunStarted();
     void testRunFinished();
-    void testResultCreated(const TestResult &testResult);
+    void testResultCreated(TestResult *testResult);
     void requestStopTestRun();
 
 public slots:

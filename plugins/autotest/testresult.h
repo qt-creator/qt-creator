@@ -41,6 +41,11 @@ enum Type {
     MESSAGE_WARN,
     MESSAGE_FATAL,
     MESSAGE_INTERNAL,
+    MESSAGE_TEST_CASE_START,
+    MESSAGE_TEST_CASE_SUCCESS,
+    MESSAGE_TEST_CASE_WARN,
+    MESSAGE_TEST_CASE_FAIL,
+    MESSAGE_TEST_CASE_END,
     MESSAGE_CURRENT_TEST,
     UNKNOWN             // ???
 };
@@ -65,6 +70,7 @@ public:
     void setDescription(const QString &description) { m_description = description; }
     void setFileName(const QString &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
+    void setResult(Result::Type type) { m_result = type; }
 
     static Result::Type resultFromString(const QString &resultString);
     static Result::Type toResultType(int rt);

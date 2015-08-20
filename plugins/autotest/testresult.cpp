@@ -91,6 +91,16 @@ Result::Type TestResult::toResultType(int rt)
         return Result::MESSAGE_FATAL;
     case Result::MESSAGE_INTERNAL:
         return Result::MESSAGE_INTERNAL;
+    case Result::MESSAGE_TEST_CASE_START:
+        return Result::MESSAGE_TEST_CASE_START;
+    case Result::MESSAGE_TEST_CASE_SUCCESS:
+        return Result::MESSAGE_TEST_CASE_SUCCESS;
+    case Result::MESSAGE_TEST_CASE_WARN:
+        return Result::MESSAGE_TEST_CASE_WARN;
+    case Result::MESSAGE_TEST_CASE_FAIL:
+        return Result::MESSAGE_TEST_CASE_FAIL;
+    case Result::MESSAGE_TEST_CASE_END:
+        return Result::MESSAGE_TEST_CASE_END;
     case Result::MESSAGE_CURRENT_TEST:
         return Result::MESSAGE_CURRENT_TEST;
     default:
@@ -120,6 +130,11 @@ QString TestResult::resultToString(const Result::Type type)
     case Result::MESSAGE_FATAL:
         return QLatin1String("FATAL");
     case Result::MESSAGE_INTERNAL:
+    case Result::MESSAGE_TEST_CASE_START:
+    case Result::MESSAGE_TEST_CASE_SUCCESS:
+    case Result::MESSAGE_TEST_CASE_WARN:
+    case Result::MESSAGE_TEST_CASE_FAIL:
+    case Result::MESSAGE_TEST_CASE_END:
     case Result::MESSAGE_CURRENT_TEST:
         return QString();
     case Result::BLACKLISTED_PASS:
@@ -155,6 +170,11 @@ QColor TestResult::colorForType(const Result::Type type)
     case Result::MESSAGE_FATAL:
         return QColor("#640000");
     case Result::MESSAGE_INTERNAL:
+    case Result::MESSAGE_TEST_CASE_START:
+    case Result::MESSAGE_TEST_CASE_SUCCESS:
+    case Result::MESSAGE_TEST_CASE_WARN:
+    case Result::MESSAGE_TEST_CASE_FAIL:
+    case Result::MESSAGE_TEST_CASE_END:
     case Result::MESSAGE_CURRENT_TEST:
         return QColor("transparent");
     default:
