@@ -3235,6 +3235,24 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Foo")
             << QLatin1String("bar"));
 
+    QTest::newRow("typedef for templates in namespace") << _(
+             "namespace N {\n"
+             "\n"
+             "struct Data { int x; };\n"
+             "template <typename T> struct Foo { T member; };\n"
+             "typedef Foo<Data> Bar;\n"
+             "\n"
+             "} // N\n"
+             "\n"
+             "\n"
+             "void f()\n"
+             "{\n"
+             "    N::Bar o;\n"
+             "    @\n"
+             "}\n"
+    ) << _("o.member.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("x"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
