@@ -222,7 +222,7 @@ PathChooser::PathChooser(QWidget *parent) :
     d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
     connect(d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::changed);
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit changed(rawPath()); });
     connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
     connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit pathChanged(path()); });
