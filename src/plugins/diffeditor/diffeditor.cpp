@@ -378,69 +378,61 @@ QWidget *DiffEditor::toolBar()
 
 void DiffEditor::documentHasChanged()
 {
-    int index = 0;
-    {
-        Guard guard(&m_ignoreChanges);
-        const QList<FileData> diffFileList = m_document->diffFiles();
+    Guard guard(&m_ignoreChanges);
+    const QList<FileData> diffFileList = m_document->diffFiles();
 
-        updateDescription();
-        currentView()->setDiff(diffFileList, m_document->baseDirectory());
+    updateDescription();
+    currentView()->setDiff(diffFileList, m_document->baseDirectory());
 
-        m_entriesComboBox->clear();
-        const int count = diffFileList.count();
-        for (int i = 0; i < count; i++) {
-            const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
-            const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
-            const QString leftShortFileName = Utils::FileName::fromString(leftEntry.fileName).fileName();
-            const QString rightShortFileName = Utils::FileName::fromString(rightEntry.fileName).fileName();
-            QString itemText;
-            QString itemToolTip;
-            if (leftEntry.fileName == rightEntry.fileName) {
-                itemText = leftShortFileName;
+    m_entriesComboBox->clear();
+    const int count = diffFileList.count();
+    for (int i = 0; i < count; i++) {
+        const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
+        const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+        const QString leftShortFileName = Utils::FileName::fromString(leftEntry.fileName).fileName();
+        const QString rightShortFileName = Utils::FileName::fromString(rightEntry.fileName).fileName();
+        QString itemText;
+        QString itemToolTip;
+        if (leftEntry.fileName == rightEntry.fileName) {
+            itemText = leftShortFileName;
 
-                if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
-                    itemToolTip = leftEntry.fileName;
-                } else {
-                    itemToolTip = tr("[%1] vs. [%2] %3")
-                            .arg(leftEntry.typeInfo,
-                                 rightEntry.typeInfo,
-                                 leftEntry.fileName);
-                }
+            if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
+                itemToolTip = leftEntry.fileName;
             } else {
-                if (leftShortFileName == rightShortFileName) {
-                    itemText = leftShortFileName;
-                } else {
-                    itemText = tr("%1 vs. %2")
-                            .arg(leftShortFileName,
-                                 rightShortFileName);
-                }
-
-                if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
-                    itemToolTip = tr("%1 vs. %2")
-                            .arg(leftEntry.fileName,
-                                 rightEntry.fileName);
-                } else {
-                    itemToolTip = tr("[%1] %2 vs. [%3] %4")
-                            .arg(leftEntry.typeInfo,
-                                 leftEntry.fileName,
-                                 rightEntry.typeInfo,
-                                 rightEntry.fileName);
-                }
+                itemToolTip = tr("[%1] vs. [%2] %3")
+                        .arg(leftEntry.typeInfo,
+                             rightEntry.typeInfo,
+                             leftEntry.fileName);
             }
-            if (m_currentFileChunk.first == leftEntry.fileName
-                    && m_currentFileChunk.second == rightEntry.fileName)
-                index = i;
-            m_entriesComboBox->addItem(itemText);
-            m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
-                                           leftEntry.fileName, Qt::UserRole);
-            m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
-                                           rightEntry.fileName, Qt::UserRole + 1);
-            m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
-                                           itemToolTip, Qt::ToolTipRole);
-        }
-    }
+        } else {
+            if (leftShortFileName == rightShortFileName) {
+                itemText = leftShortFileName;
+            } else {
+                itemText = tr("%1 vs. %2")
+                        .arg(leftShortFileName,
+                             rightShortFileName);
+            }
 
-    setCurrentDiffFileIndex(m_entriesComboBox->count() > 0 ? index : -1);
+            if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
+                itemToolTip = tr("%1 vs. %2")
+                        .arg(leftEntry.fileName,
+                             rightEntry.fileName);
+            } else {
+                itemToolTip = tr("[%1] %2 vs. [%3] %4")
+                        .arg(leftEntry.typeInfo,
+                             leftEntry.fileName,
+                             rightEntry.typeInfo,
+                             rightEntry.fileName);
+            }
+        }
+        m_entriesComboBox->addItem(itemText);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
+                                       leftEntry.fileName, Qt::UserRole);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
+                                       rightEntry.fileName, Qt::UserRole + 1);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
+                                       itemToolTip, Qt::ToolTipRole);
+    }
 }
 
 void DiffEditor::toggleDescription()
@@ -521,9 +513,28 @@ void DiffEditor::reloadHasFinished(bool success)
     if (!currentView())
         return;
 
-    m_currentFileChunk = qMakePair(QString(), QString());
-
     currentView()->endOperation(success);
+
+    int index = -1;
+    const QString startupFile = m_document->startupFile();
+    const QList<FileData> diffFileList = m_document->diffFiles();
+    const int count = diffFileList.count();
+    for (int i = 0; i < count; i++) {
+        const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
+        const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+        if ((m_currentFileChunk.first.isEmpty()
+             && m_currentFileChunk.second.isEmpty()
+             && startupFile.endsWith(rightEntry.fileName))
+                || (m_currentFileChunk.first == leftEntry.fileName
+                    && m_currentFileChunk.second == rightEntry.fileName)) {
+            index = i;
+            break;
+        }
+    }
+
+    m_currentFileChunk = qMakePair(QString(), QString());
+    if (index >= 0)
+        setCurrentDiffFileIndex(index);
 }
 
 void DiffEditor::updateEntryToolTip()

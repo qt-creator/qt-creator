@@ -54,9 +54,11 @@ public:
 
     QString makePatch(int fileIndex, int chunkIndex, bool revert, bool addPrefix = false) const;
 
-    void setDiffFiles(const QList<FileData> &data, const QString &directory);
+    void setDiffFiles(const QList<FileData> &data, const QString &directory,
+                      const QString &startupFile = QString());
     QList<FileData> diffFiles() const;
     QString baseDirectory() const;
+    QString startupFile() const;
 
     void setDescription(const QString &description);
     QString description() const;
@@ -99,6 +101,7 @@ private:
     DiffEditorController *m_controller;
     QList<FileData> m_diffFiles;
     QString m_baseDirectory;
+    QString m_startupFile;
     QString m_description;
     int m_contextLineCount;
     bool m_isContextLineCountForced;

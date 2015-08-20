@@ -100,9 +100,10 @@ DiffEditorController *DiffEditorController::controller(Core::IDocument *document
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
-                  const QString &workingDirectory)
+                                        const QString &workingDirectory,
+                                        const QString &startupFile)
 {
-    m_document->setDiffFiles(diffFileList, workingDirectory);
+    m_document->setDiffFiles(diffFileList, workingDirectory, startupFile);
 }
 
 void DiffEditorController::setDescription(const QString &description)
@@ -167,6 +168,11 @@ QString DiffEditorController::prepareBranchesForCommit(const QString &output)
 void DiffEditorController::forceContextLineCount(int lines)
 {
     m_document->forceContextLineCount(lines);
+}
+
+Core::IDocument *DiffEditorController::document() const
+{
+    return m_document;
 }
 
 /**

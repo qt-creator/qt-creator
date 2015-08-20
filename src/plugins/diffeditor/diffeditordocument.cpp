@@ -122,10 +122,12 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex, bool revert
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 
-void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const QString &directory)
+void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const QString &directory,
+                                      const QString &startupFile)
 {
     m_diffFiles = data;
     m_baseDirectory = directory;
+    m_startupFile = startupFile;
     emit documentChanged();
 }
 
@@ -137,6 +139,11 @@ QList<FileData> DiffEditorDocument::diffFiles() const
 QString DiffEditorDocument::baseDirectory() const
 {
     return m_baseDirectory;
+}
+
+QString DiffEditorDocument::startupFile() const
+{
+    return m_startupFile;
 }
 
 void DiffEditorDocument::setDescription(const QString &description)

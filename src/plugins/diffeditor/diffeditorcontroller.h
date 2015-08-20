@@ -79,9 +79,11 @@ protected:
     virtual void reloadFinished(bool success);
 
     void setDiffFiles(const QList<FileData> &diffFileList,
-                      const QString &baseDirectory = QString());
+                      const QString &baseDirectory = QString(),
+                      const QString &startupFile = QString());
     void setDescription(const QString &description);
     void forceContextLineCount(int lines);
+    Core::IDocument *document() const;
 
 private:
     void requestMoreInformation();

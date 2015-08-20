@@ -126,7 +126,7 @@ private slots:
     virtual void processOutput(const QString &output);
 
 protected:
-    void processDiff(const QString &output);
+    void processDiff(const QString &output, const QString &startupFile = QString());
     QStringList addConfigurationArguments(const QStringList &args) const;
     GitClient *gitClient() const;
     QStringList addHeadWhenCommandInProgress() const;
@@ -171,13 +171,13 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
     m_command->execute();
 }
 
-void BaseController::processDiff(const QString &output)
+void BaseController::processDiff(const QString &output, const QString &startupFile)
 {
     m_command.clear();
 
     bool ok;
     QList<FileData> fileDataList = DiffUtils::readPatch(output, &ok);
-    setDiffFiles(fileDataList, m_directory);
+    setDiffFiles(fileDataList, m_directory, startupFile);
 }
 
 QStringList BaseController::addConfigurationArguments(const QStringList &args) const
@@ -381,11 +381,10 @@ void ShowController::reload()
 void ShowController::processOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
-    if (m_state == GettingDescription) {
+    if (m_state == GettingDescription)
         setDescription(gitClient()->extendedShowDescription(m_directory, output));
-    } else if (m_state == GettingDiff) {
-        processDiff(output);
-    }
+    else if (m_state == GettingDiff)
+        processDiff(output, VcsBasePlugin::source(document()));
 }
 
 void ShowController::reloadFinished(bool success)
