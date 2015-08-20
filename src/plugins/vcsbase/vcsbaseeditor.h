@@ -241,7 +241,7 @@ private slots:
     void slotPopulateDiffBrowser();
     void slotPopulateLogBrowser();
     void slotJumpToEntry(int);
-    void slotCursorPositionChanged();
+    void slotCursorPositionChanged() override;
     void slotAnnotateRevision();
     void slotApplyDiffChunk();
     void slotPaste();
