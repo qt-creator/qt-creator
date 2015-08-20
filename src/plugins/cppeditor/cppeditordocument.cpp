@@ -84,7 +84,7 @@ public:
     CppTools::BaseEditorDocumentProcessor *processor() const override
     { return m_cppEditorDocument->processor(); }
 
-    void resetProcessor()
+    void resetProcessor() override
     { m_cppEditorDocument->resetProcessor(); }
 
 private:

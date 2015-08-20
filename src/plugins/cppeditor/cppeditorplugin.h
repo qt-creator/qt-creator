@@ -59,9 +59,9 @@ public:
 
     static CppEditorPlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     CppQuickFixAssistProvider *quickFixProvider() const;
 
