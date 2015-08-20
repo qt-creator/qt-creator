@@ -751,6 +751,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QMenu formatMenu(tr("Change Value Display Format"));
     if (mi0.isValid())
         fillFormatMenu(&formatMenu, mi0);
+    else
+        formatMenu.setEnabled(false);
 
     QMenu memoryMenu(tr("Open Memory Editor"));
     QAction actOpenMemoryEditAtObjectAddress(0);
@@ -809,6 +811,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     breakpointMenu.addAction(&actSetWatchpointAtObjectAddress);
     breakpointMenu.addAction(&actSetWatchpointAtPointerAddress);
     breakpointMenu.addAction(&actSetWatchpointAtExpression);
+    breakpointMenu.setEnabled(actSetWatchpointAtObjectAddress.isEnabled()
+                              || actSetWatchpointAtPointerAddress.isEnabled()
+                              || actSetWatchpointAtExpression.isEnabled());
 
     QAction actCopy(tr("Copy View Contents to Clipboard"), 0);
     QAction actCopyValue(tr("Copy Value to Clipboard"), 0);

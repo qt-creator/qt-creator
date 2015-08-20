@@ -38,6 +38,8 @@
 #include <QDebug>
 
 #ifdef Q_OS_LINUX
+#include <cerrno>
+#include <cstring>
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/types.h>

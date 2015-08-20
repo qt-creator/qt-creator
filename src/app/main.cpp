@@ -292,10 +292,13 @@ static inline QSettings *userSettings()
 
 int main(int argc, char **argv)
 {
+#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
     if (Utils::HostOsInfo().isWindowsHost()
             && !qEnvironmentVariableIsSet("QT_DEVICE_PIXEL_RATIO")) {
         qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
     }
+#endif // < Qt 5.6
+
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
 #ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.

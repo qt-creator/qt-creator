@@ -139,8 +139,6 @@ private:
     int m_oldCursorPosition;
 
     FindReferences *m_findReferences;
-
-    bool m_firstSementicInfo;
 };
 
 

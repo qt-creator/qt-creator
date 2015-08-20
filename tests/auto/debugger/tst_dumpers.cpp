@@ -1857,7 +1857,7 @@ void tst_Dumpers::dumper_data()
                     "pain.drawLine(2, 2, 130, 130);\n"
                     "pain.end();\n"
                     "QPixmap pm = QPixmap::fromImage(im);\n"
-                    "unused(&pm);\n")
+                    "unused(&app, &pm);\n")
 
                + GuiProfile()
 
@@ -3860,7 +3860,7 @@ void tst_Dumpers::dumper_data()
 
                + Check("l0", "<0 items>", "std::list<int>")
 
-               + Check("l1", "<>1000 items>", "std::list<int>")
+               + Check("l1", "<at least 1000 items>", "std::list<int>")
                + Check("l1.0", "[0]", "0", "int")
                + Check("l1.1", "[1]", "1", "int")
                + Check("l1.999", "[999]", "999", "int")
@@ -4613,7 +4613,9 @@ void tst_Dumpers::dumper_data()
                     "unused(&s, &t, &w);\n")
 
                + CheckType("s", "char [5]")
+               + Check("s.0", "[0]", "97", "char")
                + CheckType("t", "char [6]")
+               + Check("t.0", "[0]", "97", "char")
                + CheckType("w", "wchar_t [4]");
 
 
@@ -5812,7 +5814,7 @@ void tst_Dumpers::dumper_data()
                     "pol.append(QPointF(2, 4));\n"
                     "pol.append(QPointF(1, 4));\n"
                     "QGraphicsPolygonItem *p = sc.addPolygon(pol);\n"
-                    "unused(&p);\n")
+                    "unused(&app, &p);\n")
                + GuiProfile()
                + Check("pol", "<5 items>", "@QPolygonF")
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");

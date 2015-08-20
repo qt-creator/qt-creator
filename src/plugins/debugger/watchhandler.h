@@ -112,6 +112,7 @@ public:
 
     void cleanup();
     void watchExpression(const QString &exp, const QString &name = QString());
+    void updateWatchExpression(WatchItem *item, const QByteArray &newExp);
     void watchVariable(const QString &exp);
     Q_SLOT void clearWatches();
 

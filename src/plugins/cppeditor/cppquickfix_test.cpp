@@ -514,6 +514,21 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks: Do not crash on incomplete case statetement.
+    QTest::newRow("CompleteSwitchCaseStatement_doNotCrashOnIncompleteCase")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum E {};\n"
+        "void f(E o)\n"
+        "{\n"
+        "    @switch (o)\n"
+        "    {\n"
+        "    case\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        ""
+    );
+
     // Checks:
     // 1. If the name does not start with ("m_" or "_") and does not
     //    end with "_", we are forced to prefix the getter with "get".

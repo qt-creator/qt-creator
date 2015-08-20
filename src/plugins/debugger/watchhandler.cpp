@@ -882,7 +882,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         case Qt::EditRole:
             switch (idx.column()) {
             case 0: {
-                m_handler->watchExpression(value.toString().trimmed());
+                m_handler->updateWatchExpression(item, value.toString().trimmed().toUtf8());
                 break;
             }
             case 1: // Change value
@@ -933,6 +933,9 @@ Qt::ItemFlags WatchItem::flags(int column) const
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
+    if (state == InferiorUnrunnable)
+        return notEditable;
+
     if (isWatcher()) {
         if (state != InferiorStopOk
                 && state != DebuggerNotReady
@@ -946,13 +949,13 @@ Qt::ItemFlags WatchItem::flags(int column) const
             // FIXME: Forcing types is not implemented yet.
             //if (idx.column() == 2)
             //    return editable; // Watcher types can be set by force.
-            if (column == 1 && valueEditable)
+            if (column == 1 && valueEditable && !elided)
                 return editable; // Watcher values are sometimes editable.
         }
     } else if (isLocal()) {
         if (state != InferiorStopOk && !engine->hasCapability(AddWatcherWhileRunningCapability))
            return Qt::ItemFlags();
-        if (column == 1 && valueEditable)
+        if (column == 1 && valueEditable && !elided)
             return editable; // Locals values are sometimes editable.
     } else if (isInspect()) {
         if (column == 1 && valueEditable)
@@ -1278,6 +1281,30 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
     if (m_model->m_engine->state() == DebuggerNotReady) {
         item->setAllUnneeded();
         item->setValue(QString(QLatin1Char(' ')));
+        item->update();
+    } else {
+        m_model->m_engine->updateItem(item->iname);
+    }
+    updateWatchersWindow();
+}
+
+void WatchHandler::updateWatchExpression(WatchItem *item, const QByteArray &newExp)
+{
+    if (newExp.isEmpty())
+        return;
+
+    if (item->exp != newExp) {
+        theWatcherNames.insert(newExp, theWatcherNames.value(item->exp));
+        theWatcherNames.remove(item->exp);
+        item->exp = newExp;
+        item->name = QString::fromUtf8(item->exp);
+    }
+
+    saveWatchers();
+    if (m_model->m_engine->state() == DebuggerNotReady) {
+        item->setAllUnneeded();
+        item->setValue(QString(QLatin1Char(' ')));
+        item->update();
     } else {
         m_model->m_engine->updateItem(item->iname);
     }

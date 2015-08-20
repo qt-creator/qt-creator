@@ -37,6 +37,10 @@
 #include "qmljssemanticinfoupdater.h"
 #include "qmloutlinemodel.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/infobar.h>
+#include <coreplugin/modemanager.h>
+
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
@@ -519,6 +523,19 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
 
     m_outlineModelNeedsUpdate = true;
     m_semanticHighlightingNecessary = true;
+
+    if (m_firstSementicInfo) {
+        m_firstSementicInfo = false;
+        if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui
+                && !q->infoBar()->containsInfo(Core::Id(Constants::QML_UI_FILE_WARNING))) {
+            Core::InfoBarEntry info(Core::Id(Constants::QML_UI_FILE_WARNING),
+                                    tr("This file should only be edited in <b>Design</b> mode."));
+            info.setCustomButtonInfo(tr("Switch Mode"), []() {
+                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+            });
+            q->infoBar()->addInfo(info);
+        }
+    }
 
     emit q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
 }

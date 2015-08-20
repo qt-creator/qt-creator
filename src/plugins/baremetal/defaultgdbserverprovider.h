@@ -56,6 +56,12 @@ public:
 
     bool isValid() const;
 
+    QString host() const;
+    void setHost(const QString &host);
+
+    quint16 port() const;
+    void setPort(const quint16 &port);
+
 private:
     explicit DefaultGdbServerProvider();
     explicit DefaultGdbServerProvider(const DefaultGdbServerProvider &);

@@ -59,6 +59,29 @@ DefaultGdbServerProvider::DefaultGdbServerProvider(const DefaultGdbServerProvide
 {
 }
 
+quint16 DefaultGdbServerProvider::port() const
+{
+    return m_port;
+}
+
+void DefaultGdbServerProvider::setPort(const quint16 &port)
+{
+    m_port = port;
+}
+
+QString DefaultGdbServerProvider::host() const
+{
+    return m_host;
+}
+
+void DefaultGdbServerProvider::setHost(const QString &host)
+{
+    if (m_host == host)
+        return;
+    m_host = host;
+    providerUpdated();
+}
+
 QString DefaultGdbServerProvider::typeDisplayName() const
 {
     return DefaultGdbServerProviderFactory::tr("Default");
@@ -183,8 +206,8 @@ void DefaultGdbServerProviderConfigWidget::applyImpl()
     auto p = static_cast<DefaultGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    p->m_host = m_hostWidget->host();
-    p->m_port = m_hostWidget->port();
+    p->setHost(m_hostWidget->host());
+    p->setPort(m_hostWidget->port());
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
 }

@@ -155,7 +155,7 @@ class PlainDumper:
         if isinstance(val, str):
             d.putValue(val)
         else: # Assuming LazyString
-            d.putStdStringHelper(val.address, val.length, val.type.sizeof)
+            d.putCharArrayHelper(val.address, val.length, val.type.sizeof)
 
         d.putNumChild(len(children))
         if d.isExpanded():
@@ -811,6 +811,14 @@ class Dumper(DumperBase):
         return None
 
     def qtVersion(self):
+        try:
+            # Only available with Qt 5.3+
+            qtversion = int(gdb.parse_and_eval("((void**)&qtHookData)[2]"))
+            self.qtVersion = lambda: qtversion
+            return qtversion
+        except:
+            pass
+
         try:
             version = self.qtVersionString()
             (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')

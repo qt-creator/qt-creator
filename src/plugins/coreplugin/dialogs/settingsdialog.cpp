@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -63,6 +64,20 @@ namespace Core {
 namespace Internal {
 
 static QPointer<SettingsDialog> m_instance = 0;
+
+bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
+{
+    if (p1->category() != p2->category())
+        return p1->category().alphabeticallyBefore(p2->category());
+    return p1->id().alphabeticallyBefore(p2->id());
+}
+
+static inline QList<IOptionsPage*> sortedOptionsPages()
+{
+    QList<IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
+    qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
+    return rc;
+}
 
 // ----------- Category model
 
@@ -104,12 +119,14 @@ public:
 
     void setPages(const QList<IOptionsPage*> &pages,
                   const QList<IOptionsPageProvider *> &providers);
+    void ensurePages(Category *category);
     const QList<Category*> &categories() const { return m_categories; }
 
 private:
     Category *findCategoryById(Id id);
 
     QList<Category*> m_categories;
+    QSet<Id> m_pageIds;
     QIcon m_emptyIcon;
 };
 
@@ -155,9 +172,13 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
     // Clear any previous categories
     qDeleteAll(m_categories);
     m_categories.clear();
+    m_pageIds.clear();
 
     // Put the pages in categories
     foreach (IOptionsPage *page, pages) {
+        QTC_ASSERT(!m_pageIds.contains(page->id()),
+                   qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
+        m_pageIds.insert(page->id());
         const Id categoryId = page->category();
         Category *category = findCategoryById(categoryId);
         if (!category) {
@@ -191,7 +212,29 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         category->providers.append(provider);
     }
 
+    Utils::sort(m_categories, [](const Category *c1, const Category *c2) {
+       return c1->id.alphabeticallyBefore(c2->id);
+    });
     endResetModel();
+}
+
+void CategoryModel::ensurePages(Category *category)
+{
+    if (!category->providerPagesCreated) {
+        QList<IOptionsPage *> createdPages;
+        foreach (const IOptionsPageProvider *provider, category->providers)
+            createdPages += provider->pages();
+
+        // check for duplicate ids
+        foreach (IOptionsPage *page, createdPages) {
+            QTC_ASSERT(!m_pageIds.contains(page->id()),
+                       qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
+        }
+
+        category->pages += createdPages;
+        category->providerPagesCreated = true;
+        qStableSort(category->pages.begin(), category->pages.end(), optionsPageLessThan);
+    }
 }
 
 Category *CategoryModel::findCategoryById(Id id)
@@ -359,21 +402,6 @@ private:
 
 // ----------- SettingsDialog
 
-// Helpers to sort by category. id
-bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
-{
-    if (p1->category() != p2->category())
-        return p1->category().alphabeticallyBefore(p2->category());
-    return p1->id().alphabeticallyBefore(p2->id());
-}
-
-static inline QList<IOptionsPage*> sortedOptionsPages()
-{
-    QList<IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
-    qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
-    return rc;
-}
-
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     m_pages(sortedOptionsPages()),
@@ -540,14 +568,8 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 {
     if (category->tabWidget != 0)
         return;
-    if (!category->providerPagesCreated) {
-        foreach (const IOptionsPageProvider *provider, category->providers)
-            category->pages += provider->pages();
-        category->providerPagesCreated = true;
-    }
 
-    qStableSort(category->pages.begin(), category->pages.end(), optionsPageLessThan);
-
+    m_model->ensurePages(category);
     QTabWidget *tabWidget = new QTabWidget;
     for (int j = 0; j < category->pages.size(); ++j) {
         IOptionsPage *page = category->pages.at(j);

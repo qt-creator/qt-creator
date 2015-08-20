@@ -58,7 +58,7 @@ def qform__QByteArray():
 
 def qdump__QByteArray(d, value):
     data, size, alloc = d.byteArrayData(value)
-    d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 100)
+    d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putNumChild(size)
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     displayFormat = d.currentItemFormat()
@@ -79,7 +79,7 @@ def qdump__QByteArray(d, value):
 
 def qdump__QByteArrayData(d, value):
     data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
-    d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 100)
+    d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putValue(d.readMemory(data, size), Hex2EncodedLatin1)
     d.putNumChild(1)
     if d.isExpanded():
@@ -280,7 +280,7 @@ def qdump__QDateTime(d, value):
                 tz = ""
             else:
                 idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
-                tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
+                elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
             d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
                 DateTimeInternal)
     else:
@@ -2609,11 +2609,11 @@ def qdumpHelper__QJsonArray(d, data, array):
     array is passed as integer pointer to the QJsonPrivate::Base object.
     """
 
-    if d.isNull(data):
-        n = 0
-    else:
+    if data:
         # The 'length' part of the _dummy member:
         n = qdumpHelper_qle_cutBits(d.extractUInt(array + 4), 1, 31)
+    else:
+        n = 0
 
     d.putItemCount(n)
     d.putNumChild(1)
@@ -2634,11 +2634,11 @@ def qdumpHelper__QJsonObject(d, data, obj):
     obj is passed as integer pointer to the QJsonPrivate::Base object.
     """
 
-    if d.isNull(data):
-        n = 0
-    else:
+    if data:
         # The 'length' part of the _dummy member:
         n = qdumpHelper_qle_cutBits(d.extractUInt(obj + 4), 1, 31)
+    else:
+        n = 0
 
     d.putItemCount(n)
     d.putNumChild(1)

@@ -36,7 +36,7 @@
 namespace Debugger {
 namespace Constants {
 
-const char DEBUGGER_COMMON_SETTINGS_ID[]   = "A.Common";
+const char DEBUGGER_COMMON_SETTINGS_ID[]   = "A.Debugger.General";
 const char DEBUGGER_SETTINGS_CATEGORY[]    = "O.Debugger";
 const char DEBUGGER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Debugger", "Debugger");
 const char DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON[] = ":/debugger/images/category_debug.png";

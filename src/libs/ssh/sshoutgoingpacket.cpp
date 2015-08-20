@@ -112,9 +112,12 @@ void SshOutgoingPacket::generateServiceRequest(const QByteArray &service)
 void SshOutgoingPacket::generateUserAuthByPasswordRequestPacket(const QByteArray &user,
     const QByteArray &service, const QByteArray &pwd)
 {
-    init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
-        .appendString("password").appendBool(false).appendString(pwd)
-        .finalize();
+    init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service);
+    if (pwd.isEmpty())
+        appendString("none"); // RFC 4252, 5.2
+    else
+        appendString("password").appendBool(false).appendString(pwd);
+    finalize();
 }
 
 void SshOutgoingPacket::generateUserAuthByPublicKeyRequestPacket(const QByteArray &user,

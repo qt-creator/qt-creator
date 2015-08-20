@@ -1592,18 +1592,27 @@ class Dumper(DumperBase):
         self.reportToken(args)
         addr = args.get('address', 0)
         if addr:
-            error = self.currentThread().RunToAddress(addr)
+            # Does not seem to hit anything on Linux:
+            # self.currentThread().RunToAddress(addr)
+            bp = self.target.BreakpointCreateByAddress(addr)
+            if bp.GetNumLocations() == 0:
+                self.target.BreakpointDelete(bp.GetID())
+                self.reportStatus("No target location found.")
+                self.reportLocation(frame)
+                return
+            bp.SetOneShot(True)
+            self.process.Continue()
         else:
             frame = self.currentFrame()
             file = args['file']
             line = int(args['line'])
             error = self.currentThread().StepOverUntil(frame, lldb.SBFileSpec(file), line)
-        if error.GetType():
-            self.reportState("running")
-            self.reportState("stopped")
-            self.reportError(error)
-        else:
-            self.reportData()
+            if error.GetType():
+                self.reportState("running")
+                self.reportState("stopped")
+                self.reportError(error)
+            else:
+                self.reportData()
 
     def executeJumpToLocation(self, args):
         self.reportToken(args)

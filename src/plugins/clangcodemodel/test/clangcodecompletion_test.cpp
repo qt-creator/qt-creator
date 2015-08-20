@@ -623,15 +623,33 @@ public:
     ProposalModel proposal;
 };
 
-bool hasItem(ProposalModel model, const QByteArray &text)
+int indexOfItemWithText(ProposalModel model, const QByteArray &text)
 {
     if (!model)
-        return false;
+        return -1;
 
     for (int i = 0, size = model->size(); i < size; ++i) {
         const QString itemText = model->text(i);
         if (itemText == QString::fromUtf8(text))
-            return true;
+            return i;
+    }
+
+    return -1;
+}
+
+bool hasItem(ProposalModel model, const QByteArray &text)
+{
+    return indexOfItemWithText(model, text) != -1;
+}
+
+bool hasItem(ProposalModel model, const QByteArray &text, const QByteArray &detail)
+{
+    const int index = indexOfItemWithText(model, text);
+    if (index != -1 && index < model->size()) {
+        TextEditor::IAssistProposalModel *imodel = model.data();
+        const auto genericModel = static_cast<TextEditor::GenericProposalModel *>(imodel);
+        const auto itemDetail = genericModel->detail(index);
+        return itemDetail == QString::fromUtf8(detail);
     }
 
     return false;
@@ -844,10 +862,10 @@ void ClangCodeCompletionTest::testCompleteGlobals()
 {
     ProjectLessCompletionTest t("globalCompletion.cpp");
 
-    QVERIFY(hasItem(t.proposal, "globalVariable"));
-    QVERIFY(hasItem(t.proposal, "globalFunction"));
-    QVERIFY(hasItem(t.proposal, "GlobalClass"));
-    QVERIFY(hasItem(t.proposal, "class"));    // Keyword
+    QVERIFY(hasItem(t.proposal, "globalVariable", "int globalVariable"));
+    QVERIFY(hasItem(t.proposal, "globalFunction", "void globalFunction ()"));
+    QVERIFY(hasItem(t.proposal, "GlobalClass", "GlobalClass"));
+    QVERIFY(hasItem(t.proposal, "class", "class"));    // Keyword
     QVERIFY(hasSnippet(t.proposal, "class")); // Snippet
 }
 

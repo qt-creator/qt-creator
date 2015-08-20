@@ -419,7 +419,7 @@ def qdump__std__stringHelper1(d, value, charSize, format):
     refcount = int(sizePtr[-1]) & 0xffffffff
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    d.putStdStringHelper(sizePtr, size, charSize, format)
+    d.putCharArrayHelper(sizePtr, size, charSize, format)
 
 def qdump__std__stringHelper1__QNX(d, value, charSize, format):
     size = value['_Mysize']
@@ -433,7 +433,7 @@ def qdump__std__stringHelper1__QNX(d, value, charSize, format):
     refcount = int(sizePtr[-1])
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    d.putStdStringHelper(sizePtr, size, charSize, format)
+    d.putCharArrayHelper(sizePtr, size, charSize, format)
 
 
 def qdump__std____1__string(d, value):
@@ -447,7 +447,7 @@ def qdump__std____1__string(d, value):
         # Short/internal.
         size = firstByte / 2
         data = base + 1
-    d.putStdStringHelper(data, size, 1, d.currentItemFormat())
+    d.putCharArrayHelper(data, size, 1, d.currentItemFormat())
     d.putType("std::string")
 
 
@@ -462,7 +462,7 @@ def qdump__std____1__wstring(d, value):
         # Short/internal.
         size = firstByte / 2
         data = base + 4
-    d.putStdStringHelper(data, size, 4)
+    d.putCharArrayHelper(data, size, 4)
     d.putType("std::xxwstring")
 
 

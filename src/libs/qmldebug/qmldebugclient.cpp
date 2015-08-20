@@ -191,7 +191,7 @@ void QmlDebugConnectionPrivate::readyRead()
         emit q->opened();
     }
 
-    while (protocol->packetsAvailable()) {
+    while (protocol && protocol->packetsAvailable()) {
         QPacket pack = protocol->read();
         QString name;
         pack >> name;

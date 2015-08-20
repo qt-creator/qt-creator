@@ -168,7 +168,7 @@ bool AbstractSymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor,
         break;
     case SymbolGroupNodeVisitor::VisitContinue: {
         AbstractSymbolGroupNodePtrVector c = children();
-        if (visitor.sortChildrenAlphabetically()) {
+        if (visitor.sortChildrenAlphabetically() && !testFlags(SymbolGroupNode::PreSortedChildren)) {
             std::sort(c.begin(), c.end(), [](AbstractSymbolGroupNode *a, AbstractSymbolGroupNode *b) {
                 return a->name() < b->name();
             });

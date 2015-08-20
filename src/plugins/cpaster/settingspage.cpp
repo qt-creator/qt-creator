@@ -70,7 +70,7 @@ Settings SettingsWidget::settings()
 SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings) :
     m_settings(settings), m_widget(0)
 {
-    setId("A.General");
+    setId("A.CodePaster.General");
     setDisplayName(tr("General"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CodePaster",

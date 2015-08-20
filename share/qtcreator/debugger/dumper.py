@@ -569,7 +569,7 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putStdStringHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
+    def putCharArrayHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
@@ -587,7 +587,6 @@ class DumperBase:
             encodingType = Hex8EncodedLittleEndian
             displayType = DisplayUtf16String
 
-        self.putNumChild(0)
         self.putValue(mem, encodingType, elided=elided)
 
         if displayFormat == SeparateLatin1StringFormat \
@@ -811,7 +810,7 @@ class DumperBase:
         code = (None, "b", "H", None, "I")[tsize]
         base = toInteger(p)
         blob = self.extractBlob(base, maximum).toBytes()
-        for i in xrange(0, int(maximum / tsize)):
+        for i in xrange(0, maximum, tsize):
             t = struct.unpack_from(code, blob, i)[0]
             if t == 0:
                 return 0, i, self.hexencode(blob[:i])
@@ -826,7 +825,7 @@ class DumperBase:
     def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
         if count > maximum:
-            self.putSpeciaValue(SpecialMinimumItemCountValue, maximum)
+            self.putSpecialValue(SpecialMinimumItemCountValue, maximum)
         else:
             self.putSpecialValue(SpecialItemCountValue, count)
         self.putNumChild(count)
@@ -917,18 +916,10 @@ class DumperBase:
             arrayByteSize = int(s[s.find('[')+1:s.find(']')]) * ts;
 
         n = int(arrayByteSize / ts)
-        if displayFormat != RawFormat:
-            if innerTypeName == "char":
-                # Use Latin1 as default for char [].
-                blob = self.readMemory(self.addressOf(value), arrayByteSize)
-                self.putValue(blob, Hex2EncodedLatin1)
-            elif innerTypeName == "wchar_t":
-                blob = self.readMemory(self.addressOf(value), arrayByteSize)
-                if innerType.sizeof == 2:
-                    self.putValue(blob, Hex4EncodedLittleEndian)
-                else:
-                    self.putValue(blob, Hex8EncodedLittleEndian)
-            elif p:
+        if displayFormat != RawFormat and p:
+            if innerTypeName == "char" or innerTypeName == "wchar_t":
+                self.putCharArrayHelper(p, n, ts, self.currentItemFormat())
+            else:
                 self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
                     displayFormat, arrayByteSize)
         self.putNumChild(n)
@@ -1661,7 +1652,6 @@ class DumperBase:
 
         with TopLevelItem(self, iname):
             self.put('iname="%s",' % iname)
-            self.put('name="%s",' % exp)
             self.put('wname="%s",' % escapedExp)
             try:
                 value = self.parseAndEvaluate(exp)

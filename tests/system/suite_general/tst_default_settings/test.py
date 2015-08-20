@@ -82,8 +82,10 @@ def __checkBuildAndRun__():
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     __iterateTree__(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget",
                     __qtFunc__, foundQt, qmakePath)
+    test.verify(not qmakePath or len(foundQt) == 1,
+                "Was qmake from %s autodetected? Found %s" % (qmakePath, foundQt))
     if foundQt:
-        foundQt = foundQt[0]
+        foundQt = foundQt[0]    # qmake from "which" should be used in kits
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
@@ -126,12 +128,16 @@ def __dbgFunc__(it, foundDbg):
     foundDbg.append(str(pathLineEdit.text))
 
 def __qtFunc__(it, foundQt, qmakePath):
-    foundQt.append(it)
     qtPath = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
     if platform.system() in ('Microsoft', 'Windows'):
         qtPath = qtPath.lower()
         qmakePath = qmakePath.lower()
-    test.compare(qtPath, qmakePath, "Verifying found and expected Qt version are equal.")
+    test.verify(os.path.isfile(qtPath) and os.access(qtPath, os.X_OK),
+                "Verifying found Qt (%s) is executable." % qtPath)
+    # Two Qt versions will be found when using qtchooser: QTCREATORBUG-14697
+    # Only add qmake from "which" to list
+    if qtPath == qmakePath:
+        foundQt.append(it)
     try:
         errorLabel = findObject(":QtSupport__Internal__QtVersionManager.errorLabel.QLabel")
         test.warning("Detected error or warning: '%s'" % errorLabel.text)
@@ -222,7 +228,8 @@ def __getExpectedDebuggers__():
     for debugger in ["gdb", "lldb"]:
         result.extend(findAllFilesInPATH(debugger))
     if platform.system() == 'Linux':
-        result.extend(findAllFilesInPATH("lldb-*"))
+        result.extend(filter(lambda s: not ("lldb-platform" in s or "lldb-gdbserver" in s),
+                             findAllFilesInPATH("lldb-*")))
     if platform.system() == 'Darwin':
         xcodeLLDB = getOutputFromCmdline("xcrun --find lldb").strip("\n")
         if xcodeLLDB and os.path.exists(xcodeLLDB) and xcodeLLDB not in result:
@@ -292,12 +299,8 @@ def __compareDebuggers__(foundDebuggers, expectedDebuggers):
     else:
         foundSet = set(foundDebuggers)
         expectedSet = set(expectedDebuggers)
-    if not (test.verify(not foundSet.symmetric_difference(expectedSet),
-                        "Verifying expected and found debuggers match.")):
-        test.log("Found debuggers: %s" % foundDebuggers,
-                 "Expected debuggers: %s" % expectedDebuggers)
-        return False
-    return True
+    return test.compare(foundSet, expectedSet,
+                        "Verifying expected and found debuggers match.")
 
 def __lowerStrs__(iterable):
     for it in iterable:

@@ -56,11 +56,11 @@ const char CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
 const char CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY[] = "ModelManagerSupporters";
 const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 
-const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
+const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
 const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");
-const char CPP_FILE_SETTINGS_ID[] = "B.File Naming";
+const char CPP_FILE_SETTINGS_ID[] = "B.Cpp.File Naming";
 const char CPP_FILE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "File Naming");
-const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Code Model";
+const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Cpp.Code Model";
 const char CPP_CODE_MODEL_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Model");
 const char CPP_SETTINGS_CATEGORY[] = "I.C++";
 const char CPP_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppTools", "C++");

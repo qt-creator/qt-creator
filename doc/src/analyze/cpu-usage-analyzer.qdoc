@@ -198,14 +198,14 @@
 
     As the Perf tool only provides periodic samples, the CPU Usage Analyzer
     cannot determine the exact time when a function was called or when it
-    returned. You can, however, see exactly when a sample was taken on the
+    returned. You can, however, see exactly when a sample was taken in the
     second row of each thread. The CPU Usage Analyzer assumes that if the same
-    function is present in the same place in the call chain in multiple samples
-    on a row, then this represents a single call to the respective function.
-    This is, of course, a simplification. Also, there may be other functions
-    being called between the samples taken, which do not show up in the profile
-    data. However, statistically, the data is likely to show the functions that
-    spend the most CPU time most prominently.
+    function is present at the same place in the call chain in multiple
+    consecutive samples, then this represents a single call to the respective
+    function. This is, of course, a simplification. Also, there may be other
+    functions being called between the samples taken, which do not show up in
+    the profile data. However, statistically, the data is likely to show the
+    functions that spend the most CPU time most prominently.
 
     If a function without debug information is encountered, further unwinding
     of the stack may fail. Unwinding will also fail if a QML or JavaScript
@@ -254,7 +254,7 @@
     Start Board and SILICA Architect Tibidabo, are correctly set up for
     profiling in the dwarf mode. For other devices, check whether Perf can read
     back its own data in a sensible way by checking the output of
-    \c {perf report} or \c {perf script} in the recorded Perf data files.
+    \c {perf report} or \c {perf script} for the recorded Perf data files.
 
     \section1 Troubleshooting
 
