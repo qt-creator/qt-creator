@@ -110,7 +110,7 @@ registerWindowsFileTypeExtensions = function()
                             "ProgId=QtProject.QtCreator.ui");
     component.addOperation( "RegisterFileType",
                             "pro",
-                            component.qtCreatorBinaryPath + " -client \"%1\"",
+                            component.qtCreatorBinaryPath + " \"%1\"",
                             "Qt Project file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",5",
@@ -124,7 +124,7 @@ registerWindowsFileTypeExtensions = function()
                             "ProgId=QtProject.QtCreator.pri");
     component.addOperation( "RegisterFileType",
                             "qbs",
-                            component.qtCreatorBinaryPath + " -client \"%1\"",
+                            component.qtCreatorBinaryPath + " \"%1\"",
                             "Qbs Project file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",5",
