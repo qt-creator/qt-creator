@@ -57,10 +57,10 @@ public:
     void commit(const QString &repositoryRoot,
                 const QStringList &files,
                 const QString &commitMessageFile,
-                const QStringList &extraOptions = QStringList());
+                const QStringList &extraOptions = QStringList()) override;
 
     void diff(const QString &workingDirectory, const QStringList &files,
-              const QStringList &extraOptions);
+              const QStringList &extraOptions) override;
 
     void log(const QString &workingDir,
              const QStringList &files = QStringList(),
@@ -68,9 +68,9 @@ public:
              bool enableAnnotationContextMenu = false) override;
 
     void describe(const QString &workingDirectory, int changeNumber, const QString &title);
-    QString findTopLevelForFile(const QFileInfo &file) const;
-    QStringList revisionSpec(const QString &revision) const;
-    StatusItem parseStatusLine(const QString &line) const;
+    QString findTopLevelForFile(const QFileInfo &file) const override;
+    QStringList revisionSpec(const QString &revision) const override;
+    StatusItem parseStatusLine(const QString &line) const override;
 
     // Add authorization options to the command line arguments.
     static QStringList addAuthenticationOptions(const VcsBase::VcsBaseClientSettings &settings);
@@ -78,7 +78,7 @@ public:
     QString synchronousTopic(const QString &repository);
 
 protected:
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const;
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
 
 private:
     DiffController *findOrCreateDiffEditor(const QString &documentId, const QString &source,
