@@ -97,8 +97,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_ui.projectComboBox->setVisible(d->m_forceSubProject);
     d->m_ui.pathChooser->setDisabled(d->m_forceSubProject);
     d->m_ui.projectsDirectoryCheckBox->setDisabled(d->m_forceSubProject);
-    connect(d->m_ui.pathChooser, &PathChooser::rawPathChanged,
-            this, &ProjectIntroPage::slotChanged);
+    connect(d->m_ui.pathChooser, &PathChooser::pathChanged, this, &ProjectIntroPage::slotChanged);
     connect(d->m_ui.nameLineEdit, &QLineEdit::textChanged,
             this, &ProjectIntroPage::slotChanged);
     connect(d->m_ui.pathChooser, &PathChooser::validChanged,
