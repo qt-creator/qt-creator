@@ -73,7 +73,7 @@ private slots:
     void turnOnAutoWidth();
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e) override;
     bool activateCurrentProposalItem();
     GenericProposalModel *model();
 
