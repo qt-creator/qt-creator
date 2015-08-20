@@ -85,7 +85,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAs
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key, const QString &dir = QString());
+    explicit WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key);
 
     WorkingDirectoryAspect *create(RunConfiguration *runConfig) const override;
     WorkingDirectoryAspect *clone(RunConfiguration *runConfig) const override;
@@ -93,8 +93,9 @@ public:
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
     QString workingDirectory() const;
+    QString defaultWorkingDirectory() const;
     QString unexpandedWorkingDirectory() const;
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setDefaultWorkingDirectory(const QString &defaultWorkingDir);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -103,8 +104,10 @@ private:
 
     void resetPath();
     void updateEnvironment();
+    QString keyForDefaultWd() const;
 
     QString m_workingDirectory;
+    QString m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QString m_key;
 };

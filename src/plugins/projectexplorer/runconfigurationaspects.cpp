@@ -135,8 +135,8 @@ void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
     \class ProjectExplorer::WorkingDirectoryAspect
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key, const QString &dir)
-    : IRunConfigurationAspect(runConfig), m_workingDirectory(dir), m_chooser(0), m_key(key)
+WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key)
+    : IRunConfigurationAspect(runConfig), m_chooser(0), m_key(key)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
@@ -149,7 +149,10 @@ WorkingDirectoryAspect *WorkingDirectoryAspect::create(RunConfiguration *runConf
 
 WorkingDirectoryAspect *WorkingDirectoryAspect::clone(RunConfiguration *runConfig) const
 {
-    return new WorkingDirectoryAspect(runConfig, m_key, m_workingDirectory);
+    auto * const aspect = new WorkingDirectoryAspect(runConfig, m_key);
+    aspect->m_defaultWorkingDirectory = m_defaultWorkingDirectory;
+    aspect->m_workingDirectory = m_workingDirectory;
+    return aspect;
 }
 
 void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
@@ -159,8 +162,10 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
     m_chooser->setHistoryCompleter(m_key);
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
-    connect(m_chooser.data(), &PathChooser::pathChanged,
-            this, &WorkingDirectoryAspect::setWorkingDirectory);
+    m_chooser->lineEdit()->setPlaceholderText(m_defaultWorkingDirectory);
+    m_chooser->setPath(m_workingDirectory);
+    connect(m_chooser.data(), &PathChooser::pathChanged, this,
+            [this]() { m_workingDirectory = m_chooser->rawPath(); });
 
     auto resetButton = new QToolButton(parent);
     resetButton->setToolTip(tr("Reset to Default"));
@@ -187,25 +192,39 @@ void WorkingDirectoryAspect::updateEnvironment()
     m_chooser->setEnvironment(envAspect->environment());
 }
 
+QString WorkingDirectoryAspect::keyForDefaultWd() const
+{
+    return m_key + QLatin1String(".default");
+}
+
 void WorkingDirectoryAspect::resetPath()
 {
-    QTC_ASSERT(m_chooser, return);
     m_chooser->setPath(QString());
 }
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
     m_workingDirectory = map.value(m_key).toString();
+    m_defaultWorkingDirectory = map.value(keyForDefaultWd()).toString();
 }
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 {
     data.insert(m_key, m_workingDirectory);
+    data.insert(keyForDefaultWd(), m_defaultWorkingDirectory);
 }
 
 QString WorkingDirectoryAspect::workingDirectory() const
 {
-    return runConfiguration()->macroExpander()->expandProcessArgs(m_workingDirectory);
+    QTC_ASSERT(m_chooser, return m_defaultWorkingDirectory);
+    return m_workingDirectory.isEmpty()
+            ? m_defaultWorkingDirectory
+            : runConfiguration()->macroExpander()->expandProcessArgs(m_chooser->path());
+}
+
+QString WorkingDirectoryAspect::defaultWorkingDirectory() const
+{
+    return m_defaultWorkingDirectory;
 }
 
 QString WorkingDirectoryAspect::unexpandedWorkingDirectory() const
@@ -213,9 +232,11 @@ QString WorkingDirectoryAspect::unexpandedWorkingDirectory() const
     return m_workingDirectory;
 }
 
-void WorkingDirectoryAspect::setWorkingDirectory(const QString &workingDirectory)
+void WorkingDirectoryAspect::setDefaultWorkingDirectory(const QString &defaultWorkingDir)
 {
-    m_workingDirectory = workingDirectory;
+    m_defaultWorkingDirectory = defaultWorkingDir;
+    if (m_chooser)
+        m_chooser->lineEdit()->setPlaceholderText(m_defaultWorkingDirectory);
 }
 
 PathChooser *WorkingDirectoryAspect::pathChooser() const

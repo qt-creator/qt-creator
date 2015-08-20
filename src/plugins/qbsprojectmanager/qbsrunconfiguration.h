@@ -92,7 +92,6 @@ public:
     bool isConsoleApplication() const;
 
 signals:
-    void baseWorkingDirectoryChanged(const QString&);
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
@@ -104,7 +103,6 @@ private slots:
     void installStepToBeRemoved(int pos);
 
 private:
-    void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
     qbs::InstallOptions installOptions() const;

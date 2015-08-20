@@ -246,21 +246,13 @@ bool QbsRunConfiguration::isConsoleApplication() const
 
 QString QbsRunConfiguration::workingDirectory() const
 {
-    EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return baseWorkingDirectory());
-    return QDir::cleanPath(aspect->environment().expandVariables(
-                macroExpander()->expand(baseWorkingDirectory())));
+    const auto *wdAspect = extraAspect<WorkingDirectoryAspect>();
+    QTC_ASSERT(wdAspect, return baseWorkingDirectory());
+    return wdAspect->workingDirectory();
 }
 
 QString QbsRunConfiguration::baseWorkingDirectory() const
 {
-    WorkingDirectoryAspect *aspect = extraAspect<WorkingDirectoryAspect>();
-    // if the user overrode us, then return his working directory
-    QString wd = aspect->unexpandedWorkingDirectory();
-    if (!wd.isEmpty())
-        return wd;
-
-    // else what the pro file reader tells us
     const QString exe = executable();
     if (!exe.isEmpty())
         return QFileInfo(executable()).absolutePath();
@@ -270,18 +262,6 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 QString QbsRunConfiguration::commandLineArguments() const
 {
     return extraAspect<ArgumentsAspect>()->arguments();
-}
-
-void QbsRunConfiguration::setBaseWorkingDirectory(const QString &wd)
-{
-    WorkingDirectoryAspect *aspect = extraAspect<WorkingDirectoryAspect>();
-    const QString &oldWorkingDirectory = workingDirectory();
-
-    aspect->setWorkingDirectory(wd);
-
-    const QString &newWorkingDirectory = workingDirectory();
-    if (oldWorkingDirectory != newWorkingDirectory)
-        emit baseWorkingDirectoryChanged(newWorkingDirectory);
 }
 
 void QbsRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
@@ -413,7 +393,7 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
     setExecutableLineText(m_rc->executable());
 
     WorkingDirectoryAspect *aspect = m_rc->extraAspect<WorkingDirectoryAspect>();
-    aspect->pathChooser()->setPath(m_rc->baseWorkingDirectory());
+    aspect->setDefaultWorkingDirectory(m_rc->baseWorkingDirectory());
     aspect->pathChooser()->setBaseFileName(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
