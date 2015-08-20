@@ -270,14 +270,14 @@ void NavigationWidget::activateSubWidget()
     activateSubWidget(id);
 }
 
-void NavigationWidget::activateSubWidget(Id factoryId)
+QWidget *NavigationWidget::activateSubWidget(Id factoryId)
 {
     setShown(true);
     foreach (Internal::NavigationSubWidget *subWidget, d->m_subWidgets) {
         if (subWidget->factory()->id() == factoryId) {
             subWidget->setFocusWidget();
             ICore::raiseWindow(this);
-            return;
+            return subWidget->widget();
         }
     }
 
@@ -286,6 +286,7 @@ void NavigationWidget::activateSubWidget(Id factoryId)
         d->m_subWidgets.first()->setFactoryIndex(index);
         d->m_subWidgets.first()->setFocusWidget();
         ICore::raiseWindow(this);
+        return d->m_subWidgets.first()->widget();
     }
 }
 

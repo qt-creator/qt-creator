@@ -286,13 +286,13 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
 
 ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject)
 {
-    QString error;
-    Project *project = ProjectExplorerPlugin::openProject(projectFile, &error);
-    if (!error.isEmpty())
-        qWarning() << error;
-    if (!project)
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(projectFile);
+    if (!result) {
+        qWarning() << result.errorMessage() << result.alreadyOpen();
         return ProjectInfo();
+    }
 
+    Project *project = result.project();
     if (configureAsExampleProject)
         project->configureAsExampleProject(QStringList());
 

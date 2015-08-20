@@ -277,6 +277,9 @@ const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
 const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
 const char DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN[]="RunConfiguration.DebugRunModeWithBreakOnMain";
 
+// Navigation Widget
+const char PROJECTTREE_ID[] = "Projects";
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

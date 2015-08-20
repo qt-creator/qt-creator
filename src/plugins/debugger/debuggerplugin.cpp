@@ -3245,15 +3245,15 @@ void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCa
             this, &DebuggerPluginPrivate::testProjectLoaded);
 
     m_testCallbacks.append(cb);
-    QString error;
-    if (ProjectExplorerPlugin::openProject(proFile, &error)) {
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
+    if (result) {
         // Will end up in callback below due to the connections to
         // signal currentProjectChanged().
         return;
     }
 
     // Project opening failed. Eat the unused callback.
-    qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(error));
+    qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(result.errorMessage()));
     QVERIFY(false);
     m_testCallbacks.pop_back();
 }

@@ -194,6 +194,11 @@ void NavigationSubWidget::setCloseIcon(const QIcon &icon)
     m_closeButton->setIcon(icon);
 }
 
+QWidget *NavigationSubWidget::widget()
+{
+    return m_navigationWidget;
+}
+
 int NavigationSubWidget::factoryIndex() const
 {
     return m_navigationComboBox->currentIndex();

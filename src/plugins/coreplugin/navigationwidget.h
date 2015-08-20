@@ -87,7 +87,7 @@ public:
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
-    void activateSubWidget(Id factoryId);
+    QWidget *activateSubWidget(Id factoryId);
     void closeSubWidgets();
 
     bool isShown() const;

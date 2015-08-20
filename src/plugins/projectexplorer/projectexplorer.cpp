@@ -1410,11 +1410,11 @@ void ProjectExplorerPluginPrivate::loadAction()
                                                     dd->m_projectFilterString);
     if (filename.isEmpty())
         return;
-    QString errorMessage;
-    ProjectExplorerPlugin::openProject(filename, &errorMessage);
 
-    if (!errorMessage.isEmpty())
-        QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(filename);
+    if (!result)
+        ProjectExplorerPlugin::showOpenProjectError(result);
+
     updateActions();
 }
 
@@ -1495,11 +1495,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     auto factory = new IDocumentFactory;
     factory->setOpener([this](const QString &fileName) -> IDocument* {
-        QString errorMessage;
-        ProjectExplorerPlugin::openProject(fileName, &errorMessage);
-        if (!errorMessage.isEmpty())
-            QMessageBox::critical(ICore::mainWindow(),
-                tr("Failed to open project."), errorMessage);
+
+        OpenProjectResult result = ProjectExplorerPlugin::openProject(fileName);
+        if (!result)
+            showOpenProjectError(result);
         return 0;
     });
 
@@ -1653,23 +1652,52 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
 {
-    QString errorMessage;
-    openProject(fileName, &errorMessage);
-    if (!errorMessage.isEmpty())
-        QMessageBox::critical(ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
+    OpenProjectResult result = openProject(fileName);
+    if (!result)
+        showOpenProjectError(result);
 }
 
-Project *ProjectExplorerPlugin::openProject(const QString &fileName, QString *errorString)
+ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(const QString &fileName)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::openProject";
 
-    QList<Project *> list = openProjects(QStringList() << fileName, errorString);
-    if (list.isEmpty())
-        return 0;
-    dd->addToRecentProjects(fileName, list.first()->displayName());
-    SessionManager::setStartupProject(list.first());
-    return list.first();
+    OpenProjectResult result = openProjects(QStringList() << fileName);
+    Project *project = result.project();
+    if (!project)
+        return result;
+    dd->addToRecentProjects(fileName, project->displayName());
+    SessionManager::setStartupProject(project);
+    return result;
+}
+
+void ProjectExplorerPlugin::showOpenProjectError(const OpenProjectResult &result)
+{
+    if (result)
+        return;
+
+    // Potentially both errorMessage and alreadyOpen could contain information
+    // that should be shown to the user.
+    // BUT, if Creator opens only a single project, this can lead
+    // to either
+    // - No error
+    // - A errorMessage
+    // - A single project in alreadyOpen
+
+    // The only place where multiple projects are opened is in session restore
+    // where the already open case should never happen, thus
+    // the following code uses those assumptions to make the code simpler
+
+    QString errorMessage = result.errorMessage();
+    if (!errorMessage.isEmpty()) {
+        // ignore alreadyOpen
+        QMessageBox::critical(ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
+    } else {
+        // ignore multiple alreadyOpen
+        Project *alreadyOpen = result.alreadyOpen().first();
+        ProjectTree::highlightProject(alreadyOpen,
+                                      tr("<h3>Project already open</h3>"));
+    }
 }
 
 static QList<IProjectManager*> allProjectManagers()
@@ -1677,17 +1705,17 @@ static QList<IProjectManager*> allProjectManagers()
     return ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 }
 
-static void appendError(QString *errorString, const QString &error)
+static void appendError(QString &errorString, const QString &error)
 {
-    if (!errorString || error.isEmpty())
+    if (error.isEmpty())
         return;
 
-    if (!errorString->isEmpty())
-        errorString->append(QLatin1Char('\n'));
-    errorString->append(error);
+    if (!errorString.isEmpty())
+        errorString.append(QLatin1Char('\n'));
+    errorString.append(error);
 }
 
-QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames, QString *errorString)
+ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin - opening projects " << fileNames;
@@ -1695,6 +1723,8 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     const QList<IProjectManager*> projectManagers = allProjectManagers();
 
     QList<Project*> openedPro;
+    QList<Project *> alreadyOpen;
+    QString errorString;
     foreach (const QString &fileName, fileNames) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
@@ -1705,13 +1735,12 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         bool found = false;
         foreach (Project *pi, SessionManager::projects()) {
             if (filePath == pi->projectFilePath().toString()) {
+                alreadyOpen.append(pi);
                 found = true;
                 break;
             }
         }
         if (found) {
-            appendError(errorString, tr("Failed opening project \"%1\": Project already open.")
-                        .arg(QDir::toNativeSeparators(fileName)));
             SessionManager::reportProjectLoadingProgress();
             continue;
         }
@@ -1767,7 +1796,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         ModeManager::setFocusToCurrentMode();
     }
 
-    return openedPro;
+    return OpenProjectResult(openedPro, alreadyOpen, errorString);
 }
 
 void ProjectExplorerPluginPrivate::updateWelcomePage()
@@ -2900,10 +2929,10 @@ void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
         qDebug() << "ProjectExplorerPlugin::openRecentProject()";
 
     if (!fileName.isEmpty()) {
-        QString errorMessage;
-        ProjectExplorerPlugin::openProject(fileName, &errorMessage);
-        if (!errorMessage.isEmpty())
-            QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
+        ProjectExplorerPlugin::OpenProjectResult result
+                = ProjectExplorerPlugin::openProject(fileName);
+        if (!result)
+            ProjectExplorerPlugin::showOpenProjectError(result);
     }
 }
 

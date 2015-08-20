@@ -46,6 +46,8 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/navigationwidget.h>
+#include <coreplugin/modemanager.h>
 
 #include <QApplication>
 #include <QMenu>
@@ -529,6 +531,19 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
                 s_instance, &ProjectTree::hideContextMenu,
                 Qt::ConnectionType(Qt::UniqueConnection | Qt::QueuedConnection));
     }
+}
+
+void ProjectTree::highlightProject(Project *project, const QString &message)
+{
+
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
+
+    // Shows and focusses a project tree
+    QWidget *widget = navigation->activateSubWidget(ProjectExplorer::Constants::PROJECTTREE_ID);
+
+    if (auto *projectTreeWidget = qobject_cast<ProjectTreeWidget *>(widget))
+        projectTreeWidget->showMessage(project->rootProjectNode(), message);
 }
 
 void ProjectTree::hideContextMenu()

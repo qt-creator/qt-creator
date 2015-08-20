@@ -412,18 +412,19 @@ void ExamplesWelcomePage::openProject(const QString &projectFile,
     }
 
     // don't try to load help and files if loading the help request is being cancelled
-    QString errorMessage;
     if (proFile.isEmpty())
         return;
-    if (ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile, &errorMessage)) {
+    ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile);
+    if (result) {
         Core::ICore::openFiles(filesToOpen);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())
             openHelpInExtraWindow(help.toString());
         Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+    } else {
+        ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);
     }
-    if (!errorMessage.isEmpty())
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
 }
 
 ExamplesListModel *ExamplesWelcomePage::examplesModel() const

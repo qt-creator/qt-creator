@@ -72,8 +72,48 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    static Project *openProject(const QString &fileName, QString *error);
-    static QList<Project *> openProjects(const QStringList &fileNames, QString *error);
+    class OpenProjectResult
+    {
+    public:
+        OpenProjectResult(QList<Project *> projects, QList<Project *> alreadyOpen,
+                          const QString &errorMessage)
+            : m_projects(projects), m_alreadyOpen(alreadyOpen),
+              m_errorMessage(errorMessage)
+        {}
+
+        explicit operator bool() const
+        {
+            return m_errorMessage.isEmpty() && m_alreadyOpen.isEmpty();
+        }
+
+        Project *project() const
+        {
+            return m_projects.isEmpty() ? 0 : m_projects.first();
+        }
+
+        QList<Project *> projects() const
+        {
+            return m_projects;
+        }
+
+        QString errorMessage() const
+        {
+            return m_errorMessage;
+        }
+
+        QList<Project *> alreadyOpen() const
+        {
+            return m_alreadyOpen;
+        }
+    private:
+        QList<Project *> m_projects;
+        QList<Project *> m_alreadyOpen;
+        QString m_errorMessage;
+    };
+
+    static OpenProjectResult openProject(const QString &fileName);
+    static OpenProjectResult openProjects(const QStringList &fileNames);
+    static void showOpenProjectError(const OpenProjectResult &result);
     Q_SLOT void openProjectWelcomePage(const QString &fileName);
     static void unloadProject(Project *project);
 

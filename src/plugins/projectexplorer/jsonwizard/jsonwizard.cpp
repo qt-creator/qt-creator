@@ -309,8 +309,10 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             break;
         }
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            Project *project = ProjectExplorerPlugin::instance()->openProject(file.path(), &errorMessage);
-            if (!project) {
+            ProjectExplorerPlugin::OpenProjectResult result
+                    = ProjectExplorerPlugin::instance()->openProject(file.path());
+            if (!result) {
+                errorMessage = result.errorMessage();
                 if (errorMessage.isEmpty()) {
                     errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                                "Failed to open \"%1\" as a project.")

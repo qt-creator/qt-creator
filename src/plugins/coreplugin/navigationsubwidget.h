@@ -72,6 +72,8 @@ public:
     Command *command(const QString &title) const;
     void setCloseIcon(const QIcon &icon);
 
+    QWidget *widget();
+
 signals:
     void splitMe(int factoryIndex);
     void closeMe();

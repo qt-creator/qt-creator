@@ -66,6 +66,8 @@ public:
 
     static void showContextMenu(Internal::ProjectTreeWidget *focus, const QPoint &globalPos, Node *node);
 
+    static void highlightProject(Project *project, const QString &message);
+
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);

@@ -48,6 +48,7 @@
 
 #include <utils/navigationtreeview.h>
 #include <utils/algorithm.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -480,6 +481,17 @@ void ProjectTreeWidget::sync(Node *node)
         setCurrentItem(node);
 }
 
+void ProjectTreeWidget::showMessage(Node *node, const QString &message)
+{
+    QModelIndex idx = m_model->indexForNode(node);
+    m_view->setCurrentIndex(idx);
+    m_view->scrollTo(idx);
+
+    QPoint pos = m_view->mapToGlobal(m_view->visualRect(idx).bottomLeft());
+    pos -= Utils::ToolTip::offsetFromPosition();
+    Utils::ToolTip::show(pos, message);
+}
+
 void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 {
     QModelIndex index = m_view->indexAt(pos);
@@ -563,7 +575,7 @@ ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
 {
     setDisplayName(tr("Projects"));
     setPriority(100);
-    setId("Projects");
+    setId(ProjectExplorer::Constants::PROJECTTREE_ID);
     setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X")));
 }
 

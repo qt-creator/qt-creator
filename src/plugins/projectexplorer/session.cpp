@@ -870,11 +870,10 @@ void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
     // Keep projects that failed to load in the session!
     m_failedProjects = fileList;
     if (!fileList.isEmpty()) {
-        QString errors;
-        QList<Project *> projects = ProjectExplorerPlugin::openProjects(fileList, &errors);
-        if (!errors.isEmpty())
-            QMessageBox::critical(ICore::mainWindow(), SessionManager::tr("Failed to open project"), errors);
-        foreach (Project *p, projects)
+        ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProjects(fileList);
+        if (!result)
+            ProjectExplorerPlugin::showOpenProjectError(result);
+        foreach (Project *p, result.projects())
             m_failedProjects.removeAll(p->projectFilePath().toString());
     }
 }

@@ -68,6 +68,7 @@ public:
     QToolButton *toggleSync();
     Node *currentNode();
     void sync(ProjectExplorer::Node *node);
+    void showMessage(ProjectExplorer::Node *node, const QString &message);
 
     static Node *nodeForFile(const Utils::FileName &fileName);
     static Node *mostExpandedNode(const QList<Node*> &nodes);
