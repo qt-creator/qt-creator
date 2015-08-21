@@ -218,8 +218,10 @@ static inline QStringList getPluginPaths()
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-            + QLatin1String("/data");
+    pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    pluginPath += QLatin1String("/data");
+#endif
     pluginPath += QLatin1Char('/')
             + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
             + QLatin1Char('/');
