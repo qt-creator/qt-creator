@@ -1,9 +1,20 @@
 import qbs
 
 QtcProduct {
+    Depends { name: "bundle" }
+    Depends { name: "ib"; condition: qbs.targetOS.contains("osx") }
+
+    bundle.isBundle: true
+    bundle.infoPlistFile: "Info.plist"
+
+    ib.appIconName: "qtcreator"
+
     type: ["application"]
     name: project.ide_app_target
     consoleApplication: qbs.debugInformation
+    version: project.qtcreator_version
+
+    installSourceBase: buildDirectory
 
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
@@ -18,7 +29,9 @@ QtcProduct {
     Depends { name: "ExtensionSystem" }
 
     files: [
+        "Info.plist",
         "main.cpp",
+        "qtcreator.xcassets",
         "qtcreator.rc",
         "../shared/qtsingleapplication/qtsingleapplication.h",
         "../shared/qtsingleapplication/qtsingleapplication.cpp",
@@ -54,8 +67,8 @@ QtcProduct {
     }
 
     Group {
-        fileTagsFilter: product.type
+        fileTagsFilter: ["infoplist", "pkginfo", "compiled_assetcatalog"]
         qbs.install: true
-        qbs.installDir: project.ide_bin_path
+        qbs.installSourceBase: installSourceBase
     }
 }

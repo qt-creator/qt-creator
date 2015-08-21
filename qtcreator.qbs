@@ -2,7 +2,7 @@ import qbs 1.0
 
 Project {
     name: "Qt Creator"
-    minimumQbsVersion: "1.4"
+    minimumQbsVersion: "1.4.3"
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '3'
     property string ide_version_minor: '5'

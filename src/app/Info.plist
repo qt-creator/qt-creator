@@ -235,7 +235,7 @@
         <key>NSHumanReadableCopyright</key>
         <string>(C) 2015 The Qt Company Ltd</string>
 	<key>CFBundleIconFile</key>
-	<string>$$ICON</string>
+	<string>qtcreator</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -245,9 +245,9 @@
 	<key>CFBundleIdentifier</key>
 	<string>org.qt-project.qtcreator</string>
 	<key>CFBundleVersion</key>
-	<string>$$QTCREATOR_VERSION</string>
+	<string>@FULL_VERSION@</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$$QTCREATOR_VERSION</string>
+	<string>@SHORT_VERSION@</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7.0</string>
 </dict>
