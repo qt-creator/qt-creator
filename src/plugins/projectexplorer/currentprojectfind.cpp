@@ -57,7 +57,11 @@ QString CurrentProjectFind::id() const
 
 QString CurrentProjectFind::displayName() const
 {
-    return tr("Current Project");
+    Project *p = ProjectTree::currentProject();
+    if (p)
+        return tr("Project \"%1\"").arg(p->displayName());
+    else
+        return tr("Current Project");
 }
 
 bool CurrentProjectFind::isEnabled() const
@@ -96,6 +100,7 @@ QString CurrentProjectFind::label() const
 void CurrentProjectFind::handleProjectChanged()
 {
     emit enabledChanged(isEnabled());
+    emit displayNameChanged();
 }
 
 void CurrentProjectFind::recheckEnabled()

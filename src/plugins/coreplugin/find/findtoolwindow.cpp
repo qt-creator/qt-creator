@@ -34,6 +34,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QSettings>
 #include <QStringListModel>
@@ -156,6 +157,15 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
     m_ui.filterList->addItems(names);
     if (m_filters.size() > 0)
         setCurrentFilter(0);
+}
+
+void FindToolWindow::updateFindFilterNames()
+{
+    int currentIndex = m_ui.filterList->currentIndex();
+    m_ui.filterList->clear();
+    QStringList names = Utils::transform(m_filters, &IFindFilter::displayName);
+    m_ui.filterList->addItems(names);
+    m_ui.filterList->setCurrentIndex(currentIndex);
 }
 
 void FindToolWindow::setFindText(const QString &text)

@@ -69,6 +69,7 @@ public:
     static QString descriptionForFindFlags(FindFlags flags);
 signals:
     void enabledChanged(bool enabled);
+    void displayNameChanged();
 };
 
 } // namespace Core

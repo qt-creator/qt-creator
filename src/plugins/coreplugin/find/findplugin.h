@@ -90,6 +90,7 @@ signals:
 
 private slots:
     void filterChanged();
+    void displayNameChanged();
     void openFindFilter();
     void writeSettings();
 

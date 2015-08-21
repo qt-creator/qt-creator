@@ -58,6 +58,7 @@ public:
     void setCurrentFilter(IFindFilter *filter);
     void readSettings();
     void writeSettings();
+    void updateFindFilterNames();
 
 protected:
     bool event(QEvent *event);

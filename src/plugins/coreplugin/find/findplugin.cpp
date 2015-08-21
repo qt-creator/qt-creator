@@ -176,6 +176,16 @@ void FindPlugin::filterChanged()
     d->m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
+void FindPlugin::displayNameChanged()
+{
+    IFindFilter *changedFilter = qobject_cast<IFindFilter *>(sender());
+    QAction *action = d->m_filterActions.value(changedFilter);
+    QTC_ASSERT(changedFilter, return);
+    QTC_ASSERT(action, return);
+    action->setText(QLatin1String("    ") + changedFilter->displayName());
+    d->m_findDialog->updateFindFilterNames();
+}
+
 void FindPlugin::openFindFilter()
 {
     QAction *action = qobject_cast<QAction*>(sender());
@@ -241,10 +251,12 @@ void FindPlugin::setupFilterMenuItems()
         action->setData(qVariantFromValue(filter));
         cmd = ActionManager::registerAction(action, base.withSuffix(filter->id()));
         cmd->setDefaultKeySequence(filter->defaultShortcut());
+        cmd->setAttribute(Command::CA_UpdateText);
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);
         connect(action, &QAction::triggered, this, &FindPlugin::openFindFilter);
         connect(filter, &IFindFilter::enabledChanged, this, &FindPlugin::filterChanged);
+        connect(filter, &IFindFilter::displayNameChanged, this, &FindPlugin::displayNameChanged);
     }
     d->m_findDialog->setFindFilters(findInterfaces);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);
