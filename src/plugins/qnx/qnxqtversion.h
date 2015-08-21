@@ -76,8 +76,8 @@ public:
 
     QtSupport::QtConfigWidget *createConfigurationWidget() const override;
 
-    bool isValid() const;
-    QString invalidReason() const;
+    bool isValid() const override;
+    QString invalidReason() const override;
 
     QString sdkPath() const;
     void setSdkPath(const QString &sdkPath);
