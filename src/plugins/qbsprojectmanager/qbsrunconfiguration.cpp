@@ -35,6 +35,7 @@
 #include "qbsproject.h"
 
 #include <coreplugin/coreconstants.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -164,6 +165,12 @@ void QbsRunConfiguration::ctor()
             terminalAspect->setUseTerminal(isConsoleApplication());
         emit enabledChanged();
     });
+    connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
+            [this, project](Project *p) {
+                if (p == project && !BuildManager::isBuilding(p))
+                    emit enabledChanged();
+            }
+    );
 
     connect(target(), &Target::activeDeployConfigurationChanged,
             this, &QbsRunConfiguration::installStepChanged);
