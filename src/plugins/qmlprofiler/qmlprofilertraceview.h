@@ -74,9 +74,9 @@ private slots:
 
 protected:
     void changeEvent(QEvent *e) override;
-    virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
