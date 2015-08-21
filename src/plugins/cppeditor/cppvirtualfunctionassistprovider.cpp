@@ -75,7 +75,7 @@ public:
     }
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e)
+    bool eventFilter(QObject *o, QEvent *e) override
     {
         if (e->type() == QEvent::ShortcutOverride && m_sequence.count() == 1) {
             QKeyEvent *ke = static_cast<QKeyEvent *>(e);
