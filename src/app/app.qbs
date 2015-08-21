@@ -5,7 +5,7 @@ QtcProduct {
     name: project.ide_app_target
     consoleApplication: qbs.debugInformation
 
-    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/.."]
+    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
     cpp.includePaths: [
         project.sharedSourcesDir + "/qtsingleapplication",

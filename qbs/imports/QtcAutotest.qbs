@@ -13,7 +13,6 @@ QtcProduct {
 
     cpp.rpaths: [
         project.buildDirectory + '/' + project.ide_library_path,
-        project.buildDirectory + '/' + project.ide_library_path + "/..", // OSX
         project.buildDirectory + '/' + project.ide_plugin_path
     ]
     cpp.minimumOsxVersion: "10.7"
@@ -28,7 +27,7 @@ QtcProduct {
     // (e.g. extensionsystem) do not work when installed, because they want hardcoded
     // absolute paths to resources in the build directory.
     //    cpp.rpaths: qbs.targetOS.contains("osx")
-    //            ? ["@executable_path/.."]
+    //            ? ["@loader_path/../Frameworks", "@loader_path/../PlugIns"]
     //            : ["$ORIGIN/../" + project.libDirName + "/qtcreator",
     //               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins"]
 }
