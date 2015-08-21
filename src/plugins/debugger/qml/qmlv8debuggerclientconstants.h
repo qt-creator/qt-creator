@@ -105,6 +105,8 @@ const char REFS[] = "refs";
 const char BODY[] = "body";
 const char NAME[] = "name";
 const char VALUE[] = "value";
+const char SUCCESS[] = "success";
+const char MESSAGE[] = "message";
 
 const char OBJECT[] = "{}";
 const char ARRAY[] = "[]";

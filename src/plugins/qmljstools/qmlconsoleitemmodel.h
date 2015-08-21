@@ -32,8 +32,8 @@
 #define QMLCONSOLEITEMMODEL_H
 
 #include <qmljs/consoleitem.h>
+#include <utils/treemodel.h>
 
-#include <QAbstractItemModel>
 #include <QItemSelectionModel>
 
 QT_FORWARD_DECLARE_CLASS(QFont)
@@ -41,58 +41,29 @@ QT_FORWARD_DECLARE_CLASS(QFont)
 namespace QmlJSTools {
 namespace Internal {
 
-class QmlConsoleItemModel : public QAbstractItemModel
+class QmlConsoleItemModel : public Utils::TreeModel
 {
     Q_OBJECT
 public:
-    enum Roles { TypeRole = Qt::UserRole, FileRole, LineRole, ExpressionRole };
 
     explicit QmlConsoleItemModel(QObject *parent = 0);
-    ~QmlConsoleItemModel();
 
-    void setHasEditableRow(bool hasEditableRow);
-    bool hasEditableRow() const;
-    void appendEditableRow();
-    void removeEditableRow();
+    void shiftEditableRow();
 
-    bool appendItem(QmlJS::ConsoleItem *item, int position = -1);
-    bool appendMessage(QmlJS::ConsoleItem::ItemType itemType, const QString &message,
+    void appendItem(QmlJS::ConsoleItem *item, int position = -1);
+    void appendMessage(QmlJS::ConsoleItem::ItemType itemType, const QString &message,
                        int position = -1);
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
-
-    QmlJS::ConsoleItem *root() const { return m_rootItem; }
 
 public slots:
     void clear();
 
 signals:
     void selectEditableRow(const QModelIndex &index, QItemSelectionModel::SelectionFlags flags);
-    void rowInserted(const QModelIndex &index);
-
-protected:
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-
-
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-
-    bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
-    bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex());
-
-    QmlJS::ConsoleItem *getItem(const QModelIndex &index) const;
 
 private:
-    bool m_hasEditableRow;
-    QmlJS::ConsoleItem *m_rootItem;
     int m_maxSizeOfFileName;
 };
 

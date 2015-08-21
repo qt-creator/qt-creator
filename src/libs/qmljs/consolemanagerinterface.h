@@ -50,8 +50,6 @@ public:
 
     virtual void showConsolePane() = 0;
 
-    virtual ConsoleItem *rootItem() const = 0;
-
     virtual void setScriptEvaluator(IScriptEvaluator *scriptEvaluator) = 0;
     virtual void setContext(const QString &context) = 0;
 

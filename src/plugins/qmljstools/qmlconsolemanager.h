@@ -52,8 +52,6 @@ public:
 
     void showConsolePane();
 
-    QmlJS::ConsoleItem *rootItem() const;
-
     void setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator);
     void setContext(const QString &context);
 

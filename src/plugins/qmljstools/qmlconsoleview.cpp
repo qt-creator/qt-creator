@@ -147,9 +147,9 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
     QModelIndex index = indexAt(pos);
     if (index.isValid()) {
         ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
-                    QmlConsoleItemModel::TypeRole).toInt();
+                    ConsoleItem::TypeRole).toInt();
         bool handled = false;
-        if (type == ConsoleItem::UndefinedType) {
+        if (type == ConsoleItem::DefaultType) {
             bool showTypeIcon = index.parent() == QModelIndex();
             ConsoleItemPositions positions(visualRect(index), viewOptions().font, showTypeIcon,
                                            true);
@@ -222,14 +222,14 @@ void QmlConsoleView::onRowActivated(const QModelIndex &index)
         return;
 
     // See if we have file and line Info
-    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
     const QUrl fileUrl = QUrl(filePath);
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
         QFileInfo fi(filePath);
         if (fi.exists() && fi.isFile() && fi.isReadable()) {
-            int line = model()->data(index, QmlConsoleItemModel::LineRole).toInt();
+            int line = model()->data(index, ConsoleItem::LineRole).toInt();
             Core::EditorManager::openEditorAt(fi.canonicalFilePath(), line);
         }
     }
@@ -240,15 +240,15 @@ void QmlConsoleView::copyToClipboard(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    QString contents = model()->data(index, QmlConsoleItemModel::ExpressionRole).toString();
+    QString contents = model()->data(index, ConsoleItem::ExpressionRole).toString();
     // See if we have file and line Info
-    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
     const QUrl fileUrl = QUrl(filePath);
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
         contents = QString::fromLatin1("%1 %2: %3").arg(contents).arg(filePath).arg(
-                    model()->data(index, QmlConsoleItemModel::LineRole).toString());
+                    model()->data(index, ConsoleItem::LineRole).toString());
     }
     QClipboard *cb = QApplication::clipboard();
     cb->setText(contents);
@@ -260,7 +260,7 @@ bool QmlConsoleView::canShowItemInTextEditor(const QModelIndex &index)
         return false;
 
     // See if we have file and line Info
-    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
     const QUrl fileUrl = QUrl(filePath);
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();

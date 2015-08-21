@@ -92,7 +92,7 @@ QColor QmlConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &re
 {
     painter->save();
     ConsoleItem::ItemType itemType = (ConsoleItem::ItemType)index.data(
-                QmlConsoleItemModel::TypeRole).toInt();
+                ConsoleItem::TypeRole).toInt();
     QColor backgroundColor;
     switch (itemType) {
     case ConsoleItem::DebugType:
@@ -138,7 +138,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     QColor textColor;
     QIcon taskIcon;
     ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
-                QmlConsoleItemModel::TypeRole).toInt();
+                ConsoleItem::TypeRole).toInt();
     switch (type) {
     case ConsoleItem::DebugType:
         textColor = QColor(CONSOLE_LOG_TEXT_COLOR);
@@ -175,7 +175,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     }
     int width = view->width() - level * view->indentation() - view->verticalScrollBar()->width();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type == ConsoleItem::UndefinedType;
+    bool showExpandableIcon = type == ConsoleItem::DefaultType;
 
     QRect rect(opt.rect.x(), opt.rect.top(), width, opt.rect.height());
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
@@ -206,7 +206,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     if (showExpandableIcon) {
         // Paint ExpandableIconArea:
         QIcon expandCollapseIcon;
-        if (index.model()->rowCount(index)) {
+        if (index.model()->rowCount(index) || index.model()->canFetchMore(index)) {
             if (view->isExpanded(index))
                 expandCollapseIcon = m_collapseIcon;
             else
@@ -219,7 +219,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
     if (showFileLineInfo) {
         // Check for file info
-        QString file = index.data(QmlConsoleItemModel::FileRole).toString();
+        QString file = index.data(ConsoleItem::FileRole).toString();
         const QUrl fileUrl = QUrl(file);
         if (fileUrl.isLocalFile())
             file = fileUrl.toLocalFile();
@@ -244,7 +244,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
             }
 
             // Paint LineArea
-            QString lineText  = index.data(QmlConsoleItemModel::LineRole).toString();
+            QString lineText  = index.data(ConsoleItem::LineRole).toString();
             painter->setClipRect(positions.lineArea());
             const int realLineWidth = fm.width(lineText);
             painter->drawText(positions.lineAreaRight() - realLineWidth,
@@ -277,9 +277,9 @@ QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         return QSize(width, m_cachedHeight);
 
     ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
-                QmlConsoleItemModel::TypeRole).toInt();
+                ConsoleItem::TypeRole).toInt();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type == ConsoleItem::UndefinedType;
+    bool showExpandableIcon = type == ConsoleItem::DefaultType;
 
     QRect rect(level * view->indentation(), 0, width, 0);
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
@@ -322,7 +322,7 @@ void QmlConsoleItemDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
     QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
-    edtr->insertPlainText(index.data(QmlConsoleItemModel::ExpressionRole).toString());
+    edtr->insertPlainText(index.data(ConsoleItem::ExpressionRole).toString());
 }
 
 void QmlConsoleItemDelegate::setModelData(QWidget *editor,
@@ -330,8 +330,8 @@ void QmlConsoleItemDelegate::setModelData(QWidget *editor,
                                           const QModelIndex &index) const
 {
     QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
-    model->setData(index, edtr->getCurrentScript(), Qt::DisplayRole);
-    model->setData(index, ConsoleItem::InputType, QmlConsoleItemModel::TypeRole);
+    model->setData(index, edtr->getCurrentScript(), ConsoleItem::ExpressionRole);
+    model->setData(index, ConsoleItem::InputType, ConsoleItem::TypeRole);
 }
 
 void QmlConsoleItemDelegate::updateEditorGeometry(QWidget *editor,

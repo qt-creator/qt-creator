@@ -57,7 +57,6 @@ QmlConsoleManager::QmlConsoleManager(QObject *parent)
       d(new QmlConsoleManagerPrivate)
 {
     d->qmlConsoleItemModel = new Internal::QmlConsoleItemModel(this);
-    d->qmlConsoleItemModel->setHasEditableRow(true);
     d->qmlConsolePane = new Internal::QmlConsolePane(this);
     d->scriptEvaluator = 0;
     ExtensionSystem::PluginManager::addObject(d->qmlConsolePane);
@@ -74,11 +73,6 @@ void QmlConsoleManager::showConsolePane()
 {
     if (d->qmlConsolePane)
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
-}
-
-ConsoleItem *QmlConsoleManager::rootItem() const
-{
-    return d->qmlConsoleItemModel->root();
 }
 
 void QmlConsoleManager::setScriptEvaluator(IScriptEvaluator *scriptEvaluator)
@@ -109,7 +103,7 @@ void QmlConsoleManager::printToConsolePane(ConsoleItem *item, bool bringToForegr
 {
     if (!d->qmlConsolePane)
         return;
-    if (item->itemType == ConsoleItem::ErrorType)
+    if (item->itemType() == ConsoleItem::ErrorType)
         bringToForeground = true;
     if (bringToForeground)
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
@@ -117,47 +111,6 @@ void QmlConsoleManager::printToConsolePane(ConsoleItem *item, bool bringToForegr
 }
 
 namespace Internal {
-
-ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QVariant &result,
-                                     const QString &key = QString())
-{
-    if (!result.isValid())
-        return 0;
-
-    ConsoleItem *item = new ConsoleItem(parent);
-    if (result.type() == QVariant::Map) {
-        if (key.isEmpty())
-            item->setText(QLatin1String("Object"));
-        else
-            item->setText(key + QLatin1String(" : Object"));
-
-        QMapIterator<QString, QVariant> i(result.toMap());
-        while (i.hasNext()) {
-            i.next();
-            ConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
-            if (child)
-                item->insertChild(child, true);
-        }
-    } else if (result.type() == QVariant::List) {
-        if (key.isEmpty())
-            item->setText(QLatin1String("List"));
-        else
-            item->setText(QString::fromLatin1("[%1] : List").arg(key));
-        QVariantList resultList = result.toList();
-        for (int i = 0; i < resultList.count(); i++) {
-            ConsoleItem *child = constructLogItemTree(item, resultList.at(i),
-                                                          QString::number(i));
-            if (child)
-                item->insertChild(child, true);
-        }
-    } else if (result.canConvert(QVariant::String)) {
-        item->setText(result.toString());
-    } else {
-        item->setText(QLatin1String("Unknown Value"));
-    }
-
-    return item;
-}
 
 QmlConsoleItemModel *QmlConsoleModel::qmlConsoleItemModel()
 {
@@ -172,15 +125,15 @@ void QmlConsoleModel::evaluate(const QString &expression)
     QmlConsoleManager *manager = qobject_cast<QmlConsoleManager *>(QmlConsoleManager::instance());
     if (manager) {
         if (manager->d->scriptEvaluator) {
-            QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
+            QmlConsoleModel::qmlConsoleItemModel()->shiftEditableRow();
             manager->d->scriptEvaluator->evaluateScript(expression);
         } else {
-            ConsoleItem *root = manager->rootItem();
-            ConsoleItem *item = constructLogItemTree(
-                        root, QCoreApplication::translate("QmlJSTools::Internal::QmlConsoleModel",
-                                                          "Can only evaluate during a QML debug session."));
+            ConsoleItem *item = new ConsoleItem(
+                        ConsoleItem::ErrorType, QCoreApplication::translate(
+                            "QmlJSTools::Internal::QmlConsoleModel",
+                            "Can only evaluate during a QML debug session."));
             if (item) {
-                QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
+                QmlConsoleModel::qmlConsoleItemModel()->shiftEditableRow();
                 manager->printToConsolePane(item);
             }
         }

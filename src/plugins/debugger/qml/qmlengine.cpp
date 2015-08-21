@@ -182,7 +182,7 @@ public:
     QmlV8ObjectData extractData(const QVariant &data) const;
     void insertSubItems(WatchItem *parent, const QVariantList &properties);
     void checkForFinishedUpdate();
-    ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QmlV8ObjectData &objectData);
+    ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData);
 
 public:
     QHash<int, QmlV8ObjectData> refVals; // The mapping of target object handles to retrieved values.
@@ -220,6 +220,10 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = 0;
 
     QHash<int, QmlCallback> callbackForToken;
+private:
+    ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData, QList<int> &seenHandles);
+    void constructChildLogItems(ConsoleItem *item, const QmlV8ObjectData &objectData,
+                             QList<int> &seenHandles);
 };
 
 static void updateDocument(IDocument *document, const QTextDocument *textDocument)
@@ -1012,44 +1016,73 @@ void QmlEngine::selectWatchData(const QByteArray &iname)
         d->inspectorAdapter.agent()->watchDataSelected(item->id);
 }
 
-static ConsoleItem *constructLogItemTree(ConsoleItem *parent,
-                                         const QVariant &result,
+bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
+{
+    if (a == 0)
+        return true;
+    if (b == 0)
+        return false;
+    return a->text() < b->text();
+}
+
+static ConsoleItem *constructLogItemTree(const QVariant &result,
                                          const QString &key = QString())
 {
     bool sorted = boolSetting(SortStructMembers);
     if (!result.isValid())
         return 0;
 
-    ConsoleItem *item = new ConsoleItem(parent);
+    QString text;
+    ConsoleItem *item = 0;
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
-            item->setText(_("Object"));
+            text = _("Object");
         else
-            item->setText(key + _(" : Object"));
+            text = key + _(" : Object");
 
+        QMap<QString, QVariant> resultMap = result.toMap();
+        QVarLengthArray<ConsoleItem *> children(resultMap.size());
         QMapIterator<QString, QVariant> i(result.toMap());
+        auto it = children.begin();
         while (i.hasNext()) {
             i.next();
-            ConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
-            if (child)
-                item->insertChild(child, sorted);
+            *(it++) = constructLogItemTree(i.value(), i.key());
         }
+
+        // Sort before inserting as ConsoleItem::sortChildren causes a whole cascade of changes we
+        // may not want to handle here.
+        if (sorted)
+            std::sort(children.begin(), children.end(), compareConsoleItems);
+
+        item = new ConsoleItem(ConsoleItem::DefaultType, text);
+        foreach (ConsoleItem *child, children) {
+            if (child)
+                item->appendChild(child);
+        }
+
     } else if (result.type() == QVariant::List) {
         if (key.isEmpty())
-            item->setText(_("List"));
+            text = _("List");
         else
-            item->setText(QString(_("[%1] : List")).arg(key));
+            text = QString(_("[%1] : List")).arg(key);
+
         QVariantList resultList = result.toList();
-        for (int i = 0; i < resultList.count(); i++) {
-            ConsoleItem *child = constructLogItemTree(item, resultList.at(i),
-                                                          QString::number(i));
+        QVarLengthArray<ConsoleItem *> children(resultList.size());
+        for (int i = 0; i < resultList.count(); i++)
+            children[i] = constructLogItemTree(resultList.at(i), QString::number(i));
+
+        if (sorted)
+            std::sort(children.begin(), children.end(), compareConsoleItems);
+
+        item = new ConsoleItem(ConsoleItem::DefaultType, text);
+        foreach (ConsoleItem *child, children) {
             if (child)
-                item->insertChild(child, sorted);
+                item->appendChild(child);
         }
     } else if (result.canConvert(QVariant::String)) {
-        item->setText(result.toString());
+        item = new ConsoleItem(ConsoleItem::DefaultType, result.toString());
     } else {
-        item->setText(_("Unknown Value"));
+        item = new ConsoleItem(ConsoleItem::DefaultType, _("Unknown Value"));
     }
 
     return item;
@@ -1060,7 +1093,7 @@ void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
     if (d->queryIds.contains(queryId)) {
         d->queryIds.removeOne(queryId);
         if (auto consoleManager = ConsoleManagerInterface::instance()) {
-            if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), result))
+            if (ConsoleItem *item = constructLogItemTree(result))
                 consoleManager->printToConsolePane(item);
         }
     }
@@ -2034,13 +2067,10 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                 //This is most probably due to a wrong eval expression.
                 //Redirect output to console.
                 if (eventType.isEmpty()) {
-                     QmlV8ObjectData entry;
-                     entry.type = "string";
-                     entry.value = resp.value(_("message"));
-                     if (auto consoleManager = ConsoleManagerInterface::instance()) {
-                         if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), entry))
-                             consoleManager->printToConsolePane(item);
-                     }
+                    if (auto consoleManager = ConsoleManagerInterface::instance())
+                        consoleManager->printToConsolePane(new ConsoleItem(
+                                                               ConsoleItem::ErrorType,
+                                                               resp.value(_(MESSAGE)).toString()));
                 }
 
             } //EVENT
@@ -2319,36 +2349,98 @@ void QmlEnginePrivate::checkForFinishedUpdate()
         engine->watchHandler()->notifyUpdateFinished();
 }
 
-ConsoleItem *QmlEnginePrivate::constructLogItemTree(ConsoleItem *parent,
-                                                    const QmlV8ObjectData &objectData)
+ConsoleItem *QmlEnginePrivate::constructLogItemTree(const QmlV8ObjectData &objectData)
 {
-    bool sorted = boolSetting(SortStructMembers);
-    if (!objectData.value.isValid())
-        return 0;
+    QList<int> handles;
+    return constructLogItemTree(objectData, handles);
+}
 
+void QmlEnginePrivate::constructChildLogItems(ConsoleItem *item, const QmlV8ObjectData &objectData,
+                                              QList<int> &seenHandles)
+{
+    // We cannot sort the children after attaching them to the parent as that would cause layout
+    // changes, invalidating cached indices. So we presort them before inserting.
+    QVarLengthArray<ConsoleItem *> children(objectData.properties.size());
+    auto it = children.begin();
+    foreach (const QVariant &property, objectData.properties)
+        *(it++) = constructLogItemTree(extractData(property), seenHandles);
+
+    if (boolSetting(SortStructMembers))
+        std::sort(children.begin(), children.end(), compareConsoleItems);
+
+    foreach (ConsoleItem *child, children)
+        item->appendChild(child);
+}
+
+ConsoleItem *QmlEnginePrivate::constructLogItemTree(const QmlV8ObjectData &objectData,
+                                                    QList<int> &seenHandles)
+{
     QString text;
-    if (objectData.name.isEmpty())
+    if (objectData.value.isValid()) {
         text = objectData.value.toString();
-    else
-        text = QString(_("%1: %2")).arg(QString::fromLatin1(objectData.name))
-                .arg(objectData.value.toString());
+    } else if (!objectData.type.isEmpty()) {
+        text = QString::fromLatin1(objectData.type);
+    } else {
+        int handle = objectData.handle;
+        ConsoleItem *item = new ConsoleItem(ConsoleItem::DefaultType,
+                                            QString::fromLatin1(objectData.name),
+                                            [this, handle](ConsoleItem *item)
+        {
+            DebuggerCommand cmd(LOOKUP);
+            cmd.arg(HANDLES, QList<int>() << handle);
+            runCommand(cmd, [this, item, handle](const QVariantMap &response) {
+                const QVariantMap body = response.value(_(BODY)).toMap();
+                QStringList handlesList = body.keys();
+                foreach (const QString &handleString, handlesList) {
+                    if (handle != handleString.toInt())
+                        continue;
 
-    ConsoleItem *item = new ConsoleItem(parent, ConsoleItem::UndefinedType, text);
+                    QmlV8ObjectData objectData = extractData(body.value(handleString));
 
-    QSet<QString> childrenFetched;
-    foreach (const QVariant &property, objectData.properties) {
-        const QmlV8ObjectData childObjectData = extractData(property);
-        if (childObjectData.handle == objectData.handle)
-            continue;
-        ConsoleItem *child = constructLogItemTree(item, childObjectData);
-        if (child) {
-            const QString text = child->text();
-            if (childrenFetched.contains(text))
-                continue;
-            childrenFetched.insert(text);
-            item->insertChild(child, sorted);
-        }
+                    // keep original name, if possible
+                    QString name = item->expression();
+                    if (name.isEmpty())
+                        name = QString::fromLatin1(objectData.name);
+
+                    QString value = objectData.value.isValid() ?
+                                objectData.value.toString() : QString::fromLatin1(objectData.type);
+
+                    // We can do setData() and cause dataChanged() here, but only because this
+                    // callback is executed after fetchMore() has returned.
+                    item->model()->setData(item->index(),
+                                           QString::fromLatin1("%1: %2").arg(name).arg(value),
+                                           ConsoleItem::ExpressionRole);
+
+                    QList<int> newHandles;
+                    constructChildLogItems(item, objectData, newHandles);
+
+                    break;
+                }
+            });
+        });
+        return item;
     }
+
+    if (!objectData.name.isEmpty())
+        text = QString(_("%1: %2")).arg(QString::fromLatin1(objectData.name)).arg(text);
+
+    if (objectData.properties.isEmpty())
+        return new ConsoleItem(ConsoleItem::DefaultType, text);
+
+    if (seenHandles.contains(objectData.handle)) {
+        ConsoleItem *item = new ConsoleItem(ConsoleItem::DefaultType, text,
+                                            [this, objectData](ConsoleItem *item)
+        {
+            QList<int> newHandles;
+            constructChildLogItems(item, objectData, newHandles);
+        });
+        return item;
+    }
+
+    seenHandles.append(objectData.handle);
+    ConsoleItem *item = new ConsoleItem(ConsoleItem::DefaultType, text);
+    constructChildLogItems(item, objectData, seenHandles);
+    seenHandles.removeLast();
 
     return item;
 }
@@ -2397,14 +2489,22 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
 
 void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)
 {
-    QmlV8ObjectData body = extractData(response.value(_(BODY)));
-    if (auto consoleManager = ConsoleManagerInterface::instance()) {
-        if (ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body))
-            consoleManager->printToConsolePane(item);
+    auto consoleManager = ConsoleManagerInterface::instance();
+    if (!consoleManager)
+        return;
+
+    auto it = response.constFind(_(SUCCESS));
+    if (it != response.constEnd() && it.value().toBool()) {
+        consoleManager->printToConsolePane(constructLogItemTree(
+                                               extractData(response.value(_(BODY)))));
+
+        // Update the locals
+        foreach (int index, currentFrameScopes)
+            scope(index);
+    } else {
+        consoleManager->printToConsolePane(new ConsoleItem(ConsoleItem::ErrorType,
+                                                           response.value(_(MESSAGE)).toString()));
     }
-    // Update the locals
-    foreach (int index, currentFrameScopes)
-        scope(index);
 }
 
 void QmlEnginePrivate::handleLookup(const QVariantMap &response)

@@ -530,7 +530,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
     QmlJS::ConsoleManagerInterface *consoleManager = QmlJS::ConsoleManagerInterface::instance();
     if (channel == ConsoleOutput && consoleManager)
-        consoleManager->printToConsolePane(QmlJS::ConsoleItem::UndefinedType, msg);
+        consoleManager->printToConsolePane(QmlJS::ConsoleItem::DefaultType, msg);
 
     Internal::showMessage(msg, channel, timeout);
     if (d->m_runControl) {

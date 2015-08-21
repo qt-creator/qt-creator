@@ -38,111 +38,34 @@ namespace QmlJS {
 //
 ///////////////////////////////////////////////////////////////////////
 
-ConsoleItem::ConsoleItem(ConsoleItem *parent, ConsoleItem::ItemType itemType,
-                               const QString &text)
-    : m_parentItem(parent),
-      itemType(itemType),
-      line(-1)
-
+QString addZeroWidthSpace(QString text)
 {
-    setText(text);
-}
-
-ConsoleItem::~ConsoleItem()
-{
-    qDeleteAll(m_childItems);
-}
-
-ConsoleItem *ConsoleItem::child(int number)
-{
-    return m_childItems.value(number);
-}
-
-int ConsoleItem::childCount() const
-{
-    return m_childItems.size();
-}
-
-int ConsoleItem::childNumber() const
-{
-    if (m_parentItem)
-        return m_parentItem->m_childItems.indexOf(const_cast<ConsoleItem *>(this));
-
-    return 0;
-}
-
-bool ConsoleItem::insertChildren(int position, int count)
-{
-    if (position < 0 || position > m_childItems.size())
-        return false;
-
-    for (int row = 0; row < count; ++row) {
-        ConsoleItem *item = new ConsoleItem(this, ConsoleItem::UndefinedType,
-                                                  QString());
-        m_childItems.insert(position, item);
+    for (int i = 0; i < text.length(); ++i) {
+        if (text.at(i).isPunct())
+            text.insert(++i, QChar(0x200b)); // ZERO WIDTH SPACE
     }
-
-    return true;
+    return text;
 }
 
-void ConsoleItem::insertChild(ConsoleItem *item, bool sorted)
+ConsoleItem::ConsoleItem(ItemType itemType, const QString &expression, const QString &file,
+                         int line) :
+    m_itemType(itemType), m_text(addZeroWidthSpace(expression)), m_file(file), m_line(line)
 {
-    if (!sorted) {
-        m_childItems.insert(m_childItems.count(), item);
-        return;
-    }
-
-    int i = 0;
-    for (; i < m_childItems.count(); i++) {
-        if (item->m_text < m_childItems[i]->m_text)
-            break;
-    }
-    m_childItems.insert(i, item);
+    setFlags(Qt::ItemFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
+             (itemType == InputType ? Qt::ItemIsEditable : Qt::NoItemFlags)));
 }
 
-bool ConsoleItem::insertChild(int position, ConsoleItem *item)
+ConsoleItem::ConsoleItem(ConsoleItem::ItemType itemType, const QString &expression,
+                         std::function<void(ConsoleItem *)> doFetch) :
+    m_itemType(itemType), m_text(addZeroWidthSpace(expression)), m_line(-1), m_doFetch(doFetch)
 {
-    if (position < 0 || position > m_childItems.size())
-        return false;
-
-    m_childItems.insert(position, item);
-
-    return true;
+    setFlags(Qt::ItemFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
+             (itemType == InputType ? Qt::ItemIsEditable : Qt::NoItemFlags)));
 }
 
-ConsoleItem *ConsoleItem::parent()
+ConsoleItem::ItemType ConsoleItem::itemType() const
 {
-    return m_parentItem;
-}
-
-bool ConsoleItem::removeChildren(int position, int count)
-{
-    if (position < 0 || position + count > m_childItems.size())
-        return false;
-
-    for (int row = 0; row < count; ++row)
-        delete m_childItems.takeAt(position);
-
-    return true;
-}
-
-bool ConsoleItem::detachChild(int position)
-{
-    if (position < 0 || position > m_childItems.size())
-        return false;
-
-    m_childItems.removeAt(position);
-
-    return true;
-}
-
-void ConsoleItem::setText(const QString &text)
-{
-    m_text = text;
-    for (int i = 0; i < m_text.length(); ++i) {
-        if (m_text.at(i).isPunct())
-            m_text.insert(++i, QChar(0x200b)); // ZERO WIDTH SPACE
-    }
+    return m_itemType;
 }
 
 QString ConsoleItem::text() const
@@ -150,10 +73,95 @@ QString ConsoleItem::text() const
     return m_text;
 }
 
+QString ConsoleItem::file() const
+{
+    return m_file;
+}
+
+int ConsoleItem::line() const
+{
+    return m_line;
+}
+
+QVariant ConsoleItem::data(int column, int role) const
+{
+    if (column != 0)
+        return QVariant();
+
+    switch (role)
+    {
+    case TypeRole:
+        return m_itemType;
+    case FileRole:
+        return m_file;
+    case LineRole:
+        return m_line;
+    case ExpressionRole:
+        return expression();
+    case Qt::DisplayRole:
+        return m_text;
+    default:
+        return TreeItem::data(column, role);
+    }
+}
+
+bool ConsoleItem::setData(int column, const QVariant &data, int role)
+{
+    if (column != 0)
+        return false;
+
+    switch (role)
+    {
+    case TypeRole:
+        m_itemType = ItemType(data.toInt());
+        return true;
+    case FileRole:
+        m_file = data.toString();
+        return true;
+    case LineRole:
+        m_line = data.toInt();
+        return true;
+    case ExpressionRole:
+        m_text = addZeroWidthSpace(data.toString());
+        return true;
+    case Qt::DisplayRole:
+        m_text = data.toString();
+        return true;
+    default:
+        return TreeItem::setData(column, data, role);
+    }
+}
+
+bool ConsoleItem::canFetchMore() const
+{
+    // Always fetch all children, too, as the labels depend on them.
+    foreach (TreeItem *child, children()) {
+        if (static_cast<ConsoleItem *>(child)->m_doFetch)
+            return true;
+    }
+
+    return bool(m_doFetch);
+}
+
+void ConsoleItem::fetchMore()
+{
+    if (m_doFetch) {
+        m_doFetch(this);
+        m_doFetch = std::function<void(ConsoleItem *)>();
+    }
+
+    foreach (TreeItem *child, children()) {
+        ConsoleItem *item = static_cast<ConsoleItem *>(child);
+        if (item->m_doFetch) {
+            item->m_doFetch(item);
+            item->m_doFetch = m_doFetch;
+        }
+    }
+}
+
 QString ConsoleItem::expression() const
 {
-    QString text = m_text;
-    return text.remove(QChar(0x200b));  // ZERO WIDTH SPACE
+    return text().remove(QChar(0x200b));  // ZERO WIDTH SPACE
 }
 
 } // QmlJS

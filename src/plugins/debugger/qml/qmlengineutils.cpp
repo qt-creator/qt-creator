@@ -250,12 +250,9 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
         return;
     }
 
-    if (auto consoleManager = ConsoleManagerInterface::instance()) {
-        ConsoleItem *item = new ConsoleItem(consoleManager->rootItem(), itemType, message);
-        item->file = info.file;
-        item->line = info.line;
-        consoleManager->printToConsolePane(item);
-    }
+    if (auto consoleManager = ConsoleManagerInterface::instance())
+        consoleManager->printToConsolePane(new ConsoleItem(itemType, message, info.file,
+                                                           info.line));
 }
 
 void clearExceptionSelection()

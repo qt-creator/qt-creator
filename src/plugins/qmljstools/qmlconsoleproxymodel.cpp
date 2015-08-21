@@ -38,7 +38,7 @@ namespace Internal {
 
 QmlConsoleProxyModel::QmlConsoleProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
-    m_filter(ConsoleItem::DefaultTypes)
+    m_filter(ConsoleItem::DefaultType | ConsoleItem::InputType)
 {
 }
 
@@ -72,7 +72,7 @@ bool QmlConsoleProxyModel::filterAcceptsRow(int sourceRow,
  {
      QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
      return m_filter.testFlag((ConsoleItem::ItemType)sourceModel()->data(
-                                  index, QmlConsoleItemModel::TypeRole).toInt());
+                                  index, ConsoleItem::TypeRole).toInt());
  }
 
 void QmlConsoleProxyModel::onRowsInserted(const QModelIndex &index, int start, int end)

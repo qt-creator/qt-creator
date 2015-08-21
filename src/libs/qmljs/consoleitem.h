@@ -32,53 +32,56 @@
 #define CONSOLEITEM_H
 
 #include "qmljs_global.h"
+#include <utils/treemodel.h>
 
-#include <QList>
 #include <QString>
+#include <functional>
 
 namespace QmlJS {
 
-class QMLJS_EXPORT ConsoleItem
+class QMLJS_EXPORT ConsoleItem : public Utils::TreeItem
 {
 public:
+    enum Roles {
+        TypeRole = Qt::UserRole,
+        FileRole,
+        LineRole,
+        ExpressionRole
+    };
+
     enum ItemType
     {
-        UndefinedType = 0x01, // Can be used for unknown and for Return values
-        DebugType     = 0x02,
-        WarningType   = 0x04,
-        ErrorType     = 0x08,
-        InputType     = 0x10,
-        DefaultTypes  = InputType | UndefinedType
+        DefaultType  = 0x01, // Can be used for unknown and for Return values
+        DebugType    = 0x02,
+        WarningType  = 0x04,
+        ErrorType    = 0x08,
+        InputType    = 0x10,
     };
     Q_DECLARE_FLAGS(ItemTypes, ItemType)
 
-    ConsoleItem(ConsoleItem *parent,
-                   ConsoleItem::ItemType type = ConsoleItem::UndefinedType,
-                   const QString &data = QString());
-    ~ConsoleItem();
+    ConsoleItem(ItemType itemType = ConsoleItem::DefaultType, const QString &expression = QString(),
+                const QString &file = QString(), int line = -1);
+    ConsoleItem(ItemType itemType, const QString &expression,
+                std::function<void(ConsoleItem *)> doFetch);
 
-    ConsoleItem *child(int number);
-    int childCount() const;
-    bool insertChildren(int position, int count);
-    void insertChild(ConsoleItem *item, bool sorted);
-    bool insertChild(int position, ConsoleItem *item);
-    ConsoleItem *parent();
-    bool removeChildren(int position, int count);
-    bool detachChild(int position);
-    int childNumber() const;
-    void setText(const QString &text);
-    QString text() const;
+    ItemType itemType() const;
     QString expression() const;
+    QString text() const;
+    QString file() const;
+    int line() const;
+    QVariant data(int column, int role) const;
+    bool setData(int column, const QVariant &data, int role);
+
+    bool canFetchMore() const;
+    void fetchMore();
 
 private:
-    ConsoleItem *m_parentItem;
-    QList<ConsoleItem *> m_childItems;
+    ItemType m_itemType;
     QString m_text;
+    QString m_file;
+    int m_line;
 
-public:
-    ConsoleItem::ItemType itemType;
-    QString file;
-    int line;
+    std::function<void(ConsoleItem *)> m_doFetch;
 };
 
 } // QmlJS
