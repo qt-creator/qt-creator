@@ -207,7 +207,6 @@ namespace Internal {
 const char PythonRunConfigurationPrefix[] = "PythonEditor.RunConfiguration.";
 const char InterpreterKey[] = "PythonEditor.RunConfiguation.Interpreter";
 const char MainScriptKey[] = "PythonEditor.RunConfiguation.MainScript";
-const char ArgumentsKey[] = "PythonEditor.RunConfiguation.Arguments";
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
 const char PythonProjectContext[] = "PythonProjectContext";
