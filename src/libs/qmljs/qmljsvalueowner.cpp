@@ -59,7 +59,7 @@ public:
         return this;
     }
 private:
-    virtual const Value *value(ReferenceContext *referenceContext) const
+    const Value *value(ReferenceContext *referenceContext) const override
     {
         return referenceContext->context()->valueOwner()->cppQmlTypes().objectByCppName(QLatin1String("Qt"));
     }
