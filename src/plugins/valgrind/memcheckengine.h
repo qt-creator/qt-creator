@@ -48,8 +48,8 @@ public:
     MemcheckRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
-    bool startEngine();
-    void stopEngine();
+    bool startEngine() override;
+    void stopEngine() override;
 
     QStringList suppressionFiles() const;
 
