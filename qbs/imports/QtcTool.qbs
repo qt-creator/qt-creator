@@ -2,7 +2,8 @@ import qbs
 import qbs.FileInfo
 
 QtcProduct {
-    type: "application" // no Mac app bundle
+    type: ["application"]
+    consoleApplication: true
     installDir:  project.ide_libexec_path
 
     cpp.rpaths: {

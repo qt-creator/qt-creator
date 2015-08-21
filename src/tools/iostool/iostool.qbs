@@ -4,6 +4,7 @@ QtcTool {
     name: "iostool"
     condition: qbs.targetOS.contains("osx")
 
+    Depends { name: "bundle" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.xml" }
     Depends { name: "Qt.network" }
@@ -17,7 +18,7 @@ QtcTool {
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
     cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
-    cpp.infoPlistFile: "Info.plist"
+    bundle.infoPlistFile: "Info.plist"
 
     installDir: project.ide_libexec_path + "/ios"
 }

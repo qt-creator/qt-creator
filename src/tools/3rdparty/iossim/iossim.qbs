@@ -4,6 +4,7 @@ QtcTool {
     name: "iossim"
     condition: qbs.targetOS.contains("osx")
 
+    Depends { name: "bundle" }
     Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "app_version_header" }
 
@@ -23,7 +24,7 @@ QtcTool {
     cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit",
                                  "AppKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
-    cpp.infoPlistFile: "Info.plist"
+    bundle.infoPlistFile: "Info.plist"
 
     installDir: project.ide_libexec_path + "/ios"
 }
