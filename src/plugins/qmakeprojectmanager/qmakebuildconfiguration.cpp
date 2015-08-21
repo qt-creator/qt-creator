@@ -559,7 +559,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Debug", "Shadow build directory suffix");
     }
-    info->typeName = tr("Build");
+    info->typeName = info->displayName;
     // Leave info->buildDirectory unset;
     info->kitId = k->id();
 
@@ -589,11 +589,17 @@ int QmakeBuildConfigurationFactory::priority(const Target *parent) const
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath().toString(),
-                                           BuildConfiguration::Debug);
-    info->displayName.clear(); // ask for a name
-    info->buildDirectory.clear(); // This depends on the displayName
-    result << info;
+
+    const QString projectFilePath = parent->project()->projectFilePath().toString();
+
+    for (BuildConfiguration::BuildType buildType : { BuildConfiguration::Debug,
+                                                     BuildConfiguration::Release }) {
+        QmakeBuildInfo *info = createBuildInfo(parent->kit(), projectFilePath,
+                                               buildType);
+        info->displayName.clear(); // ask for a name
+        info->buildDirectory.clear(); // This depends on the displayName
+        result << info;
+    }
 
     return result;
 }
