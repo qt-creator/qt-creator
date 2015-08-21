@@ -899,7 +899,7 @@ QString QmakeProject::generatedUiHeader(const FileName &formFile) const
         if (const QmakeProFileNode *pro = proFileNodeOf(m_rootProjectNode, FormType, formFile))
             return QmakeProFileNode::uiHeaderFile(
                         pro->uiDirectory(Utils::FileName::fromString(pro->buildDir())),
-                        formFile);
+                        formFile, pro->singleVariableValue(QmakeVariable::UiHeaderExtensionVar));
     return QString();
 }
 

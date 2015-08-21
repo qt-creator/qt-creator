@@ -91,6 +91,7 @@ enum QmakeVariable {
     ResourceVar,
     ExactResourceVar,
     UiDirVar,
+    UiHeaderExtensionVar,
     MocDirVar,
     PkgConfigVar,
     PrecompiledHeaderVar,
@@ -338,7 +339,8 @@ public:
     QString buildDir(QmakeBuildConfiguration *bc = 0) const;
 
     Utils::FileName uiDirectory(const Utils::FileName &buildDir) const;
-    static QString uiHeaderFile(const Utils::FileName &uiDir, const Utils::FileName &formFile);
+    static QString uiHeaderFile(const Utils::FileName &uiDir, const Utils::FileName &formFile,
+                                const QString &extension);
     QHash<QString, QString> uiFiles() const;
 
     QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;

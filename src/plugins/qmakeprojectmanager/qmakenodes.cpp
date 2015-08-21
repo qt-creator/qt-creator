@@ -1934,6 +1934,7 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[ObjCHeaderVar] = fileListForVar(input.readerExact, input.readerCumulative,
                                                      QLatin1String("OBJECTIVE_HEADERS"), input.projectDir, input.buildDirectory);
         result->newVarValues[UiDirVar] = QStringList() << uiDirPath(input.readerExact, input.buildDirectory);
+        result->newVarValues[UiHeaderExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_H"));
         result->newVarValues[MocDirVar] = QStringList() << mocDirPath(input.readerExact, input.buildDirectory);
         result->newVarValues[ResourceVar] = fileListForVar(input.readerExact, input.readerCumulative,
                                                    QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
@@ -2481,13 +2482,15 @@ Utils::FileName QmakeProFileNode::uiDirectory(const Utils::FileName &buildDir) c
     return buildDir;
 }
 
-QString QmakeProFileNode::uiHeaderFile(const Utils::FileName &uiDir, const FileName &formFile)
+QString QmakeProFileNode::uiHeaderFile(const Utils::FileName &uiDir, const FileName &formFile,
+                                       const QString &extension)
 {
     if (uiDir.isEmpty())
         return QString();
 
     Utils::FileName uiHeaderFilePath = uiDir;
-    uiHeaderFilePath.appendPath(QLatin1String("ui_") + formFile.toFileInfo().completeBaseName() + QLatin1String(".h"));
+    uiHeaderFilePath.appendPath(QLatin1String("ui_") + formFile.toFileInfo().completeBaseName()
+                                + extension);
     return QDir::cleanPath(uiHeaderFilePath.toString());
 }
 
@@ -2506,8 +2509,9 @@ void QmakeProFileNode::updateUiFiles(const QString &buildDir)
 
         // Find the UiDir, there can only ever be one
         const Utils::FileName uiDir = uiDirectory(Utils::FileName::fromString(buildDir));
+        const QString uiExtensions = singleVariableValue(UiHeaderExtensionVar);
         foreach (const FileNode *uiFile, uiFiles) {
-            QString headerFile = uiHeaderFile(uiDir, uiFile->path());
+            QString headerFile = uiHeaderFile(uiDir, uiFile->path(), uiExtensions);
             if (!headerFile.isEmpty())
                 m_uiFiles.insert(uiFile->path().toString(), headerFile);
         }
