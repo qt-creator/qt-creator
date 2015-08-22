@@ -1,5 +1,5 @@
 %{Cpp:LicenseTemplate}\
-%{JS: QtSupport.qtIncludes([], ["QGui/QGuiApplication", "QQml/QQmlApplicationEngine"])}
+%{JS: QtSupport.qtIncludes([], ["QtGui/QGuiApplication", "QtQml/QQmlApplicationEngine"])}
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
