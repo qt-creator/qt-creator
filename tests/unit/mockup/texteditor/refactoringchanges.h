@@ -28,41 +28,47 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#ifndef REFACTORINGCHANGES_H
+#define REFACTORINGCHANGES_H
 
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <QSharedPointer>
 
-#include <QVector>
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace Utils {
+class ChangeSet;
+}
 
-class ClangDiagnosticFilter
+namespace TextEditor {
+class RefactoringChanges;
+class RefactoringFile;
+class RefactoringChangesData;
+typedef QSharedPointer<RefactoringFile> RefactoringFilePtr;
+
+class RefactoringFile
 {
 public:
-    ClangDiagnosticFilter(const QString &filePath);
-
-    void filter(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-
-    QVector<ClangBackEnd::DiagnosticContainer> takeWarnings();
-    QVector<ClangBackEnd::DiagnosticContainer> takeErrors();
-    QVector<ClangBackEnd::DiagnosticContainer> takeFixIts();
-
-private:
-    void filterDocumentRelatedWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterDocumentRelatedErrors(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterFixits();
-
-private:
-    const QString &m_filePath;
-
-    QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
+    void setChangeSet(const Utils::ChangeSet &) {}
+    void apply() {}
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+class RefactoringChanges
+{
+public:
+    RefactoringChanges() {}
+    virtual ~RefactoringChanges() {}
 
-#endif // CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+    RefactoringFilePtr file(const QString &) const { return RefactoringFilePtr(); }
+};
+
+class RefactoringChangesData
+{
+public:
+    RefactoringChangesData() {}
+};
+
+} // namespace TextEditor
+
+#endif // REFACTORINGCHANGES_H

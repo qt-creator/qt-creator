@@ -24,6 +24,7 @@ SOURCES += \
     clangcodecompleteresultstest.cpp \
     clangcompletioncontextanalyzertest.cpp \
     clangdiagnosticfiltertest.cpp \
+    clangfixitoperationtest.cpp \
     clangipcservertest.cpp \
     clangstringtest.cpp \
     clientserverinprocesstest.cpp \

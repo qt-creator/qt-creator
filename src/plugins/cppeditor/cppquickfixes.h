@@ -31,6 +31,7 @@
 #ifndef CPPQUICKFIXES_H
 #define CPPQUICKFIXES_H
 
+#include "cppeditor_global.h"
 #include "cppquickfix.h"
 
 #include <cpptools/cpprefactoringchanges.h>
@@ -61,6 +62,12 @@ namespace CppEditor {
 namespace Internal {
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
+
+class ExtraRefactoringOperations : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
+};
 
 /*!
   Adds an include for an undefined identifier or only forward declared identifier.

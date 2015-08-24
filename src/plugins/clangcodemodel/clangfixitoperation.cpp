@@ -28,41 +28,52 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#include "clangfixitoperation.h"
 
-#include <clangbackendipc/diagnosticcontainer.h>
-
-#include <QVector>
+#include <texteditor/refactoringchanges.h>
 
 namespace ClangCodeModel {
-namespace Internal {
 
-class ClangDiagnosticFilter
+ClangFixItOperation::ClangFixItOperation(const Utf8String &filePath,
+                                         const Utf8String &fixItText,
+                                         const QVector<ClangBackEnd::FixItContainer> &fixItContainers)
+    : filePath(filePath),
+      fixItText(fixItText),
+      fixItContainers(fixItContainers)
 {
-public:
-    ClangDiagnosticFilter(const QString &filePath);
+}
 
-    void filter(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
+int ClangFixItOperation::priority() const
+{
+    return 10;
+}
 
-    QVector<ClangBackEnd::DiagnosticContainer> takeWarnings();
-    QVector<ClangBackEnd::DiagnosticContainer> takeErrors();
-    QVector<ClangBackEnd::DiagnosticContainer> takeFixIts();
+QString ClangCodeModel::ClangFixItOperation::description() const
+{
+    return QStringLiteral("Apply Fix: ") + fixItText.toString();
+}
 
-private:
-    void filterDocumentRelatedWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterDocumentRelatedErrors(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterFixits();
+void ClangFixItOperation::perform()
+{
+    const TextEditor::RefactoringChanges refactoringChanges;
+    TextEditor::RefactoringFilePtr refactoringFile = refactoringChanges.file(filePath.toString());
+    refactoringFile->setChangeSet(changeSet());
+    refactoringFile->apply();
+}
 
-private:
-    const QString &m_filePath;
+Utils::ChangeSet ClangFixItOperation::changeSet() const
+{
+    Utils::ChangeSet changeSet;
 
-    QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
-};
+    for (const auto &fixItContainer : fixItContainers) {
+        const auto range = fixItContainer.range();
+        changeSet.replace(range.start().offset(),
+                          range.end().offset(),
+                          fixItContainer.text());
+    }
 
-} // namespace Internal
+    return changeSet;
+}
+
 } // namespace ClangCodeModel
 
-#endif // CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H

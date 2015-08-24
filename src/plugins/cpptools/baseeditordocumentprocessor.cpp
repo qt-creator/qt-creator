@@ -64,6 +64,12 @@ TextEditor::TextDocument *BaseEditorDocumentProcessor::baseTextDocument() const
     return m_baseTextDocument;
 }
 
+TextEditor::QuickFixOperations
+BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::AssistInterface &)
+{
+    return TextEditor::QuickFixOperations();
+}
+
 BaseEditorDocumentProcessor *BaseEditorDocumentProcessor::get(const QString &filePath)
 {
     CppModelManager *cmmi = CppModelManager::instance();

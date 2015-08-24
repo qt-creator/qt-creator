@@ -53,6 +53,7 @@ public:
 
     void processNewDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics);
 
+    const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticsWithFixIts() const;
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
 
 private:
@@ -68,6 +69,7 @@ private:
 
     QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
     QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
+    QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
     QList<QTextEdit::ExtraSelection> m_extraSelections;
     std::vector<ClangTextMark> m_clangTextMarks;
 };

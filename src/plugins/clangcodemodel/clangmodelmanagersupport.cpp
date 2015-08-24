@@ -45,6 +45,8 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QMenu>
+#include <QTextBlock>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -137,6 +139,15 @@ void ModelManagerSupportClang::connectTextDocumentToUnsavedFiles(TextEditor::Tex
             Qt::UniqueConnection);
 }
 
+void ModelManagerSupportClang::connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget)
+{
+    const auto widget = qobject_cast<TextEditor::TextEditorWidget *>(editorWidget);
+    if (widget) {
+        connect(widget, &TextEditor::TextEditorWidget::markContextMenuRequested,
+                this, &ModelManagerSupportClang::onTextMarkContextMenuRequested);
+    }
+}
+
 void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
 {
     QTC_ASSERT(editor, return);
@@ -145,10 +156,13 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
     if (textDocument && cppModelManager()->isCppEditor(editor)) {
-        if (cppModelManager()->isManagedByModelManagerSupport(textDocument, QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID)))
+        const QString clangSupportId = QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID);
+        if (cppModelManager()->isManagedByModelManagerSupport(textDocument, clangSupportId)) {
             connectTextDocumentToTranslationUnit(textDocument);
-        else
+            connectToWidgetsMarkContextMenuRequested(editor->widget());
+        } else {
             connectTextDocumentToUnsavedFiles(textDocument);
+        }
 
         // TODO: Ensure that not fully loaded documents are updated?
     }
@@ -200,6 +214,50 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString projectPartId = Utils::projectPartIdForFile(filePath);
         m_ipcCommunicator.unregisterUnsavedFilesForEditor({{filePath, projectPartId}});
+    }
+}
+
+void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &fixItOperations)
+{
+    foreach (const auto &fixItOperation, fixItOperations) {
+        QAction *action = menu->addAction(fixItOperation->description());
+        QObject::connect(action, &QAction::triggered, [fixItOperation]() {
+            fixItOperation->perform();
+        });
+    }
+}
+
+static int lineToPosition(const QTextDocument *textDocument, int lineNumber)
+{
+    QTC_ASSERT(textDocument, return 0);
+    const QTextBlock textBlock = textDocument->findBlockByLineNumber(lineNumber);
+    return textBlock.isValid() ? textBlock.position() - 1 : 0;
+}
+
+static TextEditor::AssistInterface createAssistInterface(TextEditor::TextEditorWidget *widget,
+                                                         int lineNumber)
+{
+    return TextEditor::AssistInterface(widget->document(),
+                                       lineToPosition(widget->document(), lineNumber),
+                                       widget->textDocument()->filePath().toString(),
+                                       TextEditor::IdleEditor);
+}
+
+void ModelManagerSupportClang::onTextMarkContextMenuRequested(TextEditor::TextEditorWidget *widget,
+                                                              int lineNumber,
+                                                              QMenu *menu)
+{
+    QTC_ASSERT(widget, return);
+    QTC_ASSERT(lineNumber >= 1, return);
+    QTC_ASSERT(menu, return);
+
+    const auto filePath = widget->textDocument()->filePath().toString();
+    ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(filePath);
+    if (processor) {
+        const auto assistInterface = createAssistInterface(widget, lineNumber);
+        const auto fixItOperations = processor->extraRefactoringOperations(assistInterface);
+
+        addFixItsActionsToMenu(menu, fixItOperations);
     }
 }
 

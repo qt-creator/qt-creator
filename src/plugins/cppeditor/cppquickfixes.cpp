@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpppointerdeclarationformatter.h>
@@ -132,6 +133,8 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new OptimizeForLoop);
 
     plugIn->addAutoReleasedObject(new EscapeStringLiteral);
+
+    plugIn->addAutoReleasedObject(new ExtraRefactoringOperations);
 }
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
@@ -5953,6 +5956,16 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 
         result.append(new ConvertQt4ConnectOperation(interface, changes));
         return;
+    }
+}
+
+void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
+                                       QuickFixOperations &result)
+{
+    const auto processor = CppTools::BaseEditorDocumentProcessor::get(interface.fileName());
+    if (processor) {
+        const auto clangFixItOperations = processor->extraRefactoringOperations(interface);
+        result.append(clangFixItOperations);
     }
 }
 

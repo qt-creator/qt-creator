@@ -73,6 +73,9 @@ public:
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                             uint documentRevision);
 
+    TextEditor::QuickFixOperations
+    extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
+
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 

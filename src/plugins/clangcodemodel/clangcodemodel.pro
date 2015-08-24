@@ -27,6 +27,8 @@ SOURCES += \
     clangdiagnosticmanager.cpp \
     clangeditordocumentparser.cpp \
     clangeditordocumentprocessor.cpp \
+    clangfixitoperation.cpp \
+    clangfixitoperationsextractor.cpp \
     clangfunctionhintmodel.cpp \
     clangmodelmanagersupport.cpp \
     clangprojectsettings.cpp \
@@ -67,6 +69,8 @@ HEADERS += \
     clangdiagnosticmanager.h \
     clangeditordocumentparser.h \
     clangeditordocumentprocessor.h \
+    clangfixitoperation.h \
+    clangfixitoperationsextractor.h \
     clangfunctionhintmodel.h \
     clang_global.h \
     clangmodelmanagersupport.h \

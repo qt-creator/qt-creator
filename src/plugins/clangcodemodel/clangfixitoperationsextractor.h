@@ -28,41 +28,34 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#ifndef CLANGFIXITOPERATIONSEXTRACTOR_H
+#define CLANGFIXITOPERATIONSEXTRACTOR_H
+
+#include <texteditor/quickfix.h>
 
 #include <clangbackendipc/diagnosticcontainer.h>
 
-#include <QVector>
-
 namespace ClangCodeModel {
-namespace Internal {
 
-class ClangDiagnosticFilter
+class ClangFixItOperationsExtractor
 {
 public:
-    ClangDiagnosticFilter(const QString &filePath);
+    ClangFixItOperationsExtractor(const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticContainers);
 
-    void filter(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-
-    QVector<ClangBackEnd::DiagnosticContainer> takeWarnings();
-    QVector<ClangBackEnd::DiagnosticContainer> takeErrors();
-    QVector<ClangBackEnd::DiagnosticContainer> takeFixIts();
+    TextEditor::QuickFixOperations extract(const QString &filePath, int line);
 
 private:
-    void filterDocumentRelatedWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterDocumentRelatedErrors(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterFixits();
+    void extractFromDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnosticContainer,
+                               const QString &filePath,
+                               int line);
+    void appendFixitOperationsFromDiagnostic(const QString &filePath,
+                                            const ClangBackEnd::DiagnosticContainer &diagnosticContainer);
 
 private:
-    const QString &m_filePath;
-
-    QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
+    const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticContainers;
+    TextEditor::QuickFixOperations operations;
 };
 
-} // namespace Internal
 } // namespace ClangCodeModel
 
-#endif // CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#endif // CLANGFIXITOPERATIONSEXTRACTOR_H

@@ -30,6 +30,7 @@
 
 #include <clangdiagnosticfilter.h>
 #include <diagnosticcontainer.h>
+#include <fixitcontainer.h>
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
@@ -42,11 +43,20 @@ using ::testing::Contains;
 using ::testing::Not;
 
 using ClangBackEnd::DiagnosticContainer;
+using ClangBackEnd::FixItContainer;
+using ClangBackEnd::SourceLocationContainer;
+using ClangBackEnd::SourceRangeContainer;
 
 DiagnosticContainer createDiagnostic(const QString &text,
                                      ClangBackEnd::DiagnosticSeverity severity,
-                                     const QString &filePath)
+                                     const QString &filePath,
+                                     QVector<DiagnosticContainer> children = QVector<DiagnosticContainer>(),
+                                     bool addFixItContainer = false)
 {
+    QVector<FixItContainer> fixIts;
+    if (addFixItContainer)
+        fixIts.append(FixItContainer(Utf8StringLiteral("("), {{filePath, 1, 1}, {filePath, 1, 2}}));
+
     return DiagnosticContainer(
             text,
             Utf8StringLiteral(""),
@@ -54,8 +64,8 @@ DiagnosticContainer createDiagnostic(const QString &text,
             severity,
             {filePath, 0u, 0u},
             {},
-            {},
-            {}
+            fixIts,
+            children
     );
 }
 
@@ -94,6 +104,42 @@ DiagnosticContainer errorFromMainFile()
                 mainFilePath);
 }
 
+DiagnosticContainer fixIt1(const QString &filePath)
+{
+    return createDiagnostic(
+                QStringLiteral("note: place parentheses around the assignment to silence this warning"),
+                ClangBackEnd::DiagnosticSeverity::Note,
+                filePath);
+}
+
+DiagnosticContainer fixIt2(const QString &filePath)
+{
+    return createDiagnostic(
+                QStringLiteral("note: use '==' to turn this assignment into an equality comparison"),
+                ClangBackEnd::DiagnosticSeverity::Note,
+                filePath);
+}
+
+DiagnosticContainer createDiagnosticWithFixIt(const QString &filePath)
+{
+    return createDiagnostic(
+                QStringLiteral("warning: using the result of an assignment as a condition without parentheses"),
+                ClangBackEnd::DiagnosticSeverity::Warning,
+                filePath,
+                {fixIt1(filePath), fixIt2(filePath)},
+                true);
+}
+
+DiagnosticContainer warningFromMainFileWithFixits()
+{
+    return createDiagnosticWithFixIt(mainFilePath);
+}
+
+DiagnosticContainer warningFromIncludedFileWithFixits()
+{
+    return createDiagnosticWithFixIt(includedFilePath);
+}
+
 class ClangDiagnosticFilter : public ::testing::Test
 {
 protected:
@@ -126,6 +172,48 @@ TEST_F(ClangDiagnosticFilter, ErrorsFromIncludedFileAreIgnored)
     clangDiagnosticFilter.filter({errorFromIncludedFile()});
 
     ASSERT_THAT(clangDiagnosticFilter.takeErrors(), Not(Contains(errorFromIncludedFile())));
+}
+
+TEST_F(ClangDiagnosticFilter, FixItsFromMainFileAreLetThrough)
+{
+    clangDiagnosticFilter.filter({warningFromMainFileWithFixits()});
+
+    ASSERT_THAT(clangDiagnosticFilter.takeFixIts(), Contains(warningFromMainFileWithFixits()));
+}
+
+TEST_F(ClangDiagnosticFilter, FixItsFromIncludedFileAreIgnored)
+{
+    clangDiagnosticFilter.filter({warningFromIncludedFileWithFixits()});
+
+    ASSERT_THAT(clangDiagnosticFilter.takeFixIts(),
+                Not(Contains(warningFromIncludedFileWithFixits())));
+}
+
+TEST_F(ClangDiagnosticFilter, WarningsAreEmptyAfterTaking)
+{
+    clangDiagnosticFilter.filter({warningFromMainFile()});
+
+    clangDiagnosticFilter.takeWarnings();
+
+    ASSERT_TRUE(clangDiagnosticFilter.takeWarnings().isEmpty());
+}
+
+TEST_F(ClangDiagnosticFilter, ErrorsAreEmptyAfterTaking)
+{
+    clangDiagnosticFilter.filter({errorFromMainFile()});
+
+    clangDiagnosticFilter.takeErrors();
+
+    ASSERT_TRUE(clangDiagnosticFilter.takeErrors().isEmpty());
+}
+
+TEST_F(ClangDiagnosticFilter, FixItssAreEmptyAfterTaking)
+{
+    clangDiagnosticFilter.filter({warningFromMainFileWithFixits()});
+
+    clangDiagnosticFilter.takeFixIts();
+
+    ASSERT_TRUE(clangDiagnosticFilter.takeFixIts().isEmpty());
 }
 
 } // anonymous namespace

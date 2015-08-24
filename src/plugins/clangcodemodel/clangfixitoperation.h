@@ -28,41 +28,37 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#ifndef CLANGCODEMODEL_CLANGFIXITOPERATION_H
+#define CLANGCODEMODEL_CLANGFIXITOPERATION_H
 
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <texteditor/quickfix.h>
+
+#include <clangbackendipc/fixitcontainer.h>
+#include <utils/changeset.h>
 
 #include <QVector>
 
 namespace ClangCodeModel {
-namespace Internal {
 
-class ClangDiagnosticFilter
+class ClangFixItOperation : public TextEditor::QuickFixOperation
 {
 public:
-    ClangDiagnosticFilter(const QString &filePath);
+    ClangFixItOperation(const Utf8String &filePath,
+                        const Utf8String &fixItText,
+                        const QVector<ClangBackEnd::FixItContainer> &fixItContainers);
 
-    void filter(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
+    int priority() const override;
+    QString description() const override;
+    void perform() override;
 
-    QVector<ClangBackEnd::DiagnosticContainer> takeWarnings();
-    QVector<ClangBackEnd::DiagnosticContainer> takeErrors();
-    QVector<ClangBackEnd::DiagnosticContainer> takeFixIts();
-
-private:
-    void filterDocumentRelatedWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterDocumentRelatedErrors(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterFixits();
+    Utils::ChangeSet changeSet() const;
 
 private:
-    const QString &m_filePath;
-
-    QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
+    Utf8String filePath;
+    Utf8String fixItText;
+    QVector<ClangBackEnd::FixItContainer> fixItContainers;
 };
 
-} // namespace Internal
 } // namespace ClangCodeModel
 
-#endif // CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#endif // CLANGCODEMODEL_CLANGFIXITOPERATION_H

@@ -28,41 +28,38 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#ifndef TEXTEDITORQUICKFIX_H
+#define TEXTEDITORQUICKFIX_H
 
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <QString>
 
-#include <QVector>
+namespace TextEditor {
 
-namespace ClangCodeModel {
-namespace Internal {
+class AssistInterface;
 
-class ClangDiagnosticFilter
+class QuickFixOperation
 {
 public:
-    ClangDiagnosticFilter(const QString &filePath);
+    QuickFixOperation(int priority = -1)
+        : _priority(priority)
+    {}
 
-    void filter(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
+    virtual ~QuickFixOperation() {}
 
-    QVector<ClangBackEnd::DiagnosticContainer> takeWarnings();
-    QVector<ClangBackEnd::DiagnosticContainer> takeErrors();
-    QVector<ClangBackEnd::DiagnosticContainer> takeFixIts();
+    virtual int priority() const { return _priority; }
+    void setPriority(int priority) { _priority = priority; }
+
+    virtual QString description() const { return _description; }
+    void setDescription(const QString &description) { _description = description; }
+
+    virtual void perform() = 0;
 
 private:
-    void filterDocumentRelatedWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterDocumentRelatedErrors(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void filterFixits();
-
-private:
-    const QString &m_filePath;
-
-    QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
-    QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
+    int _priority = -1;
+    QString _description;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+}
 
-#endif // CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICFILTER_H
+#endif // TEXTEDITORQUICKFIX_H
+

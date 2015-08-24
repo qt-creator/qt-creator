@@ -30,6 +30,8 @@
 
 #include "clangeditordocumentprocessor.h"
 
+#include "clangfixitoperation.h"
+#include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 #include "cppcreatemarkers.h"
@@ -42,6 +44,7 @@
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cppworkingcopy.h>
 
+#include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -184,6 +187,24 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd
         const auto codeWarnings = m_diagnosticManager.takeExtraSelections();
         emit codeWarningsUpdated(revision(), codeWarnings);
     }
+}
+
+static int currentLine(const TextEditor::AssistInterface &assistInterface)
+{
+    int line, column;
+    TextEditor::Convenience::convertPosition(assistInterface.textDocument(),
+                                             assistInterface.position(),
+                                             &line,
+                                             &column);
+    return line;
+}
+
+TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOperations(
+        const TextEditor::AssistInterface &assistInterface)
+{
+    ClangFixItOperationsExtractor extractor(m_diagnosticManager.diagnosticsWithFixIts());
+
+    return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
 }
 
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)

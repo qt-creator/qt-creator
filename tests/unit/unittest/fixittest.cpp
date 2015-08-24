@@ -80,7 +80,7 @@ protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_fixit.cpp"),
+    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp"),
                                     projectPart,
                                     translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
@@ -101,7 +101,7 @@ TEST_F(FixIt, Text)
 
 TEST_F(FixIt, Start)
 {
-    ASSERT_THAT(fixIt.range().start(), IsSourceLocation(Utf8StringLiteral("diagnostic_fixit.cpp"),
+    ASSERT_THAT(fixIt.range().start(), IsSourceLocation(Utf8StringLiteral("diagnostic_semicolon_fixit.cpp"),
                                                         3u,
                                                         13u,
                                                         29u));
@@ -109,10 +109,10 @@ TEST_F(FixIt, Start)
 
 TEST_F(FixIt, End)
 {
-    ASSERT_THAT(fixIt.range().end(), IsSourceLocation(Utf8StringLiteral("diagnostic_fixit.cpp"),
-                                                        3u,
-                                                        13u,
-                                                        29u));
+    ASSERT_THAT(fixIt.range().end(), IsSourceLocation(Utf8StringLiteral("diagnostic_semicolon_fixit.cpp"),
+                                                      3u,
+                                                      13u,
+                                                      29u));
 }
 
 }

@@ -35,8 +35,10 @@
 #include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/quickfix.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -64,6 +66,9 @@ public:
     virtual CPlusPlus::Snapshot snapshot() = 0;
     virtual BaseEditorDocumentParser::Ptr parser() = 0;
     virtual bool isParserRunning() const = 0;
+
+    virtual TextEditor::QuickFixOperations
+    extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface);
 
 public:
     static BaseEditorDocumentProcessor *get(const QString &filePath);

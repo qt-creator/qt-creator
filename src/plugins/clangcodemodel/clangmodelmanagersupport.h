@@ -38,7 +38,13 @@
 #include <QObject>
 #include <QScopedPointer>
 
+QT_BEGIN_NAMESPACE
+class QMenu;
+class QWidget;
+QT_END_NAMESPACE
+
 namespace Core { class IDocument; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -76,11 +82,16 @@ private:
     void onAbstractEditorSupportContentsUpdated(const QString &filePath, const QByteArray &content);
     void onAbstractEditorSupportRemoved(const QString &filePath);
 
+    void onTextMarkContextMenuRequested(TextEditor::TextEditorWidget *widget,
+                                        int lineNumber,
+                                        QMenu *menu);
+
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
 
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
     void connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument);
+    void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
 private:
     IpcCommunicator m_ipcCommunicator;

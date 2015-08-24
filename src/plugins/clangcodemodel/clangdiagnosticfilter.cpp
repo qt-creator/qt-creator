@@ -61,6 +61,18 @@ filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
     return filteredDiagnostics;
 }
 
+template <class Condition>
+void
+filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                  const Condition &condition,
+                  QVector<ClangBackEnd::DiagnosticContainer> &filteredDiagnostic)
+{
+    std::copy_if(diagnostics.cbegin(),
+                 diagnostics.cend(),
+                 std::back_inserter(filteredDiagnostic),
+                 condition);
+}
+
 } // anonymous namespace
 
 namespace ClangCodeModel {
@@ -88,6 +100,22 @@ void ClangDiagnosticFilter::filterDocumentRelatedErrors(
     m_errorDiagnostics = filterDiagnostics(diagnostics, isLocalWarning);
 }
 
+void ClangDiagnosticFilter::filterFixits()
+{
+    const auto hasFixIts = [] (const ClangBackEnd::DiagnosticContainer &diagnostic) {
+        return diagnostic.fixIts().size() > 0;
+    };
+
+    m_fixItdiagnostics.clear();
+    filterDiagnostics(m_warningDiagnostics, hasFixIts, m_fixItdiagnostics);
+    filterDiagnostics(m_errorDiagnostics, hasFixIts, m_fixItdiagnostics);
+
+    for (const auto &warningDiagnostic : m_warningDiagnostics)
+        filterDiagnostics(warningDiagnostic.children(), hasFixIts, m_fixItdiagnostics);
+    for (const auto &warningDiagnostic : m_errorDiagnostics)
+        filterDiagnostics(warningDiagnostic.children(), hasFixIts, m_fixItdiagnostics);
+}
+
 ClangDiagnosticFilter::ClangDiagnosticFilter(const QString &filePath)
     : m_filePath(filePath)
 {
@@ -97,6 +125,7 @@ void ClangDiagnosticFilter::filter(const QVector<ClangBackEnd::DiagnosticContain
 {
     filterDocumentRelatedWarnings(diagnostics);
     filterDocumentRelatedErrors(diagnostics);
+    filterFixits();
 }
 
 QVector<ClangBackEnd::DiagnosticContainer> ClangDiagnosticFilter::takeWarnings()
@@ -111,6 +140,14 @@ QVector<ClangBackEnd::DiagnosticContainer> ClangDiagnosticFilter::takeErrors()
 {
     auto diagnostics = m_errorDiagnostics;
     m_errorDiagnostics.clear();
+
+    return diagnostics;
+}
+
+QVector<ClangBackEnd::DiagnosticContainer> ClangDiagnosticFilter::takeFixIts()
+{
+    auto diagnostics = m_fixItdiagnostics;
+    m_fixItdiagnostics.clear();
 
     return diagnostics;
 }

@@ -208,6 +208,12 @@ void ClangDiagnosticManager::processNewDiagnostics(
     clearWarningsAndErrors();
 }
 
+const QVector<ClangBackEnd::DiagnosticContainer> &
+ClangDiagnosticManager::diagnosticsWithFixIts() const
+{
+    return m_fixItdiagnostics;
+}
+
 void ClangDiagnosticManager::addClangTextMarks(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
@@ -245,6 +251,7 @@ void ClangDiagnosticManager::filterDiagnostics(
 
     m_warningDiagnostics = filter.takeWarnings();
     m_errorDiagnostics = filter.takeErrors();
+    m_fixItdiagnostics = filter.takeFixIts();
 }
 
 } // namespace Internal
