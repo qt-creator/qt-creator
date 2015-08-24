@@ -541,6 +541,17 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                       "similarity index 99%\n"
                       "rename from file a.txt\n"
                       "rename to file b.txt\n"
+                      "diff --git a/file.txt b/file.txt\n"
+                      "old mode 100644\n"
+                      "new mode 100755\n"
+                      "index 1234567..9876543\n"
+                      "--- a/file.txt\n"
+                      "+++ b/file.txt\n"
+                      "@@ -20,3 +20,3 @@\n"
+                      " A\n"
+                      "-B\n"
+                      "+C\n"
+                      " D\n"
                       );
 
     FileData fileData1;
@@ -641,8 +652,13 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData8.rightFileInfo = DiffFileInfo(_("file b.txt"));
     fileData8.fileOperation = FileData::RenameFile;
 
+    FileData fileData9;
+    fileData9.leftFileInfo = DiffFileInfo(_("file.txt"), _("1234567"));
+    fileData9.rightFileInfo = DiffFileInfo(_("file.txt"), _("9876543"));
+    fileData9.chunks << chunkData7;
     QList<FileData> fileDataList1;
-    fileDataList1 << fileData1 << fileData2 << fileData3 << fileData4 << fileData5 << fileData6 << fileData7 << fileData8;
+    fileDataList1 << fileData1 << fileData2 << fileData3 << fileData4 << fileData5
+                  << fileData6 << fileData7 << fileData8 << fileData9;
 
     QTest::newRow("Git patch") << patch
                                << fileDataList1;
