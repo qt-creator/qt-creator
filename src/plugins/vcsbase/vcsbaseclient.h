@@ -39,6 +39,7 @@
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QProcessEnvironment;
+class QToolBar;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
@@ -223,7 +224,7 @@ protected:
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
 
-    typedef std::function<VcsBaseEditorParameterWidget *()> ParameterWidgetCreator;
+    typedef std::function<VcsBaseEditorParameterWidget *(QToolBar *)> ParameterWidgetCreator;
     void setDiffParameterWidgetCreator(ParameterWidgetCreator creator);
     void setLogParameterWidgetCreator(ParameterWidgetCreator creator);
 

@@ -56,8 +56,8 @@ class SubversionLogParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    SubversionLogParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent)
+    SubversionLogParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorParameterWidget(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision")),
@@ -67,7 +67,9 @@ public:
 
 SubversionClient::SubversionClient() : VcsBaseClient(new SubversionSettings)
 {
-    setLogParameterWidgetCreator([this] { return new SubversionLogParameterWidget(settings()); });
+    setLogParameterWidgetCreator([this](QToolBar *toolBar) {
+        return new SubversionLogParameterWidget(settings(), toolBar);
+    });
 }
 
 VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,

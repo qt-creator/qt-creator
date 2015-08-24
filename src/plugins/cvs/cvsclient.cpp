@@ -47,16 +47,15 @@ class CvsDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    explicit CvsDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0);
+    CvsDiffParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar);
     QStringList arguments() const;
 
 private:
     VcsBaseClientSettings &m_settings;
 };
 
-CvsDiffParameterWidget::CvsDiffParameterWidget(VcsBaseClientSettings &settings,
-                                               QWidget *parent) :
-    VcsBaseEditorParameterWidget(parent),
+CvsDiffParameterWidget::CvsDiffParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+    VcsBaseEditorParameterWidget(toolBar),
     m_settings(settings)
 {
     mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
@@ -76,7 +75,9 @@ QStringList CvsDiffParameterWidget::arguments() const
 
 CvsClient::CvsClient() : VcsBaseClient(new CvsSettings)
 {
-    setDiffParameterWidgetCreator([this] { return new CvsDiffParameterWidget(settings()); });
+    setDiffParameterWidgetCreator([this](QToolBar *toolBar) {
+        return new CvsDiffParameterWidget(settings(), toolBar);
+    });
 }
 
 CvsSettings &CvsClient::settings() const

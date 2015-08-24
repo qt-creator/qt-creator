@@ -209,8 +209,8 @@ public:
 
     EditorContentType contentType() const;
 
-    bool setConfigurationWidget(VcsBaseEditorParameterWidget *w);
-    VcsBaseEditorParameterWidget *configurationWidget() const;
+    void setConfigurationAdded();
+    bool configurationAdded() const;
 
     void setCommand(VcsCommand *command);
 

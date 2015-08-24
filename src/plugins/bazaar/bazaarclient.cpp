@@ -50,8 +50,8 @@ class BazaarDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    BazaarDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent)
+    BazaarDiffParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorParameterWidget(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
                    settings.boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
@@ -77,8 +77,8 @@ class BazaarLogParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    BazaarLogParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent)
+    BazaarLogParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorParameterWidget(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision.")),
@@ -102,8 +102,12 @@ public:
 
 BazaarClient::BazaarClient() : VcsBaseClient(new BazaarSettings)
 {
-    setDiffParameterWidgetCreator([this] { return new BazaarDiffParameterWidget(settings()); });
-    setLogParameterWidgetCreator([this] { return new BazaarLogParameterWidget(settings()); });
+    setDiffParameterWidgetCreator([this](QToolBar *toolBar) {
+        return new BazaarDiffParameterWidget(settings(), toolBar);
+    });
+    setLogParameterWidgetCreator([this](QToolBar *toolBar) {
+        return new BazaarLogParameterWidget(settings(), toolBar);
+    });
 }
 
 bool BazaarClient::synchronousSetUserId()

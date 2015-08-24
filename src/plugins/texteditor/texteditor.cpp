@@ -7269,6 +7269,11 @@ void TextEditorWidget::setCursorPosition(int pos)
     setTextCursor(tc);
 }
 
+QToolBar *TextEditorWidget::toolBar()
+{
+    return d->m_toolBar;
+}
+
 void BaseTextEditor::select(int toPos)
 {
     editorWidget()->setBlockSelection(false);

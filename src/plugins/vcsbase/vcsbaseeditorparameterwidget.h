@@ -28,7 +28,7 @@
 #include "vcsbase_global.h"
 
 #include <QVariant>
-#include <QWidget>
+#include <QToolBar>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -38,15 +38,17 @@ QT_END_NAMESPACE
 
 namespace VcsBase {
 
+class VcsBaseEditorWidget;
+
 namespace Internal { class VcsBaseEditorParameterWidgetPrivate; }
 
 // Documentation->inside.
-class VCSBASE_EXPORT VcsBaseEditorParameterWidget : public QWidget
+class VCSBASE_EXPORT VcsBaseEditorParameterWidget : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit VcsBaseEditorParameterWidget(QWidget *parent = 0);
+    explicit VcsBaseEditorParameterWidget(QToolBar *toolBar);
     ~VcsBaseEditorParameterWidget() override;
 
     class VCSBASE_EXPORT ComboBoxItem
@@ -61,13 +63,13 @@ public:
     QStringList baseArguments() const;
     void setBaseArguments(const QStringList &);
 
-    QToolButton *addToggleButton(const QString &option, const QString &label,
-                                 const QString &tooltip = QString());
-    QToolButton *addToggleButton(const QStringList &options, const QString &label,
-                                 const QString &tooltip = QString());
+    QAction *addToggleButton(const QString &option, const QString &label,
+                             const QString &tooltip = QString());
+    QAction *addToggleButton(const QStringList &options, const QString &label,
+                             const QString &tooltip = QString());
     QComboBox *addComboBox(const QStringList &options, const QList<ComboBoxItem> &items);
 
-    void mapSetting(QToolButton *button, bool *setting);
+    void mapSetting(QAction *button, bool *setting);
     void mapSetting(QComboBox *comboBox, QString *setting);
     void mapSetting(QComboBox *comboBox, int *setting);
 
@@ -89,10 +91,10 @@ protected:
     {
     public:
         OptionMapping() = default;
-        OptionMapping(const QString &option, QWidget *w);
-        OptionMapping(const QStringList &optionList, QWidget *w);
+        OptionMapping(const QString &option, QObject *obj);
+        OptionMapping(const QStringList &optionList, QObject *obj);
         QStringList options;
-        QWidget *widget = nullptr;
+        QObject *object = nullptr;
     };
 
     const QList<OptionMapping> &optionMappings() const;

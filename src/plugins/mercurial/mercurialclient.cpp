@@ -54,8 +54,8 @@ class MercurialDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    MercurialDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent)
+    MercurialDiffParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorParameterWidget(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
                    settings.boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
@@ -66,7 +66,9 @@ public:
 
 MercurialClient::MercurialClient() : VcsBaseClient(new MercurialSettings)
 {
-    setDiffParameterWidgetCreator([this] { return new MercurialDiffParameterWidget(settings()); });
+    setDiffParameterWidgetCreator([this](QToolBar *toolBar) {
+        return new MercurialDiffParameterWidget(settings(), toolBar);
+    });
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)

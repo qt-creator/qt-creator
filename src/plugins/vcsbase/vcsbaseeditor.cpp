@@ -565,7 +565,7 @@ public:
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
-    VcsBaseEditorParameterWidget *m_configurationWidget = nullptr;
+    bool m_configurationAdded = false;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
     QObject *m_describeReceiver = nullptr;
@@ -1390,20 +1390,14 @@ QString VcsBaseEditor::getTitleId(const QString &workingDirectory,
     return rc;
 }
 
-bool VcsBaseEditorWidget::setConfigurationWidget(VcsBaseEditorParameterWidget *w)
+void VcsBaseEditorWidget::setConfigurationAdded()
 {
-    if (d->m_configurationWidget)
-        return false;
-
-    d->m_configurationWidget = w;
-    insertExtraToolBarWidget(TextEditorWidget::Right, w);
-
-    return true;
+    d->m_configurationAdded = true;
 }
 
-VcsBaseEditorParameterWidget *VcsBaseEditorWidget::configurationWidget() const
+bool VcsBaseEditorWidget::configurationAdded() const
 {
-    return d->m_configurationWidget;
+    return d->m_configurationAdded;
 }
 
 void VcsBaseEditorWidget::setCommand(VcsCommand *command)
