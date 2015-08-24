@@ -182,15 +182,8 @@ class _rstr(str):
         return self
 
 class Dumper:
-
-    prompt = '(Cmd) '
     identchars = string.ascii_letters + string.digits + '_'
     lastcmd = ''
-    doc_leader = ""
-    doc_header = "Documented commands (type help <topic>):"
-    misc_header = "Miscellaneous help topics:"
-    undoc_header = "Undocumented commands:"
-    nohelp = "*** No help on %s"
     use_rawinput = 1
 
     def __init__(self, stdin=None, stdout=None):
@@ -213,9 +206,7 @@ class Dumper:
 
         if stdout:
             self.use_rawinput = 0
-        self.prompt = '(Pdb) '
         self.aliases = {}
-        self.displaying = {}
         self.mainpyfile = ''
         self._wait_for_mainpyfile = False
         self.tb_lineno = {}
@@ -230,12 +221,6 @@ class Dumper:
         self.nosigint = nosigint
 
         self.commands = {} # associates a command list to breakpoint numbers
-        self.commands_doprompt = {} # for each bp num, tells if the prompt
-                                    # must be disp. after execing the cmd list
-        self.commands_silent = {} # for each bp num, tells if the stack trace
-                                  # must be disp. after execing the cmd list
-        self.commands_bnum = None # The breakpoint number for which we are
-                                  # defining a list
 
     def canonic(self, filename):
         if filename == "<" + filename[1:-1] + ">":
@@ -260,7 +245,7 @@ class Dumper:
         if event == 'line':
             return self.dispatch_line(frame)
         if event == 'call':
-            return self.dispatch_call(frame, arg)
+            return self.dispatch_call(frame)
         if event == 'return':
             return self.dispatch_return(frame, arg)
         if event == 'exception':
@@ -280,8 +265,7 @@ class Dumper:
             if self.quitting: raise QuitException
         return self.trace_dispatch
 
-    def dispatch_call(self, frame, arg):
-        # XXX 'arg' is no longer used
+    def dispatch_call(self, frame):
         if self.botframe is None:
             # First call of dispatch since reset()
             self.botframe = frame.f_back # (CT) Note that this may also be None!
@@ -292,7 +276,7 @@ class Dumper:
         # Ignore call events in generator except when stepping.
         if self.stopframe and frame.f_code.co_flags & inspect.CO_GENERATOR:
             return self.trace_dispatch
-        self.user_call(frame, arg)
+        self.user_call(frame)
         if self.quitting: raise QuitException
         return self.trace_dispatch
 
@@ -393,14 +377,6 @@ class Dumper:
     # Derived classes and clients can call the following methods
     # to affect the stepping state.
 
-    def set_until(self, frame, lineno=None):
-        """Stop when the line with the line no greater than the current one is
-        reached or when returning from current frame"""
-        # the name "until" is borrowed from gdb
-        if lineno is None:
-            lineno = frame.f_lineno + 1
-        self._set_stopinfo(frame, frame, lineno)
-
     def set_step(self):
         """Stop after one line of code."""
         # Issue #13183: pdb skips frames after hitting a breakpoint and running
@@ -412,17 +388,6 @@ class Dumper:
             if caller_frame and not caller_frame.f_trace:
                 caller_frame.f_trace = self.trace_dispatch
         self._set_stopinfo(None, None)
-
-    def set_next(self, frame):
-        """Stop on the next line in or below the given frame."""
-        self._set_stopinfo(frame, None)
-
-    def set_return(self, frame):
-        """Stop when returning from the given frame."""
-        if frame.f_code.co_flags & inspect.CO_GENERATOR:
-            self._set_stopinfo(frame, None, -1)
-        else:
-            self._set_stopinfo(frame.f_back, frame)
 
     def set_trace(self, frame=None):
         """Start debugging from `frame`.
@@ -576,33 +541,6 @@ class Dumper:
             i = max(0, len(stack) - 1)
         return stack, i
 
-    def format_stack_entry(self, frame_lineno, lprefix=': '):
-        import linecache
-        #import  reprlib
-        frame, lineno = frame_lineno
-        filename = self.canonic(frame.f_code.co_filename)
-        s = '%s(%r)' % (filename, lineno)
-        if frame.f_code.co_name:
-            s += frame.f_code.co_name
-        else:
-            s += "<lambda>"
-        if '__args__' in frame.f_locals:
-            args = frame.f_locals['__args__']
-        else:
-            args = None
-        #if args:
-        #    s += reprlib.repr(args)
-        #else:
-        s += '(...)'
-        #if '__return__' in frame.f_locals:
-        #    rv = frame.f_locals['__return__']
-        #    s += '->'
-        #    s += reprlib.repr(rv)
-        line = linecache.getline(filename, lineno, frame.f_globals)
-        if line:
-            s += lprefix + line.strip()
-        return s
-
     # The following methods can be called by clients to use
     # a debugger to debug a statement or an expression.
     # Both can be given as a string, or a code object.
@@ -641,12 +579,8 @@ class Dumper:
             self.quitting = True
             sys.settrace(None)
 
-    def runctx(self, cmd, globals, locals):
-        # B/W compatibility
-        self.run(cmd, globals, locals)
 
     # This method is more useful to debug a single function call.
-
     def runcall(self, func, *args, **kwds):
         self.reset()
         sys.settrace(self.trace_dispatch)
@@ -662,25 +596,10 @@ class Dumper:
 
 
     def cmdloop(self):
-        """Repeatedly issue a prompt, accept input, parse an initial prefix
+        """Repeatedly accept input, parse an initial prefix
         off the received input, and dispatch to action methods, passing them
         the remainder of the line as argument.
-
         """
-
-        # Handle display expressions
-        displaying = self.displaying.get(self.curframe)
-        if displaying:
-            for expr, oldvalue in displaying.items():
-                newvalue = self._getval_except(expr)
-                # check for identity first; this prevents custom __eq__ to
-                # be called at every loop, and also prevents instances whose
-                # fields are changed to be displayed
-                if newvalue is not oldvalue and newvalue != oldvalue:
-                    displaying[expr] = newvalue
-                    self.message('display %s: %r  [old: %r]' %
-                                 (expr, newvalue, oldvalue))
-
         try:
             stop = None
             while not stop:
@@ -690,13 +609,13 @@ class Dumper:
                     if self.use_rawinput:
                         try:
                             if sys.version_info[0] == 2:
-                                line = raw_input(self.prompt)
+                                line = raw_input('')
                             else:
-                                line = input(self.prompt)
+                                line = input('')
                         except EOFError:
                             line = 'EOF'
                     else:
-                        self.stdout.write(self.prompt)
+                        self.stdout.write('')
                         self.stdout.flush()
                         line = self.stdin.readline()
                         if not len(line):
@@ -704,23 +623,9 @@ class Dumper:
                         else:
                             line = line.rstrip('\r\n')
                 print("LINE: %s" % line)
-                #line = self.precmd(line)
                 stop = self.onecmd(line)
-                #stop = self.postcmd(stop, line)
         finally:
             pass
-
-
-    def precmd(self, line):
-        """Hook method executed just before the command line is
-        interpreted, but after the input prompt is generated and issued.
-
-        """
-        return line
-
-    def postcmd(self, stop, line):
-        """Hook method executed just after a command dispatch is finished."""
-        return stop
 
     def parseline(self, line):
         """Parse the line into a command name and a string containing
@@ -746,11 +651,8 @@ class Dumper:
         """Interpret the argument as though it had been typed in response
         to the prompt.
 
-        This may be overridden, but should not normally need to be;
-        see the precmd() and postcmd() methods for useful execution hooks.
         The return value is a flag indicating whether interpretation of
         commands by the interpreter should stop.
-
         """
         line = str(line)
         print("LINE 0: %s" % line)
@@ -856,7 +758,7 @@ class Dumper:
         # cache it here to ensure that modifications are not overwritten.
         self.curframe_locals = self.curframe.f_locals
 
-    def user_call(self, frame, argument_list):
+    def user_call(self, frame):
         """This method is called when there is the remote possibility
         that we ever need to stop in this function."""
         if self._wait_for_mainpyfile:
@@ -881,9 +783,8 @@ class Dumper:
 
         Returns True if the normal interaction function must be called,
         False otherwise."""
-        # self.currentbp is set in bdb in Bdb.break_here if a breakpoint was hit
-        if getattr(self, "currentbp", False) and \
-               self.currentbp in self.commands:
+        # self.currentbp is set in break_here if a breakpoint was hit
+        if getattr(self, "currentbp", False) and self.currentbp in self.commands:
             currentbp = self.currentbp
             self.currentbp = 0
             lastcmd_back = self.lastcmd
@@ -891,10 +792,6 @@ class Dumper:
             for line in self.commands[currentbp]:
                 self.onecmd(line)
             self.lastcmd = lastcmd_back
-            if not self.commands_silent[currentbp]:
-                self.print_stack_entry(self.stack[self.curindex])
-            if self.commands_doprompt[currentbp]:
-                self._cmdloop()
             self.forget()
             return
         return 1
@@ -926,8 +823,17 @@ class Dumper:
             traceback.format_exception_only(exc_type, exc_value)[-1].strip()))
         self.interaction(frame, exc_traceback)
 
-    # General interaction function
-    def _cmdloop(self):
+    def interaction(self, frame, traceback):
+        if self.setup(frame, traceback):
+            # no interaction desired at this time (happens if .pdbrc contains
+            # a command like "continue")
+            self.forget()
+            return
+
+        frame, lineNumber = self.stack[self.curindex]
+        fileName = self.canonic(frame.f_code.co_filename)
+        self.report('location={file="%s",line="%s"}' % (fileName, lineNumber))
+
         while True:
             try:
                 # keyboard interrupts allow for an easy way to cancel
@@ -938,15 +844,6 @@ class Dumper:
                 break
             except KeyboardInterrupt:
                 self.message('--KeyboardInterrupt--')
-
-    def interaction(self, frame, traceback):
-        if self.setup(frame, traceback):
-            # no interaction desired at this time (happens if .pdbrc contains
-            # a command like "continue")
-            self.forget()
-            return
-        self.print_stack_entry(self.stack[self.curindex])
-        self._cmdloop()
         self.forget()
 
     def displayhook(self, obj):
@@ -979,33 +876,6 @@ class Dumper:
             exc_info = sys.exc_info()[:2]
             self.error(traceback.format_exception_only(*exc_info)[-1].strip())
 
-    def precmd(self, line):
-        """Handle alias expansion and ';;' separator."""
-        line = str(line)
-        if not line.strip():
-            return line
-        args = line.split()
-        while args[0] in self.aliases:
-            line = self.aliases[args[0]]
-            ii = 1
-            for tmpArg in args[1:]:
-                line = line.replace("%" + str(ii), tmpArg)
-                ii += 1
-            line = line.replace("%*", ' '.join(args[1:]))
-            args = line.split()
-        # split into ';;' separated commands
-        # unless it's an alias command
-        if args[0] != 'alias':
-            marker = line.find(';;')
-            if marker >= 0:
-                # queue up everything after marker
-                next = line[marker+2:].lstrip()
-                self.cmdqueue.append(next)
-                line = line[:marker].rstrip()
-        return line
-
-    # interface abstraction functions
-
     def message(self, msg):
         print(msg)
         pass
@@ -1013,114 +883,6 @@ class Dumper:
     def error(self, msg):
         #print('***'+ msg)
         pass
-
-    # Generic completion functions. Individual complete_foo methods can be
-    # assigned below to one of these functions.
-
-    def _complete_expression(self, text, line, begidx, endidx):
-        # Complete an arbitrary expression.
-        if not self.curframe:
-            return []
-        # Collect globals and locals. It is usually not really sensible to also
-        # complete builtins, and they clutter the namespace quite heavily, so we
-        # leave them out.
-        ns = self.curframe.f_globals.copy()
-        ns.update(self.curframe_locals)
-        if '.' in text:
-            # Walk an attribute chain up to the last part, similar to what
-            # rlcompleter does. This will bail if any of the parts are not
-            # simple attribute access, which is what we want.
-            dotted = text.split('.')
-            try:
-                obj = ns[dotted[0]]
-                for part in dotted[1:-1]:
-                    obj = getattr(obj, part)
-            except (KeyError, AttributeError):
-                return []
-            prefix = '.'.join(dotted[:-1]) + '.'
-            return [prefix + n for n in dir(obj) if n.startswith(dotted[-1])]
-        else:
-            # Complete a simple name.
-            return [n for n in ns.keys() if n.startswith(text)]
-
-    # Command definitions, called by cmdloop()
-    # The argument is the remaining string on the command line
-    # Return true to exit from the command loop
-
-    def do_commands(self, arg):
-        """commands [bpnumber]
-        (com) ...
-        (com) end
-        (Pdb)
-
-        Specify a list of commands for breakpoint number bpnumber.
-        The commands themselves are entered on the following lines.
-        Type a line containing just 'end' to terminate the commands.
-        The commands are executed when the breakpoint is hit.
-
-        To remove all commands from a breakpoint, type commands and
-        follow it immediately with end; that is, give no commands.
-
-        With no bpnumber argument, commands refers to the last
-        breakpoint set.
-
-        You can use breakpoint commands to start your program up
-        again. Simply use the continue command, or step, or any other
-        command that resumes execution.
-
-        Specifying any command resuming execution (currently continue,
-        step, next, return, jump, quit and their abbreviations)
-        terminates the command list (as if that command was
-        immediately followed by end). This is because any time you
-        resume execution (even with a simple next or step), you may
-        encounter another breakpoint -- which could have its own
-        command list, leading to ambiguities about which list to
-        execute.
-
-        If you use the 'silent' command in the command list, the usual
-        message about stopping at a breakpoint is not printed. This
-        may be desirable for breakpoints that are to print a specific
-        message and then continue. If none of the other commands
-        print anything, you will see no sign that the breakpoint was
-        reached.
-        """
-        if not arg:
-            bnum = len(Breakpoint.bpbynumber) - 1
-        else:
-            try:
-                bnum = int(arg)
-            except:
-                self.error("Usage: commands [bnum]\n        ...\n        end")
-                return
-        self.commands_bnum = bnum
-        # Save old definitions for the case of a keyboard interrupt.
-        if bnum in self.commands:
-            old_command_defs = (self.commands[bnum],
-                                self.commands_doprompt[bnum],
-                                self.commands_silent[bnum])
-        else:
-            old_command_defs = None
-        self.commands[bnum] = []
-        self.commands_doprompt[bnum] = True
-        self.commands_silent[bnum] = False
-
-        prompt_back = self.prompt
-        self.prompt = '(com) '
-        try:
-            self.cmdloop()
-        except KeyboardInterrupt:
-            # Restore old definitions.
-            if old_command_defs:
-                self.commands[bnum] = old_command_defs[0]
-                self.commands_doprompt[bnum] = old_command_defs[1]
-                self.commands_silent[bnum] = old_command_defs[2]
-            else:
-                del self.commands[bnum]
-                del self.commands_doprompt[bnum]
-                del self.commands_silent[bnum]
-            self.error('command definition aborted, old commands restored')
-        finally:
-            self.prompt = prompt_back
 
     def do_break(self, arg, temporary = 0):
         """b(reak) [ ([filename:]lineno | function) [, condition] ]
@@ -1421,54 +1183,8 @@ class Dumper:
                 self.clear_bpbynumber(i)
                 self.message('Deleted %s' % bp)
 
-    def _select_frame(self, number):
-        assert 0 <= number < len(self.stack)
-        self.curindex = number
-        self.curframe = self.stack[self.curindex][0]
-        self.curframe_locals = self.curframe.f_locals
-        self.print_stack_entry(self.stack[self.curindex])
-        self.lineno = None
-
-    def do_up(self, arg):
-        """u(p) [count]
-        Move the current frame count (default one) levels up in the
-        stack trace (to an older frame).
-        """
-        if self.curindex == 0:
-            self.error('Oldest frame')
-            return
-        try:
-            count = int(arg or 1)
-        except ValueError:
-            self.error('Invalid frame count (%s)' % arg)
-            return
-        if count < 0:
-            newframe = 0
-        else:
-            newframe = max(0, self.curindex - count)
-        self._select_frame(newframe)
-
-    def do_down(self, arg):
-        """d(own) [count]
-        Move the current frame count (default one) levels down in the
-        stack trace (to a newer frame).
-        """
-        if self.curindex + 1 == len(self.stack):
-            self.error('Newest frame')
-            return
-        try:
-            count = int(arg or 1)
-        except ValueError:
-            self.error('Invalid frame count (%s)' % arg)
-            return
-        if count < 0:
-            newframe = len(self.stack) - 1
-        else:
-            newframe = min(len(self.stack) - 1, self.curindex + count)
-        self._select_frame(newframe)
-
     def do_until(self, arg):
-        """unt(il) [lineno]
+        """until [lineno]
         Without argument, continue execution until the line with a
         number greater than the current one is reached. With a line
         number, continue execution until a line with a number greater
@@ -1487,35 +1203,28 @@ class Dumper:
                 return
         else:
             lineno = None
-        self.set_until(self.curframe, lineno)
+            lineno = self.curframe.f_lineno + 1
+        self._set_stopinfo(self.curframe, self.curframe, lineno)
+
         return 1
 
     def do_step(self, arg):
-        """s(tep)
-        Execute the current line, stop at the first possible occasion
-        (either in a function that is called or in the current
-        function).
-        """
         self.set_step()
         return 1
 
     def do_next(self, arg):
-        """n(ext)
-        Continue execution until the next line in the current function
-        is reached or it returns.
-        """
-        self.set_next(self.curframe)
+        self._set_stopinfo(self.curframe, None)
         return 1
 
     def do_return(self, arg):
-        """r(eturn)
-        Continue execution until the current function returns.
-        """
-        self.set_return(self.curframe)
+        if self.curframe.f_code.co_flags & inspect.CO_GENERATOR:
+            self._set_stopinfo(self.curframe, None, -1)
+        else:
+            self._set_stopinfo(self.curframe.f_back, self.curframe)
         return 1
 
     def do_continue(self, arg):
-        """c(ont(inue))
+        """continue
         Continue execution, only stop when a breakpoint is encountered.
         """
         if not self.nosigint:
@@ -1532,7 +1241,7 @@ class Dumper:
         return 1
 
     def do_jump(self, arg):
-        """j(ump) lineno
+        """jump lineno
         Set the next line that will be executed. Only available in
         the bottom-most frame. This lets you jump back and execute
         code again, or jump forward to skip code that you don't want
@@ -1555,7 +1264,6 @@ class Dumper:
                 # new position
                 self.curframe.f_lineno = arg
                 self.stack[self.curindex] = self.stack[self.curindex][0], arg
-                self.print_stack_entry(self.stack[self.curindex])
             except ValueError as e:
                 self.error('Jump failed: %s' % e)
 
@@ -1569,7 +1277,6 @@ class Dumper:
         globals = self.curframe.f_globals
         locals = self.curframe_locals
         p = Dumper(self.stdin, self.stdout)
-        p.prompt = "(%s) " % self.prompt.strip()
         self.message("ENTERING RECURSIVE DEBUGGER")
         sys.call_tracing(p.run, (arg, globals, locals))
         self.message("LEAVING RECURSIVE DEBUGGER")
@@ -1706,42 +1413,6 @@ class Dumper:
         # None of the above...
         self.message(type(value))
 
-    def do_display(self, arg):
-        """display [expression]
-
-        Display the value of the expression if it changed, each time execution
-        stops in the current frame.
-
-        Without expression, list all display expressions for the current frame.
-        """
-        if not arg:
-            self.message('Currently displaying:')
-            for item in self.displaying.get(self.curframe, {}).items():
-                self.message('%s: %r' % item)
-        else:
-            val = self._getval_except(arg)
-            self.displaying.setdefault(self.curframe, {})[arg] = val
-            self.message('display %s: %r' % (arg, val))
-
-    def do_undisplay(self, arg):
-        """undisplay [expression]
-
-        Do not display the expression any more in the current frame.
-
-        Without expression, clear all display expressions for the current frame.
-        """
-        if arg:
-            try:
-                del self.displaying.get(self.curframe, {})[arg]
-            except KeyError:
-                self.error('not displaying %s' % arg)
-        else:
-            self.displaying.pop(self.curframe, None)
-
-    def complete_undisplay(self, text, line, begidx, endidx):
-        return [e for e in self.displaying.get(self.curframe, {})
-                if e.startswith(text)]
-
     def do_interact(self, arg):
         """interact
 
@@ -1751,21 +1422,6 @@ class Dumper:
         ns = self.curframe.f_globals.copy()
         ns.update(self.curframe_locals)
         code.interact("*interactive*", local=ns)
-
-    # List of all the commands making the program resume execution.
-    commands_resuming = ['do_continue', 'do_step', 'do_next', 'do_return',
-                         'do_quit', 'do_jump']
-
-    def print_stack_entry(self, frame_lineno):
-        frame, lineno = frame_lineno
-        if frame is self.curframe:
-            prefix = '> '
-        else:
-            prefix = '  '
-        prompt_prefix = '\n-> '
-        self.message(prefix + self.format_stack_entry(frame_lineno, prompt_prefix))
-
-    # other helper functions
 
     def lookupmodule(self, filename):
         """Helper function for break/clear parsing -- may be overridden.

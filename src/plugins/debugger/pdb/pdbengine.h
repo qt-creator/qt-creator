@@ -101,6 +101,7 @@ private:
     void runCommand(const DebuggerCommand &cmd);
     void postDirectCommand(const QByteArray &command);
 
+    void refreshLocation(const GdbMi &reportedLocation);
     void refreshStack(const GdbMi &stack);
     void refreshLocals(const GdbMi &vars);
     void refreshModules(const GdbMi &modules);

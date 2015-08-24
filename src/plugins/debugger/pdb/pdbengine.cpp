@@ -345,6 +345,19 @@ void PdbEngine::requestModuleSymbols(const QString &moduleName)
     runCommand(cmd);
 }
 
+void PdbEngine::refreshLocation(const GdbMi &reportedLocation)
+{
+    StackFrame frame;
+    frame.file = reportedLocation["file"].toUtf8();
+    frame.line = reportedLocation["line"].toInt();
+    if (state() == InferiorRunOk) {
+        showMessage(QString::fromLatin1("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
+        gotoLocation(frame);
+        notifyInferiorSpontaneousStop();
+        updateAll();
+    }
+}
+
 void PdbEngine::refreshSymbols(const GdbMi &symbols)
 {
     QString moduleName = symbols["module"].toUtf8();
@@ -448,13 +461,11 @@ void PdbEngine::handleOutput(const QByteArray &data)
 {
     m_inbuffer.append(data);
     while (true) {
-        int pos = m_inbuffer.indexOf("(Pdb)");
-        if (pos == -1)
-            pos = m_inbuffer.indexOf(">>>");
+        int pos = m_inbuffer.indexOf('\n');
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 6);
+        m_inbuffer = m_inbuffer.mid(pos + 1);
         handleOutput2(response);
     }
 }
@@ -477,6 +488,8 @@ void PdbEngine::handleOutput2(const QByteArray &data)
             refreshModules(item);
         } else if (line.startsWith("symbols={")) {
             refreshSymbols(item);
+        } else if (line.startsWith("location={")) {
+            refreshLocation(item);
         } else if (line.startsWith("Breakpoint")) {
             int pos1 = line.indexOf(" at ");
             QTC_ASSERT(pos1 != -1, continue);
@@ -494,26 +507,6 @@ void PdbEngine::handleOutput2(const QByteArray &data)
                 bp.setResponse(br);
                 QTC_CHECK(!bp.needsChange());
                 bp.notifyBreakpointInsertOk();
-            }
-        } else {
-            if (line.startsWith("> /")) {
-                lineContext = line;
-                int pos1 = line.indexOf('(');
-                int pos2 = line.indexOf(')', pos1);
-                if (pos1 != -1 && pos2 != -1) {
-                    int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
-                    QByteArray fileName = line.mid(2, pos1 - 2);
-                    StackFrame frame;
-                    frame.file = _(fileName);
-                    frame.line = lineNumber;
-                    if (state() == InferiorRunOk) {
-                        showMessage(QString::fromLatin1("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
-                        gotoLocation(frame);
-                        notifyInferiorSpontaneousStop();
-                        updateAll();
-                        continue;
-                    }
-                }
             }
         }
     }
