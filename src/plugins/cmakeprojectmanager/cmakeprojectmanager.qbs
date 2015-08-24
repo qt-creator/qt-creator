@@ -62,6 +62,10 @@ QtcPlugin {
         "cmakesettingspage.h",
         "cmakesettingspage.cpp",
         "generatorinfo.h",
-        "generatorinfo.cpp"
+        "generatorinfo.cpp",
+        "cmakeindenter.h",
+        "cmakeindenter.cpp",
+        "cmakeautocompleter.h",
+        "cmakeautocompleter.cpp"
     ]
 }

@@ -33,6 +33,8 @@
 #include "cmakefilecompletionassist.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmakeindenter.h"
+#include "cmakeautocompleter.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -274,14 +276,17 @@ CMakeEditorFactory::CMakeEditorFactory()
     setEditorCreator([]() { return new CMakeEditor; });
     setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
     setDocumentCreator([]() { return new CMakeDocument; });
+    setIndenterCreator([]() { return new CMakeIndenter; });
     setUseGenericHighlighter(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
 
     setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
+    setAutoCompleterCreator([]() { return new CMakeAutoCompleter; });
 
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-            | TextEditorActionHandler::JumpToFileUnderCursor);
+            | TextEditorActionHandler::JumpToFileUnderCursor
+            | TextEditorActionHandler::Format);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR));
