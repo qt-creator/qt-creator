@@ -107,12 +107,16 @@ public:
     void setPriority(quint32 priority);
     quint32 priority() const;
 
+    void setBriefComment(const Utf8String &briefComment);
+    const Utf8String &briefComment() const;
+
 private:
     quint32 &completionKindAsInt();
     quint32 &availabilityAsInt();
 
 private:
     Utf8String text_;
+    Utf8String briefComment_;
     CodeCompletionChunks chunks_;
     quint32 priority_ = 0;
     Kind completionKind_ = Other;

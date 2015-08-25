@@ -65,6 +65,7 @@ private:
     void extractPriority();
     void extractAvailability();
     void extractHasParameters();
+    void extractBriefComment();
     void extractCompletionChunks();
 
     void adaptPriority();

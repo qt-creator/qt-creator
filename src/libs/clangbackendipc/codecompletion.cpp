@@ -110,6 +110,16 @@ quint32 CodeCompletion::priority() const
     return priority_;
 }
 
+void CodeCompletion::setBriefComment(const Utf8String &briefComment)
+{
+    briefComment_ = briefComment;
+}
+
+const Utf8String &CodeCompletion::briefComment() const
+{
+    return briefComment_;
+}
+
 quint32 &CodeCompletion::completionKindAsInt()
 {
     return reinterpret_cast<quint32&>(completionKind_);
@@ -123,6 +133,7 @@ quint32 &CodeCompletion::availabilityAsInt()
 QDataStream &operator<<(QDataStream &out, const CodeCompletion &message)
 {
     out << message.text_;
+    out << message.briefComment_;
     out << message.chunks_;
     out << message.priority_;
     out << message.completionKind_;
@@ -135,6 +146,7 @@ QDataStream &operator<<(QDataStream &out, const CodeCompletion &message)
 QDataStream &operator>>(QDataStream &in, CodeCompletion &message)
 {
     in >> message.text_;
+    in >> message.briefComment_;
     in >> message.chunks_;
     in >> message.priority_;
     in >> message.completionKindAsInt();

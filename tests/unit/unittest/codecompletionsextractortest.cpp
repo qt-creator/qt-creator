@@ -101,6 +101,26 @@ MATCHER_P2(HasCompletionChunks, name, chunks,
     return false;
 }
 
+MATCHER_P2(HasBriefComment, name, briefComment,
+           std::string(negation ? "hasn't" : "has") + " completion of name " + PrintToString(name) +
+           " with the brief comment " + PrintToString(briefComment))
+{
+    ::CodeCompletionsExtractor &extractor = const_cast<::CodeCompletionsExtractor&>(arg);
+    while (extractor.next()) {
+        if (extractor.currentCodeCompletion().text() == name) {
+            if (extractor.currentCodeCompletion().briefComment() == briefComment) {
+                return true;
+            } else if (!extractor.peek(name)) {
+                *result_listener << "briefComment is " << PrintToString(arg.currentCodeCompletion().briefComment()) << " and not " << PrintToString(briefComment);
+                return false;
+            }
+        }
+    }
+
+    return false;
+}
+
+
 const Utf8String unsavedFileContent(const char *unsavedFilePath)
 {
     QFile unsavedFileContentFile(QString::fromUtf8(unsavedFilePath));
@@ -133,38 +153,17 @@ ClangCodeCompleteResults getResults(const TranslationUnit &translationUnit, uint
 
 class CodeCompletionsExtractor : public ::testing::Test
 {
-public:
-    static void TearDownTestCase();
-
 protected:
-    static ClangBackEnd::ProjectPart project;
-    static ClangBackEnd::UnsavedFiles unsavedFiles;
-    static TranslationUnit functionTranslationUnit;
-    static TranslationUnit variableTranslationUnit;
-    static TranslationUnit classTranslationUnit ;
-    static TranslationUnit namespaceTranslationUnit;
-    static TranslationUnit enumerationTranslationUnit;
-    static TranslationUnit constructorTranslationUnit;
+    ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile")};
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    TranslationUnit functionTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), unsavedFiles, project};
+    TranslationUnit variableTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), unsavedFiles, project};
+    TranslationUnit classTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), unsavedFiles, project};
+    TranslationUnit namespaceTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), unsavedFiles, project};
+    TranslationUnit enumerationTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), unsavedFiles, project};
+    TranslationUnit constructorTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), unsavedFiles, project};
+    TranslationUnit briefCommentTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), unsavedFiles, project};
 };
-
-ClangBackEnd::ProjectPart CodeCompletionsExtractor::project(Utf8StringLiteral("/path/to/projectfile"));
-ClangBackEnd::UnsavedFiles CodeCompletionsExtractor::unsavedFiles;
-TranslationUnit CodeCompletionsExtractor::functionTranslationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), unsavedFiles, project);
-TranslationUnit CodeCompletionsExtractor::variableTranslationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), unsavedFiles, project);
-TranslationUnit CodeCompletionsExtractor::classTranslationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), unsavedFiles, project);
-TranslationUnit CodeCompletionsExtractor::namespaceTranslationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), unsavedFiles, project);
-TranslationUnit CodeCompletionsExtractor::enumerationTranslationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), unsavedFiles, project);
-TranslationUnit CodeCompletionsExtractor::constructorTranslationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), unsavedFiles, project);
-
-void CodeCompletionsExtractor::TearDownTestCase()
-{
-    functionTranslationUnit.reset();
-    variableTranslationUnit.reset();
-    classTranslationUnit.reset();
-    namespaceTranslationUnit.reset();
-    enumerationTranslationUnit.reset();
-    constructorTranslationUnit.reset();
-}
 
 TEST_F(CodeCompletionsExtractor, Function)
 {
@@ -655,6 +654,15 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Class"),
                                                CodeCompletionChunks({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Class")}})));
+}
+
+TEST_F(CodeCompletionsExtractor, BriefComment)
+{
+    ClangCodeCompleteResults completeResults(getResults(briefCommentTranslationUnit, 10));
+
+    ::CodeCompletionsExtractor extractor(completeResults.data());
+
+    ASSERT_THAT(extractor, HasBriefComment(Utf8StringLiteral("BriefComment"), Utf8StringLiteral("A brief comment")));
 }
 
 

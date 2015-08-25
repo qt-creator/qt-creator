@@ -63,6 +63,7 @@ bool CodeCompletionsExtractor::next()
         extractPriority();
         extractAvailability();
         extractHasParameters();
+        extractBriefComment();
         extractCompletionChunks();
         adaptPriority();
 
@@ -247,6 +248,13 @@ void CodeCompletionsExtractor::extractHasParameters()
             return;
         }
     }
+}
+
+void CodeCompletionsExtractor::extractBriefComment()
+{
+    ClangString briefComment = clang_getCompletionBriefComment(currentCxCodeCompleteResult.CompletionString);
+
+    currentCodeCompletion_.setBriefComment(briefComment);
 }
 
 void CodeCompletionsExtractor::extractCompletionChunks()

@@ -230,7 +230,8 @@ void TranslationUnit::reparseTranslationUnit() const
 int TranslationUnit::defaultOptions()
 {
     return CXTranslationUnit_CacheCompletionResults
-         | CXTranslationUnit_PrecompiledPreamble;
+         | CXTranslationUnit_PrecompiledPreamble
+         | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion;
 }
 
 uint TranslationUnit::unsavedFilesCount() const
