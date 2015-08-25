@@ -288,6 +288,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId)
         ICore::raiseWindow(this);
         return d->m_subWidgets.first()->widget();
     }
+    return nullptr;
 }
 
 void NavigationWidget::splitSubWidget(int factoryIndex)
