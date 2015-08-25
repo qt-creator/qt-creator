@@ -38,27 +38,29 @@ namespace Internal {
 
 QmlConsoleProxyModel::QmlConsoleProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
-    m_filter(ConsoleItem::DefaultType | ConsoleItem::InputType)
+    m_filter(ConsoleItem::AllTypes)
 {
 }
 
 void QmlConsoleProxyModel::setShowLogs(bool show)
 {
-    m_filter = show ? m_filter | ConsoleItem::DebugType : m_filter & ~ConsoleItem::DebugType;
-    setFilterRegExp(QString());
+    m_filter = show ? (m_filter | ConsoleItem::DebugType)
+                    : (m_filter & ~ConsoleItem::DebugType);
+    invalidateFilter();
 }
 
 void QmlConsoleProxyModel::setShowWarnings(bool show)
 {
-    m_filter = show ? m_filter | ConsoleItem::WarningType
-                    : m_filter & ~ConsoleItem::WarningType;
-    setFilterRegExp(QString());
+    m_filter = show ? (m_filter | ConsoleItem::WarningType)
+                    : (m_filter & ~ConsoleItem::WarningType);
+    invalidateFilter();
 }
 
 void QmlConsoleProxyModel::setShowErrors(bool show)
 {
-    m_filter = show ? m_filter | ConsoleItem::ErrorType : m_filter & ~ConsoleItem::ErrorType;
-    setFilterRegExp(QString());
+    m_filter = show ? (m_filter | ConsoleItem::ErrorType)
+                    : (m_filter & ~ConsoleItem::ErrorType);
+    invalidateFilter();
 }
 
 void QmlConsoleProxyModel::selectEditableRow(const QModelIndex &index,

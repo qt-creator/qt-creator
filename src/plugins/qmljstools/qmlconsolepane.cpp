@@ -111,6 +111,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showDebugButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_LOG));
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
+    m_showDebugButtonAction->setChecked(true);
     m_showDebugButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_INFO)));
     connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
             m_proxyModel, &QmlConsoleProxyModel::setShowLogs);
@@ -124,6 +125,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showWarningButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_WARNING));
     m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
     m_showWarningButtonAction->setCheckable(true);
+    m_showWarningButtonAction->setChecked(true);
     m_showWarningButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_WARNING)));
     connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
             m_proxyModel, &QmlConsoleProxyModel::setShowWarnings);
@@ -137,6 +139,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showErrorButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_ERROR));
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
+    m_showErrorButtonAction->setChecked(true);
     m_showErrorButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_ERROR)));
     connect(m_showErrorButtonAction, &Utils::SavedAction::toggled, m_proxyModel, &QmlConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);

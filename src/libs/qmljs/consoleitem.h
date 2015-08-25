@@ -56,6 +56,7 @@ public:
         WarningType  = 0x04,
         ErrorType    = 0x08,
         InputType    = 0x10,
+        AllTypes     = DefaultType | DebugType | WarningType | ErrorType | InputType
     };
     Q_DECLARE_FLAGS(ItemTypes, ItemType)
 

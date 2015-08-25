@@ -269,8 +269,6 @@ QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         level++;
     }
     int width = view->width() - level * view->indentation() - view->verticalScrollBar()->width();
-    if (index.flags() & Qt::ItemIsEditable)
-        return QSize(width, view->height() * 1/2);
 
     const bool selected = (view->selectionModel()->currentIndex() == index);
     if (!selected && option.font == m_cachedFont && m_cachedHeight > 0)
