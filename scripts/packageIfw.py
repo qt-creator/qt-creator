@@ -38,7 +38,7 @@ import shutil
 import inspect
 
 def usage():
-    print 'Usage: %s [-v|--version-string=versionstring] [-i|--installer-path=/path/to/installerfw] [-a|--archive=archive.7z] <outputname>' %  os.path.basename(sys.argv[0])
+    print('Usage: %s [-v|--version-string=versionstring] [-i|--installer-path=/path/to/installerfw] [-a|--archive=archive.7z] <outputname>' %  os.path.basename(sys.argv[0]))
 
 def substitute_file(infile, outfile, substitutions):
     with open(infile, 'r') as f:
@@ -132,9 +132,9 @@ def main():
         ifw_call = [os.path.join(ifw_location, 'bin', 'binarycreator'), '-c', os.path.join(out_config_dir, config_name), '-p', out_packages_dir, installer_name, '--offline-only' ]
         subprocess.check_call(ifw_call, stderr=subprocess.STDOUT)
     finally:
-        print 'Cleaning up...'
+        print('Cleaning up...')
         shutil.rmtree(temp_dir)
-        print 'Done.'
+        print('Done.')
 
 if __name__ == '__main__':
     main()
