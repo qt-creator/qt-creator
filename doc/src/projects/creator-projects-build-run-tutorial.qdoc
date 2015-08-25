@@ -37,6 +37,14 @@
     the development environment for Android or iOS. For more information, see
     \l{Connecting Android Devices} and \l{Connecting iOS Devices}.
 
+    To run an example application on an embedded device, you must set up
+    Qt for Device Creation on the development host and create connections
+    between the host and devices. For more information, see the
+    \l{http://doc.qt.io/QtForDeviceCreation/qtee-installation-guide.html}
+    {Installation Guide} in the
+    \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
+    documentation.
+
     \list 1
 
         \li In the \uicontrol Welcome mode, select \uicontrol Examples (1).
@@ -47,7 +55,9 @@
 
             You can also search for examples. Enter the \uicontrol android or
             \uicontrol iOS keyword in the search field (2) to list all the
-            examples tested for Android or iOS.
+            examples tested for Android or iOS. To list examples that you can
+            run on embedded devices, enter the \uicontrol Boot2Qt keyword in the
+            search field (commercial only).
 
         \li To check that the application code can be compiled and linked for a
             device, click the \uicontrol {Kit Selector} and select a

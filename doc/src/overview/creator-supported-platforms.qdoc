@@ -32,7 +32,7 @@
     \title Supported Platforms
 
     You can install and run \QC on several operating systems to create
-    applications for multiple desktop and mobile device platforms.
+    applications for multiple desktop, embedded, and mobile device platforms.
 
     \section1 Development Platforms
 
@@ -112,6 +112,16 @@
             \endlist
 
     \endlist
+
+    \section2 Developing for Embedded Devices
+
+    The development environment supported by Qt for Device Creation is
+    Ubuntu Linux 64-bit (12.04 LTS or later). For more information about
+    the requirements for the development host, see the
+    \l{http://doc.qt.io/QtForDeviceCreation/qtee-installation-guide.html}
+    {Installation Guide} in the
+    \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
+    documentation.
 
     \section1 Compiling from Source
 

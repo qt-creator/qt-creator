@@ -74,8 +74,8 @@
                 \target glossary-deploy-config
             \li Handles the packaging and copying of the necessary files to a
                 location you want to run the executable at. The files can be
-                copied to a location in the file system of the development PC or
-                a mobile device.
+                copied to a location in the file system of the development PC,
+                an embedded device, or a mobile device.
 
         \row
             \li Kit
@@ -100,8 +100,8 @@
             \li Project
                 \target glossary-project
             \li Groups together a set of source files, forms, and resource files
-                that you can build, deploy, and run for different desktop and
-                mobile device platforms, as
+                that you can build, deploy, and run for different desktop,
+                embedded, and mobile device platforms, as
                 specified by a \e {build configuration}, \e {deploy
                 configuration}, and \e {run configuration}.
 

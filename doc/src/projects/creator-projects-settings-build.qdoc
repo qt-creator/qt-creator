@@ -141,6 +141,12 @@
 
     \image qtcreator-build-steps-custom.png "Custom Process Step"
 
+    \section2 Executing Custom Commands
+
+    To execute custom commands when building for embedded devices, select
+    \uicontrol {Add Build Step} > \uicontrol {Custom Remote Command
+    (via adb shell)} (commercial only) and enter the command to execute.
+
     \section1 Clean Steps
 
     You can use the cleaning process to remove intermediate files. This process

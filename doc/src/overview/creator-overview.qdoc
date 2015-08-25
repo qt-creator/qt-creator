@@ -33,7 +33,7 @@
     \QC is an integrated development environment (IDE) that provides you with
     tools to design and develop applications with the Qt application framework.
     Qt is designed for developing applications and user interfaces once and
-    deploying them to several desktop and mobile operating systems. \QC
+    deploying them to several desktop, embedded, and mobile operating systems. \QC
     provides you with tools for accomplishing your tasks throughout the whole
     application development life-cycle, from creating a project to deploying the
     application to the target platforms.
@@ -86,8 +86,8 @@
                 and commands used to build the project.
 
                 \QC provides support for building, running, and deploying Qt
-                applications for desktop environment and mobile devices.
-                \l{glossary-buildandrun-kit}{Kits}, build,
+                applications for desktop environment as well as embedded and
+                 mobile devices. \l{glossary-buildandrun-kit}{Kits}, build,
                 run, and deployment settings allow you to quickly switch between
                 different setups and target platforms.
 

@@ -31,7 +31,8 @@
     \title Qt Creator Manual
 
     \QC provides a cross-platform, complete integrated development environment
-    (IDE) for application developers to create applications for multiple desktop
+    (IDE) for application developers to create applications for multiple
+    desktop, \l {http://doc.qt.io/QtForDeviceCreation/index.html}{embedded},
     and mobile device platforms, such as \l{Connecting Android Devices}{Android}
     and \l{Connecting iOS Devices}{iOS}. It is available for Linux, OS X and
     Windows

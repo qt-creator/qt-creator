@@ -107,8 +107,8 @@
 
                 Create a Qt Quick application that contains both QML and C++
                 code. The project includes a QQuickView.
-                You can build the application and deploy it to desktop and
-                mobile target platforms.
+                You can build the application and deploy it to desktop,
+                embedded, and mobile target platforms.
 
             \li Qt Quick Controls Application
 

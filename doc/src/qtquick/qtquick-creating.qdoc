@@ -40,8 +40,8 @@
 
         \li \uicontrol {Qt Quick Application} creates a Qt Quick 2 application
             project that can contain both QML and C++ code. The project includes
-            a QQuickView. You can build the application and deploy it to desktop
-            and mobile target platforms.
+            a QQuickView. You can build the application and deploy it to desktop,
+            embedded, and mobile target platforms.
 
         \li \uicontrol {Qt Quick Controls Application} is like
             \uicontrol {Qt Quick Application}, but using Qt Quick Controls.
