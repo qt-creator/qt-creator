@@ -449,8 +449,11 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
             m_rp.mainScript = mainScript;
             m_rp.interpreter = interpreter;
             QString args = runConfig->property("arguments").toString();
-            if (!args.isEmpty())
-                QtcProcess::addArg(&m_rp.processArgs, args);
+            if (!args.isEmpty()) {
+                if (!m_rp.processArgs.isEmpty())
+                    m_rp.processArgs.append(QLatin1Char(' '));
+                m_rp.processArgs.append(args);
+            }
             m_rp.masterEngineType = PdbEngineType;
         }
     }
