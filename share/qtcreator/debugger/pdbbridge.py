@@ -675,11 +675,13 @@ class Dumper:
     def runit(self):
 
         print("DIR: %s" % dir())
+        if sys.argv[0] == '-c':
+            sys.argv = sys.argv[2:]
+        else:
+            sys.argv = sys.argv[1:]
         print("ARGV: %s" % sys.argv)
-        mainpyfile = sys.argv[1]     # Get script filename
+        mainpyfile = sys.argv[0]     # Get script filename
         sys.path.append(os.path.dirname(mainpyfile))
-        self.savedArgv = sys.argv[1:]
-        print("SARGV: %s" % self.savedArgv)
         print("MAIN: %s" % mainpyfile)
 
         while True:
