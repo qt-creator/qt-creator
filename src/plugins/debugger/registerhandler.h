@@ -40,6 +40,8 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerEngine;
+
 enum RegisterColumns
 {
     RegisterNameColumn,
@@ -80,11 +82,16 @@ class RegisterValue
 {
 public:
     RegisterValue() { known = false; v.u64[1] = v.u64[0] = 0; }
-    void operator=(const QByteArray &ba);
     bool operator==(const RegisterValue &other);
     bool operator!=(const RegisterValue &other) { return !operator==(other); }
+
+    void fromByteArray(const QByteArray &ba, RegisterFormat format);
     QByteArray toByteArray(RegisterKind kind, int size, RegisterFormat format) const;
+
     RegisterValue subValue(int size, int index) const;
+    void setSubValue(int size, int index, RegisterValue subValue);
+
+    void shiftOneDigit(uint digit, RegisterFormat format);
 
     union {
         quint8  u8[16];
@@ -120,9 +127,10 @@ class RegisterHandler : public Utils::TreeModel
     Q_OBJECT
 
 public:
-    RegisterHandler();
+    explicit RegisterHandler(DebuggerEngine *engine);
 
     QAbstractItemModel *model() { return this; }
+    DebuggerEngine *engine() const { return m_engine; }
 
     void updateRegister(const Register &reg);
 
@@ -135,6 +143,7 @@ signals:
 
 private:
     QHash<QByteArray, RegisterItem *> m_registerByName;
+    DebuggerEngine * const m_engine;
 };
 
 } // namespace Internal

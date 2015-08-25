@@ -63,58 +63,42 @@ public:
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &index) const
+        const QModelIndex &index) const override
     {
-        IntegerWatchLineEdit *lineEdit = new IntegerWatchLineEdit(parent);
-        const RegisterFormat format = RegisterFormat(index.data(RegisterFormatRole).toInt());
-        const bool big = index.data(RegisterIsBigRole).toBool();
-        // Big integers are assumed to be hexadecimal.
-        int base = 16;
-        if (!big) {
-            if (format == DecimalFormat || format == SignedDecimalFormat)
-                base = 10;
-            else if (format == OctalFormat)
-                base = 8;
-            else if (format == BinaryFormat)
-                base = 2;
+        if (index.column() == RegisterValueColumn) {
+            auto lineEdit = new QLineEdit(parent);
+            lineEdit->setAlignment(Qt::AlignLeft);
+            lineEdit->setFrame(false);
+            return lineEdit;
         }
-        lineEdit->setBigInt(big);
-        lineEdit->setBase(base);
-        lineEdit->setSigned(false);
-        lineEdit->setAlignment(Qt::AlignRight);
-        lineEdit->setFrame(false);
-        return lineEdit;
+        return 0;
     }
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override
     {
-        IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit *>(editor);
+        auto lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        lineEdit->setModelData(index.data(Qt::EditRole));
+        lineEdit->setText(index.data(Qt::EditRole).toString());
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *,
-        const QModelIndex &index) const
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const override
     {
-        if (index.column() != 1)
-            return;
-        IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit*>(editor);
-        QTC_ASSERT(lineEdit, return);
-        const RegisterFormat format = RegisterFormat(index.data(RegisterFormatRole).toInt());
-        QString value = lineEdit->text();
-        if (format == HexadecimalFormat && !value.startsWith(QLatin1String("0x")))
-            value.insert(0, QLatin1String("0x"));
-        currentEngine()->setRegisterValue(index.data(RegisterNameRole).toByteArray(), value);
+        if (index.column() == RegisterValueColumn) {
+            auto lineEdit = qobject_cast<QLineEdit *>(editor);
+            QTC_ASSERT(lineEdit, return);
+            model->setData(index, lineEdit->text(), Qt::EditRole);
+        }
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-        const QModelIndex &) const
+        const QModelIndex &) const override
     {
         editor->setGeometry(option.rect);
     }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-        const QModelIndex &index) const
+        const QModelIndex &index) const override
     {
         if (index.column() == RegisterValueColumn) {
             const bool paintRed = index.data(RegisterChangedRole).toBool();

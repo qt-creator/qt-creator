@@ -1278,6 +1278,19 @@ class Dumper(DumperBase):
                 result += ']'
                 self.report(result)
 
+    def setRegister(self, args):
+        self.reportToken(args)
+        name = args["name"]
+        value = args["value"]
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(
+            "register write %s %s" % (name, value), result)
+        success = result.Succeeded()
+        if success:
+            self.report('output="%s"' % result.GetOutput())
+        else:
+            self.report('error="%s"' % result.GetError())
+
     def report(self, stuff):
         with self.outputLock:
             sys.stdout.write("@\n" + stuff + "@\n")

@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "registerhandler.h"
+
+#include "debuggerengine.h"
 #include "watchdelegatewidgets.h"
 
 #include <utils/qtcassert.h>
@@ -100,27 +102,37 @@ static uint decodeHexChar(unsigned char c)
     return uint(-1);
 }
 
-void RegisterValue::operator=(const QByteArray &ba)
+void RegisterValue::fromByteArray(const QByteArray &ba, RegisterFormat format)
 {
     known = !ba.isEmpty();
-    uint shift = 0;
-    int j = 0;
     v.u64[1] = v.u64[0] = 0;
-    for (int i = ba.size(); --i >= 0 && j < 16; ++j) {
-        quint64 d = decodeHexChar(ba.at(i));
-        if (d == uint(-1))
-            return;
-        v.u64[0] |= (d << shift);
-        shift += 4;
+
+    const int n = ba.size();
+    int pos = 0;
+    if (ba.startsWith("0x"))
+        pos += 2;
+
+    bool negative = pos < n && ba.at(pos) == '-';
+    if (negative)
+        ++pos;
+
+    while (pos < n) {
+        uint c = ba.at(pos);
+        if (format != CharacterFormat) {
+            c = decodeHexChar(c);
+            if (c == uint(-1))
+                break;
+        }
+        shiftOneDigit(c, format);
+        ++pos;
     }
-    j = 0;
-    shift = 0;
-    for (int i = ba.size() - 16; --i >= 0 && j < 16; ++j) {
-        quint64 d = decodeHexChar(ba.at(i));
-        if (d == uint(-1))
-            return;
-        v.u64[1] |= (d << shift);
-        shift += 4;
+
+    if (negative) {
+        v.u64[1] = ~v.u64[1];
+        v.u64[0] = ~v.u64[0];
+        ++v.u64[0];
+        if (v.u64[0] == 0)
+            ++v.u64[1];
     }
 }
 
@@ -205,18 +217,102 @@ RegisterValue RegisterValue::subValue(int size, int index) const
     return value;
 }
 
+void RegisterValue::setSubValue(int size, int index, RegisterValue subValue)
+{
+    switch (size) {
+        case 1:
+            v.u8[index] = subValue.v.u8[0];
+            break;
+        case 2:
+            v.u16[index] = subValue.v.u16[0];
+            break;
+        case 4:
+            v.u32[index] = subValue.v.u32[0];
+            break;
+        case 8:
+            v.u64[index] = subValue.v.u64[0];
+            break;
+    }
+}
+
+static inline void shiftBitsLeft(RegisterValue *val, int amount)
+{
+    val->v.u64[1] <<= amount;
+    val->v.u64[1] |= val->v.u64[0] >> (64 - amount);
+    val->v.u64[0] <<= amount;
+}
+
+void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
+{
+    switch (format) {
+    case HexadecimalFormat:
+        shiftBitsLeft(this, 4);
+        v.u64[0] |= digit;
+        break;
+    case OctalFormat:
+        shiftBitsLeft(this, 3);
+        v.u64[0] |= digit;
+        break;
+    case BinaryFormat:
+        shiftBitsLeft(this, 1);
+        v.u64[0] |= digit;
+        break;
+    case DecimalFormat:
+    case SignedDecimalFormat: {
+        shiftBitsLeft(this, 1);
+        quint64 tmp0 = v.u64[0];
+        quint64 tmp1 = v.u64[1];
+        shiftBitsLeft(this, 2);
+        v.u64[1] += tmp1;
+        v.u64[0] += tmp0;
+        if (v.u64[0] < tmp0)
+            ++v.u64[1];
+        v.u64[0] += digit;
+        if (v.u64[0] < digit)
+            ++v.u64[1];
+        break;
+    }
+    case CharacterFormat:
+        shiftBitsLeft(this, 8);
+        v.u64[0] |= digit;
+    }
+}
+
 //////////////////////////////////////////////////////////////////
 //
 // RegisterSubItem and RegisterItem
 //
 //////////////////////////////////////////////////////////////////
 
+class RegisterSubItem;
+
+class RegisterEditItem : public Utils::TreeItem
+{
+public:
+    RegisterEditItem(int pos, RegisterKind subKind, int subSize, RegisterFormat format)
+        : m_index(pos), m_subKind(subKind), m_subSize(subSize), m_subFormat(format)
+    {}
+
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &value, int role) override;
+    Qt::ItemFlags flags(int column) const override;
+
+    int m_index;
+    RegisterKind m_subKind;
+    int m_subSize;
+    RegisterFormat m_subFormat;
+};
+
+
 class RegisterSubItem : public Utils::TreeItem
 {
 public:
     RegisterSubItem(RegisterKind subKind, int subSize, int count, RegisterFormat format)
         : m_subKind(subKind), m_subFormat(format), m_subSize(subSize), m_count(count), m_changed(false)
-    {}
+    {
+        for (int i = 0; i != count; ++i)
+            appendChild(new RegisterEditItem(i, subKind, subSize, format));
+    }
 
     QVariant data(int column, int role) const;
 
@@ -240,10 +336,12 @@ class RegisterItem : public Utils::TreeItem
 public:
     explicit RegisterItem(const Register &reg);
 
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags(int column) const;
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &value, int role) override;
+    Qt::ItemFlags flags(int column) const override;
 
     quint64 addressValue() const;
+    void triggerChange();
 
     Register m_reg;
     RegisterFormat m_format;
@@ -289,6 +387,13 @@ quint64 RegisterItem::addressValue() const
     return m_reg.value.v.u64[0];
 }
 
+void RegisterItem::triggerChange()
+{
+    QByteArray ba = "0x" + m_reg.value.toByteArray(m_reg.kind, m_reg.size, HexadecimalFormat);
+    DebuggerEngine *engine = static_cast<RegisterHandler *>(model())->engine();
+    engine->setRegisterValue(m_reg.name, QString::fromLatin1(ba));
+}
+
 QVariant RegisterItem::data(int column, int role) const
 {
     switch (role) {
@@ -326,7 +431,7 @@ QVariant RegisterItem::data(int column, int role) const
                     .arg(QString::fromLatin1(m_reg.previousValue.toByteArray(m_reg.kind, m_reg.size, m_format)));
 
         case Qt::EditRole: // Edit: Unpadded for editing
-            return m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format);
+            return QString::fromLatin1(m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format));
 
         case Qt::TextAlignmentRole:
             return column == RegisterValueColumn ? QVariant(Qt::AlignRight) : QVariant();
@@ -335,6 +440,16 @@ QVariant RegisterItem::data(int column, int role) const
             break;
     }
     return QVariant();
+}
+
+bool RegisterItem::setData(int column, const QVariant &value, int role)
+{
+    if (column == RegisterValueColumn && role == Qt::EditRole) {
+        m_reg.value.fromByteArray(value.toString().toLatin1(), m_format);
+        triggerChange();
+        return true;
+    }
+    return false;
 }
 
 QVariant RegisterSubItem::data(int column, int role) const
@@ -401,10 +516,11 @@ QVariant RegisterSubItem::data(int column, int role) const
 //
 //////////////////////////////////////////////////////////////////
 
-RegisterHandler::RegisterHandler()
+RegisterHandler::RegisterHandler(DebuggerEngine *engine)
+    : m_engine(engine)
 {
     setObjectName(QLatin1String("RegisterModel"));
-    setHeader(QStringList() << tr("Name") << tr("Value"));
+    setHeader({tr("Name"), tr("Value")});
 }
 
 void RegisterHandler::updateRegister(const Register &r)
@@ -452,6 +568,59 @@ RegisterMap RegisterHandler::registerMap() const
             result.insert(value, reg->m_reg.name);
     }
     return result;
+}
+
+QVariant RegisterEditItem::data(int column, int role) const
+{
+    switch (role) {
+        case Qt::DisplayRole:
+        case Qt::EditRole:
+            switch (column) {
+                case RegisterNameColumn: {
+                    return QString::fromLatin1("[%1]").arg(m_index);
+                }
+                case RegisterValueColumn: {
+                    RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+                    RegisterValue value = registerItem->m_reg.value;
+                    return value.subValue(m_subSize, m_index).toByteArray(m_subKind, m_subSize, m_subFormat);
+                }
+            }
+        case Qt::ToolTipRole: {
+                RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+                return RegisterHandler::tr("Edit bits %1...%2 of register %3")
+                        .arg(m_index * 8).arg(m_index * 8 + 8)
+                        .arg(QString::fromLatin1(registerItem->m_reg.name));
+            }
+        default:
+            break;
+    }
+    return QVariant();
+}
+
+bool RegisterEditItem::setData(int column, const QVariant &value, int role)
+{
+    if (column == RegisterValueColumn && role == Qt::EditRole) {
+        QTC_ASSERT(parent(), return false);
+        QTC_ASSERT(parent()->parent(), return false);
+        RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+        Register &reg = registerItem->m_reg;
+        RegisterValue vv;
+        vv.fromByteArray(value.toString().toLatin1(), m_subFormat);
+        reg.value.setSubValue(m_subSize, m_index, vv);
+        registerItem->triggerChange();
+        return true;
+    }
+    return false;
+}
+
+Qt::ItemFlags RegisterEditItem::flags(int column) const
+{
+    QTC_ASSERT(parent(), return Qt::ItemFlags());
+    RegisterSubItem *registerSubItem = static_cast<RegisterSubItem *>(parent());
+    Qt::ItemFlags f = registerSubItem->flags(column);
+    if (column == RegisterValueColumn)
+        f |= Qt::ItemIsEditable;
+    return f;
 }
 
 } // namespace Internal

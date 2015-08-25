@@ -3632,14 +3632,18 @@ void GdbEngine::handleMaintPrintRegisters(const DebuggerResponse &response)
         readWord(ba, &pos); // Offset
         reg.size = readWord(ba, &pos).toInt();
         reg.reportedType = readWord(ba, &pos);
-        reg.value = readWord(ba, &pos);
+        reg.value.fromByteArray(readWord(ba, &pos), HexadecimalFormat);
         handler->updateRegister(reg);
     }
     handler->commitUpdates();
 }
+
 void GdbEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    postCommand("set $" + name  + "=" + value.toLatin1());
+    QByteArray fullName = name;
+    if (name.startsWith("xmm"))
+        fullName += ".uint128";
+    postCommand("set $" + fullName  + "=" + value.toLatin1());
     reloadRegisters();
 }
 
@@ -3705,7 +3709,7 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
         Register reg = m_registers[number];
         QByteArray data = item["value"].data();
         if (data.startsWith("0x")) {
-            reg.value = data;
+            reg.value.fromByteArray(data, HexadecimalFormat);
         } else if (data == "<error reading variable>") {
             // Nothing. See QTCREATORBUG-14029.
         } else {
@@ -3718,7 +3722,7 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
             // v2_int64 = {0x0000000000000000, 0x0000000000000000},
             // uint128 = <error reading variable>}"}
             // Try to make sense of it using the int32 chunks:
-            QByteArray result = "0x";
+            QByteArray result;
             const int pos1 = data.indexOf("_int32");
             const int pos2 = data.indexOf('{', pos1) + 1;
             const int pos3 = data.indexOf('}', pos2);
@@ -3733,7 +3737,7 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
                 QTC_ASSERT(chunk.size() == 8, continue);
                 result.append(chunk);
             }
-            reg.value = result;
+            reg.value.fromByteArray(result, HexadecimalFormat);
         }
         handler->updateRegister(reg);
     }

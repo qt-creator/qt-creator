@@ -1033,9 +1033,11 @@ void LldbEngine::refreshRegisters(const GdbMi &registers)
     foreach (const GdbMi &item, registers.children()) {
         Register reg;
         reg.name = item["name"].data();
-        reg.value = item["value"].data();
+        reg.value.fromByteArray(item["value"].data(), HexadecimalFormat);
         reg.size = item["size"].data().toInt();
         reg.reportedType = item["type"].data();
+        if (reg.reportedType.startsWith("unsigned"))
+            reg.kind = IntegerRegister;
         handler->updateRegister(reg);
     }
     handler->commitUpdates();

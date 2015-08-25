@@ -195,7 +195,7 @@ public:
         m_remoteSetupState(RemoteSetupNone),
         m_inferiorPid(0),
         m_modulesHandler(engine),
-        m_registerHandler(),
+        m_registerHandler(engine),
         m_sourceFilesHandler(),
         m_stackHandler(),
         m_threadsHandler(),
