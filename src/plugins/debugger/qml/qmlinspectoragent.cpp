@@ -738,6 +738,7 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
                                      bool append)
 {
     qCDebug(qmlInspectorLog) << '(' << obj << parentIname << ')';
+    QTC_ASSERT(m_debuggerEngine, return);
 
     int objDebugId = obj.debugId();
     QByteArray objIname = buildIName(parentIname, objDebugId);
@@ -831,7 +832,8 @@ bool QmlInspectorAgent::isConnected() const
 
 void QmlInspectorAgent::clearObjectTree()
 {
-    m_debuggerEngine->watchHandler()->removeAllData(true);
+    if (m_debuggerEngine)
+        m_debuggerEngine->watchHandler()->removeAllData(true);
     m_objectTreeQueryIds.clear();
     m_fetchDataIds.clear();
     int old_count = m_debugIdHash.count();

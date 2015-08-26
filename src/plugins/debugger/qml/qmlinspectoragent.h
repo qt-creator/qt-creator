@@ -32,6 +32,7 @@
 #define QMLINSPECTORAGENT_H
 
 #include <QStack>
+#include <QPointer>
 #include <QTimer>
 
 #include <qmldebug/baseenginedebugclient.h>
@@ -126,7 +127,7 @@ private:
     void clearObjectTree();
 
 private:
-    DebuggerEngine *m_debuggerEngine;
+    QPointer<DebuggerEngine> m_debuggerEngine;
     QmlDebug::BaseEngineDebugClient *m_engineClient;
 
     quint32 m_engineQueryId;
