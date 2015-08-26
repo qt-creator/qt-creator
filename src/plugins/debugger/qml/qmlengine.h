@@ -45,7 +45,7 @@ namespace Internal {
 class WatchData;
 class WatchItem;
 class QmlEnginePrivate;
-class QmlAdapter;
+class QmlInspectorAgent;
 
 class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
 {
@@ -62,10 +62,11 @@ public:
                                QmlDebug::QmlDebugClient::State newState);
     void logServiceActivity(const QString &service, const QString &logMessage);
 
+    void expressionEvaluated(quint32 queryId, const QVariant &result);
+
 private slots:
     void disconnected();
     void documentUpdated(QmlJS::Document::Ptr doc);
-    void expressionEvaluated(quint32 queryId, const QVariant &result);
 
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
@@ -153,6 +154,7 @@ private:
 private:
     friend class QmlCppEngine;
     friend class QmlEnginePrivate;
+    friend class QmlInspectorAgent;
     QmlEnginePrivate *d;
 };
 

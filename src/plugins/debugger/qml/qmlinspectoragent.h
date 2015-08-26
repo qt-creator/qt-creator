@@ -34,12 +34,24 @@
 #include <QStack>
 #include <QTimer>
 
+#include <coreplugin/icontext.h>
+#include <debugger/debuggerconstants.h>
 #include <qmldebug/baseenginedebugclient.h>
+#include <qmldebug/qmldebugclient.h>
+
+namespace QmlDebug {
+class BaseEngineDebugClient;
+class BaseToolsClient;
+class ObjectReference;
+class FileReference;
+class QmlDebugConnection;
+}
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
+class QmlEngine;
 class WatchData;
 
 //map <filename, editorRevision> -> <lineNumber, columnNumber> -> debugId
@@ -50,7 +62,7 @@ class QmlInspectorAgent : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlInspectorAgent(DebuggerEngine *engine, QObject *parent = 0);
+    QmlInspectorAgent(QmlEngine *engine, QmlDebug::QmlDebugConnection *connection);
 
     void fetchObject(int debugId);
     quint32 queryExpressionResult(int debugId, const QString &expression);
@@ -59,55 +71,21 @@ public:
     void updateWatchData(const WatchData &data);
     void watchDataSelected(quint64 id);
     bool selectObjectInTree(int debugId);
+    void addObjectWatch(int objectDebugId);
 
-    quint32 setBindingForObject(int objectDebugId,
-                                const QString &propertyName,
-                                const QVariant &value,
-                                bool isLiteralValue,
-                                QString source,
-                                int line);
-    quint32 setMethodBodyForObject(int objectDebugId, const QString &methodName,
-                                   const QString &methodBody);
-    quint32 resetBindingForObject(int objectDebugId,
-                                  const QString &propertyName);
-
-    QmlDebug::ObjectReference objectForName(const QString &objectId) const;
     QmlDebug::ObjectReference objectForId(int objectDebugId) const;
-    int objectIdForLocation(int line, int column) const;
-    QHash<int, QString> rootObjectIds() const;
-    DebugIdHash debugIdHash() const { return m_debugIdHash; }
-
-    bool addObjectWatch(int objectDebugId);
-    bool isObjectBeingWatched(int objectDebugId);
-    bool removeObjectWatch(int objectDebugId);
-    void removeAllObjectWatches();
-
-    void setEngineClient(QmlDebug::BaseEngineDebugClient *client);
     QString displayName(int objectDebugId) const;
-    int parentIdForObject(int objectDebugId);
     void reloadEngines();
 
-public slots:
-    void fetchContextObjectsForLocation(const QString &file,
-                                         int lineNumber, int columnNumber);
-    void queryEngineContext();
+    QmlDebug::BaseToolsClient *toolsClient() const;
 
-signals:
-    void objectTreeUpdated();
-    void objectFetched(const QmlDebug::ObjectReference &ref);
-    void expressionResult(quint32 queryId, const QVariant &value);
-    void propertyChanged(int debugId, const QByteArray &propertyName,
-                         const QVariant &propertyValue);
-    void automaticUpdateFailed();
-    void jumpToObjectDefinition(const QmlDebug::FileReference &objSource, int debugId);
-
-private slots:
+private:
     void updateState();
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
     void newObject(int engineId, int objectId, int parentId);
     void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);
 
-private:
+    void queryEngineContext();
     void updateObjectTree(const QmlDebug::ContextReference &context);
     void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object);
     void insertObjectInTree(const QmlDebug::ObjectReference &result);
@@ -125,8 +103,31 @@ private:
     bool isConnected() const;
     void clearObjectTree();
 
+    void onEngineStateChanged(const Debugger::DebuggerState);
+
+    void clientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void toolsClientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void engineClientStateChanged(QmlDebug::QmlDebugClient::State state);
+
+    void selectObjectsFromToolsClient(const QList<int> &debugIds);
+
+    void onSelectActionTriggered(bool checked);
+    void onZoomActionTriggered(bool checked);
+    void onShowAppOnTopChanged(bool checked);
+    void onReloaded();
+    void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource, int debugId = -1);
+
+    void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
+
+    enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
+    void selectObject(
+            const QmlDebug::ObjectReference &objectReference,
+            SelectionTarget target);
+
+    void enableTools(const bool enable);
+
 private:
-    DebuggerEngine *m_debuggerEngine;
+    QmlEngine *m_qmlEngine;
     QmlDebug::BaseEngineDebugClient *m_engineClient;
 
     quint32 m_engineQueryId;
@@ -142,6 +143,25 @@ private:
     QList<int> m_objectWatches;
     QList<int> m_fetchDataIds;
     QTimer m_delayQueryTimer;
+
+    DebuggerEngine *m_masterEngine;
+    QHash<QString, QmlDebug::BaseEngineDebugClient*> m_engineClients;
+    QmlDebug::BaseToolsClient *m_toolsClient;
+
+    SelectionTarget m_targetToSync;
+    int m_debugIdToSelect;
+
+    int m_currentSelectedDebugId;
+    QString m_currentSelectedDebugName;
+
+    // toolbar
+    bool m_toolsClientConnected;
+    Core::Context m_inspectorToolsContext;
+    QAction *m_selectAction;
+    QAction *m_zoomAction;
+    QAction *m_showAppOnTopAction;
+
+    bool m_engineClientConnected;
 };
 
 } // Internal

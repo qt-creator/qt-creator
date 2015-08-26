@@ -31,7 +31,6 @@
 #include "qmlengine.h"
 
 #include "interactiveinterpreter.h"
-#include "qmlinspectoradapter.h"
 #include "qmlinspectoragent.h"
 #include "qmlv8debuggerclientconstants.h"
 #include "qmlengineutils.h"
@@ -136,7 +135,7 @@ public:
     QmlEnginePrivate(QmlEngine *engine_, QmlDebugConnection *connection_)
         : QmlDebugClient(QLatin1String("V8Debugger"), connection_),
           engine(engine_),
-          inspectorAdapter(engine, connection_),
+          inspectorAgent(engine, connection_),
           connection(connection_)
     {}
 
@@ -206,7 +205,7 @@ public:
     QHash<QString, QWeakPointer<BaseTextEditor> > sourceEditors;
     InteractiveInterpreter interpreter;
     ApplicationLauncher applicationLauncher;
-    QmlInspectorAdapter inspectorAdapter;
+    QmlInspectorAgent inspectorAgent;
     QmlOutputParser outputParser;
 
     QTimer noDebugOutputTimer;
@@ -254,8 +253,6 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
             this, &QmlEngine::updateCurrentContext);
     connect(inspectorView(), SIGNAL(currentIndexChanged(QModelIndex)),
             SLOT(updateCurrentContext()));
-    connect(d->inspectorAdapter.agent(), &QmlInspectorAgent::expressionResult,
-            this, &QmlEngine::expressionEvaluated);
 
     connect(&d->applicationLauncher, &ApplicationLauncher::processExited,
             this, &QmlEngine::disconnected);
@@ -965,8 +962,8 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &value)
 {
     if (!expression.isEmpty()) {
-        if (item->isInspect() && d->inspectorAdapter.agent()) {
-            d->inspectorAdapter.agent()->assignValue(item, expression, value);
+        if (item->isInspect()) {
+            d->inspectorAgent.assignValue(item, expression, value);
         } else {
             StackHandler *handler = stackHandler();
             QString exp = QString(_("%1 = %2;")).arg(expression).arg(value.toString());
@@ -986,7 +983,7 @@ void QmlEngine::expandItem(const QByteArray &iname)
     QTC_ASSERT(item, return);
 
     if (item->isInspect()) {
-        d->inspectorAdapter.agent()->updateWatchData(*item);
+        d->inspectorAgent.updateWatchData(*item);
     } else {
         LookupItems items;
         items.insert(int(item->id), {item->iname, item->name});
@@ -1013,7 +1010,7 @@ void QmlEngine::selectWatchData(const QByteArray &iname)
 {
     const WatchItem *item = watchHandler()->findItem(iname);
     if (item && item->isInspect())
-        d->inspectorAdapter.agent()->watchDataSelected(item->id);
+        d->inspectorAgent.watchDataSelected(item->id);
 }
 
 bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
@@ -1186,9 +1183,8 @@ bool QmlEngine::evaluateScript(const QString &expression)
     // When engine->state() == InferiorStopOk, the expression is sent to debuggerClient.
     if (state() != InferiorStopOk) {
         QModelIndex currentIndex = inspectorView()->currentIndex();
-        QmlInspectorAgent *agent = d->inspectorAdapter.agent();
-        quint32 queryId = agent->queryExpressionResult(watchHandler()->watchItem(currentIndex)->id,
-                                                       expression);
+        quint32 queryId = d->inspectorAgent.queryExpressionResult
+                (watchHandler()->watchItem(currentIndex)->id, expression);
         if (queryId) {
             d->queryIds.append(queryId);
         } else {
