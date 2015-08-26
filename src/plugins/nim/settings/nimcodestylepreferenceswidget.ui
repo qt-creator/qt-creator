@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Nim::NimCodeStylePreferencesWidget</class>
+ <widget class="QWidget" name="Nim::NimCodeStylePreferencesWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>138</width>
+    <height>112</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="TextEditor::SimpleCodeStylePreferencesWidget" name="tabPreferencesWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="TextEditor::SnippetEditorWidget" name="previewTextEdit">
+     <property name="plainText">
+      <string notr="true">import QtQuick 1.0
+
+Rectangle {
+    width: 360
+    height: 360
+    Text {
+        anchors.centerIn: parent
+        text: &quot;Hello World&quot;
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            Qt.quit();
+        }
+    }
+}
+</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>267</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextEditor::SimpleCodeStylePreferencesWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">texteditor/simplecodestylepreferenceswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TextEditor::SnippetEditorWidget</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">texteditor/snippets/snippeteditor.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
+

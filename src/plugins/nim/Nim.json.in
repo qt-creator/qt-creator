@@ -1,0 +1,20 @@
+{
+    \"Name\" : \"Nim\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Vendor\" : \"Filippo Cucchetto\",
+    \"Copyright\" : \"(C) 2015 Filippo Cucchetto\",
+    \"License\" : [ \"Commercial Usage\",
+                  \"\",
+                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
+                  \"\",
+                  \"GNU Lesser General Public License Usage\",
+                  \"\",
+                  \"Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 or version 3 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License requirements will be met: https://www.gnu.org/licenses/lgpl.html and http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\"
+    ],
+    \"Category\" : \"Other Languages\",
+    \"Description\" : \"Plugin for supporting the Nim programming language.\",
+    \"Url\" : \"http://www.qt.io\",
+    \"Experimental\" : true,
+    $$dependencyList
+}

@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "Z.NimProject",
+    "category": "I.Projects",
+    "trDescription": "Creates a simple Nim application.",
+    "trDisplayName": "Nim Application",
+    "trDisplayCategory": "Non-Qt Project",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0 }",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{JS: '%{NimProjectFile}'}" },
+        { "key": "NimProjectFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'nimproject')}" },
+        { "key": "NimFileName", "value": "%{JS: 'main.nim'}" },
+        { "key": "IsTopLevelProject", "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}'}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{IsTopLevelProject}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "file.nimproject",
+                    "target": "%{NimProjectFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.nim",
+                    "target": "%{NimFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": "%{ProjectDirectory}/.gitignore",
+                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

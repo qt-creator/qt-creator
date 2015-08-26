@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "Z.NimSource",
+    "category": "Z.Nim",
+    "trDescription": "Creates an empty Nim file using UTF-8 charset.",
+    "trDisplayName": "Nim File",
+    "trDisplayCategory": "Nim",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.nim",
+                "target": "%{JS: Util.fileName('%{TargetPath}', 'nim')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

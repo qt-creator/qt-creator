@@ -40,6 +40,7 @@ Project {
         "macros/macros.qbs",
         "mercurial/mercurial.qbs",
         "modeleditor/modeleditor.qbs",
+        "nim/nim.qbs",
         "perforce/perforce.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",

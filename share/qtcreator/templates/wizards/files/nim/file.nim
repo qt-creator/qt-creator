@@ -1,0 +1,2 @@
+if isMainModule:
+  discard()
