@@ -35,9 +35,7 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icorelistener.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QPointer>
 #include <QStringList>
@@ -48,36 +46,6 @@
 static Core::DesignMode *m_instance = 0;
 
 namespace Core {
-
-class EditorManager;
-
-enum {
-    debug = false
-};
-
-namespace Internal {
-
-class DesignModeCoreListener : public ICoreListener
-{
-public:
-    DesignModeCoreListener(DesignMode* mode);
-    bool coreAboutToClose();
-private:
-    DesignMode *m_mode;
-};
-
-DesignModeCoreListener::DesignModeCoreListener(DesignMode *mode) :
-        m_mode(mode)
-{
-}
-
-bool DesignModeCoreListener::coreAboutToClose()
-{
-    m_mode->currentEditorChanged(0);
-    return true;
-}
-
-} // namespace Internal
 
 struct DesignEditorInfo
 {
@@ -90,10 +58,9 @@ struct DesignEditorInfo
 class DesignModePrivate
 {
 public:
-    explicit DesignModePrivate(DesignMode *q);
+    DesignModePrivate();
 
 public:
-    Internal::DesignModeCoreListener *m_coreListener;
     QPointer<IEditor> m_currentEditor;
     bool m_isActive;
     bool m_isRequired;
@@ -102,18 +69,22 @@ public:
     Context m_activeContext;
 };
 
-DesignModePrivate::DesignModePrivate(DesignMode *q)
-  : m_coreListener(new Internal::DesignModeCoreListener(q)),
-    m_isActive(false),
-    m_isRequired(false),
-    m_stackWidget(new QStackedWidget)
-{
-}
+DesignModePrivate::DesignModePrivate()
+    : m_isActive(false),
+      m_isRequired(false),
+      m_stackWidget(new QStackedWidget)
+{}
 
 DesignMode::DesignMode()
-    : d(new DesignModePrivate(this))
+    : d(new DesignModePrivate)
 {
     m_instance = this;
+
+    ICore::addPreCloseListener([]() -> bool {
+        m_instance->currentEditorChanged(0);
+        return true;
+    });
+
     setObjectName(QLatin1String("DesignMode"));
     setEnabled(false);
     setContext(Context(Constants::C_DESIGN_MODE));
@@ -122,8 +93,6 @@ DesignMode::DesignMode()
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png")));
     setPriority(Constants::P_MODE_DESIGN);
     setId(Constants::MODE_DESIGN);
-
-    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &DesignMode::currentEditorChanged);
@@ -134,9 +103,6 @@ DesignMode::DesignMode()
 
 DesignMode::~DesignMode()
 {
-    ExtensionSystem::PluginManager::removeObject(d->m_coreListener);
-    delete d->m_coreListener;
-
     qDeleteAll(d->m_editors);
     delete d;
 }

@@ -31,16 +31,18 @@
 #include "vcsplugin.h"
 
 #include "vcsbaseconstants.h"
+#include "vcsbasesubmiteditor.h"
 
 #include "commonsettingspage.h"
 #include "nicknamedialog.h"
 #include "vcsoutputwindow.h"
 #include "vcsprojectcache.h"
-#include "corelistener.h"
 #include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"
 #include "wizard/vcsjsextension.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
@@ -64,8 +66,7 @@ VcsPlugin *VcsPlugin::m_instance = 0;
 
 VcsPlugin::VcsPlugin() :
     m_settingsPage(0),
-    m_nickNameModel(0),
-    m_coreListener(0)
+    m_nickNameModel(0)
 {
     m_instance = this;
 }
@@ -81,8 +82,12 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    m_coreListener = new CoreListener;
-    addAutoReleasedObject(m_coreListener);
+    EditorManager::addCloseEditorListener([this](IEditor *editor) -> bool {
+        bool result = true;
+        if (auto se = qobject_cast<VcsBaseSubmitEditor *>(editor))
+            emit submitEditorAboutToClose(se, &result);
+        return result;
+    });
 
     m_settingsPage = new CommonOptionsPage;
     addAutoReleasedObject(m_settingsPage);
@@ -137,11 +142,6 @@ void VcsPlugin::extensionsInitialized()
 VcsPlugin *VcsPlugin::instance()
 {
     return m_instance;
-}
-
-CoreListener *VcsPlugin::coreListener() const
-{
-    return m_coreListener;
 }
 
 CommonVcsSettings VcsPlugin::settings() const

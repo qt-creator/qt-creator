@@ -51,7 +51,6 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/icorelistener.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/iversioncontrol.h>
@@ -114,26 +113,6 @@ static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimi
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
-
-//===================EditorClosingCoreListener======================
-
-namespace Core {
-namespace Internal {
-
-class EditorClosingCoreListener : public ICoreListener
-{
-public:
-    bool editorAboutToClose(IEditor *) { return true; }
-    bool coreAboutToClose()
-    {
-        // Do not ask for files to save.
-        // MainWindow::closeEvent has already done that.
-        return EditorManager::closeAllEditors(false);
-    }
-};
-
-} // namespace Internal
-} // namespace Core
 
 using namespace Core;
 using namespace Core::Internal;
@@ -284,7 +263,6 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), this)),
     m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this)),
     m_windowPopup(0),
-    m_coreListener(0),
     m_reloadSetting(IDocument::AlwaysAsk),
     m_autoSaveEnabled(true),
     m_autoSaveInterval(5),
@@ -297,10 +275,6 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
 EditorManagerPrivate::~EditorManagerPrivate()
 {
     if (ICore::instance()) {
-        if (m_coreListener) {
-            ExtensionSystem::PluginManager::removeObject(m_coreListener);
-            delete m_coreListener;
-        }
         ExtensionSystem::PluginManager::removeObject(m_openEditorsFactory);
         delete m_openEditorsFactory;
     }
@@ -516,8 +490,9 @@ void EditorManagerPrivate::init()
     connect(m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
     updateAutoSave();
 
-    d->m_coreListener = new EditorClosingCoreListener();
-    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
+    // Do not ask for files to save.
+    // MainWindow::closeEvent has already done that.
+    ICore::addPreCloseListener([]() -> bool { return EditorManager::closeAllEditors(false); });
 
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
@@ -2351,12 +2326,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     // 2. keep track of the document and all the editors that might remain open for it
     QSet<IEditor*> acceptedEditors;
     QMap<IDocument *, QList<IEditor *> > documentMap;
-    const QList<ICoreListener *> listeners =
-        ExtensionSystem::PluginManager::getObjects<ICoreListener>();
     foreach (IEditor *editor, editorsToClose) {
         bool editorAccepted = true;
-        foreach (ICoreListener *listener, listeners) {
-            if (!listener->editorAboutToClose(editor)) {
+        foreach (const std::function<bool(IEditor*)> listener, d->m_closeEditorListeners) {
+            if (!listener(editor)) {
                 editorAccepted = false;
                 closingFailed = true;
                 break;
@@ -2618,6 +2591,22 @@ bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
     if (!ok)
         QMessageBox::critical(ICore::mainWindow(), tr("Opening File"), errorMessage);
     return ok;
+}
+
+/*!
+    \fn EditorManager::addCloseEditorListener
+
+    \brief The \c EditorManager::addCloseEditorListener function provides
+    a hook for plugins to veto on closing editors.
+
+    When an editor requests a close, all listeners are called. If one of these
+    calls returns \c false, the process is aborted and the event is ignored.
+    If all calls return \c true, \c EditorManager::editorAboutToClose()
+    is emitted and the event is accepted.
+*/
+void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)> &listener)
+{
+    d->m_closeEditorListeners.append(listener);
 }
 
 QStringList EditorManager::getOpenFileNames()

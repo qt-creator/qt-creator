@@ -121,6 +121,7 @@ public:
                                            OpenEditorFlags flags = NoFlags);
 
     static bool openExternalEditor(const QString &fileName, Id editorId);
+    static void addCloseEditorListener(const std::function<bool(IEditor *)> &listener);
 
     static QStringList getOpenFileNames();
 

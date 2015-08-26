@@ -69,7 +69,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/progressmanager/progressmanager_p.h>
 #include <coreplugin/progressmanager/progressview.h>
@@ -250,6 +249,11 @@ void MainWindow::appendAboutInformation(const QString &line)
     m_aboutInformation.append(line);
 }
 
+void MainWindow::addPreCloseListener(const std::function<bool ()> &listener)
+{
+    m_preCloseListeners.append(listener);
+}
+
 MainWindow::~MainWindow()
 {
     // explicitly delete window support, because that calls methods from ICore that call methods
@@ -370,10 +374,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    const QList<ICoreListener *> listeners =
-        PluginManager::getObjects<ICoreListener>();
-    foreach (ICoreListener *listener, listeners) {
-        if (!listener->coreAboutToClose()) {
+    foreach (const std::function<bool()> &listener, m_preCloseListeners) {
+        if (!listener()) {
             event->ignore();
             return;
         }

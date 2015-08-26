@@ -59,7 +59,6 @@ HEADERS += projectexplorer.h \
     gnumakeparser.h \
     projectexplorerconstants.h \
     projectexplorersettings.h \
-    corelistenercheckingforrunningbuild.h \
     project.h \
     iprojectmanager.h \
     currentprojectfilter.h \
@@ -238,7 +237,6 @@ SOURCES += projectexplorer.cpp \
     cesdkhandler.cpp \
     gccparser.cpp \
     projectexplorersettingspage.cpp \
-    corelistenercheckingforrunningbuild.cpp \
     baseprojectwizarddialog.cpp \
     miniprojecttargetselector.cpp \
     targetselector.cpp \

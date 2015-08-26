@@ -56,7 +56,6 @@ class EditorManager;
 
 namespace Internal {
 
-class EditorClosingCoreListener;
 class MainWindow;
 class OpenEditorsViewFactory;
 class OpenEditorsWindow;
@@ -243,7 +242,6 @@ private:
     IEditor *m_contextMenuEditor;
 
     OpenEditorsWindow *m_windowPopup;
-    EditorClosingCoreListener *m_coreListener;
 
     QMap<QString, QVariant> m_editorStates;
     OpenEditorsViewFactory *m_openEditorsFactory;
@@ -260,6 +258,7 @@ private:
     int m_bigFileSizeLimitInMB;
 
     QString m_placeholderText;
+    QList<std::function<bool(IEditor *)>> m_closeEditorListeners;
 };
 
 } // Internal

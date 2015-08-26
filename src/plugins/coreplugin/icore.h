@@ -37,6 +37,8 @@
 #include <QObject>
 #include <QSettings>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QPrinter;
 class QStatusBar;
@@ -131,6 +133,8 @@ public:
         StopOnLoadFail = 4
     };
     static void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None);
+
+    static void addPreCloseListener(const std::function<bool()> &listener);
 
 public slots:
     static void saveSettings();

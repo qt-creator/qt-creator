@@ -47,7 +47,6 @@ QtcPlugin {
             "compileoutputwindow.cpp", "compileoutputwindow.h",
             "configtaskhandler.cpp", "configtaskhandler.h",
             "copytaskhandler.cpp", "copytaskhandler.h",
-            "corelistenercheckingforrunningbuild.cpp", "corelistenercheckingforrunningbuild.h",
             "currentprojectfilter.cpp", "currentprojectfilter.h",
             "currentprojectfind.cpp", "currentprojectfind.h",
             "customparser.cpp", "customparser.h",

@@ -79,7 +79,6 @@
 #include "projectnodes.h"
 #include "sessiondialog.h"
 #include "projectexplorersettingspage.h"
-#include "corelistenercheckingforrunningbuild.h"
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
@@ -559,7 +558,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new RemoveTaskHandler);
     addAutoReleasedObject(new ConfigTaskHandler(Task::compilerMissingTask(),
                                                 Constants::KITS_SETTINGS_PAGE_ID));
-    addAutoReleasedObject(new CoreListener);
+
+    ICore::addPreCloseListener([]() -> bool { return coreAboutToClose(); });
 
     dd->m_outputPane = new AppOutputPane;
     addAutoReleasedObject(dd->m_outputPane);

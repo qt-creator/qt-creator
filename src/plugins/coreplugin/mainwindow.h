@@ -40,6 +40,8 @@
 #include <QMap>
 #include <QColor>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QPrinter;
@@ -112,6 +114,8 @@ public:
 
     QStringList additionalAboutInformation() const;
     void appendAboutInformation(const QString &line);
+
+    void addPreCloseListener(const std::function<bool()> &listener);
 
 signals:
     void newItemDialogRunningChanged();
@@ -201,6 +205,7 @@ private:
 
     QToolButton *m_toggleSideBarButton;
     QColor m_overrideColor;
+    QList<std::function<bool()>> m_preCloseListeners;
 };
 
 } // namespace Internal

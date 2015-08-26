@@ -32,8 +32,6 @@ QtcPlugin {
         "commonsettingspage.ui",
         "commonvcssettings.cpp",
         "commonvcssettings.h",
-        "corelistener.cpp",
-        "corelistener.h",
         "diffandloghighlighter.cpp",
         "diffandloghighlighter.h",
         "nicknamedialog.cpp",

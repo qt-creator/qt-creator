@@ -101,7 +101,6 @@ SOURCES += corejsextensions.cpp \
     removefiledialog.cpp \
     iversioncontrol.cpp \
     dialogs/addtovcsdialog.cpp \
-    icorelistener.cpp \
     ioutputpane.cpp \
     patchtool.cpp \
     windowsupport.cpp \
@@ -177,7 +176,6 @@ HEADERS += corejsextensions.h \
     coreconstants.h \
     iversioncontrol.h \
     ifilewizardextension.h \
-    icorelistener.h \
     versiondialog.h \
     core_global.h \
     statusbarwidget.h \

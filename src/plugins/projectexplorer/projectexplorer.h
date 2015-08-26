@@ -135,7 +135,6 @@ public:
     // internal public for FlatModel
     static void renameFile(Node *node, const QString &newFilePath);
     static QStringList projectFilePatterns();
-    static bool coreAboutToClose();
     static QList<QPair<QString, QString> > recentProjects();
 
     static bool canRun(Project *pro, Core::Id runMode, QString *whyNot = 0);
@@ -159,6 +158,9 @@ public:
     static QStringList projectFileGlobs();
 
     static void updateContextMenuActions();
+
+private:
+    static bool coreAboutToClose();
 
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);

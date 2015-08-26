@@ -564,6 +564,23 @@ void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
     m_mainwindow->openFiles(arguments, flags);
 }
 
+
+/*!
+    \fn ICore::addCloseCoreListener
+
+    \brief The \c ICore::addCloseCoreListener function provides a hook for plugins
+    to veto on closing the application.
+
+    When the application window requests a close, all listeners are called.
+    If one if these calls returns \c false, the process is aborted and the
+    event is ignored. If all calls return \c true, \c ICore::coreAboutToClose()
+    is emitted and the event is accepted or performed..
+*/
+void ICore::addPreCloseListener(const std::function<bool ()> &listener)
+{
+    m_mainwindow->addPreCloseListener(listener);
+}
+
 void ICore::saveSettings()
 {
     emit m_instance->saveSettingsRequested();

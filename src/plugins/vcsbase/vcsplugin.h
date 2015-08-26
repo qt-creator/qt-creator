@@ -38,6 +38,9 @@ class QStandardItemModel;
 QT_END_NAMESPACE
 
 namespace VcsBase {
+
+class VcsBaseSubmitEditor;
+
 namespace Internal {
 
 class CommonVcsSettings;
@@ -59,8 +62,6 @@ public:
 
     static VcsPlugin *instance();
 
-    CoreListener *coreListener() const;
-
     CommonVcsSettings settings() const;
 
     // Model of user nick names used for the submit
@@ -70,6 +71,7 @@ public:
 
 signals:
     void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
+    void submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *e, bool *result);
 
 private slots:
     void slotSettingsChanged();
@@ -80,7 +82,6 @@ private:
     static VcsPlugin *m_instance;
     CommonOptionsPage *m_settingsPage;
     QStandardItemModel *m_nickNameModel;
-    CoreListener *m_coreListener;
 };
 
 } // namespace Internal

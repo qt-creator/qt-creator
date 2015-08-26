@@ -7,7 +7,6 @@ HEADERS += vcsbase_global.h \
     wizard/vcscommandpage.h \
     wizard/vcsjsextension.h \
     vcsplugin.h \
-    corelistener.h \
     vcsbaseplugin.h \
     baseannotationhighlighter.h \
     diffandloghighlighter.h \
@@ -36,7 +35,6 @@ SOURCES += vcsplugin.cpp \
     wizard/vcsconfigurationpage.cpp \
     wizard/vcscommandpage.cpp \
     wizard/vcsjsextension.cpp \
-    corelistener.cpp \
     baseannotationhighlighter.cpp \
     diffandloghighlighter.cpp \
     vcsbaseeditor.cpp \

@@ -33,7 +33,6 @@
 #include "vcsplugin.h"
 #include "commonvcssettings.h"
 #include "vcsoutputwindow.h"
-#include "corelistener.h"
 #include "vcscommand.h"
 
 #include <coreplugin/documentmanager.h>
@@ -567,7 +566,7 @@ void VcsBasePlugin::initializeVcs(IVersionControl *vc, const Context &context)
     addAutoReleasedObject(vc);
 
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
-    connect(plugin->coreListener(), &Internal::CoreListener::submitEditorAboutToClose,
+    connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
             this, &VcsBasePlugin::slotSubmitEditorAboutToClose);
     // First time: create new listener
     if (!VcsBasePluginPrivate::m_listener)
