@@ -49,11 +49,7 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
-    class Context;
-    class IContext;
     class IEditor;
-    class DesignMode;
-    class EditorManager;
     class IMode;
 }
 
@@ -61,10 +57,7 @@ namespace QmlDesigner {
 
 class QmlDesignerPluginData;
 
-namespace Internal {
-class DesignModeWidget;
-class DesignModeContext;
-}
+namespace Internal { class DesignModeWidget; }
 
 class QMLDESIGNERCORE_EXPORT QmlDesignerPlugin : public ExtensionSystem::IPlugin
 {
