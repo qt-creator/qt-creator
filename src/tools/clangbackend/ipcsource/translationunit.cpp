@@ -70,6 +70,7 @@ public:
     CXIndex index = nullptr;
     uint documentRevision = 0;
     bool needsToBeReparsed  = false;
+    bool hasNewDiagnostics = false;
 };
 
 TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
@@ -190,9 +191,16 @@ bool TranslationUnit::isNeedingReparse() const
     return d->needsToBeReparsed;
 }
 
+bool TranslationUnit::hasNewDiagnostics() const
+{
+    return d->hasNewDiagnostics;
+}
+
 DiagnosticSet TranslationUnit::diagnostics() const
 {
     reparseTranslationUnitIfFilesAreChanged();
+
+    d->hasNewDiagnostics = false;
 
     return DiagnosticSet(clang_getDiagnosticSetFromTU(cxTranslationUnit()));
 }
@@ -204,10 +212,12 @@ const QSet<Utf8String> &TranslationUnit::dependedFilePaths() const
     return d->dependedFilePaths;
 }
 
-void TranslationUnit::updateIsNeedingReparseIfDependencyIsMet(const Utf8String &filePath)
+void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
 {
-    if (d->dependedFilePaths.contains(filePath))
+    if (d->dependedFilePaths.contains(filePath)) {
         d->needsToBeReparsed = true;
+        d->hasNewDiagnostics = true;
+    }
 }
 
 void TranslationUnit::checkIfNull() const

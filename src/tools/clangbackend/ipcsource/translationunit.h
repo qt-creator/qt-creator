@@ -97,12 +97,13 @@ public:
     const time_point &lastProjectPartChangeTimePoint() const;
 
     bool isNeedingReparse() const;
+    bool hasNewDiagnostics() const;
 
     DiagnosticSet diagnostics() const;
 
     const QSet<Utf8String> &dependedFilePaths() const;
 
-    void updateIsNeedingReparseIfDependencyIsMet(const Utf8String &filePath);
+    void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
 private:
     void checkIfNull() const;

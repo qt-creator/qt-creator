@@ -62,6 +62,7 @@ private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits;
+    QTimer sendDiagnosticsTimer;
 };
 
 } // namespace ClangBackEnd

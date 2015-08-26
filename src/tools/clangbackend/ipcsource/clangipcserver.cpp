@@ -63,6 +63,12 @@ ClangIpcServer::ClangIpcServer()
                                                       {
                                                           client()->diagnosticsChanged(message);
                                                       });
+
+    sendDiagnosticsTimer.setInterval(2000);
+    sendDiagnosticsTimer.setSingleShot(true);
+    QObject::connect(&sendDiagnosticsTimer,
+                     &QTimer::timeout,
+                     [this] () { translationUnits.sendChangedDiagnostics(); });
 }
 
 void ClangIpcServer::end()
@@ -79,6 +85,7 @@ void ClangIpcServer::registerTranslationUnitsForCodeCompletion(const ClangBackEn
         if (newerFileContainers.size() > 0) {
             unsavedFiles.createOrUpdate(newerFileContainers);
             translationUnits.createOrUpdate(newerFileContainers);
+            sendDiagnosticsTimer.start();
         }
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));

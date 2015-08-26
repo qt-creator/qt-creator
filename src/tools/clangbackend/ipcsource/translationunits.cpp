@@ -64,8 +64,6 @@ void TranslationUnits::createOrUpdate(const QVector<FileContainer> &fileContaine
         createOrUpdateTranslationUnit(fileContainer);
         updateTranslationUnitsWithChangedDependencies(fileContainer.filePath());
     }
-
-    sendChangedDiagnostics();
 }
 
 static bool removeFromFileContainer(QVector<FileContainer> &fileContainers, const TranslationUnit &translationUnit)
@@ -132,14 +130,14 @@ void TranslationUnits::addWatchedFiles(QSet<Utf8String> &filePaths)
 void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const Utf8String &filePath)
 {
     for (auto &translationUnit : translationUnits_)
-        translationUnit.updateIsNeedingReparseIfDependencyIsMet(filePath);
+        translationUnit.setDirtyIfDependencyIsMet(filePath);
 }
 
 void TranslationUnits::sendChangedDiagnostics()
 {
     for (const auto &translationUnit : translationUnits_) {
-        if (translationUnit.isNeedingReparse())
-            sendDiagnosticChangedMessage(translationUnit);
+        if (translationUnit.hasNewDiagnostics())
+             sendDiagnosticChangedMessage(translationUnit);
     }
 }
 
