@@ -166,6 +166,11 @@ QVector<FileContainer> TranslationUnits::newerFileContainers(const QVector<FileC
     return newerContainers;
 }
 
+const ClangFileSystemWatcher *TranslationUnits::clangFileSystemWatcher() const
+{
+    return &fileSystemWatcher;
+}
+
 void TranslationUnits::createOrUpdateTranslationUnit(const FileContainer &fileContainer)
 {
     TranslationUnit::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent() ? TranslationUnit::DoNotCheckIfFileExists : TranslationUnit::CheckIfFileExists;

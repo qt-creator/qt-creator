@@ -42,6 +42,7 @@
 #include <utf8string.h>
 
 #include <QMap>
+#include <QTimer>
 
 namespace ClangBackEnd {
 

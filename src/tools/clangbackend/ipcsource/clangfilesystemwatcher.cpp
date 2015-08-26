@@ -59,14 +59,6 @@ ClangFileSystemWatcher::ClangFileSystemWatcher(TranslationUnits &translationUnit
             &QFileSystemWatcher::fileChanged,
             this,
             &ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies);
-
-    connect(&changedDiagnosticsTimer,
-            &QTimer::timeout,
-            this,
-            &ClangFileSystemWatcher::sendChangedDiagnostics);
-
-    changedDiagnosticsTimer.setSingleShot(true);
-    changedDiagnosticsTimer.setInterval(100);
 }
 
 void ClangFileSystemWatcher::addFiles(const QSet<Utf8String> &filePaths)
@@ -77,13 +69,9 @@ void ClangFileSystemWatcher::addFiles(const QSet<Utf8String> &filePaths)
 void ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies(const QString &filePath)
 {
     translationUnits.updateTranslationUnitsWithChangedDependencies(filePath);
-    changedDiagnosticsTimer.start();
     watcher.addPath(filePath);
-}
 
-void ClangFileSystemWatcher::sendChangedDiagnostics()
-{
-    translationUnits.sendChangedDiagnostics();
+    emit fileChanged();
 }
 
 } // namespace ClangBackEnd

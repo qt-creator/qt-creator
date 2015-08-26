@@ -33,7 +33,6 @@
 
 #include <QFileSystemWatcher>
 #include <QSet>
-#include <QTimer>
 
 class Utf8String;
 
@@ -50,13 +49,14 @@ public:
 
     void addFiles(const QSet<Utf8String> &filePaths);
 
+signals:
+    void fileChanged();
+
 private:
     void updateTranslationUnitsWithChangedDependencies(const QString &filePath);
-    void sendChangedDiagnostics();
 
 private:
     QFileSystemWatcher watcher;
-    QTimer changedDiagnosticsTimer;
     TranslationUnits &translationUnits;
 };
 

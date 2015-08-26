@@ -69,6 +69,10 @@ ClangIpcServer::ClangIpcServer()
     QObject::connect(&sendDiagnosticsTimer,
                      &QTimer::timeout,
                      [this] () { translationUnits.sendChangedDiagnostics(); });
+
+    QObject::connect(translationUnits.clangFileSystemWatcher(),
+                     &ClangFileSystemWatcher::fileChanged,
+                     [this] () { sendDiagnosticsTimer.start(); });
 }
 
 void ClangIpcServer::end()

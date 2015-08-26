@@ -71,6 +71,8 @@ public:
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
+    const ClangFileSystemWatcher *clangFileSystemWatcher() const;
+
 private:
     void createOrUpdateTranslationUnit(const FileContainer &fileContainer);
     std::vector<TranslationUnit>::iterator findTranslationUnit(const FileContainer &fileContainer);
