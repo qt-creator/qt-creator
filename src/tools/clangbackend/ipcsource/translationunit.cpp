@@ -257,9 +257,6 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
 
         updateIncludeFilePaths();
 
-        // We need to reparse to create the precompiled preamble, which will speed up further calls,
-        // e.g. clang_codeCompleteAt() dramatically.
-        reparseTranslationUnit();
 
         updateLastProjectPartChangeTimePoint();
     }
