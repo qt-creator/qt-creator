@@ -660,6 +660,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
 
 TEST_F(CodeCompletionsExtractor, BriefComment)
 {
+    briefCommentTranslationUnit.reparse();
     ClangCodeCompleteResults completeResults(getResults(briefCommentTranslationUnit, 10));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
