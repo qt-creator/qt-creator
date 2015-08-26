@@ -677,7 +677,8 @@ void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartI
     ipcCommunicator.registerFilesForCodeCompletion({{m_interface->fileName(),
                                                      projectPartId,
                                                      Utf8String::fromByteArray(info.unsavedContent),
-                                                     info.isDocumentModified}});
+                                                     info.isDocumentModified,
+                                                     uint(m_interface->textDocument()->revision())}});
 }
 
 void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
