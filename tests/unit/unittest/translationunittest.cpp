@@ -175,6 +175,43 @@ TEST_F(TranslationUnit, DependedFilePaths)
                       Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"))));
 }
 
+TEST_F(TranslationUnit, NoNeedForReparsingForIndependendFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.updateIsNeedingReparseIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/otherfiles.h"));
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, NeedsReparsingForDependendFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.updateIsNeedingReparseIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
+
+    ASSERT_TRUE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, NeedsReparsingForMainFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.updateIsNeedingReparseIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp"));
+
+    ASSERT_TRUE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, NeedsNoReparsingForDependendFileAfterReparsing)
+{
+    translationUnit.cxTranslationUnit();
+    translationUnit.updateIsNeedingReparseIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
+
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
 //TEST_F(TranslationUnit, ThrowParseErrorForWrongArguments)
 //{
 //    ProjectPart project(Utf8StringLiteral("/path/to/projectfile"));
