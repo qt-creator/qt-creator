@@ -312,17 +312,6 @@ QString Kit::displayName() const
     return d->m_macroExpander.expand(d->m_unexpandedDisplayName);
 }
 
-static QString candidateName(const QString &name, const QString &postfix)
-{
-    if (name.contains(postfix))
-        return QString();
-    QString candidate = name;
-    if (!candidate.isEmpty())
-        candidate.append(QLatin1Char('-'));
-    candidate.append(postfix);
-    return candidate;
-}
-
 void Kit::setUnexpandedDisplayName(const QString &name)
 {
     if (d->m_unexpandedDisplayName == name)
@@ -330,21 +319,6 @@ void Kit::setUnexpandedDisplayName(const QString &name)
 
     d->m_unexpandedDisplayName = name;
     kitUpdated();
-}
-
-QStringList Kit::candidateNameList(const QString &base) const
-{
-    QStringList result;
-    result << base;
-    foreach (KitInformation *ki, KitManager::kitInformation()) {
-        const QString postfix = ki->displayNamePostfix(this);
-        if (!postfix.isEmpty()) {
-            QString tmp = candidateName(base, postfix);
-            if (!tmp.isEmpty())
-                result << tmp;
-        }
-    }
-    return result;
 }
 
 void Kit::setCustomFileSystemFriendlyName(const QString &fileSystemFriendlyName)

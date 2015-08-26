@@ -79,8 +79,6 @@ public:
     QString displayName() const;
     void setUnexpandedDisplayName(const QString &name);
 
-    QStringList candidateNameList(const QString &base) const;
-
     QString fileSystemFriendlyName() const;
     QString customFileSystemFriendlyName() const;
     void setCustomFileSystemFriendlyName(const QString &fileSystemFriendlyName);
