@@ -136,8 +136,10 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const Utf8S
 void TranslationUnits::sendChangedDiagnostics()
 {
     for (const auto &translationUnit : translationUnits_) {
-        if (translationUnit.hasNewDiagnostics())
+        if (translationUnit.hasNewDiagnostics()) {
              sendDiagnosticChangedMessage(translationUnit);
+             break;
+        }
     }
 }
 

@@ -30,6 +30,7 @@
 
 #include "clangipcserver.h"
 
+#include "clangfilesystemwatcher.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
 #include "projectpartsdonotexistexception.h"
@@ -64,8 +65,7 @@ ClangIpcServer::ClangIpcServer()
                                                           client()->diagnosticsChanged(message);
                                                       });
 
-    sendDiagnosticsTimer.setInterval(2000);
-    sendDiagnosticsTimer.setSingleShot(true);
+    sendDiagnosticsTimer.setInterval(1000);
     QObject::connect(&sendDiagnosticsTimer,
                      &QTimer::timeout,
                      [this] () { translationUnits.sendChangedDiagnostics(); });
