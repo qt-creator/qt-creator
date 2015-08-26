@@ -168,7 +168,7 @@ For detailed information on the supported compilers, see
        able to find all dependent Qt-libraries and plugins when being launched by the
        system. The easiest way to provide them for Qt 5 is to run the tool windeployqt:
 
-        windeployqt -qmldir share\qtcreator -qmldir src\plugins\qmlprofiler bin\qtcreator.exe lib\qtcreator lib\qtcreator\plugins
+        windeployqt -quick -qmldir share\qtcreator\welcomescreen -qmldir src\plugins\qmlprofiler bin\qtcreator.exe lib\qtcreator lib\qtcreator\plugins
 
 Note that unlike on Unix, you cannot overwrite executables that are running.
 Thus, if you want to work on Qt Creator using Qt Creator, you need a
