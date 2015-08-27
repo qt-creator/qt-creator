@@ -74,7 +74,6 @@ namespace {
     static const QLatin1String kCaseSensitive("casesensitive");
     static const QLatin1String kWeakDeliminator("weakDeliminator");
     static const QLatin1String kAdditionalDeliminator("additionalDeliminator");
-    static const QLatin1String kWordWrapDeliminator("wordWrapDeliminator");
     static const QLatin1String kComment("comment");
     static const QLatin1String kPosition("position");
     static const QLatin1String kSingleLine("singleline");
@@ -99,8 +98,6 @@ namespace {
     static const QLatin1String kIncludeRules("IncludeRules");
     static const QLatin1String kDetectSpaces("DetectSpaces");
     static const QLatin1String kDetectIdentifier("DetectIdentifier");
-    static const QLatin1String kLanguage("language");
-    static const QLatin1String kExtensions("extensions");
     static const QLatin1String kIncludeAttrib("includeAttrib");
     static const QLatin1String kFolding("folding");
     static const QLatin1String kIndentationSensitive("indentationsensitive");
