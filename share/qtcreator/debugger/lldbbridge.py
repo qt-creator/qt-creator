@@ -1267,12 +1267,9 @@ class Dumper(DumperBase):
                 result = 'registers=['
                 for group in frame.GetRegisters():
                     for reg in group:
+                        value = ''.join(["%02x" % x for x in reg.GetData().uint8s])
                         result += '{name="%s"' % reg.GetName()
-                        value = reg.GetValue()
-                        if value is None:
-                            result += ',value=""'
-                        else:
-                            result += ',value="%s"' % value
+                        result += ',value="0x%s"' % value
                         result += ',size="%s"' % reg.GetByteSize()
                         result += ',type="%s"},' % reg.GetType()
                 result += ']'
@@ -1283,13 +1280,19 @@ class Dumper(DumperBase):
         name = args["name"]
         value = args["value"]
         result = lldb.SBCommandReturnObject()
-        self.debugger.GetCommandInterpreter().HandleCommand(
-            "register write %s %s" % (name, value), result)
+        interp = self.debugger.GetCommandInterpreter()
+        interp.HandleCommand("register write %s %s" % (name, value), result)
         success = result.Succeeded()
         if success:
             self.report('output="%s"' % result.GetOutput())
-        else:
-            self.report('error="%s"' % result.GetError())
+            return
+        # Try again with  register write xmm0 "{0x00 ... 0x02}" syntax:
+        vec = ' '.join(["0x" + value[i:i+2] for i in range(2, len(value), 2)])
+        success = interp.HandleCommand('register write %s "{%s}"' % (name, vec), result)
+        if success:
+            self.report('output="%s"' % result.GetOutput())
+            return
+        self.report('error="%s"' % result.GetError())
 
     def report(self, stuff):
         with self.outputLock:
