@@ -59,8 +59,6 @@ namespace QmakeAndroidSupport {
 namespace Internal {
 
 const Core::Id ANDROID_BUILD_APK_ID("QmakeProjectManager.AndroidBuildApkStep");
-const QLatin1String ProFilePathForInputFile("ProFilePathForInputFile");
-
 
 //////////////////
 // QmakeAndroidBuildApkStepFactory

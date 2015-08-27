@@ -63,12 +63,6 @@ using namespace Android;
 using namespace Android::Internal;
 
 const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");
-const QLatin1String KeystoreLocationKey("KeystoreLocation");
-const QLatin1String SignPackageKey("SignPackage");
-const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
-const QLatin1String VerboseOutputKey("VerboseOutput");
-const QLatin1String InputFile("InputFile");
-const QLatin1String ProFilePathForInputFile("ProFilePathForInputFile");
 const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
 const QLatin1String InstallFailedInconsistentCertificatesString2("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");

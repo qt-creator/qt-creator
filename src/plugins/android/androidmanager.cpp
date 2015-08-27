@@ -66,7 +66,6 @@
 #include <QDomDocument>
 
 namespace {
-    const QLatin1String AndroidDirName("android");
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
     const QLatin1String AndroidLibsFileName("/res/values/libs.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");

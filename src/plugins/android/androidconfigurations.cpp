@@ -83,14 +83,12 @@ namespace {
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
     const QLatin1String NDKLocationKey("NDKLocation");
-    const QLatin1String NDKToolchainVersionKey("NDKToolchainVersion");
     const QLatin1String AntLocationKey("AntLocation");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String UseGradleKey("UseGradle");
     const QLatin1String MakeExtraSearchDirectory("MakeExtraSearchDirectory");
-    const QLatin1String DefaultDevice("DefaultDevice");
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ToolchainHostKey("ToolchainHost");
 
@@ -114,7 +112,6 @@ namespace {
 
     const QLatin1String Unknown("unknown");
     const QLatin1String keytoolName("keytool");
-    const QLatin1String jarsignerName("jarsigner");
     const QLatin1String changeTimeStamp("ChangeTimeStamp");
 
     static QString sdkSettingsFileName()
