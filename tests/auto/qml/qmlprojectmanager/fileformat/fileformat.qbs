@@ -5,7 +5,6 @@ QtcAutotest {
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
     Depends { name: "Qt"; submodules: ["script"]; }
-    Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed
     property path fileFormatDir: project.ide_source_tree + "/src/plugins/qmlprojectmanager/fileformat"
     files: "tst_fileformat.cpp"
     Group {

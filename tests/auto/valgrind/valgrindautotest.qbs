@@ -5,7 +5,6 @@ QtcAutotest {
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed
     property path pluginDir: project.ide_source_tree + "/src/plugins/valgrind"
 
     Group {

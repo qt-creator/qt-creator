@@ -4,7 +4,6 @@ QtcAutotest {
     name: "ExternalTool autotest"
     Depends { name: "Core" }
     Depends { name: "app_version_header" }
-    Depends { name: "Qt.widgets" } // TODO: qbs bug, remove when fixed
 
     Group {
         name: "Duplicated sources from Core plugin" // Ewww. But the .pro file does the same.
