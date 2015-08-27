@@ -40,7 +40,7 @@ public:
     %{CN} &operator=(const %{CN} &);
     ~%{CN}();
 @endif
-@if '%{isQObject}'
+@if %{isQObject}
 
 signals:
 
