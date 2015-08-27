@@ -1669,6 +1669,14 @@ void CdbEngine::handleRegistersExt(const DebuggerResponse &response)
                 reg.name = item["name"].data();
                 reg.description = item["description"].data();
                 reg.reportedType = item["type"].data();
+                if (reg.reportedType.startsWith('I'))
+                    reg.kind = IntegerRegister;
+                else if (reg.reportedType.startsWith('F'))
+                    reg.kind = FloatRegister;
+                else if (reg.reportedType.startsWith('V'))
+                    reg.kind = VectorRegister;
+                else
+                    reg.kind = OtherRegister;
                 reg.value.fromByteArray(item["value"].data(), HexadecimalFormat);
                 reg.size = item["size"].data().toInt();
                 handler->updateRegister(reg);

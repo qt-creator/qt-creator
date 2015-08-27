@@ -129,6 +129,7 @@ struct Register
 
     std::wstring name;
     std::wstring description;
+    std::wstring type;
     int size;
     bool subRegister;
     bool pseudoRegister;

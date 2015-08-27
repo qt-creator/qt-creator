@@ -347,7 +347,7 @@ const wchar_t *valueType(ULONG type)
     case DEBUG_VALUE_INT32:
         return L"I32";
     case DEBUG_VALUE_INT64:
-        return  L"I64";
+        return L"I64";
     case DEBUG_VALUE_FLOAT32:
         return L"F32";
     case DEBUG_VALUE_FLOAT64:
@@ -509,6 +509,8 @@ Registers getRegisters(CIDebugRegisters *regs,
             reg.description = registerDescription(description);
             reg.subRegister = isSubRegister;
             reg.value = value;
+            reg.size = valueSize(description.Type);
+            reg.type = valueType(description.Type);
             rc.push_back(reg);
         }
     }
@@ -527,6 +529,7 @@ Registers getRegisters(CIDebugRegisters *regs,
         reg.name = buf;
         reg.description = valueType(type);
         reg.size = valueSize(type);
+        reg.type = valueType(type);
         reg.value = value;
         rc.push_back(reg);
     }
@@ -557,7 +560,8 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
         const Register &reg = registers.at(r);
         if (r)
             str << ',';
-        str << "{number=\"" << r << "\",name=\"" << gdbmiWStringFormat(reg.name) << '"';
+        str << "{number=\"" << r << "\",name=\"" << gdbmiWStringFormat(reg.name)
+            << "\",size=\"" << reg.size << "\",type=\"" << gdbmiWStringFormat(reg.type) << '"';
         if (!reg.description.empty())
             str << ",description=\"" << gdbmiWStringFormat(reg.description) << '"';
         if (reg.subRegister)
