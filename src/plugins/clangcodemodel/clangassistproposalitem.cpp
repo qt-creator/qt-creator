@@ -85,7 +85,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
 {
     const CodeCompletion ccr = codeCompletion();
 
-    QString toInsert = text();
+    QString textToBeInserted = text();
     QString extraChars;
     int extraLength = 0;
     int cursorOffset = 0;
@@ -96,7 +96,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
         if (m_typedChar == QLatin1Char('(')) // Eat the opening parenthesis
             m_typedChar = QChar();
     } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
-        if (!toInsert.endsWith(QLatin1Char('/'))) {
+        if (!textToBeInserted.endsWith(QLatin1Char('/'))) {
             extraChars += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
         } else {
             if (m_typedChar == QLatin1Char('/')) // Eat the slash
@@ -110,7 +110,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
 
         converter.parseChunks(ccr.chunks());
 
-        toInsert = converter.text();
+        textToBeInserted = converter.text();
         if (converter.hasPlaceholderPositions())
             cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
     } else if (!ccr.text().isEmpty()) {
@@ -194,8 +194,8 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
     int existLength = 0;
     if (!existingText.isEmpty() && ccr.completionKind() != CodeCompletion::KeywordCompletionKind) {
         // Calculate the exist length in front of the extra chars
-        existLength = toInsert.length() - (editorWidget->position() - basePosition);
-        while (!existingText.startsWith(toInsert.right(existLength))) {
+        existLength = textToBeInserted.length() - (editorWidget->position() - basePosition);
+        while (!existingText.startsWith(textToBeInserted.right(existLength))) {
             if (--existLength == 0)
                 break;
         }
@@ -208,25 +208,30 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
         else
             break;
     }
-    toInsert += extraChars;
+
+    textToBeInserted += extraChars;
 
     // Insert the remainder of the name
     const int length = editorWidget->position() - basePosition + existLength + extraLength;
-    editorWidget->setCursorPosition(basePosition);
-    editorWidget->replace(length, toInsert);
-    if (cursorOffset)
-        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
+    const auto textToBeReplaced = editorWidget->textAt(basePosition, length);
 
-    // indent the statement
-    if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
-        auto selectionCursor = editorWidget->textCursor();
-        selectionCursor.setPosition(basePosition);
-        selectionCursor.setPosition(basePosition + toInsert.size(), QTextCursor::KeepAnchor);
+    if (textToBeReplaced != textToBeInserted) {
+        editorWidget->setCursorPosition(basePosition);
+        editorWidget->replace(length, textToBeInserted);
+        if (cursorOffset)
+            editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 
-        auto basePositionCursor = editorWidget->textCursor();
-        basePositionCursor.setPosition(basePosition);
-        if (hasOnlyBlanksBeforeCursorInLine(basePositionCursor))
-            editorWidget->textDocument()->autoIndent(selectionCursor);
+        // indent the statement
+        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+            auto selectionCursor = editorWidget->textCursor();
+            selectionCursor.setPosition(basePosition);
+            selectionCursor.setPosition(basePosition + textToBeInserted.size(), QTextCursor::KeepAnchor);
+
+            auto basePositionCursor = editorWidget->textCursor();
+            basePositionCursor.setPosition(basePosition);
+            if (hasOnlyBlanksBeforeCursorInLine(basePositionCursor))
+                editorWidget->textDocument()->autoIndent(selectionCursor);
+        }
     }
 }
 
