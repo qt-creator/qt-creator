@@ -67,7 +67,7 @@ ClangIpcServer::ClangIpcServer()
                                                           client()->diagnosticsChanged(message);
                                                       });
 
-    sendDiagnosticsTimer.setInterval(1000);
+    sendDiagnosticsTimer.setInterval(300);
     QObject::connect(&sendDiagnosticsTimer,
                      &QTimer::timeout,
                      [this] () { translationUnits.sendChangedDiagnostics(); });
