@@ -319,7 +319,7 @@ public:
         return true;
     }
 
-    virtual bool processSignal(const QString &name, const Value * /*value*/)
+    bool processSignal(const QString &name, const Value * /*value*/) override
     {
         m_signals.append(name.toUtf8());
         return true;

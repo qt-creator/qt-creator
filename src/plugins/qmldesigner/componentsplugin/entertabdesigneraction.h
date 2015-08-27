@@ -50,8 +50,8 @@ public:
     void updateContext() override;
 
 protected:
-    bool isVisible(const SelectionContext &selectionContext) const;
-    bool isEnabled(const SelectionContext &selectionContext) const;
+    bool isVisible(const SelectionContext &selectionContext) const override;
+    bool isEnabled(const SelectionContext &selectionContext) const override;
 
 private:
     void createActionForTab(const ModelNode &modelNode);

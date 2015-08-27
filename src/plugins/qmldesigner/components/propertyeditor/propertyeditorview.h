@@ -88,7 +88,7 @@ public:
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
 

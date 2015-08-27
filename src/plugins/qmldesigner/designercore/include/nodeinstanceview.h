@@ -105,7 +105,7 @@ public:
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
 
 
-    void currentStateChanged(const ModelNode &node);
+    void currentStateChanged(const ModelNode &node) override;
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForModelNode(const ModelNode &node) const ;
@@ -121,14 +121,14 @@ public:
     void updateChildren(const NodeAbstractProperty &newPropertyParent);
     void updatePosition(const QList<VariantProperty>& propertyList);
 
-    void valuesChanged(const ValuesChangedCommand &command);
-    void pixmapChanged(const PixmapChangedCommand &command);
-    void informationChanged(const InformationChangedCommand &command);
-    void childrenChanged(const ChildrenChangedCommand &command);
-    void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
-    void componentCompleted(const ComponentCompletedCommand &command);
-    void token(const TokenCommand &command);
-    void debugOutput(const DebugOutputCommand &command);
+    void valuesChanged(const ValuesChangedCommand &command) override;
+    void pixmapChanged(const PixmapChangedCommand &command) override;
+    void informationChanged(const InformationChangedCommand &command) override;
+    void childrenChanged(const ChildrenChangedCommand &command) override;
+    void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) override;
+    void componentCompleted(const ComponentCompletedCommand &command) override;
+    void token(const TokenCommand &command) override;
+    void debugOutput(const DebugOutputCommand &command) override;
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
@@ -141,7 +141,7 @@ signals:
     void qmlPuppetError(const QString &errorMessage);
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
 
 private: // functions
     void activateState(const NodeInstance &instance);

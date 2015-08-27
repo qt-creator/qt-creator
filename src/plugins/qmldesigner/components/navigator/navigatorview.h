@@ -55,7 +55,7 @@ public:
     ~NavigatorView();
 
     bool hasWidget() const override;
-    WidgetInfo widgetInfo();
+    WidgetInfo widgetInfo() override;
 
     // AbstractView
     void modelAttached(Model *model) override;
@@ -76,7 +76,7 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
     void instanceErrorChange(const QVector<ModelNode> &errorNodeList) override;
 
-    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags);
+    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags) override;
 
 private slots:
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
