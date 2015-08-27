@@ -151,6 +151,7 @@ Item {
                             width: timeDisplay.pixelsPerSection
 
                             Rectangle {
+                                visible: column.stableIndex !== 0 || (-row.x < parent.x + x)
                                 color: "#CCCCCC"
                                 width: 1
                                 anchors.top: parent.top

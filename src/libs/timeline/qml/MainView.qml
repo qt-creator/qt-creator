@@ -172,7 +172,6 @@ Rectangle {
         windowStart: zoomControl.windowStart
         rangeDuration: zoomControl.rangeDuration
         contentX: content.contentX
-        clip: true
     }
 
     ButtonsBar {
