@@ -8,11 +8,10 @@ QtcCommercialPlugin {
     Depends { name: "CppTools" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QtcSsh" } // TODO: export + recursive dependencies broken in qbs
+    Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Qt.network" }  // TODO: See above
 
     pluginTestDepends: [
         "QbsProjectManager",
