@@ -3,7 +3,6 @@ TEMPLATE = lib
 
 PROVIDER = Digia
 include(../../qtcreatorplugin.pri)
-include(qmlprofilerextension_dependencies.pri)
 
 DEFINES += QMLPROFILEREXTENSION_LIBRARY
 
