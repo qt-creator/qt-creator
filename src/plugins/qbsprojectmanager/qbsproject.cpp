@@ -902,9 +902,8 @@ void QbsProject::updateDeploymentInfo()
         installOptions.setInstallRoot(QLatin1String("/"));
         foreach (const qbs::InstallableFile &f, m_qbsProject
                      .installableFilesForProject(m_projectData, installOptions)) {
-            deploymentData.addFile(f.sourceFilePath(), f.targetDirectory(), f.isExecutable()
-                                   ? DeployableFile::TypeExecutable
-                                   : DeployableFile::TypeNormal);
+            deploymentData.addFile(f.sourceFilePath(), QFileInfo(f.targetFilePath()).path(),
+                    f.isExecutable() ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
         }
     }
     activeTarget()->setDeploymentData(deploymentData);
