@@ -86,7 +86,8 @@ public:
     bool operator!=(const RegisterValue &other) { return !operator==(other); }
 
     void fromByteArray(const QByteArray &ba, RegisterFormat format);
-    QByteArray toByteArray(RegisterKind kind, int size, RegisterFormat format) const;
+    QByteArray toByteArray(RegisterKind kind, int size, RegisterFormat format,
+                           bool forEdit = false) const;
 
     RegisterValue subValue(int size, int index) const;
     void setSubValue(int size, int index, RegisterValue subValue);

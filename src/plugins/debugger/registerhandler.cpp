@@ -141,7 +141,7 @@ bool RegisterValue::operator==(const RegisterValue &other)
     return v.u64[0] == other.v.u64[0] && v.u64[1] == other.v.u64[1];
 }
 
-static QByteArray formatRegister(quint64 v, int size, RegisterFormat format)
+static QByteArray formatRegister(quint64 v, int size, RegisterFormat format, bool forEdit)
 {
     QByteArray result;
     if (format == HexadecimalFormat) {
@@ -163,19 +163,26 @@ static QByteArray formatRegister(quint64 v, int size, RegisterFormat format)
         result = QByteArray::number(sv, 10);
         result.prepend(QByteArray(2*size - result.size(), ' '));
     } else if (format == CharacterFormat) {
+        bool spacesOnly = true;
         if (v >= 32 && v < 127) {
-            result += '\'';
+            spacesOnly = false;
+            if (!forEdit)
+                result += '\'';
             result += char(v);
-            result += '\'';
+            if (!forEdit)
+                result += '\'';
         } else {
             result += "   ";
         }
-        result.prepend(QByteArray(2*size - result.size(), ' '));
+        if (spacesOnly && forEdit)
+            result.clear();
+        else
+            result.prepend(QByteArray(2*size - result.size(), ' '));
     }
     return result;
 }
 
-QByteArray RegisterValue::toByteArray(RegisterKind kind, int size, RegisterFormat format) const
+QByteArray RegisterValue::toByteArray(RegisterKind kind, int size, RegisterFormat format, bool forEdit) const
 {
     if (!known)
         return "[inaccessible]";
@@ -188,12 +195,12 @@ QByteArray RegisterValue::toByteArray(RegisterKind kind, int size, RegisterForma
 
     QByteArray result;
     if (size > 8) {
-        result += formatRegister(v.u64[1], size - 8, format);
+        result += formatRegister(v.u64[1], size - 8, format, forEdit);
         size = 8;
         if (format != HexadecimalFormat)
             result += ',';
     }
-    return result + formatRegister(v.u64[0], size, format);
+    return result + formatRegister(v.u64[0], size, format, forEdit);
 }
 
 RegisterValue RegisterValue::subValue(int size, int index) const
@@ -582,7 +589,8 @@ QVariant RegisterEditItem::data(int column, int role) const
                 case RegisterValueColumn: {
                     RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
                     RegisterValue value = registerItem->m_reg.value;
-                    return value.subValue(m_subSize, m_index).toByteArray(m_subKind, m_subSize, m_subFormat);
+                    return value.subValue(m_subSize, m_index)
+                            .toByteArray(m_subKind, m_subSize, m_subFormat, role == Qt::EditRole);
                 }
             }
         case Qt::ToolTipRole: {
