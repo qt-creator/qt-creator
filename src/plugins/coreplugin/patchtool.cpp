@@ -95,6 +95,12 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
     QStringList args;
+    // Add argument 'apply' when git is used as patch command since git 2.5/Windows
+    // no longer ships patch.exe.
+    if (patch.endsWith(QLatin1String("git"), Qt::CaseInsensitive)
+        || patch.endsWith(QLatin1String("git.exe"), Qt::CaseInsensitive)) {
+        args << QLatin1String("apply");
+    }
     if (strip >= 0)
         args << (QLatin1String("-p") + QString::number(strip));
     if (reverse)
