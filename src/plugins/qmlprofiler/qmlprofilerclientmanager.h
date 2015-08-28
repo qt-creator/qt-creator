@@ -59,6 +59,8 @@ public:
     bool isConnected() const;
 
     void setModelManager(QmlProfilerModelManager *m);
+    void setFlushInterval(quint32 flushInterval);
+
 signals:
     void connectionFailed();
     void connectionClosed();

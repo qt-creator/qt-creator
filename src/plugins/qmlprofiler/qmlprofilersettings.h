@@ -28,43 +28,43 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#ifndef QMLPROFILERSETTINGS_H
+#define QMLPROFILERSETTINGS_H
 
-#include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
-#include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
+#include <projectexplorer/runconfiguration.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
 public:
-    QmlProfilerPlugin() : factory(0) {}
+    QmlProfilerSettings();
+    QWidget *createConfigWidget(QWidget *parent);
+    ProjectExplorer::ISettingsAspect *create() const;
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool flushEnabled() const;
+    void setFlushEnabled(bool flushEnabled);
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
+    quint32 flushInterval() const;
+    void setFlushInterval(quint32 flushInterval);
 
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-    static QmlProfilerSettings *globalSettings();
+    void writeGlobalSettings() const;
+
+signals:
+    void changed();
+
+protected:
+    void toMap(QVariantMap &map) const;
+    void fromMap(const QVariantMap &map);
 
 private:
-    QmlProfilerTimelineModelFactory *factory;
+    bool m_flushEnabled;
+    quint32 m_flushInterval;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // Internal
+} // QmlProfiler
 
-#endif // QMLPROFILERPLUGIN_H
-
+#endif // QMLPROFILERSETTINGS_H

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QmlProfiler::Internal::QmlProfilerConfigWidget</class>
+ <widget class="QWidget" name="QmlProfiler::Internal::QmlProfilerConfigWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>320</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="flushEnabledLabel">
+     <property name="text">
+      <string>Flush data while profiling:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QCheckBox" name="flushEnabled">
+     <property name="toolTip">
+      <string>Periodically flush pending data to Qt Creator. This reduces the delay when loading the
+data and the memory usage in the application. It distorts the profile as the flushing
+itself takes time. </string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="flushIntervalLabel">
+     <property name="text">
+      <string>Flush interval (ms):</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QSpinBox" name="flushInterval">
+    <property name="minimum">
+     <number>1</number>
+    </property>
+     <property name="maximum">
+      <number>10000000</number>
+     </property>
+     <property name="value">
+      <number>1000</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

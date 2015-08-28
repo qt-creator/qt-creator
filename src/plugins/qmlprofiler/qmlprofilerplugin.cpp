@@ -30,7 +30,7 @@
 
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerruncontrolfactory.h"
-
+#include "qmlprofileroptionspage.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
 
@@ -43,6 +43,8 @@ using namespace Analyzer;
 
 namespace QmlProfiler {
 namespace Internal {
+
+Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
 bool QmlProfilerPlugin::debugOutput = false;
 QmlProfilerPlugin *QmlProfilerPlugin::instance = 0;
@@ -91,6 +93,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     AnalyzerManager::addAction(action);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
+    addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
     QmlProfilerPlugin::instance = this;
 
     return true;
@@ -115,6 +118,11 @@ QList<QmlProfilerTimelineModel *> QmlProfilerPlugin::getModels(QmlProfilerModelM
         return factory->create(manager);
     else
         return QList<QmlProfilerTimelineModel *>();
+}
+
+QmlProfilerSettings *QmlProfilerPlugin::globalSettings()
+{
+    return qmlProfilerGlobalSettings();
 }
 
 } // namespace Internal

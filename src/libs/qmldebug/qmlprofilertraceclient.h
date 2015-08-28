@@ -63,6 +63,7 @@ public slots:
     void clearData();
     void sendRecordingStatus(int engineId = -1);
     void setRequestedFeatures(quint64 features);
+    void setFlushInterval(quint32 flushInterval);
 
 signals:
     void complete(qint64 maximumTime);

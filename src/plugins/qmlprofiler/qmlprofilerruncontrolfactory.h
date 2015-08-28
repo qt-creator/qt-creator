@@ -50,6 +50,9 @@ public:
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
                                         Core::Id mode,
                                         QString *errorMessage);
+
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(
+            ProjectExplorer::RunConfiguration *rc);
 };
 
 } // namespace Internal

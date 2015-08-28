@@ -31,6 +31,7 @@
 #include "qmlprofilerruncontrolfactory.h"
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilerruncontrol.h"
+#include "qmlprofilerrunconfigurationaspect.h"
 
 #include <analyzerbase/ianalyzertool.h>
 
@@ -90,6 +91,12 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
     sp.runMode = mode;
     return LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp, errorMessage);
+}
+
+ProjectExplorer::IRunConfigurationAspect *
+QmlProfilerRunControlFactory::createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc)
+{
+    return new QmlProfilerRunConfigurationAspect(rc);
 }
 
 } // namespace Internal

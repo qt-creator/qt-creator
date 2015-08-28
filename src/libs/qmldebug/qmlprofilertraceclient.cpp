@@ -43,6 +43,7 @@ public:
         , recording(false)
         , requestedFeatures(0)
         , recordedFeatures(0)
+        , flushInterval(0)
     {
         ::memset(rangeCount, 0, MaximumRangeType * sizeof(int));
     }
@@ -62,6 +63,7 @@ public:
     bool recording;
     quint64 requestedFeatures;
     quint64 recordedFeatures;
+    quint32 flushInterval;
 };
 
 } // namespace QmlDebug
@@ -76,7 +78,7 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording)
-        stream << requestedFeatures << quint32(1000); // flush interval. Fixed to 1000ms for now
+        stream << requestedFeatures << flushInterval;
     q->sendMessage(ba);
 }
 
@@ -150,6 +152,11 @@ quint64 QmlProfilerTraceClient::recordedFeatures() const
 void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
 {
     d->requestedFeatures = features;
+}
+
+void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
+{
+    d->flushInterval = flushInterval;
 }
 
 void QmlProfilerTraceClient::setRecordingFromServer(bool v)

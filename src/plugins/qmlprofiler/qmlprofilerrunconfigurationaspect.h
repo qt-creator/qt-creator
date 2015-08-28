@@ -28,43 +28,26 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#ifndef QMLPROFILERRUNCONFIGURATIONASPECT_H
+#define QMLPROFILERRUNCONFIGURATIONASPECT_H
 
-#include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
-#include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
+#include <projectexplorer/runconfiguration.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerRunConfigurationAspect : public ProjectExplorer::IRunConfigurationAspect
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
 public:
-    QmlProfilerPlugin() : factory(0) {}
+    QmlProfilerRunConfigurationAspect(ProjectExplorer::RunConfiguration *parent);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    ProjectExplorer::IRunConfigurationAspect *create(
+            ProjectExplorer::RunConfiguration *runConfig) const;
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-    static QmlProfilerSettings *globalSettings();
-
-private:
-    QmlProfilerTimelineModelFactory *factory;
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // Internal
+} // QmlProfiler
 
-#endif // QMLPROFILERPLUGIN_H
-
+#endif // QMLPROFILERRUNCONFIGURATIONASPECT_H

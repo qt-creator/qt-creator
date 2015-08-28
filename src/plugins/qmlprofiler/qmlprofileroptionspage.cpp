@@ -28,43 +28,45 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
-
-#include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
-#include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
+#include "qmlprofileroptionspage.h"
+#include "qmlprofilerconfigwidget.h"
+#include "qmlprofilerplugin.h"
+#include "qmlprofilerconstants.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+QmlProfilerOptionsPage::QmlProfilerOptionsPage()
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
+    setId(Constants::SETTINGS);
+    setDisplayName(tr("QML Profiler"));
+    setCategory("T.Analyzer");
+    setDisplayCategory(tr("Analyzer"));
+    setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
+}
 
-public:
-    QmlProfilerPlugin() : factory(0) {}
+QmlProfilerOptionsPage::~QmlProfilerOptionsPage()
+{
+    delete m_widget;
+}
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+QWidget *QmlProfilerOptionsPage::widget()
+{
+    if (!m_widget)
+        m_widget = new QmlProfilerConfigWidget(QmlProfilerPlugin::globalSettings(), 0);
+    return m_widget;
+}
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
+void QmlProfilerOptionsPage::apply()
+{
+    QmlProfilerPlugin::globalSettings()->writeGlobalSettings();
+}
 
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-    static QmlProfilerSettings *globalSettings();
+void QmlProfilerOptionsPage::finish()
+{
+    delete m_widget;
+    m_widget = 0;
+}
 
-private:
-    QmlProfilerTimelineModelFactory *factory;
-};
-
-} // namespace Internal
-} // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-
+} // Internal
+} // QmlProfiler

@@ -28,43 +28,38 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
-
-#include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
-#include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
+#include "qmlprofilerconfigwidget.h"
+#include "ui_qmlprofilerconfigwidget.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+QmlProfilerConfigWidget::QmlProfilerConfigWidget(QmlProfilerSettings *settings, QWidget *parent) :
+    QWidget(parent), m_ui(new Ui::QmlProfilerConfigWidget), m_settings(settings)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
+    m_ui->setupUi(this);
+    updateUi();
 
-public:
-    QmlProfilerPlugin() : factory(0) {}
+    connect(m_ui->flushEnabled, &QCheckBox::toggled,
+            m_settings, &QmlProfilerSettings::setFlushEnabled);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    connect(m_ui->flushInterval, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            m_settings, &QmlProfilerSettings::setFlushInterval);
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
+    connect(m_settings, &QmlProfilerSettings::changed, this, &QmlProfilerConfigWidget::updateUi);
+}
 
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-    static QmlProfilerSettings *globalSettings();
+QmlProfilerConfigWidget::~QmlProfilerConfigWidget()
+{
+    delete m_ui;
+}
 
-private:
-    QmlProfilerTimelineModelFactory *factory;
-};
+void QmlProfilerConfigWidget::updateUi()
+{
+    m_ui->flushEnabled->setChecked(m_settings->flushEnabled());
+    m_ui->flushInterval->setEnabled(m_settings->flushEnabled());
+    m_ui->flushInterval->setValue(m_settings->flushInterval());
+}
 
-} // namespace Internal
-} // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-
+} // Internal
+} // QmlProfiler

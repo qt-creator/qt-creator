@@ -11,16 +11,20 @@ SOURCES += \
     qmlprofilerbasemodel.cpp \
     qmlprofilerbindingloopsrenderpass.cpp \
     qmlprofilerclientmanager.cpp \
+    qmlprofilerconfigwidget.cpp \
     qmlprofilerdatamodel.cpp \
     qmlprofilerdetailsrewriter.cpp \
     qmlprofilereventsmodelproxy.cpp \
     qmlprofilereventview.cpp \
     qmlprofilermodelmanager.cpp \
     qmlprofilernotesmodel.cpp \
+    qmlprofileroptionspage.cpp \
     qmlprofilerplugin.cpp \
     qmlprofilerrangemodel.cpp \
+    qmlprofilerrunconfigurationaspect.cpp \
     qmlprofilerruncontrol.cpp \
     qmlprofilerruncontrolfactory.cpp \
+    qmlprofilersettings.cpp \
     qmlprofilerstatemanager.cpp \
     qmlprofilerstatewidget.cpp \
     qmlprofilertimelinemodel.cpp \
@@ -39,6 +43,7 @@ HEADERS += \
     qmlprofilerbasemodel_p.h \
     qmlprofilerbindingloopsrenderpass.h \
     qmlprofilerclientmanager.h \
+    qmlprofilerconfigwidget.h \
     qmlprofilerconstants.h \
     qmlprofilerdatamodel.h \
     qmlprofilerdetailsrewriter.h \
@@ -46,10 +51,13 @@ HEADERS += \
     qmlprofilereventview.h \
     qmlprofilermodelmanager.h \
     qmlprofilernotesmodel.h \
+    qmlprofileroptionspage.h \
     qmlprofilerplugin.h \
     qmlprofilerrangemodel.h \
+    qmlprofilerrunconfigurationaspect.h \
     qmlprofilerruncontrol.h \
     qmlprofilerruncontrolfactory.h \
+    qmlprofilersettings.h \
     qmlprofilerstatemanager.h \
     qmlprofilerstatewidget.h \
     qmlprofilertimelinemodel.h \
@@ -65,3 +73,6 @@ RESOURCES += \
 DISTFILES += \
     qml/bindingloops.frag \
     qml/bindingloops.vert
+
+FORMS += \
+    qmlprofilerconfigwidget.ui

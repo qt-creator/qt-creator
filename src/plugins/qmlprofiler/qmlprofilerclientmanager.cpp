@@ -67,6 +67,7 @@ public:
     quint64 tcpPort;
     QString ostDevice;
     QString sysroot;
+    quint32 flushInterval;
 
     bool qmlDataReady;
 
@@ -83,6 +84,7 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
     d->connection = 0;
     d->connectionAttempts = 0;
     d->qmlDataReady = false;
+    d->flushInterval = 0;
 
     d->modelManager = 0;
 
@@ -104,6 +106,11 @@ void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
     d->modelManager = m;
     if (d->modelManager)
         connect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
+}
+
+void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
+{
+    d->flushInterval = flushInterval;
 }
 
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
@@ -154,6 +161,7 @@ void QmlProfilerClientManager::enableServices()
     d->profilerState->setRecordedFeatures(0);
     d->qmlclientplugin = new QmlProfilerTraceClient(d->connection,
                                                     d->profilerState->requestedFeatures());
+    d->qmlclientplugin->setFlushInterval(d->flushInterval);
     connectClientSignals();
 }
 

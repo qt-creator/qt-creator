@@ -28,43 +28,38 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
-
-#include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
+#include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
+#include "qmlprofilerplugin.h"
+#include "qmlprofilerconstants.h"
 
-#include "qmlprofilertimelinemodel.h"
+#include <analyzerbase/analyzerrunconfigwidget.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
+        ProjectExplorer::RunConfiguration *parent) :
+    ProjectExplorer::IRunConfigurationAspect(parent)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
+    setProjectSettings(new QmlProfilerSettings());
+    setGlobalSettings(QmlProfilerPlugin::globalSettings());
+    setId(Constants::SETTINGS);
+    setDisplayName(tr("QML Profiler Settings"));
+    setUsingGlobalSettings(true);
+    resetProjectToGlobalSettings();
+}
 
-public:
-    QmlProfilerPlugin() : factory(0) {}
+ProjectExplorer::IRunConfigurationAspect *QmlProfilerRunConfigurationAspect::create(
+        ProjectExplorer::RunConfiguration *runConfig) const
+{
+    return new QmlProfilerRunConfigurationAspect(runConfig);
+}
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+ProjectExplorer::RunConfigWidget *QmlProfilerRunConfigurationAspect::createConfigurationWidget()
+{
+    return new Analyzer::AnalyzerRunConfigWidget(this);
+}
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-    static QmlProfilerSettings *globalSettings();
-
-private:
-    QmlProfilerTimelineModelFactory *factory;
-};
-
-} // namespace Internal
-} // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-
+} // Internal
+} // QmlProfiler

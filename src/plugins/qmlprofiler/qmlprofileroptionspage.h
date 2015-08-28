@@ -28,43 +28,29 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#ifndef QMLPROFILEROPTIONSPAGE_H
+#define QMLPROFILEROPTIONSPAGE_H
 
-#include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
-#include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
 public:
-    QmlProfilerPlugin() : factory(0) {}
+    QmlProfilerOptionsPage();
+    ~QmlProfilerOptionsPage();
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-    static QmlProfilerSettings *globalSettings();
+    QWidget *widget();
+    void apply();
+    void finish();
 
 private:
-    QmlProfilerTimelineModelFactory *factory;
+    QWidget *m_widget;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // Internal
+} // QmlProfiler
 
-#endif // QMLPROFILERPLUGIN_H
-
+#endif // QMLPROFILEROPTIONSPAGE_H
