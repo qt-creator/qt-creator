@@ -707,6 +707,10 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
             dl.data = line["inst"].toUtf8();
             dl.function = line["func-name"].toUtf8();
             dl.offset = line["offset"].toInt();
+            dl.lineNumber = line["line"].toInt();
+            dl.fileName = line["file"].toUtf8();
+            dl.function = line["function"].toUtf8();
+            dl.hunk = line["hunk"].toInt();
             QByteArray comment = line["comment"].data();
             if (!comment.isEmpty())
                 dl.data += QString::fromUtf8(" # " + comment);

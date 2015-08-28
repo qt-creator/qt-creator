@@ -56,6 +56,7 @@ public:
 public:
     quint64 address;  // (ass) Address of instruction in memory/in binary.
     QString function; // (ass) Function to which current instruction belongs.
+    QString fileName; // (src) Source file
     uint offset;      // (ass) Offset of instruction in relation to current function.
     uint lineNumber;  // (src) Line number in source.
     uint hunk;        // (src) Number of hunk if source line was split

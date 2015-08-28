@@ -1719,18 +1719,43 @@ class Dumper(DumperBase):
             addr = lldb.SBAddress(base, self.target)
             instructions = self.target.ReadInstructions(addr, 100)
 
+        currentFile = None
+        currentLine = None
+        hunks = dict()
+        sources = dict()
         result = 'disassembly={cookie="%s",' % args['cookie']
         result += ',lines=['
         for insn in instructions:
             comment = insn.GetComment(self.target)
-            addr = insn.GetAddress().GetLoadAddress(self.target)
-            result += '{address="%s"' % addr
+            addr = insn.GetAddress()
+            loadAddr = addr.GetLoadAddress(self.target)
+            lineEntry = addr.GetLineEntry()
+            if lineEntry:
+                lineNumber = lineEntry.GetLine()
+                fileName = str(lineEntry.GetFileSpec())
+                if lineNumber != currentLine or fileName != currentFile:
+                    currentLine = lineNumber
+                    currentFile = fileName
+                    key = "%s:%s" % (fileName, lineNumber)
+                    hunk = hunks.get(key, 0) + 1
+                    hunks[key] = hunk
+                    source = sources.get(fileName, None)
+                    if source is None:
+                        with open(fileName, 'r') as f:
+                            source = f.read().splitlines()
+                            sources[fileName] = source
+                    result += '{line="%s"' % lineNumber
+                    result += ',file="%s"' % fileName
+                    if 0 < lineNumber and lineNumber <= len(source):
+                        result += ',inst="%s"' % source[lineNumber - 1]
+                    result += ',hunk="%s"}' % hunk
+            result += '{address="%s"' % loadAddr
             result += ',inst="%s %s"' % (insn.GetMnemonic(self.target),
                 insn.GetOperands(self.target))
             result += ',func_name="%s"' % functionName
             if comment:
                 result += ',comment="%s"' % comment
-            result += ',offset="%s"},' % (addr - base)
+            result += ',offset="%s"}' % (loadAddr - base)
         self.report(result + ']')
 
     def loadDumpers(self, args):
