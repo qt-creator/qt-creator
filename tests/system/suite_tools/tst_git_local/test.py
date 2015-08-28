@@ -173,7 +173,9 @@ def main():
     createLocalGitConfig(os.path.join(srcPath, projectName, ".git"))
     commitMessages = [commit("Initial Commit", "Committed 5 file(s).")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-    addCPlusPlusFileToCurrentProject("pointless_header.h", "C++ Header File", addToVCS = "Git")
+    headerName = "pointless_header.h"
+    addCPlusPlusFileToCurrentProject(headerName, "C++ Header File", addToVCS="Git",
+                                     expectedHeaderName=headerName)
     commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
     __createProjectOrFileSelectType__("  General", "Empty File", isProject=False)
     readmeName = "README.txt"

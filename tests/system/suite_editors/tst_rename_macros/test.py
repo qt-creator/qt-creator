@@ -46,7 +46,9 @@ def main():
     openQmakeProject(proFile)
     if not testRenameMacroAfterSourceModification():
         return
-    addCPlusPlusFileToCurrentProject("anothertestfile.h", "C++ Header File")
+    headerName = "anothertestfile.h"
+    addCPlusPlusFileToCurrentProject(headerName, "C++ Header File",
+                                     expectedHeaderName=headerName)
     if not testRenameMacroAfterSourceMoving():
         return
     invokeMenuItem("File", "Save All")
