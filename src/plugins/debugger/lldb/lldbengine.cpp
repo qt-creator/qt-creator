@@ -704,8 +704,12 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
         foreach (const GdbMi &line, data["lines"].children()) {
             DisassemblerLine dl;
             dl.address = line["address"].toAddress();
-            dl.data = line["inst"].toUtf8();
-            dl.function = line["func-name"].toUtf8();
+            //dl.data = line["data"].toUtf8();
+            //dl.rawData = line["rawdata"].data();
+            dl.data = line["rawdata"].toUtf8();
+            if (!dl.data.isEmpty())
+                dl.data += QString(30 - dl.data.size(), QLatin1Char(' '));
+            dl.data += line["data"].toUtf8();
             dl.offset = line["offset"].toInt();
             dl.lineNumber = line["line"].toInt();
             dl.fileName = line["file"].toUtf8();

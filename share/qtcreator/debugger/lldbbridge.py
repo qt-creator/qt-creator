@@ -1747,12 +1747,14 @@ class Dumper(DumperBase):
                     result += '{line="%s"' % lineNumber
                     result += ',file="%s"' % fileName
                     if 0 < lineNumber and lineNumber <= len(source):
-                        result += ',inst="%s"' % source[lineNumber - 1]
+                        result += ',data="%s"' % source[lineNumber - 1]
                     result += ',hunk="%s"}' % hunk
             result += '{address="%s"' % loadAddr
-            result += ',inst="%s %s"' % (insn.GetMnemonic(self.target),
+            result += ',data="%s %s"' % (insn.GetMnemonic(self.target),
                 insn.GetOperands(self.target))
-            result += ',func_name="%s"' % functionName
+            result += ',function="%s"' % functionName
+            rawData = insn.GetData(lldb.target).uint8s
+            result += ',rawdata="%s"' % ' '.join(["%02x" % x for x in rawData])
             if comment:
                 result += ',comment="%s"' % comment
             result += ',offset="%s"}' % (loadAddr - base)
