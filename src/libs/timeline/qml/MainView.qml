@@ -317,6 +317,7 @@ Rectangle {
         x: 200
         y: 125
 
+        clip: true
         id: selectionRangeDetails
         visible: selectionRange.visible
         startTime: zoomControl.selectionStart
@@ -345,6 +346,7 @@ Rectangle {
         x: 200
         y: 25
 
+        clip: true
         locked: content.selectionLocked
         models: timelineModelAggregator.models
         notes: timelineModelAggregator.notes

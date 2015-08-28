@@ -30,10 +30,9 @@
 
 import QtQuick 2.1
 
-Rectangle {
+Item {
     id: rangeMover
     anchors.fill: parent
-    color: "transparent"
     signal rangeDoubleClicked()
 
     property color handleColor: "#869cd1"
