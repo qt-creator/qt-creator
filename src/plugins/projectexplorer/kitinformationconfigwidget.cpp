@@ -432,6 +432,10 @@ void KitEnvironmentConfigWidget::editEnvironmentChanges()
     m_dialog->setWindowTitle(tr("Edit Environment Changes"));
     QVBoxLayout *layout = new QVBoxLayout(m_dialog);
     m_editor = new QPlainTextEdit;
+    m_editor->setToolTip(tr("Enter one variable per line with the variable name "
+                            "separated from the variable value by \"=\".<br>"
+                            "Environment variables can be referenced with ${OTHER}."));
+
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
 
     layout->addWidget(m_editor);
