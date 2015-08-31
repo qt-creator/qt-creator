@@ -97,7 +97,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
     connect(modelManager->traceTime(), &QmlProfilerTraceTime::timeChanged,
-            [this](qint64 start, qint64 end) {
+            this, [this](qint64 start, qint64 end) {
         d->m_zoomControl->setTrace(start, end);
         d->m_zoomControl->setRange(start, start + (end - start) / 10);
     });
