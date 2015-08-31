@@ -54,101 +54,132 @@
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
+using ClangBackEnd::TranslationUnits;
 
 using testing::IsNull;
 using testing::NotNull;
 using testing::Gt;
+using testing::Contains;
+using testing::EndsWith;
+using testing::AllOf;
 
 namespace {
 
-TEST(TranslationUnit, DefaultTranslationUnitIsInvalid)
+class TranslationUnit : public ::testing::Test
 {
-    TranslationUnit translationUnit;
+protected:
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    ::TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp"),
+                                      ProjectPart(Utf8StringLiteral("/path/to/projectfile")),
+                                      translationUnits};
+};
+
+TEST_F(TranslationUnit, DefaultTranslationUnitIsInvalid)
+{
+    ::TranslationUnit translationUnit;
 
     ASSERT_TRUE(translationUnit.isNull());
 }
 
-TEST(TranslationUnit, ThrowExceptionForNonExistingFilePath)
+TEST_F(TranslationUnit, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(TranslationUnit(Utf8StringLiteral("file.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile"))),
+    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), ProjectPart(Utf8StringLiteral("/path/to/projectfile")), translationUnits),
                  ClangBackEnd::TranslationUnitFileNotExitsException);
 }
 
-TEST(TranslationUnit, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
+TEST_F(TranslationUnit, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(TranslationUnit(Utf8StringLiteral("file.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile")), TranslationUnit::DoNotCheckIfFileExists));
+    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), ProjectPart(Utf8StringLiteral("/path/to/projectfile")), translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
 }
 
-TEST(TranslationUnit, TranslationUnitIsValid)
+TEST_F(TranslationUnit, TranslationUnitIsValid)
 {
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
-
     ASSERT_FALSE(translationUnit.isNull());
 }
 
 
-TEST(TranslationUnit, ThrowExceptionForGettingIndexForInvalidUnit)
+TEST_F(TranslationUnit, ThrowExceptionForGettingIndexForInvalidUnit)
 {
-    TranslationUnit translationUnit;
+    ::TranslationUnit translationUnit;
 
     ASSERT_THROW(translationUnit.index(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
-TEST(TranslationUnit, IndexGetterIsNonNullForValidUnit)
+TEST_F(TranslationUnit, IndexGetterIsNonNullForValidUnit)
 {
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
-
     ASSERT_THAT(translationUnit.index(), NotNull());
 }
 
-TEST(TranslationUnit, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
+TEST_F(TranslationUnit, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
 {
-    TranslationUnit translationUnit;
+    ::TranslationUnit translationUnit;
 
     ASSERT_THROW(translationUnit.cxTranslationUnit(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
-TEST(TranslationUnit, CxTranslationUnitGetterIsNonNullForValidUnit)
+TEST_F(TranslationUnit, CxTranslationUnitGetterIsNonNullForValidUnit)
 {
-    UnsavedFiles unsavedFiles;
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), unsavedFiles, ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
-
     ASSERT_THAT(translationUnit.cxTranslationUnit(), NotNull());
 }
 
-TEST(TranslationUnit, ThrowExceptionIfGettingFilePathForNullUnit)
+TEST_F(TranslationUnit, ThrowExceptionIfGettingFilePathForNullUnit)
 {
-    TranslationUnit translationUnit;
+   ::TranslationUnit translationUnit;
 
     ASSERT_THROW(translationUnit.filePath(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
-TEST(TranslationUnit, ResetedTranslationUnitIsNull)
+TEST_F(TranslationUnit, ResetedTranslationUnitIsNull)
 {
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
-
     translationUnit.reset();
 
     ASSERT_TRUE(translationUnit.isNull());
 }
 
-TEST(TranslationUnit, TimeStampIsUpdatedAsNewCxTranslationUnitIsGenerated)
+TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)
 {
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), ProjectPart(Utf8StringLiteral("/path/to/projectfile")));
-    auto lastChangeTimePoint = translationUnit.lastChangeTimePoint();
+    auto lastChangeTimePoint = translationUnit.lastProjectPartChangeTimePoint();
     std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
 
     translationUnit.cxTranslationUnit();
 
-    ASSERT_THAT(translationUnit.lastChangeTimePoint(), Gt(lastChangeTimePoint));
+    ASSERT_THAT(translationUnit.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
 }
 
+TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsProjectPartIsCleared)
+{
+    ProjectPart projectPart = translationUnit.projectPart();
+    translationUnit.cxTranslationUnit();
+    auto lastChangeTimePoint = translationUnit.lastProjectPartChangeTimePoint();
+    std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
 
-//TEST(TranslationUnit, ThrowParseErrorForWrongArguments)
+    projectPart.clear();
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_THAT(translationUnit.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
+}
+
+TEST_F(TranslationUnit, DocumentRevisionInFileContainerGetter)
+{
+    translationUnit.setDocumentRevision(74);
+
+    ASSERT_THAT(translationUnit.fileContainer().documentRevision(), 74);
+}
+
+TEST_F(TranslationUnit, DependedFilePaths)
+{
+    ASSERT_THAT(translationUnit.dependedFilePaths(),
+                AllOf(Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")),
+                      Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"))));
+}
+
+//TEST_F(TranslationUnit, ThrowParseErrorForWrongArguments)
 //{
 //    ProjectPart project(Utf8StringLiteral("/path/to/projectfile"));
 //    project.setArguments({Utf8StringLiteral("-fblah")});
-//    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), UnsavedFiles(), project);
+//    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), unsavedFiles, project);
 
 //    ASSERT_THROW(translationUnit.cxTranslationUnit(), ClangBackEnd::TranslationUnitParseErrorException);
 //}

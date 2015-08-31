@@ -38,11 +38,9 @@
 namespace ClangBackEnd {
 
 DiagnosticsChangedMessage::DiagnosticsChangedMessage(const FileContainer &file,
-                                                     const QVector<DiagnosticContainer> &diagnostics,
-                                                     quint32 documentRevision)
+                                                     const QVector<DiagnosticContainer> &diagnostics)
     : file_(file),
-      diagnostics_(diagnostics),
-      documentRevision_(documentRevision)
+      diagnostics_(diagnostics)
 {
 }
 
@@ -56,16 +54,10 @@ const QVector<DiagnosticContainer> &DiagnosticsChangedMessage::diagnostics() con
     return diagnostics_;
 }
 
-quint32 DiagnosticsChangedMessage::documentRevision() const
-{
-    return documentRevision_;
-}
-
 QDataStream &operator<<(QDataStream &out, const DiagnosticsChangedMessage &message)
 {
     out << message.file_;
     out << message.diagnostics_;
-    out << message.documentRevision_;
 
     return out;
 }
@@ -74,7 +66,6 @@ QDataStream &operator>>(QDataStream &in, DiagnosticsChangedMessage &message)
 {
     in >> message.file_;
     in >> message.diagnostics_;
-    in >> message.documentRevision_;
 
     return in;
 }
@@ -94,8 +85,7 @@ bool operator<(const DiagnosticsChangedMessage &first, const DiagnosticsChangedM
 QDebug operator<<(QDebug debug, const DiagnosticsChangedMessage &message)
 {
     debug.nospace() << "DiagnosticsChangedMessage("
-                    << message.file_ << QStringLiteral(", ")
-                    << message.documentRevision_
+                    << message.file_
                     << ")";
 
     return debug;

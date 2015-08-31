@@ -28,60 +28,38 @@
 **
 ****************************************************************************/
 
-#include "requestdiagnosticsmessage.h"
+#ifndef CLANGFILESYSTEMWATCHER_H
+#define CLANGFILESYSTEMWATCHER_H
 
-#include <QDataStream>
-#include <QDebug>
+#include <QFileSystemWatcher>
+#include <QSet>
+#include <QTimer>
+
+class Utf8String;
 
 namespace ClangBackEnd {
 
-RequestDiagnosticsMessage::RequestDiagnosticsMessage(const FileContainer &file)
-    : file_(file)
+class TranslationUnits;
+
+class ClangFileSystemWatcher : public QObject
 {
-}
+    Q_OBJECT
 
-const FileContainer RequestDiagnosticsMessage::file() const
-{
-    return file_;
-}
+public:
+    ClangFileSystemWatcher(TranslationUnits &translationUnits);
 
-QDataStream &operator<<(QDataStream &out, const RequestDiagnosticsMessage &message)
-{
-    out << message.file_;
+    void addFiles(const QSet<Utf8String> &filePaths);
 
-    return out;
-}
+private:
+    void updateTranslationUnitsWithChangedDependencies(const QString &filePath);
+    void sendChangedDiagnostics();
 
-QDataStream &operator>>(QDataStream &in, RequestDiagnosticsMessage &message)
-{
-    in >> message.file_;
-
-    return in;
-}
-
-bool operator==(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second)
-{
-    return first.file_ == second.file_;
-}
-
-bool operator<(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second)
-{
-    return first.file_ < second.file_;
-}
-
-QDebug operator<<(QDebug debug, const RequestDiagnosticsMessage &message)
-{
-    debug.nospace() << "RequestDiagnosticsMessage("
-                    << message.file()
-                    << ")";
-
-    return debug;
-}
-
-void PrintTo(const RequestDiagnosticsMessage &message, ::std::ostream* os)
-{
-    *os << message.file().filePath().constData()
-        << "(" << message.file().projectPartId().constData() << ")";
-}
+private:
+    QFileSystemWatcher watcher;
+    QTimer changedDiagnosticsTimer;
+    TranslationUnits &translationUnits;
+};
 
 } // namespace ClangBackEnd
+
+#endif // CLANGFILESYSTEMWATCHER_H

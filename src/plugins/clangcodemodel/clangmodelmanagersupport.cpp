@@ -152,7 +152,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QStr
                                                                       const QByteArray &content)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
-    m_ipcCommunicator.updateUnsavedFile(filePath, content);
+    m_ipcCommunicator.updateUnsavedFile(filePath, content, 0);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &filePath)

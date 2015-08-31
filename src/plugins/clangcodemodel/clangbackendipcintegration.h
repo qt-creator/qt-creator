@@ -128,8 +128,8 @@ public:
 
     void updateUnsavedFileIfNotCurrentDocument(Core::IDocument *document);
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
-    void updateUnsavedFile(const QString &filePath, const QByteArray &contents);
-    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer, uint documentRevision);
+    void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
+    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);

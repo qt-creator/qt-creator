@@ -31,12 +31,15 @@
 #ifndef CLANGBACKEND_TRANSLATIONUNIT_H
 #define CLANGBACKEND_TRANSLATIONUNIT_H
 
+#include <utf8stringvector.h>
+
 #include <clang-c/Index.h>
 
 #include <QtGlobal>
 
 #include <chrono>
 #include <memory>
+#include <QSet>
 
 class Utf8String;
 
@@ -48,6 +51,7 @@ class UnsavedFiles;
 class ProjectPart;
 class DiagnosticSet;
 class FileContainer;
+class TranslationUnits;
 
 using time_point = std::chrono::steady_clock::time_point;
 
@@ -61,8 +65,8 @@ public:
 
     TranslationUnit() = default;
     TranslationUnit(const Utf8String &filePath,
-                    const UnsavedFiles &unsavedFiles,
                     const ProjectPart &projectPart,
+                    TranslationUnits &translationUnits,
                     FileExistsCheck fileExistsCheck = CheckIfFileExists);
     ~TranslationUnit();
 
@@ -85,27 +89,45 @@ public:
     const Utf8String &filePath() const;
     const Utf8String &projectPartId() const;
     FileContainer fileContainer() const;
+    const ProjectPart &projectPart() const;
 
-    const time_point &lastChangeTimePoint() const;
+    void setDocumentRevision(uint revision);
+    uint documentRevision() const;
+
+    const time_point &lastProjectPartChangeTimePoint() const;
+
+    bool isNeedingReparse() const;
 
     DiagnosticSet diagnostics() const;
+
+    const QSet<Utf8String> &dependedFilePaths() const;
+
+    void updateIsNeedingReparseIfDependencyIsMet(const Utf8String &filePath);
 
 private:
     void checkIfNull() const;
     void checkIfFileExists() const;
-    void updateLastChangeTimePoint() const;
-    void removeOutdatedTranslationUnit() const;
+    void updateLastProjectPartChangeTimePoint() const;
+    void removeTranslationUnitIfProjectPartWasChanged() const;
+    bool projectPartIsOutdated() const;
     void createTranslationUnitIfNeeded() const;
     void checkTranslationUnitErrorCode(CXErrorCode errorCode) const;
     void reparseTranslationUnit() const;
+    void reparseTranslationUnitIfFilesAreChanged() const;
+    void updateIncludeFilePaths() const;
     static int defaultOptions();
+    static void includeCallback(CXFile included_file,
+                                CXSourceLocation */*inclusion_stack*/,
+                                unsigned /*include_len*/,
+                                CXClientData clientData);
+    UnsavedFiles &unsavedFiles() const;
 
 private:
     mutable std::shared_ptr<TranslationUnitData> d;
 };
 
 bool operator==(const TranslationUnit &first, const TranslationUnit &second);
-
+void PrintTo(const TranslationUnit &translationUnit, ::std::ostream *os);
 } // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_TRANSLATIONUNIT_H

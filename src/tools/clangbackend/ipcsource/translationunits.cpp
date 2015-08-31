@@ -30,9 +30,13 @@
 
 #include "translationunits.h"
 
+#include <diagnosticschangedmessage.h>
+#include <diagnosticset.h>
 #include <projectpartsdonotexistexception.h>
 #include <projects.h>
 #include <translationunitdoesnotexistexception.h>
+
+#include <QDebug>
 
 namespace ClangBackEnd {
 
@@ -48,15 +52,20 @@ bool operator==(const TranslationUnit &translationUnit, const FileContainer &fil
 
 
 TranslationUnits::TranslationUnits(ProjectParts &projects, UnsavedFiles &unsavedFiles)
-    : projects(projects),
-      unsavedFiles(unsavedFiles)
+    : fileSystemWatcher(*this),
+      projectParts(projects),
+      unsavedFiles_(unsavedFiles)
 {
 }
 
 void TranslationUnits::createOrUpdate(const QVector<FileContainer> &fileContainers)
 {
-    for (const FileContainer &fileContainer : fileContainers)
+    for (const FileContainer &fileContainer : fileContainers) {
         createOrUpdateTranslationUnit(fileContainer);
+        updateTranslationUnitsWithChangedDependencies(fileContainer.filePath());
+    }
+
+    sendChangedDiagnostics();
 }
 
 static bool removeFromFileContainer(QVector<FileContainer> &fileContainers, const TranslationUnit &translationUnit)
@@ -100,20 +109,78 @@ const TranslationUnit &TranslationUnits::translationUnit(const Utf8String &fileP
     return *findIterator;
 }
 
+const TranslationUnit &TranslationUnits::translationUnit(const FileContainer &fileContainer) const
+{
+    return translationUnit(fileContainer.filePath(), fileContainer.projectPartId());
+}
+
 const std::vector<TranslationUnit> &TranslationUnits::translationUnits() const
 {
     return translationUnits_;
+}
+
+UnsavedFiles &TranslationUnits::unsavedFiles() const
+{
+    return unsavedFiles_;
+}
+
+void TranslationUnits::addWatchedFiles(QSet<Utf8String> &filePaths)
+{
+    fileSystemWatcher.addFiles(filePaths);
+}
+
+void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const Utf8String &filePath)
+{
+    for (auto &translationUnit : translationUnits_)
+        translationUnit.updateIsNeedingReparseIfDependencyIsMet(filePath);
+}
+
+void TranslationUnits::sendChangedDiagnostics()
+{
+    for (const auto &translationUnit : translationUnits_) {
+        if (translationUnit.isNeedingReparse())
+            sendDiagnosticChangedMessage(translationUnit);
+    }
+}
+
+void TranslationUnits::setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage &)> &&callback)
+{
+    sendDiagnosticsChangedCallback = std::move(callback);
+}
+
+QVector<FileContainer> TranslationUnits::newerFileContainers(const QVector<FileContainer> &fileContainers) const
+{
+    QVector<FileContainer> newerContainers;
+
+    auto translationUnitIsNewer = [this] (const FileContainer &fileContainer) {
+        try {
+            return translationUnit(fileContainer).documentRevision() != fileContainer.documentRevision();
+        } catch (const TranslationUnitDoesNotExistException &) {
+            return true;
+        }
+    };
+
+    std::copy_if(fileContainers.cbegin(),
+                 fileContainers.cend(),
+                 std::back_inserter(newerContainers),
+                 translationUnitIsNewer);
+
+    return newerContainers;
 }
 
 void TranslationUnits::createOrUpdateTranslationUnit(const FileContainer &fileContainer)
 {
     TranslationUnit::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent() ? TranslationUnit::DoNotCheckIfFileExists : TranslationUnit::CheckIfFileExists;
     auto findIterator = findTranslationUnit(fileContainer);
-    if (findIterator == translationUnits_.end())
+    if (findIterator == translationUnits_.end()) {
         translationUnits_.push_back(TranslationUnit(fileContainer.filePath(),
-                                                    unsavedFiles,
-                                                    projects.project(fileContainer.projectPartId()),
+                                                    projectParts.project(fileContainer.projectPartId()),
+                                                    *this,
                                                     checkIfFileExists));
+        translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
+    } else {
+        findIterator->setDocumentRevision(fileContainer.documentRevision());
+    }
 }
 
 std::vector<TranslationUnit>::iterator TranslationUnits::findTranslationUnit(const FileContainer &fileContainer)
@@ -129,7 +196,7 @@ std::vector<TranslationUnit>::const_iterator TranslationUnits::findTranslationUn
 
 void TranslationUnits::checkIfProjectPartExists(const Utf8String &projectFileName) const
 {
-    projects.project(projectFileName);
+    projectParts.project(projectFileName);
 }
 
 void TranslationUnits::checkIfProjectPartsExists(const QVector<FileContainer> &fileContainers) const
@@ -137,13 +204,23 @@ void TranslationUnits::checkIfProjectPartsExists(const QVector<FileContainer> &f
     Utf8StringVector notExistingProjectParts;
 
     for (const FileContainer &fileContainer : fileContainers) {
-        if (!projects.hasProjectPart(fileContainer.projectPartId()))
+        if (!projectParts.hasProjectPart(fileContainer.projectPartId()))
             notExistingProjectParts.push_back(fileContainer.projectPartId());
     }
 
     if (!notExistingProjectParts.isEmpty())
         throw ProjectPartDoNotExistException(notExistingProjectParts);
 
+}
+
+void TranslationUnits::sendDiagnosticChangedMessage(const TranslationUnit &translationUnit)
+{
+    if (sendDiagnosticsChangedCallback) {
+        DiagnosticsChangedMessage message(translationUnit.fileContainer(),
+                                          translationUnit.diagnostics().toDiagnosticContainers());
+
+        sendDiagnosticsChangedCallback(std::move(message));
+    }
 }
 
 } // namespace ClangBackEnd

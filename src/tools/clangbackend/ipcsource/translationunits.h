@@ -31,6 +31,7 @@
 #ifndef CLANGBACKEND_TRANSLATIONUNITS_H
 #define CLANGBACKEND_TRANSLATIONUNITS_H
 
+#include "clangfilesystemwatcher.h"
 #include "translationunit.h"
 
 #include <filecontainer.h>
@@ -43,18 +44,32 @@ namespace ClangBackEnd {
 
 class ProjectParts;
 class UnsavedFiles;
+class DiagnosticsChangedMessage;
 
 class TranslationUnits
 {
 public:
-    TranslationUnits(ProjectParts &projects, UnsavedFiles &unsavedFiles);
+    TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
 
     void createOrUpdate(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
 
     const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
 
     const std::vector<TranslationUnit> &translationUnits() const;
+
+    UnsavedFiles &unsavedFiles() const;
+
+    void addWatchedFiles(QSet<Utf8String> &filePaths);
+
+    void updateTranslationUnitsWithChangedDependencies(const Utf8String &filePath);
+
+    void sendChangedDiagnostics();
+
+    void setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage&)> &&callback);
+
+    QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
 private:
     void createOrUpdateTranslationUnit(const FileContainer &fileContainer);
@@ -62,12 +77,14 @@ private:
     std::vector<TranslationUnit>::const_iterator findTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     void checkIfProjectPartExists(const Utf8String &projectFileName) const;
     void checkIfProjectPartsExists(const QVector<FileContainer> &fileContainers) const;
-
+    void sendDiagnosticChangedMessage(const TranslationUnit &translationUnit);
 
 private:
+    ClangFileSystemWatcher fileSystemWatcher;
+    std::function<void(const DiagnosticsChangedMessage&)> sendDiagnosticsChangedCallback;
     std::vector<TranslationUnit> translationUnits_;
-    ProjectParts &projects;
-    UnsavedFiles &unsavedFiles;
+    ProjectParts &projectParts;
+    UnsavedFiles &unsavedFiles_;
 };
 
 } // namespace ClangBackEnd

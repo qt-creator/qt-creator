@@ -31,7 +31,9 @@
 #include <diagnostic.h>
 #include <diagnosticset.h>
 #include <projectpart.h>
+#include <projects.h>
 #include <translationunit.h>
+#include <translationunits.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -75,10 +77,12 @@ class FixIt : public ::testing::Test
 {
 protected:
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
-    UnsavedFiles unsavedFiles;
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_fixit.cpp"),
-                                    unsavedFiles,
-                                    projectPart};
+                                    projectPart,
+                                    translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     Diagnostic diagnostic{diagnosticSet.front()};
     ::FixIt fixIt{diagnostic.fixIts().front()};

@@ -148,8 +148,7 @@ TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
 TEST_F(ClientServerInProcess, SendRequestDiagnosticsMessage)
 {
     ClangBackEnd::RequestDiagnosticsMessage message({Utf8StringLiteral("foo.cpp"),
-                                                     Utf8StringLiteral("projectId")},
-                                                    1);
+                                                     Utf8StringLiteral("projectId")});
 
     EXPECT_CALL(mockIpcServer, requestDiagnostics(message))
         .Times(1);
@@ -232,8 +231,7 @@ TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
                                                 {},
                                                 {});
     ClangBackEnd::DiagnosticsChangedMessage message(fileContainer,
-                                                    {container},
-                                                    1);
+                                                    {container});
 
     EXPECT_CALL(mockIpcClient, diagnosticsChanged(message))
         .Times(1);

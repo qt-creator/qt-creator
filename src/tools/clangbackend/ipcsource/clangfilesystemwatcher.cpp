@@ -28,60 +28,62 @@
 **
 ****************************************************************************/
 
-#include "requestdiagnosticsmessage.h"
+#include "clangfilesystemwatcher.h"
 
-#include <QDataStream>
-#include <QDebug>
+#include "translationunits.h"
+
+#include <utf8stringvector.h>
+
+#include <QStringList>
+
+#include <algorithm>
+#include <iterator>
 
 namespace ClangBackEnd {
 
-RequestDiagnosticsMessage::RequestDiagnosticsMessage(const FileContainer &file)
-    : file_(file)
+namespace {
+QStringList toStringList(const QSet<Utf8String> &files)
 {
+    QStringList resultList;
+
+    std::copy(files.cbegin(), files.cend(), std::back_inserter(resultList));
+
+    return resultList;
+}
 }
 
-const FileContainer RequestDiagnosticsMessage::file() const
+ClangFileSystemWatcher::ClangFileSystemWatcher(TranslationUnits &translationUnits)
+    : translationUnits(translationUnits)
 {
-    return file_;
+    connect(&watcher,
+            &QFileSystemWatcher::fileChanged,
+            this,
+            &ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies);
+
+    connect(&changedDiagnosticsTimer,
+            &QTimer::timeout,
+            this,
+            &ClangFileSystemWatcher::sendChangedDiagnostics);
+
+    changedDiagnosticsTimer.setSingleShot(true);
+    changedDiagnosticsTimer.setInterval(100);
 }
 
-QDataStream &operator<<(QDataStream &out, const RequestDiagnosticsMessage &message)
+void ClangFileSystemWatcher::addFiles(const QSet<Utf8String> &filePaths)
 {
-    out << message.file_;
-
-    return out;
+    watcher.addPaths(toStringList(filePaths));
 }
 
-QDataStream &operator>>(QDataStream &in, RequestDiagnosticsMessage &message)
+void ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies(const QString &filePath)
 {
-    in >> message.file_;
-
-    return in;
+    translationUnits.updateTranslationUnitsWithChangedDependencies(filePath);
+    changedDiagnosticsTimer.start();
+    watcher.addPath(filePath);
 }
 
-bool operator==(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second)
+void ClangFileSystemWatcher::sendChangedDiagnostics()
 {
-    return first.file_ == second.file_;
-}
-
-bool operator<(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second)
-{
-    return first.file_ < second.file_;
-}
-
-QDebug operator<<(QDebug debug, const RequestDiagnosticsMessage &message)
-{
-    debug.nospace() << "RequestDiagnosticsMessage("
-                    << message.file()
-                    << ")";
-
-    return debug;
-}
-
-void PrintTo(const RequestDiagnosticsMessage &message, ::std::ostream* os)
-{
-    *os << message.file().filePath().constData()
-        << "(" << message.file().projectPartId().constData() << ")";
+    translationUnits.sendChangedDiagnostics();
 }
 
 } // namespace ClangBackEnd

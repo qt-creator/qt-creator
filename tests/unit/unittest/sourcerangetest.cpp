@@ -32,6 +32,8 @@
 #include <diagnosticset.h>
 #include <projectpart.h>
 #include <translationunit.h>
+#include <translationunits.h>
+#include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcerange.h>
 
@@ -48,6 +50,7 @@ using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceRange;
+using ClangBackEnd::TranslationUnits;
 using testing::PrintToString;
 
 namespace {
@@ -74,10 +77,12 @@ class SourceRange : public ::testing::Test
 {
 protected:
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
-    UnsavedFiles unsavedFiles;
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp"),
-                                    unsavedFiles,
-                                    projectPart};
+                                    projectPart,
+                                    translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     Diagnostic diagnostic{diagnosticSet.front()};
     ::SourceRange sourceRange{diagnostic.ranges().front()};

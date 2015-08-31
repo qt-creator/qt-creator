@@ -30,7 +30,9 @@
 
 #include <diagnosticset.h>
 #include <projectpart.h>
+#include <projects.h>
 #include <translationunit.h>
+#include <translationunits.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -51,10 +53,12 @@ class DiagnosticSet : public ::testing::Test
 {
 protected:
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
-    UnsavedFiles unsavedFiles;
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset.cpp"),
-                                    unsavedFiles,
-                                    projectPart};
+                                    projectPart,
+                                    translationUnits};
 };
 
 TEST_F(DiagnosticSet, SetHasContent)

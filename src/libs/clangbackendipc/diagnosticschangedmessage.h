@@ -51,17 +51,14 @@ class CMBIPC_EXPORT DiagnosticsChangedMessage
 public:
     DiagnosticsChangedMessage() = default;
     DiagnosticsChangedMessage(const FileContainer &file,
-                              const QVector<DiagnosticContainer> &diagnostics,
-                              quint32 documentRevision);
+                              const QVector<DiagnosticContainer> &diagnostics);
 
     const FileContainer &file() const;
     const QVector<DiagnosticContainer> &diagnostics() const;
-    quint32 documentRevision() const;
 
 private:
     FileContainer file_;
     QVector<DiagnosticContainer> diagnostics_;
-    quint32 documentRevision_;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DiagnosticsChangedMessage &message);

@@ -46,10 +46,9 @@ class CMBIPC_EXPORT RequestDiagnosticsMessage
 
 public:
     RequestDiagnosticsMessage() = default;
-    RequestDiagnosticsMessage(const FileContainer &file, quint32 documentRevision);
+    RequestDiagnosticsMessage(const FileContainer &file);
 
     const FileContainer file() const;
-    quint32 documentRevision() const;
 
 private:
     FileContainer file_;

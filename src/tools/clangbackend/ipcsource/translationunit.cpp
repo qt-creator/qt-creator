@@ -30,18 +30,23 @@
 
 #include "translationunit.h"
 
+#include "clangstring.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
 #include "projectpart.h"
 #include "translationunitfilenotexitexception.h"
 #include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
+#include "translationunits.h"
 #include "unsavedfiles.h"
 
 #include <utf8string.h>
 
+#include <QDebug>
 #include <QFileInfo>
 #include <QLoggingCategory>
+
+#include <ostream>
 
 static Q_LOGGING_CATEGORY(verboseLibLog, "qtc.clangbackend.verboselib");
 
@@ -51,27 +56,31 @@ class TranslationUnitData
 {
 public:
     TranslationUnitData(const Utf8String &filePath,
-                        const UnsavedFiles &unsavedFiles,
-                        const ProjectPart &projectPart);
+                        const ProjectPart &projectPart,
+                        TranslationUnits &translationUnits);
     ~TranslationUnitData();
 
 public:
-    time_point lastChangeTimePoint;
+    TranslationUnits &translationUnits;
+    time_point lastProjectPartChangeTimePoint;
+    QSet<Utf8String> dependedFilePaths;
     ProjectPart projectPart;
     Utf8String filePath;
     CXTranslationUnit translationUnit = nullptr;
     CXIndex index = nullptr;
-    UnsavedFiles unsavedFiles;
+    uint documentRevision = 0;
+    bool needsToBeReparsed  = false;
 };
 
 TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
-                                         const UnsavedFiles &unsavedFiles,
-                                         const ProjectPart &projectPart)
-    : lastChangeTimePoint(std::chrono::steady_clock::now()),
+                                         const ProjectPart &projectPart,
+                                         TranslationUnits &translationUnits)
+    : translationUnits(translationUnits),
+      lastProjectPartChangeTimePoint(std::chrono::steady_clock::now()),
       projectPart(projectPart),
-      filePath(filePath),
-      unsavedFiles(unsavedFiles)
+      filePath(filePath)
 {
+    dependedFilePaths.insert(filePath);
 }
 
 TranslationUnitData::~TranslationUnitData()
@@ -81,10 +90,10 @@ TranslationUnitData::~TranslationUnitData()
 }
 
 TranslationUnit::TranslationUnit(const Utf8String &filePath,
-                                 const UnsavedFiles &unsavedFiles,
-                                 const ProjectPart &project,
+                                 const ProjectPart &projectPart,
+                                 TranslationUnits &translationUnits,
                                  FileExistsCheck fileExistsCheck)
-    : d(std::make_shared<TranslationUnitData>(filePath, unsavedFiles, project))
+    : d(std::make_shared<TranslationUnitData>(filePath, projectPart, translationUnits))
 {
     if (fileExistsCheck == CheckIfFileExists)
         checkIfFileExists();
@@ -122,10 +131,9 @@ CXIndex TranslationUnit::index() const
 CXTranslationUnit TranslationUnit::cxTranslationUnit() const
 {
     checkIfNull();
-
-    removeOutdatedTranslationUnit();
-
+    removeTranslationUnitIfProjectPartWasChanged();
     createTranslationUnitIfNeeded();
+    reparseTranslationUnitIfFilesAreChanged();
 
     return d->translationUnit;
 }
@@ -148,19 +156,58 @@ FileContainer TranslationUnit::fileContainer() const
 {
     checkIfNull();
 
-    return FileContainer(d->filePath, d->projectPart.projectPartId());
+    return FileContainer(d->filePath,
+                         d->projectPart.projectPartId(),
+                         Utf8String(),
+                         false,
+                         d->documentRevision);
 }
 
-const time_point &TranslationUnit::lastChangeTimePoint() const
+const ProjectPart &TranslationUnit::projectPart() const
 {
-    return d->lastChangeTimePoint;
+    checkIfNull();
+
+    return d->projectPart;
+}
+
+void TranslationUnit::setDocumentRevision(uint revision)
+{
+    d->documentRevision = revision;
+}
+
+uint TranslationUnit::documentRevision() const
+{
+    return d->documentRevision;
+}
+
+const time_point &TranslationUnit::lastProjectPartChangeTimePoint() const
+{
+    return d->lastProjectPartChangeTimePoint;
+}
+
+bool TranslationUnit::isNeedingReparse() const
+{
+    return d->needsToBeReparsed;
 }
 
 DiagnosticSet TranslationUnit::diagnostics() const
 {
-    reparse();
+    reparseTranslationUnitIfFilesAreChanged();
 
     return DiagnosticSet(clang_getDiagnosticSetFromTU(cxTranslationUnit()));
+}
+
+const QSet<Utf8String> &TranslationUnit::dependedFilePaths() const
+{
+    createTranslationUnitIfNeeded();
+
+    return d->dependedFilePaths;
+}
+
+void TranslationUnit::updateIsNeedingReparseIfDependencyIsMet(const Utf8String &filePath)
+{
+    if (d->dependedFilePaths.contains(filePath))
+        d->needsToBeReparsed = true;
 }
 
 void TranslationUnit::checkIfNull() const
@@ -175,17 +222,22 @@ void TranslationUnit::checkIfFileExists() const
         throw TranslationUnitFileNotExitsException(d->filePath);
 }
 
-void TranslationUnit::updateLastChangeTimePoint() const
+void TranslationUnit::updateLastProjectPartChangeTimePoint() const
 {
-    d->lastChangeTimePoint = std::chrono::steady_clock::now();
+    d->lastProjectPartChangeTimePoint = std::chrono::steady_clock::now();
 }
 
-void TranslationUnit::removeOutdatedTranslationUnit() const
+void TranslationUnit::removeTranslationUnitIfProjectPartWasChanged() const
 {
-    if (d->projectPart.lastChangeTimePoint() >= d->lastChangeTimePoint) {
+    if (projectPartIsOutdated()) {
         clang_disposeTranslationUnit(d->translationUnit);
         d->translationUnit = nullptr;
     }
+}
+
+bool TranslationUnit::projectPartIsOutdated() const
+{
+    return d->projectPart.lastChangeTimePoint() >= d->lastProjectPartChangeTimePoint;
 }
 
 void TranslationUnit::createTranslationUnitIfNeeded() const
@@ -196,18 +248,20 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
                                                             d->filePath.constData(),
                                                             d->projectPart.cxArguments(),
                                                             d->projectPart.argumentCount(),
-                                                            d->unsavedFiles.cxUnsavedFiles(),
-                                                            d->unsavedFiles.count(),
+                                                            unsavedFiles().cxUnsavedFiles(),
+                                                            unsavedFiles().count(),
                                                             defaultOptions(),
                                                             &d->translationUnit);
 
         checkTranslationUnitErrorCode(errorCode);
 
+        updateIncludeFilePaths();
+
         // We need to reparse to create the precompiled preamble, which will speed up further calls,
         // e.g. clang_codeCompleteAt() dramatically.
         reparseTranslationUnit();
 
-        updateLastChangeTimePoint();
+        updateLastProjectPartChangeTimePoint();
     }
 }
 
@@ -222,9 +276,45 @@ void TranslationUnit::checkTranslationUnitErrorCode(CXErrorCode errorCode) const
 void TranslationUnit::reparseTranslationUnit() const
 {
     clang_reparseTranslationUnit(d->translationUnit,
-                                 d->unsavedFiles.count(),
-                                 d->unsavedFiles.cxUnsavedFiles(),
+                                 unsavedFiles().count(),
+                                 unsavedFiles().cxUnsavedFiles(),
                                  clang_defaultReparseOptions(d->translationUnit));
+
+    d->needsToBeReparsed = false;
+}
+
+void TranslationUnit::reparseTranslationUnitIfFilesAreChanged() const
+{
+    if (isNeedingReparse())
+        reparseTranslationUnit();
+}
+
+void TranslationUnit::includeCallback(CXFile included_file,
+                                      CXSourceLocation */*inclusion_stack*/,
+                                      unsigned /*include_len*/,
+                                      CXClientData clientData)
+{
+
+    ClangString includeFilePath(clang_getFileName(included_file));
+
+    TranslationUnit *translationUnit = static_cast<TranslationUnit*>(clientData);
+
+    translationUnit->d->dependedFilePaths.insert(includeFilePath);
+}
+
+UnsavedFiles &TranslationUnit::unsavedFiles() const
+{
+    return d->translationUnits.unsavedFiles();
+}
+
+void TranslationUnit::updateIncludeFilePaths() const
+{
+    d->dependedFilePaths.clear();
+    d->dependedFilePaths.insert(filePath());
+
+    clang_getInclusions(d->translationUnit, includeCallback, const_cast<TranslationUnit*>(this));
+
+    d->translationUnits.addWatchedFiles(d->dependedFilePaths);
 }
 
 int TranslationUnit::defaultOptions()
@@ -236,12 +326,12 @@ int TranslationUnit::defaultOptions()
 
 uint TranslationUnit::unsavedFilesCount() const
 {
-    return d->unsavedFiles.count();
+    return unsavedFiles().count();
 }
 
 CXUnsavedFile *TranslationUnit::cxUnsavedFiles() const
 {
-    return d->unsavedFiles.cxUnsavedFiles();
+    return unsavedFiles().cxUnsavedFiles();
 }
 
 TranslationUnit::~TranslationUnit() = default;
@@ -264,6 +354,14 @@ TranslationUnit &TranslationUnit::operator=(TranslationUnit &&other)
 bool operator==(const TranslationUnit &first, const TranslationUnit &second)
 {
     return first.filePath() == second.filePath() && first.projectPartId() == second.projectPartId();
+}
+
+void PrintTo(const TranslationUnit &translationUnit, ::std::ostream *os)
+{
+    *os << "TranslationUnit("
+        << translationUnit.filePath().constData() << ", "
+        << translationUnit.projectPartId().constData() << ", "
+        << translationUnit.documentRevision() << ")";
 }
 
 } // namespace ClangBackEnd

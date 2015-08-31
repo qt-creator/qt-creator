@@ -39,14 +39,26 @@
 
 namespace ClangBackEnd {
 
-FileContainer::FileContainer(const Utf8String &fileName,
+FileContainer::FileContainer(const Utf8String &filePath,
                              const Utf8String &projectPartId,
                              const Utf8String &unsavedFileContent,
-                             bool hasUnsavedFileContent)
-    : filePath_(fileName),
+                             bool hasUnsavedFileContent,
+                             quint32 documentRevision)
+    : filePath_(filePath),
       projectPartId_(projectPartId),
       unsavedFileContent_(unsavedFileContent),
+      documentRevision_(documentRevision),
       hasUnsavedFileContent_(hasUnsavedFileContent)
+{
+}
+
+FileContainer::FileContainer(const Utf8String &filePath,
+                             const Utf8String &projectPartId,
+                             quint32 documentRevision)
+    : filePath_(filePath),
+      projectPartId_(projectPartId),
+      documentRevision_(documentRevision),
+      hasUnsavedFileContent_(false)
 {
 }
 
@@ -70,11 +82,17 @@ bool FileContainer::hasUnsavedFileContent() const
     return hasUnsavedFileContent_;
 }
 
+quint32 FileContainer::documentRevision() const
+{
+    return documentRevision_;
+}
+
 QDataStream &operator<<(QDataStream &out, const FileContainer &container)
 {
     out << container.filePath_;
     out << container.projectPartId_;
     out << container.unsavedFileContent_;
+    out << container.documentRevision_;
     out << container.hasUnsavedFileContent_;
 
     return out;
@@ -85,6 +103,7 @@ QDataStream &operator>>(QDataStream &in, FileContainer &container)
     in >> container.filePath_;
     in >> container.projectPartId_;
     in >> container.unsavedFileContent_;
+    in >> container.documentRevision_;
     in >> container.hasUnsavedFileContent_;
 
     return in;
@@ -106,9 +125,9 @@ bool operator<(const FileContainer &first, const FileContainer &second)
 QDebug operator<<(QDebug debug, const FileContainer &container)
 {
     debug.nospace() << "FileContainer("
-                    << container.filePath()
-                    << ", "
-                    << container.projectPartId();
+                    << container.filePath() << ", "
+                    << container.projectPartId() << ", "
+                    << container.documentRevision();
 
     if (container.hasUnsavedFileContent()) {
         const Utf8String fileWithContent = debugWriteFileForInspection(
@@ -126,9 +145,9 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
 void PrintTo(const FileContainer &container, ::std::ostream* os)
 {
     *os << "FileContainer("
-        << container.filePath().constData()
-        << ", "
-        << container.projectPartId().constData();
+        << container.filePath().constData() << ", "
+        << container.projectPartId().constData() << ", "
+        << container.documentRevision();
 
     if (container.hasUnsavedFileContent())
         *os << ", "

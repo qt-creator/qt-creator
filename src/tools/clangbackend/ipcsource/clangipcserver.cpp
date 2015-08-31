@@ -59,6 +59,10 @@ namespace ClangBackEnd {
 ClangIpcServer::ClangIpcServer()
     : translationUnits(projects, unsavedFiles)
 {
+    translationUnits.setSendChangeDiagnosticsCallback([this] (const DiagnosticsChangedMessage &message)
+                                                      {
+                                                          client()->diagnosticsChanged(message);
+                                                      });
 }
 
 void ClangIpcServer::end()
@@ -71,8 +75,11 @@ void ClangIpcServer::registerTranslationUnitsForCodeCompletion(const ClangBackEn
     TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForCodeCompletion");
 
     try {
-        translationUnits.createOrUpdate(message.fileContainers());
-        unsavedFiles.createOrUpdate(message.fileContainers());
+        const auto newerFileContainers = translationUnits.newerFileContainers(message.fileContainers());
+        if (newerFileContainers.size() > 0) {
+            unsavedFiles.createOrUpdate(newerFileContainers);
+            translationUnits.createOrUpdate(newerFileContainers);
+        }
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -85,6 +92,7 @@ void ClangIpcServer::unregisterTranslationUnitsForCodeCompletion(const ClangBack
     TIME_SCOPE_DURATION("ClangIpcServer::unregisterTranslationUnitsForCodeCompletion");
 
     try {
+        unsavedFiles.remove(message.fileContainers());
         translationUnits.remove(message.fileContainers());
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
@@ -147,8 +155,7 @@ void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message
                                                                 message.file().projectPartId());
 
         client()->diagnosticsChanged(DiagnosticsChangedMessage(translationUnit.fileContainer(),
-                                                               translationUnit.diagnostics().toDiagnosticContainers(),
-                                                               message.documentRevision()));
+                                                               translationUnit.diagnostics().toDiagnosticContainers()));
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {

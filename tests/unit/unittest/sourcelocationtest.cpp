@@ -31,7 +31,9 @@
 #include <diagnostic.h>
 #include <diagnosticset.h>
 #include <projectpart.h>
+#include <projects.h>
 #include <translationunit.h>
+#include <translationunits.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 
@@ -56,10 +58,12 @@ class SourceLocation : public ::testing::Test
 {
 protected:
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
-    UnsavedFiles unsavedFiles;
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_location.cpp"),
-                                    unsavedFiles,
-                                    projectPart};
+                                    projectPart,
+                                    translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     Diagnostic diagnostic{diagnosticSet.front()};
     ::SourceLocation sourceLocation{diagnostic.location()};

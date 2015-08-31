@@ -57,6 +57,7 @@ ConnectionServer::ConnectionServer(const QString &connectionName)
 
 ConnectionServer::~ConnectionServer()
 {
+    killTimer(aliveTimerId);
     removeServer();
 }
 

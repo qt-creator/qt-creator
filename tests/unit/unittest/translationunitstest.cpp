@@ -63,22 +63,16 @@ namespace {
 
 using ::testing::PrintToString;
 
-MATCHER_P2(IsTranslationUnit, filePath, projectPartId,
-           std::string(negation ? "isn't" : "is") + " translation unit with file path "
-           + PrintToString(filePath) + " and project " + PrintToString(projectPartId)
+MATCHER_P3(IsTranslationUnit, filePath, projectPartId, documentRevision,
+           std::string(negation ? "isn't" : "is")
+           + " translation unit with file path "+ PrintToString(filePath)
+           + " and project " + PrintToString(projectPartId)
+           + " and document revision " + PrintToString(documentRevision)
            )
 {
-    if (arg.filePath() != filePath) {
-        *result_listener << "file path is " + PrintToString(arg.filePath()) + " and not " +  PrintToString(filePath);
-        return false;
-    }
-
-    if (arg.projectPartId() != projectPartId) {
-        *result_listener << "file path is " + PrintToString(arg.projectPartId()) + " and not " +  PrintToString(projectPartId);
-        return false;
-    }
-
-    return true;
+    return arg.filePath() == filePath
+        && arg.projectPartId() == projectPartId
+        && arg.documentRevision() == documentRevision;
 }
 
 class TranslationUnits : public ::testing::Test
@@ -88,10 +82,12 @@ protected:
 
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits = ClangBackEnd::TranslationUnits(projects, unsavedFiles);
-    const Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp");
-    const Utf8String projectPartId = Utf8StringLiteral("/path/to/projectfile");
-
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    const Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
+    const Utf8String headerPath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
+    const Utf8String nonExistingFilePath = Utf8StringLiteral("foo.cpp");
+    const Utf8String projectPartId = Utf8StringLiteral("projectPartId");
+    const Utf8String nonExistingProjectPartId = Utf8StringLiteral("nonExistingProjectPartId");
 };
 
 void TranslationUnits::SetUp()
@@ -102,21 +98,21 @@ void TranslationUnits::SetUp()
 
 TEST_F(TranslationUnits, ThrowForGettingWithWrongFilePath)
 {
-    ASSERT_THROW(translationUnits.translationUnit(Utf8StringLiteral("foo.cpp"), projectPartId),
+    ASSERT_THROW(translationUnits.translationUnit(nonExistingFilePath, projectPartId),
                  ClangBackEnd::TranslationUnitDoesNotExistException);
 
 }
 
 TEST_F(TranslationUnits, ThrowForGettingWithWrongProjectPartFilePath)
 {
-    ASSERT_THROW(translationUnits.translationUnit(filePath, Utf8StringLiteral("foo.pro")),
+    ASSERT_THROW(translationUnits.translationUnit(filePath, nonExistingProjectPartId),
                  ClangBackEnd::ProjectPartDoNotExistException);
 
 }
 
 TEST_F(TranslationUnits, ThrowForAddingNonExistingFile)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), projectPartId);
+    ClangBackEnd::FileContainer fileContainer(nonExistingFilePath, projectPartId);
 
     ASSERT_THROW(translationUnits.createOrUpdate({fileContainer}),
                  ClangBackEnd::TranslationUnitFileNotExitsException);
@@ -124,24 +120,59 @@ TEST_F(TranslationUnits, ThrowForAddingNonExistingFile)
 
 TEST_F(TranslationUnits, DoNotThrowForAddingNonExistingFileWithUnsavedContent)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), projectPartId, Utf8String(), true);
+    ClangBackEnd::FileContainer fileContainer(nonExistingFilePath, projectPartId, Utf8String(), true);
 
     ASSERT_NO_THROW(translationUnits.createOrUpdate({fileContainer}));
 }
 
 TEST_F(TranslationUnits, Add)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
 
     translationUnits.createOrUpdate({fileContainer});
 
     ASSERT_THAT(translationUnits.translationUnit(filePath, projectPartId),
-                IsTranslationUnit(filePath, projectPartId));
+                IsTranslationUnit(filePath, projectPartId, 74u));
+}
+
+
+TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForReparse)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, 74u);
+    ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
+    translationUnits.createOrUpdate({fileContainer, headerContainer});
+    translationUnits.translationUnit(filePath, projectPartId).cxTranslationUnit();
+
+    translationUnits.createOrUpdate({headerContainerWithUnsavedContent});
+
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).isNeedingReparse());
+}
+
+TEST_F(TranslationUnits, DontGetNewerFileContainerIfRevisionIsTheSame)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    translationUnits.createOrUpdate({fileContainer});
+
+    auto newerFileContainers = translationUnits.newerFileContainers({fileContainer});
+
+    ASSERT_THAT(newerFileContainers.size(), 0);
+}
+
+TEST_F(TranslationUnits, GetNewerFileContainerIfRevisionIsDifferent)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer newerContainer(filePath, projectPartId, 75u);
+    translationUnits.createOrUpdate({fileContainer});
+
+    auto newerFileContainers = translationUnits.newerFileContainers({newerContainer});
+
+    ASSERT_THAT(newerFileContainers.size(), 1);
 }
 
 TEST_F(TranslationUnits, ThrowForRemovingWithWrongFilePath)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), projectPartId);
+    ClangBackEnd::FileContainer fileContainer(nonExistingFilePath, projectPartId);
 
     ASSERT_THROW(translationUnits.remove({fileContainer}),
                  ClangBackEnd::TranslationUnitDoesNotExistException);
@@ -149,7 +180,7 @@ TEST_F(TranslationUnits, ThrowForRemovingWithWrongFilePath)
 
 TEST_F(TranslationUnits, ThrowForRemovingWithWrongProjectPartFilePath)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringLiteral("foo.pro"));
+    ClangBackEnd::FileContainer fileContainer(filePath, nonExistingProjectPartId);
 
     ASSERT_THROW(translationUnits.remove({fileContainer}),
                  ClangBackEnd::ProjectPartDoNotExistException);
@@ -175,7 +206,9 @@ TEST_F(TranslationUnits, RemoveAllValidIfExceptionIsThrown)
                  ClangBackEnd::TranslationUnitDoesNotExistException);
 
     ASSERT_THAT(translationUnits.translationUnits(),
-                Not(Contains(TranslationUnit(filePath, unsavedFiles, projects.project(projectPartId)))));
+                Not(Contains(TranslationUnit(filePath,
+                                             projects.project(projectPartId),
+                                             translationUnits))));
 }
 
 }

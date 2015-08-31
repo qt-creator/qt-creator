@@ -30,7 +30,9 @@
 
 #include <clangcodecompleteresults.h>
 #include <projectpart.h>
+#include <projects.h>
 #include <translationunit.h>
+#include <translationunits.h>
 #include <unsavedfiles.h>
 #include <utf8string.h>
 
@@ -51,8 +53,12 @@ using ClangBackEnd::ProjectPart;
 TEST(ClangCodeCompleteResults, GetData)
 {
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
-    UnsavedFiles unsavedFiles;
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), unsavedFiles, projectPart);
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                                    projectPart,
+                                    translationUnits);
     CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), translationUnit.filePath().constData(), 49, 1, 0, 0, 0);
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
@@ -72,8 +78,12 @@ TEST(ClangCodeCompleteResults, GetInvalidData)
 TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
 {
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
-    UnsavedFiles unsavedFiles;
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), unsavedFiles, projectPart);
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                                    projectPart,
+                                    translationUnits);
     CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), translationUnit.filePath().constData(), 49, 1, 0, 0, 0);
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);

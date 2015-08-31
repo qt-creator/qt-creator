@@ -85,6 +85,11 @@ protected:
 
 protected:
     ::UnsavedFiles unsavedFiles;
+    Utf8String filePath{Utf8StringLiteral("file.cpp")};
+    Utf8String projectPartId{Utf8StringLiteral("projectPartId")};
+
+    Utf8String unsavedContent1{Utf8StringLiteral("foo")};
+    Utf8String unsavedContent2{Utf8StringLiteral("bar")};
 };
 
 void UnsavedFiles::TearDown()
@@ -94,7 +99,7 @@ void UnsavedFiles::TearDown()
 
 TEST_F(UnsavedFiles, DoNothingForUpdateIfFileHasNoUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"))});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId)});
 
     unsavedFiles.createOrUpdate(fileContainers);
 
@@ -103,17 +108,17 @@ TEST_F(UnsavedFiles, DoNothingForUpdateIfFileHasNoUnsavedContent)
 
 TEST_F(UnsavedFiles, AddUnsavedFileForUpdateWithUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro")),
-                                           FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo"), true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId),
+                                           FileContainer(filePath, projectPartId, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
-    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo"), true)})));
+    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(filePath, projectPartId, unsavedContent1, true)})));
 }
 
 TEST_F(UnsavedFiles, RemoveUnsavedFileForUpdateWithUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo"), true),
-                                           FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"))});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true),
+                                           FileContainer(filePath, projectPartId)});
 
     unsavedFiles.createOrUpdate(fileContainers);
 
@@ -122,17 +127,17 @@ TEST_F(UnsavedFiles, RemoveUnsavedFileForUpdateWithUnsavedContent)
 
 TEST_F(UnsavedFiles, ExchangeUnsavedFileForUpdateWithUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo"), true),
-                                           FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo2"), true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true),
+                                           FileContainer(filePath, projectPartId, unsavedContent2, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
-    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo2"), true)})));
+    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(filePath, projectPartId, unsavedContent2, true)})));
 }
 
 TEST_F(UnsavedFiles, TimeStampIsUpdatedAsUnsavedFilesChanged)
 {
-    QVector<FileContainer> fileContainers({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo"), true),
-                                           FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo2"), true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true),
+                                           FileContainer(filePath, projectPartId, unsavedContent2, true)});
     auto lastChangeTimePoint = unsavedFiles.lastChangeTimePoint();
 
     unsavedFiles.createOrUpdate(fileContainers);
@@ -142,7 +147,7 @@ TEST_F(UnsavedFiles, TimeStampIsUpdatedAsUnsavedFilesChanged)
 
 TEST_F(UnsavedFiles, RemoveUnsavedFiles)
 {
-    QVector<FileContainer> fileContainers({FileContainer(Utf8StringLiteral("file.cpp"), Utf8StringLiteral("pathToProject.pro"), Utf8StringLiteral("foo"), true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
     unsavedFiles.remove(fileContainers);

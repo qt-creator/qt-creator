@@ -22,7 +22,8 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/sourcelocation.h \
     $$PWD/sourcerange.h \
     $$PWD/fixit.h \
-    $$PWD/diagnosticsetiterator.h
+    $$PWD/diagnosticsetiterator.h \
+    $$PWD/clangfilesystemwatcher.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -45,4 +46,5 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/diagnostic.cpp \
     $$PWD/sourcelocation.cpp \
     $$PWD/sourcerange.cpp \
-    $$PWD/fixit.cpp
+    $$PWD/fixit.cpp \
+    $$PWD/clangfilesystemwatcher.cpp

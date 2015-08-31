@@ -50,17 +50,23 @@ public:
     FileContainer(const Utf8String &filePath,
                   const Utf8String &projectPartId,
                   const Utf8String &unsavedFileContent = Utf8String(),
-                  bool hasUnsavedFileContent = false);
+                  bool hasUnsavedFileContent = false,
+                  quint32 documentRevision = 0);
+    FileContainer(const Utf8String &filePath,
+                  const Utf8String &projectPartId,
+                  quint32 documentRevision);
 
     const Utf8String &filePath() const;
     const Utf8String &projectPartId() const;
     const Utf8String &unsavedFileContent() const;
     bool hasUnsavedFileContent() const;
+    quint32 documentRevision() const;
 
 private:
     Utf8String filePath_;
     Utf8String projectPartId_;
     Utf8String unsavedFileContent_;
+    quint32 documentRevision_;
     bool hasUnsavedFileContent_ = false;
 };
 

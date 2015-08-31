@@ -180,15 +180,14 @@ TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
                                                 {});
 
     CompareMessage(ClangBackEnd::DiagnosticsChangedMessage(fileContainer,
-                                                           {container},
-                                                           1));
+                                                           {container}));
 }
 
 TEST_F(ReadAndWriteMessageBlock, RequestDiagnosticsMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
 
-    CompareMessage(ClangBackEnd::RequestDiagnosticsMessage(fileContainer, 1));
+    CompareMessage(ClangBackEnd::RequestDiagnosticsMessage(fileContainer));
 }
 
 TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)

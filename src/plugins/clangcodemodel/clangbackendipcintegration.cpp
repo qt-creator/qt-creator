@@ -167,7 +167,7 @@ void IpcReceiver::diagnosticsChanged(const DiagnosticsChangedMessage &message)
         const QString diagnosticsProjectPartId = message.file().projectPartId();
         const QString documentProjectPartId = processor->projectPart()->id();
         if (diagnosticsProjectPartId == documentProjectPartId)
-            processor->updateCodeWarnings(message.diagnostics(), message.documentRevision());
+            processor->updateCodeWarnings(message.diagnostics(), message.file().documentRevision());
     }
 }
 
@@ -317,7 +317,7 @@ void IpcCommunicator::registerCurrrentCodeModelUiHeaders()
 
     const auto editorSupports = CppModelManager::instance()->abstractEditorSupports();
     foreach (const AbstractEditorSupport *es, editorSupports)
-        updateUnsavedFile(es->fileName(), es->contents());
+        updateUnsavedFile(es->fileName(), es->contents(), es->revision());
 }
 
 static QStringList projectPartMessageLine(const CppTools::ProjectPart::Ptr &projectPart)
@@ -355,12 +355,14 @@ void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::P
 
 void IpcCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &filePath)
 {
-    const QByteArray unsavedContent = CppTools::CppModelManager::instance()
-            ->cppEditorDocument(filePath)->contents();
-    updateUnsavedFile(filePath, unsavedContent);
+    const auto document = CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
+
+    updateUnsavedFile(filePath, document->contents(), document->revision());
 }
 
-void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArray &contents)
+void IpcCommunicator::updateUnsavedFile(const QString &filePath,
+                                        const QByteArray &contents,
+                                        uint documentRevision)
 {
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
     const bool hasUnsavedContent = true;
@@ -369,13 +371,14 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
     registerFilesForCodeCompletion({{filePath,
                                     projectPartId,
                                     Utf8String::fromByteArray(contents),
-                                    hasUnsavedContent}});
+                                    hasUnsavedContent,
+                                    documentRevision}});
 }
 
-void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer, uint documentRevision)
+void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
 {
     registerFilesForCodeCompletion({fileContainer});
-    m_ipcSender->requestDiagnostics({fileContainer, documentRevision});
+    m_ipcSender->requestDiagnostics({fileContainer});
 }
 
 void IpcCommunicator::updateUnsavedFileIfNotCurrentDocument(Core::IDocument *document)

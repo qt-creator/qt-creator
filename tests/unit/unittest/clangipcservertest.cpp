@@ -222,7 +222,7 @@ TEST_F(ClangIpcServer, GetCodeCompletionForUnsavedFile)
 
 TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
 {
-    clangServer.registerTranslationUnitsForCodeCompletion(RegisterTranslationUnitForCodeCompletionMessage({FileContainer(functionTestFilePath, projectPartId)}));
+    clangServer.registerTranslationUnitsForCodeCompletion(RegisterTranslationUnitForCodeCompletionMessage({FileContainer(functionTestFilePath, projectPartId, 74)}));
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
                                             1,
@@ -242,7 +242,8 @@ TEST_F(ClangIpcServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
     clangServer.registerTranslationUnitsForCodeCompletion(RegisterTranslationUnitForCodeCompletionMessage({FileContainer(functionTestFilePath,
                                                                                                     projectPartId,
                                                                                                     unsavedContent(updatedUnsavedTestFilePath),
-                                                                                                    true)}));
+                                                                                                    true,
+                                                                                                    74)}));
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
                                             1,

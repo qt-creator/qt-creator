@@ -49,8 +49,6 @@ CodeCompleter::CodeCompleter(TranslationUnit translationUnit)
 
 CodeCompletions CodeCompleter::complete(uint line, uint column)
 {
-    translationUnit.reparse();
-
     ClangCodeCompleteResults completeResults(clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
                                                                   translationUnit.filePath().constData(),
                                                                   line,

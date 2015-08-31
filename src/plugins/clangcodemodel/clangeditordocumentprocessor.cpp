@@ -225,14 +225,20 @@ void ClangEditorDocumentProcessor::updateTranslationUnitForCompletion(CppTools::
 
     if (m_projectPart) {
         if (projectPart.id() != m_projectPart->id()) {
-            auto container1 = ClangBackEnd::FileContainer(filePath(), m_projectPart->id());
+            auto container1 = ClangBackEnd::FileContainer(filePath(),
+                                                          m_projectPart->id(),
+                                                          revision());
             ipcCommunicator.unregisterFilesForCodeCompletion({container1});
 
-            auto container2 = ClangBackEnd::FileContainer(filePath(), projectPart.id());
+            auto container2 = ClangBackEnd::FileContainer(filePath(),
+                                                          projectPart.id(),
+                                                          revision());
             ipcCommunicator.registerFilesForCodeCompletion({container2});
         }
     } else {
-        auto container = ClangBackEnd::FileContainer(filePath(), projectPart.id());
+        auto container = ClangBackEnd::FileContainer(filePath(),
+                                                     projectPart.id(),
+                                                     revision());
         ipcCommunicator.registerFilesForCodeCompletion({container});
     }
 }
@@ -458,8 +464,11 @@ void ClangEditorDocumentProcessor::requestDiagnostics(CppTools::ProjectPart &pro
     if (!m_projectPart || projectPart.id() != m_projectPart->id()) {
         IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
 
-        ipcCommunicator.requestDiagnostics({filePath(), projectPart.id()},
-                                            revision());
+        ipcCommunicator.requestDiagnostics({filePath(),
+                                            projectPart.id(),
+                                            Utf8String(),
+                                            false,
+                                            revision()});
     }
 }
 
@@ -469,10 +478,10 @@ void ClangEditorDocumentProcessor::requestDiagnostics()
     if (m_projectPart) {
         auto  &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
         ipcCommunicator.requestDiagnostics({filePath(),
-                                             m_projectPart->id(),
-                                             baseTextDocument()->plainText(),
-                                             true},
-                                            revision());
+                                            m_projectPart->id(),
+                                            baseTextDocument()->plainText(),
+                                            true,
+                                            revision()});
     }
 }
 

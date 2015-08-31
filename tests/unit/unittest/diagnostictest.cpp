@@ -32,6 +32,8 @@
 #include <diagnosticset.h>
 #include <projectpart.h>
 #include <translationunit.h>
+#include <translationunits.h>
+#include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -50,6 +52,7 @@ using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceLocation;
 using ClangBackEnd::DiagnosticSeverity;
+using ClangBackEnd::TranslationUnits;
 using testing::PrintToString;
 
 namespace {
@@ -75,10 +78,12 @@ class Diagnostic : public ::testing::Test
 {
 protected:
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++11")}};
-    UnsavedFiles unsavedFiles;
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
-                                    unsavedFiles,
-                                    projectPart};
+                                    projectPart,
+                                    translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     ::Diagnostic diagnostic{diagnosticSet.back()};
 };
