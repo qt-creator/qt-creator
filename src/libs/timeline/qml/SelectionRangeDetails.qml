@@ -144,17 +144,20 @@ Item {
             columns: 2
 
             Repeater {
-                model: [
+                id: details
+                property var contents: [
                     qsTr("Start") + ":",
                     detailedPrintTime(startTime),
-                    showDuration ? (qsTr("End") + ":") : "",
-                    showDuration ? detailedPrintTime(endTime) : "",
-                    showDuration ? (qsTr("Duration") + ":") : "",
-                    showDuration ? detailedPrintTime(duration) : ""
+                    (qsTr("End") + ":"),
+                    detailedPrintTime(endTime),
+                    (qsTr("Duration") + ":"),
+                    detailedPrintTime(duration)
                 ]
+
+                model: showDuration ? 6 : 2
                 Detail {
                     isLabel: index % 2 === 0
-                    text: modelData
+                    text: details.contents[index]
                 }
             }
         }
