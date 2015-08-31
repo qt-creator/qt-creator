@@ -1106,6 +1106,7 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByCompletingUiObject()
 
 void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
 {
+    QSKIP("Must be rewritten with a more robust approach instead of sender log!");
     IpcSenderSpy spy;
     ChangeIpcSender changeIpcSender(&spy);
 
