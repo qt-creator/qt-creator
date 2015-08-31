@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/modeleditor">
+        <file>modeleditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

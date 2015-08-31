@@ -38,6 +38,7 @@ Project {
         "ios/ios.qbs",
         "macros/macros.qbs",
         "mercurial/mercurial.qbs",
+        "modeleditor/modeleditor.qbs",
         "perforce/perforce.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",

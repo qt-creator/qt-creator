@@ -49,6 +49,7 @@ SUBDIRS   = \
     baremetal \
     ios \
     beautifier \
+    modeleditor \
     qmakeandroidsupport \
     winrt \
     qmlprofiler \

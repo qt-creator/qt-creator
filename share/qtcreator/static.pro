@@ -39,6 +39,7 @@ DATA_DIRS = \
     qmlicons \
     qml \
     qml-type-descriptions \
+    modeleditor \
     generic-highlighter \
     glsl \
     cplusplus

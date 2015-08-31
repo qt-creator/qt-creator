@@ -15,6 +15,7 @@ Product {
             "designer/**/*",
             "generic-highlighter/**/*",
             "glsl/**/*",
+            "modeleditor/**/*",
             "qml/**/*",
             "qmldesigner/**/*",
             "qmlicons/**/*",
