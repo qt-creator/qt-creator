@@ -320,7 +320,8 @@ public:
     virtual void notifyInferiorIll();
 
     QString toFileInProject(const QUrl &fileUrl);
-    void updateBreakpointMarkers();
+    void updateBreakpointMarker(const Breakpoint &bp);
+    void removeBreakpointMarker(const Breakpoint &bp);
 
 signals:
     void stateChanged(Debugger::DebuggerState state);

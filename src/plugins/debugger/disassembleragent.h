@@ -36,6 +36,7 @@
 namespace Debugger {
 namespace Internal {
 
+class Breakpoint;
 class DebuggerEngine;
 class DisassemblerAgentPrivate;
 class DisassemblerLines;
@@ -56,7 +57,8 @@ public:
     void resetLocation();
     void setContents(const DisassemblerLines &contents);
     void updateLocationMarker();
-    void updateBreakpointMarkers();
+    void updateBreakpointMarker(const Breakpoint &bp);
+    void removeBreakpointMarker(const Breakpoint &bp);
 
     // Mimetype: "text/a-asm" or some specialized architecture
     QString mimeType() const;

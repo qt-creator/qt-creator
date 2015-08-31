@@ -104,8 +104,6 @@ public:
     void changeLineNumberFromMarker(int lineNumber);
     bool isLocatedAt(const QString &fileName, int lineNumber, bool useMarkerPosition) const;
 
-    bool needsChildren() const;
-
     void setMarkerFileAndLine(const QString &fileName, int lineNumber);
 
     void insertSubBreakpoint(const BreakpointResponse &params);
@@ -808,7 +806,8 @@ void Breakpoint::removeAlienBreakpoint()
 
 void Breakpoint::removeBreakpoint() const
 {
-    b->removeBreakpoint();
+    if (b)
+        b->removeBreakpoint();
 }
 
 Breakpoint::Breakpoint(BreakpointItem *b)
@@ -832,11 +831,6 @@ void Breakpoint::setMarkerFileAndLine(const QString &fileName, int lineNumber)
 {
     if (b)
         b->setMarkerFileAndLine(fileName, lineNumber);
-}
-
-bool BreakpointItem::needsChildren() const
-{
-    return m_response.multiple && rowCount() == 0;
 }
 
 void Breakpoint::setTracepoint(bool on)
@@ -971,6 +965,8 @@ void Breakpoint::notifyBreakpointInsertProceeding()
 void Breakpoint::notifyBreakpointInsertOk()
 {
     gotoState(BreakpointInserted, BreakpointInsertProceeding);
+    if (b->m_engine)
+        b->m_engine->updateBreakpointMarker(*this);
 }
 
 void Breakpoint::notifyBreakpointInsertFailed()
@@ -987,6 +983,8 @@ void Breakpoint::notifyBreakpointRemoveOk()
 {
     QTC_ASSERT(b, return);
     QTC_ASSERT(b->m_state == BreakpointRemoveProceeding, qDebug() << b->m_state);
+    if (b->m_engine)
+        b->m_engine->removeBreakpointMarker(*this);
     b->deleteThis();
 }
 
@@ -994,6 +992,8 @@ void Breakpoint::notifyBreakpointRemoveFailed()
 {
     QTC_ASSERT(b, return);
     QTC_ASSERT(b->m_state == BreakpointRemoveProceeding, qDebug() << b->m_state);
+    if (b->m_engine)
+        b->m_engine->removeBreakpointMarker(*this);
     b->deleteThis();
 }
 
@@ -1301,6 +1301,8 @@ void Breakpoint::changeBreakpointData(const BreakpointParameters &params)
     if (params == b->m_params)
         return;
     b->m_params = params;
+    if (b->m_engine)
+        b->m_engine->updateBreakpointMarker(*this);
     b->destroyMarker();
     b->updateMarker();
     b->update();
@@ -1331,8 +1333,6 @@ BreakpointItem::~BreakpointItem()
 
 void BreakpointItem::destroyMarker()
 {
-    if (m_engine)
-        m_engine->updateBreakpointMarkers();
     if (m_marker) {
         BreakpointMarker *m = m_marker;
         m->m_bp = 0;

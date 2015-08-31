@@ -63,6 +63,30 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
+// DisassemblerBreakpointMarker
+//
+///////////////////////////////////////////////////////////////////////
+
+// The red blob on the left side in the cpp editor.
+class DisassemblerBreakpointMarker : public TextMark
+{
+public:
+    DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
+        : TextMark(QString(), lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
+    {
+        setIcon(bp.icon());
+        setPriority(TextMark::NormalPriority);
+    }
+
+    bool isClickable() const { return true; }
+    void clicked() { m_bp.removeBreakpoint(); }
+
+public:
+    Breakpoint m_bp;
+};
+
+///////////////////////////////////////////////////////////////////////
+//
 // FrameKey
 //
 ///////////////////////////////////////////////////////////////////////
@@ -102,14 +126,14 @@ public:
     DisassemblerAgentPrivate(DebuggerEngine *engine);
     ~DisassemblerAgentPrivate();
     void configureMimeType();
-    DisassemblerLines contentsAtCurrentLocation() const;
+    int lineForAddress(quint64 address) const;
 
 public:
     QPointer<TextDocument> document;
     Location location;
     QPointer<DebuggerEngine> engine;
     LocationMark locationMark;
-    QList<TextMark *> breakpointMarks;
+    QList<DisassemblerBreakpointMarker *> breakpointMarks;
     QList<CacheEntry> cache;
     QString mimeType;
     bool resetLocationScheduled;
@@ -130,14 +154,14 @@ DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
     qDeleteAll(breakpointMarks);
 }
 
-DisassemblerLines DisassemblerAgentPrivate::contentsAtCurrentLocation() const
+int DisassemblerAgentPrivate::lineForAddress(quint64 address) const
 {
     for (int i = 0, n = cache.size(); i != n; ++i) {
         const CacheEntry &entry = cache.at(i);
         if (entry.first.matches(location))
-            return entry.second;
+            return entry.second.lineForAddress(address);
     }
-    return DisassemblerLines();
+    return 0;
 }
 
 
@@ -310,15 +334,17 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
     d->document->setPreferredDisplayName(_("Disassembler (%1)")
         .arg(d->location.functionName()));
 
-    updateBreakpointMarkers();
+    Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
+    foreach (Breakpoint bp, bps)
+        updateBreakpointMarker(bp);
+
     updateLocationMarker();
 }
 
 void DisassemblerAgent::updateLocationMarker()
 {
     QTC_ASSERT(d->document, return);
-    const DisassemblerLines contents = d->contentsAtCurrentLocation();
-    int lineNumber = contents.lineForAddress(d->location.address());
+    int lineNumber = d->lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
         d->document->removeMark(&d->locationMark);
         d->locationMark.updateLineNumber(lineNumber);
@@ -331,44 +357,45 @@ void DisassemblerAgent::updateLocationMarker()
             textEditor->gotoLine(lineNumber);
 }
 
-void DisassemblerAgent::updateBreakpointMarkers()
+void DisassemblerAgent::removeBreakpointMarker(const Breakpoint &bp)
 {
     if (!d->document)
         return;
 
-    Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
-    if (bps.isEmpty())
+    BreakpointModelId id = bp.id();
+    foreach (DisassemblerBreakpointMarker *marker, d->breakpointMarks) {
+        if (marker->m_bp.id() == id) {
+            d->breakpointMarks.removeOne(marker);
+            d->document->removeMark(marker);
+            delete marker;
+            return;
+        }
+    }
+}
+
+void DisassemblerAgent::updateBreakpointMarker(const Breakpoint &bp)
+{
+    removeBreakpointMarker(bp);
+    const quint64 address = bp.response().address;
+    if (!address)
         return;
 
-    const DisassemblerLines contents = d->contentsAtCurrentLocation();
-    foreach (TextMark *marker, d->breakpointMarks)
-        d->document->removeMark(marker);
-    qDeleteAll(d->breakpointMarks);
-    d->breakpointMarks.clear();
-    foreach (Breakpoint bp, bps) {
-        const quint64 address = bp.response().address;
-        if (!address)
-            continue;
-        int lineNumber = contents.lineForAddress(address);
-        if (!lineNumber)
-            continue;
+    int lineNumber = d->lineForAddress(address);
+    if (!lineNumber)
+        return;
 
-        // HACK: If it's a FileAndLine breakpoint, and there's a source line
-        // above, move the marker up there. That allows setting and removing
-        // normal breakpoints from within the disassembler view.
-        if (bp.type() == BreakpointByFileAndLine) {
-            ContextData context = getLocationContext(d->document, lineNumber - 1);
-            if (context.type == LocationByFile)
-                --lineNumber;
-        }
-
-        TextMark *marker = new TextMark(QString(), lineNumber,
-                                        Constants::TEXT_MARK_CATEGORY_BREAKPOINT);
-        marker->setIcon(bp.icon());
-        marker->setPriority(TextMark::NormalPriority);
-        d->breakpointMarks.append(marker);
-        d->document->addMark(marker);
+    // HACK: If it's a FileAndLine breakpoint, and there's a source line
+    // above, move the marker up there. That allows setting and removing
+    // normal breakpoints from within the disassembler view.
+    if (bp.type() == BreakpointByFileAndLine) {
+        ContextData context = getLocationContext(d->document, lineNumber - 1);
+        if (context.type == LocationByFile)
+            --lineNumber;
     }
+
+    auto marker = new DisassemblerBreakpointMarker(bp, lineNumber);
+    d->breakpointMarks.append(marker);
+    d->document->addMark(marker);
 }
 
 quint64 DisassemblerAgent::address() const

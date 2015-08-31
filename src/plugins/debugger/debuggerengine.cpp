@@ -1339,9 +1339,14 @@ QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
     return d->m_fileFinder.findFile(fileUrl);
 }
 
-void DebuggerEngine::updateBreakpointMarkers()
+void DebuggerEngine::removeBreakpointMarker(const Breakpoint &bp)
 {
-    d->m_disassemblerAgent.updateBreakpointMarkers();
+    d->m_disassemblerAgent.removeBreakpointMarker(bp);
+}
+
+void DebuggerEngine::updateBreakpointMarker(const Breakpoint &bp)
+{
+    d->m_disassemblerAgent.updateBreakpointMarker(bp);
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const
@@ -1638,7 +1643,6 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 
     if (done) {
         showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
-        d->m_disassemblerAgent.updateBreakpointMarkers();
     } else {
         showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
     }
