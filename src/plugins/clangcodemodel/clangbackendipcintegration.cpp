@@ -60,10 +60,12 @@
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbmessages.h>
+#include <clangbackendipc/registerunsavedfilesforeditormessage.h>
 #include <clangbackendipc/requestdiagnosticsmessage.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
+#include <clangbackendipc/unregisterunsavedfilesforeditormessage.h>
 
 #include <cplusplus/Icons.h>
 
@@ -195,6 +197,8 @@ public:
     void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) override;
     void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) override;
     void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) override;
+    void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) override;
+    void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
 
@@ -230,6 +234,18 @@ void IpcSender::unregisterProjectPartsForEditor(const UnregisterProjectPartsForE
 {
      QTC_CHECK(m_connection.isConnected());
      m_connection.serverProxy().unregisterProjectPartsForEditor(message);
+}
+
+void IpcSender::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().registerUnsavedFilesForEditor(message);
+}
+
+void IpcSender::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().unregisterUnsavedFilesForEditor(message);
 }
 
 void IpcSender::completeCode(const CompleteCodeMessage &message)
@@ -306,7 +322,7 @@ void IpcCommunicator::registerCurrentUnsavedFiles()
     const auto cppEditorDocuments = CppModelManager::instance()->cppEditorDocuments();
     foreach (const CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments) {
         if (cppEditorDocument->processor()->baseTextDocument()->isModified())
-            updateUnsavedFileFromCppEditorDocument(cppEditorDocument->filePath());
+            updateTranslationUnitFromCppEditorDocument(cppEditorDocument->filePath());
     }
 
 }
@@ -353,6 +369,13 @@ void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::P
     registerProjectPartsForEditor(projectPartContainers);
 }
 
+void IpcCommunicator::updateTranslationUnitFromCppEditorDocument(const QString &filePath)
+{
+    const auto document = CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
+
+    updateTranslationUnit(filePath, document->contents(), document->revision());
+}
+
 void IpcCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &filePath)
 {
     const auto document = CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
@@ -360,7 +383,7 @@ void IpcCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &file
     updateUnsavedFile(filePath, document->contents(), document->revision());
 }
 
-void IpcCommunicator::updateUnsavedFile(const QString &filePath,
+void IpcCommunicator::updateTranslationUnit(const QString &filePath,
                                         const QByteArray &contents,
                                         uint documentRevision)
 {
@@ -368,25 +391,44 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath,
     const bool hasUnsavedContent = true;
 
     // TODO: Send new only if changed
-    registerFilesForEditor({{filePath,
-                             projectPartId,
-                             Utf8String::fromByteArray(contents),
-                             hasUnsavedContent,
-                             documentRevision}});
+    registerTranslationUnitsForEditor({{filePath,
+                                        projectPartId,
+                                        Utf8String::fromByteArray(contents),
+                                        hasUnsavedContent,
+                                        documentRevision}});
+}
+
+void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision)
+{
+    const QString projectPartId = Utils::projectPartIdForFile(filePath);
+    const bool hasUnsavedContent = true;
+
+    // TODO: Send new only if changed
+    registerUnsavedFilesForEditor({{filePath,
+                                    projectPartId,
+                                    Utf8String::fromByteArray(contents),
+                                    hasUnsavedContent,
+                                    documentRevision}});
 }
 
 void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
 {
-    registerFilesForEditor({fileContainer});
+    registerTranslationUnitsForEditor({fileContainer});
     m_ipcSender->requestDiagnostics({fileContainer});
 }
 
-void IpcCommunicator::updateUnsavedFileIfNotCurrentDocument(Core::IDocument *document)
+void IpcCommunicator::updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document)
+{
+    QTC_ASSERT(document, return);
+    if (Core::EditorManager::currentDocument() != document)
+        updateTranslationUnitFromCppEditorDocument(document->filePath().toString());
+}
+
+void IpcCommunicator::updateUnsavedFile(Core::IDocument *document)
 {
     QTC_ASSERT(document, return);
 
-    if (Core::EditorManager::currentDocument() != document)
-        updateUnsavedFileFromCppEditorDocument(document->filePath().toString());
+     updateUnsavedFileFromCppEditorDocument(document->filePath().toString());
 }
 
 void IpcCommunicator::onBackendRestarted()
@@ -431,7 +473,7 @@ void IpcCommunicator::killBackendProcess()
     m_connection.processForTestOnly()->kill();
 }
 
-void IpcCommunicator::registerFilesForEditor(const FileContainers &fileContainers)
+void IpcCommunicator::registerTranslationUnitsForEditor(const FileContainers &fileContainers)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
@@ -441,7 +483,7 @@ void IpcCommunicator::registerFilesForEditor(const FileContainers &fileContainer
     m_ipcSender->registerTranslationUnitsForEditor(message);
 }
 
-void IpcCommunicator::unregisterFilesForEditor(const FileContainers &fileContainers)
+void IpcCommunicator::unregisterTranslationUnitsForEditor(const FileContainers &fileContainers)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
@@ -470,6 +512,26 @@ void IpcCommunicator::unregisterProjectPartsForEditor(const QStringList &project
     const UnregisterProjectPartsForEditorMessage message((Utf8StringVector(projectPartIds)));
     qCDebug(log) << ">>>" << message;
     m_ipcSender->unregisterProjectPartsForEditor(message);
+}
+
+void IpcCommunicator::registerUnsavedFilesForEditor(const IpcCommunicator::FileContainers &fileContainers)
+{
+    if (m_sendMode == IgnoreSendRequests)
+        return;
+
+    const RegisterUnsavedFilesForEditorMessage message(fileContainers);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->registerUnsavedFilesForEditor(message);
+}
+
+void IpcCommunicator::unregisterUnsavedFilesForEditor(const IpcCommunicator::FileContainers &fileContainers)
+{
+    if (m_sendMode == IgnoreSendRequests)
+        return;
+
+    const UnregisterUnsavedFilesForEditorMessage message(fileContainers);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->unregisterUnsavedFilesForEditor(message);
 }
 
 void IpcCommunicator::completeCode(ClangCompletionAssistProcessor *assistProcessor,

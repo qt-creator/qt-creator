@@ -66,8 +66,10 @@ public:
 private:
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
-    void onCppDocumentReloadFinished(bool success);
-    void onCppDocumentContentsChanged();
+    void onCppDocumentReloadFinishedOnTranslationUnit(bool success);
+    void onCppDocumentContentsChangedOnTranslationUnit();
+    void onCppDocumentReloadFinishedOnUnsavedFile(bool success);
+    void onCppDocumentContentsChangedOnUnsavedFile();
 
     void onAbstractEditorSupportContentsUpdated(const QString &filePath, const QByteArray &content);
     void onAbstractEditorSupportRemoved(const QString &filePath);
@@ -75,6 +77,10 @@ private:
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
 
+    void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
+    void connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument);
+
+private:
     IpcCommunicator m_ipcCommunicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
     QPointer<Core::IEditor> m_previousCppEditor;

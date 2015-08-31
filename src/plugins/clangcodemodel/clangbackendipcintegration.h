@@ -99,6 +99,8 @@ public:
     virtual void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) = 0;
     virtual void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) = 0;
     virtual void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) = 0;
+    virtual void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) = 0;
+    virtual void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
 };
@@ -115,10 +117,12 @@ public:
 public:
     IpcCommunicator();
 
-    void registerFilesForEditor(const FileContainers &fileContainers);
-    void unregisterFilesForEditor(const FileContainers &fileContainers);
+    void registerTranslationUnitsForEditor(const FileContainers &fileContainers);
+    void unregisterTranslationUnitsForEditor(const FileContainers &fileContainers);
     void registerProjectPartsForEditor(const ProjectPartContainers &projectPartContainers);
     void unregisterProjectPartsForEditor(const QStringList &projectPartIds);
+    void registerUnsavedFilesForEditor(const FileContainers &fileContainers);
+    void unregisterUnsavedFilesForEditor(const FileContainers &fileContainers);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,
@@ -126,8 +130,11 @@ public:
 
     void registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts);
 
-    void updateUnsavedFileIfNotCurrentDocument(Core::IDocument *document);
+    void updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document);
+    void updateUnsavedFile(Core::IDocument *document);
+    void updateTranslationUnitFromCppEditorDocument(const QString &filePath);
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
+    void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
 

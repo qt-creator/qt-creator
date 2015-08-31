@@ -50,6 +50,10 @@ public:
                  void(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message));
     MOCK_METHOD1(unregisterProjectPartsForEditor,
                  void(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message));
+    MOCK_METHOD1(registerUnsavedFilesForEditor,
+                 void(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message));
+    MOCK_METHOD1(unregisterUnsavedFilesForEditor,
+                 void(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message));
     MOCK_METHOD1(completeCode,
                  void(const ClangBackEnd::CompleteCodeMessage &message));
     MOCK_METHOD1(requestDiagnostics,

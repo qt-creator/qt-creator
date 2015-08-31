@@ -60,6 +60,7 @@
 #include <clangbackendipc/cmbregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
+#include <clangbackendipc/registerunsavedfilesforeditormessage.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -347,6 +348,23 @@ QString toString(const UnregisterProjectPartsForEditorMessage &message)
     return out;
 }
 
+QString toString(const RegisterUnsavedFilesForEditorMessage &message)
+{
+    QString out;
+    QTextStream ts(&out);
+
+    ts << "RegisterUnsavedFilesForEditorMessage\n"
+       << toString(message.fileContainers());
+    return out;
+
+    return QLatin1String("RegisterUnsavedFilesForEditorMessage\n");
+}
+
+QString toString(const UnregisterUnsavedFilesForEditorMessage &)
+{
+    return QLatin1String("UnregisterUnsavedFilesForEditorMessage\n");
+}
+
 QString toString(const CompleteCodeMessage &)
 {
     return QLatin1String("CompleteCodeMessage\n");
@@ -373,6 +391,12 @@ public:
     { senderLog.append(toString(message)); }
 
     void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
     void completeCode(const CompleteCodeMessage &message) override

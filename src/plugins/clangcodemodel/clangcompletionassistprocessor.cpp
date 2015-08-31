@@ -674,11 +674,11 @@ void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartI
     const UnsavedFileContentInfo info = unsavedFileContent(customFileContent);
 
     IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
-    ipcCommunicator.registerFilesForEditor({{m_interface->fileName(),
-                                             projectPartId,
-                                             Utf8String::fromByteArray(info.unsavedContent),
-                                             info.isDocumentModified,
-                                             uint(m_interface->textDocument()->revision())}});
+    ipcCommunicator.registerTranslationUnitsForEditor({{m_interface->fileName(),
+                                                        projectPartId,
+                                                        Utf8String::fromByteArray(info.unsavedContent),
+                                                        info.isDocumentModified,
+                                                        uint(m_interface->textDocument()->revision())}});
 }
 
 void ClangCompletionAssistProcessor::sendCompletionRequest(int position,

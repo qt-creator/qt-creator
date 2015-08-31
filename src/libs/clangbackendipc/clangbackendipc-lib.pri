@@ -43,7 +43,9 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/sourcerangecontainer.cpp \
     $$PWD/sourcelocationcontainer.cpp \
     $$PWD/fixitcontainer.cpp \
-    $$PWD/requestdiagnosticsmessage.cpp
+    $$PWD/requestdiagnosticsmessage.cpp \
+    $$PWD/registerunsavedfilesforeditormessage.cpp \
+    $$PWD/unregisterunsavedfilesforeditormessage.cpp
 
 HEADERS += \
     $$PWD/ipcserverinterface.h \
@@ -81,6 +83,8 @@ HEADERS += \
     $$PWD/sourcerangecontainer.h \
     $$PWD/sourcelocationcontainer.h \
     $$PWD/fixitcontainer.h \
-    $$PWD/requestdiagnosticsmessage.h
+    $$PWD/requestdiagnosticsmessage.h \
+    $$PWD/registerunsavedfilesforeditormessage.h \
+    $$PWD/unregisterunsavedfilesforeditormessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

@@ -37,8 +37,10 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
-#include <requestdiagnosticsmessage.h>
 #include <ipcclientinterface.h>
+#include <registerunsavedfilesforeditormessage.h>
+#include <requestdiagnosticsmessage.h>
+#include <unregisterunsavedfilesforeditormessage.h>
 
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -87,6 +89,16 @@ void IpcServerProxy::registerProjectPartsForEditor(const RegisterProjectPartsFor
 }
 
 void IpcServerProxy::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void ClangBackEnd::IpcServerProxy::registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void ClangBackEnd::IpcServerProxy::unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

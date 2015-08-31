@@ -38,18 +38,20 @@
 
 #include <cmbalivemessage.h>
 #include <cmbcodecompletedmessage.h>
-#include <cmbmessages.h>
 #include <cmbcompletecodemessage.h>
 #include <cmbechomessage.h>
 #include <cmbendmessage.h>
+#include <cmbmessages.h>
 #include <cmbregisterprojectsforeditormessage.h>
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticschangedmessage.h>
-#include <requestdiagnosticsmessage.h>
 #include <readmessageblock.h>
+#include <registerunsavedfilesforeditormessage.h>
+#include <requestdiagnosticsmessage.h>
 #include <translationunitdoesnotexistmessage.h>
+#include <unregisterunsavedfilesforeditormessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
@@ -83,6 +85,12 @@ protected:
     void scheduleServerMessages();
     void scheduleClientMessages();
 
+protected:
+    ClangBackEnd::FileContainer fileContainer{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
+                                              Utf8StringLiteral("projectPartId"),
+                                              Utf8StringLiteral("unsaved content"),
+                                              true,
+                                              1};
     QBuffer buffer;
     MockIpcClient mockIpcClient;
     MockIpcServer mockIpcServer;
@@ -111,8 +119,6 @@ TEST_F(ClientServerInProcess, SendAliveMessage)
 
 TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
-                                                  Utf8StringLiteral("projectId"));
     ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer});
 
     EXPECT_CALL(mockIpcServer, registerTranslationUnitsForEditor(message))
@@ -124,13 +130,34 @@ TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
 
 TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForEditorMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
     ClangBackEnd::UnregisterTranslationUnitsForEditorMessage message({fileContainer});
 
     EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForEditor(message))
         .Times(1);
 
     serverProxy.unregisterTranslationUnitsForEditor(message);
+    scheduleServerMessages();
+}
+
+TEST_F(ClientServerInProcess, SendRegisterUnsavedFilesForEditorMessage)
+{
+    ClangBackEnd::RegisterUnsavedFilesForEditorMessage message({fileContainer});
+
+    EXPECT_CALL(mockIpcServer, registerUnsavedFilesForEditor(message))
+        .Times(1);
+
+    serverProxy.registerUnsavedFilesForEditor(message);
+    scheduleServerMessages();
+}
+
+TEST_F(ClientServerInProcess, SendUnregisterUnsavedFilesForEditorMessage)
+{
+    ClangBackEnd::UnregisterUnsavedFilesForEditorMessage message({fileContainer});
+
+    EXPECT_CALL(mockIpcServer, unregisterUnsavedFilesForEditor(message))
+        .Times(1);
+
+    serverProxy.unregisterUnsavedFilesForEditor(message);
     scheduleServerMessages();
 }
 
@@ -195,8 +222,6 @@ TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForEditorMessage)
 
 TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
-                                                  Utf8StringLiteral("projectId"));
     ClangBackEnd::TranslationUnitDoesNotExistMessage message(fileContainer);
 
     EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(message))
@@ -220,8 +245,6 @@ TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
 
 TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"),
-                                              Utf8StringLiteral("projectId"));
     ClangBackEnd::DiagnosticContainer container(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},

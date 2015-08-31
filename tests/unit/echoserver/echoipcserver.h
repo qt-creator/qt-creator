@@ -44,6 +44,8 @@ public:
     void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override;
     void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override;
     void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override;
+    void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) override;
+    void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
 

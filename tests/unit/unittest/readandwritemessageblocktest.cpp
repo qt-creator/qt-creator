@@ -40,6 +40,8 @@
 #include <requestdiagnosticsmessage.h>
 #include <readmessageblock.h>
 #include <sourcelocation.h>
+#include <registerunsavedfilesforeditormessage.h>
+#include <unregisterunsavedfilesforeditormessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
@@ -73,6 +75,11 @@ protected:
     void readPartialMessage();
 
 protected:
+    ClangBackEnd::FileContainer fileContainer{Utf8StringLiteral("foo.cpp"),
+                                              Utf8StringLiteral("projectPartId"),
+                                              Utf8StringLiteral("unsaved content"),
+                                              true,
+                                              1};
     QBuffer buffer;
     ClangBackEnd::WriteMessageBlock writeMessageBlock;
     ClangBackEnd::ReadMessageBlock readMessageBlock;
@@ -141,16 +148,11 @@ TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
 
 TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForEditorMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
-    QVector<ClangBackEnd::FileContainer> fileContainers({fileContainer});
-
-    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage(fileContainers));
+    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareUnregisterFileForEditorMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
-
     CompareMessage(ClangBackEnd::UnregisterTranslationUnitsForEditorMessage({fileContainer}));
 }
 
@@ -168,8 +170,6 @@ TEST_F(ReadAndWriteMessageBlock, CompareCodeCompletedMessage)
 
 TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"),
-                                              Utf8StringLiteral("projectId"));
     ClangBackEnd::DiagnosticContainer container(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
@@ -183,10 +183,18 @@ TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
                                                            {container}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, RequestDiagnosticsMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareRegisterUnsavedFilesForEditorMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
+    CompareMessage(ClangBackEnd::RegisterUnsavedFilesForEditorMessage({fileContainer}));
+}
 
+TEST_F(ReadAndWriteMessageBlock, CompareUnregisterUnsavedFilesForEditorMessage)
+{
+    CompareMessage(ClangBackEnd::UnregisterUnsavedFilesForEditorMessage({fileContainer}));
+}
+
+TEST_F(ReadAndWriteMessageBlock, CompareRequestDiagnosticsMessage)
+{
     CompareMessage(ClangBackEnd::RequestDiagnosticsMessage(fileContainer));
 }
 

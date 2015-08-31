@@ -48,9 +48,11 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticschangedmessage.h>
+#include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
+#include <unregisterunsavedfilesforeditormessage.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -135,6 +137,37 @@ void ClangIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPart
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::unregisterProjectPartsForEditor:" << exception.what();
+    }
+}
+
+void ClangIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangIpcServer::registerUnsavedFilesForEditor");
+
+    try {
+        unsavedFiles.createOrUpdate(message.fileContainers());
+        translationUnits.updateTranslationUnitsWithChangedDependencies(message.fileContainers());
+        sendDiagnosticsTimer.start();
+    } catch (const ProjectPartDoNotExistException &exception) {
+        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
+    } catch (const std::exception &exception) {
+        qWarning() << "Error in ClangIpcServer::registerUnsavedFilesForEditor:" << exception.what();
+    }
+}
+
+void ClangIpcServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangIpcServer::unregisterUnsavedFilesForEditor");
+
+    try {
+        unsavedFiles.remove(message.fileContainers());
+        translationUnits.updateTranslationUnitsWithChangedDependencies(message.fileContainers());
+    } catch (const TranslationUnitDoesNotExistException &exception) {
+        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
+    } catch (const ProjectPartDoNotExistException &exception) {
+        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
+    } catch (const std::exception &exception) {
+        qWarning() << "Error in ClangIpcServer::unregisterUnsavedFilesForEditor:" << exception.what();
     }
 }
 

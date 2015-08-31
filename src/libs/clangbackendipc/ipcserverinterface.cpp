@@ -35,7 +35,9 @@
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "cmbunregisterprojectsforeditormessage.h"
 #include "cmbunregistertranslationunitsforeditormessage.h"
+#include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
+#include "unregisterunsavedfilesforeditormessage.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -49,6 +51,8 @@ void IpcServerInterface::dispatch(const QVariant &message)
     static const int unregisterTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForEditorMessage");
     static const int registerProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForEditorMessage");
     static const int unregisterProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForEditorMessage");
+    static const int registerUnsavedFilesForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterUnsavedFilesForEditorMessage");
+    static const int unregisterUnsavedFilesForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterUnsavedFilesForEditorMessage");
     static const int completeCodeMessageType = QMetaType::type("ClangBackEnd::CompleteCodeMessage");
     static const int requestDiagnosticsMessageType = QMetaType::type("ClangBackEnd::RequestDiagnosticsMessage");
 
@@ -64,6 +68,10 @@ void IpcServerInterface::dispatch(const QVariant &message)
         registerProjectPartsForEditor(message.value<RegisterProjectPartsForEditorMessage>());
     else if (type == unregisterProjectPartsForEditorMessageType)
         unregisterProjectPartsForEditor(message.value<UnregisterProjectPartsForEditorMessage>());
+    else if (type == registerUnsavedFilesForEditorMessageType)
+        registerUnsavedFilesForEditor(message.value<RegisterUnsavedFilesForEditorMessage>());
+    else if (type == unregisterUnsavedFilesForEditorMessageType)
+        unregisterUnsavedFilesForEditor(message.value<UnregisterUnsavedFilesForEditorMessage>());
     else if (type == completeCodeMessageType)
         completeCode(message.value<CompleteCodeMessage>());
     else if (type == requestDiagnosticsMessageType)

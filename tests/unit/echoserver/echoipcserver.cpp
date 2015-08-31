@@ -39,7 +39,9 @@
 #include "cmbunregisterprojectsforeditormessage.h"
 #include "cmbunregistertranslationunitsforeditormessage.h"
 #include "connectionserver.h"
+#include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
+#include "unregisterunsavedfilesforeditormessage.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -74,6 +76,16 @@ void EchoIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsForE
 }
 
 void EchoIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
+{
+    echoMessage(QVariant::fromValue(message));
+}
+
+void EchoIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
+{
+    echoMessage(QVariant::fromValue(message));
+}
+
+void EchoIpcServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }

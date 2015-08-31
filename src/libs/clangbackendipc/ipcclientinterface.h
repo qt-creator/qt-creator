@@ -47,6 +47,8 @@ class TranslationUnitDoesNotExistMessage;
 class ProjectPartsDoNotExistMessage;
 class DiagnosticsChangedMessage;
 class RequestDiagnosticsMessage;
+class RegisterUnsavedFilesForEditorMessage;
+class UnregisterUnsavedFilesForEditorMessage;
 
 class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
 {

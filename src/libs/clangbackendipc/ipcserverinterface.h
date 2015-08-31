@@ -49,6 +49,8 @@ public:
     virtual void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) = 0;
     virtual void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) = 0;
     virtual void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) = 0;
+    virtual void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) = 0;
+    virtual void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const RequestDiagnosticsMessage &message) = 0;
 

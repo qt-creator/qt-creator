@@ -41,11 +41,13 @@
 #include "cmbcodecompletedmessage.h"
 #include "diagnosticcontainer.h"
 #include "diagnosticschangedmessage.h"
+#include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
 #include "projectpartsdonotexistmessage.h"
 #include "sourcelocationcontainer.h"
 #include "sourcerangecontainer.h"
 #include "translationunitdoesnotexistmessage.h"
+#include "unregisterunsavedfilesforeditormessage.h"
 
 #include <QDataStream>
 
@@ -127,6 +129,14 @@ void Messages::registerMessages()
     qRegisterMetaType<RequestDiagnosticsMessage>();
     qRegisterMetaTypeStreamOperators<RequestDiagnosticsMessage>();
     QMetaType::registerComparators<RequestDiagnosticsMessage>();
+
+    qRegisterMetaType<RegisterUnsavedFilesForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<RegisterUnsavedFilesForEditorMessage>();
+    QMetaType::registerComparators<RegisterUnsavedFilesForEditorMessage>();
+
+    qRegisterMetaType<UnregisterUnsavedFilesForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<UnregisterUnsavedFilesForEditorMessage>();
+    QMetaType::registerComparators<UnregisterUnsavedFilesForEditorMessage>();
 }
 
 } // namespace ClangBackEnd

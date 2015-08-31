@@ -100,7 +100,7 @@ void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
     // If we switch away from a cpp editor, update the backend about
     // the document's unsaved content.
     if (m_previousCppEditor && m_previousCppEditor->document()->isModified()) {
-        m_ipcCommunicator.updateUnsavedFileFromCppEditorDocument(
+        m_ipcCommunicator.updateTranslationUnitFromCppEditorDocument(
                                 m_previousCppEditor->document()->filePath().toString());
     }
 
@@ -111,6 +111,32 @@ void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
         m_previousCppEditor.clear();
 }
 
+void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)
+{
+    // Handle externally changed documents
+    connect(textDocument, &Core::IDocument::reloadFinished,
+            this, &ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit,
+            Qt::UniqueConnection);
+
+    // Handle changes from e.g. refactoring actions
+    connect(textDocument, &TextEditor::TextDocument::contentsChanged,
+            this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit,
+            Qt::UniqueConnection);
+}
+
+void ModelManagerSupportClang::connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument)
+{
+    // Handle externally changed documents
+    connect(textDocument, &Core::IDocument::reloadFinished,
+            this, &ModelManagerSupportClang::onCppDocumentReloadFinishedOnUnsavedFile,
+            Qt::UniqueConnection);
+
+    // Handle changes from e.g. refactoring actions
+    connect(textDocument, &TextEditor::TextDocument::contentsChanged,
+            this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnUnsavedFile,
+            Qt::UniqueConnection);
+}
+
 void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
 {
     QTC_ASSERT(editor, return);
@@ -119,33 +145,41 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
     if (textDocument && cppModelManager()->isCppEditor(editor)) {
-        // Handle externally changed documents
-        connect(textDocument, &Core::IDocument::reloadFinished,
-                this, &ModelManagerSupportClang::onCppDocumentReloadFinished,
-                Qt::UniqueConnection);
-
-        // Handle changes from e.g. refactoring actions
-        connect(textDocument, &TextEditor::TextDocument::contentsChanged,
-                this, &ModelManagerSupportClang::onCppDocumentContentsChanged,
-                Qt::UniqueConnection);
+        if (cppModelManager()->isManagedByModelManagerSupport(textDocument, QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID)))
+            connectTextDocumentToTranslationUnit(textDocument);
+        else
+            connectTextDocumentToUnsavedFiles(textDocument);
 
         // TODO: Ensure that not fully loaded documents are updated?
     }
 }
 
-void ModelManagerSupportClang::onCppDocumentReloadFinished(bool success)
+void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool success)
 {
-    if (!success)
-        return;
-
-    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-    m_ipcCommunicator.updateUnsavedFileIfNotCurrentDocument(document);
+    if (success) {
+        Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+        m_ipcCommunicator.updateTranslationUnitIfNotCurrentDocument(document);
+    }
 }
 
-void ModelManagerSupportClang::onCppDocumentContentsChanged()
+void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit()
 {
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-    m_ipcCommunicator.updateUnsavedFileIfNotCurrentDocument(document);
+    m_ipcCommunicator.updateTranslationUnitIfNotCurrentDocument(document);
+}
+
+void ModelManagerSupportClang::onCppDocumentReloadFinishedOnUnsavedFile(bool success)
+{
+    if (success) {
+        Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+        m_ipcCommunicator.updateUnsavedFile(document);
+    }
+}
+
+void ModelManagerSupportClang::onCppDocumentContentsChangedOnUnsavedFile()
+{
+    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+    m_ipcCommunicator.updateUnsavedFile(document);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QString &filePath,
@@ -160,8 +194,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
     QTC_ASSERT(!filePath.isEmpty(), return);
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString projectPartId = Utils::projectPartIdForFile(filePath);
-        m_ipcCommunicator.unregisterFilesForEditor(
-            {ClangBackEnd::FileContainer(filePath, projectPartId)});
+        m_ipcCommunicator.unregisterUnsavedFilesForEditor({{filePath, projectPartId}});
     }
 }
 

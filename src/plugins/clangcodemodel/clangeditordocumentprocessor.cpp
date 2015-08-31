@@ -109,7 +109,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
     if (m_projectPart) {
         QTC_ASSERT(m_modelManagerSupport, return);
-        m_modelManagerSupport->ipcCommunicator().unregisterFilesForEditor(
+        m_modelManagerSupport->ipcCommunicator().unregisterTranslationUnitsForEditor(
             {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
     }
 }
@@ -228,18 +228,18 @@ void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::Proj
             auto container1 = ClangBackEnd::FileContainer(filePath(),
                                                           m_projectPart->id(),
                                                           revision());
-            ipcCommunicator.unregisterFilesForEditor({container1});
+            ipcCommunicator.unregisterTranslationUnitsForEditor({container1});
 
             auto container2 = ClangBackEnd::FileContainer(filePath(),
                                                           projectPart.id(),
                                                           revision());
-            ipcCommunicator.registerFilesForEditor({container2});
+            ipcCommunicator.registerTranslationUnitsForEditor({container2});
         }
     } else {
         auto container = ClangBackEnd::FileContainer(filePath(),
                                                      projectPart.id(),
                                                      revision());
-        ipcCommunicator.registerFilesForEditor({container});
+        ipcCommunicator.registerTranslationUnitsForEditor({container});
     }
 }
 
