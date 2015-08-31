@@ -230,10 +230,9 @@ void OutputWindow::wheelEvent(QWheelEvent *e)
             emit wheelZoom();
             return;
         }
-    } else {
-        QAbstractScrollArea::wheelEvent(e);
-        updateMicroFocus();
     }
+    QAbstractScrollArea::wheelEvent(e);
+    updateMicroFocus();
 }
 
 void OutputWindow::setBaseFont(const QFont &newFont)
