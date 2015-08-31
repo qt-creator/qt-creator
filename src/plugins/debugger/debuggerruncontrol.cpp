@@ -442,7 +442,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (m_rp.displayName.isEmpty() && m_runConfig)
         m_rp.displayName = m_runConfig->displayName();
 
-    if (runConfig->property("supportsDebugger").toBool()) {
+    if (runConfig && runConfig->property("supportsDebugger").toBool()) {
         QString mainScript = runConfig->property("mainScript").toString();
         QString interpreter = runConfig->property("interpreter").toString();
         if (!interpreter.isEmpty() && mainScript.endsWith(_(".py"))) {
