@@ -1,6 +1,5 @@
 //
-// Draws a cube that has different colors assigned to the vertices.
-// Each face of the cube has the linear interpolation of the corner colors.
+// Draws a plain green cube.
 //
 
 var gl;
@@ -8,10 +7,8 @@ var vertexPositionAttrLoc;
 var shaderProgram;
 var cubeVertexPositionBuffer;
 var cubeVertexIndexBuffer;
-var cubeVertexColorBuffer;
 var vertexShader;
 var fragmentShader;
-var vertexColorAttrLoc;
 var pMatrixUniformLoc;
 var mvMatrixUniformLoc;
 
@@ -26,7 +23,6 @@ function initializeGL(canvas) {
 
         // Setup the OpenGL state
         gl.enable(gl.DEPTH_TEST);
-        gl.enable(gl.DEPTH_WRITE);
         gl.depthMask(true);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
@@ -35,7 +31,7 @@ function initializeGL(canvas) {
         // Set viewport
         gl.viewport(0, 0, canvas.width * canvas.devicePixelRatio, canvas.height * canvas.devicePixelRatio);
 
-        // Initialize vertex and color buffers
+        // Initialize vertex and element array buffers
         initBuffers();
 
         // Initialize the shader program
@@ -78,17 +74,13 @@ function paintGL(canvas) {
     gl.enableVertexAttribArray(vertexPositionAttrLoc);
     gl.vertexAttribPointer(vertexPositionAttrLoc, 3, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-    gl.enableVertexAttribArray(vertexColorAttrLoc);
-    gl.vertexAttribPointer(vertexColorAttrLoc, 4, gl.FLOAT, false, 0, 0);
-
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
     gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 }
 
 function initBuffers() {
-    // Create a cubeVertexPositionBuffer and put a single clipspace rectangle in
-    // it (2 triangles)
+    // Create a buffer for cube vertices. Since we are not using textures, we don't need unique
+    // vertices for each face. We can define the cube using 8 vertices.
     cubeVertexPositionBuffer = gl.createBuffer();
     cubeVertexPositionBuffer.name = "cubeVertexPositionBuffer";
     gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
@@ -107,6 +99,8 @@ function initBuffers() {
                                  ]),
                 gl.STATIC_DRAW);
 
+    // Create buffer for element array indices. We define six sides, each composed of two
+    // triangles, using the vertices defined above.
     cubeVertexIndexBuffer = gl.createBuffer();
     cubeVertexIndexBuffer.name = "cubeVertexIndexBuffer";
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
@@ -131,36 +125,17 @@ function initBuffers() {
                                    6, 2, 1
                                   ]),
                   gl.STATIC_DRAW);
-
-    cubeVertexColorBuffer = gl.createBuffer();
-    cubeVertexColorBuffer.name = "cubeVertexColorBuffer";
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([// front
-                                                     0.000,  1.000,  0.000,
-                                                     1.000,  0.000,  1.000,
-                                                     1.000,  1.000,  0.000,
-                                                     1.000,  0.000,  0.000,
-                                                     // back
-                                                     0.435,  0.602,  0.223,
-                                                     0.310,  0.747,  0.185,
-                                                     1.000,  1.000,  1.000,
-                                                     0.000,  0.000,  1.000
-                                                    ]), gl.STATIC_DRAW);
 }
 
 function initShaders() {
     vertexShader = getShader(gl, "attribute highp vec3 aVertexPosition; \
-                                  attribute highp vec4 aVertexColor;    \
                                   uniform highp mat4 uMVMatrix;         \
                                   uniform highp mat4 uPMatrix;          \
-                                  varying highp vec4 vColor;            \
                                   void main(void) {                     \
                                       gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0); \
-                                      vColor = aVertexColor;            \
                                   }", gl.VERTEX_SHADER);
-    fragmentShader = getShader(gl, "varying highp vec4 vColor;  \
-                                    void main(void) {           \
-                                        gl_FragColor = vColor;  \
+    fragmentShader = getShader(gl, "void main(void) {           \
+                                        gl_FragColor = vec4(0.5, 0.76, 0.26, 1.0);  \
                                     }", gl.FRAGMENT_SHADER);
 
     shaderProgram = gl.createProgram();
@@ -179,8 +154,6 @@ function initShaders() {
     // look up where the vertex data needs to go.
     vertexPositionAttrLoc = gl.getAttribLocation(shaderProgram, "aVertexPosition");
     gl.enableVertexAttribArray(vertexPositionAttrLoc);
-    vertexColorAttrLoc = gl.getAttribLocation(shaderProgram, "aVertexColor");
-    gl.enableVertexAttribArray(vertexColorAttrLoc);
 
     pMatrixUniformLoc  = gl.getUniformLocation(shaderProgram, "uPMatrix");
     pMatrixUniformLoc.name = "pMatrixUniformLoc";
