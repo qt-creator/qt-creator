@@ -30,6 +30,15 @@
 
 #include "clangipcserver.h"
 
+#include "codecompleter.h"
+#include "diagnosticset.h"
+#include "projectpartsdonotexistexception.h"
+#include "translationunitdoesnotexistexception.h"
+#include "translationunitfilenotexitexception.h"
+#include "translationunitisnullexception.h"
+#include "translationunitparseerrorexception.h"
+#include "translationunits.h"
+
 #include <clangbackendipcdebugutils.h>
 #include <cmbcodecompletedmessage.h>
 #include <cmbcompletecodemessage.h>
@@ -37,16 +46,10 @@
 #include <cmbregistertranslationunitsforcodecompletionmessage.h>
 #include <cmbunregisterprojectsforcodecompletionmessage.h>
 #include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <diagnosticschangedmessage.h>
+#include <requestdiagnosticsmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
-
-#include "codecompleter.h"
-#include "projectpartsdonotexistexception.h"
-#include "translationunitdoesnotexistexception.h"
-#include "translationunitfilenotexitexception.h"
-#include "translationunitisnullexception.h"
-#include "translationunitparseerrorexception.h"
-#include "translationunits.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -132,6 +135,26 @@ void ClangIpcServer::completeCode(const ClangBackEnd::CompleteCodeMessage &messa
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::completeCode:" << exception.what();
+    }
+}
+
+void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangIpcServer::requestDiagnostics");
+
+    try {
+        auto translationUnit = translationUnits.translationUnit(message.file().filePath(),
+                                                                message.file().projectPartId());
+
+        client()->diagnosticsChanged(DiagnosticsChangedMessage(translationUnit.fileContainer(),
+                                                               translationUnit.diagnostics().toDiagnosticContainers(),
+                                                               message.documentRevision()));
+    } catch (const TranslationUnitDoesNotExistException &exception) {
+        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
+    } catch (const ProjectPartDoNotExistException &exception) {
+        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
+    }  catch (const std::exception &exception) {
+        qWarning() << "Error in ClangIpcServer::requestDiagnostics:" << exception.what();
     }
 }
 

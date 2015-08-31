@@ -31,10 +31,15 @@ SOURCES += \
     codecompletiontest.cpp \
     completionchunkstotextconvertertest.cpp \
     createtablesqlstatementbuildertest.cpp \
+    diagnosticsettest.cpp \
+    diagnostictest.cpp \
+    fixittest.cpp \
     lineprefixertest.cpp \
     main.cpp \
     projecttest.cpp \
     readandwritemessageblocktest.cpp \
+    sourcelocationtest.cpp \
+    sourcerangetest.cpp \
     spydummy.cpp \
     sqlitecolumntest.cpp \
     sqlitedatabasebackendtest.cpp \

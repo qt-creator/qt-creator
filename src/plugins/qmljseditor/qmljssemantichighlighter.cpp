@@ -391,7 +391,7 @@ protected:
             else
                 format.setUnderlineColor(Qt::red);
 
-            format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+            format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
             format.setToolTip(d.message);
 
             collectRanges(begin, length, format);
@@ -428,7 +428,7 @@ protected:
             else if (d.severity == Severity::Hint)
                 format.setUnderlineColor(Qt::darkGreen);
 
-            format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+            format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
             format.setToolTip(d.message);
 
             collectRanges(begin, length, format);

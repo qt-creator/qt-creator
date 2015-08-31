@@ -35,6 +35,7 @@
 #include "cmbregistertranslationunitsforcodecompletionmessage.h"
 #include "cmbunregisterprojectsforcodecompletionmessage.h"
 #include "cmbunregistertranslationunitsforcodecompletionmessage.h"
+#include "requestdiagnosticsmessage.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -49,6 +50,7 @@ void IpcServerInterface::dispatch(const QVariant &message)
     static const int registerProjectPartsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage");
     static const int unregisterProjectPartsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage");
     static const int completeCodeMessageType = QMetaType::type("ClangBackEnd::CompleteCodeMessage");
+    static const int requestDiagnosticsMessageType = QMetaType::type("ClangBackEnd::RequestDiagnosticsMessage");
 
     int type = message.userType();
 
@@ -64,6 +66,8 @@ void IpcServerInterface::dispatch(const QVariant &message)
         unregisterProjectPartsForCodeCompletion(message.value<UnregisterProjectPartsForCodeCompletionMessage>());
     else if (type == completeCodeMessageType)
         completeCode(message.value<CompleteCodeMessage>());
+    else if (type == requestDiagnosticsMessageType)
+        requestDiagnostics(message.value<RequestDiagnosticsMessage>());
     else
         qWarning() << "Unknown IpcServerMessage";
 }

@@ -39,17 +39,19 @@
 #include "gtest-qt-printing.h"
 
 class MockIpcClient : public ClangBackEnd::IpcClientInterface {
- public:
-  MOCK_METHOD0(alive,
-      void());
-  MOCK_METHOD1(echo,
-      void(const ClangBackEnd::EchoMessage &message));
-  MOCK_METHOD1(codeCompleted,
-      void(const ClangBackEnd::CodeCompletedMessage &message));
-  MOCK_METHOD1(translationUnitDoesNotExist,
-      void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
-  MOCK_METHOD1(projectPartsDoNotExist,
-      void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
+public:
+    MOCK_METHOD0(alive,
+                 void());
+    MOCK_METHOD1(echo,
+                 void(const ClangBackEnd::EchoMessage &message));
+    MOCK_METHOD1(codeCompleted,
+                 void(const ClangBackEnd::CodeCompletedMessage &message));
+    MOCK_METHOD1(translationUnitDoesNotExist,
+                 void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
+    MOCK_METHOD1(projectPartsDoNotExist,
+                 void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
+    MOCK_METHOD1(diagnosticsChanged,
+                 void(const ClangBackEnd::DiagnosticsChangedMessage &message));
 };
 
 #endif // MOCKIPCLIENT_H

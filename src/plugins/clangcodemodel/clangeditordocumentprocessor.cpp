@@ -36,43 +36,24 @@
 #include "diagnostic.h"
 #include "pchinfo.h"
 
+#include <diagnosticcontainer.h>
+#include <sourcelocationcontainer.h>
+
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cppworkingcopy.h>
+
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 
 #include <utils/qtcassert.h>
 #include <utils/QtConcurrentTools>
 
+#include <QTextBlock>
+
 namespace {
 
 typedef CPlusPlus::Document::DiagnosticMessage CppToolsDiagnostic;
-QList<CppToolsDiagnostic> toCppToolsDiagnostics(
-        const QString &filePath,
-        const QList<ClangCodeModel::Diagnostic> &diagnostics)
-{
-    using namespace ClangCodeModel;
-
-    QList<CppToolsDiagnostic> converted;
-    foreach (const ClangCodeModel::Diagnostic &d, diagnostics) {
-        if (d.location().fileName() != filePath)
-            continue;
-
-        // TODO: retrieve fix-its for this diagnostic
-
-        int level;
-        switch (d.severity()) {
-        case Diagnostic::Fatal: level = CppToolsDiagnostic::Fatal; break;
-        case Diagnostic::Error: level = CppToolsDiagnostic::Error; break;
-        case Diagnostic::Warning: level = CppToolsDiagnostic::Warning; break;
-        default: continue;
-        }
-        converted.append(CppToolsDiagnostic(level, d.location().fileName(), d.location().line(),
-                                           d.location().column(), d.spelling(), d.length()));
-    }
-
-    return converted;
-}
 
 QList<TextEditor::BlockRange> toTextEditorBlocks(
         const QList<ClangCodeModel::SemanticMarker::Range> &ranges)
@@ -135,6 +116,8 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
 void ClangEditorDocumentProcessor::run()
 {
+    requestDiagnostics();
+
     // Run clang parser
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
                this, &ClangEditorDocumentProcessor::onParserFinished);
@@ -189,6 +172,15 @@ CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const
     return m_projectPart;
 }
 
+void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                                                      uint documentRevision)
+{
+    if (documentRevision == revision()) {
+        const auto codeWarnings = generateDiagnosticHints(diagnostics);
+        emit codeWarningsUpdated(revision(), codeWarnings);
+    }
+}
+
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));
@@ -200,6 +192,8 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForComplet
     QTC_ASSERT(projectPart, return);
 
     updateTranslationUnitForCompletion(*projectPart.data());
+    requestDiagnostics(*projectPart.data());
+
     m_projectPart = projectPart;
 }
 
@@ -211,11 +205,6 @@ void ClangEditorDocumentProcessor::onParserFinished()
     // Emit ifdefed out blocks
     const auto ifdefoutBlocks = toTextEditorBlocks(m_parser.ifdefedOutBlocks());
     emit ifdefedOutBlocksUpdated(revision(), ifdefoutBlocks);
-
-    // Emit code warnings
-    const auto diagnostics = toCppToolsDiagnostics(filePath(), m_parser.diagnostics());
-    const auto codeWarnings = toTextEditorSelections(diagnostics, textDocument());
-    emit codeWarningsUpdated(revision(), codeWarnings);
 
     // Run semantic highlighter
     m_semanticHighlighter.run();
@@ -229,23 +218,261 @@ void ClangEditorDocumentProcessor::onProjectPartsRemoved(const QStringList &proj
         m_projectPart.clear();
 }
 
-void ClangEditorDocumentProcessor::updateTranslationUnitForCompletion(
-        CppTools::ProjectPart &projectPart)
+void ClangEditorDocumentProcessor::updateTranslationUnitForCompletion(CppTools::ProjectPart &projectPart)
 {
     QTC_ASSERT(m_modelManagerSupport, return);
     IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
 
     if (m_projectPart) {
         if (projectPart.id() != m_projectPart->id()) {
-            auto container1 = {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())};
-            ipcCommunicator.unregisterFilesForCodeCompletion(container1);
+            auto container1 = ClangBackEnd::FileContainer(filePath(), m_projectPart->id());
+            ipcCommunicator.unregisterFilesForCodeCompletion({container1});
 
-            auto container2 = {ClangBackEnd::FileContainer(filePath(), projectPart.id())};
-            ipcCommunicator.registerFilesForCodeCompletion(container2);
+            auto container2 = ClangBackEnd::FileContainer(filePath(), projectPart.id());
+            ipcCommunicator.registerFilesForCodeCompletion({container2});
         }
     } else {
-        auto container = {ClangBackEnd::FileContainer(filePath(), projectPart.id())};
-        ipcCommunicator.registerFilesForCodeCompletion(container);
+        auto container = ClangBackEnd::FileContainer(filePath(), projectPart.id());
+        ipcCommunicator.registerFilesForCodeCompletion({container});
+    }
+}
+
+namespace {
+bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
+{
+    using ClangBackEnd::DiagnosticSeverity;
+    switch (severity) {
+        case DiagnosticSeverity::Ignored:
+        case DiagnosticSeverity::Note:
+        case DiagnosticSeverity::Warning: return true;
+        case DiagnosticSeverity::Error:
+        case DiagnosticSeverity::Fatal: return false;
+    }
+
+    Q_UNREACHABLE();
+}
+
+bool isHelpfulChildDiagnostic(const ClangBackEnd::DiagnosticContainer &parentDiagnostic,
+                              const ClangBackEnd::DiagnosticContainer &childDiagnostic)
+{
+    auto parentLocation = parentDiagnostic.location();
+    auto childLocation = childDiagnostic.location();
+
+    return parentLocation == childLocation;
+}
+
+QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
+{
+    QString text = diagnostic.category().toString()
+            + QStringLiteral(" ")
+            + diagnostic.text().toString();
+    if (!diagnostic.enableOption().isEmpty()) {
+        text += QStringLiteral(" (clang option: ")
+                + diagnostic.enableOption().toString()
+                + QStringLiteral(" disable with: ")
+                + diagnostic.disableOption().toString()
+                + QStringLiteral(")");
+    }
+
+    for (auto &&childDiagnostic : diagnostic.children()) {
+        if (isHelpfulChildDiagnostic(diagnostic, childDiagnostic))
+            text += QStringLiteral("\n  ") + childDiagnostic.text().toString();
+    }
+
+    return text;
+}
+
+template <class Condition>
+std::vector<ClangBackEnd::DiagnosticContainer>
+filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                  const Condition &condition)
+{
+    std::vector<ClangBackEnd::DiagnosticContainer> filteredDiagnostics;
+
+    std::copy_if(diagnostics.cbegin(),
+                 diagnostics.cend(),
+                 std::back_inserter(filteredDiagnostics),
+                 condition);
+
+    return filteredDiagnostics;
+}
+
+std::vector<ClangBackEnd::DiagnosticContainer>
+filterInterestingWarningDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                                    QString &&documentFilePath)
+{
+    auto isLocalWarning = [documentFilePath] (const ClangBackEnd::DiagnosticContainer &diagnostic) {
+        return isWarningOrNote(diagnostic.severity())
+            && diagnostic.location().filePath() == documentFilePath;
+    };
+
+    return filterDiagnostics(diagnostics, isLocalWarning);
+}
+
+std::vector<ClangBackEnd::DiagnosticContainer>
+filterInterestingErrorsDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                                   QString &&documentFilePath)
+{
+    auto isLocalWarning = [documentFilePath] (const ClangBackEnd::DiagnosticContainer &diagnostic) {
+        return !isWarningOrNote(diagnostic.severity())
+            && diagnostic.location().filePath() == documentFilePath;
+    };
+
+    return filterDiagnostics(diagnostics, isLocalWarning);
+}
+
+QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainformat,
+                                               const QTextCursor &cursor,
+                                               const QString &diagnosticText)
+{
+    QTextEdit::ExtraSelection extraSelection;
+
+    extraSelection.format = mainformat;
+    extraSelection.cursor = cursor;
+    extraSelection.format.setToolTip(diagnosticText);
+
+    return extraSelection;
+}
+
+void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                        QTextDocument *textDocument,
+                        const QTextCharFormat &rangeFormat,
+                        const QString &diagnosticText,
+                        QList<QTextEdit::ExtraSelection> &extraSelections)
+{
+    for (auto &&range : diagnostic.ranges()) {
+        QTextCursor cursor(textDocument);
+        cursor.setPosition(int(range.start().offset()));
+        cursor.setPosition(int(range.end().offset()), QTextCursor::KeepAnchor);
+
+        auto extraSelection = createExtraSelections(rangeFormat, cursor, diagnosticText);
+
+        extraSelections.push_back(std::move(extraSelection));
+    }
+}
+
+QTextCursor createSelectionCursor(QTextDocument *textDocument, uint position)
+{
+    QTextCursor cursor(textDocument);
+    cursor.setPosition(int(position));
+    cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+    if (!cursor.hasSelection()) {
+        cursor.setPosition(int(position) - 1);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
+    }
+
+    return cursor;
+}
+
+void addSelections(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                   QTextDocument *textDocument,
+                   const QTextCharFormat &mainFormat,
+                   const QTextCharFormat &rangeFormat,
+                   QList<QTextEdit::ExtraSelection> &extraSelections)
+{
+    for (auto &&diagnostic : diagnostics) {
+        auto cursor = createSelectionCursor(textDocument, diagnostic.location().offset());
+
+        auto text = diagnosticText(diagnostic);
+        auto extraSelection = createExtraSelections(mainFormat, cursor, text);
+
+        addRangeSelections(diagnostic, textDocument, rangeFormat, text, extraSelections);
+
+        extraSelections.push_back(std::move(extraSelection));
+    }
+}
+
+void addWarningSelections(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                          QTextDocument *textDocument,
+                          QList<QTextEdit::ExtraSelection> &extraSelections)
+{
+    QTextCharFormat warningFormat;
+    warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    warningFormat.setUnderlineColor(QColor(180, 180, 0, 255));
+
+    QTextCharFormat warningRangeFormat;
+    warningRangeFormat.setUnderlineStyle(QTextCharFormat::DotLine);
+    warningRangeFormat.setUnderlineColor(QColor(180, 180, 0, 255));
+
+    addSelections(diagnostics, textDocument, warningFormat, warningRangeFormat, extraSelections);
+}
+
+void addErrorSelections(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                         QTextDocument *textDocument,
+                         QList<QTextEdit::ExtraSelection> &extraSelections)
+{
+    QTextCharFormat errorFormat;
+    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    errorFormat.setUnderlineColor(QColor(255, 0, 0, 255));
+
+    QTextCharFormat errorRangeFormat;
+    errorRangeFormat.setUnderlineStyle(QTextCharFormat::DotLine);
+    errorRangeFormat.setUnderlineColor(QColor(255, 0, 0, 255));
+
+    addSelections(diagnostics, textDocument, errorFormat, errorRangeFormat, extraSelections);
+}
+
+}  // anonymous namespace
+
+QList<QTextEdit::ExtraSelection>
+ClangEditorDocumentProcessor::generateDiagnosticHints(const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics)
+{
+    const auto warningDiagnostic = filterInterestingWarningDiagnostics(allDiagnostics, filePath());
+    const auto errorDiagnostic = filterInterestingErrorsDiagnostics(allDiagnostics, filePath());
+
+    m_clangTextMarks.clear();
+    m_clangTextMarks.reserve(warningDiagnostic.size() + errorDiagnostic.size());
+
+    addClangTextMarks(warningDiagnostic);
+    addClangTextMarks(errorDiagnostic);
+
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    extraSelections.reserve(int(warningDiagnostic.size() + errorDiagnostic.size()));
+
+    addWarningSelections(warningDiagnostic, textDocument(), extraSelections);
+    addErrorSelections(errorDiagnostic, textDocument(), extraSelections);
+
+    return extraSelections;
+}
+
+void ClangEditorDocumentProcessor::addClangTextMarks(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics)
+{
+    QTC_ASSERT(m_clangTextMarks.size() + diagnostics.size() <= m_clangTextMarks.capacity(), return);
+
+    for (auto &&diagnostic : diagnostics) {
+        m_clangTextMarks.emplace_back(filePath(),
+                                      diagnostic.location().line(),
+                                      diagnostic.severity());
+
+        ClangTextMark &textMark = m_clangTextMarks.back();
+
+        textMark.setBaseTextDocument(baseTextDocument());
+
+        baseTextDocument()->addMark(&textMark);
+    }
+}
+
+void ClangEditorDocumentProcessor::requestDiagnostics(CppTools::ProjectPart &projectPart)
+{
+    if (!m_projectPart || projectPart.id() != m_projectPart->id()) {
+        IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
+
+        ipcCommunicator.requestDiagnostics({filePath(), projectPart.id()},
+                                            revision());
+    }
+}
+
+void ClangEditorDocumentProcessor::requestDiagnostics()
+{
+    // Get diagnostics
+    if (m_projectPart) {
+        auto  &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
+        ipcCommunicator.requestDiagnostics({filePath(),
+                                             m_projectPart->id(),
+                                             baseTextDocument()->plainText(),
+                                             true},
+                                            revision());
     }
 }
 

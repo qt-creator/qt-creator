@@ -41,6 +41,7 @@
 #include <cmbunregisterprojectsforcodecompletionmessage.h>
 #include <cmbunregistertranslationunitsforcodecompletionmessage.h>
 #include <connectionclient.h>
+#include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <readmessageblock.h>
 #include <translationunitdoesnotexistmessage.h>
@@ -113,7 +114,7 @@ TEST_F(ClientServerOutsideProcess, RestartProcessAfterTermination)
 
 TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForCodeCompletionMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo"), Utf8StringLiteral("pathToProjectPart.pro"));
+    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
     ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage registerTranslationUnitForCodeCompletionMessage({fileContainer});
     EchoMessage echoMessage(QVariant::fromValue(registerTranslationUnitForCodeCompletionMessage));
 
@@ -126,7 +127,7 @@ TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForCodeCompletionM
 
 TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForCodeCompletionMessage)
 {
-    FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("bar.pro"));
+    FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
     ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage unregisterTranslationUnitsForCodeCompletionMessage ({fileContainer});
     EchoMessage echoMessage(QVariant::fromValue(unregisterTranslationUnitsForCodeCompletionMessage));
 

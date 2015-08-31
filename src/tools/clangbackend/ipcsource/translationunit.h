@@ -46,6 +46,8 @@ class TranslationUnitData;
 class CodeCompleter;
 class UnsavedFiles;
 class ProjectPart;
+class DiagnosticSet;
+class FileContainer;
 
 using time_point = std::chrono::steady_clock::time_point;
 
@@ -73,7 +75,7 @@ public:
     bool isNull() const;
 
     void reset();
-    void reparse();
+    void reparse() const;
 
     CXIndex index() const;
     CXTranslationUnit cxTranslationUnit() const;
@@ -82,8 +84,11 @@ public:
 
     const Utf8String &filePath() const;
     const Utf8String &projectPartId() const;
+    FileContainer fileContainer() const;
 
     const time_point &lastChangeTimePoint() const;
+
+    DiagnosticSet diagnostics() const;
 
 private:
     void checkIfNull() const;

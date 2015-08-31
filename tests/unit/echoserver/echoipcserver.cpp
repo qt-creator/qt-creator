@@ -39,6 +39,7 @@
 #include "cmbunregisterprojectsforcodecompletionmessage.h"
 #include "cmbunregistertranslationunitsforcodecompletionmessage.h"
 #include "connectionserver.h"
+#include "requestdiagnosticsmessage.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -78,6 +79,11 @@ void EchoIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProj
 }
 
 void EchoIpcServer::completeCode(const CompleteCodeMessage &message)
+{
+    echoMessage(QVariant::fromValue(message));
+}
+
+void EchoIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }

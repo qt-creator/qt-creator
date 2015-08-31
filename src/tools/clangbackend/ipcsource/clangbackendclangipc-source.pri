@@ -16,7 +16,13 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/translationunitfilenotexitexception.h \
     $$PWD/translationunitdoesnotexistexception.h \
     $$PWD/projectpartsdonotexistexception.h \
-    $$PWD/codecompletionchunkconverter.h
+    $$PWD/codecompletionchunkconverter.h \
+    $$PWD/diagnosticset.h \
+    $$PWD/diagnostic.h \
+    $$PWD/sourcelocation.h \
+    $$PWD/sourcerange.h \
+    $$PWD/fixit.h \
+    $$PWD/diagnosticsetiterator.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -34,4 +40,9 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/translationunitfilenotexitexception.cpp \
     $$PWD/translationunitdoesnotexistexception.cpp \
     $$PWD/projectpartsdonotexistexception.cpp \
-    $$PWD/codecompletionchunkconverter.cpp
+    $$PWD/codecompletionchunkconverter.cpp \
+    $$PWD/diagnosticset.cpp \
+    $$PWD/diagnostic.cpp \
+    $$PWD/sourcelocation.cpp \
+    $$PWD/sourcerange.cpp \
+    $$PWD/fixit.cpp

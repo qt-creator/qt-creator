@@ -237,11 +237,11 @@ void GlslEditorWidget::updateDocumentNow()
         createRanges(ast);
 
         QTextCharFormat errorFormat;
-        errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         errorFormat.setUnderlineColor(Qt::red);
 
         QTextCharFormat warningFormat;
-        warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         warningFormat.setUnderlineColor(Qt::darkYellow);
 
         QList<QTextEdit::ExtraSelection> sels;

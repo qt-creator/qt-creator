@@ -65,6 +65,20 @@ TextMark::~TextMark()
     m_baseTextDocument = 0;
 }
 
+TextMark::TextMark(TextMark &&other)
+    : m_baseTextDocument(std::move(other.m_baseTextDocument)),
+      m_fileName(std::move(other.m_fileName)),
+      m_lineNumber(std::move(other.m_lineNumber)),
+      m_priority(std::move(other.m_priority)),
+      m_visible(std::move(other.m_visible)),
+      m_icon(std::move(other.m_icon)),
+      m_color(std::move(other.m_color)),
+      m_category(std::move(other.m_category)),
+      m_widthFactor(std::move(other.m_widthFactor))
+{
+    other.m_baseTextDocument = nullptr;
+}
+
 QString TextMark::fileName() const
 {
     return m_fileName;

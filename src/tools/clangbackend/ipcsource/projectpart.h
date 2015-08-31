@@ -49,6 +49,8 @@ class ProjectPart
 {
 public:
     ProjectPart(const Utf8String &projectPartId);
+    ProjectPart(const Utf8String &projectPartId,
+                std::initializer_list<Utf8String> arguments);
     ProjectPart(const ProjectPartContainer &projectContainer);
     ~ProjectPart();
 

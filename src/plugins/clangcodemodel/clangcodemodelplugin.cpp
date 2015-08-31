@@ -31,6 +31,7 @@
 #include "clangcodemodelplugin.h"
 
 #include "clangprojectsettingspropertiespage.h"
+#include "constants.h"
 #include "pchmanager.h"
 #include "utils.h"
 
@@ -44,8 +45,18 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <texteditor/textmark.h>
+
 namespace ClangCodeModel {
 namespace Internal {
+
+void initializeTextMarks()
+{
+    TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_WARNING),
+                                           Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+    TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
+                                           Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
+}
 
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {

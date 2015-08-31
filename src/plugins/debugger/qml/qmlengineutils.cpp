@@ -272,7 +272,7 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
 
     // set up the format for the errors
     QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     errorFormat.setUnderlineColor(Qt::red);
 
     foreach (IEditor *editor, editors) {

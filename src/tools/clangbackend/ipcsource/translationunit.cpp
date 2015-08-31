@@ -31,6 +31,7 @@
 #include "translationunit.h"
 
 #include "codecompleter.h"
+#include "diagnosticset.h"
 #include "projectpart.h"
 #include "translationunitfilenotexitexception.h"
 #include "translationunitisnullexception.h"
@@ -99,7 +100,7 @@ void TranslationUnit::reset()
     d.reset();
 }
 
-void TranslationUnit::reparse()
+void TranslationUnit::reparse() const
 {
     cxTranslationUnit();
 
@@ -143,9 +144,23 @@ const Utf8String &TranslationUnit::projectPartId() const
     return d->projectPart.projectPartId();
 }
 
+FileContainer TranslationUnit::fileContainer() const
+{
+    checkIfNull();
+
+    return FileContainer(d->filePath, d->projectPart.projectPartId());
+}
+
 const time_point &TranslationUnit::lastChangeTimePoint() const
 {
     return d->lastChangeTimePoint;
+}
+
+DiagnosticSet TranslationUnit::diagnostics() const
+{
+    reparse();
+
+    return DiagnosticSet(clang_getDiagnosticSetFromTU(cxTranslationUnit()));
 }
 
 void TranslationUnit::checkIfNull() const
@@ -215,8 +230,7 @@ void TranslationUnit::reparseTranslationUnit() const
 int TranslationUnit::defaultOptions()
 {
     return CXTranslationUnit_CacheCompletionResults
-         | CXTranslationUnit_PrecompiledPreamble
-         | CXTranslationUnit_SkipFunctionBodies;
+         | CXTranslationUnit_PrecompiledPreamble;
 }
 
 uint TranslationUnit::unsavedFilesCount() const

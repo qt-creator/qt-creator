@@ -50,6 +50,7 @@ public:
     virtual void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) = 0;
     virtual void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) = 0;
     virtual void completeCode(const CompleteCodeMessage &message) = 0;
+    virtual void requestDiagnostics(const RequestDiagnosticsMessage &message) = 0;
 
     void addClient(IpcClientInterface *client);
     void removeClient(IpcClientInterface *client);

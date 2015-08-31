@@ -37,6 +37,7 @@
 #include <cmbregistertranslationunitsforcodecompletionmessage.h>
 #include <cmbunregisterprojectsforcodecompletionmessage.h>
 #include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <requestdiagnosticsmessage.h>
 #include <ipcclientinterface.h>
 
 #include <QLocalServer>
@@ -91,6 +92,11 @@ void IpcServerProxy::unregisterProjectPartsForCodeCompletion(const UnregisterPro
 }
 
 void IpcServerProxy::completeCode(const CompleteCodeMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void IpcServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

@@ -37,7 +37,13 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/projectpartcontainer.cpp \
     $$PWD/projectpartsdonotexistmessage.cpp \
     $$PWD/lineprefixer.cpp \
-    $$PWD/clangbackendipcdebugutils.cpp
+    $$PWD/clangbackendipcdebugutils.cpp \
+    $$PWD/diagnosticschangedmessage.cpp \
+    $$PWD/diagnosticcontainer.cpp \
+    $$PWD/sourcerangecontainer.cpp \
+    $$PWD/sourcelocationcontainer.cpp \
+    $$PWD/fixitcontainer.cpp \
+    $$PWD/requestdiagnosticsmessage.cpp
 
 HEADERS += \
     $$PWD/ipcserverinterface.h \
@@ -69,6 +75,12 @@ HEADERS += \
     $$PWD/container_common.h \
     $$PWD/clangbackendipc_global.h \
     $$PWD/lineprefixer.h \
-    $$PWD/clangbackendipcdebugutils.h
+    $$PWD/clangbackendipcdebugutils.h \
+    $$PWD/diagnosticschangedmessage.h \
+    $$PWD/diagnosticcontainer.h \
+    $$PWD/sourcerangecontainer.h \
+    $$PWD/sourcelocationcontainer.h \
+    $$PWD/fixitcontainer.h \
+    $$PWD/requestdiagnosticsmessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

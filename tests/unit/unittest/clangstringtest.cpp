@@ -58,7 +58,7 @@ TEST(ClangString, ConvertNullStringToUtf8String)
     ASSERT_THAT(Utf8String(ClangString(cxString)), Utf8String());
 }
 
-TEST(ClangString, MoveClangString)
+TEST(ClangString, MoveContructor)
 {
     ClangString text(CXString{ "text", 0});
 
@@ -68,4 +68,23 @@ TEST(ClangString, MoveClangString)
     ASSERT_FALSE(text2.isNull());
 }
 
+TEST(ClangString, MoveAssigment)
+{
+    ClangString text(CXString{ "text", 0});
+
+    ClangString text2 = std::move(text);
+    text = std::move(text2);
+
+    ASSERT_TRUE(text2.isNull());
+    ASSERT_FALSE(text.isNull());
+}
+
+TEST(ClangString, MoveSelfAssigment)
+{
+    ClangString text(CXString{ "text", 0});
+
+    text = std::move(text);
+
+    ASSERT_FALSE(text.isNull());
+}
 }

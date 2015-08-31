@@ -46,6 +46,8 @@
 #include <cmbregistertranslationunitsforcodecompletionmessage.h>
 #include <cmbunregisterprojectsforcodecompletionmessage.h>
 #include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <diagnosticschangedmessage.h>
+#include <requestdiagnosticsmessage.h>
 #include <readmessageblock.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <writemessageblock.h>
@@ -110,7 +112,7 @@ TEST_F(ClientServerInProcess, SendAliveMessage)
 TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForCodeCompletionMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
-                                                  Utf8StringLiteral("pathToProjectPart.pro"));
+                                                  Utf8StringLiteral("projectId"));
     ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage message({fileContainer});
 
     EXPECT_CALL(mockIpcServer, registerTranslationUnitsForCodeCompletion(message))
@@ -122,7 +124,7 @@ TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForCodeCompletionMessag
 
 TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForCodeCompletionMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProjectPart.pro"));
+    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
     ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage message({fileContainer});
 
     EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForCodeCompletion(message))
@@ -142,6 +144,20 @@ TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
     serverProxy.completeCode(message);
     scheduleServerMessages();
 }
+
+TEST_F(ClientServerInProcess, SendRequestDiagnosticsMessage)
+{
+    ClangBackEnd::RequestDiagnosticsMessage message({Utf8StringLiteral("foo.cpp"),
+                                                     Utf8StringLiteral("projectId")},
+                                                    1);
+
+    EXPECT_CALL(mockIpcServer, requestDiagnostics(message))
+        .Times(1);
+
+    serverProxy.requestDiagnostics(message);
+    scheduleServerMessages();
+}
+
 
 TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
 {
@@ -181,7 +197,7 @@ TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForCodeCompletionMessage
 TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
-                                                  Utf8StringLiteral("pathToProjectPart.pro"));
+                                                  Utf8StringLiteral("projectId"));
     ClangBackEnd::TranslationUnitDoesNotExistMessage message(fileContainer);
 
     EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(message))
@@ -194,7 +210,7 @@ TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
 
 TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
 {
-    ClangBackEnd::ProjectPartsDoNotExistMessage message({Utf8StringLiteral("pathToProjectPart.pro")});
+    ClangBackEnd::ProjectPartsDoNotExistMessage message({Utf8StringLiteral("projectId")});
 
     EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(message))
         .Times(1);
@@ -202,6 +218,30 @@ TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
     clientProxy.projectPartsDoNotExist(message);
     scheduleClientMessages();
 }
+
+TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
+{
+    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"),
+                                              Utf8StringLiteral("projectId"));
+    ClangBackEnd::DiagnosticContainer container(Utf8StringLiteral("don't do that"),
+                                                Utf8StringLiteral("warning"),
+                                                {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
+                                                ClangBackEnd::DiagnosticSeverity::Warning,
+                                                {Utf8StringLiteral("foo.cpp"), 20u, 103u},
+                                                {{{Utf8StringLiteral("foo.cpp"), 20u, 103u}, {Utf8StringLiteral("foo.cpp"), 20u, 110u}}},
+                                                {},
+                                                {});
+    ClangBackEnd::DiagnosticsChangedMessage message(fileContainer,
+                                                    {container},
+                                                    1);
+
+    EXPECT_CALL(mockIpcClient, diagnosticsChanged(message))
+        .Times(1);
+
+    clientProxy.diagnosticsChanged(message);
+    scheduleClientMessages();
+}
+
 ClientServerInProcess::ClientServerInProcess()
     : serverProxy(&mockIpcClient, &buffer),
       clientProxy(&mockIpcServer, &buffer)

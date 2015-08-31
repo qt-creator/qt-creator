@@ -32,6 +32,7 @@
 #define CLANGEDITORDOCUMENTPROCESSOR_H
 
 #include "clangeditordocumentparser.h"
+#include "clangtextmark.h"
 
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/builtineditordocumentprocessor.h>
@@ -39,6 +40,12 @@
 
 #include <QFutureWatcher>
 #include <QPointer>
+
+#include <vector>
+
+namespace ClangBackEnd {
+class DiagnosticContainer;
+}
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -65,6 +72,9 @@ public:
 
     CppTools::ProjectPart::Ptr projectPart() const;
 
+    void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                            uint documentRevision);
+
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
@@ -75,9 +85,15 @@ private slots:
 private:
     void updateProjectPartAndTranslationUnitForCompletion();
     void updateTranslationUnitForCompletion(CppTools::ProjectPart &projectPart);
+    QList<QTextEdit::ExtraSelection>
+    generateDiagnosticHints(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
+    void addClangTextMarks(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics);
+    void requestDiagnostics(CppTools::ProjectPart &projectPart);
+    void requestDiagnostics();
 
+private:
     QPointer<ModelManagerSupportClang> m_modelManagerSupport;
-
+    std::vector<ClangTextMark> m_clangTextMarks;
     ClangEditorDocumentParser m_parser;
     CppTools::ProjectPart::Ptr m_projectPart;
     QFutureWatcher<void> m_parserWatcher;

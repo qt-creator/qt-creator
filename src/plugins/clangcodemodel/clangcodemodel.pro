@@ -29,6 +29,7 @@ SOURCES += \
     clangmodelmanagersupport.cpp \
     clangprojectsettings.cpp \
     clangprojectsettingspropertiespage.cpp \
+    clangtextmark.cpp \
     clangutils.cpp \
     completionchunkstotextconverter.cpp \
     cppcreatemarkers.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     clangmodelmanagersupport.h \
     clangprojectsettings.h \
     clangprojectsettingspropertiespage.h \
+    clangtextmark.h \
     clangutils.h \
     completionchunkstotextconverter.h \
     constants.h \

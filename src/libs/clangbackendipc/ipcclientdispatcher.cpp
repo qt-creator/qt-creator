@@ -74,5 +74,11 @@ void IpcClientDispatcher::projectPartsDoNotExist(const ProjectPartsDoNotExistMes
         client->projectPartsDoNotExist(message);
 }
 
+void IpcClientDispatcher::diagnosticsChanged(const DiagnosticsChangedMessage &message)
+{
+    for (auto *client : clients)
+        client->diagnosticsChanged(message);
+}
+
 } // namespace ClangBackEnd
 

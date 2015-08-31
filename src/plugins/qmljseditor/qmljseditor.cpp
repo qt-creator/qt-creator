@@ -199,7 +199,7 @@ static void appendExtraSelectionsForMessages(
         else
             sel.format.setUnderlineColor(Qt::red);
 
-        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         sel.format.setToolTip(d.message);
 
         selections->append(sel);

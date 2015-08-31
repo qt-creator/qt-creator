@@ -43,6 +43,7 @@
 #include <cmbregistertranslationunitsforcodecompletionmessage.h>
 #include <cmbunregisterprojectsforcodecompletionmessage.h>
 #include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 

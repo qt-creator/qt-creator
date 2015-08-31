@@ -31,6 +31,7 @@
 #include "clangbackendipcintegration.h"
 
 #include "clangcompletionassistprocessor.h"
+#include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 #include "pchmanager.h"
@@ -46,6 +47,8 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/texteditor.h>
 
+#include <clangbackendipc/diagnosticschangedmessage.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -57,6 +60,8 @@
 #include <clangbackendipc/cmbunregistertranslationunitsforcodecompletionmessage.h>
 #include <clangbackendipc/cmbunregisterprojectsforcodecompletionmessage.h>
 #include <clangbackendipc/cmbmessages.h>
+#include <clangbackendipc/requestdiagnosticsmessage.h>
+#include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
 
@@ -152,6 +157,20 @@ void IpcReceiver::codeCompleted(const CodeCompletedMessage &message)
     }
 }
 
+void IpcReceiver::diagnosticsChanged(const DiagnosticsChangedMessage &message)
+{
+    qCDebug(log) << "<<< DiagnosticsChangedMessage with" << message.diagnostics().size() << "items";
+
+    auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
+
+    if (processor && processor->projectPart()) {
+        const QString diagnosticsProjectPartId = message.file().projectPartId();
+        const QString documentProjectPartId = processor->projectPart()->id();
+        if (diagnosticsProjectPartId == documentProjectPartId)
+            processor->updateCodeWarnings(message.diagnostics(), message.documentRevision());
+    }
+}
+
 void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
     QTC_CHECK(!"Got TranslationUnitDoesNotExistMessage");
@@ -177,6 +196,7 @@ public:
     void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message) override;
     void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
+    void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
 
 private:
     ClangBackEnd::ConnectionClient &m_connection;
@@ -216,6 +236,12 @@ void IpcSender::completeCode(const CompleteCodeMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
      m_connection.serverProxy().completeCode(message);
+}
+
+void IpcSender::requestDiagnostics(const RequestDiagnosticsMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().requestDiagnostics(message);
 }
 
 IpcCommunicator::IpcCommunicator()
@@ -300,6 +326,7 @@ static QStringList projectPartMessageLine(const CppTools::ProjectPart::Ptr &proj
         CppTools::ProjectFile::Unclassified); // No language option
     if (PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart))
         options += ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName());
+
     return options;
 }
 
@@ -339,12 +366,16 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
     const bool hasUnsavedContent = true;
 
     // TODO: Send new only if changed
-    registerFilesForCodeCompletion({
-        ClangBackEnd::FileContainer(filePath,
-            projectPartId,
-            Utf8String::fromByteArray(contents),
-            hasUnsavedContent)
-    });
+    registerFilesForCodeCompletion({{filePath,
+                                    projectPartId,
+                                    Utf8String::fromByteArray(contents),
+                                    hasUnsavedContent}});
+}
+
+void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer, uint documentRevision)
+{
+    registerFilesForCodeCompletion({fileContainer});
+    m_ipcSender->requestDiagnostics({fileContainer, documentRevision});
 }
 
 void IpcCommunicator::updateUnsavedFileIfNotCurrentDocument(Core::IDocument *document)

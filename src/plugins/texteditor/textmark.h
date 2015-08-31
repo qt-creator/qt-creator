@@ -57,6 +57,8 @@ public:
     TextMark(const QString &fileName, int lineNumber, Core::Id category);
     virtual ~TextMark();
 
+    TextMark(TextMark &&other);
+
     // determine order on markers on the same line.
     enum Priority
     {

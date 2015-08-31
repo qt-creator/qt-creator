@@ -34,6 +34,7 @@
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
 #include "cmbregistertranslationunitsforcodecompletionmessage.h"
+#include "diagnosticschangedmessage.h"
 #include "ipcserverinterface.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
@@ -94,6 +95,11 @@ void IpcClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExi
 }
 
 void IpcClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void IpcClientProxy::diagnosticsChanged(const DiagnosticsChangedMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

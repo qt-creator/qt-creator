@@ -78,12 +78,12 @@ QList<QTextEdit::ExtraSelection> BaseEditorDocumentProcessor::toTextEditorSelect
 {
     // Format for errors
     QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     errorFormat.setUnderlineColor(Qt::red);
 
     // Format for warnings
     QTextCharFormat warningFormat;
-    warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     warningFormat.setUnderlineColor(Qt::darkYellow);
 
     QList<QTextEdit::ExtraSelection> result;

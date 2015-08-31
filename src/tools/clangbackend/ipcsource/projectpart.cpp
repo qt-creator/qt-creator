@@ -76,6 +76,13 @@ ProjectPart::ProjectPart(const Utf8String &projectPartId)
 {
 }
 
+ProjectPart::ProjectPart(const Utf8String &projectPartId,
+                         std::initializer_list<Utf8String> arguments)
+    : d(std::make_shared<ProjectPartData>(projectPartId))
+{
+    setArguments(arguments);
+}
+
 ProjectPart::ProjectPart(const ProjectPartContainer &projectContainer)
     : d(std::make_shared<ProjectPartData>(projectContainer.projectPartId()))
 {

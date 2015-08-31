@@ -30,17 +30,22 @@
 
 #include <cmbalivemessage.h>
 #include <cmbcodecompletedmessage.h>
-#include <cmbmessages.h>
 #include <cmbcompletecodemessage.h>
 #include <cmbendmessage.h>
+#include <cmbmessages.h>
 #include <cmbregistertranslationunitsforcodecompletionmessage.h>
 #include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <diagnosticcontainer.h>
+#include <diagnosticschangedmessage.h>
+#include <requestdiagnosticsmessage.h>
 #include <readmessageblock.h>
+#include <sourcelocation.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
 #include <QString>
 #include <QVariant>
+
 #include <vector>
 
 #include <gmock/gmock.h>
@@ -51,10 +56,10 @@
 using namespace testing;
 namespace CodeModelBackeEndTest {
 
-class ReadAndWriteMessageBlockTest : public ::testing::Test
+class ReadAndWriteMessageBlock : public ::testing::Test
 {
 protected:
-    ReadAndWriteMessageBlockTest();
+    ReadAndWriteMessageBlock();
 
     virtual void SetUp() override;
     virtual void TearDown() override;
@@ -74,39 +79,39 @@ protected:
     char lastCharacter = 0;
 };
 
-ReadAndWriteMessageBlockTest::ReadAndWriteMessageBlockTest()
+ReadAndWriteMessageBlock::ReadAndWriteMessageBlock()
     :  writeMessageBlock(&buffer),
        readMessageBlock(&buffer)
 {
 }
 
-void ReadAndWriteMessageBlockTest::SetUp()
+void ReadAndWriteMessageBlock::SetUp()
 {
     buffer.open(QIODevice::ReadWrite);
     writeMessageBlock = ClangBackEnd::WriteMessageBlock(&buffer);
     readMessageBlock = ClangBackEnd::ReadMessageBlock(&buffer);
 }
 
-void ReadAndWriteMessageBlockTest::TearDown()
+void ReadAndWriteMessageBlock::TearDown()
 {
     buffer.close();
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, WriteMessageAndTestSize)
+TEST_F(ReadAndWriteMessageBlock, WriteMessageAndTestSize)
 {
     writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
 
     ASSERT_EQ(46, buffer.size());
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, WriteSecondMessageAndTestSize)
+TEST_F(ReadAndWriteMessageBlock, WriteSecondMessageAndTestSize)
 {
     writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
 
     ASSERT_EQ(46, buffer.size());
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, WriteTwoMessagesAndTestCount)
+TEST_F(ReadAndWriteMessageBlock, WriteTwoMessagesAndTestCount)
 {
     writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
     writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
@@ -114,7 +119,7 @@ TEST_F(ReadAndWriteMessageBlockTest, WriteTwoMessagesAndTestCount)
     ASSERT_EQ(2, writeMessageBlock.counter());
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, ReadThreeMessagesAndTestCount)
+TEST_F(ReadAndWriteMessageBlock, ReadThreeMessagesAndTestCount)
 {
     writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
     writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
@@ -124,17 +129,17 @@ TEST_F(ReadAndWriteMessageBlockTest, ReadThreeMessagesAndTestCount)
     ASSERT_EQ(3, readMessageBlock.readAll().count());
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, CompareEndMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareEndMessage)
 {
     CompareMessage(ClangBackEnd::EndMessage());
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, CompareAliveMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
 {
     CompareMessage(ClangBackEnd::AliveMessage());
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, CompareRegisterTranslationUnitForCodeCompletionMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForCodeCompletionMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
     QVector<ClangBackEnd::FileContainer> fileContainers({fileContainer});
@@ -142,26 +147,51 @@ TEST_F(ReadAndWriteMessageBlockTest, CompareRegisterTranslationUnitForCodeComple
     CompareMessage(ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage(fileContainers));
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, CompareUnregisterFileForCodeCompletionMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareUnregisterFileForCodeCompletionMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
 
     CompareMessage(ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage({fileContainer}));
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, CompareCompleteCodeMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareCompleteCodeMessage)
 {
     CompareMessage(ClangBackEnd::CompleteCodeMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want")));
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, CompareCodeCompletedMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareCodeCompletedMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
 
     CompareMessage(ClangBackEnd::CodeCompletedMessage(codeCompletions, 1));
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, GetInvalidMessageForAPartialBuffer)
+TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
+{
+    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"),
+                                              Utf8StringLiteral("projectId"));
+    ClangBackEnd::DiagnosticContainer container(Utf8StringLiteral("don't do that"),
+                                                Utf8StringLiteral("warning"),
+                                                {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
+                                                ClangBackEnd::DiagnosticSeverity::Warning,
+                                                {Utf8StringLiteral("foo.cpp"), 20u, 103u},
+                                                {{{Utf8StringLiteral("foo.cpp"), 20u, 103u}, {Utf8StringLiteral("foo.cpp"), 20u, 110u}}},
+                                                {},
+                                                {});
+
+    CompareMessage(ClangBackEnd::DiagnosticsChangedMessage(fileContainer,
+                                                           {container},
+                                                           1));
+}
+
+TEST_F(ReadAndWriteMessageBlock, RequestDiagnosticsMessage)
+{
+    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
+
+    CompareMessage(ClangBackEnd::RequestDiagnosticsMessage(fileContainer, 1));
+}
+
+TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)
 {
     writeCodeCompletedMessage();
     popLastCharacterFromBuffer();
@@ -170,7 +200,7 @@ TEST_F(ReadAndWriteMessageBlockTest, GetInvalidMessageForAPartialBuffer)
     readPartialMessage();
 }
 
-TEST_F(ReadAndWriteMessageBlockTest, ReadMessageAfterInterruption)
+TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
 {
     const QVariant writeMessage = writeCodeCompletedMessage();
     popLastCharacterFromBuffer();
@@ -181,7 +211,7 @@ TEST_F(ReadAndWriteMessageBlockTest, ReadMessageAfterInterruption)
     ASSERT_EQ(readMessageBlock.read(), writeMessage);
 }
 
-QVariant ReadAndWriteMessageBlockTest::writeCodeCompletedMessage()
+QVariant ReadAndWriteMessageBlock::writeCodeCompletedMessage()
 {
     ClangBackEnd::CodeCompletedMessage message(ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}), 1);
     const QVariant writeMessage = QVariant::fromValue(message);
@@ -190,19 +220,19 @@ QVariant ReadAndWriteMessageBlockTest::writeCodeCompletedMessage()
     return writeMessage;
 }
 
-void ReadAndWriteMessageBlockTest::popLastCharacterFromBuffer()
+void ReadAndWriteMessageBlock::popLastCharacterFromBuffer()
 {
     auto &internalBuffer = buffer.buffer();
     lastCharacter = internalBuffer.at(internalBuffer.size() - 1);
     internalBuffer.chop(1);
 }
 
-void ReadAndWriteMessageBlockTest::pushLastCharacterToBuffer()
+void ReadAndWriteMessageBlock::pushLastCharacterToBuffer()
 {
     buffer.buffer().push_back(lastCharacter);
 }
 
-void ReadAndWriteMessageBlockTest::readPartialMessage()
+void ReadAndWriteMessageBlock::readPartialMessage()
 {
     QVariant readMessage = readMessageBlock.read();
 
@@ -210,7 +240,7 @@ void ReadAndWriteMessageBlockTest::readPartialMessage()
 }
 
 template<class Type>
-void ReadAndWriteMessageBlockTest::CompareMessage(const Type &message)
+void ReadAndWriteMessageBlock::CompareMessage(const Type &message)
 {
     const QVariant writeMessage = QVariant::fromValue(message);
     writeMessageBlock.write(writeMessage);

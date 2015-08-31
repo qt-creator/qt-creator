@@ -45,6 +45,8 @@ class CompleteCodeMessage;
 class CodeCompletedMessage;
 class TranslationUnitDoesNotExistMessage;
 class ProjectPartsDoNotExistMessage;
+class DiagnosticsChangedMessage;
+class RequestDiagnosticsMessage;
 
 class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
 {
@@ -56,6 +58,7 @@ public:
     virtual void codeCompleted(const CodeCompletedMessage &message) = 0;
     virtual void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) = 0;
     virtual void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) = 0;
+    virtual void diagnosticsChanged(const DiagnosticsChangedMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd

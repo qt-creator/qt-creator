@@ -45,6 +45,14 @@
 
 namespace ClangBackEnd {
 CMBIPC_EXPORT void registerTypes();
-}
 
+enum class DiagnosticSeverity // one to one mapping of the clang enum numbers
+{
+    Ignored = 0,
+    Note = 1,
+    Warning = 2,
+    Error = 3,
+    Fatal = 4
+};
+}
 #endif // CLANGBACKENDIPC_GLOBAL_H

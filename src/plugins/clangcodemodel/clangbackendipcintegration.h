@@ -47,6 +47,10 @@ class IEditor;
 class IDocument;
 }
 
+namespace ClangBackEnd {
+class DiagnosticsChangedMessage;
+}
+
 namespace TextEditor {
 class TextEditorWidget;
 }
@@ -75,6 +79,7 @@ private:
     void alive() override;
     void echo(const ClangBackEnd::EchoMessage &message) override;
     void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
+    void diagnosticsChanged(const ClangBackEnd::DiagnosticsChangedMessage &message) override;
 
     void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message) override;
     void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &message) override;
@@ -95,6 +100,7 @@ public:
     virtual void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message) = 0;
     virtual void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
+    virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
 };
 
 class IpcCommunicator : public QObject
@@ -123,6 +129,7 @@ public:
     void updateUnsavedFileIfNotCurrentDocument(Core::IDocument *document);
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents);
+    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer, uint documentRevision);
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);

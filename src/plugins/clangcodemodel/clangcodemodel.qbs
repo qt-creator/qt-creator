@@ -145,6 +145,8 @@ QtcPlugin {
         "clangprojectsettingspropertiespage.cpp",
         "clangprojectsettingspropertiespage.h",
         "clangprojectsettingspropertiespage.ui",
+        "clangtextmark.cpp",
+        "clangtextmark.h",
         "clangutils.cpp",
         "clangutils.h",
         "clangbackendipcintegration.cpp",

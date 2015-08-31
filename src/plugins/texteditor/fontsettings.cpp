@@ -170,7 +170,7 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     }
 
     if (category == C_OCCURRENCES_UNUSED) {
-        tf.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        tf.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         tf.setUnderlineColor(f.foreground());
         tf.setToolTip(QCoreApplication::translate("FontSettings_C_OCCURRENCES_UNUSED",
                                                   "Unused variable"));

@@ -56,6 +56,8 @@ static const QLatin1Char kNewLine('\n');
 static const QLatin1Char kHorizontalTab('\t');
 
 const char CLANG_MODELMANAGERSUPPORT_ID[] = "ClangCodeMode.ClangCodeMode";
+const char CLANG_ERROR[] = "Clang.Error";
+const char CLANG_WARNING[] = "Clang.Warning";
 
 }
 }

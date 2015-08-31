@@ -135,6 +135,8 @@ public:
         optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addProjectConfigFileInclude();
 
+        optionsBuilder.addDiagnosticOptions();
+
         optionsBuilder.addExtraOptions();
 
         return optionsBuilder.options();
@@ -198,6 +200,18 @@ private:
         add(QLatin1String("-fmacro-backtrace-limit=0"));
         add(QLatin1String("-fretain-comments-from-system-headers"));
         // TODO: -Xclang -ferror-limit -Xclang 0 ?
+    }
+
+    void addDiagnosticOptions()
+    {
+        add(QStringLiteral("-Weverything"));
+        add(QStringLiteral("-Wno-c++98-compat"));
+        add(QStringLiteral("-Wno-c++98-compat-pedantic"));
+        add(QStringLiteral("-fmessage-length=0"));
+        add(QStringLiteral("-fdiagnostics-show-note-include-stack"));
+        add(QStringLiteral("-fmacro-backtrace-limit=0"));
+        add(QStringLiteral("-fretain-comments-from-system-headers"));
+        add(QStringLiteral("-ferror-limit=1000"));
     }
 };
 

@@ -45,6 +45,7 @@ public:
     void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) override;
     void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
+    void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
 
 private:
     void echoMessage(const QVariant &message);

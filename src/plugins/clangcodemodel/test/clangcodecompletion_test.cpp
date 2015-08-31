@@ -352,6 +352,11 @@ QString toString(const CompleteCodeMessage &)
     return QLatin1String("CompleteCodeMessage\n");
 }
 
+QString toString(const RequestDiagnosticsMessage &)
+{
+    return QStringLiteral("RequestDiagnosticsMessage\n");
+}
+
 class IpcSenderSpy : public IpcSenderInterface
 {
 public:
@@ -372,6 +377,10 @@ public:
 
     void completeCode(const CompleteCodeMessage &message) override
     { senderLog.append(toString(message)); }
+
+    void requestDiagnostics(const RequestDiagnosticsMessage &message) override
+    { senderLog.append(toString(message)); }
+
 
 public:
     QString senderLog;
@@ -1105,14 +1114,27 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
                     LogOutput(
                         "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "  Path: myheader.h ProjectPart: \n"
+                        "RequestDiagnosticsMessage\n"
                         "RegisterProjectPartsForCodeCompletionMessage\n"
                         "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "  Path: myheader.h ProjectPart: \n"
+                        "RequestDiagnosticsMessage\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "  Path: myheader.h ProjectPart: \n"
+                        "RequestDiagnosticsMessage\n"
                         "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: ui_mainwindow.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RegisterTranslationUnitForCodeCompletionMessage\n"
                         "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
+                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
+                        "RequestDiagnosticsMessage\n"
+
                     )));
     spy.senderLog.clear();
 

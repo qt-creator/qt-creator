@@ -39,7 +39,12 @@
 #include "cmbunregisterprojectsforcodecompletionmessage.h"
 #include "cmbcompletecodemessage.h"
 #include "cmbcodecompletedmessage.h"
+#include "diagnosticcontainer.h"
+#include "diagnosticschangedmessage.h"
+#include "requestdiagnosticsmessage.h"
 #include "projectpartsdonotexistmessage.h"
+#include "sourcelocationcontainer.h"
+#include "sourcerangecontainer.h"
 #include "translationunitdoesnotexistmessage.h"
 
 #include <QDataStream>
@@ -102,6 +107,26 @@ void Messages::registerMessages()
     qRegisterMetaType<ProjectPartsDoNotExistMessage>();
     qRegisterMetaTypeStreamOperators<ProjectPartsDoNotExistMessage>();
     QMetaType::registerComparators<ProjectPartsDoNotExistMessage>();
+
+    qRegisterMetaType<DiagnosticsChangedMessage>();
+    qRegisterMetaTypeStreamOperators<DiagnosticsChangedMessage>();
+    QMetaType::registerComparators<DiagnosticsChangedMessage>();
+
+    qRegisterMetaType<DiagnosticContainer>();
+    qRegisterMetaTypeStreamOperators<DiagnosticContainer>();
+    QMetaType::registerComparators<DiagnosticContainer>();
+
+    qRegisterMetaType<SourceLocationContainer>();
+    qRegisterMetaTypeStreamOperators<SourceLocationContainer>();
+    QMetaType::registerComparators<SourceLocationContainer>();
+
+    qRegisterMetaType<SourceRangeContainer>();
+    qRegisterMetaTypeStreamOperators<SourceRangeContainer>();
+    QMetaType::registerComparators<SourceRangeContainer>();
+
+    qRegisterMetaType<RequestDiagnosticsMessage>();
+    qRegisterMetaTypeStreamOperators<RequestDiagnosticsMessage>();
+    QMetaType::registerComparators<RequestDiagnosticsMessage>();
 }
 
 } // namespace ClangBackEnd

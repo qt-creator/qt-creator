@@ -669,11 +669,10 @@ void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartI
     const UnsavedFileContentInfo info = unsavedFileContent(customFileContent);
 
     IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
-    ipcCommunicator.registerFilesForCodeCompletion(
-        {ClangBackEnd::FileContainer(m_interface->fileName(),
-                       projectPartId,
-                       Utf8String::fromByteArray(info.unsavedContent),
-                       info.isDocumentModified)});
+    ipcCommunicator.registerFilesForCodeCompletion({{m_interface->fileName(),
+                                                     projectPartId,
+                                                     Utf8String::fromByteArray(info.unsavedContent),
+                                                     info.isDocumentModified}});
 }
 
 void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
@@ -686,7 +685,11 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     const QString filePath = m_interface->fileName();
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
     sendFileContent(projectPartId, customFileContent);
-    m_interface->ipcCommunicator().completeCode(this, filePath, line, column, projectPartId);
+    m_interface->ipcCommunicator().completeCode(this,
+                                                filePath,
+                                                uint(line),
+                                                uint(column),
+                                                projectPartId);
 }
 
 TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() const
