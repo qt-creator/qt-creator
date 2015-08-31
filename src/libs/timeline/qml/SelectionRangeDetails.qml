@@ -40,9 +40,10 @@ Item {
     property string endTime
     property string duration
     property bool showDuration
+    property bool hasContents
 
     width: Math.max(150, col.width + 25)
-    height: col.height + 30
+    height: hasContents ? col.height + 30 : 0
 
     // keep inside view
     Connections {

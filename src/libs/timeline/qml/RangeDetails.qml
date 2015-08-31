@@ -40,6 +40,7 @@ Item {
     property int line
     property int column
     property bool isBindingLoop
+    property bool hasContents
 
     property int selectedModel: -1
     property int selectedItem: -1
@@ -54,11 +55,11 @@ Item {
     signal clearSelection
 
     width: col.width + 25
-    height: contentArea.height + titleBar.height
+    height: hasContents ? contentArea.height + titleBar.height : 0
 
     function hide() {
         noteEdit.focus = false;
-        visible = false;
+        hasContents = false;
         selectedModel = selectedItem = -1;
         noteEdit.text = "";
         duration = "";
@@ -97,7 +98,7 @@ Item {
                 eventInfo.append({content : eventData[k]});
             }
         }
-        rangeDetails.visible = true;
+        hasContents = true;
 
         var location = timelineModel.location(selectedItem)
         if (location.hasOwnProperty("file")) { // not empty

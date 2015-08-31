@@ -284,12 +284,12 @@ Rectangle {
     Flickable {
         flickableDirection: Flickable.HorizontalFlick
         clip: true
-        visible: selectionRangeMode &&
-                 selectionRange.creationState !== selectionRange.creationInactive
         interactive: false
         x: content.x + content.flickableItem.x
         y: content.y + content.flickableItem.y
-        height: content.flickableItem.height
+        height: (selectionRangeMode &&
+                 selectionRange.creationState !== selectionRange.creationInactive) ?
+                    content.flickableItem.height : 0
         width: content.flickableItem.width
         contentX: content.contentX
         contentWidth: content.contentWidth
@@ -297,7 +297,6 @@ Rectangle {
         SelectionRange {
             id: selectionRange
             zoomer: zoomControl
-            visible: parent.visible
 
             onRangeDoubleClicked: {
                 var diff = 500 - zoomer.selectionDuration;
@@ -319,11 +318,12 @@ Rectangle {
 
         clip: true
         id: selectionRangeDetails
-        visible: selectionRange.visible
         startTime: zoomControl.selectionStart
         duration: zoomControl.selectionDuration
         endTime: zoomControl.selectionEnd
         showDuration: selectionRange.rangeWidth > 1
+        hasContents: selectionRangeMode &&
+                     selectionRange.creationState !== selectionRange.creationInactive
 
         onRecenter: {
             if ((zoomControl.selectionStart < zoomControl.rangeStart) ^
@@ -342,7 +342,6 @@ Rectangle {
         id: rangeDetails
 
         z: 3
-        visible: false
         x: 200
         y: 25
 
@@ -350,6 +349,7 @@ Rectangle {
         locked: content.selectionLocked
         models: timelineModelAggregator.models
         notes: timelineModelAggregator.notes
+        hasContents: false
         onRecenterOnItem: {
             content.gotoSourceLocation(file, line, column);
             content.select(selectedModel, selectedItem)
