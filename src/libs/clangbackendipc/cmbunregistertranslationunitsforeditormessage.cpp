@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbunregistertranslationunitsforeditormessage.h"
 
 #include "container_common.h"
 
@@ -42,43 +42,43 @@
 namespace ClangBackEnd {
 
 
-UnregisterTranslationUnitsForCodeCompletionMessage::UnregisterTranslationUnitsForCodeCompletionMessage(const QVector<FileContainer> &fileContainers)
+UnregisterTranslationUnitsForEditorMessage::UnregisterTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
     : fileContainers_(fileContainers)
 {
 }
 
-const QVector<FileContainer> &UnregisterTranslationUnitsForCodeCompletionMessage::fileContainers() const
+const QVector<FileContainer> &UnregisterTranslationUnitsForEditorMessage::fileContainers() const
 {
     return fileContainers_;
 }
 
-QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForCodeCompletionMessage &message)
+QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message)
 {
     out << message.fileContainers_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForCodeCompletionMessage &message)
+QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message)
 {
     in >> message.fileContainers_;
 
     return in;
 }
 
-bool operator==(const UnregisterTranslationUnitsForCodeCompletionMessage &first, const UnregisterTranslationUnitsForCodeCompletionMessage &second)
+bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
 {
     return first.fileContainers_ == second.fileContainers_;
 }
 
-bool operator<(const UnregisterTranslationUnitsForCodeCompletionMessage &first, const UnregisterTranslationUnitsForCodeCompletionMessage &second)
+bool operator<(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
 {
     return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
-QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForCodeCompletionMessage &message)
+QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message)
 {
-    debug.nospace() << "UnregisterTranslationUnitsForCodeCompletionMessage(";
+    debug.nospace() << "UnregisterTranslationUnitsForEditorMessage(";
 
     for (const FileContainer &fileContainer : message.fileContainers())
         debug.nospace() << fileContainer << ", ";
@@ -89,9 +89,9 @@ QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForCodeCompletio
 }
 
 #ifdef CLANGBACKEND_TESTS
-void PrintTo(const UnregisterTranslationUnitsForCodeCompletionMessage &message, ::std::ostream* os)
+void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os)
 {
-    *os << "UnregisterTranslationUnitsForCodeCompletionMessage(";
+    *os << "UnregisterTranslationUnitsForEditorMessage(";
 
     for (const FileContainer &fileContainer : message.fileContainers())
         *os << ::testing::PrintToString(fileContainer) << ", ";

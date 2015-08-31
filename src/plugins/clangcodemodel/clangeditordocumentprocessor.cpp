@@ -109,7 +109,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
     if (m_projectPart) {
         QTC_ASSERT(m_modelManagerSupport, return);
-        m_modelManagerSupport->ipcCommunicator().unregisterFilesForCodeCompletion(
+        m_modelManagerSupport->ipcCommunicator().unregisterFilesForEditor(
             {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
     }
 }
@@ -186,12 +186,12 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
     return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));
 }
 
-void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForCompletion()
+void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
 {
     const CppTools::ProjectPart::Ptr projectPart = m_parser.projectPart();
     QTC_ASSERT(projectPart, return);
 
-    updateTranslationUnitForCompletion(*projectPart.data());
+    updateTranslationUnitForEditor(*projectPart.data());
     requestDiagnostics(*projectPart.data());
 
     m_projectPart = projectPart;
@@ -209,7 +209,7 @@ void ClangEditorDocumentProcessor::onParserFinished()
     // Run semantic highlighter
     m_semanticHighlighter.run();
 
-    updateProjectPartAndTranslationUnitForCompletion();
+    updateProjectPartAndTranslationUnitForEditor();
 }
 
 void ClangEditorDocumentProcessor::onProjectPartsRemoved(const QStringList &projectPartIds)
@@ -218,7 +218,7 @@ void ClangEditorDocumentProcessor::onProjectPartsRemoved(const QStringList &proj
         m_projectPart.clear();
 }
 
-void ClangEditorDocumentProcessor::updateTranslationUnitForCompletion(CppTools::ProjectPart &projectPart)
+void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart &projectPart)
 {
     QTC_ASSERT(m_modelManagerSupport, return);
     IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
@@ -228,18 +228,18 @@ void ClangEditorDocumentProcessor::updateTranslationUnitForCompletion(CppTools::
             auto container1 = ClangBackEnd::FileContainer(filePath(),
                                                           m_projectPart->id(),
                                                           revision());
-            ipcCommunicator.unregisterFilesForCodeCompletion({container1});
+            ipcCommunicator.unregisterFilesForEditor({container1});
 
             auto container2 = ClangBackEnd::FileContainer(filePath(),
                                                           projectPart.id(),
                                                           revision());
-            ipcCommunicator.registerFilesForCodeCompletion({container2});
+            ipcCommunicator.registerFilesForEditor({container2});
         }
     } else {
         auto container = ClangBackEnd::FileContainer(filePath(),
                                                      projectPart.id(),
                                                      revision());
-        ipcCommunicator.registerFilesForCodeCompletion({container});
+        ipcCommunicator.registerFilesForEditor({container});
     }
 }
 

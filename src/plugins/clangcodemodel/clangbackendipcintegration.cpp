@@ -55,10 +55,10 @@
 #include <clangbackendipc/cmbcodecompletedmessage.h>
 #include <clangbackendipc/cmbcompletecodemessage.h>
 #include <clangbackendipc/cmbechomessage.h>
-#include <clangbackendipc/cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <clangbackendipc/cmbregisterprojectsforcodecompletionmessage.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletionmessage.h>
-#include <clangbackendipc/cmbunregisterprojectsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbregistertranslationunitsforeditormessage.h>
+#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
+#include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
+#include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbmessages.h>
 #include <clangbackendipc/requestdiagnosticsmessage.h>
 #include <clangbackendipc/filecontainer.h>
@@ -191,10 +191,10 @@ public:
     {}
 
     void end() override;
-    void registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage &message) override;
-    void unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage &message) override;
-    void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message) override;
-    void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message) override;
+    void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) override;
+    void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) override;
+    void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) override;
+    void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
 
@@ -208,28 +208,28 @@ void IpcSender::end()
      m_connection.sendEndMessage();
 }
 
-void IpcSender::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message)
+void IpcSender::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().registerTranslationUnitsForCodeCompletion(message);
+     m_connection.serverProxy().registerTranslationUnitsForEditor(message);
 }
 
-void IpcSender::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message)
+void IpcSender::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().unregisterTranslationUnitsForCodeCompletion(message);
+     m_connection.serverProxy().unregisterTranslationUnitsForEditor(message);
 }
 
-void IpcSender::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
+void IpcSender::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().registerProjectPartsForCodeCompletion(message);
+     m_connection.serverProxy().registerProjectPartsForEditor(message);
 }
 
-void IpcSender::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
+void IpcSender::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
      QTC_CHECK(m_connection.isConnected());
-     m_connection.serverProxy().unregisterProjectPartsForCodeCompletion(message);
+     m_connection.serverProxy().unregisterProjectPartsForEditor(message);
 }
 
 void IpcSender::completeCode(const CompleteCodeMessage &message)
@@ -285,7 +285,7 @@ void IpcCommunicator::initializeBackend()
 void IpcCommunicator::registerEmptyProjectForProjectLessFiles()
 {
     QTC_CHECK(m_connection.isConnected());
-    registerProjectPartsForCodeCompletion({ClangBackEnd::ProjectPartContainer(
+    registerProjectPartsForEditor({ClangBackEnd::ProjectPartContainer(
                                            Utf8String(),
                                            Utf8StringVector())});
 }
@@ -350,7 +350,7 @@ static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
 void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts)
 {
     const auto projectPartContainers = toProjectPartContainers(projectParts);
-    registerProjectPartsForCodeCompletion(projectPartContainers);
+    registerProjectPartsForEditor(projectPartContainers);
 }
 
 void IpcCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &filePath)
@@ -368,16 +368,16 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath,
     const bool hasUnsavedContent = true;
 
     // TODO: Send new only if changed
-    registerFilesForCodeCompletion({{filePath,
-                                    projectPartId,
-                                    Utf8String::fromByteArray(contents),
-                                    hasUnsavedContent,
-                                    documentRevision}});
+    registerFilesForEditor({{filePath,
+                             projectPartId,
+                             Utf8String::fromByteArray(contents),
+                             hasUnsavedContent,
+                             documentRevision}});
 }
 
 void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
 {
-    registerFilesForCodeCompletion({fileContainer});
+    registerFilesForEditor({fileContainer});
     m_ipcSender->requestDiagnostics({fileContainer});
 }
 
@@ -431,52 +431,52 @@ void IpcCommunicator::killBackendProcess()
     m_connection.processForTestOnly()->kill();
 }
 
-void IpcCommunicator::registerFilesForCodeCompletion(const FileContainers &fileContainers)
+void IpcCommunicator::registerFilesForEditor(const FileContainers &fileContainers)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const RegisterTranslationUnitForCodeCompletionMessage message(fileContainers);
+    const RegisterTranslationUnitForEditorMessage message(fileContainers);
     qCDebug(log) << ">>>" << message;
-    m_ipcSender->registerTranslationUnitsForCodeCompletion(message);
+    m_ipcSender->registerTranslationUnitsForEditor(message);
 }
 
-void IpcCommunicator::unregisterFilesForCodeCompletion(const FileContainers &fileContainers)
+void IpcCommunicator::unregisterFilesForEditor(const FileContainers &fileContainers)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const UnregisterTranslationUnitsForCodeCompletionMessage message(fileContainers);
+    const UnregisterTranslationUnitsForEditorMessage message(fileContainers);
     qCDebug(log) << ">>>" << message;
-    m_ipcSender->unregisterTranslationUnitsForCodeCompletion(message);
+    m_ipcSender->unregisterTranslationUnitsForEditor(message);
 }
 
-void IpcCommunicator::registerProjectPartsForCodeCompletion(
+void IpcCommunicator::registerProjectPartsForEditor(
         const ProjectPartContainers &projectPartContainers)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const RegisterProjectPartsForCodeCompletionMessage message(projectPartContainers);
+    const RegisterProjectPartsForEditorMessage message(projectPartContainers);
     qCDebug(log) << ">>>" << message;
-    m_ipcSender->registerProjectPartsForCodeCompletion(message);
+    m_ipcSender->registerProjectPartsForEditor(message);
 }
 
-void IpcCommunicator::unregisterProjectPartsForCodeCompletion(const QStringList &projectPartIds)
+void IpcCommunicator::unregisterProjectPartsForEditor(const QStringList &projectPartIds)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const UnregisterProjectPartsForCodeCompletionMessage message((Utf8StringVector(projectPartIds)));
+    const UnregisterProjectPartsForEditorMessage message((Utf8StringVector(projectPartIds)));
     qCDebug(log) << ">>>" << message;
-    m_ipcSender->unregisterProjectPartsForCodeCompletion(message);
+    m_ipcSender->unregisterProjectPartsForEditor(message);
 }
 
 void IpcCommunicator::completeCode(ClangCompletionAssistProcessor *assistProcessor,
-                              const QString &filePath,
-                              quint32 line,
-                              quint32 column,
-                              const QString &projectFilePath)
+                                   const QString &filePath,
+                                   quint32 line,
+                                   quint32 column,
+                                   const QString &projectFilePath)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;

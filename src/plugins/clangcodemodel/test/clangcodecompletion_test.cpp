@@ -56,10 +56,10 @@
 
 #include <clangbackendipc/cmbcompletecodemessage.h>
 #include <clangbackendipc/cmbendmessage.h>
-#include <clangbackendipc/cmbregisterprojectsforcodecompletionmessage.h>
-#include <clangbackendipc/cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <clangbackendipc/cmbunregisterprojectsforcodecompletionmessage.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
+#include <clangbackendipc/cmbregistertranslationunitsforeditormessage.h>
+#include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
+#include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -310,39 +310,39 @@ QString toString(const EndMessage &)
     return QLatin1String("EndMessage\n");
 }
 
-QString toString(const RegisterTranslationUnitForCodeCompletionMessage &message)
+QString toString(const RegisterTranslationUnitForEditorMessage &message)
 {
     QString out;
     QTextStream ts(&out);
 
-    ts << "RegisterTranslationUnitForCodeCompletionMessage\n"
+    ts << "RegisterTranslationUnitForEditorMessage\n"
        << toString(message.fileContainers());
     return out;
 
-    return QLatin1String("RegisterTranslationUnitForCodeCompletionMessage\n");
+    return QLatin1String("RegisterTranslationUnitForEditorMessage\n");
 }
 
-QString toString(const UnregisterTranslationUnitsForCodeCompletionMessage &)
+QString toString(const UnregisterTranslationUnitsForEditorMessage &)
 {
-    return QLatin1String("UnregisterTranslationUnitsForCodeCompletionMessage\n");
+    return QLatin1String("UnregisterTranslationUnitsForEditorMessage\n");
 }
 
-QString toString(const RegisterProjectPartsForCodeCompletionMessage &message)
+QString toString(const RegisterProjectPartsForEditorMessage &message)
 {
     QString out;
     QTextStream ts(&out);
 
-    ts << "RegisterProjectPartsForCodeCompletionMessage\n"
+    ts << "RegisterProjectPartsForEditorMessage\n"
        << toString(message.projectContainers()) << "\n";
     return out;
 }
 
-QString toString(const UnregisterProjectPartsForCodeCompletionMessage &message)
+QString toString(const UnregisterProjectPartsForEditorMessage &message)
 {
     QString out;
     QTextStream ts(&out);
 
-    ts << "UnregisterProjectPartsForCodeCompletionMessage\n"
+    ts << "UnregisterProjectPartsForEditorMessage\n"
        << message.projectPartIds().join(Utf8String::fromUtf8(",")).toByteArray() << "\n";
     return out;
 }
@@ -363,16 +363,16 @@ public:
     void end() override
     { senderLog.append(toString(EndMessage())); }
 
-    void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message) override
+    void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
-    void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message) override
+    void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
-    void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) override
+    void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
-    void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) override
+    void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
     void completeCode(const CompleteCodeMessage &message) override
@@ -1112,26 +1112,25 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     // Check messages that would have been sent
     QVERIFY(compare(LogOutput(spy.senderLog),
                     LogOutput(
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RequestDiagnosticsMessage\n"
-                        "RegisterProjectPartsForCodeCompletionMessage\n"
                         "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RequestDiagnosticsMessage\n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
                         "RequestDiagnosticsMessage\n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: ui_mainwindow.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
                         "RequestDiagnosticsMessage\n"
 
@@ -1148,13 +1147,13 @@ void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
     // ...and check if code model backend would have been provided with current data
     QVERIFY(compare(LogOutput(spy.senderLog),
                     LogOutput(
-                        "RegisterProjectPartsForCodeCompletionMessage\n"
+                        "RegisterProjectPartsForEditorMessage\n"
                         "  ProjectPartContainer id: \n"
-                        "RegisterProjectPartsForCodeCompletionMessage\n"
+                        "RegisterProjectPartsForEditorMessage\n"
                         "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForCodeCompletionMessage\n"
+                        "RegisterTranslationUnitForEditorMessage\n"
                         "  Path: ui_mainwindow.h ProjectPart: \n"
                     )));
 }

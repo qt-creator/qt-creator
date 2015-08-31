@@ -45,10 +45,10 @@ public:
     void dispatch(const QVariant &message) override;
 
     virtual void end() = 0;
-    virtual void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message) = 0;
-    virtual void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message) = 0;
-    virtual void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) = 0;
-    virtual void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) = 0;
+    virtual void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) = 0;
+    virtual void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) = 0;
+    virtual void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) = 0;
+    virtual void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) = 0;
     virtual void completeCode(const CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const RequestDiagnosticsMessage &message) = 0;
 

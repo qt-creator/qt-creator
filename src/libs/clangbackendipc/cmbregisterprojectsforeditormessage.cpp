@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbregisterprojectsforcodecompletionmessage.h"
+#include "cmbregisterprojectsforeditormessage.h"
 
 #include "container_common.h"
 
@@ -40,43 +40,43 @@
 
 namespace ClangBackEnd {
 
-RegisterProjectPartsForCodeCompletionMessage::RegisterProjectPartsForCodeCompletionMessage(const QVector<ProjectPartContainer> &projectContainers)
+RegisterProjectPartsForEditorMessage::RegisterProjectPartsForEditorMessage(const QVector<ProjectPartContainer> &projectContainers)
     :projectContainers_(projectContainers)
 {
 }
 
-const QVector<ProjectPartContainer> &RegisterProjectPartsForCodeCompletionMessage::projectContainers() const
+const QVector<ProjectPartContainer> &RegisterProjectPartsForEditorMessage::projectContainers() const
 {
     return projectContainers_;
 }
 
-QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForCodeCompletionMessage &message)
+QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message)
 {
     out << message.projectContainers_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForCodeCompletionMessage &message)
+QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message)
 {
     in >> message.projectContainers_;
 
     return in;
 }
 
-bool operator==(const RegisterProjectPartsForCodeCompletionMessage &first, const RegisterProjectPartsForCodeCompletionMessage &second)
+bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second)
 {
     return first.projectContainers_ == second.projectContainers_;
 }
 
-bool operator<(const RegisterProjectPartsForCodeCompletionMessage &first, const RegisterProjectPartsForCodeCompletionMessage &second)
+bool operator<(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second)
 {
     return compareContainer(first.projectContainers_, second.projectContainers_);
 }
 
-QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionMessage &message)
+QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message)
 {
-    debug.nospace() << "RegisterProjectPartsForCodeCompletionMessage(";
+    debug.nospace() << "RegisterProjectPartsForEditorMessage(";
 
     for (const ProjectPartContainer &projectContainer : message.projectContainers())
         debug.nospace() << projectContainer<< ", ";
@@ -86,9 +86,9 @@ QDebug operator<<(QDebug debug, const RegisterProjectPartsForCodeCompletionMessa
     return debug;
 }
 
-void PrintTo(const RegisterProjectPartsForCodeCompletionMessage &message, ::std::ostream* os)
+void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os)
 {
-    *os << "RegisterProjectPartsForCodeCompletionMessage(";
+    *os << "RegisterProjectPartsForEditorMessage(";
 
     for (const ProjectPartContainer &projectContainer : message.projectContainers())
         PrintTo(projectContainer, os);

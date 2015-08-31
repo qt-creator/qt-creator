@@ -36,10 +36,10 @@
 namespace ClangBackEnd {
 
 class IpcServerInterface;
-class RegisterTranslationUnitForCodeCompletionMessage;
-class RegisterProjectPartsForCodeCompletionMessage;
-class UnregisterTranslationUnitsForCodeCompletionMessage;
-class UnregisterProjectPartsForCodeCompletionMessage;
+class RegisterTranslationUnitForEditorMessage;
+class RegisterProjectPartsForEditorMessage;
+class UnregisterTranslationUnitsForEditorMessage;
+class UnregisterProjectPartsForEditorMessage;
 class EchoMessage;
 class CompleteCodeMessage;
 class CodeCompletedMessage;

@@ -43,10 +43,10 @@
 #include <clangbackendipcdebugutils.h>
 #include <cmbcodecompletedmessage.h>
 #include <cmbcompletecodemessage.h>
-#include <cmbregisterprojectsforcodecompletionmessage.h>
-#include <cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <cmbunregisterprojectsforcodecompletionmessage.h>
-#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbregisterprojectsforeditormessage.h>
+#include <cmbregistertranslationunitsforeditormessage.h>
+#include <cmbunregisterprojectsforeditormessage.h>
+#include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticschangedmessage.h>
 #include <requestdiagnosticsmessage.h>
 #include <projectpartsdonotexistmessage.h>
@@ -80,9 +80,9 @@ void ClangIpcServer::end()
     QCoreApplication::exit();
 }
 
-void ClangIpcServer::registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage &message)
+void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForCodeCompletion");
+    TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForEditor");
 
     try {
         const auto newerFileContainers = translationUnits.newerFileContainers(message.fileContainers());
@@ -94,13 +94,13 @@ void ClangIpcServer::registerTranslationUnitsForCodeCompletion(const ClangBackEn
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::registerTranslationUnitsForCodeCompletion:" << exception.what();
+        qWarning() << "Error in ClangIpcServer::registerTranslationUnitsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage &message)
+void ClangIpcServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::unregisterTranslationUnitsForCodeCompletion");
+    TIME_SCOPE_DURATION("ClangIpcServer::unregisterTranslationUnitsForEditor");
 
     try {
         unsavedFiles.remove(message.fileContainers());
@@ -110,31 +110,31 @@ void ClangIpcServer::unregisterTranslationUnitsForCodeCompletion(const ClangBack
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::unregisterTranslationUnitsForCodeCompletion:" << exception.what();
+        qWarning() << "Error in ClangIpcServer::unregisterTranslationUnitsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
+void ClangIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::registerProjectPartsForCodeCompletion");
+    TIME_SCOPE_DURATION("ClangIpcServer::registerProjectPartsForEditor");
 
     try {
         projects.createOrUpdate(message.projectContainers());
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::registerProjectPartsForCodeCompletion:" << exception.what();
+        qWarning() << "Error in ClangIpcServer::registerProjectPartsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
+void ClangIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::unregisterProjectPartsForCodeCompletion");
+    TIME_SCOPE_DURATION("ClangIpcServer::unregisterProjectPartsForEditor");
 
     try {
         projects.remove(message.projectPartIds());
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::unregisterProjectPartsForCodeCompletion:" << exception.what();
+        qWarning() << "Error in ClangIpcServer::unregisterProjectPartsForEditor:" << exception.what();
     }
 }
 

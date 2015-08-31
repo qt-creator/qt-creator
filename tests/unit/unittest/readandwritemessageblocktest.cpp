@@ -33,8 +33,8 @@
 #include <cmbcompletecodemessage.h>
 #include <cmbendmessage.h>
 #include <cmbmessages.h>
-#include <cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbregistertranslationunitsforeditormessage.h>
+#include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticschangedmessage.h>
 #include <requestdiagnosticsmessage.h>
@@ -139,19 +139,19 @@ TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
     CompareMessage(ClangBackEnd::AliveMessage());
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForCodeCompletionMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForEditorMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
     QVector<ClangBackEnd::FileContainer> fileContainers({fileContainer});
 
-    CompareMessage(ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage(fileContainers));
+    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage(fileContainers));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareUnregisterFileForCodeCompletionMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareUnregisterFileForEditorMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("pathToProject.pro"));
 
-    CompareMessage(ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::UnregisterTranslationUnitsForEditorMessage({fileContainer}));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareCompleteCodeMessage)

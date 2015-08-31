@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "cmbunregisterprojectsforcodecompletionmessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
 
 #include "container_common.h"
 
@@ -37,62 +37,60 @@
 
 #include <ostream>
 
-
 namespace ClangBackEnd {
 
-
-UnregisterProjectPartsForCodeCompletionMessage::UnregisterProjectPartsForCodeCompletionMessage(const Utf8StringVector &filePaths)
-    : projectPartIds_(filePaths)
+RegisterTranslationUnitForEditorMessage::RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers)
+    : fileContainers_(fileContainers)
 {
 }
 
-const Utf8StringVector &UnregisterProjectPartsForCodeCompletionMessage::projectPartIds() const
+const QVector<FileContainer> &RegisterTranslationUnitForEditorMessage::fileContainers() const
 {
-    return projectPartIds_;
+    return fileContainers_;
 }
 
-QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForCodeCompletionMessage &message)
+QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message)
 {
-    out << message.projectPartIds_;
+    out << message.fileContainers_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForCodeCompletionMessage &message)
+QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message)
 {
-    in >> message.projectPartIds_;
+    in >> message.fileContainers_;
 
     return in;
 }
 
-bool operator==(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second)
+bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
 {
-    return first.projectPartIds_ == second.projectPartIds_;
+    return first.fileContainers_ == second.fileContainers_;
 }
 
-bool operator<(const UnregisterProjectPartsForCodeCompletionMessage &first, const UnregisterProjectPartsForCodeCompletionMessage &second)
+bool operator<(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
 {
-    return compareContainer(first.projectPartIds_, second.projectPartIds_);
+    return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
-QDebug operator<<(QDebug debug, const UnregisterProjectPartsForCodeCompletionMessage &message)
+QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message)
 {
-    debug.nospace() << "UnregisterProjectPartsForCodeCompletionMessage(";
+    debug.nospace() << "RegisterTranslationUnitForEditorMessage(";
 
-    for (const Utf8String &fileNames_ : message.projectPartIds())
-        debug.nospace() << fileNames_ << ", ";
+    for (const FileContainer &fileContainer : message.fileContainers())
+        debug.nospace() << fileContainer<< ", ";
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const UnregisterProjectPartsForCodeCompletionMessage &message, ::std::ostream* os)
+void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os)
 {
-    *os << "UnregisterProjectPartsForCodeCompletionMessage(";
+    *os << "RegisterTranslationUnitForEditorMessage(";
 
-    for (const Utf8String &fileNames_ : message.projectPartIds())
-        *os << fileNames_.constData() << ", ";
+    for (const FileContainer &fileContainer : message.fileContainers())
+        PrintTo(fileContainer, os);
 
     *os << ")";
 }

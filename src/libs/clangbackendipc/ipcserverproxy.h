@@ -56,10 +56,10 @@ public:
     IpcServerProxy &operator=(const IpcServerProxy&) = delete;
 
     void end() override;
-    void registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message) override;
-    void unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message) override;
-    void registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message) override;
-    void unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message) override;
+    void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
+    void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override;
+    void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override;
+    void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
 

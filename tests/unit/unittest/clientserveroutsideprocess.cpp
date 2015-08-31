@@ -36,10 +36,10 @@
 #include <cmbcompletecodemessage.h>
 #include <cmbechomessage.h>
 #include <cmbendmessage.h>
-#include <cmbregisterprojectsforcodecompletionmessage.h>
-#include <cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <cmbunregisterprojectsforcodecompletionmessage.h>
-#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbregisterprojectsforeditormessage.h>
+#include <cmbregistertranslationunitsforeditormessage.h>
+#include <cmbunregisterprojectsforeditormessage.h>
+#include <cmbunregistertranslationunitsforeditormessage.h>
 #include <connectionclient.h>
 #include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
@@ -112,29 +112,29 @@ TEST_F(ClientServerOutsideProcess, RestartProcessAfterTermination)
     ASSERT_TRUE(clientSpy.wait(100000));
 }
 
-TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForCodeCompletionMessage)
+TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForEditorMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
-    ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage registerTranslationUnitForCodeCompletionMessage({fileContainer});
-    EchoMessage echoMessage(QVariant::fromValue(registerTranslationUnitForCodeCompletionMessage));
+    ClangBackEnd::RegisterTranslationUnitForEditorMessage registerTranslationUnitForEditorMessage({fileContainer});
+    EchoMessage echoMessage(QVariant::fromValue(registerTranslationUnitForEditorMessage));
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
 
-    client.serverProxy().registerTranslationUnitsForCodeCompletion(registerTranslationUnitForCodeCompletionMessage);
+    client.serverProxy().registerTranslationUnitsForEditor(registerTranslationUnitForEditorMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
-TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForCodeCompletionMessage)
+TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForEditorMessage)
 {
     FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
-    ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage unregisterTranslationUnitsForCodeCompletionMessage ({fileContainer});
-    EchoMessage echoMessage(QVariant::fromValue(unregisterTranslationUnitsForCodeCompletionMessage));
+    ClangBackEnd::UnregisterTranslationUnitsForEditorMessage unregisterTranslationUnitsForEditorMessage ({fileContainer});
+    EchoMessage echoMessage(QVariant::fromValue(unregisterTranslationUnitsForEditorMessage));
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
 
-    client.serverProxy().unregisterTranslationUnitsForCodeCompletion(unregisterTranslationUnitsForCodeCompletionMessage);
+    client.serverProxy().unregisterTranslationUnitsForEditor(unregisterTranslationUnitsForEditorMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
@@ -150,28 +150,28 @@ TEST_F(ClientServerOutsideProcess, SendCompleteCodeMessage)
     ASSERT_TRUE(client.waitForEcho());
 }
 
-TEST_F(ClientServerOutsideProcess, SendRegisterProjectPartsForCodeCompletionMessage)
+TEST_F(ClientServerOutsideProcess, SendRegisterProjectPartsForEditorMessage)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage registerProjectPartsForCodeCompletionMessage({projectContainer});
-    EchoMessage echoMessage(QVariant::fromValue(registerProjectPartsForCodeCompletionMessage));
+    ClangBackEnd::RegisterProjectPartsForEditorMessage registerProjectPartsForEditorMessage({projectContainer});
+    EchoMessage echoMessage(QVariant::fromValue(registerProjectPartsForEditorMessage));
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
 
-    client.serverProxy().registerProjectPartsForCodeCompletion(registerProjectPartsForCodeCompletionMessage);
+    client.serverProxy().registerProjectPartsForEditor(registerProjectPartsForEditorMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
-TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForCodeCompletionMessage)
+TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
 {
-    ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage unregisterProjectPartsForCodeCompletionMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
-    EchoMessage echoMessage(QVariant::fromValue(unregisterProjectPartsForCodeCompletionMessage));
+    ClangBackEnd::UnregisterProjectPartsForEditorMessage unregisterProjectPartsForEditorMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
+    EchoMessage echoMessage(QVariant::fromValue(unregisterProjectPartsForEditorMessage));
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
 
-    client.serverProxy().unregisterProjectPartsForCodeCompletion(unregisterProjectPartsForCodeCompletionMessage);
+    client.serverProxy().unregisterProjectPartsForEditor(unregisterProjectPartsForEditorMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 

@@ -32,8 +32,8 @@
 
 #include "clangbackendipcdebugutils.h"
 #include "cmbcompletecodemessage.h"
-#include "cmbregistertranslationunitsforcodecompletionmessage.h"
-#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
+#include "cmbunregistertranslationunitsforeditormessage.h"
 
 #include <QCoreApplication>
 #include <QProcess>

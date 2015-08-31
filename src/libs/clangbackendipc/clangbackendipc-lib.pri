@@ -24,14 +24,14 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/connectionclient.cpp \
     $$PWD/cmbechomessage.cpp \
     $$PWD/ipcclientdispatcher.cpp \
-    $$PWD/cmbregistertranslationunitsforcodecompletionmessage.cpp \
+    $$PWD/cmbregistertranslationunitsforeditormessage.cpp \
     $$PWD/filecontainer.cpp \
-    $$PWD/cmbunregistertranslationunitsforcodecompletionmessage.cpp \
+    $$PWD/cmbunregistertranslationunitsforeditormessage.cpp \
     $$PWD/cmbcompletecodemessage.cpp \
     $$PWD/cmbcodecompletedmessage.cpp \
     $$PWD/codecompletion.cpp \
-    $$PWD/cmbregisterprojectsforcodecompletionmessage.cpp \
-    $$PWD/cmbunregisterprojectsforcodecompletionmessage.cpp \
+    $$PWD/cmbregisterprojectsforeditormessage.cpp \
+    $$PWD/cmbunregisterprojectsforeditormessage.cpp \
     $$PWD/translationunitdoesnotexistmessage.cpp \
     $$PWD/codecompletionchunk.cpp \
     $$PWD/projectpartcontainer.cpp \
@@ -60,14 +60,14 @@ HEADERS += \
     $$PWD/connectionclient.h \
     $$PWD/cmbechomessage.h \
     $$PWD/ipcclientdispatcher.h \
-    $$PWD/cmbregistertranslationunitsforcodecompletionmessage.h \
+    $$PWD/cmbregistertranslationunitsforeditormessage.h \
     $$PWD/filecontainer.h \
-    $$PWD/cmbunregistertranslationunitsforcodecompletionmessage.h \
+    $$PWD/cmbunregistertranslationunitsforeditormessage.h \
     $$PWD/cmbcompletecodemessage.h \
     $$PWD/cmbcodecompletedmessage.h \
     $$PWD/codecompletion.h \
-    $$PWD/cmbregisterprojectsforcodecompletionmessage.h \
-    $$PWD/cmbunregisterprojectsforcodecompletionmessage.h \
+    $$PWD/cmbregisterprojectsforeditormessage.h \
+    $$PWD/cmbunregisterprojectsforeditormessage.h \
     $$PWD/translationunitdoesnotexistmessage.h \
     $$PWD/codecompletionchunk.h \
     $$PWD/projectpartcontainer.h \

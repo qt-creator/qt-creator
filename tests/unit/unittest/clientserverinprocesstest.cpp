@@ -42,10 +42,10 @@
 #include <cmbcompletecodemessage.h>
 #include <cmbechomessage.h>
 #include <cmbendmessage.h>
-#include <cmbregisterprojectsforcodecompletionmessage.h>
-#include <cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <cmbunregisterprojectsforcodecompletionmessage.h>
-#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbregisterprojectsforeditormessage.h>
+#include <cmbregistertranslationunitsforeditormessage.h>
+#include <cmbunregisterprojectsforeditormessage.h>
+#include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticschangedmessage.h>
 #include <requestdiagnosticsmessage.h>
 #include <readmessageblock.h>
@@ -109,28 +109,28 @@ TEST_F(ClientServerInProcess, SendAliveMessage)
     scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForCodeCompletionMessage)
+TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
                                                   Utf8StringLiteral("projectId"));
-    ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage message({fileContainer});
+    ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, registerTranslationUnitsForCodeCompletion(message))
+    EXPECT_CALL(mockIpcServer, registerTranslationUnitsForEditor(message))
         .Times(1);
 
-    serverProxy.registerTranslationUnitsForCodeCompletion(message);
+    serverProxy.registerTranslationUnitsForEditor(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForCodeCompletionMessage)
+TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForEditorMessage)
 {
     ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
-    ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage message({fileContainer});
+    ClangBackEnd::UnregisterTranslationUnitsForEditorMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForCodeCompletion(message))
+    EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForEditor(message))
         .Times(1);
 
-    serverProxy.unregisterTranslationUnitsForCodeCompletion(message);
+    serverProxy.unregisterTranslationUnitsForEditor(message);
     scheduleServerMessages();
 }
 
@@ -170,26 +170,26 @@ TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
     scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRegisterProjectPartsForCodeCompletionMessage)
+TEST_F(ClientServerInProcess, SendRegisterProjectPartsForEditorMessage)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage message({projectContainer});
+    ClangBackEnd::RegisterProjectPartsForEditorMessage message({projectContainer});
 
-    EXPECT_CALL(mockIpcServer, registerProjectPartsForCodeCompletion(message))
+    EXPECT_CALL(mockIpcServer, registerProjectPartsForEditor(message))
         .Times(1);
 
-    serverProxy.registerProjectPartsForCodeCompletion(message);
+    serverProxy.registerProjectPartsForEditor(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForCodeCompletionMessage)
+TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForEditorMessage)
 {
-    ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
+    ClangBackEnd::UnregisterProjectPartsForEditorMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
 
-    EXPECT_CALL(mockIpcServer, unregisterProjectPartsForCodeCompletion(message))
+    EXPECT_CALL(mockIpcServer, unregisterProjectPartsForEditor(message))
         .Times(1);
 
-    serverProxy.unregisterProjectPartsForCodeCompletion(message);
+    serverProxy.unregisterProjectPartsForEditor(message);
     scheduleServerMessages();
 }
 

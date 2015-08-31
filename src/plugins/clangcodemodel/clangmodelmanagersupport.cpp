@@ -39,7 +39,7 @@
 #include <cpptools/editordocumenthandle.h>
 #include <projectexplorer/project.h>
 
-#include <clangbackendipc/cmbregisterprojectsforcodecompletionmessage.h>
+#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartcontainer.h>
 #include <utils/qtcassert.h>
@@ -160,7 +160,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
     QTC_ASSERT(!filePath.isEmpty(), return);
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString projectPartId = Utils::projectPartIdForFile(filePath);
-        m_ipcCommunicator.unregisterFilesForCodeCompletion(
+        m_ipcCommunicator.unregisterFilesForEditor(
             {ClangBackEnd::FileContainer(filePath, projectPartId)});
     }
 }
@@ -176,7 +176,7 @@ void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *p
 void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectPartIds)
 {
     if (!projectPartIds.isEmpty())
-        m_ipcCommunicator.unregisterProjectPartsForCodeCompletion(projectPartIds);
+        m_ipcCommunicator.unregisterProjectPartsForEditor(projectPartIds);
 }
 
 #ifdef QT_TESTLIB_LIB

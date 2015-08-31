@@ -34,10 +34,10 @@
 #include "cmbcompletecodemessage.h"
 #include "cmbechomessage.h"
 #include "cmbendmessage.h"
-#include "cmbregisterprojectsforcodecompletionmessage.h"
-#include "cmbregistertranslationunitsforcodecompletionmessage.h"
-#include "cmbunregisterprojectsforcodecompletionmessage.h"
-#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbregisterprojectsforeditormessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
+#include "cmbunregisterprojectsforeditormessage.h"
+#include "cmbunregistertranslationunitsforeditormessage.h"
 #include "connectionserver.h"
 #include "requestdiagnosticsmessage.h"
 
@@ -58,22 +58,22 @@ void EchoIpcServer::end()
     QCoreApplication::quit();
 }
 
-void EchoIpcServer::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message)
+void EchoIpcServer::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message)
+void EchoIpcServer::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
+void EchoIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }
 
-void EchoIpcServer::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
+void EchoIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }

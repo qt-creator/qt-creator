@@ -33,7 +33,7 @@
 #include "cmbalivemessage.h"
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
-#include "cmbregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
 #include "diagnosticschangedmessage.h"
 #include "ipcserverinterface.h"
 #include "projectpartsdonotexistmessage.h"

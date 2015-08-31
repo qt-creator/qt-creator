@@ -83,8 +83,8 @@ private slots:
     void onProjectPartsRemoved(const QStringList &projectPartIds);
 
 private:
-    void updateProjectPartAndTranslationUnitForCompletion();
-    void updateTranslationUnitForCompletion(CppTools::ProjectPart &projectPart);
+    void updateProjectPartAndTranslationUnitForEditor();
+    void updateTranslationUnitForEditor(CppTools::ProjectPart &projectPart);
     QList<QTextEdit::ExtraSelection>
     generateDiagnosticHints(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
     void addClangTextMarks(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics);

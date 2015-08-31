@@ -33,10 +33,10 @@
 #include "cmbalivemessage.h"
 #include "cmbendmessage.h"
 #include "cmbechomessage.h"
-#include "cmbregistertranslationunitsforcodecompletionmessage.h"
-#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
-#include "cmbregisterprojectsforcodecompletionmessage.h"
-#include "cmbunregisterprojectsforcodecompletionmessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
+#include "cmbunregistertranslationunitsforeditormessage.h"
+#include "cmbregisterprojectsforeditormessage.h"
+#include "cmbunregisterprojectsforeditormessage.h"
 #include "cmbcompletecodemessage.h"
 #include "cmbcodecompletedmessage.h"
 #include "diagnosticcontainer.h"
@@ -64,17 +64,17 @@ void Messages::registerMessages()
     qRegisterMetaType<EchoMessage>();
     qRegisterMetaTypeStreamOperators<EchoMessage>();
 
-    qRegisterMetaType<RegisterTranslationUnitForCodeCompletionMessage>();
-    qRegisterMetaTypeStreamOperators<RegisterTranslationUnitForCodeCompletionMessage>();
-    QMetaType::registerComparators<RegisterTranslationUnitForCodeCompletionMessage>();
+    qRegisterMetaType<RegisterTranslationUnitForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<RegisterTranslationUnitForEditorMessage>();
+    QMetaType::registerComparators<RegisterTranslationUnitForEditorMessage>();
 
     qRegisterMetaType<FileContainer>();
     qRegisterMetaTypeStreamOperators<FileContainer>();
     QMetaType::registerComparators<FileContainer>();
 
-    qRegisterMetaType<UnregisterTranslationUnitsForCodeCompletionMessage>();
-    qRegisterMetaTypeStreamOperators<UnregisterTranslationUnitsForCodeCompletionMessage>();
-    QMetaType::registerComparators<UnregisterTranslationUnitsForCodeCompletionMessage>();
+    qRegisterMetaType<UnregisterTranslationUnitsForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<UnregisterTranslationUnitsForEditorMessage>();
+    QMetaType::registerComparators<UnregisterTranslationUnitsForEditorMessage>();
 
     qRegisterMetaType<CompleteCodeMessage>();
     qRegisterMetaTypeStreamOperators<CompleteCodeMessage>();
@@ -88,17 +88,17 @@ void Messages::registerMessages()
     qRegisterMetaTypeStreamOperators<CodeCompletedMessage>();
     QMetaType::registerComparators<CodeCompletedMessage>();
 
-    qRegisterMetaType<RegisterProjectPartsForCodeCompletionMessage>();
-    qRegisterMetaTypeStreamOperators<RegisterProjectPartsForCodeCompletionMessage>();
-    QMetaType::registerComparators<RegisterProjectPartsForCodeCompletionMessage>();
+    qRegisterMetaType<RegisterProjectPartsForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<RegisterProjectPartsForEditorMessage>();
+    QMetaType::registerComparators<RegisterProjectPartsForEditorMessage>();
 
     qRegisterMetaType<ProjectPartContainer>();
     qRegisterMetaTypeStreamOperators<ProjectPartContainer>();
     QMetaType::registerComparators<ProjectPartContainer>();
 
-    qRegisterMetaType<UnregisterProjectPartsForCodeCompletionMessage>();
-    qRegisterMetaTypeStreamOperators<UnregisterProjectPartsForCodeCompletionMessage>();
-    QMetaType::registerComparators<UnregisterProjectPartsForCodeCompletionMessage>();
+    qRegisterMetaType<UnregisterProjectPartsForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<UnregisterProjectPartsForEditorMessage>();
+    QMetaType::registerComparators<UnregisterProjectPartsForEditorMessage>();
 
     qRegisterMetaType<TranslationUnitDoesNotExistMessage>();
     qRegisterMetaTypeStreamOperators<TranslationUnitDoesNotExistMessage>();

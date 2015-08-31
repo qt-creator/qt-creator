@@ -33,10 +33,10 @@
 #include <cmbalivemessage.h>
 #include <cmbcompletecodemessage.h>
 #include <cmbendmessage.h>
-#include <cmbregisterprojectsforcodecompletionmessage.h>
-#include <cmbregistertranslationunitsforcodecompletionmessage.h>
-#include <cmbunregisterprojectsforcodecompletionmessage.h>
-#include <cmbunregistertranslationunitsforcodecompletionmessage.h>
+#include <cmbregisterprojectsforeditormessage.h>
+#include <cmbregistertranslationunitsforeditormessage.h>
+#include <cmbunregisterprojectsforeditormessage.h>
+#include <cmbunregistertranslationunitsforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
 #include <ipcclientinterface.h>
 
@@ -71,22 +71,22 @@ void IpcServerProxy::end()
     writeMessageBlock.write(QVariant::fromValue(EndMessage()));
 }
 
-void IpcServerProxy::registerTranslationUnitsForCodeCompletion(const RegisterTranslationUnitForCodeCompletionMessage &message)
+void IpcServerProxy::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::unregisterTranslationUnitsForCodeCompletion(const UnregisterTranslationUnitsForCodeCompletionMessage &message)
+void IpcServerProxy::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::registerProjectPartsForCodeCompletion(const RegisterProjectPartsForCodeCompletionMessage &message)
+void IpcServerProxy::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }
 
-void IpcServerProxy::unregisterProjectPartsForCodeCompletion(const UnregisterProjectPartsForCodeCompletionMessage &message)
+void IpcServerProxy::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

@@ -42,14 +42,14 @@ class MockIpcServer : public ClangBackEnd::IpcServerInterface {
 public:
     MOCK_METHOD0(end,
                  void());
-    MOCK_METHOD1(registerTranslationUnitsForCodeCompletion,
-                 void(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage &message));
-    MOCK_METHOD1(unregisterTranslationUnitsForCodeCompletion,
-                 void(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage &message));
-    MOCK_METHOD1(registerProjectPartsForCodeCompletion,
-                 void(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message));
-    MOCK_METHOD1(unregisterProjectPartsForCodeCompletion,
-                 void(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message));
+    MOCK_METHOD1(registerTranslationUnitsForEditor,
+                 void(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message));
+    MOCK_METHOD1(unregisterTranslationUnitsForEditor,
+                 void(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message));
+    MOCK_METHOD1(registerProjectPartsForEditor,
+                 void(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message));
+    MOCK_METHOD1(unregisterProjectPartsForEditor,
+                 void(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message));
     MOCK_METHOD1(completeCode,
                  void(const ClangBackEnd::CompleteCodeMessage &message));
     MOCK_METHOD1(requestDiagnostics,

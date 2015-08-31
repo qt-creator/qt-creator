@@ -95,10 +95,10 @@ public:
     virtual ~IpcSenderInterface() {}
 
     virtual void end() = 0;
-    virtual void registerTranslationUnitsForCodeCompletion(const ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage &message) = 0;
-    virtual void unregisterTranslationUnitsForCodeCompletion(const ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage &message) = 0;
-    virtual void registerProjectPartsForCodeCompletion(const ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage &message) = 0;
-    virtual void unregisterProjectPartsForCodeCompletion(const ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage &message) = 0;
+    virtual void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) = 0;
+    virtual void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) = 0;
+    virtual void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) = 0;
+    virtual void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
 };
@@ -115,10 +115,10 @@ public:
 public:
     IpcCommunicator();
 
-    void registerFilesForCodeCompletion(const FileContainers &fileContainers);
-    void unregisterFilesForCodeCompletion(const FileContainers &fileContainers);
-    void registerProjectPartsForCodeCompletion(const ProjectPartContainers &projectPartContainers);
-    void unregisterProjectPartsForCodeCompletion(const QStringList &projectPartIds);
+    void registerFilesForEditor(const FileContainers &fileContainers);
+    void unregisterFilesForEditor(const FileContainers &fileContainers);
+    void registerProjectPartsForEditor(const ProjectPartContainers &projectPartContainers);
+    void unregisterProjectPartsForEditor(const QStringList &projectPartIds);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,

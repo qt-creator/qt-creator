@@ -31,10 +31,10 @@
 #include "ipcserverinterface.h"
 
 #include "cmbcompletecodemessage.h"
-#include "cmbregisterprojectsforcodecompletionmessage.h"
-#include "cmbregistertranslationunitsforcodecompletionmessage.h"
-#include "cmbunregisterprojectsforcodecompletionmessage.h"
-#include "cmbunregistertranslationunitsforcodecompletionmessage.h"
+#include "cmbregisterprojectsforeditormessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
+#include "cmbunregisterprojectsforeditormessage.h"
+#include "cmbunregistertranslationunitsforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
 
 #include <QDebug>
@@ -45,10 +45,10 @@ namespace ClangBackEnd {
 void IpcServerInterface::dispatch(const QVariant &message)
 {
     static const int endMessageType = QMetaType::type("ClangBackEnd::EndMessage");
-    static const int registerTranslationUnitsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::RegisterTranslationUnitForCodeCompletionMessage");
-    static const int unregisterTranslationUnitsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForCodeCompletionMessage");
-    static const int registerProjectPartsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForCodeCompletionMessage");
-    static const int unregisterProjectPartsForCodeCompletionMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForCodeCompletionMessage");
+    static const int registerTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterTranslationUnitForEditorMessage");
+    static const int unregisterTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForEditorMessage");
+    static const int registerProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForEditorMessage");
+    static const int unregisterProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForEditorMessage");
     static const int completeCodeMessageType = QMetaType::type("ClangBackEnd::CompleteCodeMessage");
     static const int requestDiagnosticsMessageType = QMetaType::type("ClangBackEnd::RequestDiagnosticsMessage");
 
@@ -56,14 +56,14 @@ void IpcServerInterface::dispatch(const QVariant &message)
 
     if (type == endMessageType)
         end();
-    else if (type == registerTranslationUnitsForCodeCompletionMessageType)
-        registerTranslationUnitsForCodeCompletion(message.value<RegisterTranslationUnitForCodeCompletionMessage>());
-    else if (type == unregisterTranslationUnitsForCodeCompletionMessageType)
-        unregisterTranslationUnitsForCodeCompletion(message.value<UnregisterTranslationUnitsForCodeCompletionMessage>());
-    else if (type == registerProjectPartsForCodeCompletionMessageType)
-        registerProjectPartsForCodeCompletion(message.value<RegisterProjectPartsForCodeCompletionMessage>());
-    else if (type == unregisterProjectPartsForCodeCompletionMessageType)
-        unregisterProjectPartsForCodeCompletion(message.value<UnregisterProjectPartsForCodeCompletionMessage>());
+    else if (type == registerTranslationUnitsForEditorMessageType)
+        registerTranslationUnitsForEditor(message.value<RegisterTranslationUnitForEditorMessage>());
+    else if (type == unregisterTranslationUnitsForEditorMessageType)
+        unregisterTranslationUnitsForEditor(message.value<UnregisterTranslationUnitsForEditorMessage>());
+    else if (type == registerProjectPartsForEditorMessageType)
+        registerProjectPartsForEditor(message.value<RegisterProjectPartsForEditorMessage>());
+    else if (type == unregisterProjectPartsForEditorMessageType)
+        unregisterProjectPartsForEditor(message.value<UnregisterProjectPartsForEditorMessage>());
     else if (type == completeCodeMessageType)
         completeCode(message.value<CompleteCodeMessage>());
     else if (type == requestDiagnosticsMessageType)
