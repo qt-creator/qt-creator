@@ -63,7 +63,8 @@ CppTools::CppModelManager *mm()
 namespace CppEditor {
 namespace Internal {
 
-enum { processDocumentIntervalInMs = 150 };
+enum { processDocumentIntervalInMs = 150,
+       clangProcessDocumentIntervalInMs = 500 };
 
 class CppEditorDocumentHandleImpl : public CppTools::CppEditorDocumentHandle
 {
@@ -112,10 +113,6 @@ CppEditorDocument::CppEditorDocument()
     connect(this, SIGNAL(reloadFinished(bool)), this, SLOT(onReloadFinished()));
     connect(this, &IDocument::filePathChanged,
             this, &CppEditorDocument::onFilePathChanged);
-
-    m_processorTimer.setSingleShot(true);
-    m_processorTimer.setInterval(processDocumentIntervalInMs);
-    connect(&m_processorTimer, SIGNAL(timeout()), this, SLOT(processDocument()));
 
     // See also onFilePathChanged() for more initialization
 }
@@ -185,6 +182,8 @@ void CppEditorDocument::onMimeTypeChanged()
     m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = mm()->completionAssistProvider(mt);
+
+    initializeTimer();
 }
 
 void CppEditorDocument::onAboutToReload()
@@ -225,7 +224,7 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
 void CppEditorDocument::scheduleProcessDocument()
 {
     m_processorRevision = document()->revision();
-    m_processorTimer.start(processDocumentIntervalInMs);
+    m_processorTimer.start();
 }
 
 void CppEditorDocument::processDocument()
@@ -288,6 +287,21 @@ void CppEditorDocument::releaseResources()
     if (m_processor)
         disconnect(m_processor.data(), 0, this, 0);
     m_processor.reset();
+}
+
+void CppEditorDocument::initializeTimer()
+{
+    m_processorTimer.setSingleShot(true);
+    if (mm()->isManagedByModelManagerSupport(this, QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID)))
+        m_processorTimer.setInterval(clangProcessDocumentIntervalInMs);
+    else
+        m_processorTimer.setInterval(processDocumentIntervalInMs);
+
+    connect(&m_processorTimer,
+            &QTimer::timeout,
+            this,
+            &CppEditorDocument::processDocument,
+            Qt::UniqueConnection);
 }
 
 CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()

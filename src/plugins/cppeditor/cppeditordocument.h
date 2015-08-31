@@ -100,6 +100,8 @@ private:
     void updatePreprocessorSettings();
     void releaseResources();
 
+    void initializeTimer();
+
 private:
     bool m_fileIsBeingReloaded;
     bool m_isObjCEnabled;
