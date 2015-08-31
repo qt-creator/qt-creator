@@ -62,7 +62,7 @@ void TranslationUnits::createOrUpdate(const QVector<FileContainer> &fileContaine
 {
     for (const FileContainer &fileContainer : fileContainers) {
         createOrUpdateTranslationUnit(fileContainer);
-        updateTranslationUnitsWithChangedDependencies(fileContainer.filePath());
+        updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
     }
 }
 
@@ -82,17 +82,8 @@ void TranslationUnits::remove(const QVector<FileContainer> &fileContainers)
 {
     checkIfProjectPartsExists(fileContainers);
 
-    QVector<FileContainer> processedFileContainers = fileContainers;
-
-    auto removeBeginIterator = std::remove_if(translationUnits_.begin(), translationUnits_.end(), [&processedFileContainers] (const TranslationUnit &translationUnit) {
-        return removeFromFileContainer(processedFileContainers, translationUnit);
-    });
-
-    translationUnits_.erase(removeBeginIterator, translationUnits_.end());
-
-    if (!processedFileContainers.isEmpty())
-        throw TranslationUnitDoesNotExistException(processedFileContainers.first());
-
+    removeTranslationUnits(fileContainers);
+    updateTranslationUnitsWithChangedDependencies(fileContainers);
 }
 
 const TranslationUnit &TranslationUnits::translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const
@@ -127,10 +118,16 @@ void TranslationUnits::addWatchedFiles(QSet<Utf8String> &filePaths)
     fileSystemWatcher.addFiles(filePaths);
 }
 
-void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const Utf8String &filePath)
+void TranslationUnits::updateTranslationUnitsWithChangedDependency(const Utf8String &filePath)
 {
     for (auto &translationUnit : translationUnits_)
         translationUnit.setDirtyIfDependencyIsMet(filePath);
+}
+
+void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers)
+{
+    for (const FileContainer &fileContainer : fileContainers)
+        updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
 }
 
 void TranslationUnits::sendChangedDiagnostics()
@@ -226,6 +223,20 @@ void TranslationUnits::sendDiagnosticChangedMessage(const TranslationUnit &trans
 
         sendDiagnosticsChangedCallback(std::move(message));
     }
+}
+
+void TranslationUnits::removeTranslationUnits(const QVector<FileContainer> &fileContainers)
+{
+    QVector<FileContainer> processedFileContainers = fileContainers;
+
+    auto removeBeginIterator = std::remove_if(translationUnits_.begin(), translationUnits_.end(), [&processedFileContainers] (const TranslationUnit &translationUnit) {
+        return removeFromFileContainer(processedFileContainers, translationUnit);
+    });
+
+    translationUnits_.erase(removeBeginIterator, translationUnits_.end());
+
+    if (!processedFileContainers.isEmpty())
+        throw TranslationUnitDoesNotExistException(processedFileContainers.first());
 }
 
 } // namespace ClangBackEnd

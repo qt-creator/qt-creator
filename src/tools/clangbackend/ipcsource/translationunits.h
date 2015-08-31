@@ -63,7 +63,8 @@ public:
 
     void addWatchedFiles(QSet<Utf8String> &filePaths);
 
-    void updateTranslationUnitsWithChangedDependencies(const Utf8String &filePath);
+    void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
+    void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
 
     void sendChangedDiagnostics();
 
@@ -80,6 +81,7 @@ private:
     void checkIfProjectPartExists(const Utf8String &projectFileName) const;
     void checkIfProjectPartsExists(const QVector<FileContainer> &fileContainers) const;
     void sendDiagnosticChangedMessage(const TranslationUnit &translationUnit);
+    void removeTranslationUnits(const QVector<FileContainer> &fileContainers);
 
 private:
     ClangFileSystemWatcher fileSystemWatcher;

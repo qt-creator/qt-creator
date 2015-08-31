@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include <diagnosticset.h>
 #include <filecontainer.h>
 #include <projectpartcontainer.h>
 #include <projectpart.h>
@@ -147,6 +148,32 @@ TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForReparse)
     translationUnits.createOrUpdate({headerContainerWithUnsavedContent});
 
     ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).isNeedingReparse());
+}
+
+TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForDiagnostics)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, 74u);
+    ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
+    translationUnits.createOrUpdate({fileContainer, headerContainer});
+    translationUnits.translationUnit(filePath, projectPartId).diagnostics();
+
+    translationUnits.createOrUpdate({headerContainerWithUnsavedContent});
+
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewDiagnostics());
+}
+
+TEST_F(TranslationUnits, RemoveFileAndCheckForDiagnostics)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, 74u);
+    ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
+    translationUnits.createOrUpdate({fileContainer, headerContainer});
+    translationUnits.translationUnit(filePath, projectPartId).diagnostics();
+
+    translationUnits.remove({headerContainerWithUnsavedContent});
+
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewDiagnostics());
 }
 
 TEST_F(TranslationUnits, DontGetNewerFileContainerIfRevisionIsTheSame)
