@@ -139,7 +139,7 @@ void QmlProfilerFileReader::setFuture(QFutureInterface<void> *future)
 bool QmlProfilerFileReader::load(QIODevice *device)
 {
     if (m_future) {
-        m_future->setProgressRange(0, qMin(device->size(), qint64(INT_MAX)));
+        m_future->setProgressRange(0, 1000);
         m_future->setProgressValue(0);
     }
 
@@ -474,7 +474,7 @@ void QmlProfilerFileReader::progress(QIODevice *device)
     if (!m_future)
         return;
 
-    m_future->setProgressValue(qMin(device->pos(), qint64(INT_MAX)));
+    m_future->setProgressValue(device->pos() * 1000 / device->size());
 }
 
 bool QmlProfilerFileReader::isCanceled() const
