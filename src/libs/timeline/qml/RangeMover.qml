@@ -35,12 +35,12 @@ Item {
     anchors.fill: parent
     signal rangeDoubleClicked()
 
-    property color handleColor: "#869cd1"
+    property color handleColor: "#fe869cd1"
     property color rangeColor:"#444a64b8"
     property color dragColor:"#664a64b8"
     property color borderColor:"#cc4a64b8"
-    property color dragMarkerColor: "#4a64b8"
-    property color singleLineColor: "#4a64b8"
+    property color dragMarkerColor: "#fe4a64b8"
+    property color singleLineColor: "#fe4a64b8"
 
     property alias rangeLeft: leftRange.x
     property alias rangeRight: rightRange.x
