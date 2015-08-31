@@ -951,6 +951,14 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor) const
     return editor->context().contains(ProjectExplorer::Constants::LANG_CXX);
 }
 
+bool CppModelManager::isManagedByModelManagerSupport(Core::IDocument *document, const QString &id) const
+{
+    auto documentMimeTupe = document->mimeType();
+    auto codeModelSettings = CppToolsPlugin::instance()->codeModelSettings();
+
+    return codeModelSettings->hasModelManagerSupportIdForMimeType(documentMimeTupe, id);
+}
+
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 {
     if (replaceDocument(doc))

@@ -62,6 +62,7 @@ public:
 
     QString modelManagerSupportIdForMimeType(const QString &mimeType) const;
     void setModelManagerSupportIdForMimeType(const QString &mimeType, const QString &id);
+    bool hasModelManagerSupportIdForMimeType(const QString &mimeType, const QString &id) const;
 
     const QHash<QString, QString> &availableModelManagerSupportProvidersByName() const
     { return m_modelManagerSupportsByName; }

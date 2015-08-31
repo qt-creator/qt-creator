@@ -42,7 +42,11 @@
 #include <QObject>
 #include <QStringList>
 
-namespace Core { class IEditor; }
+
+namespace Core {
+class IDocument;
+class IEditor;
+}
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor { class TextDocument; }
@@ -116,6 +120,7 @@ public:
     void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     bool isCppEditor(Core::IEditor *editor) const;
+    bool isManagedByModelManagerSupport(Core::IDocument *document, const QString &id) const;
 
     QSet<AbstractEditorSupport*> abstractEditorSupports() const;
     void addExtraEditorSupport(AbstractEditorSupport *editorSupport);

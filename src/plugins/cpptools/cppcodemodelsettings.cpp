@@ -107,6 +107,15 @@ void CppCodeModelSettings::setModelManagerSupportIdForMimeType(const QString &mi
     m_modelManagerSupportByMimeType.insert(theMimeType, id);
 }
 
+bool CppCodeModelSettings::hasModelManagerSupportIdForMimeType(const QString &mimeType,
+                                                               const QString &id) const
+{
+    if (mimeType == cHeaderMimeType)
+        return m_modelManagerSupportByMimeType.value(cppHeaderMimeType) == id;
+    else
+        return m_modelManagerSupportByMimeType.value(mimeType) == id;
+}
+
 void CppCodeModelSettings::setIdForMimeType(const QVariant &var, const QString &mimeType)
 {
     QHash<QString, QVariant> mimeToId = var.toHash();
