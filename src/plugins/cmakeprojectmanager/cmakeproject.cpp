@@ -646,16 +646,14 @@ void CMakeProject::updateRunConfigurations()
 // TODO Compare with updateDefaultRunConfigurations();
 void CMakeProject::updateRunConfigurations(Target *t)
 {
+    // create new and remove obsolete RCs using the factories
+    t->updateDefaultRunConfigurations();
+
     // *Update* runconfigurations:
     QMultiMap<QString, CMakeRunConfiguration*> existingRunConfigurations;
-    QList<ProjectExplorer::RunConfiguration *> toRemove;
     foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations()) {
         if (CMakeRunConfiguration* cmakeRC = qobject_cast<CMakeRunConfiguration *>(rc))
             existingRunConfigurations.insert(cmakeRC->title(), cmakeRC);
-        QtSupport::CustomExecutableRunConfiguration *ceRC =
-                qobject_cast<QtSupport::CustomExecutableRunConfiguration *>(rc);
-        if (ceRC && !ceRC->isConfigured())
-            toRemove << rc;
     }
 
     foreach (const CMakeBuildTarget &ct, buildTargets()) {
@@ -671,27 +669,8 @@ void CMakeProject::updateRunConfigurations(Target *t)
                 rc->setBaseWorkingDirectory(ct.workingDirectory);
                 rc->setEnabled(true);
             }
-            existingRunConfigurations.remove(ct.title);
-        } else {
-            // Does not exist yet
-            Core::Id id = CMakeRunConfigurationFactory::idFromBuildTarget(ct.title);
-            CMakeRunConfiguration *rc = new CMakeRunConfiguration(t, id, ct.executable,
-                                                                  ct.workingDirectory, ct.title);
-            t->addRunConfiguration(rc);
         }
     }
-    QMultiMap<QString, CMakeRunConfiguration *>::const_iterator it =
-            existingRunConfigurations.constBegin();
-    for ( ; it != existingRunConfigurations.constEnd(); ++it) {
-        CMakeRunConfiguration *rc = it.value();
-        // The executables for those runconfigurations aren't build by the current buildconfiguration
-        // We just set a disable flag and show that in the display name
-        rc->setEnabled(false);
-        // removeRunConfiguration(rc);
-    }
-
-    foreach (ProjectExplorer::RunConfiguration *rc, toRemove)
-        t->removeRunConfiguration(rc);
 
     if (t->runConfigurations().isEmpty()) {
         // Oh no, no run configuration,
