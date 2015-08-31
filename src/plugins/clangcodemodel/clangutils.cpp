@@ -207,6 +207,7 @@ private:
         add(QStringLiteral("-Weverything"));
         add(QStringLiteral("-Wno-c++98-compat"));
         add(QStringLiteral("-Wno-c++98-compat-pedantic"));
+        add(QStringLiteral("-Wno-unused-macros"));
         add(QStringLiteral("-fmessage-length=0"));
         add(QStringLiteral("-fdiagnostics-show-note-include-stack"));
         add(QStringLiteral("-fmacro-backtrace-limit=0"));
