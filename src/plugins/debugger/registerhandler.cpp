@@ -588,7 +588,7 @@ QVariant RegisterEditItem::data(int column, int role) const
         case Qt::ToolTipRole: {
                 RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
                 return RegisterHandler::tr("Edit bits %1...%2 of register %3")
-                        .arg(m_index * 8).arg(m_index * 8 + 8)
+                        .arg(m_index * 8).arg(m_index * 8 + 7)
                         .arg(QString::fromLatin1(registerItem->m_reg.name));
             }
         default:
