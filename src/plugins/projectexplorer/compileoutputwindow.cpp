@@ -149,7 +149,9 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setPalette(p);
 
     m_cancelBuildButton->setDefaultAction(cancelBuildAction);
+    m_zoomInButton->setToolTip(tr("Increase Font Size"));
     m_zoomInButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
+    m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
     m_zoomOutButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
 
     updateZoomEnabled();
