@@ -47,7 +47,8 @@
                 {List of Qt Quick Examples}
 
         \row
-            \li Develop Qt applications for desktop and mobile devices
+            \li Develop Qt applications for desktop and embedded or mobile
+                devices
             \li \l{https://www.qt.io/developers/}{Qt Developers}
 
         \row

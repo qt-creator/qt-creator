@@ -218,8 +218,10 @@ static inline QStringList getPluginPaths()
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-            + QLatin1String("/data");
+    pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    pluginPath += QLatin1String("/data");
+#endif
     pluginPath += QLatin1Char('/')
             + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
             + QLatin1Char('/');
@@ -297,6 +299,8 @@ int main(int argc, char **argv)
             && !qEnvironmentVariableIsSet("QT_DEVICE_PIXEL_RATIO")) {
         qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
     }
+#else
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 #endif // < Qt 5.6
 
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));

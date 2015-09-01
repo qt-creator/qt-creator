@@ -369,6 +369,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
     QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
+    QEXPECT_FAIL("qualifiedNames", "Regression since e0594fc9b906a32f5c8ac70265490cf86044676f", Abort);
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
     QCOMPARE(currentTextEditor->currentColumn() - 1, expectedColumn);
 
@@ -971,6 +972,20 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     QTest::newRow("template_alias") << _(
         "template<class $T>\n"
         "using Foo = Bar<@T>;\n"
+    );
+
+    QTest::newRow("qualifiedNames") << _(
+        "struct C\n"
+        "{\n"
+        "    struct Nested { int $member; };\n"
+        "    void f();\n"
+        "};\n"
+        "\n"
+        "void C::f()\n"
+        "{\n"
+        "    C::Nested object;\n"
+        "    object.@member;\n"
+        "}\n"
     );
 }
 

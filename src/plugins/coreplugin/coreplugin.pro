@@ -16,7 +16,6 @@ SOURCES += corejsextensions.cpp \
     shellcommand.cpp \
     editmode.cpp \
     iwizardfactory.cpp \
-    tabpositionindicator.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
@@ -124,7 +123,6 @@ HEADERS += corejsextensions.h \
     shellcommand.h \
     editmode.h \
     iwizardfactory.h \
-    tabpositionindicator.h \
     fancyactionbar.h \
     fancytabwidget.h \
     generalsettings.h \

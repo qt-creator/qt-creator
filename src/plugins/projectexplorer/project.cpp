@@ -384,11 +384,8 @@ Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMe
 
     for (int i = 0; i < maxI; ++i) {
         const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
-        if (!map.contains(key)) {
-            if (errorMessage)
-                *errorMessage = tr("Target key %1 was not found in project settings.").arg(key);
-            return RestoreResult::Error;
-        }
+        if (!map.contains(key))
+            continue;
         QVariantMap targetMap = map.value(key).toMap();
 
         Target *t = restoreTarget(targetMap);

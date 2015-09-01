@@ -56,6 +56,7 @@ public:
     QList<GdbServerProvider *> providers() const;
     QList<GdbServerProviderFactory *> factories() const;
     GdbServerProvider *findProvider(const QString &id) const;
+    GdbServerProvider *findByDisplayName(const QString &displayName) const;
     bool registerProvider(GdbServerProvider *);
     void deregisterProvider(GdbServerProvider *);
 

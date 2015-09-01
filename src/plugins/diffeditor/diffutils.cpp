@@ -892,6 +892,8 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
     // will be followed by: index shasha..0000000, file "b" replaced by "/dev/null", @@ -m,n +0,0 @@
     const QRegExp deletedFileMode(QLatin1String("^deleted file mode \\d+\\n")); // deleted file mode octal
 
+    const QRegExp modeChangeRegExp(QLatin1String("^old mode \\d+\\nnew mode \\d+\\n"));
+
     const QRegExp indexRegExp(QLatin1String("^index (\\w+)\\.{2}(\\w+)(?: \\d+)?(\\n|$)")); // index cap1..cap2(optionally: octal)
 
     QString leftFileName = QLatin1String("a/") + fileName;
@@ -905,6 +907,8 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
         fileData.fileOperation = FileData::DeleteFile;
         rightFileName = devNull;
         patch.remove(0, deletedFileMode.matchedLength());
+    } else if (modeChangeRegExp.indexIn(patch) == 0) {
+        patch.remove(0, modeChangeRegExp.matchedLength());
     }
 
     if (indexRegExp.indexIn(patch) == 0) {

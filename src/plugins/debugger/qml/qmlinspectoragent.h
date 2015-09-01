@@ -32,6 +32,7 @@
 #define QMLINSPECTORAGENT_H
 
 #include <QStack>
+#include <QPointer>
 #include <QTimer>
 
 #include <coreplugin/icontext.h>
@@ -127,7 +128,7 @@ private:
     void enableTools(const bool enable);
 
 private:
-    QmlEngine *m_qmlEngine;
+    QPointer<QmlEngine> m_qmlEngine;
     QmlDebug::BaseEngineDebugClient *m_engineClient;
 
     quint32 m_engineQueryId;

@@ -1001,13 +1001,11 @@ LookupScope *LookupScopePrivate::lookupType_helper(
     }
 
     if (const QualifiedNameId *qName = name->asQualifiedNameId()) {
-
-        ProcessedSet innerProcessed;
         if (! qName->base())
-            return globalNamespace()->d->lookupType_helper(qName->name(), &innerProcessed, true, origin);
+            return globalNamespace()->d->lookupType_helper(qName->name(), processed, true, origin);
 
         if (LookupScope *binding = lookupType_helper(qName->base(), processed, true, origin))
-            return binding->d->lookupType_helper(qName->name(), &innerProcessed, false, origin);
+            return binding->d->lookupType_helper(qName->name(), processed, false, origin);
 
         return 0;
 

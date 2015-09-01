@@ -76,8 +76,10 @@ struct MetaPropertyData {
 
 static bool constructedMetaData(const QQmlVMEMetaData* data)
 {
-    return data->varPropertyCount == 0
-            && data->propertyCount == 0
+    return data->propertyCount == 0
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+            && data->varPropertyCount == 0
+#endif
             && data->aliasCount == 0
             && data->signalCount == 0
             && data->methodCount == 0;
@@ -86,7 +88,9 @@ static bool constructedMetaData(const QQmlVMEMetaData* data)
 static QQmlVMEMetaData* fakeMetaData()
 {
     QQmlVMEMetaData* data = new QQmlVMEMetaData;
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     data->varPropertyCount = 0;
+#endif
     data->propertyCount = 0;
     data->aliasCount = 0;
     data->signalCount = 0;

@@ -97,7 +97,6 @@ QtcPlugin {
             "statusbarmanager.cpp", "statusbarmanager.h",
             "statusbarwidget.cpp", "statusbarwidget.h",
             "styleanimator.cpp", "styleanimator.h",
-            "tabpositionindicator.cpp", "tabpositionindicator.h",
             "textdocument.cpp", "textdocument.h",
             "themesettings.cpp", "themesettings.h", "themesettings.ui",
             "themesettingswidget.cpp", "themesettingswidget.h",

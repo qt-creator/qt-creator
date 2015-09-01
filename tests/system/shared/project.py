@@ -174,8 +174,8 @@ def __selectQtVersionDesktop__(checks, available=None):
     clickButton(waitForObject(":Next_QPushButton"))
     return checkedTargets
 
-def __createProjectHandleLastPage__(expectedFiles = None, addToVersionControl = "<None>", addToProject = None):
-    if expectedFiles != None:
+def __createProjectHandleLastPage__(expectedFiles=[], addToVersionControl="<None>", addToProject=None):
+    if len(expectedFiles):
         summary = waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' "
                                 "type='QLabel' visible='1'}").text
         verifyItemOrder(expectedFiles, summary)
@@ -241,7 +241,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
 
     clickButton(waitForObject(":Next_QPushButton"))
 
-    expectedFiles = None
+    expectedFiles = []
     if checks:
         if platform.system() in ('Windows', 'Microsoft'):
             path = os.path.abspath(path)
@@ -264,7 +264,7 @@ def createProject_Qt_Console(path, projectName, checks = True):
     __createProjectSetNameAndPath__(path, projectName, checks)
     checkedTargets = __selectQtVersionDesktop__(checks, available)
 
-    expectedFiles = None
+    expectedFiles = []
     if checks:
         if platform.system() in ('Windows', 'Microsoft'):
             path = os.path.abspath(path)
@@ -734,20 +734,47 @@ def compareProjectTree(rootObject, dataset):
             return
     test.passes("No errors found in project tree")
 
-def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addToVCS = "<None>"):
+# creates C++ file(s) and adds them to the current project if one is open
+# name                  name of the created object: filename for files, classname for classes
+# template              "C++ Class", "C++ Header File" or "C++ Source File"
+# forceOverwrite        bool: force overwriting existing files?
+# addToVCS              name of VCS to add the file(s) to
+# newBasePath           path to create the file(s) at
+# expectedSourceName    expected name of created source file
+# expectedHeaderName    expected name of created header file
+def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addToVCS="<None>",
+                                     newBasePath=None, expectedSourceName=None, expectedHeaderName=None):
     if name == None:
         test.fatal("File must have a name - got None.")
         return
     __createProjectOrFileSelectType__("  C++", template, isProject=False)
     window = "{type='ProjectExplorer::JsonWizard' unnamed='1' visible='1'}"
-    basePath = str(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                                 "window=%s}" % window).text)
-    lineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
-                             "visible='1' window=%s}" % window)
+    basePathEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                                 "window=%s}" % window)
+    if newBasePath:
+        replaceEditorContent(basePathEdit, newBasePath)
+    basePath = str(basePathEdit.text)
+    lineEdit = None
+    if template == "C++ Class":
+        lineEdit = waitForObject("{name='Class' type='QLineEdit' visible='1'}")
+    else:
+        lineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
+                                 "visible='1' window=%s}" % window)
     replaceEditorContent(lineEdit, name)
+    expectedFiles = []
+    if expectedSourceName:
+        expectedFiles += [expectedSourceName]
+        if template == "C++ Class":
+            test.compare(str(waitForObject("{name='SrcFileName' type='QLineEdit' visible='1'}").text),
+                         expectedSourceName)
+    if expectedHeaderName:
+        expectedFiles += [expectedHeaderName]
+        if template == "C++ Class":
+            test.compare(str(waitForObject("{name='HdrFileName' type='QLineEdit' visible='1'}").text),
+                         expectedHeaderName)
     clickButton(waitForObject(":Next_QPushButton"))
     fileExistedBefore = os.path.exists(os.path.join(basePath, name))
-    __createProjectHandleLastPage__(addToVersionControl = addToVCS)
+    __createProjectHandleLastPage__(expectedFiles, addToVersionControl=addToVCS)
     if (fileExistedBefore):
         overwriteDialog = "{type='Core::Internal::PromptOverwriteDialog' unnamed='1' visible='1'}"
         waitForObject(overwriteDialog)

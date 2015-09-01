@@ -48,7 +48,8 @@
         \li \l{Supported Platforms}
 
             You can install and run \QC on several operating systems to create
-            applications for multiple desktop and mobile device platforms.
+            applications for multiple desktop, embedded, and mobile device
+            platforms.
 
         \li \l{Using Other Build Systems}
 

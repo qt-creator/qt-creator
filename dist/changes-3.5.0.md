@@ -49,6 +49,8 @@ Editing
 Project Management
 
 * Fixed issues with restoring project tree state (QTCREATORBUG-14304)
+* Fixed crash when application output contains incomplete control
+  sequence (QTCREATORBUG-14720)
 
 CMake Projects
 
@@ -66,6 +68,13 @@ QML-Only Projects (.qmlproject)
 
 * Re-enabled the plugin by default
 
+Autotools Projects
+
+* Improved parsing of `CPPFLAGS`
+* Added support for line continuations
+* Added support for `top_srcdir`, `abs_top_srcdir`, `top_builddir` and
+  `abs_top_builddir`
+
 Debugging
 
 * Added dumper for `QJsonValue`, `QJsonObject`, `QJsonArray`, `QUuid`
@@ -74,6 +83,8 @@ Debugging
 * Fixed display of `QHash` keys with value 0 (QTCREATORBUG-14451)
 * Fixed variable expansion state in QML debugger
 * Fixed display of members of returned values
+* Fixed that items in Locals and Expressions did not expand on first
+  click for QML (QTCREATORBUG-14210)
 
 QML Profiler
 

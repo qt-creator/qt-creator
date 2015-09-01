@@ -55,5 +55,7 @@
                 \li \l{Using Qt Quick UI Forms}{Export button} for exporting
                     items as alias properties
             \endlist
+        \li \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Developing for
+            embedded devices}
     \endlist
 */

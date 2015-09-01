@@ -32,7 +32,8 @@
 
     By default, running an application also builds it and deploys it to a
     location from where it can be run on the desktop, on a device emulator or
-    simulator, or on a mobile device that is connected to the development PC.
+    simulator, or on an embedded device or a mobile device that is connected to
+    the development PC.
 
     To run executable files without deploying them first, select \uicontrol Build >
     \uicontrol {Run Without Deployment}. To make this the default option, deselect the

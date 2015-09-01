@@ -1759,6 +1759,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_inspectorView->setModel(engine->watchModel());
 
     engine->watchHandler()->resetWatchers();
+    m_localsView->hideProgressIndicator();
 
     m_mainWindow->setEngineDebugLanguages(engine->runParameters().languages);
 }

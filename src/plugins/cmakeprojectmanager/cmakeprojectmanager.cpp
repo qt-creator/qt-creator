@@ -39,9 +39,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 
 #include <utils/synchronousprocess.h>
 
@@ -52,10 +54,6 @@ using namespace CMakeProjectManager::Internal;
 
 CMakeManager::CMakeManager()
 {
-    ProjectExplorer::ProjectTree *tree = ProjectExplorer::ProjectTree::instance();
-    connect(tree, &ProjectExplorer::ProjectTree::aboutToShowContextMenu,
-            this, &CMakeManager::updateContextMenu);
-
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     Core::ActionContainer *mproject =
@@ -64,14 +62,15 @@ CMakeManager::CMakeManager()
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
+    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     m_runCMakeAction = new QAction(QIcon(), tr("Run CMake"), this);
     Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,
-                                                                 Constants::RUNCMAKE, projectContext);
+                                                                 Constants::RUNCMAKE, globalcontext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_runCMakeAction, &QAction::triggered, [this]() {
-        runCMake(ProjectExplorer::ProjectTree::currentProject());
+        runCMake(ProjectExplorer::SessionManager::startupProject());
     });
 
     m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run CMake"), this);
@@ -81,14 +80,20 @@ CMakeManager::CMakeManager()
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runCMakeActionContextMenu, &QAction::triggered, [this]() {
-        runCMake(m_contextProject);
+        runCMake(ProjectExplorer::ProjectTree::currentProject());
     });
+
+    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::startupProjectChanged,
+            this, &CMakeManager::updateRunCmakeAction);
+    connect(ProjectExplorer::BuildManager::instance(), &ProjectExplorer::BuildManager::buildStateChanged,
+            this, &CMakeManager::updateRunCmakeAction);
 
 }
 
-void CMakeManager::updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *)
+void CMakeManager::updateRunCmakeAction()
 {
-    m_contextProject = project;
+    auto project = qobject_cast<CMakeProject *>(ProjectExplorer::SessionManager::startupProject());
+    m_runCMakeAction->setVisible(project && !ProjectExplorer::BuildManager::isBuilding(project));
 }
 
 void CMakeManager::runCMake(ProjectExplorer::Project *project)
