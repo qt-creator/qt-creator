@@ -232,10 +232,11 @@ const char WIZARD_KIND_FILE[] = "file";
 const char SETTINGS_CATEGORY_CORE[] = "A.Core";
 const char SETTINGS_CATEGORY_CORE_ICON[] = ":/core/images/category_core.png";
 const char SETTINGS_TR_CATEGORY_CORE[] = QT_TRANSLATE_NOOP("Core", "Environment");
-const char SETTINGS_ID_ENVIRONMENT[] = "A.General";
-const char SETTINGS_ID_SHORTCUTS[] = "B.Keyboard";
-const char SETTINGS_ID_TOOLS[] = "C.ExternalTools";
-const char SETTINGS_ID_MIMETYPES[] = "D.MimeTypes";
+const char SETTINGS_ID_INTERFACE[] = "A.Interface";
+const char SETTINGS_ID_SYSTEM[] = "B.Core.System";
+const char SETTINGS_ID_SHORTCUTS[] = "C.Keyboard";
+const char SETTINGS_ID_TOOLS[] = "D.ExternalTools";
+const char SETTINGS_ID_MIMETYPES[] = "E.MimeTypes";
 
 const char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
 

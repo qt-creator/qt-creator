@@ -40,7 +40,7 @@ namespace Internal {
 ThemeSettings::ThemeSettings() :
     m_widget(0)
 {
-    setId(Constants::SETTINGS_ID_ENVIRONMENT);
+    setId(Constants::SETTINGS_ID_INTERFACE);
     setDisplayName(tr("Theme"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));

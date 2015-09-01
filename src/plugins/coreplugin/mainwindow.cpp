@@ -53,6 +53,7 @@
 #include "rightpane.h"
 #include "editormanager/ieditorfactory.h"
 #include "statusbarwidget.h"
+#include "systemsettings.h"
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
 #include "windowsupport.h"
@@ -130,6 +131,7 @@ MainWindow::MainWindow() :
     m_rightPaneWidget(0),
     m_versionDialog(0),
     m_generalSettings(new GeneralSettings),
+    m_systemSettings(new SystemSettings),
     m_shortcutSettings(new ShortcutSettings),
     m_toolSettings(new ToolSettings),
     m_mimeTypeSettings(new MimeTypeSettings),
@@ -246,6 +248,7 @@ MainWindow::~MainWindow()
 
     PluginManager::removeObject(m_shortcutSettings);
     PluginManager::removeObject(m_generalSettings);
+    PluginManager::removeObject(m_systemSettings);
     PluginManager::removeObject(m_toolSettings);
     PluginManager::removeObject(m_mimeTypeSettings);
     PluginManager::removeObject(m_systemEditor);
@@ -257,6 +260,8 @@ MainWindow::~MainWindow()
     m_shortcutSettings = 0;
     delete m_generalSettings;
     m_generalSettings = 0;
+    delete m_systemSettings;
+    m_systemSettings = 0;
     delete m_toolSettings;
     m_toolSettings = 0;
     delete m_mimeTypeSettings;
@@ -309,6 +314,7 @@ bool MainWindow::init(QString *errorMessage)
     m_progressManager->init(); // needs the status bar manager
 
     PluginManager::addObject(m_generalSettings);
+    PluginManager::addObject(m_systemSettings);
     PluginManager::addObject(m_shortcutSettings);
     PluginManager::addObject(m_toolSettings);
     PluginManager::addObject(m_mimeTypeSettings);

@@ -76,6 +76,7 @@ class StatusBarManager;
 class VersionDialog;
 class WindowSupport;
 class SystemEditor;
+class SystemSettings;
 
 class MainWindow : public Utils::AppMainWindow
 {
@@ -174,6 +175,7 @@ private:
     QMap<QWidget *, IContext *> m_contextWidgets;
 
     GeneralSettings *m_generalSettings;
+    SystemSettings *m_systemSettings;
     ShortcutSettings *m_shortcutSettings;
     ToolSettings *m_toolSettings;
     MimeTypeSettings *m_mimeTypeSettings;

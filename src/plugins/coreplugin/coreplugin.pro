@@ -116,7 +116,8 @@ SOURCES += corejsextensions.cpp \
     themeeditor/themesettingsitemdelegate.cpp \
     messagebox.cpp \
     iwelcomepage.cpp \
-    externaltoolmanager.cpp
+    externaltoolmanager.cpp \
+    systemsettings.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -232,7 +233,8 @@ HEADERS += corejsextensions.h \
     themeeditor/sectionedtablemodel.h \
     themeeditor/themesettingsitemdelegate.h \
     messagebox.h \
-    iwelcomepage.h
+    iwelcomepage.h \
+    systemsettings.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
@@ -245,7 +247,8 @@ FORMS += dialogs/newdialog.ui \
     mimetypemagicdialog.ui \
     removefiledialog.ui \
     dialogs/addtovcsdialog.ui \
-    themeeditor/themeeditorwidget.ui
+    themeeditor/themeeditorwidget.ui \
+    systemsettings.ui
 
 RESOURCES += core.qrc \
     fancyactionbar.qrc
