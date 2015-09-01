@@ -550,6 +550,7 @@ CodeAssistant::CodeAssistant() : d(new CodeAssistantPrivate(this))
 
 CodeAssistant::~CodeAssistant()
 {
+    destroyContext();
     delete d;
 }
 
