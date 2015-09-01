@@ -2093,6 +2093,11 @@ void GdbEngine::executeStepOut()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Finish function requested..."), 5000);
     postCommand("-exec-finish", RunRequest, CB(handleExecuteContinue));
+    // -exec-finish in 'main' results (correctly) in
+    //  40^error,msg="\"finish\" not meaningful in the outermost frame."
+    // However, this message does not seem to get flushed before
+    // anything else happen - i.e. "never". Force some extra output.
+    postCommand("print 32");
 }
 
 void GdbEngine::executeNext()
