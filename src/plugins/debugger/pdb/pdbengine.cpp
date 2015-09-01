@@ -42,6 +42,7 @@
 
 #include <debugger/breakhandler.h>
 #include <debugger/moduleshandler.h>
+#include <debugger/procinterrupt.h>
 #include <debugger/registerhandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/sourceutils.h>
@@ -176,6 +177,8 @@ void PdbEngine::runEngine()
 
 void PdbEngine::interruptInferior()
 {
+    QString error;
+    interruptProcess(m_proc.processId(), GdbEngineType, &error);
     notifyInferiorStopOk();
 }
 
