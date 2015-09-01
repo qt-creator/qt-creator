@@ -39,11 +39,7 @@
 
 #ifdef Q_OS_OSX
 // for file drops from Finder, working around QTBUG-40449
-namespace Utils {
-namespace Internal {
-extern QUrl filePathUrl(const QUrl &url);
-} // Internal
-} // Utils
+#include "fileutils_mac.h"
 #endif
 
 namespace Utils {

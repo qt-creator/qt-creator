@@ -49,6 +49,10 @@
 #include <shlobj.h>
 #endif
 
+#ifdef Q_OS_OSX
+#include "fileutils_mac.h"
+#endif
+
 QT_BEGIN_NAMESPACE
 QDebug operator<<(QDebug dbg, const Utils::FileName &c)
 {
@@ -282,7 +286,7 @@ bool FileUtils::makeWritable(const FileName &path)
     return QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
 }
 
-// makes sure that capitalization of directories is canonical on Windows.
+// makes sure that capitalization of directories is canonical on Windows and OS X.
 // This mimics the logic in QDeclarative_isFileCaseCorrect
 QString FileUtils::normalizePathName(const QString &name)
 {
@@ -297,7 +301,9 @@ QString FileUtils::normalizePathName(const QString &name)
     if (!SHGetPathFromIDList(file, buffer))
         return name;
     return QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const ushort *>(buffer)));
-#else // Filesystem is case-insensitive only on Windows
+#elif defined(Q_OS_OSX)
+    return Internal::normalizePathName(name);
+#else // do not try to handle case-insensitive file systems on Linux
     return name;
 #endif
 }

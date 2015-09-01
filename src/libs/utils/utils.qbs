@@ -270,7 +270,7 @@ QtcLibrary {
         name: "FileUtils_osx"
         condition: qbs.targetOS.contains("osx")
         files: [
-            "fileutils_mac.mm",
+            "fileutils_mac.h", "fileutils_mac.mm",
         ]
     }
 
