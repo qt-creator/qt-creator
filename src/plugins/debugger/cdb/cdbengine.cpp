@@ -2408,17 +2408,17 @@ void CdbEngine::parseOutputLine(QByteArray line)
             QTC_ASSERT(token == m_currentBuiltinResponseToken, return);
             if (boolSetting(VerboseLog))
                 showMessage(QLatin1String(m_currentBuiltinResponse), LogMisc);
+            if (command.callback) {
+                DebuggerResponse response;
+                response.token = token;
+                response.data.m_name = "data";
+                response.data.m_data = m_currentBuiltinResponse;
+                response.data.m_type = GdbMi::Tuple;
+                response.resultClass = ResultDone;
+                command.callback(response);
+            }
             m_currentBuiltinResponseToken = -1;
             m_currentBuiltinResponse.clear();
-            if (!command.callback)
-                return;
-            DebuggerResponse response;
-            response.token = token;
-            response.data.m_name = "data";
-            response.data.m_data = m_currentBuiltinResponse;
-            response.data.m_type = GdbMi::Tuple;
-            response.resultClass = ResultDone;
-            command.callback(response);
         } else {
             // Record output of current command
             if (!m_currentBuiltinResponse.isEmpty())
