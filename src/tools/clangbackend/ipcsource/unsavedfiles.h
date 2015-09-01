@@ -64,7 +64,7 @@ public:
     void remove(const QVector<FileContainer> &fileContainers);
     void clear();
 
-    int count() const;
+    uint count() const;
 
     CXUnsavedFile *cxUnsavedFiles() const;
     const std::vector<CXUnsavedFile> &cxUnsavedFileVector() const;

@@ -324,7 +324,7 @@ void TranslationUnit::updateIncludeFilePaths() const
     d->translationUnits.addWatchedFiles(d->dependedFilePaths);
 }
 
-int TranslationUnit::defaultOptions()
+uint TranslationUnit::defaultOptions()
 {
     return CXTranslationUnit_CacheCompletionResults
          | CXTranslationUnit_PrecompiledPreamble

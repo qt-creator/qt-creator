@@ -106,9 +106,9 @@ void UnsavedFiles::clear()
     updateLastChangeTimePoint();
 }
 
-int UnsavedFiles::count() const
+uint UnsavedFiles::count() const
 {
-    return d->cxUnsavedFiles.size();
+    return uint(d->cxUnsavedFiles.size());
 }
 
 CXUnsavedFile *UnsavedFiles::cxUnsavedFiles() const

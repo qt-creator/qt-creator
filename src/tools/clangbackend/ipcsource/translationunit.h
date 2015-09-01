@@ -116,7 +116,7 @@ private:
     void reparseTranslationUnit() const;
     void reparseTranslationUnitIfFilesAreChanged() const;
     void updateIncludeFilePaths() const;
-    static int defaultOptions();
+    static uint defaultOptions();
     static void includeCallback(CXFile included_file,
                                 CXSourceLocation * /*inclusion_stack*/,
                                 unsigned /*include_len*/,
