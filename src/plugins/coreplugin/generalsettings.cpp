@@ -212,7 +212,6 @@ void GeneralSettings::resetWarnings()
 {
     InfoBar::clearGloballySuppressed();
     CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
-    m_page->warnBeforeOpeningBigFiles->setChecked(true);
     m_page->resetWarningsButton->setEnabled(false);
 }
 
@@ -239,8 +238,7 @@ void GeneralSettings::updatePath()
 bool GeneralSettings::canResetWarnings() const
 {
     return InfoBar::anyGloballySuppressed()
-        || CheckableMessageBox::hasSuppressedQuestions(ICore::settings())
-        || !EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled();
+        || CheckableMessageBox::hasSuppressedQuestions(ICore::settings());
 }
 
 void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
