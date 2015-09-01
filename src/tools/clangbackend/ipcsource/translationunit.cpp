@@ -287,6 +287,8 @@ void TranslationUnit::reparseTranslationUnit() const
                                  unsavedFiles().cxUnsavedFiles(),
                                  clang_defaultReparseOptions(d->translationUnit));
 
+    updateIncludeFilePaths();
+
     d->needsToBeReparsed = false;
 }
 
