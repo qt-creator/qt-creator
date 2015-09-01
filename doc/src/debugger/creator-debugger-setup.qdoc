@@ -110,10 +110,10 @@
 
     Starting with version 3.1, \QC requires the Python scripting extension. GDB
     builds without Python scripting are not supported anymore and will not work.
-    The minimal supported version is GDB 7.5 using Python version 2.7, or 3.3,
+    The minimum supported version is GDB 7.5 using Python version 2.7, or 3.3,
     or newer.
 
-    For remote debugging using GDB and GDB server, the minimal supported version
+    For remote debugging using GDB and GDB server, the minimum supported version
     of GDB server on the target device is 7.0.
 
     \section2 Supported CDB Versions
@@ -128,9 +128,10 @@
     LLDB is typically used with the Clang compiler (even though you can use it
     with GCC, too).
 
-    You can use the LLDB version delivered with Xcode, but we recommend that you
-    build it from sources using Xcode. The minimal supported version is LLDB
-    179.5.
+    On OS X you can use the LLDB version delivered with Xcode or build from source.
+    The minimum supported version is LLDB 320.4.
+
+    On Linux, the minimum supported version is LLDB 3.7.
 
     \omit
 
