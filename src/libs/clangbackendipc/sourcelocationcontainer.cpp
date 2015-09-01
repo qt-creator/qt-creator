@@ -33,6 +33,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 SourceLocationContainer::SourceLocationContainer(const Utf8String &filePath,

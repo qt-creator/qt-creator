@@ -33,6 +33,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 FixItContainer::FixItContainer(const Utf8String &text,

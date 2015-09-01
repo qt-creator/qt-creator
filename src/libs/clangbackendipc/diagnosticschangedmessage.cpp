@@ -35,6 +35,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 DiagnosticsChangedMessage::DiagnosticsChangedMessage(const FileContainer &file,

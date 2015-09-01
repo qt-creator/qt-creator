@@ -33,6 +33,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 SourceRangeContainer::SourceRangeContainer(SourceLocationContainer start,
                                            SourceLocationContainer end)

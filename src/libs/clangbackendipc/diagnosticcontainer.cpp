@@ -33,6 +33,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 DiagnosticContainer::DiagnosticContainer(const Utf8String &text,
