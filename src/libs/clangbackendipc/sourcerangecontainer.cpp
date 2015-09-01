@@ -30,6 +30,7 @@
 
 #include "sourcerangecontainer.h"
 
+#include <QDataStream>
 #include <QDebug>
 
 namespace ClangBackEnd {
