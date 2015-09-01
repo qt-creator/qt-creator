@@ -237,7 +237,7 @@ QString DisassemblerLine::toString(int maxOp) const
         if (hunk)
             str += _(" [%1]").arg(hunk);
         else
-            str += _("    ").arg(hunk);
+            str += _("    ");
         str += data;
     } else {
         str += someSpace;
