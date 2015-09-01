@@ -316,10 +316,15 @@ UnsavedFiles &TranslationUnit::unsavedFiles() const
 
 void TranslationUnit::updateIncludeFilePaths() const
 {
+    auto oldDependedFilePaths = d->dependedFilePaths;
+
     d->dependedFilePaths.clear();
     d->dependedFilePaths.insert(filePath());
 
     clang_getInclusions(d->translationUnit, includeCallback, const_cast<TranslationUnit*>(this));
+
+    if (d->dependedFilePaths.size() == 1)
+        d->dependedFilePaths = oldDependedFilePaths;
 
     d->translationUnits.addWatchedFiles(d->dependedFilePaths);
 }
