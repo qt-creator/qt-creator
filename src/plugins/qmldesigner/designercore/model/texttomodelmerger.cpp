@@ -383,7 +383,7 @@ public:
                 // should probably try to make it relatve to some import path, not to the document path
                 QString relativeDir = dir.relativeFilePath(path);
                 QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
-                if (!name.isEmpty())
+                if (!name.isEmpty() && name != QLatin1String("."))
                     typeName.prepend(name + QLatin1Char('.'));
             } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
                 QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
