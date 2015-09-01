@@ -405,7 +405,7 @@
 
     \image qtcreator-debugger-views.png "Debug mode views"
 
-    You can drag and drop the views in \QD to new positions on the screen. The
+    You can drag and drop the views in \QC to new positions on the screen. The
     size and position of views are saved for future sessions. Select
     \uicontrol Window > \uicontrol Views > \uicontrol {Reset to Default Layout}
     to reset the views to their original sizes and positions.
