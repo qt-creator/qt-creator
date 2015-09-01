@@ -366,6 +366,7 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
 
 Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
         d->m_editorConfiguration.fromMap(values);
