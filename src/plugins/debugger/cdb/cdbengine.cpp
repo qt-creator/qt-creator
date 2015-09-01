@@ -2980,7 +2980,7 @@ static inline void formatCdbBreakPointResponse(BreakpointModelId id, const Break
 
 void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
 {
-    if (true) {
+    if (debugBreakpoints) {
         qDebug("CdbEngine::handleBreakPoints: success=%d: %s",
                response.resultClass == ResultDone, QLatin1String(response.data.toString()).data());
     }
