@@ -409,6 +409,7 @@ private slots:
     void undef();
     void concat();
     void excessive_nesting();
+    void multi_byte_code_point_in_expansion();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -2062,6 +2063,26 @@ void tst_Preprocessor::excessive_nesting()
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
     // Output cannot be precisely determined, but it shouldn't crash.
     QCOMPARE(prep, output);
+}
+
+void tst_Preprocessor::multi_byte_code_point_in_expansion()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    const QByteArray input =
+        "#define FOO(x) x\n"
+        "FOO(arg" UC_U00FC "\n)\n";
+
+    const QByteArray actual = preprocess.run(QLatin1String("<stdin>"), input);
+
+    const QByteArray expected =
+        "# 1 \"<stdin>\"\n"
+        "\n"
+        "# expansion begin 17,3 2:4\n"
+        "arg" UC_U00FC "\n"
+        "# expansion end\n"
+        "# 4 \"<stdin>\"\n";
+    QCOMPARE(actual, expected);
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)
