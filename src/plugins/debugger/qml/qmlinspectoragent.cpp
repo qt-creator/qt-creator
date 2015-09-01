@@ -730,7 +730,7 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
         connect(client, &BaseToolsClient::currentObjectsChanged,
                 this, &QmlInspectorAgent::selectObjectsFromToolsClient);
         connect(client, &BaseToolsClient::logActivity,
-                m_qmlEngine, &QmlEngine::logServiceActivity);
+                m_qmlEngine.data(), &QmlEngine::logServiceActivity);
         connect(client, &BaseToolsClient::reloaded,
                 this, &QmlInspectorAgent::onReloaded);
 
@@ -757,7 +757,7 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
         disconnect(client, &BaseToolsClient::currentObjectsChanged,
                    this, &QmlInspectorAgent::selectObjectsFromToolsClient);
         disconnect(client, &BaseToolsClient::logActivity,
-                   m_qmlEngine, &QmlEngine::logServiceActivity);
+                   m_qmlEngine.data(), &QmlEngine::logServiceActivity);
 
         Core::ActionManager::unregisterAction(m_selectAction, Core::Id(Constants::QML_SELECTTOOL));
         Core::ActionManager::unregisterAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL));
