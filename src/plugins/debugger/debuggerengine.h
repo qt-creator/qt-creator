@@ -460,6 +460,7 @@ class LocationMark : public TextEditor::TextMark
 {
 public:
     LocationMark(DebuggerEngine *engine, const QString &file, int line);
+    void removedFromEditor() override { updateLineNumber(0); }
 
 private:
     bool isDraggable() const;
