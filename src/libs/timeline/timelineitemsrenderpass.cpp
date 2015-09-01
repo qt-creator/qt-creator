@@ -36,26 +36,6 @@
 
 namespace Timeline {
 
-class TimelineItemsMaterial : public QSGMaterial {
-public:
-    TimelineItemsMaterial();
-    QVector2D scale() const;
-    void setScale(QVector2D scale);
-
-    float selectedItem() const;
-    void setSelectedItem(float selectedItem);
-
-    QColor selectionColor() const;
-    void setSelectionColor(QColor selectionColor);
-
-    QSGMaterialType *type() const;
-    QSGMaterialShader *createShader() const;
-private:
-    QVector2D m_scale;
-    float m_selectedItem;
-    QColor m_selectionColor;
-};
-
 class TimelineItemsRenderPassState : public TimelineRenderPass::State {
 public:
     TimelineItemsRenderPassState(const TimelineModel *model);
@@ -82,17 +62,9 @@ private:
     QVector<QSGNode *> m_collapsedRows;
 };
 
-struct OpaqueColoredPoint2DWithSize {
-    float x, y, w, h, id;
-    unsigned char r, g, b, a;
-    void set(float nx, float ny, float nw, float nh, float nid, uchar nr, uchar ng, uchar nb);
-};
-
 struct TimelineItemsGeometry {
     // Alternating nodes with with 7 and 4 vertices; and vertex indices are 16bit
     static const int maxEventsPerNode = 0xffff * 2 / (7 + 4);
-
-    static const QSGGeometry::AttributeSet &opaqueColoredPoint2DWithSize();
 
     TimelineItemsGeometry() : allocatedVertices(0), usedVertices(0), node(0) {
         prevNode.set(0, TimelineModel::defaultRowHeight(), 0, 0, 0, 0, 0, 0);
@@ -104,7 +76,7 @@ struct TimelineItemsGeometry {
     OpaqueColoredPoint2DWithSize prevNode;
 
     QSGGeometryNode *node;
-    OpaqueColoredPoint2DWithSize *vertexData();
+
 
     void allocate(QSGMaterial *material);
     void addVertices(float itemTop);
@@ -112,14 +84,31 @@ struct TimelineItemsGeometry {
                   uchar green, uchar blue);
 };
 
+void OpaqueColoredPoint2DWithSize::set(float nx, float ny, float nw, float nh, float nid,
+                                       uchar nr, uchar ng, uchar nb) {
+    x = nx; y = ny; w = nw; h = nh; id = nid;
+    r = nr; g = ng, b = nb; a = 255;
+}
+
+float OpaqueColoredPoint2DWithSize::top() const
+{
+    return y;
+}
+
+void OpaqueColoredPoint2DWithSize::setTop(float top)
+{
+    y = top;
+}
+
 void TimelineItemsGeometry::addEvent(float itemLeft, float itemTop, float itemWidth,
                                                     float selectionId, uchar red, uchar green,
                                                     uchar blue)
 {
     float rowHeight = TimelineModel::defaultRowHeight();
     float itemHeight = rowHeight - itemTop;
-    OpaqueColoredPoint2DWithSize *v = vertexData();
-    if (prevNode.y == rowHeight) {
+    OpaqueColoredPoint2DWithSize *v = OpaqueColoredPoint2DWithSize::fromVertexData(
+                node->geometry());
+    if (prevNode.top() == rowHeight) {
         // "Z" form, bottom to top
         v[usedVertices++].set(itemLeft, rowHeight, -itemWidth, -itemHeight, selectionId, red, green,
                               blue);
@@ -131,7 +120,7 @@ void TimelineItemsGeometry::addEvent(float itemLeft, float itemTop, float itemWi
                               red, green, blue);
         prevNode = v[usedVertices - 1];
     } else {
-        if (prevNode.y != itemTop) {
+        if (prevNode.top() != itemTop) {
             // 2 extra vertices to degenerate the surplus triangles
             v[usedVertices++] = prevNode;
             v[usedVertices++].set(itemLeft, itemTop, -itemWidth, itemHeight, selectionId, red,
@@ -152,9 +141,8 @@ void TimelineItemsGeometry::addEvent(float itemLeft, float itemTop, float itemWi
 
 }
 
-OpaqueColoredPoint2DWithSize *TimelineItemsGeometry::vertexData()
+OpaqueColoredPoint2DWithSize *OpaqueColoredPoint2DWithSize::fromVertexData(QSGGeometry *geometry)
 {
-    QSGGeometry *geometry = node->geometry();
     Q_ASSERT(geometry->attributeCount() == 4);
     Q_ASSERT(geometry->sizeOfVertex() == sizeof(OpaqueColoredPoint2DWithSize));
     const QSGGeometry::Attribute *attributes = geometry->attributes();
@@ -171,12 +159,13 @@ OpaqueColoredPoint2DWithSize *TimelineItemsGeometry::vertexData()
     Q_ASSERT(attributes[3].tupleSize == 4);
     Q_ASSERT(attributes[3].type == GL_UNSIGNED_BYTE);
     Q_UNUSED(attributes);
-    return static_cast<OpaqueColoredPoint2DWithSize *>(node->geometry()->vertexData());
+    return static_cast<OpaqueColoredPoint2DWithSize *>(geometry->vertexData());
 }
 
 void TimelineItemsGeometry::allocate(QSGMaterial *material)
 {
-    QSGGeometry *geometry = new QSGGeometry(opaqueColoredPoint2DWithSize(), usedVertices);
+    QSGGeometry *geometry = new QSGGeometry(OpaqueColoredPoint2DWithSize::attributes(),
+                                            usedVertices);
     geometry->setIndexDataPattern(QSGGeometry::StaticPattern);
     geometry->setVertexDataPattern(QSGGeometry::StaticPattern);
     node = new QSGGeometryNode;
@@ -190,12 +179,12 @@ void TimelineItemsGeometry::allocate(QSGMaterial *material)
 
 void TimelineItemsGeometry::addVertices(float itemTop)
 {
-    if (prevNode.y == TimelineModel::defaultRowHeight()) {
+    if (prevNode.top() == TimelineModel::defaultRowHeight()) {
         usedVertices += 4;
-        prevNode.y = itemTop;
+        prevNode.setTop(itemTop);
     } else {
-        usedVertices += (prevNode.y != itemTop ? 6 : 4);
-        prevNode.y = TimelineModel::defaultRowHeight();
+        usedVertices += (prevNode.top() != itemTop ? 6 : 4);
+        prevNode.setTop(TimelineModel::defaultRowHeight());
     }
 }
 
@@ -267,7 +256,7 @@ static void updateNodes(int from, int to, const TimelineModel *model,
     }
 }
 
-const QSGGeometry::AttributeSet &TimelineItemsGeometry::opaqueColoredPoint2DWithSize()
+const QSGGeometry::AttributeSet &OpaqueColoredPoint2DWithSize::attributes()
 {
     static QSGGeometry::Attribute data[] = {
         QSGGeometry::Attribute::create(0, 2, GL_FLOAT, true),
@@ -453,12 +442,6 @@ QSGMaterialType *TimelineItemsMaterial::type() const
 QSGMaterialShader *TimelineItemsMaterial::createShader() const
 {
     return new TimelineItemsMaterialShader;
-}
-
-void OpaqueColoredPoint2DWithSize::set(float nx, float ny, float nw, float nh, float nid,
-                                       uchar nr, uchar ng, uchar nb) {
-    x = nx; y = ny; w = nw; h = nh; id = nid;
-    r = nr; g = ng, b = nb; a = 255;
 }
 
 TimelineItemsRenderPassState::TimelineItemsRenderPassState(const TimelineModel *model) :

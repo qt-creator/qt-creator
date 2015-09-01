@@ -37,6 +37,43 @@
 
 namespace Timeline {
 
+class TimelineItemsMaterial : public QSGMaterial
+{
+public:
+    TimelineItemsMaterial();
+    QVector2D scale() const;
+    void setScale(QVector2D scale);
+
+    float selectedItem() const;
+    void setSelectedItem(float selectedItem);
+
+    QColor selectionColor() const;
+    void setSelectionColor(QColor selectionColor);
+
+    QSGMaterialType *type() const;
+    QSGMaterialShader *createShader() const;
+
+private:
+    QVector2D m_scale;
+    float m_selectedItem;
+    QColor m_selectionColor;
+};
+
+class OpaqueColoredPoint2DWithSize
+{
+public:
+    void set(float nx, float ny, float nw, float nh, float nid, uchar nr, uchar ng, uchar nb);
+    float top() const;
+    void setTop(float top);
+
+    static const QSGGeometry::AttributeSet &attributes();
+    static OpaqueColoredPoint2DWithSize *fromVertexData(QSGGeometry *geometry);
+
+private:
+    float x, y, w, h, id;
+    unsigned char r, g, b, a;
+};
+
 class TIMELINE_EXPORT TimelineItemsRenderPass : public TimelineRenderPass
 {
 public:
