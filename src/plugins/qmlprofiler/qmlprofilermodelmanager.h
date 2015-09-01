@@ -163,8 +163,6 @@ public slots:
     void setFilename(const QString &filename);
     void load();
 
-    void newTimeEstimation(qint64 estimation);
-
 private:
     void setState(QmlProfilerDataState::State state);
 

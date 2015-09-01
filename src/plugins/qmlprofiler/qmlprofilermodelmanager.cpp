@@ -322,11 +322,6 @@ const char *QmlProfilerModelManager::featureName(QmlDebug::ProfileFeature featur
     return ProfileFeatureNames[feature];
 }
 
-void QmlProfilerModelManager::newTimeEstimation(qint64 estimation)
-{
-    d->traceTime->increaseEndTime(d->traceTime->startTime() + estimation);
-}
-
 void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
                                           QmlDebug::RangeType rangeType,
                                           int detailType,

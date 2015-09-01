@@ -51,14 +51,6 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
     QmlProfilerStateManager *m_profilerState;
     QmlProfilerModelManager *m_modelManager;
-
-    bool isRecording;
-    bool appKilled;
-    bool emptyList;
-    bool traceAvailable;
-    bool loadingDone;
-    QTime profilingTimer;
-    qint64 estimatedProfilingTime;
 };
 
 QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
@@ -84,22 +76,17 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
 
     setLayout(layout);
 
-    // internal state
-    d->isRecording = false;
-    d->appKilled = false;
-    d->traceAvailable = false;
-    d->loadingDone = true;
-    d->emptyList = true;
-
     // profiler state
     d->m_modelManager = modelManager;
-    connect(d->m_modelManager,SIGNAL(stateChanged()), this, SLOT(dataStateChanged()));
-    connect(d->m_modelManager,SIGNAL(progressChanged()), this, SLOT(dataStateChanged()));
-    connect(this, SIGNAL(newTimeEstimation(qint64)), d->m_modelManager, SLOT(newTimeEstimation(qint64)));
+    connect(d->m_modelManager, &QmlProfilerModelManager::stateChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
+    connect(d->m_modelManager, &QmlProfilerModelManager::progressChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
     d->m_profilerState = stateManager;
-    connect(d->m_profilerState,SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
-    connect(d->m_profilerState, SIGNAL(serverRecordingChanged()),
-            this, SLOT(profilerStateChanged()));
+    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
+    connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
 
     updateDisplay();
 }
@@ -190,14 +177,8 @@ void QmlProfilerStateWidget::paintEvent(QPaintEvent *event)
 void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
 {
     setVisible(true);
-    if (showProgress) {
-        if (d->isRecording) {
-            d->isRecording = false;
-            d->estimatedProfilingTime = d->profilingTimer.elapsed();
-            emit newTimeEstimation(d->estimatedProfilingTime);
-        }
+    if (showProgress)
         d->progressBar->setValue(d->m_modelManager->progress() * 1000);
-    }
     d->progressBar->setVisible(showProgress);
     d->text->setText(text);
     resize(300, 70);
@@ -207,62 +188,34 @@ void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
 void QmlProfilerStateWidget::updateDisplay()
 {
     // When application is being profiled
-    if (d->isRecording) {
+    if (d->m_profilerState->serverRecording()) {
         showText(tr("Profiling application"));
         return;
     }
 
-    // When datamodel is acquiring data
-    if (!d->loadingDone && !d->emptyList && !d->appKilled) {
-        showText(tr("Loading data"), true);
+    QmlProfilerDataState::State state = d->m_modelManager->state();
+    if (state == QmlProfilerDataState::Done || state == QmlProfilerDataState::Empty) {
+        // After profiling, there is an empty trace
+        if (d->m_modelManager->traceTime()->duration() > 0 &&
+                (d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0)) {
+            showText(tr("No QML events recorded"));
+            return;
+        }
+    } else if (d->m_modelManager->progress() != 0 && !d->m_modelManager->isEmpty()) {
+        // When datamodel is acquiring data
+        if (d->m_profilerState->currentState() != QmlProfilerStateManager::AppKilled)
+            showText(tr("Loading data"), true);
+        else // Application died before all data could be read
+            showText(tr("Application stopped before loading all data"), true);
         return;
-    }
-
-    // After profiling, there is an empty trace
-    if (d->traceAvailable && d->loadingDone && d->emptyList) {
-        showText(tr("No QML events recorded"));
-        return;
-    }
-
-    // Application died before all data could be read
-    if (!d->loadingDone && !d->emptyList && d->appKilled) {
-        showText(tr("Application stopped before loading all data"), true);
+    } else if (state == QmlProfilerDataState::AcquiringData) {
+        showText(tr("Waiting for data"));
         return;
     }
 
     // There is a trace on view, hide this dialog
     d->progressBar->setVisible(false);
     setVisible(false);
-}
-
-void QmlProfilerStateWidget::dataStateChanged()
-{
-    // consider possible rounding errors
-    d->loadingDone = d->m_modelManager->state() == QmlProfilerDataState::Done ||
-            d->m_modelManager->state() == QmlProfilerDataState::Empty;
-    d->traceAvailable = d->m_modelManager->traceTime()->duration() > 0;
-    d->emptyList = d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0;
-    updateDisplay();
-}
-
-void QmlProfilerStateWidget::profilerStateChanged()
-{
-    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppKilled)
-        d->appKilled = true;
-    else
-        if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStarting)
-            d->appKilled = false;
-
-    if (d->m_profilerState->serverRecording()) {
-        d->profilingTimer.start();
-        d->isRecording = true;
-    } else if (d->isRecording) {
-        // estimated time in ns
-        d->estimatedProfilingTime = d->profilingTimer.elapsed() * 1e6;
-        emit newTimeEstimation(d->estimatedProfilingTime);
-        d->isRecording = false;
-    }
-    updateDisplay();
 }
 
 }

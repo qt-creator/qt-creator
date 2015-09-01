@@ -50,12 +50,7 @@ public:
 private slots:
     void showText(const QString &text, bool showProgress = false);
     void updateDisplay();
-    void dataStateChanged();
-    void profilerStateChanged();
     void reposition();
-
-signals:
-    void newTimeEstimation(qint64);
 
 protected:
     void paintEvent(QPaintEvent *event);
