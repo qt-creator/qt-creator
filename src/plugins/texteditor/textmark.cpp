@@ -65,7 +65,7 @@ TextMark::~TextMark()
     m_baseTextDocument = 0;
 }
 
-TextMark::TextMark(TextMark &&other)
+TextMark::TextMark(TextMark &&other) Q_DECL_NOEXCEPT
     : m_baseTextDocument(std::move(other.m_baseTextDocument)),
       m_fileName(std::move(other.m_fileName)),
       m_lineNumber(std::move(other.m_lineNumber)),

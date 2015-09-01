@@ -41,6 +41,11 @@ class ClangTextMark : public TextEditor::TextMark
 {
 public:
     ClangTextMark(const QString &fileName, int lineNumber, ClangBackEnd::DiagnosticSeverity severity);
+
+    ClangTextMark(ClangTextMark &&other) Q_DECL_NOEXCEPT;
+
+    ClangTextMark(ClangTextMark &other) = delete;
+    ClangTextMark &operator=(ClangTextMark &other) = delete;
 };
 
 } // namespace ClangCodeModel

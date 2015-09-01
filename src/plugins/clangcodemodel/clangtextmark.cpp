@@ -78,5 +78,10 @@ ClangTextMark::ClangTextMark(const QString &fileName, int lineNumber, ClangBackE
     setIcon(iconForSeverity(severity));
 }
 
+ClangTextMark::ClangTextMark(ClangTextMark &&other) Q_DECL_NOEXCEPT
+    : TextMark(std::move(other))
+{
+}
+
 } // namespace ClangCodeModel
 
