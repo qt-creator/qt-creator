@@ -62,7 +62,7 @@ public:
     virtual void recalculateSemanticInfoDetached(bool force) = 0;
     virtual CppTools::SemanticInfo recalculateSemanticInfo() = 0;
     virtual CPlusPlus::Snapshot snapshot() = 0;
-    virtual BaseEditorDocumentParser *parser() = 0;
+    virtual BaseEditorDocumentParser::Ptr parser() = 0;
     virtual bool isParserRunning() const = 0;
 
 public:
@@ -85,7 +85,7 @@ protected:
             QTextDocument *textDocument);
 
     static void runParser(QFutureInterface<void> &future,
-                          CppTools::BaseEditorDocumentParser *parser,
+                          BaseEditorDocumentParser::Ptr parser,
                           BaseEditorDocumentParser::InMemoryInfo info);
 
     // Convenience

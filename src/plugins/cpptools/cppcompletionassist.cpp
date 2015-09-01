@@ -426,13 +426,13 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
 {
     QTC_ASSERT(textEditorWidget, return 0);
 
-    CppModelManager *modelManager = CppModelManager::instance();
     return new CppCompletionAssistInterface(filePath,
                                             textEditorWidget,
+                                            BuiltinEditorDocumentParser::get(filePath),
                                             languageFeatures,
                                             position,
                                             reason,
-                                            modelManager->workingCopy());
+                                            CppModelManager::instance()->workingCopy());
 }
 
 // -----------------
@@ -2187,11 +2187,11 @@ void CppCompletionAssistInterface::getCppSpecifics() const
         return;
     m_gotCppSpecifics = true;
 
-    if (BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(fileName())) {
-        parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
-        m_snapshot = parser->snapshot();
-        m_headerPaths = parser->headerPaths();
-        if (Document::Ptr document = parser->document())
+    if (m_parser) {
+        m_parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
+        m_snapshot = m_parser->snapshot();
+        m_headerPaths = m_parser->headerPaths();
+        if (Document::Ptr document = m_parser->document())
             m_languageFeatures = document->languageFeatures();
         else
             m_languageFeatures = LanguageFeatures::defaultFeatures();

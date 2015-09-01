@@ -94,7 +94,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document)
     , m_modelManagerSupport(modelManagerSupport)
-    , m_parser(document->filePath().toString())
+    , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
     , m_parserRevision(0)
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
@@ -114,7 +114,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
             const int firstLine = 1;
             const int lastLine = baseTextDocument()->document()->blockCount();
 
-            CreateMarkers *createMarkers = CreateMarkers::create(m_parser.semanticMarker(),
+            CreateMarkers *createMarkers = CreateMarkers::create(m_parser->semanticMarker(),
                                                                  baseTextDocument()->filePath().toString(),
                                                                  firstLine, lastLine);
             return createMarkers->start();
@@ -169,9 +169,9 @@ CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
     return m_builtinProcessor.recalculateSemanticInfo();
 }
 
-CppTools::BaseEditorDocumentParser *ClangEditorDocumentProcessor::parser()
+CppTools::BaseEditorDocumentParser::Ptr ClangEditorDocumentProcessor::parser()
 {
-    return &m_parser;
+    return m_parser;
 }
 
 CPlusPlus::Snapshot ClangEditorDocumentProcessor::snapshot()
@@ -196,7 +196,7 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
 
 void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForCompletion()
 {
-    const CppTools::ProjectPart::Ptr projectPart = m_parser.projectPart();
+    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
     QTC_ASSERT(projectPart, return);
 
     updateTranslationUnitForCompletion(*projectPart.data());
@@ -209,11 +209,11 @@ void ClangEditorDocumentProcessor::onParserFinished()
         return;
 
     // Emit ifdefed out blocks
-    const auto ifdefoutBlocks = toTextEditorBlocks(m_parser.ifdefedOutBlocks());
+    const auto ifdefoutBlocks = toTextEditorBlocks(m_parser->ifdefedOutBlocks());
     emit ifdefedOutBlocksUpdated(revision(), ifdefoutBlocks);
 
     // Emit code warnings
-    const auto diagnostics = toCppToolsDiagnostics(filePath(), m_parser.diagnostics());
+    const auto diagnostics = toCppToolsDiagnostics(filePath(), m_parser->diagnostics());
     const auto codeWarnings = toTextEditorSelections(diagnostics, textDocument());
     emit codeWarningsUpdated(revision(), codeWarnings);
 

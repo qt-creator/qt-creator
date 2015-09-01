@@ -44,7 +44,8 @@ class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
     Q_OBJECT
 
 public:
-    static BaseEditorDocumentParser *get(const QString &filePath);
+    using Ptr = QSharedPointer<BaseEditorDocumentParser>;;
+    static Ptr get(const QString &filePath);
 
     struct Configuration {
         bool stickToPreviousProjectPart = true;

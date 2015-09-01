@@ -266,7 +266,7 @@ void CppEditorDocument::updatePreprocessorSettings()
 void CppEditorDocument::setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,
                                                 const QByteArray &defines)
 {
-    CppTools::BaseEditorDocumentParser *parser = processor()->parser();
+    const auto parser = processor()->parser();
     QTC_ASSERT(parser, return);
     if (parser->projectPart() != projectPart || parser->configuration().editorDefines != defines) {
         CppTools::BaseEditorDocumentParser::Configuration config = parser->configuration();

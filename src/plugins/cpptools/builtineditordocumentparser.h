@@ -61,7 +61,8 @@ signals:
     void finished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
 
 public:
-    static BuiltinEditorDocumentParser *get(const QString &filePath);
+    using Ptr = QSharedPointer<BuiltinEditorDocumentParser>;
+    static Ptr get(const QString &filePath);
 
 private:
     void updateHelper(const InMemoryInfo &info) override;

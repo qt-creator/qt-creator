@@ -234,7 +234,7 @@ QStringList createPCHInclusionOptions(const QString &pchFile)
 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
-    if (CppTools::BaseEditorDocumentParser *parser = CppTools::BaseEditorDocumentParser::get(filePath))
+    if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
         return parser->projectPart();
     return ProjectPart::Ptr();
 }

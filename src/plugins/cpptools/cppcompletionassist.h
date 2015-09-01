@@ -31,6 +31,7 @@
 #ifndef CPPCOMPLETIONASSIST_H
 #define CPPCOMPLETIONASSIST_H
 
+#include "builtineditordocumentparser.h"
 #include "cppcompletionassistprocessor.h"
 #include "cppcompletionassistprovider.h"
 #include "cppmodelmanager.h"
@@ -171,11 +172,13 @@ class CppCompletionAssistInterface : public TextEditor::AssistInterface
 public:
     CppCompletionAssistInterface(const QString &filePath,
                                  const TextEditor::TextEditorWidget *textEditorWidget,
+                                 BuiltinEditorDocumentParser::Ptr parser,
                                  const CPlusPlus::LanguageFeatures &languageFeatures,
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
         : TextEditor::AssistInterface(textEditorWidget->document(), position, filePath, reason)
+        , m_parser(parser)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
         , m_languageFeatures(languageFeatures)
@@ -204,6 +207,7 @@ public:
 private:
     void getCppSpecifics() const;
 
+    BuiltinEditorDocumentParser::Ptr m_parser;
     mutable bool m_gotCppSpecifics;
     WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;
