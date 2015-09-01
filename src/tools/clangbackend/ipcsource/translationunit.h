@@ -118,7 +118,7 @@ private:
     void updateIncludeFilePaths() const;
     static int defaultOptions();
     static void includeCallback(CXFile included_file,
-                                CXSourceLocation */*inclusion_stack*/,
+                                CXSourceLocation * /*inclusion_stack*/,
                                 unsigned /*include_len*/,
                                 CXClientData clientData);
     UnsavedFiles &unsavedFiles() const;

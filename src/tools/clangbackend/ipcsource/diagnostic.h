@@ -35,6 +35,8 @@
 
 #include <clang-c/Index.h>
 
+#include <vector>
+
 class Utf8String;
 
 namespace ClangBackEnd {

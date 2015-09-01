@@ -297,7 +297,7 @@ void TranslationUnit::reparseTranslationUnitIfFilesAreChanged() const
 }
 
 void TranslationUnit::includeCallback(CXFile included_file,
-                                      CXSourceLocation */*inclusion_stack*/,
+                                      CXSourceLocation * /*inclusion_stack*/,
                                       unsigned /*include_len*/,
                                       CXClientData clientData)
 {

@@ -38,6 +38,7 @@
 
 #include <QVector>
 
+#include <functional>
 #include <vector>
 
 namespace ClangBackEnd {
