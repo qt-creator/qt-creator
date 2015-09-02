@@ -169,10 +169,7 @@ void PdbEngine::runEngine()
     showStatusMessage(tr("Running requested..."), 5000);
     attemptBreakpointSynchronization();
     notifyEngineRunAndInferiorStopOk();
-    if (runParameters().breakOnMain)
-        updateAll();
-    else
-        continueInferior();
+    updateAll();
 }
 
 void PdbEngine::interruptInferior()
