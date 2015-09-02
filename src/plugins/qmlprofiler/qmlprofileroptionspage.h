@@ -32,6 +32,7 @@
 #define QMLPROFILEROPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <QPointer>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -40,14 +41,13 @@ class QmlProfilerOptionsPage : public Core::IOptionsPage
 {
 public:
     QmlProfilerOptionsPage();
-    ~QmlProfilerOptionsPage();
 
     QWidget *widget();
     void apply();
     void finish();
 
 private:
-    QWidget *m_widget;
+    QPointer<QWidget> m_widget;
 };
 
 } // Internal

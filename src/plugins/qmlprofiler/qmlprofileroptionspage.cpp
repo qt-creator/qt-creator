@@ -36,18 +36,13 @@
 namespace QmlProfiler {
 namespace Internal {
 
-QmlProfilerOptionsPage::QmlProfilerOptionsPage() : m_widget(0)
+QmlProfilerOptionsPage::QmlProfilerOptionsPage()
 {
     setId(Constants::SETTINGS);
     setDisplayName(tr("QML Profiler"));
     setCategory("T.Analyzer");
     setDisplayCategory(tr("Analyzer"));
     setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
-}
-
-QmlProfilerOptionsPage::~QmlProfilerOptionsPage()
-{
-    delete m_widget;
 }
 
 QWidget *QmlProfilerOptionsPage::widget()
@@ -66,7 +61,6 @@ void QmlProfilerOptionsPage::apply()
 void QmlProfilerOptionsPage::finish()
 {
     delete m_widget;
-    m_widget = 0;
 }
 
 } // Internal
