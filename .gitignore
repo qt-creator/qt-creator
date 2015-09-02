@@ -40,6 +40,7 @@ Thumbs.db
 *.creator.user*
 *.qbs.user*
 *.qmlproject.user*
+*.pyqtc.user*
 /src/plugins/**/*.json
 /src/app/Info.plist
 app_version.h
