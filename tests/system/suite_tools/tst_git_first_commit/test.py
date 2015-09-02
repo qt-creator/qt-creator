@@ -31,7 +31,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    pathReadme = srcPath + "/creator/README"
+    pathReadme = srcPath + "/creator/README.md"
     if not neededFilePresent(pathReadme):
         return
 

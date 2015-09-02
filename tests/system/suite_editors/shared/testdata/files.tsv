@@ -1,5 +1,5 @@
 "filename"
-"creator/README"
+"creator/README.md"
 "creator/qtcreator.pri"
 "creator/tests/manual/qml/testfiles_quick2/views.qml"
 "creator/share/qtcreator/glsl/glsl_120.frag"
