@@ -105,6 +105,7 @@ private:
     void refreshStack(const GdbMi &stack);
     void refreshLocals(const GdbMi &vars);
     void refreshModules(const GdbMi &modules);
+    void refreshState(const GdbMi &reportedState);
     void refreshSymbols(const GdbMi &symbols);
 
     QString errorMessage(QProcess::ProcessError error) const;

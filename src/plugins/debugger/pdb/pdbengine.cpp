@@ -179,7 +179,6 @@ void PdbEngine::interruptInferior()
 {
     QString error;
     interruptProcess(m_proc.processId(), GdbEngineType, &error);
-    notifyInferiorStopOk();
 }
 
 void PdbEngine::executeStep()
@@ -188,7 +187,6 @@ void PdbEngine::executeStep()
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("step");
-    updateAll();
 }
 
 void PdbEngine::executeStepI()
@@ -197,7 +195,6 @@ void PdbEngine::executeStepI()
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("step");
-    updateAll();
 }
 
 void PdbEngine::executeStepOut()
@@ -206,7 +203,6 @@ void PdbEngine::executeStepOut()
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("return");
-    updateAll();
 }
 
 void PdbEngine::executeNext()
@@ -215,7 +211,6 @@ void PdbEngine::executeNext()
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("next");
-    updateAll();
 }
 
 void PdbEngine::executeNextI()
@@ -224,7 +219,6 @@ void PdbEngine::executeNextI()
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("next");
-    updateAll();
 }
 
 void PdbEngine::continueInferior()
@@ -234,7 +228,6 @@ void PdbEngine::continueInferior()
     notifyInferiorRunOk();
     // Callback will be triggered e.g. when breakpoint is hit.
     postDirectCommand("continue");
-    updateAll();
 }
 
 void PdbEngine::executeRunToLine(const ContextData &data)
@@ -346,6 +339,17 @@ void PdbEngine::requestModuleSymbols(const QString &moduleName)
     DebuggerCommand cmd("listSymbols");
     cmd.arg("module", moduleName);
     runCommand(cmd);
+}
+
+void PdbEngine::refreshState(const GdbMi &reportedState)
+{
+    QByteArray newState = reportedState.data();
+    if (newState == "stopped") {
+        notifyInferiorSpontaneousStop();
+        updateAll();
+    } else if (newState == "inferiorexited") {
+        notifyInferiorExited();
+    }
 }
 
 void PdbEngine::refreshLocation(const GdbMi &reportedLocation)
@@ -476,13 +480,12 @@ void PdbEngine::handleOutput(const QByteArray &data)
 
 void PdbEngine::handleOutput2(const QByteArray &data)
 {
-    QByteArray lineContext;
     foreach (QByteArray line, data.split('\n')) {
 
         GdbMi item;
         item.fromString(line);
 
-        showMessage(_("LINE: " + line));
+        showMessage(_(line), LogOutput);
 
         if (line.startsWith("stack={")) {
             refreshStack(item);
@@ -494,6 +497,8 @@ void PdbEngine::handleOutput2(const QByteArray &data)
             refreshSymbols(item);
         } else if (line.startsWith("location={")) {
             refreshLocation(item);
+        } else if (line.startsWith("state=")) {
+            refreshState(item);
         } else if (line.startsWith("Breakpoint")) {
             int pos1 = line.indexOf(" at ");
             QTC_ASSERT(pos1 != -1, continue);

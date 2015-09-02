@@ -731,7 +731,7 @@ class Dumper:
     def sigint_handler(self, signum, frame):
         if self.allow_kbdint:
             raise KeyboardInterrupt
-        self.message("\nProgram interrupted. (Use 'cont' to resume).")
+        self.report('state="stopped"')
         self.set_step()
         self.set_trace(frame)
         # restore previous signal handler
@@ -1484,7 +1484,8 @@ class Dumper:
         self.flushOutput()
 
     def flushOutput(self):
-        sys.stdout.write(self.output)
+        sys.stdout.write("@\n" + self.output + "@\n")
+        sys.stdout.flush()
         self.output = ""
 
     def put(self, value):
