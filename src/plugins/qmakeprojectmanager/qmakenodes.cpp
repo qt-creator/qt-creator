@@ -429,7 +429,7 @@ struct InternalNode
                 // replace i.value() by i.value()->subnodes.begin()
                 QString key = i.value()->subnodes.begin().key();
                 InternalNode *keep = i.value()->subnodes.value(key);
-                keep->displayName = i.value()->displayName + QLatin1Char('/') + keep->displayName;
+                keep->displayName = i.value()->displayName + QDir::separator() + keep->displayName;
                 newSubnodes.insert(key, keep);
                 i.value()->subnodes.clear();
                 delete i.value();
