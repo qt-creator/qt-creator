@@ -1555,11 +1555,12 @@ class Dumper:
         self.put("{")
         self.putField("iname", iname)
         self.putName(name)
-        self.putType(tt)
         if tt == "NoneType":
+            self.putType(tt)
             self.putValue("None")
             self.putNumChild(0)
         elif tt == "list" or tt == "tuple":
+            self.putType(tt)
             self.putItemCount(len(value))
             #self.putValue(value)
             self.put("children=[")
@@ -1568,25 +1569,30 @@ class Dumper:
             self.put("]")
         elif tt == "str":
             v = value
+            self.putType(tt)
             self.putValue(self.hexencode(v))
             self.putField("valueencoded", 6)
             self.putNumChild(0)
         elif tt == "unicode":
             v = value
+            self.putType(tt)
             self.putValue(self.hexencode(v))
             self.putField("valueencoded", 6)
             self.putNumChild(0)
         elif tt == "buffer":
             v = str(value)
+            self.putType(tt)
             self.putValue(self.hexencode(v))
             self.putField("valueencoded", 6)
             self.putNumChild(0)
         elif tt == "xrange":
             b = iter(value).next()
             e = b + len(value)
+            self.putType(tt)
             self.putValue("(%d, %d)" % (b, e))
             self.putNumChild(0)
         elif tt == "dict":
+            self.putType(tt)
             self.putItemCount(len(value))
             self.putField("childnumchild", 2)
             self.put("children=[")
@@ -1615,14 +1621,23 @@ class Dumper:
             pass
         elif str(value).startswith("<enum-item "):
             # FIXME: Having enums always shown like this is not nice.
+            self.putType(tt)
             self.putValue(str(value)[11:-1])
             self.putNumChild(0)
         else:
             v = str(value)
             p = v.find(" object at ")
             if p > 1:
-                v = "@" + v[p + 11:-1]
-            self.putValue(v)
+                self.putValue("@" + v[p + 11:-1])
+                self.putType(v[1:p])
+            else:
+                p = v.find(" instance at ")
+                if p > 1:
+                    self.putValue("@" + v[p + 13:-1])
+                    self.putType(v[1:p])
+                else:
+                    self.putType(tt)
+                    self.putValue(v)
             if self.isExpanded(iname):
                 self.put("children=[")
                 for child in dir(value):
