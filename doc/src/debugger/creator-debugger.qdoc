@@ -831,16 +831,28 @@
 
     By default, the \uicontrol {Source Files} view is hidden.
 
-    \section2 Viewing Disassembled Code and Register State
+    \section2 Viewing Disassembled Code
 
     The \uicontrol Disassembler view displays disassembled code for the current
-    function. The \uicontrol Registers view displays the current state of the
-    CPU's registers.
+    function.
 
-    The \uicontrol Disassembler view and the \uicontrol Registers view are both
-    useful for low-level commands for checking single instructions, such as
-    \uicontrol {Step Into} and \uicontrol {Step Over}. By default, both
-    \uicontrol Disassembler and \uicontrol Registers view are hidden.
+    The \uicontrol Disassembler view is useful for low-level commands for checking
+    single instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
+    By default, the \uicontrol Disassembler view is hidden.
+
+    \section2 Viewing and Editing Register State
+
+    The \uicontrol Registers view displays the current state of the CPU registers.
+    Depending on the CPU type, there will be different registers available. The
+    values of registers that recently have changed are highlighted in red and empty
+    register values as well as leading zeroes are grayed out.
+
+    In addition it is possible to edit the content of registers while the program is
+    stopped. This applies to both General-purpose and Special-purpose registers.
+    Registers can be edited in the standard condensed view or in their particular parts
+    if the register is displayed expanded.
+
+    By default, the \uicontrol Registers view is hidden.
 
     \section2 Creating Snapshots
 
