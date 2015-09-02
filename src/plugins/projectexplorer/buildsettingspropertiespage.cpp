@@ -199,7 +199,9 @@ void BuildSettingsWidget::updateBuildSettings()
     clearWidgets();
 
     // update buttons
-    m_removeButton->setEnabled(m_target->buildConfigurations().size() > 1);
+    QList<BuildConfiguration *> bcs = m_target->buildConfigurations();
+    m_removeButton->setEnabled(bcs.size() > 1);
+    m_renameButton->setEnabled(!bcs.isEmpty());
 
     if (!m_buildConfiguration)
         return;
@@ -288,6 +290,7 @@ QString BuildSettingsWidget::uniqueName(const QString & name)
 
 void BuildSettingsWidget::renameConfiguration()
 {
+    QTC_ASSERT(m_buildConfiguration, return);
     bool ok;
     QString name = QInputDialog::getText(this, tr("Rename..."),
                                          tr("New name for build configuration <b>%1</b>:").
