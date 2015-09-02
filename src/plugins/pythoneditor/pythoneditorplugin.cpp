@@ -880,8 +880,19 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 
         QList<Target *> targetList = targets();
         foreach (Target *t, targetList) {
-            foreach (const QString &file, m_files)
-                t->addRunConfiguration(new PythonRunConfiguration(t, idFromScript(file)));
+            const QList<RunConfiguration *> runConfigs = t->runConfigurations();
+            foreach (const QString &file, m_files) {
+                const Id id = idFromScript(file);
+                bool alreadyPresent = false;
+                foreach (RunConfiguration *runCfg, runConfigs) {
+                    if (runCfg->id() == id) {
+                        alreadyPresent = true;
+                        break;
+                    }
+                }
+                if (!alreadyPresent)
+                    t->addRunConfiguration(new PythonRunConfiguration(t, id));
+            }
         }
     }
 
