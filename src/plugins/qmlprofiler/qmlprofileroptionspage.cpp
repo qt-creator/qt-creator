@@ -36,7 +36,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-QmlProfilerOptionsPage::QmlProfilerOptionsPage()
+QmlProfilerOptionsPage::QmlProfilerOptionsPage() : m_widget(0)
 {
     setId(Constants::SETTINGS);
     setDisplayName(tr("QML Profiler"));
@@ -52,8 +52,9 @@ QmlProfilerOptionsPage::~QmlProfilerOptionsPage()
 
 QWidget *QmlProfilerOptionsPage::widget()
 {
+    // We cannot parent the widget to the options page as it expects a QWidget as parent
     if (!m_widget)
-        m_widget = new QmlProfilerConfigWidget(QmlProfilerPlugin::globalSettings(), 0);
+        m_widget = new QmlProfilerConfigWidget(QmlProfilerPlugin::globalSettings());
     return m_widget;
 }
 
