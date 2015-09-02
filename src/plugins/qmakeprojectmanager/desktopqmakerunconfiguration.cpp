@@ -450,6 +450,10 @@ void DesktopQmakeRunConfiguration::setUsingDyldImageSuffix(bool state)
 {
     m_isUsingDyldImageSuffix = state;
     emit usingDyldImageSuffixChanged(state);
+
+    LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+    aspect->environmentChanged();
 }
 
 QString DesktopQmakeRunConfiguration::workingDirectory() const
