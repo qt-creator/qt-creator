@@ -158,24 +158,6 @@ def find_function(funcname, filename):
                 return funcname, filename, lineno
     return None
 
-def getsourcelines(obj):
-    lines, lineno = inspect.findsource(obj)
-    if inspect.isframe(obj) and obj.f_globals is obj.f_locals:
-        # must be a module frame: do not try to cut a block out of it
-        return lines, 1
-    elif inspect.ismodule(obj):
-        return lines, 1
-    return inspect.getblock(lines[lineno:]), lineno+1
-
-def lasti2lineno(code, lasti):
-    linestarts = list(dis.findlinestarts(code))
-    linestarts.reverse()
-    for i, lineno in linestarts:
-        if lasti >= i:
-            return lineno
-    return 0
-
-
 class _rstr(str):
     """String that doesn't quote its repr."""
     def __repr__(self):
@@ -209,7 +191,6 @@ class Dumper:
         self.aliases = {}
         self.mainpyfile = ''
         self._wait_for_mainpyfile = False
-        self.tb_lineno = {}
         # Try to load readline if it exists
         try:
             import readline
@@ -742,18 +723,10 @@ class Dumper:
         self.stack = []
         self.curindex = 0
         self.curframe = None
-        self.tb_lineno.clear()
 
     def setup(self, f, tb):
         self.forget()
         self.stack, self.curindex = self.get_stack(f, tb)
-        while tb:
-            # when setting up post-mortem debugging with a traceback, save all
-            # the original line numbers to be displayed along the current line
-            # numbers (which can be different, e.g. due to finally clauses)
-            lineno = lasti2lineno(tb.tb_frame.f_code, tb.tb_lasti)
-            self.tb_lineno[tb.tb_frame] = lineno
-            tb = tb.tb_next
         self.curframe = self.stack[self.curindex][0]
         # The f_locals dictionary is updated from the actual frame
         # locals whenever the .f_locals accessor is called, so we
@@ -1345,42 +1318,6 @@ class Dumper:
             exc_info = sys.exc_info()[:2]
             err = traceback.format_exception_only(*exc_info)[-1].strip()
             return _rstr('** raised %s **' % err)
-
-    def do_source(self, arg):
-        """source expression
-        Try to get source code for the given object and display it.
-        """
-        try:
-            obj = self._getval(arg)
-        except:
-            return
-        try:
-            lines, lineno = getsourcelines(obj)
-        except (OSError, TypeError) as err:
-            self.error(err)
-            return
-        self._print_lines(lines, lineno)
-
-    def _print_lines(self, lines, start, breaks=(), frame=None):
-        """Print a range of lines."""
-        if frame:
-            current_lineno = frame.f_lineno
-            exc_lineno = self.tb_lineno.get(frame, -1)
-        else:
-            current_lineno = exc_lineno = -1
-        for lineno, line in enumerate(lines, start):
-            s = str(lineno).rjust(3)
-            if len(s) < 4:
-                s += ' '
-            if lineno in breaks:
-                s += 'B'
-            else:
-                s += ' '
-            if lineno == current_lineno:
-                s += '->'
-            elif lineno == exc_lineno:
-                s += '>>'
-            self.message(s + '\t' + line.rstrip())
 
     def do_whatis(self, arg):
         """whatis arg
