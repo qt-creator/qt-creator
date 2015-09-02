@@ -753,7 +753,7 @@ public:
             if (totalTime.elapsed() > 10000)
                 return false;
 
-            if (writeFileAgainTime.elapsed() > 1000) {
+            if (writeFileAgainTime.elapsed() > 3000) {
                 // The timestamp did not change, try again now.
                 QTC_ASSERT(writeFile(m_filePath, m_fileContents), return false);
                 writeFileAgainTime.restart();
