@@ -1473,6 +1473,11 @@ class Dumper:
                        "__doc__", "__loader__", "__cached__", "__the_dumper__"):
                 continue
             value = frame.f_locals[var]
+            # this applies only for anonymous arguments
+            # e.g. def dummy(var, (width, height), var2) would create an anonymous local var
+            # named '.1' for (width, height) as this is the second argument
+            if var.startswith('.'):
+                var = "@arg" + var[1:]
             self.dumpValue(value, var, "local.%s" % var)
         self.output += '}'
         self.output += '{frame="%s"}' % frameNr
