@@ -882,6 +882,9 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
         foreach (Target *t, targetList) {
             const QList<RunConfiguration *> runConfigs = t->runConfigurations();
             foreach (const QString &file, m_files) {
+                // skip the 'project' file
+                if (file.endsWith(QLatin1String(".pyqtc")))
+                    continue;
                 const Id id = idFromScript(file);
                 bool alreadyPresent = false;
                 foreach (RunConfiguration *runCfg, runConfigs) {
