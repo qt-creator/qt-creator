@@ -70,6 +70,7 @@ const char COMMAND_LINE_ARGUMENTS_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 const char USE_TERMINAL_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal";
 const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
+const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath";
 const char USER_WORKING_DIRECTORY_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory";
 
 static Utils::FileName pathFromId(Core::Id id)
@@ -100,6 +101,7 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Deskt
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
+    m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_parseSuccess(source->m_parseSuccess),
     m_parseInProgress(source->m_parseInProgress)
@@ -250,6 +252,26 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
                 this, SLOT(usingDyldImageSuffixToggled(bool)));
     }
 
+    QString librarySeachPathLabel;
+    if (HostOsInfo::isMacHost()) {
+        librarySeachPathLabel
+                = tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH");
+    } else if (HostOsInfo::isWindowsHost()) {
+        librarySeachPathLabel
+                = tr("Add build library search path to PATH");
+    } else if (HostOsInfo::isLinuxHost() || HostOsInfo::isAnyUnixHost()) {
+        librarySeachPathLabel
+                = tr("Add build library search path to LD_LIBRARY_PATH");
+    }
+
+    if (!librarySeachPathLabel.isEmpty()) {
+        m_usingLibrarySearchPath = new QCheckBox(librarySeachPathLabel);
+        m_usingLibrarySearchPath->setChecked(m_qmakeRunConfiguration->isUsingLibrarySearchPath());
+        toplayout->addRow(QString(), m_usingLibrarySearchPath);
+        connect(m_usingLibrarySearchPath, &QCheckBox::toggled,
+                this, &DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathToggled);
+    }
+
     runConfigurationEnabledChange();
 
     connect(m_workingDirectoryEdit, SIGNAL(rawPathChanged(QString)),
@@ -274,6 +296,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
             this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(qmakeRunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
             this, SLOT(usingDyldImageSuffixChanged(bool)));
+    connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingLibrarySearchPathChanged,
+            this, &DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged);
     connect(qmakeRunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
             this, SLOT(effectiveTargetInformationChanged()), Qt::QueuedConnection);
 
@@ -347,6 +371,13 @@ void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixToggled(bool state)
     m_ignoreChange = false;
 }
 
+void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathToggled(bool state)
+{
+    m_ignoreChange = true;
+    m_qmakeRunConfiguration->setUsingLibrarySearchPath(state);
+    m_ignoreChange = false;
+}
+
 void DesktopQmakeRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
 {
     if (!m_ignoreChange)
@@ -370,6 +401,12 @@ void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 {
     if (!m_ignoreChange && m_usingDyldImageSuffix)
         m_usingDyldImageSuffix->setChecked(state);
+}
+
+void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged(bool state)
+{
+    if (!m_ignoreChange && m_usingLibrarySearchPath)
+        m_usingLibrarySearchPath->setChecked(state);
 }
 
 void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
@@ -408,6 +445,7 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
+    map.insert(QLatin1String(USE_LIBRARY_SEARCH_PATH), m_isUsingLibrarySearchPath);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
 }
@@ -420,6 +458,7 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool()
             ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
+    m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
 
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
@@ -450,6 +489,21 @@ void DesktopQmakeRunConfiguration::setUsingDyldImageSuffix(bool state)
 {
     m_isUsingDyldImageSuffix = state;
     emit usingDyldImageSuffixChanged(state);
+
+    LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+    aspect->environmentChanged();
+}
+
+bool DesktopQmakeRunConfiguration::isUsingLibrarySearchPath() const
+{
+    return m_isUsingLibrarySearchPath;
+}
+
+void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
+{
+    m_isUsingLibrarySearchPath = state;
+    emit usingLibrarySearchPathChanged(state);
 
     LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
     QTC_ASSERT(aspect, return);
@@ -518,7 +572,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
     const QmakeProFileNode *node = static_cast<QmakeProject *>(target()->project())->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
-    if (node) {
+    if (m_isUsingLibrarySearchPath && node) {
         const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
         if (!libDirectories.isEmpty()) {
             const QString proDirectory = node->buildDir();
@@ -533,7 +587,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     } // node
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (qtVersion)
+    if (qtVersion && m_isUsingLibrarySearchPath)
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 

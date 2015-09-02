@@ -86,6 +86,9 @@ public:
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);
 
+    bool isUsingLibrarySearchPath() const;
+    void setUsingLibrarySearchPath(bool state);
+
     Utils::FileName proFilePath() const;
 
     QVariantMap toMap() const;
@@ -95,12 +98,12 @@ public:
     void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void addToBaseEnvironment(Utils::Environment &env) const;
-
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void usingDyldImageSuffixChanged(bool);
+    void usingLibrarySearchPathChanged(bool);
 
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
@@ -130,6 +133,7 @@ private:
     // Cached startup sub project information
     ProjectExplorer::ApplicationLauncher::Mode m_runMode = ProjectExplorer::ApplicationLauncher::Gui;
     bool m_isUsingDyldImageSuffix = false;
+    bool m_isUsingLibrarySearchPath = true;
     QString m_userWorkingDirectory;
     bool m_parseSuccess = false;
     bool m_parseInProgress = false;
@@ -163,6 +167,8 @@ private slots:
     void qvfbToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
+    void usingLibrarySearchPathToggled(bool state);
+    void usingLibrarySearchPathChanged(bool state);
 
 private:
     DesktopQmakeRunConfiguration *m_qmakeRunConfiguration = nullptr;
@@ -175,6 +181,7 @@ private:
     QCheckBox *m_useTerminalCheck = nullptr;
     QCheckBox *m_useQvfbCheck = nullptr;
     QCheckBox *m_usingDyldImageSuffix = nullptr;
+    QCheckBox *m_usingLibrarySearchPath = nullptr;
     QLineEdit *m_qmlDebugPort = nullptr;
     Utils::DetailsWidget *m_detailsContainer;
     bool m_isShown = false;
