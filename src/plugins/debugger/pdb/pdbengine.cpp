@@ -353,6 +353,7 @@ void PdbEngine::refreshLocation(const GdbMi &reportedLocation)
     StackFrame frame;
     frame.file = reportedLocation["file"].toUtf8();
     frame.line = reportedLocation["line"].toInt();
+    frame.usable = QFileInfo(frame.file).isReadable();
     if (state() == InferiorRunOk) {
         showMessage(QString::fromLatin1("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
         gotoLocation(frame);
@@ -545,12 +546,6 @@ void PdbEngine::refreshStack(const GdbMi &stack)
             frame.usable = usable.data().toInt();
         else
             frame.usable = QFileInfo(frame.file).isReadable();
-        if (item["language"].data() == "js"
-                || frame.file.endsWith(QLatin1String(".js"))
-                || frame.file.endsWith(QLatin1String(".qml"))) {
-            frame.language = QmlLanguage;
-            frame.fixQmlFrame(runParameters());
-        }
         frames.append(frame);
     }
     bool canExpand = stack["hasmore"].toInt();
