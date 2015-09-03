@@ -934,7 +934,7 @@ Qt::ItemFlags WatchItem::flags(int column) const
     const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
     if (state == InferiorUnrunnable)
-        return notEditable;
+        return (isWatcher() && column == 0 && iname.count('.') == 1) ? editable : notEditable;
 
     if (isWatcher()) {
         if (state != InferiorStopOk
