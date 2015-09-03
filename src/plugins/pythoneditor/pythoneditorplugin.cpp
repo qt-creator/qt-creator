@@ -874,7 +874,7 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
     if (res == RestoreResult::Ok) {
         Kit *defaultKit = KitManager::defaultKit();
         if (!activeTarget() && defaultKit)
-            addTarget(createTarget(defaultKit));
+            addTarget(new Target(this, defaultKit));
 
         refresh();
 
