@@ -107,7 +107,7 @@ public:
     bool gotoBookmark(Bookmark *bookmark);
 
 signals:
-    void updateActions(int state);
+    void updateActions(bool enableToggle, int state);
     void currentIndexChanged(const QModelIndex &);
 
 private:

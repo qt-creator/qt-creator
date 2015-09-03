@@ -671,7 +671,10 @@ BookmarkManager::State BookmarkManager::state() const
 
 void BookmarkManager::updateActionStatus()
 {
-    emit updateActions(state());
+    IEditor *editor = EditorManager::currentEditor();
+    const bool enableToggle = editor && !editor->document()->isTemporary();
+
+    updateActions(enableToggle, state());
 }
 
 void BookmarkManager::moveUp()

@@ -63,7 +63,7 @@ public:
     void extensionsInitialized() {}
 
 private:
-    void updateActions(int stateMask);
+    void updateActions(bool enableToggle, int stateMask);
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
 

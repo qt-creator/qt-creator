@@ -72,8 +72,6 @@ BookmarksPlugin::BookmarksPlugin() :
 
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
-    Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
-
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     ActionContainer *mbm = ActionManager::createMenu(Id(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
@@ -81,11 +79,11 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     //Toggle
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
-    Command *cmd = ActionManager::registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
+    Command *cmd = ActionManager::registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     mbm->addAction(cmd);
 
-    mbm->addSeparator(textcontext);
+    mbm->addSeparator();
 
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
@@ -116,7 +114,8 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     m_bookmarkManager = new BookmarkManager;
 
     connect(m_toggleAction, &QAction::triggered, [this]() {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+        BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+        if (editor && !editor->document()->isTemporary())
             m_bookmarkManager->toggleBookmark(editor->document()->filePath().toString(), editor->currentLine());
     });
 
@@ -130,7 +129,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     });
 
     connect(m_bookmarkManager, &BookmarkManager::updateActions, this, &BookmarksPlugin::updateActions);
-    updateActions(m_bookmarkManager->state());
+    updateActions(false, m_bookmarkManager->state());
     addAutoReleasedObject(new BookmarkViewFactory(m_bookmarkManager));
 
     m_bookmarkMarginAction = new QAction(this);
@@ -154,12 +153,12 @@ BookmarksPlugin::~BookmarksPlugin()
     delete m_bookmarkManager;
 }
 
-void BookmarksPlugin::updateActions(int state)
+void BookmarksPlugin::updateActions(bool enableToggle, int state)
 {
     const bool hasbm    = state >= BookmarkManager::HasBookMarks;
     const bool hasdocbm = state == BookmarkManager::HasBookmarksInDocument;
 
-    m_toggleAction->setEnabled(true);
+    m_toggleAction->setEnabled(enableToggle);
     m_prevAction->setEnabled(hasbm);
     m_nextAction->setEnabled(hasbm);
     m_docPrevAction->setEnabled(hasdocbm);
@@ -171,7 +170,7 @@ void BookmarksPlugin::editorOpened(IEditor *editor)
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
         connect(widget, &TextEditorWidget::markRequested, m_bookmarkManager,
                 [this, editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
-                    if (kind == BookmarkRequest && editor->document())
+                    if (kind == BookmarkRequest && !editor->document()->isTemporary())
                         m_bookmarkManager->toggleBookmark(editor->document()->filePath().toString(), line);
                 });
 
@@ -198,8 +197,7 @@ void BookmarksPlugin::editorAboutToClose(IEditor *editor)
 void BookmarksPlugin::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
-    // Don't set bookmarks in disassembler views.
-    if (widget->textDocument()->property("DisassemblerView").toBool())
+    if (widget->textDocument()->isTemporary() || widget->textDocument()->property("DisassemblerView").toBool())
         return;
 
     m_bookmarkMarginActionLineNumber = lineNumber;
