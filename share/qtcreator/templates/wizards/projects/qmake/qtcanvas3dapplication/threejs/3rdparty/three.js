@@ -25,8 +25,9 @@ THE SOFTWARE.
 */
 
 /**
- * QtQuick port of three.js library https://github.com/mrdoob/three.js
- * Port source code is available at https://github.com/tronlec/three.js
+ * QtQuick port of three.js library from: https://github.com/mrdoob/three.js
+ * Latest version for current stable Qt version can be found at: https://github.com/tronlec/three.js/tree/stable
+ * Latest version for current Qt version under development can be found at: https://github.com/tronlec/three.js/tree/master
  * @author Pasi keränen / pasi.keranen@theqtcompany.com
  */
 
@@ -34554,7 +34555,7 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 	this.uploadTexture = function ( texture ) {
 
-        if ( texture instanceof THREE.QuickItemTexture ) {
+        if ( texture instanceof THREE.QtQuickItemTexture ) {
 
             var canvasTextureProvider = _gl.getExtension("QTCANVAS3D_texture_provider");
 
@@ -35324,13 +35325,13 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 };
 
-// File:src/qml/QuickItemTexture.js
+// File:src/qml/QtQuickItemTexture.js
 
 /**
  * @author miheikki / miikka.heikkinen@theqtcompany.com
  */
 
-THREE.QuickItemTexture = function ( quickItem, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
+THREE.QtQuickItemTexture = function ( quickItem, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
 
     THREE.Texture.call( this, null, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
 
@@ -35341,6 +35342,6 @@ THREE.QuickItemTexture = function ( quickItem, mapping, wrapS, wrapT, magFilter,
 
 };
 
-THREE.QuickItemTexture.prototype = Object.create( THREE.Texture.prototype );
-THREE.QuickItemTexture.prototype.constructor = THREE.QuickItemTexture;
+THREE.QtQuickItemTexture.prototype = Object.create( THREE.Texture.prototype );
+THREE.QtQuickItemTexture.prototype.constructor = THREE.QtQuickItemTexture;
 
