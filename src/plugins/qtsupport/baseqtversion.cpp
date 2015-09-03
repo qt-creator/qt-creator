@@ -1172,7 +1172,7 @@ bool BaseQtVersion::hasDemos() const
 
 QString BaseQtVersion::demosPath() const
 {
-    return qmakeProperty("QT_INSTALL_DEMOS");
+    return QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath();
 }
 
 QString BaseQtVersion::frameworkInstallPath() const
@@ -1190,7 +1190,7 @@ bool BaseQtVersion::hasExamples() const
 
 QString BaseQtVersion::examplesPath() const
 {
-    return qmakeProperty("QT_INSTALL_EXAMPLES");
+    return QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath();
 }
 
 QStringList BaseQtVersion::configValues() const
@@ -1525,7 +1525,7 @@ FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
 {
     const QString qt5Source = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX/src");
     if (!qt5Source.isEmpty())
-        return Utils::FileName::fromString(qt5Source);
+        return Utils::FileName::fromString(QFileInfo(qt5Source).canonicalFilePath());
 
     const QString installData = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
     QString sourcePath = installData;
@@ -1545,7 +1545,7 @@ FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
             }
         }
     }
-    return FileName::fromUserInput(sourcePath);
+    return FileName::fromUserInput(QFileInfo(sourcePath).canonicalFilePath());
 }
 
 bool BaseQtVersion::isInSourceDirectory(const Utils::FileName &filePath)
