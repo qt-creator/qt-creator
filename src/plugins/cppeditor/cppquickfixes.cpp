@@ -3336,7 +3336,7 @@ public:
 
     ExtractFunctionOptions getOptions() const
     {
-        QDialog dlg;
+        QDialog dlg(Core::ICore::dialogParent());
         dlg.setWindowTitle(QCoreApplication::translate("QuickFix::ExtractFunction",
                                                        "Extract Function Refactoring"));
         auto layout = new QFormLayout(&dlg);
