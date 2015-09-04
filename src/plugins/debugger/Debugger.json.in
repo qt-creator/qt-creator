@@ -22,8 +22,7 @@
             \"Description\" : \"Attach to local process\"
         },
         {
-            \"Name\" : \"-debug\",
-            \"Parameter\" : \"executable\",
+            \"Name\" : \"-debug <executable>[,kit=<kit>][,terminal={0,1}]\",
             \"Description\" : \"Start and debug executable\"
         },
         {

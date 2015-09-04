@@ -1116,7 +1116,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 {
     const QString &option = *it;
     // '-debug <pid>'
-    // '-debug <exe>[,server=<server:port>][,core=<core>][,kit=<kit>]'
+    // '-debug <exe>[,server=<server:port>][,core=<core>][,kit=<kit>][,terminal={0,1}]'
     if (*it == _("-debug")) {
         ++it;
         if (it == cend) {
@@ -1159,6 +1159,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     rp.coreFile = val;
                     rp.displayName = tr("Core file \"%1\"").arg(rp.coreFile);
                     rp.startMessage = tr("Attaching to core file %1.").arg(rp.coreFile);
+                } else if (key == QLatin1String("terminal")) {
+                    rp.useTerminal = bool(val.toInt());
                 } else if (key == QLatin1String("kit")) {
                     kit = KitManager::find(Id::fromString(val));
                 }
