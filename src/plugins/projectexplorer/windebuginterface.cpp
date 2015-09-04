@@ -34,7 +34,7 @@
 
 #include <windows.h>
 #include <QApplication>
-
+#include <QTime>
 
 /*!
     \class ProjectExplorer::Internal::WinDebugInterface
@@ -135,13 +135,41 @@ bool WinDebugInterface::runLoop()
 
     SetEvent(m_bufferReadyEvent);
 
+    QTime timer; // time since last signal sent
+    timer.start();
+
+    QMap<qint64, QString> delayedMessages;
+
     while (true) {
-        const DWORD ret = WaitForMultipleObjects(HandleCount, m_waitHandles, FALSE, INFINITE);
+        DWORD timeout = INFINITE;
+        if (!delayedMessages.isEmpty()) // if we have delayed message, don't wait forever
+            timeout = qMax(60 - timer.elapsed(), 1);
+        const DWORD ret = WaitForMultipleObjects(HandleCount, m_waitHandles, FALSE, timeout);
+
         if (ret == WAIT_FAILED || ret - WAIT_OBJECT_0 == TerminateEventHandle)
             break;
-        if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
-            if (*processId != m_creatorPid)
-                emit debugOutput(*processId, QString::fromLocal8Bit(message));
+        if (ret == WAIT_TIMEOUT) {
+            auto it = delayedMessages.constBegin();
+            auto end = delayedMessages.constEnd();
+            for (; it != end; ++it)
+                emit debugOutput(it.key(), it.value());
+            delayedMessages.clear();
+            timer.start();
+            SetEvent(m_bufferReadyEvent);
+        } else if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
+            if (*processId != m_creatorPid) {
+                if (timer.elapsed() < 60) {
+                    delayedMessages[*processId].append(QString::fromLocal8Bit(message));
+                } else {
+                    delayedMessages[*processId] += QString::fromLocal8Bit(message);
+                    auto it = delayedMessages.constBegin();
+                    auto end = delayedMessages.constEnd();
+                    for (; it != end; ++it)
+                        emit debugOutput(it.key(), it.value());
+                    delayedMessages.clear();
+                    timer.start();
+                }
+            }
             SetEvent(m_bufferReadyEvent);
         }
     }
