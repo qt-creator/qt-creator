@@ -147,6 +147,8 @@ template<typename R, typename S, typename T>
 auto equal(R (S::*function)() const, T value)
     -> decltype(std::bind<bool>(std::equal_to<T>(), value, std::bind(function, std::placeholders::_1)))
 {
+    // This should use std::equal_to<> instead of std::eqaul_to<T>,
+    // but that's not supported everywhere yet, since it is C++14
     return std::bind<bool>(std::equal_to<T>(), value, std::bind(function, std::placeholders::_1));
 }
 
