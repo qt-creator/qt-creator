@@ -30,20 +30,9 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_parent(parent)
 {
     switch (m_type) {
-    case ROOT:
-        m_checked = Qt::Unchecked;
-        break;
     case TEST_CLASS:
     case TEST_FUNCTION:
         m_checked = Qt::Checked;
-        break;
-    case TEST_DATAFUNCTION:
-    case TEST_SPECIALFUNCTION:
-        if (m_parent)
-            m_checked = m_parent->checked() == Qt::PartiallyChecked ? Qt::Unchecked
-                                                                    : m_parent->checked();
-        else
-            m_checked = Qt::Unchecked;
         break;
     default:
         m_checked = Qt::Unchecked;
@@ -169,7 +158,7 @@ Qt::CheckState TestTreeItem::checked() const
         return m_checked;
     case TEST_DATAFUNCTION:
     case TEST_SPECIALFUNCTION:
-        return m_parent->m_checked == Qt::PartiallyChecked ? Qt::Unchecked : m_parent->m_checked;
+        return Qt::Unchecked;
     default:
         if (m_parent)
             return m_parent->m_checked;
