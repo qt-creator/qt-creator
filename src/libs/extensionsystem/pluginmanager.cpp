@@ -686,7 +686,12 @@ static inline void formatOption(QTextStream &str,
         str << " <" << parm << '>';
         remainingIndent -= 3 + parm.size();
     }
-    indent(str, qMax(1, remainingIndent));
+    if (remainingIndent >= 1) {
+        indent(str, remainingIndent);
+    } else {
+        str << '\n';
+        indent(str, descriptionIndentation);
+    }
     str << description << '\n';
 }
 
