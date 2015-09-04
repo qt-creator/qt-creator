@@ -569,9 +569,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     if (d->m_inferiorPid)
         d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
 
-    if (!d->m_runParameters.environment.size())
-        d->m_runParameters.environment = Utils::Environment();
-
     if (isNativeMixedActive())
         d->m_runParameters.environment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
 
