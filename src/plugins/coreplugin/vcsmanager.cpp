@@ -225,9 +225,7 @@ QList<IVersionControl *> VcsManager::versionControls()
 
 IVersionControl *VcsManager::versionControl(Id id)
 {
-    return Utils::findOrDefault(versionControls(), [id](const Core::IVersionControl *vc) {
-        return vc->id() == id;
-    });
+    return Utils::findOrDefault(versionControls(), Utils::equal(&Core::IVersionControl::id, id));
 }
 
 void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)

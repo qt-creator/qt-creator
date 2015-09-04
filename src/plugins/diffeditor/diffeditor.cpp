@@ -357,7 +357,7 @@ Core::IEditor *DiffEditor::duplicate()
 
     Core::Id id = currentView()->id();
     IDiffView *view = Utils::findOr(editor->m_views, editor->m_views.at(0),
-                                    [id](IDiffView *v) { return v->id() == id; });
+                                    Utils::equal(&IDiffView::id, id));
     QTC_ASSERT(view, view = editor->currentView());
     editor->setupView(view);
 
@@ -607,7 +607,8 @@ IDiffView *DiffEditor::loadSettings()
     Core::Id id = Core::Id::fromSetting(s->value(QLatin1String(diffViewKeyC)));
     s->endGroup();
 
-    IDiffView *view = Utils::findOr(m_views, m_views.at(0), [id](IDiffView *v) { return v->id() == id; });
+    IDiffView *view = Utils::findOr(m_views, m_views.at(0),
+                                    Utils::equal(&IDiffView::id, id));
     QTC_CHECK(view);
 
     return view;
