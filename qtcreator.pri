@@ -96,6 +96,16 @@ macx {
     else: \
         IDE_LIBEXEC_PATH = $$IDE_BUILD_TREE/libexec/qtcreator
     !isEqual(IDE_SOURCE_TREE, $$IDE_BUILD_TREE):copydata = 1
+
+    INSTALL_LIBRARY_PATH = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator
+    INSTALL_PLUGIN_PATH  = $$INSTALL_LIBRARY_PATH/plugins
+    win32: \
+        INSTALL_LIBEXEC_PATH = $$QTC_PREFIX/bin
+    else: \
+        INSTALL_LIBEXEC_PATH = $$QTC_PREFIX/libexec/qtcreator
+    INSTALL_DATA_PATH    = $$QTC_PREFIX/share/qtcreator
+    INSTALL_DOC_PATH     = $$QTC_PREFIX/share/doc/qtcreator
+    INSTALL_BIN_PATH     = $$QTC_PREFIX/bin
 }
 
 INCLUDEPATH += \

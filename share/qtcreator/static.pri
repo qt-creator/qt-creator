@@ -33,7 +33,7 @@ defineReplace(stripStaticBase) {
     !osx {
         static.files = $$STATIC_FILES
         static.base = $$STATIC_BASE
-        static.path = $$QTC_PREFIX/share/qtcreator
+        static.path = $$INSTALL_DATA_PATH
         INSTALLS += static
     }
 }

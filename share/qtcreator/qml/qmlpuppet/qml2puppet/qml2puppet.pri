@@ -30,6 +30,6 @@ osx {
     CONFIG -= app_bundle
     QMAKE_LFLAGS += -Wl,-sectcreate,__TEXT,__info_plist,$$system_quote($$PWD/Info.plist)
 } else {
-    target.path  = $$QTC_PREFIX/$$relative_path($$IDE_LIBEXEC_PATH, $$IDE_BUILD_TREE)
+    target.path  = $$INSTALL_LIBEXEC_PATH
     INSTALLS    += target
 }

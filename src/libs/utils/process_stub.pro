@@ -20,5 +20,5 @@ unix {
     LIBS += -lshell32
 }
 
-target.path  = $$QTC_PREFIX/$$relative_path($$IDE_LIBEXEC_PATH, $$IDE_BUILD_TREE)
+target.path  = $$INSTALL_LIBEXEC_PATH
 INSTALLS    += target

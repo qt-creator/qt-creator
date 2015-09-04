@@ -68,12 +68,12 @@ dev_qch_docs.depends += dev_html_docs
 
 !macx {
     inst_qch_docs.files = $$QCH_FILE
-    inst_qch_docs.path = $$QTC_PREFIX/share/doc/qtcreator
+    inst_qch_docs.path = $$INSTALL_DOC_PATH
     inst_qch_docs.CONFIG += no_check_exist no_default_install
     INSTALLS += inst_qch_docs
 
     inst_dev_qch_docs.files = $$DEV_QCH_FILE
-    inst_dev_qch_docs.path = $$QTC_PREFIX/share/doc/qtcreator
+    inst_dev_qch_docs.path = $$INSTALL_DOC_PATH
     inst_dev_qch_docs.CONFIG += no_check_exist no_default_install
     INSTALLS += inst_dev_qch_docs
 

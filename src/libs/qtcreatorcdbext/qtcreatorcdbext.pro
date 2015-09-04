@@ -97,6 +97,6 @@ HEADERS += extensioncontext.h \
     knowntype.h \
     symbolgroupnode.h
 
-target.path = $$QTC_PREFIX/lib/$${DIRNAME}
+target.path = $$QTC_PREFIX/lib/$${DIRNAME} # TODO this should go to INSTALL_LIBRARY_PATH/$${DIRNAME}
 
 INSTALLS += target
