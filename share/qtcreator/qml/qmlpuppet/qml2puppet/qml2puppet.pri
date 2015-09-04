@@ -28,7 +28,8 @@ unix:!openbsd:!osx: LIBS += -lrt # posix shared memory
 osx {
     CONFIG -= app_bundle
     QMAKE_LFLAGS += -Wl,-sectcreate,__TEXT,__info_plist,$$system_quote($$PWD/Info.plist)
-} else {
-    target.path  = $$INSTALL_LIBEXEC_PATH
-    INSTALLS    += target
 }
+
+osx:  target.path = $$INSTALL_LIBEXEC_PATH/qmldesigner
+else: target.path = $$INSTALL_LIBEXEC_PATH
+INSTALLS += target

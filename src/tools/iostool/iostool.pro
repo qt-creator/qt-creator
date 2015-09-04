@@ -28,3 +28,6 @@ HEADERS += \
     iosdevicemanager.h
 
 DISTFILES += Info.plist
+
+target.path = $$INSTALL_LIBEXEC_PATH/ios
+INSTALLS += target

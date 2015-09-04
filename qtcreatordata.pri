@@ -34,10 +34,8 @@ defineReplace(stripStaticBase) {
         QMAKE_EXTRA_COMPILERS += copy2build
     }
 
-    !osx {
-        static.files = $$STATIC_FILES
-        static.base = $$STATIC_BASE
-        static.path = $$STATIC_INSTALL_BASE
-        INSTALLS += static
-    }
+    static.files = $$STATIC_FILES
+    static.base = $$STATIC_BASE
+    static.path = $$STATIC_INSTALL_BASE
+    INSTALLS += static
 }

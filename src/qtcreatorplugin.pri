@@ -93,10 +93,8 @@ TEMPLATE = lib
 CONFIG += plugin plugin_with_soname
 linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 
-!macx {
-    target.path = $$INSTALL_PLUGIN_PATH
-    INSTALLS += target
-}
+target.path = $$INSTALL_PLUGIN_PATH
+INSTALLS += target
 
 MIMETYPES = $$_PRO_FILE_PWD_/$${TARGET}.mimetypes.xml
 exists($$MIMETYPES):DISTFILES += $$MIMETYPES

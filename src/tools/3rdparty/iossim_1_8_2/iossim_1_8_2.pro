@@ -53,3 +53,6 @@ HEADERS += \
 
 DISTFILES = IOSSIM_LICENSE \
   Info.plist
+
+target.path = $$INSTALL_LIBEXEC_PATH/ios
+INSTALLS += target

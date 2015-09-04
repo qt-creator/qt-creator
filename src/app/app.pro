@@ -2,7 +2,7 @@ include(../../qtcreator.pri)
 include(../shared/qtsingleapplication/qtsingleapplication.pri)
 
 TEMPLATE = app
-CONFIG += qtc_runnable
+CONFIG += qtc_runnable sliced_bundle
 TARGET = $$IDE_APP_TARGET
 DESTDIR = $$IDE_APP_PATH
 VERSION = $$QTCREATOR_VERSION
@@ -21,8 +21,6 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 }
 win32 {
     RC_FILE = qtcreator.rc
-    target.path = $$INSTALL_BIN_PATH
-    INSTALLS += target
 } else:macx {
     LIBS += -framework CoreFoundation
     ASSETCATALOG.files = $$PWD/qtcreator.xcassets
@@ -40,12 +38,19 @@ win32 {
         ASSETCATALOG.input = ASSETCATALOG.files
         ASSETCATALOG.CONFIG += no_link target_predeps
         QMAKE_EXTRA_COMPILERS += ASSETCATALOG
+        icns.files = \
+            $$IDE_DATA_PATH/qtcreator.icns \
+            $$IDE_DATA_PATH/prifile.icns \
+            $$IDE_DATA_PATH/profile.icns
+        icns.path = $$INSTALL_DATA_PATH
+        icns.CONFIG += no_check_exist
+        INSTALLS += icns
     }
     QMAKE_INFO_PLIST = Info.plist
-} else {
-    target.path  = $$INSTALL_BIN_PATH
-    INSTALLS    += target
 }
+
+target.path = $$INSTALL_APP_PATH
+INSTALLS += target
 
 DISTFILES += qtcreator.rc \
     Info.plist \

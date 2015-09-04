@@ -93,6 +93,14 @@ osx {
 
     LINK_LIBRARY_PATH = $$IDE_APP_BUNDLE/Contents/Frameworks
     LINK_PLUGIN_PATH  = $$IDE_APP_BUNDLE/Contents/PlugIns
+
+    INSTALL_LIBRARY_PATH = $$QTC_PREFIX/$${IDE_APP_TARGET}.app/Contents/Frameworks
+    INSTALL_PLUGIN_PATH  = $$QTC_PREFIX/$${IDE_APP_TARGET}.app/Contents/PlugIns
+    INSTALL_LIBEXEC_PATH = $$QTC_PREFIX/$${IDE_APP_TARGET}.app/Contents/Resources
+    INSTALL_DATA_PATH    = $$QTC_PREFIX/$${IDE_APP_TARGET}.app/Contents/Resources
+    INSTALL_DOC_PATH     = $$INSTALL_DATA_PATH/doc
+    INSTALL_BIN_PATH     = $$QTC_PREFIX/$${IDE_APP_TARGET}.app/Contents/MacOS
+    INSTALL_APP_PATH     = $$QTC_PREFIX/
 } else {
     contains(TEMPLATE, vc.*):vcproj = 1
     IDE_APP_TARGET   = qtcreator
@@ -123,6 +131,7 @@ osx {
     INSTALL_DATA_PATH    = $$QTC_PREFIX/share/qtcreator
     INSTALL_DOC_PATH     = $$QTC_PREFIX/share/doc/qtcreator
     INSTALL_BIN_PATH     = $$QTC_PREFIX/bin
+    INSTALL_APP_PATH     = $$QTC_PREFIX/bin
 }
 
 INCLUDEPATH += \

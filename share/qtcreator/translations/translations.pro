@@ -123,7 +123,7 @@ updateqm.name = LRELEASE ${QMAKE_FILE_IN}
 updateqm.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += updateqm
 
-qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/qtcreator_,.qm)
+qmfiles.files = $$prependAll(LANGUAGES, $$IDE_DATA_PATH/translations/qtcreator_,.qm)
 qmfiles.path = $$INSTALL_DATA_PATH/translations
 qmfiles.CONFIG += no_check_exist
 INSTALLS += qmfiles
