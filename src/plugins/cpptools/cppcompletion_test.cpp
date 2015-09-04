@@ -328,11 +328,16 @@ void CppToolsPlugin::test_completion()
 
     QEXPECT_FAIL("template_as_base: typedef not available in derived",
                  "We can live with that...", Abort);
+    QEXPECT_FAIL("template_specialization_with_reference", "test of reverted change", Abort);
+    QEXPECT_FAIL("specialization_multiple_arguments", "test of reverted change", Abort);
+    QEXPECT_FAIL("specialization_with_default_value", "test of reverted change", Abort);
+    QEXPECT_FAIL("partial_specialization_with_pointer", "test of reverted change", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 

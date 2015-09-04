@@ -369,7 +369,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
     QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
-    QEXPECT_FAIL("qualifiedNames", "Regression since e0594fc9b906a32f5c8ac70265490cf86044676f", Abort);
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
     QCOMPARE(currentTextEditor->currentColumn() - 1, expectedColumn);
 
