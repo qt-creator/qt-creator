@@ -267,6 +267,8 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
         item.createId();
         item.setCommand(command);
         item.reinitializeFromFile();
+        if (item.engineType() == NoEngineType)
+            continue;
         //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
         item.setUnexpandedDisplayName(tr("System %1 at %2")
             .arg(item.engineTypeName()).arg(command.toUserOutput()));
