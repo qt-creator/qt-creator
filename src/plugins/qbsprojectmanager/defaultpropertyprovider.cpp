@@ -62,13 +62,16 @@ using namespace WinRt::Internal::Constants;
 static QString extractToolchainPrefix(QString *compilerName)
 {
     QString prefix;
-    if (compilerName->endsWith(QLatin1String("-g++"))
-            || compilerName->endsWith(QLatin1String("-clang++"))
-            || compilerName->endsWith(QLatin1String("-gcc"))
-            || compilerName->endsWith(QLatin1String("-clang"))) {
-        const int idx = compilerName->lastIndexOf(QLatin1Char('-')) + 1;
-        prefix = compilerName->left(idx);
-        compilerName->remove(0, idx);
+    const QStringList candidates = { QLatin1String("g++"), QLatin1String("clang++"),
+                                     QLatin1String("gcc"), QLatin1String("clang") };
+    foreach (const QString &candidate, candidates) {
+        const QString suffix = Utils::HostOsInfo::withExecutableSuffix(QLatin1Char('-')
+                                                                       + candidate);
+        if (compilerName->endsWith(suffix)) {
+            const int idx = compilerName->lastIndexOf(QLatin1Char('-')) + 1;
+            prefix = compilerName->left(idx);
+            compilerName->remove(0, idx);
+        }
     }
     return prefix;
 }

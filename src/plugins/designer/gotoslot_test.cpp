@@ -196,12 +196,12 @@ public:
         }
 
         // Compare
-        BuiltinEditorDocumentParser *cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
+        const auto cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
         QVERIFY(cppDocumentParser);
         const Document::Ptr cppDocument = cppDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(cppDocument));
 
-        BuiltinEditorDocumentParser *hDocumentParser = BuiltinEditorDocumentParser::get(hFile);
+        const auto hDocumentParser = BuiltinEditorDocumentParser::get(hFile);
         QVERIFY(hDocumentParser);
         const Document::Ptr hDocument = hDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));

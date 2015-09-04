@@ -1,5 +1,5 @@
 %{Cpp:LicenseTemplate}\
-%{JS: QtSupport.qtIncludes([], [%{UseQApplication} ? "QWidgets/QApplication" : "QtGui/QGuiApplication", "QQml/QQmlApplicationEngine"])}
+%{JS: QtSupport.qtIncludes([], [%{UseQApplication} ? "QtWidgets/QApplication" : "QtGui/QGuiApplication", "QtQml/QQmlApplicationEngine"])}
 int main(int argc, char *argv[])
 {
 @if %{UseQApplication}

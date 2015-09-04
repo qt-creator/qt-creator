@@ -153,7 +153,7 @@ Component.prototype.createOperations = function()
     {
         component.addOperation( "CreateShortcut",
                                 component.qtCreatorBinaryPath,
-                                "@StartMenuDir@/Qt Creator.lnk",
+                                "@StartMenuDir@/Qt Creator " + installer.value("ProductVersion") + ".lnk",
                                 "workingDirectory=@homeDir@" );
 
         // only install c runtime if it is needed, no minor version check of the c runtime till we need it

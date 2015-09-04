@@ -467,6 +467,8 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
     FileName path = rootNode->path().parentDir();
     QDir rootParentDir(path.toString());
     QString relativePath = rootParentDir.relativeFilePath(directory);
+    if (relativePath == QLatin1String("."))
+        relativePath.clear();
     QStringList parts = relativePath.split(QLatin1Char('/'), QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = rootNode;
     foreach (const QString &part, parts) {

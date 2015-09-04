@@ -66,7 +66,7 @@ public:
     void semanticRehighlight() override;
     void recalculateSemanticInfoDetached(bool force) override;
     CppTools::SemanticInfo recalculateSemanticInfo() override;
-    CppTools::BaseEditorDocumentParser *parser() override;
+    CppTools::BaseEditorDocumentParser::Ptr parser() override;
     CPlusPlus::Snapshot snapshot() override;
     bool isParserRunning() const override;
 
@@ -94,7 +94,7 @@ private:
 private:
     QPointer<ModelManagerSupportClang> m_modelManagerSupport;
     std::vector<ClangTextMark> m_clangTextMarks;
-    ClangEditorDocumentParser m_parser;
+    QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppTools::ProjectPart::Ptr m_projectPart;
     QFutureWatcher<void> m_parserWatcher;
     unsigned m_parserRevision;

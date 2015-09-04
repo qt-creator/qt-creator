@@ -53,7 +53,7 @@ public:
     void recalculateSemanticInfoDetached(bool force) override;
     void semanticRehighlight() override;
     CppTools::SemanticInfo recalculateSemanticInfo() override;
-    BaseEditorDocumentParser *parser() override;
+    BaseEditorDocumentParser::Ptr parser() override;
     CPlusPlus::Snapshot snapshot() override;
     bool isParserRunning() const override;
 
@@ -66,7 +66,7 @@ private:
     SemanticInfo::Source createSemanticInfoSource(bool force) const;
 
 private:
-    BuiltinEditorDocumentParser m_parser;
+    BuiltinEditorDocumentParser::Ptr m_parser;
     QFuture<void> m_parserFuture;
 
     CPlusPlus::Snapshot m_documentSnapshot;

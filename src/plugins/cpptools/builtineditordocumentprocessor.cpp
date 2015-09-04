@@ -125,7 +125,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
         TextEditor::TextDocument *document,
         bool enableSemanticHighlighter)
     : BaseEditorDocumentProcessor(document)
-    , m_parser(document->filePath().toString())
+    , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString()))
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(enableSemanticHighlighter
                             ? new CppTools::SemanticHighlighter(document)
@@ -135,9 +135,9 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
 
     QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
 
-    BaseEditorDocumentParser::Configuration config = m_parser.configuration();
+    BaseEditorDocumentParser::Configuration config = m_parser->configuration();
     config.usePrecompiledHeaders = cms->pchUsage() != CppCodeModelSettings::PchUse_None;
-    m_parser.setConfiguration(config);
+    m_parser->setConfiguration(config);
 
     if (m_semanticHighlighter) {
         m_semanticHighlighter->setHighlightingRunner(
@@ -152,7 +152,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
             });
     }
 
-    connect(&m_parser, &BuiltinEditorDocumentParser::finished,
+    connect(m_parser.data(), &BuiltinEditorDocumentParser::finished,
             this, &BuiltinEditorDocumentProcessor::onParserFinished);
     connect(&m_semanticInfoUpdater, &SemanticInfoUpdater::updated,
             this, &BuiltinEditorDocumentProcessor::onSemanticInfoUpdated);
@@ -171,14 +171,14 @@ void BuiltinEditorDocumentProcessor::run()
                                        BuiltinEditorDocumentParser::InMemoryInfo(false));
 }
 
-BaseEditorDocumentParser *BuiltinEditorDocumentProcessor::parser()
+BaseEditorDocumentParser::Ptr BuiltinEditorDocumentProcessor::parser()
 {
-    return &m_parser;
+    return m_parser;
 }
 
 CPlusPlus::Snapshot BuiltinEditorDocumentProcessor::snapshot()
 {
-    return m_parser.snapshot();
+    return m_parser->snapshot();
 }
 
 void BuiltinEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)

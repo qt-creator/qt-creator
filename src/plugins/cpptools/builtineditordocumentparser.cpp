@@ -226,11 +226,11 @@ ProjectPart::HeaderPaths BuiltinEditorDocumentParser::headerPaths() const
     return extraState().headerPaths;
 }
 
-BuiltinEditorDocumentParser *BuiltinEditorDocumentParser::get(const QString &filePath)
+BuiltinEditorDocumentParser::Ptr BuiltinEditorDocumentParser::get(const QString &filePath)
 {
-    if (BaseEditorDocumentParser *b = BaseEditorDocumentParser::get(filePath))
-        return qobject_cast<BuiltinEditorDocumentParser *>(b);
-    return 0;
+    if (BaseEditorDocumentParser::Ptr b = BaseEditorDocumentParser::get(filePath))
+        return b.objectCast<BuiltinEditorDocumentParser>();
+    return BuiltinEditorDocumentParser::Ptr();
 }
 
 void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,

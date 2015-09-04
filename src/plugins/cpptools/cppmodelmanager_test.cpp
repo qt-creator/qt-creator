@@ -910,7 +910,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        auto *parser = BuiltinEditorDocumentParser::get(fileName);
+        auto parser = BuiltinEditorDocumentParser::get(fileName);
         QVERIFY(parser);
         BaseEditorDocumentParser::Configuration config = parser->configuration();
         config.usePrecompiledHeaders = true;
@@ -994,7 +994,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         QVERIFY(mm->isCppEditor(editor));
 
         const QString filePath = editor->document()->filePath().toString();
-        BaseEditorDocumentParser *parser = BaseEditorDocumentParser::get(filePath);
+        const auto parser = BaseEditorDocumentParser::get(filePath);
         BaseEditorDocumentParser::Configuration config = parser->configuration();
         config.editorDefines = editorDefines.toUtf8();
         parser->setConfiguration(config);

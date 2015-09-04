@@ -135,7 +135,6 @@ private:
 
     // Variables
     static MercurialPlugin *m_instance;
-    MercurialSettings mercurialSettings;
     OptionsPage *optionsPage;
     MercurialClient *m_client;
 

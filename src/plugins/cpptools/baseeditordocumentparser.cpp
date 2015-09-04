@@ -104,14 +104,14 @@ ProjectPart::Ptr BaseEditorDocumentParser::projectPart() const
     return state().projectPart;
 }
 
-BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
+BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &filePath)
 {
     CppModelManager *cmmi = CppModelManager::instance();
     if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath)) {
         if (BaseEditorDocumentProcessor *processor = cppEditorDocument->processor())
             return processor->parser();
     }
-    return 0;
+    return BaseEditorDocumentParser::Ptr();
 }
 
 ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &filePath,

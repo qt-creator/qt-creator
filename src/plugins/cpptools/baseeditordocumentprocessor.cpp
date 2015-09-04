@@ -118,7 +118,7 @@ QList<QTextEdit::ExtraSelection> BaseEditorDocumentProcessor::toTextEditorSelect
 }
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
-                                            BaseEditorDocumentParser *parser,
+                                            BaseEditorDocumentParser::Ptr parser,
                                             BaseEditorDocumentParser::InMemoryInfo info)
 {
     future.setProgressRange(0, 1);

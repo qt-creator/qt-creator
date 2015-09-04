@@ -2129,7 +2129,7 @@ void Preprocessor::maybeStartOutputLine()
     // If previous line ends with \ (possibly followed by whitespace), add another \n
     const char *start = buffer.constData();
     const char *ch = start + buffer.length() - 2;
-    while (ch > start && (*ch != '\n') && std::isspace(*ch))
+    while (ch > start && (*ch != '\n') && pp_isspace(*ch))
         --ch;
     if (*ch == '\\')
         buffer.append('\n');

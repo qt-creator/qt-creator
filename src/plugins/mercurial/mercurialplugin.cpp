@@ -560,8 +560,8 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
 
     QString branch = versionControl()->vcsTopic(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,
-                            mercurialSettings.stringValue(MercurialSettings::userNameKey),
-                            mercurialSettings.stringValue(MercurialSettings::userEmailKey), status);
+                            m_client->settings().stringValue(MercurialSettings::userNameKey),
+                            m_client->settings().stringValue(MercurialSettings::userEmailKey), status);
 }
 
 void MercurialPlugin::diffFromEditorSelected(const QStringList &files)

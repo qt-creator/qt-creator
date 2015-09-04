@@ -232,6 +232,8 @@ bool MakeStep::init()
             }
         }
         QString relObjectsDir = QDir(pp->workingDirectory()).relativeFilePath(objectsDir);
+        if (relObjectsDir == QLatin1String("."))
+            relObjectsDir.clear();
         if (!relObjectsDir.isEmpty())
             relObjectsDir += QLatin1Char('/');
         QString objectFile = relObjectsDir +
