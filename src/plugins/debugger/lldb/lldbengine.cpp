@@ -990,6 +990,7 @@ void LldbEngine::readLldbStandardError()
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
+    out.replace("\r\n", "\n");
     showMessage(_(out));
     m_inbuffer.append(out);
     while (true) {
