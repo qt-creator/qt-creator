@@ -137,6 +137,7 @@ void KitManager::restoreKits()
     QList<Kit *> kitsToRegister;
     QList<Kit *> kitsToValidate;
     QList<Kit *> kitsToCheck;
+    QList<Kit *> sdkKits;
 
     // read all kits from SDK
     QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
@@ -193,6 +194,7 @@ void KitManager::restoreKits()
         if (toStore == current)
             toStore->setup();
         addKit(toStore);
+        sdkKits << toStore;
     }
 
     // Delete all loaded autodetected kits that were not rediscovered:
@@ -221,9 +223,14 @@ void KitManager::restoreKits()
     if (k) {
         setDefaultKit(k);
     } else if (!defaultKit()) {
-        k = Utils::findOr(kitsToRegister, 0, [](Kit *k) { return k->isValid(); });
-        if (k)
+        k = Utils::findOrDefault(kitsToRegister, &Kit::isValid);
+        if (k) {
             setDefaultKit(k);
+        } else {
+            k = Utils::findOrDefault(sdkKits, &Kit::isValid);
+            if (k)
+                setDefaultKit(k);
+        }
     }
 
     d->m_writer = new PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));

@@ -109,6 +109,13 @@ typename T::value_type findOr(const T &container, typename T::value_type other, 
     return *it;
 }
 
+template<typename T, typename R, typename S>
+typename T::value_type findOr(const T &container, typename T::value_type other, R (S::*function)() const)
+{
+    return findOr(container, other, std::mem_fn(function));
+}
+
+
 template<typename T, typename F>
 int indexOf(const T &container, F function)
 {
@@ -123,6 +130,12 @@ int indexOf(const T &container, F function)
 
 template<typename T, typename F>
 typename T::value_type findOrDefault(const T &container, F function)
+{
+    return findOr(container, typename T::value_type(), function);
+}
+
+template<typename T, typename R, typename S>
+typename T::value_type findOrDefault(const T &container, R (S::*function)() const)
 {
     return findOr(container, typename T::value_type(), function);
 }
