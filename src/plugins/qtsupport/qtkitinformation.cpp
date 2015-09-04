@@ -61,10 +61,8 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
 
     // find "Qt in PATH":
     QList<BaseQtVersion *> versionList = QtVersionManager::unsortedVersions();
-    BaseQtVersion *result = findOrDefault(versionList, [](const BaseQtVersion *v) {
-        return v->autodetectionSource() == QLatin1String("PATH");
-    });
-
+    BaseQtVersion *result = findOrDefault(versionList, equal(&BaseQtVersion::autodetectionSource,
+                                                             QString::fromLatin1("PATH")));
     if (result)
         return result->uniqueId();
 
@@ -74,17 +72,14 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
             = BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
 
     if (!qmakePath.isEmpty()) {
-        result = findOrDefault(versionList, [qmakePath](const BaseQtVersion *v) {
-            return v->qmakeCommand() == qmakePath;
-        });
+        result = findOrDefault(versionList, equal(&BaseQtVersion::qmakeCommand, qmakePath));
         if (result)
             return result->uniqueId();
     }
 
     // Use *any* desktop Qt:
-    result = findOrDefault(versionList, [](const BaseQtVersion *v) {
-        return v->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-    });
+    result = findOrDefault(versionList, equal(&BaseQtVersion::type,
+                                              QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
     return result ? result->uniqueId() : -1;
 }
 
