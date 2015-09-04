@@ -225,17 +225,18 @@ void Locator::updateEditorManagerPlaceholderText()
          .arg(m_fileSystemFilter->shortcutString());
 
     QString classes;
-    ILocatorFilter *classesFilter = Utils::findOrDefault(m_filters, [](const ILocatorFilter *filter) {
-        return filter->id() == Id("Classes"); // not nice, but anyhow
-    });
+    // not nice, but anyhow
+    ILocatorFilter *classesFilter = Utils::findOrDefault(m_filters,
+                                                         Utils::equal(&ILocatorFilter::id,
+                                                                      Id("Classes")));
     if (classesFilter)
         classes = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a class definition</div>").arg(classesFilter->shortcutString());
 
     QString methods;
-    ILocatorFilter *methodsFilter = Utils::findOrDefault(m_filters, [](const ILocatorFilter *filter) {
-        return filter->id() == Id("Methods"); // not nice, but anyhow
-    });
+    // not nice, but anyhow
+    ILocatorFilter *methodsFilter = Utils::findOrDefault(m_filters, Utils::equal(&ILocatorFilter::id,
+                                                                                 Id("Methods")));
     if (methodsFilter)
         methods = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a function definition</div>").arg(methodsFilter->shortcutString());
