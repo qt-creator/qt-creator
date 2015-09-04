@@ -186,22 +186,7 @@ ScrollView {
                             flick.contentY = (rowStart + rowEnd - scroller.height) / 2;
                     }
 
-                    onSelectedItemChanged: {
-                        scroller.propagateSelection(index, selectedItem);
-                    }
-
-                    onItemPressed: {
-                        if (pressedItem === -1) {
-                            // User clicked on empty space. Remove selection.
-                            scroller.propagateSelection(-1, -1);
-                        } else {
-                            var location = model.location(pressedItem);
-                            if (location.hasOwnProperty("file")) // not empty
-                                scroller.gotoSourceLocation(location.file, location.line,
-                                                            location.column);
-                            scroller.typeId = model.typeId(pressedItem);
-                        }
-                    }
+                    onSelectedItemChanged: scroller.propagateSelection(index, selectedItem);
                 }
             }
 

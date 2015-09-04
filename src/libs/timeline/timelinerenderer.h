@@ -57,9 +57,6 @@ public:
     // TODO: We could add some Q_INVOKABLE functions to enable or disable render passes when the the
     // need arises.
 
-signals:
-    void itemPressed(int pressedItem);
-
 public slots:
     void clearData();
 

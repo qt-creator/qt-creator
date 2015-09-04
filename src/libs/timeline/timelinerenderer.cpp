@@ -208,15 +208,10 @@ void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
 void TimelineRenderer::TimelineRendererPrivate::manageClicked()
 {
     Q_Q(TimelineRenderer);
-    if (currentSelection.eventIndex != -1) {
-        // itemPressed() will trigger an update of the events and JavaScript views. Make sure the
-        // correct event is already selected when that happens, to prevent confusion.
+    if (currentSelection.eventIndex != -1)
         q->setSelectedItem(currentSelection.eventIndex);
-        emit q->itemPressed(currentSelection.eventIndex);
-    } else {
+    else
         q->setSelectedItem(-1);
-        emit q->itemPressed(-1);
-    }
 }
 
 void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mouseY)
