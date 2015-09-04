@@ -430,6 +430,9 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     QList<Target *> targetList = targets();
+    if (targetList.isEmpty())
+        return RestoreResult::Error;
+
     foreach (Target *t, targetList) {
         if (!t->activeBuildConfiguration()) {
             removeTarget(t);
