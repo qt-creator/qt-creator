@@ -23,6 +23,8 @@ SOURCES += \
     clangcompletionassistprocessor.cpp \
     clangcompletionassistprovider.cpp \
     clangcompletioncontextanalyzer.cpp \
+    clangdiagnosticfilter.cpp \
+    clangdiagnosticmanager.cpp \
     clangeditordocumentparser.cpp \
     clangeditordocumentprocessor.cpp \
     clangfunctionhintmodel.cpp \
@@ -61,6 +63,8 @@ HEADERS += \
     clangcompletionassistprocessor.h \
     clangcompletionassistprovider.h \
     clangcompletioncontextanalyzer.h \
+    clangdiagnosticfilter.h \
+    clangdiagnosticmanager.h \
     clangeditordocumentparser.h \
     clangeditordocumentprocessor.h \
     clangfunctionhintmodel.h \

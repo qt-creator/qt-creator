@@ -23,6 +23,7 @@ SOURCES += \
     activationsequenceprocessortest.cpp \
     clangcodecompleteresultstest.cpp \
     clangcompletioncontextanalyzertest.cpp \
+    clangdiagnosticfiltertest.cpp \
     clangipcservertest.cpp \
     clangstringtest.cpp \
     clientserverinprocesstest.cpp \
