@@ -19,15 +19,17 @@
 
 #include "testtreeitem.h"
 
+#include <utils/qtcassert.h>
+
 namespace Autotest {
 namespace Internal {
 
-TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type, TestTreeItem *parent)
+TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type)
     : m_name(name),
       m_filePath(filePath),
       m_type(type),
       m_line(0),
-      m_parent(parent)
+      m_parent(0)
 {
     switch (m_type) {
     case TEST_CLASS:
@@ -52,13 +54,10 @@ TestTreeItem::TestTreeItem(const TestTreeItem &other)
       m_line(other.m_line),
       m_column(other.m_column),
       m_mainFile(other.m_mainFile),
-      m_parent(other.m_parent)
+      m_parent(0)
 {
-    foreach (const TestTreeItem *child, other.m_children) {
-        TestTreeItem *reparentedChild = new TestTreeItem(*child);
-        reparentedChild->m_parent = this;
-        m_children.append(reparentedChild);
-    }
+    foreach (const TestTreeItem *child, other.m_children)
+        appendChild(new TestTreeItem(*child));
 }
 
 TestTreeItem *TestTreeItem::child(int row) const
@@ -73,6 +72,9 @@ TestTreeItem *TestTreeItem::parent() const
 
 void TestTreeItem::appendChild(TestTreeItem *child)
 {
+    QTC_ASSERT(child->m_parent == 0, return);
+
+    child->m_parent = this;
     m_children.append(child);
 }
 

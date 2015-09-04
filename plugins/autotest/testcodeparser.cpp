@@ -398,7 +398,7 @@ static TestTreeItem constructTestTreeItem(const QString &fileName,
     foreach (const QString &functionName, functions.keys()) {
         const TestCodeLocationAndType locationAndType = functions.value(functionName);
         TestTreeItem *treeItemChild = new TestTreeItem(functionName, locationAndType.m_name,
-                                                       locationAndType.m_type, &treeItem);
+                                                       locationAndType.m_type);
         treeItemChild->setLine(locationAndType.m_line);
         treeItemChild->setColumn(locationAndType.m_column);
         // check for data tags and if there are any for this function add them
@@ -408,7 +408,7 @@ static TestTreeItem constructTestTreeItem(const QString &fileName,
             foreach (const TestCodeLocationAndType &tagLocation, tags) {
                 TestTreeItem *tagTreeItem = new TestTreeItem(tagLocation.m_name,
                                                              locationAndType.m_name,
-                                                             tagLocation.m_type, treeItemChild);
+                                                             tagLocation.m_type);
                 tagTreeItem->setLine(tagLocation.m_line);
                 tagTreeItem->setColumn(tagLocation.m_column);
                 treeItemChild->appendChild(tagTreeItem);

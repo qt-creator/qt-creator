@@ -41,8 +41,8 @@ namespace Internal {
 TestTreeModel::TestTreeModel(QObject *parent) :
     QAbstractItemModel(parent),
     m_rootItem(new TestTreeItem(QString(), QString(), TestTreeItem::ROOT)),
-    m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::ROOT, m_rootItem)),
-    m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::ROOT, m_rootItem)),
+    m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::ROOT)),
+    m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::ROOT)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
@@ -664,7 +664,6 @@ void TestTreeModel::addTestTreeItem(const TestTreeItem &item, TestTreeModel::Typ
     TestTreeItem *parent = rootItemForType(type);
     QModelIndex index = rootIndexForType(type);
     TestTreeItem *toBeAdded = new TestTreeItem(item);
-    toBeAdded->setParent(parent);
 
     beginInsertRows(index, parent->childCount(), parent->childCount());
     parent->appendChild(toBeAdded);
@@ -680,7 +679,6 @@ void TestTreeModel::addTestTreeItems(const QList<TestTreeItem> &itemList, TestTr
     beginInsertRows(index, parent->childCount(), parent->childCount() + itemList.size() - 1);
     foreach (const TestTreeItem &item, itemList) {
         TestTreeItem *toBeAdded = new TestTreeItem(item);
-        toBeAdded->setParent(parent);
         parent->appendChild(toBeAdded);
     }
     endInsertRows();
@@ -693,12 +691,12 @@ void TestTreeModel::updateUnnamedQuickTest(const QString &fileName, const QStrin
     removeUnnamedQuickTests(fileName);
     TestTreeItem unnamed = hasUnnamedQuickTests()
             ? TestTreeItem(*unnamedQuickTests())
-            : TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS, rootItemForType(QuickTest));
+            : TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS);
 
     foreach (const QString &functionName, functions.keys()) {
         const TestCodeLocationAndType locationAndType = functions.value(functionName);
         TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
-                                                      locationAndType.m_type, &unnamed);
+                                                      locationAndType.m_type);
         testFunction->setLine(locationAndType.m_line);
         testFunction->setColumn(locationAndType.m_column);
         testFunction->setMainFile(mainFile);
@@ -714,7 +712,6 @@ void TestTreeModel::modifyTestTreeItem(TestTreeItem item, TestTreeModel::Type ty
 {
     QModelIndex index = rootIndexForType(type);
     TestTreeItem *parent = rootItemForType(type);
-    item.setParent(parent);
     if (file.isEmpty()) {
         if (TestTreeItem *unnamed = unnamedQuickTests()) {
             index = index.child(unnamed->row(), 0);
@@ -805,7 +802,6 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const Test
         for (int row = childCount; row < newChildCount; ++row) {
             TestTreeItem *newChild = newItem.child(row);
             TestTreeItem *toBeAdded = new TestTreeItem(*newChild);
-            toBeAdded->setParent(toBeModifiedItem);
             if (checkStates.contains(toBeAdded->name())
                     && checkStates.value(toBeAdded->name()) != Qt::Checked)
                 toBeAdded->setChecked(checkStates.value(toBeAdded->name()));

@@ -41,7 +41,7 @@ public:
     };
 
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                 Type type = ROOT, TestTreeItem *parent = 0);
+                 Type type = ROOT);
     virtual ~TestTreeItem();
     TestTreeItem(const TestTreeItem& other);
 
@@ -67,7 +67,6 @@ public:
     void setChecked(const Qt::CheckState checked);
     Qt::CheckState checked() const;
     Type type() const { return m_type; }
-    void setParent(TestTreeItem *parent) { m_parent = parent; }
     QList<QString> getChildNames() const;
 
 private:
