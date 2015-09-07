@@ -19,7 +19,7 @@ Prerequisites:
 * Qt 5.4.0 or later
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 4.7 or Visual Studio 2013 or later
+    * MinGW with g++ 4.7 or Visual Studio 2013 Update 2 or later
     * jom
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.7 or later
