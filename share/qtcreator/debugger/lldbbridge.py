@@ -1302,6 +1302,7 @@ class Dumper(DumperBase):
         self.report('statusmessage="%s"' % msg)
 
     def interruptInferior(self, _ = None):
+        self.reportToken(args)
         if self.process is None:
             self.reportStatus("No process to interrupt.")
             return
@@ -1310,6 +1311,7 @@ class Dumper(DumperBase):
         self.reportError(error)
 
     def detachInferior(self, _ = None):
+        self.reportToken(args)
         if self.process is None:
             self.reportStatus("No process to detach from.")
         else:
@@ -1318,6 +1320,7 @@ class Dumper(DumperBase):
             self.reportData()
 
     def continueInferior(self, _ = None):
+        self.reportToken(args)
         if self.process is None:
             self.reportStatus("No process to continue.")
         else:
@@ -1508,6 +1511,7 @@ class Dumper(DumperBase):
         self.report('breakpoint-added={%s,modelid="%s"}' % (self.describeBreakpoint(bp), modelId))
 
     def changeBreakpoint(self, args):
+        self.reportToken(args)
         lldbId = int(args["lldbid"])
         modelId = args['modelid']
         if lldbId > qqWatchpointOffset:
@@ -1523,6 +1527,7 @@ class Dumper(DumperBase):
               % (self.describeBreakpoint(bp), modelId))
 
     def removeBreakpoint(self, args):
+        self.reportToken(args)
         lldbId = int(args['lldbid'])
         modelId = args['modelid']
         if lldbId > qqWatchpointOffset:
@@ -1549,6 +1554,7 @@ class Dumper(DumperBase):
         self.report(result)
 
     def listSymbols(self, args):
+        self.reportToken(args)
         moduleName = args['module']
         #file = lldb.SBFileSpec(moduleName)
         #module = self.target.FindModule(file)
@@ -1573,15 +1579,19 @@ class Dumper(DumperBase):
         self.report(result)
 
     def executeNext(self, _ = None):
+        self.reportToken(args)
         self.currentThread().StepOver()
 
     def executeNextI(self, _ = None):
+        self.reportToken(args)
         self.currentThread().StepInstruction(lldb.eOnlyThisThread)
 
     def executeStep(self, _ = None):
+        self.reportToken(args)
         self.currentThread().StepInto()
 
     def shutdownInferior(self, _ = None):
+        self.reportToken(args)
         self.isShuttingDown_ = True
         if self.process is None:
             self.reportState("inferiorshutdownok")
@@ -1662,23 +1672,28 @@ class Dumper(DumperBase):
             % (result.Succeeded(), result.GetOutput(), result.GetError()))
 
     def activateFrame(self, args):
+        self.reportToken(args)
         thread = args['thread']
         self.currentThread().SetSelectedFrame(args['index'])
         self.reportContinuation(args)
 
     def selectThread(self, args):
+        self.reportToken(args)
         self.process.SetSelectedThreadByID(args['id'])
 
     def requestModuleSymbols(self, frame):
+        self.reportToken(args)
         self.handleCommand("target module list " + frame)
 
     def createFullBacktrace(self, _ = None):
+        self.reportToken(args)
         command = "thread backtrace all"
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         self.report('full-backtrace="%s"' % self.hexencode(result.GetOutput()))
 
     def executeDebuggerCommand(self, args):
+        self.reportToken(args)
         result = lldb.SBCommandReturnObject()
         command = args['command']
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
@@ -1701,6 +1716,7 @@ class Dumper(DumperBase):
         self.reportVariables(args)
 
     def disassemble(self, args):
+        self.reportToken(args)
         functionName = args.get('function', '')
         flavor = args.get('flavor', '')
         function = None
@@ -1768,6 +1784,7 @@ class Dumper(DumperBase):
         self.report(msg)
 
     def fetchMemory(self, args):
+        self.reportToken(args)
         address = args['address']
         length = args['length']
         error = lldb.SBError()
@@ -1785,6 +1802,7 @@ class Dumper(DumperBase):
         return value
 
     def assignValue(self, args):
+        self.reportToken(args)
         error = lldb.SBError()
         exp = self.hexdecode(args['exp'])
         value = self.hexdecode(args['value'])
