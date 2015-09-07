@@ -659,14 +659,13 @@ void TestTreeModel::removeUnnamedQuickTests(const QString &filePath)
     emit testTreeModelChanged();
 }
 
-void TestTreeModel::addTestTreeItem(const TestTreeItem &item, TestTreeModel::Type type)
+void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type)
 {
     TestTreeItem *parent = rootItemForType(type);
     QModelIndex index = rootIndexForType(type);
-    TestTreeItem *toBeAdded = new TestTreeItem(item);
 
     beginInsertRows(index, parent->childCount(), parent->childCount());
-    parent->appendChild(toBeAdded);
+    parent->appendChild(item);
     endInsertRows();
     emit testTreeModelChanged();
 }
@@ -682,17 +681,21 @@ void TestTreeModel::addTestTreeItems(const QList<TestTreeItem> &itemList, TestTr
         parent->appendChild(toBeAdded);
     }
     endInsertRows();
-    emit testTreeModelChanged();
 }
 
-void TestTreeModel::updateUnnamedQuickTest(const QString &fileName, const QString &mainFile,
+void TestTreeModel::updateUnnamedQuickTest(const QString &mainFile,
                                            const QMap<QString, TestCodeLocationAndType> &functions)
 {
-    removeUnnamedQuickTests(fileName);
-    TestTreeItem unnamed = hasUnnamedQuickTests()
-            ? TestTreeItem(*unnamedQuickTests())
-            : TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS);
+    if (functions.isEmpty())
+        return;
 
+    if (!hasUnnamedQuickTests())
+        addTestTreeItem(new TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS), QuickTest);
+
+    TestTreeItem *unnamed = unnamedQuickTests();
+    QModelIndex unnamedIndex = index(unnamed->row(), 0, rootIndexForType(QuickTest));
+
+    beginInsertRows(unnamedIndex, unnamed->childCount(), unnamed->childCount() + functions.size());
     foreach (const QString &functionName, functions.keys()) {
         const TestCodeLocationAndType locationAndType = functions.value(functionName);
         TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
@@ -700,32 +703,35 @@ void TestTreeModel::updateUnnamedQuickTest(const QString &fileName, const QStrin
         testFunction->setLine(locationAndType.m_line);
         testFunction->setColumn(locationAndType.m_column);
         testFunction->setMainFile(mainFile);
-        unnamed.appendChild(testFunction);
+        unnamed->appendChild(testFunction);
     }
-    if (hasUnnamedQuickTests())
-        modifyTestTreeItem(unnamed, QuickTest, QString());
-    else
-        addTestTreeItem(unnamed, QuickTest);
+    endInsertRows();
 }
 
-void TestTreeModel::modifyTestTreeItem(TestTreeItem item, TestTreeModel::Type type, const QString &file)
+void TestTreeModel::modifyTestTreeItem(TestTreeItem *item, TestTreeModel::Type type, const QStringList &files)
 {
     QModelIndex index = rootIndexForType(type);
     TestTreeItem *parent = rootItemForType(type);
-    if (file.isEmpty()) {
+    if (files.isEmpty()) {
         if (TestTreeItem *unnamed = unnamedQuickTests()) {
+            if (unnamed == item) // no need to update or delete
+                return;
+
             index = index.child(unnamed->row(), 0);
             modifyTestSubtree(index, item);
         }
     } else {
         for (int row = 0; row < parent->childCount(); ++row) {
-            if (parent->child(row)->filePath() == file) {
+            if (files.contains(parent->child(row)->filePath())) {
                 index = index.child(row, 0);
                 modifyTestSubtree(index, item);
                 break;
             }
         }
     }
+    // item was created as temporary, destroy it if it won't get destroyed by its parent
+    if (!item->parent())
+        delete item;
 }
 
 void TestTreeModel::removeAllTestItems()
@@ -774,19 +780,19 @@ QModelIndex TestTreeModel::rootIndexForType(TestTreeModel::Type type)
     QTC_ASSERT(false, return QModelIndex());
 }
 
-void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem &newItem)
+void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem)
 {
     if (!toBeModifiedIndex.isValid())
         return;
 
     TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(toBeModifiedIndex.internalPointer());
-    if (toBeModifiedItem->modifyContent(&newItem))
+    if (toBeModifiedItem->modifyContent(newItem))
         emit dataChanged(toBeModifiedIndex, toBeModifiedIndex,
                          QVector<int>() << Qt::DisplayRole << Qt::ToolTipRole << LinkRole);
 
     // process sub-items as well...
     const int childCount = toBeModifiedItem->childCount();
-    const int newChildCount = newItem.childCount();
+    const int newChildCount = newItem->childCount();
 
     // for keeping the CheckState on modifications
     // TODO might still fail for duplicate entries
@@ -800,7 +806,7 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const Test
         processChildren(toBeModifiedIndex, newItem, childCount, checkStates);
         // add additional items
         for (int row = childCount; row < newChildCount; ++row) {
-            TestTreeItem *newChild = newItem.child(row);
+            TestTreeItem *newChild = newItem->child(row);
             TestTreeItem *toBeAdded = new TestTreeItem(*newChild);
             if (checkStates.contains(toBeAdded->name())
                     && checkStates.value(toBeAdded->name()) != Qt::Checked)
@@ -817,7 +823,7 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const Test
     emit testTreeModelChanged();
 }
 
-void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem &newItem,
+void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem *newItem,
                                     const int upperBound,
                                     const QHash<QString, Qt::CheckState> &checkStates)
 {
@@ -827,7 +833,7 @@ void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem
     for (int row = 0; row < upperBound; ++row) {
         QModelIndex child = parentIndex.child(row, 0);
         TestTreeItem *toBeModifiedChild = toBeModifiedItem->child(row);
-        TestTreeItem *modifiedChild = newItem.child(row);
+        TestTreeItem *modifiedChild = newItem->child(row);
         if (toBeModifiedChild->modifyContent(modifiedChild))
             emit dataChanged(child, child, modificationRoles);
 

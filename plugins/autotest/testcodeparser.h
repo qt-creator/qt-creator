@@ -66,11 +66,11 @@ public:
 
 signals:
     void cacheCleared();
-    void testItemCreated(const TestTreeItem &item, TestTreeModel::Type type);
+    void testItemCreated(TestTreeItem *item, TestTreeModel::Type type);
     void testItemsCreated(const QList<TestTreeItem> &itemList, TestTreeModel::Type type);
-    void testItemModified(TestTreeItem tItem, TestTreeModel::Type type, const QString &file);
+    void testItemModified(TestTreeItem *tItem, TestTreeModel::Type type, const QStringList &file);
     void testItemsRemoved(const QString &filePath, TestTreeModel::Type type);
-    void unnamedQuickTestsUpdated(const QString &filePath, const QString &mainFile,
+    void unnamedQuickTestsUpdated(const QString &mainFile,
                                   const QMap<QString, TestCodeLocationAndType> &functions);
     void unnamedQuickTestsRemoved(const QString &filePath);
     void parsingStarted();
@@ -103,9 +103,9 @@ private:
     void updateUnnamedQuickTests(const QString &fileName, const QString &mainFile,
                                  const QMap<QString, TestCodeLocationAndType> &functions);
     void updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
-                                 const QString &declaringFile, TestTreeItem &testItem);
+                                 const QString &declaringFile, TestTreeItem *testItem);
     void updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
-                                   const QString &referencingFile, TestTreeItem &testItem);
+                                   const QString &referencingFile, TestTreeItem *testItem);
     void removeUnnamedQuickTestsByName(const QString &fileName);
 
     TestTreeModel *m_model;

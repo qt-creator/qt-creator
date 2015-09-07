@@ -95,7 +95,7 @@ typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
 } // namespace Internal
 } // namespace Autotest
 
-Q_DECLARE_METATYPE(Autotest::Internal::TestTreeItem)
+Q_DECLARE_METATYPE(Autotest::Internal::TestTreeItem *)
 Q_DECLARE_METATYPE(Autotest::Internal::TestCodeLocationAndType)
 
 #endif // TESTTREEITEM_H

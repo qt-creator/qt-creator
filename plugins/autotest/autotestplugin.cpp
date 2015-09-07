@@ -63,7 +63,7 @@ AutotestPlugin::AutotestPlugin()
 {
     // needed to be used in QueuedConnection connects
     qRegisterMetaType<TestResult>();
-    qRegisterMetaType<TestTreeItem>();
+    qRegisterMetaType<TestTreeItem *>();
     qRegisterMetaType<TestCodeLocationAndType>();
     qRegisterMetaType<TestTreeModel::Type>();
 

@@ -91,11 +91,11 @@ signals:
 public slots:
 
 private:
-    void addTestTreeItem(const TestTreeItem &item, Type type);
+    void addTestTreeItem(TestTreeItem *item, Type type);
     void addTestTreeItems(const QList<TestTreeItem> &itemList, Type type);
-    void updateUnnamedQuickTest(const QString &fileName, const QString &mainFile,
+    void updateUnnamedQuickTest(const QString &mainFile,
                                 const QMap<QString, TestCodeLocationAndType> &functions);
-    void modifyTestTreeItem(TestTreeItem item, Type type, const QString &file);
+    void modifyTestTreeItem(TestTreeItem *item, Type type, const QStringList &file);
     void removeAllTestItems();
     void removeTestTreeItems(const QString &filePath, Type type);
     void removeUnnamedQuickTests(const QString &filePath);
@@ -105,8 +105,8 @@ private:
     QModelIndex rootIndexForType(Type type);
 
     explicit TestTreeModel(QObject *parent = 0);
-    void modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem &newItem);
-    void processChildren(QModelIndex &parentIndex, const TestTreeItem &newItem,
+    void modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem);
+    void processChildren(QModelIndex &parentIndex, const TestTreeItem *newItem,
                          const int upperBound, const QHash<QString, Qt::CheckState> &checkStates);
 
     TestTreeItem *m_rootItem;
