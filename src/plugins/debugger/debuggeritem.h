@@ -98,6 +98,9 @@ public:
 
     QStringList abiNames() const;
 
+    bool isGood() const;
+    QString validityMessage() const;
+
     bool operator==(const DebuggerItem &other) const;
     bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 

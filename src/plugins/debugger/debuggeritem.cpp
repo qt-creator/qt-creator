@@ -202,6 +202,18 @@ QStringList DebuggerItem::abiNames() const
     return list;
 }
 
+bool DebuggerItem::isGood() const
+{
+    return m_engineType != NoEngineType;
+}
+
+QString DebuggerItem::validityMessage() const
+{
+    if (m_engineType == NoEngineType)
+        return DebuggerOptionsPage::tr("Could not determine debugger type");
+    return QString();
+}
+
 bool DebuggerItem::operator==(const DebuggerItem &other) const
 {
     return m_id == other.m_id

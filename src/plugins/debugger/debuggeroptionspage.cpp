@@ -32,6 +32,8 @@
 #include "debuggeritemmanager.h"
 #include "debuggeritem.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
@@ -68,6 +70,8 @@ public:
 
     QVariant data(int column, int role) const
     {
+        static QIcon errorIcon(QString::fromLatin1(Core::Constants::ICON_ERROR));
+
         switch (role) {
             case Qt::DisplayRole:
                 switch (column) {
@@ -80,6 +84,13 @@ public:
                 QFont font;
                 font.setBold(m_changed);
                 return font;
+            }
+            case Qt::DecorationRole: {
+                if (column == 0 && !m_item.isGood())
+                    return errorIcon;
+            }
+            case Qt::ToolTipRole: {
+                return m_item.validityMessage();
             }
         }
         return QVariant();
