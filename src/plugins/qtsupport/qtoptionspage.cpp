@@ -81,7 +81,7 @@ public:
 
     ~QtVersionItem()
     {
-
+        delete m_version;
     }
 
     void setVersion(BaseQtVersion *version)
@@ -155,7 +155,7 @@ public:
     }
 
 private:
-    BaseQtVersion *m_version = 0; // not owned
+    BaseQtVersion *m_version = 0;
     QIcon m_icon;
     QString m_buildLog;
     QByteArray m_toolChainId;
@@ -693,7 +693,6 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     // Add changed/added items:
     foreach (int a, toAdd) {
         BaseQtVersion *version = QtVersionManager::version(a)->clone();
-        //m_versions.append(version);
         auto *item = new QtVersionItem(version);
 
         item->setToolChainId(defaultToolChainId(version));
@@ -1050,7 +1049,7 @@ QList<BaseQtVersion *> QtOptionsPageWidget::versions() const
     auto gather = [&result](TreeItem *parent) {
         result.reserve(result.size() + parent->childCount());
         for (int i = 0; i < parent->childCount(); ++i)
-            result.append(static_cast<QtVersionItem *>(parent->childAt(i))->version());
+            result.append(static_cast<QtVersionItem *>(parent->childAt(i))->version()->clone());
     };
 
     gather(m_autoItem);
