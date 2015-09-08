@@ -19,6 +19,5 @@ SUBDIRS += \
     sdktool \
     valgrind
 
-qtHaveModule(declarative) {
-    SUBDIRS += qml timeline
-}
+qtHaveModule(qml): SUBDIRS += qml
+qtHaveModule(quick): SUBDIRS += timeline
