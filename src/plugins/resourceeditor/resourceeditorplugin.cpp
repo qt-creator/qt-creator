@@ -236,13 +236,13 @@ void ResourceEditorPlugin::onRefresh()
 
 void ResourceEditorPlugin::addPrefixContextMenu()
 {
+    auto topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     PrefixLangDialog dialog(tr("Add Prefix"), QString(), QString(), Core::ICore::mainWindow());
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString prefix = dialog.prefix();
     if (prefix.isEmpty())
         return;
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     topLevel->addPrefix(prefix, dialog.lang());
 }
 
