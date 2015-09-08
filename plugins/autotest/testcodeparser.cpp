@@ -480,8 +480,12 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
             visitor.accept(declaringDoc->globalNamespace());
             const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
 
-            const QMap<QString, TestCodeLocationList> dataTags =
+            QMap<QString, TestCodeLocationList> dataTags =
                     checkForDataTags(declaringDoc->fileName(), testFunctions);
+
+            if (declaringDoc->fileName() != document->fileName())
+                dataTags.unite(checkForDataTags(document->fileName(), testFunctions));
+
             TestTreeItem *item = constructTestTreeItem(declaringDoc->fileName(), QString(),
                                                        testCaseName, line, column, testFunctions,
                                                        dataTags);
