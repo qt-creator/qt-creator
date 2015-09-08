@@ -469,7 +469,8 @@ int DocumentModelPrivate::indexOfDocument(IDocument *document) const
 
 DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 {
-    return Utils::findOrDefault(d->m_entries, Utils::equal(&Entry::document, document));
+    return Utils::findOrDefault(d->m_entries,
+                                [&document](Entry *entry) { return entry->document == document; });
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
