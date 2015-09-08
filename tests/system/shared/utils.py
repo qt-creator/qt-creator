@@ -211,6 +211,7 @@ def invokeMenuItem(menu, item, *subItems):
             nativeType("<Command+q>")
             return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
+    snooze(1)
     waitFor("menuObject.visible", 1000)
     activateItem(menuObject)
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
