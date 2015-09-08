@@ -92,7 +92,6 @@ public slots:
 
 private:
     void addTestTreeItem(TestTreeItem *item, Type type);
-    void addTestTreeItems(const QList<TestTreeItem> &itemList, Type type);
     void updateUnnamedQuickTest(const QString &mainFile,
                                 const QMap<QString, TestCodeLocationAndType> &functions);
     void modifyTestTreeItem(TestTreeItem *item, Type type, const QStringList &file);

@@ -53,8 +53,6 @@ TestTreeModel::TestTreeModel(QObject *parent) :
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testItemCreated,
             this, &TestTreeModel::addTestTreeItem, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::testItemsCreated,
-            this, &TestTreeModel::addTestTreeItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testItemModified,
             this, &TestTreeModel::modifyTestTreeItem, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testItemsRemoved,
@@ -668,19 +666,6 @@ void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type
     parent->appendChild(item);
     endInsertRows();
     emit testTreeModelChanged();
-}
-
-void TestTreeModel::addTestTreeItems(const QList<TestTreeItem> &itemList, TestTreeModel::Type type)
-{
-    TestTreeItem *parent = rootItemForType(type);
-    QModelIndex index = rootIndexForType(type);
-
-    beginInsertRows(index, parent->childCount(), parent->childCount() + itemList.size() - 1);
-    foreach (const TestTreeItem &item, itemList) {
-        TestTreeItem *toBeAdded = new TestTreeItem(item);
-        parent->appendChild(toBeAdded);
-    }
-    endInsertRows();
 }
 
 void TestTreeModel::updateUnnamedQuickTest(const QString &mainFile,

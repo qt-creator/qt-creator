@@ -67,7 +67,6 @@ public:
 signals:
     void cacheCleared();
     void testItemCreated(TestTreeItem *item, TestTreeModel::Type type);
-    void testItemsCreated(const QList<TestTreeItem> &itemList, TestTreeModel::Type type);
     void testItemModified(TestTreeItem *tItem, TestTreeModel::Type type, const QStringList &file);
     void testItemsRemoved(const QString &filePath, TestTreeModel::Type type);
     void unnamedQuickTestsUpdated(const QString &mainFile,
