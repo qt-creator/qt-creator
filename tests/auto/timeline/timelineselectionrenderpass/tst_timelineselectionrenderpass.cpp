@@ -33,6 +33,7 @@
 #include <timeline/timelineselectionrenderpass.h>
 #include <timeline/timelinerenderstate.h>
 #include <timeline/timelineabstractrenderer_p.h>
+#include <timeline/timelineitemsrenderpass.h>
 
 #include <QtTest>
 #include <QSGMaterialShader>
@@ -83,6 +84,36 @@ void tst_TimelineSelectionRenderPass::instance()
     QVERIFY(inst != 0);
 }
 
+void compareSelectionNode(QSGNode *node, const QRectF &rect, int selectionId)
+{
+    QSGGeometryNode *geometryNode = static_cast<QSGGeometryNode *>(node);
+    QSGGeometry *geometry = geometryNode->geometry();
+    QCOMPARE(geometry->vertexCount(), 4);
+    QCOMPARE(geometry->drawingMode(), (GLenum)GL_TRIANGLE_STRIP);
+    OpaqueColoredPoint2DWithSize *data =
+            static_cast<OpaqueColoredPoint2DWithSize *>(geometry->vertexData());
+    float *lowerLeft = reinterpret_cast<float *>(data);
+    float *lowerRight = reinterpret_cast<float *>(++data);
+    float *upperLeft = reinterpret_cast<float *>(++data);
+    float *upperRight = reinterpret_cast<float *>(++data);
+
+    QCOMPARE(QRectF(QPointF(upperLeft[0], upperLeft[1]), QPointF(lowerRight[0], lowerRight[1])),
+            rect);
+    QCOMPARE(lowerRight[0], upperRight[0]);
+    QCOMPARE(lowerRight[1], lowerLeft[1]);
+    QCOMPARE(upperLeft[0], lowerLeft[0]);
+    QCOMPARE(upperLeft[1], upperRight[1]);
+
+    QCOMPARE(int(lowerLeft[4]), selectionId);
+    QCOMPARE(int(lowerRight[4]), selectionId);
+    QCOMPARE(int(upperLeft[4]), selectionId);
+    QCOMPARE(int(upperRight[4]), selectionId);
+
+    TimelineItemsMaterial *material = static_cast<TimelineItemsMaterial *>(
+                geometryNode->material());
+    QVERIFY(!(material->flags() & QSGMaterial::Blending));
+}
+
 void tst_TimelineSelectionRenderPass::update()
 {
     const TimelineSelectionRenderPass *inst = TimelineSelectionRenderPass::instance();
@@ -123,27 +154,24 @@ void tst_TimelineSelectionRenderPass::update()
     renderer.setSelectedItem(1);
     result = inst->update(&renderer, &parentState, result, 0, 10, false, 1);
     QVERIFY(result != nullState);
-    QSGSimpleRectNode *node = static_cast<QSGSimpleRectNode *>(result->collapsedOverlay());
-    QCOMPARE(node->rect(), QRectF(0, 0, 3, 30));
-    QCOMPARE(node->color(), QColor(96, 0, 255));
+    compareSelectionNode(result->collapsedOverlay(), QRectF(1, 0, 1, 30), model.selectionId(1));
 
     model.setExpanded(true);
     result = inst->update(&renderer, &parentState, result, 0, 10, false, 1);
-    node = static_cast<QSGSimpleRectNode *>(result->expandedOverlay());
-    QCOMPARE(node->rect(), QRectF(0, 0, 3, 30));
-    QCOMPARE(node->color(), QColor(96, 0, 255));
+    QVERIFY(result != nullState);
+    compareSelectionNode(result->expandedOverlay(), QRectF(1, 0, 1, 30), model.selectionId(1));
 
     renderer.setSelectedItem(10);
     result = inst->update(&renderer, &parentState, result, 0, 11, false, 1);
-    node = static_cast<QSGSimpleRectNode *>(result->expandedOverlay());
-    QCOMPARE(node->rect(), QRectF(10, 27, 200, 3));
-    QCOMPARE(node->color(), QColor(96, 0, 255));
+    QVERIFY(result != nullState);
+    float top = 30 * (1.0 - model.relativeHeight(10));
+    compareSelectionNode(result->expandedOverlay(), QRectF(10, top, 200, 30 - top),
+                         model.selectionId(10));
 
     renderer.setSelectedItem(11);
     result = inst->update(&renderer, &parentState, result, 0, 12, false, 1);
-    node = static_cast<QSGSimpleRectNode *>(result->expandedOverlay());
-    QCOMPARE(node->rect(), QRectF(11, 0, 200, 30));
-    QCOMPARE(node->color(), QColor(96, 0, 255));
+    QVERIFY(result != nullState);
+    compareSelectionNode(result->expandedOverlay(), QRectF(11, 0, 200, 30), model.selectionId(11));
 
     parentState.setPassState(0, result);
     parentState.assembleNodeTree(&model, 1, 1);
