@@ -346,7 +346,7 @@ QStringList QmlProject::files(FilesMode) const
 Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);
-    if (result == RestoreResult::Ok)
+    if (result != RestoreResult::Ok)
         return result;
 
     // refresh first - project information is used e.g. to decide the default RC's
