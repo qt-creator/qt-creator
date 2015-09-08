@@ -30,7 +30,7 @@ QtcPlugin {
     property string llvmLibs: Clang.libraries(qbs.targetOS)
     property string llvmVersion: Clang.version(llvmConfig, QtcProcessOutputReader)
 
-    condition: llvmConfig
+    condition: llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"))
 
     cpp.includePaths: base.concat(llvmIncludeDir)
     cpp.libraryPaths: base.concat(llvmLibDir)

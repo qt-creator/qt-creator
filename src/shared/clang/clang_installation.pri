@@ -87,7 +87,8 @@ unix {
         LLVM_VERSION = $$findLLVMVersionFromLibDir($$LLVM_LIBDIR)
     }
 
-    !exists($$LLVM_INCLUDEPATH): error("Cannot detect include dir for clang, candidate: $$LLVM_INCLUDEPATH")
+    LIBCLANG_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang-c/Index.h
+    !exists($$LIBCLANG_MAIN_HEADER): error("Cannot find libclang's main header file, candidate: $$LIBCLANG_MAIN_HEADER")
     !exists($$LLVM_LIBDIR): error("Cannot detect lib dir for clang, candidate: $$LLVM_LIBDIR")
     clang_lib = $$findClangLibInLibDir($$LLVM_LIBDIR)
     isEmpty(clang_lib): error("Cannot find Clang shared library in $$LLVM_LIBDIR")

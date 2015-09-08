@@ -305,7 +305,7 @@ void CodeAssistantPrivate::proposalComputed()
 {
     // Since the request runner is a different thread, there's still a gap in which the queued
     // signal could be processed after an invalidation of the current request.
-    if (m_requestRunner != sender())
+    if (!m_requestRunner || m_requestRunner != sender())
         return;
 
     IAssistProposal *newProposal = m_requestRunner->proposal();

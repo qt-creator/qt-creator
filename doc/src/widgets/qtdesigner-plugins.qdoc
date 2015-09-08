@@ -101,9 +101,9 @@
             \list
 
                 \li \c {libqwt_designer_plugin.dylib} to
-                    \c {QtCreator.app/Contents/MacOS/designer}
+                    \c {Qt Creator.app/Contents/PlugIns/designer}
 
-                \li  \c {libqwt.*.dylib} to \c {QtCreator.app/Contents/Frameworks}
+                \li  \c {libqwt.*.dylib} to \c {Qt Creator.app/Contents/Frameworks}
 
             \endlist
 

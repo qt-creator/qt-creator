@@ -1401,7 +1401,7 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
 
 void VcsBaseEditorWidget::setPlainText(const QString &text)
 {
-    TextEditorWidget::setPlainText(text);
+    textDocument()->setPlainText(text);
 }
 
 // Find the complete file from a diff relative specification.
