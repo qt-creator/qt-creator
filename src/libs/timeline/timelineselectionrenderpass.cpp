@@ -95,23 +95,22 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
             int row = model->expandedRow(selectedItem);
             int rowHeight = model->expandedRowHeight(row);
             height = rowHeight * model->relativeHeight(selectedItem);
-            top = model->expandedRowOffset(row) - height + rowHeight;
+            top = (model->expandedRowOffset(row) + rowHeight) - height;
         } else {
             int row = model->collapsedRow(selectedItem);
             height = TimelineModel::defaultRowHeight() * model->relativeHeight(selectedItem);
             top = TimelineModel::defaultRowHeight() * (row + 1) - height;
         }
 
-        qreal left = qMax(model->startTime(selectedItem) - parentState->start(), (qint64)0);
-        qreal right = qMin(parentState->end() - parentState->start(),
-                           model->endTime(selectedItem) - parentState->start());
+        qint64 startTime = model->startTime(selectedItem);
+        qint64 left = qMax(startTime - parentState->start(), (qint64)0);
+        qint64 width = qMin(parentState->end() - startTime, model->duration(selectedItem));
 
         // Construct from upper left and lower right for better precision. When constructing from
         // left and width the error on the left border is inherited by the right border. Like this
         // they're independent.
 
-        QRectF position(QPointF(left * parentState->scale(), top),
-                     QPointF(right * parentState->scale(), top + height));
+        QRectF position(left * parentState->scale(), top, width * parentState->scale(),  height);
 
         QColor itemColor = model->color(selectedItem);
         uchar red = itemColor.red();
