@@ -125,7 +125,8 @@ void QmlProfilerEventsModelProxy::clear()
 
 void QmlProfilerEventsModelProxy::limitToRange(qint64 rangeStart, qint64 rangeEnd)
 {
-    loadData(rangeStart, rangeEnd);
+    if (!d->modelManager->isEmpty())
+        loadData(rangeStart, rangeEnd);
 }
 
 void QmlProfilerEventsModelProxy::dataChanged()
