@@ -248,11 +248,12 @@ QString CppFileSettings::licenseTemplate(const QString &fileName, const QString 
     QString license = licenseStream.readAll();
 
     parseLicenseTemplatePlaceholders(&license, fileName, className);
-    // Ensure exactly one additional new line separating stuff
+
+    // Ensure at least one newline at the end of the license template to separate it from the code
     const QChar newLine = QLatin1Char('\n');
     if (!license.endsWith(newLine))
         license += newLine;
-    license += newLine;
+
     return license;
 }
 
