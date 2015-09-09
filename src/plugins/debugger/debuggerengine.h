@@ -463,8 +463,8 @@ public:
     void removedFromEditor() override { updateLineNumber(0); }
 
 private:
-    bool isDraggable() const;
-    void dragToLine(int line);
+    bool isDraggable() const override;
+    void dragToLine(int line) override;
 
     QPointer<DebuggerEngine> m_engine;
 };
