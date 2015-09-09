@@ -471,8 +471,12 @@ FileName AndroidConfig::adbToolPath() const
 Environment AndroidConfig::androidToolEnvironment() const
 {
     Environment env = Environment::systemEnvironment();
-    if (!m_openJDKLocation.isEmpty())
+    if (!m_openJDKLocation.isEmpty()) {
         env.set(QLatin1String("JAVA_HOME"), m_openJDKLocation.toUserOutput());
+        Utils::FileName binPath = m_openJDKLocation;
+        binPath.appendPath(QLatin1String("bin"));
+        env.prependOrSetPath(binPath.toUserOutput());
+    }
     return env;
 }
 
