@@ -269,7 +269,7 @@ public:
 
     bool setData(const QModelIndex &idx, const QVariant &data, int role);
     QVariant data(const QModelIndex &idx, int role) const;
-    QModelIndex index(int, int, const QModelIndex &idx) const;
+    QModelIndex index(int, int, const QModelIndex &idx = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &idx) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
