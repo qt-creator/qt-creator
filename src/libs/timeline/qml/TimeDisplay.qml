@@ -134,6 +134,7 @@ Item {
                         anchors.bottomMargin: timeDisplay.textMargin
                         verticalAlignment: Text.AlignBottom
                         text: prettyPrintTime(column.blockStartTime, timeDisplay.rangeDuration)
+                        visible: width > 0
                     }
                 }
 
