@@ -393,7 +393,6 @@ void QtOptionsPageWidget::cleanUpQtVersions()
 
     foreach (QtVersionItem *item, toRemove) {
         m_model->takeItem(item);
-        delete item->version();
         delete item;
     }
 
@@ -686,7 +685,6 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     // Remove changed/removed items:
     foreach (QtVersionItem *item, toRemove) {
         m_model->takeItem(item);
-        delete item->version();
         delete item;
     }
 
@@ -787,7 +785,6 @@ void QtOptionsPageWidget::removeQtDir()
         return;
 
     m_model->takeItem(item);
-    delete item->version();
     delete item;
 
     updateCleanUpButton();
@@ -822,14 +819,15 @@ void QtOptionsPageWidget::editPath()
     version->setId(current->uniqueId());
     if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName(current->qmakeCommand()))
         version->setUnexpandedDisplayName(current->displayName());
-    delete current;
 
     // Update ui
-    userChangedCurrentVersion();
     QtVersionItem *item = currentItem();
     item->setVersion(version);
     item->setToolChainId(defaultToolChainId(version));
     item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+    userChangedCurrentVersion();
+
+    delete current;
 }
 
 void QtOptionsPageWidget::updateDebuggingHelperUi()
