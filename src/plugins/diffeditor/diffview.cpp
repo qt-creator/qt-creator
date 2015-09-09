@@ -131,9 +131,11 @@ void UnifiedView::setDiff(const QList<FileData> &diffFileList, const QString &wo
 
 void UnifiedView::endOperation(bool success)
 {
-    Q_UNUSED(success);
     QTC_ASSERT(m_widget, return);
-    m_widget->restoreState();
+    if (success)
+        m_widget->restoreState();
+    else
+        m_widget->clear(tr("Failed"));
 }
 
 void UnifiedView::setCurrentDiffFileIndex(int index)
@@ -194,9 +196,11 @@ void SideBySideView::setDiff(const QList<FileData> &diffFileList, const QString 
 
 void SideBySideView::endOperation(bool success)
 {
-    Q_UNUSED(success);
     QTC_ASSERT(m_widget, return);
-    m_widget->restoreState();
+    if (success)
+        m_widget->restoreState();
+    else
+        m_widget->clear(tr("Failed"));
 }
 
 void SideBySideView::setSync(bool sync)
