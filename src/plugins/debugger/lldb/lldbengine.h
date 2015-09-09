@@ -67,8 +67,10 @@ public:
     explicit LldbEngine(const DebuggerRunParameters &runParameters);
     ~LldbEngine();
 
+signals:
+    void outputReady(const QByteArray &data);
+
 private:
-    // DebuggerEngine implementation
     DebuggerEngine *cppEngine() { return this; }
 
     void executeStep();
@@ -81,7 +83,6 @@ private:
     void startLldb();
     void startLldbStage2();
     void setupInferior();
-    void setupInferiorStage2();
     void runEngine();
     void shutdownInferior();
     void shutdownEngine();
@@ -98,6 +99,7 @@ private:
 
     void activateFrame(int index);
     void selectThread(ThreadId threadId);
+    void fetchFullBacktrace();
 
     // This should be always the last call in a function.
     bool stateAcceptsBreakpointChanges() const;
@@ -118,20 +120,13 @@ private:
     void reloadFullStack();
     void reloadDebuggingHelpers();
     void fetchDisassembler(Internal::DisassemblerAgent *);
-    void refreshDisassembly(const GdbMi &data);
 
-    bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void setRegisterValue(const QByteArray &name, const QString &value);
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
     void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);
-    void refreshMemory(const GdbMi &data);
 
-signals:
-    void outputReady(const QByteArray &data);
-
-private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const;
 
@@ -139,45 +134,23 @@ private:
     void handleLldbError(QProcess::ProcessError error);
     void readLldbStandardOutput();
     void readLldbStandardError();
+
+    void handleStateNotification(const GdbMi &state);
+    void handleLocationNotification(const GdbMi &location);
+    void handleOutputNotification(const GdbMi &output);
+
     void handleResponse(const QByteArray &data);
     void updateAll();
-    void createFullBacktrace();
     void doUpdateLocals(const UpdateParameters &params);
-    void handleContinuation(const GdbMi &data);
-
-    void refreshAll(const GdbMi &all);
-    void refreshThreads(const GdbMi &threads);
-    void refreshCurrentThread(const GdbMi &data);
-    void refreshStack(const GdbMi &stack);
-    void refreshRegisters(const GdbMi &registers);
-    void refreshTypeInfo(const GdbMi &typeInfo);
-    void refreshState(const GdbMi &state);
-    void refreshLocation(const GdbMi &location);
-    void refreshModules(const GdbMi &modules);
-    void refreshSymbols(const GdbMi &symbols);
-    void refreshOutput(const GdbMi &output);
-    void refreshAddedBreakpoint(const GdbMi &bkpts);
-    void refreshChangedBreakpoint(const GdbMi &bkpts);
-    void refreshRemovedBreakpoint(const GdbMi &bkpts);
-    void showFullBacktrace(const GdbMi &data);
-
-    typedef void (LldbEngine::*LldbCommandContinuation)();
-
-    void handleListLocals(const QByteArray &response);
-    void handleListModules(const QByteArray &response);
-    void handleListSymbols(const QByteArray &response);
-    void handleBreakpointsSynchronized(const QByteArray &response);
-    void updateBreakpointData(const GdbMi &bkpt, bool added);
-    void handleUpdateStack(const QByteArray &response);
-    void handleUpdateThreads(const QByteArray &response);
+    void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
+    void fetchStack(int limit);
 
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
-    void handleChildren(const WatchData &data0, const GdbMi &item,
-        QList<WatchData> *list);
-
     void runCommand(const DebuggerCommand &cmd);
     void debugLastCommand();
+
+private:
     DebuggerCommand m_lastDebuggableCommand;
 
     QByteArray m_inbuffer;
@@ -191,6 +164,8 @@ private:
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
     QHash<int, QPointer<QObject> > m_memoryAgentTokens;
+
+    QHash<int, DebuggerCommand> m_commandForToken;
 
     // Console handling.
     Q_SLOT void stubError(const QString &msg);

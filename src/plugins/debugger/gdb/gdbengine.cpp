@@ -4719,7 +4719,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("partialVariable", params.partialVariable);
     cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
     cmd.flags = Discardable | InUpdateLocals;
-    cmd.callback = [this](const DebuggerResponse &r) { handleStackFrame(r); };
+    cmd.callback = CB(handleStackFrame);
     runCommand(cmd);
 
     cmd.arg("passExceptions", true);

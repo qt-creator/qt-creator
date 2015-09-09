@@ -547,10 +547,9 @@ class Dumper(DumperBase):
             self.report('output="%s"' % result.GetOutput())
         else:
             self.report('error="%s"' % result.GetError())
-        self.reportData()
 
     def put(self, stuff):
-        sys.stdout.write(stuff)
+        self.out += stuff
 
     def isMovableType(self, type):
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
@@ -656,7 +655,6 @@ class Dumper(DumperBase):
         return None
 
     def setupInferior(self, args):
-        self.reportToken(args)
         error = lldb.SBError()
 
         self.executable_ = args['executable']
@@ -697,12 +695,8 @@ class Dumper(DumperBase):
         else:
             self.target = self.debugger.CreateTarget(None, None, None, True, error)
 
-        if self.target.IsValid():
-            for bp in args['bkpts']:
-                self.insertBreakpoint(bp)
-
-        state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
-        self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
+        state = 1 if self.target.IsValid() else 0
+        self.reportResult('success="%s",msg="%s",exe="%s"' % (state, error, self.executable_), args)
 
     def runEngine(self, args):
         self.prepare(args)
@@ -710,7 +704,6 @@ class Dumper(DumperBase):
         s.start()
 
     def prepare(self, args):
-        self.reportToken(args)
         error = lldb.SBError()
         listener = self.debugger.GetListener()
 
@@ -730,7 +723,7 @@ class Dumper(DumperBase):
                 self.debugger.GetListener(),
                 self.remoteChannel_, None, error)
             if not error.Success():
-                self.reportError(error)
+                self.report(self.describeError(error))
                 self.reportState("enginerunfailed")
                 return
             # Even if it stops it seems that LLDB assumes it is running
@@ -741,7 +734,6 @@ class Dumper(DumperBase):
             coreFile = args.get('coreFile', '');
             self.process = self.target.LoadCore(coreFile)
             self.reportState("enginerunokandinferiorunrunnable")
-            #self.reportContinuation(args)
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(os.getcwd())
@@ -751,7 +743,7 @@ class Dumper(DumperBase):
                 self.createBreakpointAtMain()
             self.process = self.target.Launch(launchInfo, error)
             if not error.Success():
-                self.reportError(error)
+                self.report(self.describeError(error))
                 self.reportState("enginerunfailed")
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
@@ -769,15 +761,23 @@ class Dumper(DumperBase):
     def describeError(self, error):
         desc = lldb.SBStream()
         error.GetDescription(desc)
-        result = 'error={type="%s"' % error.GetType()
+        result = 'success="%s",' % int(error.Success())
+        result += 'error={type="%s"' % error.GetType()
+        if error.GetType():
+            result += ',status="%s"' % error.GetCString()
         result += ',code="%s"' % error.GetError()
         result += ',desc="%s"}' % desc.GetData()
         return result
 
-    def reportError(self, error):
-        self.report(self.describeError(error))
-        if error.GetType():
-            self.reportStatus(error.GetCString())
+    def describeStatus(self, status):
+        return 'status="%s",' % status
+
+    def describeLocation(self, frame):
+        if int(frame.pc) == 0xffffffffffffffff:
+            return ''
+        file = fileName(frame.line_entry.file)
+        line = frame.line_entry.line
+        return 'location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc)
 
     def currentThread(self):
         return None if self.process is None else self.process.GetSelectedThread()
@@ -785,13 +785,6 @@ class Dumper(DumperBase):
     def currentFrame(self):
         thread = self.currentThread()
         return None if thread is None else thread.GetSelectedFrame()
-
-    def reportLocation(self, frame):
-        if int(frame.pc) != 0xffffffffffffffff:
-            file = fileName(frame.line_entry.file)
-            line = frame.line_entry.line
-            self.report('location={file="%s",line="%s",addr="%s"}'
-                % (file, line, frame.pc))
 
     def firstStoppedThread(self):
         for i in xrange(0, self.process.GetNumThreads()):
@@ -805,9 +798,8 @@ class Dumper(DumperBase):
                 return thread
         return None
 
-    def reportThreads(self, args):
-        self.reportToken(args)
-        result = 'threads={threads=['
+    def fetchThreads(self, args):
+        result = 'threads=['
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
             if thread.is_stopped:
@@ -834,12 +826,8 @@ class Dumper(DumperBase):
             result += ',file="%s"' % fileName(frame.line_entry.file)
             result += '}},'
 
-        result += ']},'
-        self.report(result)
-
-    def reportCurrentThread(self, args):
-        self.reportToken(args)
-        self.report('current-thread={id="%s"}' % self.currentThread().id)
+        result += '],current-thread-id="%s"' % self.currentThread().id
+        self.reportResult(result, args)
 
     def firstUsableFrame(self, thread):
         for i in xrange(10):
@@ -850,17 +838,16 @@ class Dumper(DumperBase):
                 return i
         return None
 
-    def reportStack(self, args):
-        self.reportToken(args)
+    def fetchStack(self, args):
         if not self.process:
-            self.report('msg="No process"')
+            self.reportResult('msg="No process"', args)
             return
         thread = self.currentThread()
         if not thread:
-            self.report('msg="No thread"')
+            self.reportResult('msg="No thread"', args)
             return
 
-        self.reportLocation(thread.GetFrameAtIndex(0)) # FIXME
+        self.report(self.describeLocation(thread.GetFrameAtIndex(0))) # FIXME
 
         isNativeMixed = int(args.get('nativeMixed', 0))
 
@@ -919,18 +906,16 @@ class Dumper(DumperBase):
         result += ',hasmore="%d"' % isLimited
         result += ',limit="%d"' % limit
         result += '}'
-        self.report(result)
-        self.reportContinuation(args)
+        self.reportResult(result, args)
+
+    def reportResult(self, result, args):
+        self.report('result={token="%s",%s}' % (args.get("token", 0), result))
 
     def reportToken(self, args):
         if "token" in args:
             # Unusual syntax intended, to support the double-click in left
             # logview pane feature.
             self.report('token(\"%s\")' % args["token"])
-
-    def reportContinuation(self, args):
-        if not self.isShuttingDown_ and "continuation" in args:
-            self.report('continuation=\"%s\"' % args["continuation"])
 
     def extractBlob(self, base, size):
         if size == 0:
@@ -1171,11 +1156,10 @@ class Dumper(DumperBase):
                 with SubItem(self, child):
                     self.putItem(child)
 
-    def reportVariables(self, args = {}):
-        with self.outputLock:
-            sys.stdout.write("@\n")
-            self.reportVariablesHelper(args)
-            sys.stdout.write("@\n")
+    def reportVariables(self, args):
+        self.out = ""
+        self.reportVariablesHelper(args)
+        self.reportResult(self.out, args)
 
     def reportVariablesHelper(self, args = {}):
         frame = self.currentFrame()
@@ -1186,7 +1170,7 @@ class Dumper(DumperBase):
         isPartial = len(partialVariable) > 0
 
         self.currentIName = 'local'
-        self.put('all={data=[')
+        self.put('data=[')
         self.anonNumber = 0
         shadowed = {}
         ids = {} # Filter out duplicates entries at the same address.
@@ -1248,19 +1232,11 @@ class Dumper(DumperBase):
 
         self.handleWatches(args)
 
-        self.put('],partial="%d"}' % isPartial)
+        self.put('],partial="%d"' % isPartial)
 
-    def reportData(self, _ = None):
+    def fetchRegisters(self, args = None):
         if self.process is None:
-            self.report('process="none"')
-        else:
-            state = self.process.GetState()
-            if state == lldb.eStateStopped:
-                self.reportVariables()
-
-    def reportRegisters(self, _ = None):
-        if self.process is None:
-            self.report('process="none"')
+            result = 'process="none"'
         else:
             frame = self.currentFrame()
             if frame:
@@ -1273,10 +1249,9 @@ class Dumper(DumperBase):
                         result += ',size="%s"' % reg.GetByteSize()
                         result += ',type="%s"},' % reg.GetType()
                 result += ']'
-                self.report(result)
+        self.reportResult(result, args)
 
     def setRegister(self, args):
-        self.reportToken(args)
         name = args["name"]
         value = args["value"]
         result = lldb.SBCommandReturnObject()
@@ -1284,55 +1259,50 @@ class Dumper(DumperBase):
         interp.HandleCommand("register write %s %s" % (name, value), result)
         success = result.Succeeded()
         if success:
-            self.report('output="%s"' % result.GetOutput())
+            self.reportResult('output="%s"' % result.GetOutput(), args)
             return
         # Try again with  register write xmm0 "{0x00 ... 0x02}" syntax:
         vec = ' '.join(["0x" + value[i:i+2] for i in range(2, len(value), 2)])
         success = interp.HandleCommand('register write %s "{%s}"' % (name, vec), result)
         if success:
-            self.report('output="%s"' % result.GetOutput())
-            return
-        self.report('error="%s"' % result.GetError())
+            self.reportResult('output="%s"' % result.GetOutput(), args)
+        else:
+            self.reportResult('error="%s"' % result.GetError(), args)
 
     def report(self, stuff):
         with self.outputLock:
             sys.stdout.write("@\n" + stuff + "@\n")
 
-    def reportStatus(self, msg):
-        self.report('statusmessage="%s"' % msg)
+    def reportState(self, state):
+        self.report('state="%s"' % state)
 
-    def interruptInferior(self, _ = None):
-        self.reportToken(args)
+    def interruptInferior(self, args):
         if self.process is None:
-            self.reportStatus("No process to interrupt.")
-            return
-        self.isInterrupting_ = True
-        error = self.process.Stop()
-        self.reportError(error)
+            self.reportResult('status="No process to interrupt",success="0"', args)
+        else:
+            self.isInterrupting_ = True
+            error = self.process.Stop()
+            self.reportResult(describeError(error), args)
 
-    def detachInferior(self, _ = None):
-        self.reportToken(args)
+    def detachInferior(self, args):
         if self.process is None:
-            self.reportStatus("No process to detach from.")
+            self.reportResult('status="No process to detach from."', args)
         else:
             error = self.process.Detach()
-            self.reportError(error)
-            self.reportData()
+            self.reportResult(self.describeError(error), args)
 
-    def continueInferior(self, _ = None):
-        self.reportToken(args)
+    def continueInferior(self, args):
         if self.process is None:
-            self.reportStatus("No process to continue.")
+            self.reportResult('status="No process to continue."', args)
         else:
+            # Can fail when attaching to GDBserver.
             error = self.process.Continue()
-            self.reportError(error)
-            # Happens when attaching to GDBserver.
-            if not error.Success():
-                self.reportState("inferiorill")
+            self.reportResult(self.describeError(error), args)
 
-    def quitDebugger(self, _ = None):
+    def quitDebugger(self, args):
         self.reportState("inferiorshutdownrequested")
         self.process.Kill()
+        self.reportResult('', args)
 
     def handleEvent(self, event):
         out = lldb.SBStream()
@@ -1407,9 +1377,6 @@ class Dumper(DumperBase):
         elif eventType == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
-    def reportState(self, state):
-        self.report('state="%s"' % state)
-
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if isWatch:
@@ -1419,32 +1386,28 @@ class Dumper(DumperBase):
         if not bp.IsValid():
             return
         result += ',hitcount="%s"' % bp.GetHitCount()
-        if hasattr(bp, 'GetThreadID'):
-            result += ',threadid="%s"' % bp.GetThreadID()
-        if hasattr(bp, 'IsOneShot'):
-            result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
-        if hasattr(bp, 'GetCondition'):
-            cond = bp.GetCondition()
-            result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
+        result += ',threadid="%s"' % bp.GetThreadID()
+        result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
+        cond = bp.GetCondition()
+        result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
         result += ',locations=['
         lineEntry = None
-        if hasattr(bp, 'GetNumLocations'):
-            for i in xrange(bp.GetNumLocations()):
-                loc = bp.GetLocationAtIndex(i)
-                addr = loc.GetAddress()
-                lineEntry = addr.GetLineEntry()
-                result += '{locid="%s"' % loc.GetID()
-                result += ',func="%s"' % addr.GetFunction().GetName()
-                result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
-                result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
-                result += ',valid="%s"' % (1 if loc.IsValid() else 0)
-                result += ',ignorecount="%s"' % loc.GetIgnoreCount()
-                result += ',file="%s"' % lineEntry.GetFileSpec()
-                result += ',line="%s"' % lineEntry.GetLine()
-                result += ',addr="%s"},' % addr.GetFileAddress()
+        for i in xrange(bp.GetNumLocations()):
+            loc = bp.GetLocationAtIndex(i)
+            addr = loc.GetAddress()
+            lineEntry = addr.GetLineEntry()
+            result += '{locid="%s"' % loc.GetID()
+            result += ',func="%s"' % addr.GetFunction().GetName()
+            result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
+            result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
+            result += ',valid="%s"' % (1 if loc.IsValid() else 0)
+            result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+            result += ',file="%s"' % lineEntry.GetFileSpec()
+            result += ',line="%s"' % lineEntry.GetLine()
+            result += ',addr="%s"},' % addr.GetFileAddress()
         result += ']'
         if lineEntry is not None:
             result += ',file="%s"' % lineEntry.GetFileSpec()
@@ -1463,8 +1426,8 @@ class Dumper(DumperBase):
                 self.insertQmlBreakpoint(args)
                 return
 
+        extra = ''
         more = True
-        modelId = args['modelid']
         if bpType == BreakpointByFileAndLine:
             bp = self.target.BreakpointCreateByLocation(
                 str(args["fileName"]), int(args["lineNumber"]))
@@ -1484,7 +1447,7 @@ class Dumper(DumperBase):
             error = lldb.SBError()
             bp = self.target.WatchAddress(args["address"], 4, False, True, error)
             #warn("BPNEW: %s" % bp)
-            self.reportError(error)
+            extra = self.describeError(error)
         elif bpType == WatchpointAtExpression:
             # FIXME: Top level-only for now.
             try:
@@ -1503,17 +1466,13 @@ class Dumper(DumperBase):
 
         if more:
             bp.SetIgnoreCount(int(args["ignorecount"]))
-            if hasattr(bp, 'SetCondition'):
-                bp.SetCondition(self.hexdecode(args["condition"]))
+            bp.SetCondition(self.hexdecode(args["condition"]))
             bp.SetEnabled(bool(args["enabled"]))
-            if hasattr(bp, 'SetOneShot'):
-                bp.SetOneShot(bool(args["oneshot"]))
-        self.report('breakpoint-added={%s,modelid="%s"}' % (self.describeBreakpoint(bp), modelId))
+            bp.SetOneShot(bool(args["oneshot"]))
+        self.reportResult(self.describeBreakpoint(bp) + extra, args)
 
     def changeBreakpoint(self, args):
-        self.reportToken(args)
         lldbId = int(args["lldbid"])
-        modelId = args['modelid']
         if lldbId > qqWatchpointOffset:
             bp = self.target.FindWatchpointByID(lldbId)
         else:
@@ -1521,21 +1480,17 @@ class Dumper(DumperBase):
         bp.SetIgnoreCount(int(args["ignorecount"]))
         bp.SetCondition(self.hexdecode(args["condition"]))
         bp.SetEnabled(bool(args["enabled"]))
-        if hasattr(bp, 'SetOneShot'):
-            bp.SetOneShot(bool(args["oneshot"]))
-        self.report('breakpoint-changed={%s,modelid="%s"}'
-              % (self.describeBreakpoint(bp), modelId))
+        bp.SetOneShot(bool(args["oneshot"]))
+        self.reportResult(self.describeBreakpoint(bp), args)
 
     def removeBreakpoint(self, args):
-        self.reportToken(args)
         lldbId = int(args['lldbid'])
-        modelId = args['modelid']
         if lldbId > qqWatchpointOffset:
             res = self.target.DeleteWatchpoint(lldbId - qqWatchpointOffset)
         res = self.target.BreakpointDelete(lldbId)
-        self.report('breakpoint-removed={modelid="%s"}' % modelId)
+        self.reportResult('success="%s"' % int(res), args)
 
-    def listModules(self, args):
+    def fetchModules(self, args):
         result = 'modules=['
         for i in xrange(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
@@ -1551,10 +1506,9 @@ class Dumper(DumperBase):
             #result += '}'
             result += '},'
         result += ']'
-        self.report(result)
+        self.reportResult(result, args)
 
-    def listSymbols(self, args):
-        self.reportToken(args)
+    def fetchSymbols(self, args):
         moduleName = args['module']
         #file = lldb.SBFileSpec(moduleName)
         #module = self.target.FindModule(file)
@@ -1562,8 +1516,7 @@ class Dumper(DumperBase):
             module = self.target.GetModuleAtIndex(i)
             if module.file.fullpath == moduleName:
                 break
-        result = 'symbols={module="%s"' % moduleName
-        result += ',valid="%s"' % module.IsValid()
+        result = 'symbols={valid="%s"' % module.IsValid()
         result += ',sections="%s"' % module.GetNumSections()
         result += ',symbols=['
         for symbol in module.symbols:
@@ -1576,22 +1529,21 @@ class Dumper(DumperBase):
             result += ',size="%s"' % (endAddress - startAddress)
             result += '},'
         result += ']}'
-        self.report(result)
+        self.reportResult(result, args)
 
-    def executeNext(self, _ = None):
-        self.reportToken(args)
+    def executeNext(self, args):
         self.currentThread().StepOver()
+        self.reportResult('', args)
 
-    def executeNextI(self, _ = None):
-        self.reportToken(args)
+    def executeNextI(self, args):
         self.currentThread().StepInstruction(lldb.eOnlyThisThread)
+        self.reportResult('', args)
 
-    def executeStep(self, _ = None):
-        self.reportToken(args)
+    def executeStep(self, args):
         self.currentThread().StepInto()
+        self.reportResult('', args)
 
-    def shutdownInferior(self, _ = None):
-        self.reportToken(args)
+    def shutdownInferior(self, args):
         self.isShuttingDown_ = True
         if self.process is None:
             self.reportState("inferiorshutdownok")
@@ -1600,19 +1552,20 @@ class Dumper(DumperBase):
             if state == lldb.eStateStopped:
                 self.process.Kill()
             self.reportState("inferiorshutdownok")
+        self.reportResult('', args)
 
-    def quit(self, args = {}):
-        self.reportToken(args)
+    def quit(self, args):
         self.reportState("engineshutdownok")
         self.process.Kill()
+        self.reportResult('', args)
 
-    def executeStepI(self, args = {}):
-        self.reportToken(args)
+    def executeStepI(self, args):
         self.currentThread().StepInstruction(lldb.eOnlyThisThread)
+        self.reportResult('', args)
 
     def executeStepOut(self, args = {}):
-        self.reportToken(args)
         self.currentThread().StepOut()
+        self.reportResult('', args)
 
     def executeRunToLocation(self, args):
         self.reportToken(args)
@@ -1623,28 +1576,26 @@ class Dumper(DumperBase):
             bp = self.target.BreakpointCreateByAddress(addr)
             if bp.GetNumLocations() == 0:
                 self.target.BreakpointDelete(bp.GetID())
-                self.reportStatus("No target location found.")
-                self.reportLocation(frame)
+                self.reportResult(self.describeStatus("No target location found.")
+                    + self.describeLocation(frame), args)
                 return
             bp.SetOneShot(True)
+            self.reportResult('', args)
             self.process.Continue()
         else:
             frame = self.currentFrame()
             file = args['file']
             line = int(args['line'])
             error = self.currentThread().StepOverUntil(frame, lldb.SBFileSpec(file), line)
-            if error.GetType():
-                self.reportState("running")
-                self.reportState("stopped")
-                self.reportError(error)
-            else:
-                self.reportData()
+            self.reportResult(self.describeError(error), args)
+            self.reportState("running")
+            self.reportState("stopped")
 
     def executeJumpToLocation(self, args):
         self.reportToken(args)
         frame = self.currentFrame()
         if not frame:
-            self.reportStatus("No frame available.")
+            self.reportResult(self.describeStatus("No frame available."), args)
             return
         addr = args.get('address', 0)
         if addr:
@@ -1654,16 +1605,13 @@ class Dumper(DumperBase):
                         str(args['file']), int(args['line']))
         if bp.GetNumLocations() == 0:
             self.target.BreakpointDelete(bp.GetID())
-            self.reportStatus("No target location found.")
-            self.reportLocation(frame)
-            return
-        loc = bp.GetLocationAtIndex(0)
-        self.target.BreakpointDelete(bp.GetID())
-        if frame.SetPC(loc.GetLoadAddress()):
-            self.report("Jumped.")
+            status = "No target location found."
         else:
-            self.report("Cannot jump.")
-        self.reportLocation(frame)
+            loc = bp.GetLocationAtIndex(0)
+            self.target.BreakpointDelete(bp.GetID())
+            res = frame.SetPC(loc.GetLoadAddress())
+            status = "Jumped." if res else "Cannot jump."
+        self.reportResult(self.describeStatus(status) + self.describeLocation(frame), args)
 
     def breakList(self):
         result = lldb.SBCommandReturnObject()
@@ -1675,22 +1623,18 @@ class Dumper(DumperBase):
         self.reportToken(args)
         thread = args['thread']
         self.currentThread().SetSelectedFrame(args['index'])
-        self.reportContinuation(args)
+        self.reportResult('', args)
 
     def selectThread(self, args):
         self.reportToken(args)
         self.process.SetSelectedThreadByID(args['id'])
+        self.reportResult('', args)
 
-    def requestModuleSymbols(self, frame):
-        self.reportToken(args)
-        self.handleCommand("target module list " + frame)
-
-    def createFullBacktrace(self, _ = None):
-        self.reportToken(args)
+    def fetchFullBacktrace(self, _ = None):
         command = "thread backtrace all"
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
-        self.report('full-backtrace="%s"' % self.hexencode(result.GetOutput()))
+        self.reportResult(self.hexencode(result.GetOutput()), {})
 
     def executeDebuggerCommand(self, args):
         self.reportToken(args)
@@ -1702,8 +1646,8 @@ class Dumper(DumperBase):
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def updateData(self, args):
-        self.reportToken(args)
+    def fetchLocals(self, args):
+        self.output = ''
         self.expandedINames = set(args.get('expanded', []))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.sortStructMembers = bool(args.get("sortStructMembers", True));
@@ -1715,8 +1659,7 @@ class Dumper(DumperBase):
         self.formats = args.get("formats", {})
         self.reportVariables(args)
 
-    def disassemble(self, args):
-        self.reportToken(args)
+    def fetchDisassembler(self, args):
         functionName = args.get('function', '')
         flavor = args.get('flavor', '')
         function = None
@@ -1739,8 +1682,7 @@ class Dumper(DumperBase):
         currentLine = None
         hunks = dict()
         sources = dict()
-        result = 'disassembly={cookie="%s",' % args['cookie']
-        result += ',lines=['
+        result = 'lines=['
         for insn in instructions:
             comment = insn.GetComment(self.target)
             addr = insn.GetAddress()
@@ -1774,26 +1716,21 @@ class Dumper(DumperBase):
             if comment:
                 result += ',comment="%s"' % comment
             result += ',offset="%s"}' % (loadAddr - base)
-        self.report(result + ']')
+        self.reportResult(result + ']', args)
 
     def loadDumpers(self, args):
-        self.reportToken(args)
-        self.setupDumpers()
-
-    def reportDumpers(self, msg):
-        self.report(msg)
+        msg = self.setupDumpers()
+        self.reportResult(msg, args)
 
     def fetchMemory(self, args):
-        self.reportToken(args)
         address = args['address']
         length = args['length']
         error = lldb.SBError()
         contents = self.process.ReadMemory(address, length, error)
-        result = 'memory={cookie="%s",' % args['cookie']
-        result += ',address="%s",' % address
+        result = 'address="%s",' % address
         result += self.describeError(error)
-        result += ',contents="%s"}' % self.hexencode(contents)
-        self.report(result)
+        result += ',contents="%s"' % self.hexencode(contents)
+        self.reportResult(result, args)
 
     def findValueByExpression(self, exp):
         # FIXME: Top level-only for now.
@@ -1808,8 +1745,7 @@ class Dumper(DumperBase):
         value = self.hexdecode(args['value'])
         lhs = self.findValueByExpression(exp)
         lhs.SetValueFromCString(value, error)
-        self.reportError(error)
-        self.reportVariables()
+        self.reportResult(describeError(error), args)
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         if self.qmlTriggeredBreakpoint is None:
@@ -1832,7 +1768,7 @@ class Tester(Dumper):
         self.passExceptions = True
         self.sortStructMembers = True
 
-        self.loadDumpers({})
+        self.loadDumpers({'token': 1})
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(binary, None, None, True, error)
 
@@ -1890,8 +1826,8 @@ class Tester(Dumper):
                         if line != 0:
                             self.report = savedReport
                             self.process.SetSelectedThread(stoppedThread)
-                            self.reportVariables()
-                            #self.reportLocation(frame)
+                            self.reportVariables({'token':2})
+                            #self.describeLocation(frame)
                             self.report("@NS@%s@" % self.qtNamespace())
                             #self.report("ENV=%s" % os.environ.items())
                             #self.report("DUMPER=%s" % self.qqDumpers)

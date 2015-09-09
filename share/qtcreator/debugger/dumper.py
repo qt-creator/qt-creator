@@ -1702,10 +1702,7 @@ class DumperBase:
             formats = (',formats=\"%s\"' % str(value)[1:-1]) if len(value) else ''
             msg += '{type="%s"%s%s},' % (key, editable, formats)
         msg += ']'
-        self.reportDumpers(msg)
-
-    def reportDumpers(self, msg):
-        raise NotImplementedError
+        return msg
 
     def reloadDumpers(self, args):
         for mod in self.dumpermodules:

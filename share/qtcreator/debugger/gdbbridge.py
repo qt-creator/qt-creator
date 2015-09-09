@@ -1665,10 +1665,7 @@ class Dumper(DumperBase):
         gdb.execute("quit")
 
     def loadDumpers(self, args):
-        self.setupDumpers()
-
-    def reportDumpers(self, msg):
-        print(msg)
+        print(self.setupDumpers())
 
     def profile1(self, args):
         """Internal profiling"""
