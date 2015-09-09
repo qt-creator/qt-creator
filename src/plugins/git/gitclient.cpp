@@ -134,7 +134,7 @@ protected:
     const QString m_directory;
 
 private:
-    VcsCommand *m_command;
+    QPointer<VcsCommand> m_command;
 };
 
 BaseController::BaseController(IDocument *document, const QString &dir) :
