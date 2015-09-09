@@ -44,7 +44,6 @@ class CPPTOOLS_EXPORT AbstractEditorSupport : public QObject
     Q_OBJECT
 public:
     explicit AbstractEditorSupport(CppModelManager *modelmanager);
-    virtual ~AbstractEditorSupport();
 
     /// \returns the contents, encoded as UTF-8
     virtual QByteArray contents() const = 0;

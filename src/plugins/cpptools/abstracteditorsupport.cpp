@@ -32,18 +32,11 @@
 
 #include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
-#include <cplusplus/Overview.h>
-
-#include <QDebug>
 
 namespace CppTools {
 
 AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager) :
     m_modelmanager(modelmanager), m_revision(1)
-{
-}
-
-AbstractEditorSupport::~AbstractEditorSupport()
 {
 }
 
