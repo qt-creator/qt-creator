@@ -106,18 +106,21 @@ ScrollView {
 
         // Scroll when the zoom control is updated
         function scroll() {
-            if (recursionGuard || zoomer.rangeDuration <= 0)
+            if (recursionGuard)
                 return;
             recursionGuard = true;
-
-            var newWidth = zoomer.windowDuration * scroller.width / zoomer.rangeDuration;
-            if (isFinite(newWidth) && Math.abs(newWidth - contentWidth) >= 1)
-                contentWidth = newWidth;
-
-            var newStartX = (zoomer.rangeStart - zoomer.windowStart) * scroller.width /
-                    zoomer.rangeDuration;
-            if (isFinite(newStartX) && Math.abs(newStartX - contentX) >= 1)
-                contentX = newStartX;
+            if (zoomer.rangeDuration <= 0) {
+                contentWidth = 0;
+                contentX = 0;
+            } else {
+                var newWidth = zoomer.windowDuration * scroller.width / zoomer.rangeDuration;
+                if (isFinite(newWidth) && Math.abs(newWidth - contentWidth) >= 1)
+                    contentWidth = newWidth;
+                var newStartX = (zoomer.rangeStart - zoomer.windowStart) * scroller.width /
+                        zoomer.rangeDuration;
+                if (isFinite(newStartX) && Math.abs(newStartX - contentX) >= 1)
+                    contentX = newStartX;
+            }
 
             recursionGuard = false;
         }
