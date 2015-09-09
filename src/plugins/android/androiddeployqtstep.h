@@ -102,7 +102,6 @@ private:
         AndroidDeployQtStep *other);
     void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
-    QString systemAppProcessFilePath() const;
 
     bool init();
     void run(QFutureInterface<bool> &fi);
@@ -127,7 +126,7 @@ private:
     QString m_buildDirectory;
     QString m_avdName;
     QString m_apkPath;
-    QString m_appProcess;
+    QStringList m_appProcessBinaries;
     QString m_libdir;
 
     QString m_targetArch;

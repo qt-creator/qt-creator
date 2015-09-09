@@ -196,17 +196,21 @@ bool AndroidDeployQtStep::init()
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
-    m_appProcess = QLatin1String("readlink -f /system/bin/app_process");
+
+    m_appProcessBinaries.clear();
     m_libdir = QLatin1String("lib");
     if (info.cpuAbi.contains(QLatin1String("arm64-v8a")) ||
             info.cpuAbi.contains(QLatin1String("x86_64"))) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
         if (tc && tc->targetAbi().wordWidth() == 64) {
-            m_appProcess += QLatin1String("64");
+            m_appProcessBinaries << QLatin1String("/system/bin/app_process64");
             m_libdir += QLatin1String("64");
         } else {
-            m_appProcess += QLatin1String("32");
+            m_appProcessBinaries << QLatin1String("/system/bin/app_process32");
         }
+    } else {
+        m_appProcessBinaries << QLatin1String("/system/bin/app_process32")
+                             << QLatin1String("/system/bin/app_process");
     }
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
@@ -423,16 +427,23 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 
     emit addOutput(tr("Pulling files necessary for debugging."), MessageOutput);
 
-    const QString remoteAppProcessFile = systemAppProcessFilePath();
     QString localAppProcessFile = QString::fromLatin1("%1/app_process").arg(m_buildDirectory);
-    runCommand(m_adbPath,
-               AndroidDeviceInfo::adbSelector(m_serialNumber)
-               << QLatin1String("pull") << remoteAppProcessFile
-               << localAppProcessFile);
+    QFile::remove(localAppProcessFile);
+
+    foreach (const QString &remoteAppProcessFile, m_appProcessBinaries) {
+        runCommand(m_adbPath,
+                   AndroidDeviceInfo::adbSelector(m_serialNumber)
+                   << QLatin1String("pull") << remoteAppProcessFile
+                   << localAppProcessFile);
+        if (QFileInfo::exists(localAppProcessFile))
+            break;
+    }
+
     if (!QFileInfo::exists(localAppProcessFile)) {
         returnValue = Failure;
         emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
-                       .arg(remoteAppProcessFile).arg(localAppProcessFile), ErrorMessageOutput);
+                       .arg(m_appProcessBinaries.join(QLatin1String("\", \"")))
+                       .arg(localAppProcessFile), ErrorMessageOutput);
     }
 
     runCommand(m_adbPath,
@@ -465,21 +476,6 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
             mainMessage += tr("Exit code: %1").arg(buildProc.exitCode());
         emit addOutput(mainMessage, BuildStep::ErrorMessageOutput);
     }
-}
-
-QString AndroidDeployQtStep::systemAppProcessFilePath() const
-{
-    QProcess proc;
-    const QStringList args =
-            QStringList() << AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("shell")
-                          << m_appProcess;
-    proc.start(m_adbPath, args);
-    proc.waitForFinished();
-    QString output = QString::fromUtf8(proc.readAll()).trimmed();
-    if (output.startsWith(QLatin1Char('/')))
-        return output;
-    else
-        return QString();
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
