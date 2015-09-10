@@ -127,7 +127,7 @@ private slots:
     void readyReadStandardError();
     void processError();
     void processFinished();
-    void postCommand(const DebuggerCommand &cmd);
+    void runCommand(const DebuggerCommand &cmd, int flags = 0);
     void operateByInstructionTriggered(bool);
     void verboseLogTriggered(bool);
 
@@ -201,7 +201,6 @@ private:
     // Builtin commands
     void handleStackTrace(const DebuggerResponse &);
     void handleRegisters(const DebuggerResponse &);
-    void handleDisassembler(const DebuggerResponse &, DisassemblerAgent *agent);
     void handleJumpToLineAddressResolution(const DebuggerResponse &response, const ContextData &context);
     void handleExpression(const DebuggerResponse &command, BreakpointModelId id, const GdbMi &stopReason);
     void handleResolveSymbol(const DebuggerResponse &command, const QString &symbol, DisassemblerAgent *agent);
@@ -211,16 +210,13 @@ private:
     void ensureUsing32BitStackInWow64(const DebuggerResponse &response, const GdbMi &stack);
     void handleSwitchWow64Stack(const DebuggerResponse &response);
     void jumpToAddress(quint64 address);
-    void handleCreateFullBackTrace(const DebuggerResponse &response);
 
     // Extension commands
     void handleThreads(const DebuggerResponse &response);
-    void handlePid(const DebuggerResponse &response);
     void handleLocals(const DebuggerResponse &response, bool partialUpdate);
     void handleExpandLocals(const DebuggerResponse &response);
     void handleRegistersExt(const DebuggerResponse &response);
     void handleModules(const DebuggerResponse &response);
-    void handleMemory(const DebuggerResponse &response, const MemoryViewCookie &memViewCookie);
     void handleWidgetAt(const DebuggerResponse &response);
     void handleBreakPoints(const DebuggerResponse &response);
     void handleAdditionalQmlStack(const DebuggerResponse &response);
