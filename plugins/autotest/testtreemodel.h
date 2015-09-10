@@ -24,7 +24,8 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <QAbstractItemModel>
+#include <utils/treemodel.h>
+
 #include <QSortFilterProxyModel>
 
 namespace Autotest {
@@ -35,7 +36,7 @@ class TestCodeParser;
 class TestInfo;
 class TestTreeItem;
 
-class TestTreeModel : public QAbstractItemModel
+class TestTreeModel : public Utils::TreeModel
 {
     Q_OBJECT
 public:
@@ -49,15 +50,8 @@ public:
     void enableParsing();
     void disableParsing();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    bool hasChildren(const QModelIndex &parent) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool removeRows(int row, int count, const QModelIndex &parent);
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     TestCodeParser *parser() const { return m_parser; }
     bool hasTests() const;
@@ -98,7 +92,6 @@ private:
     void processChildren(QModelIndex &parentIndex, const TestTreeItem *newItem,
                          const int upperBound, const QHash<QString, Qt::CheckState> &checkStates);
 
-    TestTreeItem *m_rootItem;
     TestTreeItem *m_autoTestRootItem;
     TestTreeItem *m_quickTestRootItem;
     TestCodeParser *m_parser;

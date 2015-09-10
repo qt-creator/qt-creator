@@ -20,13 +20,11 @@
 #ifndef TESTTREEITEM_H
 #define TESTTREEITEM_H
 
+#include <utils/treemodel.h>
+
 #include <QList>
 #include <QString>
 #include <QMetaType>
-
-QT_BEGIN_NAMESPACE
-class QVariant;
-QT_END_NAMESPACE
 
 namespace {
     enum ItemRole {
@@ -39,7 +37,7 @@ namespace {
 namespace Autotest {
 namespace Internal {
 
-class TestTreeItem
+class TestTreeItem : public Utils::TreeItem
 {
 
 public:
@@ -57,21 +55,12 @@ public:
     virtual ~TestTreeItem();
     TestTreeItem(const TestTreeItem& other);
 
-    TestTreeItem *child(int row) const;
-    TestTreeItem *parent() const;
-    void appendChild(TestTreeItem *child);
-    QVariant data(int column, int role) const;
-    bool setData(int column, const QVariant &data, int role);
-    int row() const;
-    int childCount() const;
-    void removeChildren();
-    bool removeChild(int row);
+    virtual QVariant data(int column, int role) const override;
+    virtual bool setData(int column, const QVariant &data, int role) override;
     bool modifyContent(const TestTreeItem *modified);
 
     const QString name() const { return m_name; }
-    void setName(const QString &name) { m_name = name; }
     const QString filePath() const { return m_filePath; }
-    void setFilePath(const QString &filePath) { m_filePath = filePath; }
     void setLine(unsigned line) { m_line = line;}
     unsigned line() const { return m_line; }
     void setColumn(unsigned column) { m_column = column; }
@@ -82,6 +71,8 @@ public:
     Qt::CheckState checked() const;
     Type type() const { return m_type; }
     QList<QString> getChildNames() const;
+    TestTreeItem *parentItem() const;
+    TestTreeItem *childItem(int row) const;
 
 private:
     void revalidateCheckState();
@@ -93,8 +84,6 @@ private:
     unsigned m_line;
     unsigned m_column;
     QString m_mainFile;
-    TestTreeItem *m_parent;
-    QList<TestTreeItem *> m_children;
 };
 
 struct TestCodeLocationAndType {

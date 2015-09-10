@@ -37,15 +37,14 @@ namespace Autotest {
 namespace Internal {
 
 TestTreeModel::TestTreeModel(QObject *parent) :
-    QAbstractItemModel(parent),
-    m_rootItem(new TestTreeItem(QString(), QString(), TestTreeItem::ROOT)),
+    TreeModel(parent),
     m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::ROOT)),
     m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::ROOT)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
-    m_rootItem->appendChild(m_autoTestRootItem);
-    m_rootItem->appendChild(m_quickTestRootItem);
+    rootItem()->appendChild(m_autoTestRootItem);
+    rootItem()->appendChild(m_quickTestRootItem);
 
     connect(m_parser, &TestCodeParser::cacheCleared, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
@@ -85,7 +84,6 @@ TestTreeModel *TestTreeModel::instance()
 
 TestTreeModel::~TestTreeModel()
 {
-    delete m_rootItem;
     m_instance = 0;
 }
 
@@ -126,66 +124,6 @@ void TestTreeModel::disableParsing()
         m_parser->setState(TestCodeParser::Disabled);
 }
 
-QModelIndex TestTreeModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!hasIndex(row, column, parent))
-        return QModelIndex();
-
-    TestTreeItem *parentItem = parent.isValid()
-            ? static_cast<TestTreeItem *>(parent.internalPointer())
-            : m_rootItem;
-
-    TestTreeItem *childItem = parentItem->child(row);
-    return childItem ? createIndex(row, column, childItem) : QModelIndex();
-}
-
-QModelIndex TestTreeModel::parent(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return QModelIndex();
-
-    TestTreeItem *childItem = static_cast<TestTreeItem *>(index.internalPointer());
-    TestTreeItem *parentItem = childItem->parent();
-
-    if (parentItem == m_rootItem)
-        return QModelIndex();
-
-    return createIndex(parentItem->row(), 0, parentItem);
-}
-
-bool TestTreeModel::hasChildren(const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return true;
-
-    TestTreeItem *item = static_cast<TestTreeItem *>(parent.internalPointer());
-    return item->childCount() > 0;
-}
-
-int TestTreeModel::rowCount(const QModelIndex &parent) const
-{
-    TestTreeItem *parentItem = parent.isValid()
-            ? static_cast<TestTreeItem *>(parent.internalPointer()) : m_rootItem;
-    return parentItem->childCount();
-}
-
-int TestTreeModel::columnCount(const QModelIndex &) const
-{
-    return 1;
-}
-
-QVariant TestTreeModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
-    if (!item)
-        return QVariant();
-
-    return item->data(index.column(), role);
-}
-
 bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())
@@ -217,14 +155,14 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
+    TestTreeItem *item = static_cast<TestTreeItem *>(itemForIndex(index));
     switch(item->type()) {
     case TestTreeItem::TEST_CLASS:
         if (item->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
     case TestTreeItem::TEST_FUNCTION:
-        if (item->parent()->name().isEmpty())
+        if (item->parentItem()->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
     case TestTreeItem::ROOT:
@@ -234,26 +172,6 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     default:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
-}
-
-bool TestTreeModel::removeRows(int row, int count, const QModelIndex &parent)
-{
-    if (!parent.isValid())
-        return false;
-    TestTreeItem *parentItem = static_cast<TestTreeItem *>(parent.internalPointer());
-    if (!parentItem)
-        return false;
-
-    bool subItemsSuccess = true;
-    bool itemSuccess = true;
-    for (int i = row + count - 1;  i >= row; --i) {
-        QModelIndex child = index(i, 0, parent);
-        subItemsSuccess &= removeRows(0, rowCount(child), child);
-        beginRemoveRows(parent, i, i);
-        itemSuccess &= parentItem->removeChild(i);
-        endRemoveRows();
-    }
-    return subItemsSuccess && itemSuccess;
 }
 
 bool TestTreeModel::hasTests() const
@@ -271,7 +189,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 
     // get all Auto Tests
     for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
-        const TestTreeItem *child = m_autoTestRootItem->child(row);
+        const TestTreeItem *child = m_autoTestRootItem->childItem(row);
 
         TestConfiguration *tc = new TestConfiguration(child->name(), QStringList(),
                                                       child->childCount());
@@ -283,11 +201,11 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
     // get all Quick Tests
     QMap<QString, int> foundMains;
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row) {
-        TestTreeItem *child = m_quickTestRootItem->child(row);
+        const TestTreeItem *child = m_quickTestRootItem->childItem(row);
         // unnamed Quick Tests must be handled separately
         if (child->name().isEmpty()) {
             for (int childRow = 0, ccount = child->childCount(); childRow < ccount; ++ childRow) {
-                const TestTreeItem *grandChild = child->child(childRow);
+                const TestTreeItem *grandChild = child->childItem(childRow);
                 const QString mainFile = grandChild->mainFile();
                 foundMains.insert(mainFile, foundMains.contains(mainFile)
                                             ? foundMains.value(mainFile) + 1 : 1);
@@ -322,7 +240,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     TestConfiguration *testConfiguration = 0;
 
     for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
-        TestTreeItem *child = m_autoTestRootItem->child(row);
+        const TestTreeItem *child = m_autoTestRootItem->childItem(row);
 
         switch (child->checked()) {
         case Qt::Unchecked:
@@ -339,7 +257,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             int grandChildCount = child->childCount();
             QStringList testCases;
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
-                const TestTreeItem *grandChild = child->child(grandChildRow);
+                const TestTreeItem *grandChild = child->childItem(grandChildRow);
                 if (grandChild->checked() == Qt::Checked)
                     testCases << grandChild->name();
             }
@@ -359,7 +277,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 
     if (TestTreeItem *unnamed = unnamedQuickTests()) {
         for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
-            const TestTreeItem *grandChild = unnamed->child(childRow);
+            const TestTreeItem *grandChild = unnamed->childItem(childRow);
             const QString mainFile = grandChild->mainFile();
             if (foundMains.contains(mainFile)) {
                 QTC_ASSERT(testConfiguration,
@@ -378,7 +296,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     }
 
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row) {
-        TestTreeItem *child = m_quickTestRootItem->child(row);
+        const TestTreeItem *child = m_quickTestRootItem->childItem(row);
         // unnamed Quick Tests have been handled separately already
         if (child->name().isEmpty())
             continue;
@@ -393,11 +311,10 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             QStringList testFunctions;
             int grandChildCount = child->childCount();
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
-                const TestTreeItem *grandChild = child->child(grandChildRow);
+                const TestTreeItem *grandChild = child->childItem(grandChildRow);
                 if (grandChild->type() != TestTreeItem::TEST_FUNCTION)
                     continue;
-                if (grandChild->checked() == Qt::Checked)
-                    testFunctions << child->name() + QLatin1String("::") + grandChild->name();
+                testFunctions << child->name() + QLatin1String("::") + grandChild->name();
             }
             TestConfiguration *tc;
             if (foundMains.contains(child->mainFile())) {
@@ -442,7 +359,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             // Quick Test TestCase
             QStringList testFunctions;
             for (int row = 0, count = item->childCount(); row < count; ++row) {
-                    testFunctions << item->name() + QLatin1String("::") + item->child(row)->name();
+                    testFunctions << item->name() + QLatin1String("::")
+                                     + item->childItem(row)->name();
             }
             config = new TestConfiguration(QString(), testFunctions);
             config->setMainFilePath(item->mainFile());
@@ -456,7 +374,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         break;
     }
     case TestTreeItem::TEST_FUNCTION: {
-        const TestTreeItem *parent = item->parent();
+        const TestTreeItem *parent = item->parentItem();
         if (parent->parent() == m_quickTestRootItem) {
             // it's a Quick Test function of a named TestCase
             QStringList testFunction(parent->name() + QLatin1String("::") + item->name());
@@ -472,8 +390,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         break;
     }
     case TestTreeItem::TEST_DATATAG: {
-        const TestTreeItem *function = item->parent();
-        const TestTreeItem *parent = function ? function->parent() : 0;
+        const TestTreeItem *function = item->parentItem();
+        const TestTreeItem *parent = function ? function->parentItem() : 0;
         if (!parent)
             return 0;
         const QString functionWithTag = function->name() + QLatin1Char(':') + item->name();
@@ -494,7 +412,7 @@ QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) co
     const TestTreeItem *unnamed = unnamedQuickTests();
     const int count = unnamed ? unnamed->childCount() : 0;
     for (int row = 0; row < count; ++row) {
-        const TestTreeItem *child = unnamed->child(row);
+        const TestTreeItem *child = unnamed->childItem(row);
         if (qmlFile == child->filePath())
             return child->mainFile();
     }
@@ -503,11 +421,11 @@ QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) co
 
 void TestTreeModel::qmlFilesForMainFile(const QString &mainFile, QSet<QString> *filePaths) const
 {
-    TestTreeItem *unnamed = unnamedQuickTests();
+    const TestTreeItem *unnamed = unnamedQuickTests();
     if (!unnamed)
         return;
-    for (int i = 0; i < unnamed->childCount(); ++i) {
-        const TestTreeItem *child = unnamed->child(i);
+    for (int row = 0, count = unnamed->childCount(); row < count; ++row) {
+        const TestTreeItem *child = unnamed->childItem(row);
         if (child->mainFile() == mainFile)
             filePaths->insert(child->filePath());
     }
@@ -515,7 +433,7 @@ void TestTreeModel::qmlFilesForMainFile(const QString &mainFile, QSet<QString> *
 
 QList<QString> TestTreeModel::getUnnamedQuickTestFunctions() const
 {
-    TestTreeItem *unnamed = unnamedQuickTests();
+    const TestTreeItem *unnamed = unnamedQuickTests();
     if (unnamed)
         return unnamed->getChildNames();
     return QList<QString>();
@@ -524,7 +442,7 @@ QList<QString> TestTreeModel::getUnnamedQuickTestFunctions() const
 bool TestTreeModel::hasUnnamedQuickTests() const
 {
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row)
-        if (m_quickTestRootItem->child(row)->name().isEmpty())
+        if (m_quickTestRootItem->childItem(row)->name().isEmpty())
             return true;
     return false;
 }
@@ -532,7 +450,7 @@ bool TestTreeModel::hasUnnamedQuickTests() const
 TestTreeItem *TestTreeModel::unnamedQuickTests() const
 {
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row) {
-        TestTreeItem *child = m_quickTestRootItem->child(row);
+        TestTreeItem *child = m_quickTestRootItem->childItem(row);
         if (child->name().isEmpty())
             return child;
     }
@@ -545,26 +463,21 @@ void TestTreeModel::removeUnnamedQuickTests(const QString &filePath)
     if (!unnamedQT)
         return;
 
-    const QModelIndex unnamedQTIndex = index(1, 0).child(unnamedQT->row(), 0);
     for (int childRow = unnamedQT->childCount() - 1; childRow >= 0; --childRow) {
-        const TestTreeItem *child = unnamedQT->child(childRow);
+        TestTreeItem *child = unnamedQT->childItem(childRow);
         if (filePath == child->filePath())
-            removeRow(childRow, unnamedQTIndex);
+            delete takeItem(child);
     }
 
     if (unnamedQT->childCount() == 0)
-        removeRow(unnamedQT->row(), unnamedQTIndex.parent());
+        delete takeItem(unnamedQT);
     emit testTreeModelChanged();
 }
 
 void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type)
 {
     TestTreeItem *parent = rootItemForType(type);
-    QModelIndex index = rootIndexForType(type);
-
-    beginInsertRows(index, parent->childCount(), parent->childCount());
     parent->appendChild(item);
-    endInsertRows();
     emit testTreeModelChanged();
 }
 
@@ -578,9 +491,6 @@ void TestTreeModel::updateUnnamedQuickTest(const QString &mainFile,
         addTestTreeItem(new TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS), QuickTest);
 
     TestTreeItem *unnamed = unnamedQuickTests();
-    QModelIndex unnamedIndex = index(unnamed->row(), 0, rootIndexForType(QuickTest));
-
-    beginInsertRows(unnamedIndex, unnamed->childCount(), unnamed->childCount() + functions.size());
     foreach (const QString &functionName, functions.keys()) {
         const TestCodeLocationAndType locationAndType = functions.value(functionName);
         TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
@@ -590,7 +500,6 @@ void TestTreeModel::updateUnnamedQuickTest(const QString &mainFile,
         testFunction->setMainFile(mainFile);
         unnamed->appendChild(testFunction);
     }
-    endInsertRows();
 }
 
 void TestTreeModel::modifyTestTreeItem(TestTreeItem *item, TestTreeModel::Type type, const QStringList &files)
@@ -602,12 +511,12 @@ void TestTreeModel::modifyTestTreeItem(TestTreeItem *item, TestTreeModel::Type t
             if (unnamed == item) // no need to update or delete
                 return;
 
-            index = index.child(unnamed->row(), 0);
+            index = indexForItem(unnamed);
             modifyTestSubtree(index, item);
         }
     } else {
         for (int row = 0; row < parent->childCount(); ++row) {
-            if (files.contains(parent->child(row)->filePath())) {
+            if (files.contains(parent->childItem(row)->filePath())) {
                 index = index.child(row, 0);
                 modifyTestSubtree(index, item);
                 break;
@@ -621,23 +530,21 @@ void TestTreeModel::modifyTestTreeItem(TestTreeItem *item, TestTreeModel::Type t
 
 void TestTreeModel::removeAllTestItems()
 {
-    beginResetModel();
     m_autoTestRootItem->removeChildren();
     m_quickTestRootItem->removeChildren();
-    endResetModel();
     emit testTreeModelChanged();
 }
 
 void TestTreeModel::removeTestTreeItems(const QString &filePath, Type type)
 {
     bool removed = false;
-    const QModelIndex rootIndex = rootIndexForType(type);
-    const int count = rowCount(rootIndex);
-    for (int row = count - 1; row >= 0; --row) {
-        const QModelIndex childIndex = rootIndex.child(row, 0);
-        TestTreeItem *childItem = static_cast<TestTreeItem *>(childIndex.internalPointer());
-        if (filePath == childItem->filePath())
-            removed |= removeRow(row, rootIndex);
+    const TestTreeItem *rootItem = rootItemForType(type);
+    for (int row = rootItem->childCount() - 1; row >= 0; --row) {
+        TestTreeItem *childItem = rootItem->childItem(row);
+        if (filePath == childItem->filePath()) {
+            delete takeItem(childItem);
+            removed = true;
+        }
     }
     if (removed)
         emit testTreeModelChanged();
@@ -670,7 +577,7 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const Test
     if (!toBeModifiedIndex.isValid())
         return;
 
-    TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(toBeModifiedIndex.internalPointer());
+    TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(itemForIndex(toBeModifiedIndex));
     if (toBeModifiedItem->modifyContent(newItem))
         emit dataChanged(toBeModifiedIndex, toBeModifiedIndex,
                          QVector<int>() << Qt::DisplayRole << Qt::ToolTipRole << LinkRole);
@@ -683,7 +590,7 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const Test
     // TODO might still fail for duplicate entries
     QHash<QString, Qt::CheckState> checkStates;
     for (int row = 0; row < childCount; ++row) {
-        const TestTreeItem *child = toBeModifiedItem->child(row);
+        const TestTreeItem *child = toBeModifiedItem->childItem(row);
         checkStates.insert(child->name(), child->checked());
     }
 
@@ -691,19 +598,18 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const Test
         processChildren(toBeModifiedIndex, newItem, childCount, checkStates);
         // add additional items
         for (int row = childCount; row < newChildCount; ++row) {
-            TestTreeItem *newChild = newItem->child(row);
+            const TestTreeItem *newChild = newItem->childItem(row);
             TestTreeItem *toBeAdded = new TestTreeItem(*newChild);
             if (checkStates.contains(toBeAdded->name())
                     && checkStates.value(toBeAdded->name()) != Qt::Checked)
                 toBeAdded->setChecked(checkStates.value(toBeAdded->name()));
-            beginInsertRows(toBeModifiedIndex, row, row);
             toBeModifiedItem->appendChild(toBeAdded);
-            endInsertRows();
         }
     } else {
         processChildren(toBeModifiedIndex, newItem, newChildCount, checkStates);
         // remove rest of the items
-        removeRows(newChildCount, childCount - newChildCount, toBeModifiedIndex);
+        for (int row = childCount - 1; row > newChildCount; --row)
+            delete takeItem(toBeModifiedItem->childItem(row));
     }
     emit testTreeModelChanged();
 }
@@ -713,12 +619,13 @@ void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem
                                     const QHash<QString, Qt::CheckState> &checkStates)
 {
     static QVector<int> modificationRoles = QVector<int>() << Qt::DisplayRole
-                                                           << Qt::ToolTipRole << LinkRole;
-    TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(parentIndex.internalPointer());
+                                                           << Qt::ToolTipRole
+                                                           << LinkRole;
+    TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(itemForIndex(parentIndex));
     for (int row = 0; row < upperBound; ++row) {
         QModelIndex child = parentIndex.child(row, 0);
-        TestTreeItem *toBeModifiedChild = toBeModifiedItem->child(row);
-        TestTreeItem *modifiedChild = newItem->child(row);
+        TestTreeItem *toBeModifiedChild = toBeModifiedItem->childItem(row);
+        const TestTreeItem *modifiedChild = newItem->childItem(row);
         if (toBeModifiedChild->modifyContent(modifiedChild))
             emit dataChanged(child, child, modificationRoles);
 
@@ -730,7 +637,7 @@ void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem
             const int count = modifiedChild->childCount();
             beginInsertRows(child, 0, count);
             for (int childRow = 0; childRow < count; ++childRow)
-                toBeModifiedChild->appendChild(new TestTreeItem(*modifiedChild->child(childRow)));
+                toBeModifiedChild->appendChild(new TestTreeItem(*modifiedChild->childItem(childRow)));
             endInsertRows();
         }
 
@@ -818,8 +725,8 @@ bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelInde
     if (leftItem->type() == TestTreeItem::ROOT)
         return left.row() > right.row();
 
-    const QString leftVal = m_sourceModel->data(left).toString();
-    const QString rightVal = m_sourceModel->data(right).toString();
+    const QString leftVal = m_sourceModel->data(left, Qt::DisplayRole).toString();
+    const QString rightVal = m_sourceModel->data(right, Qt::DisplayRole).toString();
 
     // unnamed Quick Tests will always be listed first
     if (leftVal == tr(Constants::UNNAMED_QUICKTESTS))

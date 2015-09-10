@@ -23,7 +23,6 @@
 #include <utils/qtcassert.h>
 
 #include <QIcon>
-#include <QVariant>
 
 #include <texteditor/texteditor.h>
 
@@ -31,11 +30,11 @@ namespace Autotest {
 namespace Internal {
 
 TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type)
-    : m_name(name),
+    : TreeItem( { name } ),
+      m_name(name),
       m_filePath(filePath),
       m_type(type),
-      m_line(0),
-      m_parent(0)
+      m_line(0)
 {
     switch (m_type) {
     case TEST_CLASS:
@@ -53,35 +52,17 @@ TestTreeItem::~TestTreeItem()
 }
 
 TestTreeItem::TestTreeItem(const TestTreeItem &other)
-    : m_name(other.m_name),
+    : TreeItem( { other.m_name } ),
+      m_name(other.m_name),
       m_filePath(other.m_filePath),
       m_checked(other.m_checked),
       m_type(other.m_type),
       m_line(other.m_line),
       m_column(other.m_column),
-      m_mainFile(other.m_mainFile),
-      m_parent(0)
+      m_mainFile(other.m_mainFile)
 {
-    foreach (const TestTreeItem *child, other.m_children)
-        appendChild(new TestTreeItem(*child));
-}
-
-TestTreeItem *TestTreeItem::child(int row) const
-{
-    return m_children.at(row);
-}
-
-TestTreeItem *TestTreeItem::parent() const
-{
-    return m_parent;
-}
-
-void TestTreeItem::appendChild(TestTreeItem *child)
-{
-    QTC_ASSERT(child->m_parent == 0, return);
-
-    child->m_parent = this;
-    m_children.append(child);
+    for (int row = 0, count = other.childCount(); row < count; ++row)
+        appendChild(new TestTreeItem(*childItem(row)));
 }
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
@@ -124,7 +105,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case TEST_CLASS:
             return m_name.isEmpty() ? QVariant() : checked();
         case TEST_FUNCTION:
-            if (m_parent && m_parent->name().isEmpty())
+            if (parentItem() && parentItem()->name().isEmpty())
                 return QVariant();
             return checked();
         default:
@@ -143,7 +124,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case TEST_CLASS:
             return m_name.isEmpty();
         case TEST_FUNCTION:
-            return m_parent ? m_parent->name().isEmpty() : false;
+            return parentItem() ? parentItem()->name().isEmpty() : false;
         default:
             return false;
         }
@@ -161,34 +142,6 @@ bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
         return checked() != old;
     }
     return false;
-}
-
-int TestTreeItem::row() const
-{
-    if (m_parent)
-        return m_parent->m_children.indexOf(const_cast<TestTreeItem *>(this));
-    return 0;
-}
-
-int TestTreeItem::childCount() const
-{
-    return m_children.size();
-}
-
-void TestTreeItem::removeChildren()
-{
-    qDeleteAll(m_children);
-    m_children.clear();
-}
-
-bool TestTreeItem::removeChild(int row)
-{
-    if (row < 0 || row >= m_children.size())
-        return false;
-    TestTreeItem *child = m_children.at(row);
-    m_children.removeAt(row);
-    delete child;
-    return true;
 }
 
 bool TestTreeItem::modifyContent(const TestTreeItem *modified)
@@ -222,14 +175,13 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
     switch (m_type) {
     case TEST_FUNCTION: {
         m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
-        m_parent->revalidateCheckState();
+        parentItem()->revalidateCheckState();
         break;
     }
     case TEST_CLASS: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
-        foreach (TestTreeItem *child, m_children) {
-            child->setChecked(usedState);
-        }
+        for (int row = 0, count = childCount(); row < count; ++row)
+            childItem(row)->setChecked(usedState);
         m_checked = usedState;
     }
     default:
@@ -247,8 +199,8 @@ Qt::CheckState TestTreeItem::checked() const
     case TEST_SPECIALFUNCTION:
         return Qt::Unchecked;
     default:
-        if (m_parent)
-            return m_parent->m_checked;
+        if (parent())
+            return parentItem()->m_checked;
     }
     return Qt::Unchecked;
 }
@@ -256,18 +208,29 @@ Qt::CheckState TestTreeItem::checked() const
 QList<QString> TestTreeItem::getChildNames() const
 {
     QList<QString> names;
-    foreach (TestTreeItem *item, m_children)
-        names << item->name();
+    for (int row = 0, count = childCount(); row < count; ++row)
+        names << childItem(row)->name();
     return names;
+}
+
+TestTreeItem *TestTreeItem::parentItem() const
+{
+    return static_cast<TestTreeItem *>(parent());
+}
+
+TestTreeItem *TestTreeItem::childItem(int row) const
+{
+    return static_cast<TestTreeItem *>(child(row));
 }
 
 void TestTreeItem::revalidateCheckState()
 {
-    if (m_children.size() == 0)
+    if (childCount() == 0)
         return;
     bool foundChecked = false;
     bool foundUnchecked = false;
-    foreach (const TestTreeItem *child, m_children) {
+    for (int row = 0, count = childCount(); row < count; ++row) {
+        TestTreeItem *child = childItem(row);
         switch (child->type()) {
         case TEST_DATAFUNCTION:
         case TEST_SPECIALFUNCTION:
