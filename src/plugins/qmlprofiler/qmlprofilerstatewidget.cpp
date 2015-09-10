@@ -193,8 +193,8 @@ void QmlProfilerStateWidget::updateDisplay()
         return;
     }
 
-    QmlProfilerDataState::State state = d->m_modelManager->state();
-    if (state == QmlProfilerDataState::Done || state == QmlProfilerDataState::Empty) {
+    QmlProfilerModelManager::State state = d->m_modelManager->state();
+    if (state == QmlProfilerModelManager::Done || state == QmlProfilerModelManager::Empty) {
         // After profiling, there is an empty trace
         if (d->m_modelManager->traceTime()->duration() > 0 &&
                 (d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0)) {
@@ -208,7 +208,7 @@ void QmlProfilerStateWidget::updateDisplay()
         else // Application died before all data could be read
             showText(tr("Application stopped before loading all data"), true);
         return;
-    } else if (state == QmlProfilerDataState::AcquiringData) {
+    } else if (state == QmlProfilerModelManager::AcquiringData) {
         showText(tr("Waiting for data"));
         return;
     }

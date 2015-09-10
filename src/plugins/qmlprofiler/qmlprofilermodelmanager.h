@@ -46,35 +46,6 @@ class QmlProfilerNotesModel;
 
 namespace Internal {
 
-class QmlProfilerDataState : public QObject
-{
-    Q_OBJECT
-public:
-    enum State {
-        Empty,
-        AcquiringData,
-        ProcessingData,
-        ClearingData,
-        Done
-    };
-
-    explicit QmlProfilerDataState(QmlProfilerModelManager *modelManager, QObject *parent = 0);
-    ~QmlProfilerDataState() {}
-
-    State state() const { return m_state; }
-
-signals:
-    void stateChanged();
-    void error(const QString &error);
-
-private:
-    void setState(State state);
-    State m_state;
-    QmlProfilerModelManager *m_modelManager;
-
-    friend class QmlProfiler::QmlProfilerModelManager;
-};
-
 class QMLPROFILER_EXPORT QmlProfilerTraceTime : public QObject
 {
     Q_OBJECT
@@ -110,11 +81,18 @@ class QMLPROFILER_EXPORT QmlProfilerModelManager : public QObject
 {
     Q_OBJECT
 public:
+    enum State {
+        Empty,
+        AcquiringData,
+        ProcessingData,
+        ClearingData,
+        Done
+    };
 
     explicit QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent = 0);
     ~QmlProfilerModelManager();
 
-    QmlProfilerDataState::State state() const;
+    State state() const;
     QmlProfilerTraceTime *traceTime() const;
     QmlProfilerDataModel *qmlModel() const;
     QmlProfilerNotesModel *notesModel() const;
@@ -162,8 +140,7 @@ public slots:
     void load(const QString &filename);
 
 private:
-    void setState(QmlProfilerDataState::State state);
-
+    void setState(State state);
 
 private:
     class QmlProfilerModelManagerPrivate;

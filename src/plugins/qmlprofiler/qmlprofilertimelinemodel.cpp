@@ -102,11 +102,11 @@ void QmlProfilerTimelineModel::dataChanged()
 {
 
     switch (m_modelManager->state()) {
-    case QmlProfilerDataState::Done:
+    case QmlProfilerModelManager::Done:
         loadData();
         emit emptyChanged();
         break;
-    case QmlProfilerDataState::ClearingData:
+    case QmlProfilerModelManager::ClearingData:
         clear();
         break;
     default:

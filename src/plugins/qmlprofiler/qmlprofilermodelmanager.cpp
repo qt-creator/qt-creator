@@ -59,49 +59,6 @@ static const char *ProfileFeatureNames[QmlDebug::MaximumProfileFeature] = {
     QT_TRANSLATE_NOOP("MainView", "Input Events")
 };
 
-QmlProfilerDataState::QmlProfilerDataState(QmlProfilerModelManager *modelManager, QObject *parent)
-    : QObject(parent), m_state(Empty), m_modelManager(modelManager)
-{
-    connect(this, SIGNAL(error(QString)), m_modelManager, SIGNAL(error(QString)));
-    connect(this, SIGNAL(stateChanged()), m_modelManager, SIGNAL(stateChanged()));
-}
-
-void QmlProfilerDataState::setState(QmlProfilerDataState::State state)
-{
-    // It's not an error, we are continuously calling "AcquiringData" for example
-    if (m_state == state)
-        return;
-
-    switch (state) {
-        case ClearingData:
-            QTC_ASSERT(m_state == Done || m_state == Empty || m_state == AcquiringData, /**/);
-        break;
-        case Empty:
-            // if it's not empty, complain but go on
-            QTC_ASSERT(m_modelManager->isEmpty(), /**/);
-        break;
-        case AcquiringData:
-            // we're not supposed to receive new data while processing older data
-            QTC_ASSERT(m_state != ProcessingData, return);
-        break;
-        case ProcessingData:
-            QTC_ASSERT(m_state == AcquiringData, return);
-        break;
-        case Done:
-            QTC_ASSERT(m_state == ProcessingData || m_state == Empty, return);
-        break;
-        default:
-            emit error(tr("Trying to set unknown state in events list."));
-        break;
-    }
-
-    m_state = state;
-    emit stateChanged();
-
-    return;
-}
-
-
 /////////////////////////////////////////////////////////////////////
 QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) :
     QObject(parent), m_startTime(-1), m_endTime(-1)
@@ -173,7 +130,7 @@ public:
     QmlProfilerDataModel *model;
     QmlProfilerNotesModel *notesModel;
 
-    QmlProfilerDataState *dataState;
+    QmlProfilerModelManager::State state;
     QmlProfilerTraceTime *traceTime;
 
     QVector <double> partialCounts;
@@ -196,7 +153,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;
     d->model = new QmlProfilerDataModel(finder, this);
-    d->dataState = new QmlProfilerDataState(this, this);
+    d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
     d->notesModel->setModelManager(this);
@@ -336,7 +293,7 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
     if (d->traceTime->startTime() == -1)
         d->traceTime->setTime(startTime, startTime + d->traceTime->duration());
 
-    QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
+    QTC_ASSERT(state() == AcquiringData, /**/);
     d->model->addQmlEvent(message, rangeType, detailType, startTime, length, data, location,
                           ndata1, ndata2, ndata3, ndata4, ndata5);
 }
@@ -344,22 +301,22 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
 void QmlProfilerModelManager::complete()
 {
     switch (state()) {
-    case QmlProfilerDataState::ProcessingData:
+    case ProcessingData:
         // Load notes after the timeline models have been initialized.
         d->notesModel->loadData();
-        setState(QmlProfilerDataState::Done);
+        setState(Done);
         emit loadFinished();
         break;
-    case QmlProfilerDataState::AcquiringData:
+    case AcquiringData:
         // Make sure the trace fits into the time span.
         d->traceTime->increaseEndTime(d->model->lastTimeMark());
-        setState(QmlProfilerDataState::ProcessingData);
+        setState(ProcessingData);
         d->model->complete();
         break;
-    case QmlProfilerDataState::Empty:
-        setState(QmlProfilerDataState::Done);
+    case Empty:
+        setState(Done);
         break;
-    case QmlProfilerDataState::Done:
+    case Done:
         break;
     default:
         emit error(tr("Unexpected complete signal in data model."));
@@ -406,7 +363,7 @@ void QmlProfilerModelManager::load(const QString &filename)
     }
 
     clear();
-    setState(QmlProfilerDataState::AcquiringData);
+    setState(AcquiringData);
 
     QFuture<void> result = QtConcurrent::run<void>([this, file] (QFutureInterface<void> &future) {
         QmlProfilerFileReader reader;
@@ -427,19 +384,47 @@ void QmlProfilerModelManager::load(const QString &filename)
 }
 
 
-void QmlProfilerModelManager::setState(QmlProfilerDataState::State state)
+void QmlProfilerModelManager::setState(QmlProfilerModelManager::State state)
 {
-    d->dataState->setState(state);
+    // It's not an error, we are continuously calling "AcquiringData" for example
+    if (d->state == state)
+        return;
+
+    switch (state) {
+        case ClearingData:
+            QTC_ASSERT(d->state == Done || d->state == Empty || d->state == AcquiringData, /**/);
+        break;
+        case Empty:
+            // if it's not empty, complain but go on
+            QTC_ASSERT(isEmpty(), /**/);
+        break;
+        case AcquiringData:
+            // we're not supposed to receive new data while processing older data
+            QTC_ASSERT(d->state != ProcessingData, return);
+        break;
+        case ProcessingData:
+            QTC_ASSERT(d->state == AcquiringData, return);
+        break;
+        case Done:
+            QTC_ASSERT(d->state == ProcessingData || d->state == Empty, return);
+        break;
+        default:
+            emit error(tr("Trying to set unknown state in events list."));
+        break;
+    }
+
+    d->state = state;
+    emit stateChanged();
 }
 
-QmlProfilerDataState::State QmlProfilerModelManager::state() const
+QmlProfilerModelManager::State QmlProfilerModelManager::state() const
 {
-    return d->dataState->state();
+    return d->state;
 }
 
 void QmlProfilerModelManager::clear()
 {
-    setState(QmlProfilerDataState::ClearingData);
+    setState(ClearingData);
     for (int i = 0; i < d->partialCounts.count(); i++)
         d->partialCounts[i] = 0;
     d->progress = 0;
@@ -450,12 +435,12 @@ void QmlProfilerModelManager::clear()
     setVisibleFeatures(0);
     setRecordedFeatures(0);
 
-    setState(QmlProfilerDataState::Empty);
+    setState(Empty);
 }
 
 void QmlProfilerModelManager::prepareForWriting()
 {
-    setState(QmlProfilerDataState::AcquiringData);
+    setState(AcquiringData);
 }
 
 } // namespace QmlProfiler

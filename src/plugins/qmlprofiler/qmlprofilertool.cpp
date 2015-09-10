@@ -420,8 +420,8 @@ void QmlProfilerTool::updateTimeDisplay()
     if (d->m_profilerState->serverRecording() &&
         d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
             seconds = d->m_recordingElapsedTime.elapsed() / 1000.0;
-    } else if (d->m_profilerModelManager->state() != QmlProfilerDataState::Empty &&
-               d->m_profilerModelManager->state() != QmlProfilerDataState::ClearingData) {
+    } else if (d->m_profilerModelManager->state() != QmlProfilerModelManager::Empty &&
+               d->m_profilerModelManager->state() != QmlProfilerModelManager::ClearingData) {
         seconds = d->m_profilerModelManager->traceTime()->duration() / 1.0e9;
     }
     QString timeString = QString::number(seconds,'f',1);
@@ -609,7 +609,7 @@ void QmlProfilerTool::clientsDisconnected()
 {
     // If the application stopped by itself, check if we have all the data
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying) {
-        if (d->m_profilerModelManager->state() == QmlProfilerDataState::AcquiringData)
+        if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData)
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
         else
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
@@ -668,16 +668,16 @@ void QmlProfilerTool::setRecordedFeatures(quint64 features)
 void QmlProfilerTool::profilerDataModelStateChanged()
 {
     switch (d->m_profilerModelManager->state()) {
-    case QmlProfilerDataState::Empty :
+    case QmlProfilerModelManager::Empty :
         break;
-    case QmlProfilerDataState::ClearingData :
+    case QmlProfilerModelManager::ClearingData :
         clearDisplay();
         break;
-    case QmlProfilerDataState::AcquiringData :
-    case QmlProfilerDataState::ProcessingData :
+    case QmlProfilerModelManager::AcquiringData :
+    case QmlProfilerModelManager::ProcessingData :
         // nothing to be done for these two
         break;
-    case QmlProfilerDataState::Done :
+    case QmlProfilerModelManager::Done :
         if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppReadyToStop);
         showSaveOption();
