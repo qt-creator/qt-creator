@@ -185,9 +185,6 @@ public:
     int totalWeight;
     double progress;
     double previousProgress;
-
-    // file to load
-    QString fileName;
 };
 
 
@@ -400,20 +397,9 @@ void QmlProfilerModelManager::save(const QString &filename)
 
 void QmlProfilerModelManager::load(const QString &filename)
 {
-    d->fileName = filename;
-    load();
-}
-
-void QmlProfilerModelManager::setFilename(const QString &filename)
-{
-    d->fileName = filename;
-}
-
-void QmlProfilerModelManager::load()
-{
-    QFile *file = new QFile(d->fileName, this);
+    QFile *file = new QFile(filename, this);
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        emit error(tr("Could not open %1 for reading.").arg(d->fileName));
+        emit error(tr("Could not open %1 for reading.").arg(filename));
         delete file;
         emit loadFinished();
         return;

@@ -160,8 +160,6 @@ public slots:
 
     void save(const QString &filename);
     void load(const QString &filename);
-    void setFilename(const QString &filename);
-    void load();
 
 private:
     void setState(QmlProfilerDataState::State state);
