@@ -218,7 +218,7 @@ void JsonWizard::accept()
     emit prePromptForOverwrite(m_files);
     JsonWizardGenerator::OverwriteResult overwrite =
             JsonWizardGenerator::promptForOverwrite(&m_files, &errorMessage);
-    if (overwrite == JsonWizardGenerator::OverwriteError) {
+    if (overwrite != JsonWizardGenerator::OverwriteOk) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Overwrite Files"), errorMessage);
         return;
