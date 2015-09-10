@@ -59,13 +59,8 @@ public:
     QTimer connectionTimer;
     int connectionAttempts;
 
-    enum ConnectMode {
-        TcpConnection, OstConnection
-    };
-    ConnectMode connectMode;
     QString tcpHost;
     quint64 tcpPort;
-    QString ostDevice;
     QString sysroot;
     quint32 flushInterval;
 
@@ -115,15 +110,8 @@ void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
 
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
 {
-    d->connectMode = QmlProfilerClientManagerPrivate::TcpConnection;
     d->tcpHost = host;
     d->tcpPort = port;
-}
-
-void QmlProfilerClientManager::setOstConnection(QString ostDevice)
-{
-    d->connectMode = QmlProfilerClientManagerPrivate::OstConnection;
-    d->ostDevice = ostDevice;
 }
 
 void QmlProfilerClientManager::clearBufferedData()

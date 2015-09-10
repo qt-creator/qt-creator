@@ -50,9 +50,7 @@ public:
     ~QmlProfilerClientManager();
 
     void registerProfilerStateManager(QmlProfilerStateManager *profilerState);
-
     void setTcpConnection(QString host, quint64 port);
-    void setOstConnection(QString ostDevice);
 
     void clearBufferedData();
     void discardPendingData();
