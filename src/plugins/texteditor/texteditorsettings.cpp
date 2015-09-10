@@ -135,8 +135,11 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_OCCURRENCES, tr("Occurrences"),
                                          tr("Occurrences of the symbol under the cursor.\n"
                                             "(Only the background will be applied.)")));
-    formatDescr.append(FormatDescription(C_OCCURRENCES_UNUSED, tr("Unused Occurrence"),
-                                         tr("Occurrences of unused variables.")));
+    formatDescr.append(FormatDescription(C_OCCURRENCES_UNUSED,
+                                         tr("Unused Occurrence"),
+                                         tr("Occurrences of unused variables."),
+                                         Qt::darkYellow,
+                                         QTextCharFormat::SingleUnderline));
     formatDescr.append(FormatDescription(C_OCCURRENCES_RENAME, tr("Renaming Occurrence"),
                                          tr("Occurrences of a symbol that will be renamed.")));
 
@@ -279,19 +282,23 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_ERROR,
                                          tr("Error"),
                                          tr("Underline color of error diagnostics."),
-                                         {{255,0, 0}, QColor()}));
+                                         {255,0, 0},
+                                         QTextCharFormat::SingleUnderline));
     formatDescr.append(FormatDescription(C_ERROR_CONTEXT,
                                          tr("Error Context"),
                                          tr("Underline color of the contexts of error diagnostics."),
-                                         {{255,0, 0}, QColor()}));
+                                         {255,0, 0},
+                                         QTextCharFormat::DotLine));
     formatDescr.append(FormatDescription(C_WARNING,
                                          tr("Warning"),
                                          tr("Underline color of warning diagnostics."),
-                                         {{255, 190, 0}, QColor()}));
+                                         {255, 190, 0},
+                                         QTextCharFormat::SingleUnderline));
     formatDescr.append(FormatDescription(C_WARNING_CONTEXT,
                                          tr("Warning Context"),
                                          tr("Underline color of the contexts of warning diagnostics."),
-                                         {{255, 190, 0}, QColor()}));
+                                         {255, 190, 0},
+                                         QTextCharFormat::DotLine));
 
 
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,

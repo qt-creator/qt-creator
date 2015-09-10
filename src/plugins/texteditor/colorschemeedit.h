@@ -72,11 +72,16 @@ private slots:
     void eraseBackColor();
     void eraseForeColor();
     void checkCheckBoxes();
+    void changeUnderlineColor();
+    void eraseUnderlineColor();
+    void changeUnderlineStyle(int index);
 
 private:
     void updateControls();
     void setItemListBackground(const QColor &color);
+    void populateUnderlineStyleComboBox();
 
+private:
     FormatDescriptions m_descriptions;
     ColorScheme m_scheme;
     int m_curItem;

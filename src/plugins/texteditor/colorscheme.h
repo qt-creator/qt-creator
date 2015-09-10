@@ -37,6 +37,7 @@
 #include <QMap>
 #include <QString>
 #include <QColor>
+#include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -48,7 +49,7 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT Format
 {
 public:
-    Format();
+    Format() = default;
     Format(const QColor &foreground, const QColor &background);
 
     QColor foreground() const { return m_foreground; }
@@ -63,16 +64,24 @@ public:
     bool italic() const { return m_italic; }
     void setItalic(bool italic);
 
+    void setUnderlineColor(const QColor &underlineColor);
+    QColor underlineColor() const;
+
+    void setUnderlineStyle(QTextCharFormat::UnderlineStyle underlineStyle);
+    QTextCharFormat::UnderlineStyle underlineStyle() const;
+
     bool equals(const Format &f) const;
 
     QString toString() const;
     bool fromString(const QString &str);
 
 private:
-    QColor m_foreground;
-    QColor m_background;
-    bool m_bold;
-    bool m_italic;
+    QColor m_foreground = Qt::black;
+    QColor m_background = Qt::white;
+    QColor m_underlineColor;
+    QTextCharFormat::UnderlineStyle m_underlineStyle = QTextCharFormat::NoUnderline;
+    bool m_bold = false;
+    bool m_italic = false;
 };
 
 inline bool operator==(const Format &f1, const Format &f2) { return f1.equals(f2); }
@@ -85,8 +94,6 @@ inline bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f
 class ColorScheme
 {
 public:
-    ColorScheme();
-
     void setDisplayName(const QString &name)
     { m_displayName = name; }
 

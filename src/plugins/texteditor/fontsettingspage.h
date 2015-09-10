@@ -57,10 +57,19 @@ namespace Internal { class FontSettingsPagePrivate; }
 class TEXTEDITOR_EXPORT FormatDescription
 {
 public:
-    FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText,
+    FormatDescription(TextStyle id,
+                      const QString &displayName,
+                      const QString &tooltipText,
                       const QColor &foreground = Qt::black);
-    FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText,
+    FormatDescription(TextStyle id,
+                      const QString &displayName,
+                      const QString &tooltipText,
                       const Format &format);
+    FormatDescription(TextStyle id,
+                      const QString &displayName,
+                      const QString &tooltipText,
+                      const QColor &underlineColor,
+                      const QTextCharFormat::UnderlineStyle underlineStyle);
 
     TextStyle id() const { return m_id; }
 

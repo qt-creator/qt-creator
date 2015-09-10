@@ -32,6 +32,12 @@
   <style name="Text" foreground="#000000" background="#ffffff"/>
   <style name="Type"/>
   <style name="VirtualMethod" italic="true"/>
+  <style name="Occurrences.Unused" underlineColor="#8F8F8F" underlineStyle="SingleUnderline"/>
+  <style name="Warning" underlineColor="#505050" underlineStyle="SingleUnderline"/>
+  <style name="WarningContext" underlineColor="#505050" underlineStyle="DotLine"/>
+  <style name="Error" underlineColor="#000000" underlineStyle="WaveUnderline"/>
+  <style name="ErrorContext" underlineColor="#000000" underlineStyle="DotLine"/>
+
   <!--
   Relying on default colors for:
 
@@ -43,7 +49,6 @@
   Selection
   Occurrences
   Occurrences.Rename
-  Occurrences.Unused
   VisualWhitespace
 
   -->

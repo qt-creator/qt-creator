@@ -104,8 +104,8 @@ const char *nameForStyle(TextStyle style)
     case C_WARNING:             return "Warning";
     case C_WARNING_CONTEXT:     return "WarningContext";
 
-    case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
 
+    case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
     }
     return "Unknown Style";
 }

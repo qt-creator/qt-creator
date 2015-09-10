@@ -192,6 +192,8 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const FormatDescriptions &fd,
             format.setBackground(f.background());
             format.setBold(f.format().bold());
             format.setItalic(f.format().italic());
+            format.setUnderlineColor(f.format().underlineColor());
+            format.setUnderlineStyle(f.format().underlineStyle());
         }
     } else if (m_value.colorSchemeFileName().isEmpty()) {
         // No color scheme was loaded, but one might be imported from the ini file
@@ -202,6 +204,8 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const FormatDescriptions &fd,
             format.setBackground(f.background());
             format.setBold(f.format().bold());
             format.setItalic(f.format().italic());
+            format.setUnderlineColor(f.format().underlineColor());
+            format.setUnderlineStyle(f.format().underlineStyle());
         }
         if (m_value.colorScheme() != defaultScheme) {
             // Save it as a color scheme file
@@ -239,6 +243,21 @@ FormatDescription::FormatDescription(TextStyle id, const QString &displayName, c
 {
 }
 
+FormatDescription::FormatDescription(TextStyle id,
+                                     const QString &displayName,
+                                     const QString &tooltipText,
+                                     const QColor &underlineColor,
+                                     const QTextCharFormat::UnderlineStyle underlineStyle)
+    : m_id(id),
+      m_displayName(displayName),
+      m_tooltipText(tooltipText)
+{
+    m_format.setForeground(QColor());
+    m_format.setBackground(QColor());
+    m_format.setUnderlineColor(underlineColor);
+    m_format.setUnderlineStyle(underlineStyle);
+}
+
 QColor FormatDescription::foreground() const
 {
     if (m_id == C_LINE_NUMBER) {
@@ -253,8 +272,6 @@ QColor FormatDescription::foreground() const
             return QApplication::palette().foreground().color();
         else
             return m_format.foreground();
-    } else if (m_id == C_OCCURRENCES_UNUSED) {
-        return Qt::darkYellow;
     } else if (m_id == C_PARENTHESES) {
         return QColor(Qt::red);
     }
@@ -313,7 +330,6 @@ QColor FormatDescription::background() const
     }
     return QColor(); // invalid color
 }
-
 
 //  ------------ FontSettingsPage
 FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
