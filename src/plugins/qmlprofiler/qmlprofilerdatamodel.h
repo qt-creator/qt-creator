@@ -81,11 +81,11 @@ public:
     void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventTypeData> &types,
                  const QVector<QmlEventData> &events);
     void setNoteData(const QVector<QmlEventNoteData> &notes);
+    void processData();
 
     int count() const;
     void clear();
     bool isEmpty() const;
-    void complete();
     void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
                      qint64 startTime, qint64 duration, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
@@ -94,6 +94,7 @@ public:
 
 signals:
     void changed();
+    void requestReload();
 
 protected slots:
     void detailsChanged(int requestId, const QString &newString);

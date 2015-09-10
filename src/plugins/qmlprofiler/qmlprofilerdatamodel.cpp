@@ -111,10 +111,12 @@ QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinde
     d->modelManager = parent;
     d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
     d->modelId = d->modelManager->registerModelProxy();
-    connect(d->detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
-            this, SLOT(detailsChanged(int,QString)));
-    connect(d->detailsRewriter, SIGNAL(eventDetailsChanged()),
-            this, SLOT(detailsDone()));
+    connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
+            this, &QmlProfilerDataModel::detailsChanged);
+    connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
+            this, &QmlProfilerDataModel::detailsDone);
+    connect(this, &QmlProfilerDataModel::requestReload,
+            d->detailsRewriter, &QmlProfilerDetailsRewriter::reloadDocuments);
 
     // The document loading is very expensive.
     d->modelManager->setProxyCountWeight(d->modelId, 4);
@@ -155,7 +157,7 @@ void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
     d->eventTypes = types;
     for (int id = 0; id < types.count(); ++id)
         d->eventTypeIds[types[id]] = id;
-    // Half the work is done. complete() will do the rest.
+    // Half the work is done. processData() will do the rest.
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 2);
 }
 
@@ -215,7 +217,7 @@ inline static bool operator==(const QmlProfilerDataModel::QmlEventTypeData &type
             type1.location.filename == type2.location.filename;
 }
 
-void QmlProfilerDataModel::complete()
+void QmlProfilerDataModel::processData()
 {
     Q_D(QmlProfilerDataModel);
     // post-processing
@@ -251,7 +253,7 @@ void QmlProfilerDataModel::complete()
 
     // Allow changed() event only after documents have been reloaded to avoid
     // unnecessary updates of child models.
-    d->detailsRewriter->reloadDocuments();
+    emit requestReload();
 }
 
 void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType,
@@ -313,7 +315,7 @@ void QmlProfilerDataModel::detailsDone()
     Q_D(QmlProfilerDataModel);
     emit changed();
     d->modelManager->modelProxyCountUpdated(d->modelId, isEmpty() ? 0 : 1, 1);
-    d->modelManager->complete();
+    d->modelManager->processingDone();
 }
 
 }

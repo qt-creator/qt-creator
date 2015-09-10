@@ -110,6 +110,9 @@ public:
     quint64 recordedFeatures() const;
     void setRecordedFeatures(quint64 features);
 
+    void acquiringDone();
+    void processingDone();
+
     static const char *featureName(QmlDebug::ProfileFeature feature);
 
 signals:
@@ -132,8 +135,6 @@ public slots:
                      qint64 startTime, qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
-
-    void complete();
 
     void save(const QString &filename);
     void load(const QString &filename);

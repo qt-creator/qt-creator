@@ -293,30 +293,19 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
                           ndata1, ndata2, ndata3, ndata4, ndata5);
 }
 
-void QmlProfilerModelManager::complete()
+void QmlProfilerModelManager::acquiringDone()
 {
-    switch (state()) {
-    case ProcessingData:
-        // Load notes after the timeline models have been initialized.
-        d->notesModel->loadData();
-        setState(Done);
-        emit loadFinished();
-        break;
-    case AcquiringData:
-        // Make sure the trace fits into the time span.
-        d->traceTime->increaseEndTime(d->model->lastTimeMark());
-        setState(ProcessingData);
-        d->model->complete();
-        break;
-    case Empty:
-        setState(Done);
-        break;
-    case Done:
-        break;
-    default:
-        emit error(tr("Unexpected complete signal in data model."));
-        break;
-    }
+    QTC_ASSERT(state() == AcquiringData, /**/);
+    setState(ProcessingData);
+    d->model->processData();
+}
+
+void QmlProfilerModelManager::processingDone()
+{
+    QTC_ASSERT(state() == ProcessingData, /**/);
+    d->notesModel->loadData();
+    setState(Done);
+    emit loadFinished();
 }
 
 void QmlProfilerModelManager::save(const QString &filename)
@@ -369,10 +358,8 @@ void QmlProfilerModelManager::load(const QString &filename)
         setRecordedFeatures(reader.loadedFeatures());
         file->close();
         file->deleteLater();
-
-        // The completion step uses the old progress display widget for now. We need to do this in
-        // the main thread as it creates widgets.
-        QMetaObject::invokeMethod(this, "complete", Qt::QueuedConnection);
+        d->traceTime->increaseEndTime(d->model->lastTimeMark());
+        acquiringDone();
     });
 
     Core::ProgressManager::addTask(result, tr("Loading Trace Data"), Constants::TASK_LOAD);

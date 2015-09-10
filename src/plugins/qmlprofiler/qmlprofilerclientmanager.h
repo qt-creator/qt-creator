@@ -62,7 +62,6 @@ public:
 signals:
     void connectionFailed();
     void connectionClosed();
-    void dataReadyForProcessing();
 
 public slots:
     void connectClient(quint16 port);

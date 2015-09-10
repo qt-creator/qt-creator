@@ -96,11 +96,7 @@ QmlProfilerClientManager::~QmlProfilerClientManager()
 
 void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
 {
-    if (d->modelManager)
-        disconnect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
     d->modelManager = m;
-    if (d->modelManager)
-        connect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
 }
 
 void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
@@ -315,7 +311,8 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
     d->qmlDataReady = true;
-    emit dataReadyForProcessing();
+    if (d->modelManager)
+        d->modelManager->acquiringDone();
     // once complete is sent, reset the flags
     d->qmlDataReady = false;
 }
