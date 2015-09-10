@@ -351,6 +351,7 @@ void QmlProfilerModelManager::complete()
         // Load notes after the timeline models have been initialized.
         d->notesModel->loadData();
         setState(QmlProfilerDataState::Done);
+        emit loadFinished();
         break;
     case QmlProfilerDataState::AcquiringData:
         // Make sure the trace fits into the time span.
@@ -431,9 +432,9 @@ void QmlProfilerModelManager::load()
         file->close();
         file->deleteLater();
 
-        // The completion step uses the old progress display widget for now.
-        complete();
-        QMetaObject::invokeMethod(this, "loadFinished", Qt::QueuedConnection);
+        // The completion step uses the old progress display widget for now. We need to do this in
+        // the main thread as it creates widgets.
+        QMetaObject::invokeMethod(this, "complete", Qt::QueuedConnection);
     });
 
     Core::ProgressManager::addTask(result, tr("Loading Trace Data"), Constants::TASK_LOAD);
