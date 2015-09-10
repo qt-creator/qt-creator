@@ -67,7 +67,6 @@ public:
     QString getMainFileForUnnamedQuickTest(const QString &qmlFile) const;
     void qmlFilesForMainFile(const QString &mainFile, QSet<QString> *filePaths) const;
     QList<QString> getUnnamedQuickTestFunctions() const;
-    QSet<QString> qmlFilesForProFile(const QString &proFile) const;
     bool hasUnnamedQuickTests() const;
 
 #ifdef WITH_TESTS

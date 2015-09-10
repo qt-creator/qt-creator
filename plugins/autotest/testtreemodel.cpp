@@ -521,21 +521,6 @@ QList<QString> TestTreeModel::getUnnamedQuickTestFunctions() const
     return QList<QString>();
 }
 
-QSet<QString> TestTreeModel::qmlFilesForProFile(const QString &proFile) const
-{
-    QSet<QString> filePaths;
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    if (TestTreeItem *unnamed = unnamedQuickTests()) {
-        for (int i = 0; i < unnamed->childCount(); ++i) {
-            const TestTreeItem *child = unnamed->child(i);
-            QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(child->mainFile());
-            if (ppList.size() && ppList.at(0)->projectFile == proFile)
-                filePaths.insert(child->filePath());
-        }
-    }
-    return filePaths;
-}
-
 bool TestTreeModel::hasUnnamedQuickTests() const
 {
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row)
