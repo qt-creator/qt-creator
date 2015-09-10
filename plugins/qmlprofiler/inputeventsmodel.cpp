@@ -64,7 +64,7 @@ QVariantMap InputEventsModel::details(int index) const
     QVariantMap result;
     result.insert(QLatin1String("displayName"),
                   selectionId(index) == QmlDebug::Key ? tr("Keyboard Event") : tr("Mouse Event"));
-    result.insert(QLatin1String("Timestamp"), QmlProfilerBaseModel::formatTime(startTime(index)));
+    result.insert(QLatin1String("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
     return result;
 }
 

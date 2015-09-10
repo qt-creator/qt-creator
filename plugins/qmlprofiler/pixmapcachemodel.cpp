@@ -118,7 +118,7 @@ QVariantMap PixmapCacheModel::details(int index) const
             if (m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
                 result.insert(tr("Result"), tr("Load Error"));
         }
-        result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
+        result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
     }
 
     result.insert(tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
