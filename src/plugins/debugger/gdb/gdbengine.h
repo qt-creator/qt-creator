@@ -73,22 +73,22 @@ public:
     ~GdbEngine();
 
 private: ////////// General Interface //////////
-    virtual DebuggerEngine *cppEngine() { return this; }
+    DebuggerEngine *cppEngine() override { return this; }
 
     virtual void setupEngine() = 0;
     virtual void handleGdbStartFailed();
     virtual void setupInferior() = 0;
-    virtual void notifyInferiorSetupFailed();
+    virtual void notifyInferiorSetupFailed() override;
 
-    virtual bool hasCapability(unsigned) const;
-    virtual void detachDebugger();
-    virtual void shutdownInferior();
+    virtual bool hasCapability(unsigned) const override;
+    virtual void detachDebugger() override;
+    virtual void shutdownInferior() override;
     virtual void shutdownEngine() = 0;
-    virtual void abortDebugger();
-    virtual void resetInferior();
+    virtual void abortDebugger() override;
+    virtual void resetInferior() override;
 
-    virtual bool acceptsDebuggerCommands() const;
-    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+    virtual bool acceptsDebuggerCommands() const override;
+    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
 private: ////////// General State //////////
 
@@ -224,7 +224,7 @@ protected:
     StackFrame parseStackFrame(const GdbMi &mi, int level);
     void resetCommandQueue();
 
-    bool isSynchronous() const { return true; }
+    bool isSynchronous() const override { return true; }
 
     // Gdb initialization sequence
     void handleShowVersion(const DebuggerResponse &response);
@@ -237,29 +237,29 @@ protected:
 private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
-    bool stateAcceptsBreakpointChanges() const;
-    bool acceptsBreakpoint(Breakpoint bp) const;
-    void insertBreakpoint(Breakpoint bp);
-    void removeBreakpoint(Breakpoint bp);
-    void changeBreakpoint(Breakpoint bp);
+    bool stateAcceptsBreakpointChanges() const override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
+    void insertBreakpoint(Breakpoint bp) override;
+    void removeBreakpoint(Breakpoint bp) override;
+    void changeBreakpoint(Breakpoint bp) override;
 
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
 
     protected:
     void continueInferiorInternal();
     void autoContinueInferior();
-    void continueInferior();
-    void interruptInferior();
+    void continueInferior() override;
+    void interruptInferior() override;
     virtual void interruptInferior2() {}
 
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
-    void executeReturn();
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
+    void executeReturn() override;
 
     void handleExecuteContinue(const DebuggerResponse &response);
     void handleExecuteStep(const DebuggerResponse &response);
@@ -274,8 +274,8 @@ private: ////////// Inferior Management //////////
 
 private: ////////// View & Data Stuff //////////
 
-    void selectThread(ThreadId threadId);
-    void activateFrame(int index);
+    void selectThread(ThreadId threadId) override;
+    void activateFrame(int index) override;
 
     //
     // Breakpoint specific stuff
@@ -301,13 +301,13 @@ private: ////////// View & Data Stuff //////////
     // Modules specific stuff
     //
     protected:
-    void loadSymbols(const QString &moduleName);
-    Q_SLOT void loadAllSymbols();
-    void loadSymbolsForStack();
-    void requestModuleSymbols(const QString &moduleName);
-    void requestModuleSections(const QString &moduleName);
-    void reloadModules();
-    void examineModules();
+    void loadSymbols(const QString &moduleName) override;
+    Q_SLOT void loadAllSymbols() override;
+    void loadSymbolsForStack() override;
+    void requestModuleSymbols(const QString &moduleName) override;
+    void requestModuleSections(const QString &moduleName) override;
+    void reloadModules() override;
+    void examineModules() override;
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);
@@ -316,14 +316,14 @@ private: ////////// View & Data Stuff //////////
     //
     // Snapshot specific stuff
     //
-    virtual void createSnapshot();
+    virtual void createSnapshot() override;
     void handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile);
 
     //
     // Register specific stuff
     //
-    Q_SLOT void reloadRegisters();
-    void setRegisterValue(const QByteArray &name, const QString &value);
+    Q_SLOT void reloadRegisters() override;
+    void setRegisterValue(const QByteArray &name, const QString &value) override;
     void handleRegisterListNames(const DebuggerResponse &response);
     void handleRegisterListing(const DebuggerResponse &response);
     void handleRegisterListValues(const DebuggerResponse &response);
@@ -334,7 +334,7 @@ private: ////////// View & Data Stuff //////////
     // Disassembler specific stuff
     //
     // Chain of fallbacks: PointMixed -> PointPlain -> RangeMixed -> RangePlain.
-    void fetchDisassembler(DisassemblerAgent *agent);
+    void fetchDisassembler(DisassemblerAgent *agent) override;
     void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
@@ -345,7 +345,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Source file specific stuff
     //
-    void reloadSourceFiles();
+    void reloadSourceFiles() override;
     void reloadSourceFilesInternal();
     void handleQuerySources(const DebuggerResponse &response);
 
@@ -363,7 +363,7 @@ private: ////////// View & Data Stuff //////////
     // Stack specific stuff
     //
 protected:
-    void updateAll();
+    void updateAll() override;
     void handleStackListFrames(const DebuggerResponse &response, bool isFull);
     void handleStackSelectThread(const DebuggerResponse &response);
     void handleThreadListIds(const DebuggerResponse &response);
@@ -371,8 +371,8 @@ protected:
     void handleThreadNames(const DebuggerResponse &response);
     DebuggerCommand stackCommand(int depth);
     Q_SLOT void reloadStack();
-    Q_SLOT virtual void reloadFullStack();
-    virtual void loadAdditionalQmlStack();
+    Q_SLOT virtual void reloadFullStack() override;
+    virtual void loadAdditionalQmlStack() override;
     void handleQmlStackFrameArguments(const DebuggerResponse &response);
     void handleQmlStackTrace(const DebuggerResponse &response);
     int currentFrame() const;
@@ -383,17 +383,17 @@ protected:
     // Watch specific stuff
     //
     virtual void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value);
+        const QString &expr, const QVariant &value) override;
 
     virtual void fetchMemory(MemoryAgent *agent, QObject *token,
-        quint64 addr, quint64 length);
+        quint64 addr, quint64 length) override;
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);
     void handleChangeMemory(const DebuggerResponse &response);
     virtual void changeMemory(MemoryAgent *agent, QObject *token,
-        quint64 addr, const QByteArray &data);
+        quint64 addr, const QByteArray &data) override;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
 
-    virtual void watchPoint(const QPoint &);
+    virtual void watchPoint(const QPoint &) override;
     void handleWatchPoint(const DebuggerResponse &response);
 
     void showToolTip();
@@ -406,7 +406,7 @@ protected:
     Q_SLOT void createFullBacktrace();
     void handleCreateFullBacktrace(const DebuggerResponse &response);
 
-    void doUpdateLocals(const UpdateParameters &parameters);
+    void doUpdateLocals(const UpdateParameters &parameters) override;
     void handleStackFrame(const DebuggerResponse &response);
 
     void setLocals(const QList<GdbMi> &locals);
@@ -414,7 +414,7 @@ protected:
     //
     // Dumper Management
     //
-    void reloadDebuggingHelpers();
+    void reloadDebuggingHelpers() override;
 
     QString m_gdb;
 
@@ -467,7 +467,7 @@ protected:
     static QString msgConnectRemoteServerFailed(const QString &why);
     static QByteArray dotEscape(QByteArray str);
 
-    void debugLastCommand();
+    void debugLastCommand() override;
     DebuggerCommand m_lastDebuggableCommand;
 
 protected:

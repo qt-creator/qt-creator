@@ -71,64 +71,64 @@ signals:
     void outputReady(const QByteArray &data);
 
 private:
-    DebuggerEngine *cppEngine() { return this; }
+    DebuggerEngine *cppEngine() override { return this; }
 
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
 
-    void setupEngine();
+    void setupEngine() override;
     void startLldb();
     void startLldbStage2();
-    void setupInferior();
-    void runEngine();
-    void shutdownInferior();
-    void shutdownEngine();
-    void abortDebugger();
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
+    void abortDebugger() override;
 
-    bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
 
-    void continueInferior();
-    void interruptInferior();
+    void continueInferior() override;
+    void interruptInferior() override;
 
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
 
-    void activateFrame(int index);
-    void selectThread(ThreadId threadId);
+    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) override;
     void fetchFullBacktrace();
 
     // This should be always the last call in a function.
-    bool stateAcceptsBreakpointChanges() const;
-    bool acceptsBreakpoint(Breakpoint bp) const;
-    void insertBreakpoint(Breakpoint bp);
-    void removeBreakpoint(Breakpoint bp);
-    void changeBreakpoint(Breakpoint bp);
+    bool stateAcceptsBreakpointChanges() const override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
+    void insertBreakpoint(Breakpoint bp) override;
+    void removeBreakpoint(Breakpoint bp) override;
+    void changeBreakpoint(Breakpoint bp) override;
 
-    void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value);
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+    void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
-    void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
-    void requestModuleSymbols(const QString &moduleName);
-    void reloadModules();
-    void reloadRegisters();
-    void reloadSourceFiles() {}
-    void reloadFullStack();
-    void reloadDebuggingHelpers();
-    void fetchDisassembler(Internal::DisassemblerAgent *);
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
+    void reloadModules() override;
+    void reloadRegisters() override;
+    void reloadSourceFiles() override {}
+    void reloadFullStack() override;
+    void reloadDebuggingHelpers() override;
+    void fetchDisassembler(Internal::DisassemblerAgent *) override;
 
-    bool isSynchronous() const { return true; }
-    void setRegisterValue(const QByteArray &name, const QString &value);
+    bool isSynchronous() const override { return true; }
+    void setRegisterValue(const QByteArray &name, const QString &value) override;
 
-    void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
-    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);
+    void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
+    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data) override;
 
     QString errorMessage(QProcess::ProcessError error) const;
-    bool hasCapability(unsigned cap) const;
+    bool hasCapability(unsigned cap) const override;
 
     void handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleLldbError(QProcess::ProcessError error);
@@ -140,15 +140,15 @@ private:
     void handleOutputNotification(const GdbMi &output);
 
     void handleResponse(const QByteArray &data);
-    void updateAll();
-    void doUpdateLocals(const UpdateParameters &params);
+    void updateAll() override;
+    void doUpdateLocals(const UpdateParameters &params) override;
     void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
     void fetchStack(int limit);
 
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
     void runCommand(const DebuggerCommand &cmd);
-    void debugLastCommand();
+    void debugLastCommand() override;
 
 private:
     DebuggerCommand m_lastDebuggableCommand;

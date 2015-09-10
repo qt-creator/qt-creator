@@ -46,93 +46,93 @@ public:
     QmlCppEngine(const DebuggerRunParameters &sp, QStringList *errors);
     ~QmlCppEngine();
 
-    bool canDisplayTooltip() const;
-    bool canHandleToolTip(const DebuggerToolTipContext &) const;
-    void updateItem(const QByteArray &iname);
-    void expandItem(const QByteArray &iname);
-    void selectWatchData(const QByteArray &iname);
+    bool canDisplayTooltip() const override;
+    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
+    void updateItem(const QByteArray &iname) override;
+    void expandItem(const QByteArray &iname) override;
+    void selectWatchData(const QByteArray &iname) override;
 
-    void watchPoint(const QPoint &);
-    void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);
-    void fetchDisassembler(DisassemblerAgent *);
-    void activateFrame(int index);
+    void watchPoint(const QPoint &) override;
+    void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
+    void fetchDisassembler(DisassemblerAgent *) override;
+    void activateFrame(int index) override;
 
-    void reloadModules();
-    void examineModules();
-    void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
-    void requestModuleSymbols(const QString &moduleName);
+    void reloadModules() override;
+    void examineModules() override;
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
 
-    void reloadRegisters();
-    void reloadSourceFiles();
-    void reloadFullStack();
+    void reloadRegisters() override;
+    void reloadSourceFiles() override;
+    void reloadFullStack() override;
 
-    void setRegisterValue(const QByteArray &name, const QString &value);
-    bool hasCapability(unsigned cap) const;
+    void setRegisterValue(const QByteArray &name, const QString &value) override;
+    bool hasCapability(unsigned cap) const override;
 
-    bool isSynchronous() const;
-    QByteArray qtNamespace() const;
+    bool isSynchronous() const override;
+    QByteArray qtNamespace() const override;
 
-    void createSnapshot();
-    void updateAll();
+    void createSnapshot() override;
+    void updateAll() override;
 
-    void attemptBreakpointSynchronization();
-    bool acceptsBreakpoint(Breakpoint bp) const;
-    void selectThread(ThreadId threadId);
+    void attemptBreakpointSynchronization() override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
+    void selectThread(ThreadId threadId) override;
 
     void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value);
+        const QString &expr, const QVariant &value) override;
 
-    DebuggerEngine *cppEngine() { return m_cppEngine; }
+    DebuggerEngine *cppEngine() override { return m_cppEngine; }
     DebuggerEngine *qmlEngine() const;
 
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
     void showMessage(const QString &msg, int channel = LogDebug,
-        int timeout = -1) const;
-    void resetLocation();
+        int timeout = -1) const override;
+    void resetLocation() override;
 
-    void notifyInferiorIll();
+    void notifyInferiorIll() override;
 
 protected:
-    void detachDebugger();
-    void reloadDebuggingHelpers();
-    void debugLastCommand();
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
-    void executeReturn();
-    void continueInferior();
-    void interruptInferior();
-    void requestInterruptInferior();
+    void detachDebugger() override;
+    void reloadDebuggingHelpers() override;
+    void debugLastCommand() override;
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
+    void executeReturn() override;
+    void continueInferior() override;
+    void interruptInferior() override;
+    void requestInterruptInferior() override;
 
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
-    void setupEngine();
-    void setupInferior();
-    void runEngine();
-    void shutdownInferior();
-    void shutdownEngine();
-    void quitDebugger();
-    void abortDebugger();
+    void setupEngine() override;
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
+    void quitDebugger() override;
+    void abortDebugger() override;
 
-    void notifyInferiorRunOk();
-    void notifyInferiorSpontaneousStop();
-    void notifyEngineRunAndInferiorRunOk();
-    void notifyInferiorShutdownOk();
+    void notifyInferiorRunOk() override;
+    void notifyInferiorSpontaneousStop() override;
+    void notifyEngineRunAndInferiorRunOk() override;
+    void notifyInferiorShutdownOk() override;
 
-    void notifyInferiorSetupOk();
-    void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
+    void notifyInferiorSetupOk() override;
+    void notifyEngineRemoteServerRunning(const QByteArray &, int pid) override;
 
 private:
     void engineStateChanged(DebuggerState newState);
-    void setState(DebuggerState newState, bool forced = false);
-    void slaveEngineStateChanged(DebuggerEngine *slaveEngine, DebuggerState state);
+    void setState(DebuggerState newState, bool forced = false) override;
+    void slaveEngineStateChanged(DebuggerEngine *slaveEngine, DebuggerState state) override;
 
     void setActiveEngine(DebuggerEngine *engine);
 

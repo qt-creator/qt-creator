@@ -54,49 +54,49 @@ public:
 
 private:
     // DebuggerEngine implementation
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
 
-    void setupEngine();
-    void setupInferior();
-    void runEngine();
-    void shutdownInferior();
-    void shutdownEngine();
+    void setupEngine() override;
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
 
-    bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
 
-    void continueInferior();
-    void interruptInferior();
+    void continueInferior() override;
+    void interruptInferior() override;
 
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
 
-    void activateFrame(int index);
-    void selectThread(ThreadId threadId);
+    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) override;
 
-    bool acceptsBreakpoint(Breakpoint bp) const;
-    void insertBreakpoint(Breakpoint bp);
-    void removeBreakpoint(Breakpoint bp);
+    bool acceptsBreakpoint(Breakpoint bp) const override;
+    void insertBreakpoint(Breakpoint bp) override;
+    void removeBreakpoint(Breakpoint bp) override;
 
     void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value);
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+        const QString &expr, const QVariant &value) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
-    void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
-    void requestModuleSymbols(const QString &moduleName);
-    void reloadModules();
-    void reloadRegisters() {}
-    void reloadSourceFiles() {}
-    void reloadFullStack() {}
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
+    void reloadModules() override;
+    void reloadRegisters() override {}
+    void reloadSourceFiles() override {}
+    void reloadFullStack() override {}
 
     bool supportsThreads() const { return true; }
-    bool isSynchronous() const { return true; }
-    void updateItem(const QByteArray &iname);
+    bool isSynchronous() const override { return true; }
+    void updateItem(const QByteArray &iname) override;
 
     void runCommand(const DebuggerCommand &cmd);
     void postDirectCommand(const QByteArray &command);
@@ -109,7 +109,7 @@ private:
     void refreshSymbols(const GdbMi &symbols);
 
     QString errorMessage(QProcess::ProcessError error) const;
-    bool hasCapability(unsigned cap) const;
+    bool hasCapability(unsigned cap) const override;
 
     void handlePdbFinished(int, QProcess::ExitStatus status);
     void handlePdbError(QProcess::ProcessError error);
@@ -118,8 +118,8 @@ private:
     void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
     void handleOutput(const QByteArray &data);
-    void updateAll();
-    void updateLocals();
+    void updateAll() override;
+    void updateLocals() override;
 
     QByteArray m_inbuffer;
     QProcess m_proc;

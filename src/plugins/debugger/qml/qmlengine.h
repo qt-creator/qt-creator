@@ -53,7 +53,7 @@ class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
 
 public:
     explicit QmlEngine(const DebuggerRunParameters &runParameters,
-                       DebuggerEngine *masterEngine = 0);
+                       DebuggerEngine *masterEngine = nullptr);
     ~QmlEngine();
 
     void filterApplicationMessage(const QString &msg, int channel) const;
@@ -79,66 +79,66 @@ private slots:
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
 private:
-    void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void notifyEngineRemoteServerRunning(const QByteArray &, int pid) override;
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
     void showMessage(const QString &msg, int channel = LogDebug,
-                     int timeout = -1) const;
-    void gotoLocation(const Internal::Location &location);
-    void insertBreakpoint(Breakpoint bp);
+                     int timeout = -1) const override;
+    void gotoLocation(const Internal::Location &location) override;
+    void insertBreakpoint(Breakpoint bp) override;
 
-    bool isSynchronous() const { return false; }
-    bool canDisplayTooltip() const { return false; }
+    bool isSynchronous() const override { return false; }
+    bool canDisplayTooltip() const override { return false; }
 
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
 
-    void setupEngine();
-    void setupInferior();
-    void runEngine();
-    void shutdownInferior();
-    void shutdownEngine();
+    void setupEngine() override;
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
 
-    bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
 
-    void continueInferior();
-    void interruptInferior();
+    void continueInferior() override;
+    void interruptInferior() override;
 
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
 
-    void activateFrame(int index);
-    void selectThread(ThreadId threadId);
+    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) override;
 
-    void attemptBreakpointSynchronization();
-    void removeBreakpoint(Breakpoint bp);
-    void changeBreakpoint(Breakpoint bp);
-    bool acceptsBreakpoint(Breakpoint bp) const;
+    void attemptBreakpointSynchronization() override;
+    void removeBreakpoint(Breakpoint bp) override;
+    void changeBreakpoint(Breakpoint bp) override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
 
     void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value);
+        const QString &expr, const QVariant &value) override;
 
-    void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
-    void requestModuleSymbols(const QString &moduleName);
-    void reloadModules();
-    void reloadRegisters() {}
-    void reloadSourceFiles();
-    void reloadFullStack() {}
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
+    void reloadModules() override;
+    void reloadRegisters() override {}
+    void reloadSourceFiles() override;
+    void reloadFullStack() override {}
 
-    void updateAll();
-    void updateItem(const QByteArray &iname);
-    void expandItem(const QByteArray &iname);
-    void selectWatchData(const QByteArray &iname);
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    bool evaluateScript(const QString &expression);
+    void updateAll() override;
+    void updateItem(const QByteArray &iname) override;
+    void expandItem(const QByteArray &iname) override;
+    void selectWatchData(const QByteArray &iname) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    bool evaluateScript(const QString &expression) override;
 
-    bool hasCapability(unsigned) const;
-    void quitDebugger();
+    bool hasCapability(unsigned) const override;
+    void quitDebugger() override;
 
     void closeConnection();
     void startApplicationLauncher();

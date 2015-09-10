@@ -188,12 +188,12 @@ public:
         : m_engine(engine)
     {}
 
-    bool canHandle(const Task &task) const
+    bool canHandle(const Task &task) const override
     {
         return m_debugInfoTasks.contains(task.taskId);
     }
 
-    void handle(const Task &task)
+    void handle(const Task &task) override
     {
         m_engine->requestDebugInformation(m_debugInfoTasks.value(task.taskId));
     }
@@ -203,7 +203,7 @@ public:
         m_debugInfoTasks[id] = task;
     }
 
-    QAction *createAction(QObject *parent) const
+    QAction *createAction(QObject *parent) const override
     {
         QAction *action = new QAction(DebuggerPlugin::tr("Install &Debug Information"), parent);
         action->setToolTip(DebuggerPlugin::tr("Tries to install missing debug information."));
