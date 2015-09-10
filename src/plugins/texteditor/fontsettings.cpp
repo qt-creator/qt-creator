@@ -152,6 +152,19 @@ bool FontSettings::equals(const FontSettings &f) const
             && m_scheme == f.m_scheme;
 }
 
+static bool isDiagnostic(TextStyle textStyle)
+{
+    switch (textStyle) {
+        case C_ERROR:
+        case C_ERROR_CONTEXT:
+        case C_WARNING:
+        case C_WARNING_CONTEXT: return true;
+        default: return false;
+    }
+
+    Q_UNREACHABLE();
+}
+
 /**
  * Returns the QTextCharFormat of the given format category.
  */
@@ -175,12 +188,23 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setToolTip(QCoreApplication::translate("FontSettings_C_OCCURRENCES_UNUSED",
                                                   "Unused variable"));
     }
+
+    if (isDiagnostic(category)) {
+        if (category == C_ERROR || category == C_WARNING)
+            tf.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+        else
+            tf.setUnderlineStyle(QTextCharFormat::DotLine);
+
+        tf.setUnderlineColor(f.foreground());
+    }
+
     if (f.foreground().isValid()
             && category != C_OCCURRENCES
             && category != C_OCCURRENCES_RENAME
             && category != C_OCCURRENCES_UNUSED
             && category != C_SEARCH_RESULT
-            && category != C_PARENTHESES_MISMATCH)
+            && category != C_PARENTHESES_MISMATCH
+            && !isDiagnostic(category))
         tf.setForeground(f.foreground());
     if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
         tf.setBackground(f.background());

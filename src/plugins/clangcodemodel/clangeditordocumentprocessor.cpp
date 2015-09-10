@@ -42,7 +42,10 @@
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cppworkingcopy.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -389,34 +392,31 @@ void addSelections(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnos
     }
 }
 
+QTextCharFormat fontsettingsTextFormat(TextEditor::TextStyle textStyle)
+{
+    return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(textStyle);
+}
+
 void addWarningSelections(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                           QTextDocument *textDocument,
                           QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    QTextCharFormat warningFormat;
-    warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    warningFormat.setUnderlineColor(QColor(180, 180, 0, 255));
-
-    QTextCharFormat warningRangeFormat;
-    warningRangeFormat.setUnderlineStyle(QTextCharFormat::DotLine);
-    warningRangeFormat.setUnderlineColor(QColor(180, 180, 0, 255));
-
-    addSelections(diagnostics, textDocument, warningFormat, warningRangeFormat, extraSelections);
+    addSelections(diagnostics,
+                  textDocument,
+                  fontsettingsTextFormat(TextEditor::C_WARNING),
+                  fontsettingsTextFormat(TextEditor::C_WARNING_CONTEXT),
+                  extraSelections);
 }
 
 void addErrorSelections(const std::vector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                          QTextDocument *textDocument,
                          QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    errorFormat.setUnderlineColor(QColor(255, 0, 0, 255));
-
-    QTextCharFormat errorRangeFormat;
-    errorRangeFormat.setUnderlineStyle(QTextCharFormat::DotLine);
-    errorRangeFormat.setUnderlineColor(QColor(255, 0, 0, 255));
-
-    addSelections(diagnostics, textDocument, errorFormat, errorRangeFormat, extraSelections);
+    addSelections(diagnostics,
+                  textDocument,
+                  fontsettingsTextFormat(TextEditor::C_ERROR),
+                  fontsettingsTextFormat(TextEditor::C_ERROR_CONTEXT),
+                  extraSelections);
 }
 
 }  // anonymous namespace

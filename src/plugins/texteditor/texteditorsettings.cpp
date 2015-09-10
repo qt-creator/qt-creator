@@ -276,6 +276,24 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          tr("Applied to lines describing changes in VCS log."),
                                          Format(QColor(192, 0, 0), QColor())));
 
+    formatDescr.append(FormatDescription(C_ERROR,
+                                         tr("Error"),
+                                         tr("Underline color of error diagnostics."),
+                                         {{255,0, 0}, QColor()}));
+    formatDescr.append(FormatDescription(C_ERROR_CONTEXT,
+                                         tr("Error Context"),
+                                         tr("Underline color of the contexts of error diagnostics."),
+                                         {{255,0, 0}, QColor()}));
+    formatDescr.append(FormatDescription(C_WARNING,
+                                         tr("Warning"),
+                                         tr("Underline color of warning diagnostics."),
+                                         {{255, 190, 0}, QColor()}));
+    formatDescr.append(FormatDescription(C_WARNING_CONTEXT,
+                                         tr("Warning Context"),
+                                         tr("Underline color of the contexts of warning diagnostics."),
+                                         {{255, 190, 0}, QColor()}));
+
+
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);

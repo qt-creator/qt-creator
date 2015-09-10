@@ -98,6 +98,11 @@ enum TextStyle {
 
     C_LOG_CHANGE_LINE,
 
+    C_WARNING,
+    C_WARNING_CONTEXT,
+    C_ERROR,
+    C_ERROR_CONTEXT,
+
     C_LAST_STYLE_SENTINEL
 };
 
