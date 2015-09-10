@@ -184,11 +184,6 @@ bool QmlProfilerModelManager::isEmpty() const
     return d->model->isEmpty();
 }
 
-int QmlProfilerModelManager::count() const
-{
-    return d->model->count();
-}
-
 double QmlProfilerModelManager::progress() const
 {
     return d->progress;

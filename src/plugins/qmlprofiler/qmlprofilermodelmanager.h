@@ -98,7 +98,6 @@ public:
     QmlProfilerNotesModel *notesModel() const;
 
     bool isEmpty() const;
-    int count() const;
 
     double progress() const;
     int registerModelProxy();
