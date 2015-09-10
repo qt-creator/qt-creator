@@ -17,9 +17,15 @@
 **
 ****************************************************************************/
 
+#include "autotestconstants.h"
 #include "testtreeitem.h"
 
 #include <utils/qtcassert.h>
+
+#include <QIcon>
+#include <QVariant>
+
+#include <texteditor/texteditor.h>
 
 namespace Autotest {
 namespace Internal {
@@ -76,6 +82,85 @@ void TestTreeItem::appendChild(TestTreeItem *child)
 
     child->m_parent = this;
     m_children.append(child);
+}
+
+static QIcon testTreeIcon(TestTreeItem::Type type)
+{
+    static QIcon icons[] = {
+        QIcon(),
+        QIcon(QLatin1String(":/images/class.png")),
+        QIcon(QLatin1String(":/images/func.png")),
+        QIcon(QLatin1String(":/images/data.png"))
+    };
+    if (type >= sizeof(icons))
+        return icons[2];
+    return icons[type];
+}
+
+QVariant TestTreeItem::data(int /*column*/, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        if (m_type == ROOT && childCount() == 0)
+            return QString(m_name + QObject::tr(" (none)"));
+        else if (m_name.isEmpty())
+            return QObject::tr(Constants::UNNAMED_QUICKTESTS);
+        else
+            return m_name;
+    case Qt::ToolTipRole:
+        if (m_type == TEST_CLASS && m_name.isEmpty()) {
+            return QObject::tr("<p>Give all test cases a name to ensure correct behavior "
+                               "when running test cases and to be able to select them.</p>");
+        }
+        return m_filePath;
+    case Qt::DecorationRole:
+        return testTreeIcon(m_type);
+    case Qt::CheckStateRole:
+        switch (m_type) {
+        case ROOT:
+        case TEST_DATAFUNCTION:
+        case TEST_SPECIALFUNCTION:
+            return QVariant();
+        case TEST_CLASS:
+            return m_name.isEmpty() ? QVariant() : checked();
+        case TEST_FUNCTION:
+            if (m_parent && m_parent->name().isEmpty())
+                return QVariant();
+            return checked();
+        default:
+            return checked();
+        }
+    case LinkRole: {
+        QVariant itemLink;
+        itemLink.setValue(TextEditor::TextEditorWidget::Link(m_filePath, m_line, m_column));
+        return itemLink;
+    }
+    case ItalicRole:
+        switch (m_type) {
+        case TEST_DATAFUNCTION:
+        case TEST_SPECIALFUNCTION:
+            return true;
+        case TEST_CLASS:
+            return m_name.isEmpty();
+        case TEST_FUNCTION:
+            return m_parent ? m_parent->name().isEmpty() : false;
+        default:
+            return false;
+        }
+    case TypeRole:
+        return m_type;
+    }
+    return QVariant();
+}
+
+bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
+{
+    if (role == Qt::CheckStateRole) {
+        Qt::CheckState old = checked();
+        setChecked((Qt::CheckState)data.toInt());
+        return checked() != old;
+    }
+    return false;
 }
 
 int TestTreeItem::row() const

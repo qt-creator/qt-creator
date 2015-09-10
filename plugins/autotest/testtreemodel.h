@@ -27,15 +27,6 @@
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 
-namespace {
-    enum ItemRole {
-//        AnnotationRole = Qt::UserRole + 1,
-        LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
-        ItalicRole, // used only inside the delegate
-        TypeRole
-    };
-}
-
 namespace Autotest {
 namespace Internal {
 

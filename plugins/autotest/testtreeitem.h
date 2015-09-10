@@ -24,6 +24,18 @@
 #include <QString>
 #include <QMetaType>
 
+QT_BEGIN_NAMESPACE
+class QVariant;
+QT_END_NAMESPACE
+
+namespace {
+    enum ItemRole {
+        LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
+        ItalicRole, // used only inside the delegate
+        TypeRole
+    };
+}
+
 namespace Autotest {
 namespace Internal {
 
@@ -48,6 +60,8 @@ public:
     TestTreeItem *child(int row) const;
     TestTreeItem *parent() const;
     void appendChild(TestTreeItem *child);
+    QVariant data(int column, int role) const;
+    bool setData(int column, const QVariant &data, int role);
     int row() const;
     int childCount() const;
     void removeChildren();

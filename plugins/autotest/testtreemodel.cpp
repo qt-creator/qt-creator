@@ -33,8 +33,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QIcon>
-
 namespace Autotest {
 namespace Internal {
 
@@ -176,19 +174,6 @@ int TestTreeModel::columnCount(const QModelIndex &) const
     return 1;
 }
 
-static QIcon testTreeIcon(TestTreeItem::Type type)
-{
-    static QIcon icons[] = {
-        QIcon(),
-        QIcon(QLatin1String(":/images/class.png")),
-        QIcon(QLatin1String(":/images/func.png")),
-        QIcon(QLatin1String(":/images/data.png"))
-    };
-    if (type >= sizeof(icons) / sizeof(icons[0]))
-        return icons[2];
-    return icons[type];
-}
-
 QVariant TestTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -198,73 +183,7 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
     if (!item)
         return QVariant();
 
-    if (role == Qt::DisplayRole) {
-        if ((item == m_autoTestRootItem && m_autoTestRootItem->childCount() == 0)
-                || (item == m_quickTestRootItem && m_quickTestRootItem->childCount() == 0)) {
-            return QString(item->name() + tr(" (none)"));
-        } else {
-            if (item->name().isEmpty() && item->type() == TestTreeItem::TEST_CLASS)
-                return tr(Constants::UNNAMED_QUICKTESTS);
-            return item->name();
-        }
-
-        return QVariant(); // TODO ?
-    }
-    switch(role) {
-    case Qt::ToolTipRole:
-        if (item->type() == TestTreeItem::TEST_CLASS && item->name().isEmpty())
-            return tr("<p>Give all test cases a name to ensure correct behavior "
-                      "when running test cases and to be able to select them.</p>");
-        return item->filePath();
-    case Qt::DecorationRole:
-        return testTreeIcon(item->type());
-    case Qt::CheckStateRole:
-        switch (item->type()) {
-        case TestTreeItem::ROOT:
-        case TestTreeItem::TEST_DATATAG:
-        case TestTreeItem::TEST_DATAFUNCTION:
-        case TestTreeItem::TEST_SPECIALFUNCTION:
-            return QVariant();
-        case TestTreeItem::TEST_CLASS:
-            if (item->name().isEmpty())
-                return QVariant();
-            else
-                return item->checked();
-        case TestTreeItem::TEST_FUNCTION:
-            if (TestTreeItem *parent = item->parent())
-                return parent->name().isEmpty() ? QVariant() : item->checked();
-            else
-                return item->checked();
-        default:
-            return item->checked();
-        }
-    case LinkRole: {
-        QVariant itemLink;
-        TextEditor::TextEditorWidget::Link link(item->filePath(), item->line(), item->column());
-        itemLink.setValue(link);
-        return itemLink;
-    }
-    case ItalicRole:
-        switch (item->type()) {
-        case TestTreeItem::TEST_DATAFUNCTION:
-        case TestTreeItem::TEST_SPECIALFUNCTION:
-            return true;
-        case TestTreeItem::TEST_CLASS:
-            return item->name().isEmpty();
-        case TestTreeItem::TEST_FUNCTION:
-            if (TestTreeItem *parent = item->parent())
-                return parent->name().isEmpty();
-            else
-                return false;
-        default:
-            return false;
-        }
-    case TypeRole:
-        return item->type();
-    }
-
-    // TODO ?
-    return QVariant();
+    return item->data(index.column(), role);
 }
 
 bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -272,27 +191,23 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
     if (!index.isValid())
         return false;
 
-    if (role == Qt::CheckStateRole) {
-        TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
-        Qt::CheckState old = item->checked();
-        item->setChecked((Qt::CheckState)value.toInt());
-        if (item->checked() != old) {
-            switch(item->type()) {
+    TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
+    if (item && item->setData(index.column(), value, role)) {
+        emit dataChanged(index, index);
+        if (role == Qt::CheckStateRole) {
+            switch (item->type()) {
             case TestTreeItem::TEST_CLASS:
-                emit dataChanged(index, index);
-                if (item->childCount() > 0) {
+                if (item->childCount() > 0)
                     emit dataChanged(index.child(0, 0), index.child(item->childCount() - 1, 0));
-                }
                 break;
             case TestTreeItem::TEST_FUNCTION:
-                emit dataChanged(index, index);
                 emit dataChanged(index.parent(), index.parent());
                 break;
             default: // avoid warning regarding unhandled enum member
                 break;
             }
-            return true;
         }
+        return true;
     }
     return false;
 }

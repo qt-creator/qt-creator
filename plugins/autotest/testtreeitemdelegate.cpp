@@ -17,6 +17,7 @@
 **
 ****************************************************************************/
 
+#include "testtreeitem.h"
 #include "testtreeitemdelegate.h"
 #include "testtreemodel.h"
 
