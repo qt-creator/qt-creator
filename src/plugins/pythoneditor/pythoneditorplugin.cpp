@@ -340,16 +340,7 @@ public:
 
     QList<ProjectAction> supportedActions(Node *node) const override;
 
-    bool canAddSubProject(const QString &proFilePath) const override;
-
-    bool addSubProjects(const QStringList &proFilePaths) override;
-    bool removeSubProjects(const QStringList &proFilePaths) override;
-
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
-    bool deleteFiles(const QStringList &filePaths) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
-
     void refresh(QSet<QString> oldFileList = QSet<QString>());
 
 private:
@@ -1079,44 +1070,6 @@ QList<ProjectAction> PythonProjectNode::supportedActions(Node *node) const
     Q_UNUSED(node);
     //return { AddNewFile, AddExistingFile, AddExistingDirectory, RemoveFile, Rename };
     return {};
-}
-
-bool PythonProjectNode::canAddSubProject(const QString &proFilePath) const
-{
-    Q_UNUSED(proFilePath)
-    return false;
-}
-
-bool PythonProjectNode::addSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
-bool PythonProjectNode::removeSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
-bool PythonProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
-{
-    Q_UNUSED(notAdded)
-
-    return m_project->addFiles(filePaths);
-}
-
-bool PythonProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
-{
-    Q_UNUSED(notRemoved)
-
-    return m_project->removeFiles(filePaths);
-}
-
-bool PythonProjectNode::deleteFiles(const QStringList &filePaths)
-{
-    Q_UNUSED(filePaths)
-    return false;
 }
 
 bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFilePath)

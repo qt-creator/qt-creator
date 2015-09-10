@@ -312,51 +312,6 @@ QList<ProjectExplorer::ProjectAction> QbsBaseProjectNode::supportedActions(Proje
     return QList<ProjectExplorer::ProjectAction>();
 }
 
-bool QbsBaseProjectNode::canAddSubProject(const QString &proFilePath) const
-{
-    Q_UNUSED(proFilePath);
-    return false;
-}
-
-bool QbsBaseProjectNode::addSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths);
-    return false;
-}
-
-bool QbsBaseProjectNode::removeSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths);
-    return false;
-}
-
-bool QbsBaseProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
-{
-    Q_UNUSED(filePaths);
-    Q_UNUSED(notAdded);
-    return false;
-}
-
-bool QbsBaseProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
-{
-    Q_UNUSED(filePaths);
-    Q_UNUSED(notRemoved);
-    return false;
-}
-
-bool QbsBaseProjectNode::deleteFiles(const QStringList &filePaths)
-{
-    Q_UNUSED(filePaths);
-    return false;
-}
-
-bool QbsBaseProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(newFilePath);
-    return false;
-}
-
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------

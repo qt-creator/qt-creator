@@ -229,24 +229,6 @@ QList<ProjectAction> GenericProjectNode::supportedActions(Node *node) const
         << Rename;
 }
 
-bool GenericProjectNode::canAddSubProject(const QString &proFilePath) const
-{
-    Q_UNUSED(proFilePath)
-    return false;
-}
-
-bool GenericProjectNode::addSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
-bool GenericProjectNode::removeSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
 bool GenericProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     Q_UNUSED(notAdded)
@@ -259,12 +241,6 @@ bool GenericProjectNode::removeFiles(const QStringList &filePaths, QStringList *
     Q_UNUSED(notRemoved)
 
     return m_project->removeFiles(filePaths);
-}
-
-bool GenericProjectNode::deleteFiles(const QStringList &filePaths)
-{
-    Q_UNUSED(filePaths)
-    return false;
 }
 
 bool GenericProjectNode::renameFile(const QString &filePath, const QString &newFilePath)

@@ -591,25 +591,50 @@ QList<ProjectNode*> ProjectNode::subProjectNodes() const
     return m_subProjectNodes;
 }
 
-/*!
-  \function bool ProjectNode::addSubProjects(const QStringList &)
-  */
+bool ProjectNode::canAddSubProject(const QString &proFilePath) const
+{
+    Q_UNUSED(proFilePath)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::removeSubProjects(const QStringList &)
-  */
+bool ProjectNode::addSubProjects(const QStringList &proFilePaths)
+{
+    Q_UNUSED(proFilePaths)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::addFiles(const FileType, const QStringList &, QStringList *)
-  */
+bool ProjectNode::removeSubProjects(const QStringList &proFilePaths)
+{
+    Q_UNUSED(proFilePaths)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::removeFiles(const FileType, const QStringList &, QStringList *)
-  */
+bool ProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+{
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notAdded)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::renameFile(const FileType, const QString &, const QString &)
-  */
+bool ProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+{
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notRemoved)
+    return false;
+}
+
+bool ProjectNode::deleteFiles(const QStringList &filePaths)
+{
+    Q_UNUSED(filePaths)
+    return false;
+}
+
+bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
+    return false;
+}
 
 bool ProjectNode::deploysFolder(const QString &folder) const
 {

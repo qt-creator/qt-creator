@@ -188,32 +188,9 @@ QList<ProjectExplorer::ProjectAction> QmlProjectNode::supportedActions(Node *nod
     return actions;
 }
 
-bool QmlProjectNode::canAddSubProject(const QString &proFilePath) const
-{
-    Q_UNUSED(proFilePath)
-    return false;
-}
-
-bool QmlProjectNode::addSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
-bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
 bool QmlProjectNode::addFiles(const QStringList &filePaths, QStringList * /*notAdded*/)
 {
     return m_project->addFiles(filePaths);
-}
-
-bool QmlProjectNode::removeFiles(const QStringList & /*filePaths*/, QStringList * /*notRemoved*/)
-{
-    return false;
 }
 
 bool QmlProjectNode::deleteFiles(const QStringList & /*filePaths*/)

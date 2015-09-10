@@ -81,18 +81,6 @@ public:
     bool showInSimpleTree() const;
 
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
-
-    bool canAddSubProject(const QString &proFilePath) const;
-
-    bool addSubProjects(const QStringList &proFilePaths);
-
-    bool removeSubProjects(const QStringList &proFilePaths);
-
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool deleteFiles(const QStringList &filePaths);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-
 private:
     friend class QbsGroupNode;
 };

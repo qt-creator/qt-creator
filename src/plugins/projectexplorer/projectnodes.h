@@ -245,27 +245,30 @@ public:
     // all subFolders that are projects
     QList<ProjectNode*> subProjectNodes() const;
 
-    virtual bool canAddSubProject(const QString &proFilePath) const = 0;
+    virtual bool canAddSubProject(const QString &proFilePath) const;
+    virtual bool addSubProjects(const QStringList &proFilePaths);
+    virtual bool removeSubProjects(const QStringList &proFilePaths);
 
-    virtual bool addSubProjects(const QStringList &proFilePaths) = 0;
-
-    virtual bool removeSubProjects(const QStringList &proFilePaths) = 0;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool deleteFiles(const QStringList &filePaths) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
 
     virtual QList<RunConfiguration *> runConfigurations() const;
 
-    void accept(NodesVisitor *visitor);
+    void accept(NodesVisitor *visitor) override;
 
-    bool isEnabled() const { return true; }
+    bool isEnabled() const override { return true; }
 
     // to be called in implementation of
     // the corresponding public functions
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 
-    ProjectNode *asProjectNode();
+    ProjectNode *asProjectNode() override;
 
 protected:
     // this is just the in-memory representation, a subclass
