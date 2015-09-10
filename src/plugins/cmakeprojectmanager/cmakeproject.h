@@ -113,6 +113,10 @@ public:
 
     bool parseCMakeLists();
 
+    bool needsConfiguration() const;
+
+    bool requiresTargetPanel() const;
+
 signals:
     /// emitted after parsing
     void buildTargetsChanged();

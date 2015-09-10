@@ -80,36 +80,11 @@ using namespace CMakeProjectManager::Internal;
 //////////////
 /// CMakeOpenProjectWizard
 //////////////
-
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env)
-    : Utils::Wizard(parent),
-      m_cmakeManager(cmakeManager),
-      m_sourceDirectory(sourceDirectory),
-      m_environment(env),
-      m_useNinja(false),
-      m_kit(0)
-{
-    if (CMakeToolManager::cmakeTools().isEmpty())
-        addPage(new NoCMakePage(this));
-
-    if (!compatibleKitExist())
-        addPage(new NoKitPage(this));
-
-    if (hasInSourceBuild()) {
-        m_buildDirectory = m_sourceDirectory;
-        addPage(new InSourceBuildPage(this));
-    } else {
-        m_buildDirectory = m_sourceDirectory + QLatin1String("-build");
-        addPage(new ShadowBuildPage(this));
-    }
-
-    addPage(new CMakeRunPage(this));
-
-    init();
-}
-
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, CMakeOpenProjectWizard::Mode mode,
-                                               const CMakeBuildInfo *info)
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager,
+                                               CMakeOpenProjectWizard::Mode mode,
+                                               const CMakeBuildInfo *info,
+                                               const QString &kitName,
+                                               const QString &buildConfigurationName)
     : Utils::Wizard(parent),
       m_cmakeManager(cmakeManager),
       m_sourceDirectory(info->sourceDirectory),
@@ -137,7 +112,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
     if (CMakeToolManager::cmakeTools().isEmpty())
         addPage(new NoCMakePage(this));
 
-    addPage(new CMakeRunPage(this, rmode, info->buildDirectory.toString()));
+    addPage(new CMakeRunPage(this, rmode, info->buildDirectory.toString(), info->arguments,
+                             kitName, buildConfigurationName));
     init();
 }
 
@@ -409,14 +385,19 @@ void NoCMakePage::showOptions()
     Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGSPAGE_ID, this);
 }
 
-CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const QString &buildDirectory)
+CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode,
+                           const QString &buildDirectory, const QString &initialArguments,
+                           const QString &kitName, const QString &buildConfigurationName)
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
       m_haveCbpFile(false),
       m_mode(mode),
-      m_buildDirectory(buildDirectory)
+      m_buildDirectory(buildDirectory),
+      m_kitName(kitName),
+      m_buildConfigurationName(buildConfigurationName)
 {
     initWidgets();
+    m_argumentsLineEdit->setText(initialArguments);
 }
 
 void CMakeRunPage::initWidgets()
@@ -507,41 +488,37 @@ QByteArray CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
 
 void CMakeRunPage::initializePage()
 {
-    if (m_mode == Initial) {
-        bool upToDateXmlFile = m_cmakeWizard->existsUpToDateXmlFile();
-        m_buildDirectory = m_cmakeWizard->buildDirectory();
-
-        if (upToDateXmlFile) {
-            m_descriptionLabel->setText(
-                    tr("The directory %1 already contains a cbp file, which is recent enough. "
-                       "You can pass special arguments and rerun CMake. "
-                       "Or simply finish the wizard directly.").arg(m_buildDirectory));
-            m_haveCbpFile = true;
-        } else {
-            m_descriptionLabel->setText(
-                    tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. "
-                       "Some projects require command line arguments to the initial CMake call.").arg(m_buildDirectory));
-        }
-    } else if (m_mode == CMakeRunPage::NeedToUpdate) {
-        m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
+    if (m_mode == CMakeRunPage::NeedToUpdate) {
+        m_descriptionLabel->setText(tr("The build directory \"%1\" for the buildconfiguration \"%2\" "
+                                       "for target \"%3\" contains an outdated .cbp file. Qt "
                                        "Creator needs to update this file by running CMake. "
                                        "If you want to add additional command line arguments, "
                                        "add them below. Note that CMake remembers command "
-                                       "line arguments from the previous runs.").arg(m_buildDirectory));
+                                       "line arguments from the previous runs.")
+                                    .arg(m_buildDirectory)
+                                    .arg(m_buildConfigurationName)
+                                    .arg(m_kitName));
     } else if (m_mode == CMakeRunPage::Recreate) {
-        m_descriptionLabel->setText(tr("The directory %1 specified in a build-configuration, "
-                                       "does not contain a cbp file. Qt Creator needs to "
-                                       "recreate this file, by running CMake. "
+        m_descriptionLabel->setText(tr("The directory \"%1\" specified in the build-configuration \"%2\", "
+                                       "for target \"%3\" does not contain a cbp file. "
+                                       "Qt Creator needs to recreate this file, by running CMake. "
                                        "Some projects require command line arguments to "
                                        "the initial CMake call. Note that CMake remembers command "
-                                       "line arguments from the previous runs.").arg(m_buildDirectory));
+                                       "line arguments from the previous runs.")
+                                    .arg(m_buildDirectory)
+                                    .arg(m_buildConfigurationName)
+                                    .arg(m_kitName));
     } else if (m_mode == CMakeRunPage::ChangeDirectory) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
         m_descriptionLabel->setText(tr("Qt Creator needs to run CMake in the new build directory. "
                                        "Some projects require command line arguments to the "
                                        "initial CMake call."));
     } else if (m_mode == CMakeRunPage::WantToUpdate) {
-        m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
+        m_descriptionLabel->setText(tr("Refreshing cbp file in \"%1\" for buildconfiguration \"%2\" "
+                                       "for target \"%3\".")
+                                    .arg(m_buildDirectory)
+                                    .arg(m_buildConfigurationName)
+                                    .arg(m_kitName));
     }
 
     // Build the list of generators/toolchains we want to offer
@@ -549,69 +526,29 @@ void CMakeRunPage::initializePage()
 
     bool preferNinja = m_cmakeWizard->cmakeManager()->preferNinja();
 
-    if (m_mode == Initial) {
-        // Try figuring out generator and toolchain from CMakeCache.txt
-        QByteArray cachedGenerator = cachedGeneratorFromFile(m_buildDirectory + QLatin1String("/CMakeCache.txt"));
-
-        m_generatorComboBox->show();
-        QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::kits();
-        int defaultIndex = 0;
-
-        foreach (ProjectExplorer::Kit *k, kitList) {
-            CMakeTool *cmake = CMakeKitInformation::cmakeTool(k);
-            if (!cmake)
-                continue;
-
-            bool hasCodeBlocksGenerator = cmake->hasCodeBlocksMsvcGenerator();
-            bool hasNinjaGenerator = cmake->hasCodeBlocksNinjaGenerator();
-
-            QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
-                                                                          hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
-                                                                          preferNinja,
-                                                                          hasCodeBlocksGenerator);
-
-            if (k == ProjectExplorer::KitManager::defaultKit())
-                defaultIndex = m_generatorComboBox->count();
-
-            foreach (const GeneratorInfo &info, infos)
-                if (cachedGenerator.isEmpty() || info.generator() == cachedGenerator)
-                    m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
+    QList<GeneratorInfo> infos;
+    CMakeTool *cmake = CMakeKitInformation::cmakeTool(m_cmakeWizard->kit());
+    if (cmake) {
+        // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
+        // We assume that the buildconfiguration is correct
+        GeneratorInfo::Ninja ninja;
+        if (m_mode == CMakeRunPage::NeedToUpdate || m_mode == CMakeRunPage::WantToUpdate) {
+            ninja = m_cmakeWizard->useNinja() ? GeneratorInfo::ForceNinja : GeneratorInfo::NoNinja;
+        } else { // Recreate, ChangeDirectory
+            // Note: ReCreate is technically just a removed .cbp file, we assume the cache
+            // got removed too. If the cache still exists the error message from cmake should
+            // be a good hint to change the generator
+            ninja = cmake->hasCodeBlocksNinjaGenerator() ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja;
         }
 
-
-        if (!m_generatorComboBox->count()) {
-            m_generatorExtraText->setVisible(true);
-            m_generatorExtraText->setText(tr("The cached generator %1 is incompatible with the configured kits.")
-                                          .arg(QString::fromLatin1(cachedGenerator)));
-        } else {
-            m_generatorExtraText->setVisible(false);
-        }
-
-        m_generatorComboBox->setCurrentIndex(defaultIndex);
-    } else {
-        QList<GeneratorInfo> infos;
-        CMakeTool *cmake = CMakeKitInformation::cmakeTool(m_cmakeWizard->kit());
-        if (cmake) {
-            // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
-            // We assume that the buildconfiguration is correct
-            GeneratorInfo::Ninja ninja;
-            if (m_mode == CMakeRunPage::NeedToUpdate || m_mode == CMakeRunPage::WantToUpdate) {
-                ninja = m_cmakeWizard->useNinja() ? GeneratorInfo::ForceNinja : GeneratorInfo::NoNinja;
-            } else { // Recreate, ChangeDirectory
-                // Note: ReCreate is technically just a removed .cbp file, we assume the cache
-                // got removed too. If the cache still exists the error message from cmake should
-                // be a good hint to change the generator
-                ninja = cmake->hasCodeBlocksNinjaGenerator() ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja;
-            }
-
-            infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
-                                                     ninja,
-                                                     preferNinja,
-                                                     true);
-        }
-        foreach (const GeneratorInfo &info, infos)
-            m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
+        infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
+                                                 ninja,
+                                                 preferNinja,
+                                                 true);
     }
+    foreach (const GeneratorInfo &info, infos)
+        m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
+
 }
 
 bool CMakeRunPage::validatePage()
@@ -639,11 +576,6 @@ void CMakeRunPage::runCMake()
     GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
     m_cmakeWizard->setKit(generatorInfo.kit());
     m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
-
-    // If mode is initial the user chooses the kit, otherwise it's already chosen
-    // and the environment already contains the kit
-    if (m_mode == Initial)
-        generatorInfo.kit()->addToEnvironment(env);
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);

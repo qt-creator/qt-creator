@@ -59,10 +59,12 @@ public:
 
         QTC_ASSERT(bc->target()->project(), return);
         sourceDirectory = bc->target()->project()->projectDirectory().toString();
+        arguments = bc->initialArguments();
     }
 
     Utils::Environment environment;
     QString sourceDirectory;
+    QString arguments;
     bool useNinja;
 };
 

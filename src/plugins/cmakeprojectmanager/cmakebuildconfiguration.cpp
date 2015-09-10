@@ -59,6 +59,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 const char USE_NINJA_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.UseNinja";
+const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument";
 
 static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit *k, const QString &bcName)
 {
@@ -85,7 +86,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
     m_msvcVersion(source->m_msvcVersion),
-    m_useNinja(source->m_useNinja)
+    m_useNinja(source->m_useNinja),
+    m_initialArguments(source->m_initialArguments)
 {
     Q_ASSERT(parent);
     cloneSteps(source);
@@ -95,6 +97,7 @@ QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
     map.insert(QLatin1String(USE_NINJA_KEY), m_useNinja);
+    map.insert(QLatin1String(INITIAL_ARGUMENTS), m_initialArguments);
     return map;
 }
 
@@ -104,6 +107,7 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     m_useNinja = map.value(QLatin1String(USE_NINJA_KEY), false).toBool();
+    m_initialArguments = map.value(QLatin1String(INITIAL_ARGUMENTS)).toString();
 
     return true;
 }
@@ -124,6 +128,16 @@ void CMakeBuildConfiguration::setUseNinja(bool useNninja)
 void CMakeBuildConfiguration::emitBuildTypeChanged()
 {
     emit buildTypeChanged();
+}
+
+void CMakeBuildConfiguration::setInitialArguments(const QString &arguments)
+{
+    m_initialArguments = arguments;
+}
+
+QString CMakeBuildConfiguration::initialArguments() const
+{
+    return m_initialArguments;
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -156,9 +170,12 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
 {
     QList<ProjectExplorer::BuildInfo *> result;
 
-    CMakeBuildInfo *info = createBuildInfo(parent->kit(),
-                                           parent->project()->projectDirectory().toString());
-    result << info;
+    for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
+        CMakeBuildInfo *info = createBuildInfo(parent->kit(),
+                                               parent->project()->projectDirectory().toString(),
+                                               BuildType(type));
+        result << info;
+    }
     return result;
 }
 
@@ -175,11 +192,19 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSet
 {
     QList<ProjectExplorer::BuildInfo *> result;
     const FileName projectPathName = FileName::fromString(projectPath);
-    CMakeBuildInfo *info = createBuildInfo(k, ProjectExplorer::Project::projectDirectory(projectPathName).toString());
-    //: The name of the build configuration created by default for a cmake project.
-    info->displayName = tr("Default");
-    info->buildDirectory = shadowBuildDirectory(projectPathName, k, info->displayName);
-    result << info;
+    for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
+        CMakeBuildInfo *info = createBuildInfo(k,
+                                               ProjectExplorer::Project::projectDirectory(projectPathName).toString(),
+                                               BuildType(type));
+        if (type == BuildTypeNone) {
+            //: The name of the build configuration created by default for a cmake project.
+            info->displayName = tr("Default");
+        } else {
+            info->displayName = info->typeName;
+        }
+        info->buildDirectory = shadowBuildDirectory(projectPathName, k, info->displayName);
+        result << info;
+    }
     return result;
 }
 
@@ -192,16 +217,11 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
 
     CMakeBuildInfo copy(*static_cast<const CMakeBuildInfo *>(info));
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-    CMakeManager *manager = static_cast<CMakeManager *>(project->projectManager());
 
     if (copy.buildDirectory.isEmpty()) {
         copy.buildDirectory = shadowBuildDirectory(project->projectFilePath(), parent->kit(),
                                                    copy.displayName);
     }
-
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), manager, CMakeOpenProjectWizard::ChangeDirectory, &copy);
-    if (copw.exec() != QDialog::Accepted)
-        return 0;
 
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(parent);
     bc->setDisplayName(copy.displayName);
@@ -218,8 +238,8 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
     cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
     cleanMakeStep->setClean(true);
 
-    bc->setBuildDirectory(FileName::fromString(copw.buildDirectory()));
-    bc->setUseNinja(copw.useNinja());
+    bc->setBuildDirectory(copy.buildDirectory);
+    bc->setInitialArguments(copy.arguments);
 
     // Default to all
     if (project->hasBuildTarget(QLatin1String("all")))
@@ -270,15 +290,39 @@ bool CMakeBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t)
 }
 
 CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
-                                                                const QString &sourceDir) const
+                                                                const QString &sourceDir,
+                                                                BuildType buildType) const
 {
     CMakeBuildInfo *info = new CMakeBuildInfo(this);
-    info->typeName = tr("Build");
     info->kitId = k->id();
     info->environment = Environment::systemEnvironment();
     k->addToEnvironment(info->environment);
     info->useNinja = false;
     info->sourceDirectory = sourceDir;
+    switch (buildType) {
+    case BuildTypeNone:
+        info->typeName = tr("Build");
+        break;
+    case BuildTypeDebug:
+        info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=Debug");
+        info->typeName = tr("Debug");
+        break;
+    case BuildTypeRelease:
+        info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=Release");
+        info->typeName = tr("Release");
+        break;
+    case BuildTypeMinSizeRel:
+        info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=MinSizeRel");
+        info->typeName = tr("Minimum Size Release");
+        break;
+    case BuildTypeRelWithDebInfo:
+        info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=RelWithDebInfo");
+        info->typeName = tr("Release with Debug Information");
+        break;
+    default:
+        QTC_CHECK(false);
+        break;
+    }
 
     return info;
 }

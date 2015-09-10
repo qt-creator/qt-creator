@@ -74,13 +74,14 @@ public:
         ChangeDirectory
     };
 
-    /// used at importing a project without a .user file
-    CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env);
-
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
     /// Also used to change the build directory of one buildconfiguration or create a new buildconfiguration
-    CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, Mode mode, const CMakeBuildInfo *info);
+    CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager,
+                           Mode mode,
+                           const CMakeBuildInfo *info,
+                           const QString &kitName,
+                           const QString &buildConfigurationName);
 
     QString buildDirectory() const;
     QString sourceDirectory() const;
@@ -163,8 +164,12 @@ class CMakeRunPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    enum Mode { Initial, NeedToUpdate, Recreate, ChangeDirectory, WantToUpdate };
-    explicit CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode = Initial, const QString &buildDirectory = QString());
+    enum Mode { NeedToUpdate, Recreate, ChangeDirectory, WantToUpdate };
+    explicit CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode,
+                          const QString &buildDirectory,
+                          const QString &initialArguments,
+                          const QString &kitName,
+                          const QString &buildConfigurationName);
 
     virtual void initializePage();
     virtual bool validatePage();
@@ -191,6 +196,8 @@ private:
     bool m_haveCbpFile;
     Mode m_mode;
     QString m_buildDirectory;
+    QString m_kitName;
+    QString m_buildConfigurationName;
 };
 
 }

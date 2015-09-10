@@ -104,6 +104,12 @@ void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
     if (!cmakeProject)
         return;
 
+    if (!cmakeProject->activeTarget())
+        return;
+
+    if (!cmakeProject->activeTarget()->activeBuildConfiguration())
+        return;
+
     // Find the make step
     MakeStep *makeStep = 0;
     ProjectExplorer::BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()

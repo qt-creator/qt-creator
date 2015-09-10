@@ -144,9 +144,12 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
 
     if (mode != CMakeOpenProjectWizard::Nothing) {
         CMakeBuildInfo info(cmakebc);
-        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info);
-        if (copw.exec() == QDialog::Accepted)
+        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info,
+                                    bc->target()->displayName(), bc->displayName());
+        if (copw.exec() == QDialog::Accepted) {
             cmakebc->setUseNinja(copw.useNinja()); // NeedToCreate can change the Ninja setting
+            cmakebc->setInitialArguments(QString());
+        }
     }
 
     // reparse
@@ -379,6 +382,16 @@ bool CMakeProject::parseCMakeLists()
     return true;
 }
 
+bool CMakeProject::needsConfiguration() const
+{
+    return targets().isEmpty();
+}
+
+bool CMakeProject::requiresTargetPanel() const
+{
+    return false;
+}
+
 bool CMakeProject::isProjectFile(const FileName &fileName)
 {
     return m_watchedFiles.contains(fileName);
@@ -529,31 +542,7 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
 
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
-        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, projectDirectory().toString(), Environment::systemEnvironment());
-        if (copw.exec() != QDialog::Accepted)
-            return RestoreResult::UserAbort;
-        Kit *k = copw.kit();
-        Target *t = new Target(this, k);
-        CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
-        bc->setDefaultDisplayName(QLatin1String("all"));
-        bc->setUseNinja(copw.useNinja());
-        bc->setBuildDirectory(FileName::fromString(copw.buildDirectory()));
-        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-
-        // Now create a standard build configuration
-        buildSteps->insertStep(0, new MakeStep(buildSteps));
-
-        MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
-        cleanSteps->insertStep(0, cleanMakeStep);
-        cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
-        cleanMakeStep->setClean(true);
-
-        t->addBuildConfiguration(bc);
-
-        t->updateDefaultDeployConfigurations();
-
-        addTarget(t);
+        // Nothing to do, the target setup page will show up
     } else {
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
@@ -573,11 +562,14 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
 
         if (mode != CMakeOpenProjectWizard::Nothing) {
             CMakeBuildInfo info(activeBC);
-            CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info);
-            if (copw.exec() != QDialog::Accepted)
+            CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info,
+                                        activeBC->target()->displayName(), activeBC->displayName());
+            if (copw.exec() != QDialog::Accepted) {
                 return RestoreResult::UserAbort;
-            else
+            } else {
                 activeBC->setUseNinja(copw.useNinja());
+                activeBC->setInitialArguments(QString());
+            }
         }
     }
 
@@ -614,6 +606,8 @@ CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
 
 QString CMakeProject::uiHeaderFile(const QString &uiFile)
 {
+    if (!activeTarget())
+        return QString();
     QFileInfo fi(uiFile);
     FileName project = projectDirectory();
     FileName baseDirectory = FileName::fromString(fi.absolutePath());
@@ -684,6 +678,8 @@ void CMakeProject::updateRunConfigurations(Target *t)
 void CMakeProject::updateApplicationAndDeploymentTargets()
 {
     Target *t = activeTarget();
+    if (!t)
+        return;
 
     QFile deploymentFile;
     QTextStream deploymentStream;
