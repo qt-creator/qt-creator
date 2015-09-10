@@ -202,7 +202,7 @@ QVariantMap QmlProfilerAnimationsModel::details(int index) const
     QVariantMap result;
 
     result.insert(QStringLiteral("displayName"), displayName());
-    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
+    result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
     result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(m_data[index].framerate));
     result.insert(tr("Animations"), QString::fromLatin1("%1").arg(m_data[index].animationcount));
     result.insert(tr("Context"), tr(selectionId(index) == QmlDebug::GuiThread ? "GUI Thread" :

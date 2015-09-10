@@ -31,12 +31,14 @@
 #ifndef QMLPROFILERDATAMODEL_H
 #define QMLPROFILERDATAMODEL_H
 
+#include "qmlprofilermodelmanager.h"
+
 #include <qmldebug/qmlprofilereventtypes.h>
-#include "qmlprofilerbasemodel.h"
+#include <utils/fileinprojectfinder.h>
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT QmlProfilerDataModel : public QmlProfilerBaseModel
+class QMLPROFILER_EXPORT QmlProfilerDataModel : public QObject
 {
     Q_OBJECT
 public:
@@ -67,7 +69,11 @@ public:
         QString text;
     };
 
-    explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
+    static QString formatTime(qint64 timestamp);
+
+    explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
+                                  QmlProfilerModelManager *parent);
+    ~QmlProfilerDataModel();
 
     const QVector<QmlEventData> &getEvents() const;
     const QVector<QmlEventTypeData> &getEventTypes() const;
@@ -77,20 +83,25 @@ public:
     void setNoteData(const QVector<QmlEventNoteData> &notes);
 
     int count() const;
-    virtual void clear();
-    virtual bool isEmpty() const;
-    virtual void complete();
+    void clear();
+    bool isEmpty() const;
+    void complete();
     void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
                      qint64 startTime, qint64 duration, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
                      qint64 ndata3, qint64 ndata4, qint64 ndata5);
     qint64 lastTimeMark() const;
 
+signals:
+    void changed();
+
 protected slots:
     void detailsChanged(int requestId, const QString &newString);
+    void detailsDone();
 
 private:
     class QmlProfilerDataModelPrivate;
+    QmlProfilerDataModelPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QmlProfilerDataModel)
 };
 

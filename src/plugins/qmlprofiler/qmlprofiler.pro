@@ -8,7 +8,6 @@ SOURCES += \
     localqmlprofilerrunner.cpp \
     qmlprofileranimationsmodel.cpp \
     qmlprofilerattachdialog.cpp \
-    qmlprofilerbasemodel.cpp \
     qmlprofilerbindingloopsrenderpass.cpp \
     qmlprofilerclientmanager.cpp \
     qmlprofilerconfigwidget.cpp \
@@ -39,8 +38,6 @@ HEADERS += \
     qmlprofiler_global.h \
     qmlprofileranimationsmodel.h \
     qmlprofilerattachdialog.h \
-    qmlprofilerbasemodel.h \
-    qmlprofilerbasemodel_p.h \
     qmlprofilerbindingloopsrenderpass.h \
     qmlprofilerclientmanager.h \
     qmlprofilerconfigwidget.h \

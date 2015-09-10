@@ -653,7 +653,7 @@ void QmlProfilerEventsMainView::parseModelProxy()
         }
 
         if (d->m_fieldShown[TotalTime]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(stats.duration));
+            newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.duration));
             newRow.last()->setData(QVariant(stats.duration));
         }
 
@@ -663,22 +663,22 @@ void QmlProfilerEventsMainView::parseModelProxy()
         }
 
         if (d->m_fieldShown[TimePerCall]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(stats.timePerCall));
+            newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.timePerCall));
             newRow.last()->setData(QVariant(stats.timePerCall));
         }
 
         if (d->m_fieldShown[MedianTime]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(stats.medianTime));
+            newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.medianTime));
             newRow.last()->setData(QVariant(stats.medianTime));
         }
 
         if (d->m_fieldShown[MaxTime]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(stats.maxTime));
+            newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.maxTime));
             newRow.last()->setData(QVariant(stats.maxTime));
         }
 
         if (d->m_fieldShown[MinTime]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(stats.minTime));
+            newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.minTime));
             newRow.last()->setData(QVariant(stats.minTime));
         }
 
@@ -938,7 +938,7 @@ void QmlProfilerEventRelativesView::rebuildTree(
         newRow << new EventsViewItem(type.displayName.isEmpty() ? tr("<bytecode>") :
                                                                   type.displayName);
         newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(type.rangeType));
-        newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event.duration));
+        newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(event.duration));
         newRow << new EventsViewItem(QString::number(event.calls));
         newRow << new EventsViewItem(type.data.isEmpty() ? tr("Source code not available") :
                                                            type.data);

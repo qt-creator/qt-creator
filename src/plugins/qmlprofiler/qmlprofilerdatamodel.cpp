@@ -29,9 +29,10 @@
 ****************************************************************************/
 
 #include "qmlprofilerdatamodel.h"
-#include "qmlprofilerbasemodel_p.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilernotesmodel.h"
+#include "qmlprofilerdetailsrewriter.h"
+
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>
@@ -40,17 +41,17 @@
 
 namespace QmlProfiler {
 
-class QmlProfilerDataModel::QmlProfilerDataModelPrivate :
-        public QmlProfilerBaseModel::QmlProfilerBaseModelPrivate
+class QmlProfilerDataModel::QmlProfilerDataModelPrivate
 {
 public:
-    QmlProfilerDataModelPrivate(QmlProfilerDataModel *qq) : QmlProfilerBaseModelPrivate(qq) {}
     QVector<QmlEventTypeData> eventTypes;
     QVector<QmlEventData> eventList;
     QVector<QmlEventNoteData> eventNotes;
     QHash<QmlEventTypeData, int> eventTypeIds;
-private:
-    Q_DECLARE_PUBLIC(QmlProfilerDataModel)
+
+    QmlProfilerModelManager *modelManager;
+    int modelId;
+    Internal::QmlProfilerDetailsRewriter *detailsRewriter;
 };
 
 QString getDisplayName(const QmlProfilerDataModel::QmlEventTypeData &event)
@@ -91,13 +92,39 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
     return details;
 }
 
+QString QmlProfilerDataModel::formatTime(qint64 timestamp)
+{
+    if (timestamp < 1e6)
+        return QString::number(timestamp/1e3f,'f',3) + trUtf8(" \xc2\xb5s");
+    if (timestamp < 1e9)
+        return QString::number(timestamp/1e6f,'f',3) + tr(" ms");
+
+    return QString::number(timestamp/1e9f,'f',3) + tr(" s");
+}
+
 QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
-                                                     QmlProfilerModelManager *parent)
-    : QmlProfilerBaseModel(fileFinder, parent, new QmlProfilerDataModelPrivate(this))
+                                           QmlProfilerModelManager *parent) :
+    QObject(parent), d_ptr(new QmlProfilerDataModelPrivate)
 {
     Q_D(QmlProfilerDataModel);
+    Q_ASSERT(parent);
+    d->modelManager = parent;
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
+    d->modelId = d->modelManager->registerModelProxy();
+    connect(d->detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
+            this, SLOT(detailsChanged(int,QString)));
+    connect(d->detailsRewriter, SIGNAL(eventDetailsChanged()),
+            this, SLOT(detailsDone()));
+
     // The document loading is very expensive.
     d->modelManager->setProxyCountWeight(d->modelId, 4);
+}
+
+QmlProfilerDataModel::~QmlProfilerDataModel()
+{
+    Q_D(QmlProfilerDataModel);
+    delete d->detailsRewriter;
+    delete d;
 }
 
 const QVector<QmlProfilerDataModel::QmlEventData> &QmlProfilerDataModel::getEvents() const
@@ -151,8 +178,9 @@ void QmlProfilerDataModel::clear()
     d->eventTypes.clear();
     d->eventTypeIds.clear();
     d->eventNotes.clear();
-    // This call emits changed(). Don't emit it again here.
-    QmlProfilerBaseModel::clear();
+    d->detailsRewriter->clearRequests();
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    emit changed();
 }
 
 bool QmlProfilerDataModel::isEmpty() const
@@ -223,7 +251,7 @@ void QmlProfilerDataModel::complete()
 
     // Allow changed() event only after documents have been reloaded to avoid
     // unnecessary updates of child models.
-    QmlProfilerBaseModel::complete();
+    d->detailsRewriter->reloadDocuments();
 }
 
 void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType,
@@ -278,6 +306,14 @@ void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newStrin
 
     QmlEventTypeData *event = &d->eventTypes[requestId];
     event->data = newString;
+}
+
+void QmlProfilerDataModel::detailsDone()
+{
+    Q_D(QmlProfilerDataModel);
+    emit changed();
+    d->modelManager->modelProxyCountUpdated(d->modelId, isEmpty() ? 0 : 1, 1);
+    d->modelManager->complete();
 }
 
 }

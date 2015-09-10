@@ -233,7 +233,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 
     result.insert(QStringLiteral("displayName"),
                   tr(QmlProfilerModelManager::featureName(mainFeature())));
-    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
+    result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
 
     result.insert(tr("Details"), types[id].data);
     result.insert(tr("Location"), types[id].displayName);

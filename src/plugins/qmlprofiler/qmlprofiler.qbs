@@ -23,7 +23,6 @@ QtcPlugin {
             "qmlprofiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
-            "qmlprofilerbasemodel.cpp", "qmlprofilerbasemodel.h", "qmlprofilerbasemodel_p.h",
             "qmlprofilerbindingloopsrenderpass.cpp","qmlprofilerbindingloopsrenderpass.h",
             "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
             "qmlprofilerconfigwidget.cpp", "qmlprofilerconfigwidget.h",
