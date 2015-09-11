@@ -44,6 +44,7 @@ QmlProfilerSettings::QmlProfilerSettings()
     QVariantMap defaults;
     defaults.insert(QLatin1String(Constants::FLUSH_INTERVAL), 1000);
     defaults.insert(QLatin1String(Constants::FLUSH_ENABLED), false);
+    defaults.insert(QLatin1String(Constants::LAST_TRACE_FILE), QString());
 
     // Read stored values
     QSettings *settings = Core::ICore::settings();
@@ -92,6 +93,19 @@ void QmlProfilerSettings::setFlushInterval(quint32 flushInterval)
     }
 }
 
+QString QmlProfilerSettings::lastTraceFile() const
+{
+    return m_lastTraceFile;
+}
+
+void QmlProfilerSettings::setLastTraceFile(const QString &lastTracePath)
+{
+    if (m_lastTraceFile != lastTracePath) {
+        m_lastTraceFile = lastTracePath;
+        emit changed();
+    }
+}
+
 void QmlProfilerSettings::writeGlobalSettings() const
 {
     QSettings *settings = Core::ICore::settings();
@@ -107,12 +121,14 @@ void QmlProfilerSettings::toMap(QVariantMap &map) const
 {
     map[QLatin1String(Constants::FLUSH_INTERVAL)] = m_flushInterval;
     map[QLatin1String(Constants::FLUSH_ENABLED)] = m_flushEnabled;
+    map[QLatin1String(Constants::LAST_TRACE_FILE)] = m_lastTraceFile;
 }
 
 void QmlProfilerSettings::fromMap(const QVariantMap &map)
 {
     m_flushEnabled = map.value(QLatin1String(Constants::FLUSH_ENABLED)).toBool();
     m_flushInterval = map.value(QLatin1String(Constants::FLUSH_INTERVAL)).toUInt();
+    m_lastTraceFile = map.value(QLatin1String(Constants::LAST_TRACE_FILE)).toString();
     emit changed();
 }
 

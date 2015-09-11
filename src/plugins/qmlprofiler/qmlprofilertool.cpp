@@ -40,6 +40,7 @@
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilersettings.h"
+#include "qmlprofilerplugin.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
@@ -537,13 +538,25 @@ void QmlProfilerTool::showSaveOption()
     d->m_saveQmlTrace->setEnabled(!d->m_profilerModelManager->isEmpty());
 }
 
+void saveLastTraceFile(const QString &filename)
+{
+    QmlProfilerSettings *settings = QmlProfilerPlugin::globalSettings();
+    if (filename != settings->lastTraceFile()) {
+        settings->setLastTraceFile(filename);
+        settings->writeGlobalSettings();
+    }
+}
+
 void QmlProfilerTool::showSaveDialog()
 {
-    QString filename = QFileDialog::getSaveFileName(ICore::mainWindow(), tr("Save QML Trace"), QString(),
-                                                    tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
+    QString filename = QFileDialog::getSaveFileName(
+                ICore::mainWindow(), tr("Save QML Trace"),
+                QmlProfilerPlugin::globalSettings()->lastTraceFile(),
+                tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
     if (!filename.isEmpty()) {
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
             filename += QLatin1String(TraceFileExtension);
+        saveLastTraceFile(filename);
         AnalyzerManager::mainWindow()->setEnabled(false);
         d->m_profilerModelManager->save(filename);
     }
@@ -559,10 +572,13 @@ void QmlProfilerTool::showLoadDialog()
 
     AnalyzerManager::selectAction(QmlProfilerRemoteActionId);
 
-    QString filename = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Load QML Trace"), QString(),
-                                                    tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
+    QString filename = QFileDialog::getOpenFileName(
+                ICore::mainWindow(), tr("Load QML Trace"),
+                QmlProfilerPlugin::globalSettings()->lastTraceFile(),
+                tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
 
     if (!filename.isEmpty()) {
+        saveLastTraceFile(filename);
         AnalyzerManager::mainWindow()->setEnabled(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);

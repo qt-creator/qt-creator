@@ -50,6 +50,9 @@ public:
     quint32 flushInterval() const;
     void setFlushInterval(quint32 flushInterval);
 
+    QString lastTraceFile() const;
+    void setLastTraceFile(const QString &lastTraceFile);
+
     void writeGlobalSettings() const;
 
 signals:
@@ -62,6 +65,7 @@ protected:
 private:
     bool m_flushEnabled;
     quint32 m_flushInterval;
+    QString m_lastTraceFile;
 };
 
 } // Internal
