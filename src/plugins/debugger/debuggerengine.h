@@ -442,6 +442,7 @@ protected:
         DebuggerState state);
 
     void updateLocalsView(const GdbMi &all);
+    void checkState(DebuggerState state, const char *file, int line);
 
 private:
     // Wrapper engine needs access to state of its subengines.

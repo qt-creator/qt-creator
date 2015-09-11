@@ -51,14 +51,7 @@ enum { debug = 0 };
 
 #define EDEBUG(s) do { if (debug) qDebug() << s; } while (0)
 
-#define CHECK_STATE(s) \
-    do { \
-        if (state() != s) { \
-            showMessage(QString::fromLatin1("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4") \
-                .arg(state()).arg(s).arg(QLatin1String(__FILE__)).arg(__LINE__), LogError); \
-            QTC_ASSERT(false, qDebug() << state() << s); \
-        } \
-    } while (0)
+#define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
 DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp, QStringList *errors)
 {

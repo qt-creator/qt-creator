@@ -98,14 +98,7 @@ enum { debugPending = 0 };
 
 #define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
-#define CHECK_STATE(s) \
-    do { \
-        if (state() != s) { \
-            showMessage(QString::fromLatin1("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4") \
-                .arg(state()).arg(s).arg(QLatin1String(__FILE__)).arg(__LINE__), LogError); \
-            QTC_ASSERT(false, qDebug() << state() << s); \
-        } \
-    } while (0)
+#define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
 QByteArray GdbEngine::tooltipIName(const QString &exp)
 {

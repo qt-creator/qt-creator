@@ -83,11 +83,6 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 
-enum { debug = 0 };
-
-#define SDEBUG(s) if (!debug) {} else qDebug() << s;
-#define XSDEBUG(s) qDebug() << s
-
 //#define WITH_BENCHMARK
 #ifdef WITH_BENCHMARK
 #include <valgrind/callgrind.h>
@@ -2013,6 +2008,19 @@ void DebuggerEngine::updateItem(const QByteArray &iname)
 void DebuggerEngine::expandItem(const QByteArray &iname)
 {
     updateItem(iname);
+}
+
+void DebuggerEngine::checkState(DebuggerState state, const char *file, int line)
+{
+    const DebuggerState current = d->m_state;
+    if (current == state)
+        return;
+
+    QString msg = QString::fromLatin1("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4")
+                .arg(current).arg(state).arg(QLatin1String(file)).arg(line);
+
+    showMessage(msg, LogError);
+    qDebug("%s", qPrintable(msg));
 }
 
 } // namespace Internal
