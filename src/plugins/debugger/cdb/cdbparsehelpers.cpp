@@ -168,17 +168,7 @@ BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id)
     return cdbIdToBreakpointId<BreakpointModelId>(id);
 }
 
-BreakpointModelId cdbIdToBreakpointModelId(int id)
-{
-    return cdbIdToBreakpointId<BreakpointModelId>(id);
-}
-
 BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id)
-{
-    return cdbIdToBreakpointId<BreakpointResponseId>(id);
-}
-
-BreakpointResponseId cdbIdToBreakpointResponseId(int id)
 {
     return cdbIdToBreakpointId<BreakpointResponseId>(id);
 }

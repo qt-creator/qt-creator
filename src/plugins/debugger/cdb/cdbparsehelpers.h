@@ -62,9 +62,7 @@ enum { cdbBreakPointStartId = 100000,
 
 int breakPointIdToCdbId(const BreakpointModelId &id);
 BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id);
-BreakpointModelId cdbIdToBreakpointModelId(int id);
 BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id);
-BreakpointResponseId cdbIdToBreakpointResponseId(int id);
 
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d,
