@@ -117,7 +117,7 @@ Item {
     }
 
     //title
-    Text {
+    TimelineText {
         id: typeTitle
         text: "  "+qsTr("Selection")
         font.bold: true
@@ -126,7 +126,6 @@ Item {
         verticalAlignment: Text.AlignVCenter
         width: parent.width
         color: "white"
-        renderType: Text.NativeRendering
     }
 
     // Details area
@@ -174,13 +173,12 @@ Item {
         onClicked: selectionRangeDetails.recenter()
     }
 
-    Text {
+    TimelineText {
         id: closeIcon
         x: selectionRangeDetails.width - 14
         y: 4
         text:"X"
         color: "white"
-        renderType: Text.NativeRendering
         MouseArea {
             anchors.fill: parent
             anchors.leftMargin: -8

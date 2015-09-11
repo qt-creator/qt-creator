@@ -172,7 +172,7 @@ Item {
     }
 
     //title
-    Text {
+    TimelineText {
         id: typeTitle
         text: "  "+rangeDetails.dialogTitle
         font.bold: true
@@ -182,7 +182,6 @@ Item {
         anchors.left: parent.left
         anchors.right: editIcon.left
         color: "white"
-        renderType: Text.NativeRendering
         elide: Text.ElideRight
     }
 
@@ -238,7 +237,9 @@ Item {
             wrapMode: Text.Wrap
             color: "orange"
             font.italic: true
-            renderType: Text.NativeRendering
+            font.pixelSize: typeTitle.font.pixelSize
+            font.family: typeTitle.font.family
+            renderType: typeTitle.renderType
             selectByMouse: true
             onTextChanged: saveTimer.restart()
             onFocusChanged: {
@@ -300,13 +301,12 @@ Item {
     }
 
 
-    Text {
+    TimelineText {
         id: closeIcon
         x: col.width + 10
         y: 4
         text:"X"
         color: "white"
-        renderType: Text.NativeRendering
         MouseArea {
             anchors.fill: parent
             onClicked: rangeDetails.clearSelection()

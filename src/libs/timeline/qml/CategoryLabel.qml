@@ -83,16 +83,14 @@ Item {
         anchors.fill: parent
     }
 
-    Text {
+    TimelineText {
         id: txt
         x: 5
-        font.pixelSize: 12
         text: labelContainer.text
         color: "#232323"
         height: model ? model.defaultRowHeight : 0
         width: 140
         verticalAlignment: Text.AlignVCenter
-        renderType: Text.NativeRendering
         elide: Text.ElideRight
     }
 
@@ -221,16 +219,14 @@ Item {
             }
         ]
 
-        Text {
+        TimelineText {
             id: draggerText
             visible: parent.Drag.active
             x: txt.x
-            font.pixelSize: txt.font.pixelSize
             color: "white"
             width: txt.width
             height: txt.height
             verticalAlignment: txt.verticalAlignment
-            renderType: txt.renderType
         }
     }
 

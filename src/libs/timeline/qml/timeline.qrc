@@ -33,5 +33,6 @@
         <file>TimelineContent.qml</file>
         <file>RowLabel.qml</file>
         <file>SynchronousReloader.qml</file>
+        <file>TimelineText.qml</file>
     </qresource>
 </RCC>

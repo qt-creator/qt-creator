@@ -99,9 +99,8 @@ Item {
                     return ret;
                 }
 
-                Text {
+                TimelineText {
                     id: scaleTopLabel
-                    renderType: Text.NativeRendering
                     visible: parent.scaleVisible
                     color: "#B0B0B0"
                     font.pixelSize: 8

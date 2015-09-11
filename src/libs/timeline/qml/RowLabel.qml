@@ -53,13 +53,11 @@ Button {
             border.color: "#c8c8c8"
             color: "#eaeaea"
         }
-        label: Text {
+        label: TimelineText {
             text: button.labelText
-            textFormat: Text.PlainText
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
             elide: Text.ElideRight
-            renderType: Text.NativeRendering
         }
     }
     MouseArea {

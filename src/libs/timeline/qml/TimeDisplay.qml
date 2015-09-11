@@ -124,11 +124,9 @@ Item {
                     color: (Math.round(column.block + timeDisplay.alignedWindowStart /
                                        timeDisplay.timePerBlock) % 2) ? color1 : color2;
 
-                    Text {
+                    TimelineText {
                         id: labelText
-                        renderType: Text.NativeRendering
                         font.pixelSize: timeDisplay.fontSize
-                        font.family: "sans-serif"
                         anchors.fill: parent
                         anchors.leftMargin: timeDisplay.textMargin
                         anchors.bottomMargin: timeDisplay.textMargin
