@@ -157,10 +157,6 @@ private:
     bool m_useCtrlCStub;
 };
 
-// Converts the Q_PID into a integer value. This is a no-op
-// except on Windows.
-QTCREATOR_UTILS_EXPORT unsigned long qPidToPid(const Q_PID qpid);
-
 } // namespace Utils
 
 #endif // QTCPROCESS_H

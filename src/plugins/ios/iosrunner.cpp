@@ -191,7 +191,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bun
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
-                                     const QString &deviceId, Q_PID pid)
+                                     const QString &deviceId, qint64 pid)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
     m_pid = pid;

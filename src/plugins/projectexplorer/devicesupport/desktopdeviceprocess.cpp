@@ -58,7 +58,7 @@ void DesktopDeviceProcess::start(const QString &executable, const QStringList &a
 
 void DesktopDeviceProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(Utils::qPidToPid(m_process->pid()));
+    device()->signalOperation()->interruptProcess(m_process->processId());
 }
 
 void DesktopDeviceProcess::terminate()

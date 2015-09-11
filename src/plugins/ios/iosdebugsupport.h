@@ -56,7 +56,7 @@ public:
 
 private:
     void handleServerPorts(int gdbServerFd, int qmlPort);
-    void handleGotInferiorPid(Q_PID, int qmlPort);
+    void handleGotInferiorPid(qint64, int qmlPort);
     void handleRemoteProcessFinished(bool cleanEnd);
 
     void handleRemoteOutput(const QString &output);

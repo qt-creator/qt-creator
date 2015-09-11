@@ -37,7 +37,7 @@
 
 using namespace Debugger::Internal;
 
-static inline QString msgCannotInterrupt(int pid, const QString &why)
+static inline QString msgCannotInterrupt(qint64 pid, const QString &why)
 {
     return QString::fromLatin1("Cannot interrupt process %1: %2").arg(pid).arg(why);
 }
@@ -80,7 +80,7 @@ static BOOL isWow64Process(HANDLE hproc)
 }
 
 // Open the process and break into it
-bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *errorMessage, const bool engineExecutableIs64Bit)
+bool Debugger::Internal::interruptProcess(qint64 pID, int engineType, QString *errorMessage, const bool engineExecutableIs64Bit)
 {
     bool ok = false;
     HANDLE inferior = NULL;
@@ -88,7 +88,7 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
         const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
                 |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
                 |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
-        inferior = OpenProcess(rights, FALSE, pID);
+        inferior = OpenProcess(rights, FALSE, DWORD(pID));
         if (inferior == NULL) {
             *errorMessage = QString::fromLatin1("Cannot open process %1: %2").
                     arg(pID).arg(Utils::winErrorMessage(GetLastError()));
@@ -188,7 +188,7 @@ GDB 32bit | Api             | Api             | NA              | Win32         
 #include <errno.h>
 #include <string.h>
 
-bool Debugger::Internal::interruptProcess(int pID, int /* engineType */,
+bool Debugger::Internal::interruptProcess(qint64 pID, int /* engineType */,
                                           QString *errorMessage, const bool /*engineExecutableIs64Bit*/)
 {
     if (pID <= 0) {

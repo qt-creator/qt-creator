@@ -438,7 +438,7 @@ void GdbRemoteServerEngine::interruptInferior2()
     } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
         m_gdbProc.interrupt();
     } else {
-        long pid = Utils::qPidToPid(m_gdbProc.pid());
+        qint64 pid = m_gdbProc.processId();
         bool ok = interruptProcess(pid, GdbEngineType, &m_errorString);
         if (!ok) {
             // FIXME: Extra state needed?

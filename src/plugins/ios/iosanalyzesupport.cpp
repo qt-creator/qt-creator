@@ -138,7 +138,7 @@ void IosAnalyzeSupport::handleServerPorts(int gdbServerPort, int qmlPort)
     m_qmlPort = qmlPort;
 }
 
-void IosAnalyzeSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
+void IosAnalyzeSupport::handleGotInferiorPid(qint64 pid, int qmlPort)
 {
     Q_UNUSED(pid);
     m_qmlPort = qmlPort;

@@ -640,7 +640,7 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         return false;
     }
 
-    const unsigned long pid = Utils::qPidToPid(m_process.pid());
+    const qint64 pid = m_process.processId();
     showMessage(QString::fromLatin1("%1 running as %2").
                 arg(QDir::toNativeSeparators(executable)).arg(pid), LogMisc);
     m_hasDebuggee = true;

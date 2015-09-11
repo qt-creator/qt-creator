@@ -1487,16 +1487,6 @@ void QtcProcess::ArgIterator::appendArg(const QString &str)
     m_pos += qstr.length() + 1;
 }
 
-QTCREATOR_UTILS_EXPORT unsigned long qPidToPid(const Q_PID qpid)
-{
-#ifdef Q_OS_WIN
-    const PROCESS_INFORMATION *processInfo = reinterpret_cast<const PROCESS_INFORMATION*>(qpid);
-    return processInfo->dwProcessId;
-#else
-    return qpid;
-#endif
-}
-
 QtcProcess::Arguments QtcProcess::Arguments::createWindowsArgs(const QString &args)
 {
     Arguments result;

@@ -212,7 +212,7 @@ qint64 ApplicationLauncher::applicationPID() const
     if (d->m_currentMode == Console)
         return d->m_consoleProcess.applicationPID();
     else
-        return Utils::qPidToPid(d->m_guiProcess.pid());
+        return d->m_guiProcess.processId();
 }
 
 QString ApplicationLauncher::errorString() const

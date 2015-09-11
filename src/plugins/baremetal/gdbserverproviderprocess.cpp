@@ -67,7 +67,7 @@ void GdbServerProviderProcess::start(const QString &executable, const QStringLis
 
 void GdbServerProviderProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(Utils::qPidToPid(m_process->pid()));
+    device()->signalOperation()->interruptProcess(m_process->processId());
 }
 
 void GdbServerProviderProcess::terminate()

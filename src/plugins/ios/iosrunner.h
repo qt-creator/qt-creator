@@ -72,7 +72,7 @@ public slots:
 signals:
     void didStartApp(Ios::IosToolHandler::OpStatus status);
     void gotServerPorts(int gdbPort, int qmlPort);
-    void gotInferiorPid(Q_PID pid, int);
+    void gotInferiorPid(qint64 pid, int);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
     void finished(bool cleanExit);
@@ -83,7 +83,7 @@ private:
     void handleGotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
                               const QString &deviceId, int gdbPort, int qmlPort);
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
-                              const QString &deviceId, Q_PID pid);
+                              const QString &deviceId, qint64 pid);
     void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void handleToolExited(Ios::IosToolHandler *handler, int code);
@@ -99,7 +99,7 @@ private:
 
     bool m_cleanExit;
     quint16 m_qmlPort;
-    Q_PID m_pid;
+    qint64 m_pid;
 };
 
 } // namespace Internal

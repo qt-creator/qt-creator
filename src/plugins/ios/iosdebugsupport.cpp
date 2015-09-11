@@ -197,11 +197,11 @@ void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
     m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
-void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
+void IosDebugSupport::handleGotInferiorPid(qint64 pid, int qmlPort)
 {
     RemoteSetupResult result;
     result.qmlServerPort = qmlPort;
-    result.inferiorPid = int(Utils::qPidToPid(pid));
+    result.inferiorPid = pid;
     result.success = pid > 0;
     if (!result.success)
         result.reason =  tr("Got an invalid process id.");

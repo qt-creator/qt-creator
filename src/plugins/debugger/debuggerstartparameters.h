@@ -50,7 +50,7 @@ namespace Debugger {
 // Do not add anything that needs implementation in a .cpp file.
 
 const int InvalidPort = -1;
-const int InvalidPid = -1;
+const qint64 InvalidPid = -1;
 
 class DEBUGGER_EXPORT RemoteSetupResult
 {
@@ -64,7 +64,7 @@ public:
 
     int gdbServerPort;
     int qmlServerPort;
-    int inferiorPid;
+    qint64 inferiorPid;
     bool success;
     QString reason;
 };

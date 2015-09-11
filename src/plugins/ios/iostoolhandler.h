@@ -80,7 +80,7 @@ signals:
     void gotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
                             const QString &deviceId, int gdbPort, int qmlPort);
     void gotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
-                        const QString &deviceId, Q_PID pid);
+                        const QString &deviceId, qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);
     void appOutput(Ios::IosToolHandler *handler, const QString &output);
