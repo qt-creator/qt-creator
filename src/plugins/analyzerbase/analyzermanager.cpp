@@ -104,7 +104,7 @@ public:
     {
         setContext(Context(C_ANALYZEMODE, C_NAVIGATION_PANE));
         setDisplayName(AnalyzerManager::tr("Analyze"));
-        setIcon(QIcon(QLatin1String(":/images/analyzer_mode.png")));
+        setIcon(QIcon(QLatin1String(":/images/mode_analyze.png")));
         setPriority(P_MODE_ANALYZE);
         setId(MODE_ANALYZE);
     }
