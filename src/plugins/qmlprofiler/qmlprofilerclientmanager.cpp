@@ -64,8 +64,6 @@ public:
     QString sysroot;
     quint32 flushInterval;
 
-    bool qmlDataReady;
-
     QmlProfilerModelManager *modelManager;
 };
 
@@ -78,7 +76,6 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
 
     d->connection = 0;
     d->connectionAttempts = 0;
-    d->qmlDataReady = false;
     d->flushInterval = 0;
 
     d->modelManager = 0;
@@ -310,11 +307,8 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
-    d->qmlDataReady = true;
     if (d->modelManager)
         d->modelManager->acquiringDone();
-    // once complete is sent, reset the flags
-    d->qmlDataReady = false;
 }
 
 void QmlProfilerClientManager::stopClientsRecording()
@@ -330,8 +324,6 @@ void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateMan
                    this, SLOT(profilerStateChanged()));
         disconnect(d->profilerState, SIGNAL(clientRecordingChanged()),
                    this, SLOT(clientRecordingChanged()));
-        disconnect(d->profilerState, SIGNAL(serverRecordingChanged()),
-                   this, SLOT(serverRecordingChanged()));
     }
 
     d->profilerState = profilerState;
@@ -342,8 +334,6 @@ void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateMan
                 this, SLOT(profilerStateChanged()));
         connect(d->profilerState, SIGNAL(clientRecordingChanged()),
                 this, SLOT(clientRecordingChanged()));
-        connect(d->profilerState, SIGNAL(serverRecordingChanged()),
-                this, SLOT(serverRecordingChanged()));
     }
 }
 
@@ -369,12 +359,6 @@ void QmlProfilerClientManager::clientRecordingChanged()
         if (d->qmlclientplugin)
             d->qmlclientplugin.data()->setRecording(d->profilerState->clientRecording());
     }
-}
-
-void QmlProfilerClientManager::serverRecordingChanged()
-{
-    if (d->profilerState->serverRecording())
-        d->qmlDataReady = false;
 }
 
 } // namespace Internal

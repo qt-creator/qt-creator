@@ -79,7 +79,6 @@ private slots:
 
     void profilerStateChanged();
     void clientRecordingChanged();
-    void serverRecordingChanged();
 
 private:
     class QmlProfilerClientManagerPrivate;
