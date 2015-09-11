@@ -76,7 +76,8 @@ signals:
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
     void finished(bool cleanExit);
-private slots:
+
+private:
     void handleDidStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void handleGotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
@@ -87,7 +88,7 @@ private slots:
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void handleToolExited(Ios::IosToolHandler *handler, int code);
     void handleFinished(Ios::IosToolHandler *handler);
-private:
+
     IosToolHandler *m_toolHandler;
     QString m_bundleDir;
     QStringList m_arguments;

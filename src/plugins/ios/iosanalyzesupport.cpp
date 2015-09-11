@@ -103,24 +103,24 @@ IosAnalyzeSupport::IosAnalyzeSupport(IosRunConfiguration *runConfig,
       m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug ? QmlDebug::QmlProfilerServices :
                                                                    QmlDebug::NoQmlDebugServices))
 {
-    connect(m_runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
-            m_runner, SLOT(start()));
-    connect(m_runControl, SIGNAL(finished()),
-            m_runner, SLOT(stop()));
-    connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
-            SLOT(qmlServerReady()));
+    connect(m_runControl, &AnalyzerRunControl::starting,
+            m_runner, &IosRunner::start);
+    connect(m_runControl, &RunControl::finished,
+            m_runner, &IosRunner::stop);
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            this, &IosAnalyzeSupport::qmlServerReady);
 
-    connect(m_runner, SIGNAL(gotServerPorts(int,int)),
-        SLOT(handleServerPorts(int,int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID,int)),
-        SLOT(handleGotInferiorPid(Q_PID,int)));
-    connect(m_runner, SIGNAL(finished(bool)),
-        SLOT(handleRemoteProcessFinished(bool)));
+    connect(m_runner, &IosRunner::gotServerPorts,
+        this, &IosAnalyzeSupport::handleServerPorts);
+    connect(m_runner, &IosRunner::gotInferiorPid,
+        this, &IosAnalyzeSupport::handleGotInferiorPid);
+    connect(m_runner, &IosRunner::finished,
+        this, &IosAnalyzeSupport::handleRemoteProcessFinished);
 
-    connect(m_runner, SIGNAL(errorMsg(QString)),
-        SLOT(handleRemoteErrorOutput(QString)));
-    connect(m_runner, SIGNAL(appOutput(QString)),
-        SLOT(handleRemoteOutput(QString)));
+    connect(m_runner, &IosRunner::errorMsg,
+        this, &IosAnalyzeSupport::handleRemoteErrorOutput);
+    connect(m_runner, &IosRunner::appOutput,
+        this, &IosAnalyzeSupport::handleRemoteOutput);
 }
 
 IosAnalyzeSupport::~IosAnalyzeSupport()

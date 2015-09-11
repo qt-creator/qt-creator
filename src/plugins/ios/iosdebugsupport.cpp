@@ -164,22 +164,22 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
       m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug ? QmlDebug::QmlDebuggerServices :
                                                                    QmlDebug::NoQmlDebugServices))
 {
-    connect(m_runControl, SIGNAL(requestRemoteSetup()),
-            m_runner, SLOT(start()));
-    connect(m_runControl, SIGNAL(finished()),
-            m_runner, SLOT(stop()));
+    connect(m_runControl, &DebuggerRunControl::requestRemoteSetup,
+            m_runner, &IosRunner::start);
+    connect(m_runControl, &RunControl::finished,
+            m_runner, &IosRunner::stop);
 
-    connect(m_runner, SIGNAL(gotServerPorts(int,int)),
-        SLOT(handleServerPorts(int,int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID,int)),
-        SLOT(handleGotInferiorPid(Q_PID,int)));
-    connect(m_runner, SIGNAL(finished(bool)),
-        SLOT(handleRemoteProcessFinished(bool)));
+    connect(m_runner, &IosRunner::gotServerPorts,
+        this, &IosDebugSupport::handleServerPorts);
+    connect(m_runner, &IosRunner::gotInferiorPid,
+        this, &IosDebugSupport::handleGotInferiorPid);
+    connect(m_runner, &IosRunner::finished,
+        this, &IosDebugSupport::handleRemoteProcessFinished);
 
-    connect(m_runner, SIGNAL(errorMsg(QString)),
-        SLOT(handleRemoteErrorOutput(QString)));
-    connect(m_runner, SIGNAL(appOutput(QString)),
-        SLOT(handleRemoteOutput(QString)));
+    connect(m_runner, &IosRunner::errorMsg,
+        this, &IosDebugSupport::handleRemoteErrorOutput);
+    connect(m_runner, &IosRunner::appOutput,
+        this, &IosDebugSupport::handleRemoteOutput);
 }
 
 IosDebugSupport::~IosDebugSupport()

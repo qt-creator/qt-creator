@@ -54,7 +54,7 @@ public:
         Debugger::DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug);
     ~IosDebugSupport();
 
-private slots:
+private:
     void handleServerPorts(int gdbServerFd, int qmlPort);
     void handleGotInferiorPid(Q_PID, int qmlPort);
     void handleRemoteProcessFinished(bool cleanEnd);
@@ -62,7 +62,6 @@ private slots:
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-private:
     Debugger::DebuggerRunControl *m_runControl;
     IosRunner * const m_runner;
     const QString m_dumperLib;

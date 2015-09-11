@@ -145,21 +145,20 @@ void IosRunner::start()
     }
 
     m_toolHandler = new IosToolHandler(m_deviceType, this);
-    connect(m_toolHandler, SIGNAL(appOutput(Ios::IosToolHandler*,QString)),
-            SLOT(handleAppOutput(Ios::IosToolHandler*,QString)));
-    connect(m_toolHandler,
-            SIGNAL(didStartApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)),
-            SLOT(handleDidStartApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)));
-    connect(m_toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
-            SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
-    connect(m_toolHandler, SIGNAL(gotServerPorts(Ios::IosToolHandler*,QString,QString,int,int)),
-            SLOT(handleGotServerPorts(Ios::IosToolHandler*,QString,QString,int,int)));
-    connect(m_toolHandler, SIGNAL(gotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)),
-            SLOT(handleGotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)));
-    connect(m_toolHandler, SIGNAL(toolExited(Ios::IosToolHandler*,int)),
-            SLOT(handleToolExited(Ios::IosToolHandler*,int)));
-    connect(m_toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
-            SLOT(handleFinished(Ios::IosToolHandler*)));
+    connect(m_toolHandler, &IosToolHandler::appOutput,
+            this, &IosRunner::handleAppOutput);
+    connect(m_toolHandler, &IosToolHandler::didStartApp,
+            this, &IosRunner::handleDidStartApp);
+    connect(m_toolHandler, &IosToolHandler::errorMsg,
+            this, &IosRunner::handleErrorMsg);
+    connect(m_toolHandler, &IosToolHandler::gotServerPorts,
+            this, &IosRunner::handleGotServerPorts);
+    connect(m_toolHandler, &IosToolHandler::gotInferiorPid,
+            this, &IosRunner::handleGotInferiorPid);
+    connect(m_toolHandler, &IosToolHandler::toolExited,
+            this, &IosRunner::handleToolExited);
+    connect(m_toolHandler, &IosToolHandler::finished,
+            this, &IosRunner::handleFinished);
     m_toolHandler->requestRunApp(bundlePath(), extraArgs(), runType(), deviceId());
 }
 

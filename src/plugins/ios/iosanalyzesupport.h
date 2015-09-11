@@ -57,7 +57,7 @@ public:
                       Analyzer::AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug);
     ~IosAnalyzeSupport();
 
-private slots:
+private:
     void qmlServerReady();
     void handleServerPorts(int gdbServerFd, int qmlPort);
     void handleGotInferiorPid(Q_PID, int qmlPort);
@@ -66,7 +66,6 @@ private slots:
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-private:
     Analyzer::AnalyzerRunControl *m_runControl;
     IosRunner * const m_runner;
     QmlDebug::QmlOutputParser m_outputParser;
