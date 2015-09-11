@@ -203,7 +203,7 @@ void QmlProfilerStateWidget::updateDisplay()
         }
     } else if (d->m_modelManager->progress() != 0 && !d->m_modelManager->isEmpty()) {
         // When datamodel is acquiring data
-        if (d->m_profilerState->currentState() != QmlProfilerStateManager::AppKilled)
+        if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle)
             showText(tr("Loading data"), true);
         else // Application died before all data could be read
             showText(tr("Application stopped before loading all data"), true);

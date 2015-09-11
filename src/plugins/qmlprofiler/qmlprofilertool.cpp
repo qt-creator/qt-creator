@@ -609,10 +609,11 @@ void QmlProfilerTool::clientsDisconnected()
 {
     // If the application stopped by itself, check if we have all the data
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying) {
-        if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData)
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
-        else
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
+        if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData) {
+            showNonmodalWarning(tr("Application finished before loading profiled data.\n"
+                                   "Please use the stop button instead."));
+            d->m_profilerModelManager->clear();
+        }
 
         // ... and return to the "base" state
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
@@ -679,7 +680,7 @@ void QmlProfilerTool::profilerDataModelStateChanged()
         break;
     case QmlProfilerModelManager::Done :
         if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppReadyToStop);
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         showSaveOption();
         updateTimeDisplay();
         restoreFeatureVisibility();
@@ -725,11 +726,6 @@ void QmlProfilerTool::profilerStateChanged()
         // If already disconnected when dying, check again that all data was read
         if (!d->m_profilerConnections->isConnected())
             QTimer::singleShot(0, this, SLOT(clientsDisconnected()));
-        break;
-    }
-    case QmlProfilerStateManager::AppKilled : {
-        showNonmodalWarning(tr("Application finished before loading profiled data.\nPlease use the stop button instead."));
-        d->m_profilerModelManager->clear();
         break;
     }
     case QmlProfilerStateManager::Idle :

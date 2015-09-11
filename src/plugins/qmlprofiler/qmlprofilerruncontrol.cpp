@@ -101,7 +101,7 @@ QmlProfilerRunControl::QmlProfilerRunControl(const AnalyzerStartParameters &sp,
 
 QmlProfilerRunControl::~QmlProfilerRunControl()
 {
-    if (d->m_profilerState && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning)
+    if (d->m_profilerState)
         stopEngine();
     delete d;
 }
@@ -110,15 +110,13 @@ bool QmlProfilerRunControl::startEngine()
 {
     QTC_ASSERT(d->m_profilerState, return false);
 
-    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStarting);
-
     if (startParameters().analyzerPort != 0)
         emit processRunning(startParameters().analyzerPort);
     else
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-    engineStarted();
+    emit starting(this);
     return true;
 }
 
@@ -131,11 +129,8 @@ void QmlProfilerRunControl::stopEngine()
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
         break;
     }
-    case QmlProfilerStateManager::AppReadyToStop : {
-        cancelProcess();
-        break;
-    }
-    case QmlProfilerStateManager::AppDying :
+    case QmlProfilerStateManager::Idle:
+    case QmlProfilerStateManager::AppDying:
         // valid, but no further action is needed
         break;
     default: {
@@ -152,22 +147,17 @@ void QmlProfilerRunControl::notifyRemoteFinished()
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppRunning : {
+    case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
         AnalyzerManager::stopTool();
-
-        runControlFinished();
+        emit finished();
         break;
-    }
-    case QmlProfilerStateManager::AppStopped :
-    case QmlProfilerStateManager::AppKilled :
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+    case QmlProfilerStateManager::Idle:
         break;
-    default: {
+    default:
         const QString message = QString::fromLatin1("Process died unexpectedly from state %1 in %2:%3")
             .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
         qWarning("%s", qPrintable(message));
-}
         break;
     }
 }
@@ -177,14 +167,11 @@ void QmlProfilerRunControl::cancelProcess()
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppReadyToStop : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
+    case QmlProfilerStateManager::Idle:
         break;
-    }
-    case QmlProfilerStateManager::AppRunning : {
+    case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
         break;
-    }
     default: {
         const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
             .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
@@ -192,7 +179,7 @@ void QmlProfilerRunControl::cancelProcess()
         return;
     }
     }
-    runControlFinished();
+    emit finished();
 }
 
 void QmlProfilerRunControl::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
@@ -221,7 +208,7 @@ void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
     // KILL
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
     AnalyzerManager::stopTool();
-    runControlFinished();
+    emit finished();
 }
 
 void QmlProfilerRunControl::wrongSetupMessageBoxFinished(int button)
@@ -248,18 +235,6 @@ void QmlProfilerRunControl::processIsRunning(quint16 port)
         emit processRunning(port);
 }
 
-void QmlProfilerRunControl::engineStarted()
-{
-    d->m_running = true;
-    emit starting(this);
-}
-
-void QmlProfilerRunControl::runControlFinished()
-{
-    d->m_running = false;
-    emit finished();
-}
-
 void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     // disconnect old
@@ -276,15 +251,10 @@ void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManage
 void QmlProfilerRunControl::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppReadyToStop : {
-        if (d->m_running)
-            cancelProcess();
-        break;
-    }
-    case QmlProfilerStateManager::Idle : {
+    case QmlProfilerStateManager::Idle:
+        emit finished();
         d->m_noDebugOutputTimer.stop();
         break;
-    }
     default:
         break;
     }

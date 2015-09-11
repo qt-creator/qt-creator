@@ -340,7 +340,7 @@ void QmlProfilerClientManager::profilerStateChanged()
             if (d->qmlclientplugin)
                 d->qmlclientplugin.data()->setRecording(false);
         } else {
-            d->profilerState->setCurrentState(QmlProfilerStateManager::AppReadyToStop);
+            d->profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         }
         break;
     default:
@@ -351,10 +351,8 @@ void QmlProfilerClientManager::profilerStateChanged()
 void QmlProfilerClientManager::clientRecordingChanged()
 {
     QTC_ASSERT(d->profilerState, return);
-    if (d->profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
-        if (d->qmlclientplugin)
-            d->qmlclientplugin.data()->setRecording(d->profilerState->clientRecording());
-    }
+    if (d->qmlclientplugin)
+        d->qmlclientplugin->setRecording(d->profilerState->clientRecording());
 }
 
 } // namespace Internal

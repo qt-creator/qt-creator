@@ -41,13 +41,9 @@ class QmlProfilerStateManager : public QObject
 public:
     enum QmlProfilerState {
         Idle,
-        AppStarting,
         AppRunning,
         AppStopRequested,
-        AppReadyToStop,
-        AppStopped,
         AppDying,
-        AppKilled
     };
 
     explicit QmlProfilerStateManager(QObject *parent = 0);
