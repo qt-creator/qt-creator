@@ -109,9 +109,6 @@ public slots:
     void selectBySourceLocation(const QString &filename, int line, int column);
     void onVisibleFeaturesChanged(quint64 features);
 
-private slots:
-    void profilerDataModelStateChanged();
-
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
     virtual void resizeEvent(QResizeEvent *event);
@@ -156,9 +153,6 @@ public slots:
     void selectByLocation(const QString &filename, int line, int column);
     void buildModel();
     void updateNotes(int typeIndex);
-
-private slots:
-    void profilerDataModelStateChanged();
 
 private:
     void selectItem(const QStandardItem *item);

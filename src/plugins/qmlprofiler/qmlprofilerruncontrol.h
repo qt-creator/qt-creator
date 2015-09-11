@@ -49,8 +49,6 @@ public:
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
-    static void showNonmodalWarning(const QString &warningMsg);
-
     void notifyRemoteSetupDone(quint16 port);
 
 signals:

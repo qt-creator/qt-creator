@@ -311,12 +311,6 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
         d->modelManager->acquiringDone();
 }
 
-void QmlProfilerClientManager::stopClientsRecording()
-{
-    if (d->qmlclientplugin)
-        d->qmlclientplugin.data()->setRecording(false);
-}
-
 void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     if (d->profilerState) {
@@ -342,10 +336,12 @@ void QmlProfilerClientManager::profilerStateChanged()
     QTC_ASSERT(d->profilerState, return);
     switch (d->profilerState->currentState()) {
     case QmlProfilerStateManager::AppStopRequested :
-        if (d->profilerState->serverRecording())
-            stopClientsRecording();
-        else
+        if (d->profilerState->serverRecording()) {
+            if (d->qmlclientplugin)
+                d->qmlclientplugin.data()->setRecording(false);
+        } else {
             d->profilerState->setCurrentState(QmlProfilerStateManager::AppReadyToStop);
+        }
         break;
     default:
         break;

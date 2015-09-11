@@ -232,18 +232,6 @@ void QmlProfilerRunControl::wrongSetupMessageBoxFinished(int button)
     }
 }
 
-void QmlProfilerRunControl::showNonmodalWarning(const QString &warningMsg)
-{
-    QMessageBox *noExecWarning = new QMessageBox(ICore::mainWindow());
-    noExecWarning->setIcon(QMessageBox::Warning);
-    noExecWarning->setWindowTitle(tr("QML Profiler"));
-    noExecWarning->setText(warningMsg);
-    noExecWarning->setStandardButtons(QMessageBox::Ok);
-    noExecWarning->setDefaultButton(QMessageBox::Ok);
-    noExecWarning->setModal(false);
-    noExecWarning->show();
-}
-
 void QmlProfilerRunControl::notifyRemoteSetupDone(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();

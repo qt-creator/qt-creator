@@ -189,8 +189,6 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
     setObjectName(QLatin1String("QmlProfilerEventsView"));
 
     d->modelProxy = new QmlProfilerEventsModelProxy(profilerModelManager, this);
-    connect(profilerModelManager, SIGNAL(stateChanged()),
-            this, SLOT(profilerDataModelStateChanged()));
 
     d->m_eventTree = new QmlProfilerEventsMainView(this, d->modelProxy);
     connect(d->m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
@@ -234,10 +232,6 @@ QmlProfilerEventsWidget::~QmlProfilerEventsWidget()
 {
     delete d->modelProxy;
     delete d;
-}
-
-void QmlProfilerEventsWidget::profilerDataModelStateChanged()
-{
 }
 
 void QmlProfilerEventsWidget::clear()
@@ -439,10 +433,6 @@ QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
     clear();
     delete d->m_model;
     delete d;
-}
-
-void QmlProfilerEventsMainView::profilerDataModelStateChanged()
-{
 }
 
 void QmlProfilerEventsMainView::setFieldViewable(Fields field, bool show)
