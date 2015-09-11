@@ -408,42 +408,36 @@ void LldbEngine::interruptInferior()
 
 void LldbEngine::executeStep()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     runCommand("executeStep");
 }
 
 void LldbEngine::executeStepI()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     runCommand("executeStepI");
 }
 
 void LldbEngine::executeStepOut()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     runCommand("executeStepOut");
 }
 
 void LldbEngine::executeNext()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     runCommand("executeNext");
 }
 
 void LldbEngine::executeNextI()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     runCommand("executeNextI");
 }
 
 void LldbEngine::continueInferior()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     DebuggerCommand cmd("continueInferior");
     cmd.callback = [this](const DebuggerResponse &response) {
@@ -487,7 +481,6 @@ void LldbEngine::handleResponse(const QByteArray &response)
 
 void LldbEngine::executeRunToLine(const ContextData &data)
 {
-    resetLocation();
     notifyInferiorRunRequested();
     DebuggerCommand cmd("executeRunToLocation");
     cmd.arg("file", data.fileName);
@@ -498,7 +491,6 @@ void LldbEngine::executeRunToLine(const ContextData &data)
 
 void LldbEngine::executeRunToFunction(const QString &functionName)
 {
-    resetLocation();
     notifyInferiorRunRequested();
     DebuggerCommand cmd("executeRunToFunction");
     cmd.arg("function", functionName);
@@ -507,7 +499,6 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
-    resetLocation();
     DebuggerCommand cmd("executeJumpToLocation");
     cmd.arg("file", data.fileName);
     cmd.arg("line", data.lineNumber);

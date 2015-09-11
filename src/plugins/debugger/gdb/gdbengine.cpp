@@ -1999,13 +1999,6 @@ void GdbEngine::continueInferiorInternal()
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::autoContinueInferior()
-{
-    resetLocation();
-    continueInferiorInternal();
-    showStatusMessage(tr("Continuing after temporary stop..."), 1000);
-}
-
 void GdbEngine::continueInferior()
 {
     CHECK_STATE(InferiorStopOk);
@@ -2166,7 +2159,6 @@ void GdbEngine::executeRunToLine(const ContextData &data)
 {
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
-    resetLocation();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Run to line %1 requested...").arg(data.lineNumber), 5000);
 #if 1
@@ -2191,7 +2183,6 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
 {
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
-    resetLocation();
     postCommand("-break-insert -t " + functionName.toLatin1());
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
     continueInferiorInternal();

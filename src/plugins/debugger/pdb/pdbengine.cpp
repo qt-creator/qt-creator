@@ -180,7 +180,6 @@ void PdbEngine::interruptInferior()
 
 void PdbEngine::executeStep()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("step");
@@ -188,7 +187,6 @@ void PdbEngine::executeStep()
 
 void PdbEngine::executeStepI()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("step");
@@ -196,7 +194,6 @@ void PdbEngine::executeStepI()
 
 void PdbEngine::executeStepOut()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("return");
@@ -204,7 +201,6 @@ void PdbEngine::executeStepOut()
 
 void PdbEngine::executeNext()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("next");
@@ -212,7 +208,6 @@ void PdbEngine::executeNext()
 
 void PdbEngine::executeNextI()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     postDirectCommand("next");
@@ -220,7 +215,6 @@ void PdbEngine::executeNextI()
 
 void PdbEngine::continueInferior()
 {
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
     // Callback will be triggered e.g. when breakpoint is hit.

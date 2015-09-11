@@ -251,7 +251,6 @@ private: ////////// Inferior Management //////////
 
     protected:
     void continueInferiorInternal();
-    void autoContinueInferior();
     void continueInferior() override;
     void interruptInferior() override;
     virtual void interruptInferior2() {}
