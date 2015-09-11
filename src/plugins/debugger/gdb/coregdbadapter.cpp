@@ -212,8 +212,9 @@ void GdbCoreEngine::setupInferior()
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
-    postCommand("-file-exec-and-symbols \"" + path + '"', NoFlags,
-         CB(handleFileExecAndSymbols));
+    DebuggerCommand cmd("-file-exec-and-symbols \"" + path + '"');
+    cmd.callback = CB(handleFileExecAndSymbols);
+    runCommand(cmd);
 }
 
 void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
@@ -236,7 +237,9 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 void GdbCoreEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
-    postCommand("target core " + coreFileName().toLocal8Bit(), NoFlags, CB(handleTargetCore));
+    DebuggerCommand cmd("target core " + coreFileName().toLocal8Bit());
+    cmd.callback = CB(handleTargetCore);
+    runCommand(cmd);
 }
 
 void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
@@ -249,7 +252,7 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
         // symbols yet. Load them in order of importance.
         reloadStack();
         reloadModulesInternal();
-        postCommand("p 5", NoFlags, CB(handleRoundTrip));
+        runCommand("p 5", CB(handleRoundTrip));
         return;
     }
     showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile)

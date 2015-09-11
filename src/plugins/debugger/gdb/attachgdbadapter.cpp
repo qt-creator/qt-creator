@@ -75,8 +75,9 @@ void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 pid = runParameters().attachPID;
-    postCommand("attach " + QByteArray::number(pid), NoFlags,
-                [this](const DebuggerResponse &r) { handleAttach(r); });
+    DebuggerCommand cmd("attach " + QByteArray::number(pid));
+    cmd.callback = [this](const DebuggerResponse &r) { handleAttach(r); };
+    runCommand(cmd);
     showStatusMessage(tr("Attached to process %1.").arg(inferiorPid()));
 }
 

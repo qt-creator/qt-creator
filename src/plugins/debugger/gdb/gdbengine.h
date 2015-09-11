@@ -155,8 +155,6 @@ private: ////////// Gdb Command Management //////////
         NeedsStop = 1,
         // No need to wait for the reply before continuing inferior.
         Discardable = 2,
-        // We can live without receiving an answer.
-        NonCriticalResponse = 8,
         // Callback expects ResultRunning instead of ResultDone.
         RunRequest = 16,
         // Callback expects ResultExit instead of ResultDone.
@@ -168,20 +166,18 @@ private: ////////// Gdb Command Management //////////
         // This is a command that needs to be wrapped into -interpreter-exec console
         ConsoleCommand = 512,
         // This is the UpdateLocals commannd during which we ignore notifications
-        InUpdateLocals = 1024
+        InUpdateLocals = 1024,
+        // This is a command using the python interface
+        PythonCommand = 2048
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
-    // Type and cookie are sender-internal data, opaque for the "event
-    // queue". resultNeeded == true increments m_pendingResults on
-    // send and decrements on receipt, effectively preventing
-    // watch model updates before everything is finished.
-    void flushCommand(const DebuggerCommand &cmd);
 protected:
-    void runCommand(const DebuggerCommand &command);
-    void postCommand(const QByteArray &command,
-                     int flags = NoFlags,
-                     DebuggerCommand::Callback callback = DebuggerCommand::Callback());
+    void runCommand(const DebuggerCommand &command, int flags = NoFlags);
+    void runCommand(const QByteArray &command,
+                    const DebuggerCommand::Callback &callback,
+                    int flags = NoFlags);
+
 private:
     Q_SLOT void commandTimeout();
     void setTokenBarrier();
@@ -190,6 +186,7 @@ private:
     void scheduleTestResponse(int testCase, const QByteArray &response);
 
     QHash<int, DebuggerCommand> m_commandForToken;
+    QHash<int, int> m_flagsForToken;
     int commandTimeoutTime() const;
     QTimer m_commandTimer;
 
@@ -395,12 +392,10 @@ protected:
     void showToolTip();
 
     void handleVarAssign(const DebuggerResponse &response);
-    void handleDetach(const DebuggerResponse &response);
     void handleThreadGroupCreated(const GdbMi &result);
     void handleThreadGroupExited(const GdbMi &result);
 
     Q_SLOT void createFullBacktrace();
-    void handleCreateFullBacktrace(const DebuggerResponse &response);
 
     void doUpdateLocals(const UpdateParameters &parameters) override;
     void handleStackFrame(const DebuggerResponse &response);

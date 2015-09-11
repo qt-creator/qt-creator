@@ -51,17 +51,10 @@ class DebuggerCommand
 public:
     typedef std::function<void(const DebuggerResponse &)> Callback;
 
-    DebuggerCommand() : flags(0) {}
-    DebuggerCommand(const char *f, int flags = 0, Callback cb = Callback())
-        : function(f), callback(cb), flags(flags)
-    {}
-    DebuggerCommand(const char *f, const QJsonValue &a, int flags = 0, Callback cb = Callback())
-        : function(f), args(a), callback(cb), flags(flags)
-    {}
-    DebuggerCommand(const char *f, Callback cb)
-        : function(f), callback(cb), flags(0)
-    {}
-    DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
+    DebuggerCommand() {}
+    DebuggerCommand(const char *f) : function(f) {}
+    DebuggerCommand(const QByteArray &f) : function(f) {}
+    DebuggerCommand(const char *f, const QJsonValue &a) : function(f), args(a) {}
 
     void arg(const char *value);
     void arg(const char *name, int value);
@@ -81,6 +74,9 @@ public:
     Callback callback;
     uint postTime; // msecsSinceStartOfDay
     int flags;
+
+private:
+    void argHelper(const char *name, const QByteArray &value);
 };
 
 /*

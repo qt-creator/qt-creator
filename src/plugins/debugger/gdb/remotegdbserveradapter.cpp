@@ -183,10 +183,10 @@ void GdbRemoteServerEngine::setupInferior()
 //        postCommand("set architecture " + remoteArch);
     const QString solibSearchPath = rp.solibSearchPath.join(HostOsInfo::pathListSeparator());
     if (!solibSearchPath.isEmpty())
-        postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
+        runCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
 
     if (!args.isEmpty())
-        postCommand("-exec-arguments " + args.toLocal8Bit());
+        runCommand("-exec-arguments " + args.toLocal8Bit());
 
     setEnvironmentVariables();
 
@@ -210,7 +210,7 @@ void GdbRemoteServerEngine::setupInferior()
     // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
     // failed.\nA problem internal to GDB has been detected,[...]
     if (boolSetting(TargetAsync))
-        postCommand("set target-async on", NoFlags, CB(handleSetTargetAsync));
+        runCommand("set target-async on", CB(handleSetTargetAsync));
 
     if (executableFileName.isEmpty()) {
         showMessage(tr("No symbol file given."), StatusBar);
@@ -219,8 +219,8 @@ void GdbRemoteServerEngine::setupInferior()
     }
 
     if (!executableFileName.isEmpty()) {
-        postCommand("-file-exec-and-symbols \"" + executableFileName.toLocal8Bit() + '"',
-            NoFlags, CB(handleFileExecAndSymbols));
+        runCommand("-file-exec-and-symbols \"" + executableFileName.toLocal8Bit() + '"',
+            CB(handleFileExecAndSymbols));
     }
 }
 
@@ -270,11 +270,11 @@ void GdbRemoteServerEngine::callTargetRemote()
     }
 
     if (m_isQnxGdb)
-        postCommand("target qnx " + channel, NoFlags, CB(handleTargetQnx));
+        runCommand("target qnx " + channel, CB(handleTargetQnx));
     else if (runParameters().multiProcess)
-        postCommand("target extended-remote " + channel, NoFlags, CB(handleTargetExtendedRemote));
+        runCommand("target extended-remote " + channel, CB(handleTargetExtendedRemote));
     else
-        postCommand("target remote " + channel, NoFlags, CB(handleTargetRemote));
+        runCommand("target remote " + channel, CB(handleTargetRemote));
 }
 
 void GdbRemoteServerEngine::handleTargetRemote(const DebuggerResponse &response)
@@ -287,7 +287,7 @@ void GdbRemoteServerEngine::handleTargetRemote(const DebuggerResponse &response)
         QString postAttachCommands = stringSetting(GdbPostAttachCommands);
         if (!postAttachCommands.isEmpty()) {
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
-                postCommand(cmd.toLatin1());
+                runCommand(cmd.toLatin1());
         }
         handleInferiorPrepared();
     } else {
@@ -307,15 +307,15 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
         QString postAttachCommands = stringSetting(GdbPostAttachCommands);
         if (!postAttachCommands.isEmpty()) {
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
-                postCommand(cmd.toLatin1());
+                runCommand(cmd.toLatin1());
         }
         if (runParameters().attachPID > 0) { // attach to pid if valid
             // gdb server will stop the remote application itself.
-            postCommand("attach " + QByteArray::number(runParameters().attachPID),
-                        NoFlags, CB(handleTargetExtendedAttach));
+            runCommand("attach " + QByteArray::number(runParameters().attachPID),
+                       CB(handleTargetExtendedAttach));
         } else {
-            postCommand("-gdb-set remote exec-file " + runParameters().remoteExecutable.toLatin1(),
-                        NoFlags, CB(handleTargetExtendedAttach));
+            runCommand("-gdb-set remote exec-file " + runParameters().remoteExecutable.toLatin1(),
+                       CB(handleTargetExtendedAttach));
         }
     } else {
         QString msg = msgConnectRemoteServerFailed(
@@ -349,9 +349,9 @@ void GdbRemoteServerEngine::handleTargetQnx(const DebuggerResponse &response)
         const qint64 pid = isMasterEngine() ? runParameters().attachPID : masterEngine()->runParameters().attachPID;
         const QString remoteExecutable = isMasterEngine() ? runParameters().remoteExecutable : masterEngine()->runParameters().remoteExecutable;
         if (pid > -1)
-            postCommand("attach " + QByteArray::number(pid), NoFlags, CB(handleAttach));
+            runCommand("attach " + QByteArray::number(pid), CB(handleAttach));
         else if (!remoteExecutable.isEmpty())
-            postCommand("set nto-executable " + remoteExecutable.toLatin1(), NoFlags, CB(handleSetNtoExecutable));
+            runCommand("set nto-executable " + remoteExecutable.toLatin1(), CB(handleSetNtoExecutable));
         else
             handleInferiorPrepared();
     } else {
@@ -409,7 +409,7 @@ void GdbRemoteServerEngine::runEngine()
 
     const QString remoteExecutable = runParameters().remoteExecutable;
     if (!remoteExecutable.isEmpty()) {
-        postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
+        runCommand("-exec-run",  CB(handleExecRun), RunRequest);
     } else {
         notifyEngineRunAndInferiorStopOk();
         continueInferiorInternal();
@@ -434,7 +434,7 @@ void GdbRemoteServerEngine::interruptInferior2()
 {
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
     if (boolSetting(TargetAsync)) {
-        postCommand("-exec-interrupt", NoFlags, CB(handleInterruptInferior));
+        runCommand("-exec-interrupt", CB(handleInterruptInferior));
     } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
         m_gdbProc.interrupt();
     } else {
