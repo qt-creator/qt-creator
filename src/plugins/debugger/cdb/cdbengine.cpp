@@ -1174,7 +1174,7 @@ void CdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
 // Post command to the cdb process
 void CdbEngine::runCommand(const DebuggerCommand &dbgCmd, int flags)
 {
-    QByteArray cmd = dbgCmd.function + dbgCmd.arguments();
+    QByteArray cmd = dbgCmd.function + dbgCmd.argsToString();
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue command \"%1\" to non-accessible session (%2)")
                 .arg(QString::fromLocal8Bit(cmd), QString::fromLatin1(stateName(state())));
@@ -1197,8 +1197,8 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd, int flags)
         // pass along token for identification in hash.
         const int token = m_nextCommandToken++;
         str << m_extensionCommandPrefixBA << dbgCmd.function << " -t " << token;
-        if (!dbgCmd.args.isEmpty())
-            str <<  ' ' << dbgCmd.args;
+        if (dbgCmd.args.isString())
+            str <<  ' ' << dbgCmd.argsToString();
         m_commandForToken.insert(token, dbgCmd);
     } else {
         str << cmd;
@@ -1332,7 +1332,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         str << blankSeparator << updateParameters.partialVariable;
 
     DebuggerCommand cmd("locals");
-    cmd.args = arguments;
+    cmd.args = QLatin1String(arguments);
     cmd.callback = [this, partialUpdate](const DebuggerResponse &r) { handleLocals(r, partialUpdate); };
     runCommand(cmd, ExtensionCommand);
 }
@@ -1557,8 +1557,10 @@ void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, q
 void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
 {
     DebuggerCommand cmd("memory");
-    ByteArrayInputStream str(cmd.args);
+    QByteArray args;
+    ByteArrayInputStream str(args);
     str << cookie.address << ' ' << cookie.length;
+    cmd.args = QLatin1String(args);
     cmd.callback = [this, cookie](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone && cookie.agent) {
             const QByteArray data = QByteArray::fromBase64(response.data.data());
@@ -1619,7 +1621,7 @@ void CdbEngine::reloadFullStack()
     if (debug)
         qDebug("%s", Q_FUNC_INFO);
     DebuggerCommand cmd("stack");
-    cmd.args = "unlimited";
+    cmd.args = QStringLiteral("unlimited");
     cmd.callback = CB(handleStackTrace);
     runCommand(cmd, ExtensionCommand);
 }
@@ -1627,7 +1629,7 @@ void CdbEngine::reloadFullStack()
 void CdbEngine::listBreakpoints()
 {
     DebuggerCommand cmd("breakpoints");
-    cmd.args = "-v";
+    cmd.args = QStringLiteral("-v");
     cmd.callback = CB(handleBreakPoints);
     runCommand(cmd, ExtensionCommand);
 }
@@ -1845,11 +1847,12 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                                                                 QString::number(threadId));
 
                     DebuggerCommand cmd("expression");
-                    cmd.args = parameters.condition;
-                    if (cmd.args.contains(' ') && !cmd.args.startsWith('"')) {
-                        cmd.args.prepend('"');
-                        cmd.args.append('"');
+                    QByteArray args = parameters.condition;
+                    if (args.contains(' ') && !args.startsWith('"')) {
+                        args.prepend('"');
+                        args.append('"');
                     }
+                    cmd.args = QLatin1String(args);
                     cmd.callback = [this, id, stopReason](const DebuggerResponse &response) {
                         handleExpression(response, id, stopReason);
                     };
@@ -3092,7 +3095,7 @@ void CdbEngine::watchPoint(const QPoint &p)
 void CdbEngine::postWidgetAtCommand()
 {
     DebuggerCommand cmd("widgetat");
-    cmd.args = QByteArray::number(m_watchPointX) + ' ' + QByteArray::number(m_watchPointY);
+    cmd.args = QString::fromLatin1("%1 %2").arg(m_watchPointX, m_watchPointY);
     cmd.callback = CB(handleWidgetAt);
     runCommand(cmd, ExtensionCommand);
 }

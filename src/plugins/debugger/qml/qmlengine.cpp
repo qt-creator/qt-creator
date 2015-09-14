@@ -1733,14 +1733,15 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
 
 void QmlEnginePrivate::runCommand(const DebuggerCommand &command, const QmlCallback &cb)
 {
-    QByteArray msg = "{\"seq\":" + QByteArray::number(++sequence) + ","
-                   +  "\"type\":\"request\","
-                   +  "\"command\":\"" + command.function + "\","
-                   +  "\"arguments\":{" + command.arguments() + "}}";
+    QJsonObject object;
+    object.insert(QStringLiteral("seq"), ++sequence);
+    object.insert(QStringLiteral("type"), QStringLiteral("request"));
+    object.insert(QStringLiteral("command"), QLatin1String(command.function));
+    object.insert(QStringLiteral("arguments"), command.args);
     if (cb)
         callbackForToken[sequence] = cb;
 
-    runDirectCommand(V8REQUEST, msg);
+    runDirectCommand(V8REQUEST, QJsonDocument(object).toJson(QJsonDocument::Compact));
 }
 
 void QmlEnginePrivate::runDirectCommand(const QByteArray &type, const QByteArray &msg)

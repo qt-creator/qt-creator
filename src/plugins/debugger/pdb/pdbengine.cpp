@@ -62,6 +62,7 @@
 #include <QFileInfo>
 #include <QTimer>
 #include <QVariant>
+#include <QJsonArray>
 
 using namespace Core;
 
@@ -97,7 +98,7 @@ void PdbEngine::postDirectCommand(const QByteArray &command)
 void PdbEngine::runCommand(const DebuggerCommand &cmd)
 {
     QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
-    QByteArray command = "qdebug('" + cmd.function + "',{" + cmd.args + "})";
+    QByteArray command = "qdebug('" + cmd.function + "'," + cmd.argsToPython() + ")";
     showMessage(_(command), LogInput);
     m_proc.write(command + '\n');
 }

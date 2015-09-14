@@ -34,6 +34,8 @@
 #include <QByteArray>
 #include <QList>
 #include <QString>
+#include <QJsonValue>
+#include <QJsonObject>
 
 #include <functional>
 #include <vector>
@@ -53,7 +55,7 @@ public:
     DebuggerCommand(const char *f, int flags = 0, Callback cb = Callback())
         : function(f), callback(cb), flags(flags)
     {}
-    DebuggerCommand(const char *f, const char *a, int flags = 0, Callback cb = Callback())
+    DebuggerCommand(const char *f, const QJsonValue &a, int flags = 0, Callback cb = Callback())
         : function(f), args(a), callback(cb), flags(flags)
     {}
     DebuggerCommand(const char *f, Callback cb)
@@ -61,7 +63,7 @@ public:
     {}
     DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
 
-    void arg(const char *name);
+    void arg(const char *value);
     void arg(const char *name, int value);
     void arg(const char *name, qlonglong value);
     void arg(const char *name, qulonglong value);
@@ -69,21 +71,16 @@ public:
     void arg(const char *name, const QByteArray &value);
     void arg(const char *name, const char *value);
     void arg(const char *name, const QList<int> &list);
+    void arg(const char *name, const QJsonValue &value);
 
-    void beginList(const char *name = 0);
-    void endList();
-    void beginGroup(const char *name = 0);
-    void endGroup();
-    QByteArray arguments() const;
+    QByteArray argsToPython() const;
+    QByteArray argsToString() const;
 
     QByteArray function;
-    QByteArray args;
+    QJsonValue args;
     Callback callback;
     uint postTime; // msecsSinceStartOfDay
     int flags;
-
-private:
-    void argHelper(const char *name, const QByteArray &value);
 };
 
 /*

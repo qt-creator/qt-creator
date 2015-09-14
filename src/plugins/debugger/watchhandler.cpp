@@ -58,6 +58,8 @@
 #include <QProcess>
 #include <QTabWidget>
 #include <QTextEdit>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include <QTimer>
 #include <algorithm>
@@ -1591,57 +1593,55 @@ QByteArray WatchHandler::individualFormatRequests() const
 
 void WatchHandler::appendFormatRequests(DebuggerCommand *cmd)
 {
-    cmd->beginList("expanded");
+    QJsonArray expanded;
     QSetIterator<QByteArray> jt(m_model->m_expandedINames);
-    while (jt.hasNext()) {
-        QByteArray iname = jt.next();
-        //WatchItem *item = m_model->findItem(iname);
-        cmd->arg(iname);
-        //cmd->arg("format", item->requestedFormat());
-    }
-    cmd->endList();
+    while (jt.hasNext())
+        expanded.append(QLatin1String(jt.next()));
 
-    cmd->beginGroup("typeformats");
+    cmd->arg("expanded", expanded);
+
+    QJsonObject typeformats;
     QHashIterator<QByteArray, int> it(theTypeFormats);
     while (it.hasNext()) {
         it.next();
         const int format = it.value();
         if (format != AutomaticFormat)
-            cmd->arg(it.key(), format);
+            typeformats.insert(QLatin1String(it.key()), format);
     }
-    cmd->endGroup();
+    cmd->arg("typeformats", typeformats);
 
-    cmd->beginGroup("formats");
+    QJsonObject formats;
     QHashIterator<QByteArray, int> it2(theIndividualFormats);
     while (it2.hasNext()) {
         it2.next();
         const int format = it2.value();
         if (format != AutomaticFormat)
-            cmd->arg(it2.key(), format);
+            formats.insert(QLatin1String(it2.key()), format);
     }
-    cmd->endGroup();
+    cmd->arg("formats", formats);
+}
+
+static inline QJsonObject watcher(const QByteArray &iname, const QByteArray &exp)
+{
+    QJsonObject watcher;
+    watcher.insert(QStringLiteral("iname"), QLatin1String(iname));
+    watcher.insert(QStringLiteral("exp"), QLatin1String(exp.toHex()));
+    return watcher;
 }
 
 void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
 {
-    cmd->beginList("watchers");
+    QJsonArray watchers;
     DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(m_model->m_engine);
-    foreach (const DebuggerToolTipContext &p, toolTips) {
-        cmd->beginGroup();
-        cmd->arg("iname", p.iname);
-        cmd->arg("exp", p.expression.toLatin1().toHex());
-        cmd->endGroup();
-    }
+    foreach (const DebuggerToolTipContext &p, toolTips)
+        watchers.append(watcher(p.iname, p.expression.toLatin1()));
 
     QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
         it.next();
-        cmd->beginGroup();
-        cmd->arg("iname", "watch." + QByteArray::number(it.value()));
-        cmd->arg("exp", it.key().toHex());
-        cmd->endGroup();
+        watchers.append(watcher("watch." + QByteArray::number(it.value()), it.key()));
     }
-    cmd->endList();
+    cmd->arg("watchers", watchers);
 }
 
 void WatchHandler::addDumpers(const GdbMi &dumpers)

@@ -66,6 +66,7 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QVariant>
+#include <QJsonArray>
 
 using namespace Core;
 using namespace Utils;
@@ -136,7 +137,7 @@ void LldbEngine::runCommand(const DebuggerCommand &command_)
     DebuggerCommand command = command_;
     command.arg("token", tok);
     QByteArray token = QByteArray::number(tok);
-    QByteArray cmd  = command.function + "({" + command.args + "})";
+    QByteArray cmd  = command.function + "(" + command.argsToPython() + ")";
     showMessage(_(token + cmd + '\n'), LogInput);
     m_commandForToken[currentToken()] = command;
     m_lldbProc.write("script theDumper." + cmd + "\n");
@@ -335,10 +336,10 @@ void LldbEngine::setupInferior()
     cmd2.arg("useTerminal", rp.useTerminal);
     cmd2.arg("startMode", rp.startMode);
 
-    cmd2.beginList("processArgs");
+    QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())
-        cmd2.arg(arg.toUtf8().toHex());
-    cmd2.endList();
+        processArgs.append(QLatin1String(arg.toUtf8().toHex()));
+    cmd2.arg("processArgs", processArgs);
 
     if (rp.useTerminal) {
         QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
@@ -830,7 +831,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     //cmd.arg("resultvarname", m_resultVarName);
 
     m_lastDebuggableCommand = cmd;
-    m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
+    m_lastDebuggableCommand.arg("passexceptions", 0);
 
     cmd.callback = [this](const DebuggerResponse &response) {
         updateLocalsView(response.data);

@@ -84,6 +84,7 @@
 #include <QProcess>
 #include <QPushButton>
 #include <QTemporaryFile>
+#include <QJsonArray>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -874,7 +875,7 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 
 void GdbEngine::runCommand(const DebuggerCommand &command)
 {
-    QByteArray cmd  = command.function + "({" + command.args + "})";
+    QByteArray cmd  = command.function + "(" + command.argsToPython() + ")";
     postCommand("python theDumper." + cmd, command.flags, command.callback);
 }
 

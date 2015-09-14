@@ -36,6 +36,8 @@
 #include <QHostAddress>
 #include <QRegExp>
 #include <QTimeZone>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 #include <ctype.h>
 
@@ -779,106 +781,80 @@ QString decodeData(const QByteArray &ba, DebuggerEncoding encoding)
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-void DebuggerCommand::argHelper(const char *name, const QByteArray &data)
+template<typename Value>
+QJsonValue addToJsonObject(const QJsonValue &args, const char *name, const Value &value)
 {
-    args.append('"');
-    args.append(name);
-    args.append("\":");
-    args.append(data);
-    args.append(",");
+    QTC_ASSERT(args.isObject() || args.isNull(), return args);
+    QJsonObject obj = args.toObject();
+    obj.insert(QLatin1String(name), value);
+    return obj;
 }
 
 void DebuggerCommand::arg(const char *name, int value)
 {
-    argHelper(name, QByteArray::number(value));
+    args = addToJsonObject(args, name, value);
 }
 
 void DebuggerCommand::arg(const char *name, qlonglong value)
 {
-    argHelper(name, QByteArray::number(value));
+    args = addToJsonObject(args, name, value);
 }
 
 void DebuggerCommand::arg(const char *name, qulonglong value)
 {
-    argHelper(name, QByteArray::number(value));
+    // gdb and lldb will correctly cast the value back to unsigned if needed, so this is no problem.
+    args = addToJsonObject(args, name, qint64(value));
 }
 
 void DebuggerCommand::arg(const char *name, const QString &value)
 {
-    arg(name, value.toUtf8().data());
+    args = addToJsonObject(args, name, value);
 }
 
 void DebuggerCommand::arg(const char *name, const QByteArray &value)
 {
-    arg(name, value.data());
+    args = addToJsonObject(args, name, QLatin1String(value));
 }
 
 void DebuggerCommand::arg(const char *name, const char *value)
 {
-    args.append('"');
-    args.append(name);
-    args.append("\":\"");
-    args.append(value);
-    args.append("\",");
+    args = addToJsonObject(args, name, QLatin1String(value));
 }
 
 void DebuggerCommand::arg(const char *name, const QList<int> &list)
 {
-    beginList(name);
-    foreach (int item, list) {
-        args.append(QByteArray::number(item));
-        args.append(',');
-    }
-    endList();
+    QJsonArray numbers;
+    foreach (int item, list)
+        numbers.append(item);
+    args = addToJsonObject(args, name, numbers);
 }
 
 void DebuggerCommand::arg(const char *value)
 {
-    args.append("\"");
-    args.append(value);
-    args.append("\",");
+    QTC_ASSERT(args.isArray() || args.isNull(), return);
+    QJsonArray arr = args.toArray();
+    arr.append(QLatin1String(value));
+    args = arr;
 }
 
-void DebuggerCommand::beginList(const char *name)
+void DebuggerCommand::arg(const char *name, const QJsonValue &value)
 {
-    if (name) {
-        args += '"';
-        args += name;
-        args += "\":";
-    }
-    args += '[';
+    args = addToJsonObject(args, name, value);
 }
 
-void DebuggerCommand::endList()
+QByteArray DebuggerCommand::argsToPython() const
 {
-    if (args.endsWith(','))
-        args.chop(1);
-    args += "],";
+    // TODO: Verify that this is really Python.
+
+    if (args.isArray())
+        return QJsonDocument(args.toArray()).toJson(QJsonDocument::Compact);
+    else
+        return QJsonDocument(args.toObject()).toJson(QJsonDocument::Compact);
 }
 
-void DebuggerCommand::beginGroup(const char *name)
+QByteArray DebuggerCommand::argsToString() const
 {
-    if (name) {
-        args += '"';
-        args += name;
-        args += "\":";
-    }
-    args += '{';
-}
-
-void DebuggerCommand::endGroup()
-{
-    if (args.endsWith(','))
-        args.chop(1);
-    args += "},";
-}
-
-QByteArray DebuggerCommand::arguments() const
-{
-    QByteArray result = args;
-    if (result.endsWith(','))
-        result.chop(1);
-    return result;
+    return args.toString().toLatin1();
 }
 
 } // namespace Internal
