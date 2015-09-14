@@ -156,6 +156,7 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     bool deleteFiles(const QStringList &filePaths);
+    bool canRenameFile(const QString &filePath, const QString &newFilePath);
     bool renameFile(const QString &filePath, const QString &newFilePath);
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
@@ -175,6 +176,7 @@ public:
     bool includedInExactParse() const;
 
     static QSet<Utils::FileName> recursiveEnumerate(const QString &folder);
+
 protected:
     void setIncludedInExactParse(bool b);
     static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
@@ -189,14 +191,21 @@ protected:
         RemoveFromProFile
     };
 
+    enum class Change { Save, TestOnly };
+    bool renameFile(const QString &oldName,
+                    const QString &newName,
+                    const QString &mimeType,
+                    Change mode = Change::Save);
     void changeFiles(const QString &mimeType,
                      const QStringList &filePaths,
                      QStringList *notChanged,
-                     ChangeType change);
+                     ChangeType change,
+                     Change mode = Change::Save);
 
 private:
     void scheduleUpdate();
 
+    bool prepareForChange();
     static bool ensureWriteableProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);

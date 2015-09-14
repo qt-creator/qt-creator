@@ -1108,6 +1108,20 @@ bool QmakePriFileNode::deleteFiles(const QStringList &filePaths)
     return true;
 }
 
+bool QmakePriFileNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+{
+    if (newFilePath.isEmpty())
+        return false;
+
+    bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
+    if (changeProFileOptional)
+        return true;
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(newFilePath);
+
+    return renameFile(filePath, newFilePath, mt.name(), Change::TestOnly);
+}
+
 bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     if (newFilePath.isEmpty())
@@ -1116,15 +1130,10 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
     Utils::MimeDatabase mdb;
     const Utils::MimeType mt = mdb.mimeTypeForFile(newFilePath);
-    QStringList dummy;
 
-    changeFiles(mt.name(), QStringList() << filePath, &dummy, RemoveFromProFile);
-    if (!dummy.isEmpty() && !changeProFileOptional)
-        return false;
-    changeFiles(mt.name(), QStringList() << newFilePath, &dummy, AddToProFile);
-    if (!dummy.isEmpty() && !changeProFileOptional)
-        return false;
-    return true;
+    if (renameFile(filePath, newFilePath, mt.name()))
+        return true;
+    return changeProFileOptional;
 }
 
 FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
@@ -1235,10 +1244,47 @@ QPair<ProFile *, QStringList> QmakePriFileNode::readProFile(const QString &file)
     return qMakePair(includeFile, lines);
 }
 
+bool QmakePriFileNode::prepareForChange()
+{
+    return saveModifiedEditors() && ensureWriteableProFile(m_projectFilePath.toString());
+}
+
+bool QmakePriFileNode::renameFile(const QString &oldName,
+                                  const QString &newName,
+                                  const QString &mimeType,
+                                  Change mode)
+{
+    if (!prepareForChange())
+        return false;
+
+    QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath.toString());
+    ProFile *includeFile = pair.first;
+    QStringList lines = pair.second;
+
+    if (!includeFile)
+        return false;
+
+    QDir priFileDir = QDir(m_qmakeProFileNode->m_projectDir);
+    QStringList notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir,
+                                                    QStringList(oldName), varNamesForRemoving());
+    if (!notChanged.isEmpty()) {
+        includeFile->deref();
+        return false;
+    }
+
+    ProWriter::addFiles(includeFile, &lines,
+                        QStringList(newName),
+                        varNameForAdding(mimeType));
+    if (mode == Change::Save)
+        save(lines);
+    includeFile->deref();
+    return true;
+}
+
 void QmakePriFileNode::changeFiles(const QString &mimeType,
                                  const QStringList &filePaths,
                                  QStringList *notChanged,
-                                 ChangeType change)
+                                 ChangeType change, Change mode)
 {
     if (filePaths.isEmpty())
         return;
@@ -1246,18 +1292,15 @@ void QmakePriFileNode::changeFiles(const QString &mimeType,
     *notChanged = filePaths;
 
     // Check for modified editors
-    if (!saveModifiedEditors())
+    if (!prepareForChange())
         return;
 
-    if (!ensureWriteableProFile(m_projectFilePath.toString()))
-        return;
     QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath.toString());
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
     if (!includeFile)
         return;
-
 
     if (change == AddToProFile) {
         // Use the first variable for adding.
@@ -1269,13 +1312,14 @@ void QmakePriFileNode::changeFiles(const QString &mimeType,
     }
 
     // save file
-    save(lines);
+    if (mode == Change::Save)
+        save(lines);
     includeFile->deref();
 }
 
 bool QmakePriFileNode::setProVariable(const QString &var, const QStringList &values, const QString &scope, int flags)
 {
-    if (!ensureWriteableProFile(m_projectFilePath.toString()))
+    if (!prepareForChange())
         return false;
 
     QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath.toString());

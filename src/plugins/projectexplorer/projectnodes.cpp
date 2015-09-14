@@ -357,6 +357,13 @@ bool FolderNode::deleteFiles(const QStringList &filePaths)
     return false;
 }
 
+bool FolderNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+{
+    if (projectNode())
+        return projectNode()->canRenameFile(filePath, newFilePath);
+    return false;
+}
+
 bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     if (projectNode())
@@ -627,6 +634,13 @@ bool ProjectNode::deleteFiles(const QStringList &filePaths)
 {
     Q_UNUSED(filePaths)
     return false;
+}
+
+bool ProjectNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(newFilePath);
+    return true;
 }
 
 bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
