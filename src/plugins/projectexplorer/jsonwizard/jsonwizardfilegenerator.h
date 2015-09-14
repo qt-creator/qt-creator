@@ -65,6 +65,14 @@ private:
         QVariant overwrite;
         QVariant openInEditor;
         QVariant openAsProject;
+
+        class OptionDefinition {
+        public:
+            QString key;
+            QString value;
+            QString condition;
+        };
+        QList<OptionDefinition> options;
     };
 
     QList<File> m_fileList;

@@ -100,7 +100,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 
         File f;
 
-        QVariantMap tmp = d.toMap();
+        const QVariantMap tmp = d.toMap();
         f.source = tmp.value(QLatin1String("source")).toString();
         f.target = tmp.value(QLatin1String("target")).toString();
         f.condition = tmp.value(QLatin1String("condition"), true);
@@ -108,6 +108,27 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         f.overwrite = tmp.value(QLatin1String("overwrite"), false);
         f.openInEditor = tmp.value(QLatin1String("openInEditor"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
+
+        const QVariant options = tmp.value(QLatin1String("options"));
+        if (!options.isNull()) {
+            const QVariantList optList = JsonWizardFactory::objectOrList(options, errorMessage);
+            if (optList.isEmpty())
+                return false;
+
+            foreach (const QVariant &o, optList) {
+                QVariantMap optionObject = o.toMap();
+                File::OptionDefinition odef;
+                odef.key = optionObject.value(QLatin1String("key")).toString();
+                odef.value = optionObject.value(QLatin1String("value")).toString();
+                odef.condition = optionObject.value(QLatin1String("condition"), QLatin1String("true")).toString();
+                if (odef.key.isEmpty()) {
+                    *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizardFileGenerator",
+                                                                "No 'key' in options object.");
+                    return false;
+                }
+                f.options.append(odef);
+            }
+        }
 
         if (f.source.isEmpty() && f.target.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
@@ -165,7 +186,23 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
             } else {
                 // TODO: Document that input files are UTF8 encoded!
                 gf.setBinary(false);
-                gf.setContents(processTextFileContents(expander, QString::fromUtf8(reader.data()), errorMessage));
+                Utils::MacroExpander nested;
+                const File *fPtr = &f;
+                Utils::MacroExpander *thisExpander = &nested;
+                nested.registerExtraResolver([fPtr, thisExpander](QString n, QString *ret) -> bool {
+                    foreach (const File::OptionDefinition &od, fPtr->options) {
+                        if (!JsonWizard::boolFromVariant(od.condition, thisExpander))
+                            continue;
+                        if (n == od.key) {
+                            *ret = od.value;
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                nested.registerExtraResolver([expander](QString n, QString *ret) { return expander->resolveMacro(n, ret); });
+
+                gf.setContents(processTextFileContents(&nested, QString::fromUtf8(reader.data()), errorMessage));
                 if (!errorMessage->isEmpty()) {
                     *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
                             .arg(sourcePath, *errorMessage);
