@@ -4669,30 +4669,10 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);
+    watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
     cmd.arg("stringcutoff", action(MaximalStringLength)->value().toByteArray());
     cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toByteArray());
-
-    // Re-create tooltip items that are not filters on existing local variables in
-    // the tooltip model.
-    cmd.beginList("watchers");
-    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
-    foreach (const DebuggerToolTipContext &p, toolTips) {
-        cmd.beginGroup();
-        cmd.arg("iname", p.iname);
-        cmd.arg("exp", p.expression.toLatin1().toHex());
-        cmd.endGroup();
-    }
-
-    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
-    while (it.hasNext()) {
-        it.next();
-        cmd.beginGroup();
-        cmd.arg("iname", "watch." + QByteArray::number(it.value()));
-        cmd.arg("exp", it.key().toHex());
-        cmd.endGroup();
-    }
-    cmd.endList();
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
 

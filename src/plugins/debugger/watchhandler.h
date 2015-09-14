@@ -130,6 +130,9 @@ public:
     static QStringList watchedExpressions();
     static QHash<QByteArray, int> watcherNames();
 
+    void appendFormatRequests(DebuggerCommand *cmd);
+    void appendWatchersAndTooltipRequests(DebuggerCommand *cmd);
+
     QByteArray typeFormatRequests() const;
     QByteArray individualFormatRequests() const;
 
@@ -150,7 +153,6 @@ public:
 
     void setCurrentItem(const QByteArray &iname);
     void updateWatchersWindow();
-    void appendFormatRequests(DebuggerCommand *cmd);
 
     void insertItem(WatchItem *item); // Takes ownership.
     void removeItemByIName(const QByteArray &iname);

@@ -571,33 +571,11 @@ void PdbEngine::updateLocals()
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());
     watchHandler()->appendFormatRequests(&cmd);
+    watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
-
-    cmd.beginList("watchers");
-
-    // Watchers
-    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
-    while (it.hasNext()) {
-        it.next();
-        cmd.beginGroup();
-        cmd.arg("iname", "watch." + QByteArray::number(it.value()));
-        cmd.arg("exp", it.key().toHex());
-        cmd.endGroup();
-    }
-
-    // Tooltips
-    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
-    foreach (const DebuggerToolTipContext &p, toolTips) {
-        cmd.beginGroup();
-        cmd.arg("iname", p.iname);
-        cmd.arg("exp", p.expression.toLatin1().toHex());
-        cmd.endGroup();
-    }
-
-    cmd.endList();
 
     //cmd.arg("resultvarname", m_resultVarName);
     //m_lastDebuggableCommand = cmd;

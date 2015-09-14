@@ -37,6 +37,7 @@
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerprotocol.h"
+#include "debuggertooltipmanager.h"
 #include "simplifytype.h"
 #include "imageviewer.h"
 #include "watchutils.h"
@@ -1619,6 +1620,28 @@ void WatchHandler::appendFormatRequests(DebuggerCommand *cmd)
             cmd->arg(it2.key(), format);
     }
     cmd->endGroup();
+}
+
+void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
+{
+    cmd->beginList("watchers");
+    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(m_model->m_engine);
+    foreach (const DebuggerToolTipContext &p, toolTips) {
+        cmd->beginGroup();
+        cmd->arg("iname", p.iname);
+        cmd->arg("exp", p.expression.toLatin1().toHex());
+        cmd->endGroup();
+    }
+
+    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
+    while (it.hasNext()) {
+        it.next();
+        cmd->beginGroup();
+        cmd->arg("iname", "watch." + QByteArray::number(it.value()));
+        cmd->arg("exp", it.key().toHex());
+        cmd->endGroup();
+    }
+    cmd->endList();
 }
 
 void WatchHandler::addDumpers(const GdbMi &dumpers)
