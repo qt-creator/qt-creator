@@ -856,7 +856,11 @@ static const QMap<QString, int> &vimKeyNames()
         { _("KDIVIDE"), Key_Slash },
         { _("KMULTIPLY"), Key_Asterisk },
         { _("KENTER"), Key_Enter },
-        { _("KPOINT"), Key_Period }
+        { _("KPOINT"), Key_Period },
+
+        { _("CAPS"), Key_CapsLock },
+        { _("NUM"), Key_NumLock },
+        { _("SCROLL"), Key_ScrollLock }
     };
 
     return k;
