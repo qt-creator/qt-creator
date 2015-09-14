@@ -1487,6 +1487,7 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
         if (m_objectsByQualifiedName.contains(key))
             continue;
 
+        ComponentVersion cppVersion;
         foreach (const FakeMetaObject::Export &bestExport, bestExports) {
             QString name = bestExport.type;
             bool exported = true;
@@ -1501,7 +1502,10 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
                         fmoo.originId);
 
             // use package.cppname importversion as key
-            m_objectsByQualifiedName.insert(key, newComponent);
+            if (cppVersion <= bestExport.version) {
+                cppVersion = bestExport.version;
+                m_objectsByQualifiedName.insert(key, newComponent);
+            }
             if (exported) {
                 if (!exportedObjects.contains(name) // we might have the same type in different versions
                         || (newComponent->componentVersion() > exportedObjects.value(name)->componentVersion()))
