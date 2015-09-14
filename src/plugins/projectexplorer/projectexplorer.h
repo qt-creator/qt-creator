@@ -181,7 +181,6 @@ public slots:
 
 private slots:
     void restoreSession2();
-    void showRenameFileError();
 
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();

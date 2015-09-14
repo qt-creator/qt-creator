@@ -371,7 +371,6 @@ public:
     bool m_shuttingDown;
     QStringList m_arguments;
     QList<ProjectPanelFactory *> m_panelFactories;
-    QString m_renameFileError;
 #ifdef WITH_JOURNALD
     JournaldWatcher *m_journalWatcher;
 #endif
@@ -3271,12 +3270,16 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
         FolderNode *folderNode = node->parentFolderNode();
         QString projectFileName = folderNode->projectNode()->path().fileName();
         if (!folderNode->renameFile(orgFilePath, newFilePath)) {
-            dd->m_renameFileError = tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
+            QString renameFileError = tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
                     .arg(orgFilePath)
                     .arg(newFilePath)
                     .arg(projectFileName);
 
-            QTimer::singleShot(0, m_instance, SLOT(showRenameFileError()));
+            QTimer::singleShot(0, [renameFileError]() {
+                QMessageBox::warning(ICore::mainWindow(),
+                                     tr("Project Editing Failed"),
+                                     renameFileError);
+            });
         }
     }
 }
@@ -3284,11 +3287,6 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
 void ProjectExplorerPluginPrivate::handleSetStartupProject()
 {
     setStartupProject(ProjectTree::currentProject());
-}
-
-void ProjectExplorerPlugin::showRenameFileError()
-{
-    QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"), dd->m_renameFileError);
 }
 
 void ProjectExplorerPluginPrivate::updateSessionMenu()
