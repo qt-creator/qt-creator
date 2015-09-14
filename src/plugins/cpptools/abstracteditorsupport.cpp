@@ -33,6 +33,9 @@
 #include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
 
+#include <utils/fileutils.h>
+#include <utils/macroexpander.h>
+
 namespace CppTools {
 
 AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager) :
@@ -53,7 +56,14 @@ void AbstractEditorSupport::notifyAboutUpdatedContents() const
 
 QString AbstractEditorSupport::licenseTemplate(const QString &file, const QString &className)
 {
-    return Internal::CppFileSettings::licenseTemplate(file, className);
+    const QString license = Internal::CppFileSettings::licenseTemplate();
+    Utils::MacroExpander expander;
+    expander.registerVariable("Cpp:License:FileName", tr("The file name."),
+                              [file]() { return Utils::FileName::fromString(file).fileName(); });
+    expander.registerVariable("Cpp:License:ClassName", tr("The class name"),
+                              [className]() { return className; });
+
+    return expander.expand(license);
 }
 
 } // namespace CppTools
