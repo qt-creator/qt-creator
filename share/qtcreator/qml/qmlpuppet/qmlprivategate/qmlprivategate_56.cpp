@@ -72,24 +72,6 @@ PropertyNameList propertyNameListForWritableProperties(QObject *object,
     return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object, baseName, inspectedObjects);
 }
 
-static void fixResourcePathsForObject(QObject *object)
-{
-    if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
-        return;
-
-    PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object, propertyName, QQmlEngine::contextForObject(object));
-
-        const QVariant value  = property.read();
-        const QVariant fixedValue = fixResourcePaths(value);
-        if (value != fixedValue) {
-            property.write(fixedValue);
-        }
-    }
-}
-
 void tweakObjects(QObject *object)
 {
     QQuickDesignerSupportItems::tweakObjects(object);
