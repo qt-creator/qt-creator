@@ -56,16 +56,24 @@ static QString processTextFileContents(Utils::MacroExpander *expander,
     if (input.isEmpty())
         return input;
 
-    QString tmp;
-    if (!customWizardPreprocess(expander->expand(input), &tmp, errorMessage))
+    // Recursively expand macros:
+    QString in = input;
+    QString oldIn;
+    for (int i = 0; i < 5 && in != oldIn; ++i) {
+        oldIn = in;
+        in = expander->expand(oldIn);
+    }
+
+    QString out;
+    if (!customWizardPreprocess(in, &out, errorMessage))
         return QString();
 
     // Expand \n, \t and handle line continuation:
     QString result;
-    result.reserve(tmp.count());
+    result.reserve(out.count());
     bool isEscaped = false;
-    for (int i = 0; i < tmp.count(); ++i) {
-        const QChar c = tmp.at(i);
+    for (int i = 0; i < out.count(); ++i) {
+        const QChar c = out.at(i);
 
         if (isEscaped) {
             if (c == QLatin1Char('n'))
