@@ -72,10 +72,12 @@ public:
 private:
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
+    void onCppDocumentAboutToReloadOnTranslationUnit();
     void onCppDocumentReloadFinishedOnTranslationUnit(bool success);
     void onCppDocumentContentsChangedOnTranslationUnit(int position,
                                                        int charsRemoved,
                                                        int charsAdded);
+    void onCppDocumentAboutToReloadOnUnsavedFile();
     void onCppDocumentReloadFinishedOnUnsavedFile(bool success);
     void onCppDocumentContentsChangedOnUnsavedFile();
 
@@ -93,6 +95,9 @@ private:
 
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
     void connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument);
+    void connectToTextDocumentContentsChangedForTranslationUnit(
+            TextEditor::TextDocument *textDocument);
+    void connectToTextDocumentContentsChangedForUnsavedFile(TextEditor::TextDocument *textDocument);
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
 private:
