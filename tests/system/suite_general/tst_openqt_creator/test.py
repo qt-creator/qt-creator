@@ -63,6 +63,16 @@ def main():
     compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", "projecttree_speedcrunch.tsv")
     compareProjectTree(naviTreeView % "qtcreator( \[\S+\])?", "projecttree_creator.tsv")
 
+    # Verify warnings about old Qt version
+    if not test.verify(object.exists(":Qt Creator_Core::OutputWindow"),
+                       "Did the General Messages view show up?"):
+        openGeneralMessages()
+    generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
+    test.verify("Project MESSAGE: Cannot build Qt Creator with Qt version 5.3.1." in generalMessages,
+                "Warning about outdated Qt shown?")
+    test.verify("Project ERROR: Use at least Qt 5.4.0." in generalMessages,
+                "Minimum Qt version shown?")
+
     # Now check some basic lookups in the search box
     selectFromLocator(": Qlist::QList", "QList::QList")
     test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")

@@ -38,7 +38,7 @@ def main():
     workingDir = tempDir()
     # we need a Qt >= 5.3 - we use checkedTargets, so we should get only valid targets
     analyzerTargets = Targets.desktopTargetClasses()
-    if platform.system() in ('Windows', 'Microsoft') and JIRA.isBugStillOpen(14307):
+    if platform.system() in ('Windows', 'Microsoft'):
         analyzerTargets &= ~Targets.DESKTOP_541_GCC
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")

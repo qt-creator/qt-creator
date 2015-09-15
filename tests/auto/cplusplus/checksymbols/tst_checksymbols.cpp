@@ -1213,7 +1213,7 @@ void tst_CheckSymbols::findField()
     BaseTestCase tc(source);
     Use use = tc.findUse(line, column);
 
-    QEXPECT_FAIL("std vector", "Regression since e0594fc9b906a32f5c8ac70265490cf86044676f", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
     QVERIFY(use.isValid());
     QVERIFY(use.kind == Highlighting::FieldUse);
 }

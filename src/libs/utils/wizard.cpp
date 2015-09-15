@@ -35,6 +35,8 @@
 #include "qtcassert.h"
 #include "wizardpage.h"
 
+#include <utils/theme/theme.h>
+
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QHash>
@@ -333,6 +335,8 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
     setOption(QWizard::NoBackButtonOnStartPage, true);
+    if (!Utils::creatorTheme()->preferredStyles().isEmpty())
+        setWizardStyle(QWizard::ModernStyle);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     if (HostOsInfo::isMacHost()) {

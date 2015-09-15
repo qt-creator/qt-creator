@@ -2,7 +2,7 @@ Prerequisites - general information
 -----------------------------------
 Squish tests inside this folder have several prerequisites to get them running.
 
-First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 5.1.1.
+First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 5.1.3.
 For Squish on Mac it's necessary to change the used Python version to 2.6 inside the <SQUISHDIR>/etc/paths.ini
 
 Second - some of the test suites/test cases expect an installed Qt 4 SDK in its default location.
@@ -10,14 +10,15 @@ On Linux/Mac this is ~/QtSDK, and on Windows this is C:\QtSDK.
 After installing the QtSDK you should use the package manager of the QtSDK (SDKMaintenanceTool) to add some more packages.
 You'll need at least Desktop Qt versions 4.7.4, 4.8.0, Harmattan stuff (except QEmu), Maemo Toolchain, Qt Examples, Simulator, Documentation files.
 
-Third - some of the test suites/test cases expect Qt 5.2.1 and Qt 5.3.1 installed in its default location.
-On Linux/Mac this is ~/Qt5.2.1 or ~/Qt5.3.1, and on Windows this is C:\Qt\Qt5.2.1 or C:\Qt\Qt5.3.1.
+Third - some of the test suites/test cases expect Qt 5.2.1 (default toolchain), Qt 5.3.1 (default toolchain) and Qt 5.4.1 (gcc, Linux and Windows only)
+installed in their default locations. On Linux/Mac this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. The default toolchains are gcc on Linux,
+clang on Mac and MSVC2010 on Windows.
 
 Fourth - you'll have to provide some additional repositories (and for the hooking into subprocesses even some more Squish bundles, see below).
 These additional repositories are located inside ~/QtSDK/src or C:\QtSDK\src (depending on the OS you're on).
 You can also just provide them inside a different folder and specify the folder with the environment variable SYSTEST_SRCPATH.
 This folder must contain the following:
- * a QtCreator repository (or source copy) of tag v3.2.0 named 'creator' including the submodule src/shared/qbs
+ * a QtCreator repository (or source copy) of tag v3.5.0 named 'creator' including the submodule src/shared/qbs
  * a subfolder called 'creator-test-data'
  * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
  * additional Squish versions for hooking into subprocesses inside different folders inside 'creator-test-data' following the information below
@@ -27,8 +28,8 @@ Fifth - you'll have to make sure that some needed tools are available (no matter
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
 
-Sixth - Qt Creator should be built with ClangCodeModel plugin.
-How to do so, see QTCREATOR_REPO/src/plugins/clangcodemodel/README.
+Sixth - Qt Creator should be built with ClangCodeModel plugin. How to do so, see QTCREATOR_REPO/src/plugins/clangcodemodel/README. Without the
+plugin, the tests for ClangCodeModel will be skipped but will not cause failures.
 
 Attention! If any of these prerequisites cannot be satisfied the tests will likely fail (or not run at all).
 

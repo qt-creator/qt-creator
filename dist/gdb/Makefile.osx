@@ -1,13 +1,12 @@
 broot=${PWD}
 source=${broot}/source
-targets=x86_64-unknown-linux-gnu i686-unknown-linux-gnu arm-none-linux-gnueabi x86_64-apple-darwin10
+targets=x86_64-unknown-linux-gnu,i686-unknown-linux-gnu,arm-none-linux-gnueabi,x86_64-apple-darwin10
 staging=${broot}/staging
 pyversion=2.7
 expatversion=2.1.0
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
-version=7.9
+version=7.10
 targetdir=${broot}/qtcreator-gdb-${version}
-gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
 
 all:package
@@ -67,17 +66,17 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.xz | makestagi
 	cd gdb-${version} && \
 	touch configure
 
-${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
-	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*
+${targetdir}/gdb: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
+	test -e ${staging}/gdb-${version}-build || mkdir ${staging}/gdb-${version}-build
 	export PYTHONHOME=${staging} && \
 	export PATH="${staging}/bin/:$$PATH" && \
-	cd ${staging}/gdb-${version}-$* && \
-	${staging}/gdb-${version}/configure --disable-nls --target=$* --with-separate-debug-dir="" \
+	cd ${staging}/gdb-${version}-build && \
+	${staging}/gdb-${version}/configure --disable-nls --enable-targets=${targets} --with-separate-debug-dir="" \
         --disable-werror --with-python=${staging} --with-libexpat-prefix=${staging} && \
 	${MAKE} MAKEFLAGS+=-j1 && \
-	strip -o ${targetdir}/gdb-$* gdb/gdb
+	strip -o ${targetdir}/gdb gdb/gdb
 
-package: ${gdbtargets} ${targetdir}/python/include/python${pyversion}/pyconfig.h
+package: ${targetdir}/gdb ${targetdir}/python/include/python${pyversion}/pyconfig.h
 	mv ${targetdir} ${targetdir}-${arch}
 	echo "Packing..."
 	tar czf ${packagename} qtcreator-gdb-${version}-${arch}

@@ -134,7 +134,7 @@ protected:
     const QString m_directory;
 
 private:
-    VcsCommand *m_command;
+    QPointer<VcsCommand> m_command;
 };
 
 BaseController::BaseController(IDocument *document, const QString &dir) :
@@ -158,8 +158,8 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
 
     m_command = new VcsCommand(m_directory, gitClient()->processEnvironment());
     m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(m_command, &VcsCommand::stdOutText, this, &BaseController::processOutput);
-    connect(m_command, &VcsCommand::finished, this, &BaseController::reloadFinished);
+    connect(m_command.data(), &VcsCommand::stdOutText, this, &BaseController::processOutput);
+    connect(m_command.data(), &VcsCommand::finished, this, &BaseController::reloadFinished);
     m_command->addFlags(diffExecutionFlags());
 
     foreach (const QStringList &arg, args) {
@@ -173,7 +173,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
 
 void BaseController::processDiff(const QString &output)
 {
-    m_command = 0;
+    m_command.clear();
 
     bool ok;
     QList<FileData> fileDataList = DiffUtils::readPatch(output, &ok);

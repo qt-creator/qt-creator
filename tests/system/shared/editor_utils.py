@@ -345,6 +345,7 @@ def validateSearchResult(expectedCount):
 # this function invokes context menu and command from it
 def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
+    snooze(1)
     if platform.system() == 'Darwin':
         activateItem(ctxtMenu, command1)
     else:

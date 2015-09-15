@@ -97,6 +97,8 @@ void QmlProjectNode::refresh()
             // plain old file format
             absoluteFilePath = fileInfo.filePath();
             relativeDirectory = m_project->projectDir().relativeFilePath(fileInfo.path());
+            if (relativeDirectory == QLatin1String("."))
+                relativeDirectory.clear();
         } else {
             absoluteFilePath = m_project->projectDir().absoluteFilePath(fileInfo.filePath());
             relativeDirectory = fileInfo.path();

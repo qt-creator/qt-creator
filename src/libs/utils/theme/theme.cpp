@@ -266,6 +266,7 @@ void Theme::readSettings(QSettings &settings)
     {
         d->name = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed")).toString();
         d->preferredStyles = settings.value(QLatin1String("PreferredStyles")).toStringList();
+        d->preferredStyles.removeAll(QLatin1String(""));
     }
     {
         settings.beginGroup(QLatin1String("Palette"));

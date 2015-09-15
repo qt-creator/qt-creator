@@ -48,6 +48,7 @@ def main():
     for con in connections:
         selectFromLocator("mainwindow.ui")
         openContextMenu(waitForObject(con[0]), 5, 5, 0)
+        snooze(1)
         # hack for Squish 5/Qt5.2 problems of handling menus on Mac - remove asap
         if platform.system() == 'Darwin':
             waitFor("macHackActivateContextMenuItem('Go to slot...', con[0])", 6000)
