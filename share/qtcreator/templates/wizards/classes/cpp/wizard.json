@@ -179,12 +179,20 @@
                 {
                     "source": "file.h",
                     "target": "%{HdrPath}",
-                    "openInEditor": true
+                    "openInEditor": true,
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{HdrFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
                 },
                 {
                     "source": "file.cpp",
                     "target": "%{SrcPath}",
-                    "openInEditor": true
+                    "openInEditor": true,
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{SrcFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
                 }
             ]
         }

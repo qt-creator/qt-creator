@@ -9,6 +9,8 @@
     "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
 
+    "options": { "key": "FileName", "value": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
+
     "pages" :
     [
         {
@@ -29,8 +31,9 @@
             "data":
             {
                 "source": "file.h",
-                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}",
-                "openInEditor": true
+                "target": "%{FileName}",
+                "openInEditor": true,
+                "options": { "key": "Cpp:License:FileName", "value": "%{JS: Util.completeBaseName('%{FileName}')}" }
             }
         }
     ]
