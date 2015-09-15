@@ -65,9 +65,9 @@ public:
     ~DeviceProcessSignalOperation() {}
     typedef QSharedPointer<DeviceProcessSignalOperation> Ptr;
 
-    virtual void killProcess(int pid) = 0;
+    virtual void killProcess(qint64 pid) = 0;
     virtual void killProcess(const QString &filePath) = 0;
-    virtual void interruptProcess(int pid) = 0;
+    virtual void interruptProcess(qint64 pid) = 0;
     virtual void interruptProcess(const QString &filePath) = 0;
 
     void setDebuggerCommand(const QString &cmd);

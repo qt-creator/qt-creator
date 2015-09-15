@@ -50,7 +50,7 @@
 
 namespace ProjectExplorer {
 
-void DesktopProcessSignalOperation::killProcess(int pid)
+void DesktopProcessSignalOperation::killProcess(qint64 pid)
 {
     killProcessSilently(pid);
     emit finished(m_errorMessage);
@@ -66,7 +66,7 @@ void DesktopProcessSignalOperation::killProcess(const QString &filePath)
     emit finished(m_errorMessage);
 }
 
-void DesktopProcessSignalOperation::interruptProcess(int pid)
+void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
 {
     m_errorMessage.clear();
     interruptProcessSilently(pid);
@@ -83,7 +83,7 @@ void DesktopProcessSignalOperation::interruptProcess(const QString &filePath)
     emit finished(m_errorMessage);
 }
 
-void DesktopProcessSignalOperation::appendMsgCannotKill(int pid, const QString &why)
+void DesktopProcessSignalOperation::appendMsgCannotKill(qint64 pid, const QString &why)
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
@@ -91,7 +91,7 @@ void DesktopProcessSignalOperation::appendMsgCannotKill(int pid, const QString &
     m_errorMessage += QLatin1Char(' ');
 }
 
-void DesktopProcessSignalOperation::appendMsgCannotInterrupt(int pid, const QString &why)
+void DesktopProcessSignalOperation::appendMsgCannotInterrupt(qint64 pid, const QString &why)
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
@@ -99,13 +99,13 @@ void DesktopProcessSignalOperation::appendMsgCannotInterrupt(int pid, const QStr
     m_errorMessage += QLatin1Char(' ');
 }
 
-void DesktopProcessSignalOperation::killProcessSilently(int pid)
+void DesktopProcessSignalOperation::killProcessSilently(qint64 pid)
 {
 #ifdef Q_OS_WIN
     const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
             |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
             |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
-    if (const HANDLE handle = OpenProcess(rights, FALSE, pid)) {
+    if (const HANDLE handle = OpenProcess(rights, FALSE, DWORD(pid))) {
         if (!TerminateProcess(handle, UINT(-1)))
             appendMsgCannotKill(pid, Utils::winErrorMessage(GetLastError()));
         CloseHandle(handle);
@@ -120,7 +120,7 @@ void DesktopProcessSignalOperation::killProcessSilently(int pid)
 #endif // Q_OS_WIN
 }
 
-void DesktopProcessSignalOperation::interruptProcessSilently(int pid)
+void DesktopProcessSignalOperation::interruptProcessSilently(qint64 pid)
 {
 #ifdef Q_OS_WIN
     enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };

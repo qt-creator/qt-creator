@@ -54,7 +54,7 @@ RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation()
     }
 }
 
-static QString signalProcessByPidCommandLine(int pid, int signal)
+static QString signalProcessByPidCommandLine(qint64 pid, int signal)
 {
     return QString::fromLatin1("kill -%1 %2").arg(signal).arg(pid);
 }
@@ -97,7 +97,7 @@ QString RemoteLinuxSignalOperation::interruptProcessByNameCommandLine(const QStr
     return signalProcessByNameCommandLine(filePath, 2);
 }
 
-void RemoteLinuxSignalOperation::killProcess(int pid)
+void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 {
     run(signalProcessByPidCommandLine(pid, 9));
 }
@@ -107,7 +107,7 @@ void RemoteLinuxSignalOperation::killProcess(const QString &filePath)
     run(killProcessByNameCommandLine(filePath));
 }
 
-void RemoteLinuxSignalOperation::interruptProcess(int pid)
+void RemoteLinuxSignalOperation::interruptProcess(qint64 pid)
 {
     run(signalProcessByPidCommandLine(pid, 2));
 }

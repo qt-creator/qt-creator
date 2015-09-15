@@ -41,17 +41,17 @@ class PROJECTEXPLORER_EXPORT DesktopProcessSignalOperation : public DeviceProces
     Q_OBJECT
 public:
     ~DesktopProcessSignalOperation() {}
-    void killProcess(int pid);
+    void killProcess(qint64 pid);
     void killProcess(const QString &filePath);
-    void interruptProcess(int pid);
+    void interruptProcess(qint64 pid);
     void interruptProcess(const QString &filePath);
 
 private:
-    void killProcessSilently(int pid);
-    void interruptProcessSilently(int pid);
+    void killProcessSilently(qint64 pid);
+    void interruptProcessSilently(qint64 pid);
 
-    void appendMsgCannotKill(int pid, const QString &why);
-    void appendMsgCannotInterrupt(int pid, const QString &why);
+    void appendMsgCannotKill(qint64 pid, const QString &why);
+    void appendMsgCannotInterrupt(qint64 pid, const QString &why);
 
 protected:
     explicit DesktopProcessSignalOperation() {}

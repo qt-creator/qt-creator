@@ -45,9 +45,9 @@ class AndroidSignalOperation : public ProjectExplorer::DeviceProcessSignalOperat
     Q_OBJECT
 public:
     ~AndroidSignalOperation() {}
-    void killProcess(int pid);
+    void killProcess(qint64 pid);
     void killProcess(const QString &filePath);
-    void interruptProcess(int pid);
+    void interruptProcess(qint64 pid);
     void interruptProcess(const QString &filePath);
 
 protected:
@@ -59,7 +59,7 @@ private slots:
     void handleTimeout();
 
 private:
-    void signalOperationViaADB(int pid, int signal);
+    void signalOperationViaADB(qint64 pid, int signal);
 
     QString m_adbPath;
     QProcess *m_adbProcess;
@@ -71,7 +71,7 @@ private:
         Kill
     } m_state;
 
-    int m_pid;
+    qint64 m_pid;
     int m_signal;
 
     friend class AndroidDevice;

@@ -115,7 +115,7 @@ void Android::Internal::AndroidSignalOperation::handleTimeout()
     emit finished(m_errorMessage);
 }
 
-void Android::Internal::AndroidSignalOperation::signalOperationViaADB(int pid, int signal)
+void Android::Internal::AndroidSignalOperation::signalOperationViaADB(qint64 pid, int signal)
 {
     QTC_ASSERT(m_state == Idle, return);
     m_adbProcess->disconnect(this);
@@ -131,7 +131,7 @@ void Android::Internal::AndroidSignalOperation::signalOperationViaADB(int pid, i
                         << QString::fromLatin1("/proc/%1/cmdline").arg(m_pid));
 }
 
-void Android::Internal::AndroidSignalOperation::killProcess(int pid)
+void Android::Internal::AndroidSignalOperation::killProcess(qint64 pid)
 {
     signalOperationViaADB(pid, 9);
 }
@@ -144,7 +144,7 @@ void Android::Internal::AndroidSignalOperation::killProcess(const QString &fileP
     emit finished(m_errorMessage);
 }
 
-void Android::Internal::AndroidSignalOperation::interruptProcess(int pid)
+void Android::Internal::AndroidSignalOperation::interruptProcess(qint64 pid)
 {
     signalOperationViaADB(pid, 2);
 }

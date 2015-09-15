@@ -49,9 +49,9 @@ class REMOTELINUX_EXPORT RemoteLinuxSignalOperation
 public:
     virtual ~RemoteLinuxSignalOperation();
 
-    void killProcess(int pid);
+    void killProcess(qint64 pid);
     void killProcess(const QString &filePath);
-    void interruptProcess(int pid);
+    void interruptProcess(qint64 pid);
     void interruptProcess(const QString &filePath);
 
 protected:
