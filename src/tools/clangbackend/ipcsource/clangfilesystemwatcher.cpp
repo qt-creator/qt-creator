@@ -69,7 +69,6 @@ void ClangFileSystemWatcher::addFiles(const QSet<Utf8String> &filePaths)
 void ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies(const QString &filePath)
 {
     translationUnits.updateTranslationUnitsWithChangedDependency(filePath);
-    watcher.addPath(filePath);
 
     emit fileChanged();
 }
