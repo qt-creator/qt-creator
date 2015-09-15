@@ -625,29 +625,28 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     setFlags(flags);
 
     // Options:
-    QVariant optionValue = data.value(QLatin1String(OPTIONS_KEY));
-    if (optionValue.type() == QVariant::List) {
-        foreach (const QVariant &v, optionValue.toList()) {
-            if (v.type() != QVariant::Map) {
-                *errorMessage = tr("List element of \"options\" is not an object.");
-                return false;
-            }
-            QVariantMap data = v.toMap();
-            const QString key = data.value(QStringLiteral("key"), QString()).toString();
-            const QString value = data.value(QStringLiteral("value"), QString()).toString();
-            if (key.isEmpty()) {
-                *errorMessage = tr("No \"key\" given for entry in \"options\".");
-                return false;
-            }
-            if (m_options.contains(key)) {
-                *errorMessage = tr("When parsing \"options\": Key \"%1\" set more than once.").arg(key);
-                return false;
-            }
-            m_options.insert(key, value);
-        }
-    } else if (optionValue.isValid()) {
-        *errorMessage = tr("Value for \"options\" is not a list.");
+    const QVariant optionValue = data.value(QLatin1String(OPTIONS_KEY));
+    const QVariantList optionList = objectOrList(optionValue, errorMessage);
+    if (optionList.isEmpty())
         return false;
+
+    foreach (const QVariant &v, optionList) {
+        if (v.type() != QVariant::Map) {
+            *errorMessage = tr("List element of \"options\" is not an object.");
+            return false;
+        }
+        QVariantMap data = v.toMap();
+        const QString key = data.value(QStringLiteral("key"), QString()).toString();
+        const QString value = data.value(QStringLiteral("value"), QString()).toString();
+        if (key.isEmpty()) {
+            *errorMessage = tr("No \"key\" given for entry in \"options\".");
+            return false;
+        }
+        if (m_options.contains(key)) {
+            *errorMessage = tr("When parsing \"options\": Key \"%1\" set more than once.").arg(key);
+            return false;
+        }
+        m_options.insert(key, value);
     }
 
     return true;
