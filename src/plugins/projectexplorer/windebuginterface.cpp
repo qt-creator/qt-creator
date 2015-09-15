@@ -144,21 +144,27 @@ bool WinDebugInterface::runLoop()
 
     QMap<qint64, QString> delayedMessages;
 
+    auto flushMessages = [&delayedMessages](){
+        auto it = delayedMessages.constBegin();
+        auto end = delayedMessages.constEnd();
+        for (; it != end; ++it)
+            emit debugOutput(it.key(), it.value());
+        delayedMessages.clear();
+        timer.start();
+    };
+
     while (true) {
         DWORD timeout = INFINITE;
         if (!delayedMessages.isEmpty()) // if we have delayed message, don't wait forever
             timeout = qMax(60 - timer.elapsed(), 1);
         const DWORD ret = WaitForMultipleObjects(HandleCount, m_waitHandles, FALSE, timeout);
 
-        if (ret == WAIT_FAILED || ret - WAIT_OBJECT_0 == TerminateEventHandle)
+        if (ret == WAIT_FAILED || ret - WAIT_OBJECT_0 == TerminateEventHandle) {
+            flushMessages();
             break;
+        }
         if (ret == WAIT_TIMEOUT) {
-            auto it = delayedMessages.constBegin();
-            auto end = delayedMessages.constEnd();
-            for (; it != end; ++it)
-                emit debugOutput(it.key(), it.value());
-            delayedMessages.clear();
-            timer.start();
+            flushMessages();
             SetEvent(m_bufferReadyEvent);
         } else if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
             if (*processId != m_creatorPid) {
@@ -166,12 +172,7 @@ bool WinDebugInterface::runLoop()
                     delayedMessages[*processId].append(QString::fromLocal8Bit(message));
                 } else {
                     delayedMessages[*processId] += QString::fromLocal8Bit(message);
-                    auto it = delayedMessages.constBegin();
-                    auto end = delayedMessages.constEnd();
-                    for (; it != end; ++it)
-                        emit debugOutput(it.key(), it.value());
-                    delayedMessages.clear();
-                    timer.start();
+                    flushMessages();
                 }
             }
             SetEvent(m_bufferReadyEvent);
