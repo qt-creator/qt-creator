@@ -34,12 +34,16 @@
 
 #include <QObject>
 #include <QList>
+#include <QLoggingCategory>
 
 #include <designdocument.h>
 
 namespace Core { class IEditor; }
-
+namespace ProjectExplorer { class Node; }
+namespace ProjectExplorer { class Project; }
 namespace QmlDesigner {
+
+Q_DECLARE_LOGGING_CATEGORY(documentManagerLog)
 
 class QMLDESIGNERCORE_EXPORT DocumentManager : public QObject
 {
@@ -58,6 +62,14 @@ public:
 
     static bool createFile(const QString &filePath, const QString &contents);
     static void addFileToVersionControl(const QString &directoryPath, const QString &newFilePath);
+    static Utils::FileName currentFilePath();
+
+    static QStringList isoIconsQmakeVariableValue(const QString &proPath);
+    static bool setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value);
+    static void findPathToIsoProFile(bool *iconResourceFileAlreadyExists, QString *resourceFilePath,
+        QString *resourceFileProPath, const QString &isoIconsQrcFile);
+    static bool isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath);
+    static bool addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath);
 
 private:
     QHash<Core::IEditor *,QPointer<DesignDocument> > m_designDocumentHash;

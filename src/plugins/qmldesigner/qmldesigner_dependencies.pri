@@ -8,7 +8,10 @@ QTC_PLUGIN_DEPENDS += \
     texteditor \
     qmljseditor \
     qtsupport \
-    projectexplorer
+    projectexplorer \
+    qmakeprojectmanager \
+    resourceeditor
+
 INCLUDEPATH *= \
     $$PWD \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces \
