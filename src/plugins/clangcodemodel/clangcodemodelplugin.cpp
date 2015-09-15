@@ -58,6 +58,11 @@ static void initializeTextMarks()
                                            Utils::Theme::ClangCodeModel_Error_TextMarkColor);
 }
 
+ClangCodeModelPlugin::ClangCodeModelPlugin()
+{
+    qRegisterMetaType<CppTools::ProjectPart::Ptr>();
+}
+
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)

@@ -88,6 +88,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
 {
+    connect(m_parser.data(), &ClangEditorDocumentParser::projectPartDetermined,
+            this, &ClangEditorDocumentProcessor::onParserDeterminedProjectPart);
+
     // Forwarding the semantic info from the builtin processor enables us to provide all
     // editor (widget) related features that are not yet implemented by the clang plugin.
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
@@ -231,9 +234,10 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPa
         && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartLoaded(projectPart));
 }
 
-void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
+void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
+        CppTools::ProjectPart::Ptr projectPart)
 {
-    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
+    QTC_ASSERT(projectPart, return);
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
         updateTranslationUnitForEditor(projectPart.data());
@@ -241,6 +245,12 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
 
         m_projectPart = projectPart;
     }
+}
+
+void ClangEditorDocumentProcessor::onParserDeterminedProjectPart(
+        CppTools::ProjectPart::Ptr projectPart)
+{
+    updateProjectPartAndTranslationUnitForEditor(projectPart);
 }
 
 void ClangEditorDocumentProcessor::onParserFinished()
@@ -254,8 +264,6 @@ void ClangEditorDocumentProcessor::onParserFinished()
 
     // Run semantic highlighter
     m_semanticHighlighter.run();
-
-    updateProjectPartAndTranslationUnitForEditor();
 }
 
 void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart)

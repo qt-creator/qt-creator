@@ -99,6 +99,7 @@ void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InM
     State state_ = state();
     state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
     setState(state_);
+    emit projectPartDetermined(state_.projectPart);
 
     // Determine message line arguments
     const QStringList options = createOptions(filePath(), state_.projectPart, true);
