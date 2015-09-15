@@ -75,25 +75,22 @@ public:
 private: ////////// General Interface //////////
     DebuggerEngine *cppEngine() override { return this; }
 
-    virtual void setupEngine() = 0;
     virtual void handleGdbStartFailed();
-    virtual void setupInferior() = 0;
-    virtual void notifyInferiorSetupFailed() override;
+    void notifyInferiorSetupFailed() override;
 
-    virtual bool hasCapability(unsigned) const override;
-    virtual void detachDebugger() override;
-    virtual void shutdownInferior() override;
-    virtual void shutdownEngine() = 0;
-    virtual void abortDebugger() override;
-    virtual void resetInferior() override;
+    bool hasCapability(unsigned) const override;
+    void detachDebugger() override;
+    void shutdownInferior() override;
+    void abortDebugger() override;
+    void resetInferior() override;
 
-    virtual bool acceptsDebuggerCommands() const override;
-    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    bool acceptsDebuggerCommands() const override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
 private: ////////// General State //////////
 
     DebuggerStartMode startMode() const;
-    Q_SLOT void reloadLocals();
+    void reloadLocals();
 
     bool m_registerNamesListed;
 
