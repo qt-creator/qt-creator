@@ -231,13 +231,13 @@ private:
     Utils::ParameterAction *m_applyCurrentFilePatchAction;
     Gerrit::Internal::GerritPlugin *m_gerritPlugin;
 
-    GitClient                   *m_gitClient;
-    QPointer<StashDialog>       m_stashDialog;
-    QPointer<BranchDialog>      m_branchDialog;
-    QPointer<RemoteDialog>      m_remoteDialog;
-    QString                     m_submitRepository;
-    QString                     m_commitMessageFileName;
-    bool                        m_submitActionTriggered;
+    GitClient *m_gitClient;
+    QPointer<StashDialog> m_stashDialog;
+    QPointer<BranchDialog> m_branchDialog;
+    QPointer<RemoteDialog> m_remoteDialog;
+    QString m_submitRepository;
+    QString m_commitMessageFileName;
+    bool m_submitActionTriggered;
 };
 
 } // namespace Internal
