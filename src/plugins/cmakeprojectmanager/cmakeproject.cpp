@@ -389,7 +389,7 @@ bool CMakeProject::needsConfiguration() const
 
 bool CMakeProject::requiresTargetPanel() const
 {
-    return false;
+    return !targets().isEmpty();
 }
 
 bool CMakeProject::isProjectFile(const FileName &fileName)

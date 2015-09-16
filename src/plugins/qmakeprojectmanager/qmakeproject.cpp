@@ -1363,7 +1363,7 @@ void QmakeProject::configureAsExampleProject(const QStringList &platforms)
 
 bool QmakeProject::requiresTargetPanel() const
 {
-    return false;
+    return !targets().isEmpty();
 }
 
 // All the Qmake run configurations should share code.

@@ -605,7 +605,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     unconfiguredProjectPanel->setPriority(-10);
     unconfiguredProjectPanel->setDisplayName(tr("Configure Project"));
     unconfiguredProjectPanel->setSupportsFunction([](Project *project){
-        return project->targets().isEmpty() && !project->requiresTargetPanel();
+        return project->needsConfiguration();
     });
     icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
     unconfiguredProjectPanel->setSimpleCreateWidgetFunction<TargetSetupPageWrapper>(icon);
@@ -616,8 +616,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     displayName = QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
     targetSettingsPanelFactory->setDisplayName(displayName);
     targetSettingsPanelFactory->setSupportsFunction([](Project *project) {
-        return !project->targets().isEmpty()
-                || project->requiresTargetPanel();
+        return project->requiresTargetPanel();
     });
     targetSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
         return new TargetSettingsPanelWidget(project);
