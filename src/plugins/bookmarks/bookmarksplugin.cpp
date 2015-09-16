@@ -197,7 +197,7 @@ void BookmarksPlugin::editorAboutToClose(IEditor *editor)
 void BookmarksPlugin::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
-    if (widget->textDocument()->isTemporary() || widget->textDocument()->property("DisassemblerView").toBool())
+    if (widget->textDocument()->isTemporary())
         return;
 
     m_bookmarkMarginActionLineNumber = lineNumber;
