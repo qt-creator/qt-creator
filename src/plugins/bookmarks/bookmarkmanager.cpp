@@ -436,15 +436,6 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
     return data;
 }
 
-void BookmarkManager::toggleBookmark(bool)
-{
-    IEditor *editor = EditorManager::currentEditor();
-    if (!editor)
-        return;
-
-    toggleBookmark(editor->document()->filePath().toString(), editor->currentLine());
-}
-
 void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
 {
     if (lineNumber <= 0)

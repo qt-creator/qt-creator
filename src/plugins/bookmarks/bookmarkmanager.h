@@ -95,7 +95,6 @@ public:
 
     void handleBookmarkTooltipRequest(Core::IEditor *editor, const QPoint &pos, int line);
 
-    void toggleBookmark(bool);
     void toggleBookmark(const QString &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
