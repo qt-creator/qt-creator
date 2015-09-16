@@ -204,7 +204,7 @@ ActionContainer *ActionManager::createMenu(Id id)
     MenuActionContainer *mc = new MenuActionContainer(id);
 
     d->m_idContainerMap.insert(id, mc);
-    connect(mc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
+    connect(mc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
 
     return mc;
 }
@@ -229,7 +229,7 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     mbc->setMenuBar(mb);
 
     d->m_idContainerMap.insert(id, mbc);
-    connect(mbc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
+    connect(mbc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
 
     return mbc;
 }
@@ -350,9 +350,9 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
     foreach (Command *c, commands()) {
         if (c->action()) {
             if (enabled)
-                connect(c->action(), SIGNAL(triggered()), d, SLOT(actionTriggered()));
+                connect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
             else
-                disconnect(c->action(), SIGNAL(triggered()), d, SLOT(actionTriggered()));
+                disconnect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
         }
     }
 
@@ -389,7 +389,7 @@ ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
     foreach (ActionContainerPrivate *container, m_idContainerMap)
-        disconnect(container, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
+        disconnect(container, &QObject::destroyed, this, &ActionManagerPrivate::containerDestroyed);
     qDeleteAll(m_idContainerMap);
     qDeleteAll(m_idCmdMap);
 }
@@ -467,7 +467,7 @@ Action *ActionManagerPrivate::overridableAction(Id id)
         a->setCurrentContext(m_context);
 
         if (ActionManager::isPresentationModeEnabled())
-            connect(a->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
+            connect(a->action(), &QAction::triggered, this, &ActionManagerPrivate::actionTriggered);
     }
 
     return a;
