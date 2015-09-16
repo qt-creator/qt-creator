@@ -1116,6 +1116,30 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExt
     QVERIFY(hasItem(proposal, "globalFromHeaderReloaded"));
 }
 
+void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExternally2()
+{
+    QSKIP("The file system watcher is doing it in backend process but we wait not long enough");
+
+    CppTools::Tests::TemporaryDir temporaryDir;
+    const TestDocument sourceDocument("mysource.cpp", &temporaryDir);
+    QVERIFY(sourceDocument.isCreatedAndHasValidCursorPosition());
+    const TestDocument headerDocument("myheader.h", &temporaryDir);
+    QVERIFY(headerDocument.isCreated());
+
+    // Open source and test completions
+    OpenEditorAtCursorPosition openSource(sourceDocument);
+    QVERIFY(openSource.succeeded());
+    ProposalModel proposal = completionResults(openSource.editor());
+    QVERIFY(hasItem(proposal, "globalFromHeader"));
+
+    // Simulate external modification, e.g version control checkout
+    QVERIFY(writeFile(headerDocument.filePath, "int globalFromHeaderReloaded;\n"));
+
+    // Retrigger completion and check if its updated
+    proposal = completionResults(openSource.editor());
+    QVERIFY(hasItem(proposal, "globalFromHeaderReloaded"));
+}
+
 void ClangCodeCompletionTest::testUnsavedFilesTrackingByCompletingUiObject()
 {
     CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));

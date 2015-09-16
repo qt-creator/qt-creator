@@ -65,6 +65,7 @@ private slots:
     void testUnsavedFilesTrackingByModifyingIncludedFileInCurrentEditor();
     void testUnsavedFilesTrackingByModifyingIncludedFileInNotCurrentEditor();
     void testUnsavedFilesTrackingByModifyingIncludedFileExternally();
+    void testUnsavedFilesTrackingByModifyingIncludedFileExternally2();
     void testUnsavedFilesTrackingByCompletingUiObject();
 
     void testUpdateBackendAfterRestart();
