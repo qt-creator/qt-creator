@@ -220,18 +220,10 @@ void KitManager::restoreKits()
     }
 
     Kit *k = find(userKits.defaultKit);
-    if (k) {
+    if (!k && !defaultKit())
+        k = Utils::findOrDefault(kitsToRegister + sdkKits, &Kit::isValid);
+    if (k)
         setDefaultKit(k);
-    } else if (!defaultKit()) {
-        k = Utils::findOrDefault(kitsToRegister, &Kit::isValid);
-        if (k) {
-            setDefaultKit(k);
-        } else {
-            k = Utils::findOrDefault(sdkKits, &Kit::isValid);
-            if (k)
-                setDefaultKit(k);
-        }
-    }
 
     d->m_writer = new PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
     d->m_initialized = true;
