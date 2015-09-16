@@ -91,8 +91,9 @@ namespace Internal {
     Aggregated in the QSharedData of VcsBase::VcsBasePluginState.
 */
 
-struct State
+class State
 {
+public:
     void clearFile();
     void clearPatchFile();
     void clearProject();

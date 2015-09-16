@@ -59,7 +59,7 @@ class IDocument;
 
 namespace VcsBase {
 
-namespace Internal { struct State; }
+namespace Internal { class State; }
 
 class VcsBaseSubmitEditor;
 class VcsBasePluginPrivate;
