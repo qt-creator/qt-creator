@@ -317,10 +317,11 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
             widget->setReadOnly(true);
             widget->setRequestMarkEnabled(true);
         }
-        // FIXME: This is accumulating quite a bit out-of-band data.
-        // Make that a proper TextDocument reimplementation.
         d->document = qobject_cast<TextDocument *>(editor->document());
         QTC_ASSERT(d->document, return);
+        d->document->setTemporary(true);
+        // FIXME: This is accumulating quite a bit out-of-band data.
+        // Make that a proper TextDocument reimplementation.
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName());
