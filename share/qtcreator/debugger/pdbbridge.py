@@ -203,6 +203,19 @@ class Dumper:
 
         self.commands = {} # associates a command list to breakpoint numbers
 
+    # Hex decoding operating on str, return str.
+    def hexdecode(self, s):
+        if sys.version_info[0] == 2:
+            return s.decode("hex")
+        return bytes.fromhex(s).decode("utf8")
+
+    # Hex encoding operating on str or bytes, return str.
+    def hexencode(self, s):
+        if sys.version_info[0] == 2:
+            return s.encode("hex")
+        if isinstance(s, str):
+            s = s.encode("utf8")
+        return base64.b16encode(s).decode("utf8")
     def canonic(self, filename):
         if filename == "<" + filename[1:-1] + ">":
             return filename
@@ -1393,7 +1406,6 @@ class Dumper:
         self.expandedINames = set(args.get("expanded", []))
         self.typeformats = args.get("typeformats", {})
         self.formats = args.get("formats", {})
-        self.watchers = args.get("watchers", {})
         self.output = ""
 
         frameNr = args.get("frame", 0)
@@ -1416,6 +1428,23 @@ class Dumper:
             if var.startswith('.'):
                 var = "@arg" + var[1:]
             self.dumpValue(value, var, "local.%s" % var)
+
+        for watcher in args.get("watchers", []):
+            iname = watcher['iname']
+            exp = self.hexdecode(watcher['exp'])
+            exp = str(exp).strip()
+            escapedExp = self.hexencode(exp)
+            self.put("{")
+            self.putField("iname", iname)
+            self.putField("wname", escapedExp)
+            try:
+                res = eval(exp, {}, frame.f_locals)
+                self.putValue(res)
+            except:
+                self.putValue("<unavailable>")
+            self.put("}")
+            #self.dumpValue(eval(value), escapedExp, iname)
+
         self.output += '}'
         self.output += '{frame="%s"}' % frameNr
         self.flushOutput()
