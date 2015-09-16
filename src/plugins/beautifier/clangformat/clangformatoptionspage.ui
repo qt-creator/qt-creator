@@ -73,8 +73,11 @@
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="formatEntireFileFallback">
+        <property name="toolTip">
+         <string>For action Format Selected Text</string>
+        </property>
         <property name="text">
-         <string>Format entire file if no text was selected. (For action Format Selected Text)</string>
+         <string>Format entire file if no text was selected</string>
         </property>
        </widget>
       </item>

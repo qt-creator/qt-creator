@@ -51,6 +51,7 @@ const QString kUseOtherFiles = QLatin1String("useOtherFiles");
 const QString kUseHomeFile = QLatin1String("useHomeFile");
 const QString kUseCustomStyle = QLatin1String("useCustomStyle");
 const QString kCustomStyle = QLatin1String("customStyle");
+const QString kFormatEntireFileFallback = QLatin1String("formatEntireFileFallback");
 }
 
 UncrustifySettings::UncrustifySettings() :
@@ -61,6 +62,7 @@ UncrustifySettings::UncrustifySettings() :
     m_settings.insert(kUseHomeFile, QVariant(false));
     m_settings.insert(kUseCustomStyle, QVariant(false));
     m_settings.insert(kCustomStyle, QVariant());
+    m_settings.insert(kFormatEntireFileFallback, QVariant(true));
     read();
 }
 
@@ -102,6 +104,16 @@ QString UncrustifySettings::customStyle() const
 void UncrustifySettings::setCustomStyle(const QString &customStyle)
 {
     m_settings.insert(kCustomStyle, QVariant(customStyle));
+}
+
+bool UncrustifySettings::formatEntireFileFallback() const
+{
+    return m_settings.value(kFormatEntireFileFallback).toBool();
+}
+
+void UncrustifySettings::setFormatEntireFileFallback(bool formatEntireFileFallback)
+{
+    m_settings.insert(kFormatEntireFileFallback, QVariant(formatEntireFileFallback));
 }
 
 QString UncrustifySettings::documentationFilePath() const

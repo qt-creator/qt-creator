@@ -145,6 +145,8 @@ void Uncrustify::formatSelectedText()
         tc.movePosition(QTextCursor::EndOfLine);
         const int endPos = tc.position();
         m_beautifierPlugin->formatCurrentFile(command(cfgFileName, true), startPos, endPos);
+    } else if (m_settings->formatEntireFileFallback()) {
+        formatFile();
     }
 }
 

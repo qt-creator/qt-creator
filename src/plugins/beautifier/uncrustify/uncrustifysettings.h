@@ -55,6 +55,9 @@ public:
     QString customStyle() const;
     void setCustomStyle(const QString &customStyle);
 
+    bool formatEntireFileFallback() const;
+    void setFormatEntireFileFallback(bool formatEntireFileFallback);
+
     QString documentationFilePath() const override;
     void createDocumentationFile() const override;
 };

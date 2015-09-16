@@ -74,6 +74,7 @@ void UncrustifyOptionsPageWidget::restore()
     ui->useHomeFile->setChecked(m_settings->useHomeFile());
     ui->useCustomStyle->setChecked(m_settings->useCustomStyle());
     ui->configurations->setCurrentConfiguration(m_settings->customStyle());
+    ui->formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
 }
 
 void UncrustifyOptionsPageWidget::apply()
@@ -83,6 +84,7 @@ void UncrustifyOptionsPageWidget::apply()
     m_settings->setUseHomeFile(ui->useHomeFile->isChecked());
     m_settings->setUseCustomStyle(ui->useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
+    m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
     m_settings->save();
 }
 
