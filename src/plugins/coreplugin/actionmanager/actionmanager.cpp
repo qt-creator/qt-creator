@@ -380,11 +380,6 @@ void ActionManager::setContext(const Context &context)
     \internal
 */
 
-ActionManagerPrivate::ActionManagerPrivate() :
-    m_presentationModeEnabled(false)
-{
-}
-
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion

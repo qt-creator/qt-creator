@@ -61,7 +61,6 @@ public:
     typedef QHash<Id, Action *> IdCmdMap;
     typedef QHash<Id, ActionContainerPrivate *> IdContainerMap;
 
-    explicit ActionManagerPrivate();
     ~ActionManagerPrivate();
 
     void setContext(const Context &context);
@@ -76,19 +75,16 @@ public:
 
     void readUserSettings(Id id, Action *cmd);
 
-public slots:
     void containerDestroyed();
-
     void actionTriggered();
 
-public:
     IdCmdMap m_idCmdMap;
 
     IdContainerMap m_idContainerMap;
 
     Context m_context;
 
-    bool m_presentationModeEnabled;
+    bool m_presentationModeEnabled = false;
 };
 
 } // namespace Internal
