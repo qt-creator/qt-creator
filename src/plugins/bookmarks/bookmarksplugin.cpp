@@ -189,8 +189,8 @@ void BookmarksPlugin::editorOpened(IEditor *editor)
 void BookmarksPlugin::editorAboutToClose(IEditor *editor)
 {
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
-        connect(widget, &TextEditorWidget::markContextMenuRequested,
-                this, &BookmarksPlugin::requestContextMenu);
+        disconnect(widget, &TextEditorWidget::markContextMenuRequested,
+                   this, &BookmarksPlugin::requestContextMenu);
     }
 }
 
