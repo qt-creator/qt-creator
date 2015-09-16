@@ -49,6 +49,7 @@ namespace Debugger {
 namespace Internal {
 
 #define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
+#define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -207,7 +208,7 @@ void GdbCoreEngine::writeCoreChunk()
 
 void GdbCoreEngine::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    CHECK_STATE(InferiorSetupRequested);
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
@@ -217,7 +218,7 @@ void GdbCoreEngine::setupInferior()
 
 void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    CHECK_STATE(InferiorSetupRequested);
     QString core = coreFileName();
     if (response.resultClass == ResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
@@ -234,13 +235,13 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 
 void GdbCoreEngine::runEngine()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    CHECK_STATE(EngineRunRequested);
     postCommand("target core " + coreFileName().toLocal8Bit(), NoFlags, CB(handleTargetCore));
 }
 
 void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    CHECK_STATE(EngineRunRequested);
     notifyEngineRunOkAndInferiorUnrunnable();
     if (response.resultClass == ResultDone) {
         showMessage(tr("Attached to core."), StatusBar);
@@ -258,6 +259,7 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
 
 void GdbCoreEngine::handleRoundTrip(const DebuggerResponse &response)
 {
+    CHECK_STATE(InferiorUnrunnable);
     Q_UNUSED(response);
     loadSymbolsForStack();
     handleStop2();
