@@ -67,18 +67,105 @@ using namespace TextEditor;
 namespace Beautifier {
 namespace Internal {
 
-BeautifierPlugin::BeautifierPlugin() :
-    m_asyncFormatMapper(new QSignalMapper)
+FormatTask format(FormatTask task)
 {
-    connect(m_asyncFormatMapper,
-            static_cast<void (QSignalMapper::*)(QObject *)>(&QSignalMapper::mapped),
-            this, &BeautifierPlugin::formatCurrentFileContinue);
-    connect(this, &BeautifierPlugin::pipeError, this, &BeautifierPlugin::showError);
+    task.error.clear();
+    task.formattedData.clear();
+
+    const QString executable = task.command.executable();
+    if (executable.isEmpty())
+        return task;
+
+    switch (task.command.processing()) {
+    case Command::FileProcessing: {
+        // Save text to temporary file
+        const QFileInfo fi(task.filePath);
+        Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
+                                        + fi.suffix());
+        sourceFile.setAutoRemove(true);
+        sourceFile.write(task.sourceData.toUtf8());
+        if (!sourceFile.finalize()) {
+            task.error = QObject::tr("Cannot create temporary file \"%1\": %2.")
+                    .arg(sourceFile.fileName()).arg(sourceFile.errorString());
+            return task;
+        }
+
+        // Format temporary file
+        QProcess process;
+        QStringList options = task.command.options();
+        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
+        process.start(executable, options);
+        if (!process.waitForFinished(5000)) {
+            process.kill();
+            task.error = QObject::tr("Cannot call %1 or some other error occurred. Time out "
+                                     "reached while formatting file %2.")
+                    .arg(executable).arg(task.filePath);
+            return task;
+        }
+        const QByteArray output = process.readAllStandardError();
+        if (!output.isEmpty())
+            task.error = executable + QLatin1String(": ") + QString::fromUtf8(output);
+
+        // Read text back
+        Utils::FileReader reader;
+        if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
+            task.error = QObject::tr("Cannot read file \"%1\": %2.")
+                    .arg(sourceFile.fileName()).arg(reader.errorString());
+            return task;
+        }
+        task.formattedData = QString::fromUtf8(reader.data());
+        return task;
+    } break;
+
+    case Command::PipeProcessing: {
+        QProcess process;
+        QStringList options = task.command.options();
+        options.replaceInStrings(QLatin1String("%file"), task.filePath);
+        process.start(executable, options);
+        if (!process.waitForStarted(3000)) {
+            task.error = QObject::tr("Cannot call %1 or some other error occurred.")
+                    .arg(executable);
+            return task;
+        }
+        process.write(task.sourceData.toUtf8());
+        process.closeWriteChannel();
+        if (!process.waitForFinished(5000)) {
+            process.kill();
+            task.error = QObject::tr("Cannot call %1 or some other error occurred. Time out "
+                                     "reached while formatting file %2.")
+                    .arg(executable).arg(task.filePath);
+            return task;
+        }
+        const QByteArray errorText = process.readAllStandardError();
+        if (!errorText.isEmpty()) {
+            task.error = QString::fromLatin1("%1: %2").arg(executable)
+                    .arg(QString::fromUtf8(errorText));
+            return task;
+        }
+
+        const bool addsNewline = task.command.pipeAddsNewline();
+        const bool returnsCRLF = task.command.returnsCRLF();
+        if (addsNewline || returnsCRLF) {
+            task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
+            if (addsNewline)
+                task.formattedData.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
+            if (returnsCRLF)
+                task.formattedData.replace(QLatin1String("\r\n"), QLatin1String("\n"));
+            return task;
+        }
+        task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
+        return task;
+    }
+    }
+
+    return task;
 }
 
-BeautifierPlugin::~BeautifierPlugin()
+QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
 {
-    m_asyncFormatMapper->deleteLater();
+    return (startPos < 0)
+            ? editor->toPlainText()
+            : Convenience::textAt(editor->textCursor(), startPos, (endPos - startPos));
 }
 
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -126,147 +213,65 @@ void BeautifierPlugin::updateActions(Core::IEditor *editor)
         tool->updateActions(editor);
 }
 
-// Use pipeError() instead of calling showError() because this function may run in another thread.
-QString BeautifierPlugin::format(const QString &text, const Command &command,
-                                 const QString &fileName, bool *timeout)
+void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
 {
-    const QString executable = command.executable();
-    if (executable.isEmpty())
-        return QString();
-
-    switch (command.processing()) {
-    case Command::FileProcessing: {
-        // Save text to temporary file
-        const QFileInfo fi(fileName);
-        Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
-                                        + fi.suffix());
-        sourceFile.setAutoRemove(true);
-        sourceFile.write(text.toUtf8());
-        if (!sourceFile.finalize()) {
-            emit pipeError(tr("Cannot create temporary file \"%1\": %2.")
-                           .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
-            return QString();
-        }
-
-        // Format temporary file
-        QProcess process;
-        QStringList options = command.options();
-        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
-        process.start(executable, options);
-        if (!process.waitForFinished(5000)) {
-            if (timeout)
-                *timeout = true;
-            process.kill();
-            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
-            return QString();
-        }
-        const QByteArray output = process.readAllStandardError();
-        if (!output.isEmpty())
-            emit pipeError(executable + QLatin1String(": ") + QString::fromUtf8(output));
-
-        // Read text back
-        Utils::FileReader reader;
-        if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
-            emit pipeError(tr("Cannot read file \"%1\": %2.")
-                           .arg(sourceFile.fileName()).arg(reader.errorString()));
-            return QString();
-        }
-        return QString::fromUtf8(reader.data());
-    } break;
-
-    case Command::PipeProcessing: {
-        QProcess process;
-        QStringList options = command.options();
-        options.replaceInStrings(QLatin1String("%file"), fileName);
-        process.start(executable, options);
-        if (!process.waitForStarted(3000)) {
-            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
-            return QString();
-        }
-        process.write(text.toUtf8());
-        process.closeWriteChannel();
-        if (!process.waitForFinished(5000)) {
-            if (timeout)
-                *timeout = true;
-            process.kill();
-            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
-            return QString();
-        }
-        const QByteArray errorText = process.readAllStandardError();
-        if (!errorText.isEmpty()) {
-            emit pipeError(QString::fromLatin1("%1: %2").arg(executable)
-                           .arg(QString::fromUtf8(errorText)));
-            return QString();
-        }
-
-        const bool addsNewline = command.pipeAddsNewline();
-        const bool returnsCRLF = command.returnsCRLF();
-        if (addsNewline || returnsCRLF) {
-            QString formatted = QString::fromUtf8(process.readAllStandardOutput());
-            if (addsNewline)
-                formatted.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
-            if (returnsCRLF)
-                formatted.replace(QLatin1String("\r\n"), QLatin1String("\n"));
-            return formatted;
-        }
-        return QString::fromUtf8(process.readAllStandardOutput());
-    }
-    }
-
-    return QString();
+    if (TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget())
+        formatEditorAsync(editor, command, startPos, endPos);
 }
 
-void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
+/**
+ * Formats the text of @a editor using @a command. @a startPos and @a endPos specifies the range of
+ * the editor's text that will be formatted. If @a startPos is negative the editor's entire text is
+ * formatted.
+ *
+ * @pre @a endPos must be greater than or equal to @a startPos
+ */
+void BeautifierPlugin::formatEditor(TextEditorWidget *editor, const Command &command, int startPos,
+                                    int endPos)
 {
     QTC_ASSERT(startPos <= endPos, return);
 
-    if (TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget()) {
-        if (const TextDocument *doc = widget->textDocument()) {
-            const QString sourceData = (startPos < 0)
-                    ? widget->toPlainText()
-                    : Convenience::textAt(widget->textCursor(), startPos, (endPos - startPos));
-            if (sourceData.isEmpty())
-                return;
-            const FormatTask task = FormatTask(widget, doc->filePath().toString(), sourceData,
-                                               command, startPos, endPos);
-
-            QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
-            connect(doc, &TextDocument::contentsChanged,
-                    watcher, &QFutureWatcher<FormatTask>::cancel);
-            connect(watcher, &QFutureWatcherBase::finished, m_asyncFormatMapper,
-                    static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
-            m_asyncFormatMapper->setMapping(watcher, watcher);
-            watcher->setFuture(Utils::runAsync(&BeautifierPlugin::formatAsync, this, task));
-        }
-    }
+    const QString sd = sourceData(editor, startPos, endPos);
+    if (sd.isEmpty())
+        return;
+    checkAndApplyTask(format(FormatTask(editor, editor->textDocument()->filePath().toString(), sd,
+                                        command, startPos, endPos)));
 }
 
-void BeautifierPlugin::formatAsync(QFutureInterface<FormatTask> &future, FormatTask task)
+/**
+ * Behaves like formatEditor except that the formatting is done asynchronously.
+ */
+void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command &command,
+                                         int startPos, int endPos)
 {
-    task.formattedData = format(task.sourceData, task.command, task.filePath, &task.timeout);
-    future.reportResult(task);
+    QTC_ASSERT(startPos <= endPos, return);
+
+    const QString sd = sourceData(editor, startPos, endPos);
+    if (sd.isEmpty())
+        return;
+
+    QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
+    const TextDocument *doc = editor->textDocument();
+    connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
+    connect(watcher, &QFutureWatcherBase::finished, [this, watcher]() {
+        if (watcher->isCanceled())
+            showError(tr("File was modified."));
+        else
+            checkAndApplyTask(watcher->result());
+        watcher->deleteLater();
+    });
+    watcher->setFuture(Utils::runAsync(&format, FormatTask(editor, doc->filePath().toString(), sd,
+                                                           command, startPos, endPos)));
 }
 
-void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
+/**
+ * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
+ * the respective members of @a task.
+ */
+void BeautifierPlugin::checkAndApplyTask(const FormatTask &task)
 {
-    QFutureWatcher<FormatTask> *futureWatcher = static_cast<QFutureWatcher<FormatTask>*>(watcher);
-    if (!futureWatcher) {
-        if (watcher)
-            watcher->deleteLater();
-        return;
-    }
-
-    if (futureWatcher->isCanceled()) {
-        showError(tr("File was modified."));
-        futureWatcher->deleteLater();
-        return;
-    }
-
-    const FormatTask task = futureWatcher->result();
-    futureWatcher->deleteLater();
-
-    if (task.timeout) {
-        showError(tr("Time out reached while formatting file %1.").arg(task.filePath));
+    if (!task.error.isEmpty()) {
+        showError(task.error);
         return;
     }
 
@@ -281,19 +286,33 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
         return;
     }
 
-    const QString sourceData = textEditor->toPlainText();
     const QString formattedData = (task.startPos < 0)
             ? task.formattedData
-            : QString(sourceData).replace(task.startPos, (task.endPos - task.startPos),
-                                          task.formattedData);
-    if (sourceData == formattedData)
+            : QString(textEditor->toPlainText()).replace(
+                  task.startPos, (task.endPos - task.startPos), task.formattedData);
+
+    updateEditorText(textEditor, formattedData);
+}
+
+/**
+ * Sets the text of @a editor to @a text. Instead of replacing the entire text, however, only the
+ * actually changed parts are updated while preserving the cursor position, the folded
+ * blocks, and the scroll bar position.
+ */
+void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &text)
+{
+    const QString editorText = editor->toPlainText();
+    if (editorText == text)
         return;
 
+    // Calculate diff
+    DiffEditor::Differ differ;
+    const QList<DiffEditor::Diff> diff = differ.diff(editorText, text);
 
     // Since QTextCursor does not work properly with folded blocks, all blocks must be unfolded.
     // To restore the current state at the end, keep track of which block is folded.
     QList<int> foldedBlocks;
-    QTextBlock block = textEditor->document()->firstBlock();
+    QTextBlock block = editor->document()->firstBlock();
     while (block.isValid()) {
         if (const TextBlockUserData *userdata = static_cast<TextBlockUserData *>(block.userData())) {
             if (userdata->folded()) {
@@ -303,18 +322,14 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
         }
         block = block.next();
     }
-    textEditor->update();
+    editor->update();
 
     // Save the current viewport position of the cursor to ensure the same vertical position after
     // the formatted text has set to the editor.
-    int absoluteVerticalCursorOffset = textEditor->cursorRect().y();
-
-    // Calculate diff
-    DiffEditor::Differ differ;
-    const QList<DiffEditor::Diff> diff = differ.diff(sourceData, formattedData);
+    int absoluteVerticalCursorOffset = editor->cursorRect().y();
 
     // Update changed lines and keep track of the cursor position
-    QTextCursor cursor = textEditor->textCursor();
+    QTextCursor cursor = editor->textCursor();
     int charactersInfrontOfCursor = cursor.position();
     int newCursorPos = charactersInfrontOfCursor;
     cursor.beginEditBlock();
@@ -381,22 +396,22 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     }
     cursor.endEditBlock();
     cursor.setPosition(newCursorPos);
-    textEditor->setTextCursor(cursor);
+    editor->setTextCursor(cursor);
 
     // Adjust vertical scrollbar
-    absoluteVerticalCursorOffset = textEditor->cursorRect().y() - absoluteVerticalCursorOffset;
-    const double fontHeight = QFontMetrics(textEditor->document()->defaultFont()).height();
-    textEditor->verticalScrollBar()->setValue(textEditor->verticalScrollBar()->value()
+    absoluteVerticalCursorOffset = editor->cursorRect().y() - absoluteVerticalCursorOffset;
+    const double fontHeight = QFontMetrics(editor->document()->defaultFont()).height();
+    editor->verticalScrollBar()->setValue(editor->verticalScrollBar()->value()
                                               + absoluteVerticalCursorOffset / fontHeight);
     // Restore folded blocks
-    const QTextDocument *doc = textEditor->document();
+    const QTextDocument *doc = editor->document();
     foreach (const int blockId, foldedBlocks) {
         const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
             TextDocumentLayout::doFoldOrUnfold(block, false);
     }
 
-    textEditor->document()->setModified(true);
+    editor->document()->setModified(true);
 }
 
 void BeautifierPlugin::showError(const QString &error)
