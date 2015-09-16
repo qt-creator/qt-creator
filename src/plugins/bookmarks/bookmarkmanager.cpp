@@ -438,7 +438,7 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
 
 void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
 {
-    if (lineNumber <= 0)
+    if (lineNumber <= 0 || fileName.isEmpty())
         return;
 
     // Remove any existing bookmark on this line
