@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env python
 #############################################################################
 ##
 ## Copyright (C) 2015 The Qt Company Ltd.
@@ -21,7 +21,7 @@
 ## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
 ## following information to ensure the GNU Lesser General Public License
 ## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-# http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
 ## In addition, as a special exception, The Qt Company gives you certain additional
 ## rights.  These rights are described in The Qt Company LGPL Exception
@@ -34,39 +34,50 @@
 # Each images is generated as normal and high resolution variant.
 # Each png file is afterwards optimized with optipng.
 
-cd `dirname $0`
+import sys, os, subprocess, xml.etree.ElementTree as ET
+from distutils import spawn
+
+scriptDir = os.path.dirname(os.path.abspath(sys.argv[0])) + '/'
 
 # QTC_SRC is expected to point to the source root of Qt Creator
-if [ -z "$QTC_SRC" ]; then
-    QTC_SRC=$(cd ../../..; pwd)
-fi
+qtcSourceRoot = os.getenv('QTC_SRC', os.path.abspath(scriptDir + '../../..')) \
+    .replace('\\', '/') + '/'
 
 # Inkscape is required by this script
-if ! hash inkscape 2>/dev/null; then
-    echo "Inkscape was not found in PATH" >&2
-    exit 1
-fi
+inkscapeExecutable = spawn.find_executable("inkscape")
+if not inkscapeExecutable:
+    sys.stderr.write("Inkscape was not found in PATH\n")
+    sys.exit(1)
 
 # The svg element IDs of images to export. They correspond to the
 # path and base name of each image in the Qt Creator sources.
-ids=$(sed -n 's,^[[:space:]]*id="\(\(src\|share\)/[^"]*\)".*$,\1,p' qtcreatoricons.svg)
+svgIDs = []
+svgTree = ET.ElementTree()
+svgTree.parse(scriptDir + "qtcreatoricons.svg")
+svgTreeRoot = svgTree.getroot()
+for svgElement in svgTreeRoot.iter():
+    try:
+        svgElementID = svgElement.attrib['id']
+        if svgElementID.startswith(('src/', 'share/')):
+            svgIDs.append(svgElementID)
+    except:
+        pass
 
 # The shell mode of Inkscape is used to execute several export commands
-# with one launch of Inkscape. The commands are first all written into a
-# file "inkscape_commands" and then piped into Inkscape's shell.
-for i in $ids; do
-    # The normal resolution (default = 90 dpi)
-    echo "qtcreatoricons.svg --export-id=$i --export-id-only --export-png=$QTC_SRC/$i.png"
-    # The "@2x" resolution
-    echo "qtcreatoricons.svg --export-id=$i --export-id-only --export-png=$QTC_SRC/$i@2x.png --export-dpi=180"
-done | inkscape --shell
+# with one launch of Inkscape.
+inkscapeShellCommands = ""
+for id in svgIDs:
+    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + ".png\n"
+    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + "@2x.png --export-dpi=180\n"
+inkscapeShellCommands += "quit\n"
+inkscapeProcess = subprocess.Popen(['inkscape', '--shell'], stdin=subprocess.PIPE, shell=True, cwd=scriptDir)
+inkscapeProcess.communicate(input=inkscapeShellCommands.encode())
 
-if hash optipng 2>/dev/null; then
-    # Optimizing pngs via optipng
-    for i in $ids; do
-        optipng -o7 -strip "all" $QTC_SRC/$i.png
-        optipng -o7 -strip "all" $QTC_SRC/$i@2x.png
-    done
-else
-    echo "optipng was not found in PATH. Please do not push the unoptimized .pngs to the main repository." >&2
-fi
+# Optimizing pngs via optipng
+optipngExecutable = spawn.find_executable("optipng")
+if not optipngExecutable:
+    sys.stderr.write("optipng was not found in PATH. Please do not push the unoptimized .pngs to the main repository.\n")
+else:
+    for id in svgIDs:
+        subprocess.call(["optipng", "-o7", "-strip", "all", qtcSourceRoot + id + ".png"])
+        subprocess.call(["optipng", "-o7", "-strip", "all", qtcSourceRoot + id + "@2x.png"])
