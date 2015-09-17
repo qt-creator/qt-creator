@@ -56,7 +56,8 @@ JsonWizard::JsonWizard(QWidget *parent) :
         *ret = stringValue(name);
         return !ret->isNull();
     });
-    m_expander.registerPrefix("Exists", tr("Check whether a variable exists. Returns \"true\" if it does and an empty string if not."),
+    m_expander.registerPrefix("Exists", tr("Check whether a variable exists.<br>"
+                                           "Returns \"true\" if it does and an empty string if not."),
                    [this](const QString &value) -> QString
     {
         const QString key = QString::fromLatin1("%{") + value + QLatin1Char('}');

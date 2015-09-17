@@ -119,8 +119,8 @@ void QtSupportPlugin::extensionsInitialized()
         []() { return qmakeProperty("QT_HOST_BINS"); });
 
     expander->registerVariable(kInstallBins,
-        tr("Full path to the target bin directory of the current project's Qt version."
-           " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
+        tr("Full path to the target bin directory of the current project's Qt version.<br>"
+           "You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
         []() { return qmakeProperty("QT_INSTALL_BINS"); });
 }
 
