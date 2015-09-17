@@ -535,6 +535,13 @@ bool AppOutputPane::closeTabs(CloseTabMode mode)
     return allClosed;
 }
 
+QList<RunControl *> AppOutputPane::allRunControls() const
+{
+    return Utils::transform(m_runControlTabs,[](const RunControlTab &tab) {
+        return tab.runControl;
+    });
+}
+
 bool AppOutputPane::closeTab(int index)
 {
     return closeTab(index, CloseTabWithPrompt);

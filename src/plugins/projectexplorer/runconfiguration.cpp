@@ -521,7 +521,11 @@ RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode)
     if (runConfiguration) {
         m_displayName  = runConfiguration->displayName();
         m_outputFormatter = runConfiguration->createOutputFormatter();
+
+        if (runConfiguration->target())
+            m_project = m_runConfiguration->target()->project();
     }
+
     // We need to ensure that there's always a OutputFormatter
     if (!m_outputFormatter)
         m_outputFormatter = new Utils::OutputFormatter();
@@ -557,6 +561,11 @@ Abi RunControl::abi() const
 RunConfiguration *RunControl::runConfiguration() const
 {
     return m_runConfiguration.data();
+}
+
+Project *RunControl::project() const
+{
+    return m_project.data();
 }
 
 ProcessHandle RunControl::applicationProcessHandle() const

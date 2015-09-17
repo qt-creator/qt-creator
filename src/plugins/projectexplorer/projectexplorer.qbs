@@ -153,6 +153,7 @@ QtcPlugin {
             "toolchainoptionspage.cpp", "toolchainoptionspage.h",
             "unconfiguredprojectpanel.cpp", "unconfiguredprojectpanel.h",
             "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
+            "waitforstopdialog.cpp", "waitforstopdialog.h",
             "xcodebuildparser.cpp", "xcodebuildparser.h"
         ]
     }

@@ -92,6 +92,7 @@
 #include "devicesupport/devicesettingspage.h"
 #include "targetsettingspanel.h"
 #include "projectpanelfactory.h"
+#include "waitforstopdialog.h"
 
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
@@ -1160,6 +1161,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toByteArray());
     if (dd->m_projectExplorerSettings.environmentId.isNull())
         dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
+    int tmp = s->value(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"),
+                            Utils::HostOsInfo::isWindowsHost() ? 1 : 0).toInt();
+    dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
+    if (tmp < 0 || tmp > ProjectExplorerSettings::StopAll)
+        tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
+
+    dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
 
     connect(dd->m_sessionManagerAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::showSessionManager);
@@ -1646,6 +1654,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
     s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), dd->m_projectExplorerSettings.maxAppOutputLines);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());
+    s->setValue(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"), dd->m_projectExplorerSettings.stopBeforeBuild);
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
@@ -2292,6 +2301,46 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
 
     if (!m_instance->saveModifiedFiles())
         return -1;
+
+    if (m_projectExplorerSettings.stopBeforeBuild != ProjectExplorerSettings::StopNone) {
+        QList<RunControl *> toStop;
+        foreach (RunControl *rc, m_outputPane->allRunControls()) {
+            if (rc->isRunning()
+                    && (m_projectExplorerSettings.stopBeforeBuild == ProjectExplorerSettings::StopAll
+                        || projects.contains(rc->project())))
+                toStop << rc;
+        }
+
+        if (!toStop.isEmpty()) {
+            bool stopThem = true;
+            if (m_projectExplorerSettings.prompToStopRunControl) {
+                QStringList names = Utils::transform(toStop, &RunControl::displayName);
+                if (QMessageBox::question(ICore::mainWindow(), tr("Stop Applications"),
+                                          tr("Stop these applications before building?")
+                                          + QLatin1String("\n\n")
+                                          + names.join(QLatin1Char('\n')))
+                        == QMessageBox::No) {
+                    stopThem = false;
+                }
+            }
+
+            QList<RunControl *> asyncStop;
+            if (stopThem) {
+                foreach (RunControl *rc, toStop) {
+                    if (rc->stop() == RunControl::AsynchronousStop)
+                        asyncStop << rc;
+                }
+            }
+
+            if (!asyncStop.isEmpty()) {
+                WaitForStopDialog dialog(asyncStop);
+                dialog.exec();
+
+                if (dialog.canceled())
+                    return -1;
+            }
+        }
+    }
 
     QList<BuildStepList *> stepLists;
     QStringList names;

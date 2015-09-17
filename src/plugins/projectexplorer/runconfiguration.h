@@ -301,6 +301,7 @@ public:
     Abi abi() const;
 
     RunConfiguration *runConfiguration() const;
+    Project *project() const;
     bool sameRunConfiguration(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();
@@ -331,6 +332,7 @@ private:
     Core::Id m_runMode;
     QString m_icon;
     const QPointer<RunConfiguration> m_runConfiguration;
+    QPointer<Project> m_project;
     Utils::OutputFormatter *m_outputFormatter;
 
     // A handle to the actual application process.

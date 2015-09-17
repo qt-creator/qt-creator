@@ -83,6 +83,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     pes.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     pes.maxAppOutputLines = m_ui.maxAppOutputBox->value();
     pes.environmentId = m_environmentId;
+    pes.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(m_ui.stopBeforeBuildComboBox->currentIndex());
     return pes;
 }
 
@@ -101,6 +102,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.promptToStopRunControlCheckBox->setChecked(pes.prompToStopRunControl);
     m_ui.maxAppOutputBox->setValue(pes.maxAppOutputLines);
     m_environmentId = pes.environmentId;
+    m_ui.stopBeforeBuildComboBox->setCurrentIndex(pes.stopBeforeBuild);
 }
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const

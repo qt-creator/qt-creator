@@ -39,6 +39,8 @@ namespace Internal {
 class ProjectExplorerSettings
 {
 public:
+    enum StopBeforeBuild { StopNone = 0, StopSameProject = 1, StopAll = 2 };
+
     ProjectExplorerSettings() :
         buildBeforeDeploy(true), deployBeforeRun(true),
         saveBeforeBuild(false), showCompilerOutput(false),
@@ -46,7 +48,7 @@ public:
         cleanOldAppOutput(false), mergeStdErrAndStdOut(false),
         wrapAppOutput(true), useJom(true),
         autorestoreLastSession(false), prompToStopRunControl(false),
-        maxAppOutputLines(100000)
+        maxAppOutputLines(100000), stopBeforeBuild(StopBeforeBuild::StopNone)
     { }
 
     bool buildBeforeDeploy;
@@ -62,6 +64,7 @@ public:
     bool autorestoreLastSession; // This option is set in the Session Manager!
     bool prompToStopRunControl;
     int  maxAppOutputLines;
+    StopBeforeBuild stopBeforeBuild;
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -84,7 +87,8 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.autorestoreLastSession == p2.autorestoreLastSession
             && p1.prompToStopRunControl == p2.prompToStopRunControl
             && p1.maxAppOutputLines == p2.maxAppOutputLines
-            && p1.environmentId == p2.environmentId;
+            && p1.environmentId == p2.environmentId
+            && p1.stopBeforeBuild == p2.stopBeforeBuild;
 }
 
 } // namespace ProjectExplorer
