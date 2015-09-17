@@ -104,7 +104,7 @@ QtcPlugin {
         condition: project.testsEnabled
         prefix: "test/"
         files: [
-            "clang_tests_database.qrc",
+            "data/clangtestdata.qrc",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
         ]
@@ -112,20 +112,10 @@ QtcPlugin {
 
     Group {
         name: "Test resources"
-        prefix: "test/"
+        prefix: "test/data/"
         fileTags: "none"
-        files: [
-            "mysource.cpp",
-            "myheader.h",
-            "completionWithProject.cpp",
-            "memberCompletion.cpp",
-            "doxygenKeywordsCompletion.cpp",
-            "preprocessorKeywordsCompletion.cpp",
-            "includeDirectiveCompletion.cpp",
-            "objc_messages_1.mm",
-            "objc_messages_2.mm",
-            "objc_messages_3.mm",
-        ]
+        files: [ "*" ]
+        excludeFiles: "clangtestdata.qrc"
     }
 
     files: [

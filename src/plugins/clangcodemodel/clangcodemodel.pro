@@ -115,23 +115,14 @@ contains(DEFINES, CLANG_INDEXING) {
 FORMS += clangprojectsettingspropertiespage.ui
 
 equals(TEST, 1) {
-    RESOURCES += \
-        test/clang_tests_database.qrc
-
     HEADERS += \
         test/clangcodecompletion_test.h
 
     SOURCES += \
         test/clangcodecompletion_test.cpp
 
-    DISTFILES += \
-        test/mysource.cpp \
-        test/myheader.cpp \
-        test/completionWithProject.cpp \
-        test/memberCompletion.cpp \
-        test/doxygenKeywordsCompletion.cpp \
-        test/preprocessorKeywordsCompletion.cpp \
-        test/includeDirectiveCompletion.cpp
+    RESOURCES += test/data/clangtestdata.qrc
+    OTHER_FILES += $$files(test/data/*)
 }
 
 macx {
