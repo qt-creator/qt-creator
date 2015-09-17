@@ -139,7 +139,6 @@ public:
           connection(connection_)
     {}
 
-    void sendMessage(const QByteArray &msg);
     void messageReceived(const QByteArray &data);
     void stateChanged(State state);
 
@@ -1754,7 +1753,11 @@ void QmlEnginePrivate::runDirectCommand(const QByteArray &type, const QByteArray
     QByteArray request;
     QmlDebugStream rs(&request, QIODevice::WriteOnly);
     rs << cmd << type << msg;
-    sendMessage(request);
+
+    if (state() == Enabled)
+        sendMessage(request);
+    else
+        sendBuffer.append(request);
 }
 
 void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
@@ -2558,19 +2561,11 @@ void QmlEnginePrivate::handleVersion(const QVariantMap &response)
                                 value(_("V8Version")).toString()), LogOutput);
 }
 
-void QmlEnginePrivate::sendMessage(const QByteArray &msg)
-{
-    if (state() == Enabled)
-        QmlDebugClient::sendMessage(msg);
-    else
-        sendBuffer.append(msg);
-}
-
 void QmlEnginePrivate::flushSendBuffer()
 {
     QTC_ASSERT(state() == Enabled, return);
     foreach (const QByteArray &msg, sendBuffer)
-       QmlDebugClient::sendMessage(msg);
+        sendMessage(msg);
     sendBuffer.clear();
 }
 
