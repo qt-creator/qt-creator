@@ -1813,7 +1813,9 @@ class DumperBase:
             editable = ',editable="true"' if key in self.qqEditable else ''
             formats = (',formats=\"%s\"' % str(value)[1:-1]) if len(value) else ''
             msg += '{type="%s"%s%s},' % (key, editable, formats)
-        msg += ']'
+        msg += '],'
+        v = 10000 * sys.version_info[0] + 100 * sys.version_info[1] + sys.version_info[2]
+        msg += 'python="%d"' % v
         return msg
 
     def reloadDumpers(self, args):

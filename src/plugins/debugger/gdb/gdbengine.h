@@ -221,7 +221,8 @@ protected:
     void handleListFeatures(const DebuggerResponse &response);
     void handlePythonSetup(const DebuggerResponse &response);
 
-    int m_gdbVersion; // 7.6.1 is 70601
+    int m_gdbVersion;    // 7.6.1 is 70601
+    int m_pythonVersion; // 2.7.2 is 20702
     bool m_isQnxGdb;
 
 private: ////////// Inferior Management //////////

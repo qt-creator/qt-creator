@@ -222,6 +222,7 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
 
     m_busy = false;
     m_gdbVersion = 100;
+    m_pythonVersion = 0;
     m_isQnxGdb = false;
     m_registerNamesListed = false;
     m_sourcesListUpdating = false;
@@ -1709,6 +1710,18 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);
         watchHandler()->addDumpers(data["dumpers"]);
+        m_pythonVersion = data["python"].toInt();
+        if (m_pythonVersion < 20700) {
+            int pythonMajor = m_pythonVersion / 10000;
+            int pythonMinor = (m_pythonVersion / 100) % 100;
+            QString out = _("<p>")
+                + tr("The selected build of GDB supports Python scripting, "
+                     "but the used version %1.%2 is not sufficient for "
+                     "Qt Creator. Supported versions are Python 2.7 and 3.x.")
+                    .arg(pythonMajor).arg(pythonMinor);
+            showStatusMessage(out);
+            AsynchronousMessageBox::critical(tr("Execution Error"), out);
+        }
         loadInitScript();
         CHECK_STATE(EngineSetupRequested);
         showMessage(_("ENGINE SUCCESSFULLY STARTED"));
