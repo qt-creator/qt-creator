@@ -164,18 +164,18 @@ void AbstractEditor::init(QWidget *parent)
         d->leftToolBox->setStyle(windowsStyle);
     // TODO improve this (and the diagram colors) for use with dark theme
     d->leftToolBox->setStyleSheet(
-                QStringLiteral("QToolBox::tab {"
-                               "    margin-left: 2px;"
-                               "    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-                               "                           stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
-                               "                           stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);"
-                               "    color: #606060;"
-                               "}"
-                               ""
-                               "QToolBox::tab:selected {"
-                               "    font: italic;"
-                               "    color: black;"
-                               "}"));
+                QLatin1String("QToolBox::tab {"
+                              "    margin-left: 2px;"
+                              "    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+                              "                           stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
+                              "                           stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);"
+                              "    color: #606060;"
+                              "}"
+                              ""
+                              "QToolBox::tab:selected {"
+                              "    font: italic;"
+                              "    color: black;"
+                              "}"));
     QFont font;
     font.setPointSizeF(font.pointSizeF() * 0.8);
     d->leftToolBox->setFont(font);

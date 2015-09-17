@@ -130,10 +130,11 @@ void ActionHandler::createActions()
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
     d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); })->action();
-    registerCommand(Constants::ACTION_ADD_PACKAGE, 0);
-    registerCommand(Constants::ACTION_ADD_COMPONENT, 0);
-    registerCommand(Constants::ACTION_ADD_CLASS, 0);
-    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, 0);
+    const std::function<void()> emptySlot;
+    registerCommand(Constants::ACTION_ADD_PACKAGE, emptySlot);
+    registerCommand(Constants::ACTION_ADD_COMPONENT, emptySlot);
+    registerCommand(Constants::ACTION_ADD_CLASS, emptySlot);
+    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, emptySlot);
 }
 
 void ActionHandler::createEditPropertiesShortcut(const Core::Id &shortcutId)
