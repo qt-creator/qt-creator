@@ -39,6 +39,8 @@ public:
         PipeProcessing
     };
 
+    bool isValid() const;
+
     QString executable() const;
     void setExecutable(const QString &executable);
 

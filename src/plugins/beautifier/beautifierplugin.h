@@ -32,13 +32,17 @@
 #include <QPlainTextEdit>
 #include <QPointer>
 
-namespace Core { class IEditor; }
-namespace TextEditor { class TextEditorWidget; }
+namespace Core {
+class IDocument;
+class IEditor;
+}
+namespace TextEditor {class TextEditorWidget;}
 
 namespace Beautifier {
 namespace Internal {
 
 class BeautifierAbstractTool;
+class GeneralSettings;
 
 struct FormatTask
 {
@@ -82,12 +86,16 @@ public:
 private:
     void updateActions(Core::IEditor *editor = nullptr);
     QList<BeautifierAbstractTool *> m_tools;
+    GeneralSettings *m_generalSettings = nullptr;
+    QHash<QObject*, QMetaObject::Connection> m_autoFormatConnections;
     void formatEditor(TextEditor::TextEditorWidget *editor, const Command &command,
                       int startPos = -1, int endPos = 0);
     void formatEditorAsync(TextEditor::TextEditorWidget *editor, const Command &command,
                            int startPos = -1, int endPos = 0);
     void checkAndApplyTask(const FormatTask &task);
     void updateEditorText(QPlainTextEdit *editor, const QString &text);
+
+    void autoFormatOnSave(Core::IDocument *document);
 };
 
 } // namespace Internal

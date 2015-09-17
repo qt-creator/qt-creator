@@ -129,4 +129,21 @@
     file in this case when using Clang, select the
     \uicontrol {Format entire file if no text was selected} check box in the
     \uicontrol {Clang Format} options.
+
+    To automatically format files when they are saved, select \uicontrol Tools >
+    \uicontrol Beautifier > \uicontrol General:
+
+    \list 1
+
+        \li In the \uicontrol Tool field, select the tool for formatting.
+
+        \li In the \uicontrol {Restrict to MIME types} field, specify a
+            semicolon-separated list of MIME types. One of these types must
+            match the MIME type of the file that is auto formatted.
+            An empty list accepts all files.
+
+        \li Select the \uicontrol {Restrict to files contained in the current
+            project} check box to only auto format files in the current project.
+
+    \endlist
 */

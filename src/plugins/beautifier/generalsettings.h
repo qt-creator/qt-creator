@@ -25,43 +25,38 @@
 
 #pragma once
 
-#include "../beautifierabstracttool.h"
-
-QT_FORWARD_DECLARE_CLASS(QAction)
+#include <utils/mimetypes/mimetype.h>
 
 namespace Beautifier {
 namespace Internal {
 
-class BeautifierPlugin;
-
-namespace Uncrustify {
-
-class UncrustifySettings;
-
-class Uncrustify : public BeautifierAbstractTool
+class GeneralSettings
 {
-    Q_OBJECT
-
 public:
-    explicit Uncrustify(BeautifierPlugin *parent = nullptr);
-    virtual ~Uncrustify();
-    bool initialize() override;
-    QString id() const override;
-    void updateActions(Core::IEditor *editor) override;
-    QList<QObject *> autoReleaseObjects() override;
-    Command command() const override;
+    explicit GeneralSettings();
+    void read();
+    void save();
+
+    bool autoFormatOnSave() const;
+    void setAutoFormatOnSave(bool autoFormatOnSave);
+
+    QString autoFormatTool() const;
+    void setAutoFormatTool(const QString &autoFormatTool);
+
+    QList<Utils::MimeType> autoFormatMime() const;
+    QString autoFormatMimeAsString() const;
+    void setAutoFormatMime(const QList<Utils::MimeType> &autoFormatMime);
+    void setAutoFormatMime(const QString &mimeList);
+
+    bool autoFormatOnlyCurrentProject() const;
+    void setAutoFormatOnlyCurrentProject(bool autoFormatOnlyCurrentProject);
 
 private:
-    void formatFile();
-    void formatSelectedText();
-    BeautifierPlugin *m_beautifierPlugin;
-    QAction *m_formatFile = nullptr;
-    QAction *m_formatRange = nullptr;
-    UncrustifySettings *m_settings;
-    QString configurationFile() const;
-    Command command(const QString &cfgFile, bool fragment = false) const;
+    bool m_autoFormatOnSave = false;
+    bool m_autoFormatOnlyCurrentProject = true;
+    QString m_autoFormatTool;
+    QList<Utils::MimeType> m_autoFormatMime;
 };
 
-} // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier

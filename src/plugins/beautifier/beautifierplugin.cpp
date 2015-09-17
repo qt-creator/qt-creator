@@ -26,6 +26,8 @@
 #include "beautifierplugin.h"
 
 #include "beautifierconstants.h"
+#include "generaloptionspage.h"
+#include "generalsettings.h"
 
 #include "artisticstyle/artisticstyle.h"
 #include "clangformat/clangformat.h"
@@ -35,14 +37,22 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <diffeditor/differ.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
 #include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
@@ -161,26 +171,49 @@ QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
             : Convenience::textAt(editor->textCursor(), startPos, (endPos - startPos));
 }
 
+bool isAutoFormatApplicable(const QString &filePath, const QList<Utils::MimeType> &allowedMimeTypes)
+{
+    if (allowedMimeTypes.isEmpty())
+        return true;
+
+    const Utils::MimeDatabase mdb;
+    const QList<Utils::MimeType> fileMimeTypes = mdb.mimeTypesForFileName(filePath);
+    auto inheritedByFileMimeTypes = [&fileMimeTypes](const Utils::MimeType &mimeType){
+        const QString name = mimeType.name();
+        return Utils::anyOf(fileMimeTypes, [&name](const Utils::MimeType &fileMimeType){
+            return fileMimeType.inherits(name);
+        });
+    };
+    return Utils::anyOf(allowedMimeTypes, inheritedByFileMimeTypes);
+}
+
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-
-    m_tools << new ArtisticStyle::ArtisticStyle(this);
-    m_tools << new ClangFormat::ClangFormat(this);
-    m_tools << new Uncrustify::Uncrustify(this);
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
     menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
+    m_tools << new ArtisticStyle::ArtisticStyle(this);
+    m_tools << new ClangFormat::ClangFormat(this);
+    m_tools << new Uncrustify::Uncrustify(this);
+
+    QStringList toolIds;
+    toolIds.reserve(m_tools.count());
     for (BeautifierAbstractTool *tool : m_tools) {
+        toolIds << tool->id();
         tool->initialize();
         const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
         for (QObject *object : autoReleasedObjects)
             addAutoReleasedObject(object);
     }
+
+    m_generalSettings = new GeneralSettings;
+    auto settingsPage = new GeneralOptionsPage(m_generalSettings, toolIds, this);
+    addAutoReleasedObject(settingsPage);
 
     updateActions();
     return true;
@@ -188,10 +221,11 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 
 void BeautifierPlugin::extensionsInitialized()
 {
-    if (const Core::EditorManager *editorManager = Core::EditorManager::instance()) {
-        connect(editorManager, &Core::EditorManager::currentEditorChanged,
-                this, &BeautifierPlugin::updateActions);
-    }
+    const Core::EditorManager *editorManager = Core::EditorManager::instance();
+    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+            this, &BeautifierPlugin::updateActions);
+    connect(editorManager, &Core::EditorManager::aboutToSave,
+            this, &BeautifierPlugin::autoFormatOnSave);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
@@ -203,6 +237,42 @@ void BeautifierPlugin::updateActions(Core::IEditor *editor)
 {
     for (BeautifierAbstractTool *tool : m_tools)
         tool->updateActions(editor);
+}
+
+void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
+{
+    if (!m_generalSettings->autoFormatOnSave())
+        return;
+
+    // Check that we are dealing with a cpp editor
+    if (document->id() != CppEditor::Constants::CPPEDITOR_ID)
+        return;
+    const QString filePath = document->filePath().toString();
+
+    if (!isAutoFormatApplicable(filePath, m_generalSettings->autoFormatMime()))
+        return;
+
+    // Check if file is contained in the current project (if wished)
+    if (m_generalSettings->autoFormatOnlyCurrentProject()) {
+        const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
+        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(filePath))
+            return;
+    }
+
+    // Find tool to use by id and format file!
+    const QString id = m_generalSettings->autoFormatTool();
+    auto tool = std::find_if(m_tools.constBegin(), m_tools.constEnd(),
+                             [&id](const BeautifierAbstractTool *t){return t->id() == id;});
+    if (tool != m_tools.constEnd()) {
+        const Command command = (*tool)->command();
+        if (!command.isValid())
+            return;
+        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
+        if (editors.isEmpty())
+            return;
+        if (TextEditorWidget* widget = qobject_cast<TextEditorWidget *>(editors.first()->widget()))
+            formatEditor(widget, command);
+    }
 }
 
 void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)

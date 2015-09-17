@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "command.h"
+
 #include <QList>
 #include <QObject>
 
@@ -41,9 +43,17 @@ public:
     explicit BeautifierAbstractTool(QObject *parent = nullptr) : QObject(parent) {}
     virtual ~BeautifierAbstractTool() {}
 
+    virtual QString id() const = 0;
     virtual bool initialize() = 0;
     virtual void updateActions(Core::IEditor *editor) = 0;
     virtual QList<QObject *> autoReleaseObjects() = 0;
+
+    /**
+     * Returns the tool's command to format an entire file.
+     *
+     * @note    The received command may be invalid.
+     */
+    virtual Command command() const = 0;
 };
 
 } // namespace Internal

@@ -26,7 +26,6 @@
 #pragma once
 
 #include "../beautifierabstracttool.h"
-#include "../command.h"
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
@@ -46,9 +45,11 @@ class ClangFormat : public BeautifierAbstractTool
 public:
     explicit ClangFormat(BeautifierPlugin *parent = nullptr);
     virtual ~ClangFormat();
+    QString id() const override;
     bool initialize() override;
     void updateActions(Core::IEditor *editor) override;
     QList<QObject *> autoReleaseObjects() override;
+    Command command() const override;
 
 private:
     void formatFile();
@@ -57,7 +58,7 @@ private:
     QAction *m_formatFile = nullptr;
     QAction *m_formatRange = nullptr;
     ClangFormatSettings *m_settings;
-    Command command(int offset = -1, int length = -1) const;
+    Command command(int offset, int length) const;
 };
 
 } // namespace ClangFormat

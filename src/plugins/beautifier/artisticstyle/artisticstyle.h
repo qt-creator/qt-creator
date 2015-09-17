@@ -26,7 +26,6 @@
 #pragma once
 
 #include "../beautifierabstracttool.h"
-#include "../command.h"
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
@@ -47,8 +46,10 @@ public:
     explicit ArtisticStyle(BeautifierPlugin *parent = nullptr);
     virtual ~ArtisticStyle();
     bool initialize() override;
+    QString id() const override;
     void updateActions(Core::IEditor *editor) override;
     QList<QObject *> autoReleaseObjects() override;
+    Command command() const override;
 
 private:
     void formatFile();

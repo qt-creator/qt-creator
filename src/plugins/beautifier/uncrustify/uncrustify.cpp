@@ -88,6 +88,11 @@ bool Uncrustify::initialize()
     return true;
 }
 
+QString Uncrustify::id() const
+{
+    return QLatin1String(Constants::Uncrustify::DISPLAY_NAME);
+}
+
 void Uncrustify::updateActions(Core::IEditor *editor)
 {
     const bool enabled = (editor && editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID);
@@ -166,6 +171,12 @@ QString Uncrustify::configurationFile() const
     }
 
     return QString();
+}
+
+Command Uncrustify::command() const
+{
+    const QString cfgFile = configurationFile();
+    return cfgFile.isEmpty() ? Command() : command(cfgFile, false);
 }
 
 Command Uncrustify::command(const QString &cfgFile, bool fragment) const

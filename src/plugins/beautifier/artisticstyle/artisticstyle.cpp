@@ -33,7 +33,6 @@
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
-#include "../command.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -79,6 +78,11 @@ bool ArtisticStyle::initialize()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     return true;
+}
+
+QString ArtisticStyle::id() const
+{
+    return QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME);
 }
 
 void ArtisticStyle::updateActions(Core::IEditor *editor)
@@ -132,6 +136,12 @@ QString ArtisticStyle::configurationFile() const
     }
 
     return QString();
+}
+
+Command ArtisticStyle::command() const
+{
+    const QString cfgFile = configurationFile();
+    return cfgFile.isEmpty() ? Command() : command(cfgFile);
 }
 
 Command ArtisticStyle::command(const QString &cfgFile) const

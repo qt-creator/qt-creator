@@ -9,6 +9,8 @@ HEADERS += \
     configurationdialog.h \
     configurationeditor.h \
     configurationpanel.h \
+    generaloptionspage.h \
+    generalsettings.h \
     artisticstyle/artisticstyleconstants.h \
     artisticstyle/artisticstyle.h \
     artisticstyle/artisticstyleoptionspage.h \
@@ -29,6 +31,8 @@ SOURCES += \
     configurationdialog.cpp \
     configurationeditor.cpp \
     configurationpanel.cpp \
+    generaloptionspage.cpp \
+    generalsettings.cpp \
     artisticstyle/artisticstyle.cpp \
     artisticstyle/artisticstyleoptionspage.cpp \
     artisticstyle/artisticstylesettings.cpp \
@@ -42,6 +46,7 @@ SOURCES += \
 FORMS += \
     configurationdialog.ui \
     configurationpanel.ui \
+    generaloptionspage.ui \
     artisticstyle/artisticstyleoptionspage.ui \
     clangformat/clangformatoptionspage.ui \
     uncrustify/uncrustifyoptionspage.ui \

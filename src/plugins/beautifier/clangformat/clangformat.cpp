@@ -63,6 +63,11 @@ ClangFormat::~ClangFormat()
     delete m_settings;
 }
 
+QString ClangFormat::id() const
+{
+    return QLatin1String(Constants::ClangFormat::DISPLAY_NAME);
+}
+
 bool ClangFormat::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
@@ -120,7 +125,7 @@ void ClangFormat::formatSelectedText()
     }
 }
 
-Command ClangFormat::command(int offset, int length) const
+Command ClangFormat::command() const
 {
     Command command;
     command.setExecutable(m_settings->command());
@@ -136,12 +141,15 @@ Command ClangFormat::command(int offset, int length) const
         command.addOption("-assume-filename=" + path + QDir::separator() + "%filename");
     }
 
-    if (offset != -1) {
-        command.addOption("-offset=" + QString::number(offset));
-        command.addOption("-length=" + QString::number(length));
-    }
-
     return command;
+}
+
+Command ClangFormat::command(int offset, int length) const
+{
+    Command c = command();
+    c.addOption("-offset=" + QString::number(offset));
+    c.addOption("-length=" + QString::number(length));
+    return c;
 }
 
 } // namespace ClangFormat

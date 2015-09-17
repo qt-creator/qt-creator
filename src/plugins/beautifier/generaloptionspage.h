@@ -25,43 +25,53 @@
 
 #pragma once
 
-#include "../beautifierabstracttool.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
+#include <QPointer>
+#include <QWidget>
 
 namespace Beautifier {
 namespace Internal {
 
-class BeautifierPlugin;
+class GeneralSettings;
 
-namespace Uncrustify {
+namespace Ui { class GeneralOptionsPage; }
 
-class UncrustifySettings;
-
-class Uncrustify : public BeautifierAbstractTool
+class GeneralOptionsPageWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Uncrustify(BeautifierPlugin *parent = nullptr);
-    virtual ~Uncrustify();
-    bool initialize() override;
-    QString id() const override;
-    void updateActions(Core::IEditor *editor) override;
-    QList<QObject *> autoReleaseObjects() override;
-    Command command() const override;
+    explicit GeneralOptionsPageWidget(GeneralSettings *settings, const QStringList &toolIds,
+                                      QWidget *parent = nullptr);
+    virtual ~GeneralOptionsPageWidget();
+    void restore();
+    void apply(bool *autoFormatChanged);
 
 private:
-    void formatFile();
-    void formatSelectedText();
-    BeautifierPlugin *m_beautifierPlugin;
-    QAction *m_formatFile = nullptr;
-    QAction *m_formatRange = nullptr;
-    UncrustifySettings *m_settings;
-    QString configurationFile() const;
-    Command command(const QString &cfgFile, bool fragment = false) const;
+    Ui::GeneralOptionsPage *ui;
+    GeneralSettings *m_settings;
 };
 
-} // namespace Uncrustify
+class GeneralOptionsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    explicit GeneralOptionsPage(GeneralSettings *settings, const QStringList &toolIds,
+                                QObject *parent = nullptr);
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
+
+signals:
+    void autoFormatChanged();
+
+private:
+    QPointer<GeneralOptionsPageWidget> m_widget;
+    GeneralSettings *m_settings;
+    QStringList m_toolIds;
+};
+
 } // namespace Internal
 } // namespace Beautifier

@@ -1906,6 +1906,7 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
     bool success = false;
     bool isReadOnly;
 
+    emit m_instance->aboutToSave(document);
     // try saving, no matter what isReadOnly tells us
     success = DocumentManager::saveDocument(document, QString(), &isReadOnly);
 
@@ -1932,6 +1933,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!document)
         return false;
 
+    emit m_instance->aboutToSave(document);
     Utils::MimeDatabase mdb;
     const QString filter = Utils::MimeDatabase::allFiltersString();
     QString selectedFilter;

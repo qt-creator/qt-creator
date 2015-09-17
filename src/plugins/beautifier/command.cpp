@@ -28,6 +28,11 @@
 namespace Beautifier {
 namespace Internal {
 
+bool Command::isValid() const
+{
+    return !m_executable.isEmpty();
+}
+
 QString Command::executable() const
 {
     return m_executable;
