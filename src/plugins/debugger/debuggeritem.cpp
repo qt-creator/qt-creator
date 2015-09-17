@@ -110,10 +110,15 @@ void DebuggerItem::createId()
 
 void DebuggerItem::reinitializeFromFile()
 {
-    QProcess proc;
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
-    // happy with both -version and --version. So use the "working" -version.
-    proc.start(m_command.toString(), QStringList() << QLatin1String("-version"));
+    // happy with both -version and --version. So use the "working" -version
+    // except for the experimental LLDB-MI which insists on --version.
+    const char *version = "-version";
+    if (m_command.toFileInfo().baseName().toLower().contains(QLatin1String("lldb-mi")))
+        version = "--version";
+
+    QProcess proc;
+    proc.start(m_command.toString(), QStringList({ QLatin1String(version) }));
     if (!proc.waitForStarted() || !proc.waitForFinished()) {
         m_engineType = NoEngineType;
         return;
