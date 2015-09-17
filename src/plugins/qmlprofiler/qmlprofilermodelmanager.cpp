@@ -320,9 +320,10 @@ void QmlProfilerModelManager::complete()
 {
     switch (state()) {
     case QmlProfilerDataState::ProcessingData:
-        // Load notes after the timeline models have been initialized.
-        d->notesModel->loadData();
+        // Load notes after the timeline models have been initialized ...
+        // which happens on stateChanged(Done).
         setState(QmlProfilerDataState::Done);
+        d->notesModel->loadData();
         break;
     case QmlProfilerDataState::AcquiringData:
         // Make sure the trace fits into the time span.
