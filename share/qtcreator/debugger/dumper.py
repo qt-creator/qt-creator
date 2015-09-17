@@ -34,7 +34,6 @@ import sys
 import base64
 import re
 import time
-import importlib
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -1690,7 +1689,7 @@ class DumperBase:
         self.resetCaches()
 
         for mod in self.dumpermodules:
-            m = importlib.import_module(mod)
+            m = __import__(mod)
             dic = m.__dict__
             for name in dic.keys():
                 item = dic[name]
@@ -1711,6 +1710,7 @@ class DumperBase:
         for mod in self.dumpermodules:
             m = sys.modules[mod]
             if sys.version_info[0] >= 3:
+                import importlib
                 importlib.reload(m)
             else:
                 reload(m)
