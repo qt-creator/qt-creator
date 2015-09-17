@@ -224,6 +224,8 @@ VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QS
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
     command->setCookie(cookie);
     command->addFlags(additionalFlags);
+    if (editor)
+        command->setCodec(editor->codec());
     enqueueJob(command, arguments);
     return command;
 }
