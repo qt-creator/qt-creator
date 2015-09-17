@@ -177,8 +177,11 @@ public:
         }
 
         if (role == Qt::ToolTipRole) {
-            QString description = m_expander->variableDescription(m_variable.toUtf8());
-            const QString value = m_expander->value(m_variable.toUtf8()).toHtmlEscaped();
+            const QByteArray var = m_variable.toUtf8();
+            QString description = m_expander->variableDescription(var);
+            QString value;
+            if (!m_expander->isPrefixVariable(var))
+                value = m_expander->value(var).toHtmlEscaped();
             if (!value.isEmpty())
                 description += QLatin1String("<p>") + VariableChooser::tr("Current Value: %1").arg(value);
             return description;

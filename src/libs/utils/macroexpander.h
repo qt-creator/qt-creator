@@ -89,6 +89,7 @@ public:
 
     QList<QByteArray> visibleVariables() const;
     QString variableDescription(const QByteArray &variable) const;
+    bool isPrefixVariable(const QByteArray &variable) const;
 
     MacroExpanderProviders subProviders() const;
 

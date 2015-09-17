@@ -302,6 +302,14 @@ QString MacroExpander::expandProcessArgs(const QString &argsWithVariables) const
     return QtcProcess::expandMacros(argsWithVariables, d);
 }
 
+static QByteArray fullPrefix(const QByteArray &prefix)
+{
+    QByteArray result = prefix;
+    if (!result.endsWith(':'))
+        result.append(':');
+    return result;
+}
+
 /*!
  * Makes the given string-valued \a prefix known to the variable manager,
  * together with a localized \a description.
@@ -314,9 +322,7 @@ QString MacroExpander::expandProcessArgs(const QString &argsWithVariables) const
 void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &description,
                                    const MacroExpander::PrefixFunction &value)
 {
-    QByteArray tmp = prefix;
-    if (!tmp.endsWith(':'))
-        tmp.append(':');
+    QByteArray tmp = fullPrefix(prefix);
     d->m_descriptions.insert(tmp + "<value>", description);
     d->m_prefixMap.insert(tmp, value);
 }
@@ -428,6 +434,11 @@ QList<QByteArray> MacroExpander::visibleVariables() const
 QString MacroExpander::variableDescription(const QByteArray &variable) const
 {
     return d->m_descriptions.value(variable);
+}
+
+bool MacroExpander::isPrefixVariable(const QByteArray &variable) const
+{
+    return d->m_prefixMap.contains(fullPrefix(variable));
 }
 
 MacroExpanderProviders MacroExpander::subProviders() const
