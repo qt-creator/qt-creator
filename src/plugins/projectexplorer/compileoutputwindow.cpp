@@ -85,6 +85,8 @@ public:
 
         connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
                 this, &CompileOutputTextEdit::saveSettings);
+
+        setMouseTracking(true);
     }
 
     void saveSettings()
@@ -109,17 +111,36 @@ private slots:
     }
 
 protected:
-    void mouseDoubleClickEvent(QMouseEvent *ev)
+    void mouseMoveEvent(QMouseEvent *ev)
     {
         int line = cursorForPosition(ev->pos()).block().blockNumber();
-        if (unsigned taskid = m_taskids.value(line, 0))
-            TaskHub::showTaskInEditor(taskid);
+        if (m_taskids.value(line, 0))
+            viewport()->setCursor(Qt::PointingHandCursor);
         else
-            QPlainTextEdit::mouseDoubleClickEvent(ev);
+            viewport()->setCursor(Qt::IBeamCursor);
+        QPlainTextEdit::mouseMoveEvent(ev);
+    }
+
+    void mousePressEvent(QMouseEvent *ev)
+    {
+        m_mousePressPosition = ev->pos();
+        QPlainTextEdit::mousePressEvent(ev);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *ev)
+    {
+        if ((m_mousePressPosition - ev->pos()).manhattanLength() < 4) {
+            int line = cursorForPosition(ev->pos()).block().blockNumber();
+            if (unsigned taskid = m_taskids.value(line, 0))
+                TaskHub::showTaskInEditor(taskid);
+        }
+
+        QPlainTextEdit::mouseReleaseEvent(ev);
     }
 
 private:
     QHash<int, unsigned int> m_taskids;   //Map blocknumber to taskId
+    QPoint m_mousePressPosition;
 };
 
 } // namespace Internal
