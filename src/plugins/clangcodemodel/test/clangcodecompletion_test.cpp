@@ -1010,6 +1010,7 @@ void ClangCodeCompletionTest::testChangingProjectDependentCompletion()
     } // Project closed
 
     // Check again completion without project
+    openEditor.waitUntilProjectPartChanged(QLatin1String(""));
     proposal = completionResults(openEditor.editor());
     QVERIFY(hasItem(proposal, "noProjectConfigurationDetected"));
 }

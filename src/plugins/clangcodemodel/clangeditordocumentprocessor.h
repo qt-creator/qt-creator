@@ -70,6 +70,7 @@ public:
 
     bool hasProjectPart() const;
     CppTools::ProjectPart::Ptr projectPart() const;
+    void clearProjectPart();
 
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                             uint documentRevision);
@@ -82,7 +83,6 @@ public:
 
 private slots:
     void onParserFinished();
-    void onProjectPartsRemoved(const QStringList &projectPartIds);
 
 private:
     void updateProjectPartAndTranslationUnitForEditor();

@@ -94,9 +94,6 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
             this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
 
-    connect(CppTools::CppModelManager::instance(), &CppTools::CppModelManager::projectPartsRemoved,
-            this, &ClangEditorDocumentProcessor::onProjectPartsRemoved);
-
     m_semanticHighlighter.setHighlightingRunner(
         [this]() -> QFuture<TextEditor::HighlightingResult> {
             const int firstLine = 1;
@@ -184,6 +181,11 @@ CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const
     return m_projectPart;
 }
 
+void ClangEditorDocumentProcessor::clearProjectPart()
+{
+    m_projectPart.clear();
+}
+
 void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                                                       uint documentRevision)
 {
@@ -248,12 +250,6 @@ void ClangEditorDocumentProcessor::onParserFinished()
     m_semanticHighlighter.run();
 
     updateProjectPartAndTranslationUnitForEditor();
-}
-
-void ClangEditorDocumentProcessor::onProjectPartsRemoved(const QStringList &projectPartIds)
-{
-    if (m_projectPart && projectPartIds.contains(m_projectPart->id()))
-        m_projectPart.clear();
 }
 
 void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart &projectPart)
