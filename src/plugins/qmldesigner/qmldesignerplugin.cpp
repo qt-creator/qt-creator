@@ -30,6 +30,12 @@
 #include "settingspage.h"
 #include "designmodecontext.h"
 
+#include <connectionview.h>
+#include <sourcetool/sourcetool.h>
+#include <colortool/colortool.h>
+#include <texttool/texttool.h>
+#include <pathtool/pathtool.h>
+
 #include <qmljseditor/qmljseditorconstants.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
@@ -126,6 +132,12 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     data = new QmlDesignerPluginData;
 
     data->settings.fromSettings(Core::ICore::settings());
+
+    data->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView());
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::ColorTool);
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
 
     const Core::Context switchContext(QmlDesigner::Constants::C_QMLDESIGNER,
         QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
