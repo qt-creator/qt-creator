@@ -326,7 +326,7 @@ void IpcCommunicator::registerCurrentCppEditorDocuments()
     }
 }
 
-void IpcCommunicator::registerCurrrentCodeModelUiHeaders()
+void IpcCommunicator::registerCurrentCodeModelUiHeaders()
 {
     using namespace CppTools;
 
@@ -506,7 +506,7 @@ void IpcCommunicator::initializeBackendWithCurrentData()
     registerEmptyProjectForProjectLessFiles();
     registerCurrentProjectParts();
     registerCurrentCppEditorDocuments();
-    registerCurrrentCodeModelUiHeaders();
+    registerCurrentCodeModelUiHeaders();
 
     emit backendReinitialized();
 }

@@ -155,7 +155,7 @@ private:
     void registerEmptyProjectForProjectLessFiles();
     void registerCurrentProjectParts();
     void registerCurrentCppEditorDocuments();
-    void registerCurrrentCodeModelUiHeaders();
+    void registerCurrentCodeModelUiHeaders();
 
     void onBackendRestarted();
     void onEditorAboutToClose(Core::IEditor *editor);
