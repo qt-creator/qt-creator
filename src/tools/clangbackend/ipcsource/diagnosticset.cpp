@@ -87,11 +87,21 @@ DiagnosticSet::ConstIterator DiagnosticSet::end() const
 
 QVector<DiagnosticContainer> DiagnosticSet::toDiagnosticContainers() const
 {
+    const auto isAcceptedDiagnostic = [](const Diagnostic &) { return true; };
+
+    return toDiagnosticContainers(isAcceptedDiagnostic);
+}
+
+QVector<DiagnosticContainer> DiagnosticSet::toDiagnosticContainers(
+        const Diagnostic::IsAcceptedDiagnostic &isAcceptedDiagnostic) const
+{
     QVector<DiagnosticContainer> diagnosticContainers;
     diagnosticContainers.reserve(size());
 
-    for (const Diagnostic &diagnostic : *this)
-        diagnosticContainers.push_back(diagnostic.toDiagnosticContainer());
+    for (const Diagnostic &diagnostic : *this) {
+        if (isAcceptedDiagnostic(diagnostic))
+            diagnosticContainers.push_back(diagnostic.toDiagnosticContainer(isAcceptedDiagnostic));
+    }
 
     return diagnosticContainers;
 }

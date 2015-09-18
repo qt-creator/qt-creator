@@ -138,7 +138,7 @@ DiagnosticSet Diagnostic::childDiagnostics() const
     return DiagnosticSet(clang_getChildDiagnostics(cxDiagnostic));
 }
 
-DiagnosticContainer Diagnostic::toDiagnosticContainer() const
+DiagnosticContainer Diagnostic::toDiagnosticContainer(const IsAcceptedDiagnostic &isAcceptedChildDiagnostic) const
 {
     return DiagnosticContainer(text(),
                                category(),
@@ -147,7 +147,14 @@ DiagnosticContainer Diagnostic::toDiagnosticContainer() const
                                location().toSourceLocationContainer(),
                                getSourceRangeContainers(),
                                getFixItContainers(),
-                               childDiagnostics().toDiagnosticContainers());
+                               childDiagnostics().toDiagnosticContainers(isAcceptedChildDiagnostic));
+}
+
+DiagnosticContainer Diagnostic::toDiagnosticContainer() const
+{
+    const auto acceptAllDiagnostics = [](const Diagnostic &) { return true; };
+
+    return toDiagnosticContainer(acceptAllDiagnostics);
 }
 
 QVector<SourceRangeContainer> Diagnostic::getSourceRangeContainers() const

@@ -291,7 +291,7 @@ void TranslationUnits::sendDiagnosticChangedMessage(const TranslationUnit &trans
 {
     if (sendDiagnosticsChangedCallback) {
         DiagnosticsChangedMessage message(translationUnit.fileContainer(),
-                                          translationUnit.diagnostics().toDiagnosticContainers());
+                                          translationUnit.mainFileDiagnostics());
 
         sendDiagnosticsChangedCallback(std::move(message));
     }

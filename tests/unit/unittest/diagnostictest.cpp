@@ -29,7 +29,9 @@
 ****************************************************************************/
 
 #include <diagnostic.h>
+#include <diagnosticcontainer.h>
 #include <diagnosticset.h>
+#include <fixitcontainer.h>
 #include <projectpart.h>
 #include <translationunit.h>
 #include <translationunits.h>
@@ -43,9 +45,16 @@
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
+
 #include "gtest-qt-printing.h"
+#include "matcher-diagnosticcontainer.h"
+
+using ::testing::Contains;
+using ::testing::Not;
+using ::testing::PrintToString;
 
 using ClangBackEnd::DiagnosticSet;
+using ClangBackEnd::DiagnosticContainer;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
@@ -53,7 +62,8 @@ using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceLocation;
 using ClangBackEnd::DiagnosticSeverity;
 using ClangBackEnd::TranslationUnits;
-using testing::PrintToString;
+using ClangBackEnd::FixItContainer;
+using ClangBackEnd::SourceLocationContainer;
 
 namespace {
 
@@ -87,6 +97,10 @@ protected:
                                     translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     ::Diagnostic diagnostic{diagnosticSet.back()};
+
+protected:
+    enum ChildMode { WithChild, WithoutChild };
+    DiagnosticContainer expectedDiagnostic(ChildMode childMode) const;
 };
 
 TEST_F(Diagnostic, MoveContructor)
@@ -150,6 +164,57 @@ TEST_F(Diagnostic, ChildDiagnosticsText)
     auto childDiagnostic = diagnosticSet.front().childDiagnostics().front();
 
     ASSERT_THAT(childDiagnostic.text(), Utf8StringLiteral("note: previous declaration is here"));
+}
+
+TEST_F(Diagnostic, toDiagnosticContainerLetChildrenThroughByDefault)
+{
+    const auto diagnosticWithChild = expectedDiagnostic(WithChild);
+
+    const auto diagnostic = diagnosticSet.front().toDiagnosticContainer();
+
+    ASSERT_THAT(diagnostic, IsDiagnosticContainer(diagnosticWithChild));
+}
+
+TEST_F(Diagnostic, toDiagnosticContainerFiltersOutChildren)
+{
+    const auto diagnosticWithoutChild = expectedDiagnostic(WithoutChild);
+    const auto acceptDiagnosticWithSpecificText = [](const ::Diagnostic &diagnostic) {
+        return diagnostic.text() != Utf8StringLiteral("note: previous declaration is here");
+    };
+
+    const auto diagnostic = diagnosticSet.front().toDiagnosticContainer(acceptDiagnosticWithSpecificText);
+
+    ASSERT_THAT(diagnostic, IsDiagnosticContainer(diagnosticWithoutChild));
+}
+
+DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMode) const
+{
+    QVector<DiagnosticContainer> children;
+    if (childMode == WithChild) {
+        const auto child = DiagnosticContainer(
+            Utf8StringLiteral("note: previous declaration is here"),
+            Utf8StringLiteral("Semantic Issue"),
+            {Utf8String(), Utf8String()},
+            ClangBackEnd::DiagnosticSeverity::Note,
+            SourceLocationContainer(translationUnit.filePath(), 2, 14),
+            {},
+            {},
+            {}
+        );
+        children.append(child);
+    }
+
+    return
+        DiagnosticContainer(
+            Utf8StringLiteral("warning: 'X' is missing exception specification 'noexcept'"),
+            Utf8StringLiteral("Semantic Issue"),
+            {Utf8String(), Utf8String()},
+            ClangBackEnd::DiagnosticSeverity::Warning,
+            SourceLocationContainer(translationUnit.filePath(), 5, 38),
+            {},
+            {},
+            children
+        );
 }
 
 }

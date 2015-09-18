@@ -28,61 +28,36 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_DIAGNOSTICSET_H
-#define CLANGBACKEND_DIAGNOSTICSET_H
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include "gtest-qt-printing.h"
 
-#include "diagnostic.h"
-#include "diagnosticsetiterator.h"
+namespace {
 
-#include <clang-c/Index.h>
+using ::testing::PrintToString;
 
-#include <QVector>
-
-#include <functional>
-
-namespace ClangBackEnd {
-
-class DiagnosticSetIterator;
-
-class DiagnosticSet
+MATCHER_P(IsDiagnosticContainer, diagnosticContainer, "")
 {
-    friend class TranslationUnit;
-    friend class Diagnostic;
+    if (arg.text() != diagnosticContainer.text()) {
+        *result_listener << "text is " + PrintToString(arg.text())
+                            + " and not " + PrintToString(diagnosticContainer.text());
+        return false;
+    }
 
-public:
-    using ConstIterator = DiagnosticSetIterator;
+    if (arg.location() != diagnosticContainer.location()) {
+        *result_listener << "location is " + PrintToString(arg.location())
+                            + " and not " + PrintToString(diagnosticContainer.location());
+        return false;
+    }
 
-public:
-    ~DiagnosticSet();
+    if (arg.children() != diagnosticContainer.children()) {
+        *result_listener << "children are " + PrintToString(arg.children())
+                            + " and not " + PrintToString(diagnosticContainer.children());
+        return false;
+    }
 
-    DiagnosticSet(const DiagnosticSet &) = delete;
-    const DiagnosticSet &operator=(const DiagnosticSet &) = delete;
+    return true;
+}
 
-    DiagnosticSet(DiagnosticSet &&other);
-    DiagnosticSet &operator=(DiagnosticSet &&other);
-
-    uint size() const;
-    bool isNull() const;
-
-    Diagnostic at(uint index) const;
-
-    Diagnostic front() const;
-    Diagnostic back() const;
-
-    ConstIterator begin() const;
-    ConstIterator end() const;
-
-    QVector<DiagnosticContainer> toDiagnosticContainers() const;
-    QVector<DiagnosticContainer> toDiagnosticContainers(
-            const Diagnostic::IsAcceptedDiagnostic &isAcceptedDiagnostic) const;
-
-private:
-    DiagnosticSet(CXDiagnosticSet cxDiagnosticSet);
-
-private:
-    CXDiagnosticSet cxDiagnosticSet;
-};
-
-} // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_DIAGNOSTICSET_H
+} // anonymous
