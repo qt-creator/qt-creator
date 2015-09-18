@@ -20,6 +20,7 @@ include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
 include(components/debugview/debugview.pri)
 include(components/importmanager/importmanager.pri)
+include(qmldesignerextension/qmldesignerextension.pri)
 include(qmldesignerplugin.pri)
 
 DEFINES -= QT_NO_CAST_FROM_ASCII
