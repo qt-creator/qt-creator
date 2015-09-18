@@ -432,7 +432,7 @@ void AnalyzerManagerPrivate::modeChanged(IMode *mode)
 {
     if (mode && mode == m_mode) {
         m_mainWindow->setDockActionsVisible(true);
-        static bool firstTime = true;
+        static bool firstTime = !m_currentAction;
         if (firstTime)
             selectSavedTool();
         firstTime = false;
