@@ -208,7 +208,6 @@ public:
     QmlOutputParser outputParser;
 
     QTimer noDebugOutputTimer;
-    QHash<QString,Breakpoint> pendingBreakpoints;
     QList<quint32> queryIds;
     bool retryOnConnectFail = false;
     bool automaticConnect = false;
@@ -274,10 +273,6 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     d->noDebugOutputTimer.setInterval(8000);
     connect(&d->noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
 
-    if (auto mmIface = ModelManagerInterface::instance()) {
-        connect(mmIface, &ModelManagerInterface::documentUpdated,
-                this, &QmlEngine::documentUpdated);
-    }
     // we won't get any debug output
     if (startParameters.useTerminal) {
         d->noDebugOutputTimer.setInterval(0);
@@ -718,14 +713,7 @@ void QmlEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     showStatusMessage(tr("Run to line %1 (%2) requested...").arg(data.lineNumber).arg(data.fileName), 5000);
-    ContextData modifiedData = data;
-    quint32 line = data.lineNumber;
-    quint32 column;
-    bool valid;
-    if (adjustBreakpointLineAndColumn(data.fileName, &line, &column, &valid))
-        modifiedData.lineNumber = line;
-    d->setBreakpoint(QString(_(SCRIPTREGEXP)), modifiedData.fileName,
-                     true, modifiedData.lineNumber);
+    d->setBreakpoint(QString(_(SCRIPTREGEXP)), data.fileName, true, data.lineNumber);
     clearExceptionSelection();
     d->continueDebugging(Continue);
 
@@ -768,26 +756,13 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
     bp.notifyBreakpointInsertProceeding();
 
     const BreakpointParameters &params = bp.parameters();
-    quint32 line = params.lineNumber;
-    quint32 column = 0;
-    if (params.type == BreakpointByFileAndLine) {
-        bool valid = false;
-        if (!adjustBreakpointLineAndColumn(params.fileName, &line, &column,
-                                           &valid)) {
-            d->pendingBreakpoints.insertMulti(params.fileName, bp);
-            return;
-        }
-        if (!valid)
-            return;
-    }
-
     if (params.type == BreakpointAtJavaScriptThrow) {
         bp.notifyBreakpointInsertOk();
         d->setExceptionBreak(AllExceptions, params.enabled);
 
     } else if (params.type == BreakpointByFileAndLine) {
         d->setBreakpoint(QString(_(SCRIPTREGEXP)), params.fileName,
-                         params.enabled, line, column,
+                         params.enabled, params.lineNumber, 0,
                          QLatin1String(params.condition), params.ignoreCount);
 
     } else if (params.type == BreakpointOnQmlSignalEmit) {
@@ -801,17 +776,6 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
 void QmlEngine::removeBreakpoint(Breakpoint bp)
 {
     const BreakpointParameters &params = bp.parameters();
-    if (params.type == BreakpointByFileAndLine &&
-            d->pendingBreakpoints.contains(params.fileName)) {
-        auto it = d->pendingBreakpoints.find(params.fileName);
-        while (it != d->pendingBreakpoints.end() && it.key() == params.fileName) {
-            if (it.value() == bp.id()) {
-                d->pendingBreakpoints.erase(it);
-                return;
-            }
-            ++it;
-        }
-    }
 
     BreakpointState state = bp.state();
     QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << bp << this << state);
@@ -1122,17 +1086,6 @@ void QmlEngine::disconnected()
 {
     showMessage(tr("QML Debugger disconnected."), StatusBar);
     notifyInferiorExited();
-}
-
-void QmlEngine::documentUpdated(Document::Ptr doc)
-{
-    QString fileName = doc->fileName();
-    if (d->pendingBreakpoints.contains(fileName)) {
-        QList<Breakpoint> bps = d->pendingBreakpoints.values(fileName);
-        d->pendingBreakpoints.remove(fileName);
-        foreach (const Breakpoint bp, bps)
-            insertBreakpoint(bp);
-    }
 }
 
 void QmlEngine::updateCurrentContext()

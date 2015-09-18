@@ -66,8 +66,6 @@ public:
 
 private slots:
     void disconnected();
-    void documentUpdated(QmlJS::Document::Ptr doc);
-
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
 

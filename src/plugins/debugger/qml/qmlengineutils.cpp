@@ -209,28 +209,6 @@ public:
     quint32 *column;
 };
 
-bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line, quint32 *column, bool *valid)
-{
-    bool success = false;
-    //check if file is in the latest snapshot
-    //ignoring documentChangedOnDisk
-    //TODO:: update breakpoints if document is changed.
-    ModelManagerInterface *mmIface = ModelManagerInterface::instance();
-    if (mmIface) {
-        Document::Ptr doc = mmIface->newestSnapshot().document(filePath);
-        if (doc.isNull()) {
-            ModelManagerInterface::instance()->updateSourceFiles(
-                        QStringList() << filePath, false);
-        } else {
-            ASTWalker walker;
-            walker(doc->ast(), line, column);
-            *valid = walker.done;
-            success = true;
-        }
-    }
-    return success;
-}
-
 void appendDebugOutput(QtMsgType type, const QString &message, const QDebugContextInfo &info)
 {
     ConsoleItem::ItemType itemType;
