@@ -263,59 +263,52 @@ void StateListener::slotStateChanged()
     // folder?
     State state;
     IDocument *currentDocument = EditorManager::currentDocument();
-    if (!currentDocument) {
-        state.currentFile.clear();
-    } else {
+    if (currentDocument) {
         state.currentFile = currentDocument->filePath().toString();
         if (state.currentFile.isEmpty() || currentDocument->isTemporary())
             state.currentFile = VcsBasePlugin::source(currentDocument);
     }
-    QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
-    if (!state.currentFile.isEmpty()) {
-        const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());
-        // Quick check: Does it look like a patch?
-        const bool isPatch = state.currentFile.endsWith(QLatin1String(".patch"))
-                             || state.currentFile.endsWith(QLatin1String(".diff"));
-        if (isPatch) {
-            // Patch: Figure out a name to display. If it is a temp file, it could be
-            // Codepaster. Use the display name of the editor.
-            state.currentPatchFile = state.currentFile;
-            if (isTempFile)
-                state.currentPatchFileDisplayName = displayNameOfEditor(state.currentPatchFile);
-            if (state.currentPatchFileDisplayName.isEmpty()) {
-                currentFileInfo.reset(new QFileInfo(state.currentFile));
-                state.currentPatchFileDisplayName = currentFileInfo->fileName();
-            }
-        }
-        // For actual version control operations on it:
-        // Do not show temporary files and project folders ('#')
-        if (isTempFile || state.currentFile.contains(QLatin1Char('#')))
-            state.currentFile.clear();
-    }
 
     // Get the file and its control. Do not use the file unless we find one
     IVersionControl *fileControl = 0;
+
     if (!state.currentFile.isEmpty()) {
-        if (currentFileInfo.isNull())
-            currentFileInfo.reset(new QFileInfo(state.currentFile));
-        if (currentFileInfo->isDir()) {
-            state.currentFile.clear();
-            state.currentFileDirectory = currentFileInfo->absoluteFilePath();
-        } else {
-            state.currentFileDirectory = currentFileInfo->absolutePath();
-            state.currentFileName = currentFileInfo->fileName();
+        QFileInfo currentFi(state.currentFile);
+
+        if (currentFi.exists()) {
+            // Quick check: Does it look like a patch?
+            const bool isPatch = state.currentFile.endsWith(QLatin1String(".patch"))
+                    || state.currentFile.endsWith(QLatin1String(".diff"));
+            if (isPatch) {
+                // Patch: Figure out a name to display. If it is a temp file, it could be
+                // Codepaster. Use the display name of the editor.
+                state.currentPatchFile = state.currentFile;
+                state.currentPatchFileDisplayName = displayNameOfEditor(state.currentPatchFile);
+                if (state.currentPatchFileDisplayName.isEmpty())
+                    state.currentPatchFileDisplayName = currentFi.fileName();
+            }
+
+            if (currentFi.isDir()) {
+                state.currentFile.clear();
+                state.currentFileDirectory = currentFi.absoluteFilePath();
+            } else {
+                state.currentFileDirectory = currentFi.absolutePath();
+                state.currentFileName = currentFi.fileName();
+            }
+            fileControl = VcsManager::findVersionControlForDirectory(state.currentFileDirectory,
+                                                                     &state.currentFileTopLevel);
         }
-        fileControl = VcsManager::findVersionControlForDirectory(
-                    state.currentFileDirectory,
-                    &state.currentFileTopLevel);
+
         if (!fileControl)
             state.clearFile();
     }
+
     // Check for project, find the control
     IVersionControl *projectControl = 0;
     Project *currentProject = ProjectTree::currentProject();
     if (!currentProject)
         currentProject = SessionManager::startupProject();
+
     if (currentProject) {
         state.currentProjectPath = currentProject->projectDirectory().toString();
         state.currentProjectName = currentProject->displayName();
@@ -329,14 +322,14 @@ void StateListener::slotStateChanged()
             state.clearProject(); // No control found
         }
     }
+
     // Assemble state and emit signal.
     IVersionControl *vc = fileControl;
     if (!vc)
         vc = projectControl;
     if (!vc)
         state.clearPatchFile(); // Need a repository to patch
-    if (debug)
-        qDebug() << state << (vc ? vc->displayName() : QLatin1String("No version control"));
+
     EditorManager::updateWindowTitles();
     emit stateChanged(state, vc);
 }
