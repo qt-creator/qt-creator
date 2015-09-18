@@ -75,7 +75,7 @@ static const int GAP_TIME = 150;
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QByteArray ba;
-    QDataStream stream(&ba, QIODevice::WriteOnly);
+    QmlDebugStream stream(&ba, QIODevice::WriteOnly);
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording)
         stream << requestedFeatures << flushInterval;
@@ -187,7 +187,7 @@ void QmlProfilerTraceClient::stateChanged(State /*status*/)
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 {
     QByteArray rwData = data;
-    QDataStream stream(&rwData, QIODevice::ReadOnly);
+    QmlDebugStream stream(&rwData, QIODevice::ReadOnly);
 
     qint64 time;
     int messageType;
