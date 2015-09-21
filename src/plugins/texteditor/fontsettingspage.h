@@ -57,19 +57,37 @@ namespace Internal { class FontSettingsPagePrivate; }
 class TEXTEDITOR_EXPORT FormatDescription
 {
 public:
+    enum ShowControls {
+        ShowForegroundControl = 0x1,
+        ShowBackgroundControl = 0x2,
+        ShowFontControls = 0x4,
+        ShowUnderlineControl = 0x8,
+        AllControls = 0xF,
+        AllControlsExceptUnderline = AllControls & ~ShowUnderlineControl,
+    };
+    FormatDescription() = default;
+
     FormatDescription(TextStyle id,
                       const QString &displayName,
                       const QString &tooltipText,
-                      const QColor &foreground = Qt::black);
+                      ShowControls showControls = AllControls);
+
     FormatDescription(TextStyle id,
                       const QString &displayName,
                       const QString &tooltipText,
-                      const Format &format);
+                      const QColor &foreground,
+                      ShowControls showControls = AllControls);
+    FormatDescription(TextStyle id,
+                      const QString &displayName,
+                      const QString &tooltipText,
+                      const Format &format,
+                      ShowControls showControls = AllControls);
     FormatDescription(TextStyle id,
                       const QString &displayName,
                       const QString &tooltipText,
                       const QColor &underlineColor,
-                      const QTextCharFormat::UnderlineStyle underlineStyle);
+                      const QTextCharFormat::UnderlineStyle underlineStyle,
+                      ShowControls showControls = AllControls);
 
     TextStyle id() const { return m_id; }
 
@@ -85,14 +103,17 @@ public:
     QString tooltipText() const
     { return  m_tooltipText; }
 
+    bool showControl(ShowControls showControl) const;
+
 private:
     TextStyle m_id;            // Name of the category
     Format m_format;            // Default format
     QString m_displayName;      // Displayed name of the category
     QString m_tooltipText;      // Description text for category
+    ShowControls m_showControls = AllControls;
 };
 
-typedef QList<FormatDescription> FormatDescriptions;
+typedef std::vector<FormatDescription> FormatDescriptions;
 
 class TEXTEDITOR_EXPORT FontSettingsPage : public TextEditorOptionsPage
 {
