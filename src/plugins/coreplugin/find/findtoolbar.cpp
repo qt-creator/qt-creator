@@ -94,6 +94,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     setSingleRow(false);
     m_ui.findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_ui.replaceEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_ui.replaceEdit->setFiltering(true);
 
     connect(m_ui.findEdit, &Utils::FancyLineEdit::editingFinished,
             this, &FindToolBar::invokeResetIncrementalSearch);

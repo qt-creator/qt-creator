@@ -123,7 +123,7 @@ public:
 
     // Filtering
 
-    // Enables fitering
+    // Enables filtering
     void setFiltering(bool on);
 
 
