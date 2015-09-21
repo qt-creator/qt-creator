@@ -204,15 +204,19 @@ private:
 
     void addDiagnosticOptions()
     {
-        add(QStringLiteral("-Weverything"));
-        add(QStringLiteral("-Wno-c++98-compat"));
-        add(QStringLiteral("-Wno-c++98-compat-pedantic"));
-        add(QStringLiteral("-Wno-unused-macros"));
         add(QStringLiteral("-fmessage-length=0"));
         add(QStringLiteral("-fdiagnostics-show-note-include-stack"));
         add(QStringLiteral("-fmacro-backtrace-limit=0"));
         add(QStringLiteral("-fretain-comments-from-system-headers"));
         add(QStringLiteral("-ferror-limit=1000"));
+
+        add(QStringLiteral("-Weverything"));
+        add(QStringLiteral("-Wno-c++98-compat"));
+        add(QStringLiteral("-Wno-c++98-compat-pedantic"));
+        add(QStringLiteral("-Wno-unused-macros"));
+
+        if (m_projectPart->languageVersion >= ProjectPart::CXX98)
+            add(QStringLiteral("-Wno-missing-prototypes"));
     }
 };
 
