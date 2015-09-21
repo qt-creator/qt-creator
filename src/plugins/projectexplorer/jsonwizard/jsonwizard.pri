@@ -1,4 +1,5 @@
 HEADERS += $$PWD/jsonfieldpage.h \
+    $$PWD/jsonfieldpage_p.h \
     $$PWD/jsonfilepage.h \
     $$PWD/jsonkitspage.h \
     $$PWD/jsonprojectpage.h \

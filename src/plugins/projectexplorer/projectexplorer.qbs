@@ -169,7 +169,7 @@ QtcPlugin {
         name: "JsonWizard"
         prefix: "jsonwizard/"
         files: [
-            "jsonfieldpage.cpp", "jsonfieldpage.h",
+            "jsonfieldpage.cpp", "jsonfieldpage_p.h", "jsonfieldpage.h",
             "jsonfilepage.cpp", "jsonfilepage.h",
             "jsonkitspage.cpp", "jsonkitspage.h",
             "jsonprojectpage.cpp", "jsonprojectpage.h",
