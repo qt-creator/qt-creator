@@ -135,6 +135,13 @@ void Lexer::scan(Token *tok)
     tok->f.utf16chars = _currentCharUtf16 - _tokenStartUtf16;
 }
 
+static bool isMultiLineToken(unsigned char kind)
+{
+    return kind == T_EOF_SYMBOL
+        || kind == T_COMMENT
+        || kind == T_DOXY_COMMENT;
+}
+
 void Lexer::scan_helper(Token *tok)
 {
   again:
@@ -143,18 +150,10 @@ void Lexer::scan_helper(Token *tok)
             tok->f.joined = s._newlineExpected;
             tok->f.newline = !s._newlineExpected;
 
-            if (s._newlineExpected) {
+            if (s._newlineExpected)
                 s._newlineExpected = false;
-            } else {
-                switch (s._tokenKind) {
-                case T_EOF_SYMBOL:
-                case T_COMMENT:
-                case T_DOXY_COMMENT:
-                    break; // multiline tokens, don't break on newline
-                default: // Strings and C++ comments
-                    _state = 0;
-                }
-            }
+            else if (!isMultiLineToken(s._tokenKind))
+                _state = 0;
         } else {
             tok->f.whitespace = true;
         }
@@ -177,11 +176,9 @@ void Lexer::scan_helper(Token *tok)
         return;
     }
 
-    switch (s._tokenKind) {
-    case T_EOF_SYMBOL:
-        break;
-    case T_COMMENT:
-    case T_DOXY_COMMENT: {
+    if (s._tokenKind == T_EOF_SYMBOL) {
+        // skip
+    } else if (s._tokenKind == T_COMMENT || s._tokenKind == T_DOXY_COMMENT) {
         const int originalKind = s._tokenKind;
 
         while (_yychar) {
@@ -201,10 +198,8 @@ void Lexer::scan_helper(Token *tok)
             goto again;
 
         tok->f.kind = originalKind;
-        return; // done
-    }
-    case T_CPP_COMMENT:
-    case T_CPP_DOXY_COMMENT: {
+        return;
+    } else if (s._tokenKind == T_CPP_COMMENT || s._tokenKind == T_CPP_DOXY_COMMENT) {
         const Kind originalKind = (Kind)s._tokenKind;
         tok->f.joined = true;
         if (f._scanCommentTokens)
@@ -212,8 +207,7 @@ void Lexer::scan_helper(Token *tok)
         _state = 0;
         scanCppComment(originalKind);
         return;
-    }
-    default: // Strings
+    } else { // strings
         tok->f.joined = true;
         tok->f.kind = s._tokenKind;
         _state = 0;
