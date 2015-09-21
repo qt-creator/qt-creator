@@ -189,7 +189,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
-    m_checkoutButton = addActionButton(tr("&Checkout"), [this]() { slotFetchCheckout(); });
+    m_checkoutButton = addActionButton(tr("C&heckout"), [this]() { slotFetchCheckout(); });
     m_refreshButton = addActionButton(tr("&Refresh"), [this]() { slotRefresh(); });
 
     connect(m_model, &GerritModel::refreshStateChanged,
