@@ -333,7 +333,7 @@ QWidget *LabelField::createWidget(const QString &displayName, JsonFieldPage *pag
 {
     Q_UNUSED(displayName);
     Q_UNUSED(page);
-    QLabel *w = new QLabel();
+    auto w = new QLabel;
     w->setWordWrap(m_wordWrap);
     w->setText(m_text);
     return w;
@@ -426,10 +426,10 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
 QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
-    QLineEdit *w = new QLineEdit;
+    auto w = new QLineEdit;
 
     if (m_validatorRegExp.isValid()) {
-        LineEditValidator *lv = new LineEditValidator(page->expander(), m_validatorRegExp, w);
+        auto lv = new LineEditValidator(page->expander(), m_validatorRegExp, w);
         lv->setFixupExpando(m_fixupExpando);
         w->setValidator(lv);
     }
@@ -522,7 +522,7 @@ QWidget *TextEditField::createWidget(const QString &displayName, JsonFieldPage *
     // TODO: Set up modification monitoring...
     Q_UNUSED(displayName);
     Q_UNUSED(page);
-    QTextEdit *w = new QTextEdit;
+    auto w = new QTextEdit;
     w->setAcceptRichText(m_acceptRichText);
     return w;
 }
@@ -900,7 +900,7 @@ JsonFieldPage::JsonFieldPage(MacroExpander *expander, QWidget *parent) :
 {
     QTC_CHECK(m_expander);
 
-    QVBoxLayout *vLayout = new QVBoxLayout;
+    auto vLayout = new QVBoxLayout;
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     vLayout->addLayout(m_formLayout);
     m_errorLabel->setVisible(false);
