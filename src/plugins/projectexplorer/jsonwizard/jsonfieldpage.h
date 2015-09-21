@@ -115,6 +115,9 @@ public:
     JsonFieldPage(Utils::MacroExpander *expander, QWidget *parent = 0);
     ~JsonFieldPage();
 
+    typedef std::function<Field *()> FieldFactory;
+    static void registerFieldFactory(const QString &id, const FieldFactory &ff);
+
     bool setup(const QVariant &data);
 
     bool isComplete() const;
@@ -129,6 +132,10 @@ public:
     Utils::MacroExpander *expander();
 
 private:
+    static QHash<QString, FieldFactory> m_factories;
+
+    static Field *createFieldData(const QString &type);
+
     QFormLayout *m_formLayout;
     QLabel *m_errorLabel;
 

@@ -31,6 +31,7 @@
 #include "jsonwizardpagefactory_p.h"
 
 #include "jsonfieldpage.h"
+#include "jsonfieldpage_p.h"
 #include "jsonfilepage.h"
 #include "jsonkitspage.h"
 #include "jsonprojectpage.h"
@@ -53,6 +54,14 @@ namespace Internal {
 FieldPageFactory::FieldPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Fields"));
+
+    JsonFieldPage::registerFieldFactory(QLatin1String("Label"), []() { return new LabelField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("Spacer"), []() { return new SpacerField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("LineEdit"), []() { return new LineEditField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("TextEdit"), []() { return new TextEditField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("PathChooser"), []() { return new PathChooserField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("CheckBox"), []() { return new CheckBoxField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("ComboBox"), []() { return new ComboBoxField; });
 }
 
 Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)

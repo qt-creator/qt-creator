@@ -73,25 +73,6 @@ namespace ProjectExplorer {
 // Helper:
 // --------------------------------------------------------------------
 
-static JsonFieldPage::Field *createFieldData(const QString &type)
-{
-    if (type == QLatin1String("Label"))
-        return new LabelField;
-    else if (type == QLatin1String("Spacer"))
-        return new SpacerField;
-    else if (type == QLatin1String("LineEdit"))
-        return new LineEditField;
-    else if (type == QLatin1String("TextEdit"))
-        return new TextEditField;
-    else if (type == QLatin1String("PathChooser"))
-        return new PathChooserField;
-    else if (type == QLatin1String("CheckBox"))
-        return new CheckBoxField;
-    else if (type == QLatin1String("ComboBox"))
-        return new ComboBoxField;
-    return 0;
-}
-
 class LineEditValidator : public QRegularExpressionValidator
 {
 public:
@@ -909,6 +890,8 @@ void ComboBoxField::initializeData(MacroExpander *expander)
 // JsonFieldPage:
 // --------------------------------------------------------------------
 
+QHash<QString, JsonFieldPage::FieldFactory> JsonFieldPage::m_factories;
+
 JsonFieldPage::JsonFieldPage(MacroExpander *expander, QWidget *parent) :
     WizardPage(parent),
     m_formLayout(new QFormLayout),
@@ -933,6 +916,12 @@ JsonFieldPage::~JsonFieldPage()
 {
     // Do not delete m_expander, it belongs to the wizard!
     qDeleteAll(m_fields);
+}
+
+void JsonFieldPage::registerFieldFactory(const QString &id, const JsonFieldPage::FieldFactory &ff)
+{
+    QTC_ASSERT(!m_factories.contains(id), return);
+    m_factories.insert(id, ff);
 }
 
 bool JsonFieldPage::setup(const QVariant &data)
@@ -1000,6 +989,13 @@ void JsonFieldPage::clearError() const
 MacroExpander *JsonFieldPage::expander()
 {
     return m_expander;
+}
+
+JsonFieldPage::Field *JsonFieldPage::createFieldData(const QString &type)
+{
+    if (!m_factories.contains(type))
+        return 0;
+    return m_factories.value(type)();
 }
 
 } // namespace ProjectExplorer
