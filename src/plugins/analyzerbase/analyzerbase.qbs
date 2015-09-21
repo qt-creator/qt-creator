@@ -36,8 +36,10 @@ QtcPlugin {
         "startremotedialog.cpp",
         "startremotedialog.h",
         "images/analyzer_category.png",
-        "images/analyzer_mode.png",
         "images/analyzer_start_small.png",
+        "images/analyzer_stop_small.png",
+        "images/mode_analyze.png",
+        "images/mode_analyze@2x.png",
     ]
 
     Export {
