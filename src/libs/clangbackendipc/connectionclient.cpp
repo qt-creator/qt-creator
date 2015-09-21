@@ -61,8 +61,12 @@ ConnectionClient::ConnectionClient(IpcClientInterface *client)
 {
     processAliveTimer.setInterval(10000);
 
-    connect(&processAliveTimer, &QTimer::timeout,
-            this, &ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty);
+    const bool startAliveTimer = !qgetenv("QTC_CLANG_NO_ALIVE_TIMER").toInt();
+
+    if (startAliveTimer) {
+        connect(&processAliveTimer, &QTimer::timeout,
+                this, &ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty);
+    }
 
     connect(&localSocket,
             static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
