@@ -42,6 +42,7 @@ for (@ARGV) {
 int(@files) or die "usage: $0 [-D<define>]... <qdoc-file>...\n";
 
 my @toc = ();
+my %title2type = ();
 my %title2page = ();
 my $doctitle = "";
 my %prev_skips = ();
@@ -51,7 +52,7 @@ my %next_define_skips = ();
 my %prev_polarity_skips = ();
 my %next_polarity_skips = ();
 for my $file (@files) {
-    my ($curpage, $inhdr, $havetoc, $intoc, $inif) = ("", 0, 0, 0, 0);
+    my ($curtype, $curpage, $inhdr, $havetoc, $intoc, $inif) = ("", 0, 0, 0, 0);
     my ($define_skip, $polarity_skip, $skipping) = ("", 0, 0);
     my ($prev_define_skip, $prev_polarity_skip, $prev_skip,
         $next_define_skip, $next_polarity_skip, $next_skip) = ("", 0, "", "", 0, "");
@@ -90,11 +91,12 @@ for my $file (@files) {
             } elsif (/^\h*\\nextpage\h+(\H+)/) {
                 $next_skip = $1 if ($skipping);
                 ($next_define_skip, $next_polarity_skip) = ($define_skip, $polarity_skip);
-            } elsif (/^\h*\\page\h+(\H+)/) {
-                $curpage = $1;
+            } elsif (/^\h*\\(page|example)\h+(\H+)/) {
+                $curtype = $1;
+                $curpage = $2;
             } elsif (/^\h*\\title\h+(.+)$/) {
                 if ($curpage eq "") {
-                    die "Title '$1' appears in no \\page.\n";
+                    die "Title '$1' appears in no \\page or \\example.\n";
                 }
                 if (length($prev_define_skip)) {
                     ($prev_define_skips{$1}, $prev_polarity_skips{$1}, $prev_skips{$1}) =
@@ -106,6 +108,7 @@ for my $file (@files) {
                             ($next_define_skip, $next_polarity_skip, $next_skip);
                     $next_define_skip = $next_skip = "";
                 }
+                $title2type{$1} = $curtype;
                 $title2page{$1} = $curpage;
                 $doctitle = $1 if (!$doctitle);
                 $curpage = "";
@@ -129,7 +132,7 @@ my $last = $doctitle;
 my $lastpage = $title2page{$last};
 for my $title (@toc) {
     my $page = $title2page{$title};
-    defined($page) or die "TOC refers to unknown page '$title'.\n";
+    defined($page) or die "TOC refers to unknown page/example '$title'.\n";
     $next{$last} = $page;
     $prev{$title} = $lastpage;
     $last = $title;
@@ -162,7 +165,7 @@ for my $file (@files) {
                     }
                     print OUT "    \\endif\n";
                 }
-                print OUT "    \\page ".$title2page{$1};
+                print OUT "    \\".$title2type{$1}." ".$title2page{$1};
                 if (defined($next_define_skips{$1})) {
                     print OUT "    \\if defined(".$next_define_skips{$1}.")\n";
                     if ($next_polarity_skips{$1}) {
