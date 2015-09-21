@@ -290,7 +290,8 @@ public:
 
     QTextBlock foldedBlockAt(const QPoint &pos, QRect *box = 0) const;
 
-    void updateLink(QMouseEvent *e);
+    void requestUpdateLink(QMouseEvent *e, bool immediate = false);
+    void updateLink();
     void showLink(const TextEditorWidget::Link &);
     void clearLink();
 
@@ -409,7 +410,8 @@ public:
 
     TextEditorWidget::Link m_currentLink;
     bool m_linkPressed;
-    TextEditorWidget::Link m_lastLinkUnderCursor;
+    QTextCursor m_pendingLinkUpdate;
+    QTextCursor m_lastLinkUpdate;
 
     QRegExp m_searchExpr;
     FindFlags m_findFlags;
@@ -4842,7 +4844,7 @@ void TextEditorWidgetPrivate::clearVisibleFoldedBlock()
 
 void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    d->updateLink(e);
+    d->requestUpdateLink(e);
 
     if (e->buttons() == Qt::NoButton) {
         const QTextBlock collapsedBlock = d->foldedBlockAt(e->pos());
@@ -4954,7 +4956,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
             if (refactorMarker.isValid()) {
                 onRefactorMarkerClicked(refactorMarker);
             } else {
-                d->updateLink(e);
+                d->requestUpdateLink(e, true);
 
                 if (d->m_currentLink.hasValidLinkText())
                     d->m_linkPressed = true;
@@ -5514,13 +5516,18 @@ bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
                                        Id(), flags);
 }
 
-void TextEditorWidgetPrivate::updateLink(QMouseEvent *e)
+void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e, bool immediate)
 {
     if (!q->mouseNavigationEnabled())
         return;
     if (e->modifiers() & Qt::ControlModifier) {
         // Link emulation behaviour for 'go to definition'
         const QTextCursor cursor = q->cursorForPosition(e->pos());
+
+        // Avoid updating the link we already found
+        if (cursor.position() >= m_currentLink.linkTextStart
+                && cursor.position() <= m_currentLink.linkTextEnd)
+            return;
 
         // Check that the mouse was actually on the text somewhere
         bool onText = q->cursorRect(cursor).right() >= e->x();
@@ -5530,22 +5537,34 @@ void TextEditorWidgetPrivate::updateLink(QMouseEvent *e)
             onText = q->cursorRect(nextPos).right() >= e->x();
         }
 
-        if (cursor.position() < m_lastLinkUnderCursor.linkTextStart
-                || cursor.position() > m_lastLinkUnderCursor.linkTextEnd) {
-            m_lastLinkUnderCursor = q->findLinkAt(cursor, false);
-        }
+        if (onText) {
+            m_pendingLinkUpdate = cursor;
 
-        if (onText && m_lastLinkUnderCursor.hasValidLinkText()) {
-            showLink(m_lastLinkUnderCursor);
-        } else {
-            clearLink();
-            // setting position to prevent multiple calls to findLinkAt for the same position
-            m_lastLinkUnderCursor.linkTextStart = cursor.position();
-            m_lastLinkUnderCursor.linkTextEnd = cursor.position();
+            if (immediate)
+                updateLink();
+            else
+                QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateLink);
+
+            return;
         }
-    } else {
-        clearLink();
     }
+
+    clearLink();
+}
+
+void TextEditorWidgetPrivate::updateLink()
+{
+    if (m_pendingLinkUpdate.isNull())
+        return;
+    if (m_pendingLinkUpdate == m_lastLinkUpdate)
+        return;
+
+    m_lastLinkUpdate = m_pendingLinkUpdate;
+    const TextEditorWidget::Link link = q->findLinkAt(m_pendingLinkUpdate, false);
+    if (link.hasValidLinkText())
+        showLink(link);
+    else
+        clearLink();
 }
 
 void TextEditorWidgetPrivate::showLink(const TextEditorWidget::Link &link)
@@ -5567,7 +5586,8 @@ void TextEditorWidgetPrivate::showLink(const TextEditorWidget::Link &link)
 
 void TextEditorWidgetPrivate::clearLink()
 {
-    m_lastLinkUnderCursor = TextEditorWidget::Link();
+    m_pendingLinkUpdate = QTextCursor();
+    m_lastLinkUpdate = QTextCursor();
     if (!m_currentLink.hasValidLinkText())
         return;
 
