@@ -41,13 +41,38 @@
 
 namespace ProjectExplorer {
 
+// --------------------------------------------------------------------
+// JsonFieldPage::Field::FieldPrivate:
+// --------------------------------------------------------------------
+
+class JsonFieldPage::Field::FieldPrivate
+{
+public:
+    QString m_name;
+    QString m_displayName;
+    QString m_toolTip;
+    bool m_isMandatory = false;
+    bool m_hasSpan = false;
+
+    QVariant m_visibleExpression;
+    QVariant m_enabledExpression;
+    QVariant m_isCompleteExpando;
+    QString m_isCompleteExpandoMessage;
+
+    QWidget *m_widget = 0;
+};
+
+// --------------------------------------------------------------------
+// Field Implementations:
+// --------------------------------------------------------------------
+
 class LabelField : public JsonFieldPage::Field
 {
 public:
     LabelField();
 
 private:
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
     bool parseData(const QVariant &data, QString *errorMessage);
 
     bool m_wordWrap;
@@ -63,7 +88,7 @@ public:
 
 private:
     bool parseData(const QVariant &data, QString *errorMessage);
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
 
     int m_factor;
 };
@@ -75,7 +100,7 @@ public:
 
 private:
     bool parseData(const QVariant &data, QString *errorMessage);
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
 
     void setup(JsonFieldPage *page, const QString &name);
 
@@ -99,7 +124,7 @@ public:
 
 private:
     bool parseData(const QVariant &data, QString *errorMessage);
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
 
     void setup(JsonFieldPage *page, const QString &name);
 
@@ -121,7 +146,7 @@ public:
 private:
     bool parseData(const QVariant &data, QString *errorMessage);
 
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
     void setEnabled(bool e);
 
     void setup(JsonFieldPage *page, const QString &name);
@@ -146,7 +171,7 @@ public:
 private:
     bool parseData(const QVariant &data, QString *errorMessage);
 
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
 
     void setup(JsonFieldPage *page, const QString &name);
 
@@ -168,7 +193,7 @@ public:
 private:
     bool parseData(const QVariant &data, QString *errorMessage);
 
-    QWidget *widget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
 
     void setup(JsonFieldPage *page, const QString &name);
 

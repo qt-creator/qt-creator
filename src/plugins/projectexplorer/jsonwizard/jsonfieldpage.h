@@ -31,6 +31,8 @@
 #ifndef JSONFIELDPAGE_H
 #define JSONFIELDPAGE_H
 
+#include "../projectexplorer_export.h"
+
 #include <utils/pathchooser.h>
 #include <utils/wizardpage.h>
 
@@ -53,23 +55,25 @@ class TextFieldComboBox;
 namespace ProjectExplorer {
 
 // Documentation inside.
-class JsonFieldPage : public Utils::WizardPage
+class PROJECTEXPLORER_EXPORT JsonFieldPage : public Utils::WizardPage
 {
     Q_OBJECT
 
 public:
-    class Field
+    class PROJECTEXPLORER_EXPORT Field
     {
     public:
-        Field() : mandatory(false), span(false), m_visibleExpression(true), m_widget(0) { }
-        virtual ~Field() { delete m_widget; }
+        class FieldPrivate;
+
+        Field();
+        virtual ~Field();
 
         static Field *parse(const QVariant &input, QString *errorMessage);
         void createWidget(JsonFieldPage *page);
 
         void adjustState(Utils::MacroExpander *expander);
-        virtual void setEnabled(bool e) { m_widget->setEnabled(e); }
-        void setVisible(bool v) { m_widget->setVisible(v); }
+        virtual void setEnabled(bool e);
+        void setVisible(bool v);
 
         virtual bool validate(Utils::MacroExpander *expander, QString *message);
 
@@ -78,25 +82,34 @@ public:
 
         virtual bool suppressName() const { return false; }
 
-        QString name;
-        QString displayName;
-        QString toolTip;
-        bool mandatory;
-        bool span;
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
+
+        QString name();
+        QString displayName();
+        QString toolTip();
+        bool isMandatory();
+        bool hasSpan();
 
     protected:
-        QVariant m_visibleExpression;
-        QVariant m_enabledExpression;
-        QVariant m_isCompleteExpando;
-        QString m_isCompleteExpandoMessage;
-
+        QWidget *widget() const;
         virtual bool parseData(const QVariant &data, QString *errorMessage) = 0;
         virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander); }
-        virtual QWidget *widget(const QString &displayName, JsonFieldPage *page) = 0;
+        virtual QWidget *createWidget(const QString &displayName, JsonFieldPage *page) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)
         { Q_UNUSED(page); Q_UNUSED(name); }
 
-        QWidget *m_widget;
+    private:
+        void setTexts(const QString &n, const QString &dn, const QString &tt);
+        void setIsMandatory(bool b);
+        void setHasSpan(bool b);
+
+        void setVisibleExpression(const QVariant &v);
+        void setEnabledExpression(const QVariant &v);
+        void setIsCompleteExpando(const QVariant &v, const QString &m);
+
+        friend class JsonFieldPage;
+
+        FieldPrivate *const d;
     };
 
     JsonFieldPage(Utils::MacroExpander *expander, QWidget *parent = 0);
