@@ -50,12 +50,12 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-void initializeTextMarks()
+static void initializeTextMarks()
 {
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_WARNING),
-                                           Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+                                           Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
-                                           Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
+                                           Utils::Theme::ClangCodeModel_Error_TextMarkColor);
 }
 
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -90,6 +90,8 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 
     // Register ModelManagerSupportProvider
     cppModelManager->addModelManagerSupportProvider(&m_modelManagerSupportProvider);
+
+    initializeTextMarks();
 
     return true;
 }

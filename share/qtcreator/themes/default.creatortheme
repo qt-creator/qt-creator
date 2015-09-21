@@ -131,6 +131,9 @@ TextEditor_CurrentLine_ScrollBarColor=ff404040
 ProjectExplorer_TaskError_TextMarkColor=ffff0000
 ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 
+ClangCodeModel_Error_TextMarkColor=ffff882f
+ClangCodeModel_Warning_TextMarkColor=ffc6c132
+
 [Flags]
 ComboBoxDrawTextShadow=true
 DerivePaletteFromTheme=false

@@ -195,7 +195,11 @@ public:
 
         /* ProjectExplorer Plugin */
         ProjectExplorer_TaskError_TextMarkColor,
-        ProjectExplorer_TaskWarn_TextMarkColor
+        ProjectExplorer_TaskWarn_TextMarkColor,
+
+        /* ClangCodeModel Plugin */
+        ClangCodeModel_Error_TextMarkColor,
+        ClangCodeModel_Warning_TextMarkColor
     };
 
     enum Gradient {
