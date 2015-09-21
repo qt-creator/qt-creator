@@ -335,6 +335,17 @@ void tst_SimpleLexer::literals_data()
                             << T_NUMERIC_LITERAL << T_ERROR << T_ERROR << T_ERROR
                                ;
     QTest::newRow("integer-literals") << source << expectedTokenKindList;
+
+    source =
+            "R\"(raw text)\"\n"
+            "R\"delimiter(raw text)delimiter\"\n"
+            "R\"delimiter(\nraw text line1\nraw text line2\n)delimiter\"\n"
+            ;
+    expectedTokenKindList =
+            TokenKindList() << T_RAW_STRING_LITERAL << T_RAW_STRING_LITERAL
+                            << T_RAW_STRING_LITERAL
+                               ;
+    QTest::newRow("raw-string-literals") << source << expectedTokenKindList;
 }
 
 void tst_SimpleLexer::preprocessor()

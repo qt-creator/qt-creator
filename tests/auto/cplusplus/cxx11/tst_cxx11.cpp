@@ -198,6 +198,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("trailingtypespec.1") << "trailingtypespec.1.cpp" << "";
     QTest::newRow("lambda.2") << "lambda.2.cpp" << "";
     QTest::newRow("userDefinedLiterals.1") << "userDefinedLiterals.1.cpp" << "";
+    QTest::newRow("rawstringliterals") << "rawstringliterals.cpp" << "";
 }
 
 void tst_cxx11::parse()
