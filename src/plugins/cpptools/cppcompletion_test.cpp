@@ -3398,6 +3398,16 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         << false
         << true;
 
+    QTest::newRow("objc_not_replacing") << _(
+            "typedef struct objc_object Bar;"
+            "class Foo {\n"
+            "  Bar *bar;\n"
+            "  void func() { @ }"
+            "};\n"
+        ) << _("bar.") << (QStringList())
+        << true
+        << false;
+
     QTest::newRow("typedef_of_type_and_decl_of_type_no_replace_access_operator") << _(
             "struct S { int m; };\n"
             "typedef S SType;\n"
