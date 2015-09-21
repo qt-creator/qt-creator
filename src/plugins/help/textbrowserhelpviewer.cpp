@@ -181,7 +181,7 @@ void TextBrowserHelpViewer::addBackHistoryItems(QMenu *backMenu)
         QAction *action = new QAction(backMenu);
         action->setText(m_textBrowser->historyTitle(-i));
         action->setData(-i);
-        connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+        connect(action, &QAction::triggered, this, &TextBrowserHelpViewer::goToHistoryItem);
         backMenu->addAction(action);
     }
 }
@@ -192,7 +192,7 @@ void TextBrowserHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
         QAction *action = new QAction(forwardMenu);
         action->setText(m_textBrowser->historyTitle(i));
         action->setData(i);
-        connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+        connect(action, &QAction::triggered, this, &TextBrowserHelpViewer::goToHistoryItem);
         forwardMenu->addAction(action);
     }
 }

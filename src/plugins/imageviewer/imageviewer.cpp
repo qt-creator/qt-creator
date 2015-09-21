@@ -126,18 +126,18 @@ void ImageViewer::ctor()
     d->ui_toolbar.toolButtonPlayPause->setCommandId(Constants::ACTION_TOGGLE_ANIMATION);
 
     // connections
-    connect(d->ui_toolbar.toolButtonZoomIn, SIGNAL(clicked()),
-            d->imageView, SLOT(zoomIn()));
-    connect(d->ui_toolbar.toolButtonZoomOut, SIGNAL(clicked()),
-            d->imageView, SLOT(zoomOut()));
-    connect(d->ui_toolbar.toolButtonFitToScreen, SIGNAL(clicked()),
-            d->imageView, SLOT(fitToScreen()));
-    connect(d->ui_toolbar.toolButtonOriginalSize, SIGNAL(clicked()),
-            d->imageView, SLOT(resetToOriginalSize()));
-    connect(d->ui_toolbar.toolButtonBackground, SIGNAL(toggled(bool)),
-            d->imageView, SLOT(setViewBackground(bool)));
-    connect(d->ui_toolbar.toolButtonOutline, SIGNAL(toggled(bool)),
-            d->imageView, SLOT(setViewOutline(bool)));
+    connect(d->ui_toolbar.toolButtonZoomIn, &QAbstractButton::clicked,
+            d->imageView, &ImageView::zoomIn);
+    connect(d->ui_toolbar.toolButtonZoomOut, &QAbstractButton::clicked,
+            d->imageView, &ImageView::zoomOut);
+    connect(d->ui_toolbar.toolButtonFitToScreen, &QAbstractButton::clicked,
+            d->imageView, &ImageView::fitToScreen);
+    connect(d->ui_toolbar.toolButtonOriginalSize, &QAbstractButton::clicked,
+            d->imageView, &ImageView::resetToOriginalSize);
+    connect(d->ui_toolbar.toolButtonBackground, &QAbstractButton::toggled,
+            d->imageView, &ImageView::setViewBackground);
+    connect(d->ui_toolbar.toolButtonOutline, &QAbstractButton::toggled,
+            d->imageView, &ImageView::setViewOutline);
     connect(d->ui_toolbar.toolButtonPlayPause, &Core::CommandButton::clicked,
             this, &ImageViewer::playToggled);
     connect(d->file.data(), &ImageViewerFile::imageSizeChanged,
@@ -150,8 +150,8 @@ void ImageViewer::ctor()
             d->imageView, &ImageView::createScene);
     connect(d->file.data(), &ImageViewerFile::isPausedChanged,
             this, &ImageViewer::updatePauseAction);
-    connect(d->imageView, SIGNAL(scaleFactorChanged(qreal)),
-            this, SLOT(scaleFactorUpdate(qreal)));
+    connect(d->imageView, &ImageView::scaleFactorChanged,
+            this, &ImageViewer::scaleFactorUpdate);
 }
 
 ImageViewer::~ImageViewer()

@@ -158,7 +158,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     if (style != ModeWidget) {
         m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
         cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
-        connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
+        connect(m_switchToHelp, &QAction::triggered, this, &HelpWidget::helpModeButtonClicked);
         layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_switchToHelp, cmd));
     }
 
@@ -172,7 +172,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         tr("Back"), toolBar);
     connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
     m_backMenu = new QMenu(toolBar);
-    connect(m_backMenu, SIGNAL(aboutToShow()), this, SLOT(updateBackMenu()));
+    connect(m_backMenu, &QMenu::aboutToShow, this, &HelpWidget::updateBackMenu);
     m_backAction->setMenu(m_backMenu);
     cmd = Core::ActionManager::registerAction(m_backAction, Constants::HELP_PREVIOUS, context);
     cmd->setDefaultKeySequence(QKeySequence::Back);
@@ -184,7 +184,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         tr("Forward"), toolBar);
     connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
     m_forwardMenu = new QMenu(toolBar);
-    connect(m_forwardMenu, SIGNAL(aboutToShow()), this, SLOT(updateForwardMenu()));
+    connect(m_forwardMenu, &QMenu::aboutToShow, this, &HelpWidget::updateForwardMenu);
     m_forwardAction->setMenu(m_forwardMenu);
     cmd = Core::ActionManager::registerAction(m_forwardAction, Constants::HELP_NEXT, context);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
@@ -458,7 +458,7 @@ void HelpWidget::addViewer(HelpViewer *viewer)
         print(viewer);
     });
     if (m_style == ExternalWindow)
-        connect(viewer, SIGNAL(titleChanged()), this, SLOT(updateWindowTitle()));
+        connect(viewer, &HelpViewer::titleChanged, this, &HelpWidget::updateWindowTitle);
 
     connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
 
