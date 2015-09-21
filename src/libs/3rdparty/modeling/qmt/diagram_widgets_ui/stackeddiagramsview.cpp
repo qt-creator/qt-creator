@@ -57,12 +57,6 @@ void StackedDiagramsView::setDiagramsManager(DiagramsManager *diagrams_manager)
     _diagrams_manager = diagrams_manager;
 }
 
-MDiagram *StackedDiagramsView::getCurrentDiagram() const
-{
-    DiagramView *diagram_view = dynamic_cast<DiagramView *>(currentWidget());
-    return getDiagram(diagram_view);
-}
-
 void StackedDiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);

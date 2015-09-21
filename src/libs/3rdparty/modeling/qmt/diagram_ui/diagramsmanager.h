@@ -93,8 +93,6 @@ public:
 
     void setStereotypeController(StereotypeController *stereotype_controller);
 
-    MDiagram *getCurrentDiagram() const;
-
 public:
 
     DiagramSceneModel *bindDiagramSceneModel(MDiagram *diagram);

@@ -53,7 +53,6 @@ ExtDocumentController::ExtDocumentController(QObject *parent)
 {
     d->elementTasks = new ElementTasks;
     d->pxNodeController = new PxNodeController(this);
-    // TODO use more specific dependency
     d->elementTasks->setDocumentController(this);
     getDiagramSceneController()->setElementTasks(d->elementTasks);
 

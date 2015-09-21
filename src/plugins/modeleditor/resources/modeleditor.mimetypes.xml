@@ -5,10 +5,4 @@
         <comment>Qt Creator Model File</comment>
         <glob pattern="*.qmodel"/>
     </mime-type>
-    <mime-type type="text/vnd.qtcreator.diagram-reference">
-        <sub-class-of type="text/xml"/>
-        <comment>Qt Creator Diagram Reference File</comment>
-        <glob pattern="*.qdiagram"/>
-    </mime-type>
 </mime-info>
-

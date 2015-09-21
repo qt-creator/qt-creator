@@ -30,7 +30,7 @@
 
 #include "diagramsviewmanager.h"
 
-#include "abstracteditor.h"
+#include "modeleditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
@@ -40,40 +40,24 @@
 namespace ModelEditor {
 namespace Internal {
 
-// TODO eliminate this class - realize interface in class ModelsManager.
-
 DiagramsViewManager::DiagramsViewManager(QObject *parent)
     : QObject(parent)
 {
-    // TODO connect to EditorManager if active editor changed;
-    // then emit currentDiagramChanged eventually
-}
-
-qmt::MDiagram *DiagramsViewManager::getCurrentDiagram() const
-{
-    // TODO currentEditor() is not good enough in case of split editors
-    // (drag&drop can be done in non-current editor but expects current diagram != 0)
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
-    auto abstractEditor = dynamic_cast<AbstractEditor *>(editor);
-    if (!abstractEditor)
-        return 0;
-    return abstractEditor->editorDiagram();
 }
 
 void DiagramsViewManager::openDiagram(qmt::MDiagram *diagram)
 {
-    emit openEditor(diagram);
+    emit openNewDiagram(diagram);
 }
 
 void DiagramsViewManager::closeDiagram(const qmt::MDiagram *diagram)
 {
-    emit closeEditor(diagram);
+    emit closeOpenDiagram(diagram);
 }
 
 void DiagramsViewManager::closeAllDiagrams()
 {
-    // should never be called in this realization
-    QTC_CHECK(false);
+    emit closeAllOpenDiagrams();
 }
 
 void DiagramsViewManager::onDiagramRenamed(const qmt::MDiagram *diagram)

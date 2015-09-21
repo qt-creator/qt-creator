@@ -67,7 +67,8 @@ void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagram_scene_model)
 {
     setScene(0);
     _diagram_scene_model = diagram_scene_model;
-    setScene(_diagram_scene_model->getGraphicsScene());
+    if (diagram_scene_model)
+        setScene(_diagram_scene_model->getGraphicsScene());
 }
 
 void DiagramView::dragEnterEvent(QDragEnterEvent *event)

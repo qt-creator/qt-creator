@@ -43,8 +43,6 @@ public:
 
 public:
 
-    virtual MDiagram *getCurrentDiagram() const = 0;
-
     virtual void openDiagram(MDiagram *) = 0;
 
     virtual void closeDiagram(const MDiagram *) = 0;

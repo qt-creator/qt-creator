@@ -30,7 +30,6 @@
 
 #include "modeleditor_plugin.h"
 
-#include "diagrameditorfactory.h"
 #include "modeleditorfactory.h"
 #include "modelsmanager.h"
 #include "settingscontroller.h"
@@ -72,7 +71,6 @@ public:
     ModelsManager *modelsManager = 0;
     UiController *uiController = 0;
     ModelEditorFactory *modelFactory = 0;
-    DiagramEditorFactory *diagramFactory = 0;
     SettingsController *settingsController = 0;
 };
 
@@ -110,9 +108,6 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
     d->modelFactory = new ModelEditorFactory(d->uiController, this);
     addAutoReleasedObject(d->modelFactory);
 
-    d->diagramFactory = new DiagramEditorFactory(d->uiController, this);
-    addAutoReleasedObject(d->diagramFactory);
-
     d->settingsController = new SettingsController(this);
     addAutoReleasedObject(d->settingsController);
 
@@ -130,7 +125,6 @@ void ModelEditorPlugin::extensionsInitialized()
     // In the extensionsInitialized method, a plugin can be sure that all
     // plugins that depend on it are completely initialized.
     d->modelFactory->extensionsInitialized();
-    d->diagramFactory->extensionsInitialized();
     d->settingsController->load(Core::ICore::settings());
 }
 

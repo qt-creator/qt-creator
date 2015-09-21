@@ -110,7 +110,7 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
       _style_controller(0),
       _stereotype_controller(0),
       _diagram(0),
-      _graphics_scene(new DiagramGraphicsScene(this, this)),
+      _graphics_scene(new DiagramGraphicsScene(this)),
       _latch_controller(new LatchController(this)),
       _busy(NOT_BUSY),
       _origin_item(new OriginItem()),
@@ -134,6 +134,7 @@ DiagramSceneModel::~DiagramSceneModel()
     if (_diagram_controller) {
         disconnect(_diagram_controller, 0, this, 0);
     }
+    _graphics_scene->deleteLater();
 }
 
 void DiagramSceneModel::setDiagramController(DiagramController *diagram_controller)

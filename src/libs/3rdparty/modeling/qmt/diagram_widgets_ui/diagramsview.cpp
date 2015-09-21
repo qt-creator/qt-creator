@@ -61,12 +61,6 @@ void DiagramsView::setDiagramsManager(DiagramsManager *diagrams_manager)
     _diagrams_manager = diagrams_manager;
 }
 
-MDiagram *DiagramsView::getCurrentDiagram() const
-{
-    DiagramView *diagram_view = dynamic_cast<DiagramView *>(currentWidget());
-    return getDiagram(diagram_view);
-}
-
 void DiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);

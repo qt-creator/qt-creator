@@ -41,6 +41,7 @@ class Node;
 namespace qmt {
 class Uid;
 class MDiagram;
+class DiagramsViewInterface;
 }
 
 namespace ModelEditor {
@@ -49,7 +50,6 @@ namespace Internal {
 class ExtDocumentController;
 class DiagramsViewManager;
 class ModelDocument;
-class DiagramDocument;
 
 class ModelsManager :
         public QObject
@@ -62,28 +62,17 @@ public:
     explicit ModelsManager(QObject *parent = 0);
     ~ModelsManager();
 
-    bool isDiagramOpen(const qmt::Uid &modelUid, const qmt::Uid &diagramUid) const;
-
-    ExtDocumentController *createModel(ModelDocument *findModelDocument);
-    ExtDocumentController *findModelByFileName(const QString &fileName,
-                                               ModelDocument *findModelDocument);
-    ExtDocumentController *findOrLoadModel(const qmt::Uid &modelUid,
-                                           DiagramDocument *diagramDocument);
-    void release(ExtDocumentController *documentController, ModelDocument *findModelDocument);
-    void release(ExtDocumentController *documentController, DiagramDocument *diagramDocument);
-    DiagramsViewManager *findDiagramsViewManager(ExtDocumentController *documentController) const;
-    ModelDocument *findModelDocument(ExtDocumentController *documentController) const;
-    QList<ExtDocumentController *> collectAllDocumentControllers() const;
+    ExtDocumentController *createModel(ModelDocument *modelDocument);
+    void releaseModel(ExtDocumentController *documentController);
     void openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid);
 
 private slots:
-    void onOpenEditor(ExtDocumentController *documentController, const qmt::MDiagram *diagram);
-    void onCloseEditor(ExtDocumentController *documentController, const qmt::MDiagram *diagram);
-    void onCloseDocumentsLater();
-    void onDiagramRenamed(ExtDocumentController *documentController, const qmt::MDiagram *diagram);
     void onAboutToShowContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
-    void onOpenDiagram();
+    void onOpenDiagramFromProjectExplorer();
     void onOpenDefaultModel(const qmt::Uid &modelUid);
+
+private:
+    void openDiagram(ExtDocumentController *documentController, qmt::MDiagram *diagram);
 
 private:
     ModelsManagerPrivate *d;

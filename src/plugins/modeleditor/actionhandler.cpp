@@ -31,7 +31,7 @@
 #include "actionhandler.h"
 
 #include "modeleditor_constants.h"
-#include "abstracteditor.h"
+#include "modeleditor.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -147,63 +147,63 @@ void ActionHandler::createEditPropertiesShortcut(const Core::Id &shortcutId)
 
 void ActionHandler::undo()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->undo();
 }
 
 void ActionHandler::redo()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->redo();
 }
 
 void ActionHandler::cut()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->cut();
 }
 
 void ActionHandler::copy()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->copy();
 }
 
 void ActionHandler::paste()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->paste();
 }
 
 void ActionHandler::removeSelectedElements()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->removeSelectedElements();
 }
 
 void ActionHandler::deleteSelectedElements()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->deleteSelectedElements();
 }
 
 void ActionHandler::selectAll()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->selectAll();
 }
 
 void ActionHandler::onEditProperties()
 {
-    auto editor = dynamic_cast<AbstractEditor *>(Core::EditorManager::currentEditor());
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->editProperties();
 }

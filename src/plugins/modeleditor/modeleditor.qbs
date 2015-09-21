@@ -19,23 +19,14 @@ QtcPlugin {
     ]
 
     files: [
-        "abstracteditor.cpp",
-        "abstracteditor.h",
         "actionhandler.cpp",
         "actionhandler.h",
         "classviewcontroller.cpp",
         "classviewcontroller.h",
         "componentviewcontroller.cpp",
         "componentviewcontroller.h",
-        "diagramdocument.cpp",
-        "diagramdocument.h",
-        "diagrameditor.cpp",
-        "diagrameditorfactory.cpp",
-        "diagrameditorfactory.h",
-        "diagrameditor.h",
         "diagramsviewmanager.cpp",
         "diagramsviewmanager.h",
-        "documentinterface.h",
         "dragtool.cpp",
         "dragtool.h",
         "editordiagramview.cpp",

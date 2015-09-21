@@ -52,7 +52,6 @@ namespace Internal {
 class ModelDocument::ModelDocumentPrivate {
 public:
     ExtDocumentController *documentController = 0;
-    qmt::Uid diagramUid;
 };
 
 ModelDocument::ModelDocument(QObject *parent)
@@ -66,7 +65,7 @@ ModelDocument::ModelDocument(QObject *parent)
 ModelDocument::~ModelDocument()
 {
     if (d->documentController)
-        ModelEditorPlugin::modelsManager()->release(d->documentController, this);
+        ModelEditorPlugin::modelsManager()->releaseModel(d->documentController);
     delete d;
 }
 
@@ -103,7 +102,6 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
         emit changed();
     }
 
-    onDiagramRenamed();
     return true;
 }
 
@@ -145,47 +143,21 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-qmt::Uid ModelDocument::diagramUid() const
-{
-    return d->diagramUid;
-}
-
 bool ModelDocument::load(QString *errorString, const QString &fileName)
 {
-    d->documentController = ModelEditorPlugin::modelsManager()->findModelByFileName(fileName, this);
-    if (d->documentController) {
-        connect(d->documentController, &qmt::DocumentController::changed,
-                this, &IDocument::changed);
-        setFilePath(Utils::FileName::fromString(d->documentController->getProjectController()->getProject()->getFileName()));
-    } else {
-        d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
-        connect(d->documentController, &qmt::DocumentController::changed,
-                this, &IDocument::changed);
+    d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
+    connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
 
-        try {
-            d->documentController->loadProject(fileName);
-            setFilePath(Utils::FileName::fromString(d->documentController->getProjectController()->getProject()->getFileName()));
-        } catch (const qmt::Exception &ex) {
-            *errorString = ex.getErrorMsg();
-            return false;
-        }
+    try {
+        d->documentController->loadProject(fileName);
+        setFilePath(Utils::FileName::fromString(d->documentController->getProjectController()->getProject()->getFileName()));
+    } catch (const qmt::Exception &ex) {
+        *errorString = ex.getErrorMsg();
+        return false;
     }
 
-    qmt::MDiagram *rootDiagram = d->documentController->findOrCreateRootDiagram();
-    d->diagramUid = rootDiagram->getUid();
-
-    onDiagramRenamed();
     emit contentSet();
     return true;
-}
-
-void ModelDocument::onDiagramRenamed()
-{
-    qmt::MDiagram *diagram = d->documentController->getModelController()->findObject<qmt::MDiagram>(d->diagramUid);
-    if (diagram)
-        setPreferredDisplayName(tr("%1 [%2]").arg(diagram->getName()).arg(filePath().fileName()));
-    else
-        setPreferredDisplayName(QString());
 }
 
 } // namespace Internal

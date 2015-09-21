@@ -56,18 +56,12 @@ public:
     ~DiagramsViewManager() = default;
 
 signals:
-    void currentDiagramChanged(const qmt::MDiagram *diagram);
-
-    // This signal is never emitted but exists for API compatibility to other realizations
-    // of qmt::DiagramsViewInterface. The signal is not needed in the context of ModelEditor plugin
-    void someDiagramOpened(bool);
-
-    void openEditor(const qmt::MDiagram *diagram);
-    void closeEditor(const qmt::MDiagram *diagram);
+    void openNewDiagram(qmt::MDiagram *diagram);
+    void closeOpenDiagram(const qmt::MDiagram *diagram);
+    void closeAllOpenDiagrams();
     void diagramRenamed(const qmt::MDiagram *diagram);
 
 public:
-    qmt::MDiagram *getCurrentDiagram() const override;
     void openDiagram(qmt::MDiagram *diagram) override;
     void closeDiagram(const qmt::MDiagram *diagram) override;
     void closeAllDiagrams() override;

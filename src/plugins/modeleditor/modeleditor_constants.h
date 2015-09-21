@@ -37,9 +37,6 @@ namespace Constants {
 const char MODEL_EDITOR_ID[] = "Editors.ModelEditor";
 const char MODEL_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Model Editor");
 
-const char DIAGRAM_EDITOR_ID[] = "Editors.DiagramEditor";
-const char DIAGRAM_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Model Editor");
-
 const char REMOVE_SELECTED_ELEMENTS[] = "ModelEditor.RemoveSelectedElements";
 const char DELETE_SELECTED_ELEMENTS[] = "ModelEditor.DeleteSelectedElements";
 const char ACTION_ADD_PACKAGE[] = "ModelEditor.Action.AddPackage";
@@ -52,15 +49,12 @@ const char ACTION_EXPLORER_OPEN_DIAGRAM[] = "ModelEditor.Action.Explorer.OpenDia
 
 const char SHORTCUT_MODEL_EDITOR_EDIT_PROPERTIES[] =
         "ModelEditor.ModelEditor.Shortcut.EditProperties";
-const char SHORTCUT_DIAGRAM_EDITOR_EDIT_PROPERTIES[] =
-        "ModelEditor.DiagramEditor.Shortcut.EditProperties";
 
 const char WIZARD_CATEGORY[] = "O.Model";
 const char WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Modeling", "Modeling");
 const char WIZARD_MODEL_ID[] = "SA.Model";
 
 const char MIME_TYPE_MODEL[] = "text/vnd.qtcreator.model";
-const char MIME_TYPE_DIAGRAM_REFERENCE[] = "text/vnd.qtcreator.diagram-reference";
 
 // Settings entries
 const char SETTINGS_GROUP[] = "ModelEditorPlugin";

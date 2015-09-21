@@ -108,31 +108,31 @@ public:
 
     bool isDiagramClipboardEmpty() const;
 
-    bool hasCurrentDiagramSelection() const;
+    bool hasDiagramSelection(const qmt::MDiagram *diagram) const;
 
 public:
 
     void cutFromModel(const MSelection &selection);
 
-    Q_SLOT void cutFromCurrentDiagram();
+    void cutFromDiagram(MDiagram *diagram);
 
     void copyFromModel(const MSelection &selection);
 
-    Q_SLOT void copyFromCurrentDiagram();
+    void copyFromDiagram(const MDiagram *diagram);
 
-    Q_SLOT void copyCurrentDiagram();
+    void copyDiagram(const MDiagram *diagram);
 
     void pasteIntoModel(MObject *model_object);
 
-    Q_SLOT void pasteIntoCurrentDiagram();
+    void pasteIntoDiagram(MDiagram *diagram);
 
     void deleteFromModel(const MSelection &selection);
 
-    Q_SLOT void deleteFromCurrentDiagram();
+    void deleteFromDiagram(MDiagram *diagram);
 
-    Q_SLOT void removeFromCurrentDiagram();
+    void removeFromDiagram(MDiagram *diagram);
 
-    Q_SLOT void selectAllOnCurrentDiagram();
+    void selectAllOnDiagram(MDiagram *diagram);
 
 public:
 

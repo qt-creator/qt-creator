@@ -27,13 +27,9 @@ QT += core gui widgets
 #}
 
 SOURCES += \
-    abstracteditor.cpp \
     actionhandler.cpp \
     classviewcontroller.cpp \
     componentviewcontroller.cpp \
-    diagramdocument.cpp \
-    diagrameditor.cpp \
-    diagrameditorfactory.cpp \
     diagramsviewmanager.cpp \
     dragtool.cpp \
     editordiagramview.cpp \
@@ -53,15 +49,10 @@ SOURCES += \
     uicontroller.cpp
 
 HEADERS += \
-    abstracteditor.h \
     actionhandler.h \
     classviewcontroller.h \
     componentviewcontroller.h \
-    diagramdocument.h \
-    diagrameditorfactory.h \
-    diagrameditor.h \
     diagramsviewmanager.h \
-    documentinterface.h \
     dragtool.h \
     editordiagramview.h \
     elementtasks.h \

@@ -72,8 +72,6 @@ public:
 
     void setDiagramsManager(DiagramsManager *diagrams_manager);
 
-    MDiagram *getCurrentDiagram() const;
-
 public slots:
 
     void openDiagram(MDiagram *diagram);

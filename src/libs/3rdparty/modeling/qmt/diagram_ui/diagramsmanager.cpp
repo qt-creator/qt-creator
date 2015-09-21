@@ -131,11 +131,6 @@ void DiagramsManager::setStereotypeController(StereotypeController *stereotype_c
     _stereotype_controller = stereotype_controller;
 }
 
-MDiagram *DiagramsManager::getCurrentDiagram() const
-{
-    return _diagrams_view ? _diagrams_view->getCurrentDiagram() : 0;
-}
-
 DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
 {
     if (!_diagram_uid_to_managed_diagram_map.contains(diagram->getUid())) {

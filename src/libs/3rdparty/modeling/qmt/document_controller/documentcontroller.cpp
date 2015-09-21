@@ -147,10 +147,9 @@ bool DocumentController::isDiagramClipboardEmpty() const
     return _diagram_clipboard->isEmpty();
 }
 
-bool DocumentController::hasCurrentDiagramSelection() const
+bool DocumentController::hasDiagramSelection(const MDiagram *diagram) const
 {
-    QMT_CHECK(_diagrams_manager->getCurrentDiagram());
-    return _diagrams_manager->getDiagramSceneModel(_diagrams_manager->getCurrentDiagram())->hasSelection();
+    return _diagrams_manager->getDiagramSceneModel(diagram)->hasSelection();
 }
 
 void DocumentController::cutFromModel(const MSelection &selection)
@@ -159,10 +158,8 @@ void DocumentController::cutFromModel(const MSelection &selection)
     emit modelClipboardChanged(isModelClipboardEmpty());
 }
 
-void DocumentController::cutFromCurrentDiagram()
+void DocumentController::cutFromDiagram(MDiagram *diagram)
 {
-    MDiagram *diagram = _diagrams_manager->getCurrentDiagram();
-    QMT_CHECK(diagram);
     *_diagram_clipboard = _diagram_controller->cutElements(_diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
@@ -173,18 +170,15 @@ void DocumentController::copyFromModel(const MSelection &selection)
     emit modelClipboardChanged(isModelClipboardEmpty());
 }
 
-void DocumentController::copyFromCurrentDiagram()
+void DocumentController::copyFromDiagram(const qmt::MDiagram *diagram)
 {
-    MDiagram *diagram = _diagrams_manager->getCurrentDiagram();
-    QMT_CHECK(diagram);
     *_diagram_clipboard = _diagram_controller->copyElements(_diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
 
-void DocumentController::copyCurrentDiagram()
+void DocumentController::copyDiagram(const MDiagram *diagram)
 {
-    QMT_CHECK(_diagrams_manager->getCurrentDiagram());
-    _diagrams_manager->getDiagramSceneModel(_diagrams_manager->getCurrentDiagram())->copyToClipboard();
+    _diagrams_manager->getDiagramSceneModel(diagram)->copyToClipboard();
 }
 
 void DocumentController::pasteIntoModel(MObject *model_object)
@@ -194,10 +188,9 @@ void DocumentController::pasteIntoModel(MObject *model_object)
     }
 }
 
-void DocumentController::pasteIntoCurrentDiagram()
+void DocumentController::pasteIntoDiagram(MDiagram *diagram)
 {
-    QMT_CHECK(_diagrams_manager->getCurrentDiagram());
-    _diagram_controller->pasteElements(*_diagram_clipboard, _diagrams_manager->getCurrentDiagram());
+    _diagram_controller->pasteElements(*_diagram_clipboard, diagram);
 }
 
 void DocumentController::deleteFromModel(const MSelection &selection)
@@ -205,27 +198,22 @@ void DocumentController::deleteFromModel(const MSelection &selection)
     _model_controller->deleteElements(selection);
 }
 
-void DocumentController::deleteFromCurrentDiagram()
+void DocumentController::deleteFromDiagram(MDiagram *diagram)
 {
-    MDiagram *current_diagram = _diagrams_manager->getCurrentDiagram();
-    QMT_CHECK(current_diagram);
-    if (_diagrams_manager->getDiagramSceneModel(current_diagram)->hasSelection()) {
-        DSelection dselection = _diagrams_manager->getDiagramSceneModel(current_diagram)->getSelectedElements();
-        _diagram_scene_controller->deleteFromDiagram(dselection, current_diagram);
+    if (_diagrams_manager->getDiagramSceneModel(diagram)->hasSelection()) {
+        DSelection dselection = _diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements();
+        _diagram_scene_controller->deleteFromDiagram(dselection, diagram);
     }
 }
 
-void DocumentController::removeFromCurrentDiagram()
+void DocumentController::removeFromDiagram(MDiagram *diagram)
 {
-    MDiagram *diagram = _diagrams_manager->getCurrentDiagram();
-    QMT_CHECK(diagram);
     _diagram_controller->deleteElements(_diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
 }
 
-void DocumentController::selectAllOnCurrentDiagram()
+void DocumentController::selectAllOnDiagram(MDiagram *diagram)
 {
-    QMT_CHECK(_diagrams_manager->getCurrentDiagram());
-    _diagrams_manager->getDiagramSceneModel(_diagrams_manager->getCurrentDiagram())->selectAllElements();
+    _diagrams_manager->getDiagramSceneModel(diagram)->selectAllElements();
 }
 
 MPackage *DocumentController::createNewPackage(MPackage *parent)

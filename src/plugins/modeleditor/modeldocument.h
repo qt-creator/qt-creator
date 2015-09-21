@@ -32,7 +32,8 @@
 #define MODELDOCUMENT_H
 
 #include <coreplugin/idocument.h>
-#include "documentinterface.h"
+
+namespace qmt { class Uid; }
 
 namespace ModelEditor {
 namespace Internal {
@@ -40,8 +41,7 @@ namespace Internal {
 class ExtDocumentController;
 
 class ModelDocument :
-        public Core::IDocument,
-        public DocumentInterface
+        public Core::IDocument
 {
     Q_OBJECT
     class ModelDocumentPrivate;
@@ -63,12 +63,9 @@ public:
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
-    ExtDocumentController *documentController() const override;
-    qmt::Uid diagramUid() const override;
+    ExtDocumentController *documentController() const;
 
     bool load(QString *errorString, const QString &fileName);
-
-    void onDiagramRenamed();
 
 private:
     ModelDocumentPrivate *d;
