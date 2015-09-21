@@ -50,7 +50,8 @@ bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
         case DiagnosticSeverity::Ignored:
         case DiagnosticSeverity::Note:
         case DiagnosticSeverity::Warning: return true;
-        default: return false;
+        case DiagnosticSeverity::Error:
+        case DiagnosticSeverity::Fatal: return false;
     }
 
     Q_UNREACHABLE();
@@ -61,21 +62,24 @@ Core::Id cartegoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
     return isWarningOrNote(severity) ? Constants::CLANG_WARNING : Constants::CLANG_ERROR;
 }
 
-const QIcon &iconForSeverity(ClangBackEnd::DiagnosticSeverity severity)
-{
-    static const QIcon errorIcon{QLatin1String(Core::Constants::ICON_ERROR)};
-    static const QIcon warningIcon{QLatin1String(Core::Constants::ICON_WARNING)};
-
-    return isWarningOrNote(severity) ? warningIcon : errorIcon;
-}
-
 } // anonymous namespace
 
 ClangTextMark::ClangTextMark(const QString &fileName, int lineNumber, ClangBackEnd::DiagnosticSeverity severity)
     : TextEditor::TextMark(fileName, lineNumber, cartegoryForSeverity(severity))
 {
     setPriority(TextEditor::TextMark::HighPriority);
-    setIcon(iconForSeverity(severity));
+    setIcon(severity);
+}
+
+void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
+{
+    static const QIcon errorIcon{QLatin1String(Core::Constants::ICON_ERROR)};
+    static const QIcon warningIcon{QLatin1String(Core::Constants::ICON_WARNING)};
+
+    if (isWarningOrNote(severity))
+        TextMark::setIcon(warningIcon);
+    else
+        TextMark::setIcon(errorIcon);
 }
 
 ClangTextMark::ClangTextMark(ClangTextMark &&other) Q_DECL_NOEXCEPT

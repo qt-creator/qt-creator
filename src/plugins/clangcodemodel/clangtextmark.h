@@ -46,6 +46,9 @@ public:
 
     ClangTextMark(ClangTextMark &other) = delete;
     ClangTextMark &operator=(ClangTextMark &other) = delete;
+
+private:
+    void setIcon(ClangBackEnd::DiagnosticSeverity severity);
 };
 
 } // namespace ClangCodeModel
