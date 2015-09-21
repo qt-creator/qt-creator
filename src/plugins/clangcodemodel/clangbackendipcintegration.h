@@ -152,7 +152,7 @@ private:
     void initializeBackendWithCurrentData();
     void registerEmptyProjectForProjectLessFiles();
     void registerCurrentProjectParts();
-    void registerCurrentUnsavedFiles();
+    void registerCurrentCppEditorDocuments();
     void registerCurrrentCodeModelUiHeaders();
 
     void onBackendRestarted();

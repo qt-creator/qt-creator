@@ -315,7 +315,7 @@ void IpcCommunicator::registerCurrentProjectParts()
         registerProjectsParts(projectInfo.projectParts());
 }
 
-void IpcCommunicator::registerCurrentUnsavedFiles()
+void IpcCommunicator::registerCurrentCppEditorDocuments()
 {
     using namespace CppTools;
 
@@ -324,7 +324,6 @@ void IpcCommunicator::registerCurrentUnsavedFiles()
         if (cppEditorDocument->processor()->baseTextDocument()->isModified())
             updateTranslationUnitFromCppEditorDocument(cppEditorDocument->filePath());
     }
-
 }
 
 void IpcCommunicator::registerCurrrentCodeModelUiHeaders()
@@ -455,7 +454,7 @@ void IpcCommunicator::initializeBackendWithCurrentData()
 {
     registerEmptyProjectForProjectLessFiles();
     registerCurrentProjectParts();
-    registerCurrentUnsavedFiles();
+    registerCurrentCppEditorDocuments();
     registerCurrrentCodeModelUiHeaders();
 
     emit backendReinitialized();
