@@ -96,6 +96,7 @@ private:
 
     void scanStringLiteral(Token *tok, unsigned char hint = 0);
     void scanRawStringLiteral(Token *tok, unsigned char hint = 0);
+    bool scanUntilRawStringLiteralEndSimple();
     void scanCharLiteral(Token *tok, unsigned char hint = 0);
     void scanUntilQuote(Token *tok, unsigned char quote);
     bool scanDigitSequence();

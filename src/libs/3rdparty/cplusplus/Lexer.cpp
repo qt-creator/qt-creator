@@ -135,11 +135,18 @@ void Lexer::scan(Token *tok)
     tok->f.utf16chars = _currentCharUtf16 - _tokenStartUtf16;
 }
 
+static bool isRawStringLiteral(unsigned char kind)
+{
+    return kind >= T_FIRST_RAW_STRING_LITERAL
+        && kind <= T_LAST_RAW_STRING_LITERAL;
+}
+
 static bool isMultiLineToken(unsigned char kind)
 {
     return kind == T_EOF_SYMBOL
         || kind == T_COMMENT
-        || kind == T_DOXY_COMMENT;
+        || kind == T_DOXY_COMMENT
+        || isRawStringLiteral(kind);
 }
 
 void Lexer::scan_helper(Token *tok)
@@ -207,7 +214,12 @@ void Lexer::scan_helper(Token *tok)
         _state = 0;
         scanCppComment(originalKind);
         return;
-    } else { // strings
+    } else if (isRawStringLiteral(s._tokenKind)) {
+        tok->f.kind = s._tokenKind;
+        if (scanUntilRawStringLiteralEndSimple())
+            _state = 0;
+        return;
+    } else { // non-raw strings
         tok->f.joined = true;
         tok->f.kind = s._tokenKind;
         _state = 0;
@@ -740,6 +752,32 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
         tok->f.kind = T_RAW_UTF8_STRING_LITERAL;
     else
         tok->f.kind = T_RAW_STRING_LITERAL;
+
+    if (!_yychar)
+        s._tokenKind = tok->f.kind;
+}
+
+// In the highlighting case we don't have any further information
+// like the delimiter or its length, so just match for: ...)..."
+bool Lexer::scanUntilRawStringLiteralEndSimple()
+{
+    bool closingParenthesisPassed = false;
+
+    while (_yychar) {
+        if (_yychar == ')') {
+            yyinp();
+            closingParenthesisPassed = true;
+        } else {
+            if (closingParenthesisPassed && _yychar == '"') {
+                yyinp();
+                return true;
+            } else {
+                yyinp();
+            }
+        }
+    }
+
+    return false;
 }
 
 void Lexer::scanCharLiteral(Token *tok, unsigned char hint)
