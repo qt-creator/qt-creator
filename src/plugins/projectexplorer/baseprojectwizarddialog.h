@@ -86,10 +86,10 @@ protected:
 
 private slots:
     void slotAccepted();
-    void nextClicked();
 
 private:
     void init();
+    bool validateCurrentPage();
 
     BaseProjectWizardDialogPrivate *d;
 };

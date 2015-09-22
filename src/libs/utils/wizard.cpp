@@ -384,12 +384,6 @@ WizardProgress *Wizard::wizardProgress() const
     return d->m_wizardProgress;
 }
 
-bool Wizard::validateCurrentPage()
-{
-    emit nextClicked();
-    return QWizard::validateCurrentPage();
-}
-
 bool Wizard::hasField(const QString &name) const
 {
     return d_ptr->m_fieldNames.contains(name);

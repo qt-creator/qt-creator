@@ -98,7 +98,6 @@ void BaseProjectWizardDialog::init()
         setPage(d->desiredIntroPageId, d->introPage);
     }
     connect(this, SIGNAL(accepted()), this, SLOT(slotAccepted()));
-    connect(this, SIGNAL(nextClicked()), this, SLOT(nextClicked()));
 }
 
 BaseProjectWizardDialog::~BaseProjectWizardDialog()
@@ -155,10 +154,11 @@ void BaseProjectWizardDialog::slotAccepted()
     }
 }
 
-void BaseProjectWizardDialog::nextClicked()
+bool BaseProjectWizardDialog::validateCurrentPage()
 {
     if (currentId() == d->introPageId)
         emit projectParametersChanged(d->introPage->projectName(), d->introPage->path());
+    return Core::BaseFileWizard::validateCurrentPage();
 }
 
 Utils::ProjectIntroPage *BaseProjectWizardDialog::introPage() const

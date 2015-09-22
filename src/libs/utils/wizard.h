@@ -58,7 +58,6 @@ public:
     void setStartId(int pageId);
 
     WizardProgress *wizardProgress() const;
-    virtual bool validateCurrentPage();
 
     template<class T> T *find() const
     {
@@ -78,10 +77,6 @@ public:
 
 public slots:
     void showVariables();
-
-signals:
-    void nextClicked(); /* workaround for QWizard behavior where page->initialize is
-                         * called before currentIdChanged */
 
 protected:
     virtual QString stringify(const QVariant &v) const;
