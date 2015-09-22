@@ -279,10 +279,9 @@
 */
 
 /*!
-    \fn void ICore::contextChanged(Core::IContext *context, const Core::Context &additionalContexts)
-    Indicates that a new \a context just became the current context
-    (meaning that its widget got focus), or that the additional context ids
-    specified by \a additionalContexts changed.
+    \fn void ICore::contextChanged(const Core::Context &context)
+    Indicates that a new \a context just became the current context. This includes the context
+    from the focus object as well as the additional context.
 */
 
 #include "dialogs/newdialog.h"

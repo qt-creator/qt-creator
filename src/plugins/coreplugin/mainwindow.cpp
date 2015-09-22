@@ -1024,7 +1024,7 @@ void MainWindow::updateContext()
     }
 
     ActionManager::setContext(uniquecontexts);
-    emit m_coreImpl->contextChanged(m_activeContext, m_additionalContexts);
+    emit m_coreImpl->contextChanged(uniquecontexts);
 }
 
 void MainWindow::aboutToShowRecentFiles()

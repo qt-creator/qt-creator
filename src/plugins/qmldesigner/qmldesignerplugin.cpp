@@ -203,12 +203,6 @@ void QmlDesignerPlugin::createDesignModeWidget()
             this,
             SLOT(onTextEditorsClosed(QList<Core::IEditor*>)));
 
-//    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-//            &data->documentManager, SLOT(currentTextEditorChanged(Core::IEditor*)));
-
-//    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
-//            this, SLOT(contextChanged(Core::IContext*,Core::Context)));
-
     connect(Core::ModeManager::instance(),
             SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
             SLOT(onCurrentModeChanged(Core::IMode*,Core::IMode*)));

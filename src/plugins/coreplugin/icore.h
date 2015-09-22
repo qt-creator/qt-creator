@@ -136,7 +136,7 @@ signals:
     void optionsDialogRequested();
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
-    void contextChanged(const QList<Core::IContext *> &context, const Core::Context &additionalContexts);
+    void contextChanged(const Core::Context &context);
     void themeChanged();
 
 private:
