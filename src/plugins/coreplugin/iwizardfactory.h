@@ -63,8 +63,6 @@ public:
     };
     Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 
-    IWizardFactory() : m_kind(FileWizard) { }
-
     Id id() const { return m_id; }
     WizardKind kind() const { return m_kind; }
     QIcon icon() const { return m_icon; }
@@ -125,16 +123,16 @@ private:
     static void clearWizardFactories();
 
     QAction *m_action = 0;
-    IWizardFactory::WizardKind m_kind;
     QIcon m_icon;
     QString m_description;
     QString m_displayName;
-    Id m_id;
     QString m_category;
     QString m_displayCategory;
-    FeatureSet m_requiredFeatures;
-    WizardFlags m_flags;
     QString m_descriptionImage;
+    Id m_id;
+    FeatureSet m_requiredFeatures;
+    IWizardFactory::WizardKind m_kind = FileWizard;
+    WizardFlags m_flags = 0;
 
     friend class Internal::CorePlugin;
 };
