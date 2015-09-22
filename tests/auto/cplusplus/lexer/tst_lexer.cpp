@@ -38,6 +38,7 @@ typedef QByteArray _;
 
 Q_DECLARE_METATYPE(TokenKindList)
 Q_DECLARE_METATYPE(CPlusPlus::Tokens)
+Q_DECLARE_METATYPE(CPlusPlus::Kind)
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
@@ -70,6 +71,8 @@ private slots:
     void literals_data();
     void preprocessor();
     void preprocessor_data();
+    void ppOpOrPunc();
+    void ppOpOrPunc_data();
     void digraph();
     void digraph_data();
     void trigraph();
@@ -393,6 +396,82 @@ void tst_SimpleLexer::preprocessor_data()
             TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL;
     QTest::newRow("pp-number") << source << expectedTokenKindList;
+}
+
+void tst_SimpleLexer::ppOpOrPunc()
+{
+    QFETCH(Kind, expectedTokenKind);
+
+    const QByteArray source = QTest::currentDataTag();
+    run(source, toTokens({expectedTokenKind}), false, CompareKind, true);
+}
+
+void tst_SimpleLexer::ppOpOrPunc_data()
+{
+    QTest::addColumn<Kind>("expectedTokenKind");
+
+    // N4296 - [2.12]
+    QTest::newRow("{") << T_LBRACE;
+    QTest::newRow("}") << T_RBRACE;
+    QTest::newRow("[") << T_LBRACKET;
+    QTest::newRow("]") << T_RBRACKET;
+    QTest::newRow("#") << T_POUND;
+    QTest::newRow("##") << T_POUND_POUND;
+    QTest::newRow("(") << T_LPAREN;
+    QTest::newRow(")") << T_RPAREN;
+    QTest::newRow("<:") << T_LBRACKET;
+    QTest::newRow(":>") << T_RBRACKET;
+    QTest::newRow("<%") << T_LBRACE;
+    QTest::newRow("%>") << T_RBRACE;
+    QTest::newRow("%:") << T_POUND;
+    QTest::newRow("%:%:") << T_POUND_POUND;
+    QTest::newRow(";") << T_SEMICOLON;
+    QTest::newRow(":") << T_COLON;
+    QTest::newRow("...") << T_DOT_DOT_DOT;
+    QTest::newRow("new") << T_NEW;
+    QTest::newRow("delete") << T_DELETE;
+    QTest::newRow("?") << T_QUESTION;
+    QTest::newRow("::") << T_COLON_COLON;
+    QTest::newRow(".") << T_DOT;
+    QTest::newRow(".*") << T_DOT_STAR;
+    QTest::newRow("+") << T_PLUS;
+    QTest::newRow("-") << T_MINUS;
+    QTest::newRow("*") << T_STAR;
+    QTest::newRow("/") << T_SLASH;
+    QTest::newRow("%") << T_PERCENT;
+    QTest::newRow("^") << T_CARET;
+    QTest::newRow("&") << T_AMPER;
+    QTest::newRow("|") << T_PIPE;
+    QTest::newRow("~") << T_TILDE;
+    QTest::newRow("^=") << T_CARET_EQUAL;
+    QTest::newRow("&=") << T_AMPER_EQUAL;
+    QTest::newRow("|=") << T_PIPE_EQUAL;
+    QTest::newRow("<<") << T_LESS_LESS;
+    QTest::newRow(">>") << T_GREATER_GREATER;
+    QTest::newRow(">>=") << T_GREATER_GREATER_EQUAL;
+    QTest::newRow("<<=") << T_LESS_LESS_EQUAL;
+    QTest::newRow("==") << T_EQUAL_EQUAL;
+    QTest::newRow("!=") << T_EXCLAIM_EQUAL;
+    QTest::newRow("<=") << T_LESS_EQUAL;
+    QTest::newRow(">=") << T_GREATER_EQUAL;
+    QTest::newRow("&&") << T_AMPER_AMPER;
+    QTest::newRow("||") << T_PIPE_PIPE;
+    QTest::newRow("++") << T_PLUS_PLUS;
+    QTest::newRow("--") << T_MINUS_MINUS;
+    QTest::newRow(",") << T_COMMA;
+    QTest::newRow("->*") << T_ARROW_STAR;
+    QTest::newRow("->") << T_ARROW;
+    QTest::newRow("and") << T_AND;
+    QTest::newRow("and_eq") << T_AND_EQ;
+    QTest::newRow("bitand") << T_BITAND;
+    QTest::newRow("bitor") << T_BITOR;
+    QTest::newRow("compl") << T_COMPL;
+    QTest::newRow("not") << T_NOT;
+    QTest::newRow("not_eq") << T_NOT_EQ;
+    QTest::newRow("or") << T_OR;
+    QTest::newRow("or_eq") << T_OR_EQ;
+    QTest::newRow("xor") << T_XOR;
+    QTest::newRow("xor_eq") << T_XOR_EQ;
 }
 
 void tst_SimpleLexer::bytes_and_utf16chars()

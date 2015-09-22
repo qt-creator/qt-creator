@@ -630,9 +630,9 @@ void Lexer::scan_helper(Token *tok)
             if (_yychar == '=') {
                 yyinp();
                 tok->f.kind = T_GREATER_GREATER_EQUAL;
-            } else
-                tok->f.kind = T_LESS_LESS;
-            tok->f.kind = T_GREATER_GREATER;
+            } else {
+                tok->f.kind = T_GREATER_GREATER;
+            }
         } else if (_yychar == '=') {
             yyinp();
             tok->f.kind = T_GREATER_EQUAL;
