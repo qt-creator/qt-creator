@@ -184,8 +184,8 @@ void BaseQmakeProjectWizardDialog::init(bool showModulesPage)
 {
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
-    connect(this, SIGNAL(projectParametersChanged(QString,QString)),
-            this, SLOT(generateProfileName(QString,QString)));
+    connect(this, &BaseProjectWizardDialog::projectParametersChanged,
+            this, &BaseQmakeProjectWizardDialog::generateProfileName);
 }
 
 int BaseQmakeProjectWizardDialog::addModulesPage(int id)

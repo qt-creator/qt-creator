@@ -178,7 +178,7 @@ LibraryWizardDialog::LibraryWizardDialog(const Core::BaseFileWizardFactory *fact
         }
     }
 
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
+    connect(this, &QWizard::currentIdChanged, this, &LibraryWizardDialog::slotCurrentIdChanged);
 
     addExtensionPages(extensionPages());
 }

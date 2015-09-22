@@ -118,7 +118,7 @@ public:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                           bool showModulesPage, QWidget *parent,
                                           const Core::WizardDialogParameters &parameters);
-    ~BaseQmakeProjectWizardDialog();
+    ~BaseQmakeProjectWizardDialog() override;
 
     int addModulesPage(int id = -1);
     int addTargetSetupPage(int id = -1);

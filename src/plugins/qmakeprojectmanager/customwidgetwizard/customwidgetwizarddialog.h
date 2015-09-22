@@ -58,10 +58,9 @@ public:
     FileNamingParameters fileNamingParameters() const;
     void setFileNamingParameters(const FileNamingParameters &fnp);
 
-private slots:
-    void slotCurrentIdChanged (int id);
-
 private:
+    void slotCurrentIdChanged(int id);
+
     CustomWidgetWidgetsWizardPage *m_widgetsPage;
     CustomWidgetPluginWizardPage *m_pluginPage;
     int m_pluginPageId;

@@ -62,7 +62,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const Core::BaseFileWizardFac
     m_pluginPageId = addPage(m_pluginPage);
 
     addExtensionPages(extensionPages());
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
+    connect(this, &QWizard::currentIdChanged, this, &CustomWidgetWizardDialog::slotCurrentIdChanged);
 }
 
 FileNamingParameters CustomWidgetWizardDialog::fileNamingParameters() const

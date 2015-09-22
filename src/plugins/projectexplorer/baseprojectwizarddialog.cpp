@@ -97,7 +97,7 @@ void BaseProjectWizardDialog::init()
         d->introPageId = d->desiredIntroPageId;
         setPage(d->desiredIntroPageId, d->introPage);
     }
-    connect(this, SIGNAL(accepted()), this, SLOT(slotAccepted()));
+    connect(this, &QDialog::accepted, this, &BaseProjectWizardDialog::slotAccepted);
 }
 
 BaseProjectWizardDialog::~BaseProjectWizardDialog()

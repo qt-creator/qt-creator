@@ -50,7 +50,7 @@ class QTCREATOR_UTILS_EXPORT Wizard : public QWizard
 
 public:
     explicit Wizard(QWidget *parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~Wizard();
+    ~Wizard() override;
 
     bool isAutomaticProgressCreationEnabled() const;
     void setAutomaticProgressCreationEnabled(bool enabled);
@@ -75,22 +75,19 @@ public:
 
     virtual QHash<QString, QVariant> variables() const;
 
-public slots:
     void showVariables();
 
 protected:
     virtual QString stringify(const QVariant &v) const;
     virtual QString evaluate(const QVariant &v) const;
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
-private slots:
+private:
     void _q_currentPageChanged(int pageId);
     void _q_pageAdded(int pageId);
     void _q_pageRemoved(int pageId);
 
-private:
     Q_DECLARE_PRIVATE(Wizard)
-
     class WizardPrivate *d_ptr;
 };
 

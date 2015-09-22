@@ -59,16 +59,15 @@ public:
 
     static QString pluginInterface(const QString &baseClass);
 
-    virtual int nextId() const;
+    int nextId() const override;
 
 protected:
-    void initializePage(int id);
-    void cleanupPage(int id);
-
-private slots:
-    void slotCurrentIdChanged(int);
+    void initializePage(int id) override;
+    void cleanupPage(int id) override;
 
 private:
+    void slotCurrentIdChanged(int);
+
     QtProjectParameters::Type type() const;
     void setupFilesPage();
     bool isModulesPageSkipped() const;

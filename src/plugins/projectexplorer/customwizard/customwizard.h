@@ -138,15 +138,14 @@ public:
 
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
 
+signals:
+    void projectLocationChanged(const QString &path);
+
 protected:
     Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 
-signals:
-    void projectLocationChanged(const QString &path);
-
-protected:
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const override;
 
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,

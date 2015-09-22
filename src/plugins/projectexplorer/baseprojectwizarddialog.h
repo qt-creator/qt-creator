@@ -65,7 +65,6 @@ public:
     static QString uniqueProjectName(const QString &path);
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
-public slots:
     void setIntroDescription(const QString &d);
     void setPath(const QString &path);
     void setProjectName(const QString &name);
@@ -84,11 +83,9 @@ protected:
     Core::FeatureSet requiredFeatures() const;
     void setRequiredFeatures(const Core::FeatureSet &featureSet);
 
-private slots:
-    void slotAccepted();
-
 private:
     void init();
+    void slotAccepted();
     bool validateCurrentPage();
 
     BaseProjectWizardDialogPrivate *d;

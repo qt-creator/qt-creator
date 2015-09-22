@@ -67,7 +67,7 @@ TestWizardDialog::TestWizardDialog(const Core::BaseFileWizardFactory *factory,
     addModulesPage();
     m_testPageId = addPage(m_testPage);
     addExtensionPages(extensionPages());
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
+    connect(this, &QWizard::currentIdChanged, this, &TestWizardDialog::slotCurrentIdChanged);
 }
 
 void TestWizardDialog::slotCurrentIdChanged(int id)

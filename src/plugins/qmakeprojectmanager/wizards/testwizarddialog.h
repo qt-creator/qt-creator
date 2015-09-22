@@ -71,10 +71,8 @@ public:
     TestWizardParameters testParameters() const;
     QtProjectParameters projectParameters() const;
 
-private slots:
-    void slotCurrentIdChanged(int id);
-
 private:
+    void slotCurrentIdChanged(int id);
     TestWizardPage *m_testPage;
     int m_testPageId;
 };

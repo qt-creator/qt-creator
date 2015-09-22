@@ -492,7 +492,8 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 
-    connect(w, SIGNAL(projectParametersChanged(QString,QString)), this, SLOT(projectParametersChanged(QString,QString)));
+    connect(w, &BaseProjectWizardDialog::projectParametersChanged,
+            this, &CustomProjectWizard::projectParametersChanged);
 
     if (CustomWizardPrivate::verbose)
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
