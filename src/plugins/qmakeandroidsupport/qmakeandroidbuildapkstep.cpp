@@ -234,6 +234,13 @@ bool QmakeAndroidBuildApkStep::init()
 
     QStringList argumentsPasswordConcealed = arguments;
 
+    if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0)) {
+        if (bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
+            arguments << QLatin1String("--gdbserver");
+        else
+            arguments << QLatin1String("--no-gdbserver");
+    }
+
     if (m_signPackage) {
         arguments << QLatin1String("--sign")
                   << m_keystorePath.toString()
