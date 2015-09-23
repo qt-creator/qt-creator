@@ -343,12 +343,12 @@ void ICore::showNewItemDialog(const QString &title,
 {
     QTC_ASSERT(!isNewItemDialogRunning(), return);
     auto newDialog = new NewDialog(dialogParent());
-    connect(newDialog, &QObject::destroyed, m_instance, &ICore::validateNewDialogIsRunning);
+    connect(newDialog, &QObject::destroyed, m_instance, &ICore::validateNewItemDialogIsRunning);
     newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
     newDialog->setWindowTitle(title);
     newDialog->showDialog();
 
-    validateNewDialogIsRunning();
+    validateNewItemDialogIsRunning();
 }
 
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
@@ -571,7 +571,7 @@ void ICore::saveSettings()
     ICore::settings(QSettings::UserScope)->sync();
 }
 
-void ICore::validateNewDialogIsRunning()
+void ICore::validateNewItemDialogIsRunning()
 {
     static bool wasRunning = false;
     if (wasRunning == isNewItemDialogRunning())

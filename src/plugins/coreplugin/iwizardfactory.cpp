@@ -250,7 +250,7 @@ QString IWizardFactory::runPath(const QString &defaultPath)
 Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables)
 {
     s_isWizardRunning = true;
-    ICore::validateNewDialogIsRunning();
+    ICore::validateNewItemDialogIsRunning();
 
     Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables);
 
@@ -262,7 +262,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
         connect(wizard, &Utils::Wizard::finished, [wizard]() {
             s_isWizardRunning = false;
             s_inspectWizardAction->setEnabled(false);
-            ICore::validateNewDialogIsRunning();
+            ICore::validateNewItemDialogIsRunning();
             wizard->deleteLater();
         });
         s_inspectWizardAction->setEnabled(true);
@@ -270,7 +270,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
         Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
     } else {
         s_isWizardRunning = false;
-        ICore::validateNewDialogIsRunning();
+        ICore::validateNewItemDialogIsRunning();
     }
     return wizard;
 }
