@@ -89,6 +89,7 @@ private:
     QByteArray runPs();
     void findPs();
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
+    bool adbShellAmNeedsQuotes();
 
 private:
     QProcess m_adbLogcatProcess;
@@ -111,7 +112,6 @@ private:
     QString m_pingFile;
     QString m_pongFile;
     QString m_gdbserverPath;
-    QString m_gdbserverCommand;
     QString m_gdbserverSocket;
     QString m_localLibs;
     QString m_localJars;
