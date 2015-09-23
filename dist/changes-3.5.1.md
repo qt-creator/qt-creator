@@ -12,6 +12,7 @@ General
 * Fixed dark theme for wizards (QTCREATORBUG-13395)
 * Fixed that cancel button was ignored when wizards ask about overwriting files
   (QTCREATORBUG-15022)
+* Added support for MSYS2 compilers and debuggers
 
 Editing
 
@@ -38,6 +39,8 @@ QML Profier
 
 Version Control Systems
 
+* Git
+    * Fixed encoding of log output
 * Mercurial
     * Fixed crash when annotating (QTCREATORBUG-14975)
 
