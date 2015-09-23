@@ -29,7 +29,7 @@ namespace Internal {
 
 namespace Result{
 enum Type {
-    PASS,
+    PASS, FIRST_TYPE = PASS,
     FAIL,
     EXPECTED_FAIL,
     UNEXPECTED_PASS,
@@ -40,14 +40,17 @@ enum Type {
     MESSAGE_DEBUG,
     MESSAGE_WARN,
     MESSAGE_FATAL,
-    MESSAGE_INTERNAL,
+
+    MESSAGE_INTERNAL, INTERNAL_MESSAGES_BEGIN = MESSAGE_INTERNAL,
     MESSAGE_TEST_CASE_START,
     MESSAGE_TEST_CASE_SUCCESS,
     MESSAGE_TEST_CASE_WARN,
     MESSAGE_TEST_CASE_FAIL,
     MESSAGE_TEST_CASE_END,
-    MESSAGE_CURRENT_TEST,
-    UNKNOWN             // ???
+    MESSAGE_CURRENT_TEST, INTERNAL_MESSAGES_END = MESSAGE_CURRENT_TEST,
+
+    INVALID,
+    LAST_TYPE = INVALID
 };
 }
 
@@ -57,7 +60,7 @@ public:
 
     TestResult(const QString &className = QString(), const QString &testCase = QString(),
                const QString &dataTag = QString(),
-               Result::Type result = Result::UNKNOWN, const QString &description = QString());
+               Result::Type result = Result::INVALID, const QString &description = QString());
 
     QString className() const { return m_class; }
     QString testCase() const { return m_case; }

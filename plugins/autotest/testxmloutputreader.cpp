@@ -195,7 +195,7 @@ void TestXmlOutputReader::processOutput()
     static QString className;
     static QString testCase;
     static QString dataTag;
-    static Result::Type result = Result::UNKNOWN;
+    static Result::Type result = Result::INVALID;
     static QString description;
     static QString file;
     static int lineNumber = 0;
@@ -223,7 +223,7 @@ void TestXmlOutputReader::processOutput()
             description = QString();
             duration = QString();
             file = QString();
-            result = Result::UNKNOWN;
+            result = Result::INVALID;
             lineNumber = 0;
             readingDescription = false;
             testResultCreated(new TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,

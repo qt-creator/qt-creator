@@ -61,56 +61,23 @@ Result::Type TestResult::resultFromString(const QString &resultString)
     if (resultString == QLatin1String("bfail"))
         return Result::BLACKLISTED_FAIL;
     qDebug("Unexpected test result: %s", qPrintable(resultString));
-    return Result::UNKNOWN;
+    return Result::INVALID;
 }
 
 Result::Type TestResult::toResultType(int rt)
 {
-    switch(rt) {
-    case Result::PASS:
-        return Result::PASS;
-    case Result::FAIL:
-        return Result::FAIL;
-    case Result::EXPECTED_FAIL:
-        return Result::EXPECTED_FAIL;
-    case Result::UNEXPECTED_PASS:
-        return Result::UNEXPECTED_PASS;
-    case Result::SKIP:
-        return Result::SKIP;
-    case Result::BLACKLISTED_PASS:
-        return Result::BLACKLISTED_PASS;
-    case Result::BLACKLISTED_FAIL:
-        return Result::BLACKLISTED_FAIL;
-    case Result::BENCHMARK:
-        return Result::BENCHMARK;
-    case Result::MESSAGE_DEBUG:
-        return Result::MESSAGE_DEBUG;
-    case Result::MESSAGE_WARN:
-        return Result::MESSAGE_WARN;
-    case Result::MESSAGE_FATAL:
-        return Result::MESSAGE_FATAL;
-    case Result::MESSAGE_INTERNAL:
-        return Result::MESSAGE_INTERNAL;
-    case Result::MESSAGE_TEST_CASE_START:
-        return Result::MESSAGE_TEST_CASE_START;
-    case Result::MESSAGE_TEST_CASE_SUCCESS:
-        return Result::MESSAGE_TEST_CASE_SUCCESS;
-    case Result::MESSAGE_TEST_CASE_WARN:
-        return Result::MESSAGE_TEST_CASE_WARN;
-    case Result::MESSAGE_TEST_CASE_FAIL:
-        return Result::MESSAGE_TEST_CASE_FAIL;
-    case Result::MESSAGE_TEST_CASE_END:
-        return Result::MESSAGE_TEST_CASE_END;
-    case Result::MESSAGE_CURRENT_TEST:
-        return Result::MESSAGE_CURRENT_TEST;
-    default:
-        return Result::UNKNOWN;
-    }
+    if (rt < Result::FIRST_TYPE || rt > Result::LAST_TYPE)
+        return Result::INVALID;
+
+    return (Result::Type)rt;
 }
 
 QString TestResult::resultToString(const Result::Type type)
 {
-    switch(type) {
+    if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
+        return QString();
+
+    switch (type) {
     case Result::PASS:
         return QLatin1String("PASS");
     case Result::FAIL:
@@ -129,14 +96,6 @@ QString TestResult::resultToString(const Result::Type type)
         return QLatin1String("WARN");
     case Result::MESSAGE_FATAL:
         return QLatin1String("FATAL");
-    case Result::MESSAGE_INTERNAL:
-    case Result::MESSAGE_TEST_CASE_START:
-    case Result::MESSAGE_TEST_CASE_SUCCESS:
-    case Result::MESSAGE_TEST_CASE_WARN:
-    case Result::MESSAGE_TEST_CASE_FAIL:
-    case Result::MESSAGE_TEST_CASE_END:
-    case Result::MESSAGE_CURRENT_TEST:
-        return QString();
     case Result::BLACKLISTED_PASS:
         return QLatin1String("BPASS");
     case Result::BLACKLISTED_FAIL:
@@ -148,7 +107,10 @@ QString TestResult::resultToString(const Result::Type type)
 
 QColor TestResult::colorForType(const Result::Type type)
 {
-    switch(type) {
+    if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
+        return QColor("transparent");
+
+    switch (type) {
     case Result::PASS:
         return QColor("#009900");
     case Result::FAIL:
@@ -169,14 +131,6 @@ QColor TestResult::colorForType(const Result::Type type)
         return QColor("#d0bb00");
     case Result::MESSAGE_FATAL:
         return QColor("#640000");
-    case Result::MESSAGE_INTERNAL:
-    case Result::MESSAGE_TEST_CASE_START:
-    case Result::MESSAGE_TEST_CASE_SUCCESS:
-    case Result::MESSAGE_TEST_CASE_WARN:
-    case Result::MESSAGE_TEST_CASE_FAIL:
-    case Result::MESSAGE_TEST_CASE_END:
-    case Result::MESSAGE_CURRENT_TEST:
-        return QColor("transparent");
     default:
         return QColor("#000000");
     }

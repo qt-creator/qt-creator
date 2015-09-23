@@ -275,7 +275,7 @@ void TestResultFilterModel::enableAllResultTypes()
     m_enabled << Result::PASS << Result::FAIL << Result::EXPECTED_FAIL
               << Result::UNEXPECTED_PASS << Result::SKIP << Result::MESSAGE_DEBUG
               << Result::MESSAGE_WARN << Result::MESSAGE_INTERNAL
-              << Result::MESSAGE_FATAL << Result::UNKNOWN << Result::BLACKLISTED_PASS
+              << Result::MESSAGE_FATAL << Result::INVALID << Result::BLACKLISTED_PASS
               << Result::BLACKLISTED_FAIL << Result::BENCHMARK
               << Result::MESSAGE_CURRENT_TEST << Result::MESSAGE_TEST_CASE_START
               << Result::MESSAGE_TEST_CASE_SUCCESS << Result::MESSAGE_TEST_CASE_WARN
