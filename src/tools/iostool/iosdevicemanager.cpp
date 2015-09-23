@@ -130,41 +130,6 @@ typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSo
 
 } // extern C
 
-QString CFStringRef2QString(CFStringRef s)
-{
-    if (!s)
-        return QString();
-    if (CFGetTypeID(s) != CFStringGetTypeID()) {
-        qDebug() << "CFStringRef2QString argument is not a string!";
-        return QLatin1String("*NON CFStringRef*");
-    }
-    unsigned char buf[250];
-    CFIndex len = CFStringGetLength(s);
-    CFIndex usedBufLen;
-    CFIndex converted = CFStringGetBytes(s, CFRangeMake(0,len), kCFStringEncodingUTF8,
-                                         '?', false, &buf[0], sizeof(buf), &usedBufLen);
-    if (converted == len)
-        return QString::fromUtf8(reinterpret_cast<char *>(&buf[0]), usedBufLen);
-    size_t bufSize = sizeof(buf)
-            + CFStringGetMaximumSizeForEncoding(len - converted, kCFStringEncodingUTF8);
-    unsigned char *bigBuf = new unsigned char[bufSize];
-    memcpy(bigBuf, buf, usedBufLen);
-    CFIndex newUseBufLen;
-    CFStringGetBytes(s, CFRangeMake(converted,len), kCFStringEncodingUTF8,
-                     '?', false, &bigBuf[usedBufLen], bufSize, &newUseBufLen);
-    QString res = QString::fromUtf8(reinterpret_cast<char *>(bigBuf), usedBufLen + newUseBufLen);
-    delete[] bigBuf;
-    return res;
-}
-
-CFStringRef CFStringCreateWithQString(const QString &s)
-{
-    QByteArray bytes = s.toUtf8();
-    CFStringRef res = CFStringCreateWithBytes ( 0, reinterpret_cast<const unsigned char *>(bytes.constBegin()), bytes.length(),
-                                                kCFStringEncodingUTF8, false);
-    return res;
-}
-
 } // anonymous namespace
 
 namespace Ios {
@@ -501,7 +466,7 @@ void IosDeviceManagerPrivate::addError(QString errorMsg)
 void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
 {
     CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
-    QString devId = CFStringRef2QString(s);
+    QString devId = QString::fromCFString(s);
     if (s) CFRelease(s);
     CFRetain(device);
     if (debugAll)
@@ -533,7 +498,7 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
 void IosDeviceManagerPrivate::removeDevice(AMDeviceRef device)
 {
     CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
-    QString devId = CFStringRef2QString(s);
+    QString devId = QString::fromCFString(s);
     if (s)
         CFRelease(s);
     if (debugAll)
@@ -807,7 +772,7 @@ bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
     fd = 0;
     if (!connectDevice())
         return false;
-    CFStringRef cfsService = CFStringCreateWithQString(serviceName);
+    CFStringRef cfsService = serviceName.toCFString();
     if (am_res_t error = lib()->deviceStartService(device, cfsService, &fd, 0)) {
         addError(QString::fromLatin1("startService on device %1 failed, AMDeviceStartService returned %2")
                  .arg(deviceId).arg(error));
@@ -1027,7 +992,7 @@ void CommandSession::reportProgress(CFDictionaryRef dict)
     CFStringRef cfStatus;
     if (CFDictionaryGetValueIfPresent(dict, CFSTR("Status"), reinterpret_cast<const void **>(&cfStatus))) {
         if (cfStatus && CFGetTypeID(cfStatus) == CFStringGetTypeID())
-            status = CFStringRef2QString(cfStatus);
+            status = QString::fromCFString(cfStatus);
     }
     quint32 progress = 0;
     CFNumberRef cfProgress;
@@ -1091,7 +1056,7 @@ bool AppOpSession::installApp()
     if (!failure) {
         failure = !startService(QLatin1String("com.apple.afc"), fd);
         if (!failure) {
-            CFStringRef cfsBundlePath = CFStringCreateWithQString(bundlePath);
+            CFStringRef cfsBundlePath = bundlePath.toCFString();
             if (am_res_t error = lib()->deviceTransferApplication(fd, cfsBundlePath, 0,
                                                              &appTransferSessionCallback,
                                                              static_cast<CommandSession *>(this))) {
@@ -1109,7 +1074,7 @@ bool AppOpSession::installApp()
     if (!failure) {
         failure = !startService(QLatin1String("com.apple.mobile.installation_proxy"), fd);
         if (!failure) {
-            CFStringRef cfsBundlePath = CFStringCreateWithQString(bundlePath);
+            CFStringRef cfsBundlePath = bundlePath.toCFString();
 
             CFStringRef key[1] = {CFSTR("PackageType")};
             CFStringRef value[1] = {CFSTR("Developer")};
@@ -1253,16 +1218,16 @@ QString AppOpSession::appPathOnDevice()
     if (debugAll)
         CFShow(apps);
     if (apps && CFGetTypeID(apps) == CFDictionaryGetTypeID()) {
-        CFStringRef cfAppId = CFStringCreateWithQString(appId());
+        CFStringRef cfAppId = appId().toCFString();
         CFDictionaryRef cfAppInfo = 0;
         if (CFDictionaryGetValueIfPresent(apps, cfAppId, reinterpret_cast<const void**>(&cfAppInfo))) {
             if (cfAppInfo && CFGetTypeID(cfAppInfo) == CFDictionaryGetTypeID()) {
                 CFStringRef cfPath, cfBundleExe;
                 QString path, bundleExe;
                 if (CFDictionaryGetValueIfPresent(cfAppInfo, CFSTR("Path"), reinterpret_cast<const void **>(&cfPath)))
-                    path = CFStringRef2QString(cfPath);
+                    path = QString::fromCFString(cfPath);
                 if (CFDictionaryGetValueIfPresent(cfAppInfo, CFSTR("CFBundleExecutable"), reinterpret_cast<const void **>(&cfBundleExe)))
-                    bundleExe = CFStringRef2QString(cfBundleExe);
+                    bundleExe = QString::fromCFString(cfBundleExe);
                 if (!path.isEmpty() && ! bundleExe.isEmpty())
                     res = path + QLatin1Char('/') + bundleExe;
             }
@@ -1320,7 +1285,7 @@ void DevInfoSession::deviceCallbackReturned()
             // CFShow(cfDeviceName);
             if (cfDeviceName) {
                 if (CFGetTypeID(cfDeviceName) == CFStringGetTypeID())
-                    res[deviceNameKey] = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfDeviceName));
+                    res[deviceNameKey] = QString::fromCFString(reinterpret_cast<CFStringRef>(cfDeviceName));
                 CFRelease(cfDeviceName);
             }
             if (!res.contains(deviceNameKey))
@@ -1333,7 +1298,7 @@ void DevInfoSession::deviceCallbackReturned()
             // CFShow(cfDevStatus);
             if (cfDevStatus) {
                 if (CFGetTypeID(cfDevStatus) == CFStringGetTypeID())
-                    res[developerStatusKey] = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfDevStatus));
+                    res[developerStatusKey] = QString::fromCFString(reinterpret_cast<CFStringRef>(cfDevStatus));
                 CFRelease(cfDevStatus);
             }
             if (!res.contains(developerStatusKey))
@@ -1351,13 +1316,13 @@ void DevInfoSession::deviceCallbackReturned()
             QString versionString;
             if (cfProductVersion) {
                 if (CFGetTypeID(cfProductVersion) == CFStringGetTypeID())
-                    versionString = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfProductVersion));
+                    versionString = QString::fromCFString(reinterpret_cast<CFStringRef>(cfProductVersion));
                 CFRelease(cfProductVersion);
             }
             if (cfBuildVersion) {
                 if (!versionString.isEmpty() && CFGetTypeID(cfBuildVersion) == CFStringGetTypeID())
                     versionString += QString::fromLatin1(" (%1)").arg(
-                                CFStringRef2QString(reinterpret_cast<CFStringRef>(cfBuildVersion)));
+                                QString::fromCFString(reinterpret_cast<CFStringRef>(cfBuildVersion)));
                     CFRelease(cfBuildVersion);
             }
             if (!versionString.isEmpty())
