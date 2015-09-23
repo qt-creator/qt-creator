@@ -131,7 +131,7 @@ private:
     QString m_descriptionImage;
     Id m_id;
     FeatureSet m_requiredFeatures;
-    IWizardFactory::WizardKind m_kind = FileWizard;
+    WizardKind m_kind = FileWizard;
     WizardFlags m_flags = 0;
 
     friend class Internal::CorePlugin;
