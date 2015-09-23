@@ -109,6 +109,11 @@ public:
 
     static bool isWizardRunning();
 
+    static void requestNewItemDialog(const QString &title,
+                                     const QList<IWizardFactory *> &factories,
+                                     const QString &defaultLocation,
+                                     const QVariantMap &extraVariables);
+
 protected:
     FeatureSet pluginFeatures() const;
     FeatureSet availableFeatures(const QString &platformName) const;

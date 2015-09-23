@@ -158,6 +158,49 @@ QList<IWizardFactory::FactoryCreator> s_factoryCreators;
 QAction *s_inspectWizardAction = 0;
 bool s_areFactoriesLoaded = false;
 bool s_isWizardRunning = false;
+
+// NewItemDialog reopening data:
+class NewItemDialogData
+{
+public:
+    void setData(const QString t, const QList<IWizardFactory *> f,
+                 const QString &dl, const QVariantMap &ev)
+    {
+        QTC_ASSERT(!hasData(), return);
+
+        QTC_ASSERT(!t.isEmpty(), return);
+        QTC_ASSERT(!f.isEmpty(), return);
+
+        title = t;
+        factories = f;
+        defaultLocation = dl;
+        extraVariables = ev;
+    }
+
+    bool hasData() const { return !factories.isEmpty(); }
+
+    void clear() {
+        title.clear();
+        factories.clear();
+        defaultLocation.clear();
+        extraVariables.clear();
+    }
+
+    void reopen() {
+        if (!hasData())
+            return;
+        ICore::showNewItemDialog(title, factories, defaultLocation, extraVariables);
+        clear();
+    }
+
+private:
+    QString title;
+    QList<IWizardFactory *> factories;
+    QString defaultLocation;
+    QVariantMap extraVariables;
+};
+
+NewItemDialogData s_reopenData;
 }
 
 /* A utility to find all wizards supporting a view mode and matching a predicate */
@@ -249,6 +292,8 @@ QString IWizardFactory::runPath(const QString &defaultPath)
 
 Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables)
 {
+    QTC_ASSERT(!s_isWizardRunning, return 0);
+
     s_isWizardRunning = true;
     ICore::validateNewItemDialogIsRunning();
 
@@ -259,11 +304,16 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
         connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
         connect(s_inspectWizardAction, &QAction::triggered,
                 wizard, [wizard]() { wizard->showVariables(); });
-        connect(wizard, &Utils::Wizard::finished, [wizard]() {
+        connect(wizard, &Utils::Wizard::finished, this, [wizard](int result) {
+            if (result != QDialog::Accepted)
+                s_reopenData.clear();
+            wizard->deleteLater();
+        });
+        connect(wizard, &QObject::destroyed, this, [wizard]() {
             s_isWizardRunning = false;
             s_inspectWizardAction->setEnabled(false);
             ICore::validateNewItemDialogIsRunning();
-            wizard->deleteLater();
+            s_reopenData.reopen();
         });
         s_inspectWizardAction->setEnabled(true);
         wizard->show();
@@ -271,6 +321,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
     } else {
         s_isWizardRunning = false;
         ICore::validateNewItemDialogIsRunning();
+        s_reopenData.reopen();
     }
     return wizard;
 }
@@ -329,6 +380,14 @@ void IWizardFactory::registerFeatureProvider(IFeatureProvider *provider)
 bool IWizardFactory::isWizardRunning()
 {
     return s_isWizardRunning;
+}
+
+void IWizardFactory::requestNewItemDialog(const QString &title,
+                                          const QList<IWizardFactory *> &factories,
+                                          const QString &defaultLocation,
+                                          const QVariantMap &extraVariables)
+{
+    s_reopenData.setData(title, factories, defaultLocation, extraVariables);
 }
 
 void IWizardFactory::destroyFeatureProvider()
