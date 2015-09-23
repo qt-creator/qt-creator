@@ -95,6 +95,9 @@ public:
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded = false;
 
+    // Used by Mer plugin (3rd party)
+    QMap<QString, QString> sourcePathMap;
+
     // Used by baremetal plugin
     QByteArray commandsForReset; // commands used for resetting the inferior
     bool useContinueInsteadOfRun = false; // if connected to a hw debugger run is not possible but continue is used

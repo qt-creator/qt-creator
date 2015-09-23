@@ -98,7 +98,6 @@ public:
     QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
-    QMap<QString, QString> sourcePathMap;
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     QString serverStartScript;
