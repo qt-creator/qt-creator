@@ -125,6 +125,7 @@ struct LookupData
 {
     QByteArray iname;
     QString name;
+    QByteArray exp;
 };
 
 typedef QMultiHash<int, LookupData> LookupItems; // id -> (iname, exp)
@@ -948,7 +949,7 @@ void QmlEngine::expandItem(const QByteArray &iname)
         d->inspectorAgent.updateWatchData(*item);
     } else {
         LookupItems items;
-        items.insert(int(item->id), {item->iname, item->name});
+        items.insert(int(item->id), {item->iname, item->name, item->exp});
         d->lookup(items);
     }
 }
@@ -2232,7 +2233,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
     foreach (const QByteArray &iname, watchHandler->expandedINames()) {
         const WatchItem *item = watchHandler->findItem(iname);
         if (item && item->isLocal())
-            itemsToLookup.insert(int(item->id), {item->iname, item->name});
+            itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
     }
     lookup(itemsToLookup);
 }
@@ -2288,7 +2289,7 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
             item->setHasChildren(localData.properties.count());
             engine->watchHandler()->insertItem(item);
         } else {
-            itemsToLookup.insert(int(item->id), {item->iname, item->name});
+            itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
         }
     }
     lookup(itemsToLookup);
@@ -2424,7 +2425,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         item->type = propertyData.type;
         item->value = propertyData.value.toString();
         if (item->type.isEmpty())
-            itemsToLookup.insert(propertyData.handle, {item->iname, item->name});
+            itemsToLookup.insert(propertyData.handle, {item->iname, item->name, item->exp});
         item->setHasChildren(propertyData.properties.count() > 0);
         parent->appendChild(item);
     }
@@ -2479,6 +2480,7 @@ void QmlEnginePrivate::handleLookup(const QVariantMap &response)
         currentlyLookingUp.remove(handle);
         foreach (const LookupData &res, vals) {
             auto item = new WatchItem;
+            item->exp = res.exp;
             item->iname = res.iname;
             item->name = res.name;
             item->id = handle;

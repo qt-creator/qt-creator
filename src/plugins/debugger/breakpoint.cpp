@@ -240,9 +240,17 @@ bool BreakpointParameters::isCppBreakpoint() const
         return false;
 
     // Qml is currently only file.
-    if (type == BreakpointByFileAndLine)
-        return !fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
-                && !fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
+    if (type == BreakpointByFileAndLine) {
+        auto qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
+        if (qmlExtensionString.isEmpty())
+            qmlExtensionString = QLatin1Literal(".qml;.js");
+
+        auto qmlFileExtensions = qmlExtensionString.split(QLatin1Literal(";"), QString::SkipEmptyParts);
+        foreach (QString extension, qmlFileExtensions) {
+            if (fileName.endsWith(extension, Qt::CaseInsensitive))
+                return false;
+        }
+    }
 
     return true;
 }
