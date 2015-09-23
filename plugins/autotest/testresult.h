@@ -57,10 +57,8 @@ enum Type {
 class TestResult
 {
 public:
-
-    TestResult(const QString &className = QString(), const QString &testCase = QString(),
-               const QString &dataTag = QString(),
-               Result::Type result = Result::INVALID, const QString &description = QString());
+    TestResult();
+    TestResult(const QString &className);
 
     QString className() const { return m_class; }
     QString testCase() const { return m_case; }
@@ -74,6 +72,8 @@ public:
     void setFileName(const QString &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
     void setResult(Result::Type type) { m_result = type; }
+    void setTestCase(const QString &testCase) { m_case = testCase; }
+    void setDataTag(const QString &dataTag) { m_dataTag = dataTag; }
 
     static Result::Type resultFromString(const QString &resultString);
     static Result::Type toResultType(int rt);

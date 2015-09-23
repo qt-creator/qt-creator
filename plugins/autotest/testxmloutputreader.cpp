@@ -21,6 +21,7 @@
 #include "testresult.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QRegExp>
 #include <QProcess>
@@ -59,44 +60,6 @@ static QString constructSourceFilePath(const QString &path, const QString &fileP
     }
     return QFileInfo(path, filePath).canonicalFilePath();
 }
-
-static bool xmlStartsWith(const QString &code, const QString &start, QString &result)
-{
-    if (code.startsWith(start)) {
-        result = code.mid(start.length());
-        result = result.left(result.indexOf(QLatin1Char('"')));
-        result = result.left(result.indexOf(QLatin1String("</")));
-        return !result.isEmpty();
-    }
-    return false;
-}
-
-static bool xmlCData(const QString &code, const QString &start, QString &result)
-{
-    if (code.startsWith(start)) {
-        int index = code.indexOf(QLatin1String("<![CDATA[")) + 9;
-        result = code.mid(index, code.indexOf(QLatin1String("]]>"), index) - index);
-        return !result.isEmpty();
-    }
-    return false;
-}
-
-static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
-    Result::Type &result, QString &file, int &line)
-{
-    if (code.startsWith(tagStart)) {
-        int start = code.indexOf(QLatin1String(" type=\"")) + 7;
-        result = TestResult::resultFromString(
-            code.mid(start, code.indexOf(QLatin1Char('"'), start) - start));
-        start = code.indexOf(QLatin1String(" file=\"")) + 7;
-        file = decode(code.mid(start, code.indexOf(QLatin1Char('"'), start) - start));
-        start = code.indexOf(QLatin1String(" line=\"")) + 7;
-        line = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
-        return true;
-    }
-    return false;
-}
-
 
 // adapted from qplaintestlogger.cpp
 static QString formatResult(double value)
@@ -146,35 +109,24 @@ static QString formatResult(double value)
     return result;
 }
 
-static bool xmlExtractBenchmarkInformation(const QString &code, const QString &tagStart,
-    QString &description)
+static QString constructBenchmarkInformation(const QString &metric, double value, int iterations)
 {
-    if (code.startsWith(tagStart)) {
-        int start = code.indexOf(QLatin1String(" metric=\"")) + 9;
-        const QString metric = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start);
-        start = code.indexOf(QLatin1String(" value=\"")) + 8;
-        const double value = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toDouble();
-        start = code.indexOf(QLatin1String(" iterations=\"")) + 13;
-        const int iterations = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
-        QString metricsText;
-        if (metric == QLatin1String("WalltimeMilliseconds"))         // default
-            metricsText = QLatin1String("msecs");
-        else if (metric == QLatin1String("CPUTicks"))                // -tickcounter
-            metricsText = QLatin1String("CPU ticks");
-        else if (metric == QLatin1String("Events"))                  // -eventcounter
-            metricsText = QLatin1String("events");
-        else if (metric == QLatin1String("InstructionReads"))        // -callgrind
-            metricsText = QLatin1String("instruction reads");
-        else if (metric == QLatin1String("CPUCycles"))               // -perf
-            metricsText = QLatin1String("CPU cycles");
-        description = QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
-                .arg(formatResult(value))
-                .arg(metricsText)
-                .arg(formatResult(value * (double)iterations))
-                .arg(iterations);
-        return true;
-    }
-    return false;
+    QString metricsText;
+    if (metric == QLatin1String("WalltimeMilliseconds"))         // default
+        metricsText = QLatin1String("msecs");
+    else if (metric == QLatin1String("CPUTicks"))                // -tickcounter
+        metricsText = QLatin1String("CPU ticks");
+    else if (metric == QLatin1String("Events"))                  // -eventcounter
+        metricsText = QLatin1String("events");
+    else if (metric == QLatin1String("InstructionReads"))        // -callgrind
+        metricsText = QLatin1String("instruction reads");
+    else if (metric == QLatin1String("CPUCycles"))               // -perf
+        metricsText = QLatin1String("CPU cycles");
+    return QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
+            .arg(formatResult(value))
+            .arg(metricsText)
+            .arg(formatResult(value * (double)iterations))
+            .arg(iterations);
 }
 
 TestXmlOutputReader::TestXmlOutputReader(QProcess *testApplication)
@@ -184,14 +136,24 @@ TestXmlOutputReader::TestXmlOutputReader(QProcess *testApplication)
         this, &TestXmlOutputReader::processOutput);
 }
 
-TestXmlOutputReader::~TestXmlOutputReader()
-{
-}
+enum CDATAMode {
+    None,
+    DataTag,
+    Description,
+    QtVersion,
+    QTestVersion
+};
 
 void TestXmlOutputReader::processOutput()
 {
     if (!m_testApplication || m_testApplication->state() != QProcess::Running)
         return;
+    static QStringList validEndTags = { QStringLiteral("Incident"),
+                                        QStringLiteral("Message"),
+                                        QStringLiteral("BenchmarkResult"),
+                                        QStringLiteral("QtVersion"),
+                                        QStringLiteral("QTestVersion") };
+    static CDATAMode cdataMode = None;
     static QString className;
     static QString testCase;
     static QString dataTag;
@@ -200,98 +162,136 @@ void TestXmlOutputReader::processOutput()
     static QString file;
     static int lineNumber = 0;
     static QString duration;
-    static bool readingDescription = false;
-    static QString qtVersion;
-    static QString qtestVersion;
-    static QString benchmarkDescription;
+    static QXmlStreamReader xmlReader;
 
     while (m_testApplication->canReadLine()) {
-        // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
-        const QString line = QString::fromUtf8(m_testApplication->readLine()).trimmed();
-        if (line.isEmpty() || xmlStartsWith(line, QLatin1String("<TestCase name=\""), className)) {
-            testResultCreated(new TestResult(className, QString(), QString(),
-                                             Result::MESSAGE_TEST_CASE_START,
-                                             QObject::tr("Executing test case %1").arg(className)));
-            continue;
-        }
-        if (line.startsWith(QLatin1String("<?xml version"))) {
-            className = QString();
-            continue;
-        }
-        if (xmlStartsWith(line, QLatin1String("<TestFunction name=\""), testCase)) {
-            dataTag = QString();
-            description = QString();
-            duration = QString();
-            file = QString();
-            result = Result::INVALID;
-            lineNumber = 0;
-            readingDescription = false;
-            testResultCreated(new TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,
-                QObject::tr("Entering test function %1::%2").arg(className).arg(testCase)));
-            continue;
-        }
-        if (xmlStartsWith(line, QLatin1String("<Duration msecs=\""), duration)) {
-            continue;
-        }
-        if (xmlExtractTypeFileLine(line, QLatin1String("<Message"), result, file, lineNumber))
-            continue;
-        if (xmlCData(line, QLatin1String("<DataTag>"), dataTag))
-            continue;
-        if (xmlCData(line, QLatin1String("<Description>"), description)) {
-            if (!line.endsWith(QLatin1String("</Description>")))
-                readingDescription = true;
-            continue;
-        }
-        if (xmlExtractTypeFileLine(line, QLatin1String("<Incident"), result, file, lineNumber)) {
-            if (line.endsWith(QLatin1String("/>"))) {
-                TestResult *testResult = new TestResult(className, testCase, dataTag, result, description);
-                if (!file.isEmpty())
-                    file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
-                                                   m_testApplication->program());
-                testResult->setFileName(file);
-                testResult->setLine(lineNumber);
-                testResultCreated(testResult);
+        xmlReader.addData(m_testApplication->readLine());
+        while (!xmlReader.atEnd()) {
+            QXmlStreamReader::TokenType token = xmlReader.readNext();
+            switch (token) {
+            case QXmlStreamReader::StartDocument:
+                className.clear();
+                break;
+            case QXmlStreamReader::EndDocument:
+                xmlReader.clear();
+                return;
+            case QXmlStreamReader::StartElement: {
+                const QString currentTag = xmlReader.name().toString();
+                if (currentTag == QStringLiteral("TestCase")) {
+                    className = xmlReader.attributes().value(QStringLiteral("name")).toString();
+                    QTC_ASSERT(!className.isEmpty(), continue);
+                    auto testResult = new TestResult(className);
+                    testResult->setResult(Result::MESSAGE_TEST_CASE_START);
+                    testResult->setDescription(tr("Executing test case %1").arg(className));
+                    testResultCreated(testResult);
+                } else if (currentTag == QStringLiteral("TestFunction")) {
+                    testCase = xmlReader.attributes().value(QStringLiteral("name")).toString();
+                    QTC_ASSERT(!testCase.isEmpty(), continue);
+                    auto testResult = new TestResult();
+                    testResult->setResult(Result::MESSAGE_CURRENT_TEST);
+                    testResult->setDescription(tr("Entering test function %1::%2").arg(className,
+                                                                                       testCase));
+                    testResultCreated(testResult);
+                } else if (currentTag == QStringLiteral("Duration")) {
+                    duration = xmlReader.attributes().value(QStringLiteral("msecs")).toString();
+                    QTC_ASSERT(!duration.isEmpty(), continue);
+                } else if (currentTag == QStringLiteral("Message")
+                           || currentTag == QStringLiteral("Incident")) {
+                    dataTag.clear();
+                    description.clear();
+                    duration.clear();
+                    file.clear();
+                    result = Result::INVALID;
+                    lineNumber = 0;
+                    const QXmlStreamAttributes &attributes = xmlReader.attributes();
+                    result = TestResult::resultFromString(
+                                attributes.value(QStringLiteral("type")).toString());
+                    file = decode(attributes.value(QStringLiteral("file")).toString());
+                    if (!file.isEmpty())
+                        file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
+                                                       m_testApplication->program());
+                    lineNumber = attributes.value(QStringLiteral("line")).toInt();
+                } else if (currentTag == QStringLiteral("BenchmarkResult")) {
+                    const QXmlStreamAttributes &attributes = xmlReader.attributes();
+                    const QString metric = attributes.value(QStringLiteral("metrics")).toString();
+                    const double value = attributes.value(QStringLiteral("value")).toDouble();
+                    const int iterations = attributes.value(QStringLiteral("iterations")).toInt();
+                    description = constructBenchmarkInformation(metric, value, iterations);
+                    result = Result::BENCHMARK;
+                } else if (currentTag == QStringLiteral("DataTag")) {
+                    cdataMode = DataTag;
+                } else if (currentTag == QStringLiteral("Description")) {
+                    cdataMode = Description;
+                } else if (currentTag == QStringLiteral("QtVersion")) {
+                    result = Result::MESSAGE_INTERNAL;
+                    cdataMode = QtVersion;
+                } else if (currentTag == QStringLiteral("QTestVersion")) {
+                    result = Result::MESSAGE_INTERNAL;
+                    cdataMode = QTestVersion;
+                }
+                break;
             }
-            continue;
-        }
-        if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), benchmarkDescription)) {
-            testResultCreated(new TestResult(className, testCase, dataTag, Result::BENCHMARK,
-                                             benchmarkDescription));
-            continue;
-        }
-        if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
-            TestResult *testResult = new TestResult(className, testCase, dataTag, result, description);
-            if (!file.isEmpty())
-                file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
-                                               m_testApplication->program());
-            testResult->setFileName(file);
-            testResult->setLine(lineNumber);
-            testResultCreated(testResult);
-            description = QString();
-        } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
-            testResultCreated(new TestResult(className, testCase, QString(), Result::MESSAGE_INTERNAL,
-                                             QObject::tr("Execution took %1 ms.").arg(duration)));
-            emit increaseProgress();
-        } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
-            testResultCreated(new TestResult(className, QString(), QString(), Result::MESSAGE_TEST_CASE_END,
-                                             QObject::tr("Test execution took %1 ms.").arg(duration)));
-        } else if (readingDescription) {
-            if (line.endsWith(QLatin1String("]]></Description>"))) {
-                description.append(QLatin1Char('\n'));
-                description.append(line.left(line.indexOf(QLatin1String("]]></Description>"))));
-                readingDescription = false;
-            } else {
-                description.append(QLatin1Char('\n'));
-                description.append(line);
+            case QXmlStreamReader::Characters: {
+                QStringRef text = xmlReader.text().trimmed();
+                if (text.isEmpty())
+                    break;
+
+                switch (cdataMode) {
+                case DataTag:
+                    dataTag = text.toString();
+                    break;
+                case Description:
+                    if (!description.isEmpty())
+                        description.append(QLatin1Char('\n'));
+                    description.append(text);
+                    break;
+                case QtVersion:
+                    description = tr("Qt version: %1").arg(text.toString());
+                    break;
+                case QTestVersion:
+                    description = tr("QTest version: %1").arg(text.toString());
+                    break;
+                default:
+                    QString message = QString::fromLatin1("unexpected cdatamode %1 for text \"%2\"")
+                            .arg(cdataMode)
+                            .arg(text.toString());
+                    QTC_ASSERT(false, qWarning() << message);
+                    break;
+                }
+                break;
             }
-        } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
-            testResultCreated(new TestResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
-                QObject::tr("Qt version: %1").arg(qtVersion)));
-        } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
-            testResultCreated(new TestResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
-                QObject::tr("QTest version: %1").arg(qtestVersion)));
-        } else {
-//            qDebug() << "Unhandled line:" << line; // TODO remove
+            case QXmlStreamReader::EndElement: {
+                cdataMode = None;
+                const QStringRef currentTag = xmlReader.name();
+                if (currentTag == QStringLiteral("TestFunction")) {
+                    if (!duration.isEmpty()) {
+                        auto testResult = new TestResult(className);
+                        testResult->setTestCase(testCase);
+                        testResult->setResult(Result::MESSAGE_INTERNAL);
+                        testResult->setDescription(tr("Execution took %1 ms.").arg(duration));
+                        testResultCreated(testResult);
+                    }
+                    emit increaseProgress();
+                } else if (currentTag == QStringLiteral("TestCase") && !duration.isEmpty()) {
+                    auto testResult = new TestResult(className);
+                    testResult->setResult(Result::MESSAGE_TEST_CASE_END);
+                    testResult->setDescription(tr("Test execution took %1 ms.").arg(duration));
+                    testResultCreated(testResult);
+                } else if (validEndTags.contains(currentTag.toString())) {
+                    auto testResult = new TestResult(className);
+                    testResult->setTestCase(testCase);
+                    testResult->setDataTag(dataTag);
+                    testResult->setResult(result);
+                    testResult->setFileName(file);
+                    testResult->setLine(lineNumber);
+                    testResult->setDescription(description);
+                    testResultCreated(testResult);
+                }
+                break;
+            }
+            default:
+                break;
+            }
         }
     }
 }

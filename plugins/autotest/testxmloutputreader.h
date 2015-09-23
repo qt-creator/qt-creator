@@ -24,10 +24,9 @@
 
 #include <QObject>
 #include <QString>
+#include <QXmlStreamReader>
 
 QT_BEGIN_NAMESPACE
-class QXmlStreamReader;
-class QIODevice;
 class QProcess;
 QT_END_NAMESPACE
 
@@ -37,18 +36,18 @@ namespace Internal {
 class TestXmlOutputReader : public QObject
 {
     Q_OBJECT
-
 public:
     TestXmlOutputReader(QProcess *testApplication);
-    ~TestXmlOutputReader();
 
 public slots:
     void processOutput();
+
 signals:
     void testResultCreated(TestResult *testResult);
     void increaseProgress();
+
 private:
-    QProcess *m_testApplication;
+    QProcess *m_testApplication;  // not owned
 };
 
 } // namespace Internal
