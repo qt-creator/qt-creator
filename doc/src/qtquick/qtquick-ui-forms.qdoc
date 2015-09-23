@@ -34,9 +34,6 @@
     You can use \QC wizards to create UI forms that have the filename extension
     \e .ui.qml. The UI forms contain a purely declarative subset of the QML
     language. It is recommended that you edit the forms in the \uicontrol Design mode.
-    However, exporting items as alias properties is a commercial only feature,
-    and therefore you must use the \uicontrol Edit mode to do it if you are
-    using the open source version of \QC.
     \QC enforces the use of the supported QML features by displaying error
     messages.
 
@@ -88,8 +85,8 @@
     The property alias exports the button to the QML code that uses the form.
     You can use the
     \inlineimage qmldesigner-export-item-button.png
-    (\uicontrol Export) button in the \uicontrol Navigator to export an item as a property
-    (commercial only):
+    (\uicontrol Export) button in the \uicontrol Navigator to export an item as
+    a property:
 
     \image qmldesigner-export-item.png
 

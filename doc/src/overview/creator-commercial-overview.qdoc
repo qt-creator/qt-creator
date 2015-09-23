@@ -47,14 +47,6 @@
         \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
         \li \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}
             integration
-        \li \l{Using Qt Quick Designer Extensions}
-            {Qt Quick Designer extensions}:
-            \list
-                \li \l{Adding Connections}{Connections view}
-                \li \l{Editing PathView Properties}{PathView property editor}
-                \li \l{Using Qt Quick UI Forms}{Export button} for exporting
-                    items as alias properties
-            \endlist
         \li \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Developing for
             embedded devices}
     \endlist

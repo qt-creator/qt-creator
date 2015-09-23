@@ -56,8 +56,7 @@
             Learn how to develop a Qt Quick application by using UI forms.
             UI forms are split into \e .qml and \e .js files that contain the
             business logic, and \e .ui.qml files that only contain the purely
-            declarative description of the UI. Note that some of the described
-            features are only available in the commercial version of \QC.
+            declarative description of the UI.
 
     \endlist
 

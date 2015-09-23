@@ -23,16 +23,11 @@
 
     \title Using Qt Quick UI Forms
 
-    \commercial
-
     This tutorial describes how to develop an application that uses \e ui.qml
     files to separate the application logic from the UI. The tutorial uses \QMLD
     to implement a simplified version of the \l{Qt Quick Controls - UI Forms}
     {UI Forms example}, which provides an interface to a customer database and
     is purely written in QML and JavaScript.
-
-    \note Some of the described features are only available in the commercial
-    version of \QC.
 
     \image qmldesigner-uiforms-example.png
 

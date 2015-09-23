@@ -48,6 +48,16 @@
             You can use the code editor (Edit mode) or the visual editor (Design
             mode) to develop Qt Quick applications.
 
+        \li \l {Editing PathView Properties}
+
+            You can use a graphical spline editor to specify \l{PathView} paths.
+            A path view lays out data provided by data models on a \l{Path}.
+
+        \li \l {Adding Connections}
+
+            You can connect objects to signals, specify dynamic properties for
+            objects, and create bindings between the properties of two objects.
+
         \li \l {Creating Components}
 
             You can use basic QML types to create your own components that you
@@ -58,10 +68,7 @@
             You can combine basic QML types with ready-made Qt Quick Controls,
             Dialogs, and Layouts (available since Qt 5.1) to create screens. You
             can use states and transitions to navigate between screens.
-        \li \l {Using Qt Quick Designer Extensions}
 
-            \QMLD contains commercial features that make developing Qt Quick
-            applications faster and easier.
         \li \l {Exporting Designs from Graphics Software}
 
             You can export designs from graphics software, such as Adobe

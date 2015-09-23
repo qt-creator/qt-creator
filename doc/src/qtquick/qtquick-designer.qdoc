@@ -56,7 +56,7 @@
                 import to the project, and other resources.
 
             \li \uicontrol Connections (3) enables you to create connections between
-                objects, signals, and object properties (commercial only). For
+                objects, signals, and object properties. For
                 more information, see \l{Adding Connections}.
 
             \li \uicontrol {Projects} shows a list of projects open in the current
@@ -360,7 +360,7 @@
     \section2 Editing Properties Inline
 
     You can double-click objects on the canvas to edit their text, color, or
-    source properties inline (commercial only).
+    source properties inline.
     Because you can specify several of these properties for some QML types, such
     as TextEdit, you can also right-click objects to open the inline editors
     from a context-menu.

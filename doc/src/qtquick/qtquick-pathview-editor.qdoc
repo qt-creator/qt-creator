@@ -35,12 +35,10 @@
 
     \title Editing PathView Properties
 
-    \commercial
-
     A \l{PathView} lays out data provided by data models on a \l{Path}.
 
     A graphical spline editor enables you to specify PathView paths, which
-    is a non-trivial task to do in the code editor (commercial only).
+    is a non-trivial task to do in the code editor.
 
     \image qmldesigner-pathview-editor.png "PathView editor"
 
