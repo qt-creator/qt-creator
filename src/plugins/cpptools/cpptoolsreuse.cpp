@@ -278,7 +278,7 @@ bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB)
     if (limitInMB == 0) // unlimited
         return false;
 
-    const int fileSizeInMB = fileInfo.size() * 1000 * 1000;
+    const int fileSizeInMB = fileInfo.size() / (1000 * 1000);
     if (fileSizeInMB > limitInMB) {
         qWarning() << "Files to process limited by QTC_CPP_FILE_SIZE_LIMIT_MB, skipping"
                    << fileInfo.absoluteFilePath();
