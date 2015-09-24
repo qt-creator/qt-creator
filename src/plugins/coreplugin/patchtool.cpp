@@ -34,6 +34,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QDir>
 #include <QApplication>
 
@@ -82,10 +83,10 @@ void PatchTool::setPatchCommand(const QString &newCommand)
     s->endGroup();
 }
 
-bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirectory,
-                         int strip, bool reverse)
+static bool runPatchHelper(const QByteArray &input, const QString &workingDirectory,
+                           int strip, bool reverse, bool withCrlf)
 {
-    const QString patch = patchCommand();
+    const QString patch = PatchTool::patchCommand();
     if (patch.isEmpty()) {
         MessageManager::write(QApplication::translate("Core::PatchTool", "There is no patch-command configured in the general \"Environment\" settings."));
         return false;
@@ -94,6 +95,9 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
     QProcess patchProcess;
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QLatin1String("LC_ALL"), QLatin1String("C"));
+    patchProcess.setProcessEnvironment(env);
     QStringList args;
     // Add argument 'apply' when git is used as patch command since git 2.5/Windows
     // no longer ships patch.exe.
@@ -105,6 +109,8 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
         args << (QLatin1String("-p") + QString::number(strip));
     if (reverse)
         args << QLatin1String("-R");
+    if (withCrlf)
+        args << QLatin1String("--binary");
     MessageManager::write(QApplication::translate("Core::PatchTool", "Executing in %1: %2 %3").
                           arg(QDir::toNativeSeparators(workingDirectory),
                               QDir::toNativeSeparators(patch), args.join(QLatin1Char(' '))));
@@ -123,8 +129,15 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
         return false;
 
     }
-    if (!stdOut.isEmpty())
-        MessageManager::write(QString::fromLocal8Bit(stdOut));
+    if (!stdOut.isEmpty()) {
+        if (stdOut.contains("(different line endings)") && !withCrlf) {
+            QByteArray crlfInput = input;
+            crlfInput.replace('\n', "\r\n");
+            return runPatchHelper(crlfInput, workingDirectory, strip, reverse, true);
+        } else {
+            MessageManager::write(QString::fromLocal8Bit(stdOut));
+        }
+    }
     if (!stdErr.isEmpty())
         MessageManager::write(QString::fromLocal8Bit(stdErr));
 
@@ -139,5 +152,10 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
     return true;
 }
 
+bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirectory,
+                         int strip, bool reverse)
+{
+    return runPatchHelper(input, workingDirectory, strip, reverse, false);
+}
 
 } // namespace Core
