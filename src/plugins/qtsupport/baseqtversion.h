@@ -295,7 +295,7 @@ private:
 
     mutable QHash<QString,QString> m_versionInfo;
 
-    mutable Utils::FileName m_qmakeCommand;
+    Utils::FileName m_qmakeCommand;
     mutable QString m_qtVersionString;
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
