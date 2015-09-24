@@ -659,6 +659,8 @@ QList<Abi> BaseQtVersion::qtAbis() const
 
 bool BaseQtVersion::equals(BaseQtVersion *other)
 {
+    if (m_qmakeCommand != other->m_qmakeCommand)
+        return false;
     if (type() != other->type())
         return false;
     if (uniqueId() != other->uniqueId())
