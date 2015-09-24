@@ -141,7 +141,7 @@ void ActionHandler::createEditPropertiesShortcut(const Core::Id &shortcutId)
     auto editAction = new QAction(tr("Edit selected element in properties view"), Core::ICore::mainWindow());
     Core::Command *editCommand = Core::ActionManager::registerAction(
                 editAction, shortcutId, d->context);
-    editCommand->setDefaultKeySequence(QKeySequence(tr("F2")));
+    editCommand->setDefaultKeySequence(QKeySequence(tr("Return")));
     connect(editAction, &QAction::triggered, this, &ActionHandler::onEditProperties);
 }
 
