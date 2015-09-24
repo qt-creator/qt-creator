@@ -273,7 +273,7 @@ ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath)
     return ProjectPart::Ptr();
 }
 
-bool isProjectPartValid(const ProjectPart::Ptr projectPart)
+bool isProjectPartLoaded(const ProjectPart::Ptr projectPart)
 {
     if (projectPart)
         return CppModelManager::instance()->projectPartForId(projectPart->id());
@@ -284,7 +284,7 @@ QString projectPartIdForFile(const QString &filePath)
 {
     const ProjectPart::Ptr projectPart = projectPartForFile(filePath);
 
-    if (isProjectPartValid(projectPart))
+    if (isProjectPartLoaded(projectPart))
         return projectPart->id(); // OK, Project Part is still loaded
     return QString();
 }

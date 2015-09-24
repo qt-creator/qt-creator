@@ -227,7 +227,7 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
 static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPart)
 {
     return projectPart
-        && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartValid(projectPart));
+        && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartLoaded(projectPart));
 }
 
 void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
