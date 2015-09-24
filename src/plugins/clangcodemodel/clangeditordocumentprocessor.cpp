@@ -217,15 +217,22 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
     return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));
 }
 
+static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPart)
+{
+    return projectPart
+        && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartValid(projectPart));
+}
+
 void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
 {
     const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
-    QTC_ASSERT(projectPart, return);
 
-    updateTranslationUnitForEditor(*projectPart.data());
-    requestDiagnostics(*projectPart.data());
+    if (isProjectPartLoadedOrIsFallback(projectPart)) {
+        updateTranslationUnitForEditor(*projectPart.data());
+        requestDiagnostics(*projectPart.data());
 
-    m_projectPart = projectPart;
+        m_projectPart = projectPart;
+    }
 }
 
 void ClangEditorDocumentProcessor::onParserFinished()
