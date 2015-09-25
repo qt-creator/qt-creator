@@ -136,7 +136,7 @@ ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandle
 
 ModelEditor::~ModelEditor()
 {
-    closeCurrentDiagram();
+    closeCurrentDiagram(false);
     delete d->toolbar;
     delete d;
 }
@@ -149,6 +149,30 @@ Core::IDocument *ModelEditor::document()
 QWidget *ModelEditor::toolBar()
 {
     return d->toolbar;
+}
+
+QByteArray ModelEditor::saveState() const
+{
+    return saveState(currentDiagram());
+}
+
+bool ModelEditor::restoreState(const QByteArray &state)
+{
+    QDataStream stream(state);
+    int version = 0;
+    stream >> version;
+    if (version == 1) {
+        qmt::Uid uid;
+        stream >> uid;
+        if (uid.isValid()) {
+            qmt::MDiagram *diagram = d->document->documentController()->getModelController()->findObject<qmt::MDiagram>(uid);
+            if (diagram) {
+                openDiagram(diagram, false);
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void ModelEditor::init(QWidget *parent)
@@ -361,14 +385,7 @@ qmt::MDiagram *ModelEditor::currentDiagram() const
 
 void ModelEditor::showDiagram(qmt::MDiagram *diagram)
 {
-    closeCurrentDiagram();
-    if (diagram) {
-        qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->bindDiagramSceneModel(diagram);
-        d->diagramView->setDiagramSceneModel(diagramSceneModel);
-        d->diagramStack->setCurrentWidget(d->diagramView);
-        updateSelectedArea(SelectedArea::Nothing);
-        addDiagramToSelector(diagram);
-    }
+    openDiagram(diagram, true);
 }
 
 void ModelEditor::undo()
@@ -945,7 +962,19 @@ void ModelEditor::initToolbars()
     d->leftToolBox->setCurrentIndex(0);
 }
 
-void ModelEditor::closeCurrentDiagram()
+void ModelEditor::openDiagram(qmt::MDiagram *diagram, bool addToHistory)
+{
+    closeCurrentDiagram(addToHistory);
+    if (diagram) {
+        qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->bindDiagramSceneModel(diagram);
+        d->diagramView->setDiagramSceneModel(diagramSceneModel);
+        d->diagramStack->setCurrentWidget(d->diagramView);
+        updateSelectedArea(SelectedArea::Nothing);
+        addDiagramToSelector(diagram);
+    }
+}
+
+void ModelEditor::closeCurrentDiagram(bool addToHistory)
 {
     ExtDocumentController *documentController = d->document->documentController();
     qmt::DiagramsManager *diagramsManager = documentController->getDiagramsManager();
@@ -953,6 +982,8 @@ void ModelEditor::closeCurrentDiagram()
     if (sceneModel) {
         qmt::MDiagram *diagram = sceneModel->getDiagram();
         if (diagram) {
+            if (addToHistory)
+                addToNavigationHistory(diagram);
             d->diagramStack->setCurrentWidget(d->noDiagramLabel);
             d->diagramView->setDiagramSceneModel(0);
             diagramsManager->unbindDiagramSceneModel(diagram);
@@ -966,6 +997,7 @@ void ModelEditor::closeDiagram(const qmt::MDiagram *diagram)
     qmt::DiagramsManager *diagramsManager = documentController->getDiagramsManager();
     qmt::DiagramSceneModel *sceneModel = d->diagramView->getDiagramSceneModel();
     if (sceneModel && diagram == sceneModel->getDiagram()) {
+        addToNavigationHistory(diagram);
         d->diagramStack->setCurrentWidget(d->noDiagramLabel);
         d->diagramView->setDiagramSceneModel(0);
         diagramsManager->unbindDiagramSceneModel(diagram);
@@ -974,7 +1006,7 @@ void ModelEditor::closeDiagram(const qmt::MDiagram *diagram)
 
 void ModelEditor::closeAllDiagrams()
 {
-    closeCurrentDiagram();
+    closeCurrentDiagram(true);
 }
 
 void ModelEditor::onContentSet()
@@ -1057,6 +1089,25 @@ QString ModelEditor::buildDiagramLabel(const qmt::MDiagram *diagram)
         label += QLatin1Char(']');
     }
     return label;
+}
+
+void ModelEditor::addToNavigationHistory(const qmt::MDiagram *diagram)
+{
+    if (Core::EditorManager::currentEditor() == this)
+        Core::EditorManager::cutForwardNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory(saveState(diagram));
+}
+
+QByteArray ModelEditor::saveState(const qmt::MDiagram *diagram) const
+{
+    QByteArray state;
+    QDataStream stream(&state, QIODevice::WriteOnly);
+    stream << 1; // version number
+    if (diagram)
+        stream << diagram->getUid();
+    else
+        stream << qmt::Uid::getInvalidUid();
+    return state;
 }
 
 void ModelEditor::onEditSelectedElement()

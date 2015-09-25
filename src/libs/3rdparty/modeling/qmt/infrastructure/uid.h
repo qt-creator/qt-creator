@@ -83,8 +83,21 @@ inline bool operator!=(const Uid &lhs, const Uid &rhs)
     return !operator==(lhs, rhs);
 }
 
+inline QDataStream &operator<<(QDataStream &stream, const Uid &uid)
+{
+    return stream << uid.get();
 }
 
-Q_DECLARE_METATYPE(qmt::Uid);
+inline QDataStream &operator>>(QDataStream &stream, Uid &uid)
+{
+    QUuid uuid;
+    stream >> uuid;
+    uid.setUuid(uuid);
+    return stream;
+}
+
+}
+
+Q_DECLARE_METATYPE(qmt::Uid)
 
 #endif // QMT_UID_H

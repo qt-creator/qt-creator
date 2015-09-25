@@ -75,6 +75,8 @@ public:
 
     Core::IDocument *document() override;
     QWidget *toolBar() override;
+    QByteArray saveState() const override;
+    bool restoreState(const QByteArray &state) override;
 
     qmt::MDiagram *currentDiagram() const;
     void showDiagram(qmt::MDiagram *diagram);
@@ -127,7 +129,8 @@ private:
     void onRightHorizSplitterChanged(const QByteArray &state);
 
     void initToolbars();
-    void closeCurrentDiagram();
+    void openDiagram(qmt::MDiagram *diagram, bool addToHistory);
+    void closeCurrentDiagram(bool addToHistory);
     void closeDiagram(const qmt::MDiagram *diagram);
     void closeAllDiagrams();
 
@@ -137,6 +140,9 @@ private:
     void updateDiagramSelector();
     void onDiagramSelectorSelected(int index);
     QString buildDiagramLabel(const qmt::MDiagram *diagram);
+
+    void addToNavigationHistory(const qmt::MDiagram *diagram);
+    QByteArray saveState(const qmt::MDiagram *diagram) const;
 
 private slots:
     void onEditSelectedElement();
