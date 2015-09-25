@@ -967,9 +967,14 @@ void TreeModel::setRootItem(TreeItem *item)
     QTC_ASSERT(item->m_model == 0, return);
     QTC_ASSERT(item->m_parent == 0, return);
     QTC_CHECK(m_root);
+
+    emit layoutAboutToBeChanged();
     if (m_root) {
         QTC_CHECK(m_root->m_parent == 0);
         QTC_CHECK(m_root->m_model == this);
+        // needs to be done explicitly before setting the model to 0, otherwise it might lead to a
+        // crash inside a view or proxy model, especially if there are selected items
+        m_root->removeChildren();
         m_root->m_model = 0;
         delete m_root;
     }
