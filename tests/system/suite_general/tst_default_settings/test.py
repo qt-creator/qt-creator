@@ -186,9 +186,10 @@ def __getExpectedCompilers__():
 
 def __getWinCompilers__():
     result = []
-    winEnvVars = __getWinEnvVars__()
     for record in testData.dataset("win_compiler_paths.tsv"):
-        envvar = winEnvVars.get(testData.field(record, "envvar"), "")
+        envvar = os.getenv(testData.field(record, "envvar"))
+        if not envvar:
+            continue
         compiler = os.path.abspath(os.path.join(envvar, testData.field(record, "path"),
                                                 testData.field(record, "file")))
         if os.path.exists(compiler):
@@ -206,27 +207,14 @@ def __getWinCompilers__():
                                    :"%s %s" % (compiler, used)})
     return result
 
-# using os.getenv() or getOutputFromCmdline() do not work - they would return C:\Program Files (x86)
-# for %ProgramFiles% as well as for %ProgramFiles(x86)% when using Python 32bit on 64bit machines
-def __getWinEnvVars__():
-    result = {}
-    tmpF, tmpFPath = tempfile.mkstemp()
-    envvars = subprocess.call('set', stdout=tmpF, shell=True)
-    os.close(tmpF)
-    tmpF = open(tmpFPath, "r")
-    for line in tmpF:
-        tmp = line.split("=")
-        result[tmp[0]] = tmp[1]
-    tmpF.close()
-    os.remove(tmpFPath)
-    return result
-
 def __getExpectedDebuggers__():
+    exeSuffix = ""
     result = []
     if platform.system() in ('Microsoft', 'Windows'):
         result.extend(__getCDB__())
+        exeSuffix = ".exe"
     for debugger in ["gdb", "lldb"]:
-        result.extend(findAllFilesInPATH(debugger))
+        result.extend(findAllFilesInPATH(debugger + exeSuffix))
     if platform.system() == 'Linux':
         result.extend(filter(lambda s: not ("lldb-platform" in s or "lldb-gdbserver" in s),
                              findAllFilesInPATH("lldb-*")))
@@ -255,6 +243,7 @@ def __getCDB__():
     return result
 
 def __compareCompilers__(foundCompilers, expectedCompilers):
+    # TODO: Check if all expected compilers were found
     equal = True
     flags = 0
     isWin = platform.system() in ('Microsoft', 'Windows')
@@ -276,7 +265,7 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
                         or currentFound.values() == currentExp.values()):
                         foundExp = True
                         break
-                equal = foundExp
+            equal = foundExp
         else:
             if isWin:
                 equal = currentFound.lower() in __lowerStrs__(expectedCompilers)

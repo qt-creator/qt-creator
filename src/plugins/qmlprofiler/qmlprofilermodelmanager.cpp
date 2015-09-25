@@ -303,8 +303,10 @@ void QmlProfilerModelManager::acquiringDone()
 void QmlProfilerModelManager::processingDone()
 {
     QTC_ASSERT(state() == ProcessingData, /**/);
-    d->notesModel->loadData();
+    // Load notes after the timeline models have been initialized ...
+    // which happens on stateChanged(Done).
     setState(Done);
+    d->notesModel->loadData();
     emit loadFinished();
 }
 

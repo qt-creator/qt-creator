@@ -63,7 +63,8 @@ typedef QByteArray _;
 class CompletionTestCase : public Tests::TestCase
 {
 public:
-    CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray())
+    CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray(),
+                       bool isObjC = false)
         : m_position(-1), m_editorWidget(0), m_textDocument(0), m_editor(0)
     {
         QVERIFY(succeededSoFar());
@@ -77,7 +78,8 @@ public:
         // Write source to file
         m_temporaryDir.reset(new Tests::TemporaryDir());
         QVERIFY(m_temporaryDir->isValid());
-        const QString fileName = m_temporaryDir->createFile("file.h", m_source);
+        const QByteArray fileExt = isObjC ? ".mm" : ".h";
+        const QString fileName = m_temporaryDir->createFile("file." + fileExt, m_source);
         QVERIFY(!fileName.isEmpty());
 
         // Open in editor
@@ -3361,9 +3363,10 @@ void CppToolsPlugin::test_completion_member_access_operator()
     QFETCH(QByteArray, code);
     QFETCH(QByteArray, prefix);
     QFETCH(QStringList, expectedCompletions);
+    QFETCH(bool, isObjC);
     QFETCH(bool, expectedReplaceAccessOperator);
 
-    CompletionTestCase test(code, prefix);
+    CompletionTestCase test(code, prefix, isObjC);
     QVERIFY(test.succeededSoFar());
 
     bool replaceAccessOperator = false;
@@ -3381,6 +3384,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
     QTest::addColumn<QByteArray>("code");
     QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
+    QTest::addColumn<bool>("isObjC");
     QTest::addColumn<bool>("expectedReplaceAccessOperator");
 
     QTest::newRow("member_access_operator") << _(
@@ -3391,7 +3395,18 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("s.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("t"))
+        << false
         << true;
+
+    QTest::newRow("objc_not_replacing") << _(
+            "typedef struct objc_object Bar;"
+            "class Foo {\n"
+            "  Bar *bar;\n"
+            "  void func() { @ }"
+            "};\n"
+        ) << _("bar.") << (QStringList())
+        << true
+        << false;
 
     QTest::newRow("typedef_of_type_and_decl_of_type_no_replace_access_operator") << _(
             "struct S { int m; };\n"
@@ -3401,6 +3416,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << false;
 
     QTest::newRow("typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator") << _(
@@ -3409,6 +3425,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "SType *p;\n"
             "@\n"
         ) << _("p.") << (QStringList())
+        << false
         << false;
 
     QTest::newRow("typedef_of_type_and_decl_of_pointer_replace_access_operator") << _(
@@ -3419,6 +3436,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << true;
 
     QTest::newRow("typedef_of_pointer_and_decl_of_type_replace_access_operator") << _(
@@ -3429,6 +3447,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << true;
 
     QTest::newRow("predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator") << _(
@@ -3439,6 +3458,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << true;
 
     QTest::newRow("predecl_typedef_of_type_and_decl_type_no_replace_access_operator") << _(
@@ -3449,6 +3469,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << false;
 
     QTest::newRow("predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator") << _(
@@ -3457,6 +3478,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "SType *p;\n"
             "@\n"
         ) << _("p.") << (QStringList())
+        << false
         << false;
 
     QTest::newRow("predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator") << _(
@@ -3467,6 +3489,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << true;
 
     QTest::newRow("typedef_of_pointer_of_type_replace_access_operator") << _(
@@ -3478,6 +3501,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << true;
 
     QTest::newRow("typedef_of_pointer_of_type_no_replace_access_operator") << _(
@@ -3489,5 +3513,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
         ) << _("p->") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
+        << false
         << false;
 }

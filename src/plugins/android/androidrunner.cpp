@@ -180,7 +180,6 @@ AndroidRunner::AndroidRunner(QObject *parent,
         m_gdbserverPath = packageDir + _("/lib/gdbserver");
 
 
-    m_gdbserverCommand = m_gdbserverPath + _(" --multi +") + m_gdbserverSocket;
     // Detect busybox, as we need to pass -w to ps to get wide output.
     QProcess psProc;
     psProc.start(m_adb, selector() << _("shell") << _("readlink") << _("$(which ps)"));
@@ -375,7 +374,10 @@ void AndroidRunner::asyncStart()
             args << _("-e") << _("ping_file") << m_pingFile;
             args << _("-e") << _("pong_file") << m_pongFile;
         }
-        args << _("-e") << _("gdbserver_command") << m_gdbserverCommand;
+
+        QString gdbserverCommand = QString::fromLatin1(adbShellAmNeedsQuotes() ? "\"%1 --multi +%2\"" : "%1 --multi +%2")
+                .arg(m_gdbserverPath).arg(m_gdbserverSocket);
+        args << _("-e") << _("gdbserver_command") << gdbserverCommand;
         args << _("-e") << _("gdbserver_socket") << m_gdbserverSocket;
 
         if (m_handShakeMethod == SocketHandShake) {
@@ -499,6 +501,28 @@ void AndroidRunner::asyncStart()
     m_tries = 0;
     m_wasStarted = false;
     QMetaObject::invokeMethod(&m_checkPIDTimer, "start");
+}
+
+bool AndroidRunner::adbShellAmNeedsQuotes()
+{
+    // Between Android SDK Tools version 24.3.1 and 24.3.4 the quoting
+    // needs for the 'adb shell am start ...' parameters changed.
+    // Run a test to find out on what side of the fence we live.
+    // The command will fail with a complaint about the "--dummy"
+    // option on newer SDKs, and with "No intent supplied" on older ones.
+    // In case the test itself fails assume a new SDK.
+    QProcess adb;
+    adb.start(m_adb, selector() << _("shell") << _("am") << _("start")
+                                << _("-e") << _("dummy") <<_("dummy --dummy"));
+    if (!adb.waitForStarted())
+        return true;
+
+    if (!adb.waitForFinished(10000))
+        return true;
+
+    QByteArray output = adb.readAllStandardError() + adb.readAllStandardOutput();
+    bool oldSdk = output.contains("Error: No intent supplied");
+    return !oldSdk;
 }
 
 void AndroidRunner::handleRemoteDebuggerRunning()

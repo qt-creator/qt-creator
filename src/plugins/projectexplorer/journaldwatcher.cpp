@@ -227,7 +227,10 @@ void JournaldWatcher::handleEntry()
             continue;
 
         const QByteArray pid = logEntry.value(QByteArrayLiteral("_PID"));
-        quint64 pidNum = pid.isEmpty() ? 0 : QString::fromLatin1(pid).toInt();
+        if (pid.isEmpty())
+            continue;
+
+        quint64 pidNum = QString::fromLatin1(pid).toInt();
 
         QString message = QString::fromUtf8(logEntry.value(QByteArrayLiteral("MESSAGE")));
         message.append(QLatin1Char('\n')); // Add newline.

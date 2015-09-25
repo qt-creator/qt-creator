@@ -2191,9 +2191,5 @@ void CppCompletionAssistInterface::getCppSpecifics() const
         m_parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
         m_snapshot = m_parser->snapshot();
         m_headerPaths = m_parser->headerPaths();
-        if (Document::Ptr document = m_parser->document())
-            m_languageFeatures = document->languageFeatures();
-        else
-            m_languageFeatures = LanguageFeatures::defaultFeatures();
     }
 }

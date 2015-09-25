@@ -90,7 +90,7 @@
                     DISTFILES variable as the configuration file for the
                     selected tool.
 
-                \li Select the \uicontrol {Use $HOME} option to use the
+                \li Select the \uicontrol {Use file in $HOME} option to use the
                     specified file in the user's home directory as the
                     configuration file for the selected tool.
 
@@ -117,8 +117,9 @@
     \endlist
 
     In addition to the \uicontrol {Format Current File} command, ClangFormat
-    provides the \uicontrol {Format Selected Text} command. If you select it
-    when no text is selected, nothing happens. To format the entire file in this
-    case, select the \uicontrol {Format entire file if no text was selected}
-    check box in the \uicontrol {Clang Format} options.
+    and Uncrustify provide the \uicontrol {Format Selected Text} command. If you
+    select it when no text is selected, nothing happens. To format the entire
+    file in this case when using Clang, select the
+    \uicontrol {Format entire file if no text was selected} check box in the
+    \uicontrol {Clang Format} options.
 */
