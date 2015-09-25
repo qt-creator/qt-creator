@@ -86,6 +86,9 @@ public:
 
     QHash<QString, QVariant> variables() const override;
 
+    static QString processText(Utils::MacroExpander *expander, const QString &input,
+                               QString *errorMessage);
+
 signals:
     void preGenerateFiles(); // emitted before files are generated (can happen several times!)
     void postGenerateFiles(const JsonWizard::GeneratorFiles &files); // emitted after commitToFileList was called.

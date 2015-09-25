@@ -30,7 +30,6 @@
 
 #include "jsonwizardfilegenerator.h"
 
-#include "../customwizard/customwizardpreprocessor.h"
 #include "../projectexplorer.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
@@ -47,51 +46,6 @@
 
 namespace ProjectExplorer {
 namespace Internal {
-
-static QString processTextFileContents(Utils::MacroExpander *expander,
-                                       const QString &input, QString *errorMessage)
-{
-    errorMessage->clear();
-
-    if (input.isEmpty())
-        return input;
-
-    // Recursively expand macros:
-    QString in = input;
-    QString oldIn;
-    for (int i = 0; i < 5 && in != oldIn; ++i) {
-        oldIn = in;
-        in = expander->expand(oldIn);
-    }
-
-    QString out;
-    if (!customWizardPreprocess(in, &out, errorMessage))
-        return QString();
-
-    // Expand \n, \t and handle line continuation:
-    QString result;
-    result.reserve(out.count());
-    bool isEscaped = false;
-    for (int i = 0; i < out.count(); ++i) {
-        const QChar c = out.at(i);
-
-        if (isEscaped) {
-            if (c == QLatin1Char('n'))
-                result.append(QLatin1Char('\n'));
-            else if (c == QLatin1Char('t'))
-                result.append(QLatin1Char('\t'));
-            else if (c != QLatin1Char('\n'))
-                result.append(c);
-            isEscaped = false;
-        } else {
-            if (c == QLatin1Char('\\'))
-                isEscaped = true;
-            else
-                result.append(c);
-        }
-    }
-    return result;
-}
 
 bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 {
@@ -210,7 +164,8 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
                 });
                 nested.registerExtraResolver([expander](QString n, QString *ret) { return expander->resolveMacro(n, ret); });
 
-                gf.setContents(processTextFileContents(&nested, QString::fromUtf8(reader.data()), errorMessage));
+                gf.setContents(JsonWizard::processText(&nested, QString::fromUtf8(reader.data()),
+                                                       errorMessage));
                 if (!errorMessage->isEmpty()) {
                     *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
                             .arg(sourcePath, *errorMessage);
