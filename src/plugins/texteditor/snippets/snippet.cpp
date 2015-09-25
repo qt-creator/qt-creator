@@ -32,6 +32,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/templateengine.h>
+
 #include <QLatin1Char>
 #include <QLatin1String>
 #include <QTextDocument>
@@ -192,9 +194,19 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
     static TitlecaseMangler tcMangler;
 
     Snippet::ParsedSnippet result;
-    result.success = true;
 
-    const int count = snippet.count();
+    QString errorMessage;
+    QString preprocessedSnippet
+            = Utils::TemplateEngine::processText(Utils::globalMacroExpander(), snippet,
+                                                 &errorMessage);
+
+    result.success = errorMessage.isEmpty();
+    if (!result.success) {
+        result.errorMessage = errorMessage;
+        return result;
+    }
+
+    const int count = preprocessedSnippet.count();
     bool success = true;
     int start = -1;
     NameMangler *mangler = 0;
@@ -202,8 +214,8 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
     result.text.reserve(count);
 
     for (int i = 0; i < count; ++i) {
-        QChar current = snippet.at(i);
-        QChar next = (i + 1) < count ? snippet.at(i + 1) : QChar();
+        QChar current = preprocessedSnippet.at(i);
+        QChar next = (i + 1) < count ? preprocessedSnippet.at(i + 1) : QChar();
 
         if (current == Snippet::kVariableDelimiter) {
             if (start < 0) {
@@ -242,12 +254,8 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
             continue;
         }
 
-        if (current == QLatin1Char('\\')) {
-            if (next.isNull()) {
-                success = false;
-                break;
-            }
-            result.text.append(next);
+        if (current == QLatin1Char('\\') && next == QLatin1Char('$')) {
+            result.text.append(QLatin1Char('$'));
             ++i;
             continue;
         }

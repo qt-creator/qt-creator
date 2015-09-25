@@ -83,6 +83,7 @@ public:
     class ParsedSnippet {
     public:
         QString text;
+        QString errorMessage;
         bool success;
         struct Range {
             Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }
