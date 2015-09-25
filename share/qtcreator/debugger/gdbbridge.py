@@ -1788,11 +1788,11 @@ class CliDumper(Dumper):
         return self.output
 
 # Global instance.
-if gdb.parameter('height') is None:
-    theDumper = Dumper()
-else:
-    import codecs
-    theDumper = CliDumper()
+#if gdb.parameter('height') is None:
+theDumper = Dumper()
+#else:
+#    import codecs
+#    theDumper = CliDumper()
 
 ######################################################################
 #
