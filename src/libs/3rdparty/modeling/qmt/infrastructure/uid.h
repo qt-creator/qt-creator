@@ -34,6 +34,7 @@
 #include "qmt_global.h"
 
 #include <QUuid>
+#include <QMetaType>
 
 
 namespace qmt {
@@ -83,5 +84,7 @@ inline bool operator!=(const Uid &lhs, const Uid &rhs)
 }
 
 }
+
+Q_DECLARE_METATYPE(qmt::Uid);
 
 #endif // QMT_UID_H

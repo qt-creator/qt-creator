@@ -121,8 +121,6 @@ private:
     void onNewElementCreated(qmt::DElement *element, qmt::MDiagram *diagram);
     void onDiagramSelectionChanged(const qmt::MDiagram *diagram);
     void onDiagramModified(const qmt::MDiagram *diagram);
-    Q_SLOT void onEditSelectedElement();
-
     void onRightSplitterMoved(int pos, int index);
     void onRightSplitterChanged(const QByteArray &state);
     void onRightHorizSplitterMoved(int pos, int index);
@@ -133,7 +131,15 @@ private:
     void closeDiagram(const qmt::MDiagram *diagram);
     void closeAllDiagrams();
 
-    Q_SLOT void onContentSet();
+    void onContentSet();
+
+    void addDiagramToSelector(const qmt::MDiagram *diagram);
+    void updateDiagramSelector();
+    void onDiagramSelectorSelected(int index);
+    QString buildDiagramLabel(const qmt::MDiagram *diagram);
+
+private slots:
+    void onEditSelectedElement();
 
 private:
     ModelEditorPrivate *d;

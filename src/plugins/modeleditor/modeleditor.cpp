@@ -76,6 +76,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QComboBox>
 #include <QDir>
 #include <QEvent>
 #include <QFileInfo>
@@ -117,6 +118,7 @@ public:
     QScrollArea *propertiesScrollArea = 0;
     QWidget *propertiesGroupWidget = 0;
     QWidget *toolbar = 0;
+    QComboBox *diagramSelector = 0;
     SelectedArea selectedArea = SelectedArea::Nothing;
 };
 
@@ -257,7 +259,11 @@ void ModelEditor::init(QWidget *parent)
     auto toolbarLayout = new QHBoxLayout(d->toolbar);
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
     toolbarLayout->setSpacing(0);
-    toolbarLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+    d->diagramSelector = new QComboBox(d->toolbar);
+    connect(d->diagramSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &ModelEditor::onDiagramSelectorSelected);
+    toolbarLayout->addWidget(d->diagramSelector, 1);
+    toolbarLayout->addStretch(1);
     toolbarLayout->addWidget(createToolbarCommandButton(
         Constants::ACTION_ADD_PACKAGE, [this]() { onAddPackage(); },
         QIcon(QStringLiteral(":/modelinglib/48x48/package.png")),
@@ -274,7 +280,7 @@ void ModelEditor::init(QWidget *parent)
         Constants::ACTION_ADD_CANVAS_DIAGRAM, [this]() { onAddCanvasDiagram(); },
         QIcon(QStringLiteral(":/modelinglib/48x48/canvas-diagram.png")),
         tr("Add Canvas Diagram"), d->toolbar));
-    toolbarLayout->addItem(new QSpacerItem(20, 0));
+    toolbarLayout->addSpacing(20);
 }
 
 void ModelEditor::initDocument()
@@ -334,6 +340,15 @@ void ModelEditor::initDocument()
     connect(d->modelTreeView, &QAbstractItemView::doubleClicked,
             this, &ModelEditor::onTreeViewDoubleClicked, Qt::QueuedConnection);
 
+    connect(documentController->getModelController(), &qmt::ModelController::endMoveObject,
+            this, &ModelEditor::updateDiagramSelector);
+    connect(documentController->getModelController(), &qmt::ModelController::endRemoveObject,
+            this, &ModelEditor::updateDiagramSelector);
+    connect(documentController->getModelController(), &qmt::ModelController::endResetModel,
+            this, &ModelEditor::updateDiagramSelector);
+    connect(documentController->getModelController(), &qmt::ModelController::endUpdateObject,
+            this, &ModelEditor::updateDiagramSelector);
+
     updateSelectedArea(SelectedArea::Nothing);
 }
 
@@ -351,6 +366,8 @@ void ModelEditor::showDiagram(qmt::MDiagram *diagram)
         qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->bindDiagramSceneModel(diagram);
         d->diagramView->setDiagramSceneModel(diagramSceneModel);
         d->diagramStack->setCurrentWidget(d->diagramView);
+        updateSelectedArea(SelectedArea::Nothing);
+        addDiagramToSelector(diagram);
     }
 }
 
@@ -772,26 +789,6 @@ void ModelEditor::onDiagramModified(const qmt::MDiagram *diagram)
     updateSelectedArea(d->selectedArea);
 }
 
-void ModelEditor::onEditSelectedElement()
-{
-    // TODO introduce similar method for selected elements in model tree
-    // currently this method is called on adding new elements in model tree
-    // but the method is a no-op in that case.
-    qmt::MDiagram *diagram = d->propertiesView->getSelectedDiagram();
-    QList<qmt::DElement *> elements = d->propertiesView->getSelectedDiagramElements();
-    if (diagram && !elements.isEmpty()) {
-        qmt::DElement *element = elements.at(0);
-        if (element) {
-            qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->getDiagramSceneModel(diagram);
-            if (diagramSceneModel->isElementEditable(element)) {
-                diagramSceneModel->editElement(element);
-                return;
-            }
-        }
-        d->propertiesView->editSelectedElement();
-    }
-}
-
 void ModelEditor::onRightSplitterMoved(int pos, int index)
 {
     Q_UNUSED(pos);
@@ -994,6 +991,92 @@ void ModelEditor::onContentSet()
         d->modelTreeView->selectFromSourceModelIndex(modelIndex);
 
     expandModelTreeToDepth(0);
+}
+
+void ModelEditor::addDiagramToSelector(const qmt::MDiagram *diagram)
+{
+    QString diagramLabel = buildDiagramLabel(diagram);
+    QVariant diagramUid = QVariant::fromValue(diagram->getUid());
+    int i = d->diagramSelector->findData(diagramUid);
+    if (i >= 0)
+        d->diagramSelector->removeItem(i);
+    d->diagramSelector->insertItem(0, QIcon(QStringLiteral(":/modelinglib/48x48/canvas-diagram.png")), diagramLabel, diagramUid);
+    d->diagramSelector->setCurrentIndex(0);
+    while (d->diagramSelector->count() > 20)
+        d->diagramSelector->removeItem(d->diagramSelector->count() - 1);
+}
+
+void ModelEditor::updateDiagramSelector()
+{
+    int i = 0;
+    while (i < d->diagramSelector->count()) {
+        qmt::Uid diagramUid = d->diagramSelector->itemData(i).value<qmt::Uid>();
+        if (diagramUid.isValid()) {
+            qmt::MDiagram *diagram = d->document->documentController()->getModelController()->findObject<qmt::MDiagram>(diagramUid);
+            if (diagram) {
+                QString diagramLabel = buildDiagramLabel(diagram);
+                if (diagramLabel != d->diagramSelector->itemText(i))
+                    d->diagramSelector->setItemText(i, diagramLabel);
+                ++i;
+                continue;
+            }
+        }
+        d->diagramSelector->removeItem(i);
+    }
+}
+
+void ModelEditor::onDiagramSelectorSelected(int index)
+{
+    qmt::Uid diagramUid = d->diagramSelector->itemData(index).value<qmt::Uid>();
+    if (diagramUid.isValid()) {
+        qmt::MDiagram *diagram = d->document->documentController()->getModelController()->findObject<qmt::MDiagram>(diagramUid);
+        if (diagram) {
+            showDiagram(diagram);
+            return;
+        }
+    }
+    d->diagramSelector->setCurrentIndex(0);
+}
+
+QString ModelEditor::buildDiagramLabel(const qmt::MDiagram *diagram)
+{
+    QString label = diagram->getName();
+    qmt::MObject *owner = diagram->getOwner();
+    QStringList path;
+    while (owner) {
+        path.append(owner->getName());
+        owner = owner->getOwner();
+    }
+    if (!path.isEmpty()) {
+        label += QStringLiteral(" [");
+        label += path.last();
+        for (int i = path.count() - 2; i >= 0; --i) {
+            label += QLatin1Char('.');
+            label += path.at(i);
+        }
+        label += QLatin1Char(']');
+    }
+    return label;
+}
+
+void ModelEditor::onEditSelectedElement()
+{
+    // TODO introduce similar method for selected elements in model tree
+    // currently this method is called on adding new elements in model tree
+    // but the method is a no-op in that case.
+    qmt::MDiagram *diagram = d->propertiesView->getSelectedDiagram();
+    QList<qmt::DElement *> elements = d->propertiesView->getSelectedDiagramElements();
+    if (diagram && !elements.isEmpty()) {
+        qmt::DElement *element = elements.at(0);
+        if (element) {
+            qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->getDiagramSceneModel(diagram);
+            if (diagramSceneModel->isElementEditable(element)) {
+                diagramSceneModel->editElement(element);
+                return;
+            }
+        }
+        d->propertiesView->editSelectedElement();
+    }
 }
 
 } // namespace Internal
