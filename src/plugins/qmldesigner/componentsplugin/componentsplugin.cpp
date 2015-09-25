@@ -44,12 +44,12 @@ ComponentsPlugin::ComponentsPlugin()
 
 QString ComponentsPlugin::pluginName() const
 {
-    return ("ComponentsPlugin");
+    return QLatin1String("ComponentsPlugin");
 }
 
 QString ComponentsPlugin::metaInfo() const
 {
-    return QString(":/componentsplugin/components.metainfo");
+    return QLatin1String(":/componentsplugin/components.metainfo");
 }
 
 }

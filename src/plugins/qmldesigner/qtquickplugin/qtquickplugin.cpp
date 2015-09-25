@@ -36,12 +36,12 @@ QtQuickPlugin::QtQuickPlugin()
 
 QString QtQuickPlugin::pluginName() const
 {
-    return ("QtQuickPlugin");
+    return QLatin1String("QtQuickPlugin");
 }
 
 QString QtQuickPlugin::metaInfo() const
 {
-    return QString(":/qtquickplugin/quick.metainfo");
+    return QLatin1String(":/qtquickplugin/quick.metainfo");
 }
 
 }
