@@ -77,6 +77,11 @@ public:
     void openDiagram(const qmt::MElement *element) override;
     void openDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) override;
 
+    bool hasParentDiagram(const qmt::MElement *element) const;
+    bool hasParentDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) const;
+    void openParentDiagram(const qmt::MElement *element);
+    void openParentDiagram(const qmt::DElement *element, const qmt::MElement *diagram);
+
     bool mayCreateDiagram(const qmt::MElement *element) const override;
     bool mayCreateDiagram(const qmt::DElement *element,
                           const qmt::MDiagram *diagram) const override;

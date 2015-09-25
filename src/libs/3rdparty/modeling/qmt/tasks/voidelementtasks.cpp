@@ -138,6 +138,24 @@ void VoidElementTasks::openDiagram(const DElement *, const MDiagram *)
 {
 }
 
+bool VoidElementTasks::hasParentDiagram(const MElement *) const
+{
+    return false;
+}
+
+bool VoidElementTasks::hasParentDiagram(const DElement *, const MDiagram *) const
+{
+    return false;
+}
+
+void VoidElementTasks::openParentDiagram(const MElement *)
+{
+}
+
+void VoidElementTasks::openParentDiagram(const DElement *, const MElement *)
+{
+}
+
 bool VoidElementTasks::mayCreateDiagram(const MElement *) const
 {
     return false;

@@ -70,6 +70,11 @@ public:
     virtual void openDiagram(const MElement *) = 0;
     virtual void openDiagram(const DElement *, const MDiagram *) = 0;
 
+    virtual bool hasParentDiagram(const MElement *) const = 0;
+    virtual bool hasParentDiagram(const DElement *, const MDiagram *) const = 0;
+    virtual void openParentDiagram(const MElement *) = 0;
+    virtual void openParentDiagram(const DElement *, const MElement *) = 0;
+
     virtual bool mayCreateDiagram(const MElement *) const = 0;
     virtual bool mayCreateDiagram(const DElement *, const MDiagram *) const = 0;
     virtual void createAndOpenDiagram(const MElement *) = 0;

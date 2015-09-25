@@ -39,6 +39,7 @@ const char MODEL_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", 
 
 const char REMOVE_SELECTED_ELEMENTS[] = "ModelEditor.RemoveSelectedElements";
 const char DELETE_SELECTED_ELEMENTS[] = "ModelEditor.DeleteSelectedElements";
+const char OPEN_PARENT_DIAGRAM[] = "ModelEditor.OpenParentDiagram";
 const char ACTION_ADD_PACKAGE[] = "ModelEditor.Action.AddPackage";
 const char ACTION_ADD_COMPONENT[] = "ModelEditor.Action.AddComponent";
 const char ACTION_ADD_CLASS[] = "ModelEditor.Action.AddClass";

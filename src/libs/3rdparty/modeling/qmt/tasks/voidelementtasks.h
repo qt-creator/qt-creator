@@ -72,6 +72,11 @@ public:
     void openDiagram(const MElement *);
     void openDiagram(const DElement *, const MDiagram *);
 
+    bool hasParentDiagram(const MElement *) const;
+    bool hasParentDiagram(const DElement *, const MDiagram *) const;
+    void openParentDiagram(const MElement *);
+    void openParentDiagram(const DElement *, const MElement *);
+
     bool mayCreateDiagram(const qmt::MElement *) const;
     bool mayCreateDiagram(const qmt::DElement *, const qmt::MDiagram *) const;
     void createAndOpenDiagram(const qmt::MElement *);

@@ -67,6 +67,7 @@
 #include "qmt/style/style.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
+#include "qmt/tasks/finddiagramvisitor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -283,11 +284,17 @@ void ModelEditor::init(QWidget *parent)
     auto toolbarLayout = new QHBoxLayout(d->toolbar);
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
     toolbarLayout->setSpacing(0);
+
+    auto openParentButton = new Core::CommandButton(Constants::OPEN_PARENT_DIAGRAM, d->toolbar);
+    openParentButton->setDefaultAction(d->actionHandler->openParentDiagramAction());
+    toolbarLayout->addWidget(openParentButton);
+
     d->diagramSelector = new QComboBox(d->toolbar);
     connect(d->diagramSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, &ModelEditor::onDiagramSelectorSelected);
     toolbarLayout->addWidget(d->diagramSelector, 1);
     toolbarLayout->addStretch(1);
+
     toolbarLayout->addWidget(createToolbarCommandButton(
         Constants::ACTION_ADD_PACKAGE, [this]() { onAddPackage(); },
         QIcon(QStringLiteral(":/modelinglib/48x48/package.png")),
@@ -483,6 +490,13 @@ void ModelEditor::selectAll()
     d->document->documentController()->selectAllOnDiagram(currentDiagram());
 }
 
+void ModelEditor::openParentDiagram()
+{
+    qmt::MDiagram *diagram = currentDiagram();
+    if (diagram)
+        d->document->documentController()->elementTasks()->openParentDiagram(diagram);
+}
+
 void ModelEditor::editProperties()
 {
     d->propertiesView->editSelectedElement();
@@ -525,6 +539,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     bool canPaste = false;
     bool canSelectAll = false;
     bool canCopyDiagram = false;
+    bool canOpenParentDiagram = false;
     QList<qmt::MElement *> propertiesModelElements;
     QList<qmt::DElement *> propertiesDiagramElements;
     qmt::MDiagram *propertiesDiagram = 0;
@@ -578,6 +593,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
         break;
     }
     }
+    canOpenParentDiagram = d->document->documentController()->elementTasks()->hasParentDiagram(currentDiagram());
 
     d->actionHandler->cutAction()->setEnabled(canCutCopyDelete);
     d->actionHandler->copyAction()->setEnabled(canCutCopyDelete || canCopyDiagram);
@@ -585,6 +601,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     d->actionHandler->removeAction()->setEnabled(canRemove);
     d->actionHandler->deleteAction()->setEnabled(canCutCopyDelete);
     d->actionHandler->selectAllAction()->setEnabled(canSelectAll);
+    d->actionHandler->openParentDiagramAction()->setEnabled(canOpenParentDiagram);
 
     if (!propertiesModelElements.isEmpty())
         showProperties(propertiesModelElements);

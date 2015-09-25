@@ -88,6 +88,7 @@ public:
     void removeSelectedElements();
     void deleteSelectedElements();
     void selectAll();
+    void openParentDiagram();
     void editProperties();
     qmt::MPackage *guessSelectedPackage() const;
 

@@ -68,6 +68,7 @@ public:
     QAction *removeAction() const;
     QAction *deleteAction() const;
     QAction *selectAllAction() const;
+    QAction *openParentDiagramAction() const;
 
     void createActions();
     void createEditPropertiesShortcut(const Core::Id &shortcutId);
@@ -81,6 +82,7 @@ private slots:
     void removeSelectedElements();
     void deleteSelectedElements();
     void selectAll();
+    void openParentDiagram();
     void onEditProperties();
 
 private:

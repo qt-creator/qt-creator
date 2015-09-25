@@ -56,6 +56,7 @@ public:
     QAction *removeAction = 0;
     QAction *deleteAction = 0;
     QAction *selectAllAction = 0;
+    QAction *openParentDiagramAction = 0;
 };
 
 ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)
@@ -110,6 +111,11 @@ QAction *ActionHandler::selectAllAction() const
     return d->selectAllAction;
 }
 
+QAction *ActionHandler::openParentDiagramAction() const
+{
+    return d->openParentDiagramAction;
+}
+
 void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
@@ -130,6 +136,10 @@ void ActionHandler::createActions()
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
     d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); })->action();
+    d->openParentDiagramAction = registerCommand(
+                Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, true,
+                tr("Open Parent Diagram"), QKeySequence(QStringLiteral("Ctrl+Shift+P")))->action();
+    d->openParentDiagramAction->setIcon(QIcon(QStringLiteral(":/modeleditor/up.png")));
     registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr);
     registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr);
     registerCommand(Constants::ACTION_ADD_CLASS, nullptr);
@@ -199,6 +209,13 @@ void ActionHandler::selectAll()
     auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->selectAll();
+}
+
+void ActionHandler::openParentDiagram()
+{
+    auto editor = dynamic_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->openParentDiagram();
 }
 
 void ActionHandler::onEditProperties()

@@ -302,6 +302,66 @@ void ElementTasks::openDiagram(const qmt::DElement *element, const qmt::MDiagram
     openDiagram(melement);
 }
 
+bool ElementTasks::hasParentDiagram(const qmt::MElement *element) const
+{
+    if (element && element->getOwner()) {
+        qmt::MObject *parentObject = element->getOwner()->getOwner();
+        if (parentObject) {
+            qmt::FindDiagramVisitor visitor;
+            parentObject->accept(&visitor);
+            const qmt::MDiagram *parentDiagram = visitor.getDiagram();
+            if (parentDiagram) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool ElementTasks::hasParentDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) const
+{
+    Q_UNUSED(diagram);
+
+    if (!element)
+        return false;
+
+    qmt::MElement *melement = d->documentController->getModelController()->findElement(element->getModelUid());
+    if (!melement)
+        return false;
+    return hasParentDiagram(melement);
+}
+
+void ElementTasks::openParentDiagram(const qmt::MElement *element)
+{
+    if (element && element->getOwner()) {
+        qmt::MObject *parentObject = element->getOwner()->getOwner();
+        if (parentObject) {
+            qmt::FindDiagramVisitor visitor;
+            parentObject->accept(&visitor);
+            const qmt::MDiagram *parentDiagram = visitor.getDiagram();
+            if (parentDiagram) {
+                ModelEditorPlugin::modelsManager()->openDiagram(
+                            d->documentController->getProjectController()->getProject()->getUid(),
+                            parentDiagram->getUid());
+                return;
+            }
+        }
+    }
+}
+
+void ElementTasks::openParentDiagram(const qmt::DElement *element, const qmt::MElement *diagram)
+{
+    Q_UNUSED(diagram);
+
+    if (!element)
+        return;
+
+    qmt::MElement *melement = d->documentController->getModelController()->findElement(element->getModelUid());
+    if (!melement)
+        return;
+    openParentDiagram(melement);
+}
+
 bool ElementTasks::mayCreateDiagram(const qmt::MElement *element) const
 {
     return dynamic_cast<const qmt::MPackage *>(element) != 0;
