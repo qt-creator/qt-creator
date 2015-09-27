@@ -72,8 +72,8 @@ void DummyModel::loadData()
 float DummyModel::relativeHeight(int index) const
 {
     if (index == 10)
-        return 0.002;
-    return 1.0;
+        return 0.002f;
+    return 1.0f;
 }
 
 void tst_TimelineSelectionRenderPass::instance()
