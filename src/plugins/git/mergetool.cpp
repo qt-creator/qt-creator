@@ -250,7 +250,7 @@ void MergeTool::readData()
             m_localState = waitAndReadStatus(m_localInfo);
             m_remoteState = waitAndReadStatus(m_remoteInfo);
             chooseAction();
-        } else if (m_merging && line.startsWith("Continue merging")) {
+        } else if (line.startsWith("Continue merging")) {
             if (QMessageBox::question(Core::ICore::dialogParent(), tr("Continue Merging"),
                                       tr("Continue merging other unresolved paths?"),
                                       QMessageBox::Yes | QMessageBox::No,
