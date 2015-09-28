@@ -297,7 +297,7 @@ bool QmlAnchorBindingProxy::hasParent() const
 
 bool QmlAnchorBindingProxy::isInLayout() const
 {
-    return false;
+    return m_qmlItemNode.isInLayout();
 }
 
 bool QmlAnchorBindingProxy::isFilled() const
