@@ -298,6 +298,7 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_displayFeaturesButton->setIcon(QIcon(QLatin1String(ICON_FILTER)));
     d->m_displayFeaturesButton->setToolTip(tr("Hide or show event categories."));
     d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
+    d->m_displayFeaturesButton->setProperty("noArrow", true);
     d->m_displayFeaturesMenu = new QMenu(d->m_displayFeaturesButton);
     d->m_displayFeaturesButton->setMenu(d->m_displayFeaturesMenu);
     connect(d->m_displayFeaturesMenu, &QMenu::triggered,
