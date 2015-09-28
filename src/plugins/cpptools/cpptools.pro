@@ -64,7 +64,8 @@ HEADERS += \
     stringtable.h \
     symbolfinder.h \
     symbolsfindfilter.h \
-    typehierarchybuilder.h
+    typehierarchybuilder.h \
+    senddocumenttracker.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -126,7 +127,8 @@ SOURCES += \
     stringtable.cpp \
     symbolfinder.cpp \
     symbolsfindfilter.cpp \
-    typehierarchybuilder.cpp
+    typehierarchybuilder.cpp \
+    senddocumenttracker.cpp
 
 FORMS += \
     completionsettingspage.ui \

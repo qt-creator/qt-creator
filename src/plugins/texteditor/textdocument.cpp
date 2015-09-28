@@ -236,7 +236,10 @@ TextDocument::TextDocument(Id id)
         emit changed();
     });
 
-    QObject::connect(&d->m_document, &QTextDocument::contentsChanged, this, &TextDocument::contentsChanged);
+    connect(&d->m_document, &QTextDocument::contentsChanged,
+            this, &TextDocument::contentsChanged);
+    connect(&d->m_document, &QTextDocument::contentsChange,
+            this, &TextDocument::contentsChangedWithPosition);
 
     // set new document layout
     QTextOption opt = d->m_document.defaultTextOption();

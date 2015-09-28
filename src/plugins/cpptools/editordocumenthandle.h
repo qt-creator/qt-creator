@@ -32,6 +32,10 @@
 #define EDITORDOCUMENTHANDLE_H
 
 #include "cpptools_global.h"
+#include "senddocumenttracker.h"
+
+#include <QMap>
+#include <QString>
 
 namespace CppTools {
 class BaseEditorDocumentProcessor;
@@ -55,7 +59,10 @@ public:
 
     virtual void resetProcessor() = 0;
 
+    SendDocumentTracker &sendTracker(const QString &projectPartId);
+
 private:
+    QMap<QString, SendDocumentTracker> m_documentRevisionManagements;
     bool m_needsRefresh;
 };
 

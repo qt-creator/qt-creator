@@ -50,7 +50,8 @@ SOURCES += \
     translationunitstest.cpp \
     translationunittest.cpp \
     unsavedfilestest.cpp \
-    utf8test.cpp
+    utf8test.cpp \
+    senddocumenttrackertest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \

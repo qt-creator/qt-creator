@@ -67,7 +67,9 @@ private:
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
     void onCppDocumentReloadFinishedOnTranslationUnit(bool success);
-    void onCppDocumentContentsChangedOnTranslationUnit();
+    void onCppDocumentContentsChangedOnTranslationUnit(int position,
+                                                       int charsRemoved,
+                                                       int charsAdded);
     void onCppDocumentReloadFinishedOnUnsavedFile(bool success);
     void onCppDocumentContentsChangedOnUnsavedFile();
 

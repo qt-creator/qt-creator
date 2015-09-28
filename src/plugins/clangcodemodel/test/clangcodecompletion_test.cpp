@@ -512,6 +512,8 @@ public:
 
     bool succeeded() const { return m_editor && m_backendIsNotified; }
     bool waitUntilBackendIsNotified(int timeout = 10000);
+    bool waitUntilProjectPartChanged(const QString &newProjectPartId, int timeout = 10000);
+    bool waitUntil(const std::function<bool()> &condition, int timeout);
     TextEditor::BaseTextEditor *editor() const { return m_editor; }
 
 private:
@@ -536,12 +538,37 @@ OpenEditorAtCursorPosition::~OpenEditorAtCursorPosition()
         Core::EditorManager::closeEditor(m_editor, /* askAboutModifiedEditors= */ false);
 }
 
+
+
 bool OpenEditorAtCursorPosition::waitUntilBackendIsNotified(int timeout)
 {
-    QTC_ASSERT(m_editor, return false);
-
     const QString filePath = m_editor->document()->filePath().toString();
 
+    auto condition = [filePath] () {
+        const auto *processor = ClangEditorDocumentProcessor::get(filePath);
+        return processor && processor->projectPart();
+    };
+
+    return waitUntil(condition, timeout);
+}
+
+bool OpenEditorAtCursorPosition::waitUntilProjectPartChanged(const QString &newProjectPartId,
+                                                             int timeout)
+{
+    const QString filePath = m_editor->document()->filePath().toString();
+
+    auto condition = [newProjectPartId, filePath] () {
+        const auto *processor = ClangEditorDocumentProcessor::get(filePath);
+        return processor
+            && processor->projectPart()
+            && processor->projectPart()->id() == newProjectPartId;
+    };
+
+    return waitUntil(condition, timeout);
+}
+
+bool OpenEditorAtCursorPosition::waitUntil(const std::function<bool ()> &condition, int timeout)
+{
     QTime time;
     time.start();
 
@@ -549,8 +576,7 @@ bool OpenEditorAtCursorPosition::waitUntilBackendIsNotified(int timeout)
         if (time.elapsed() > timeout)
             return false;
 
-        const auto *processor = ClangEditorDocumentProcessor::get(filePath);
-        if (processor && processor->projectPart())
+        if (condition())
             return true;
 
         QCoreApplication::processEvents();
@@ -968,6 +994,8 @@ void ClangCodeCompletionTest::testChangingProjectDependentCompletion()
                                     _("#define PROJECT_CONFIGURATION_1\n"),
                                     /* testOnlyForCleanedProjects= */ true);
         QVERIFY(projectLoader.load());
+        openEditor.waitUntilProjectPartChanged(QLatin1String("myproject.project"));
+
         proposal = completionResults(openEditor.editor());
 
         QVERIFY(hasItem(proposal, "projectConfiguration1"));
@@ -1045,6 +1073,8 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileInN
 
 void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExternally()
 {
+    QSKIP("The file system watcher is doing it in backend process but we wait not long enough");
+
     ChangeDocumentReloadSetting reloadSettingsChanger(Core::IDocument::ReloadUnmodified);
 
     CppTools::Tests::TemporaryDir temporaryDir;

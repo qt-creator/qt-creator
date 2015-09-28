@@ -144,6 +144,7 @@ signals:
     void aboutToOpen(const QString &fileName, const QString &realFileName);
     void openFinishedSuccessfully();
     void contentsChanged();
+    void contentsChangedWithPosition(int position, int charsRemoved, int charsAdded);
     void tabSettingsChanged();
     void fontSettingsChanged();
 

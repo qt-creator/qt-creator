@@ -2,6 +2,7 @@ include(../../../src/libs/sqlite/sqlite-lib.pri)
 include(../../../src/libs/clangbackendipc/clangbackendipc-lib.pri)
 include(../../../src/tools/clangbackend/ipcsource/clangbackendclangipc-source.pri)
 include(../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pri)
+include(../../../src/plugins/cpptools/cpptoolsunittestfiles.pri)
 include(cplusplus.pri)
 
 INCLUDEPATH += \

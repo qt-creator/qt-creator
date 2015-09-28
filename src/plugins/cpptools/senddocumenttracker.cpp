@@ -28,39 +28,62 @@
 **
 ****************************************************************************/
 
-#include "editordocumenthandle.h"
+#include "senddocumenttracker.h"
+
+#include <algorithm>
 
 namespace CppTools {
 
-/*!
-    \class CppTools::EditorDocumentHandle
-
-    \brief The EditorDocumentHandle class provides an interface to an opened
-           C++ editor document.
-*/
-
-CppEditorDocumentHandle::CppEditorDocumentHandle()
-    : m_needsRefresh(false)
+void SendDocumentTracker::setLastSentRevision(int revision)
 {
+    m_lastSentRevision = revision;
+    m_contentChangeStartPosition = std::numeric_limits<int>::max();
 }
 
-CppEditorDocumentHandle::~CppEditorDocumentHandle()
+int SendDocumentTracker::lastSentRevision() const
 {
+    return m_lastSentRevision;
 }
 
-bool CppEditorDocumentHandle::needsRefresh() const
+void SendDocumentTracker::setLastCompletionPosition(int lastCompletionPosition)
 {
-    return m_needsRefresh;
+    m_lastCompletionPosition = lastCompletionPosition;
 }
 
-void CppEditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
+int SendDocumentTracker::lastCompletionPosition() const
 {
-    m_needsRefresh = needsRefresh;
+    return m_lastCompletionPosition;
 }
 
-SendDocumentTracker &CppEditorDocumentHandle::sendTracker(const QString &projectPartId)
+void SendDocumentTracker::applyContentChange(int startPosition)
 {
-    return m_documentRevisionManagements[projectPartId];
+    if (startPosition < m_lastCompletionPosition)
+        m_lastCompletionPosition = -1;
+
+    m_contentChangeStartPosition = std::min(startPosition, m_contentChangeStartPosition);
+}
+
+bool SendDocumentTracker::shouldSendCompletion(int newCompletionPosition) const
+{
+    return m_lastCompletionPosition != newCompletionPosition;
+}
+
+bool SendDocumentTracker::shouldSendRevision(uint newRevision) const
+{
+    return m_lastSentRevision != int(newRevision);
+}
+
+bool SendDocumentTracker::shouldSendRevisionWithCompletionPosition(int newRevision, int newCompletionPosition) const
+{
+    if (shouldSendRevision(newRevision))
+        return changedBeforeCompletionPosition(newCompletionPosition);
+
+    return false;
+}
+
+bool SendDocumentTracker::changedBeforeCompletionPosition(int newCompletionPosition) const
+{
+    return m_contentChangeStartPosition < newCompletionPosition;
 }
 
 } // namespace CppTools

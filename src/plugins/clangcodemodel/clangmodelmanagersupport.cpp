@@ -119,7 +119,7 @@ void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::
             Qt::UniqueConnection);
 
     // Handle changes from e.g. refactoring actions
-    connect(textDocument, &TextEditor::TextDocument::contentsChanged,
+    connect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
             this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit,
             Qt::UniqueConnection);
 }
@@ -162,9 +162,14 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
     }
 }
 
-void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit()
+void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit(int position,
+                                                                             int /*charsRemoved*/,
+                                                                             int /*charsAdded*/)
 {
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+
+    m_ipcCommunicator.updateChangeContentStartPosition(document->filePath().toString(),
+                                                       position);
     m_ipcCommunicator.updateTranslationUnitIfNotCurrentDocument(document);
 }
 

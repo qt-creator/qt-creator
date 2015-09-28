@@ -28,39 +28,39 @@
 **
 ****************************************************************************/
 
-#include "editordocumenthandle.h"
+#ifndef CPPTOOLS_SENDDOCUMENTTRACKER_H
+#define CPPTOOLS_SENDDOCUMENTTRACKER_H
+
+#include "cpptools_global.h"
+
+#include <limits>
 
 namespace CppTools {
 
-/*!
-    \class CppTools::EditorDocumentHandle
-
-    \brief The EditorDocumentHandle class provides an interface to an opened
-           C++ editor document.
-*/
-
-CppEditorDocumentHandle::CppEditorDocumentHandle()
-    : m_needsRefresh(false)
+class CPPTOOLS_EXPORT SendDocumentTracker
 {
-}
+public:
+    void setLastSentRevision(int lastSentRevision);
+    int lastSentRevision() const;
 
-CppEditorDocumentHandle::~CppEditorDocumentHandle()
-{
-}
+    void setLastCompletionPosition(int lastCompletionPosition);
+    int lastCompletionPosition() const;
 
-bool CppEditorDocumentHandle::needsRefresh() const
-{
-    return m_needsRefresh;
-}
+    void applyContentChange(int startPosition);
 
-void CppEditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
-{
-    m_needsRefresh = needsRefresh;
-}
+    bool shouldSendCompletion(int newCompletionPosition) const;
+    bool shouldSendRevision(uint newRevision) const;
+    bool shouldSendRevisionWithCompletionPosition(int newRevision, int newCompletionPosition) const;
 
-SendDocumentTracker &CppEditorDocumentHandle::sendTracker(const QString &projectPartId)
-{
-    return m_documentRevisionManagements[projectPartId];
-}
+private:
+    bool changedBeforeCompletionPosition(int newCompletionPosition) const;
+
+private:
+    int m_lastSentRevision = -1;
+    int m_lastCompletionPosition = -1;
+    int m_contentChangeStartPosition = std::numeric_limits<int>::max();
+};
 
 } // namespace CppTools
+
+#endif // CPPTOOLS_SENDDOCUMENTTRACKER_H

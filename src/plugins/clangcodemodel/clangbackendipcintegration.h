@@ -137,6 +137,7 @@ public:
     void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
+    void updateChangeContentStartPosition(const QString &filePath, int position);
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);
@@ -159,6 +160,7 @@ private:
     void onEditorAboutToClose(Core::IEditor *editor);
     void onCoreAboutToClose();
 
+private:
     IpcReceiver m_ipcReceiver;
     ClangBackEnd::ConnectionClient m_connection;
     QScopedPointer<IpcSenderInterface> m_ipcSender;

@@ -35,11 +35,14 @@
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
+#include "clangeditordocumentprocessor.h"
 #include "clangfunctionhintmodel.h"
 #include "clangutils.h"
 #include "completionchunkstotextconverter.h"
 
 #include <utils/qtcassert.h>
+
+#include <cpptools/editordocumenthandle.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/functionhintproposal.h>
@@ -680,6 +683,51 @@ void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartI
                                                         info.isDocumentModified,
                                                         uint(m_interface->textDocument()->revision())}});
 }
+namespace {
+CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
+{
+    return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
+}
+
+bool shouldSendDocumentForCompletion(const QString &filePath,
+                                     const QString &projectPartId,
+                                     int completionPosition)
+{
+    auto *document = cppDocument(filePath);
+
+    if (document) {
+        auto &sendTracker = document->sendTracker(projectPartId);
+        return sendTracker.shouldSendRevisionWithCompletionPosition(document->revision(),
+                                                                    completionPosition);
+    }
+
+    return true;
+}
+
+void setLastCompletionPositionAndDocumentRevision(const QString &filePath,
+                                                  const QString &projectPartId,
+                                                  int completionPosition)
+{
+    auto *document = cppDocument(filePath);
+
+    if (document) {
+        document->sendTracker(projectPartId).setLastCompletionPosition(completionPosition);
+        document->sendTracker(projectPartId).setLastSentRevision(document->revision());
+    }
+}
+
+QString projectPartIdForEditorDocument(const QString &filePath)
+{
+    auto projectPart = ClangEditorDocumentProcessor::get(filePath)->projectPart();
+
+    QString projectPartId;
+
+    if (projectPart)
+        projectPartId = projectPart->id();
+
+    return projectPartId;
+}
+}
 
 void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
                                                            const QByteArray &customFileContent)
@@ -689,8 +737,13 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     ++column;
 
     const QString filePath = m_interface->fileName();
-    const QString projectPartId = Utils::projectPartIdForFile(filePath);
-    sendFileContent(projectPartId, customFileContent);
+    const QString projectPartId = projectPartIdForEditorDocument(filePath);
+
+    if (shouldSendDocumentForCompletion(filePath, projectPartId, position)) {
+        sendFileContent(projectPartId, customFileContent);
+        setLastCompletionPositionAndDocumentRevision(filePath, projectPartId, position);
+    }
+
     m_interface->ipcCommunicator().completeCode(this,
                                                 filePath,
                                                 uint(line),
