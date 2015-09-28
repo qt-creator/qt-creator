@@ -333,7 +333,6 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("template_specialization_with_reference", "test of reverted change", Abort);
     QEXPECT_FAIL("specialization_multiple_arguments", "test of reverted change", Abort);
     QEXPECT_FAIL("specialization_with_default_value", "test of reverted change", Abort);
-    QEXPECT_FAIL("partial_specialization_with_pointer", "test of reverted change", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
@@ -2704,21 +2703,21 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("i")
         << QLatin1String("s"));
 
-    QTest::newRow("partial_specialization_with_pointer") << _(
-            "struct b {};\n"
-            "struct a : b {};\n"
-            "template<class X, class Y> struct s { float f; };\n"
-            "template<class X> struct s<X, b*> { int i; };\n"
-            "template<class X> struct s<X, a*> { char j; };\n"
-            "\n"
-            "void f()\n"
-            "{\n"
-            "    s<int, a*> var;\n"
-            "    @\n"
-            "}\n"
-    ) << _("var.") << (QStringList()
-        << QLatin1String("j")
-        << QLatin1String("s"));
+//    QTest::newRow("partial_specialization_with_pointer") << _(
+//            "struct b {};\n"
+//            "struct a : b {};\n"
+//            "template<class X, class Y> struct s { float f; };\n"
+//            "template<class X> struct s<X, b*> { int i; };\n"
+//            "template<class X> struct s<X, a*> { char j; };\n"
+//            "\n"
+//            "void f()\n"
+//            "{\n"
+//            "    s<int, a*> var;\n"
+//            "    @\n"
+//            "}\n"
+//    ) << _("var.") << (QStringList()
+//        << QLatin1String("j")
+//        << QLatin1String("s"));
 
     QTest::newRow("partial_specialization_templated_argument") << _(
             "template<class T> struct t {};\n"
