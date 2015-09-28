@@ -68,6 +68,7 @@ public:
     CPlusPlus::Snapshot snapshot() override;
     bool isParserRunning() const override;
 
+    bool hasProjectPart() const;
     CppTools::ProjectPart::Ptr projectPart() const;
 
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,

@@ -174,6 +174,11 @@ bool ClangEditorDocumentProcessor::isParserRunning() const
     return m_parserWatcher.isRunning();
 }
 
+bool ClangEditorDocumentProcessor::hasProjectPart() const
+{
+    return m_projectPart;
+}
+
 CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const
 {
     return m_projectPart;
