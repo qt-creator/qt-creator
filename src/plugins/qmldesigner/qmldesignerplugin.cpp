@@ -61,6 +61,7 @@
 #include <qplugin.h>
 #include <QDebug>
 #include <QProcessEnvironment>
+#include <QOpenGLContext>
 
 namespace QmlDesigner {
 
@@ -126,8 +127,10 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/) // =0;
 {
-    if (errorMessage)
-        errorMessage->clear();
+    if (!QOpenGLContext().create()) {
+        *errorMessage = tr("Cannot create OpenGL context.");
+        return false;
+    }
 
     data = new QmlDesignerPluginData;
 
