@@ -114,7 +114,6 @@ public:
 public slots:
     void invalidate();
     void delayParsing();
-    void readQbsData();
 
 signals:
     void projectParsingStarted();
