@@ -144,7 +144,7 @@ bool WinDebugInterface::runLoop()
 
     QMap<qint64, QString> delayedMessages;
 
-    auto flushMessages = [&delayedMessages](){
+    auto flushMessages = [this, &delayedMessages, &timer](){
         auto it = delayedMessages.constBegin();
         auto end = delayedMessages.constEnd();
         for (; it != end; ++it)
