@@ -41,6 +41,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QProcess>
 #include <QUuid>
 
