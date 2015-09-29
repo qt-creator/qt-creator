@@ -255,10 +255,7 @@ class TextEditorWidgetPrivate : public QObject
 {
 public:
     TextEditorWidgetPrivate(TextEditorWidget *parent);
-    ~TextEditorWidgetPrivate()
-    {
-        delete m_toolBar;
-    }
+    ~TextEditorWidgetPrivate();
 
     void setupDocumentSignals();
     void updateLineSelectionColor();
@@ -560,6 +557,12 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
     m_extraSelections.reserve(NExtraSelectionKinds);
+}
+
+TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
+{
+    q->disconnect(this);
+    delete m_toolBar;
 }
 
 } // namespace Internal
