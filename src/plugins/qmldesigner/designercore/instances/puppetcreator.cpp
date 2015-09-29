@@ -151,14 +151,14 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     puppetProcess->setProcessEnvironment(processEnvironment());
     QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
-    QString forwardOutputMode = qgetenv("FORWARD_QML_PUPPET_OUTPUT").toLower();
-    bool fowardQmlpuppetOutput = forwardOutputMode == puppetMode || forwardOutputMode == "true";
+    QString forwardOutputMode = QString::fromLatin1(qgetenv("FORWARD_QML_PUPPET_OUTPUT").toLower());
+    bool fowardQmlpuppetOutput = forwardOutputMode == puppetMode || forwardOutputMode == QLatin1String("true");
     if (fowardQmlpuppetOutput) {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
-    puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << "-graphicssystem raster");
+    puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << QLatin1String("-graphicssystem raster"));
 
     if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
         QMessageBox::information(Core::ICore::dialogParent(),
@@ -250,19 +250,21 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
     m_availablePuppetType = FallbackPuppet;
 
     if (!useOnlyFallbackPuppet()) {
-        if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
-            m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
-        } else if (checkQml2PuppetIsReady()) {
-            m_availablePuppetType = UserSpacePuppet;
-        } else {
-            if (m_kit->isValid()) {
-                bool buildSucceeded = build(qml2PuppetProjectFile());
-                if (buildSucceeded)
-                    m_availablePuppetType = UserSpacePuppet;
+        // check if there was an already failing try to get the UserSpacePuppet
+        // -> imagine as result a FallbackPuppet and nothing will happen again
+        if (m_qml2PuppetForKitPuppetHash.value(m_kit->id(), UserSpacePuppet) == UserSpacePuppet ) {
+            if (checkQml2PuppetIsReady()) {
+                m_availablePuppetType = UserSpacePuppet;
             } else {
-                warnAboutInvalidKit();
+                if (m_kit->isValid()) {
+                    bool buildSucceeded = build(qml2PuppetProjectFile());
+                    if (buildSucceeded)
+                        m_availablePuppetType = UserSpacePuppet;
+                } else {
+                    warnAboutInvalidKit();
+                }
+                m_qml2PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
             }
-            m_qml2PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
         }
     }
 }
@@ -319,9 +321,9 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (!useOnlyFallbackPuppet())
         m_kit->addToEnvironment(environment);
-    environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
-    environment.set("QML_USE_MOCKUPS", "true");
-    environment.set("QML_PUPPET_MODE", "true");
+    environment.set(QLatin1String("QML_BAD_GUI_RENDER_LOOP"), QLatin1String("true"));
+    environment.set(QLatin1String("QML_USE_MOCKUPS"), QLatin1String("true"));
+    environment.set(QLatin1String("QML_PUPPET_MODE"), QLatin1String("true"));
 
     const QString controlsStyle = QmlDesignerPlugin::instance()->settings().controlsStyle;
     if (!controlsStyle.isEmpty())
@@ -463,7 +465,7 @@ bool PuppetCreator::checkPuppetVersion(const QString &qmlPuppetPath)
 {
 
     QProcess qmlPuppetVersionProcess;
-    qmlPuppetVersionProcess.start(qmlPuppetPath, QStringList() << "--version");
+    qmlPuppetVersionProcess.start(qmlPuppetPath, QStringList() << QLatin1String("--version"));
     qmlPuppetVersionProcess.waitForReadyRead(6000);
 
     QByteArray versionString = qmlPuppetVersionProcess.readAll();
