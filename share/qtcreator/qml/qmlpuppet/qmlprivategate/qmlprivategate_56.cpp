@@ -154,16 +154,48 @@ void registerCustomData(QObject *object)
 
 QVariant getResetValue(QObject *object, const PropertyName &propertyName)
 {
-   return QQuickDesignerSupportProperties::getResetValue(object, propertyName);
+    if (propertyName == "Layout.rowSpan")
+        return 1;
+    else if (propertyName == "Layout.columnSpan")
+        return 1;
+    else if (propertyName == "Layout.fillHeight")
+        return false;
+    else if (propertyName == "Layout.fillWidth")
+        return false;
+    else
+        return QQuickDesignerSupportProperties::getResetValue(object, propertyName);
+}
+
+static void setProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QVariant &value)
+{
+    QQmlProperty property(object, propertyName, context);
+    property.write(value);
 }
 
 void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
-    QQuickDesignerSupportProperties::doResetProperty(object, context, propertyName);
+    if (propertyName == "Layout.rowSpan")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else if (propertyName == "Layout.columnSpan")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else if (propertyName == "Layout.fillHeight")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else if (propertyName == "Layout.fillWidth")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else
+        QQuickDesignerSupportProperties::doResetProperty(object, context, propertyName);
 }
 
 bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
 {
+    if (propertyName == "Layout.rowSpan")
+        return true;
+    else if (propertyName == "Layout.columnSpan")
+        return true;
+    else if (propertyName == "Layout.fillHeight")
+        return true;
+    else if (propertyName == "Layout.fillWidth")
+        return true;
     return QQuickDesignerSupportProperties::hasValidResetBinding(object, propertyName);
 }
 
