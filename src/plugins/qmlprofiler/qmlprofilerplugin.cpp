@@ -36,8 +36,8 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/hostosinfo.h>
 
-#include <QOpenGLContext>
 #include <QtPlugin>
 
 using namespace Analyzer;
@@ -54,10 +54,8 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments)
 
-    if (!QOpenGLContext().create()) {
-        *errorString = tr("Cannot create OpenGL context.");
+    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorString))
         return false;
-    }
 
     auto tool = new QmlProfilerTool(this);
     auto widgetCreator = [tool] { return tool->createWidgets(); };

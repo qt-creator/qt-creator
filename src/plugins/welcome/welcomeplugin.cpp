@@ -51,7 +51,6 @@
 #include <QMessageBox>
 
 #include <QDir>
-#include <QOpenGLContext>
 #include <QQmlPropertyMap>
 
 #ifdef USE_QUICK_WIDGET
@@ -289,10 +288,8 @@ WelcomePlugin::WelcomePlugin()
 
 bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
-    if (!QOpenGLContext().create()) {
-        *errorMessage = tr("Cannot create OpenGL context.");
+    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
-    }
 
     m_welcomeMode = new WelcomeMode;
     addAutoReleasedObject(m_welcomeMode);

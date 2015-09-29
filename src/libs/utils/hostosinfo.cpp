@@ -30,6 +30,9 @@
 
 #include "hostosinfo.h"
 
+#include <QApplication>
+#include <QOpenGLContext>
+
 #ifdef Q_OS_WIN
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501 /* WinXP, needed for GetNativeSystemInfo() */
@@ -80,4 +83,13 @@ void HostOsInfo::setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitiv
 void HostOsInfo::unsetOverrideFileNameCaseSensitivity()
 {
     m_useOverrideFileNameCaseSensitivity = false;
+}
+
+bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
+{
+    static const bool canCreate = QOpenGLContext().create();
+    if (!canCreate)
+        *errorMessage = QApplication::translate("Utils::HostOsInfo",
+                                                "Cannot create OpenGL context.");
+    return canCreate;
 }

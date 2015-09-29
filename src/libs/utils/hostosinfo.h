@@ -84,6 +84,8 @@ public:
         return hostOsAspects().controlModifier();
     }
 
+    static bool canCreateOpenGLContext(QString *errorMessage);
+
 private:
     static OsSpecificAspects hostOsAspects() { return OsSpecificAspects(hostOs()); }
 
