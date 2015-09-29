@@ -299,8 +299,6 @@ int main(int argc, char **argv)
             && !qEnvironmentVariableIsSet("QT_DEVICE_PIXEL_RATIO")) {
         qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
     }
-#else
-    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 #endif // < Qt 5.6
 
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
