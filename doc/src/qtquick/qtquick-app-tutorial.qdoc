@@ -51,7 +51,7 @@
     \list 1
 
         \li Select \uicontrol{File > New File or Project > Application >
-            Qt Quick Application > Choose}.
+            Qt Quick Controls Application > Choose}.
 
         \li In the \uicontrol{Name} field, type \e {Transitions}.
 
