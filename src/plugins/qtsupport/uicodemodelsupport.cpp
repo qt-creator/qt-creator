@@ -251,12 +251,12 @@ void UiCodeModelSupport::updateFromBuild()
 QString UiCodeModelSupport::uicCommand() const
 {
     QtSupport::BaseQtVersion *version;
-    if (m_project->needsConfiguration()) {
-        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
-    } else {
-        ProjectExplorer::Target *target = m_project->activeTarget();
+    ProjectExplorer::Target *target;
+    if (!m_project->needsConfiguration()
+        && (target = m_project->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    }
+    else
+        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
     return version ? version->uicCommand() : QString();
 }
 
