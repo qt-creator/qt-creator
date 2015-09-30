@@ -466,7 +466,12 @@ void IpcCommunicator::updateTranslationUnitIfNotCurrentDocument(Core::IDocument 
 {
     QTC_ASSERT(document, return);
     if (Core::EditorManager::currentDocument() != document)
-        updateTranslationUnitFromCppEditorDocument(document->filePath().toString());
+        updateTranslationUnit(document);
+}
+
+void IpcCommunicator::updateTranslationUnit(Core::IDocument *document)
+{
+    updateTranslationUnitFromCppEditorDocument(document->filePath().toString());
 }
 
 void IpcCommunicator::updateUnsavedFile(Core::IDocument *document)

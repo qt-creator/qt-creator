@@ -131,6 +131,7 @@ public:
     void registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts);
 
     void updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document);
+    void updateTranslationUnit(Core::IDocument *document);
     void updateUnsavedFile(Core::IDocument *document);
     void updateTranslationUnitFromCppEditorDocument(const QString &filePath);
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
