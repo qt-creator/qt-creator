@@ -34,6 +34,7 @@
 
 #include <utf8stringvector.h>
 
+#include <QFileInfo>
 #include <QStringList>
 
 #include <algorithm>
@@ -45,10 +46,26 @@ namespace {
 QStringList toStringList(const QSet<Utf8String> &files)
 {
     QStringList resultList;
+    resultList.reserve(files.size());
 
     std::copy(files.cbegin(), files.cend(), std::back_inserter(resultList));
 
     return resultList;
+}
+
+QStringList filterExistingFiles(QStringList &&filePaths)
+{
+    auto fileExists = [] (const QString &filePath) {
+        return QFileInfo::exists(filePath);
+    };
+
+    auto startOfNonExistingFilePaths = std::partition(filePaths.begin(),
+                                                      filePaths.end(),
+                                                      fileExists);
+
+    filePaths.erase(startOfNonExistingFilePaths, filePaths.end());
+
+    return filePaths;
 }
 }
 
@@ -63,7 +80,10 @@ ClangFileSystemWatcher::ClangFileSystemWatcher(TranslationUnits &translationUnit
 
 void ClangFileSystemWatcher::addFiles(const QSet<Utf8String> &filePaths)
 {
-    watcher.addPaths(toStringList(filePaths));
+    const auto existingFiles = filterExistingFiles(toStringList(filePaths));
+
+    if (!existingFiles.isEmpty())
+        watcher.addPaths(existingFiles);
 }
 
 void ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies(const QString &filePath)
