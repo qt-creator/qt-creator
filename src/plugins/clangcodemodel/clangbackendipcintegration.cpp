@@ -443,9 +443,16 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
 
 void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
 {
+    if (m_sendMode == IgnoreSendRequests)
+        return;
+
     if (documentHasChanged(fileContainer.filePath(), fileContainer.projectPartId())) {
         registerTranslationUnitsForEditor({fileContainer});
-        m_ipcSender->requestDiagnostics({fileContainer});
+
+        const RequestDiagnosticsMessage message(fileContainer);
+        qCDebug(log) << ">>>" << message;
+        m_ipcSender->requestDiagnostics(message);
+
         setLastSentDocumentRevision(fileContainer.filePath(),
                                     fileContainer.projectPartId(),
                                     fileContainer.documentRevision());
