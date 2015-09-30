@@ -33,6 +33,7 @@
 #include <cmbmessages.h>
 
 #include <QCoreApplication>
+#include <QLoggingCategory>
 
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
@@ -43,6 +44,8 @@ int main(int argc, char *argv[])
     Sqlite::registerTypes();
 
     QCoreApplication application(argc, argv);
+
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
 
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
