@@ -133,6 +133,11 @@ TEST_F(SendDocumentTracker, SendRevisionIfRevisionIsDifferent)
     ASSERT_TRUE(tracker.shouldSendRevision(21));
 }
 
+TEST_F(SendDocumentTracker, DontSendRevisionWithDefaults)
+{
+    ASSERT_FALSE(tracker.shouldSendRevisionWithCompletionPosition(21, 33));
+}
+
 TEST_F(SendDocumentTracker, DontSendIfRevisionIsDifferentAndCompletionPositionIsEqualAndNoContentChange)
 {
     tracker.setLastSentRevision(46);
