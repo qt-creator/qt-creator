@@ -50,7 +50,6 @@ bool operator==(const TranslationUnit &translationUnit, const FileContainer &fil
     return fileContainer == translationUnit;
 }
 
-
 TranslationUnits::TranslationUnits(ProjectParts &projects, UnsavedFiles &unsavedFiles)
     : fileSystemWatcher(*this),
       projectParts(projects),
@@ -76,7 +75,6 @@ static bool removeFromFileContainer(QVector<FileContainer> &fileContainers, cons
 
     return entryIsRemoved;
 }
-
 
 void TranslationUnits::remove(const QVector<FileContainer> &fileContainers)
 {
@@ -134,8 +132,8 @@ void TranslationUnits::sendChangedDiagnostics()
 {
     for (const auto &translationUnit : translationUnits_) {
         if (translationUnit.hasNewDiagnostics()) {
-             sendDiagnosticChangedMessage(translationUnit);
-             break;
+            sendDiagnosticChangedMessage(translationUnit);
+            break;
         }
     }
 }
@@ -240,4 +238,3 @@ void TranslationUnits::removeTranslationUnits(const QVector<FileContainer> &file
 }
 
 } // namespace ClangBackEnd
-

@@ -377,4 +377,3 @@ void PrintTo(const TranslationUnit &translationUnit, ::std::ostream *os)
 }
 
 } // namespace ClangBackEnd
-
