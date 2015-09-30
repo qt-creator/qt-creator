@@ -198,8 +198,6 @@ bool TranslationUnit::hasNewDiagnostics() const
 
 DiagnosticSet TranslationUnit::diagnostics() const
 {
-    reparseTranslationUnitIfFilesAreChanged();
-
     d->hasNewDiagnostics = false;
 
     return DiagnosticSet(clang_getDiagnosticSetFromTU(cxTranslationUnit()));
