@@ -190,33 +190,6 @@ void ItemLibraryWidget::setImportsWidget(QWidget *importsWidget)
 QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
-
-    return buttons; //import management gets disabled for now (TODO ###)
-
-    buttons << new QToolButton();
-    buttons.first()->setText(tr("I "));
-    buttons.first()->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
-    buttons.first()->setToolTip(tr("Manage imports for components."));
-    buttons.first()->setPopupMode(QToolButton::InstantPopup);
-    QMenu * menu = new QMenu;
-    QAction * basicQtAction = new QAction(menu);
-    basicQtAction->setCheckable(true);
-    basicQtAction->setText(tr("Basic Qt Quick only"));
-    QAction * meegoAction= new QAction(menu);
-    meegoAction->setCheckable(true);
-    meegoAction->setText(tr("Meego Components"));
-    menu->addAction(basicQtAction);
-    menu->addAction(meegoAction);
-    buttons.first()->setMenu(menu);
-
-    connect(basicQtAction, SIGNAL(toggled(bool)), this, SLOT(onQtBasicOnlyChecked(bool)));
-    connect(this, SIGNAL(qtBasicOnlyChecked(bool)), basicQtAction, SLOT(setChecked(bool)));
-
-    connect(meegoAction, SIGNAL(toggled(bool)), this, SLOT(onMeegoChecked(bool)));
-    connect(this, SIGNAL(meegoChecked(bool)), meegoAction, SLOT(setChecked(bool)));
-
-    updateImports();
-
     return buttons;
 }
 
