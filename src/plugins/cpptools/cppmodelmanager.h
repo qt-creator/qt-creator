@@ -180,6 +180,8 @@ public:
     static void setRefactoringEngine(RefactoringEngineInterface *refactoringEngine);
     static RefactoringEngineInterface *refactoringEngine();
 
+    void renameIncludes(const QString &oldFileName, const QString &newFileName);
+
 signals:
     /// Project data might be locked while this is emitted.
     void aboutToRemoveFiles(const QStringList &files);
@@ -205,7 +207,6 @@ private:
     // This should be executed in the GUI thread.
     friend class Tests::ModelManagerTestHelper;
     void onAboutToLoadSession();
-    void renameIncludes(const QString &oldFileName, const QString &newFileName);
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onActiveProjectChanged(ProjectExplorer::Project *project);

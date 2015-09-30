@@ -185,6 +185,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
     m_preserveCaseCheck->setText(tr("Preser&ve case"));
     m_preserveCaseCheck->setEnabled(false);
+    m_renameFilesCheckBox = new QCheckBox(m_topReplaceWidget);
+    m_renameFilesCheckBox->setVisible(false);
 
     m_preserveCaseCheck->setChecked(Find::hasFindFlag(FindPreserveCase));
     connect(m_preserveCaseCheck, &QAbstractButton::clicked, Find::instance(), &Find::setPreserveCase);
@@ -201,6 +203,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     topReplaceLayout->addWidget(m_replaceTextEdit);
     topReplaceLayout->addWidget(m_replaceButton);
     topReplaceLayout->addWidget(m_preserveCaseCheck);
+    topReplaceLayout->addWidget(m_renameFilesCheckBox);
     topReplaceLayout->addStretch(2);
     setShowReplaceUI(m_replaceSupported);
     setSupportPreserveCase(true);
@@ -226,6 +229,11 @@ void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, c
     m_descriptionContainer->setToolTip(toolTip);
     m_searchTerm->setText(term);
     m_searchTerm->setVisible(!term.isEmpty());
+}
+
+QWidget *SearchResultWidget::additionalReplaceWidget() const
+{
+    return m_renameFilesCheckBox;
 }
 
 void SearchResultWidget::addResult(const QString &fileName,

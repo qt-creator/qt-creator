@@ -643,6 +643,11 @@ void SearchResult::setSearchAgainSupported(bool supported)
     m_widget->setSearchAgainSupported(supported);
 }
 
+QWidget *SearchResult::additionalReplaceWidget() const
+{
+    return m_widget->additionalReplaceWidget();
+}
+
 /*!
     Adds a single result line to the \gui {Search Results} output pane.
 

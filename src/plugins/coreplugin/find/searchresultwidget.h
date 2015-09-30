@@ -53,6 +53,7 @@ public:
     ~SearchResultWidget();
 
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
+    QWidget *additionalReplaceWidget() const;
 
     void addResult(const QString &fileName,
                    const QString &lineText,
@@ -130,6 +131,7 @@ private:
     QToolButton *m_replaceButton;
     QToolButton *m_searchAgainButton;
     QCheckBox *m_preserveCaseCheck;
+    QCheckBox *m_renameFilesCheckBox = nullptr;
     QWidget *m_descriptionContainer;
     QLabel *m_label;
     QLabel *m_searchTerm;

@@ -40,6 +40,10 @@ class SearchResultItem;
 class SearchResult;
 } // namespace Core
 
+namespace ProjectExplorer {
+class Node;
+}
+
 namespace CppTools {
 class CppModelManager;
 
@@ -50,6 +54,8 @@ class CppFindReferencesParameters
 public:
     QList<QByteArray> symbolId;
     QByteArray symbolFileName;
+    QString prettySymbolName;
+    QVector<ProjectExplorer::Node *> filesToRename;
 };
 
 class CppFindReferences: public QObject

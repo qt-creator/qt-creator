@@ -61,6 +61,7 @@ public:
     QString textToReplace() const;
     int count() const;
     void setSearchAgainSupported(bool supported);
+    QWidget *additionalReplaceWidget() const;
 
 public slots:
     void addResult(const QString &fileName,
