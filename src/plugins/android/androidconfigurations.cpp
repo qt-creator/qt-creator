@@ -1483,9 +1483,19 @@ void AndroidConfigurations::load()
                 saveSettings = true;
             }
         } else if (HostOsInfo::isMacHost()) {
-            QString javaHome = QLatin1String("/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home");
-            if (QFileInfo::exists(javaHome))
-                m_config.setOpenJDKLocation(FileName::fromString(javaHome));
+            QFileInfo javaHomeExec(QLatin1String("/usr/libexec/java_home"));
+            if (javaHomeExec.isExecutable() && !javaHomeExec.isDir()) {
+                QProcess proc;
+                proc.setProcessChannelMode(QProcess::MergedChannels);
+                proc.start(javaHomeExec.absoluteFilePath());
+                if (!proc.waitForFinished(2000)) {
+                    proc.kill();
+                } else {
+                    const QString &javaHome = QString::fromLocal8Bit(proc.readAll().trimmed());
+                    if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))
+                        m_config.setOpenJDKLocation(FileName::fromString(javaHome));
+                }
+            }
         } else if (HostOsInfo::isWindowsHost()) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
             QStringList allVersions = settings.childGroups();
