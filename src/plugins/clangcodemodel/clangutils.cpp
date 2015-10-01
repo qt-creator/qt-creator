@@ -219,6 +219,7 @@ private:
         add(QStringLiteral("-Wno-global-constructors"));
         add(QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"));
         add(QStringLiteral("-Wno-documentation"));
+        add(QStringLiteral("-Wno-shadow"));
 
         if (m_projectPart->languageVersion >= ProjectPart::CXX98)
             add(QStringLiteral("-Wno-missing-prototypes"));
