@@ -96,7 +96,6 @@ public:
     // Actual data
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
-    bool linkQmlDebuggingQQ1 = false;
     bool linkQmlDebuggingQQ2 = false;
     bool useQtQuickCompiler = false;
     bool separateDebugInfo = false;
@@ -104,8 +103,8 @@ public:
 
 
 inline bool operator ==(const QMakeStepConfig &a, const QMakeStepConfig &b) {
-    return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ1, a.linkQmlDebuggingQQ2)
-               == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ1, b.linkQmlDebuggingQQ2)
+    return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ2)
+               == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ2)
             && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
                == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
 }
@@ -116,7 +115,7 @@ inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
 
 inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
 {
-   dbg << c.archConfig << c.osType << c.linkQmlDebuggingQQ1 << c.linkQmlDebuggingQQ2 << c.useQtQuickCompiler << c.separateDebugInfo;
+   dbg << c.archConfig << c.osType << c.linkQmlDebuggingQQ2 << c.useQtQuickCompiler << c.separateDebugInfo;
    return dbg;
 }
 

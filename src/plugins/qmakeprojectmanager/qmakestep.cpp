@@ -169,11 +169,8 @@ QMakeStepConfig QMakeStep::deducedArguments()
 
     config.archConfig = QMakeStepConfig::targetArchFor(targetAbi, version);
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
-    if (linkQmlDebuggingLibrary() && version) {
-        config.linkQmlDebuggingQQ1 = true;
-        if (version->qtVersion().majorVersion >= 5)
-            config.linkQmlDebuggingQQ2 = true;
-    }
+    if (linkQmlDebuggingLibrary() && version && version->qtVersion().majorVersion >= 5)
+        config.linkQmlDebuggingQQ2 = true;
 
     if (useQtQuickCompiler() && version)
         config.useQtQuickCompiler = true;
@@ -868,8 +865,6 @@ QStringList QMakeStepConfig::toArguments() const
     else if (osType == IphoneOS)
         arguments << QLatin1String("CONFIG+=iphoneos");
 
-    if (linkQmlDebuggingQQ1)
-        arguments << QLatin1String("CONFIG+=declarative_debug");
     if (linkQmlDebuggingQQ2)
         arguments << QLatin1String("CONFIG+=qml_debug");
 

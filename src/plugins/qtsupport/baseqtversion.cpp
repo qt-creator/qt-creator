@@ -1604,9 +1604,9 @@ bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
         return false;
     }
 
-    if (qtVersion() < QtVersionNumber(4, 8, 0)) {
+    if (qtVersion() < QtVersionNumber(5, 0, 0)) {
         if (reason)
-            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 4.8.0 or newer.");
+            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 5.0.0 or newer.");
         return false;
     }
 

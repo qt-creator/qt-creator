@@ -670,8 +670,7 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
     if (!qmakeInfo->makefile.isEmpty())
-        qmakeStep->setLinkQmlDebuggingLibrary(qmakeInfo->config.linkQmlDebuggingQQ1
-                                              || qmakeInfo->config.linkQmlDebuggingQQ2);
+        qmakeStep->setLinkQmlDebuggingLibrary(qmakeInfo->config.linkQmlDebuggingQQ2);
     qmakeStep->setSeparateDebugInfo(qmakeInfo->config.separateDebugInfo);
     qmakeStep->setUseQtQuickCompiler(qmakeInfo->config.useQtQuickCompiler);
 

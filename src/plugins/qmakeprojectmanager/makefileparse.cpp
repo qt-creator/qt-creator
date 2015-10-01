@@ -190,11 +190,6 @@ void MakeFileParse::parseAssignments(QList<QMakeAssignment> *assignments)
                         m_config.osType = QMakeStepConfig::IphoneOS;
                     else
                         m_config.osType = QMakeStepConfig::NoOsType;
-                } else if (value == QLatin1String("declarative_debug")) {
-                    if (qa.op == QLatin1String("+="))
-                        m_config.linkQmlDebuggingQQ1 = true;
-                    else
-                        m_config.linkQmlDebuggingQQ1 = false;
                 } else if (value == QLatin1String("qml_debug")) {
                     if (qa.op == QLatin1String("+="))
                         m_config.linkQmlDebuggingQQ2 = true;
@@ -329,7 +324,6 @@ MakeFileParse::MakeFileParse(const QString &makefile)
     qCDebug(logging()) << "  Explicit NoBuildAll" << m_qmakeBuildConfig.explicitNoBuildAll;
     qCDebug(logging()) << "  TargetArch" << m_config.archConfig;
     qCDebug(logging()) << "  OsType" << m_config.osType;
-    qCDebug(logging()) << "  LinkQmlDebuggingQQ1" << m_config.linkQmlDebuggingQQ1;
     qCDebug(logging()) << "  LinkQmlDebuggingQQ2" << m_config.linkQmlDebuggingQQ2;
     qCDebug(logging()) << "  Qt Quick Compiler" << m_config.useQtQuickCompiler;
     qCDebug(logging()) << "  Separate Debug Info" << m_config.separateDebugInfo;
