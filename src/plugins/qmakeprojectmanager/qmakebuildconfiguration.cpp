@@ -570,6 +570,8 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         info->displayName = tr("Debug");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Debug", "Shadow build directory suffix");
+        if (version && version->qtVersion().majorVersion >= 5)
+            info->config.linkQmlDebuggingQQ2 = true;
     }
     info->typeName = info->displayName;
     // Leave info->buildDirectory unset;
@@ -669,8 +671,7 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
     QString additionalArguments = qmakeInfo->additionalArguments;
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
-    if (!qmakeInfo->makefile.isEmpty())
-        qmakeStep->setLinkQmlDebuggingLibrary(qmakeInfo->config.linkQmlDebuggingQQ2);
+    qmakeStep->setLinkQmlDebuggingLibrary(qmakeInfo->config.linkQmlDebuggingQQ2);
     qmakeStep->setSeparateDebugInfo(qmakeInfo->config.separateDebugInfo);
     qmakeStep->setUseQtQuickCompiler(qmakeInfo->config.useQtQuickCompiler);
 

@@ -124,12 +124,6 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractPro
     Q_OBJECT
     friend class Internal::QMakeStepFactory;
 
-    enum QmlLibraryLink {
-        DoNotLink = 0,
-        DoLink,
-        DebugLink
-    };
-
     // used in DebuggerRunConfigurationAspect
     Q_PROPERTY(bool linkQmlDebuggingLibrary READ linkQmlDebuggingLibrary WRITE setLinkQmlDebuggingLibrary NOTIFY linkQmlDebuggingLibraryChanged)
 
@@ -184,7 +178,7 @@ private:
     bool m_forced = false;
     bool m_needToRunQMake = false; // set in init(), read in run()
     QString m_userArgs;
-    QmlLibraryLink m_linkQmlDebuggingLibrary = DebugLink;
+    bool m_linkQmlDebuggingLibrary = false;
     bool m_useQtQuickCompiler = false;
     bool m_scriptTemplate = false;
     bool m_separateDebugInfo = false;
