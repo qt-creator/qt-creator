@@ -52,6 +52,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGroupBox>
+#include <QLineEdit>
 #include <QPointer>
 #include <QQueue>
 #include <QSortFilterProxyModel>
@@ -120,6 +121,7 @@ private:
 
 private:
     QTreeView *m_view;
+    QLineEdit *m_filter;
     QCheckBox *m_hideReimplementedFunctions;
     QComboBox *m_insertMode;
     QCheckBox *m_virtualKeyword;
@@ -935,6 +937,8 @@ public:
             return false;
         }
 
+        if (!QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent))
+            return false;
         if (m_hideReimplemented)
             return !index.data(InsertVirtualMethodsDialog::Reimplemented).toBool();
         return true;
@@ -958,6 +962,7 @@ private:
 InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     : QDialog(parent)
     , m_view(0)
+    , m_filter(0)
     , m_hideReimplementedFunctions(0)
     , m_insertMode(0)
     , m_virtualKeyword(0)
@@ -972,6 +977,7 @@ InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     , classFunctionFilterModel(new InsertVirtualMethodsFilterModel(this))
 {
     classFunctionFilterModel->setSourceModel(classFunctionModel);
+    classFunctionFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 InsertVirtualMethodsDialog::~InsertVirtualMethodsDialog()
@@ -990,6 +996,10 @@ void InsertVirtualMethodsDialog::initGui()
     // View
     QGroupBox *groupBoxView = new QGroupBox(tr("&Functions to insert:"), this);
     QVBoxLayout *groupBoxViewLayout = new QVBoxLayout(groupBoxView);
+    m_filter = new QLineEdit(this);
+    m_filter->setClearButtonEnabled(true);
+    m_filter->setPlaceholderText(tr("Filter"));
+    groupBoxViewLayout->addWidget(m_filter);
     m_view = new QTreeView(this);
     m_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_view->setHeaderHidden(true);
@@ -1055,11 +1065,14 @@ void InsertVirtualMethodsDialog::initGui()
 
     connect(m_hideReimplementedFunctions, SIGNAL(toggled(bool)),
             this, SLOT(setHideReimplementedFunctions(bool)));
+    connect(m_filter, &QLineEdit::textChanged,
+            classFunctionFilterModel, &QSortFilterProxyModel::setFilterWildcard);
 }
 
 void InsertVirtualMethodsDialog::initData()
 {
     m_settings->read();
+    m_filter->clear();
     m_hideReimplementedFunctions->setChecked(m_settings->hideReimplementedFunctions);
     const QStringList alwaysPresentReplacements = defaultOverrideReplacements();
     m_availableOverrideReplacements = alwaysPresentReplacements;
@@ -1121,6 +1134,7 @@ bool InsertVirtualMethodsDialog::gather()
 {
     initGui();
     initData();
+    m_filter->setFocus();
 
     // Expand the dialog a little bit
     adjustSize();
