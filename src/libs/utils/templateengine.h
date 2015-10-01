@@ -28,20 +28,30 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIZARDPREPROCESSOR_H
-#define CUSTOMWIZARDPREPROCESSOR_H
+#ifndef TEMPLATEENGINE_H
+#define TEMPLATEENGINE_H
+
+#include "utils_global.h"
+
+#include "macroexpander.h"
 
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QJSEngine)
+QT_FORWARD_DECLARE_CLASS(QJSEngine);
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace Utils {
 
-bool customWizardPreprocess(const QString &in, QString *out, QString *errorMessage);
-/* Helper to evaluate an expression. */
-bool evaluateBooleanJavaScriptExpression(QJSEngine &engine, const QString &expression, bool *result, QString *errorMessage);
-} // namespace Internal
-} // namespace ProjectExplorer
+class QTCREATOR_UTILS_EXPORT TemplateEngine {
+public:
+    static bool preprocessText(const QString &input, QString *output, QString *errorMessage);
 
-#endif // CUSTOMWIZARDPREPROCESSOR_H
+    static QString processText(MacroExpander *expander, const QString &input,
+                               QString *errorMessage);
+
+    static bool evaluateBooleanJavaScriptExpression(QJSEngine &engine, const QString &expression,
+                                                    bool *result, QString *errorMessage);
+};
+
+} // namespace Utils
+
+#endif // TEMPLATEENGINE_H

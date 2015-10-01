@@ -219,9 +219,6 @@ private slots:
     void testAbiFromTargetTriplet();
 
     void testDeviceManager();
-
-    void testCustomWizardPreprocessor_data();
-    void testCustomWizardPreprocessor();
 #endif
 };
 

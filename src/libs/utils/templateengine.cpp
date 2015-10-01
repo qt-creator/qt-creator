@@ -28,24 +28,16 @@
 **
 ****************************************************************************/
 
-#include "customwizardpreprocessor.h"
-#ifdef WITH_TESTS
-#  include "../projectexplorer.h"
-#  include <QTest>
-#endif
+#include "templateengine.h"
 
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
-#include <QStringList>
-#include <QStack>
-#include <QRegExp>
-#include <QDebug>
 #include <QJSEngine>
+#include <QStack>
 
-namespace ProjectExplorer {
+namespace Utils {
+
 namespace Internal {
-
-enum  { debug = 0 };
 
 // Preprocessor: Conditional section type.
 enum PreprocessorSection {
@@ -58,7 +50,8 @@ enum PreprocessorSection {
 
 // Preprocessor: Section stack entry containing nested '@if' section
 // state.
-struct PreprocessStackEntry {
+class PreprocessStackEntry {
+public:
     PreprocessStackEntry(PreprocessorSection section = OtherSection,
                          bool parentEnabled = true,
                          bool condition = false,
@@ -70,11 +63,9 @@ struct PreprocessStackEntry {
     bool anyIfClauseMatched; // Determines if 'else' triggers
 };
 
-PreprocessStackEntry::PreprocessStackEntry(PreprocessorSection s,
-                                           bool p, bool c, bool a) :
+PreprocessStackEntry::PreprocessStackEntry(PreprocessorSection s, bool p, bool c, bool a) :
     section(s), parentEnabled(p), condition(c), anyIfClauseMatched(a)
-{
-}
+{ }
 
 // Context for preprocessing.
 class PreprocessContext {
@@ -102,13 +93,14 @@ PreprocessContext::PreprocessContext() :
     m_elsePattern(QLatin1String("^[\\s]*@[\\s]*else.*$")),
     m_endifPattern(QLatin1String("^[\\s]*@[\\s]*endif.*$"))
 {
-    QTC_ASSERT(m_ifPattern.isValid() && m_elsifPattern.isValid()
-               && m_elsePattern.isValid() &&m_endifPattern.isValid(), return);
+    QTC_CHECK(m_ifPattern.isValid() && m_elsifPattern.isValid()
+              && m_elsePattern.isValid() && m_endifPattern.isValid());
 }
 
 void PreprocessContext::reset()
 {
-    m_sectionStack.clear(); // Add a default, enabled section.
+    m_sectionStack.clear();
+    // Add a default, enabled section.
     m_sectionStack.push(PreprocessStackEntry(OtherSection, true, true));
 }
 
@@ -135,35 +127,6 @@ PreprocessorSection PreprocessContext::preprocessorLine(const QString &in,
     return OtherSection;
 }
 
-// Evaluate an expression within an 'if'/'elsif' to a bool via QJSEngine
-bool evaluateBooleanJavaScriptExpression(QJSEngine &engine, const QString &expression, bool *result, QString *errorMessage)
-{
-    errorMessage->clear();
-    *result = false;
-    const QJSValue value = engine.evaluate(expression);
-    if (value.isError()) {
-        *errorMessage = QString::fromLatin1("Error in \"%1\": %2").
-                        arg(expression, value.toString());
-        return false;
-    }
-    // Try to convert to bool, be that an int or whatever.
-    if (value.isBool()) {
-        *result = value.toBool();
-        return true;
-    }
-    if (value.isNumber()) {
-        *result = !qFuzzyCompare(value.toNumber(), 0);
-        return true;
-    }
-    if (value.isString()) {
-        *result = !value.toString().isEmpty();
-        return true;
-    }
-    *errorMessage = QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\"to bool.").
-                        arg(expression, value.toString());
-    return false;
-}
-
 static inline QString msgEmptyStack(int line)
 {
     return QString::fromLatin1("Unmatched '@endif' at line %1.").arg(line);
@@ -184,7 +147,8 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
     for (int l = 0; l < lineCount; l++) {
         // Check for element of the stack (be it dummy, else something is wrong).
         if (m_sectionStack.isEmpty()) {
-            *errorMessage = msgEmptyStack(l);
+            if (errorMessage)
+                *errorMessage = msgEmptyStack(l);
             return false;
         }
     QString expression;
@@ -195,32 +159,33 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
         case IfSection:
             // '@If': Push new section
             if (top.condition) {
-                if (!evaluateBooleanJavaScriptExpression(m_scriptEngine, expression, &expressionValue, errorMessage)) {
-                    *errorMessage = QString::fromLatin1("Error in @if at %1: %2").
-                            arg(l + 1).arg(*errorMessage);
+                if (!TemplateEngine::evaluateBooleanJavaScriptExpression(m_scriptEngine, expression,
+                                                                         &expressionValue, errorMessage)) {
+                    if (errorMessage)
+                        *errorMessage = QString::fromLatin1("Error in @if at %1: %2")
+                            .arg(l + 1).arg(*errorMessage);
                     return false;
                 }
             }
-            if (debug)
-                qDebug("'%s' : expr='%s' -> %d", qPrintable(lines.at(l)), qPrintable(expression), expressionValue);
             m_sectionStack.push(PreprocessStackEntry(IfSection,
                                                      top.condition, expressionValue, expressionValue));
             break;
         case ElsifSection: // '@elsif': Check condition.
             if (top.section != IfSection && top.section != ElsifSection) {
-                *errorMessage = QString::fromLatin1("No preceding @if found for @elsif at %1").
-                                arg(l + 1);
+                if (errorMessage)
+                    *errorMessage = QString::fromLatin1("No preceding @if found for @elsif at %1")
+                        .arg(l + 1);
                 return false;
             }
             if (top.parentEnabled) {
-                if (!evaluateBooleanJavaScriptExpression(m_scriptEngine, expression, &expressionValue, errorMessage)) {
-                    *errorMessage = QString::fromLatin1("Error in @elsif at %1: %2").
-                            arg(l + 1).arg(*errorMessage);
+                if (!TemplateEngine::evaluateBooleanJavaScriptExpression(m_scriptEngine, expression,
+                                                                         &expressionValue, errorMessage)) {
+                    if (errorMessage)
+                        *errorMessage = QString::fromLatin1("Error in @elsif at %1: %2")
+                            .arg(l + 1).arg(*errorMessage);
                     return false;
                 }
             }
-            if (debug)
-                qDebug("'%s' : expr='%s' -> %d", qPrintable(lines.at(l)), qPrintable(expression), expressionValue);
             top.section = ElsifSection;
             // ignore consecutive '@elsifs' once something matched
             if (top.anyIfClauseMatched) {
@@ -232,13 +197,12 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
             break;
         case ElseSection: // '@else': Check condition.
             if (top.section != IfSection && top.section != ElsifSection) {
-                *errorMessage = QString::fromLatin1("No preceding @if/@elsif found for @else at %1").
-                                                    arg(l + 1);
+                if (errorMessage)
+                    *errorMessage = QString::fromLatin1("No preceding @if/@elsif found for @else at %1")
+                        .arg(l + 1);
                 return false;
             }
             expressionValue = top.parentEnabled && !top.anyIfClauseMatched;
-            if (debug)
-                qDebug("%s -> %d", qPrintable(lines.at(l)), expressionValue);
             top.section = ElseSection;
             top.condition = expressionValue;
             break;
@@ -257,97 +221,96 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
     return true;
 }
 
-/*!
-    Implements a custom wizard preprocessor based on JavaScript expressions.
+} // namespace Internal
 
-    Preprocesses a string using a simple syntax:
-    \code
-Text
-@if <JavaScript-expression>
-Bla...
-@elsif <JavaScript-expression2>
-Blup
-@endif
-\endcode
-
-    The JavaScript-expressions must evaluate to integers or boolean, like
-    \c '2 == 1 + 1', \c '"a" == "a"'. The variables of the custom wizard will be
-    expanded before, so \c "%VAR%" should be used for strings and \c %VAR% for integers.
-
-    \sa ProjectExplorer::CustomWizard
-*/
-
-bool customWizardPreprocess(const QString &in, QString *out, QString *errorMessage)
+bool TemplateEngine::preprocessText(const QString &in, QString *out, QString *errorMessage)
 {
-    PreprocessContext context;
+    Internal::PreprocessContext context;
     return context.process(in, out, errorMessage);
 }
 
-} // namespace Internal
-
-#ifdef WITH_TESTS // Run qtcreator -test ProjectExplorer
-
-void ProjectExplorerPlugin::testCustomWizardPreprocessor_data()
+QString TemplateEngine::processText(MacroExpander *expander, const QString &input,
+                                    QString *errorMessage)
 {
-    QTest::addColumn<QString>("input");
-    QTest::addColumn<QString>("expectedOutput");
-    QTest::addColumn<bool>("expectedSuccess");
-    QTest::addColumn<QString>("expectedErrorMessage");
-    QTest::newRow("if")
-        << QString::fromLatin1("@if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n")
-        << QString::fromLatin1("line 1")
-        << true << QString();
-    QTest::newRow("elsif")
-        << QString::fromLatin1("@if 0\nline 1\n@elsif 1\nline 2\n@else\nline 3\n@endif\n")
-        << QString::fromLatin1("line 2")
-        << true << QString();
-    QTest::newRow("else")
-        << QString::fromLatin1("@if 0\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n")
-        << QString::fromLatin1("line 3")
-        << true << QString();
-    QTest::newRow("nested-if")
-        << QString::fromLatin1("@if 1\n"
-                               "  @if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n"
-                               "@else\n"
-                               "  @if 1\nline 4\n@elsif 0\nline 5\n@else\nline 6\n@endif\n"
-                               "@endif\n")
-        << QString::fromLatin1("line 1")
-        << true << QString();
-    QTest::newRow("nested-else")
-        << QString::fromLatin1("@if 0\n"
-                               "  @if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n"
-                               "@else\n"
-                               "  @if 1\nline 4\n@elsif 0\nline 5\n@else\nline 6\n@endif\n"
-                               "@endif\n")
-        << QString::fromLatin1("line 4")
-        << true << QString();
-    QTest::newRow("twice-nested-if")
-        << QString::fromLatin1("@if 0\n"
-                               "  @if 1\n"
-                               "    @if 1\nline 1\n@else\nline 2\n@endif\n"
-                               "  @endif\n"
-                               "@else\n"
-                               "  @if 1\n"
-                               "    @if 1\nline 3\n@else\nline 4\n@endif\n"
-                               "  @endif\n"
-                               "@endif\n")
-        << QString::fromLatin1("line 3")
-        << true << QString();
+    if (errorMessage)
+        errorMessage->clear();
+
+    if (input.isEmpty())
+        return input;
+
+    // Recursively expand macros:
+    QString in = input;
+    QString oldIn;
+    for (int i = 0; i < 5 && in != oldIn; ++i) {
+        oldIn = in;
+        in = expander->expand(oldIn);
+    }
+
+    QString out;
+    if (!preprocessText(in, &out, errorMessage))
+        return QString();
+
+    // Expand \n, \t and handle line continuation:
+    QString result;
+    result.reserve(out.count());
+    bool isEscaped = false;
+    for (int i = 0; i < out.count(); ++i) {
+        const QChar c = out.at(i);
+
+        if (isEscaped) {
+            if (c == QLatin1Char('n'))
+                result.append(QLatin1Char('\n'));
+            else if (c == QLatin1Char('t'))
+                result.append(QLatin1Char('\t'));
+            else if (c != QLatin1Char('\n'))
+                result.append(c);
+            isEscaped = false;
+        } else {
+            if (c == QLatin1Char('\\'))
+                isEscaped = true;
+            else
+                result.append(c);
+        }
+    }
+    return result;
 }
 
-void ProjectExplorerPlugin::testCustomWizardPreprocessor()
+bool TemplateEngine::evaluateBooleanJavaScriptExpression(QJSEngine &engine,
+                                                         const QString &expression, bool *result,
+                                                         QString *errorMessage)
 {
-    QFETCH(QString, input);
-    QFETCH(QString, expectedOutput);
-    QFETCH(bool, expectedSuccess);
-    QFETCH(QString, expectedErrorMessage);
+    if (errorMessage)
+        errorMessage->clear();
+    if (result)
+        *result = false;
+    const QJSValue value = engine.evaluate(expression);
+    if (value.isError()) {
+        if (errorMessage)
+            *errorMessage = QString::fromLatin1("Error in \"%1\": %2")
+                .arg(expression, value.toString());
+        return false;
+    }
+    // Try to convert to bool, be that an int or whatever.
+    if (value.isBool()) {
+        if (result)
+            *result = value.toBool();
+        return true;
+    }
+    if (value.isNumber()) {
+        if (result)
+            *result = !qFuzzyCompare(value.toNumber(), 0);
+        return true;
+    }
+    if (value.isString()) {
+        if (result)
+            *result = !value.toString().isEmpty();
+        return true;
+    }
+    if (errorMessage)
+        *errorMessage = QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\"to bool.")
+            .arg(expression, value.toString());
 
-    QString errorMessage;
-    QString output;
-    const bool success = Internal::customWizardPreprocess(input, &output, &errorMessage);
-    QCOMPARE(success, expectedSuccess);
-    QCOMPARE(output.trimmed(), expectedOutput.trimmed());
-    QCOMPARE(errorMessage, expectedErrorMessage);
+    return false;
 }
-#endif // WITH_TESTS
-} // namespace ProjectExplorer
+
+} // namespace Utils

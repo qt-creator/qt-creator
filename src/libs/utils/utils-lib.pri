@@ -16,6 +16,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/shellcommandpage.cpp \
     $$PWD/settingsselector.cpp \
     $$PWD/stringutils.cpp \
+    $$PWD/templateengine.cpp \
     $$PWD/textfieldcheckbox.cpp \
     $$PWD/textfieldcombobox.cpp \
     $$PWD/filesearch.cpp \
@@ -107,6 +108,7 @@ HEADERS += \
     $$PWD/shellcommand.h \
     $$PWD/shellcommandpage.h \
     $$PWD/stringutils.h \
+    $$PWD/templateengine.h \
     $$PWD/textfieldcheckbox.h \
     $$PWD/textfieldcombobox.h \
     $$PWD/filesearch.h \

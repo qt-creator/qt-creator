@@ -196,6 +196,7 @@ tmp/
 /tests/auto/treeviewfind/tst_treeviewfind
 /tests/auto/utils/ansiescapecodehandler/tst_ansiescapecodehandler
 /tests/auto/utils/fileutils/tst_fileutils
+/tests/auto/utils/templateengine/tst_templateengine
 /tests/auto/utils_stringutils/tst_utils_stringutils
 /tests/auto/valgrind/callgrind/tst_callgrindparsertests
 /tests/auto/valgrind/memcheck/modeldemo

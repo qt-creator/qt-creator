@@ -30,7 +30,6 @@
 
 #include "jsonwizardscannergenerator.h"
 
-#include "../customwizard/customwizardpreprocessor.h"
 #include "../projectexplorer.h"
 #include "../iprojectmanager.h"
 #include "jsonwizard.h"

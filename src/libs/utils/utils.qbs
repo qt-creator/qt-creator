@@ -28,7 +28,7 @@ QtcLibrary {
         cpp.frameworks: ["Foundation"]
     }
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "script", "concurrent"] }
+    Depends { name: "Qt"; submodules: ["gui", "network", "qml"] }
     Depends { name: "app_version_header" }
 
     files: [
