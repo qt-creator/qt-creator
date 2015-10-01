@@ -61,20 +61,18 @@ VersionDialog::VersionDialog(QWidget *parent)
     QString ideRev;
 #ifdef IDE_REVISION
      //: This gets conditionally inserted as argument %8 into the description string.
-     ideRev = tr("From revision %1<br/>").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
+     ideRev = tr("<br/>From revision %1<br/>").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
 #endif
      QString buildDateInfo;
 #ifdef QTC_SHOW_BUILD_DATE
-     buildDateInfo = tr("Built on %1 %2<br/>").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
+     buildDateInfo = tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
 
 
      const QString description = tr(
         "<h3>%1</h3>"
         "%2<br/>"
-        "<br/>"
         "%3"
-        "<br/>"
         "%4"
         "<br/>"
         "Copyright 2008-%5 %6. All rights reserved.<br/>"
