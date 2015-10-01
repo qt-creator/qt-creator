@@ -33,6 +33,7 @@
 
 #include "qmt_global.h"
 
+#include <QDataStream>
 #include <QUuid>
 #include <QMetaType>
 
