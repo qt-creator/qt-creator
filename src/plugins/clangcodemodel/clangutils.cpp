@@ -218,6 +218,7 @@ private:
         add(QStringLiteral("-Wno-exit-time-destructors"));
         add(QStringLiteral("-Wno-global-constructors"));
         add(QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"));
+        add(QStringLiteral("-Wno-documentation"));
 
         if (m_projectPart->languageVersion >= ProjectPart::CXX98)
             add(QStringLiteral("-Wno-missing-prototypes"));
