@@ -58,6 +58,7 @@ void ResultsTreeView::keyPressEvent(QKeyEvent *event)
         emit copyShortcutTriggered();
         event->accept();
     }
+    TreeView::keyPressEvent(event);
 }
 
 TestResultsPane::TestResultsPane(QObject *parent) :
