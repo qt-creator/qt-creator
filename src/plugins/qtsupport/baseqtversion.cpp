@@ -1650,30 +1650,6 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
     return true;
 }
 
-void BaseQtVersion::buildDebuggingHelper(Kit *k, int tools)
-{
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    if (!k || !version || !tc)
-        return;
-
-    version->buildDebuggingHelper(tc, tools);
-}
-
-void BaseQtVersion::buildDebuggingHelper(ToolChain *tc, int tools)
-{
-    QTC_ASSERT(tc, return);
-    DebuggingHelperBuildTask *buildTask =
-            new DebuggingHelperBuildTask(this, tc, static_cast<DebuggingHelperBuildTask::Tools>(tools));
-
-    // pop up Application Output on error
-    buildTask->showOutputOnError(true);
-
-    QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
-    const QString taskName = QCoreApplication::translate("BaseQtVersion", "Building Debugging Helpers");
-    ProgressManager::addTask(task, taskName, "Qt::BuildHelpers");
-}
-
 QList<FileName> BaseQtVersion::qtCorePaths(const QHash<QString,QString> &versionInfo, const QString &versionString)
 {
     QStringList dirs;
