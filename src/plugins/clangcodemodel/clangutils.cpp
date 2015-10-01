@@ -214,6 +214,7 @@ private:
         add(QStringLiteral("-Wno-c++98-compat"));
         add(QStringLiteral("-Wno-c++98-compat-pedantic"));
         add(QStringLiteral("-Wno-unused-macros"));
+        add(QStringLiteral("-Wno-newline-eof"));
 
         if (m_projectPart->languageVersion >= ProjectPart::CXX98)
             add(QStringLiteral("-Wno-missing-prototypes"));
