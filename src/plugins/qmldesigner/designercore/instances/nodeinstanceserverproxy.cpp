@@ -83,18 +83,6 @@
 
 namespace QmlDesigner {
 
-static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
-{
-    if (nodeInstanceView && nodeInstanceView->model()) {
-        foreach (const Import &import ,nodeInstanceView->model()->imports()) {
-            if (import.url() ==  QLatin1String("QtQuick") && import.version().toDouble() < 2.0)
-                return true;
-        }
-    }
-
-    return false;
-}
-
 static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
     Core::AsynchronousMessageBox::warning(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
