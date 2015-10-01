@@ -1113,7 +1113,7 @@ void CppModelManager::renameIncludes(const QString &oldFileName, const QString &
 
     foreach (Snapshot::IncludeLocation loc, snapshot().includeLocationsOfDocument(oldFileName)) {
         TextEditor::RefactoringFilePtr file = changes.file(loc.first->fileName());
-        const QTextBlock &block = file->document()->findBlockByLineNumber(loc.second - 1);
+        const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
         const int replaceStart = block.text().indexOf(oldFileInfo.fileName());
         if (replaceStart > -1) {
             Utils::ChangeSet changeSet;

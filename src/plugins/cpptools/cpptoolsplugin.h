@@ -79,7 +79,6 @@ public:
     QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
 
     static StringTable &stringTable();
-
 public slots:
     void switchHeaderSource();
     void switchHeaderSourceInNextSplit();
@@ -158,6 +157,7 @@ private slots:
     void test_modelmanager_updateEditorsAfterProjectUpdate();
     void test_modelmanager_precompiled_headers();
     void test_modelmanager_renameIncludes();
+    void test_modelmanager_renameIncludesInEditor();
     void test_modelmanager_documentsAndRevisions();
 
     void test_cpplocatorfilters_CppLocatorFilter();
