@@ -216,6 +216,7 @@ private:
         add(QStringLiteral("-Wno-unused-macros"));
         add(QStringLiteral("-Wno-newline-eof"));
         add(QStringLiteral("-Wno-exit-time-destructors"));
+        add(QStringLiteral("-Wno-global-constructors"));
 
         if (m_projectPart->languageVersion >= ProjectPart::CXX98)
             add(QStringLiteral("-Wno-missing-prototypes"));
