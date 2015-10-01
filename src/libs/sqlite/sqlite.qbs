@@ -1,4 +1,4 @@
-﻿import qbs 1.0
+import qbs 1.0
 
 QtcLibrary {
     name: "Sqlite"

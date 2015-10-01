@@ -1,4 +1,4 @@
-﻿/**
+/**
  * A brief comment
  */
 void BriefComment()
