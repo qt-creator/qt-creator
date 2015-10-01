@@ -5,6 +5,7 @@ PROVIDER = Digia
 include(../../qtcreatorplugin.pri)
 
 DEFINES += QMLPROFILEREXTENSION_LIBRARY
+CONFIG(licensechecker): DEFINES += LICENSECHECKER
 
 # QmlProfilerExtension files
 
