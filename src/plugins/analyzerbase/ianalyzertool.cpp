@@ -129,8 +129,7 @@ void AnalyzerAction::startTool()
             default:
                 QTC_CHECK(false);
         }
-        //const QString toolName = displayName();
-        const QString toolName = AnalyzerManager::tr("Tool"); // FIXME
+        const QString toolName = text(); // The action text is always the name of the tool
         const QString title = AnalyzerManager::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
         const QString message = AnalyzerManager::tr("<html><head/><body><p>You are trying "
             "to run the tool \"%1\" on an application in %2 mode. "
