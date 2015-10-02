@@ -304,16 +304,16 @@ public:
     AppOpSession(const QString &deviceId, const QString &bundlePath,
                         const QStringList &extraArgs, Ios::IosDeviceManager::AppOp appOp);
 
-    void deviceCallbackReturned();
+    void deviceCallbackReturned() override;
     bool installApp();
     bool runApp();
     int qmljsDebugPort() const override;
-    am_res_t appTransferCallback(CFDictionaryRef dict);
-    am_res_t appInstallCallback(CFDictionaryRef dict);
-    void reportProgress2(int progress, const QString &status);
+    am_res_t appTransferCallback(CFDictionaryRef dict) override;
+    am_res_t appInstallCallback(CFDictionaryRef dict) override;
+    void reportProgress2(int progress, const QString &status) override;
     QString appPathOnDevice();
     QString appId();
-    QString commandName();
+    QString commandName() override;
 };
 
 }
