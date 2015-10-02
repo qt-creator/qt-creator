@@ -239,6 +239,16 @@ void MainWindow::setOverrideColor(const QColor &color)
     m_overrideColor = color;
 }
 
+QStringList MainWindow::additionalAboutInformation() const
+{
+    return m_aboutInformation;
+}
+
+void MainWindow::appendAboutInformation(const QString &line)
+{
+    m_aboutInformation.append(line);
+}
+
 MainWindow::~MainWindow()
 {
     // explicitly delete window support, because that calls methods from ICore that call methods

@@ -110,6 +110,9 @@ public:
 
     void setOverrideColor(const QColor &color);
 
+    QStringList additionalAboutInformation() const;
+    void appendAboutInformation(const QString &line);
+
 signals:
     void newItemDialogRunningChanged();
 
@@ -152,6 +155,7 @@ private:
     void writeSettings();
 
     ICore *m_coreImpl;
+    QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
     Context m_lowPrioAdditionalContexts;
     SettingsDatabase *m_settingsDatabase;

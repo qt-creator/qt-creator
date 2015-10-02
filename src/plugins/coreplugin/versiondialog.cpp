@@ -33,6 +33,7 @@
 #include <app/app_version.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -68,14 +69,19 @@ VersionDialog::VersionDialog(QWidget *parent)
      buildDateInfo = tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
 
+    const QString br = QLatin1String("<br/>");
+    const QStringList additionalInfoLines = ICore::additionalAboutInformation();
+    const QString additionalInfo = Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)
+        .join(br);
 
-     const QString description = tr(
+    const QString description = tr(
         "<h3>%1</h3>"
         "%2<br/>"
         "%3"
         "%4"
+        "%5"
         "<br/>"
-        "Copyright 2008-%5 %6. All rights reserved.<br/>"
+        "Copyright 2008-%6 %7. All rights reserved.<br/>"
         "<br/>"
         "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
@@ -84,6 +90,7 @@ VersionDialog::VersionDialog(QWidget *parent)
              ICore::buildCompatibilityString(),
              buildDateInfo,
              ideRev,
+             additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
              QLatin1String(Constants::IDE_YEAR),
              QLatin1String(Constants::IDE_AUTHOR));
 
