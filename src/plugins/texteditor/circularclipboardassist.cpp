@@ -91,6 +91,7 @@ public:
     {
         if (!interface)
             return 0;
+        const QScopedPointer<const AssistInterface> AssistInterface(interface);
 
         QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), QIcon(QLatin1String(Core::Constants::ICON_PASTE))).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
