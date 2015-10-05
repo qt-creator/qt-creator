@@ -214,6 +214,11 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
     return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
 }
 
+ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainer() const
+{
+    return fileContainer(m_projectPart.data());
+}
+
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));
@@ -230,8 +235,8 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
     const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
-        updateTranslationUnitForEditor(*projectPart.data());
-        requestDiagnostics(*projectPart.data());
+        updateTranslationUnitForEditor(projectPart.data());
+        requestDiagnostics(projectPart.data());
 
         m_projectPart = projectPart;
     }
@@ -252,41 +257,27 @@ void ClangEditorDocumentProcessor::onParserFinished()
     updateProjectPartAndTranslationUnitForEditor();
 }
 
-void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart &projectPart)
+void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
 {
     QTC_ASSERT(m_modelManagerSupport, return);
     IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
 
     if (m_projectPart) {
-        if (projectPart.id() != m_projectPart->id()) {
-            auto container1 = ClangBackEnd::FileContainer(filePath(),
-                                                          m_projectPart->id(),
-                                                          revision());
-            ipcCommunicator.unregisterTranslationUnitsForEditor({container1});
-
-            auto container2 = ClangBackEnd::FileContainer(filePath(),
-                                                          projectPart.id(),
-                                                          revision());
-            ipcCommunicator.registerTranslationUnitsForEditor({container2});
+        if (projectPart->id() != m_projectPart->id()) {
+            ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainer()});
+            ipcCommunicator.registerTranslationUnitsForEditor({fileContainer(projectPart)});
         }
     } else {
-        auto container = ClangBackEnd::FileContainer(filePath(),
-                                                     projectPart.id(),
-                                                     revision());
-        ipcCommunicator.registerTranslationUnitsForEditor({container});
+        ipcCommunicator.registerTranslationUnitsForEditor({{fileContainer(projectPart)}});
     }
 }
 
-void ClangEditorDocumentProcessor::requestDiagnostics(CppTools::ProjectPart &projectPart)
+void ClangEditorDocumentProcessor::requestDiagnostics(CppTools::ProjectPart *projectPart)
 {
-    if (!m_projectPart || projectPart.id() != m_projectPart->id()) {
+    if (!m_projectPart || projectPart->id() != m_projectPart->id()) {
         IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
 
-        ipcCommunicator.requestDiagnostics({filePath(),
-                                            projectPart.id(),
-                                            Utf8String(),
-                                            false,
-                                            revision()});
+        ipcCommunicator.requestDiagnostics({fileContainer(projectPart)});
     }
 }
 
@@ -301,6 +292,15 @@ void ClangEditorDocumentProcessor::requestDiagnostics()
                                             true,
                                             revision()});
     }
+}
+
+ClangBackEnd::FileContainer
+ClangEditorDocumentProcessor::fileContainer(CppTools::ProjectPart *projectPart) const
+{
+    if (projectPart)
+        return {filePath(), projectPart->id(), revision()};
+
+    return {filePath(), Utf8String(), revision()};
 }
 
 } // namespace Internal

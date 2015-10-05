@@ -294,23 +294,12 @@ clangProcessorsWithProjectParts(const QStringList &projectPartIds)
     return result;
 }
 
-static QVector<ClangBackEnd::FileContainer>
-processorToFileContainer(ClangEditorDocumentProcessor *processor)
-{
-    QTC_ASSERT(processor, return QVector<ClangBackEnd::FileContainer>());
-
-    const QString filePath = processor->baseTextDocument()->filePath().toString();
-    const QString projectPartId = processor->projectPart()->id();
-
-    return {ClangBackEnd::FileContainer(filePath, projectPartId)};
-}
-
 void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
         const QStringList &projectPartIds)
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {
-        m_ipcCommunicator.unregisterTranslationUnitsForEditor(processorToFileContainer(processor));
+        m_ipcCommunicator.unregisterTranslationUnitsForEditor({processor->fileContainer()});
         processor->clearProjectPart();
         processor->run();
     }

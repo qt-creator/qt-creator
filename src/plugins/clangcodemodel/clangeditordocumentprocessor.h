@@ -43,6 +43,7 @@
 
 namespace ClangBackEnd {
 class DiagnosticContainer;
+class FileContainer;
 }
 
 namespace ClangCodeModel {
@@ -78,6 +79,8 @@ public:
     TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
 
+    ClangBackEnd::FileContainer fileContainer() const;
+
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
@@ -86,9 +89,10 @@ private slots:
 
 private:
     void updateProjectPartAndTranslationUnitForEditor();
-    void updateTranslationUnitForEditor(CppTools::ProjectPart &projectPart);
-    void requestDiagnostics(CppTools::ProjectPart &projectPart);
+    void updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
+    void requestDiagnostics(CppTools::ProjectPart *projectPart);
     void requestDiagnostics();
+    ClangBackEnd::FileContainer fileContainer(CppTools::ProjectPart *projectPart) const;
 
 private:
     ClangDiagnosticManager m_diagnosticManager;
