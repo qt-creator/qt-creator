@@ -86,7 +86,6 @@ public:
     ~KeywordsCompletionAssistProcessor() override = default;
 
     IAssistProposal *perform(const AssistInterface *interface) override;
-    QChar startOfCommentChar() const;
 
     void setSnippetGroup(const QString &id);
 
@@ -94,15 +93,10 @@ protected:
     void setKeywords (Keywords keywords);
 
 private:
-    bool acceptsIdleEditor();
-    int findStartOfName(int pos = -1);
-    bool isInComment() const;
+    bool isInComment(const AssistInterface *interface) const;
     QList<AssistProposalItemInterface *> generateProposalList(const QStringList &words, const QIcon &icon);
 
-    int m_startPosition = -1;
     TextEditor::SnippetAssistCollector m_snippetCollector;
-    QString m_word;
-    QScopedPointer<const AssistInterface> m_interface;
     const QIcon m_variableIcon;
     const QIcon m_functionIcon;
     Keywords m_keywords;
