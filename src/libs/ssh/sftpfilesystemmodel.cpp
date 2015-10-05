@@ -30,6 +30,7 @@
 #include "sshconnectionmanager.h"
 
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QFileInfo>
 #include <QHash>
@@ -167,9 +168,9 @@ QVariant SftpFileSystemModel::data(const QModelIndex &index, int role) const
         switch (node->fileInfo.type) {
         case FileTypeRegular:
         case FileTypeOther:
-            return QIcon(":/ssh/images/unknownfile.png");
+            return Utils::Icons::UNKNOWN_FILE.icon();
         case FileTypeDirectory:
-            return QIcon(":/ssh/images/dir.png");
+            return Utils::Icons::DIR.icon();
         case FileTypeUnknown:
             return QIcon(":/ssh/images/help.png"); // Shows a question mark.
         }

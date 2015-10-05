@@ -269,7 +269,9 @@ ProFileEditorFactory::ProFileEditorFactory()
     setDocumentCreator(createProFileDocument);
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
 
-    setCompletionAssistProvider(new KeywordsCompletionAssistProvider(qmakeKeywords()));
+    const auto completionAssistProvider = new KeywordsCompletionAssistProvider(qmakeKeywords());
+    completionAssistProvider->setDynamicCompletionFunction(&TextEditor::pathComplete);
+    setCompletionAssistProvider(completionAssistProvider);
 
     setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection

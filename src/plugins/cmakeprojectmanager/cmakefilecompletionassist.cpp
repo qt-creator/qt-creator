@@ -55,6 +55,7 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
     KeywordsCompletionAssistProcessor(Keywords())
 {
     setSnippetGroup(Constants::CMAKE_SNIPPETS_GROUP_ID);
+    setDynamicCompletionFunction(&TextEditor::pathComplete);
 }
 
 IAssistProposal *CMakeFileCompletionAssist::perform(const AssistInterface *interface)

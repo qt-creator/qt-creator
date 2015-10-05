@@ -106,6 +106,11 @@ const Icon EXPORTFILE_TOOLBAR({
 const Icon MULTIEXPORTFILE_TOOLBAR({
         {QLatin1String(":/utils/images/filemultiexport.png"), Theme::IconsBaseColor}});
 
+const Icon UNKNOWN_FILE({
+        {QLatin1String(":/utils/images/unknownfile.png"), Theme::IconsBaseColor}});
+const Icon DIR({
+        {QLatin1String(":/utils/images/dir.png"), Theme::IconsBaseColor}});
+
 const Icon UNDO({
         {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon UNDO_TOOLBAR({

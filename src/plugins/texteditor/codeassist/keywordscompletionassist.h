@@ -82,11 +82,16 @@ private:
     QStringList m_functionSymbols;
 };
 
+using DynamicCompletionFunction
+    = std::function<void (const AssistInterface *, QList<AssistProposalItemInterface *> *, int &)>;
+
 class TEXTEDITOR_EXPORT KeywordsCompletionAssistProvider : public CompletionAssistProvider
 {
 public:
     KeywordsCompletionAssistProvider(const Keywords &keyWords = Keywords(),
             const QString &snippetGroup = QString(Constants::TEXT_SNIPPET_GROUP_ID));
+
+    void setDynamicCompletionFunction(const DynamicCompletionFunction &func);
 
     // IAssistProvider interface
     RunType runType() const override;
@@ -95,6 +100,7 @@ public:
 private:
     Keywords m_keyWords;
     QString m_snippetGroup;
+    DynamicCompletionFunction m_completionFunc;
 };
 
 class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public IAssistProcessor
@@ -107,6 +113,8 @@ public:
 
     void setSnippetGroup(const QString &id);
 
+    void setDynamicCompletionFunction(DynamicCompletionFunction func);
+
 protected:
     void setKeywords (const Keywords &keywords);
 
@@ -118,6 +126,11 @@ private:
     const QIcon m_variableIcon;
     const QIcon m_functionIcon;
     Keywords m_keywords;
+    DynamicCompletionFunction m_dynamicCompletionFunction;
 };
+
+TEXTEDITOR_EXPORT void pathComplete(const AssistInterface *interface,
+                                    QList<AssistProposalItemInterface *> *items,
+                                    int &startPosition);
 
 } // TextEditor
