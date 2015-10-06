@@ -141,7 +141,12 @@ public:
     void beginElement(const Object<T> &object)
     {
         _stream.writeStartElement(object.getQualifiedName());
-        _stream.writeAttribute(QLatin1String("id"), QString::number(_saving_ref_map.getRef(object.getObject(), true).get()));
+        // TODO implement key attribute
+        // Currently qmodel files do not use references at all
+        // so writing reference keys are not needed. If this
+        // changes keys should be implemented as a generic
+        // concept getting key from object (e.g. with a function
+        // registered per type in typeregistry)
     }
 
     void endElement(const End &)
