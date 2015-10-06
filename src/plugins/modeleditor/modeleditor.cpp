@@ -258,7 +258,7 @@ void ModelEditor::init(QWidget *parent)
     d->propertiesScrollArea = new QScrollArea(d->rightHorizSplitter);
     d->propertiesScrollArea->setFrameShape(QFrame::NoFrame);
     d->propertiesScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    d->propertiesScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    d->propertiesScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     d->propertiesScrollArea->setWidgetResizable(true);
 
     d->rightHorizSplitter->insertWidget(0, d->modelTreeView);
