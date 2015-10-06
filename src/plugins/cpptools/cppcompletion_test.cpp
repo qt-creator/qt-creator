@@ -78,7 +78,7 @@ public:
         // Write source to file
         m_temporaryDir.reset(new Tests::TemporaryDir());
         QVERIFY(m_temporaryDir->isValid());
-        const QByteArray fileExt = isObjC ? ".mm" : ".h";
+        const QByteArray fileExt = isObjC ? "mm" : "h";
         const QString fileName = m_temporaryDir->createFile("file." + fileExt, m_source);
         QVERIFY(!fileName.isEmpty());
 
@@ -111,7 +111,7 @@ public:
         languageFeatures.objCEnabled = false;
         CppCompletionAssistInterface *ai
             = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath().toString(),
-                                               m_editorWidget->document(), m_position,
+                                               m_textDocument, m_position,
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectPart::HeaderPaths(),
                                                languageFeatures);
@@ -129,7 +129,7 @@ public:
 
         const int pos = proposal.d->basePosition();
         const int length = m_position - pos;
-        const QString prefix = Convenience::textAt(QTextCursor(m_editorWidget->document()), pos,
+        const QString prefix = Convenience::textAt(QTextCursor(m_textDocument), pos,
                                                    length);
         if (!prefix.isEmpty())
             listmodel->filter(prefix);
