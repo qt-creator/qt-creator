@@ -300,11 +300,28 @@ void IosConfigurations::updateAutomaticKitList()
                 }
                 if (kitExists) {
                     kitAtt->blockNotification();
+                    // TODO: this is just to fix up broken display names from before
+                    QString baseDisplayName = tr("%1 %2").arg(p.name, qt->unexpandedDisplayName());
+                    QString displayName = baseDisplayName;
+                    for (int iVers = 1; iVers < 100; ++iVers) {
+                        bool unique = true;
+                        foreach (const Kit *k, existingKits) {
+                            if (k == kitAtt)
+                                continue;
+                            if (k->displayName() == displayName) {
+                                unique = false;
+                                break;
+                            }
+                        }
+                        if (unique) break;
+                        displayName = baseDisplayName + QLatin1Char('-') + QString::number(iVers);
+                    }
+                    kitAtt->setUnexpandedDisplayName(displayName);
                 } else {
                     qCDebug(kitSetupLog) << "setting up new kit for " << p.name;
                     kitAtt = new Kit;
                     kitAtt->setAutoDetected(true);
-                    QString baseDisplayName = tr("%1 %2").arg(p.name, qt->displayName());
+                    QString baseDisplayName = tr("%1 %2").arg(p.name, qt->unexpandedDisplayName());
                     QString displayName = baseDisplayName;
                     for (int iVers = 1; iVers < 100; ++iVers) {
                         bool unique = true;

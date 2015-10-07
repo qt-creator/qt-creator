@@ -119,31 +119,35 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 MergeTool::FileState MergeTool::waitAndReadStatus(QString &extraInfo)
 {
     QByteArray state;
-    if (m_process->canReadLine() || (m_process->waitForReadyRead(500) && m_process->canReadLine())) {
-        state = m_process->readLine().trimmed();
-        // "  {local}: modified file"
-        // "  {remote}: deleted"
-        if (!state.isEmpty()) {
-            state = state.mid(state.indexOf(':') + 2);
-            if (state == "deleted")
-                return DeletedState;
-            if (state.startsWith("modified"))
-                return ModifiedState;
-            if (state.startsWith("created"))
-                return CreatedState;
-            QByteArray submodulePrefix("submodule commit ");
-            // "  {local}: submodule commit <hash>"
-            if (state.startsWith(submodulePrefix)) {
-                extraInfo = QString::fromLocal8Bit(state.mid(submodulePrefix.size()));
-                return SubmoduleState;
-            }
-            // "  {local}: a symbolic link -> 'foo.cpp'"
-            QByteArray symlinkPrefix("a symbolic link -> '");
-            if (state.startsWith(symlinkPrefix)) {
-                extraInfo = QString::fromLocal8Bit(state.mid(symlinkPrefix.size()));
-                extraInfo.chop(1); // remove last quote
-                return SymbolicLinkState;
-            }
+    for (int i = 0; i < 5; ++i) {
+        if (m_process->canReadLine()) {
+            state = m_process->readLine().trimmed();
+            break;
+        }
+        m_process->waitForReadyRead(500);
+    }
+    // "  {local}: modified file"
+    // "  {remote}: deleted"
+    if (!state.isEmpty()) {
+        state = state.mid(state.indexOf(':') + 2);
+        if (state == "deleted")
+            return DeletedState;
+        if (state.startsWith("modified"))
+            return ModifiedState;
+        if (state.startsWith("created"))
+            return CreatedState;
+        QByteArray submodulePrefix("submodule commit ");
+        // "  {local}: submodule commit <hash>"
+        if (state.startsWith(submodulePrefix)) {
+            extraInfo = QString::fromLocal8Bit(state.mid(submodulePrefix.size()));
+            return SubmoduleState;
+        }
+        // "  {local}: a symbolic link -> 'foo.cpp'"
+        QByteArray symlinkPrefix("a symbolic link -> '");
+        if (state.startsWith(symlinkPrefix)) {
+            extraInfo = QString::fromLocal8Bit(state.mid(symlinkPrefix.size()));
+            extraInfo.chop(1); // remove last quote
+            return SymbolicLinkState;
         }
     }
     return UnknownState;
