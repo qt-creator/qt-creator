@@ -349,7 +349,6 @@ ToolChain *WinCEToolChain::clone() const
 
 WinCEToolChainFactory::WinCEToolChainFactory()
 {
-    setTypeId(Constants::WINCE_TOOLCHAIN_TYPEID);
     setDisplayName(tr("WinCE"));
 }
 

@@ -255,7 +255,6 @@ AndroidToolChainConfigWidget::AndroidToolChainConfigWidget(AndroidToolChain *tc)
 
 AndroidToolChainFactory::AndroidToolChainFactory()
 {
-    setTypeId(Constants::ANDROID_TOOLCHAIN_ID);
     setDisplayName(tr("Android GCC"));
 }
 
