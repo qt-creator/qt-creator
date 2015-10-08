@@ -33,10 +33,12 @@
 
 #include "cpptools_global.h"
 
+#include "cppfileiterationorder.h"
+
 #include <QHash>
 #include <QStringList>
-#include <QMultiMap>
-#include <QSet>
+
+#include <set>
 
 namespace CPlusPlus {
 class Class;
@@ -71,19 +73,18 @@ public:
     QList<CPlusPlus::Declaration *> findMatchingDeclaration(const CPlusPlus::LookupContext &context,
                                                             CPlusPlus::Function *functionType);
 
+    void clearCache();
+
 private:
     QStringList fileIterationOrder(const QString &referenceFile,
                                    const CPlusPlus::Snapshot &snapshot);
-
     void checkCacheConsistency(const QString &referenceFile, const CPlusPlus::Snapshot &snapshot);
     void clearCache(const QString &referenceFile, const QString &comparingFile);
     void insertCache(const QString &referenceFile, const QString &comparingFile);
 
     void trackCacheUse(const QString &referenceFile);
 
-    static int computeKey(const QString &referenceFile, const QString &comparingFile);
-
-    QHash<QString, QMultiMap<int, QString> > m_filePriorityCache;
+    QHash<QString, FileIterationOrder> m_filePriorityCache;
     QHash<QString, QSet<QString> > m_fileMetaCache;
     QStringList m_recent;
 };

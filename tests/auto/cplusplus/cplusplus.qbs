@@ -8,6 +8,7 @@ Project {
         "checksymbols/checksymbols.qbs",
         "codeformatter/codeformatter.qbs",
         "cxx11/cxx11.qbs",
+        "fileiterationorder/fileiterationorder.qbs",
         "findusages/findusages.qbs",
         "lexer/lexer.qbs",
         "lookup/lookup.qbs",

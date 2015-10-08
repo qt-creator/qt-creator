@@ -796,6 +796,8 @@ void CppModelManager::recalculateProjectPartMappings()
 
         }
     }
+
+    d->m_symbolFinder.clearCache();
 }
 
 void CppModelManager::updateCppEditorDocuments() const

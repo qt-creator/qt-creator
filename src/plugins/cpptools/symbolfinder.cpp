@@ -34,6 +34,8 @@
 
 #include "symbolfinder.h"
 
+#include "cppmodelmanager.h"
+
 #include <cplusplus/LookupContext.h>
 
 #include <utils/qtcassert.h>
@@ -357,11 +359,18 @@ QStringList SymbolFinder::fileIterationOrder(const QString &referenceFile, const
             insertCache(referenceFile, doc->fileName());
     }
 
-    QStringList files = m_filePriorityCache.value(referenceFile).values();
+    QStringList files = m_filePriorityCache.value(referenceFile).toStringList();
 
     trackCacheUse(referenceFile);
 
     return files;
+}
+
+void SymbolFinder::clearCache()
+{
+    m_filePriorityCache.clear();
+    m_fileMetaCache.clear();
+    m_recent.clear();
 }
 
 void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Snapshot &snapshot)
@@ -376,18 +385,29 @@ void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Sna
     }
 }
 
+const QString projectPartIdForFile(const QString &filePath)
+{
+    const QList<ProjectPart::Ptr> parts = CppModelManager::instance()->projectPart(filePath);
+    if (!parts.isEmpty())
+        return parts.first()->id();
+    return QString();
+}
+
 void SymbolFinder::clearCache(const QString &referenceFile, const QString &comparingFile)
 {
-    m_filePriorityCache[referenceFile].remove(computeKey(referenceFile, comparingFile),
-                                              comparingFile);
+    m_filePriorityCache[referenceFile].remove(comparingFile, projectPartIdForFile(comparingFile));
     m_fileMetaCache[referenceFile].remove(comparingFile);
 }
 
 void SymbolFinder::insertCache(const QString &referenceFile, const QString &comparingFile)
 {
-    // We want an ordering such that the documents with the most common path appear first.
-    m_filePriorityCache[referenceFile].insert(computeKey(referenceFile, comparingFile),
-                                              comparingFile);
+    FileIterationOrder &order = m_filePriorityCache[referenceFile];
+    if (!order.isValid()) {
+        const auto projectPartId = projectPartIdForFile(referenceFile);
+        order.setReference(referenceFile, projectPartId);
+    }
+    order.insert(comparingFile, projectPartIdForFile(comparingFile));
+
     m_fileMetaCache[referenceFile].insert(comparingFile);
 }
 
@@ -407,15 +427,4 @@ void SymbolFinder::trackCacheUse(const QString &referenceFile)
         m_filePriorityCache.remove(oldest);
         m_fileMetaCache.remove(oldest);
     }
-}
-
-int SymbolFinder::computeKey(const QString &referenceFile, const QString &comparingFile)
-{
-    // As similar the path from the comparing file is to the path from the reference file,
-    // the smaller the key is, which is then used for sorting the map.
-    std::pair<QString::const_iterator,
-              QString::const_iterator> r = std::mismatch(referenceFile.begin(),
-                                                         referenceFile.end(),
-                                                         comparingFile.begin());
-    return referenceFile.length() - (r.first - referenceFile.begin());
 }
