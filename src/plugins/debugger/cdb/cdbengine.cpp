@@ -2539,28 +2539,29 @@ bool CdbEngine::stateAcceptsBreakpointChanges() const
 
 bool CdbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    if (!bp.parameters().isCppBreakpoint())
-        return false;
-    switch (bp.type()) {
-    case UnknownBreakpointType:
-    case LastBreakpointType:
-    case BreakpointAtFork:
-    case WatchpointAtExpression:
-    case BreakpointAtSysCall:
-    case BreakpointOnQmlSignalEmit:
-    case BreakpointAtJavaScriptThrow:
-        return false;
-    case WatchpointAtAddress:
-    case BreakpointByFileAndLine:
-    case BreakpointByFunction:
-    case BreakpointByAddress:
-    case BreakpointAtThrow:
-    case BreakpointAtCatch:
-    case BreakpointAtMain:
-    case BreakpointAtExec:
-        break;
+    if (bp.parameters().isCppBreakpoint()) {
+        switch (bp.type()) {
+        case UnknownBreakpointType:
+        case LastBreakpointType:
+        case BreakpointAtFork:
+        case WatchpointAtExpression:
+        case BreakpointAtSysCall:
+        case BreakpointOnQmlSignalEmit:
+        case BreakpointAtJavaScriptThrow:
+            return false;
+        case WatchpointAtAddress:
+        case BreakpointByFileAndLine:
+        case BreakpointByFunction:
+        case BreakpointByAddress:
+        case BreakpointAtThrow:
+        case BreakpointAtCatch:
+        case BreakpointAtMain:
+        case BreakpointAtExec:
+            break;
+        }
+        return true;
     }
-    return true;
+    return isNativeMixedEnabled();
 }
 
 // Context for fixing file/line-type breakpoints, for delayed creation.
@@ -2801,7 +2802,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = 0)
             break;
         }
         StackFrame frame;
-        frame.level = i;
+        frame.level = QByteArray::number(i);
         const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
             frame.file = QFile::decodeName(fullName.data());
@@ -2811,9 +2812,10 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = 0)
             if (languageMi.isValid() && languageMi.data() == "js")
                 frame.language = QmlLanguage;
         }
-        frame.function = QLatin1String(frameMi["func"].data());
-        frame.from = QLatin1String(frameMi["from"].data());
-        frame.address = frameMi["addr"].data().toULongLong(0, 16);
+        frame.function = QLatin1String(frameMi["function"].data());
+        frame.module = QLatin1String(frameMi["from"].data());
+        frame.context = frameMi["context"].data();
+        frame.address = frameMi["address"].data().toULongLong(0, 16);
         rc.push_back(frame);
     }
     return rc;
@@ -2895,7 +2897,7 @@ void CdbEngine::handleAdditionalQmlStack(const DebuggerResponse &response)
             break;
         }
         for (int i = 0; i < qmlFrameCount; ++i)
-            qmlFrames[i].fixQmlFrame(runParameters());
+            qmlFrames[i].fixQrcFrame(runParameters());
         stackHandler()->prependFrames(qmlFrames);
     } while (false);
     if (!errorMessage.isEmpty())

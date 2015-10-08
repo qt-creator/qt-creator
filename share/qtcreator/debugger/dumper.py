@@ -34,6 +34,7 @@ import sys
 import base64
 import re
 import time
+import json
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -241,7 +242,7 @@ class Blob(object):
         return struct.unpack_from("f", self.data, offset)[0]
 
 def warn(message):
-    print("XXX: %s\n" % message.encode("latin1"))
+    print('bridgemessage={msg="%s"},' % message.replace('"', '$').encode("latin1"))
 
 
 def showException(msg, exType, exValue, exTraceback):
@@ -412,6 +413,8 @@ class DumperBase:
             "creatortypes",
             "personaltypes",
         ]
+
+        self.interpreterSeq = 0
 
 
     def resetCaches(self):
@@ -598,6 +601,9 @@ class DumperBase:
         data = self.extractBlob(addr, size).toBytes()
         return self.hexencode(data)
 
+    def readJsonFromMemory(self, addr, size):
+        return json.loads(self.hexdecode(self.readMemory(addr, size)))
+
     def encodeByteArray(self, value, limit = 0):
         elided, data = self.encodeByteArrayHelper(self.extractPointer(value), limit)
         return data
@@ -718,7 +724,6 @@ class DumperBase:
             pass
         return False
 
-        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
     def putMapName(self, value, index = None):
         ns = self.qtNamespace()
         typeName = self.stripClassTag(str(value.type))
@@ -828,6 +833,16 @@ class DumperBase:
         else:
             self.putSpecialValue(SpecialItemCountValue, count)
         self.putNumChild(count)
+
+    def dictToMi(self, value):
+        if type(value) is bool:
+            return '"%d"' % int(value)
+        if type(value) is dict:
+            return '{' + ','.join(['%s=%s' % (k, self.dictToMi(v))
+                                for (k, v) in list(value.items())]) + '}'
+        if type(value) is list:
+            return '[' + ','.join([self.dictToMi(v) for v in value]) + ']'
+        return '"%s"' % value
 
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
@@ -1719,69 +1734,120 @@ class DumperBase:
         sys.path.insert(1, head)
         self.dumpermodules.append(os.path.splitext(tail)[0])
 
-    def sendQmlCommand(self, command, data = ""):
-        data += '"version":"1","command":"%s"' % command
-        data = data.replace('"', '\\"')
-        expr = 'qt_v4DebuggerHook("{%s}")' % data
-        try:
-            res = self.parseAndEvaluate(expr)
-            print("QML command ok, RES: %s, CMD: %s" % (res, expr))
-        except RuntimeError as error:
-            #print("QML command failed: %s: %s" % (expr, error))
-            res = None
-        except AttributeError as error:
-            # Happens with LLDB and 'None' current thread.
-            #print("QML command failed: %s: %s" % (expr, error))
-            res = None
+    def extractQStringFromQDataStream(self, buf, offset):
+        """ Read a QString from the stream """
+        size = struct.unpack_from("!I", buf, offset)[0]
+        offset += 4
+        string = buf[offset:offset + size].decode('utf-16be')
+        return (string, offset + size)
+
+    def extractQByteArrayFromQDataStream(self, buf, offset):
+        """ Read a QByteArray from the stream """
+        size = struct.unpack_from("!I", buf, offset)[0]
+        offset += 4
+        string = buf[offset:offset + size].decode('latin1')
+        return (string, offset + size)
+
+    def extractIntFromQDataStream(self, buf, offset):
+        """ Read an int from the stream """
+        value = struct.unpack_from("!I", buf, offset)[0]
+        return (value, offset + 4)
+
+    def readInterpreterOutput(self):
+        buf = self.parseAndEvaluate("qt_qmlDebugOutputBuffer")
+        size = self.parseAndEvaluate("qt_qmlDebugOutputLength")
+        return self.readJsonFromMemory(buf, size)
+
+    def handleInterpreterEvent(self):
+        """ Return True if inferior stopped """
+        buf = self.parseAndEvaluate("qt_qmlDebugEventBuffer")
+        size = self.parseAndEvaluate("qt_qmlDebugEventLength")
+        resdict = self.readJsonFromMemory(buf, size)
+        warn("RES DICT : %s" % resdict)
+        return resdict.get('event') == 'break'
+
+    def removeInterpreterBreakpoint(self, args):
+        res = self.sendInterpreterRequest('removebreakpoint', { 'id' : args['id'] })
         return res
 
-    def prepareQmlStep(self, _):
-        self.sendQmlCommand('prepareStep')
-
-    def removeQmlBreakpoint(self, args):
-        fullName = args['fileName']
-        lineNumber = args['lineNumber']
-        #print("Remove QML breakpoint %s:%s" % (fullName, lineNumber))
-        bp = self.sendQmlCommand('removeBreakpoint',
-                '"fullName":"%s","lineNumber":"%s",'
-                % (fullName, lineNumber))
-        if bp is None:
-            #print("Direct QML breakpoint removal failed: %s.")
-            return 0
-        #print("Removing QML breakpoint: %s" % bp)
-        return int(bp)
-
-    def insertQmlBreakpoint(self, args):
-        print("Insert QML breakpoint %s" % self.describeBreakpointData(args))
-        bp = self.doInsertQmlBreakpoint(args)
-        res = self.sendQmlCommand('prepareStep')
-        #if res is None:
-        #    print("Resetting stepping failed.")
+    def insertInterpreterBreakpoint(self, args):
+        args['condition'] = self.hexdecode(args.get('condition', ''))
+        warn("Insert interpreter breakpoint %s:%s (%s)"
+            % (args['file'], args['line'], args['condition']))
+        bp = self.doInsertInterpreterBreakpoint(args, False)
         return str(bp)
 
-    def doInsertQmlBreakpoint(self, args):
-        fullName = args['fileName']
-        lineNumber = args['lineNumber']
-        pos = fullName.rfind('/')
-        engineName = "qrc:/" + fullName[pos+1:]
-        bp = self.sendQmlCommand('insertBreakpoint',
-                '"fullName":"%s","lineNumber":"%s","engineName":"%s",'
-                % (fullName, lineNumber, engineName))
-        if bp is None:
-            #print("Direct QML breakpoint insertion failed.")
-            #print("Make pending.")
-            self.createResolvePendingBreakpointsHookBreakpoint(args)
-            return 0
+    def sendInterpreterRequest(self, command, args = {}):
+        self.interpreterSeq += 1
+        cmd = { 'seq': self.interpreterSeq, 'type': 'request', 'command': command, 'arguments': args }
+        encoded = json.dumps(cmd)
+        hexdata = self.hexencode(encoded)
+        expr = 'qt_qmlDebugSendDataToService("NativeQmlDebugger","%s")' % hexdata
+        try:
+            res = self.parseAndEvaluate(expr)
+        except RuntimeError as error:
+            warn("Interpreter command failed: %s: %s" % (encoded, error))
+            return {}
+        except AttributeError as error:
+            # Happens with LLDB and 'None' current thread.
+            warn("Interpreter command failed: %s: %s" % (encoded, error))
+            return {}
 
-        print("Resolving QML breakpoint: %s" % bp)
+        if not res:
+            warn("Interpreter command failed: %s " % encoded)
+            return {}
+        resdict = self.readInterpreterOutput()
+        warn("Interpreter command output: '%s'" % resdict)
+        service = resdict.get("service")
+        if service == "NativeQmlDebugger":
+            messages = resdict.get("messages", [])
+            if len(messages) == 1:
+                return messages[0]
+            warn("Unexpected multiple interpreter messages: %s" % messages)
+        else:
+            warn("Interpreter result from alien service: %s" % service)
+        return {'messages': messages }
+
+    def executeStep(self, args):
+        if self.nativeMixed:
+            response = self.sendInterpreterRequest('stepin', args)
+        self.doContinue()
+
+    def executeStepOut(self, args):
+        if self.nativeMixed:
+            response = self.sendInterpreterRequest('stepout', args)
+        self.doContinue()
+
+    def executeNext(self, args):
+        if self.nativeMixed:
+            response = self.sendInterpreterRequest('stepover', args)
+        self.doContinue()
+
+    def executeContinue(self, args):
+        if self.nativeMixed:
+            response = self.sendInterpreterRequest('continue', args)
+        self.doContinue()
+
+    def doInsertInterpreterBreakpoint(self, args, wasPending):
+        warn("DO INSERT INTERPRETER BREAKPOINT, WAS PENDING: %s" % wasPending)
+        # Will fail if the service is not yet up and running.
+        response = self.sendInterpreterRequest('setbreakpoint', args)
+        bp = None if response is None else response.get("breakpoint", None)
+        if wasPending:
+            if not bp:
+                warn("ERROR: Pending interpreter breakpoint insertion failed.")
+                return -1
+        else:
+            if not bp:
+                warn("Direct interpreter breakpoint insertion failed.")
+                warn("Make pending.")
+                self.createResolvePendingBreakpointsHookBreakpoint(args)
+                return -1
+
+        warn("Resolved interpreter breakpoint: BP: %s" % bp)
         return int(bp)
 
-    def describeBreakpointData(self, args):
-        fullName = args['fileName']
-        lineNumber = args['lineNumber']
-        return "%s:%s" % (fullName, lineNumber)
-
-    def isInternalQmlFrame(self, functionName):
+    def isInternalInterpreterFrame(self, functionName):
         if functionName is None:
             return False
         if functionName.startswith("qt_v4"):
@@ -1793,7 +1859,7 @@ class DumperBase:
     def canCallLocale(self):
         return True
 
-    def isReportableQmlFrame(self, functionName):
+    def isReportableInterpreterFrame(self, functionName):
         return functionName and functionName.find("QV4::Moth::VME::exec") >= 0
 
     def extractQmlData(self, value):
@@ -1802,112 +1868,13 @@ class DumperBase:
         data = value["data"]
         return data.cast(self.lookupType(str(value.type).replace("QV4::", "QV4::Heap::")))
 
-    def extractQmlRuntimeString(self, compilationUnitPtr, index):
-        # This mimics compilationUnit->runtimeStrings[index]
-        # typeof runtimeStrings = QV4.StringValue **
-        runtimeStrings = compilationUnitPtr.dereference()["runtimeStrings"]
-        entry = runtimeStrings[index]
-        text = self.extractPointer(entry.dereference(), self.ptrSize())
-        (elided, fn) = self.encodeStringHelper(text, 100)
-        return self.encodedUtf16ToUtf8(fn)
-
-    def extractQmlLocation(self, engine):
-        if self.currentCallContext is None:
-            context = engine["current"]       # QV4.ExecutionContext * or derived
-            self.currentCallContext = context
-        else:
-            context = self.currentCallContext["parent"]
-        ctxCode = int(context["type"])
-        compilationUnit = context["compilationUnit"]
-        functionName = "Unknown JS";
-        ns = self.qtNamespace()
-
-        # QV4.ExecutionContext.Type_SimpleCallContext - 4
-        # QV4.ExecutionContext.Type_CallContext - 5
-        if ctxCode == 4 or ctxCode == 5:
-            callContextDataType = self.lookupQtType("QV4::Heap::CallContext")
-            callContext = context.cast(callContextDataType.pointer())
-            functionObject = callContext["function"]
-            function = functionObject["function"]
-            # QV4.CompiledData.Function
-            compiledFunction = function["compiledFunction"].dereference()
-            index = int(compiledFunction["nameIndex"])
-            functionName = "JS: " + self.extractQmlRuntimeString(compilationUnit, index)
-
-        string = self.parseAndEvaluate("((%s)0x%x)->fileName()"
-            % (compilationUnit.type, compilationUnit))
-        fileName = self.encodeStringUtf8(string)
-
-        return {'functionName': functionName,
-                'lineNumber': int(context["lineNumber"]),
-                'fileName': fileName,
-                'context': context }
-
     # Contains iname, name, and value.
     class LocalItem:
         pass
 
-    def extractQmlVariables(self, qmlcontext):
-        items = []
+    def extractInterpreterStack(self):
+        return self.sendInterpreterRequest('backtrace', {'limit': 10 })
 
-        contextType = self.lookupQtType("QV4::Heap::CallContext")
-        context = self.createPointerValue(self.qmlcontext, contextType)
-
-        contextItem = self.LocalItem()
-        contextItem.iname = "local.@context"
-        contextItem.name = "[context]"
-        contextItem.value = context.dereference()
-        items.append(contextItem)
-
-        argsItem = self.LocalItem()
-        argsItem.iname = "local.@args"
-        argsItem.name = "[args]"
-        argsItem.value = context["callData"]
-        items.append(argsItem)
-
-        functionObject = context["function"].dereference()
-        functionPtr = functionObject["function"]
-        if not self.isNull(functionPtr):
-            compilationUnit = context["compilationUnit"]
-            compiledFunction = functionPtr["compiledFunction"]
-            base = int(compiledFunction)
-
-            formalsOffset = int(compiledFunction["formalsOffset"])
-            formalsCount = int(compiledFunction["nFormals"])
-            for index in range(formalsCount):
-                stringIndex = self.extractInt(base + formalsOffset + 4 * index)
-                name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
-                item = self.LocalItem()
-                item.iname = "local." + name
-                item.name = name
-                item.value = argsItem.value["args"][index]
-                items.append(item)
-
-            localsOffset = int(compiledFunction["localsOffset"])
-            localsCount = int(compiledFunction["nLocals"])
-            for index in range(localsCount):
-                stringIndex = self.extractInt(base + localsOffset + 4 * index)
-                name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
-                item = self.LocalItem()
-                item.iname = "local." + name
-                item.name = name
-                item.value = context["locals"][index]
-                items.append(item)
-
-        for engine in self.qmlEngines:
-            engineItem = self.LocalItem()
-            engineItem.iname = "local.@qmlengine"
-            engineItem.name = "[engine]"
-            engineItem.value = engine
-            items.append(engineItem)
-
-            rootContext = self.LocalItem()
-            rootContext.iname = "local.@rootContext"
-            rootContext.name = "[rootContext]"
-            rootContext.value = engine["d_ptr"]
-            items.append(rootContext)
-            break
-
-        return items
-
+    def extractInterpreterVariables(self, args):
+        return self.sendInterpreterRequest('variables', args)
 

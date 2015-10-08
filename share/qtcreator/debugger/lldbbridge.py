@@ -57,7 +57,7 @@ def showException(msg, exType, exValue, exTraceback):
     lines = [line for line in traceback.format_exception(exType, exValue, exTraceback)]
     warn('\n'.join(lines))
 
-def fileName(file):
+def fileNameAsString(file):
     return str(file) if file.IsValid() else ''
 
 
@@ -775,7 +775,7 @@ class Dumper(DumperBase):
     def describeLocation(self, frame):
         if int(frame.pc) == 0xffffffffffffffff:
             return ''
-        file = fileName(frame.line_entry.file)
+        file = fileNameAsString(frame.line_entry.file)
         line = frame.line_entry.line
         return 'location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc)
 
@@ -822,8 +822,8 @@ class Dumper(DumperBase):
             result += ',fp="0x%x"' % frame.fp
             result += ',func="%s"' % frame.GetFunctionName()
             result += ',line="%s"' % frame.line_entry.line
-            result += ',fullname="%s"' % fileName(frame.line_entry.file)
-            result += ',file="%s"' % fileName(frame.line_entry.file)
+            result += ',fullname="%s"' % fileNameAsString(frame.line_entry.file)
+            result += ',file="%s"' % fileNameAsString(frame.line_entry.file)
             result += '}},'
 
         result += '],current-thread-id="%s"' % self.currentThread().id
@@ -849,7 +849,7 @@ class Dumper(DumperBase):
 
         self.report(self.describeLocation(thread.GetFrameAtIndex(0))) # FIXME
 
-        isNativeMixed = int(args.get('nativeMixed', 0))
+        isNativeMixed = int(args.get('nativemixed', 0))
 
         limit = args.get('stacklimit', -1)
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
@@ -869,39 +869,38 @@ class Dumper(DumperBase):
             level = frame.idx
             addr = frame.GetPCAddress().GetLoadAddress(self.target)
             functionName = frame.GetFunctionName()
-            fullname = fileName(lineEntry.file)
+            fileName = fileNameAsString(lineEntry.file)
             usable = None
             language = None
 
-            if isNativeMixed:
-                if self.isReportableQmlFrame(functionName):
+            if False and isNativeMixed:
+                if self.isReportableInterpreterFrame(functionName):
                     engine = frame.FindVariable("engine")
                     self.context = engine
                     h = self.extractQmlLocation(engine)
                     pc = 0
-                    functionName = h['functionName']
-                    fullname = h['fileName']
-                    lineNumber = h['lineNumber']
+                    functionName = h['function']
+                    fileName = h['file']
+                    lineNumber = h['line']
                     addr = h['context']
                     language = 'js'
 
-                elif not functionName is None:
-                    if functionName.startswith("qt_v4"):
-                        usable = 0
-                    elif functionName.find("QV4::") >= 0:
-                        usable = 0
+                #elif not functionName is None:
+                #    if functionName.startswith("qt_v4"):
+                #        usable = 0
+                #    elif functionName.find("QV4::") >= 0:
+                #        usable = 0
 
             result += '{pc="0x%x"' % pc
             result += ',level="%d"' % level
-            result += ',addr="0x%x"' % addr
+            result += ',address="0x%x"' % addr
             if not usable is None:
                 result += ',usable="%s"' % usable
-            result += ',func="%s"' % functionName
+            result += ',function="%s"' % functionName
             result += ',line="%d"' % lineNumber
             if not language is None:
                 result += ',language="%s"' % language
-            result += ',fullname="%s"' % fullname
-            result += ',file="%s"},' % fullname
+            result += ',file="%s"},' % fileName
         result += ']'
         result += ',hasmore="%d"' % isLimited
         result += ',limit="%d"' % limit
@@ -1400,7 +1399,7 @@ class Dumper(DumperBase):
             addr = loc.GetAddress()
             lineEntry = addr.GetLineEntry()
             result += '{locid="%s"' % loc.GetID()
-            result += ',func="%s"' % addr.GetFunction().GetName()
+            result += ',function="%s"' % addr.GetFunction().GetName()
             result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
             result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
             result += ',valid="%s"' % (1 if loc.IsValid() else 0)
@@ -1421,16 +1420,16 @@ class Dumper(DumperBase):
     def insertBreakpoint(self, args):
         bpType = args["type"]
         if bpType == BreakpointByFileAndLine:
-            fileName = args["fileName"]
+            fileName = args["file"]
             if fileName.endswith(".js") or fileName.endswith(".qml"):
-                self.insertQmlBreakpoint(args)
+                self.doInsertInterpreterBreakpoint(args, False)
                 return
 
         extra = ''
         more = True
         if bpType == BreakpointByFileAndLine:
             bp = self.target.BreakpointCreateByLocation(
-                str(args["fileName"]), int(args["lineNumber"]))
+                str(args["file"]), int(args["line"]))
         elif bpType == BreakpointByFunction:
             bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointByAddress:

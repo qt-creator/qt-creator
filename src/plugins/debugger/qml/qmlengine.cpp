@@ -2062,10 +2062,9 @@ void QmlEnginePrivate::handleBacktrace(const QVariantMap &response)
     stackIndexLookup.clear();
     foreach (const QVariant &frame, frames) {
         StackFrame stackFrame = extractStackFrame(frame);
-        if (stackFrame.level < 0)
+        if (stackFrame.level.isEmpty())
             continue;
-        stackIndexLookup.insert(i, stackFrame.level);
-        stackFrame.level = i;
+        stackIndexLookup.insert(i, stackFrame.level.toInt());
         stackFrames << stackFrame;
         i++;
     }
@@ -2111,10 +2110,10 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     const QVariantMap body = bodyVal.toMap();
 
     StackFrame stackFrame;
-    stackFrame.level = body.value(_("index")).toInt();
+    stackFrame.level = body.value(_("index")).toByteArray();
     //Do not insert the frame corresponding to the internal function
     if (body.value(QLatin1String("sourceLineText")) == QLatin1String(INTERNAL_FUNCTION)) {
-        stackFrame.level = -1;
+        stackFrame.level.clear();
         return stackFrame;
     }
 
@@ -2129,7 +2128,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     stackFrame.usable = QFileInfo(stackFrame.file).isReadable();
 
     objectData = extractData(body.value(_("receiver")));
-    stackFrame.to = objectData.value.toString();
+    stackFrame.receiver = objectData.value.toString();
 
     stackFrame.line = body.value(_("line")).toInt() + 1;
 

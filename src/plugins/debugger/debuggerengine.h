@@ -117,6 +117,8 @@ public:
     // Used by AttachCrashedExternal.
     QString crashParameter;
 
+    bool nativeMixedEnabled = false;
+
     // For Debugger testing.
     int testCase = 0;
 };
@@ -443,6 +445,9 @@ protected:
 
     void updateLocalsView(const GdbMi &all);
     void checkState(DebuggerState state, const char *file, int line);
+    bool isNativeMixedEnabled() const;
+    bool isNativeMixedActive() const;
+    bool isNativeMixedActiveFrame() const;
 
 private:
     // Wrapper engine needs access to state of its subengines.

@@ -31,6 +31,7 @@
 #include "stackframe.h"
 
 #include "debuggerengine.h"
+#include "debuggerprotocol.h"
 #include "watchutils.h"
 
 #include <QDebug>
@@ -49,16 +50,16 @@ namespace Internal {
 ////////////////////////////////////////////////////////////////////////
 
 StackFrame::StackFrame()
-  : language(CppLanguage), level(-1), line(-1), address(0), usable(false)
+  : language(CppLanguage), line(-1), address(0), usable(false)
 {}
 
 void StackFrame::clear()
 {
-    line = level = -1;
+    line = -1;
     function.clear();
     file.clear();
-    from.clear();
-    to.clear();
+    module.clear();
+    receiver.clear();
     address = 0;
 }
 
@@ -79,9 +80,42 @@ QString StackFrame::toString() const
         << tr("Function:") << ' ' << function << ' '
         << tr("File:") << ' ' << file << ' '
         << tr("Line:") << ' ' << line << ' '
-        << tr("From:") << ' ' << from << ' '
-        << tr("To:") << ' ' << to;
+        << tr("From:") << ' ' << module << ' '
+        << tr("To:") << ' ' << receiver;
     return res;
+}
+
+QList<StackFrame> StackFrame::parseFrames(const GdbMi &data, const DebuggerRunParameters &rp)
+{
+    StackFrames frames;
+    frames.reserve(data.children().size());
+    foreach (const GdbMi &item, data.children())
+        frames.append(parseFrame(item, rp));
+    return frames;
+}
+
+StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParameters &rp)
+{
+    StackFrame frame;
+    frame.level = frameMi["level"].data();
+    frame.function = frameMi["function"].toUtf8();
+    frame.module = frameMi["module"].toUtf8();
+    frame.file = QFile::decodeName(frameMi["file"].data());
+    frame.line = frameMi["line"].toInt();
+    frame.address = frameMi["address"].toAddress();
+    frame.context = frameMi["context"].data();
+    if (frameMi["language"].data() == "js"
+            || frame.file.endsWith(QLatin1String(".js"))
+            || frame.file.endsWith(QLatin1String(".qml"))) {
+        frame.language = QmlLanguage;
+        frame.fixQrcFrame(rp);
+    }
+    GdbMi usable = frameMi["usable"];
+    if (usable.isValid())
+        frame.usable = usable.data().toInt();
+    else
+        frame.usable = QFileInfo(frame.file).isReadable();
+    return frame;
 }
 
 QString StackFrame::toToolTip() const
@@ -101,10 +135,10 @@ QString StackFrame::toToolTip() const
         str << "<tr><td>" << tr("File:") << "</td><td>" << filePath << "</td></tr>";
     if (line != -1)
         str << "<tr><td>" << tr("Line:") << "</td><td>" << line << "</td></tr>";
-    if (!from.isEmpty())
-        str << "<tr><td>" << tr("From:") << "</td><td>" << from << "</td></tr>";
-    if (!to.isEmpty())
-        str << "<tr><td>" << tr("To:") << "</td><td>" << to << "</td></tr>";
+    if (!module.isEmpty())
+        str << "<tr><td>" << tr("Module:") << "</td><td>" << module << "</td></tr>";
+    if (!receiver.isEmpty())
+        str << "<tr><td>" << tr("Receiver:") << "</td><td>" << receiver << "</td></tr>";
     str << "</table>";
 
     str <<"<br> <br><i>" << tr("Note:") << " </i> ";
@@ -133,8 +167,8 @@ QString StackFrame::toToolTip() const
     return res;
 }
 
-// Try to resolve files of a QML stack (resource files).
-void StackFrame::fixQmlFrame(const DebuggerRunParameters &rp)
+// Try to resolve files coming from resource files.
+void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
 {
     if (language != QmlLanguage)
         return;
@@ -146,19 +180,19 @@ void StackFrame::fixQmlFrame(const DebuggerRunParameters &rp)
     if (!file.startsWith(QLatin1String("qrc:/")))
         return;
     const QString relativeFile = file.right(file.size() - 5);
-    if (!rp.projectSourceDirectory.isEmpty()) {
-        const QFileInfo pFi(rp.projectSourceDirectory + QLatin1Char('/') + relativeFile);
-        if (pFi.isFile()) {
-            file = pFi.absoluteFilePath();
-            usable = true;
-            return;
-        }
-        const QFileInfo cFi(QDir::currentPath() + QLatin1Char('/') + relativeFile);
-        if (cFi.isFile()) {
-            file = cFi.absoluteFilePath();
-            usable = true;
-            return;
-        }
+    if (rp.projectSourceDirectory.isEmpty())
+        return;
+    const QFileInfo pFi(rp.projectSourceDirectory + QLatin1Char('/') + relativeFile);
+    if (pFi.isFile()) {
+        file = pFi.absoluteFilePath();
+        usable = true;
+        return;
+    }
+    const QFileInfo cFi(QDir::currentPath() + QLatin1Char('/') + relativeFile);
+    if (cFi.isFile()) {
+        file = cFi.absoluteFilePath();
+        usable = true;
+        return;
     }
 }
 
@@ -171,10 +205,10 @@ QDebug operator<<(QDebug d, const  StackFrame &f)
         str << ' ' << f.function;
     if (!f.file.isEmpty())
         str << ' ' << f.file << ':' << f.line;
-    if (!f.from.isEmpty())
-        str << " from=" << f.from;
-    if (!f.to.isEmpty())
-        str << " to=" << f.to;
+    if (!f.module.isEmpty())
+        str << " from=" << f.module;
+    if (!f.receiver.isEmpty())
+        str << " to=" << f.receiver;
     d.nospace() << res;
     return d;
 }

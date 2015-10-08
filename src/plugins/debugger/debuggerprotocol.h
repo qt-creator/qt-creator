@@ -252,8 +252,12 @@ enum DebuggerEncoding
     SpecialNotCallableValue                = 36,
     SpecialNullReferenceValue              = 37,
     SpecialOptimizedOutValue               = 38,
-    SpecialEmptyStructureValue             = 39
+    SpecialEmptyStructureValue             = 39,
+    SpecialUndefinedValue                  = 40,
+    SpecialNullValue                       = 41
 };
+
+DebuggerEncoding debuggerEncoding(const QByteArray &data);
 
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, DebuggerEncoding encoding);

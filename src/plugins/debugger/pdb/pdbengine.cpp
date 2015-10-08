@@ -532,12 +532,12 @@ void PdbEngine::refreshStack(const GdbMi &stack)
     StackFrames frames;
     foreach (const GdbMi &item, stack["frames"].children()) {
         StackFrame frame;
-        frame.level = item["level"].toInt();
+        frame.level = item["level"].data();
         frame.file = item["file"].toUtf8();
-        frame.function = item["func"].toUtf8();
-        frame.from = item["func"].toUtf8();
+        frame.function = item["function"].toUtf8();
+        frame.module = item["function"].toUtf8();
         frame.line = item["line"].toInt();
-        frame.address = item["addr"].toAddress();
+        frame.address = item["address"].toAddress();
         GdbMi usable = item["usable"];
         if (usable.isValid())
             frame.usable = usable.data().toInt();

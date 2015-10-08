@@ -14,9 +14,6 @@ import sys
 import struct
 import types
 
-def warn(message):
-    print("XXX: %s\n" % message.encode("latin1"))
-
 from dumper import *
 
 
@@ -221,15 +218,14 @@ class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
 
-        # These values will be kept between calls to 'showData'.
+        # These values will be kept between calls to 'fetchVariables'.
         self.isGdb = True
         self.childEventAddress = None
         self.typeCache = {}
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
-        self.qmlEngines = []
-        self.qmlBreakpoints = []
+        self.interpreterBreakpoints = []
 
     def prepare(self, args):
         self.output = []
@@ -243,7 +239,7 @@ class Dumper(DumperBase):
         self.currentType = ReportItem()
         self.currentAddress = None
 
-        # The guess does not need to be updated during a showData()
+        # The guess does not need to be updated during a fetchVariables()
         # as the result is fixed during that time (ignoring "active"
         # dumpers causing loading of shared objects etc).
         self.currentQtNamespaceGuess = None
@@ -255,11 +251,10 @@ class Dumper(DumperBase):
         self.typeformats = args.get("typeformats", {})
         self.formats = args.get("formats", {})
         self.watchers = args.get("watchers", {})
-        self.qmlcontext = int(args.get("qmlcontext", "0"), 0)
         self.useDynamicType = int(args.get("dyntype", "0"))
         self.useFancy = int(args.get("fancy", "0"))
         self.forceQtNamespace = int(args.get("forcens", "0"))
-        self.passExceptions = int(args.get("passExceptions", "0"))
+        self.passExceptions = int(args.get("passexeptions", "0"))
         self.nativeMixed = int(args.get("nativemixed", "0"))
         self.autoDerefPointers = int(args.get("autoderef", "0"))
         self.partialUpdate = int(args.get("partial", "0"))
@@ -359,21 +354,25 @@ class Dumper(DumperBase):
     def canCallLocale(self):
         return False if self.is32bit() else True
 
-    def showData(self, args):
+    def fetchVariables(self, args):
         self.prepare(args)
-
         partialVariable = args.get("partialVariable", "")
         isPartial = len(partialVariable) > 0
+
+        if self.nativeMixed:
+            context = args.get('context', '')
+            if len(context):
+                res = self.extractInterpreterVariables(args)
+                if res:
+                    safePrint('data=%s' % self.dictToMi(res.get('data', {})))
+                return
 
         #
         # Locals
         #
         self.output.append('data=[')
 
-        if self.qmlcontext:
-            locals = self.extractQmlVariables(self.qmlcontext)
-
-        elif isPartial:
+        if isPartial:
             parts = partialVariable.split('.')
             name = parts[1]
             item = self.LocalItem()
@@ -498,7 +497,7 @@ class Dumper(DumperBase):
     def parseAndEvaluate(self, exp):
         return gdb.parse_and_eval(exp)
 
-    def callHelper(self, value, func, args):
+    def callHelper(self, value, function, args):
         # args is a tuple.
         arg = ""
         for i in range(len(args)):
@@ -510,14 +509,14 @@ class Dumper(DumperBase):
             else:
                 arg += a
 
-        #warn("CALL: %s -> %s(%s)" % (value, func, arg))
+        #warn("CALL: %s -> %s(%s)" % (value, function, arg))
         typeName = self.stripClassTag(str(value.type))
         if typeName.find(":") >= 0:
             typeName = "'" + typeName + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-        #exp = "((class %s*)%s)->%s(%s)" % (typeName, value.address, func, arg)
+        #exp = "((class %s*)%s)->%s(%s)" % (typeName, value.address, function, arg)
         ptr = value.address if value.address else self.pokeValue(value)
-        exp = "((%s*)%s)->%s(%s)" % (typeName, ptr, func, arg)
+        exp = "((%s*)%s)->%s(%s)" % (typeName, ptr, function, arg)
         #warn("CALL: %s" % exp)
         result = gdb.parse_and_eval(exp)
         #warn("  -> %s" % result)
@@ -739,32 +738,32 @@ class Dumper(DumperBase):
         self.selectedInferior = lambda: self.cachedInferior
         return self.cachedInferior
 
-    def readRawMemory(self, addr, size):
-        mem = self.selectedInferior().read_memory(addr, size)
+    def readRawMemory(self, address, size):
+        mem = self.selectedInferior().read_memory(address, size)
         if sys.version_info[0] >= 3:
             mem.tobytes()
         return mem
 
-    def extractInt64(self, addr):
-        return struct.unpack("q", self.readRawMemory(addr, 8))[0]
+    def extractInt64(self, address):
+        return struct.unpack("q", self.readRawMemory(address, 8))[0]
 
-    def extractUInt64(self, addr):
-        return struct.unpack("Q", self.readRawMemory(addr, 8))[0]
+    def extractUInt64(self, address):
+        return struct.unpack("Q", self.readRawMemory(address, 8))[0]
 
-    def extractInt(self, addr):
-        return struct.unpack("i", self.readRawMemory(addr, 4))[0]
+    def extractInt(self, address):
+        return struct.unpack("i", self.readRawMemory(address, 4))[0]
 
-    def extractUInt(self, addr):
-        return struct.unpack("I", self.readRawMemory(addr, 4))[0]
+    def extractUInt(self, address):
+        return struct.unpack("I", self.readRawMemory(address, 4))[0]
 
-    def extractShort(self, addr):
-        return struct.unpack("h", self.readRawMemory(addr, 2))[0]
+    def extractShort(self, address):
+        return struct.unpack("h", self.readRawMemory(address, 2))[0]
 
-    def extractUShort(self, addr):
-        return struct.unpack("H", self.readRawMemory(addr, 2))[0]
+    def extractUShort(self, address):
+        return struct.unpack("H", self.readRawMemory(address, 2))[0]
 
-    def extractByte(self, addr):
-        return struct.unpack("b", self.readRawMemory(addr, 1))[0]
+    def extractByte(self, address):
+        return struct.unpack("b", self.readRawMemory(address, 1))[0]
 
     def findStaticMetaObject(self, typename):
         return self.findSymbol(typename + "::staticMetaObject")
@@ -847,12 +846,12 @@ class Dumper(DumperBase):
         self.isQt3Support = lambda: self.cachedIsQt3Suport
         return self.cachedIsQt3Suport
 
-    def putAddress(self, addr):
+    def putAddress(self, address):
         if self.currentPrintsAddress and not self.isCli:
             try:
-                # addr can be "None", int(None) fails.
-                #self.put('addr="0x%x",' % int(addr))
-                self.currentAddress = 'addr="0x%x",' % toInteger(addr)
+                # address can be "None", int(None) fails.
+                #self.put('address="0x%x",' % int(address))
+                self.currentAddress = 'address="0x%x",' % toInteger(address)
             except:
                 pass
 
@@ -1574,6 +1573,9 @@ class Dumper(DumperBase):
         self.typesToReport[typestring] = typeobj
         return typeobj
 
+    def doContinue(self):
+        gdb.execute('continue')
+
     def stackListFrames(self, args):
         def fromNativePath(str):
             return str.replace('\\', '/')
@@ -1581,12 +1583,8 @@ class Dumper(DumperBase):
         limit = int(args['limit'])
         if limit <= 0:
            limit = 10000
-        options = args['options']
-        opts = {}
-        if options == "nativemixed":
-            opts["nativemixed"] = 1
 
-        self.prepare(opts)
+        self.prepare(args)
         self.output = []
 
         frame = gdb.newest_frame()
@@ -1598,7 +1596,7 @@ class Dumper(DumperBase):
                 functionName = "??" if name is None else name
                 fileName = ""
                 objfile = ""
-                fullName = ""
+                symtab = ""
                 pc = frame.pc()
                 sal = frame.find_sal()
                 line = -1
@@ -1607,62 +1605,57 @@ class Dumper(DumperBase):
                     symtab = sal.symtab
                     if not symtab is None:
                         objfile = fromNativePath(symtab.objfile.filename)
-                        fileName = fromNativePath(symtab.filename)
-                        fullName = symtab.fullname()
-                        if fullName is None:
-                            fullName = ""
-                        else:
-                            fullName = fromNativePath(fullName)
+                        fileName = fromNativePath(symtab.fullname())
 
-                if self.nativeMixed:
-                    if self.isReportableQmlFrame(functionName):
-                        engine = frame.read_var("engine")
-                        h = self.extractQmlLocation(engine)
-                        self.put(('frame={level="%s",func="%s",file="%s",'
-                                 'fullname="%s",line="%s",language="js",addr="0x%x"}')
-                            % (i, h['functionName'], h['fileName'], h['fileName'],
-                                  h['lineNumber'], h['context']))
+                if self.nativeMixed and functionName == "qt_qmlDebugEventFromService":
+                    interpreterStack = self.extractInterpreterStack()
+                    #print("EXTRACTED INTEPRETER STACK: %s" % interpreterStack)
+                    for interpreterFrame in interpreterStack.get('frames', []):
+                        function = interpreterFrame.get('function', '')
+                        fileName = interpreterFrame.get('file', '')
+                        language = interpreterFrame.get('language', '')
+                        lineNumber = interpreterFrame.get('line', 0)
+                        context = interpreterFrame.get('context', 0)
 
+                        self.put(('frame={function="%s",file="%s",'
+                                 'line="%s",language="%s",context="%s"}')
+                            % (function, fileName, lineNumber, language, context))
+
+                    if False and self.isInternalInterpreterFrame(functionName):
+                        frame = frame.older()
+                        self.put(('frame={address="0x%x",function="%s",'
+                                'file="%s",line="%s",'
+                                'module="%s",language="c",usable="0"}') %
+                            (pc, functionName, fileName, line, objfile))
                         i += 1
                         frame = frame.older()
                         continue
 
-                    if self.isInternalQmlFrame(functionName):
-                        frame = frame.older()
-                        self.put(('frame={level="%s",addr="0x%x",func="%s",'
-                                'file="%s",fullname="%s",line="%s",'
-                                'from="%s",language="c",usable="0"}') %
-                            (i, pc, functionName, fileName, fullName, line, objfile))
-                        i += 1
-                        frame = frame.older()
-                        continue
-
-                self.put(('frame={level="%s",addr="0x%x",func="%s",'
-                        'file="%s",fullname="%s",line="%s",'
-                        'from="%s",language="c"}') %
-                    (i, pc, functionName, fileName, fullName, line, objfile))
+                self.put(('frame={level="%s",address="0x%x",function="%s",'
+                        'file="%s",line="%s",module="%s",language="c"}') %
+                    (i, pc, functionName, fileName, line, objfile))
 
             frame = frame.older()
             i += 1
-        safePrint(''.join(self.output))
+        safePrint('frames=[' + ','.join(self.output) + ']')
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
             def __init__(self, dumper, args):
                 self.dumper = dumper
                 self.args = args
-                spec = "qt_v4ResolvePendingBreakpointsHook"
+                spec = "qt_qmlDebugConnectorOpen"
                 print("Preparing hook to resolve pending QML breakpoint at %s" % args)
                 super(Resolver, self).\
                     __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
 
             def stop(self):
-                bp = self.dumper.doInsertQmlBreakpoint(args)
+                bp = self.dumper.doInsertInterpreterBreakpoint(args, True)
                 print("Resolving QML breakpoint %s -> %s" % (args, bp))
                 self.enabled = False
                 return False
 
-        self.qmlBreakpoints.append(Resolver(self, args))
+        self.interpreterBreakpoints.append(Resolver(self, args))
 
     def exitGdb(self, _):
         gdb.execute("quit")
@@ -1675,13 +1668,13 @@ class Dumper(DumperBase):
         import tempfile
         import cProfile
         tempDir = tempfile.gettempdir() + "/bbprof"
-        cProfile.run('theDumper.showData(%s)' % args, tempDir)
+        cProfile.run('theDumper.fetchVariables(%s)' % args, tempDir)
         import pstats
         pstats.Stats(tempDir).sort_stats('time').print_stats()
 
     def profile2(self, args):
         import timeit
-        print(timeit.repeat('theDumper.showData(%s)' % args,
+        print(timeit.repeat('theDumper.fetchVariables(%s)' % args,
             'from __main__ import theDumper', number=10))
 
 
@@ -1774,7 +1767,7 @@ class CliDumper(Dumper):
     def putAddressRange(self, base, step):
         return True
 
-    def showData(self, args):
+    def fetchVariables(self, args):
         args['fancy'] = 1
         args['passException'] = 1
         args['autoderef'] = 1
@@ -1811,20 +1804,6 @@ registerCommand("threadnames", threadnames)
 #
 #######################################################################
 
-#class QmlEngineCreationTracker(gdb.Breakpoint):
-#    def __init__(self):
-#        spec = "QQmlEnginePrivate::init"
-#        super(QmlEngineCreationTracker, self).\
-#            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
-#
-#    def stop(self):
-#        engine = gdb.parse_and_eval("q_ptr")
-#        print("QML engine created: %s" % engine)
-#        theDumper.qmlEngines.append(engine)
-#        return False
-#
-#QmlEngineCreationTracker()
-
 class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
     def __init__(self):
         spec = "qt_v4TriggeredBreakpointHook"
@@ -1837,3 +1816,14 @@ class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
 
 TriggeredBreakpointHookBreakpoint()
 
+class QmlEngineEventBreakpoint(gdb.Breakpoint):
+    def __init__(self):
+        spec = "qt_qmlDebugEventFromService"
+        super(QmlEngineEventBreakpoint, self).\
+            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+
+    def stop(self):
+        print("QML engine event received.")
+        return theDumper.handleInterpreterEvent()
+
+QmlEngineEventBreakpoint()

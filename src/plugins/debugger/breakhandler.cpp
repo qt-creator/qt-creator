@@ -757,14 +757,15 @@ const BreakpointParameters &Breakpoint::parameters() const
 void Breakpoint::addToCommand(DebuggerCommand *cmd) const
 {
     cmd->arg("modelid", id().toByteArray());
+    cmd->arg("id", int(response().id.majorPart()));
     cmd->arg("type", type());
     cmd->arg("ignorecount", ignoreCount());
     cmd->arg("condition", condition().toHex());
     cmd->arg("function", functionName().toUtf8());
     cmd->arg("oneshot", isOneShot());
     cmd->arg("enabled", isEnabled());
-    cmd->arg("fileName", fileName().toUtf8());
-    cmd->arg("lineNumber", lineNumber());
+    cmd->arg("file", fileName().toUtf8());
+    cmd->arg("line", lineNumber());
     cmd->arg("address", address());
     cmd->arg("expression", expression());
 }

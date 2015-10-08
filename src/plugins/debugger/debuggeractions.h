@@ -99,7 +99,6 @@ enum DebuggerActionCode
     LogTimeStamps,
     VerboseLog,
     OperateByInstruction,
-    OperateNativeMixed,
     CloseSourceBuffersOnExit,
     CloseMemoryBuffersOnExit,
     SwitchModeOnExit,

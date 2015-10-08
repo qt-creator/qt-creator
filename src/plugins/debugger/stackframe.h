@@ -44,6 +44,7 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerRunParameters;
+class GdbMi;
 
 class StackFrame
 {
@@ -53,23 +54,24 @@ public:
     bool isUsable() const;
     QString toToolTip() const;
     QString toString() const;
-    void fixQmlFrame(const DebuggerRunParameters &rp);
+    static StackFrame parseFrame(const GdbMi &data, const DebuggerRunParameters &rp);
+    static QList<StackFrame> parseFrames(const GdbMi &data, const DebuggerRunParameters &rp);
+    void fixQrcFrame(const DebuggerRunParameters &rp);
 
 public:
     DebuggerLanguage language;
-    qint32 level;
+    QByteArray level;
     QString function;
-    QString file;  // We try to put an absolute file name in there.
-    QString from;  // Sometimes something like "/usr/lib/libstdc++.so.6"
-    QString to;    // Used in ScriptEngine only.
+    QString file;        // We try to put an absolute file name in there.
+    QString module;      // Sometimes something like "/usr/lib/libstdc++.so.6"
+    QString receiver;    // Used in ScriptEngine only.
     qint32 line;
     quint64 address;
     bool usable;
+    QByteArray context;  // Opaque value produced and consumed by the native backends.
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackHandler)
 };
-
-QDebug operator<<(QDebug d, const StackFrame &frame);
 
 typedef QList<StackFrame> StackFrames;
 

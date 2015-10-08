@@ -216,7 +216,6 @@ protected:
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbMi &data);
     Q_SLOT void handleStop2();
-    StackFrame parseStackFrame(const GdbMi &mi, int level);
     void resetCommandQueue();
 
     bool isSynchronous() const override { return true; }
@@ -367,7 +366,6 @@ protected:
     Q_SLOT void reloadStack();
     Q_SLOT virtual void reloadFullStack() override;
     virtual void loadAdditionalQmlStack() override;
-    void handleQmlStackFrameArguments(const DebuggerResponse &response);
     void handleQmlStackTrace(const DebuggerResponse &response);
     int currentFrame() const;
 
@@ -399,7 +397,7 @@ protected:
     Q_SLOT void createFullBacktrace();
 
     void doUpdateLocals(const UpdateParameters &parameters) override;
-    void handleStackFrame(const DebuggerResponse &response);
+    void handleFetchVariables(const DebuggerResponse &response);
 
     void setLocals(const QList<GdbMi> &locals);
 

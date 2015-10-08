@@ -185,18 +185,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(OperateByInstruction, item);
 
     item = new SavedAction(this);
-    item->setText(tr("Native Mixed Mode"));
-    item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
-    item->setToolTip(tr("<p>This switches the debugger to native-mixed "
-        "operation mode. In this mode, stepping and data display will "
-        "be handled by the native debugger backend (GDB, LLDB or CDB) "
-        "for C++, QML and JS sources."));
-    item->setIconVisibleInMenu(false);
-    insertItem(OperateNativeMixed, item);
-
-    item = new SavedAction(this);
     item->setText(tr("Dereference Pointers Automatically"));
     item->setCheckable(true);
     item->setDefaultValue(true);

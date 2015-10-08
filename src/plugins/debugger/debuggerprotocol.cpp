@@ -80,7 +80,7 @@ void GdbMi::parseResultOrValue(const char *&from, const char *to)
     if (from == to || *from == '(')
         return;
     const char *ptr = from;
-    while (ptr < to && *ptr != '=') {
+    while (ptr < to && *ptr != '=' && *ptr != ':') {
         //qDebug() << "adding" << QChar(*ptr) << "to name";
         ++ptr;
     }
@@ -770,6 +770,12 @@ QString decodeData(const QByteArray &ba, DebuggerEncoding encoding)
         case SpecialEmptyStructureValue:  { // 39
             return QLatin1String("{...}");
         }
+        case SpecialUndefinedValue:  { // 40
+            return QLatin1String("Undefined");
+        }
+        case SpecialNullValue:  { // 41
+            return QLatin1String("Null");
+        }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");
@@ -855,6 +861,23 @@ QByteArray DebuggerCommand::argsToPython() const
 QByteArray DebuggerCommand::argsToString() const
 {
     return args.toString().toLatin1();
+}
+
+DebuggerEncoding debuggerEncoding(const QByteArray &data)
+{
+    if (data == "utf16")
+        return Hex4EncodedLittleEndianWithQuotes;
+    if (data == "empty")
+        return SpecialEmptyValue;
+    if (data == "minimumitemcount")
+        return SpecialMinimumItemCountValue;
+    if (data == "undefined")
+        return SpecialUndefinedValue;
+    if (data == "null")
+        return SpecialNullValue;
+    if (data == "itemcount")
+        return SpecialItemCountValue;
+    return DebuggerEncoding(data.toInt());
 }
 
 } // namespace Internal

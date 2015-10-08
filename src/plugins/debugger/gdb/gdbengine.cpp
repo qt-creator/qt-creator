@@ -625,6 +625,18 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
         case '~': {
             QByteArray data = GdbMi::parseCString(from, to);
+            if (data.startsWith("bridgemessage={")) {
+                //showMessage(_(data), LogDebug);
+                break;
+            }
+            if (data.startsWith("bridgeresult={")) {
+                //showMessage(_(data), LogDebug);
+                DebuggerResponse response;
+                response.resultClass = ResultDone;
+                response.data.fromStringMultiple(data);
+                handleResultRecord(&response);
+                break;
+            }
             m_pendingConsoleStreamOutput += data;
 
             // Parse pid from noise.
@@ -1369,9 +1381,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     int lineNumber = 0;
     QString fullName;
     QByteArray function;
+    QByteArray language;
     if (frame.isValid()) {
         const GdbMi lineNumberG = frame["line"];
-        function = frame["func"].data();
+        function = frame["function"].data(); // V4 protocol
+        if (function.isEmpty())
+            function = frame["func"].data(); // GDB's *stopped messages
+        language = frame["language"].data();
         if (lineNumberG.isValid()) {
             lineNumber = lineNumberG.toInt();
             fullName = cleanupFullName(QString::fromLocal8Bit(frame["fullname"].data()));
@@ -1384,9 +1400,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     if (rid.isValid() && frame.isValid() && !isQFatalBreakpoint(rid)) {
         // Use opportunity to update the breakpoint marker position.
-        //qDebug() << " PROBLEM: " << m_qmlBreakpointNumbers << rid
-        //    << isQmlStepBreakpoint1(rid)
-        //    << isQmlStepBreakpoint2(rid)
         Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
         const BreakpointResponse &response = bp.response();
         QString fileName = response.fileName;
@@ -1403,7 +1416,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (lineNumber && !boolSetting(OperateByInstruction)
             && QFileInfo::exists(fullName)
             && !isQFatalBreakpoint(rid)
-            && function != "qt_v4TriggeredBreakpointHook")
+            && function != "qt_v4TriggeredBreakpointHook"
+            && function != "qt_qmlDebugEventFromService"
+            && language != "js")
         gotoLocation(Location(fullName, lineNumber));
 
     if (state() == InferiorRunOk) {
@@ -1479,7 +1494,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (boolSetting(SkipKnownFrames)) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
             //showMessage(frame.toString());
-            QString funcName = _(frame["func"].data());
+            QString funcName = _(frame["function"].data());
             QString fileName = QString::fromLocal8Bit(frame["file"].data());
             if (isLeavableFunction(funcName, fileName)) {
                 //showMessage(_("LEAVING ") + funcName);
@@ -1978,9 +1993,15 @@ void GdbEngine::continueInferiorInternal()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Running requested..."), 5000);
     CHECK_STATE(InferiorRunRequested);
-    DebuggerCommand cmd("-exec-continue", RunRequest);
-    cmd.callback = CB(handleExecuteContinue);
-    runCommand(cmd);
+    if (isNativeMixedActiveFrame()) {
+        DebuggerCommand cmd("executeContinue", RunRequest|PythonCommand);
+        cmd.callback = CB(handleExecuteContinue);
+        runCommand(cmd);
+    } else {
+        DebuggerCommand cmd("-exec-continue", RunRequest);
+        cmd.callback = CB(handleExecuteContinue);
+        runCommand(cmd);
+    }
 }
 
 void GdbEngine::continueInferior()
@@ -1996,10 +2017,10 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
-    if (isNativeMixedActive()) {
-        DebuggerCommand cmd("prepareQmlStep", PythonCommand);
+    if (isNativeMixedActiveFrame()) {
+        DebuggerCommand cmd("executeStep", RunRequest|PythonCommand);
+        cmd.callback = CB(handleExecuteStep);
         runCommand(cmd);
-        continueInferiorInternal();
     } else {
         DebuggerCommand cmd(isReverseDebugging() ? "reverse-step" : "-exec-step", RunRequest);
         cmd.callback = CB(handleExecuteStep);
@@ -2061,12 +2082,17 @@ void GdbEngine::executeStepOut()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Finish function requested..."), 5000);
-    runCommand("-exec-finish", CB(handleExecuteContinue), RunRequest);
-    // -exec-finish in 'main' results (correctly) in
-    //  40^error,msg="\"finish\" not meaningful in the outermost frame."
-    // However, this message does not seem to get flushed before
-    // anything else happen - i.e. "never". Force some extra output.
-    runCommand("print 32");
+    if (isNativeMixedActiveFrame()) {
+        DebuggerCommand cmd("executeStepOut", RunRequest|PythonCommand);
+        runCommand(cmd);
+    } else {
+        runCommand("-exec-finish", CB(handleExecuteContinue), RunRequest);
+        // -exec-finish in 'main' results (correctly) in
+        //  40^error,msg="\"finish\" not meaningful in the outermost frame."
+        // However, this message does not seem to get flushed before
+        // anything else happen - i.e. "never". Force some extra output.
+        runCommand("print 32");
+    }
 }
 
 void GdbEngine::executeNext()
@@ -2075,10 +2101,9 @@ void GdbEngine::executeNext()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
-    if (isNativeMixedActive()) {
-        DebuggerCommand cmd("prepareQmlStep", PythonCommand);
+    if (isNativeMixedActiveFrame()) {
+        DebuggerCommand cmd("executeNext", RunRequest|PythonCommand);
         runCommand(cmd);
-        continueInferiorInternal();
     } else {
         DebuggerCommand cmd(isReverseDebugging() ? "reverse-next" : "-exec-next", RunRequest);
         cmd.callback = CB(handleExecuteNext);
@@ -2656,10 +2681,9 @@ bool GdbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
     if (runParameters().startMode == AttachCore)
         return false;
-    // We handle QML breakpoint unless specifically
-    if (isNativeMixedEnabled() && !(runParameters().languages & QmlLanguage))
+    if (bp.parameters().isCppBreakpoint())
         return true;
-    return bp.parameters().isCppBreakpoint();
+    return isNativeMixedEnabled();
 }
 
 void GdbEngine::insertBreakpoint(Breakpoint bp)
@@ -2672,7 +2696,7 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     const BreakpointParameters &data = bp.parameters();
 
     if (!data.isCppBreakpoint()) {
-        DebuggerCommand cmd("insertQmlBreakpoint", PythonCommand);
+        DebuggerCommand cmd("insertInterpreterBreakpoint", PythonCommand);
         bp.addToCommand(&cmd);
         runCommand(cmd);
         bp.notifyBreakpointInsertOk();
@@ -2791,7 +2815,7 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
 
     const BreakpointParameters &data = bp.parameters();
     if (!data.isCppBreakpoint()) {
-        DebuggerCommand cmd("removeQmlBreakpoint", PythonCommand);
+        DebuggerCommand cmd("removeInterpreterBreakpoint", PythonCommand);
         bp.addToCommand(&cmd);
         runCommand(cmd);
         bp.notifyBreakpointRemoveOk();
@@ -3140,13 +3164,11 @@ void GdbEngine::reloadFullStack()
     runCommand(cmd);
 }
 
-void GdbEngine::loadAdditionalQmlStack()
+static QString msgCannotLoadQmlStack(const QString &why)
 {
-    // Scan for QV4::ExecutionContext parameter in the parameter list of a V4 call.
-    runCommand("-stack-list-arguments --simple-values", CB(handleQmlStackFrameArguments), NeedsStop);
+    return _("Unable to load QML stack: ") + why;
 }
 
-// Scan the arguments of a stack list for the address of a QV4::ExecutionContext.
 static quint64 findJsExecutionContextAddress(const GdbMi &stackArgsResponse, const QByteArray &qtNamespace)
 {
     const GdbMi frameList = stackArgsResponse.childAt(0);
@@ -3169,29 +3191,30 @@ static quint64 findJsExecutionContextAddress(const GdbMi &stackArgsResponse, con
     return 0;
 }
 
-static QString msgCannotLoadQmlStack(const QString &why)
+void GdbEngine::loadAdditionalQmlStack()
 {
-    return _("Unable to load QML stack: ") + why;
-}
-
-void GdbEngine::handleQmlStackFrameArguments(const DebuggerResponse &response)
-{
-    if (!response.data.isValid()) {
-        showMessage(msgCannotLoadQmlStack(_("No stack obtained.")), LogError);
-        return;
-    }
-    const quint64 contextAddress = findJsExecutionContextAddress(response.data, qtNamespace());
-    if (!contextAddress) {
-        showMessage(msgCannotLoadQmlStack(_("The address of the JS execution context could not be found.")), LogError);
-        return;
-    }
-    // Call the debug function of QML with the context address to obtain the QML stack trace.
-    DebuggerCommand cmd = "-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x"
-                            +  QByteArray::number(contextAddress, 16) + ")\"";
-    cmd.callback = CB(handleQmlStackTrace);
+    // Scan for QV4::ExecutionContext parameter in the parameter list of a V4 call.
+    DebuggerCommand cmd("-stack-list-arguments --simple-values", NeedsStop);
+    cmd.callback = [this](const DebuggerResponse &response) {
+        if (!response.data.isValid()) {
+            showMessage(msgCannotLoadQmlStack(_("No stack obtained.")), LogError);
+            return;
+        }
+        const quint64 contextAddress = findJsExecutionContextAddress(response.data, qtNamespace());
+        if (!contextAddress) {
+            showMessage(msgCannotLoadQmlStack(_("The address of the JS execution context could not be found.")), LogError);
+            return;
+        }
+        // Call the debug function of QML with the context address to obtain the QML stack trace.
+        DebuggerCommand cmd = "-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x"
+                + QByteArray::number(contextAddress, 16) + ")\"";
+        cmd.callback = CB(handleQmlStackTrace);
+        runCommand(cmd);
+    };
     runCommand(cmd);
 }
 
+// Scan the arguments of a stack list for the address of a QV4::ExecutionContext.
 void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
 {
     if (!response.data.isValid()) {
@@ -3216,11 +3239,8 @@ void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
     }
     QList<StackFrame> qmlFrames;
     qmlFrames.reserve(qmlFrameCount);
-    for (int i = 0; i < qmlFrameCount; ++i) {
-        StackFrame frame = parseStackFrame(stackMi.childAt(i), i);
-        frame.fixQmlFrame(runParameters());
-        qmlFrames.append(frame);
-    }
+    for (int i = 0; i < qmlFrameCount; ++i)
+        qmlFrames.append(StackFrame::parseFrame(stackMi.childAt(i), runParameters()));
     stackHandler()->prependFrames(qmlFrames);
 }
 
@@ -3228,7 +3248,7 @@ DebuggerCommand GdbEngine::stackCommand(int depth)
 {
     DebuggerCommand cmd("stackListFrames");
     cmd.arg("limit", depth);
-    cmd.arg("options", isNativeMixedActive() ? "nativemixed" : "");
+    cmd.arg("nativemixed", isNativeMixedActive());
     return cmd;
 }
 
@@ -3239,35 +3259,6 @@ void GdbEngine::reloadStack()
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     cmd.flags = Discardable | PythonCommand;
     runCommand(cmd);
-}
-
-StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
-{
-    //qDebug() << "HANDLING FRAME:" << frameMi.toString();
-    StackFrame frame;
-    frame.level = level;
-    GdbMi fullName = frameMi["fullname"];
-    if (fullName.isValid())
-        frame.file = cleanupFullName(QFile::decodeName(fullName.data()));
-    else
-        frame.file = QFile::decodeName(frameMi["file"].data());
-    frame.function = _(frameMi["func"].data());
-    frame.from = _(frameMi["from"].data());
-    frame.line = frameMi["line"].toInt();
-    frame.address = frameMi["addr"].toAddress();
-    GdbMi usable = frameMi["usable"];
-    if (usable.isValid())
-        frame.usable = usable.data().toInt();
-    else
-        frame.usable = QFileInfo(frame.file).isReadable();
-    if (frameMi["language"].data() == "js"
-            || frame.file.endsWith(QLatin1String(".js"))
-            || frame.file.endsWith(QLatin1String(".qml"))) {
-        frame.file = QFile::decodeName(frameMi["file"].data());
-        frame.language = QmlLanguage;
-        frame.fixQmlFrame(runParameters());
-    }
-    return frame;
 }
 
 void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isFull)
@@ -3284,8 +3275,10 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
     QList<StackFrame> stackFrames;
 
     GdbMi stack = response.data["stack"]; // C++
-    if (!stack.isValid() || stack.childCount() == 0) // Mixed.
+    if (!stack.isValid() || stack.childCount() == 0) { // Mixed.
         stack.fromStringMultiple(response.consoleStreamOutput);
+        stack = stack["frames"];
+    }
 
     if (!stack.isValid()) {
         qDebug() << "FIXME: stack:" << stack.toString();
@@ -3296,7 +3289,7 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
 
     int n = stack.childCount();
     for (int i = 0; i != n; ++i) {
-        stackFrames.append(parseStackFrame(stack.childAt(i), i));
+        stackFrames.append(StackFrame::parseFrame(stack.childAt(i), runParameters()));
         const StackFrame &frame = stackFrames.back();
 
         // Initialize top frame to the first valid frame.
@@ -3407,7 +3400,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
             ThreadData thread;
             thread.id = ThreadId(name["id"].toInt());
             thread.name = decodeData(name["value"].data(),
-                DebuggerEncoding(name["valueencoded"].toInt()));
+                debuggerEncoding(name["valueencoded"].data()));
             handler->updateThread(thread);
         }
         updateViews();
@@ -4622,7 +4615,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
     watchHandler()->notifyUpdateStarted(params.partialVariables());
 
-    DebuggerCommand cmd("showData", Discardable | InUpdateLocals | PythonCommand);
+    DebuggerCommand cmd("fetchVariables", Discardable|InUpdateLocals|PythonCommand);
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
@@ -4637,23 +4630,20 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("nativemixed", isNativeMixedActive());
 
-    if (isNativeMixedActive()) {
-        StackFrame frame = stackHandler()->currentFrame();
-        if (frame.language == QmlLanguage)
-            cmd.arg("qmlcontext", "0x" + QByteArray::number(frame.address, 16));
-    }
+    StackFrame frame = stackHandler()->currentFrame();
+    cmd.arg("context", frame.context);
 
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialVariable", params.partialVariable);
     cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
-    cmd.callback = CB(handleStackFrame);
+    cmd.callback = CB(handleFetchVariables);
     runCommand(cmd);
 
     cmd.arg("passExceptions", true);
     m_lastDebuggableCommand = cmd;
 }
 
-void GdbEngine::handleStackFrame(const DebuggerResponse &response)
+void GdbEngine::handleFetchVariables(const DebuggerResponse &response)
 {
     m_inUpdateLocals = false;
 

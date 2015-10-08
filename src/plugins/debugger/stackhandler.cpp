@@ -32,6 +32,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerengine.h"
 #include "simplifytype.h"
 
 #include <utils/fileutils.h>
@@ -55,8 +56,9 @@ namespace Internal {
     QTreeView.
  */
 
-StackHandler::StackHandler()
-  : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
+StackHandler::StackHandler(DebuggerEngine *engine)
+  : m_engine(engine),
+    m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
     m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
 {
     setObjectName(QLatin1String("StackModel"));
@@ -103,11 +105,11 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case StackLevelColumn:
-            return QString::number(frame.level);
+            return QString::number(index.row() + 1);
         case StackFunctionNameColumn:
             return simplifyType(frame.function);
         case StackFileNameColumn:
-            return frame.file.isEmpty() ? frame.from : Utils::FileName::fromString(frame.file).fileName();
+            return frame.file.isEmpty() ? frame.module : Utils::FileName::fromString(frame.file).fileName();
         case StackLineNumberColumn:
             return frame.line > 0 ? QVariant(frame.line) : QVariant();
         case StackAddressColumn:
@@ -164,6 +166,12 @@ StackFrame StackHandler::currentFrame() const
     QTC_ASSERT(m_currentIndex >= 0, return StackFrame());
     QTC_ASSERT(m_currentIndex < m_stackFrames.size(), return StackFrame());
     return m_stackFrames.at(m_currentIndex);
+}
+
+void StackHandler::setAllFrames(const GdbMi &frames, bool canExpand)
+{
+    action(ExpandStack)->setEnabled(canExpand);
+    setFrames(StackFrame::parseFrames(frames, m_engine->runParameters()), canExpand);
 }
 
 void StackHandler::setCurrentIndex(int level)

@@ -78,6 +78,11 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+
 using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -126,7 +131,7 @@ Location::Location(const StackFrame &frame, bool marker)
     m_functionName = frame.function;
     m_hasDebugInfo = frame.isUsable();
     m_address = frame.address;
-    m_from = frame.from;
+    m_from = frame.module;
 }
 
 
@@ -192,7 +197,7 @@ public:
         m_modulesHandler(engine),
         m_registerHandler(engine),
         m_sourceFilesHandler(),
-        m_stackHandler(),
+        m_stackHandler(engine),
         m_threadsHandler(),
         m_watchHandler(engine),
         m_disassemblerAgent(engine),
@@ -203,8 +208,6 @@ public:
                 this, &DebuggerEnginePrivate::resetLocation);
         connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
                 this, &DebuggerEnginePrivate::reloadDisassembly);
-        connect(action(OperateNativeMixed), &QAction::triggered,
-                engine, &DebuggerEngine::reloadFullStack);
 
         Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
@@ -2021,6 +2024,26 @@ void DebuggerEngine::checkState(DebuggerState state, const char *file, int line)
 
     showMessage(msg, LogError);
     qDebug("%s", qPrintable(msg));
+}
+
+bool DebuggerEngine::isNativeMixedEnabled() const
+{
+    return runParameters().nativeMixedEnabled && (runParameters().languages & QmlLanguage);
+}
+
+bool DebuggerEngine::isNativeMixedActive() const
+{
+    return isNativeMixedEnabled(); //&& boolSetting(OperateNativeMixed);
+}
+
+bool DebuggerEngine::isNativeMixedActiveFrame() const
+{
+    if (!isNativeMixedActive())
+        return false;
+    if (stackHandler()->frames().isEmpty())
+        return false;
+    StackFrame frame = stackHandler()->frameAt(0);
+    return frame.language == QmlLanguage;
 }
 
 } // namespace Internal

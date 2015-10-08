@@ -1258,7 +1258,8 @@ void tst_Dumpers::dumper()
 
     if (m_debuggerEngine == GdbEngine) {
         const QFileInfo gdbBinaryFile(QString::fromLatin1(exe));
-        const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit() + "/data-directory/python";
+        const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
+            + "/data-directory/python";
 
         args << QLatin1String("-i")
              << QLatin1String("mi")
@@ -1280,8 +1281,9 @@ void tst_Dumpers::dumper()
                 "python from gdbbridge import *\n"
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
-                "python theDumper.showData({'fancy':1,'forcens':1,'autoderef':1,"
-                        "'dyntype':1,'passExceptions':1,'expanded':[" + expandedq + "]})\n";
+                "python theDumper.fetchVariables({'fancy':1,'forcens':1,"
+                    "'autoderef':1,'dyntype':1,'passExceptions':1,"
+                    "'expanded':[" + expandedq + "]})\n";
 
         cmds += "quit\n";
 

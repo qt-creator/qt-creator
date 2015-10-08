@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
 
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])

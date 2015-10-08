@@ -34,10 +34,12 @@
 #include <QString>
 
 namespace QmlDebug {
+
 enum QmlDebugServicesPreset {
     NoQmlDebugServices,
     QmlDebuggerServices,
-    QmlProfilerServices
+    QmlProfilerServices,
+    QmlNativeDebuggerServices
 };
 
 static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
@@ -49,6 +51,8 @@ static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
         return QStringLiteral("DebugMessages,QmlDebugger,V8Debugger,QmlInspector");
     case QmlProfilerServices:
         return QStringLiteral("CanvasFrameRate,EngineControl");
+    case QmlNativeDebuggerServices:
+        return QStringLiteral("NativeQmlDebugger");
     default:
         Q_ASSERT(false);
         return QString();
@@ -60,6 +64,10 @@ static inline QString qmlDebugCommandLineArguments(QmlDebugServicesPreset servic
 {
     if (services == NoQmlDebugServices)
         return QString();
+
+    if (services == QmlNativeDebuggerServices)
+        return QString::fromLatin1("-qmljsdebugger=native,services:%1")
+            .arg(qmlDebugServices(services));
 
     return QString::fromLatin1("-qmljsdebugger=port:%1,block,services:%2")
             .arg(port ? QString::number(port) : QStringLiteral("%qml_port%"))

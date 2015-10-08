@@ -537,7 +537,7 @@ void LldbEngine::selectThread(ThreadId threadId)
     cmd.arg("id", threadId.raw());
     cmd.callback = [this](const DebuggerResponse &) {
         DebuggerCommand cmd("fetchStack");
-        cmd.arg("nativeMixed", isNativeMixedActive());
+        cmd.arg("nativemixed", isNativeMixedActive());
         cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
         runCommand(cmd);
         updateLocals();
@@ -563,10 +563,9 @@ bool LldbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
     if (runParameters().startMode == AttachCore)
         return false;
-    // We handle QML breakpoint unless specifically disabled.
-    if (isNativeMixedEnabled() && !(runParameters().languages & QmlLanguage))
+    if (bp.parameters().isCppBreakpoint())
         return true;
-    return bp.parameters().isCppBreakpoint();
+    return isNativeMixedEnabled();
 }
 
 void LldbEngine::insertBreakpoint(Breakpoint bp)
@@ -753,37 +752,12 @@ void LldbEngine::reloadFullStack()
 void LldbEngine::fetchStack(int limit)
 {
     DebuggerCommand cmd("fetchStack");
-    cmd.arg("nativeMixed", isNativeMixedActive());
+    cmd.arg("nativemixed", isNativeMixedActive());
     cmd.arg("stacklimit", limit);
+    cmd.arg("context", stackHandler()->currentFrame().context);
     cmd.callback = [this](const DebuggerResponse &response) {
         const GdbMi &stack = response.data["stack"];
-        StackHandler *handler = stackHandler();
-        StackFrames frames;
-        foreach (const GdbMi &item, stack["frames"].children()) {
-            StackFrame frame;
-            frame.level = item["level"].toInt();
-            frame.file = item["file"].toUtf8();
-            frame.function = item["func"].toUtf8();
-            frame.from = item["func"].toUtf8();
-            frame.line = item["line"].toInt();
-            frame.address = item["addr"].toAddress();
-            GdbMi usable = item["usable"];
-            if (usable.isValid())
-                frame.usable = usable.data().toInt();
-            else
-                frame.usable = QFileInfo(frame.file).isReadable();
-            if (item["language"].data() == "js"
-                    || frame.file.endsWith(QLatin1String(".js"))
-                    || frame.file.endsWith(QLatin1String(".qml"))) {
-                frame.language = QmlLanguage;
-                frame.fixQmlFrame(runParameters());
-            }
-            frames.append(frame);
-        }
-        bool canExpand = stack["hasmore"].toInt();
-        action(ExpandStack)->setEnabled(canExpand);
-        handler->setFrames(frames, canExpand);
-
+        stackHandler()->setAllFrames(stack["frames"], stack["hasmore"].toInt());
         updateLocals();
     };
     runCommand(cmd);
@@ -816,7 +790,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->notifyUpdateStarted(params.partialVariables());
 
     DebuggerCommand cmd("fetchLocals");
-    cmd.arg("nativeMixed", isNativeMixedActive());
+    cmd.arg("nativemixed", isNativeMixedActive());
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 

@@ -59,6 +59,8 @@
 #include <coreplugin/icore.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <qtsupport/qtkitinformation.h>
+
 #include <QTcpServer>
 
 using namespace Debugger::Internal;
@@ -416,6 +418,19 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (m_project && m_rp.projectSourceFiles.isEmpty())
         m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
 
+    if (m_project && m_rp.projectSourceFiles.isEmpty())
+        m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
+
+    if (false && m_project && m_kit) {
+        const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
+        m_rp.nativeMixedEnabled = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 7, 0);
+    }
+
+    bool ok = false;
+    int nativeMixedOverride = qgetenv("QTC_DEBUGGER_NATIVE_MIXED").toInt(&ok);
+    if (ok)
+        m_rp.nativeMixedEnabled = bool(nativeMixedOverride);
+
     // validate debugger if C++ debugging is enabled
     if (m_rp.languages & CppLanguage) {
         const QList<Task> tasks = DebuggerKitInformation::validateDebugger(m_kit);
@@ -482,9 +497,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
                 if (!m_rp.environment.hasKey(optimizerKey))
                     m_rp.environment.set(optimizerKey, _("1"));
-
-                QtcProcess::addArg(&m_rp.processArgs, QmlDebug::qmlDebugCommandLineArguments(
-                                       QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort));
             }
         }
     }
@@ -502,14 +514,23 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     }
 
     if (m_rp.masterEngineType == NoEngineType && m_debuggerAspect) {
-        const bool useCppDebugger = m_debuggerAspect->useCppDebugger() && (m_rp.languages & CppLanguage);
-        const bool useQmlDebugger = m_debuggerAspect->useQmlDebugger() && (m_rp.languages & QmlLanguage);
+        const bool wantCppDebugger = m_debuggerAspect->useCppDebugger() && (m_rp.languages & CppLanguage);
+        const bool wantQmlDebugger = m_debuggerAspect->useQmlDebugger() && (m_rp.languages & QmlLanguage);
 
-        if (useQmlDebugger) {
-            if (useCppDebugger)
-                m_rp.masterEngineType = QmlCppEngineType;
-            else
+        if (wantQmlDebugger) {
+            QString qmlArgs;
+            if (wantCppDebugger) {
+                if (m_rp.nativeMixedEnabled) {
+                    qmlArgs = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlNativeDebuggerServices);
+                } else {
+                    m_rp.masterEngineType = QmlCppEngineType;
+                    qmlArgs = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort);
+                }
+            } else {
                 m_rp.masterEngineType = QmlEngineType;
+                qmlArgs = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort);
+            }
+            QtcProcess::addArg(&m_rp.processArgs, qmlArgs);
         }
     }
 

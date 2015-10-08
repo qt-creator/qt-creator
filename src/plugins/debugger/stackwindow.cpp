@@ -108,7 +108,7 @@ static inline StackFrame inputFunctionForDisassembly()
         return frame;
     const int bangPos = function.indexOf(QLatin1Char('!'));
     if (bangPos != -1) {
-        frame.from = function.left(bangPos);
+        frame.module = function.left(bangPos);
         frame.function = function.mid(bangPos + 1);
     } else {
         frame.function = function;

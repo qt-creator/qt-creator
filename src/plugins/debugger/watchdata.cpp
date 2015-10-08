@@ -392,8 +392,8 @@ void WatchData::updateValue(const GdbMi &item)
 {
     GdbMi value = item["value"];
     if (value.isValid()) {
-        int encoding = item["valueencoded"].toInt();
-        setValue(decodeData(value.data(), DebuggerEncoding(encoding)));
+        DebuggerEncoding encoding = debuggerEncoding(item["valueencoded"].data());
+        setValue(decodeData(value.data(), encoding));
     } else {
         setValueNeeded();
     }

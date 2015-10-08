@@ -38,6 +38,8 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerEngine;
+
 enum StackColumns
 {
     StackLevelColumn,
@@ -48,18 +50,12 @@ enum StackColumns
     StackColumnCount
 };
 
-////////////////////////////////////////////////////////////////////////
-//
-// StackModel
-//
-////////////////////////////////////////////////////////////////////////
-
 class StackHandler : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    StackHandler();
+    explicit StackHandler(DebuggerEngine *engine);
     ~StackHandler();
 
     void setFrames(const StackFrames &frames, bool canExpand = false);
@@ -72,6 +68,7 @@ public:
     const StackFrame &frameAt(int index) const { return m_stackFrames.at(index); }
     int stackSize() const { return m_stackFrames.size(); }
     quint64 topAddress() const { return m_stackFrames.at(0).address; }
+    void setAllFrames(const GdbMi &frames, bool canExpand);
 
     // Called from StackHandler after a new stack list has been received
     void removeAll();
@@ -93,6 +90,7 @@ private:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { beginResetModel(); endResetModel(); }
 
+    DebuggerEngine *m_engine;
     StackFrames m_stackFrames;
     int m_currentIndex;
     const QVariant m_positionIcon;
