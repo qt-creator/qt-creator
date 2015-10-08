@@ -290,6 +290,9 @@ class Dumper(DumperBase):
                 warn("UNEXPECTED 'None' BLOCK")
                 break
             for symbol in block:
+
+              # Filter out labels etc.
+              if symbol.is_variable or symbol.is_argument:
                 name = symbol.print_name
 
                 if name == "__in_chrg" or name == "__PRETTY_FUNCTION__":
