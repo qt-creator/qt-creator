@@ -154,7 +154,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
                 case ImportType::Library:
                 {
                     QString typeName = objectValue->className();
-                    if (!e.typeName.isEmpty() && e.typeName != Export::LibraryTypeName) {
+                    if (!e.typeName.isEmpty() && e.typeName != Export::libraryTypeName()) {
                         typeName = e.typeName;
                         if (typeName != objectValue->className())
                             qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()

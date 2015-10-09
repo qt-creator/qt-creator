@@ -253,7 +253,7 @@ QString CppModelManager::editorConfigurationFileName()
 
 QString CppModelManager::configurationFileName()
 {
-    return Preprocessor::configurationFileName;
+    return Preprocessor::configurationFileName();
 }
 
 void CppModelManager::updateModifiedSourceFiles()

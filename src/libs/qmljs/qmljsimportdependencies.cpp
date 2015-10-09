@@ -481,7 +481,7 @@ bool operator <(const ImportKey &i1, const ImportKey &i2)
     return i1.compare(i2) < 0;
 }
 
-const QString Export::LibraryTypeName = QLatin1String("%Library%");
+QString Export::libraryTypeName() { return QStringLiteral("%Library%"); }
 
 Export::Export()
     : intrinsic(false)
