@@ -33,6 +33,10 @@
 
 #include "flag.h"
 
+#include <QVariant>
+#include <QString>
+#include <QHash>
+
 namespace qark {
 
 class ArchiveBasics
@@ -48,8 +52,40 @@ public:
 
     bool takeFlag(const Flag &flag) { bool f = (_flags & flag.getMask()) != 0; _flags &= ~flag.getMask(); return f; }
 
+    bool hasUserData(const QString &key)
+    {
+        return _user_data.contains(key);
+    }
+
+    template<typename T>
+    T getUserData(const QString &key)
+    {
+        return _user_data.value(key).value<T>();
+    }
+
+    template<typename T>
+    T getUserData(const QString &key, const T &default_value)
+    {
+        // gcc 4.8.2 fails to compile if the following 2 statements are written in one expression
+        //return _user_data.value(key, data).value<T>();
+        QVariant v = _user_data.value(key, default_value);
+        return v.value<T>();
+    }
+
+    template<class T>
+    void setUserData(const QString &key, const T &data)
+    {
+        _user_data.insert(key, data);
+    }
+
+    void removeUserData(const QString &key)
+    {
+        _user_data.remove(key);
+    }
+
 private:
     Flag::mask_type _flags;
+    QHash<QString, QVariant> _user_data;
 };
 
 }

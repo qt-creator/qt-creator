@@ -32,6 +32,7 @@
 #define QARK_TAG_H
 
 #include "typeregistry.h"
+#include "parameters.h"
 
 #include <QString>
 
@@ -45,10 +46,19 @@ public:
     {
     }
 
+    Tag(const QString &qualified_name, const Parameters &parameters)
+        : _qualified_name(qualified_name),
+          _parameters(parameters)
+    {
+    }
+
     const QString &getQualifiedName() const { return _qualified_name; }
+
+    Parameters getParameters() const { return _parameters; }
 
 private:
     QString _qualified_name;
+    Parameters _parameters;
 };
 
 
@@ -57,8 +67,14 @@ class Object :
         public Tag
 {
 public:
-    explicit Object(const QString &qualified_name, T *object)
+    Object(const QString &qualified_name, T *object)
         : Tag(qualified_name),
+          _object(object)
+    {
+    }
+
+    Object(const QString &qualified_name, T *object, const Parameters &parameters)
+        : Tag(qualified_name, parameters),
           _object(object)
     {
     }
@@ -75,9 +91,19 @@ inline Tag tag(const QString &qualified_name)
     return Tag(qualified_name);
 }
 
+inline Tag tag(const QString &qualified_name, const Parameters &parameters)
+{
+    return Tag(qualified_name, parameters);
+}
+
 inline Tag tag(const char *qualified_name)
 {
     return Tag(QLatin1String(qualified_name));
+}
+
+inline Tag tag(const char *qualified_name, const Parameters &parameters)
+{
+    return Tag(QLatin1String(qualified_name), parameters);
 }
 
 template<class T>
@@ -87,16 +113,39 @@ inline Object<T> tag(T &object)
 }
 
 template<class T>
+inline Object<T> tag(T &object, const Parameters &parameters)
+{
+    return Object<T>(get_type_uid<T>(), &object, parameters);
+}
+
+template<class T>
 inline Object<T> tag(const QString &qualified_name, T &object)
 {
     return Object<T>(qualified_name, &object);
 }
 
+template<class T>
+inline Object<T> tag(const QString &qualified_name, T &object, const Parameters &parameters)
+{
+    return Object<T>(qualified_name, &object, parameters);
+}
 
 
 class End {
 public:
-    explicit End() { }
+    explicit End()
+    {
+    }
+
+    explicit End(const Parameters &parameters)
+        : _parameters(parameters)
+    {
+    }
+
+    Parameters getParameters() const { return _parameters; }
+
+private:
+    Parameters _parameters;
 };
 
 inline End end()
@@ -104,6 +153,10 @@ inline End end()
     return End();
 }
 
+inline End end(const Parameters &parameters)
+{
+    return End(parameters);
+}
 
 }
 

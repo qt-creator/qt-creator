@@ -75,15 +75,13 @@ private:
         typedef QList<Node *> children_type;
 
     public:
-        virtual ~Node() { }
+        virtual ~Node() { qDeleteAll(_children); }
 
         const children_type &getChildren() const { return _children; }
 
         virtual QString getQualifiedName() const = 0;
 
         virtual void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
-
-        virtual void acceptForwardRef(QXmlInArchive &visitor, const impl::ObjectId &id) { visitor.visitForwardRef(this, id); }
 
         void append(Node *node) { _children.push_back(node); }
 
@@ -237,8 +235,6 @@ private:
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        void acceptForwardRef(QXmlInArchive &visitor, const impl::ObjectId &id) { visitor.visitForwardRef(this, id); }
-
         Ref<T> &getReference() { return _ref; }
 
     private:
@@ -255,8 +251,6 @@ private:
         QString getQualifiedName() const { return _ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
-
-        void acceptForwardRef(QXmlInArchive &visitor, const impl::ObjectId &id) { visitor.visitForwardRef(this, id); }
 
         SetterRef<U, T> &getReference() { return _ref; }
 
@@ -275,8 +269,6 @@ private:
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        void acceptForwardRef(QXmlInArchive &visitor, const impl::ObjectId &id) { visitor.visitForwardRef(this, id); }
-
         GetterSetterRef<U, T, V> &getReference() { return _ref; }
 
     private:
@@ -293,8 +285,6 @@ private:
         QString getQualifiedName() const { return _ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
-
-        void acceptForwardRef(QXmlInArchive &visitor, const impl::ObjectId &id) { visitor.visitForwardRef(this, id); }
 
         SetFuncRef<U, T> &getReference() { return _ref; }
 
@@ -313,18 +303,10 @@ private:
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        void acceptForwardRef(QXmlInArchive &visitor, const impl::ObjectId &id) { visitor.visitForwardRef(this, id); }
-
         GetSetFuncRef<U, T, V> &getReference() { return _ref; }
 
     private:
         GetSetFuncRef<U, T, V> _ref;
-    };
-
-    struct ForwardReference {
-        ForwardReference(Node *node, const impl::ObjectId &id) : _node(node), _id(id) { }
-        Node *_node;
-        impl::ObjectId _id;
     };
 
 public:
@@ -332,16 +314,12 @@ public:
     explicit QXmlInArchive(QXmlStreamReader &stream)
         : _stream(stream),
           _end_tag_was_read(false),
-          _root_node(0),
           _current_ref_node(0)
     {
     }
 
     ~QXmlInArchive()
     {
-        foreach(const ForwardReference &forward_ref, _forward_references) {
-            forward_ref._node->acceptForwardRef(*this, forward_ref._id);
-        }
     }
 
 public:
@@ -387,9 +365,7 @@ public:
     void append(const Tag &tag)
     {
         TagNode *node = new TagNode(tag);
-        if (_node_stack.empty()) {
-            _root_node = node;
-        } else {
+        if (!_node_stack.empty()) {
             _node_stack.top()->append(node);
         }
         _node_stack.push(node);
@@ -399,9 +375,7 @@ public:
     void append(const Object<T> &object)
     {
         ObjectNode<T> *node = new ObjectNode<T>(object);
-        if (_node_stack.empty()) {
-            _root_node = node;
-        } else {
+        if (!_node_stack.empty()) {
             _node_stack.top()->append(node);
         }
         _node_stack.push(node);
@@ -409,13 +383,14 @@ public:
 
     void append(const End &)
     {
-        _node_stack.pop();
+        Node *node = _node_stack.pop();
         if (_node_stack.empty()) {
             XmlTag xml_tag = readTag();
-            if (xml_tag._tag_name != _root_node->getQualifiedName() || xml_tag._end_tag) {
+            if (xml_tag._tag_name != node->getQualifiedName() || xml_tag._end_tag) {
                 throw FileFormatException();
             }
-            _root_node->accept(*this, xml_tag);
+            node->accept(*this, xml_tag);
+            delete node;
         }
     }
 
@@ -587,12 +562,7 @@ public:
         if (_loading_ref_map.hasObject(id)) {
             p = _loading_ref_map.getObject<T *>(id);
         } else {
-            if (_current_ref_node == 0) {
-                throw UnexpectedForwardReference();
-            }
-            _forward_references.append(ForwardReference(_current_ref_node, id));
-            // node is eaten, also used as flag for forward references
-            _current_ref_node = 0;
+            throw UnexpectedForwardReference();
         }
     }
 
@@ -634,11 +604,6 @@ private:
         throw FileFormatException();
     }
 
-    void visitForwardRef(Node *, const impl::ObjectId &)
-    {
-        throw UnexpectedForwardReference();
-    }
-
     void visit(TagNode *node, const XmlTag &)
     {
         readChildren(node);
@@ -656,7 +621,7 @@ private:
     template<class T, class U>
     void visit(BaseNode<T, U> *node, const XmlTag &)
     {
-        (*this) >> node->getBase().getBase();
+        load(*this, node->getBase().getBase(), node->getBase().getParameters());
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getBase().getQualifiedName()) {
             throw FileFormatException();
@@ -666,7 +631,7 @@ private:
     template<class T>
     void visit(AttrNode<T> *node, const XmlTag &)
     {
-        (*this) >> *node->getAttribute().getValue();
+        load(*this, *node->getAttribute().getValue(), node->getAttribute().getParameters());
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
@@ -677,7 +642,7 @@ private:
     void visit(SetterAttrNode<U, T> *node, const XmlTag &)
     {
         T value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -689,7 +654,7 @@ private:
     void visit(SetterAttrNode<U, const T &> *node, const XmlTag &)
     {
         T value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -701,7 +666,7 @@ private:
     void visit(GetterSetterAttrNode<U, T, V> *node, const XmlTag &)
     {
         V value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -713,7 +678,7 @@ private:
     void visit(GetterSetterAttrNode<U, T, const V &> *node, const XmlTag &)
     {
         V value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -725,7 +690,7 @@ private:
     void visit(SetFuncAttrNode<U, T> *node, const XmlTag &)
     {
         T value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -737,7 +702,7 @@ private:
     void visit(SetFuncAttrNode<U, const T &> *node, const XmlTag &)
     {
         T value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -749,7 +714,7 @@ private:
     void visit(GetSetFuncAttrNode<U, T, V> *node, const XmlTag &)
     {
         V value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -761,7 +726,7 @@ private:
     void visit(GetSetFuncAttrNode<U, T, const V &> *node, const XmlTag &)
     {
         V value;
-        (*this) >> value;
+        load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
@@ -774,8 +739,8 @@ private:
     {
         _current_ref_node = node;
         T value = T();
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
             *node->getReference().getValue() = value;
             _current_ref_node = 0;
         }
@@ -785,23 +750,13 @@ private:
         }
     }
 
-    template<typename T>
-    void visitForwardRef(RefNode<T> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        T value = _loading_ref_map.getObject<T>(id);
-        *(node->getReference().getValue()) = value;
-    }
-
     template<class U, typename T>
     void visit(SetterRefNode<U, T> *node, const XmlTag &)
     {
         _current_ref_node = node;
         T value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
             _current_ref_node = 0;
         }
@@ -816,8 +771,8 @@ private:
     {
         _current_ref_node = node;
         T value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
             _current_ref_node = 0;
         }
@@ -827,33 +782,13 @@ private:
         }
     }
 
-    template<class U, typename T>
-    void visitForwardRef(SetterRefNode<U, T> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        T value = _loading_ref_map.getObject<T>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
-    template<class U, typename T>
-    void visitForwardRef(SetterRefNode<U, T const &> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        T value = _loading_ref_map.getObject<T>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
     template<class U, typename T, typename V>
     void visit(GetterSetterRefNode<U, T, V> *node, const XmlTag &)
     {
         _current_ref_node = node;
         V value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
             _current_ref_node = 0;
         }
@@ -868,8 +803,8 @@ private:
     {
         _current_ref_node = node;
         V value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
             _current_ref_node = 0;
         }
@@ -879,34 +814,14 @@ private:
         }
     }
 
-    template<class U, typename T, typename V>
-    void visitForwardRef(GetterSetterRefNode<U, T, V> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        V value = _loading_ref_map.getObject<V>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
-    template<class U, typename T, typename V>
-    void visitForwardRef(GetterSetterRefNode<U, T, V const &> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        V value = _loading_ref_map.getObject<V>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
     template<class U, typename T>
     void visit(SetFuncRefNode<U, T> *node, const XmlTag &)
     {
         _current_ref_node = node;
         T value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
             _current_ref_node = 0;
         }
         XmlTag xml_tag = readTag();
@@ -920,9 +835,9 @@ private:
     {
         _current_ref_node = node;
         T value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
             _current_ref_node = 0;
         }
         XmlTag xml_tag = readTag();
@@ -931,34 +846,14 @@ private:
         }
     }
 
-    template<class U, typename T>
-    void visitForwardRef(SetFuncRefNode<U, T> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        T value = _loading_ref_map.getObject<T>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
-    template<class U, typename T>
-    void visitForwardRef(SetFuncRefNode<U, T const &> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        T value = _loading_ref_map.getObject<T>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
     template<class U, typename T, typename V>
     void visit(GetSetFuncRefNode<U, T, V> *node, const XmlTag &)
     {
         _current_ref_node = node;
         V value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
             _current_ref_node = 0;
         }
         XmlTag xml_tag = readTag();
@@ -972,35 +867,15 @@ private:
     {
         _current_ref_node = node;
         V value;
-        (*this) >> value;
-        if (_current_ref_node != 0) { // ref node was not eaten by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+        load(*this, value, node->getReference().getParameters());
+        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
             _current_ref_node = 0;
         }
         XmlTag xml_tag = readTag();
         if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
-    }
-
-    template<class U, typename T, typename V>
-    void visitForwardRef(GetSetFuncRefNode<U, T, V> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        V value = _loading_ref_map.getObject<V>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-    }
-
-    template<class U, typename T, typename V>
-    void visitForwardRef(GetSetFuncRefNode<U, T, V const &> *node, const impl::ObjectId &id)
-    {
-        if (!_loading_ref_map.hasObject(id)) {
-            throw UnexpectedForwardReference();
-        }
-        V value = _loading_ref_map.getObject<V>(id);
-        (node->getReference().getObject().*(node->getReference().getSetter()))(value);
     }
 
 private:
@@ -1012,11 +887,9 @@ private:
 private:
     QXmlStreamReader &_stream;
     bool _end_tag_was_read;
-    Node *_root_node;
     QStack<Node *> _node_stack;
     impl::LoadingRefMap _loading_ref_map;
     Node *_current_ref_node;
-    QList<ForwardReference> _forward_references;
 };
 
 

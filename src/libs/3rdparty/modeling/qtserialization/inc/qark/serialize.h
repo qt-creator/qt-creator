@@ -38,6 +38,7 @@
 #include "access.h"
 #include "typeregistry.h"
 
+#include "serialize_pointer.h"
 #include "serialize_basic.h"
 #include "serialize_container.h"
 #include "serialize_enum.h"
@@ -51,102 +52,27 @@ namespace qark {
 template<class Archive, class T>
 inline Archive &operator<<(Archive &archive, const T &t)
 {
-    save(archive, t);
+    save(archive, t, Parameters());
     return archive;
 }
 
 template<class Archive, class T>
 inline Archive &operator>>(Archive &archive, T &t)
 {
-    load(archive, t);
+    load(archive, t, Parameters());
     return archive;
 }
 
 template<class Archive, class T>
 typename std::enable_if<Archive::out_archive, Archive &>::type operator||(Archive &archive, T &t)
 {
-    save(archive, (const T &) t);
-    return archive;
+    return archive << t;
 }
 
 template<class Archive, class T>
 typename std::enable_if<Archive::in_archive, Archive &>::type operator||(Archive &archive, T &t)
 {
-    load(archive, t);
-    return archive;
-}
-
-template<class Archive, class T>
-inline Archive &operator<<(Archive &archive, T *p)
-{
-    if (p) {
-        if (archive.isReference(p)) {
-            archive.beginPointer();
-            archive.write(p);
-            archive.endPointer();
-        } else {
-            if (typeid(*p) == typeid(T)) {
-                archive.beginInstance();
-                registry::save_pointer<Archive, T, T>(archive, p);
-                archive.endInstance();
-            } else {
-                archive.beginInstance(get_type_uid(*p));
-                //typename registry::TypeRegistry<Archive, typename qark::non_const<T>::type>::type_info type_data
-                //        = get_type_info<Archive, typename qark::non_const<T>::type>(*p);
-                typename registry::TypeRegistry<Archive, T>::type_info type_data = get_type_info<Archive, T>(*p);
-                if (type_data.save_func == 0) {
-                    throw unregistered_type();
-                } else {
-                    type_data.save_func(archive, p);
-                }
-                archive.endInstance();
-            }
-        }
-    } else {
-        archive.beginNullPointer();
-        archive.endNullPointer();
-    }
-    return archive;
-}
-
-template<class Archive, class T>
-inline Archive &operator>>(Archive &archive, T *&p)
-{
-    typename Archive::ReferenceTag ref_tag = archive.readReferenceTag();
-    switch (ref_tag.kind) {
-    case Archive::NULLPOINTER:
-        p = 0;
-        break;
-    case Archive::POINTER:
-        archive.read(p);
-        break;
-    case Archive::INSTANCE:
-        if (ref_tag.type_name.isEmpty()) {
-            registry::load_non_virtual_pointer<Archive,T>(archive, p);
-        } else {
-            typename registry::TypeRegistry<Archive, T>::type_info type_data = get_type_info<Archive, T>(ref_tag.type_name);
-            if (type_data.load_func == 0) {
-                throw unregistered_type();
-            } else {
-                type_data.load_func(archive, p);
-            }
-        }
-        break;
-    }
-    archive.readReferenceEndTag(ref_tag.kind);
-    return archive;
-}
-
-template<class Archive, class T>
-typename std::enable_if<Archive::out_archive, Archive &>::type operator||(Archive &archive, T *&p)
-{
-    return archive << p;
-}
-
-template<class Archive, class T>
-typename std::enable_if<Archive::in_archive, Archive &>::type operator||(Archive &archive, T *&p)
-{
-    return archive >> p;
+    return archive >> t;
 }
 
 template<class Archive, class T>
@@ -171,32 +97,6 @@ typename std::enable_if<Archive::out_archive, Archive &>::type operator||(Archiv
 
 template<class Archive, class T>
 typename std::enable_if<Archive::in_archive, Archive &>::type operator||(Archive &archive, T (*f)())
-{
-    return archive >> f;
-}
-
-template<class Archive>
-inline Archive &operator<<(Archive &archive, void (*f)(Archive &))
-{
-    f(archive);
-    return archive;
-}
-
-template<class Archive>
-inline Archive &operator>>(Archive &archive, void (*f)(Archive &))
-{
-    f(archive);
-    return archive;
-}
-
-template<class Archive>
-typename std::enable_if<Archive::out_archive, Archive &>::type operator||(Archive &archive, void (*f)(Archive &))
-{
-    return archive << f;
-}
-
-template<class Archive>
-typename std::enable_if<Archive::in_archive, Archive &>::type operator||(Archive &archive, void (*f)(Archive &))
 {
     return archive >> f;
 }
@@ -311,7 +211,7 @@ template<class Archive, typename T>
 Archive &operator<<(Archive &archive, const Attr<T> &attr)
 {
     archive.beginAttribute(attr);
-    archive << *attr.getValue();
+    save(archive, *attr.getValue(), attr.getParameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -336,10 +236,23 @@ typename std::enable_if<Archive::in_archive, Archive &>::type operator||(Archive
 }
 
 template<class Archive, class U, typename T>
-Archive &operator<<(Archive &archive, const GetterAttr<U, T> &attr)
+typename std::enable_if<!std::is_abstract<U>::value, Archive &>::type
+operator<<(Archive &archive, const GetterAttr<U, T> &attr)
+{
+    if (!((attr.getObject().*(attr.getGetter()))() == (U().*(attr.getGetter()))())) {
+        archive.beginAttribute(attr);
+        save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
+        archive.endAttribute(attr);
+    }
+    return archive;
+}
+
+template<class Archive, class U, typename T>
+typename std::enable_if<std::is_abstract<U>::value, Archive &>::type
+operator<<(Archive &archive, const GetterAttr<U, T> &attr)
 {
     archive.beginAttribute(attr);
-    archive << (attr.getObject().*(attr.getGetter()))();
+    save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -358,7 +271,7 @@ operator<<(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 {
     if (!((attr.getObject().*(attr.getGetter()))() == (U().*(attr.getGetter()))())) {
         archive.beginAttribute(attr);
-        archive << (attr.getObject().*(attr.getGetter()))();
+        save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
         archive.endAttribute(attr);
     }
     return archive;
@@ -370,7 +283,7 @@ typename std::enable_if<std::is_abstract<U>::value, Archive &>::type
 operator<<(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 {
     archive.beginAttribute(attr);
-    archive << (attr.getObject().*(attr.getGetter()))();
+    save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -398,7 +311,7 @@ template<class Archive, class U, typename T>
 Archive &operator<<(Archive &archive, const GetFuncAttr<U, T> &attr)
 {
     archive.beginAttribute(attr);
-    archive << ((*attr.getGetFunc())(attr.getObject()));
+    save(archive, ((*attr.getGetFunc())(attr.getObject())), attr.getParameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -414,7 +327,7 @@ template<class Archive, class U, typename T, typename V>
 Archive &operator<<(Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
 {
     archive.beginAttribute(attr);
-    archive << ((*attr.getGetFunc())(attr.getObject()));
+    save(archive, ((*attr.getGetFunc())(attr.getObject())), attr.getParameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -442,7 +355,7 @@ template<class Archive, typename T>
 Archive &operator<<(Archive &archive, const Ref<T *> &ref)
 {
     archive.beginReference(ref);
-    archive << *ref.getValue();
+    save(archive, *ref.getValue(), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }
@@ -451,7 +364,7 @@ template<class Archive, typename T>
 Archive &operator<<(Archive &archive, const Ref<T * const> &ref)
 {
     archive.beginReference(ref);
-    archive << *ref.getValue();
+    save(archive, *ref.getValue(), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }
@@ -467,7 +380,7 @@ template<class Archive, typename T>
 typename std::enable_if<Archive::out_archive, Archive &>::type operator||(Archive &archive, const Ref<T *> &ref)
 {
     archive.beginReference(ref);
-    archive << *ref.getValue();
+    save(archive, *ref.getValue(), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }
@@ -482,7 +395,7 @@ template<class Archive, class U, typename T>
 Archive &operator<<(Archive &archive, const GetterRef<U, T> &ref)
 {
     archive.beginReference(ref);
-    archive << (ref.getObject().*(ref.getGetter()))();
+    save(archive, (ref.getObject().*(ref.getGetter()))(), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }
@@ -498,7 +411,7 @@ template<class Archive, class U, typename T, typename V>
 Archive &operator<<(Archive &archive, const GetterSetterRef<U, T, V> &ref)
 {
     archive.beginReference(ref);
-    archive << (ref.getObject().*(ref.getGetter()))();
+    save(archive, (ref.getObject().*(ref.getGetter()))(), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }
@@ -526,7 +439,7 @@ template<class Archive, class U, typename T>
 Archive &operator<<(Archive &archive, const GetFuncRef<U, T> &ref)
 {
     archive.beginReference(ref);
-    archive << ref.getGetFunc()(ref.getObject());
+    save(archive, ref.getGetFunc()(ref.getObject()), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }
@@ -542,7 +455,7 @@ template<class Archive, class U, typename T, typename V>
 Archive &operator<<(Archive &archive, const GetSetFuncRef<U, T, V> &ref)
 {
     archive.beginReference(ref);
-    archive << ref.getGetFunc()(ref.getObject());
+    save(archive, ref.getGetFunc()(ref.getObject()), ref.getParameters());
     archive.endReference(ref);
     return archive;
 }

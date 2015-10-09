@@ -56,9 +56,21 @@ void save(Archive &archive, const T &t)
 }
 
 template<class Archive, class T>
+void save(Archive &archive, const T &t, const Parameters &)
+{
+    save(archive, t);
+}
+
+template<class Archive, class T>
 void load(Archive &archive, T &t)
 {
     Access<Archive, T>::load(archive, t);
+}
+
+template<class Archive, class T>
+void load(Archive &archive, T &t, const Parameters &)
+{
+    load(archive, t);
 }
 
 template<class Archive, class T>
@@ -92,30 +104,9 @@ void serialize_helper(Archive &archive, T &t)
         static inline void serialize(Archive &archive, TYPE &); \
     };
 
-#if 0
-#define QARK_ACCESS_SPECIALIZE_LOAD_SAVE(INARCHIVE, OUTARCHIVE, TYPE) \
-    template<> class Access<INARCHIVE, TYPE> { public: static inline void load(INARCHIVE &archive, TYPE &); void serialize(INARCHIVE &, TYPE &); }; \
-    template<> class Access<OUTARCHIVE, TYPE> { public: static inline void save(OUTARCHIVE &archive, const TYPE &); void serialize(OUTARCHIVE &, TYPE &); }; \
-    void Access<INARCHIVE, TYPE>::serialize(INARCHIVE &, TYPE &) { } \
-    void Access<OUTARCHIVE, TYPE>::serialize(OUTARCHIVE &, TYPE &) { } \
-    template class Access<INARCHIVE, TYPE>; \
-    template class Access<OUTARCHIVE, TYPE>;
-#endif
-
 #define QARK_ACCESS_SPECIALIZE(INARCHIVE, OUTARCHIVE, TYPE) \
     template class Access<INARCHIVE, TYPE>; \
     template class Access<OUTARCHIVE, TYPE>;
-
-#if 0
-#define QARK_SPECIALIZE_SERIALIZE(INARCHIVE, OUTARCHIVE, TYPE) \
-    QARK_ACCESS_SPECIALIZE(INARCHIVE, OUTARCHIVE, TYPE); \
-    template void serialize<INARCHIVE, TYPE>(INARCHIVE &, TYPE &); \
-    template void serialize<OUTARCHIVE, TYPE>(OUTARCHIVE &, TYPE &);
-
-#define QARK_SPECIALIZE_LOAD_SAVE(INARCHIVE, OUTARCHIVE, TYPE) \
-    template void load<INARCHIVE, TYPE>(INARCHIVE &, TYPE &); \
-    template void save<OUTARCHIVE, TYPE>(OUTARCHIVE &, const TYPE &);
-#endif
 
 
 #endif // QARK_ACCESS_H

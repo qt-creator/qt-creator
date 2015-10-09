@@ -28,11 +28,44 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_FRIEND_ACCESS_H
-#define QARK_FRIEND_ACCESS_H
+#ifndef QARK_PARAMETER_H
+#define QARK_PARAMETER_H
 
-#define QARK_FRIEND_ACCESS \
-    template<class Archive, class T> \
-    friend class qark::Access;
+#include "flag.h"
 
-#endif // QMT_FRIEND_ACCESS_H
+namespace qark {
+
+class Parameters
+{
+
+public:
+
+    Parameters()
+        : _flags(0)
+    {
+    }
+
+    Parameters(const Flag &flag)
+        : _flags(flag.getMask())
+    {
+    }
+
+public:
+
+    void setFlag(const Flag &flag) { _flags |= flag.getMask(); }
+
+    void clearFlag(const Flag &flag) { _flags &= ~flag.getMask(); }
+
+    bool hasFlag(const Flag &flag) const { return (_flags & flag.getMask()) != 0; }
+
+    bool takeFlag(const Flag &flag) { bool f = (_flags & flag.getMask()) != 0; _flags &= ~flag.getMask(); return f; }
+
+private:
+
+    Flag::mask_type _flags;
+};
+
+}
+
+#endif // QARK_PARAMETER_H
+

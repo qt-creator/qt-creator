@@ -49,8 +49,13 @@ class QXmlOutArchive :
 {
 public:
 
+    class UnsupportedForwardReference :
+            public std::exception
+    {
+    };
+
     class DanglingReferences :
-        public std::exception
+            public std::exception
     {
     };
 
@@ -58,6 +63,7 @@ public:
     static const bool out_archive = true;
 
 public:
+
     QXmlOutArchive(QXmlStreamWriter &stream)
         : _stream(stream),
           _next_pointer_is_reference(false)
@@ -76,6 +82,9 @@ public:
     template<typename T>
     void write(T *p)
     {
+        if (!_saving_ref_map.hasDefinedRef(p)) {
+            throw UnsupportedForwardReference();
+        }
         write(_saving_ref_map.getRef(p).get());
     }
 

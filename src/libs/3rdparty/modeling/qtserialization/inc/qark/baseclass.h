@@ -32,6 +32,7 @@
 #define QARK_BASECLASS_H
 
 #include "typeregistry.h"
+#include "parameters.h"
 
 #include <QString>
 
@@ -41,9 +42,16 @@ namespace qark {
 template<class BASE, class DERIVED>
 class Base {
 public:
-    explicit Base(const QString &qualified_name, DERIVED &obj)
+    Base(const QString &qualified_name, DERIVED &obj)
         : _qualified_name(qualified_name),
           _base(obj)
+    {
+    }
+
+    Base(const QString &qualified_name, DERIVED &obj, const Parameters &parameters)
+        : _qualified_name(qualified_name),
+          _base(obj),
+          _parameters(parameters)
     {
     }
 
@@ -53,9 +61,12 @@ public:
 
     BASE &getBase() { return _base; }
 
+    Parameters getParameters() const { return _parameters; }
+
 private:
     QString _qualified_name;
     BASE &_base;
+    Parameters _parameters;
 };
 
 template<class BASE, class DERIVED>
@@ -65,15 +76,33 @@ Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED &obj)
 }
 
 template<class BASE, class DERIVED>
+Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED &obj, const Parameters &parameters)
+{
+    return Base<BASE, DERIVED>(qualified_name, obj, parameters);
+}
+
+template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED *&obj)
 {
     return Base<BASE, DERIVED>(qualified_name, *obj);
 }
 
 template<class BASE, class DERIVED>
+Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED *&obj, const Parameters &parameters)
+{
+    return Base<BASE, DERIVED>(qualified_name, *obj, parameters);
+}
+
+template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(DERIVED &obj)
 {
     return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(get_type_uid<BASE>()), obj);
+}
+
+template<class BASE, class DERIVED>
+Base<BASE, DERIVED> base(DERIVED &obj, const Parameters &parameters)
+{
+    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(get_type_uid<BASE>()), obj, parameters);
 }
 
 }

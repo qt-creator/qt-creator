@@ -31,31 +31,22 @@
 #ifndef QARK_SERIALIZE_CONTAINER_H
 #define QARK_SERIALIZE_CONTAINER_H
 
-#include "flag.h"
+#include "parameters.h"
 
 #include <QList>
 #include <QHash>
 
 namespace qark {
 
-namespace impl {
-static Flag container_item_ref_flag;
-}
-
-template<class Archive>
-inline void ref_item(Archive &archive)
-{
-    archive.setFlag(impl::container_item_ref_flag);
-}
+static Flag ENFORCE_REFERENCED_ITEMS;
 
 
 // QList
 
 template<class Archive, class T>
-inline void save(Archive &archive, const QList<T> &list)
+inline void save(Archive &archive, const QList<T> &list, const Parameters &)
 {
     archive << tag("qlist");
-    archive.clearFlag(impl::container_item_ref_flag);
     foreach (const T &t, list) {
         archive << attr(QStringLiteral("item"), t);
     }
@@ -63,10 +54,10 @@ inline void save(Archive &archive, const QList<T> &list)
 }
 
 template<class Archive, class T>
-inline void save(Archive &archive, const QList<T *> &list)
+inline void save(Archive &archive, const QList<T *> &list, const Parameters &parameters)
 {
     archive << tag("qlist");
-    if (archive.takeFlag(impl::container_item_ref_flag)) {
+    if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
         foreach (const T *t, list) {
             archive << ref(QStringLiteral("item"), t);
         }
@@ -79,7 +70,7 @@ inline void save(Archive &archive, const QList<T *> &list)
 }
 
 template<class Archive, class T>
-inline void load(Archive &archive, QList<T> &list)
+inline void load(Archive &archive, QList<T> &list, const Parameters &)
 {
     archive >> tag(QStringLiteral("qlist"));
     archive >> attr<QList<T>, const T &>(QStringLiteral("item"), list, &QList<T>::append);
@@ -87,10 +78,10 @@ inline void load(Archive &archive, QList<T> &list)
 }
 
 template<class Archive, class T>
-inline void load(Archive &archive, QList<T *> &list)
+inline void load(Archive &archive, QList<T *> &list, const Parameters &parameters)
 {
     archive >> tag(QStringLiteral("qlist"));
-    if (archive.takeFlag(impl::container_item_ref_flag)) {
+    if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
         // why does the following line not compile but the line below selects the correct function?
         //archive >> ref<QList<T *>, T * const &>("item", list, &QList<T *>::append);
         archive >> ref(QStringLiteral("item"), list, &QList<T *>::append);
@@ -104,10 +95,9 @@ inline void load(Archive &archive, QList<T *> &list)
 // QSet
 
 template<class Archive, class T>
-inline void save(Archive &archive, const QSet<T> &set)
+inline void save(Archive &archive, const QSet<T> &set, const Parameters &)
 {
     archive << tag("qset");
-    archive.clearFlag(impl::container_item_ref_flag);
     foreach (const T &t, set) {
         archive << attr(QStringLiteral("item"), t);
     }
@@ -115,10 +105,10 @@ inline void save(Archive &archive, const QSet<T> &set)
 }
 
 template<class Archive, class T>
-inline void save(Archive &archive, const QSet<T *> &set)
+inline void save(Archive &archive, const QSet<T *> &set, const Parameters &parameters)
 {
     archive << tag("qset");
-    if (archive.takeFlag(impl::container_item_ref_flag)) {
+    if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
         foreach (const T *t, set) {
             archive << ref(QStringLiteral("item"), t);
         }
@@ -140,7 +130,7 @@ void insertIntoSet(QSet<T> &set, const T &t) {
 }
 
 template<class Archive, class T>
-inline void load(Archive &archive, QSet<T> &set)
+inline void load(Archive &archive, QSet<T> &set, const Parameters &)
 {
     archive >> tag(QStringLiteral("qset"));
     archive >> attr<QSet<T>, const T &>(QStringLiteral("item"), set, &impl::insertIntoSet<T>);
@@ -148,10 +138,10 @@ inline void load(Archive &archive, QSet<T> &set)
 }
 
 template<class Archive, class T>
-inline void load(Archive &archive, QSet<T *> &set)
+inline void load(Archive &archive, QSet<T *> &set, const Parameters &parameters)
 {
     archive >> tag(QStringLiteral("qset"));
-    if (archive.takeFlag(impl::container_item_ref_flag)) {
+    if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
         archive >> ref(QStringLiteral("item"), set, &impl::insertIntoSet<T *>);
     } else {
         archive >> attr<QSet<T *>, T * const &>(QStringLiteral("item"), set, &impl::insertIntoSet<T *>);
@@ -177,7 +167,7 @@ public:
 }
 
 template<class Archive, class KEY, class VALUE>
-inline void save(Archive &archive, const impl::KeyValuePair<KEY, VALUE> &pair)
+inline void save(Archive &archive, const impl::KeyValuePair<KEY, VALUE> &pair, const Parameters &)
 {
     archive << tag(QStringLiteral("pair"))
             << attr(QStringLiteral("key"), pair._key)
@@ -186,7 +176,7 @@ inline void save(Archive &archive, const impl::KeyValuePair<KEY, VALUE> &pair)
 }
 
 template<class Archive, class KEY, class VALUE>
-inline void load(Archive &archive, impl::KeyValuePair<KEY, VALUE> &pair)
+inline void load(Archive &archive, impl::KeyValuePair<KEY, VALUE> &pair, const Parameters &)
 {
     archive >> tag(QStringLiteral("pair"))
             >> attr(QStringLiteral("key"), pair._key)
@@ -195,7 +185,7 @@ inline void load(Archive &archive, impl::KeyValuePair<KEY, VALUE> &pair)
 }
 
 template<class Archive, class KEY, class VALUE>
-inline void save(Archive &archive, const QHash<KEY, VALUE> &hash)
+inline void save(Archive &archive, const QHash<KEY, VALUE> &hash, const Parameters &)
 {
     archive << tag(QStringLiteral("qhash"));
     for (typename QHash<KEY, VALUE>::const_iterator it = hash.begin(); it != hash.end(); ++it) {
@@ -216,7 +206,7 @@ inline void keyValuePairInsert(QHash<KEY, VALUE> &hash, const KeyValuePair<KEY, 
 }
 
 template<class Archive, class KEY, class VALUE>
-inline void load(Archive &archive, QHash<KEY, VALUE> &hash)
+inline void load(Archive &archive, QHash<KEY, VALUE> &hash, const Parameters &)
 {
     archive >> tag(QStringLiteral("qhash"));
     archive >> attr(QStringLiteral("item"), hash, &impl::keyValuePairInsert<KEY, VALUE>);
