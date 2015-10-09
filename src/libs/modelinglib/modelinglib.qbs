@@ -234,8 +234,6 @@ QtcLibrary {
             "project/project.h",
             "project_controller/projectcontroller.cpp",
             "project_controller/projectcontroller.h",
-            "serializer/diagramreferenceserializer.cpp",
-            "serializer/diagramreferenceserializer.h",
             "serializer/diagramserializer.cpp",
             "serializer/diagramserializer.h",
             "serializer/infrastructureserializer.cpp",

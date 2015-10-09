@@ -125,7 +125,6 @@ HEADERS += \
     $$PWD/model_widgets_ui/propertiesviewmview.h \
     $$PWD/project_controller/projectcontroller.h \
     $$PWD/project/project.h \
-    $$PWD/serializer/diagramreferenceserializer.h \
     $$PWD/serializer/diagramserializer.h \
     $$PWD/serializer/infrastructureserializer.h \
     $$PWD/serializer/modelserializer.h \
@@ -253,7 +252,6 @@ SOURCES += \
     $$PWD/model_widgets_ui/propertiesviewmview.cpp \
     $$PWD/project_controller/projectcontroller.cpp \
     $$PWD/project/project.cpp \
-    $$PWD/serializer/diagramreferenceserializer.cpp \
     $$PWD/serializer/diagramserializer.cpp \
     $$PWD/serializer/infrastructureserializer.cpp \
     $$PWD/serializer/modelserializer.cpp \
