@@ -290,4 +290,24 @@ QMap<QString, Platform> IosProbe::detectedPlatforms()
     return m_platforms;
 }
 
+QDebug operator<<(QDebug debug, const Platform &platform)
+{
+    QDebugStateSaver saver(debug); Q_UNUSED(saver)
+    debug.nospace() << "(name=" << platform.name
+                    << ", compiler=" << platform.compilerPath.toString()
+                    << ", flags=" << platform.backendFlags
+                    << ")";
+    return debug;
+}
+
+bool Platform::operator==(const Platform &other) const
+{
+    return name == other.name;
+}
+
+uint qHash(const Platform &platform)
+{
+    return qHash(platform.name);
+}
+
 }

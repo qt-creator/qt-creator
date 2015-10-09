@@ -69,6 +69,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Internal::IosConfigurations::initialize();
 
+    addAutoReleasedObject(new Internal::IosToolChainFactory);
     addAutoReleasedObject(new Internal::IosRunControlFactory);
     addAutoReleasedObject(new Internal::IosRunConfigurationFactory);
     addAutoReleasedObject(new Internal::IosSettingsPage);

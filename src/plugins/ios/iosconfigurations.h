@@ -31,6 +31,7 @@
 #define IOSCONFIGURATIONS_H
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/fileutils.h>
 
 #include <QObject>
@@ -43,6 +44,15 @@ QT_END_NAMESPACE
 
 namespace Ios {
 namespace Internal {
+
+class IosToolChainFactory : public ProjectExplorer::ToolChainFactory
+{
+    Q_OBJECT
+
+public:
+    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &existingToolChains) override;
+};
+
 
 class IosConfigurations : public QObject
 {

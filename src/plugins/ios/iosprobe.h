@@ -54,7 +54,13 @@ public:
     Utils::FileName compilerPath;
     QString architecture;
     QStringList backendFlags;
+
+    // ignores anything besides name
+    bool operator==(const Platform &other) const;
 };
+
+uint qHash(const Platform &platform);
+QDebug operator<<(QDebug debug, const Platform &platform);
 
 class IosProbe
 {
