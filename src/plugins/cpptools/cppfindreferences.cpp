@@ -405,10 +405,10 @@ void CppFindReferences::searchAgain()
 }
 
 namespace {
-class SymbolFinder : public SymbolVisitor
+class UidSymbolFinder : public SymbolVisitor
 {
 public:
-    SymbolFinder(const QList<QByteArray> &uid) : m_uid(uid), m_index(0), m_result(0) { }
+    UidSymbolFinder(const QList<QByteArray> &uid) : m_uid(uid), m_index(0), m_result(0) { }
     Symbol *result() const { return m_result; }
 
     bool preVisit(Symbol *symbol)
@@ -460,7 +460,7 @@ Symbol *CppFindReferences::findSymbol(const CppFindReferencesParameters &paramet
     doc->check();
 
     // find matching symbol in new document and return the new parameters
-    SymbolFinder finder(parameters.symbolId);
+    UidSymbolFinder finder(parameters.symbolId);
     finder.accept(doc->globalNamespace());
     if (finder.result()) {
         *context = LookupContext(doc, snapshot);

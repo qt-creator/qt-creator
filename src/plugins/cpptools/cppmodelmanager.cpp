@@ -44,6 +44,7 @@
 #include "cpptoolsplugin.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
+#include "symbolfinder.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -162,6 +163,8 @@ public:
     bool m_indexerEnabled;
 
     CppFindReferences *m_findReferences;
+
+    SymbolFinder m_symbolFinder;
 
     bool m_enableGC;
     QTimer m_delayedGcTimer;
@@ -1270,6 +1273,11 @@ void CppModelManager::enableGarbageCollector(bool enable)
 {
     d->m_delayedGcTimer.stop();
     d->m_enableGC = enable;
+}
+
+SymbolFinder *CppModelManager::symbolFinder()
+{
+    return &d->m_symbolFinder;
 }
 
 } // namespace CppTools

@@ -98,8 +98,6 @@ CppEditor::CppEditor()
     addContext(ProjectExplorer::Constants::LANG_CXX);
 }
 
-Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
-
 class CppEditorWidgetPrivate
 {
 public:
@@ -384,7 +382,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     // Link to function definition/declaration
     CppEditorWidget::Link symbolLink;
     if (functionDeclarationSymbol) {
-        symbolLink = linkToSymbol(symbolFinder()
+        symbolLink = linkToSymbol(d->m_modelManager->symbolFinder()
             ->findMatchingDefinition(functionDeclarationSymbol, d->m_modelManager->snapshot()));
     } else if (functionDefinitionSymbol) {
         const Snapshot snapshot = d->m_modelManager->snapshot();
@@ -426,7 +424,7 @@ CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor, boo
     return d->m_followSymbolUnderCursor->findLink(cursor, resolveTarget,
                                                   d->m_modelManager->snapshot(),
                                                   d->m_lastSemanticInfo.doc,
-                                                  symbolFinder(),
+                                                  d->m_modelManager->symbolFinder(),
                                                   inNextSplit);
 }
 
