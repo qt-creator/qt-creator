@@ -71,8 +71,8 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     const QString br = QLatin1String("<br/>");
     const QStringList additionalInfoLines = ICore::additionalAboutInformation();
-    const QString additionalInfo = Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)
-        .join(br);
+    const QString additionalInfo =
+            QStringList(Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)).join(br);
 
     const QString description = tr(
         "<h3>%1</h3>"
