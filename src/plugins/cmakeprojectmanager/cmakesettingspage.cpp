@@ -562,7 +562,7 @@ void CMakeSettingsPage::apply()
 {
     QTC_ASSERT(m_widget, return);
     m_widget->m_itemConfigWidget->store();
-    m_widget->m_model.apply();
+    m_widget->apply();
 }
 
 void CMakeSettingsPage::finish()
