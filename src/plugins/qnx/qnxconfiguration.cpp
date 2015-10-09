@@ -331,8 +331,13 @@ Kit *QnxConfiguration::createKit(QnxArchitecture arch,
         QmakeProjectManager::QmakeKitInformation::setMkspec(
                     kit, FileName::fromLatin1("qnx-x86-qcc"));
     } else {
-        QmakeProjectManager::QmakeKitInformation::setMkspec(
-                    kit, FileName::fromLatin1("qnx-armv7le-qcc"));
+        if (qnxQt->qtVersion() >= QtVersionNumber(5, 3, 0)) {
+            QmakeProjectManager::QmakeKitInformation::setMkspec(
+                        kit, FileName::fromLatin1("qnx-armle-v7-qcc"));
+        } else {
+            QmakeProjectManager::QmakeKitInformation::setMkspec(
+                        kit, FileName::fromLatin1("qnx-armv7le-qcc"));
+        }
     }
 
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_QNX_OS_TYPE);
