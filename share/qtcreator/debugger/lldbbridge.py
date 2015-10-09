@@ -48,9 +48,6 @@ from dumper import *
 
 qqWatchpointOffset = 10000
 
-def warn(message):
-    print('\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'"))
-
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
     import traceback
@@ -230,8 +227,7 @@ class Dumper(DumperBase):
         self.voidPtrType_ = None
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
-        self.qmlBreakpointResolvers = {}
-        self.qmlTriggeredBreakpoint = None
+        self.interpreterBreakpointResolvers = []
 
         self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
         self.reportState("enginesetupok")
@@ -549,7 +545,7 @@ class Dumper(DumperBase):
             self.report('error="%s"' % result.GetError())
 
     def put(self, stuff):
-        self.out += stuff
+        self.output += stuff
 
     def isMovableType(self, type):
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
@@ -667,6 +663,7 @@ class Dumper(DumperBase):
         self.sysRoot_ = args.get('sysRoot', '')
         self.remoteChannel_ = args.get('remoteChannel', '')
         self.platform_ = args.get('platform', '')
+        self.nativeMixed = int(args.get('nativemixed', 0))
 
         self.ignoreStops = 0
         self.silentStops = 0
@@ -689,11 +686,14 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
-
         if os.path.isfile(self.executable_):
             self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         else:
             self.target = self.debugger.CreateTarget(None, None, None, True, error)
+
+        if self.nativeMixed:
+            self.interpreterEventBreakpoint = \
+                self.target.BreakpointCreateByName("qt_qmlDebugEventFromService")
 
         state = 1 if self.target.IsValid() else 0
         self.reportResult('success="%s",msg="%s",exe="%s"' % (state, error, self.executable_), args)
@@ -775,9 +775,11 @@ class Dumper(DumperBase):
     def describeLocation(self, frame):
         if int(frame.pc) == 0xffffffffffffffff:
             return ''
-        file = fileNameAsString(frame.line_entry.file)
+        fileName = fileNameAsString(frame.line_entry.file)
+        function = frame.GetFunctionName()
         line = frame.line_entry.line
-        return 'location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc)
+        return 'location={file="%s",line="%s",address="%s",function="%s"}' \
+            % (fileName, line, frame.pc, function)
 
     def currentThread(self):
         return None if self.process is None else self.process.GetSelectedThread()
@@ -847,8 +849,6 @@ class Dumper(DumperBase):
             self.reportResult('msg="No thread"', args)
             return
 
-        self.report(self.describeLocation(thread.GetFrameAtIndex(0))) # FIXME
-
         isNativeMixed = int(args.get('nativemixed', 0))
 
         limit = args.get('stacklimit', -1)
@@ -868,38 +868,27 @@ class Dumper(DumperBase):
             pc = frame.GetPC()
             level = frame.idx
             addr = frame.GetPCAddress().GetLoadAddress(self.target)
+
             functionName = frame.GetFunctionName()
+
+            if isNativeMixed and functionName == "::qt_qmlDebugEventFromService()":
+                interpreterStack = self.extractInterpreterStack()
+                for interpreterFrame in interpreterStack.get('frames', []):
+                    function = interpreterFrame.get('function', '')
+                    fileName = interpreterFrame.get('file', '')
+                    language = interpreterFrame.get('language', '')
+                    lineNumber = interpreterFrame.get('line', 0)
+                    context = interpreterFrame.get('context', 0)
+                    result += ('frame={function="%s",file="%s",'
+                             'line="%s",language="%s",context="%s"}'
+                        % (function, fileName, lineNumber, language, context))
+
             fileName = fileNameAsString(lineEntry.file)
-            usable = None
-            language = None
-
-            if False and isNativeMixed:
-                if self.isReportableInterpreterFrame(functionName):
-                    engine = frame.FindVariable("engine")
-                    self.context = engine
-                    h = self.extractQmlLocation(engine)
-                    pc = 0
-                    functionName = h['function']
-                    fileName = h['file']
-                    lineNumber = h['line']
-                    addr = h['context']
-                    language = 'js'
-
-                #elif not functionName is None:
-                #    if functionName.startswith("qt_v4"):
-                #        usable = 0
-                #    elif functionName.find("QV4::") >= 0:
-                #        usable = 0
-
             result += '{pc="0x%x"' % pc
             result += ',level="%d"' % level
             result += ',address="0x%x"' % addr
-            if not usable is None:
-                result += ',usable="%s"' % usable
             result += ',function="%s"' % functionName
             result += ',line="%d"' % lineNumber
-            if not language is None:
-                result += ',language="%s"' % language
             result += ',file="%s"},' % fileName
         result += ']'
         result += ',hasmore="%d"' % isLimited
@@ -1155,16 +1144,28 @@ class Dumper(DumperBase):
                 with SubItem(self, child):
                     self.putItem(child)
 
-    def reportVariables(self, args):
-        self.out = ""
-        self.reportVariablesHelper(args)
-        self.reportResult(self.out, args)
-
-    def reportVariablesHelper(self, args = {}):
-        frame = self.currentFrame()
-        if frame is None:
+    def fetchVariables(self, args):
+        (ok, res) = self.tryFetchInterpreterVariables(args)
+        if ok:
+            self.reportResult(res, args)
             return
 
+        self.expandedINames = set(args.get('expanded', []))
+        self.autoDerefPointers = int(args.get('autoderef', '0'))
+        self.sortStructMembers = bool(args.get('sortStructMembers', True));
+        self.useDynamicType = int(args.get('dyntype', '0'))
+        self.useFancy = int(args.get('fancy', '0'))
+        self.passExceptions = int(args.get('passexceptions', '0'))
+        self.currentWatchers = args.get('watchers', {})
+        self.typeformats = args.get("typeformats", {})
+        self.formats = args.get("formats", {})
+
+        frame = self.currentFrame()
+        if frame is None:
+            self.reportResult('error="No frame"', args)
+            return
+
+        self.output = ''
         partialVariable = args.get("partialVariable", "")
         isPartial = len(partialVariable) > 0
 
@@ -1232,6 +1233,7 @@ class Dumper(DumperBase):
         self.handleWatches(args)
 
         self.put('],partial="%d"' % isPartial)
+        self.reportResult(self.output, args)
 
     def fetchRegisters(self, args = None):
         if self.process is None:
@@ -1281,7 +1283,7 @@ class Dumper(DumperBase):
         else:
             self.isInterrupting_ = True
             error = self.process.Stop()
-            self.reportResult(describeError(error), args)
+            self.reportResult(self.describeError(error), args)
 
     def detachInferior(self, args):
         if self.process is None:
@@ -1330,28 +1332,31 @@ class Dumper(DumperBase):
                     frame = stoppedThread.GetFrameAtIndex(0)
                     #self.report("FRAME: %s" % frame)
                     function = frame.GetFunction()
-                    #self.report("FUNCTION: %s" % function)
-                    if function.GetName() == "qt_v4ResolvePendingBreakpointsHook":
-                        #self.report("RESOLVER HIT")
-                        for bp in self.qmlBreakpointResolvers:
-                            self.qmlBreakpointResolvers[bp]()
-                            self.target.BreakpointDelete(bp.GetID())
-                        self.qmlBreakpointResolvers = {}
+                    functionName = function.GetName()
+                    if functionName == "::qt_qmlDebugConnectorOpen()":
+                        self.report("RESOLVER HIT")
+                        for resolver in self.interpreterBreakpointResolvers:
+                            resolver()
+                        self.report("AUTO-CONTINUE AFTER RESOLVING")
+                        self.reportState("inferiorstopok")
                         self.process.Continue();
                         return
-
+                    if functionName == "::qt_qmlDebugEventFromService()":
+                        self.report("EVENT FROM SERVICE")
+                        res = self.handleInterpreterEvent()
+                        if not res:
+                            self.report("EVENT NEEDS NO STOP")
+                            self.reportState("stopped")
+                            self.process.Continue();
+                            return
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
-                    self.reportState("inferiorstopok")
+                    self.reportState("stopped")
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
                 elif self.silentStops > 0:
                     self.silentStops -= 1
-                #elif bp and bp in self.qmlBreakpointResolvers:
-                #    self.report("RESOLVER HIT")
-                #    self.qmlBreakpointResolvers[bp]()
-                #    self.process.Continue();
                 else:
                     self.reportState("stopped")
             else:
@@ -1645,19 +1650,6 @@ class Dumper(DumperBase):
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def fetchLocals(self, args):
-        self.output = ''
-        self.expandedINames = set(args.get('expanded', []))
-        self.autoDerefPointers = int(args.get('autoderef', '0'))
-        self.sortStructMembers = bool(args.get("sortStructMembers", True));
-        self.useDynamicType = int(args.get('dyntype', '0'))
-        self.useFancy = int(args.get('fancy', '0'))
-        self.passExceptions = int(args.get('passexceptions', '0'))
-        self.currentWatchers = args.get('watchers', {})
-        self.typeformats = args.get("typeformats", {})
-        self.formats = args.get("formats", {})
-        self.reportVariables(args)
-
     def fetchDisassembler(self, args):
         functionName = args.get('function', '')
         flavor = args.get('flavor', '')
@@ -1744,17 +1736,13 @@ class Dumper(DumperBase):
         value = self.hexdecode(args['value'])
         lhs = self.findValueByExpression(exp)
         lhs.SetValueFromCString(value, error)
-        self.reportResult(describeError(error), args)
+        self.reportResult(self.describeError(error), args)
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
-        if self.qmlTriggeredBreakpoint is None:
-            self.qmlTriggeredBreakpoint = \
-                self.target.BreakpointCreateByName("qt_v4TriggeredBreakpointHook")
-
-        bp = self.target.BreakpointCreateByName("qt_v4ResolvePendingBreakpointsHook")
+        bp = self.target.BreakpointCreateByName("qt_qmlDebugConnectorOpen")
         bp.SetOneShot(True)
-        self.qmlBreakpointResolvers[bp] = lambda: \
-            self.doInsertQmlBreakpoint(args)
+        self.interpreterBreakpointResolvers.append(
+            lambda: self.doInsertInterpreterBreakpoint(args, True))
 
 
 # Used in dumper auto test.
@@ -1825,7 +1813,7 @@ class Tester(Dumper):
                         if line != 0:
                             self.report = savedReport
                             self.process.SetSelectedThread(stoppedThread)
-                            self.reportVariables({'token':2})
+                            self.fetchVariables({'token':2, 'fancy':1})
                             #self.describeLocation(frame)
                             self.report("@NS@%s@" % self.qtNamespace())
                             #self.report("ENV=%s" % os.environ.items())

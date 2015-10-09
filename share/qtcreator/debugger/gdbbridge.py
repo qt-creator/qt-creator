@@ -220,12 +220,11 @@ class Dumper(DumperBase):
 
         # These values will be kept between calls to 'fetchVariables'.
         self.isGdb = True
-        self.childEventAddress = None
         self.typeCache = {}
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
-        self.interpreterBreakpoints = []
+        self.interpreterBreakpointResolvers = []
 
     def prepare(self, args):
         self.output = []
@@ -359,13 +358,10 @@ class Dumper(DumperBase):
         partialVariable = args.get("partialVariable", "")
         isPartial = len(partialVariable) > 0
 
-        if self.nativeMixed:
-            context = args.get('context', '')
-            if len(context):
-                res = self.extractInterpreterVariables(args)
-                if res:
-                    safePrint('data=%s' % self.dictToMi(res.get('data', {})))
-                return
+        (ok, res) = self.tryFetchInterpreterVariables(args)
+        if ok:
+            safePrint(res)
+            return
 
         #
         # Locals
@@ -1655,7 +1651,7 @@ class Dumper(DumperBase):
                 self.enabled = False
                 return False
 
-        self.interpreterBreakpoints.append(Resolver(self, args))
+        self.interpreterBreakpointResolvers.append(Resolver(self, args))
 
     def exitGdb(self, _):
         gdb.execute("quit")
@@ -1804,18 +1800,6 @@ registerCommand("threadnames", threadnames)
 #
 #######################################################################
 
-class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
-    def __init__(self):
-        spec = "qt_v4TriggeredBreakpointHook"
-        super(TriggeredBreakpointHookBreakpoint, self).\
-            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
-
-    def stop(self):
-        print("QML engine stopped.")
-        return True
-
-TriggeredBreakpointHookBreakpoint()
-
 class QmlEngineEventBreakpoint(gdb.Breakpoint):
     def __init__(self):
         spec = "qt_qmlDebugEventFromService"
@@ -1823,7 +1807,7 @@ class QmlEngineEventBreakpoint(gdb.Breakpoint):
             __init__(spec, gdb.BP_BREAKPOINT, internal=True)
 
     def stop(self):
-        print("QML engine event received.")
+        print("Interpreter event received.")
         return theDumper.handleInterpreterEvent()
 
 QmlEngineEventBreakpoint()

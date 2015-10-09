@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggerprotocol.h"
 #include "simplifytype.h"
 
 #include <utils/fileutils.h>
@@ -168,12 +169,6 @@ StackFrame StackHandler::currentFrame() const
     return m_stackFrames.at(m_currentIndex);
 }
 
-void StackHandler::setAllFrames(const GdbMi &frames, bool canExpand)
-{
-    action(ExpandStack)->setEnabled(canExpand);
-    setFrames(StackFrame::parseFrames(frames, m_engine->runParameters()), canExpand);
-}
-
 void StackHandler::setCurrentIndex(int level)
 {
     if (level == -1 || level == m_currentIndex)
@@ -212,6 +207,45 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
         m_currentIndex = -1;
     endResetModel();
     emit stackChanged();
+}
+
+void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
+{
+    int targetFrame = -1;
+
+    StackFrames stackFrames;
+    const int n = frames.childCount();
+    for (int i = 0; i != n; ++i) {
+        stackFrames.append(StackFrame::parseFrame(frames.childAt(i), m_engine->runParameters()));
+        const StackFrame &frame = stackFrames.back();
+
+        // Initialize top frame to the first valid frame.
+        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
+        if (isValid && targetFrame == -1)
+            targetFrame = i;
+    }
+
+    bool canExpand = !isFull && (n >= action(MaximalStackDepth)->value().toInt());
+    action(ExpandStack)->setEnabled(canExpand);
+    setFrames(stackFrames, canExpand);
+
+    // We can't jump to any file if we don't have any frames.
+    if (stackFrames.isEmpty())
+        return;
+
+    // targetFrame contains the top most frame for which we have source
+    // information. That's typically the frame we'd like to jump to, with
+    // a few exceptions:
+
+    // Always jump to frame #0 when stepping by instruction.
+    if (boolSetting(OperateByInstruction))
+        targetFrame = 0;
+
+    // If there is no frame with source, jump to frame #0.
+    if (targetFrame == -1)
+        targetFrame = 0;
+
+    setCurrentIndex(targetFrame);
 }
 
 void StackHandler::prependFrames(const StackFrames &frames)

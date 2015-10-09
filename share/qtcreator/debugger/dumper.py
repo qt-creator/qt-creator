@@ -841,8 +841,31 @@ class DumperBase:
             return '{' + ','.join(['%s=%s' % (k, self.dictToMi(v))
                                 for (k, v) in list(value.items())]) + '}'
         if type(value) is list:
-            return '[' + ','.join([self.dictToMi(v) for v in value]) + ']'
+            index = 0
+            pairs = []
+            for item in value:
+                name = item.get('name', '')
+                if len(name) == 0:
+                    name = str(index)
+                    index += 1
+                pairs.append((name, self.dictToMi(item)))
+            pairs.sort(key = lambda pair: pair[0])
+            return '[' + ','.join([pair[1] for pair in pairs]) + ']'
         return '"%s"' % value
+
+    def tryFetchInterpreterVariables(self, args):
+        if not int(args.get('nativemixed', 0)):
+            return (False, '')
+        context = args.get('context', '')
+        if not len(context):
+            return (False, '')
+        res = self.extractInterpreterVariables(args)
+        if res:
+            return (True, 'data=%s' % self.dictToMi(res.get('data', {})))
+        return (False, '')
+
+    def variableDictToMi(self, res):
+        return self.dictToMi(res.get('data', {}), self.SortStructMembers)
 
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
@@ -1763,7 +1786,7 @@ class DumperBase:
         buf = self.parseAndEvaluate("qt_qmlDebugEventBuffer")
         size = self.parseAndEvaluate("qt_qmlDebugEventLength")
         resdict = self.readJsonFromMemory(buf, size)
-        warn("RES DICT : %s" % resdict)
+        warn("Interpreter event received: %s" % resdict)
         return resdict.get('event') == 'break'
 
     def removeInterpreterBreakpoint(self, args):
@@ -1779,8 +1802,12 @@ class DumperBase:
 
     def sendInterpreterRequest(self, command, args = {}):
         self.interpreterSeq += 1
-        cmd = { 'seq': self.interpreterSeq, 'type': 'request', 'command': command, 'arguments': args }
-        encoded = json.dumps(cmd)
+        encoded = json.dumps({
+            'seq': self.interpreterSeq,
+            'type': 'request',
+            'command': command,
+            'arguments': args
+        })
         hexdata = self.hexencode(encoded)
         expr = 'qt_qmlDebugSendDataToService("NativeQmlDebugger","%s")' % hexdata
         try:

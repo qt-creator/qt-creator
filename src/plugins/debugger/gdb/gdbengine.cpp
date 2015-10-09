@@ -3272,54 +3272,14 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
         return;
     }
 
-    QList<StackFrame> stackFrames;
-
-    GdbMi stack = response.data["stack"]; // C++
-    if (!stack.isValid() || stack.childCount() == 0) { // Mixed.
-        stack.fromStringMultiple(response.consoleStreamOutput);
-        stack = stack["frames"];
+    GdbMi frames = response.data["stack"]; // C++
+    if (!frames.isValid() || frames.childCount() == 0) { // Mixed.
+        frames.fromStringMultiple(response.consoleStreamOutput);
+        frames = frames["frames"];
     }
 
-    if (!stack.isValid()) {
-        qDebug() << "FIXME: stack:" << stack.toString();
-        return;
-    }
-
-    int targetFrame = -1;
-
-    int n = stack.childCount();
-    for (int i = 0; i != n; ++i) {
-        stackFrames.append(StackFrame::parseFrame(stack.childAt(i), runParameters()));
-        const StackFrame &frame = stackFrames.back();
-
-        // Initialize top frame to the first valid frame.
-        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
-        if (isValid && targetFrame == -1)
-            targetFrame = i;
-    }
-
-    bool canExpand = !isFull && (n >= action(MaximalStackDepth)->value().toInt());
-    action(ExpandStack)->setEnabled(canExpand);
-    stackHandler()->setFrames(stackFrames, canExpand);
-
-    // We can't jump to any file if we don't have any frames.
-    if (stackFrames.isEmpty())
-        return;
-
-    // targetFrame contains the top most frame for which we have source
-    // information. That's typically the frame we'd like to jump to, with
-    // a few exceptions:
-
-    // Always jump to frame #0 when stepping by instruction.
-    if (boolSetting(OperateByInstruction))
-        targetFrame = 0;
-
-    // If there is no frame with source, jump to frame #0.
-    if (targetFrame == -1)
-        targetFrame = 0;
-
-    stackHandler()->setCurrentIndex(targetFrame);
-    activateFrame(targetFrame);
+    stackHandler()->setFramesAndCurrentIndex(frames, isFull);
+    activateFrame(stackHandler()->currentIndex());
 }
 
 void GdbEngine::activateFrame(int frameIndex)
