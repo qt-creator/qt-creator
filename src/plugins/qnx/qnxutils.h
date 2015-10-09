@@ -68,7 +68,6 @@ public:
     static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
     static QStringList searchPaths(Qnx::Internal::QnxQtVersion *qtVersion);
     static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
-    static bool isValidNdkPath(const QString & ndkPath);
     static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
     static QString bbDataDirPath();
     static QString bbqConfigPath();
