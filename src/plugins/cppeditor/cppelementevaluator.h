@@ -31,7 +31,6 @@
 #ifndef CPPELEMENTEVALUATOR_H
 #define CPPELEMENTEVALUATOR_H
 
-#include <cpptools/symbolfinder.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 
@@ -88,7 +87,6 @@ private:
     bool m_lookupDerivedClasses;
     QSharedPointer<CppElement> m_element;
     QString m_diagnosis;
-    CppTools::SymbolFinder m_symbolFinder;
 };
 
 class CppElement
