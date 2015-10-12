@@ -90,46 +90,41 @@ public:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
     FancyLineEdit *m_lineEdit;
+    IconButton *m_iconbutton[2];
+    HistoryCompleter *m_historyCompleter = 0;
+    FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
     QPixmap m_pixmap[2];
     QMenu *m_menu[2];
+    FancyLineEdit::State m_state = FancyLineEdit::Invalid;
     bool m_menuTabFocusTrigger[2];
-    IconButton *m_iconbutton[2];
     bool m_iconEnabled[2];
 
-    HistoryCompleter *m_historyCompleter;
-    FancyLineEdit::ValidationFunction m_validationFunction;
+    bool m_isFiltering = false;
+    bool m_firstChange = false;
 
-    bool m_isFiltering;
     QString m_lastFilterText;
 
     const QColor m_okTextColor;
-    QColor m_errorTextColor;
-    FancyLineEdit::State m_state;
+    QColor m_errorTextColor = Qt::red;
     QString m_errorMessage;
     QString m_initialText;
-    bool m_firstChange;
 };
-
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
     m_lineEdit(parent),
-    m_historyCompleter(0),
-    m_validationFunction(FancyLineEdit::defaultValidationFunction()),
-    m_isFiltering(false),
-    m_okTextColor(FancyLineEdit::textColor(parent)),
-    m_errorTextColor(Qt::red),
-    m_state(FancyLineEdit::Invalid),
-    m_firstChange(true)
+    m_okTextColor(FancyLineEdit::textColor(parent))
 {
     for (int i = 0; i < 2; ++i) {
-        m_menu[i] = 0;
-        m_menuTabFocusTrigger[i] = false;
         m_iconbutton[i] = new IconButton(parent);
         m_iconbutton[i]->installEventFilter(this);
         m_iconbutton[i]->hide();
         m_iconbutton[i]->setAutoHide(false);
+
+        m_menu[i] = 0;
+
+        m_menuTabFocusTrigger[i] = false;
         m_iconEnabled[i] = false;
     }
 }
