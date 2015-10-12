@@ -48,6 +48,8 @@
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
+#include <QTemporaryFile>
+
 #include <chrono>
 #include <thread>
 
@@ -69,11 +71,17 @@ namespace {
 class TranslationUnit : public ::testing::Test
 {
 protected:
+    ::TranslationUnit createTemporaryTranslationUnit();
+    QByteArray readContentFromTranslationUnitFile() const;
+
+protected:
     ClangBackEnd::ProjectParts projects;
+    ProjectPart projectPart{Utf8StringLiteral("/path/to/projectfile")};
+    Utf8String translationUnitFilePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    ::TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp"),
-                                      ProjectPart(Utf8StringLiteral("/path/to/projectfile")),
+    ::TranslationUnit translationUnit{translationUnitFilePath,
+                                      projectPart,
                                       translationUnits};
 };
 
@@ -86,13 +94,13 @@ TEST_F(TranslationUnit, DefaultTranslationUnitIsInvalid)
 
 TEST_F(TranslationUnit, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), ProjectPart(Utf8StringLiteral("/path/to/projectfile")), translationUnits),
+    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, translationUnits),
                  ClangBackEnd::TranslationUnitFileNotExitsException);
 }
 
 TEST_F(TranslationUnit, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), ProjectPart(Utf8StringLiteral("/path/to/projectfile")), translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
+    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
 }
 
 TEST_F(TranslationUnit, TranslationUnitIsValid)
@@ -172,7 +180,7 @@ TEST_F(TranslationUnit, DocumentRevisionInFileContainerGetter)
 TEST_F(TranslationUnit, DependedFilePaths)
 {
     ASSERT_THAT(translationUnit.dependedFilePaths(),
-                AllOf(Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")),
+                AllOf(Contains(translationUnitFilePath),
                       Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"))));
 }
 
@@ -198,7 +206,7 @@ TEST_F(TranslationUnit, NeedsReparsingForMainFile)
 {
     translationUnit.cxTranslationUnit();
 
-    translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp"));
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
     ASSERT_TRUE(translationUnit.isNeedingReparse());
 }
@@ -235,7 +243,7 @@ TEST_F(TranslationUnit, HasNewDiagnosticsForMainFile)
 {
     translationUnit.cxTranslationUnit();
 
-    translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp"));
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
     ASSERT_TRUE(translationUnit.hasNewDiagnostics());
 }
@@ -243,20 +251,41 @@ TEST_F(TranslationUnit, HasNewDiagnosticsForMainFile)
 TEST_F(TranslationUnit, HasNoNewDiagnosticsAfterGettingDiagnostics)
 {
     translationUnit.cxTranslationUnit();
-    translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp"));
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
     translationUnit.diagnostics();
 
     ASSERT_FALSE(translationUnit.hasNewDiagnostics());
 }
 
-//TEST_F(TranslationUnit, ThrowParseErrorForWrongArguments)
-//{
-//    ProjectPart project(Utf8StringLiteral("/path/to/projectfile"));
-//    project.setArguments({Utf8StringLiteral("-fblah")});
-//    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"), unsavedFiles, project);
+TEST_F(TranslationUnit, DeletedFileShouldBeNotSetDirty)
+{
+    auto translationUnit = createTemporaryTranslationUnit();
 
-//    ASSERT_THROW(translationUnit.cxTranslationUnit(), ClangBackEnd::TranslationUnitParseErrorException);
-//}
+    translationUnit.setDirtyIfDependencyIsMet(translationUnit.filePath());
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+::TranslationUnit TranslationUnit::createTemporaryTranslationUnit()
+{
+    QTemporaryFile temporaryFile;
+    EXPECT_TRUE(temporaryFile.open());
+    EXPECT_TRUE(temporaryFile.write(readContentFromTranslationUnitFile()));
+    ::TranslationUnit translationUnit(temporaryFile.fileName(),
+                                      projectPart,
+                                      translationUnits);
+
+return translationUnit;
+}
+
+QByteArray TranslationUnit::readContentFromTranslationUnitFile() const
+{
+    QFile contentFile(translationUnitFilePath);
+    EXPECT_TRUE(contentFile.open(QIODevice::ReadOnly));
+
+    return contentFile.readAll();
+}
 
 }
+
