@@ -132,6 +132,7 @@ CXIndex TranslationUnit::index() const
 CXTranslationUnit TranslationUnit::cxTranslationUnit() const
 {
     checkIfNull();
+    checkIfFileExists();
     removeTranslationUnitIfProjectPartWasChanged();
     createTranslationUnitIfNeeded();
     reparseTranslationUnitIfFilesAreChanged();
