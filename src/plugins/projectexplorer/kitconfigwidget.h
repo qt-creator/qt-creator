@@ -70,6 +70,8 @@ public:
 
     static QString msgManage();
 
+    Kit *kit() const { return m_kit; }
+
 signals:
     void dirty();
 

@@ -605,22 +605,26 @@ void KitAreaWidget::updateKit(Kit *k)
     if (!m_kit || m_kit != k)
         return;
 
-    // Check whether our widgets changed
-    bool mustRegenerate = false;
-    QList<Core::Id> knownIdList;
-    foreach (KitConfigWidget *w, m_widgets)
-        knownIdList << w->kitInformationId();
+    bool addedMutables = false;
+    QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitConfigWidget::kitInformationId);
 
     foreach (KitInformation *ki, KitManager::kitInformation()) {
         Core::Id currentId = ki->id();
         if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
-            mustRegenerate = true;
+            addedMutables = true;
             break;
         }
     }
+    const bool removedMutables = !knownIdList.isEmpty();
 
-    if (mustRegenerate || !knownIdList.isEmpty())
+    if (addedMutables || removedMutables) {
+        // Redo whole setup if the number of mutable settings did change
         setKit(m_kit);
+    } else {
+        // Refresh all widgets if the number of mutable settings did not change
+        foreach (KitConfigWidget *w, m_widgets)
+            w->refresh();
+    }
 }
 
 /////////
