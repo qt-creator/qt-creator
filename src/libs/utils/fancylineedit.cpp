@@ -411,13 +411,6 @@ void FancyLineEdit::setOkColor(const QColor &c)
     validate();
 }
 
-void FancyLineEdit::setTextColor(QWidget *w, const QColor &c)
-{
-    QPalette palette = w->palette();
-    palette.setColor(QPalette::Active, QPalette::Text, c);
-    w->setPalette(palette);
-}
-
 void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
 {
     d->m_validationFunction = fn;
@@ -478,7 +471,11 @@ void FancyLineEdit::validate()
         const bool validHasChanged = (d->m_state == Valid) != (newState == Valid);
         d->m_state = newState;
         d->m_firstChange = false;
-        setTextColor(this, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+
+        QPalette p = palette();
+        p.setColor(QPalette::Active, QPalette::Text, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+        setPalette(p);
+
         if (validHasChanged)
             emit validChanged(newState == Valid);
     }

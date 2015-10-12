@@ -147,8 +147,6 @@ public:
     QColor okColor() const;
     void setOkColor(const  QColor &c);
 
-    static void setTextColor(QWidget *w, const QColor &c);
-
     void setValidationFunction(const ValidationFunction &fn);
     static ValidationFunction defaultValidationFunction();
     void validate();
