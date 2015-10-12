@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fancylineedit.h>
 #include <utils/itemviews.h>
+#include <utils/progressindicator.h>
 #include <utils/theme/theme.h>
 #include <coreplugin/icore.h>
 
@@ -121,6 +122,18 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setSortingEnabled(true);
     m_treeView->setActivationMode(Utils::DoubleClickActivation);
+
+    connect(&m_progressIndicatorTimer, &QTimer::timeout,
+            [this]() { setProgressIndicatorVisible(true); });
+    m_progressIndicatorTimer.setSingleShot(true);
+    m_progressIndicatorTimer.setInterval(50); // don't show progress for < 50ms tasks
+
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large,
+                                                       m_treeView);
+    m_progressIndicator->attachToWidget(m_treeView->viewport());
+    m_progressIndicator->hide();
+
+    connect(m_model, &GerritModel::stateChanged, this, &GerritDialog::manageProgressIndicator);
 
     QItemSelectionModel *selectionModel = m_treeView->selectionModel();
     connect(selectionModel, &QItemSelectionModel::currentChanged,
@@ -251,6 +264,16 @@ void GerritDialog::slotRefresh()
     m_treeView->sortByColumn(-1);
 }
 
+void GerritDialog::manageProgressIndicator()
+{
+    if (m_model->state() == GerritModel::Running) {
+        m_progressIndicatorTimer.start();
+    } else {
+        m_progressIndicatorTimer.stop();
+        setProgressIndicatorVisible(false);
+    }
+}
+
 QModelIndex GerritDialog::currentIndex() const
 {
     const QModelIndex index = m_treeView->selectionModel()->currentIndex();
@@ -290,6 +313,11 @@ void GerritDialog::fetchFinished()
     m_displayButton->setToolTip(QString());
     m_cherryPickButton->setToolTip(QString());
     m_checkoutButton->setToolTip(QString());
+}
+
+void GerritDialog::setProgressIndicatorVisible(bool v)
+{
+    m_progressIndicator->setVisible(v);
 }
 
 } // namespace Internal
