@@ -591,6 +591,7 @@ void KitAreaWidget::setKit(Kit *k)
             // force fusion style as native style has rendering issues on windows:
             mainWidget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
             m_layout->addWidget(mainWidget, row, 1);
+            m_layout->addWidget(widget->buttonWidget(), row, 2);
             ++row;
         }
     }
