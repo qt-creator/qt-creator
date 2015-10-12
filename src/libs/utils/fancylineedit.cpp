@@ -105,7 +105,7 @@ public:
 
     QString m_lastFilterText;
 
-    const QColor m_okTextColor;
+    QColor m_okTextColor;
     QColor m_errorTextColor = Qt::red;
     QString m_errorMessage;
     QString m_initialText;
@@ -113,9 +113,10 @@ public:
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
-    m_lineEdit(parent),
-    m_okTextColor(FancyLineEdit::textColor(parent))
+    m_lineEdit(parent)
 {
+    m_okTextColor = parent->palette().color(QPalette::Active, QPalette::Text);
+
     for (int i = 0; i < 2; ++i) {
         m_iconbutton[i] = new IconButton(parent);
         m_iconbutton[i]->installEventFilter(this);
@@ -395,12 +396,19 @@ QColor FancyLineEdit::errorColor() const
 
 void FancyLineEdit::setErrorColor(const  QColor &c)
 {
-     d->m_errorTextColor = c;
+    d->m_errorTextColor = c;
+    validate();
 }
 
-QColor FancyLineEdit::textColor(const QWidget *w)
+QColor FancyLineEdit::okColor() const
 {
-    return w->palette().color(QPalette::Active, QPalette::Text);
+    return d->m_okTextColor;
+}
+
+void FancyLineEdit::setOkColor(const QColor &c)
+{
+    d->m_okTextColor = c;
+    validate();
 }
 
 void FancyLineEdit::setTextColor(QWidget *w, const QColor &c)
