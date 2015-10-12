@@ -74,7 +74,8 @@ SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, const Kit
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
     m_chooser->setFileName(SysRootKitInformation::sysRoot(k));
-    connect(m_chooser, SIGNAL(rawPathChanged(QString)), this, SLOT(pathWasChanged()));
+    connect(m_chooser, &Utils::PathChooser::rawPathChanged,
+            this, &SysRootInformationConfigWidget::pathWasChanged);
 }
 
 SysRootInformationConfigWidget::~SysRootInformationConfigWidget()
@@ -134,11 +135,13 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const
     m_comboBox->setToolTip(toolTip());
 
     refresh();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentToolChainChanged(int)));
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ToolChainInformationConfigWidget::currentToolChainChanged);
 
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageToolChains()));
+    connect(m_manageButton, &QAbstractButton::clicked,
+            this, &ToolChainInformationConfigWidget::manageToolChains);
 }
 
 ToolChainInformationConfigWidget::~ToolChainInformationConfigWidget()
@@ -234,7 +237,8 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workin
     m_comboBox->setToolTip(toolTip());
 
     refresh();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentTypeChanged(int)));
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &DeviceTypeInformationConfigWidget::currentTypeChanged);
 }
 
 DeviceTypeInformationConfigWidget::~DeviceTypeInformationConfigWidget()
@@ -299,10 +303,14 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, c
     refresh();
     m_comboBox->setToolTip(toolTip());
 
-    connect(m_model, SIGNAL(modelAboutToBeReset()), SLOT(modelAboutToReset()));
-    connect(m_model, SIGNAL(modelReset()), SLOT(modelReset()));
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDeviceChanged()));
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDevices()));
+    connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
+            this, &DeviceInformationConfigWidget::modelAboutToReset);
+    connect(m_model, &QAbstractItemModel::modelReset,
+            this, &DeviceInformationConfigWidget::modelReset);
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &DeviceInformationConfigWidget::currentDeviceChanged);
+    connect(m_manageButton, &QAbstractButton::clicked,
+            this, &DeviceInformationConfigWidget::manageDevices);
 }
 
 DeviceInformationConfigWidget::~DeviceInformationConfigWidget()
@@ -380,7 +388,8 @@ KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const K
 {
     refresh();
     m_manageButton->setText(tr("Change..."));
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(editEnvironmentChanges()));
+    connect(m_manageButton, &QAbstractButton::clicked,
+            this, &KitEnvironmentConfigWidget::editEnvironmentChanges);
 }
 
 QWidget *KitEnvironmentConfigWidget::mainWidget() const
@@ -441,11 +450,12 @@ void KitEnvironmentConfigWidget::editEnvironmentChanges()
     layout->addWidget(m_editor);
     layout->addWidget(buttons);
 
-    connect(buttons, SIGNAL(accepted()), m_dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), m_dialog, SLOT(reject()));
-    connect(m_dialog, SIGNAL(accepted()), this, SLOT(acceptChangesDialog()));
-    connect(m_dialog, SIGNAL(rejected()), this, SLOT(closeChangesDialog()));
-    connect(buttons->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(applyChanges()));
+    connect(buttons, &QDialogButtonBox::accepted, m_dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, m_dialog, &QDialog::reject);
+    connect(m_dialog, &QDialog::accepted, this, &KitEnvironmentConfigWidget::acceptChangesDialog);
+    connect(m_dialog, &QDialog::rejected, this, &KitEnvironmentConfigWidget::closeChangesDialog);
+    connect(buttons->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
+            this, &KitEnvironmentConfigWidget::applyChanges);
 
     refresh();
     m_dialog->show();
