@@ -583,15 +583,22 @@ void KitAreaWidget::setKit(Kit *k)
         if (k && k->isMutable(ki->id())) {
             KitConfigWidget *widget = ki->createConfigWidget(k);
             m_widgets << widget;
+            QList<QWidget *> rowWidgets;
             QLabel *label = new QLabel(widget->displayName());
             m_labels << label;
 
-            m_layout->addWidget(label, row, 0);
-            QWidget *mainWidget = widget->mainWidget();
-            // force fusion style as native style has rendering issues on windows:
-            mainWidget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
-            m_layout->addWidget(mainWidget, row, 1);
-            m_layout->addWidget(widget->buttonWidget(), row, 2);
+            rowWidgets.append(label);
+            rowWidgets.append(widget->mainWidget());
+            rowWidgets.append(widget->buttonWidget());
+
+            for (int i = 0; i < rowWidgets.count(); ++i) {
+                QWidget *w = rowWidgets.at(i);
+                m_layout->addWidget(w, row, i);
+                if (w && i > 0) {
+                    w->setStyle(QStyleFactory::create(QLatin1String("fusion")));
+                    w->setPalette(palette());
+                }
+            }
             ++row;
         }
     }
@@ -662,7 +669,12 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 {
     QPalette p;
     p.setColor(QPalette::Text, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    p.setColor(QPalette::Foreground, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    p.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    p.setColor(QPalette::Background, creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
+    p.setColor(QPalette::Base, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor));
     setPalette(p);
+
     setProperty("panelwidget", true);
     setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);
