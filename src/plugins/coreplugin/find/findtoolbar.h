@@ -194,6 +194,7 @@ private:
 
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;
+    IFindSupport::Result m_lastResult;
     bool m_useFakeVim;
     bool m_eventFiltersInstalled;
 };
