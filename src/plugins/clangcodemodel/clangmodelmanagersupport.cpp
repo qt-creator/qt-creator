@@ -172,7 +172,7 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
 {
     if (success) {
         Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-        m_ipcCommunicator.updateTranslationUnit(document);
+        m_ipcCommunicator.requestDiagnostics(document);
     }
 }
 

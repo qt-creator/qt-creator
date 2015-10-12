@@ -459,6 +459,17 @@ void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
     }
 }
 
+void IpcCommunicator::requestDiagnostics(Core::IDocument *document)
+{
+    const auto textDocument = qobject_cast<TextDocument*>(document);
+    const auto filePath = textDocument->filePath().toString();
+    const QString projectPartId = Utils::projectPartIdForFile(filePath);
+
+    requestDiagnostics(FileContainer(filePath,
+                                     projectPartId,
+                                     textDocument->document()->revision()));
+}
+
 void IpcCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
 {
     auto *document = cppDocument(filePath);

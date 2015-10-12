@@ -138,6 +138,7 @@ public:
     void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
+    void requestDiagnostics(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
 public: // for tests
