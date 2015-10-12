@@ -100,7 +100,7 @@ private:
     QStringListModel *m_queryModel;
     Utils::TreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
-    QueryValidatingLineEdit *m_queryLineEdit;
+    Utils::FancyLineEdit *m_queryLineEdit;
     Utils::FancyLineEdit *m_filterLineEdit;
     Utils::PathChooser *m_repositoryChooser;
     QDialogButtonBox *m_buttonBox;

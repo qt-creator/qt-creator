@@ -125,25 +125,29 @@ public:
 
     QStandardItem *itemForId(const QString &id) const;
 
-public slots:
+    enum QueryState { Idle, Running, Ok, Error };
+    QueryState state() const { return m_state; }
+
     void refresh(const QString &query);
 
 signals:
     void refreshStateChanged(bool isRefreshing); // For disabling the "Refresh" button.
-    void queryError();
+    void stateChanged();
 
-private slots:
+private:
     void queryFinished(const QByteArray &);
     void queriesFinished();
     void clearData();
 
-private:
+    void setState(QueryState s);
+
     QString dependencyHtml(const QString &header, const QString &changeId,
                            const QString &serverPrefix) const;
     QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 
     const QSharedPointer<GerritParameters> m_parameters;
-    QueryContext *m_query;
+    QueryContext *m_query = 0;
+    QueryState m_state = Idle;
     QString m_userName;
 };
 

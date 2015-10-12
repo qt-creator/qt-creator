@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fancylineedit.h>
 #include <utils/itemviews.h>
+#include <utils/theme/theme.h>
 #include <coreplugin/icore.h>
 
 #include <QVBoxLayout>
@@ -59,57 +60,6 @@ namespace Internal {
 static const int layoutSpacing  = 5;
 static const int maxTitleWidth = 350;
 
-class QueryValidatingLineEdit : public Utils::FancyLineEdit
-{
-    Q_OBJECT
-
-public:
-    explicit QueryValidatingLineEdit(QWidget *parent = 0);
-    void setTextColor(const QColor &c);
-
-public slots:
-    void setValid();
-    void setInvalid();
-
-private:
-    bool m_valid;
-    const QColor m_okTextColor;
-    const QColor m_errorTextColor;
-};
-
-QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
-    : Utils::FancyLineEdit(parent)
-    , m_valid(true)
-    , m_okTextColor(palette().color(QPalette::Active, QPalette::Text))
-    , m_errorTextColor(Qt::red)
-{
-    setFiltering(true);
-    connect(this, &QLineEdit::textChanged, this, &QueryValidatingLineEdit::setValid);
-}
-
-void QueryValidatingLineEdit::setTextColor(const QColor &c)
-{
-    QPalette pal;
-    pal.setColor(QPalette::Active, QPalette::Text, c);
-    setPalette(pal);
-}
-
-void QueryValidatingLineEdit::setValid()
-{
-    if (!m_valid) {
-        m_valid = true;
-        setTextColor(m_okTextColor);
-    }
-}
-
-void QueryValidatingLineEdit::setInvalid()
-{
-    if (m_valid) {
-        m_valid = false;
-        setTextColor(m_errorTextColor);
-    }
-}
-
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
                            QWidget *parent)
     : QDialog(parent)
@@ -119,7 +69,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_queryModel(new QStringListModel(this))
     , m_treeView(new Utils::TreeView)
     , m_detailsBrowser(new QTextBrowser)
-    , m_queryLineEdit(new QueryValidatingLineEdit)
+    , m_queryLineEdit(new Utils::FancyLineEdit)
     , m_filterLineEdit(new Utils::FancyLineEdit)
     , m_repositoryChooser(new Utils::PathChooser)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
@@ -141,6 +91,11 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
     m_queryLineEdit->setSpecialCompleter(completer);
+    m_queryLineEdit->setOkColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal));
+    m_queryLineEdit->setErrorColor(Utils::creatorTheme()->color(Utils::Theme::TextColorError));
+    m_queryLineEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
+                                               return m_model->state() != GerritModel::Error;
+                                           });
     filterLayout->addWidget(queryLabel);
     filterLayout->addWidget(m_queryLineEdit);
     filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
@@ -150,7 +105,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
     connect(m_queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::slotRefresh);
-    connect(m_model, &GerritModel::queryError, m_queryLineEdit, &QueryValidatingLineEdit::setInvalid);
+    connect(m_model, &GerritModel::stateChanged, m_queryLineEdit, &Utils::FancyLineEdit::validate);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     changesLayout->addLayout(filterLayout);
     changesLayout->addWidget(m_treeView);
@@ -339,5 +294,3 @@ void GerritDialog::fetchFinished()
 
 } // namespace Internal
 } // namespace Gerrit
-
-#include "gerritdialog.moc"
