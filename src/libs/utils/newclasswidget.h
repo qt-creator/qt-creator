@@ -155,10 +155,6 @@ public slots:
      */
     void suggestClassNameFromBase();
 
-public slots:
-    /** Trigger an update (after changing settings) */
-    void triggerUpdateFileNames();
-
 private slots:
     void slotUpdateFileNames(const QString &t);
     void slotValidChanged();

@@ -453,7 +453,7 @@ QString PathChooser::errorMessage() const
 
 void PathChooser::triggerChanged()
 {
-    d->m_lineEdit->triggerChanged();
+    d->m_lineEdit->validate();
 }
 
 void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowContextMenuHandler handler)
@@ -616,7 +616,7 @@ void PathChooser::setExpectedKind(Kind expected)
     if (d->m_acceptingKind == expected)
         return;
     d->m_acceptingKind = expected;
-    d->m_lineEdit->triggerChanged();
+    d->m_lineEdit->validate();
 }
 
 PathChooser::Kind PathChooser::expectedKind() const

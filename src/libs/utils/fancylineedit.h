@@ -143,16 +143,14 @@ public:
     QColor errorColor() const;
     void setErrorColor(const  QColor &);
 
-    // Trigger an update (after changing settings)
-    void triggerChanged();
-
     static QColor textColor(const QWidget *w);
     static void setTextColor(QWidget *w, const QColor &c);
 
     void setValidationFunction(const ValidationFunction &fn);
     static ValidationFunction defaultValidationFunction();
+    void validate();
 
-protected slots:
+protected:
     // Custom behaviour can be added here.
     virtual void handleChanged(const QString &) {}
 
@@ -166,17 +164,15 @@ signals:
     void validChanged(bool validState);
     void validReturnPressed();
 
-private slots:
-    void iconClicked();
-    void onTextChanged(const QString &);
-    void onEditingFinished();
-
 protected:
     void resizeEvent(QResizeEvent *e);
 
     virtual QString fixInputString(const QString &string);
 
 private:
+    void iconClicked();
+    void onEditingFinished();
+
     static bool validateWithValidator(FancyLineEdit *edit, QString *errorMessage);
     // Unimplemented, to force the user to make a decision on
     // whether to use setHistoryCompleter() or setSpecialCompleter().

@@ -169,7 +169,7 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
 
     connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
     connect(d->m_iconbutton[Right], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
-    connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::onTextChanged);
+    connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::validate);
 }
 
 FancyLineEdit::~FancyLineEdit()
@@ -451,8 +451,10 @@ QString FancyLineEdit::errorMessage() const
     return d->m_errorMessage;
 }
 
-void FancyLineEdit::onTextChanged(const QString &t)
+void FancyLineEdit::validate()
 {
+    const QString t = text();
+
     if (d->m_isFiltering){
         if (t != d->m_lastFilterText) {
             d->m_lastFilterText = t;
@@ -498,16 +500,10 @@ void FancyLineEdit::onTextChanged(const QString &t)
     handleChanged(t);
 }
 
-void FancyLineEdit::triggerChanged()
-{
-    onTextChanged(text());
-}
-
 QString FancyLineEdit::fixInputString(const QString &string)
 {
     return string;
 }
-
 
 //
 // IconButton - helper class to represent a clickable icon
