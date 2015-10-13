@@ -552,12 +552,6 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout->setMargin(3);
     setAutoFillBackground(true);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
-
-    QPalette p = palette();
-    p.setColor(QPalette::Window, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
-    p.setColor(QPalette::Button, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
-    p.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor).name());
-    setPalette(p);
 }
 
 KitAreaWidget::~KitAreaWidget()
@@ -662,11 +656,12 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_hideOnRelease(false)
 {
     QPalette p;
-    p.setColor(QPalette::Text, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
     p.setColor(QPalette::Foreground, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    p.setColor(QPalette::Text, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
     p.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
-    p.setColor(QPalette::Background, creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
+    p.setColor(QPalette::Background, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor));
     p.setColor(QPalette::Base, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor));
+    p.setColor(QPalette::Button, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
     setPalette(p);
 
     setProperty("panelwidget", true);
