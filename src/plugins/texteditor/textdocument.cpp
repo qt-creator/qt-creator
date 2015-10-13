@@ -655,7 +655,7 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
         d->updateRevisions();
         d->m_document.setModified(fileName != realFileName);
-        setFilePath(Utils::FileName::fromUserInput(fi.absoluteFilePath()));
+        setFilePath(Utils::FileName::fromString(fi.canonicalFilePath()));
     }
     if (readResult == Utils::TextFileFormat::ReadIOError)
         return OpenResult::ReadError;
