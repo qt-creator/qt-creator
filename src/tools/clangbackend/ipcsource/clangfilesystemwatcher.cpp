@@ -90,7 +90,7 @@ void ClangFileSystemWatcher::updateTranslationUnitsWithChangedDependencies(const
 {
     translationUnits.updateTranslationUnitsWithChangedDependency(filePath);
 
-    emit fileChanged();
+    emit fileChanged(filePath);
 }
 
 } // namespace ClangBackEnd

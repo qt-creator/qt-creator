@@ -50,7 +50,7 @@ public:
     void addFiles(const QSet<Utf8String> &filePaths);
 
 signals:
-    void fileChanged();
+    void fileChanged(const Utf8String &filePath);
 
 private:
     void updateTranslationUnitsWithChangedDependencies(const QString &filePath);

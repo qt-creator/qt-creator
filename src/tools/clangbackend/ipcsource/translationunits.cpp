@@ -101,6 +101,16 @@ const TranslationUnit &TranslationUnits::translationUnit(const FileContainer &fi
     return translationUnit(fileContainer.filePath(), fileContainer.projectPartId());
 }
 
+bool TranslationUnits::hasTranslationUnit(const Utf8String &filePath) const
+{
+    return std::any_of(translationUnits_.cbegin(),
+                       translationUnits_.cend(),
+                       [&filePath] (const TranslationUnit &translationUnit)
+    {
+        return translationUnit.filePath() == filePath;
+    });
+}
+
 const std::vector<TranslationUnit> &TranslationUnits::translationUnits() const
 {
     return translationUnits_;
@@ -128,14 +138,16 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVect
         updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
 }
 
-void TranslationUnits::sendChangedDiagnostics()
+DiagnosticSendState TranslationUnits::sendChangedDiagnostics()
 {
     for (const auto &translationUnit : translationUnits_) {
         if (translationUnit.hasNewDiagnostics()) {
             sendDiagnosticChangedMessage(translationUnit);
-            break;
+            return DiagnosticSendState::MaybeThereAreMoreDiagnostics;
         }
     }
+
+    return DiagnosticSendState::AllDiagnosticSend;
 }
 
 void TranslationUnits::setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage &)> &&callback)

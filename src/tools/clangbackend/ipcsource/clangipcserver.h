@@ -62,6 +62,9 @@ public:
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
 
 private:
+    void startSendDiagnosticTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+
+private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits;

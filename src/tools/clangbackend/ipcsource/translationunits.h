@@ -47,6 +47,12 @@ class ProjectParts;
 class UnsavedFiles;
 class DiagnosticsChangedMessage;
 
+enum class DiagnosticSendState
+{
+    AllDiagnosticSend,
+    MaybeThereAreMoreDiagnostics
+};
+
 class TranslationUnits
 {
 public:
@@ -57,6 +63,7 @@ public:
 
     const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
+    bool hasTranslationUnit(const Utf8String &filePath) const;
 
     const std::vector<TranslationUnit> &translationUnits() const;
 
@@ -67,7 +74,7 @@ public:
     void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
     void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
 
-    void sendChangedDiagnostics();
+    DiagnosticSendState sendChangedDiagnostics();
 
     void setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage&)> &&callback);
 

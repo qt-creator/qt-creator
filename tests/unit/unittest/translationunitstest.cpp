@@ -238,6 +238,16 @@ TEST_F(TranslationUnits, RemoveAllValidIfExceptionIsThrown)
                                              translationUnits))));
 }
 
+TEST_F(TranslationUnits, HasTranslationUnit)
+{
+    translationUnits.createOrUpdate({{filePath, projectPartId}});
+
+    ASSERT_TRUE(translationUnits.hasTranslationUnit(filePath));
 }
 
+TEST_F(TranslationUnits, HasNotTranslationUnit)
+{
+    ASSERT_FALSE(translationUnits.hasTranslationUnit(filePath));
+}
 
+}
