@@ -44,6 +44,8 @@ public:
                  void());
     MOCK_METHOD1(registerTranslationUnitsForEditor,
                  void(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message));
+    MOCK_METHOD1(updateTranslationUnitsForEditor,
+                 void(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message));
     MOCK_METHOD1(unregisterTranslationUnitsForEditor,
                  void(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message));
     MOCK_METHOD1(registerProjectPartsForEditor,

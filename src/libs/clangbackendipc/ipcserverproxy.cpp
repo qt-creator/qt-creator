@@ -41,6 +41,7 @@
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
+#include <updatetranslationunitsforeditormessage.h>
 
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -74,6 +75,11 @@ void IpcServerProxy::end()
 }
 
 void IpcServerProxy::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void IpcServerProxy::updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

@@ -42,6 +42,7 @@
 #include <sourcelocation.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
+#include <updatetranslationunitsforeditormessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
@@ -149,6 +150,11 @@ TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
 TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForEditorMessage)
 {
     CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}));
+}
+
+TEST_F(ReadAndWriteMessageBlock, CompareUpdateTranslationUnitForEditorMessage)
+{
+    CompareMessage(ClangBackEnd::UpdateTranslationUnitsForEditorMessage({fileContainer}));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareUnregisterFileForEditorMessage)

@@ -9,8 +9,8 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://www.qt.io/licensing.  For further information
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
 ** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
@@ -22,24 +22,24 @@
 ** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
 ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITDONOTEXISTS_H
-#define CLANGBACKEND_TRANSLATIONUNITDONOTEXISTS_H
+#ifndef CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H
+#define CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H
 
 #include <filecontainer.h>
 
 namespace ClangBackEnd {
 
-class TranslationUnitDoesNotExistException : public std::exception
+class TranslationUnitAlreadyExistsException : public std::exception
 {
 public:
-    TranslationUnitDoesNotExistException(const FileContainer &fileContainer);
-    TranslationUnitDoesNotExistException(const Utf8String &filePath, const Utf8String &projectPartId);
+    TranslationUnitAlreadyExistsException(const FileContainer &fileContainer);
+    TranslationUnitAlreadyExistsException(const Utf8String &filePath, const Utf8String &projectPartId);
 
     const FileContainer &fileContainer() const;
 
@@ -47,7 +47,7 @@ public:
 
 #if defined(__GNUC__) && !defined(__clang__)
 #  if !__GNUC_PREREQ(4,8)
-    ~TranslationUnitDoesNotExistException() noexcept {}
+    ~TranslationUnitAlreadyExistsException() noexcept {}
 #  endif
 #endif
 
@@ -58,4 +58,4 @@ private:
 
 } // namespace ClangBackEnd
 
-#endif // CLANGBACKEND_TRANSLATIONUNITDONOTEXISTS_H
+#endif // CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H

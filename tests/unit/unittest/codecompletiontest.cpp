@@ -135,7 +135,7 @@ void CodeCompleter::SetUp()
 {
     EXPECT_TRUE(includeDirectory.isValid());
     projects.createOrUpdate({projectPart});
-    translationUnits.createOrUpdate({mainFileContainer});
+    translationUnits.create({mainFileContainer});
     translationUnit = translationUnits.translationUnit(mainFileContainer);
     completer = ClangBackEnd::CodeCompleter(translationUnit);
 
@@ -147,7 +147,7 @@ void CodeCompleter::SetUp()
 TEST_F(CodeCompleter, FunctionInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.createOrUpdate({unsavedMainFileContainer});
+    translationUnits.update({unsavedMainFileContainer});
 
     ASSERT_THAT(completer.complete(27, 1),
                 AllOf(Contains(IsCodeCompletion(Utf8StringLiteral("FunctionWithArguments"),
@@ -165,7 +165,7 @@ TEST_F(CodeCompleter, FunctionInUnsavedFile)
 TEST_F(CodeCompleter, VariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.createOrUpdate({unsavedMainFileContainer});
+    translationUnits.update({unsavedMainFileContainer});
 
     ASSERT_THAT(completer.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("VariableInUnsavedFile"),
@@ -175,7 +175,7 @@ TEST_F(CodeCompleter, VariableInUnsavedFile)
 TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.createOrUpdate({unsavedMainFileContainer});
+    translationUnits.update({unsavedMainFileContainer});
 
     ASSERT_THAT(completer.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("GlobalVariableInUnsavedFile"),
@@ -185,7 +185,7 @@ TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
 TEST_F(CodeCompleter, Macro)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.createOrUpdate({unsavedMainFileContainer});
+    translationUnits.update({unsavedMainFileContainer});
 
     ASSERT_THAT(completer.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("Macro"),
@@ -209,7 +209,7 @@ TEST_F(CodeCompleter, FunctionInIncludedHeader)
 TEST_F(CodeCompleter, FunctionInUnsavedIncludedHeader)
 {
     unsavedFiles.createOrUpdate({unsavedTargetHeaderFileContainer});
-    translationUnits.createOrUpdate({unsavedTargetHeaderFileContainer});
+    translationUnits.create({unsavedTargetHeaderFileContainer});
 
     ASSERT_THAT(completer.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderUnsaved"),
@@ -228,7 +228,7 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeader)
 TEST_F(CodeCompleter, FunctionInChangedIncludedHeaderWithUnsavedContentInMainFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.createOrUpdate({unsavedMainFileContainer});
+    translationUnits.update({unsavedMainFileContainer});
 
     copyChangedTargetHeaderToTemporaryIncludeDirecory();
 

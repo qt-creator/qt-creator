@@ -52,6 +52,7 @@
 #include <requestdiagnosticsmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
+#include <updatetranslationunitsforeditormessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
@@ -125,6 +126,17 @@ TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
         .Times(1);
 
     serverProxy.registerTranslationUnitsForEditor(message);
+    scheduleServerMessages();
+}
+
+TEST_F(ClientServerInProcess, SendUpdateTranslationUnitsForEditorMessage)
+{
+    ClangBackEnd::UpdateTranslationUnitsForEditorMessage message({fileContainer});
+
+    EXPECT_CALL(mockIpcServer, updateTranslationUnitsForEditor(message))
+        .Times(1);
+
+    serverProxy.updateTranslationUnitsForEditor(message);
     scheduleServerMessages();
 }
 

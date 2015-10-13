@@ -54,6 +54,7 @@ QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
 QStringList createPCHInclusionOptions(const QString &pchFile);
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
+CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
 bool isProjectPartValid(const CppTools::ProjectPart::Ptr projectPart);
 QString projectPartIdForFile(const QString &filePath);
 

@@ -34,7 +34,6 @@
 #include "cpptools_global.h"
 #include "senddocumenttracker.h"
 
-#include <QMap>
 #include <QString>
 
 namespace CppTools {
@@ -59,10 +58,10 @@ public:
 
     virtual void resetProcessor() = 0;
 
-    SendDocumentTracker &sendTracker(const QString &projectPartId);
+    SendDocumentTracker &sendTracker();
 
 private:
-    QMap<QString, SendDocumentTracker> m_documentRevisionManagements;
+    SendDocumentTracker m_sendTracker;
     bool m_needsRefresh;
 };
 

@@ -83,7 +83,7 @@ private:
     };
     UnsavedFileContentInfo unsavedFileContent(const QByteArray &customFileContent) const;
 
-    void sendFileContent(const QString &projectPartId, const QByteArray &customFileContent);
+    void sendFileContent(const QByteArray &customFileContent);
     void sendCompletionRequest(int position, const QByteArray &customFileContent);
 
     void handleAvailableCompletions(const CodeCompletions &completions);

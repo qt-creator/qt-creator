@@ -46,6 +46,7 @@ public:
 
     virtual void end() = 0;
     virtual void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) = 0;
+    virtual void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) = 0;
     virtual void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) = 0;
     virtual void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) = 0;
     virtual void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) = 0;

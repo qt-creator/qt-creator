@@ -44,7 +44,6 @@
 #endif
 
 namespace ClangBackEnd {
-CMBIPC_EXPORT void registerTypes();
 
 enum class DiagnosticSeverity // one to one mapping of the clang enum numbers
 {

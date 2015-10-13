@@ -48,6 +48,7 @@
 #include "sourcerangecontainer.h"
 #include "translationunitdoesnotexistmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
+#include "updatetranslationunitsforeditormessage.h"
 
 #include <QDataStream>
 
@@ -137,6 +138,10 @@ void Messages::registerMessages()
     qRegisterMetaType<UnregisterUnsavedFilesForEditorMessage>();
     qRegisterMetaTypeStreamOperators<UnregisterUnsavedFilesForEditorMessage>();
     QMetaType::registerComparators<UnregisterUnsavedFilesForEditorMessage>();
+
+    qRegisterMetaType<UpdateTranslationUnitsForEditorMessage>();
+    qRegisterMetaTypeStreamOperators<UpdateTranslationUnitsForEditorMessage>();
+    QMetaType::registerComparators<UpdateTranslationUnitsForEditorMessage>();
 }
 
 } // namespace ClangBackEnd

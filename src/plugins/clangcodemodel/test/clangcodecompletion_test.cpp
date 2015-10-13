@@ -61,6 +61,7 @@
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
+#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -319,8 +320,16 @@ QString toString(const RegisterTranslationUnitForEditorMessage &message)
     ts << "RegisterTranslationUnitForEditorMessage\n"
        << toString(message.fileContainers());
     return out;
+}
 
-    return QLatin1String("RegisterTranslationUnitForEditorMessage\n");
+QString toString(const UpdateTranslationUnitsForEditorMessage &message)
+{
+    QString out;
+    QTextStream ts(&out);
+
+    ts << "UpdateTranslationUnitForEditorMessage\n"
+       << toString(message.fileContainers());
+    return out;
 }
 
 QString toString(const UnregisterTranslationUnitsForEditorMessage &)
@@ -356,8 +365,6 @@ QString toString(const RegisterUnsavedFilesForEditorMessage &message)
     ts << "RegisterUnsavedFilesForEditorMessage\n"
        << toString(message.fileContainers());
     return out;
-
-    return QLatin1String("RegisterUnsavedFilesForEditorMessage\n");
 }
 
 QString toString(const UnregisterUnsavedFilesForEditorMessage &)
@@ -382,6 +389,9 @@ public:
     { senderLog.append(toString(EndMessage())); }
 
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
     void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override

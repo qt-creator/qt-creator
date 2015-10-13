@@ -31,6 +31,7 @@
 #include "clangcompletionassistprovider.h"
 
 #include "clangcompletionassistprocessor.h"
+#include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 #include "pchmanager.h"
 
@@ -70,18 +71,20 @@ TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterfac
         int position,
         TextEditor::AssistReason reason) const
 {
-    const CppTools::ProjectPart::Ptr projectPart = Utils::projectPartForFile(filePath);
-    QTC_ASSERT(!projectPart.isNull(), return 0);
+    const CppTools::ProjectPart::Ptr projectPart = Utils::projectPartForFileBasedOnProcessor(filePath);
+    if (projectPart) {
+        const PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart);
+        return new ClangCompletionAssistInterface(m_ipcCommunicator,
+                                                  textEditorWidget,
+                                                  position,
+                                                  filePath,
+                                                  reason,
+                                                  projectPart->headerPaths,
+                                                  pchInfo,
+                                                  projectPart->languageFeatures);
+    }
 
-    const PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart);
-    return new ClangCompletionAssistInterface(m_ipcCommunicator,
-                                              textEditorWidget,
-                                              position,
-                                              filePath,
-                                              reason,
-                                              projectPart->headerPaths,
-                                              pchInfo,
-                                              projectPart->languageFeatures);
+    return 0;
 }
 
 } // namespace Internal

@@ -34,6 +34,7 @@
 #include <diagnosticset.h>
 #include <projectpartsdonotexistexception.h>
 #include <projects.h>
+#include <translationunitalreadyexistsexception.h>
 #include <translationunitdoesnotexistexception.h>
 
 #include <QDebug>
@@ -57,10 +58,22 @@ TranslationUnits::TranslationUnits(ProjectParts &projects, UnsavedFiles &unsaved
 {
 }
 
-void TranslationUnits::createOrUpdate(const QVector<FileContainer> &fileContainers)
+void TranslationUnits::create(const QVector<FileContainer> &fileContainers)
 {
+    checkIfTranslationUnitsDoesNotExists(fileContainers);
+
     for (const FileContainer &fileContainer : fileContainers) {
-        createOrUpdateTranslationUnit(fileContainer);
+        createTranslationUnit(fileContainer);
+        updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
+    }
+}
+
+void TranslationUnits::update(const QVector<FileContainer> &fileContainers)
+{
+    checkIfTranslationUnitsForFilePathsDoesExists(fileContainers);
+
+    for (const FileContainer &fileContainer : fileContainers) {
+        updateTranslationUnit(fileContainer);
         updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
     }
 }
@@ -180,7 +193,7 @@ const ClangFileSystemWatcher *TranslationUnits::clangFileSystemWatcher() const
     return &fileSystemWatcher;
 }
 
-void TranslationUnits::createOrUpdateTranslationUnit(const FileContainer &fileContainer)
+void TranslationUnits::createTranslationUnit(const FileContainer &fileContainer)
 {
     TranslationUnit::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent() ? TranslationUnit::DoNotCheckIfFileExists : TranslationUnit::CheckIfFileExists;
     auto findIterator = findTranslationUnit(fileContainer);
@@ -190,9 +203,14 @@ void TranslationUnits::createOrUpdateTranslationUnit(const FileContainer &fileCo
                                                     *this,
                                                     checkIfFileExists));
         translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
-    } else {
-        findIterator->setDocumentRevision(fileContainer.documentRevision());
     }
+}
+
+void TranslationUnits::updateTranslationUnit(const FileContainer &fileContainer)
+{
+    auto findIterator = findAllTranslationUnitWithFilePath(fileContainer.filePath());
+    if (findIterator != translationUnits_.end())
+        findIterator->setDocumentRevision(fileContainer.documentRevision());
 }
 
 std::vector<TranslationUnit>::iterator TranslationUnits::findTranslationUnit(const FileContainer &fileContainer)
@@ -200,10 +218,37 @@ std::vector<TranslationUnit>::iterator TranslationUnits::findTranslationUnit(con
     return std::find(translationUnits_.begin(), translationUnits_.end(), fileContainer);
 }
 
+std::vector<TranslationUnit>::iterator TranslationUnits::findAllTranslationUnitWithFilePath(const Utf8String &filePath)
+{
+    auto filePathCompare = [&filePath] (const TranslationUnit &translationUnit) {
+        return translationUnit.filePath() == filePath;
+    };
+
+    return std::find_if(translationUnits_.begin(), translationUnits_.end(), filePathCompare);
+}
+
 std::vector<TranslationUnit>::const_iterator TranslationUnits::findTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const
 {
     FileContainer fileContainer(filePath, projectPartId);
     return std::find(translationUnits_.begin(), translationUnits_.end(), fileContainer);
+}
+
+bool TranslationUnits::hasTranslationUnit(const FileContainer &fileContainer) const
+{
+    auto findIterator = std::find(translationUnits_.begin(), translationUnits_.end(), fileContainer);
+
+    return findIterator != translationUnits_.end();
+}
+
+bool TranslationUnits::hasTranslationUnitWithFilePath(const Utf8String &filePath) const
+{
+    auto filePathCompare = [&filePath] (const TranslationUnit &translationUnit) {
+        return translationUnit.filePath() == filePath;
+    };
+
+    auto findIterator = std::find_if(translationUnits_.begin(), translationUnits_.end(), filePathCompare);
+
+    return findIterator != translationUnits_.end();
 }
 
 void TranslationUnits::checkIfProjectPartExists(const Utf8String &projectFileName) const
@@ -223,6 +268,22 @@ void TranslationUnits::checkIfProjectPartsExists(const QVector<FileContainer> &f
     if (!notExistingProjectParts.isEmpty())
         throw ProjectPartDoNotExistException(notExistingProjectParts);
 
+}
+
+void TranslationUnits::checkIfTranslationUnitsDoesNotExists(const QVector<FileContainer> &fileContainers) const
+{
+    for (const FileContainer &fileContainer : fileContainers) {
+        if (hasTranslationUnit(fileContainer))
+            throw  TranslationUnitAlreadyExistsException(fileContainer);
+    }
+}
+
+void TranslationUnits::checkIfTranslationUnitsForFilePathsDoesExists(const QVector<FileContainer> &fileContainers) const
+{
+    for (const FileContainer &fileContainer : fileContainers) {
+        if (!hasTranslationUnitWithFilePath(fileContainer.filePath()))
+            throw  TranslationUnitDoesNotExistException(fileContainer);
+    }
 }
 
 void TranslationUnits::sendDiagnosticChangedMessage(const TranslationUnit &translationUnit)

@@ -30,6 +30,8 @@
 
 #include "clangutils.h"
 
+#include "clangeditordocumentprocessor.h"
+
 #include <clang-c/Index.h>
 
 #include <coreplugin/icore.h>
@@ -261,6 +263,13 @@ ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
         return parser->projectPart();
+    return ProjectPart::Ptr();
+}
+
+ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath)
+{
+    if (const auto processor = ClangEditorDocumentProcessor::get(filePath))
+        return processor->projectPart();
     return ProjectPart::Ptr();
 }
 

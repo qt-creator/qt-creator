@@ -28,39 +28,38 @@
 **
 ****************************************************************************/
 
-#include "editordocumenthandle.h"
+#include "translationunitalreadyexistsexception.h"
 
-namespace CppTools {
+namespace ClangBackEnd {
 
-/*!
-    \class CppTools::EditorDocumentHandle
-
-    \brief The EditorDocumentHandle class provides an interface to an opened
-           C++ editor document.
-*/
-
-CppEditorDocumentHandle::CppEditorDocumentHandle()
-    : m_needsRefresh(false)
+TranslationUnitAlreadyExistsException::TranslationUnitAlreadyExistsException(const FileContainer &fileContainer)
+    : fileContainer_(fileContainer)
 {
 }
 
-CppEditorDocumentHandle::~CppEditorDocumentHandle()
+TranslationUnitAlreadyExistsException::TranslationUnitAlreadyExistsException(const Utf8String &filePath,
+                                                                             const Utf8String &projectPartId)
+    : fileContainer_(filePath, projectPartId)
 {
 }
 
-bool CppEditorDocumentHandle::needsRefresh() const
+const FileContainer &TranslationUnitAlreadyExistsException::fileContainer() const
 {
-    return m_needsRefresh;
+    return fileContainer_;
 }
 
-void CppEditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
+const char *TranslationUnitAlreadyExistsException::what() const Q_DECL_NOEXCEPT
 {
-    m_needsRefresh = needsRefresh;
+    if (what_.isEmpty()) {
+        what_ += Utf8StringLiteral("Translation unit '")
+                + fileContainer_.filePath()
+                + Utf8StringLiteral("' with the project part id '")
+                + fileContainer_.projectPartId()
+                + Utf8StringLiteral("' already exists!");
+    }
+
+    return what_.constData();
 }
 
-SendDocumentTracker &CppEditorDocumentHandle::sendTracker()
-{
-    return m_sendTracker;
-}
+} // namespace ClangBackEnd
 
-} // namespace CppTools
