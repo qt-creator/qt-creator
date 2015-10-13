@@ -831,6 +831,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         return QFuture<void>();
 
     QSet<QString> filesToReindex;
+    QStringList removedProjectParts;
     bool filesRemoved = false;
 
     { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
@@ -876,8 +877,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
                 }
             }
 
-            // Announce removed project parts
-            emit projectPartsRemoved(comparer.removedProjectParts());
+            removedProjectParts = comparer.removedProjectParts();
 
         // A new project was opened/created, do a full indexing
         } else {
@@ -898,6 +898,10 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     // Remove files from snapshot that are not reachable any more
     if (filesRemoved)
         GC();
+
+    // Announce removed project parts
+    if (!removedProjectParts.isEmpty())
+        emit projectPartsRemoved(removedProjectParts);
 
     // Announce added project parts
     emit projectPartsUpdated(newProjectInfo.project().data());
