@@ -583,22 +583,16 @@ void KitAreaWidget::setKit(Kit *k)
         if (k && k->isMutable(ki->id())) {
             KitConfigWidget *widget = ki->createConfigWidget(k);
             m_widgets << widget;
-            QList<QWidget *> rowWidgets;
             QLabel *label = new QLabel(widget->displayName());
             m_labels << label;
 
-            rowWidgets.append(label);
-            rowWidgets.append(widget->mainWidget());
-            rowWidgets.append(widget->buttonWidget());
+            widget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
+            widget->setPalette(palette());
 
-            for (int i = 0; i < rowWidgets.count(); ++i) {
-                QWidget *w = rowWidgets.at(i);
-                m_layout->addWidget(w, row, i);
-                if (w && i > 0) {
-                    w->setStyle(QStyleFactory::create(QLatin1String("fusion")));
-                    w->setPalette(palette());
-                }
-            }
+            m_layout->addWidget(label, row, 0);
+            m_layout->addWidget(widget->mainWidget(), row, 1);
+            m_layout->addWidget(widget->buttonWidget(), row, 2);
+
             ++row;
         }
     }

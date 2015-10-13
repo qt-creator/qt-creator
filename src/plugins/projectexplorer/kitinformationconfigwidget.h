@@ -72,6 +72,8 @@ public:
     QWidget *mainWidget() const;
     QString toolTip() const;
 
+    void setPalette(const QPalette &p);
+
 private:
     void pathWasChanged();
 

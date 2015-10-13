@@ -93,6 +93,12 @@ QString SysRootInformationConfigWidget::toolTip() const
               "Leave empty when building for the desktop.");
 }
 
+void SysRootInformationConfigWidget::setPalette(const QPalette &p)
+{
+    KitConfigWidget::setPalette(p);
+    m_chooser->setOkColor(p.color(QPalette::Active, QPalette::Text));
+}
+
 void SysRootInformationConfigWidget::refresh()
 {
     if (!m_ignoreChange)
