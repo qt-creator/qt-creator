@@ -27467,6 +27467,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
 <context>
     <name>QmlDesigner::QmlDesignerPlugin</name>
     <message>
+        <source>Cannot create OpenGL context.</source>
+        <translation>Не удалось создать контекст OpenGL.</translation>
+    </message>
+    <message>
         <source>Switch Text/Design</source>
         <translation>Переключить текст/дизайн</translation>
     </message>
@@ -29180,6 +29184,10 @@ references to elements in other files, loops, and so on.)</source>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerPlugin</name>
+    <message>
+        <source>Cannot create OpenGL context.</source>
+        <translation>Не удалось создать контекст OpenGL.</translation>
+    </message>
     <message>
         <source>QML Profiler</source>
         <translation>Профайлер QML</translation>
@@ -37198,6 +37206,13 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Welcome Mode Load Error</source>
         <translation>Ошибка загрузки режима приветствия</translation>
+    </message>
+</context>
+<context>
+    <name>Welcome::Internal::WelcomePlugin</name>
+    <message>
+        <source>Cannot create OpenGL context.</source>
+        <translation>Не удалось создать контекст OpenGL.</translation>
     </message>
 </context>
 <context>
