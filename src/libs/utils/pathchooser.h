@@ -62,6 +62,8 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     // Designer does not know this type, so force designable to false:
     Q_PROPERTY(Utils::FileName fileName READ fileName WRITE setFileName DESIGNABLE false)
     Q_PROPERTY(Utils::FileName baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
+    Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
+    Q_PROPERTY(QColor okColor READ okColor WRITE setOkColor DESIGNABLE true)
 
 public:
     static QString browseButtonLabel();
@@ -145,6 +147,9 @@ public:
     using AboutToShowContextMenuHandler = std::function<void (Utils::PathChooser *, QMenu *)>;
     static void setAboutToShowContextMenuHandler(AboutToShowContextMenuHandler handler);
 
+    QColor errorColor() const;
+    QColor okColor() const;
+
 private:
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
@@ -164,6 +169,9 @@ signals:
 public slots:
     void setPath(const QString &);
     void setFileName(const Utils::FileName &);
+
+    void setErrorColor(const QColor &errorColor);
+    void setOkColor(const QColor &okColor);
 
 private:
     PathChooserPrivate *d;
