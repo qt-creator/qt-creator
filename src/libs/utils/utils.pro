@@ -1,5 +1,3 @@
-QT += gui network qml
-
 include(../../qtcreatorlibrary.pri)
 include(utils-lib.pri)
 

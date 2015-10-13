@@ -4,7 +4,7 @@ dll {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB
 }
 
-QT += network
+QT += gui network qml
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 
