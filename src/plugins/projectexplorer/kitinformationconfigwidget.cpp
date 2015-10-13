@@ -67,8 +67,7 @@ namespace Internal {
 // --------------------------------------------------------------------------
 
 SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, const KitInformation *ki) :
-    KitConfigWidget(k, ki),
-    m_ignoreChange(false)
+    KitConfigWidget(k, ki)
 {
     m_chooser = new Utils::PathChooser;
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -127,9 +126,7 @@ void SysRootInformationConfigWidget::pathWasChanged()
 // --------------------------------------------------------------------------
 
 ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki) :
-    KitConfigWidget(k, ki),
-    m_ignoreChanges(false),
-    m_isReadOnly(false)
+    KitConfigWidget(k, ki)
 {
     m_comboBox = new QComboBox;
     m_comboBox->setToolTip(toolTip());
@@ -291,8 +288,6 @@ void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
 
 DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
     KitConfigWidget(workingCopy, ki),
-    m_isReadOnly(false),
-    m_ignoreChange(false),
     m_comboBox(new QComboBox),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
@@ -382,9 +377,7 @@ void DeviceInformationConfigWidget::currentDeviceChanged()
 KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const KitInformation *ki) :
     KitConfigWidget(workingCopy, ki),
     m_summaryLabel(new QLabel),
-    m_manageButton(new QPushButton),
-    m_dialog(0),
-    m_editor(0)
+    m_manageButton(new QPushButton)
 {
     refresh();
     m_manageButton->setText(tr("Change..."));
