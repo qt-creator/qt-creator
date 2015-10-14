@@ -211,8 +211,9 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
             break;
         case OtherSection: // Rest: Append according to current condition.
             if (top.condition) {
+                if (l != 0)
+                    out->append(newLine);
                 out->append(lines.at(l));
-                out->append(newLine);
             }
             break;
         } // switch section
