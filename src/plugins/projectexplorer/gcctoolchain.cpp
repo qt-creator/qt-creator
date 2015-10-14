@@ -831,10 +831,10 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 
     foreach (const Abi &abi, abiList) {
         QScopedPointer<GccToolChain> tc(createToolChain(true));
-        tc->setMacroCache(QStringList(), macros);
         if (tc.isNull())
             return result;
 
+        tc->setMacroCache(QStringList(), macros);
         tc->setCompilerCommand(compilerPath);
         tc->setSupportedAbis(abiList);
         tc->setTargetAbi(abi);
