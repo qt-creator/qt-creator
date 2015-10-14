@@ -73,7 +73,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         QIcon(QLatin1String(":/images/func.png")),
         QIcon(QLatin1String(":/images/data.png"))
     };
-    if (type >= sizeof(icons))
+    if (static_cast<unsigned long>(type) >= sizeof(icons))
         return icons[2];
     return icons[type];
 }
