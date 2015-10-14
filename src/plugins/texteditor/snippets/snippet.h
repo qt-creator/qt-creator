@@ -79,6 +79,7 @@ public:
     QString generateTip() const;
 
     static const QChar kVariableDelimiter;
+    static const QChar kEscapeChar;
 
     class ParsedSnippet {
     public:
