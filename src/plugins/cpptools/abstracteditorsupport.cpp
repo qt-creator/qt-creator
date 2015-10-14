@@ -35,6 +35,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/templateengine.h>
 
 namespace CppTools {
 
@@ -63,30 +64,7 @@ QString AbstractEditorSupport::licenseTemplate(const QString &file, const QStrin
     expander.registerVariable("Cpp:License:ClassName", tr("The class name"),
                               [className]() { return className; });
 
-    QString out = expander.expand(license);
-    // Expand \n, \t and handle line continuation:
-    QString result;
-    result.reserve(out.count());
-    bool isEscaped = false;
-    for (int i = 0; i < out.count(); ++i) {
-        const QChar c = out.at(i);
-
-        if (isEscaped) {
-            if (c == QLatin1Char('n'))
-                result.append(QLatin1Char('\n'));
-            else if (c == QLatin1Char('t'))
-                result.append(QLatin1Char('\t'));
-            else if (c != QLatin1Char('\n'))
-                result.append(c);
-            isEscaped = false;
-        } else {
-            if (c == QLatin1Char('\\'))
-                isEscaped = true;
-            else
-                result.append(c);
-        }
-    }
-    return result;
+    return Utils::TemplateEngine::processText(&expander, license, 0);
 }
 
 } // namespace CppTools
