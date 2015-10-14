@@ -63,13 +63,14 @@ void ProFileCache::discardFile(const QString &fileName)
     if (it != parsed_files.end()) {
 #ifdef PROPARSER_THREAD_SAFE
         if (it->locker) {
-            if (!it->locker->done)
+            if (!it->locker->done) {
+                ++it->locker->waiters;
                 it->locker->cond.wait(&mutex);
-            do {
-                lck.unlock();
-                QThread::sleep(100);
-                lck.relock();
-            } while (it->locker);
+                if (!--it->locker->waiters) {
+                    delete it->locker;
+                    it->locker = 0;
+                }
+            }
         }
 #endif
         if (it->pro)
@@ -90,13 +91,14 @@ void ProFileCache::discardFiles(const QString &prefix)
         if (it.key().startsWith(prefix)) {
 #ifdef PROPARSER_THREAD_SAFE
             if (it->locker) {
-                if (!it->locker->done)
+                if (!it->locker->done) {
+                    ++it->locker->waiters;
                     it->locker->cond.wait(&mutex);
-                do {
-                    lck.unlock();
-                    QThread::sleep(100);
-                    lck.relock();
-                } while (it->locker);
+                    if (!--it->locker->waiters) {
+                        delete it->locker;
+                        it->locker = 0;
+                    }
+                }
             }
 #endif
             if (it->pro)
@@ -106,7 +108,6 @@ void ProFileCache::discardFiles(const QString &prefix)
             ++it;
         }
 }
-
 
 ////////// Parser ///////////
 
