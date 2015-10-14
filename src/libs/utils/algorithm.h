@@ -338,6 +338,18 @@ auto transform(const SC &container, R (S::*p)() const)
 }
 
 //////////////////
+// filtered
+/////////////////
+template<typename C, typename F>
+C filtered(const C &container, F predicate)
+{
+  C out;
+  std::copy_if(container.begin(), container.end(),
+               inserter(out), predicate);
+  return out;
+}
+
+//////////////////
 // sort
 /////////////////
 template <typename Container>
