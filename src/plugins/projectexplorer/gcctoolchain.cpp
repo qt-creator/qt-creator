@@ -1191,8 +1191,8 @@ MingwToolChainFactory::MingwToolChainFactory()
 
 QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    const Abi ha = Abi(Abi::hostAbi().architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor,
-                       Abi::PEFormat, Abi::hostAbi().wordWidth());
+    Abi ha = Abi::hostAbi();
+    ha = Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth());
     return autoDetectToolchains(QLatin1String("g++"), ha, alreadyKnown);
 }
 
