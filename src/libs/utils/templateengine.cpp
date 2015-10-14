@@ -151,7 +151,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
                 *errorMessage = msgEmptyStack(l);
             return false;
         }
-    QString expression;
+        QString expression;
         bool expressionValue = false;
         PreprocessStackEntry &top = m_sectionStack.back();
 
