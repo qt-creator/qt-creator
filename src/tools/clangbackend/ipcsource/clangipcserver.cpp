@@ -106,7 +106,7 @@ void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::Regis
     try {
         translationUnits.create(message.fileContainers());
         unsavedFiles.createOrUpdate(message.fileContainers());
-        sendDiagnosticsTimer.start(sendDiagnosticsTimerInterval);
+        sendDiagnosticsTimer.start(0);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
