@@ -1735,10 +1735,8 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
     foreach (const QString &fileName, fileNames) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
-        QFileInfo fi = QFileInfo(fileName);
-        QString filePath = fileName;
-        if (fi.exists()) // canonicalFilePath will be empty otherwise!
-            filePath = fi.canonicalFilePath();
+        const QFileInfo fi(fileName);
+        const QString filePath = fi.absoluteFilePath();
         bool found = false;
         foreach (Project *pi, SessionManager::projects()) {
             if (filePath == pi->projectFilePath().toString()) {
