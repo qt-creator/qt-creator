@@ -211,6 +211,7 @@ private:
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
     Q_SLOT void handleResponse(const QByteArray &buff);
+    void handleAsyncOutput(const QByteArray &asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
     void handleStop1(const GdbMi &data);
@@ -282,6 +283,8 @@ private: ////////// View & Data Stuff //////////
     void handleBreakCondition(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakThreadSpec(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakLineNumber(const DebuggerResponse &response, Breakpoint bp);
+    void handleInsertInterpreterBreakpoint(const DebuggerResponse &response, Breakpoint bp);
+    void handleInterpreterBreakpointModified(const GdbMi &data);
     void handleWatchInsert(const DebuggerResponse &response, Breakpoint bp);
     void handleCatchInsert(const DebuggerResponse &response, Breakpoint bp);
     void handleBkpt(const GdbMi &bkpt, Breakpoint bp);

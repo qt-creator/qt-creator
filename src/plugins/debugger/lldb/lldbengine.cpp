@@ -954,7 +954,7 @@ void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
     // Quickly set the location marker.
     if (lineNumber > 0
             && QFileInfo::exists(fileName)
-            && function != "::qt_qmlDebugEventFromService()")
+            && function != "::qt_qmlDebugMessageAvailable()")
         gotoLocation(Location(fileName, lineNumber));
 }
 

@@ -877,6 +877,8 @@ DebuggerEncoding debuggerEncoding(const QByteArray &data)
         return SpecialNullValue;
     if (data == "itemcount")
         return SpecialItemCountValue;
+    if (data == "notaccessible")
+        return SpecialNotAccessibleValue;
     return DebuggerEncoding(data.toInt());
 }
 

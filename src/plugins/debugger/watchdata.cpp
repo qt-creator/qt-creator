@@ -391,8 +391,8 @@ QByteArray WatchData::hexAddress() const
 void WatchData::updateValue(const GdbMi &item)
 {
     GdbMi value = item["value"];
-    if (value.isValid()) {
-        DebuggerEncoding encoding = debuggerEncoding(item["valueencoded"].data());
+    DebuggerEncoding encoding = debuggerEncoding(item["valueencoded"].data());
+    if (value.isValid() || encoding != Unencoded8Bit) {
         setValue(decodeData(value.data(), encoding));
     } else {
         setValueNeeded();
@@ -576,7 +576,8 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
 
     setWatchDataValueEnabled(data, item["valueenabled"]);
     setWatchDataValueEditable(data, item["valueeditable"]);
-    data.updateChildCount(item["numchild"]);
+    data.updateChildCount(item["numchild"]); // GDB/MI
+    data.updateChildCount(item["haschild"]); // native-mixed
     itemHandler(data);
 
     bool ok = false;

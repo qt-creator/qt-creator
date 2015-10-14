@@ -1603,7 +1603,7 @@ class Dumper(DumperBase):
                         objfile = fromNativePath(symtab.objfile.filename)
                         fileName = fromNativePath(symtab.fullname())
 
-                if self.nativeMixed and functionName == "qt_qmlDebugEventFromService":
+                if self.nativeMixed and functionName == "qt_qmlDebugMessageAvailable":
                     interpreterStack = self.extractInterpreterStack()
                     #print("EXTRACTED INTEPRETER STACK: %s" % interpreterStack)
                     for interpreterFrame in interpreterStack.get('frames', []):
@@ -1641,13 +1641,11 @@ class Dumper(DumperBase):
                 self.dumper = dumper
                 self.args = args
                 spec = "qt_qmlDebugConnectorOpen"
-                print("Preparing hook to resolve pending QML breakpoint at %s" % args)
                 super(Resolver, self).\
                     __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
 
             def stop(self):
-                bp = self.dumper.doInsertInterpreterBreakpoint(args, True)
-                print("Resolving QML breakpoint %s -> %s" % (args, bp))
+                self.dumper.resolvePendingInterpreterBreakpoint(args)
                 self.enabled = False
                 return False
 
@@ -1800,14 +1798,14 @@ registerCommand("threadnames", threadnames)
 #
 #######################################################################
 
-class QmlEngineEventBreakpoint(gdb.Breakpoint):
+class InterpreterMessageBreakpoint(gdb.Breakpoint):
     def __init__(self):
-        spec = "qt_qmlDebugEventFromService"
-        super(QmlEngineEventBreakpoint, self).\
+        spec = "qt_qmlDebugMessageAvailable"
+        super(InterpreterMessageBreakpoint, self).\
             __init__(spec, gdb.BP_BREAKPOINT, internal=True)
 
     def stop(self):
         print("Interpreter event received.")
-        return theDumper.handleInterpreterEvent()
+        return theDumper.handleInterpreterMessage()
 
-QmlEngineEventBreakpoint()
+InterpreterMessageBreakpoint()

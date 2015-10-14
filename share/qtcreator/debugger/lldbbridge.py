@@ -693,7 +693,7 @@ class Dumper(DumperBase):
 
         if self.nativeMixed:
             self.interpreterEventBreakpoint = \
-                self.target.BreakpointCreateByName("qt_qmlDebugEventFromService")
+                self.target.BreakpointCreateByName("qt_qmlDebugMessageAvailable")
 
         state = 1 if self.target.IsValid() else 0
         self.reportResult('success="%s",msg="%s",exe="%s"' % (state, error, self.executable_), args)
@@ -871,7 +871,7 @@ class Dumper(DumperBase):
 
             functionName = frame.GetFunctionName()
 
-            if isNativeMixed and functionName == "::qt_qmlDebugEventFromService()":
+            if isNativeMixed and functionName == "::qt_qmlDebugMessageAvailable()":
                 interpreterStack = self.extractInterpreterStack()
                 for interpreterFrame in interpreterStack.get('frames', []):
                     function = interpreterFrame.get('function', '')
@@ -1341,9 +1341,9 @@ class Dumper(DumperBase):
                         self.reportState("inferiorstopok")
                         self.process.Continue();
                         return
-                    if functionName == "::qt_qmlDebugEventFromService()":
-                        self.report("EVENT FROM SERVICE")
-                        res = self.handleInterpreterEvent()
+                    if functionName == "::qt_qmlDebugMessageAvailable()":
+                        self.report("ASYNC MESSAGE FROM SERVICE")
+                        res = self.handleInterpreterMessage()
                         if not res:
                             self.report("EVENT NEEDS NO STOP")
                             self.reportState("stopped")
@@ -1427,7 +1427,7 @@ class Dumper(DumperBase):
         if bpType == BreakpointByFileAndLine:
             fileName = args["file"]
             if fileName.endswith(".js") or fileName.endswith(".qml"):
-                self.doInsertInterpreterBreakpoint(args, False)
+                self.insertInterpreterBreakpoint(args)
                 return
 
         extra = ''
@@ -1742,7 +1742,7 @@ class Dumper(DumperBase):
         bp = self.target.BreakpointCreateByName("qt_qmlDebugConnectorOpen")
         bp.SetOneShot(True)
         self.interpreterBreakpointResolvers.append(
-            lambda: self.doInsertInterpreterBreakpoint(args, True))
+            lambda: self.resolvePendingInterpreterBreakpoint(args))
 
 
 # Used in dumper auto test.
