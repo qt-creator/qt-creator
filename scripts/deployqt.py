@@ -237,6 +237,8 @@ def copy_libclang(install_dir, llvm_install_dir):
     if sys.platform.startswith("win"):
         deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
                            os.path.join(install_dir, 'bin')))
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang.exe'),
+                           os.path.join(install_dir, 'bin')))
         deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-cl.exe'),
                            os.path.join(install_dir, 'bin')))
     else:
