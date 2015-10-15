@@ -42,6 +42,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/fancylineedit.h>
 
 #include <QDir>
 #include <QFrame>
@@ -61,13 +62,17 @@ namespace Core {
 namespace Internal {
 
 class WideEnoughLineEdit : public QLineEdit
+class WideEnoughLineEdit : public Utils::FancyLineEdit
 {
     Q_OBJECT
 
 public:
-    WideEnoughLineEdit(QWidget *parent) : QLineEdit(parent)
+    WideEnoughLineEdit(QWidget *parent) : Utils::FancyLineEdit(parent)
     {
+        setFiltering(true);
+        setPlaceholderText(QString());
         connect(this, &QLineEdit::textChanged, this, &QLineEdit::updateGeometry);
+
     }
 
     QSize sizeHint() const
