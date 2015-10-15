@@ -3341,8 +3341,8 @@ void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     ThreadsHandler *handler = threadsHandler();
-    const std::vector<GdbMi> &items = response.data["thread-ids"].children();
-    for (size_t index = 0, n = items.size(); index != n; ++index) {
+    const QVector<GdbMi> &items = response.data["thread-ids"].children();
+    for (int index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
         thread.id = ThreadId(items.at(index).toInt());
         handler->updateThread(thread);
