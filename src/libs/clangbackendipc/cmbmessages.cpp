@@ -52,96 +52,49 @@
 
 #include <QDataStream>
 
+template <typename T>
+static void registerMetaType()
+{
+    qRegisterMetaType<T>();
+    qRegisterMetaTypeStreamOperators<T>();
+    QMetaType::registerComparators<T>();
+}
+
 namespace ClangBackEnd {
 
 void Messages::registerMessages()
 {
-    qRegisterMetaType<EndMessage>();
-    qRegisterMetaTypeStreamOperators<EndMessage>();
-    QMetaType::registerComparators<EndMessage>();
+    // Messages
+    registerMetaType<AliveMessage>();
+    registerMetaType<EchoMessage>();
+    registerMetaType<EndMessage>();
 
-    qRegisterMetaType<AliveMessage>();
-    qRegisterMetaTypeStreamOperators<AliveMessage>();
-    QMetaType::registerComparators<AliveMessage>();
+    registerMetaType<RegisterTranslationUnitForEditorMessage>();
+    registerMetaType<UpdateTranslationUnitsForEditorMessage>();
+    registerMetaType<UnregisterTranslationUnitsForEditorMessage>();
 
-    qRegisterMetaType<EchoMessage>();
-    qRegisterMetaTypeStreamOperators<EchoMessage>();
+    registerMetaType<RegisterUnsavedFilesForEditorMessage>();
+    registerMetaType<UnregisterUnsavedFilesForEditorMessage>();
 
-    qRegisterMetaType<RegisterTranslationUnitForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<RegisterTranslationUnitForEditorMessage>();
-    QMetaType::registerComparators<RegisterTranslationUnitForEditorMessage>();
+    registerMetaType<RegisterProjectPartsForEditorMessage>();
+    registerMetaType<UnregisterProjectPartsForEditorMessage>();
 
-    qRegisterMetaType<FileContainer>();
-    qRegisterMetaTypeStreamOperators<FileContainer>();
-    QMetaType::registerComparators<FileContainer>();
+    registerMetaType<RequestDiagnosticsMessage>();
+    registerMetaType<DiagnosticsChangedMessage>();
 
-    qRegisterMetaType<UnregisterTranslationUnitsForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<UnregisterTranslationUnitsForEditorMessage>();
-    QMetaType::registerComparators<UnregisterTranslationUnitsForEditorMessage>();
+    registerMetaType<CompleteCodeMessage>();
+    registerMetaType<CodeCompletedMessage>();
+    registerMetaType<CodeCompletion>();
 
-    qRegisterMetaType<CompleteCodeMessage>();
-    qRegisterMetaTypeStreamOperators<CompleteCodeMessage>();
-    QMetaType::registerComparators<CompleteCodeMessage>();
+    registerMetaType<TranslationUnitDoesNotExistMessage>();
+    registerMetaType<ProjectPartsDoNotExistMessage>();
 
-    qRegisterMetaType<CodeCompletion>();
-    qRegisterMetaTypeStreamOperators<CodeCompletion>();
-    QMetaType::registerComparators<CodeCompletion>();
-
-    qRegisterMetaType<CodeCompletedMessage>();
-    qRegisterMetaTypeStreamOperators<CodeCompletedMessage>();
-    QMetaType::registerComparators<CodeCompletedMessage>();
-
-    qRegisterMetaType<RegisterProjectPartsForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<RegisterProjectPartsForEditorMessage>();
-    QMetaType::registerComparators<RegisterProjectPartsForEditorMessage>();
-
-    qRegisterMetaType<ProjectPartContainer>();
-    qRegisterMetaTypeStreamOperators<ProjectPartContainer>();
-    QMetaType::registerComparators<ProjectPartContainer>();
-
-    qRegisterMetaType<UnregisterProjectPartsForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<UnregisterProjectPartsForEditorMessage>();
-    QMetaType::registerComparators<UnregisterProjectPartsForEditorMessage>();
-
-    qRegisterMetaType<TranslationUnitDoesNotExistMessage>();
-    qRegisterMetaTypeStreamOperators<TranslationUnitDoesNotExistMessage>();
-    QMetaType::registerComparators<TranslationUnitDoesNotExistMessage>();
-
-    qRegisterMetaType<ProjectPartsDoNotExistMessage>();
-    qRegisterMetaTypeStreamOperators<ProjectPartsDoNotExistMessage>();
-    QMetaType::registerComparators<ProjectPartsDoNotExistMessage>();
-
-    qRegisterMetaType<DiagnosticsChangedMessage>();
-    qRegisterMetaTypeStreamOperators<DiagnosticsChangedMessage>();
-    QMetaType::registerComparators<DiagnosticsChangedMessage>();
-
-    qRegisterMetaType<DiagnosticContainer>();
-    qRegisterMetaTypeStreamOperators<DiagnosticContainer>();
-    QMetaType::registerComparators<DiagnosticContainer>();
-
-    qRegisterMetaType<SourceLocationContainer>();
-    qRegisterMetaTypeStreamOperators<SourceLocationContainer>();
-    QMetaType::registerComparators<SourceLocationContainer>();
-
-    qRegisterMetaType<SourceRangeContainer>();
-    qRegisterMetaTypeStreamOperators<SourceRangeContainer>();
-    QMetaType::registerComparators<SourceRangeContainer>();
-
-    qRegisterMetaType<RequestDiagnosticsMessage>();
-    qRegisterMetaTypeStreamOperators<RequestDiagnosticsMessage>();
-    QMetaType::registerComparators<RequestDiagnosticsMessage>();
-
-    qRegisterMetaType<RegisterUnsavedFilesForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<RegisterUnsavedFilesForEditorMessage>();
-    QMetaType::registerComparators<RegisterUnsavedFilesForEditorMessage>();
-
-    qRegisterMetaType<UnregisterUnsavedFilesForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<UnregisterUnsavedFilesForEditorMessage>();
-    QMetaType::registerComparators<UnregisterUnsavedFilesForEditorMessage>();
-
-    qRegisterMetaType<UpdateTranslationUnitsForEditorMessage>();
-    qRegisterMetaTypeStreamOperators<UpdateTranslationUnitsForEditorMessage>();
-    QMetaType::registerComparators<UpdateTranslationUnitsForEditorMessage>();
+    // Containers
+    registerMetaType<DiagnosticContainer>();
+    registerMetaType<FileContainer>();
+    registerMetaType<ProjectPartContainer>();
+    registerMetaType<SourceLocationContainer>();
+    registerMetaType<SourceRangeContainer>();
 }
 
 } // namespace ClangBackEnd
