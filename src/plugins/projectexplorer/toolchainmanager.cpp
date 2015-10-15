@@ -105,14 +105,11 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 
     d = new ToolChainManagerPrivate;
 
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveToolChains()));
-    connect(this, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(toolChainsChanged()));
-    connect(this, SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(toolChainsChanged()));
-    connect(this, SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(toolChainsChanged()));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &ToolChainManager::saveToolChains);
+    connect(this, &ToolChainManager::toolChainAdded, this, &ToolChainManager::toolChainsChanged);
+    connect(this, &ToolChainManager::toolChainRemoved, this, &ToolChainManager::toolChainsChanged);
+    connect(this, &ToolChainManager::toolChainUpdated, this, &ToolChainManager::toolChainsChanged);
 }
 
 ToolChainManager::~ToolChainManager()

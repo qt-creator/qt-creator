@@ -68,7 +68,6 @@ public:
     static bool registerToolChain(ToolChain *tc);
     static void deregisterToolChain(ToolChain *tc);
 
-public slots:
     void saveToolChains();
 
 signals:
