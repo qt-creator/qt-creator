@@ -819,7 +819,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
     if (compilerPath.isEmpty())
         return result;
 
-    if (Utils::findOrDefault(alreadyKnown, Utils::equal(&ToolChain::compilerCommand, compilerPath)))
+    result = Utils::filtered(alreadyKnown, Utils::equal(&ToolChain::compilerCommand, compilerPath));
+    if (!result.isEmpty())
         return result;
 
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);

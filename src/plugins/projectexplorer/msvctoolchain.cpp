@@ -33,6 +33,7 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
@@ -526,9 +527,26 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChai
     return vcVarsBatFor(basePath, platformName(platform));
 }
 
+static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
+                                        const QString &name, const Abi &abi,
+                                        const QString &varsBat, const QString &varsBatArg,
+                                        ToolChain::Detection d = ToolChain::ManualDetection)
+{
+    ToolChain *tc = Utils::findOrDefault(alreadyKnown,
+                                         [&varsBat, &varsBatArg](ToolChain *tc) -> bool {
+                                              if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
+                                                  return false;
+                                              auto mtc = static_cast<MsvcToolChain *>(tc);
+                                              return mtc->varsBat() == varsBat
+                                                      && mtc->varsBatArg() == varsBatArg;
+                                         });
+    if (!tc)
+        tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, d);
+    return tc;
+}
+
 QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    Q_UNUSED(alreadyKnown);
     QList<ToolChain *> results;
 
     // 1) Installed SDKs preferred over standalone Visual studio
@@ -550,16 +568,19 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                 continue;
 
             QList<ToolChain *> tmp;
-            tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
-                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, sdkKey),
-                                         fi.absoluteFilePath(), QLatin1String("/x86"), ToolChain::AutoDetection));
+            tmp.append(findOrCreateToolChain(alreadyKnown,
+                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
+                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, sdkKey),
+                                             fi.absoluteFilePath(), QLatin1String("/x86"), ToolChain::AutoDetection));
             // Add all platforms, cross-compiler is automatically selected by SetEnv.cmd if needed
-            tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
-                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, sdkKey),
-                                         fi.absoluteFilePath(), QLatin1String("/x64"), ToolChain::AutoDetection));
-            tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
-                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, sdkKey),
-                                         fi.absoluteFilePath(), QLatin1String("/ia64"), ToolChain::AutoDetection));
+            tmp.append(findOrCreateToolChain(alreadyKnown,
+                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
+                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, sdkKey),
+                                             fi.absoluteFilePath(), QLatin1String("/x64"), ToolChain::AutoDetection));
+            tmp.append(findOrCreateToolChain(alreadyKnown,
+                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
+                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, sdkKey),
+                                             fi.absoluteFilePath(), QLatin1String("/ia64"), ToolChain::AutoDetection));
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;
@@ -601,11 +622,11 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
             foreach (const MsvcToolChain::Platform &platform, platforms) {
                 if (hostSupportsPlatform(platform)
                         && QFileInfo(vcVarsBatFor(path, platform)).isFile()) {
-                    results.append(new MsvcToolChain(
+                    results.append(findOrCreateToolChain(
+                                       alreadyKnown,
                                        generateDisplayName(vsName, MsvcToolChain::VS, platform),
                                        findAbiOfMsvc(MsvcToolChain::VS, platform, vsName),
-                                       vcvarsAllbat,
-                                       platformName(platform),
+                                       vcvarsAllbat, platformName(platform),
                                        ToolChain::AutoDetection));
                 }
             }

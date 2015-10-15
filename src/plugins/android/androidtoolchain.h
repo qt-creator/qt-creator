@@ -113,7 +113,9 @@ public:
         QString version;
     };
 
-    static QList<ProjectExplorer::ToolChain *> createToolChainsForNdk(const Utils::FileName &ndkPath);
+    static QList<ProjectExplorer::ToolChain *>
+    autodetectToolChainsForNdk(const Utils::FileName &ndkPath,
+                               const QList<ProjectExplorer::ToolChain *> &alreadyKnown);
     static QList<AndroidToolChainInformation> toolchainPathsForNdk(const Utils::FileName &ndkPath);
 
     static QList<int> versionNumberFromString(const QString &version);

@@ -50,7 +50,6 @@ static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
 static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
 static const char TOOLCHAIN_FILE_VERSION_KEY[] = "Version";
 static const char TOOLCHAIN_FILENAME[] = "/qtcreator/toolchains.xml";
-static const char LEGACY_TOOLCHAIN_FILENAME[] = "/toolChains.xml";
 
 using namespace Utils;
 
@@ -167,96 +166,144 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
     return result;
 }
 
+static QList<ToolChain *> autoDetectToolChains(const QList<ToolChain *> alreadyKnownTcs)
+{
+    QList<ToolChain *> result;
+    const QList<ToolChainFactory *> factories
+            = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
+    foreach (ToolChainFactory *f, factories)
+        result.append(f->autoDetect(alreadyKnownTcs));
+
+    return result;
+}
+
+static QList<ToolChain *> subtractByEqual(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+{
+    return Utils::filtered(a, [&b](ToolChain *atc) {
+                                  return !Utils::anyOf(b, [atc](ToolChain *btc) { return *atc == *btc; });
+                              });
+}
+
+static QList<ToolChain *> subtractByPointerEqual(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+{
+    return Utils::filtered(a, [&b](ToolChain *atc) { return !b.contains(atc); });
+}
+
+static QList<ToolChain *> subtractById(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+{
+    return Utils::filtered(a, [&b](ToolChain *atc) {
+                                  return !Utils::anyOf(b, Utils::equal(&ToolChain::id, atc->id()));
+                              });
+}
+
+static QList<ToolChain *> intersectByEqual(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+{
+    return Utils::filtered(a, [&b](ToolChain *atc) {
+                                  return Utils::anyOf(b, [atc](ToolChain *btc) { return *atc == *btc; });
+                              });
+}
+
+static QList<ToolChain *> makeUnique(const QList<ToolChain *> &a)
+{
+    return QSet<ToolChain *>::fromList(a).toList();
+}
+
+namespace {
+
+struct ToolChainOperations
+{
+    QList<ToolChain *> toDemote;
+    QList<ToolChain *> toRegister;
+    QList<ToolChain *> toDelete;
+};
+
+} // namespace
+
+static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemFileTcs,
+                                               const QList<ToolChain *> &userFileTcs,
+                                               const QList<ToolChain *> &autodetectedTcs)
+{
+    const QList<ToolChain *> manualUserTcs
+            = Utils::filtered(userFileTcs, [](ToolChain *t) { return !t->isAutoDetected(); });
+
+    // Remove systemFileTcs from autodetectedUserTcs based on id-matches:
+    const QList<ToolChain *> autodetectedUserFileTcs
+            = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
+    const QList<ToolChain *> autodetectedUserTcs = subtractById(autodetectedUserFileTcs, systemFileTcs);
+
+    // Calculate a set of Tcs that were detected before (and saved to userFile) and that
+    // got re-detected again. Take the userTcs (to keep Ids) over the same in autodetectedTcs.
+    const QList<ToolChain *> redetectedUserTcs
+            = intersectByEqual(autodetectedUserTcs, autodetectedTcs);
+
+    // Remove redetected tcs from autodetectedUserTcs:
+    const QList<ToolChain *> notRedetectedUserTcs
+            = subtractByPointerEqual(autodetectedUserTcs, redetectedUserTcs);
+
+    // Remove redetected tcs from autodetectedTcs:
+    const QList<ToolChain *> newlyAutodetectedTcs
+            = subtractByEqual(autodetectedTcs, redetectedUserTcs);
+
+    const QList<ToolChain *> notRedetectedButValidUserTcs
+            = Utils::filtered(notRedetectedUserTcs, &ToolChain::isValid);
+
+    const QList<ToolChain *> validManualUserTcs
+            = Utils::filtered(manualUserTcs, &ToolChain::isValid);
+
+    ToolChainOperations result;
+    result.toDemote = notRedetectedButValidUserTcs;
+    result.toRegister = result.toDemote + systemFileTcs + redetectedUserTcs + newlyAutodetectedTcs
+            + validManualUserTcs;
+
+    result.toDelete = makeUnique(subtractByPointerEqual(systemFileTcs + userFileTcs + autodetectedTcs,
+                                                        result.toRegister));
+    return result;
+}
+
 void ToolChainManager::restoreToolChains()
 {
     QTC_ASSERT(!d->m_writer, return);
     d->m_writer =
-            new PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"));
-
-    QList<ToolChain *> tcsToRegister;
-    QList<ToolChain *> tcsToCheck;
+            new PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)),
+                                         QLatin1String("QtCreatorToolChains"));
 
     // read all tool chains from SDK
-    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    QList<ToolChain *> readTcs =
-            restoreFromFile(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
-    // make sure we mark these as autodetected!
-    foreach (ToolChain *tc, readTcs)
-        tc->setDetection(ToolChain::AutoDetection);
-
-    tcsToRegister = readTcs; // SDK TCs are always considered to be up-to-date, so no need to
-                             // recheck them.
+    const QList<ToolChain *> systemFileTcs = readSystemFileToolChains();
 
     // read all tool chains from user file.
-    // Read legacy settings once and keep them around...
-    FileName fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
-    if (!fileName.exists())
-        fileName = settingsFileName(QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
-    readTcs = restoreFromFile(fileName);
+    const QList<ToolChain *> userFileTcs
+            = restoreFromFile(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)));
 
-    foreach (ToolChain *tc, readTcs) {
-        if (tc->isAutoDetected())
-            tcsToCheck.append(tc);
-        else
-            tcsToRegister.append(tc);
-    }
-    readTcs.clear();
+    // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
+    const QList<ToolChain *> autodetectedUserFileTcs
+            = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
+    const QList<ToolChain *> autodetectedTcs = autoDetectToolChains(autodetectedUserFileTcs);
 
-    // Remove TCs configured by the SDK:
-    foreach (ToolChain *tc, tcsToRegister) {
-        for (int i = tcsToCheck.count() - 1; i >= 0; --i) {
-            if (tcsToCheck.at(i)->id() == tc->id()) {
-                delete tcsToCheck.at(i);
-                tcsToCheck.removeAt(i);
-            }
-        }
-    }
+    // merge tool chains and register those that we need to keep:
+    ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);
 
-    // Then auto detect
-    QList<ToolChain *> detectedTcs = tcsToCheck;
-    QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
-    foreach (ToolChainFactory *f, factories)
-        detectedTcs.append(f->autoDetect(tcsToCheck));
+    // Process ops:
+    foreach (ToolChain *tc, ops.toDemote)
+        tc->setDetection(ToolChain::ManualDetection);
 
-    // Find/update autodetected tool chains:
-    ToolChain *toStore = 0;
-    foreach (ToolChain *currentDetected, detectedTcs) {
-        toStore = currentDetected;
-
-        // Check whether we had this TC stored and prefer the old one with the old id, marked
-        // as auto-detection.
-        for (int i = 0; i < tcsToCheck.count(); ++i) {
-            if (tcsToCheck.at(i) == currentDetected) {
-                tcsToCheck.removeAt(i);
-                break;
-            } else if (*(tcsToCheck.at(i)) == *currentDetected) {
-                toStore = tcsToCheck.at(i);
-                toStore->setDetection(ToolChain::AutoDetection);
-                tcsToCheck.removeAt(i);
-                delete currentDetected;
-                break;
-            }
-        }
-        tcsToRegister += toStore;
-    }
-
-    // Keep toolchains that were not rediscovered but are still executable and delete the rest
-    foreach (ToolChain *tc, tcsToCheck) {
-        if (!tc->isValid()) {
-            qWarning() << QString::fromLatin1("ToolChain \"%1\" (%2) dropped since it is not valid")
-                          .arg(tc->displayName()).arg(QString::fromUtf8(tc->id()));
-            delete tc;
-        } else {
-            tc->setDetection(ToolChain::ManualDetection); // "demote" to manual toolchain
-            tcsToRegister += tc;
-        }
-    }
-
-    // Store manual tool chains
-    foreach (ToolChain *tc, tcsToRegister)
+    foreach (ToolChain *tc, ops.toRegister)
         registerToolChain(tc);
 
+    qDeleteAll(ops.toDelete);
+
     emit m_instance->toolChainsLoaded();
+}
+
+QList<ToolChain *> ToolChainManager::readSystemFileToolChains()
+{
+    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
+    QList<ToolChain *> systemTcs
+            = restoreFromFile(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
+
+    foreach (ToolChain *tc, systemTcs)
+        tc->setDetection(ToolChain::AutoDetection);
+
+    return systemTcs;
 }
 
 void ToolChainManager::saveToolChains()
