@@ -3274,8 +3274,9 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
 
     GdbMi frames = response.data["stack"]; // C++
     if (!frames.isValid() || frames.childCount() == 0) { // Mixed.
-        frames.fromStringMultiple(response.consoleStreamOutput);
-        frames = frames["frames"];
+        GdbMi mixed;
+        mixed.fromStringMultiple(response.consoleStreamOutput);
+        frames = mixed["frames"];
     }
 
     stackHandler()->setFramesAndCurrentIndex(frames, isFull);
