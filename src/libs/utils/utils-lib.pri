@@ -88,6 +88,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/proxycredentialsdialog.cpp \
     $$PWD/macroexpander.cpp \
     $$PWD/theme/theme.cpp \
+    $$PWD/themehelper.cpp \
     $$PWD/progressindicator.cpp \
     $$PWD/fadingindicator.cpp \
     $$PWD/overridecursor.cpp \
@@ -191,6 +192,7 @@ HEADERS += \
     $$PWD/macroexpander.h \
     $$PWD/theme/theme.h \
     $$PWD/theme/theme_p.h \
+    $$PWD/themehelper.h \
     $$PWD/progressindicator.h \
     $$PWD/fadingindicator.h \
     $$PWD/executeondestruction.h \

@@ -195,6 +195,8 @@ QtcLibrary {
         "textfieldcombobox.h",
         "textfileformat.cpp",
         "textfileformat.h",
+        "themehelper.cpp",
+        "themehelper.h",
         "treemodel.cpp",
         "treemodel.h",
         "treeviewcombobox.cpp",

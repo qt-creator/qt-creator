@@ -515,13 +515,31 @@ QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
 {
     // See QIcon::addFile()
     if (qApp->devicePixelRatio() > 1.0) {
-        const QFileInfo fi(fileName);
-        const QString at2xfileName = fi.path() + QLatin1Char('/')
-                + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-        if (QFile::exists(at2xfileName))
-            return at2xfileName;
+        const QString atDprfileName =
+                imageFileWithResolution(fileName, qRound(qApp->devicePixelRatio()));
+        if (QFile::exists(atDprfileName))
+            return atDprfileName;
     }
     return fileName;
+}
+
+QString StyleHelper::imageFileWithResolution(const QString &fileName, int dpr)
+{
+    const QFileInfo fi(fileName);
+    return dpr == 1 ? fileName :
+                      fi.path() + QLatin1Char('/') + fi.completeBaseName()
+                      + QLatin1Char('@') + QString::number(dpr)
+                      + QLatin1String("x.") + fi.suffix();
+}
+
+QList<int> StyleHelper::availableImageResolutions(const QString &fileName)
+{
+    QList<int> result;
+    const int maxResolutions = qApp->devicePixelRatio();
+    for (int i = 1; i <= maxResolutions; ++i)
+        if (QFile::exists(imageFileWithResolution(fileName, i)))
+            result.append(i);
+    return result;
 }
 
 } // namespace Utils

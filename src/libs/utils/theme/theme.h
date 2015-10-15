@@ -130,6 +130,18 @@ public:
         TreeViewArrowColorNormal,
         TreeViewArrowColorSelected,
 
+        /* Icons */
+
+        IconsBaseColor,
+        IconsInfoColor,
+        IconsWarningColor,
+        IconsErrorColor,
+        IconsRunColor,
+        IconsStopColor,
+        IconsInterruptColor,
+        IconsDebugColor,
+        IconsNavigationArrowsColor,
+
         /* Output panes */
 
         OutputPanes_DebugTextColor,

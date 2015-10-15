@@ -95,6 +95,8 @@ public:
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
 
     static QString dpiSpecificImageFile(const QString &fileName);
+    static QString imageFileWithResolution(const QString &fileName, int dpr);
+    static QList<int> availableImageResolutions(const QString &fileName);
 
 private:
     static QColor m_baseColor;
