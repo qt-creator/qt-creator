@@ -219,6 +219,9 @@ private slots:
     void testAbiFromTargetTriplet();
 
     void testDeviceManager();
+
+    void testToolChainManager_data();
+    void testToolChainManager();
 #endif
 };
 
