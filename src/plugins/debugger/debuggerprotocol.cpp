@@ -267,7 +267,7 @@ static QByteArray ind(int indent)
 
 void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
 {
-    for (size_t i = 0; i < m_children.size(); ++i) {
+    for (int i = 0; i < m_children.size(); ++i) {
         if (i != 0) {
             *str += ',';
             if (multiline)
