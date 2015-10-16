@@ -61,7 +61,6 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-class WideEnoughLineEdit : public QLineEdit
 class WideEnoughLineEdit : public Utils::FancyLineEdit
 {
     Q_OBJECT
