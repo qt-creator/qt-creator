@@ -60,22 +60,23 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-class WideEnoughLineEdit : public QLineEdit {
+class WideEnoughLineEdit : public QLineEdit
+{
     Q_OBJECT
+
 public:
-    WideEnoughLineEdit(QWidget *parent):QLineEdit(parent){
-        connect(this, SIGNAL(textChanged(QString)),
-                this, SLOT(updateGeometry()));
+    WideEnoughLineEdit(QWidget *parent) : QLineEdit(parent)
+    {
+        connect(this, &QLineEdit::textChanged, this, &QLineEdit::updateGeometry);
     }
-    ~WideEnoughLineEdit(){}
-    QSize sizeHint() const {
+
+    QSize sizeHint() const
+    {
         QSize sh = QLineEdit::minimumSizeHint();
         sh.rwidth() += qMax(25 * fontMetrics().width(QLatin1Char('x')),
                             fontMetrics().width(text()));
         return sh;
     }
-public slots:
-    void updateGeometry() { QLineEdit::updateGeometry(); }
 };
 
 SearchResultWidget::SearchResultWidget(QWidget *parent) :
