@@ -213,7 +213,7 @@ void ToolChainManager::restoreToolChains()
     }
 
     // Then auto detect
-    QList<ToolChain *> detectedTcs;
+    QList<ToolChain *> detectedTcs = tcsToCheck;
     QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
     foreach (ToolChainFactory *f, factories)
         detectedTcs.append(f->autoDetect(tcsToCheck));
@@ -226,7 +226,10 @@ void ToolChainManager::restoreToolChains()
         // Check whether we had this TC stored and prefer the old one with the old id, marked
         // as auto-detection.
         for (int i = 0; i < tcsToCheck.count(); ++i) {
-            if (*(tcsToCheck.at(i)) == *currentDetected) {
+            if (tcsToCheck.at(i) == currentDetected) {
+                tcsToCheck.removeAt(i);
+                break;
+            } else if (*(tcsToCheck.at(i)) == *currentDetected) {
                 toStore = tcsToCheck.at(i);
                 toStore->setDetection(ToolChain::AutoDetection);
                 tcsToCheck.removeAt(i);
