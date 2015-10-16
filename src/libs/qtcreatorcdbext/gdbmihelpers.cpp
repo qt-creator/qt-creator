@@ -49,17 +49,17 @@ std::wstring StackFrame::fileName() const
 
 void StackFrame::formatGDBMI(std::ostream &str, unsigned level) const
 {
-    str << "frame={level=\"" << level << "\",addr=\"0x"
+    str << "frame={level=\"" << level << "\",address=\"0x"
         << std::hex << address << std::dec << '"';
     if (!function.empty()) {
         // Split into module/function
         const std::wstring::size_type exclPos = function.find('!');
         if (exclPos == std::wstring::npos) {
-            str << ",func=\"" << gdbmiWStringFormat(function) << '"';
+            str << ",function=\"" << gdbmiWStringFormat(function) << '"';
         } else {
             const std::wstring module = function.substr(0, exclPos);
             const std::wstring fn = function.substr(exclPos + 1, function.size() - exclPos - 1);
-            str << ",func=\"" << gdbmiWStringFormat(fn)
+            str << ",function=\"" << gdbmiWStringFormat(fn)
                 << "\",from=\"" << gdbmiWStringFormat(module) << '"';
         }
     }
