@@ -62,7 +62,7 @@ void tst_fileutils::parentDir_data()
     QTest::newRow("//") << "//" << "" << "";
     QTest::newRow("/tmp/dir") << "/tmp/dir" << "/tmp" << "";
     QTest::newRow("relative/path") << "relative/path" << "relative" << "";
-    QTest::newRow("relativepath") << "relativepath" << ".";
+    QTest::newRow("relativepath") << "relativepath" << "." << "";
 
     // Windows stuff:
 #ifdef Q_OS_WIN
