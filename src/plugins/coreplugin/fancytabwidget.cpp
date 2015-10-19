@@ -42,6 +42,7 @@
 #include <QMouseEvent>
 #include <QStyleFactory>
 #include <QPainter>
+#include <QPixmapCache>
 #include <QStackedLayout>
 #include <QStatusBar>
 #include <QToolTip>
@@ -238,6 +239,54 @@ void FancyTabBar::mousePressEvent(QMouseEvent *e)
     }
 }
 
+static void paintSelectedTabBackground(QPainter *painter, const QRect &spanRect)
+{
+    const int verticalOverlap = 2; // Grows up and down for the overlaps
+    const int dpr = painter->device()->devicePixelRatio();
+    const QString cacheKey = QLatin1String(Q_FUNC_INFO) + QString::number(spanRect.width())
+            + QLatin1Char('x') + QString::number(spanRect.height())
+            + QLatin1Char('@') + QString::number(dpr);
+    QPixmap selection;
+    if (!QPixmapCache::find(cacheKey, &selection)) {
+        qDebug() << Q_FUNC_INFO << dpr;
+        selection = QPixmap(QSize(spanRect.width(), spanRect.height() + 2 * verticalOverlap) * dpr);
+        selection.fill(Qt::transparent);
+        selection.setDevicePixelRatio(dpr);
+        QPainter p(&selection);
+        p.translate(QPoint(0, verticalOverlap));
+
+        const QRect rect(QPoint(), spanRect.size());
+        const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+
+        //background
+        p.save();
+        QLinearGradient grad(rect.topLeft(), rect.topRight());
+        grad.setColorAt(0, QColor(255, 255, 255, 140));
+        grad.setColorAt(1, QColor(255, 255, 255, 210));
+        p.fillRect(rect, grad);
+        p.restore();
+
+        //shadows
+        p.setPen(QColor(0, 0, 0, 110));
+        p.drawLine(borderRect.topLeft() + QPointF(1, -1), borderRect.topRight() - QPointF(0, 1));
+        p.drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
+        p.setPen(QColor(0, 0, 0, 40));
+        p.drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+
+        //highlights
+        p.setPen(QColor(255, 255, 255, 50));
+        p.drawLine(borderRect.topLeft() + QPointF(0, -2), borderRect.topRight() - QPointF(0, 2));
+        p.drawLine(borderRect.bottomLeft() + QPointF(0, 1), borderRect.bottomRight() + QPointF(0, 1));
+        p.setPen(QColor(255, 255, 255, 40));
+        p.drawLine(borderRect.topLeft() + QPointF(0, 0), borderRect.topRight());
+        p.drawLine(borderRect.topRight() + QPointF(0, 1), borderRect.bottomRight() - QPointF(0, 1));
+        p.drawLine(borderRect.bottomLeft() + QPointF(0, -1), borderRect.bottomRight() - QPointF(0, 1));
+
+        QPixmapCache::insert(cacheKey, selection);
+    }
+    painter->drawPixmap(spanRect.topLeft() + QPoint(0, -verticalOverlap), selection);
+}
+
 void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
 {
     if (!validIndex(tabIndex)) {
@@ -256,29 +305,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
           painter->fillRect(rect.adjusted(0, 0, 0, -1),
                             creatorTheme()->color(Theme::BackgroundColorSelected));
         } else {
-            //background
-            painter->save();
-            QLinearGradient grad(rect.topLeft(), rect.topRight());
-            grad.setColorAt(0, QColor(255, 255, 255, 140));
-            grad.setColorAt(1, QColor(255, 255, 255, 210));
-            painter->fillRect(rect.adjusted(0, 0, 0, -1), grad);
-            painter->restore();
-
-            //shadows
-            painter->setPen(QColor(0, 0, 0, 110));
-            painter->drawLine(rect.topLeft() + QPoint(1,-1), rect.topRight() - QPoint(0,1));
-            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
-            painter->setPen(QColor(0, 0, 0, 40));
-            painter->drawLine(rect.topLeft(), rect.bottomLeft());
-
-            //highlights
-            painter->setPen(QColor(255, 255, 255, 50));
-            painter->drawLine(rect.topLeft() + QPoint(0, -2), rect.topRight() - QPoint(0,2));
-            painter->drawLine(rect.bottomLeft() + QPoint(0, 1), rect.bottomRight() + QPoint(0,1));
-            painter->setPen(QColor(255, 255, 255, 40));
-            painter->drawLine(rect.topLeft() + QPoint(0, 0), rect.topRight());
-            painter->drawLine(rect.topRight() + QPoint(0, 1), rect.bottomRight() - QPoint(0, 1));
-            painter->drawLine(rect.bottomLeft() + QPoint(0,-1), rect.bottomRight()-QPoint(0,1));
+            paintSelectedTabBackground(painter, rect);
         }
     }
 
@@ -490,13 +517,14 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
 
         QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
         rect = style()->visualRect(layoutDirection(), geometry(), rect);
+        const QRectF boderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
         StyleHelper::verticalGradient(&painter, rect, rect);
         painter.setPen(StyleHelper::borderColor());
-        painter.drawLine(rect.topRight(), rect.bottomRight());
+        painter.drawLine(boderRect.topRight(), boderRect.bottomRight());
 
         QColor light = StyleHelper::sidebarHighlight();
         painter.setPen(light);
-        painter.drawLine(rect.bottomLeft(), rect.bottomRight());
+        painter.drawLine(boderRect.bottomLeft(), boderRect.bottomRight());
     }
 }
 
