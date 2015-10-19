@@ -6,6 +6,8 @@ QT += qml quick widgets
 QT += qml quick
 @endif
 
+CONFIG += c++11
+
 SOURCES += %{MainCppFileName}
 
 RESOURCES += qml.qrc
