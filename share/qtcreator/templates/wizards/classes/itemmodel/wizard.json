@@ -1,0 +1,202 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "A.ItemView",
+    "category": "R.Qt",
+    "trDescription": "Creates a Qt item model.",
+    "trDisplayName": "Qt Item Model",
+    "trDisplayCategory": "Qt",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{Path}" },
+        { "key": "HdrPath", "value": "%{Path}/%{HdrFileName}" },
+        { "key": "SrcPath", "value": "%{Path}/%{SrcFileName}" },
+        { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Define Item Model Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)+[a-zA-Z_][a-zA-Z_0-9]*|)" }
+                },
+                {
+                    "name": "Base",
+                    "trDisplayName": "Base class:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items": [ "QAbstractItemModel", "QAbstractTableModel", "QAbstractListModel" ]
+                    }
+                },
+
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "CustomHeader",
+                    "trDisplayName": "Customize header row",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": true,
+                        "checkedValue": true,
+                        "uncheckedValue": false
+                    }
+                },
+                {
+                    "name": "Editable",
+                    "trDisplayName": "Items are editable",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false,
+                        "checkedValue": true,
+                        "uncheckedValue": false
+                    }
+                },
+                {
+                    "name": "AddData",
+                    "trDisplayName": "Rows and columns can be added",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false,
+                        "checkedValue": true,
+                        "uncheckedValue": false
+                    }
+                },                {
+                    "name": "RemoveData",
+                    "trDisplayName": "Rows and columns can be removed",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false,
+                        "checkedValue": true,
+                        "uncheckedValue": false
+                    }
+                },
+                {
+                    "name": "DynamicFetch",
+                    "trDisplayName": "Fetch data dynamically",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false,
+                        "checkedValue": true,
+                        "uncheckedValue": false
+                    }
+                },
+
+                {
+                    "name": "HdrFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Header file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+                },
+                {
+                    "name": "SrcFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" }
+                },
+                {
+                    "name": "Path",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "itemmodel.h",
+                    "target": "%{HdrPath}",
+                    "condition": "%{JS: '%{Base}' === 'QAbstractItemModel'}",
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{HdrFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                },
+                {
+                    "source": "itemmodel.cpp",
+                    "target": "%{SrcPath}",
+                    "openInEditor": true,
+                    "condition": "%{JS: '%{Base}' === 'QAbstractItemModel'}",
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{SrcFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                },
+                {
+                    "source": "tablemodel.h",
+                    "target": "%{HdrPath}",
+                    "condition": "%{JS: '%{Base}' === 'QAbstractTableModel'}",
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{HdrFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                },
+                {
+                    "source": "tablemodel.cpp",
+                    "target": "%{SrcPath}",
+                    "openInEditor": true,
+                    "condition": "%{JS: '%{Base}' === 'QAbstractTableModel'}",
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{SrcFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                },
+                {
+                    "source": "listmodel.h",
+                    "target": "%{HdrPath}",
+                    "condition": "%{JS: '%{Base}' === 'QAbstractListModel'}",
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{HdrFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                },
+                {
+                    "source": "listmodel.cpp",
+                    "target": "%{SrcPath}",
+                    "openInEditor": true,
+                    "condition": "%{JS: '%{Base}' === 'QAbstractListModel'}",
+                    "options": [
+                        { "key": "Cpp:License:FileName", "value": "%{SrcFileName}" },
+                        { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                    ]
+                }
+            ]
+        }
+    ]
+}
