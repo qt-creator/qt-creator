@@ -202,14 +202,15 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
             shutil.rmtree(target)
         shutil.copytree(qt_qml_dir, target, ignore=copy_ignore_func, symlinks=True)
 
-def add_qt_conf(install_dir):
-    print "Creating qt.conf:"
-    f = open(install_dir + '/bin/qt.conf', 'w')
+def add_qt_conf(target_dir, install_dir):
+    qtconf_filepath = os.path.join(target_dir, 'qt.conf')
+    print('Creating qt.conf in "{0}":'.format(qtconf_filepath))
+    f = open(qtconf_filepath, 'w')
     f.write('[Paths]\n')
-    f.write('Libraries=../lib/qtcreator\n')
-    f.write('Plugins=plugins\n')
-    f.write('Imports=imports\n')
-    f.write('Qml2Imports=qml\n')
+    f.write('Libraries={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'lib', 'qtcreator'), target_dir).replace('\\', '/')))
+    f.write('Plugins={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'bin', 'plugins'), target_dir).replace('\\', '/')))
+    f.write('Imports={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'bin', 'imports'), target_dir).replace('\\', '/')))
+    f.write('Qml2Imports={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'bin', 'qml'), target_dir).replace('\\', '/')))
     f.close()
 
 def copy_translations(install_dir, qt_tr_dir):
@@ -330,7 +331,8 @@ def main():
 
     if not sys.platform.startswith('win'):
         fix_rpaths(chrpath_bin, install_dir)
-    add_qt_conf(install_dir)
+        add_qt_conf(os.path.join(install_dir, 'libexec', 'qtcreator'), install_dir) # e.g. for qml2puppet
+    add_qt_conf(os.path.join(install_dir, 'bin'), install_dir)
 
 if __name__ == "__main__":
     if sys.platform == 'darwin':

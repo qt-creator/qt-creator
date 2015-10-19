@@ -46,6 +46,12 @@ if [ ! -f "$1/Contents/Resources/ios/qt.conf" ]; then
     cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$1/Contents/Resources/ios/qt.conf" || exit 1
 fi
 
+# copy qml2puppet's qt.conf
+if [ ! -f "$1/Contents/Resources/qmldesigner/qt.conf" ]; then
+    echo "- Copying qmldesigner/qt.conf"
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmldesigner_qt.conf" "$1/Contents/Resources/qmldesigner/qt.conf" || exit 1
+fi
+
 # copy Qt translations
 # check for known existing translation to avoid copying multiple times
 if [ ! -f "$1/Contents/Resources/translations/qt_de.qm" ]; then
@@ -82,7 +88,7 @@ fi
 
 if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
 
-    qml2puppetapp="$1/Contents/Resources/qml2puppet"
+    qml2puppetapp="$1/Contents/Resources/qmldesigner/qml2puppet"
     if [ -f "$qml2puppetapp" ]; then
         qml2puppetArgument="-executable=$qml2puppetapp"
     fi

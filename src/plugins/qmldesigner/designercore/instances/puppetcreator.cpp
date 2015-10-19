@@ -291,7 +291,10 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 
 QString PuppetCreator::defaultPuppetFallbackDirectory()
 {
-    return Core::ICore::libexecPath();
+    if (Utils::HostOsInfo::isMacHost())
+        return Core::ICore::libexecPath() + QLatin1String("/qmldesigner");
+    else
+        return Core::ICore::libexecPath();
 }
 
 QString PuppetCreator::qmlPuppetFallbackDirectory() const

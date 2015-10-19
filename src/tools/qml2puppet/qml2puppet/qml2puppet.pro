@@ -4,7 +4,8 @@ TEMPLATE = app
 
 include(../../../../qtcreator.pri)
 
-DESTDIR = $$IDE_LIBEXEC_PATH
+osx:  DESTDIR = $$IDE_LIBEXEC_PATH/qmldesigner
+else: DESTDIR = $$IDE_LIBEXEC_PATH
 
 include(../../../rpath.pri)
 
