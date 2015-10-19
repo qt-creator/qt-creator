@@ -41,6 +41,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 
 #include <QMap>
 #include <QFileInfo>
@@ -105,6 +106,12 @@ void ImageViewer::ctor()
     // toolbar
     d->toolbar = new QWidget();
     d->ui_toolbar.setupUi(d->toolbar);
+    d->ui_toolbar.toolButtonZoomIn->setIcon(Utils::ThemeHelper::themedIcon(
+                                                QLatin1String(Core::Constants::ICON_PLUS)));
+    d->ui_toolbar.toolButtonZoomOut->setIcon(Utils::ThemeHelper::themedIcon(
+                                                 QLatin1String(Core::Constants::ICON_MINUS)));
+    d->ui_toolbar.toolButtonFitToScreen->setIcon(Utils::ThemeHelper::themedIcon(
+                                                     QLatin1String(Core::Constants::ICON_ZOOM)));
 
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));

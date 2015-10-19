@@ -44,6 +44,7 @@
 #include <cplusplus/Overview.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 
 #include <QAction>
 #include <QCheckBox>
@@ -1028,7 +1029,7 @@ void InsertVirtualMethodsDialog::initGui()
             m_overrideReplacementComboBox, &QComboBox::setEnabled);
 
     QAction *clearUserAddedReplacements = new QAction(this);
-    clearUserAddedReplacements->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAN_PANE)));
+    clearUserAddedReplacements->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_CLEAN_PANE)));
     clearUserAddedReplacements->setText(tr("Clear Added \"override\" Equivalents"));
     connect(clearUserAddedReplacements, &QAction::triggered, [this]() {
        m_availableOverrideReplacements = defaultOverrideReplacements();

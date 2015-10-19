@@ -65,12 +65,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-          </property>
          </widget>
         </item>
         <item>
@@ -132,12 +126,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -265,8 +253,6 @@ The APK will not be usable on any other device.</string>
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -35,6 +35,7 @@
 #include <utils/algorithm.h>
 
 #include <utils/theme/theme.h>
+#include <utils/themehelper.h>
 
 #include <QIcon>
 
@@ -99,7 +100,7 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
                 case Qt::DisplayRole:
                     return item.text;
                 case Qt::DecorationRole:
-                    return QVariant::fromValue(QIcon(item.iconResource));
+                    return QVariant::fromValue(Utils::ThemeHelper::themedIcon(item.iconResource));
             }
             break;
 

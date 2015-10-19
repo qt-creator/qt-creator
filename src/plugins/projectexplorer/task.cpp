@@ -32,6 +32,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 
 #include "projectexplorerconstants.h"
 
@@ -41,8 +42,8 @@ namespace ProjectExplorer
 static QIcon taskTypeIcon(Task::TaskType t)
 {
     static QIcon icons[3] = { QIcon(),
-                              QIcon(QLatin1String(Core::Constants::ICON_ERROR)),
-                              QIcon(QLatin1String(Core::Constants::ICON_WARNING)) };
+                              Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_ERROR)),
+                              Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING))};
 
     if (t < 0 || t > 2)
         t = Task::Unknown;

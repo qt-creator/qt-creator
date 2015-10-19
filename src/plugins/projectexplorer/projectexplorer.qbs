@@ -230,48 +230,7 @@ QtcPlugin {
     Group {
         name: "Images"
         prefix: "images/"
-        files: [
-            "BuildSettings.png",
-            "CodeStyleSettings.png",
-            "DeviceConnected.png",
-            "DeviceDisconnected.png",
-            "DeviceReadyToUse.png",
-            "EditorSettings.png",
-            "MaemoDevice.png",
-            "ProjectDependencies.png",
-            "RunSettings.png",
-            "Simulator.png",
-            "build.png",
-            "build_32.png",
-            "build_small.png",
-            "clean.png",
-            "clean_small.png",
-            "closetab.png",
-            "debugger_start.png",
-            "debugger_start_small.png",
-            "findallprojects.png",
-            "findproject.png",
-            "leftselection.png",
-            "midselection.png",
-            "projectexplorer.png",
-            "rebuild.png",
-            "rebuild_small.png",
-            "rightselection.png",
-            "run.png",
-            "run_small.png",
-            "session.png",
-            "stop.png",
-            "stop_small.png",
-            "targetbuildselected.png",
-            "targetleftbutton.png",
-            "targetpanel_bottom.png",
-            "targetpanel_gradient.png",
-            "targetrightbutton.png",
-            "targetrunselected.png",
-            "targetseparatorbackground.png",
-            "targetunselected.png",
-            "window.png",
-        ]
+        files: ["*.png"]
     }
 
     Group {

@@ -50,6 +50,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/algorithm.h>
+#include <utils/themehelper.h>
 #include <utils/treemodel.h>
 
 #include <QDir>
@@ -206,8 +207,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(QLatin1String(Core::Constants::ICON_ERROR))
-    , m_warningVersionIcon(QLatin1String(Core::Constants::ICON_WARNING))
+    , m_invalidVersionIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_ERROR)))
+    , m_warningVersionIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)))
     , m_configurationWidget(0)
     , m_autoItem(0)
     , m_manualItem(0)

@@ -35,6 +35,7 @@
 #include <coreplugin/ioutputpane.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/themehelper.h>
 
 using namespace ProjectExplorer;
 
@@ -101,8 +102,8 @@ void TaskMark::clicked()
 }
 
 TaskHub::TaskHub()
-    : m_errorIcon(QLatin1String(Core::Constants::ICON_ERROR)),
-      m_warningIcon(QLatin1String(Core::Constants::ICON_WARNING))
+    : m_errorIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_ERROR))),
+      m_warningIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)))
 {
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");

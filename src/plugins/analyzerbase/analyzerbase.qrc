@@ -3,7 +3,7 @@
         <file>images/mode_analyze.png</file>
         <file>images/mode_analyze@2x.png</file>
         <file>images/analyzer_category.png</file>
-        <file>images/analyzer_start_small.png</file>
-        <file>images/analyzer_stop_small.png</file>
+        <file>images/analyzer_overlay_small.png</file>
+        <file>images/analyzer_overlay_small@2x.png</file>
     </qresource>
 </RCC>

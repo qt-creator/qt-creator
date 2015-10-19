@@ -39,6 +39,7 @@
 #include <backgroundaction.h>
 
 #include <utils/fileutils.h>
+#include <utils/themehelper.h>
 
 namespace QmlDesigner {
 
@@ -65,21 +66,21 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
-    m_noSnappingAction->setIcon(QPixmap(QLatin1String(":/icon/layout/no_snapping.png")));
+    m_noSnappingAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/icon/layout/no_snapping.png")));
 
     m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items and generate anchors (W)."));
     m_snappingAndAnchoringAction->setShortcut(Qt::Key_W);
     m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
-    m_snappingAndAnchoringAction->setIcon(QPixmap(QLatin1String(":/icon/layout/snapping_and_anchoring.png")));
+    m_snappingAndAnchoringAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/icon/layout/snapping_and_anchoring.png")));
 
     m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items but do not generate anchors (E)."));
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
-    m_snappingAction->setIcon(QPixmap(QLatin1String(":/icon/layout/snapping.png")));
+    m_snappingAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/icon/layout/snapping.png")));
 
 
     addActions(layoutActionGroup->actions());
@@ -95,7 +96,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(true);
-    m_showBoundingRectAction->setIcon(QPixmap(QLatin1String(":/icon/layout/boundingrect.png")));
+    m_showBoundingRectAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/icon/layout/boundingrect.png")));
 
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());
@@ -134,7 +135,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_resetAction = new QAction(tr("Reset view (R)."), this);
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_resetAction->setIcon(QPixmap(QLatin1String(":/icon/reset.png")));
+    m_resetAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/icon/reset.png")));
     connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());

@@ -1,9 +1,7 @@
 <RCC>
-    <qresource prefix="/help" >
+    <qresource prefix="/help">
         <file>images/find.png</file>
         <file>images/book.png</file>
-        <file>images/previous.png</file>
-        <file>images/next.png</file>
         <file>images/home.png</file>
         <file>images/bookmark.png</file>
         <file>images/category_help.png</file>

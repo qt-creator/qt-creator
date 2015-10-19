@@ -82,6 +82,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/themehelper.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>
@@ -677,7 +678,7 @@ void MainWindow::registerDefaultActions()
     }
 
     // Show Sidebar Action
-    m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
+    m_toggleSideBarAction = new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
                                         QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR),
                                         this);
     m_toggleSideBarAction->setCheckable(true);

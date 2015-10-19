@@ -57,6 +57,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -113,7 +114,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngi
       m_engine(engine),
       m_running(false)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
+    setIcon(QLatin1String(Core::Constants::ICON_DEBUG_START_SMALL));
     connect(this, &RunControl::finished, this, &DebuggerRunControl::handleFinished);
 
     connect(engine, &DebuggerEngine::requestRemoteSetup,

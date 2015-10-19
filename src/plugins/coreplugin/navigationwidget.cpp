@@ -40,6 +40,8 @@
 #include "id.h"
 #include "imode.h"
 
+#include <utils/themehelper.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QSettings>
@@ -248,7 +250,8 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
     }
 
     if (!d->m_subWidgets.isEmpty()) // Make all icons the bottom icon
-        d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+        d->m_subWidgets.at(0)->setCloseIcon(
+                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
 
     Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, index);
     connect(nsw, &Internal::NavigationSubWidget::splitMe,
@@ -257,9 +260,11 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
     insertWidget(position, nsw);
     d->m_subWidgets.insert(position, nsw);
     if (d->m_subWidgets.size() == 1)
-        d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+        d->m_subWidgets.at(0)->setCloseIcon(
+                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
     else
-        d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+        d->m_subWidgets.at(0)->setCloseIcon(
+                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     return nsw;
 }
 
@@ -308,9 +313,11 @@ void NavigationWidget::closeSubWidget()
         subWidget->deleteLater();
         // update close button of top item
         if (d->m_subWidgets.size() == 1)
-            d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+            d->m_subWidgets.at(0)->setCloseIcon(
+                        Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
         else
-            d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+            d->m_subWidgets.at(0)->setCloseIcon(
+                        Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     } else {
         setShown(false);
     }

@@ -33,6 +33,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <utils/stylehelper.h>
+#include <utils/themehelper.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -87,10 +88,10 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);
-    m_errorIcon->setPixmap(QPixmap(Utils::StyleHelper::dpiSpecificImageFile(
-                                       QLatin1String(Core::Constants::ICON_ERROR))));
-    m_warningIcon->setPixmap(QPixmap(Utils::StyleHelper::dpiSpecificImageFile(
-                                         QLatin1String(Core::Constants::ICON_WARNING))));
+    m_errorIcon->setPixmap(Utils::ThemeHelper::themedIconPixmap(
+                               QLatin1String(Core::Constants::ICON_ERROR)));
+    m_warningIcon->setPixmap(Utils::ThemeHelper::themedIconPixmap(
+                                 QLatin1String(Core::Constants::ICON_WARNING)));
 
     m_contentWidget->hide();
 

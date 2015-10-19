@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/qmlprofiler">
-        <file>clean_pane_small.png</file>
         <file>recordOff.png</file>
         <file>recordOn.png</file>
         <file>bindingloops.vert</file>

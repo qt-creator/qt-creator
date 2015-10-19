@@ -40,6 +40,7 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/theme/theme.h>
+#include <utils/themehelper.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -138,7 +139,7 @@ public:
 ManhattanStylePrivate::ManhattanStylePrivate() :
     lineeditImage(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield.png"))),
     lineeditImage_disabled(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield_disabled.png"))),
-    extButtonPixmap(QLatin1String(":/core/images/extension.png")),
+    extButtonPixmap(ThemeHelper::themedIconPixmap(QLatin1String(":/core/images/extension.png"))),
     closeButtonPixmap(QLatin1String(Core::Constants::ICON_CLOSE_BUTTON))
 {
 }

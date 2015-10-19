@@ -52,6 +52,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/themehelper.h>
 
 #include <QCoreApplication>
 #include <QHBoxLayout>
@@ -131,7 +132,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {
-        m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
+        m_toggleSideBarAction = new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
                                             QCoreApplication::translate("Core", Core::Constants::TR_SHOW_SIDEBAR),
                                             toolBar);
         m_toggleSideBarAction->setCheckable(true);
@@ -168,7 +169,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     connect(m_homeAction, &QAction::triggered, this, &HelpWidget::goHome);
     layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_homeAction, cmd));
 
-    m_backAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
+    m_backAction = new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_PREV)),
         tr("Back"), toolBar);
     connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
     m_backMenu = new QMenu(toolBar);
@@ -180,7 +181,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     button->setPopupMode(QToolButton::DelayedPopup);
     layout->addWidget(button);
 
-    m_forwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
+    m_forwardAction = new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_NEXT)),
         tr("Forward"), toolBar);
     connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
     m_forwardMenu = new QMenu(toolBar);
@@ -252,7 +253,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 
     if (style != ExternalWindow) {
-        m_closeAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
+        m_closeAction = new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
             QString(), toolBar);
         connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
         button = new QToolButton;

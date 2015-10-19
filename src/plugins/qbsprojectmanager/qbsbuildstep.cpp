@@ -38,6 +38,7 @@
 #include "ui_qbsbuildstepconfigwidget.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -46,6 +47,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/themehelper.h>
 
 #include <qbs.h>
 
@@ -482,6 +484,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
                                                      QString *errorMessage) {
         return validateProperties(edit, errorMessage);
     });
+    m_ui->qmlDebuggingWarningText->setPixmap(
+                Utils::ThemeHelper::themedIconPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
 
     connect(m_ui->buildVariantComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(changeBuildVariant(int)));

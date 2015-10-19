@@ -51,7 +51,7 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
         RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, sp.runMode)
 {
-    setIcon(QLatin1String(":/images/analyzer_start_small.png"));
+    setIcon(QLatin1String(Constants::ANALYZER_CONTROL_START_ICON));
 
     m_sp = sp;
 

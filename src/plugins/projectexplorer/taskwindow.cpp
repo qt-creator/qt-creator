@@ -46,6 +46,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/itemviews.h>
+#include <utils/themehelper.h>
 
 #include <QDir>
 #include <QPainter>
@@ -264,11 +265,12 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     d->m_filterWarningsButton = createFilterButton(
-                QIcon(QLatin1String(Core::Constants::ICON_WARNING)),
+                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)),
                 tr("Show Warnings"), this, SLOT(setShowWarnings(bool)));
 
     d->m_categoriesButton = new QToolButton;
-    d->m_categoriesButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    d->m_categoriesButton->setIcon(
+                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
     d->m_categoriesButton->setProperty("noArrow", true);
     d->m_categoriesButton->setAutoRaise(true);

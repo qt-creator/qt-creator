@@ -116,6 +116,7 @@
 #include <utils/savedaction.h>
 #include <utils/statuslabel.h>
 #include <utils/styledbar.h>
+#include <utils/themehelper.h>
 #include <utils/winutils.h>
 
 #include <QApplication>
@@ -2345,17 +2346,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
 
-    m_startIcon = QIcon(_(":/debugger/images/debugger_start_small.png"));
-    m_startIcon.addFile(QLatin1String(":/debugger/images/debugger_start.png"));
-    m_exitIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
-    m_exitIcon.addFile(QLatin1String(":/debugger/images/debugger_stop.png"));
-    m_continueIcon = QIcon(QLatin1String(":/debugger/images/debugger_continue_small.png"));
-    m_continueIcon.addFile(QLatin1String(":/debugger/images/debugger_continue.png"));
-    m_interruptIcon = QIcon(_(Core::Constants::ICON_PAUSE));
-    m_interruptIcon.addFile(QLatin1String(":/debugger/images/debugger_interrupt.png"));
+    m_startIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_START_SMALL));
+    m_exitIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_EXIT_SMALL));
+    m_continueIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_CONTINUE_SMALL));
+    m_continueIcon.addFile(_(":/debugger/images/debugger_continue.png"));
+    m_interruptIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_INTERRUPT_SMALL));
+    m_interruptIcon.addFile(_(":/debugger/images/debugger_interrupt.png"));
     m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
-    m_resetIcon = QIcon(_(":/debugger/images/debugger_restart_small.png:"));
-    m_resetIcon.addFile(QLatin1String(":/debugger/images/debugger_restart.png"));
+    m_resetIcon = ThemeHelper::themedIcon(_(":/debugger/images/debugger_restart_small.png|IconsRunColor"));
 
     m_busy = false;
 
@@ -2445,15 +2443,15 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleReset);
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
-    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
+    act->setIcon(ThemeHelper::themedIcon(_(":/debugger/images/debugger_stepover_small.png")));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecNext);
 
     act = m_stepAction = new QAction(tr("Step Into"), this);
-    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepinto_small.png")));
+    act->setIcon(ThemeHelper::themedIcon(_(":/debugger/images/debugger_stepinto_small.png")));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStep);
 
     act = m_stepOutAction = new QAction(tr("Step Out"), this);
-    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepout_small.png")));
+    act->setIcon(ThemeHelper::themedIcon(_(":/debugger/images/debugger_stepout_small.png")));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStepOut);
 
     act = m_runToLineAction = new QAction(tr("Run to Line"), this);
@@ -2538,7 +2536,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);
-    QIcon debuggerIcon(QLatin1String(":/projectexplorer/images/debugger_start_small.png"));
+    QIcon debuggerIcon(ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_START_SMALL)));
     debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
@@ -2789,7 +2787,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     QAction *qmlZoomDummyAction = new QAction(tr("Zoom"), this);
     qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(QIcon(_(":/debugger/images/qml/zoom.png")));
+    qmlZoomDummyAction->setIcon(ThemeHelper::themedIcon(_(Core::Constants::ICON_ZOOM)));
     qmlZoomDummyAction->setEnabled(false);
     cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL);
     debugMenu->addAction(cmd);

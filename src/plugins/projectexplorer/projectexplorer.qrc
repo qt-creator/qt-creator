@@ -7,7 +7,6 @@
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start@2x.png</file>
-        <file>images/debugger_start_small.png</file>
         <file>images/mode_project.png</file>
         <file>images/mode_project@2x.png</file>
         <file>images/projectexplorer.png</file>
@@ -16,8 +15,8 @@
         <file>images/run.png</file>
         <file>images/run@2x.png</file>
         <file>images/run_small.png</file>
+        <file>images/run_small@2x.png</file>
         <file>images/session.png</file>
-        <file>images/stop.png</file>
         <file>images/targetbuildselected.png</file>
         <file>images/targetrunselected.png</file>
         <file>images/targetseparatorbackground.png</file>
@@ -41,6 +40,7 @@
         <file>images/targetpanel_gradient.png</file>
         <file>images/window.png</file>
         <file>images/stop_small.png</file>
+        <file>images/stop_small@2x.png</file>
         <file>images/disabledbuildstep.png</file>
         <file>images/disabledbuildstep@2x.png</file>
         <file>images/lightdisabledbuildstep.png</file>

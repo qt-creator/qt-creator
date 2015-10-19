@@ -163,10 +163,9 @@ const char ICON_CLEAN_SMALL[]     = ":/projectexplorer/images/clean_small.png";
 const char ICON_REBUILD[]         = ":/projectexplorer/images/rebuild.png";
 const char ICON_REBUILD_SMALL[]   = ":/projectexplorer/images/rebuild_small.png";
 const char ICON_RUN[]             = ":/projectexplorer/images/run.png";
-const char ICON_RUN_SMALL[]       = ":/projectexplorer/images/run_small.png";
-const char ICON_DEBUG_SMALL[]     = ":/projectexplorer/images/debugger_start_small.png";
+const char ICON_RUN_SMALL[]       = ":/projectexplorer/images/run_small.png|IconsRunColor";
 const char ICON_STOP[]            = ":/projectexplorer/images/stop.png";
-const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png";
+const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png|IconsStopColor";
 const char ICON_WINDOW[]          = ":/projectexplorer/images/window.png";
 
 // Mime types

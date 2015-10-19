@@ -36,6 +36,8 @@
 #include "settings.h"
 #include "constants.h"
 
+#include <utils/themehelper.h>
+
 namespace Todo {
 namespace Internal {
 
@@ -69,7 +71,8 @@ void OptionsDialog::setSettings(const Settings &settings)
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
 {
-    QListWidgetItem *item = new QListWidgetItem(QIcon(keyword.iconResource), keyword.name);
+    QListWidgetItem *item = new QListWidgetItem(
+                Utils::ThemeHelper::themedIcon(keyword.iconResource), keyword.name);
     item->setData(Qt::UserRole, keyword.iconResource);
     item->setBackgroundColor(keyword.color);
     ui->keywordsList->addItem(item);
@@ -120,7 +123,7 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
     KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNamesButThis, this);
     if (keywordDialog->exec() == QDialog::Accepted) {
         keyword = keywordDialog->keyword();
-        item->setIcon(QIcon(keyword.iconResource));
+        item->setIcon(Utils::ThemeHelper::themedIcon(keyword.iconResource));
         item->setText(keyword.name);
         item->setData(Qt::UserRole, keyword.iconResource);
         item->setBackgroundColor(keyword.color);

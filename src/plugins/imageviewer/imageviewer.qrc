@@ -1,9 +1,6 @@
 <RCC>
     <qresource prefix="/imageviewer">
         <file>images/outline.png</file>
-        <file>images/zoomin.png</file>
-        <file>images/zoomout.png</file>
-        <file>images/fitinscreen.png</file>
         <file>images/originalsize.png</file>
         <file>images/background.png</file>
         <file>images/pause-small.png</file>

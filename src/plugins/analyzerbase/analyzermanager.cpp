@@ -61,6 +61,7 @@
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/statuslabel.h>
+#include <utils/themehelper.h>
 
 #include <QVariant>
 #include <QDebug>
@@ -240,14 +241,16 @@ void AnalyzerManagerPrivate::setupActions()
     menubar->addMenu(mtools, m_menu);
 
     m_startAction = new QAction(tr("Start"), m_menu);
-    m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
+    m_startAction->setIcon(Utils::ThemeHelper::themedIcon(
+                               QLatin1String(ANALYZER_CONTROL_START_ICON)));
     ActionManager::registerAction(m_startAction, "Analyzer.Start");
     connect(m_startAction, &QAction::triggered,
             this, &AnalyzerManagerPrivate::startCurrentTool);
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
-    m_stopAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_STOP_ICON)));
+    m_stopAction->setIcon(Utils::ThemeHelper::themedIcon(
+                              QLatin1String(ProjectExplorer::Constants::ICON_STOP_SMALL)));
     command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop");
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 

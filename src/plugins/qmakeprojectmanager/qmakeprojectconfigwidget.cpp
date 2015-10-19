@@ -35,11 +35,13 @@
 #include "qmakenodes.h"
 #include "ui_qmakeprojectconfigwidget.h"
 
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/themehelper.h>
 
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
@@ -66,6 +68,8 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
 
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
 
+    m_ui->warningLabel->setPixmap(Utils::ThemeHelper::themedIconPixmap(
+                                      QLatin1String(Core::Constants::ICON_WARNING)));
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_ui->shadowBuildDirEdit->setHistoryCompleter(QLatin1String("Qmake.BuildDir.History"));

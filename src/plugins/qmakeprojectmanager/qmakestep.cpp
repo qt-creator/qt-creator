@@ -44,6 +44,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <qtsupport/debugginghelperbuildtask.h>
@@ -53,6 +54,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/themehelper.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -453,6 +455,9 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
     m_ui->qtQuickCompilerCheckBox->setChecked(m_step->useQtQuickCompiler());
     m_ui->separateDebugInfoCheckBox->setChecked(m_step->separateDebugInfo());
+    const QPixmap warning = Utils::ThemeHelper::themedIconPixmap(QLatin1String(Core::Constants::ICON_WARNING));
+    m_ui->qmlDebuggingWarningIcon->setPixmap(warning);
+    m_ui->qtQuickCompilerWarningIcon->setPixmap(warning);
 
     qmakeBuildConfigChanged();
 

@@ -39,6 +39,8 @@
 #include <qmlitemnode.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <utils/themehelper.h>
 
 #include <QMimeData>
 #include <QMessageBox>
@@ -379,7 +381,8 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items
     if (currentQmlObjectNode.hasError()) {
         items.idItem->setData(true, ErrorRole);
         items.idItem->setToolTip(currentQmlObjectNode.error());
-        items.idItem->setIcon(QIcon(":/navigator/icon/warning.png"));
+        items.idItem->setIcon(Utils::ThemeHelper::themedIcon(
+                                  QLatin1String(Core::Constants::ICON_WARNING)));
     } else {
         items.idItem->setData(false, ErrorRole);
         if (modelNode.metaInfo().isValid())

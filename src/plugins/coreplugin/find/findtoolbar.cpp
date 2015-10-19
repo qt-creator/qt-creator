@@ -47,6 +47,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/themehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -667,8 +668,10 @@ void FindToolBar::updateIcons()
     bool regexp = effectiveFlags & FindRegularExpression;
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
-        m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
-                                       Utils::StyleHelper::dpiSpecificImageFile(QLatin1Literal(Constants::ICON_MAGNIFIER)));
+        const QPixmap pixmap = Utils::ThemeHelper::recoloredPixmap(
+                    QLatin1String(Constants::ICON_MAGNIFIER),
+                    Utils::ThemeHelper::inputfieldIconColor());
+        m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
     } else {
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
                                        IFindFilter::pixmapForFindFlags(effectiveFlags));
@@ -958,8 +961,19 @@ void FindToolBar::setBackward(bool backward)
 
 void FindToolBar::setLightColoredIcon(bool lightColored)
 {
-    m_ui.close->setIcon(lightColored ? QIcon(QLatin1String(Constants::ICON_DARK_CLOSE))
-                                     : QIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
+    if (lightColored) {
+        m_ui.findNextButton->setIcon(QIcon());
+        m_ui.findNextButton->setArrowType(Qt::RightArrow);
+        m_ui.findPreviousButton->setIcon(QIcon());
+        m_ui.findPreviousButton->setArrowType(Qt::LeftArrow);
+        m_ui.close->setIcon(QIcon(QLatin1String(Constants::ICON_DARK_CLOSE)));
+    } else {
+        m_ui.findNextButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+        m_ui.findNextButton->setArrowType(Qt::NoArrow);
+        m_ui.findPreviousButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_PREV)));
+        m_ui.findPreviousButton->setArrowType(Qt::NoArrow);
+        m_ui.close->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
+    }
 }
 
 OptionsPopup::OptionsPopup(QWidget *parent)

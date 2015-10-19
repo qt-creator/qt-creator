@@ -49,6 +49,7 @@
 #include <utils/detailswidget.h>
 #include <utils/stringutils.h>
 #include <utils/persistentsettings.h>
+#include <utils/themehelper.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
@@ -341,7 +342,8 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     QHBoxLayout *hl = new QHBoxLayout();
     hl->addStretch();
     m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
+    m_disabledIcon->setPixmap(Utils::ThemeHelper::themedIconPixmap(
+                                  QLatin1String(Core::Constants::ICON_WARNING)));
     hl->addWidget(m_disabledIcon);
     m_disabledReason = new QLabel(this);
     m_disabledReason->setVisible(false);

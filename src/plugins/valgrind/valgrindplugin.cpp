@@ -56,6 +56,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/themehelper.h>
 
 #include <QtPlugin>
 #include <QCoreApplication>
@@ -248,7 +249,8 @@ void ValgrindPlugin::extensionsInitialized()
         editorContextMenu->addSeparator(analyzerContext);
 
         QAction *action = new QAction(tr("Profile Costs of This Function and Its Callees"), this);
-        action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
+        action->setIcon(Utils::ThemeHelper::themedIcon(
+                            QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
         connect(action, &QAction::triggered, cgTool,
                 &CallgrindTool::handleShowCostsOfFunction);
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",

@@ -48,6 +48,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -277,7 +278,7 @@ QWidget *QmlProfilerTool::createWidgets()
     layout->addWidget(d->m_recordButton);
 
     d->m_clearButton = new QToolButton(toolbarWidget);
-    d->m_clearButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/clean_pane_small.png")));
+    d->m_clearButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(ICON_CLEAN_PANE)));
     d->m_clearButton->setToolTip(tr("Discard data"));
 
     connect(d->m_clearButton, &QAbstractButton::clicked, [this](){
@@ -288,14 +289,14 @@ QWidget *QmlProfilerTool::createWidgets()
     layout->addWidget(d->m_clearButton);
 
     d->m_searchButton = new QToolButton;
-    d->m_searchButton->setIcon(QIcon(QStringLiteral(":/timeline/ico_zoom.png")));
+    d->m_searchButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(ICON_ZOOM)));
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
     layout->addWidget(d->m_searchButton);
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
     d->m_displayFeaturesButton = new QToolButton;
-    d->m_displayFeaturesButton->setIcon(QIcon(QLatin1String(ICON_FILTER)));
+    d->m_displayFeaturesButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(ICON_FILTER)));
     d->m_displayFeaturesButton->setToolTip(tr("Hide or show event categories."));
     d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
     d->m_displayFeaturesButton->setProperty("noArrow", true);

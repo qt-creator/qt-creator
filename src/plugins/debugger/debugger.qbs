@@ -171,39 +171,13 @@ QtcPlugin {
     Group {
         name: "Images"
         prefix: "images/"
-        files: [
-            "breakpoint_16.png",
-            "breakpoint_24.png",
-            "breakpoint_disabled_16.png",
-            "breakpoint_disabled_24.png",
-            "breakpoint_disabled_32.png",
-            "breakpoint_pending_16.png",
-            "breakpoint_pending_24.png",
-            "debugger_breakpoints.png",
-            "debugger_continue.png",
-            "debugger_continue_32.png",
-            "debugger_continue_small.png",
-            "debugger_empty_14.png",
-            "debugger_interrupt.png",
-            "debugger_interrupt_32.png",
-            "debugger_reversemode_16.png",
-            "debugger_singleinstructionmode.png",
-            "debugger_snapshot_small.png",
-            "debugger_start.png",
-            "debugger_start_small.png",
-            "debugger_stepinto_small.png",
-            "debugger_steponeproc_small.png",
-            "debugger_stepout_small.png",
-            "debugger_stepover_small.png",
-            "debugger_stepoverproc_small.png",
-            "debugger_stop.png",
-            "debugger_stop_32.png",
-            "debugger_stop_small.png",
-            "location_16.png",
-            "location_24.png",
-            "tracepoint.png",
-            "watchpoint.png",
-        ]
+        files: ["*.png", "*.xpm"]
+    }
+
+    Group {
+        name: "Images/qml"
+        prefix: "images/qml/"
+        files: ["*.png"]
     }
 
     Group {

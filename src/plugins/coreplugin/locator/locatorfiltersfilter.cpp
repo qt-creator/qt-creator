@@ -34,6 +34,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -44,7 +45,7 @@ LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),
-    m_icon(QIcon(QLatin1String(Constants::ICON_NEXT)))
+    m_icon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_NEXT)))
 {
     setId("FiltersFilter");
     setDisplayName(tr("Available filters"));

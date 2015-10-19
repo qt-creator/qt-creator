@@ -58,11 +58,7 @@
    <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="warningLabel">
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-       </property>
-      </widget>
+      <widget class="QLabel" name="warningLabel"/>
      </item>
      <item>
       <widget class="QLabel" name="problemLabel">
@@ -92,8 +88,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../projectexplorer/projectexplorer.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

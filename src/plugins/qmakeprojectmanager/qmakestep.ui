@@ -169,11 +169,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="qmlDebuggingWarningIcon">
-        <property name="pixmap">
-         <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-        </property>
-       </widget>
+       <widget class="QLabel" name="qmlDebuggingWarningIcon"/>
       </item>
       <item>
        <widget class="QLabel" name="qmlDebuggingWarningText">
@@ -228,11 +224,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="qtQuickCompilerWarningIcon">
-        <property name="pixmap">
-         <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-        </property>
-       </widget>
+       <widget class="QLabel" name="qtQuickCompilerWarningIcon"/>
       </item>
       <item>
        <widget class="QLabel" name="qtQuickCompilerWarningText">
@@ -285,9 +277,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../projectexplorer/projectexplorer.qrc"/>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

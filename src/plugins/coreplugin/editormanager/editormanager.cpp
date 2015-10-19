@@ -74,6 +74,7 @@
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 #include <utils/overridecursor.h>
+#include <utils/themehelper.h>
 
 #include <QClipboard>
 #include <QDateTime>
@@ -267,8 +268,8 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_closeAllEditorsExceptVisibleAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Open Document in History"), this)),
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), this)),
-    m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), this)),
-    m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), this)),
+    m_goBackAction(new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), this)),
+    m_goForwardAction(new QAction(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), this)),
     m_copyFilePathContextAction(new QAction(EditorManager::tr("Copy Full Path"), this)),
     m_copyLocationContextAction(new QAction(EditorManager::tr("Copy Path and Line Number"), this)),
     m_copyFileNameContextAction(new QAction(EditorManager::tr("Copy File Name"), this)),

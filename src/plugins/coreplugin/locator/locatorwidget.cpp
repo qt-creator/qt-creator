@@ -47,6 +47,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/stylehelper.h>
+#include <utils/themehelper.h>
 
 #include <QColor>
 #include <QFileInfo>
@@ -252,9 +253,11 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->addWidget(m_fileLineEdit);
 
     setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
-    const QPixmap image = Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(Constants::ICON_MAGNIFIER));
+    const QPixmap pixmap = Utils::ThemeHelper::recoloredPixmap(
+                QLatin1String(Constants::ICON_MAGNIFIER),
+                Utils::ThemeHelper::inputfieldIconColor());
     m_fileLineEdit->setFiltering(true);
-    m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, image);
+    m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
     m_fileLineEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);

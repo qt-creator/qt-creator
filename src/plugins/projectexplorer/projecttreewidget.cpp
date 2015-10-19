@@ -49,6 +49,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/algorithm.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/themehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -233,7 +234,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
             this, SLOT(saveExpandData()));
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    m_toggleSync->setIcon(
+                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_LINK)));
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
@@ -586,7 +588,7 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     n.widget = ptw;
 
     QToolButton *filter = new QToolButton;
-    filter->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filter->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     filter->setToolTip(tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);

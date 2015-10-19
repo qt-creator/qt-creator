@@ -50,6 +50,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/themehelper.h>
 
 #include <QLineEdit>
 #include <QFileInfo>
@@ -166,7 +167,8 @@ void AndroidManifestEditorWidget::initializePage()
         m_packageNameWarning->setVisible(false);
 
         m_packageNameWarningIcon = new QLabel;
-        m_packageNameWarningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
+        m_packageNameWarningIcon->setPixmap(
+                    Utils::ThemeHelper::themedIconPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
         m_packageNameWarningIcon->setVisible(false);
         m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

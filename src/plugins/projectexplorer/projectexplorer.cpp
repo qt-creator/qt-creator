@@ -134,6 +134,7 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/themehelper.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -706,7 +707,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QIcon runIcon = QIcon(QLatin1String(Constants::ICON_RUN));
-    runIcon.addFile(QLatin1String(Constants::ICON_RUN_SMALL));
+    runIcon.addPixmap(Utils::ThemeHelper::themedIconPixmap(QLatin1String(Constants::ICON_RUN_SMALL)));
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
@@ -908,8 +909,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
 
     // cancel build action
-    QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
-    stopIcon.addFile(QLatin1String(Constants::ICON_STOP_SMALL));
+    const QIcon stopIcon = Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_STOP_SMALL));
     dd->m_cancelBuildAction = new QAction(stopIcon, tr("Cancel Build"), this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);

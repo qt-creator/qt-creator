@@ -36,6 +36,7 @@
 #include "lineparser.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/themehelper.h>
 
 #include <QColorDialog>
 
@@ -89,19 +90,19 @@ void KeywordDialog::setupListWidget(const QString &selectedIcon)
     ui->listWidget->setViewMode(QListWidget::IconMode);
     ui->listWidget->setDragEnabled(false);
     const QString infoIconName = QLatin1String(Core::Constants::ICON_INFO);
-    QListWidgetItem *item = new QListWidgetItem(QIcon(infoIconName),
+    QListWidgetItem *item = new QListWidgetItem(Utils::ThemeHelper::themedIcon(infoIconName),
                                                 QLatin1String("information"));
     item->setData(Qt::UserRole, infoIconName);
     ui->listWidget->addItem(item);
 
     const QString warningIconName = QLatin1String(Core::Constants::ICON_WARNING);
-    item = new QListWidgetItem(QIcon(warningIconName),
+    item = new QListWidgetItem(Utils::ThemeHelper::themedIcon(warningIconName),
                                QLatin1String("warning"));
     item->setData(Qt::UserRole, warningIconName);
     ui->listWidget->addItem(item);
 
     const QString errorIconName = QLatin1String(Core::Constants::ICON_ERROR);
-    item = new QListWidgetItem(QIcon(errorIconName),
+    item = new QListWidgetItem(Utils::ThemeHelper::themedIcon(errorIconName),
                                QLatin1String("error"));
     item->setData(Qt::UserRole, errorIconName);
     ui->listWidget->addItem(item);

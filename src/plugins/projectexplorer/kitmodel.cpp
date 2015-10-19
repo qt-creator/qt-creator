@@ -37,6 +37,7 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 
 #include <QApplication>
 #include <QLayout>
@@ -66,9 +67,6 @@ public:
 
     QVariant data(int, int role) const
     {
-        static QIcon warningIcon(QString::fromLatin1(Core::Constants::ICON_WARNING));
-        static QIcon errorIcon(QString::fromLatin1(Core::Constants::ICON_ERROR));
-
         if (widget) {
             if (role == Qt::FontRole) {
                 QFont f = QApplication::font();
@@ -86,10 +84,16 @@ public:
                 return baseName;
             }
             if (role == Qt::DecorationRole) {
-                if (!widget->isValid())
+                if (!widget->isValid()) {
+                    static const QIcon errorIcon(Utils::ThemeHelper::themedIcon(
+                                                     QLatin1String(Core::Constants::ICON_ERROR)));
                     return errorIcon;
-                if (widget->hasWarning())
+                }
+                if (widget->hasWarning()) {
+                    static const QIcon warningIcon(Utils::ThemeHelper::themedIcon(
+                                                       QLatin1String(Core::Constants::ICON_WARNING)));
                     return warningIcon;
+                }
                 return QIcon();
             }
             if (role == Qt::ToolTipRole) {

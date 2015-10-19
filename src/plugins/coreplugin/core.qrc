@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/core">
         <file>images/clean_pane_small.png</file>
+        <file>images/clean_pane_small@2x.png</file>
         <file>images/clear.png</file>
         <file>images/clear@2x.png</file>
         <file>images/closebutton.png</file>
@@ -26,10 +27,10 @@
         <file>images/locked@2x.png</file>
         <file>images/magnifier.png</file>
         <file>images/magnifier@2x.png</file>
-        <file>images/dark_magnifier.png</file>
-        <file>images/dark_magnifier@2x.png</file>
         <file>images/minus.png</file>
+        <file>images/minus@2x.png</file>
         <file>images/next.png</file>
+        <file>images/next@2x.png</file>
         <file>images/panel_button.png</file>
         <file>images/panel_button@2x.png</file>
         <file>images/panel_button_checked.png</file>
@@ -41,7 +42,9 @@
         <file>images/panel_button_pressed.png</file>
         <file>images/panel_button_pressed@2x.png</file>
         <file>images/plus.png</file>
+        <file>images/plus@2x.png</file>
         <file>images/prev.png</file>
+        <file>images/prev@2x.png</file>
         <file>images/pushbutton.png</file>
         <file>images/pushbutton_hover.png</file>
         <file>images/pushbutton_pressed.png</file>
@@ -49,6 +52,7 @@
         <file>images/replace.png</file>
         <file>images/reset.png</file>
         <file>images/sidebaricon.png</file>
+        <file>images/sidebaricon@2x.png</file>
         <file>images/splitbutton_horizontal.png</file>
         <file>images/splitbutton_horizontal@2x.png</file>
         <file>images/statusbar.png</file>
@@ -113,5 +117,17 @@
         <file>images/dark_fileicon.png</file>
         <file>images/dark_foldericon.png</file>
         <file>images/Desktop.png</file>
+        <file>images/run_overlay_small.png</file>
+        <file>images/run_overlay_small@2x.png</file>
+        <file>images/stop_overlay_small.png</file>
+        <file>images/stop_overlay_small@2x.png</file>
+        <file>images/debugger_overlay_small.png</file>
+        <file>images/debugger_overlay_small@2x.png</file>
+        <file>images/interrupt_overlay_small.png</file>
+        <file>images/interrupt_overlay_small@2x.png</file>
+        <file>images/continue_overlay_small.png</file>
+        <file>images/continue_overlay_small@2x.png</file>
+        <file>images/zoom.png</file>
+        <file>images/zoom@2x.png</file>
     </qresource>
 </RCC>

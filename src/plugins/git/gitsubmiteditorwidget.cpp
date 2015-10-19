@@ -33,7 +33,9 @@
 #include "githighlighters.h"
 #include "logchangedialog.h"
 
+#include <coreplugin/coreconstants.h>
 #include <utils/completingtextedit.h>
+#include <utils/themehelper.h>
 
 #include <QRegExpValidator>
 #include <QTextEdit>
@@ -59,7 +61,11 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
     new GitSubmitHighlighter(descriptionEdit());
 
     m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
+    const QPixmap error =
+            Utils::ThemeHelper::themedIconPixmap(QLatin1String(Core::Constants::ICON_ERROR));
+    m_gitSubmitPanelUi.invalidAuthorLabel->setPixmap(error);
     m_gitSubmitPanelUi.invalidEmailLabel->setToolTip(tr("Provide a valid email to commit."));
+    m_gitSubmitPanelUi.invalidEmailLabel->setPixmap(error);
 
     connect(m_gitSubmitPanelUi.authorLineEdit, &QLineEdit::textChanged,
             this, &GitSubmitEditorWidget::authorInformationChanged);

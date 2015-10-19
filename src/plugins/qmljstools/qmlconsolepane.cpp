@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/savedaction.h>
+#include <utils/themehelper.h>
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/itemviewfind.h>
 
@@ -112,7 +113,8 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
     m_showDebugButtonAction->setChecked(true);
-    m_showDebugButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_INFO)));
+    m_showDebugButtonAction->setIcon(
+                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_INFO)));
     connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
             m_proxyModel, &QmlConsoleProxyModel::setShowLogs);
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
@@ -126,7 +128,8 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
     m_showWarningButtonAction->setCheckable(true);
     m_showWarningButtonAction->setChecked(true);
-    m_showWarningButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_WARNING)));
+    m_showWarningButtonAction->setIcon(Utils::ThemeHelper::themedIcon(
+                                           QLatin1String(Core::Constants::ICON_WARNING)));
     connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
             m_proxyModel, &QmlConsoleProxyModel::setShowWarnings);
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
@@ -140,7 +143,8 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);
-    m_showErrorButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_ERROR)));
+    m_showErrorButtonAction->setIcon(Utils::ThemeHelper::themedIcon(
+                                         QLatin1String(Core::Constants::ICON_ERROR)));
     connect(m_showErrorButtonAction, &Utils::SavedAction::toggled, m_proxyModel, &QmlConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);
 

@@ -46,9 +46,6 @@
        <property name="text">
         <string/>
        </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-       </property>
       </widget>
      </item>
      <item>
@@ -123,9 +120,6 @@
        <property name="text">
         <string/>
        </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
-       </property>
       </widget>
      </item>
      <item>
@@ -192,9 +186,6 @@
        <property name="text">
         <string/>
        </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
-       </property>
       </widget>
      </item>
      <item>
@@ -227,9 +218,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
        </property>
       </widget>
      </item>
@@ -279,9 +267,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
        </property>
       </widget>
      </item>
@@ -476,7 +461,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../coreplugin/core.qrc"/>
   <include location="android.qrc"/>
  </resources>
  <connections>

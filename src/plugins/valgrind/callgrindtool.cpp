@@ -68,6 +68,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
+#include <utils/themehelper.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -695,7 +696,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // go back
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PREV)));
+    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_PREV)));
     action->setToolTip(tr("Go back one step in history. This will select the previously selected item."));
     connect(action, &QAction::triggered, m_stackBrowser, &StackBrowser::goBack);
     layout->addWidget(createToolButton(action));
@@ -704,7 +705,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // go forward
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_NEXT)));
     action->setToolTip(tr("Go forward one step in history."));
     connect(action, &QAction::triggered, m_stackBrowser, &StackBrowser::goNext);
     layout->addWidget(createToolButton(action));
@@ -782,7 +783,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     // filtering
     action = new QAction(tr("Show Project Costs Only"), this);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     action->setToolTip(tr("Show only profiling info that originated from this project source."));
     action->setCheckable(true);
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::handleFilterProjectCosts);

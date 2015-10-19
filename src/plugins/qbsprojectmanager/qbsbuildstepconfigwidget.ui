@@ -103,14 +103,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="qmlDebuggingWarningIcon">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-       </property>
-      </widget>
+      <widget class="QLabel" name="qmlDebuggingWarningIcon"/>
      </item>
      <item>
       <widget class="QLabel" name="qmlDebuggingWarningText">
@@ -259,8 +252,6 @@
    <header location="global">utils/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

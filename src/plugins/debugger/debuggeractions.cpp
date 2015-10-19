@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
+#include <utils/themehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -176,7 +177,8 @@ DebuggerSettings::DebuggerSettings()
     item->setText(tr("Operate by Instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);
-    item->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_singleinstructionmode.png")));
+    item->setIcon(Utils::ThemeHelper::themedIcon(
+                      QLatin1String(":/debugger/images/debugger_singleinstructionmode.png")));
     item->setToolTip(tr("<p>This switches the debugger to instruction-wise "
         "operation mode. In this mode, stepping operates on single "
         "instructions and the source location view also shows the "

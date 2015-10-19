@@ -39,6 +39,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 
+#include <utils/themehelper.h>
+
 namespace QmlDesigner {
 
 IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
@@ -46,8 +48,8 @@ IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
                                                    QString uncheckedPixmapURL,
                                                    NavigatorTreeModel *treeModel)
     : QStyledItemDelegate(parent),
-      offPixmap(uncheckedPixmapURL),
-      onPixmap(checkedPixmapURL),
+      offPixmap(Utils::ThemeHelper::themedIconPixmap(uncheckedPixmapURL)),
+      onPixmap(Utils::ThemeHelper::themedIconPixmap(checkedPixmapURL)),
       m_navigatorTreeModel(treeModel)
 {}
 
@@ -74,7 +76,8 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
-    const int yOffset = (styleOption.rect.height() - onPixmap.height()) / 2;
+    const int yOffset = (styleOption.rect.height()
+                         - (onPixmap.height() / painter->device()->devicePixelRatio())) / 2;
     const int xOffset = 2;
     if (indexIsHolingModelNode(modelIndex)) {
         painter->save();
