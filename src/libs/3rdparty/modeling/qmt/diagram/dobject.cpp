@@ -50,6 +50,7 @@ DObject::DObject()
 DObject::DObject(const DObject &rhs)
     : DElement(rhs),
       _model_uid(rhs._model_uid),
+      _stereotypes(rhs._stereotypes),
       _context(rhs._context),
       _name(rhs._name),
       _pos(rhs._pos),
@@ -72,6 +73,7 @@ DObject &DObject::operator =(const DObject &rhs)
     if (this != &rhs) {
         DElement::operator=(rhs);
         _model_uid = rhs._model_uid;
+        _stereotypes = rhs._stereotypes;
         _context = rhs._context;
         _name = rhs._name;
         _pos = rhs._pos;
