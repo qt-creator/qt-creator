@@ -150,6 +150,7 @@ public:
     void setValidationFunction(const ValidationFunction &fn);
     static ValidationFunction defaultValidationFunction();
     void validate();
+    void onEditingFinished();
 
 protected:
     // Custom behaviour can be added here.
@@ -172,7 +173,6 @@ protected:
 
 private:
     void iconClicked();
-    void onEditingFinished();
 
     static bool validateWithValidator(FancyLineEdit *edit, QString *errorMessage);
     // Unimplemented, to force the user to make a decision on
