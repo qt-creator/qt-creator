@@ -416,12 +416,20 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
 void QmlProfilerTool::updateTimeDisplay()
 {
     double seconds = 0;
-    if (d->m_profilerState->serverRecording() &&
-        d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
+    switch (d->m_profilerState->currentState()) {
+    case QmlProfilerStateManager::AppStopRequested:
+    case QmlProfilerStateManager::AppDying:
+        return; // Transitional state: don't update the display.
+    case QmlProfilerStateManager::AppRunning:
+        if (d->m_profilerState->serverRecording()) {
             seconds = d->m_recordingElapsedTime.elapsed() / 1000.0;
-    } else if (d->m_profilerModelManager->state() != QmlProfilerModelManager::Empty &&
-               d->m_profilerModelManager->state() != QmlProfilerModelManager::ClearingData) {
-        seconds = d->m_profilerModelManager->traceTime()->duration() / 1.0e9;
+            break;
+        } // else fall through
+    case QmlProfilerStateManager::Idle:
+        if (d->m_profilerModelManager->state() != QmlProfilerModelManager::Empty &&
+               d->m_profilerModelManager->state() != QmlProfilerModelManager::ClearingData)
+            seconds = d->m_profilerModelManager->traceTime()->duration() / 1.0e9;
+        break;
     }
     QString timeString = QString::number(seconds,'f',1);
     QString profilerTimeStr = QmlProfilerTool::tr("%1 s").arg(timeString, 6);
