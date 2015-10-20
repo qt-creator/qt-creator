@@ -106,6 +106,7 @@ private:
     void updateFeatures(quint64 features);
     bool checkForUnsavedNotes();
     void restoreFeatureVisibility();
+    void setButtonsEnabled(bool enable);
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

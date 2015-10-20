@@ -50,6 +50,7 @@ public:
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
     void notifyRemoteSetupDone(quint16 port);
+    StopResult stop();
 
 signals:
     void processRunning(quint16 port);
