@@ -591,9 +591,9 @@ void IosDeviceToolHandlerPrivate::requestTransferApp(const QString &bundlePath,
     this->bundlePath = bundlePath;
     this->deviceId = deviceId;
     QStringList args;
-    args << QLatin1String("-device-id") << deviceId << QLatin1String("-bundle")
-         << bundlePath << QLatin1String("-timeout") << QString::number(timeout)
-         << QLatin1String("-deploy");
+    args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
+         << bundlePath << QLatin1String("--timeout") << QString::number(timeout)
+         << QLatin1String("--install");
     start(IosToolHandler::iosDeviceToolPath(), args);
 }
 
@@ -606,18 +606,17 @@ void IosDeviceToolHandlerPrivate::requestRunApp(const QString &bundlePath,
     this->deviceId = deviceId;
     this->runKind = runType;
     QStringList args;
-    args << QLatin1String("-device-id") << deviceId << QLatin1String("-bundle")
-         << bundlePath << QLatin1String("-timeout") << QString::number(timeout);
-    //args << QLatin1String("--deploy"); // to remove when the separate deploy step is functional
+    args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
+         << bundlePath << QLatin1String("--timeout") << QString::number(timeout);
     switch (runType) {
     case IosToolHandler::NormalRun:
-        args << QLatin1String("-run");
+        args << QLatin1String("--run");
         break;
     case IosToolHandler::DebugRun:
-        args << QLatin1String("-debug");
+        args << QLatin1String("--debug");
         break;
     }
-    args << QLatin1String("-extra-args") << extraArgs;
+    args << QLatin1String("--args") << extraArgs;
     op = OpAppRun;
     start(IosToolHandler::iosDeviceToolPath(), args);
 }
@@ -626,8 +625,8 @@ void IosDeviceToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int
 {
     this->deviceId = deviceId;
     QStringList args;
-    args << QLatin1String("-device-id") << deviceId << QLatin1String("-device-info")
-         << QLatin1String("-timeout") << QString::number(timeout);
+    args << QLatin1String("--id") << deviceId << QLatin1String("--device-info")
+         << QLatin1String("--timeout") << QString::number(timeout);
     op = OpDeviceInfo;
     start(IosToolHandler::iosDeviceToolPath(), args);
 }

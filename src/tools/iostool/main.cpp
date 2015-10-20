@@ -531,34 +531,36 @@ void IosTool::run(const QStringList &args)
     out.writeStartElement(QLatin1String("query_result"));
     for (int iarg = 1; iarg < args.size(); ++iarg) {
         const QString &arg = args[iarg];
-        if (arg == QLatin1String("-device-id")) {
+        if (arg == QLatin1String("-i") || arg == QLatin1String("--id")) {
             if (++iarg == args.size()) {
-                writeMsg("missing device id value after -device-id");
+                writeMsg(QStringLiteral("missing device id value after ") + arg);
                 printHelp = true;
             }
             deviceId = args.value(iarg);
-        } else if (arg == QLatin1String("-bundle")) {
+        } else if (arg == QLatin1String("-b") || arg == QLatin1String("--bundle")) {
             if (++iarg == args.size()) {
-                writeMsg("missing bundle path after -bundle");
+                writeMsg(QStringLiteral("missing bundle path after ") + arg);
                 printHelp = true;
             }
             bundlePath = args.value(iarg);
-        } else if (arg == QLatin1String("-deploy")) {
+        } else if (arg == QLatin1String("--install")) {
             appOp = Ios::IosDeviceManager::AppOp(appOp | Ios::IosDeviceManager::Install);
-        } else if (arg == QLatin1String("-run")) {
+        } else if (arg == QLatin1String("--run")) {
             appOp = Ios::IosDeviceManager::AppOp(appOp | Ios::IosDeviceManager::Run);
-        } else if (arg == QLatin1String("-ipv6")) {
+        } else if (arg == QLatin1String("--noninteractive")) {
+            // ignored for compatibility
+        } else if (arg == QLatin1String("--ipv6")) {
             ipv6 = true;
-        } else if (arg == QLatin1String("-verbose")) {
+        } else if (arg == QLatin1String("-v") || arg == QLatin1String("--verbose")) {
             echoRelays = true;
-        } else if (arg == QLatin1String("-debug")) {
+        } else if (arg == QLatin1String("-d") || arg == QLatin1String("--debug")) {
             appOp = Ios::IosDeviceManager::AppOp(appOp | Ios::IosDeviceManager::Run);
             debug = true;
-        } else if (arg == QLatin1String("-device-info")) {
+        } else if (arg == QLatin1String("--device-info")) {
             deviceInfo = true;
-        } else if (arg == QLatin1String("-timeout")) {
+        } else if (arg == QLatin1String("-t") || arg == QLatin1String("--timeout")) {
             if (++iarg == args.size()) {
-                writeMsg("missing timeout value after -timeout");
+                writeMsg(QStringLiteral("missing timeout value after ") + arg);
                 printHelp = true;
             }
             bool ok = false;
@@ -569,10 +571,10 @@ void IosTool::run(const QStringList &args)
                 writeMsg("timeout value should be an integer");
                 printHelp = true;
             }
-        } else if (arg == QLatin1String("-extra-args")) {
+        } else if (arg == QLatin1String("-a") || arg == QLatin1String("--args")) {
             extraArgs = args.mid(iarg + 1, args.size() - iarg - 1);
             iarg = args.size();
-        } else if (arg == QLatin1String("-help") || arg == QLatin1String("--help")) {
+        } else if (arg == QLatin1String("-h") || arg == QLatin1String("--help")) {
             printHelp = true;
         } else {
             writeMsg(QString::fromLatin1("unexpected argument \"%1\"").arg(arg));
@@ -580,9 +582,9 @@ void IosTool::run(const QStringList &args)
     }
     if (printHelp) {
         out.writeStartElement(QLatin1String("msg"));
-        out.writeCharacters(QLatin1String("iosTool [-device-id <deviceId>] [-bundle <pathToBundle>] [-deploy] [-run] [-debug]\n"));
-        out.writeCharacters(QLatin1String("    [-device-info] [-timeout <timeoutIn_ms>] [-verbose]\n")); // to do pass in env as stub does
-        out.writeCharacters(QLatin1String("    [-extra-args <arguments for the target app>]"));
+        out.writeCharacters(QLatin1String("iostool [--id <device_id>] [--bundle <bundle.app>] [--install] [--run] [--debug]\n"));
+        out.writeCharacters(QLatin1String("    [--device-info] [--timeout <timeout_in_ms>] [--verbose]\n")); // to do pass in env as stub does
+        out.writeCharacters(QLatin1String("    [--args <arguments for the target app>]"));
         out.writeEndElement();
         doExit(-1);
         return;
@@ -611,7 +613,7 @@ void IosTool::run(const QStringList &args)
     }
     if (deviceInfo) {
         if (!bundlePath.isEmpty())
-            writeMsg("-device-info overrides bundlePath");
+            writeMsg("--device-info overrides --bundle");
         ++opLeft;
         manager->requestDeviceInfo(deviceId, timeout);
     } else if (!bundlePath.isEmpty()) {
