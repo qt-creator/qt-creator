@@ -1298,7 +1298,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         Function *funTy = c->type()->asFunctionType();
         if (!funTy) // Template function has an overridden type
             funTy = r.type()->asFunctionType();
-        if (!funTy)
+        if (!funTy || funTy->isAmbiguous())
             continue; // TODO: add diagnostic messages and color call-operators calls too?
 
         if (argumentCount < funTy->minimumArgumentCount()) {

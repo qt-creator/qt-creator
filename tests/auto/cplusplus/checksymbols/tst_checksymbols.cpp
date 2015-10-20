@@ -1022,6 +1022,55 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(3, 3, 7, Highlighting::LocalUse)
             << Use(3, 11, 10, Highlighting::FieldUse));
 
+    QTest::newRow("instantation_as_function_call_QTCREATORBUG15212")
+        << _("struct Foo {};\n"
+             "template <typename Type> struct test {\n"
+             "  test() {}\n"
+             "  test(int, int) {}\n"
+             "};\n"
+             "void test(int int_argument) {\n"
+             "  const int very_long_constant_of_type_int = 11111111111111111;\n"
+             "  test<Foo> foo1;\n"
+             "  test<Foo> foo2(int_argument, int_argument);\n"
+             "  test<Foo> foo3(very_long_constant_of_type_int,\n"
+             "                 very_long_constant_of_type_int);\n"
+             "  test<int> size1(int_argument, int_argument);\n"
+             "  (void)foo1, foo2, foo3, size1;\n"
+             "  test(int_argument);\n"
+             "}\n")
+        << (UseList()
+            << Use(1, 8, 3, Highlighting::TypeUse)
+            << Use(2, 20, 4, Highlighting::TypeUse)
+            << Use(2, 33, 4, Highlighting::TypeUse)
+            << Use(3, 3, 4, Highlighting::TypeUse)
+            << Use(4, 3, 4, Highlighting::TypeUse)
+            << Use(6, 6, 4, Highlighting::FunctionUse)
+            << Use(6, 15, 12, Highlighting::LocalUse)
+            << Use(7, 13, 30, Highlighting::LocalUse)
+            << Use(8, 3, 4, Highlighting::TypeUse)
+            << Use(8, 8, 3, Highlighting::TypeUse)
+            << Use(8, 13, 4, Highlighting::LocalUse)
+            << Use(9, 3, 4, Highlighting::TypeUse)
+            << Use(9, 8, 3, Highlighting::TypeUse)
+            << Use(9, 13, 4, Highlighting::LocalUse)
+            << Use(9, 18, 12, Highlighting::LocalUse)
+            << Use(9, 32, 12, Highlighting::LocalUse)
+            << Use(10, 3, 4, Highlighting::TypeUse)
+            << Use(10, 8, 3, Highlighting::TypeUse)
+            << Use(10, 13, 4, Highlighting::LocalUse)
+            << Use(10, 18, 30, Highlighting::LocalUse)
+            << Use(11, 18, 30, Highlighting::LocalUse)
+            << Use(12, 3, 4, Highlighting::TypeUse)
+            << Use(12, 13, 5, Highlighting::LocalUse)
+            << Use(12, 19, 12, Highlighting::LocalUse)
+            << Use(12, 33, 12, Highlighting::LocalUse)
+            << Use(13, 9, 4, Highlighting::LocalUse)
+            << Use(13, 15, 4, Highlighting::LocalUse)
+            << Use(13, 21, 4, Highlighting::LocalUse)
+            << Use(13, 27, 5, Highlighting::LocalUse)
+            << Use(14, 3, 4, Highlighting::FunctionUse)
+            << Use(14, 8, 12, Highlighting::LocalUse));
+
     QTest::newRow("unicodeIdentifier1")
         << _("class My" TEST_UNICODE_IDENTIFIER "Type { int " TEST_UNICODE_IDENTIFIER "Member; };\n"
              "void f(My" TEST_UNICODE_IDENTIFIER "Type var" TEST_UNICODE_IDENTIFIER ")\n"
