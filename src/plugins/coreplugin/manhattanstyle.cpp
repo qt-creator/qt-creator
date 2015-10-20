@@ -494,9 +494,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     QColor shade = option->palette.base().color();
                     shade.setHsv(shade.hue(), shade.saturation(), 255 - shade.value(), 40);
                     painter->fillRect(rect, shade);
-                    painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() - QPoint(1, 0));
-                    painter->drawLine(rect.topLeft(), rect.bottomLeft());
-                    painter->drawLine(rect.topRight(), rect.bottomRight());
+                    const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+                    painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
+                    painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
                     painter->fillRect(rect, creatorTheme()->color(Theme::PanelButtonToolBackgroundColorHover));
                 } else if (widget && widget->property("highlightWidget").toBool()) {
@@ -523,11 +524,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->save();
                 QLinearGradient grad = StyleHelper::statusBarGradient(rect);
                 painter->fillRect(rect, grad);
+                const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
                 painter->setPen(QColor(255, 255, 255, 60));
-                painter->drawLine(rect.topLeft() + QPoint(0,1),
-                                  rect.topRight()+ QPoint(0,1));
+                painter->drawLine(borderRect.topLeft() + QPointF(0, 1),
+                                  borderRect.topRight()+ QPointF(0, 1));
                 painter->setPen(StyleHelper::borderColor().darker(110)); //TODO: make themable
-                painter->drawLine(rect.topLeft(), rect.topRight());
+                painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 painter->restore();
             } else {
                 painter->fillRect(rect, creatorTheme()->color(Theme::PanelStatusBarBackgroundColor));
@@ -670,7 +672,6 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_MenuBarItem:
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
-            QColor highlightOutline = StyleHelper::borderColor().lighter(120);
             const bool act = mbi->state & (State_Sunken | State_Selected);
             const bool dis = !(mbi->state & State_Enabled);
 
@@ -694,18 +695,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 QLinearGradient grad(option->rect.topLeft(), option->rect.bottomLeft());
                 grad.setColorAt(0, baseColor.lighter(120));
                 grad.setColorAt(1, baseColor.lighter(130));
-                painter->fillRect(option->rect.adjusted(1, 1, -1, 0), grad);
-
-                // Outline
-                painter->setPen(QPen(highlightOutline, 0));
-                const QRect r = option->rect;
-                painter->drawLine(QPoint(r.left(), r.top() + 1), QPoint(r.left(), r.bottom()));
-                painter->drawLine(QPoint(r.right(), r.top() + 1), QPoint(r.right(), r.bottom()));
-                painter->drawLine(QPoint(r.left() + 1, r.top()), QPoint(r.right() - 1, r.top()));
-                highlightOutline.setAlpha(60);
-                painter->setPen(QPen(highlightOutline, 0));
-                painter->drawPoint(r.topLeft());
-                painter->drawPoint(r.topRight());
+                painter->fillRect(option->rect, grad);
 
                 QPalette pal = mbi->palette;
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
@@ -832,6 +822,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_ToolBar:
         {
             QRect rect = option->rect;
+            const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
             bool horizontal = option->state & State_Horizontal;
 
             // Map offset for global window gradient
@@ -864,17 +855,17 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 if (drawLightColored)
                     lighter = QColor(255, 255, 255, 180);
                 if (widget && widget->property("topBorder").toBool()) {
-                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                     painter->setPen(lighter);
-                    painter->drawLine(rect.topLeft() + QPoint(0, 1), rect.topRight() + QPoint(0, 1));
+                    painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
                 } else {
-                    painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+                    painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
                     painter->setPen(lighter);
-                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 }
             } else {
-                painter->drawLine(rect.topLeft(), rect.bottomLeft());
-                painter->drawLine(rect.topRight(), rect.bottomRight());
+                painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
             }
         }
         break;
@@ -1036,20 +1027,21 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
 
 void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse) const
 {
+    const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
     QLinearGradient grad(rect.topRight(), rect.bottomRight());
     grad.setColorAt(0, QColor(255, 255, 255, 20));
     grad.setColorAt(0.4, QColor(255, 255, 255, 60));
     grad.setColorAt(0.7, QColor(255, 255, 255, 50));
     grad.setColorAt(1, QColor(255, 255, 255, 40));
-    painter->setPen(QPen(grad, 0));
-    painter->drawLine(rect.topRight(), rect.bottomRight());
+    painter->setPen(QPen(grad, 1));
+    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
     grad.setColorAt(0, QColor(0, 0, 0, 30));
     grad.setColorAt(0.4, QColor(0, 0, 0, 70));
     grad.setColorAt(0.7, QColor(0, 0, 0, 70));
     grad.setColorAt(1, QColor(0, 0, 0, 40));
-    painter->setPen(QPen(grad, 0));
+    painter->setPen(QPen(grad, 1));
     if (!reverse)
-       painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
+       painter->drawLine(borderRect.topRight() - QPointF(1, 0), borderRect.bottomRight() - QPointF(1, 0));
     else
-       painter->drawLine(rect.topLeft(), rect.bottomLeft());
+       painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
  }
