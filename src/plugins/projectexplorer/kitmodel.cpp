@@ -218,17 +218,17 @@ void KitModel::validateKitNames()
 
 void KitModel::apply()
 {
-    // Remove unused kits:
-    foreach (KitNode *n, m_toRemoveList)
-        n->widget->removeKit();
-
-    // Update kits:
+    // Add/update dirty nodes before removing kits. This ensures the right kit ends up as default.
     foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
         if (n->widget->isDirty()) {
             n->widget->apply();
             n->update();
         }
     }
+
+    // Remove unused kits:
+    foreach (KitNode *n, m_toRemoveList)
+        n->widget->removeKit();
 
     layoutChanged(); // Force update.
 }
