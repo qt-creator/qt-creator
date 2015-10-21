@@ -341,6 +341,7 @@ auto transform(const SC &container, R (S::*p)() const)
 // filtered
 /////////////////
 template<typename C, typename F>
+Q_REQUIRED_RESULT
 C filtered(const C &container, F predicate)
 {
   C out;
