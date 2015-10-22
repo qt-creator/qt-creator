@@ -392,7 +392,7 @@ public:
 
         m_makeDefButton = new QPushButton(tr("Make Default"), this);
         m_makeDefButton->setEnabled(false);
-        m_makeDefButton->setToolTip(tr("Set as the default CMake Tool to use when creating a new Kit, or no value is set."));
+        m_makeDefButton->setToolTip(tr("Set as the default CMake Tool to use when creating a new kit or when no value is set."));
 
         m_preferNinjaCheckBox = new QCheckBox(tr("Prefer Ninja generator (CMake 2.8.9 or higher required)"));
         m_preferNinjaCheckBox->setChecked(CMakeToolManager::preferNinja());

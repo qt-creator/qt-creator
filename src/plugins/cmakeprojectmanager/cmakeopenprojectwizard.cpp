@@ -489,19 +489,19 @@ QByteArray CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
 void CMakeRunPage::initializePage()
 {
     if (m_mode == CMakeRunPage::NeedToUpdate) {
-        m_descriptionLabel->setText(tr("The build directory \"%1\" for the buildconfiguration \"%2\" "
+        m_descriptionLabel->setText(tr("The build directory \"%1\" for build configuration \"%2\" "
                                        "for target \"%3\" contains an outdated .cbp file. Qt "
                                        "Creator needs to update this file by running CMake. "
-                                       "If you want to add additional command line arguments, "
-                                       "add them below. Note that CMake remembers command "
-                                       "line arguments from the previous runs.")
+                                       "You can add command line arguments below. Note that "
+                                       "CMake remembers command line arguments from the "
+                                       "previous runs.")
                                     .arg(m_buildDirectory)
                                     .arg(m_buildConfigurationName)
                                     .arg(m_kitName));
     } else if (m_mode == CMakeRunPage::Recreate) {
-        m_descriptionLabel->setText(tr("The directory \"%1\" specified in the build-configuration \"%2\", "
-                                       "for target \"%3\" does not contain a cbp file. "
-                                       "Qt Creator needs to recreate this file, by running CMake. "
+        m_descriptionLabel->setText(tr("The directory \"%1\" specified in build configuration \"%2\", "
+                                       "for target \"%3\" does not contain a .cbp file. "
+                                       "Qt Creator needs to recreate this file by running CMake. "
                                        "Some projects require command line arguments to "
                                        "the initial CMake call. Note that CMake remembers command "
                                        "line arguments from the previous runs.")
@@ -514,7 +514,7 @@ void CMakeRunPage::initializePage()
                                        "Some projects require command line arguments to the "
                                        "initial CMake call."));
     } else if (m_mode == CMakeRunPage::WantToUpdate) {
-        m_descriptionLabel->setText(tr("Refreshing cbp file in \"%1\" for buildconfiguration \"%2\" "
+        m_descriptionLabel->setText(tr("Refreshing the .cbp file in \"%1\" for build configuration \"%2\" "
                                        "for target \"%3\".")
                                     .arg(m_buildDirectory)
                                     .arg(m_buildConfigurationName)
@@ -597,7 +597,7 @@ void CMakeRunPage::runCMake()
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
         m_generatorComboBox->setEnabled(true);
-        m_output->appendPlainText(tr("Selected Kit has no valid CMake executable specified."));
+        m_output->appendPlainText(tr("Selected kit has no valid CMake executable specified."));
     }
 }
 
