@@ -108,19 +108,16 @@ void ColorTip::paintEvent(QPaintEvent *event)
 {
     QTipLabel::paintEvent(event);
 
-    QPen pen;
-    pen.setWidth(1);
-    if (m_color.value() > 100)
-        pen.setColor(m_color.darker());
-    else
-        pen.setColor(m_color.lighter());
-
     QPainter painter(this);
-    painter.setPen(pen);
     painter.setBrush(m_color);
-    QRect r(0, 0, rect().width() - 1, rect().height() - 1);
-    painter.drawTiledPixmap(r, m_tilePixmap);
-    painter.drawRect(r);
+    painter.drawTiledPixmap(rect(), m_tilePixmap);
+
+    QPen pen;
+    pen.setColor(m_color.value() > 100 ? m_color.darker() : m_color.lighter());
+    pen.setJoinStyle(Qt::MiterJoin);
+    const QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+    painter.setPen(pen);
+    painter.drawRect(borderRect);
 }
 
 TextTip::TextTip(QWidget *parent) : QTipLabel(parent)

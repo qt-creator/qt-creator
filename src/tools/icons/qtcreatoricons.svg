@@ -19,6 +19,41 @@
   <defs
      id="defs4">
     <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4806">
+      <stop
+         style="stop-color:#646464;stop-opacity:1"
+         offset="0"
+         id="stop4808" />
+      <stop
+         style="stop-color:#424242;stop-opacity:1"
+         offset="1"
+         id="stop4810" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6371">
+      <stop
+         style="stop-color:#f7f7f7;stop-opacity:1"
+         offset="0"
+         id="stop6373" />
+      <stop
+         style="stop-color:#c3c3c3;stop-opacity:1"
+         offset="1"
+         id="stop6375" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4115-6">
+      <stop
+         id="stop4781"
+         offset="0"
+         style="stop-color:#626262;stop-opacity:1" />
+      <stop
+         id="stop4783"
+         offset="1"
+         style="stop-color:#414141;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient4115">
       <stop
          style="stop-color:#373737;stop-opacity:0.07843138;"
@@ -514,6 +549,108 @@
          in2="SourceGraphic"
          operator="in" />
     </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4115-6"
+       id="linearGradient4691"
+       gradientUnits="userSpaceOnUse"
+       x1="29"
+       y1="383"
+       x2="29"
+       y2="424" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6371"
+       id="linearGradient6377"
+       x1="68"
+       y1="381"
+       x2="68"
+       y2="424"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-8,0)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4806"
+       id="linearGradient4812"
+       x1="123"
+       y1="384"
+       x2="123"
+       y2="404"
+       gradientUnits="userSpaceOnUse" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter4964">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood4966" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="out"
+         result="composite1"
+         id="feComposite4968" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1.5"
+         result="blur"
+         id="feGaussianBlur4970" />
+      <feOffset
+         dx="0"
+         dy="1.5"
+         result="offset"
+         id="feOffset4972" />
+      <feComposite
+         in="offset"
+         in2="SourceGraphic"
+         operator="atop"
+         result="composite2"
+         id="feComposite4974" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6752">
+      <rect
+         style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:2.1400001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
+         id="rect6754"
+         width="28"
+         height="43"
+         x="-2.8722695e-007"
+         y="381" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6765">
+      <rect
+         style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:2.1400001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
+         id="rect6767"
+         width="31"
+         height="20"
+         x="110"
+         y="384"
+         rx="10" />
+    </clipPath>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Fade to Black or White"
+       id="filter4891">
+      <feColorMatrix
+         values="0.770833 0 0 0 0.229167 0 0.770833 0 0 0.229167 0 0 0.770833 0 0.229167 0 0 0 1 0"
+         id="feColorMatrix4893" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4901">
+      <rect
+         style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4903"
+         width="16"
+         height="16"
+         x="141"
+         y="408" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -626,6 +763,120 @@
        width="8"
        id="rect4112"
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Project mode trash">
+    <g
+       id="src/plugins/projectexplorer/images/targetbuildselected"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"
+       clip-path="url(#clipPath6752)">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         transform="matrix(1.3956597,0,0,0.98599436,-17.828079,5.9497684)"
+         y="380.37766"
+         x="12.773944"
+         height="43.610806"
+         width="20.062197"
+         id="rect4735"
+         style="opacity:1;fill:url(#linearGradient4691);fill-opacity:1;stroke:none;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter4964)"
+         clip-path="none" />
+      <path
+         sodipodi:nodetypes="cczcc"
+         inkscape:connector-curvature="0"
+         id="path4727"
+         d="m 14,422 -1.5,0 C 8,422 4,418 4,413 c 0,-5 4,-9 8.5,-9 l 1.5,0"
+         style="fill:#eeeeee;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#737373;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 14.5,421.5 1,0 c 4.5,0 8,-3.5 8,-8.5 0,-5 -3.5,-8.5 -8,-8.5 l -1,0"
+         id="path4729"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cczcc" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/projectexplorer/images/targetbuildselected"
+       id="src/plugins/projectexplorer/images/targetrunselected"
+       transform="matrix(-1,0,0,1,56,0)"
+       width="100%"
+       height="100%" />
+    <g
+       id="src/plugins/projectexplorer/images/targetrightbutton">
+      <path
+         inkscape:connector-curvature="0"
+         d="m 57.5,381 7,7 -6,6 6,6 -6,6 2.5,2.5 -2.5,2.5 6,6 -7,7 -1.5,0 0,-43 z"
+         style="opacity:1;fill:url(#linearGradient6377);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         id="path6368" />
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path6379"
+         d="m 56.5,424 0,-43"
+         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.50196081" />
+      <path
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path6381"
+         d="m 69.5,396.5 6.5,6.5 -6.5,6.5"
+         style="fill:none;fill-rule:evenodd;stroke:#606060;stroke-width:2.1400001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         y="381"
+         x="56"
+         height="43"
+         width="27"
+         id="rect6383"
+         style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:2.1400001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/projectexplorer/images/targetrightbutton"
+       id="src/plugins/projectexplorer/images/targetleftbutton"
+       transform="matrix(-1,0,0,1,166,0)"
+       width="100%"
+       height="100%" />
+    <g
+       id="src/plugins/projectexplorer/images/selection"
+       clip-path="url(#clipPath6765)"
+       transform="translate(0,20)">
+      <rect
+         rx="10"
+         y="384"
+         x="110"
+         height="20"
+         width="31"
+         id="rect4796"
+         style="opacity:1;fill:url(#linearGradient4812);fill-opacity:1;stroke:none;stroke-width:2.1400001;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0;filter:url(#filter4964)" />
+    </g>
+    <g
+       id="src/plugins/projectexplorer/images/targetchangebutton">
+      <circle
+         r="7.5"
+         cy="416"
+         cx="149"
+         id="path4752"
+         style="opacity:1;fill:#686868;fill-opacity:1;stroke:#484848;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="targetchangebutton_triangle"
+         d="m 145,415 8,0 -4,4 -4,-4"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/projectexplorer/images/targetchangebutton"
+       id="src/plugins/projectexplorer/images/targetchangebutton2"
+       transform="translate(16,0)"
+       width="100%"
+       height="100%"
+       style="filter:url(#filter4891)"
+       clip-path="url(#clipPath4901)" />
   </g>
   <g
      inkscape:groupmode="layer"

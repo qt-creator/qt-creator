@@ -33,7 +33,7 @@
 
 #include <QVector>
 #include <QWidget>
-#include <QPixmap>
+#include <QImage>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -88,9 +88,7 @@ private:
     enum HitArea { HITNOTHING, HITOVERFLOW, HITTAB, HITSUBTAB };
     QPair<DoubleTabWidget::HitArea, int> convertPosToTab(QPoint pos);
 
-    const QPixmap m_left;
-    const QPixmap m_mid;
-    const QPixmap m_right;
+    const QImage m_selection;
 
     Ui::DoubleTabWidget *ui;
 

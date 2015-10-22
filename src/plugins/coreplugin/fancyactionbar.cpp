@@ -44,6 +44,7 @@
 #include <QStyleOption>
 #include <QMouseEvent>
 #include <QEvent>
+#include <QPixmapCache>
 #include <QPropertyAnimation>
 #include <QDebug>
 
@@ -145,19 +146,13 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     if (!HostOsInfo::isMacHost() // Mac UIs usually don't hover
             && m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
-        const QColor hoverColor = creatorTheme()->color(Theme::FancyToolButtonHoverColor);
-        QColor fadedHoverColor = hoverColor;
-        fadedHoverColor.setAlpha(int(m_fader * hoverColor.alpha()));
         if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-            QLinearGradient grad(rect().topLeft(), rect().topRight());
-            grad.setColorAt(0, Qt::transparent);
-            grad.setColorAt(0.5, fadedHoverColor);
-            grad.setColorAt(1, Qt::transparent);
-            painter.fillRect(rect(), grad);
-            painter.setPen(QPen(grad, 1.0));
-            painter.drawLine(rect().topLeft(), rect().topRight());
-            painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+            painter.setOpacity(m_fader);
+            FancyToolButton::hoverOverlay(&painter, rect());
         } else {
+            const QColor hoverColor = creatorTheme()->color(Theme::FancyToolButtonHoverColor);
+            QColor fadedHoverColor = hoverColor;
+            fadedHoverColor.setAlpha(int(m_fader * hoverColor.alpha()));
             painter.fillRect(rect(), fadedHoverColor);
         }
         painter.restore();
@@ -171,12 +166,12 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             grad.setColorAt(1, Qt::transparent);
             painter.fillRect(rect(), grad);
             painter.setPen(QPen(grad, 1.0));
-            painter.drawLine(rect().topLeft(), rect().topRight());
-            painter.drawLine(rect().topLeft(), rect().topRight());
-            painter.drawLine(rect().topLeft() + QPoint(0,1), rect().topRight() + QPoint(0,1));
-            painter.drawLine(rect().bottomLeft(), rect().bottomRight());
-            painter.drawLine(rect().bottomLeft(), rect().bottomRight());
-            painter.drawLine(rect().topLeft() - QPoint(0,1), rect().topRight() - QPoint(0,1));
+            const QRectF borderRectF(QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5));
+            painter.drawLine(borderRectF.topLeft(), borderRectF.topRight());
+            painter.drawLine(borderRectF.topLeft(), borderRectF.topRight());
+            painter.drawLine(borderRectF.topLeft() + QPointF(0, 1), borderRectF.topRight() + QPointF(0, 1));
+            painter.drawLine(borderRectF.bottomLeft(), borderRectF.bottomRight());
+            painter.drawLine(borderRectF.bottomLeft(), borderRectF.bottomRight());
         } else {
             painter.fillRect(rect(), selectedColor);
         }
@@ -281,10 +276,11 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 
     QColor light = StyleHelper::sidebarHighlight();
     QColor dark = StyleHelper::sidebarShadow();
+    const QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     painter.setPen(dark);
-    painter.drawLine(rect().topLeft(), rect().topRight());
+    painter.drawLine(borderRect.topLeft(), borderRect.topRight());
     painter.setPen(light);
-    painter.drawLine(rect().topLeft() + QPoint(1,1), rect().topRight() + QPoint(0,1));
+    painter.drawLine(borderRect.topLeft() + QPointF(1, 1), borderRect.topRight() + QPointF(0, 1));
 }
 
 QSize FancyToolButton::sizeHint() const
@@ -309,6 +305,38 @@ QSize FancyToolButton::sizeHint() const
 QSize FancyToolButton::minimumSizeHint() const
 {
     return QSize(8, 8);
+}
+
+void FancyToolButton::hoverOverlay(QPainter *painter, const QRect &spanRect)
+{
+    const QSize logicalSize = spanRect.size();
+    const QString cacheKey = QLatin1String(Q_FUNC_INFO) + QString::number(logicalSize.width())
+            + QLatin1Char('x') + QString::number(logicalSize.height());
+    QPixmap overlay;
+    if (!QPixmapCache::find(cacheKey, &overlay)) {
+        const int dpr = painter->device()->devicePixelRatio();
+        overlay = QPixmap(logicalSize * dpr);
+        overlay.fill(Qt::transparent);
+        overlay.setDevicePixelRatio(dpr);
+
+        const QColor hoverColor = creatorTheme()->color(Theme::FancyToolButtonHoverColor);
+        const QRect rect(QPoint(), logicalSize);
+        const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+
+        QLinearGradient grad(rect.topLeft(), rect.topRight());
+        grad.setColorAt(0, Qt::transparent);
+        grad.setColorAt(0.5, hoverColor);
+        grad.setColorAt(1, Qt::transparent);
+
+        QPainter p(&overlay);
+        p.fillRect(rect, grad);
+        p.setPen(QPen(grad, 1.0));
+        p.drawLine(borderRect.topLeft(), borderRect.topRight());
+        p.drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
+
+        QPixmapCache::insert(cacheKey, overlay);
+    }
+    painter->drawPixmap(spanRect.topLeft(), overlay);
 }
 
 void FancyToolButton::actionChanged()

@@ -58,6 +58,8 @@ public:
     float fader() { return m_fader; }
     void setFader(float value) { m_fader = value; update(); }
 
+    static void hoverOverlay(QPainter *painter, const QRect &spanRect);
+
 private slots:
     void actionChanged();
 };

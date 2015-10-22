@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "fancytabwidget.h"
+#include "fancyactionbar.h"
+
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/styledbar.h>
@@ -58,7 +60,7 @@ void FancyTab::fadeIn()
 {
     animator.stop();
     animator.setDuration(80);
-    animator.setEndValue(40);
+    animator.setEndValue(1);
     animator.start();
 }
 
@@ -320,22 +322,16 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     painter->setPen(selected ? QColor(255, 255, 255, 160) : QColor(0, 0, 0, 110));
     const int textFlags = Qt::AlignCenter | (drawIcon ? Qt::AlignBottom : Qt::AlignVCenter) | Qt::TextWordWrap;
 
-    if (!HostOsInfo::isMacHost() && !selected && enabled) {
+    const float fader = m_tabs[tabIndex]->fader();
+    if (fader > 0 && !HostOsInfo::isMacHost() && !selected && enabled) {
         painter->save();
-        int fader = int(m_tabs[tabIndex]->fader());
         if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
             QColor c = creatorTheme()->color(Theme::BackgroundColorHover);
-            c.setAlpha(int(255 * fader/40.0)); // FIXME: hardcoded end value 40
+            c.setAlpha(255 * fader);
             painter->fillRect(rect, c);
         } else {
-            QLinearGradient grad(rect.topLeft(), rect.topRight());
-            grad.setColorAt(0, Qt::transparent);
-            grad.setColorAt(0.5, QColor(255, 255, 255, fader));
-            grad.setColorAt(1, Qt::transparent);
-            painter->fillRect(rect, grad);
-            painter->setPen(QPen(grad, 1.0));
-            painter->drawLine(rect.topLeft(), rect.topRight());
-            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+            painter->setOpacity(fader);
+            FancyToolButton::hoverOverlay(painter, rect);
         }
         painter->restore();
     }

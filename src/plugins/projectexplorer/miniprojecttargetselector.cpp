@@ -144,12 +144,13 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         } else {
             painter->fillRect(option.rect, color.darker(140));
             StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
+            const QRectF borderRect = QRectF(option.rect).adjusted(0.5, 0.5, -0.5, -0.5);
             painter->setPen(QColor(255, 255, 255, 60));
-            painter->drawLine(option.rect.topLeft(), option.rect.topRight());
+            painter->drawLine(borderRect.topLeft(), borderRect.topRight());
             painter->setPen(QColor(255, 255, 255, 30));
-            painter->drawLine(option.rect.bottomLeft() - QPoint(0,1), option.rect.bottomRight() -  QPoint(0,1));
+            painter->drawLine(borderRect.bottomLeft() - QPointF(0, 1), borderRect.bottomRight() - QPointF(0, 1));
             painter->setPen(QColor(0, 0, 0, 80));
-            painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+            painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
         }
     }
 
@@ -1601,10 +1602,11 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setBrush(creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
     painter.drawRect(rect());
-    painter.setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
+    painter.setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorBorderColor));
     // draw border on top and right
-    painter.drawLine(rect().topLeft(), rect().topRight());
-    painter.drawLine(rect().topRight(), rect().bottomRight());
+    QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+    painter.drawLine(borderRect.topLeft(), borderRect.topRight());
+    painter.drawLine(borderRect.topRight(), borderRect.bottomRight());
     if (creatorTheme()->flag(Theme::DrawTargetSelectorBottom)) {
         // draw thicker border on the bottom
         QRect bottomRect(0, rect().height() - 8, rect().width(), 8);

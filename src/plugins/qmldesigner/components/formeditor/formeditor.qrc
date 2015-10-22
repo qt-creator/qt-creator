@@ -1,20 +1,16 @@
 <RCC>
-    <qresource prefix="/icon/handle">
-        <file>resize_handle.png</file>
-    </qresource>
-    <qresource prefix="/icon/tool">
-        <file>transform.png</file>
-    </qresource>
     <qresource prefix="/icon/layout">
         <file>snapping.png</file>
+        <file>snapping@2x.png</file>
         <file>no_snapping.png</file>
+        <file>no_snapping@2x.png</file>
         <file>snapping_and_anchoring.png</file>
+        <file>snapping_and_anchoring@2x.png</file>
         <file>boundingrect.png</file>
-    </qresource>
-    <qresource prefix="/icon/selection">
-        <file>selectonlycontentitems.png</file>
+        <file>boundingrect@2x.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>reset.png</file>
+        <file>reset@2x.png</file>
     </qresource>
 </RCC>

@@ -37,11 +37,9 @@ ToolBox::ToolBox(QWidget *parentWidget)
   m_leftToolBar(new QToolBar(QLatin1String("LeftSidebar"), this)),
   m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this))
 {
-    setMaximumHeight(22);
     m_leftToolBar->setFloatable(true);
     m_leftToolBar->setMovable(true);
     m_leftToolBar->setOrientation(Qt::Horizontal);
-    m_leftToolBar->setIconSize(QSize(24, 24));
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->setMargin(0);
@@ -61,7 +59,6 @@ ToolBox::ToolBox(QWidget *parentWidget)
     stretchToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     m_rightToolBar->setOrientation(Qt::Horizontal);
-    m_rightToolBar->setIconSize(QSize(24, 24));
     horizontalLayout->addWidget(m_leftToolBar);
     horizontalLayout->addWidget(stretchToolbar);
     horizontalLayout->addWidget(m_rightToolBar);
