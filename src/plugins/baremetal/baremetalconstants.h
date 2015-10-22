@@ -41,7 +41,7 @@ const char ACTION_ID[] = "BareMetal.Action";
 const char MENU_ID[] = "BareMetal.Menu";
 
 const char BAREMETAL_SETTINGS_CATEGORY[] = "ZZ.BareMetal";
-const char BAREMETAL_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("BareMetal", "BareMetal");
+const char BAREMETAL_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Bare Metal", "Bare Metal");
 const char BAREMETAL_SETTINGS_CATEGORY_ICON[] = ":/baremetal/images/QtBareMetal.png";
 
 const char GDB_PROVIDERS_SETTINGS_ID[] = "AA.BareMetal.GdbServerProvidersOptions";
