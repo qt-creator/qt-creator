@@ -220,10 +220,10 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
             QmakeBuildInfo *info = new QmakeBuildInfo(factory);
             BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(version->defaultBuildConfig());
             if (buildConfig & BaseQtVersion::DebugBuild) {
-                info->type = BuildConfiguration::Debug;
+                info->buildType = BuildConfiguration::Debug;
                 info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
             } else {
-                info->type = BuildConfiguration::Release;
+                info->buildType = BuildConfiguration::Release;
                 info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
             }
             info->kitId = k->id();

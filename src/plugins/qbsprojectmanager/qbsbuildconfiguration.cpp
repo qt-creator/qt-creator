@@ -31,7 +31,6 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildconfigurationwidget.h"
-#include "qbsbuildinfo.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
@@ -41,6 +40,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -374,10 +374,10 @@ bool QbsBuildConfigurationFactory::canHandle(const Target *t) const
 BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                          BuildConfiguration::BuildType type) const
 {
-    QbsBuildInfo *info = new QbsBuildInfo(this);
+    auto info = new ProjectExplorer::BuildInfo(this);
     info->typeName = tr("Build");
     info->kitId = k->id();
-    info->type = type;
+    info->buildType = type;
     return info;
 }
 
@@ -441,13 +441,11 @@ BuildConfiguration *QbsBuildConfigurationFactory::create(Target *parent, const B
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
-    const QbsBuildInfo *qbsInfo = static_cast<const QbsBuildInfo *>(info);
-
     QVariantMap configData;
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      (qbsInfo->type == BuildConfiguration::Debug)
-                      ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
-                      : QLatin1String(Constants::QBS_VARIANT_RELEASE));
+                      (info->buildType == BuildConfiguration::Debug)
+                          ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
+                          : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())

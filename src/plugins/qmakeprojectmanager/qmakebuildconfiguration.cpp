@@ -599,7 +599,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     } else {
         info->buildDirectory = defaultBuildDirectory(projectPath, k, suffix);
     }
-    info->type = type;
+    info->buildType = type;
     return info;
 }
 
@@ -654,7 +654,7 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
     BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->kit());
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-    if (qmakeInfo->type == BuildConfiguration::Debug)
+    if (qmakeInfo->buildType == BuildConfiguration::Debug)
         config |= QtSupport::BaseQtVersion::DebugBuild;
     else
         config &= ~QtSupport::BaseQtVersion::DebugBuild;

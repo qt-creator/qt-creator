@@ -33,6 +33,7 @@
 
 #include "projectexplorer_export.h"
 
+#include "buildconfiguration.h"
 #include "task.h"
 
 #include <coreplugin/id.h>
@@ -54,6 +55,14 @@ public:
     QString typeName;
     Utils::FileName buildDirectory;
     Core::Id kitId;
+    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+
+    bool operator==(const BuildInfo &o)
+    {
+        return displayName == o.displayName && typeName == o.typeName
+                && buildDirectory == o.buildDirectory && kitId == o.kitId
+                && buildType == o.buildType;
+    }
 
     virtual QList<Task> reportIssues(const QString &projectPath,
                                      const QString &buildDir) const
