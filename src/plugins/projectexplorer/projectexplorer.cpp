@@ -1374,11 +1374,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             if (BuildConfiguration *bc = activeBuildConfiguration()) {
                 BuildConfiguration::BuildType type = bc->buildType();
                 if (type == BuildConfiguration::Debug)
-                    return tr("debug");
+                    return QLatin1String("debug");
                 if (type == BuildConfiguration::Release)
-                    return tr("release");
+                    return QLatin1String("release");
                 if (type == BuildConfiguration::Profile)
-                    return tr("profile");
+                    return QLatin1String("profile");
             }
             return tr("unknown");
         });
