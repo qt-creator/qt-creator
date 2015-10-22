@@ -60,11 +60,13 @@
 
 namespace Utils {
 
-struct ProjectIntroPagePrivate
+class ProjectIntroPagePrivate
 {
+public:
     ProjectIntroPagePrivate();
     Ui::ProjectIntroPage m_ui;
     bool m_complete;
+    QRegularExpressionValidator m_projectNameValidator;
     // Status label style sheets
     const QString m_errorStyleSheet;
     const QString m_warningStyleSheet;
@@ -91,7 +93,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
     d->m_ui.nameLineEdit->setFocus();
     d->m_ui.nameLineEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorString) {
-        return ProjectIntroPage::validateProjectName(edit->text(), errorString);
+        return validateProjectName(edit->text(), errorString);
     });
     d->m_ui.projectLabel->setVisible(d->m_forceSubProject);
     d->m_ui.projectComboBox->setVisible(d->m_forceSubProject);
@@ -138,6 +140,12 @@ QString ProjectIntroPage::path() const
 void ProjectIntroPage::setPath(const QString &path)
 {
     d->m_ui.pathChooser->setPath(path);
+}
+
+void ProjectIntroPage::setProjectNameRegularExpression(const QRegularExpression &regEx)
+{
+    Q_ASSERT_X(regEx.isValid(), Q_FUNC_INFO, qPrintable(regEx.errorString()));
+    d->m_projectNameValidator.setRegularExpression(regEx);
 }
 
 void ProjectIntroPage::setProjectName(const QString &name)
@@ -250,21 +258,43 @@ int ProjectIntroPage::projectIndex() const
     return d->m_ui.projectComboBox->currentIndex();
 }
 
-bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMessage /* = 0*/)
+bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMessage)
 {
-    // Validation is file name + checking for dots
-    if (!FileNameValidatingLineEdit::validateFileName(name, false, errorMessage))
-        return false;
+    int pos = -1;
+    // if we have a pattern it was set
+    if (!d->m_projectNameValidator.regularExpression().pattern().isEmpty()) {
+        if (name.isEmpty()) {
+            if (errorMessage)
+                *errorMessage = tr("Name is empty.");
+            return false;
+        }
+        // pos is set by reference
+        QString tmp = name;
+        QValidator::State validatorState = d->m_projectNameValidator.validate(tmp, pos);
 
-    int pos = FileUtils::indexOfQmakeUnfriendly(name);
+        // if pos is set by validate it is cought at the bottom where it shows
+        // a more detailed error message
+        if (validatorState != QValidator::Acceptable && (pos == -1 || pos >= name.count())) {
+            if (errorMessage) {
+                *errorMessage = tr("Name does not match \"%1\".").arg(
+                    d->m_projectNameValidator.regularExpression().pattern());
+            }
+            return false;
+        }
+    } else { // no validator means usually a qmake project
+        // Validation is file name + checking for dots
+        if (!FileNameValidatingLineEdit::validateFileName(name, false, errorMessage))
+            return false;
+        if (name.contains(QLatin1Char('.'))) {
+            if (errorMessage)
+                *errorMessage = tr("Invalid character \".\".");
+            return false;
+        }
+        pos = FileUtils::indexOfQmakeUnfriendly(name);
+    }
     if (pos >= 0) {
         if (errorMessage)
             *errorMessage = tr("Invalid character \"%1\" found.").arg(name.at(pos));
-        return false;
-    }
-    if (name.contains(QLatin1Char('.'))) {
-        if (errorMessage)
-            *errorMessage = tr("Invalid character \".\".");
         return false;
     }
     return true;

@@ -199,6 +199,8 @@ bool KitsPageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
 // ProjectPageFactory:
 // --------------------------------------------------------------------
 
+static const char KEY_PROJECT_NAME_VALIDATOR[] = "projectNameValidator";
+
 ProjectPageFactory::ProjectPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Project"));
@@ -216,6 +218,13 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeI
     QString description
             = tmp.value(QLatin1String("trDescription"), QLatin1String("%{trDescription}")).toString();
     page->setDescription(wizard->expander()->expand(description));
+    QString projectNameValidator
+            = tmp.value(QLatin1String(KEY_PROJECT_NAME_VALIDATOR)).toString();
+    if (!projectNameValidator.isEmpty()) {
+        QRegularExpression regularExpression(projectNameValidator);
+        if (regularExpression.isValid())
+            page->setProjectNameRegularExpression(regularExpression);
+    }
 
     return page;
 }
@@ -230,6 +239,19 @@ bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QSt
                                                     "\"data\" must be empty or a JSON object for \"Project\" pages.");
         return false;
     }
+    QVariantMap tmp = data.toMap();
+    QString projectNameValidator
+        = tmp.value(QLatin1String(KEY_PROJECT_NAME_VALIDATOR)).toString();
+    if (!projectNameValidator.isNull()) {
+        QRegularExpression regularExpression(projectNameValidator);
+        if (!regularExpression.isValid()) {
+            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                "Invalid regular expression \"%1\" in \"%2\". %3").arg(
+                projectNameValidator, QLatin1String(KEY_PROJECT_NAME_VALIDATOR), regularExpression.errorString());
+            return false;
+        }
+    }
+
     return true;
 }
 

@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-struct ProjectIntroPagePrivate;
+class ProjectIntroPagePrivate;
 
 class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
 {
@@ -67,7 +67,7 @@ public:
     void setProjectDirectories(const QStringList &directoryList);
     int projectIndex() const;
 
-    static bool validateProjectName(const QString &name, QString *errorMessage /* = 0*/);
+    bool validateProjectName(const QString &name, QString *errorMessage);
 
 signals:
     void activated();
@@ -77,6 +77,7 @@ public slots:
     void setProjectName(const QString &name);
     void setDescription(const QString &description);
     void setUseAsDefaultPath(bool u);
+    void setProjectNameRegularExpression(const QRegularExpression &regEx);
 
 private slots:
     void slotChanged();
