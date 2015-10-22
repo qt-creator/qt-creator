@@ -405,10 +405,11 @@ int QbsBuildConfigurationFactory::priority(const Kit *k, const QString &projectP
 }
 
 static Utils::FileName defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
-                                             const QString &bcName)
+                                             const QString &bcName,
+                                             BuildConfiguration::BuildType buildType)
 {
     const QString projectName = QFileInfo(projectFilePath).completeBaseName();
-    ProjectMacroExpander expander(projectName, k, bcName);
+    ProjectMacroExpander expander(projectName, k, bcName, buildType);
     QString projectDir = Project::projectDirectory(Utils::FileName::fromString(projectFilePath)).toString();
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
@@ -422,14 +423,18 @@ QList<BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const Kit *k, c
     //: The name of the debug build configuration created by default for a qbs project.
     info->displayName = tr("Debug");
     //: Non-ASCII characters in directory suffix may cause build issues.
-    info->buildDirectory = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"));
+    info->buildDirectory
+            = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
+                                    info->buildType);
     result << info;
 
     info = createBuildInfo(k, BuildConfiguration::Release);
     //: The name of the release build configuration created by default for a qbs project.
     info->displayName = tr("Release");
     //: Non-ASCII characters in directory suffix may cause build issues.
-    info->buildDirectory = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"));
+    info->buildDirectory
+            = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
+                                    info->buildType);
     result << info;
 
     return result;
@@ -450,7 +455,7 @@ BuildConfiguration *QbsBuildConfigurationFactory::create(Target *parent, const B
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())
         buildDir = defaultBuildDirectory(parent->project()->projectDirectory().toString(),
-                                         parent->kit(), info->displayName);
+                                         parent->kit(), info->displayName, info->buildType);
 
     BuildConfiguration *bc
             = QbsBuildConfiguration::setup(parent, info->displayName, info->displayName,

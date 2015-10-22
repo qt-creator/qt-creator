@@ -50,7 +50,8 @@ public:
     QString makefile;
     QMakeStepConfig config;
 
-    bool operator==(const QmakeBuildInfo &o) {
+    bool operator==(const QmakeBuildInfo &o)
+    {
         return ProjectExplorer::BuildInfo::operator==(o)
                 && additionalArguments == o.additionalArguments
                 && config == o.config;
