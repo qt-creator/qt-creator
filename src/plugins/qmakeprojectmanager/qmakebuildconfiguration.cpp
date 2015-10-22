@@ -97,7 +97,6 @@ static Utils::FileName defaultBuildDirectory(const QString &projectPath,
 const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
 const char USE_SHADOW_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild";
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";
-const char PROFILE_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.ProfileBuild";
 
 enum { debug = 0 };
 
