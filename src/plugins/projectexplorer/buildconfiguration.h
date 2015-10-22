@@ -91,6 +91,8 @@ public:
     };
     virtual BuildType buildType() const = 0;
 
+    static QString buildTypeName(BuildType type);
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();

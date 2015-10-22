@@ -1371,16 +1371,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),
         [&]() -> QString {
-            if (BuildConfiguration *bc = activeBuildConfiguration()) {
-                BuildConfiguration::BuildType type = bc->buildType();
-                if (type == BuildConfiguration::Debug)
-                    return QLatin1String("debug");
-                if (type == BuildConfiguration::Release)
-                    return QLatin1String("release");
-                if (type == BuildConfiguration::Profile)
-                    return QLatin1String("profile");
-            }
-            return tr("unknown");
+            BuildConfiguration *bc = activeBuildConfiguration();
+            const BuildConfiguration::BuildType type
+                                   = bc ? bc->buildType() : BuildConfiguration::Unknown;
+            return BuildConfiguration::buildTypeName(type);
         });
 
 
