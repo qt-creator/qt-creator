@@ -330,7 +330,7 @@ void TextEditorActionHandlerPrivate::createActions()
             [this] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Follow Symbol Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
     m_jumpToFileAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR,
-            [this] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Jump To File Under Cursor"),
+            [this] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Jump to File Under Cursor"),
             QKeySequence(Qt::Key_F2));
     m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
             [this] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Jump to File Under Cursor in Next Split"),
