@@ -697,6 +697,16 @@ QString BinEditorWidget::addressString(quint64 address)
     return m_addressString;
 }
 
+static void paintCursorBorder(QPainter *painter, const QRect &cursorRect)
+{
+    painter->save();
+    QPen borderPen(Qt::red);
+    borderPen.setJoinStyle(Qt::MiterJoin);
+    painter->setPen(borderPen);
+    painter->drawRect(QRectF(cursorRect).adjusted(0.5, 0.5, -0.5, -0.5));
+    painter->restore();
+}
+
 void BinEditorWidget::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
@@ -869,10 +879,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         if (cursor >= 0) {
             int w = fm.boundingRect(itemString.mid(cursor*3, 2)).width();
             QRect cursorRect(x + cursor * m_columnWidth, y - m_ascent, w + 1, m_lineHeight);
-            painter.save();
-            painter.setPen(Qt::red);
-            painter.drawRect(cursorRect.adjusted(0, 0, 0, -1));
-            painter.restore();
+            paintCursorBorder(&painter, cursorRect);
             if (m_hexCursor && m_cursorVisible) {
                 if (m_lowNibble)
                     cursorRect.adjust(fm.width(itemString.left(1)), 0, 0, 0);
@@ -911,17 +918,16 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                              y-m_ascent,
                              fm.width(printable.at(cursor)),
                              m_lineHeight);
-            painter.save();
             if (m_hexCursor || !m_cursorVisible) {
-                painter.setPen(Qt::red);
-                painter.drawRect(cursorRect.adjusted(0, 0, 0, -1));
+                paintCursorBorder(&painter, cursorRect);
             } else {
+                painter.save();
                 painter.setClipRect(cursorRect);
                 painter.fillRect(cursorRect, Qt::red);
                 painter.setPen(Qt::white);
                 painter.drawText(text_x, y, printable);
+                painter.restore();
             }
-            painter.restore();
         }
     }
 }
