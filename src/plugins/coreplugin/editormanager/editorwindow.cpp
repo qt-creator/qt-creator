@@ -60,13 +60,18 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     connect(m_area, &EditorArea::windowTitleNeedsUpdate,
             this, &EditorWindow::updateWindowTitle);
+    // editor area can be deleted by editor manager
+    connect(m_area, &EditorArea::destroyed, this, [this]() {
+        m_area = nullptr;
+        deleteLater();
+    });
     updateWindowTitle();
 }
 
 EditorWindow::~EditorWindow()
 {
-    disconnect(m_area, &EditorArea::windowTitleNeedsUpdate,
-               this, &EditorWindow::updateWindowTitle);
+    if (m_area)
+        disconnect(m_area, 0, this, 0);
 }
 
 EditorArea *EditorWindow::editorArea() const
