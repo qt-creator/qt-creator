@@ -349,6 +349,16 @@ C filtered(const C &container, F predicate)
   return out;
 }
 
+template<typename C, typename R, typename S>
+Q_REQUIRED_RESULT
+C filtered(const C &container, R (S::*predicate)() const)
+{
+  C out;
+  std::copy_if(container.begin(), container.end(),
+               inserter(out), std::mem_fn(predicate));
+  return out;
+}
+
 //////////////////
 // sort
 /////////////////
