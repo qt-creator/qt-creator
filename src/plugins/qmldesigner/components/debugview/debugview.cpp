@@ -65,16 +65,16 @@ DebugView::~DebugView()
 
 void DebugView::modelAttached(Model *model)
 {
-    log(tr("Model attached"), tr("FileName %1").arg(model->fileUrl().toLocalFile()));
+    log(tr("Model attached"), tr("Filename %1").arg(model->fileUrl().toLocalFile()));
     m_debugViewWidget->setDebugViewEnabled(isDebugViewEnabled());
     if (isDebugViewEnabled())
-        qDebug() << tr("DebugView is enabled");
+        qDebug() << tr("Debug view is enabled");
     AbstractView::modelAttached(model);
 }
 
 void DebugView::modelAboutToBeDetached(Model *model)
 {
-    log(tr("Model detached"), tr("FileName %1").arg(model->fileUrl().toLocalFile()));
+    log(tr("Model detached"), tr("Filename %1").arg(model->fileUrl().toLocalFile()));
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -115,7 +115,7 @@ void DebugView::nodeAboutToBeRemoved(const ModelNode &removedNode)
         message.setString(&string);
         message << removedNode << lineBreak;
         foreach (const ModelNode &modelNode, removedNode.allSubModelNodes()) {
-            message << tr("ChildNode:") << modelNode << lineBreak;
+            message << tr("Child node:") << modelNode << lineBreak;
         }
 
         log(tr("Node about to be removed:"), message.readAll());
@@ -136,10 +136,10 @@ void DebugView::nodeReparented(const ModelNode &node, const NodeAbstractProperty
         message << tr("Old parent property:");
         message << lineBreak;
         message << oldPropertyParent;
-        message << tr("PropertyChangeFlag");
+        message << tr("Property change flag");
         message << lineBreak;
         message << propertyChange;
-        log(tr("Node reparanted:"), message.readAll());
+        log(tr("Node reparented:"), message.readAll());
     }
 }
 
@@ -150,8 +150,8 @@ void DebugView::nodeIdChanged(const ModelNode &node, const QString &newId, const
         QString string;
         message.setString(&string);
         message << node;
-        message << tr("New Id:") << ' ' << newId << lineBreak;
-        message << tr("Old Id:") << ' ' << oldId << lineBreak;
+        message << tr("New id:") << ' ' << newId << lineBreak;
+        message << tr("Old id:") << ' ' << oldId << lineBreak;
         log(tr("Node id changed:"), string);
     }
 }
@@ -170,7 +170,7 @@ void DebugView::variantPropertiesChanged(const QList<VariantProperty> &propertyL
         foreach (const VariantProperty &property, propertyList) {
             message << property;
         }
-        log(tr("VariantProperties changed:"), string);
+        log(tr("Variant properties changed:"), string);
     }
 }
 
@@ -184,7 +184,7 @@ void DebugView::bindingPropertiesChanged(const QList<BindingProperty> &propertyL
         foreach (const BindingProperty &property, propertyList) {
             message << property;
         }
-        log(tr("BindingProperties changed:"), string);
+        log(tr("Binding properties changed:"), string);
     }
 }
 
@@ -197,7 +197,7 @@ void DebugView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProper
         foreach (const SignalHandlerProperty &property, propertyList) {
             message << property;
         }
-        log(tr("SignalHandlerProperties changed:"), string);
+        log(tr("Signal handler properties changed:"), string);
     }
 }
 
@@ -257,7 +257,7 @@ void DebugView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &
         message << name;
         message << data.toString();
 
-        log(tr("Auxiliary Data Changed:"), string);
+        log(tr("Auxiliary data changed:"), string);
     }
 }
 
@@ -323,7 +323,7 @@ void DebugView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
             }
         }
 
-        logInstance(tr("Instance Completed"), string);
+        logInstance(tr("Instance completed"), string);
     }
 }
 
@@ -339,7 +339,7 @@ void DebugView::instanceInformationsChange(const QMultiHash<ModelNode, Informati
             message << informationChangeHash.value(modelNode);
         }
 
-        logInstance(tr("Instance Completed"), string);
+        logInstance(tr("Instance completed"), string);
     }
 
 }
@@ -366,7 +366,7 @@ void DebugView::instancesChildrenChanged(const QVector<ModelNode> & nodeList)
             }
         }
 
-        logInstance(tr("Instances children changed:"), string);
+        logInstance(tr("Instance's children changed:"), string);
     }
 }
 
@@ -387,7 +387,7 @@ void DebugView::customNotification(const AbstractView *view, const QString &iden
             message << variant.toString();
         }
 
-        log(tr("Custom Notification:"), string);
+        log(tr("Custom notification:"), string);
     }
 }
 
@@ -401,7 +401,7 @@ void DebugView::nodeSourceChanged(const ModelNode &modelNode, const QString &new
         message << modelNode;
         message << newNodeSource;
 
-        log(tr("Node Source Changed:"), string);
+        log(tr("Node source changed:"), string);
     }
 }
 
@@ -414,7 +414,7 @@ void DebugView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProp
 
         message << removedNode;
 
-        log(tr("Node Removed:"), string);
+        log(tr("Node removed:"), string);
     }
 }
 
