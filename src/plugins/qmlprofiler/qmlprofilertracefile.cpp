@@ -411,6 +411,12 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                     range.numericData4 = attributes.value(_("timing4")).toString().toLongLong();
                 if (attributes.hasAttribute(_("timing5")))
                     range.numericData5 = attributes.value(_("timing5")).toString().toLongLong();
+                if (attributes.hasAttribute(_("type")))
+                    range.numericData1 = attributes.value(_("type")).toString().toLongLong();
+                if (attributes.hasAttribute(_("data1")))
+                    range.numericData2 = attributes.value(_("data1")).toString().toLongLong();
+                if (attributes.hasAttribute(_("data2")))
+                    range.numericData3 = attributes.value(_("data2")).toString().toLongLong();
 
                 range.typeIndex = attributes.value(_("eventIndex")).toString().toInt();
 
@@ -601,11 +607,19 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
         const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[range.typeIndex];
 
-        // special: animation event
-        if (event.message == Event && event.detailType == AnimationFrame) {
-            stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
-            stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
-            stream.writeAttribute(_("thread"), QString::number(range.numericData3));
+
+        if (event.message == Event) {
+            if (event.detailType == AnimationFrame) {
+                // special: animation event
+                stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
+                stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
+                stream.writeAttribute(_("thread"), QString::number(range.numericData3));
+            } else if (event.detailType == Key || event.detailType == Mouse) {
+                // special: input event
+                stream.writeAttribute(_("type"), QString::number(range.numericData1));
+                stream.writeAttribute(_("data1"), QString::number(range.numericData2));
+                stream.writeAttribute(_("data2"), QString::number(range.numericData3));
+            }
         }
 
         // special: pixmap cache event

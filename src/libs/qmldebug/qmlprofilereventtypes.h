@@ -91,6 +91,21 @@ enum PixmapEventType {
     MaximumPixmapEventType
 };
 
+enum InputEventType {
+    InputKeyPress,
+    InputKeyRelease,
+    InputKeyUnknown,
+
+    InputMousePress,
+    InputMouseRelease,
+    InputMouseMove,
+    InputMouseDoubleClick,
+    InputMouseWheel,
+    InputMouseUnknown,
+
+    MaximumInputEventType
+};
+
 enum SceneGraphFrameType {
     SceneGraphRendererFrame,        // Render Thread
     SceneGraphAdaptationLayerFrame, // Render Thread

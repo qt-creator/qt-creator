@@ -251,9 +251,18 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         case Mouse:
             if (!d->updateFeatures(ProfileInputEvents))
                 break;
+            int inputType = (subtype == Key ? InputKeyUnknown : InputMouseUnknown);
+            if (!stream.atEnd())
+                stream >> inputType;
+            int a = -1;
+            if (!stream.atEnd())
+                stream >> a;
+            int b = -1;
+            if (!stream.atEnd())
+                stream >> b;
 
-            emit this->rangedEvent(Event, MaximumRangeType, subtype, time, 0, QString(),
-                                   QmlEventLocation(), 0, 0, 0, 0, 0);
+            emit rangedEvent(Event, MaximumRangeType, subtype, time, 0, QString(),
+                             QmlEventLocation(), inputType, a, b, 0, 0);
             d->maximumTime = qMax(time, d->maximumTime);
             break;
         }
