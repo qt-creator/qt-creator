@@ -273,7 +273,7 @@ void LinkPrivate::populateImportedTypes(Imports *imports, Document::Ptr doc)
                 imports->setImportFailed();
                 if (info.ast()) {
                     error(doc, info.ast()->fileNameToken,
-                          Link::tr("file or directory not found"));
+                          Link::tr("File or directory not found."));
                 }
                 break;
             default:
@@ -436,11 +436,11 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
         error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
                                      importInfo.ast()->lastSourceLocation()),
               Link::tr(
-                  "QML module not found\n\n"
+                  "QML module not found.\n\n"
                   "Import paths:\n"
                   "%1\n\n"
                   "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
-                  "For qbs projects, declare and set a qmlImportPaths property in your product "
+                  "For Qbs projects, declare and set a qmlImportPaths property in your product "
                   "to add import paths.\n"
                   "For qmlproject projects, use the importPaths property to add import paths.").arg(
                   importPaths.join(QLatin1Char('\n'))));
