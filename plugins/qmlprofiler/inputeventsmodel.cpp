@@ -20,6 +20,10 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QMetaEnum>
+
 namespace QmlProfilerExtension {
 namespace Internal {
 
@@ -62,9 +66,60 @@ QVariantList InputEventsModel::labels() const
 QVariantMap InputEventsModel::details(int index) const
 {
     QVariantMap result;
-    result.insert(QLatin1String("displayName"),
-                  selectionId(index) == QmlDebug::Key ? tr("Keyboard Event") : tr("Mouse Event"));
     result.insert(QLatin1String("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
+    QString type;
+    const InputEvent &event = m_data[index];
+    switch (event.type) {
+    case QmlDebug::InputKeyPress:
+        type = QLatin1String("Key Press");
+    case QmlDebug::InputKeyRelease:
+        if (type.isEmpty())
+            type = QLatin1String("Key Release");
+        if (event.a != 0) {
+            result.insert(QLatin1String("Key"), QLatin1String(
+                              QMetaEnum::fromType<Qt::Key>().valueToKey(event.a)));
+        }
+        if (event.b != 0) {
+            result.insert(QLatin1String("Modifiers"), QLatin1String(
+                              QMetaEnum::fromType<Qt::KeyboardModifiers>().valueToKeys(event.b)));
+        }
+        break;
+    case QmlDebug::InputMouseDoubleClick:
+        type = QLatin1String("Double Click");
+    case QmlDebug::InputMousePress:
+        if (type.isEmpty())
+            type = QLatin1String("Mouse Press");
+    case QmlDebug::InputMouseRelease:
+        if (type.isEmpty())
+            type = QLatin1String("Mouse Release");
+        result.insert(QLatin1String("Button"), QLatin1String(
+                          QMetaEnum::fromType<Qt::MouseButtons>().valueToKey(event.a)));
+        result.insert(QLatin1String("Result"), QLatin1String(
+                          QMetaEnum::fromType<Qt::MouseButtons>().valueToKeys(event.b)));
+        break;
+    case QmlDebug::InputMouseMove:
+        type = QLatin1String("Mouse Move");
+        result.insert(QLatin1String("X"), QString::number(event.a));
+        result.insert(QLatin1String("Y"), QString::number(event.b));
+        break;
+    case QmlDebug::InputMouseWheel:
+        type = QLatin1String("Mouse Wheel");
+        result.insert(QLatin1String("Angle X"), QString::number(event.a));
+        result.insert(QLatin1String("Angle Y"), QString::number(event.b));
+        break;
+    case QmlDebug::InputKeyUnknown:
+        type = QLatin1String("Keyboard Event");
+        break;
+    case QmlDebug::InputMouseUnknown:
+        type = QLatin1String("Mouse Event");
+        break;
+    default:
+        Q_UNREACHABLE();
+        break;
+    }
+
+    result.insert(QLatin1String("displayName"), type);
+
     return result;
 }
 
@@ -90,7 +145,11 @@ void InputEventsModel::loadData()
         const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
         if (!accepted(type))
             continue;
-        insert(event.startTime, 0, type.detailType);
+
+        m_data.insert(insert(event.startTime, 0, type.detailType),
+                      InputEvent(static_cast<QmlDebug::InputEventType>(event.numericData1),
+                                 event.numericData2, event.numericData3));
+
         if (type.detailType == QmlDebug::Mouse) {
             if (m_mouseTypeId == -1)
                 m_mouseTypeId = event.typeIndex;
@@ -114,6 +173,11 @@ bool InputEventsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &ev
 {
     return QmlProfilerTimelineModel::accepted(event) &&
             (event.detailType == QmlDebug::Mouse || event.detailType == QmlDebug::Key);
+}
+
+InputEventsModel::InputEvent::InputEvent(QmlDebug::InputEventType type, int a, int b) :
+    type(type), a(a), b(b)
+{
 }
 
 }

@@ -32,6 +32,14 @@ protected:
     bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const;
 
 public:
+    struct InputEvent {
+        InputEvent(QmlDebug::InputEventType type = QmlDebug::MaximumInputEventType, int a = 0,
+                   int b = 0);
+        QmlDebug::InputEventType type;
+        int a;
+        int b;
+    };
+
     InputEventsModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int typeId(int index) const;
@@ -47,6 +55,7 @@ private:
     int m_keyTypeId;
     int m_mouseTypeId;
 
+    QVector<InputEvent> m_data;
 };
 
 }
