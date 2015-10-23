@@ -311,7 +311,7 @@
     file for a new class that you can add to a C++ project. Specify the class
     name, base class, and header and source files for the class.
 
-    The  wizard supports namespaces. To use a namespace, enter a qualified
+    The wizard supports namespaces. To use a namespace, enter a qualified
     class name in the \uicontrol {Class name} field. For example:
     MyNamespace::MySubNamespace::MyClass.
 
@@ -320,6 +320,12 @@
     The names of the header and source file are based on the class name. To
     change the default suffix of a file, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {C++} > \uicontrol {File Naming}.
+
+    \image qtcreator-options-cpp-files.png "File Naming tab in Options"
+
+    In the \uicontrol {License template} field, you can use
+    \l{Using Variables in Wizards}{predefined wizard variables} to specify the
+    path and filename of the license to use in the source and header files.
 
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
