@@ -1313,14 +1313,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-        tr("The name of the currently active kit in a filesystem-friendly version."),
+        tr("The name of the currently active kit as a filesystem-friendly version."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->fileSystemFriendlyName() : QString();
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_ID,
-        tr("The id of the currently active kit."),
+        tr("The ID of the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->id().toString() : QString();
@@ -3314,7 +3314,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
         QTimer::singleShot(0, [orgFilePath, newFilePath, projectFileName] {
             int res = QMessageBox::question(ICore::mainWindow(),
                                             tr("Project Editing Failed"),
-                                            tr("The project file %1 cannot be automatically changed\n\n"
+                                            tr("The project file %1 cannot be automatically changed.\n\n"
                                                "Rename %2 to %3 anyway?")
                                             .arg(projectFileName)
                                             .arg(orgFilePath)
