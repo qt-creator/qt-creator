@@ -70,7 +70,7 @@ namespace QmlDesigner {
 class SourceToolAction : public AbstractAction
 {
 public:
-    SourceToolAction() : AbstractAction(QCoreApplication::translate("SourceToolAction","Change Source Url...")) {}
+    SourceToolAction() : AbstractAction(QCoreApplication::translate("SourceToolAction","Change Source URL...")) {}
 
     QByteArray category() const
     {
