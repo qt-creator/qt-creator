@@ -440,9 +440,9 @@ void GenericProposalWidget::notifyActivation(int index)
 
 void GenericProposalWidget::abort()
 {
+    deleteLater();
     if (isVisible())
         close();
-    deleteLater();
 }
 
 bool GenericProposalWidget::updateAndCheck(const QString &prefix)
