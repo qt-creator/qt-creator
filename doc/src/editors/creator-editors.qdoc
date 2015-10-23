@@ -895,7 +895,8 @@
     snippet, select \uicontrol Add. Specify a trigger and, if the trigger is
     already in use, an optional variant, which appear in the list of suggestions
     when you write code. Also specify a text string or C++ or QML code construct
-    in the snippet editor, depending on the snippet category.
+    in the snippet editor, depending on the snippet category. You can use
+    \l{Using Qt Creator Variables}{predefined variables} in snippets.
 
     The snippet editor provides you with:
 
@@ -913,7 +914,18 @@
 
     Specify the variables for the snippets in the following format:
 
-    \c $variable$
+    \code
+    $variable$
+    \endcode
+
+    Specify \QC variables in the following format:
+
+    \code
+    %{variable}
+    \endcode
+
+    For example, the following variable expands to the name of the current
+    project: \c {%{CurrentProject:Name}}.
 
     Use unique variable names within a snippet, because all instances of a
     variable are renamed when you specify a value for it.
