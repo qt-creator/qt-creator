@@ -251,14 +251,24 @@
 
     \endlist
 
+    To navigate from a class in a diagram to the source code, double-click the
+    class in the editor or select \uicontrol {Show Definition} in the context
+    menu.
+
+    \section2 Adding Relations
+
     Elements in class diagrams can have the following types of relations:
     inheritance, association, and dependency. The end points of association
     relations can have the following properties: role, cardinality, navigable,
     and relationship.
 
-    To navigate from a class in a diagram to the source code, double-click the
-    class in the editor or select \uicontrol {Show Definition} in the context
-    menu.
+    To create self-relations, start creating a new association and press
+    \key Shift to create a new \e {intermediate point} while dragging the
+    association. Create another intermediate point and drop the association
+    at the same class.
+
+    To add more points, press \key Shift and click a relation. To delete a
+    point, press \key Ctrl and click a point.
 
     \section1 Creating Component Diagrams
 
