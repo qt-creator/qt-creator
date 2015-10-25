@@ -56,7 +56,9 @@ public:
         MacroUse,
         FunctionUse,
         PseudoKeywordUse,
-        StringUse
+        StringUse,
+        FunctionDeclarationUse,
+        VirtualFunctionDeclarationUse,
     };
 
     typedef std::function<QFuture<TextEditor::HighlightingResult> ()> HighlightingRunner;

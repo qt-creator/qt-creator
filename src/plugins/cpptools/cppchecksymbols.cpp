@@ -517,15 +517,16 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                     if (funTy->isVirtual()
                             || (nameAST->asDestructorName()
                                 && hasVirtualDestructor(_context.lookupType(funTy->enclosingScope())))) {
-                        addUse(nameAST, SemanticHighlighter::VirtualMethodUse);
+                        addUse(nameAST, SemanticHighlighter::VirtualFunctionDeclarationUse);
                         declrIdNameAST = nameAST;
                     } else if (maybeAddFunction(_context.lookup(decl->name(),
                                                                 decl->enclosingScope()),
-                                                nameAST, funTy->argumentCount())) {
+                                                nameAST, funTy->argumentCount(),
+                                                FunctionDeclaration)) {
                         declrIdNameAST = nameAST;
 
                         // Add a diagnostic message if non-virtual function has override/final marker
-                        if ((_usages.back().kind != SemanticHighlighter::VirtualMethodUse)) {
+                        if ((_usages.back().kind != SemanticHighlighter::VirtualFunctionDeclarationUse)) {
                             if (funTy->isOverride())
                                 warning(declrIdNameAST, QCoreApplication::translate(
                                             "CPlusplus::CheckSymbols", "Only virtual functions can be marked 'override'"));
@@ -618,7 +619,7 @@ bool CheckSymbols::visit(CallAST *ast)
                         accept(tId->template_argument_list);
                     }
 
-                    if (!maybeAddFunction(candidates, memberName, argumentCount)
+                    if (!maybeAddFunction(candidates, memberName, argumentCount, FunctionCall)
                             && highlightCtorDtorAsType) {
                         expr = ast->base_expression;
                     }
@@ -641,7 +642,7 @@ bool CheckSymbols::visit(CallAST *ast)
                         typeOfExpression(textOf(idExpr), enclosingScope(),
                                          TypeOfExpression::Preprocess);
 
-                    if (!maybeAddFunction(candidates, exprName, argumentCount)
+                    if (!maybeAddFunction(candidates, exprName, argumentCount, FunctionCall)
                             && highlightCtorDtorAsType) {
                         expr = ast->base_expression;
                     }
@@ -704,7 +705,8 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
                 }
             }
 
-            maybeAddFunction(_context.lookup(nameAST->name, scope), nameAST, arguments);
+            maybeAddFunction(_context.lookup(nameAST->name, scope), nameAST, arguments,
+                             FunctionCall);
         }
     }
 
@@ -800,7 +802,7 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
 
             if (klass) {
                 if (hasVirtualDestructor(_context.lookupType(klass))) {
-                    addUse(ast, SemanticHighlighter::VirtualMethodUse);
+                    addUse(ast, SemanticHighlighter::VirtualFunctionDeclarationUse);
                 } else {
                     bool added = false;
                     if (highlightCtorDtorAsType && maybeType(ast->name))
@@ -857,7 +859,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
         if (binding && ast->unqualified_name) {
             if (ast->unqualified_name->asDestructorName() != 0) {
                 if (hasVirtualDestructor(binding)) {
-                    addUse(ast->unqualified_name, SemanticHighlighter::VirtualMethodUse);
+                    addUse(ast->unqualified_name, SemanticHighlighter::VirtualFunctionDeclarationUse);
                 } else {
                     bool added = false;
                     if (highlightCtorDtorAsType && maybeType(ast->name))
@@ -974,7 +976,8 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
                                 for (ExpressionListAST *it = expr_list; it; it = it->next)
                                     ++arguments;
                             }
-                            maybeAddFunction(_context.lookup(nameAST->name, klass), nameAST, arguments);
+                            maybeAddFunction(_context.lookup(nameAST->name, klass),
+                                             nameAST, arguments, FunctionCall);
                         }
 
                         break;
@@ -1057,10 +1060,9 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
             if (fun->isVirtual()
                     || (declId->asDestructorName()
                         && hasVirtualDestructor(_context.lookupType(fun->enclosingScope())))) {
-                addUse(declId, SemanticHighlighter::VirtualMethodUse);
-            } else if (!maybeAddFunction(_context.lookup(fun->name(),
-                                                         fun->enclosingScope()),
-                                         declId, fun->argumentCount())) {
+                addUse(declId, SemanticHighlighter::VirtualFunctionDeclarationUse);
+            } else if (!maybeAddFunction(_context.lookup(fun->name(), fun->enclosingScope()),
+                                         declId, fun->argumentCount(), FunctionDeclaration)) {
                 processEntireDeclr = true;
             }
         }
@@ -1259,7 +1261,8 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
     return false;
 }
 
-bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount)
+bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST *ast,
+                                    unsigned argumentCount, FunctionKind functionKind)
 {
     unsigned startToken = ast->firstToken();
     bool isDestructor = false;
@@ -1275,7 +1278,9 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         return false;
 
     enum { Match_None, Match_TooManyArgs, Match_TooFewArgs, Match_Ok } matchType = Match_None;
-    Kind kind = SemanticHighlighter::FunctionUse;
+
+    Kind kind = functionKind == FunctionDeclaration ? SemanticHighlighter::FunctionDeclarationUse
+                                                    : SemanticHighlighter::FunctionUse;
     foreach (const LookupItem &r, candidates) {
         Symbol *c = r.declaration();
 
@@ -1300,24 +1305,31 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         if (!funTy || funTy->isAmbiguous())
             continue; // TODO: add diagnostic messages and color call-operators calls too?
 
+        const bool isVirtual = funTy->isVirtual();
+        Kind matchingKind;
+        if (functionKind == FunctionDeclaration) {
+            matchingKind = isVirtual ? SemanticHighlighter::VirtualFunctionDeclarationUse
+                                     : SemanticHighlighter::FunctionDeclarationUse;
+        } else {
+            matchingKind = isVirtual ? SemanticHighlighter::VirtualMethodUse
+                                     : SemanticHighlighter::FunctionUse;
+        }
         if (argumentCount < funTy->minimumArgumentCount()) {
             if (matchType != Match_Ok) {
-                kind = funTy->isVirtual() ? SemanticHighlighter::VirtualMethodUse : SemanticHighlighter::FunctionUse;
+                kind = matchingKind;
                 matchType = Match_TooFewArgs;
             }
         } else if (argumentCount > funTy->argumentCount() && !funTy->isVariadic()) {
             if (matchType != Match_Ok) {
                 matchType = Match_TooManyArgs;
-                kind = funTy->isVirtual() ? SemanticHighlighter::VirtualMethodUse : SemanticHighlighter::FunctionUse;
+                kind = matchingKind;
             }
-        } else if (!funTy->isVirtual()) {
-            matchType = Match_Ok;
-            kind = SemanticHighlighter::FunctionUse;
-            //continue, to check if there is a matching candidate which is virtual
         } else {
             matchType = Match_Ok;
-            kind = SemanticHighlighter::VirtualMethodUse;
-            break;
+            kind = matchingKind;
+            if (isVirtual)
+                break;
+            // else continue, to check if there is a matching candidate which is virtual
         }
     }
 
@@ -1326,7 +1338,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         if (highlightCtorDtorAsType
                 && (isConstructor || isDestructor)
                 && maybeType(ast->name)
-                && kind == SemanticHighlighter::FunctionUse) {
+                && kind == SemanticHighlighter::FunctionDeclarationUse) {
             return false;
         }
 
