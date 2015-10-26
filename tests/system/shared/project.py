@@ -64,11 +64,26 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
     return checkedTargets
 
 def openCmakeProject(projectPath, buildDir):
+    def additionalFunction():
+        pChooser = waitForObject("{leftWidget={text='Default' type='QCheckBox' unnamed='1' "
+                                 "visible='1'} type='Utils::PathChooser' unnamed='1' visible='1'}")
+        lineEdit = getChildByClass(pChooser, "Utils::FancyLineEdit")
+        replaceEditorContent(lineEdit, buildDir)
+        # disable all build configurations except "Default"
+        configs = ['Debug', 'Release', 'Release with Debug Information', 'Minimum Size Release']
+        for checkbox in configs:
+            ensureChecked(waitForObject("{text='%s' type='QCheckBox' unnamed='1' visible='1' "
+                                        "window=':Qt Creator_Core::Internal::MainWindow'}"
+                                        % checkbox), False)
+        ensureChecked(waitForObject("{text='Default' type='QCheckBox' unnamed='1' visible='1' "
+                      "window=':Qt Creator_Core::Internal::MainWindow'}"), True)
+
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
-    replaceEditorContent("{type='Utils::FancyLineEdit' unnamed='1' visible='1'"
-                         "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
-    clickButton(waitForObject(":CMake Wizard.Next_QPushButton"))
+    __chooseTargets__(0) # uncheck all
+    __chooseTargets__(Targets.DESKTOP_480_DEFAULT, additionalFunc=additionalFunction)
+    clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
     return __handleCmakeWizardPage__()
 
 def __handleCmakeWizardPage__():
@@ -403,7 +418,10 @@ def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWel
 # parameter target can be an OR'd value of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
+# parameter additionalFunc function to be executed inside the detailed view of each chosen kit
+#           if present, 'Details' button will be clicked, function will be executed,
+#           'Details' button will be clicked again
+def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None, additionalFunc=None):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -419,8 +437,19 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
         try:
             ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % Targets.getStringForTarget(current),
                           mustCheck, 3000)
-            if (mustCheck):
+            if mustCheck:
                 checkedTargets.append(current)
+
+                # perform additional function on detailed kits view
+                if additionalFunc:
+                    detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' "
+                                                  "window=':Qt Creator_Core::Internal::MainWindow' "
+                                                  "toolTip?='<html><body><h3>%s</h3>*' visible='1'}"
+                                                  % Targets.getStringForTarget(current))
+                    detailsButton = getChildByClass(detailsWidget, "Utils::DetailsButton")
+                    clickButton(detailsButton)
+                    additionalFunc()
+                    clickButton(detailsButton)
         except LookupError:
             if mustCheck:
                 test.fail("Failed to check target '%s'." % Targets.getStringForTarget(current))
