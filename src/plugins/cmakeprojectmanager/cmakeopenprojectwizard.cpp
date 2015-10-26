@@ -591,10 +591,11 @@ void CMakeRunPage::runCMake()
                 this, &CMakeRunPage::cmakeReadyReadStandardOutput);
         connect(m_cmakeProcess, &QProcess::readyReadStandardError,
                 this, &CMakeRunPage::cmakeReadyReadStandardError);
-        connect(m_cmakeProcess, &QProcess::finished,
+        connect(m_cmakeProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
                 this, &CMakeRunPage::cmakeFinished);
-        cmakeManager->createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(), m_argumentsLineEdit->text(),
-                                    m_cmakeWizard->sourceDirectory(), m_buildDirectory, env,
+        cmakeManager->createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(),
+                                    m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
+                                    m_buildDirectory, env,
                                     QString::fromLatin1(generatorInfo.generatorArgument()),
                                     QString::fromLatin1(generatorInfo.preLoadScriptFileArgument()));
     } else {
