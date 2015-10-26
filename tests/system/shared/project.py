@@ -72,16 +72,10 @@ def openCmakeProject(projectPath, buildDir):
     return __handleCmakeWizardPage__()
 
 def __handleCmakeWizardPage__():
-    generatorCombo = waitForObject(":Generator:_QComboBox")
     generatorText = "Unix Generator (Desktop 480 GCC)"
     if platform.system() in ('Windows', 'Microsoft'):
         generatorText = "NMake Generator (Desktop 480 MSVC2010)"
-    index = generatorCombo.findText(generatorText)
-    if index == -1:
-        test.warning("No matching CMake generator for found.")
-    else:
-        generatorCombo.setCurrentIndex(index)
-
+    selectFromCombo(waitForObject(":Generator:_QComboBox"), generatorText)
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton"))
     try:
         clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
