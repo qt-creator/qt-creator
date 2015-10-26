@@ -23,6 +23,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
 #include <QRegExp>
 #include <QProcess>
 #include <QFileInfo>
