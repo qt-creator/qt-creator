@@ -42,6 +42,7 @@
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
+#include "updatetranslationunitsforeditormessage.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -61,6 +62,11 @@ void EchoIpcServer::end()
 }
 
 void EchoIpcServer::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
+{
+    echoMessage(QVariant::fromValue(message));
+}
+
+void EchoIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }

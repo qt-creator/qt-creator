@@ -36,9 +36,9 @@
 #include <QString>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QVector>
 
 #include <functional>
-#include <vector>
 
 namespace Debugger {
 namespace Internal {
@@ -136,7 +136,7 @@ public:
 
     QByteArray m_name;
     QByteArray m_data;
-    std::vector<GdbMi> m_children;
+    QVector<GdbMi> m_children;
 
     enum Type { Invalid, Const, Tuple, List };
 
@@ -150,7 +150,7 @@ public:
     bool isList() const { return m_type == List; }
 
     const QByteArray &data() const { return m_data; }
-    const std::vector<GdbMi> &children() const { return m_children; }
+    const QVector<GdbMi> &children() const { return m_children; }
     int childCount() const { return int(m_children.size()); }
 
     const GdbMi &childAt(int index) const { return m_children[index]; }

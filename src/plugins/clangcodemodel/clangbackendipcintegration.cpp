@@ -66,6 +66,7 @@
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
 #include <clangbackendipc/unregisterunsavedfilesforeditormessage.h>
+#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
 
 #include <cplusplus/Icons.h>
 
@@ -194,6 +195,7 @@ public:
 
     void end() override;
     void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) override;
+    void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message) override;
     void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) override;
     void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) override;
     void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) override;
@@ -216,6 +218,12 @@ void IpcSender::registerTranslationUnitsForEditor(const RegisterTranslationUnitF
 {
      QTC_CHECK(m_connection.isConnected());
      m_connection.serverProxy().registerTranslationUnitsForEditor(message);
+}
+
+void IpcSender::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().updateTranslationUnitsForEditor(message);
 }
 
 void IpcSender::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
@@ -368,6 +376,16 @@ void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::P
     registerProjectPartsForEditor(projectPartContainers);
 }
 
+void IpcCommunicator::registerTranslationUnit(TextEditor::TextDocument *document)
+{
+    const QString filePath = document->filePath().toString();
+    const QString projectPartId = Utils::projectPartIdForFile(filePath);
+
+    registerTranslationUnitsForEditor({{Utf8String(filePath),
+                                        Utf8String(projectPartId),
+                                        uint(document->document()->revision())}});
+}
+
 void IpcCommunicator::updateTranslationUnitFromCppEditorDocument(const QString &filePath)
 {
     const auto document = CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
@@ -388,34 +406,33 @@ CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
     return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
 }
 
-bool documentHasChanged(const QString &filePath, const QString &projectPartId)
+bool documentHasChanged(const QString &filePath)
 {
     auto *document = cppDocument(filePath);
 
     if (document)
-        return document->sendTracker(projectPartId).shouldSendRevision(document->revision());
+        return document->sendTracker().shouldSendRevision(document->revision());
 
     return true;
 }
 
 void setLastSentDocumentRevision(const QString &filePath,
-                                 const QString &projectPartId,
                                  uint revision)
 {
     auto *document = cppDocument(filePath);
 
     if (document)
-        document->sendTracker(projectPartId).setLastSentRevision(int(revision));
+        document->sendTracker().setLastSentRevision(int(revision));
 }
 }
 
-void IpcCommunicator::updateTranslationUnit(const QString &filePath,
-                                        const QByteArray &contents,
-                                        uint documentRevision)
+void IpcCommunicator::registerTranslationUnit(const QString &filePath,
+                                              const QByteArray &contents,
+                                              uint documentRevision)
 {
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
 
-    if (documentHasChanged(filePath, projectPartId)) {
+    if (documentHasChanged(filePath)) {
         const bool hasUnsavedContent = true;
 
         registerTranslationUnitsForEditor({{filePath,
@@ -424,18 +441,30 @@ void IpcCommunicator::updateTranslationUnit(const QString &filePath,
                                             hasUnsavedContent,
                                             documentRevision}});
 
-        setLastSentDocumentRevision(filePath, projectPartId, documentRevision);
+        setLastSentDocumentRevision(filePath, documentRevision);
     }
+}
+
+void IpcCommunicator::updateTranslationUnit(const QString &filePath,
+                                            const QByteArray &contents,
+                                            uint documentRevision)
+{
+    const bool hasUnsavedContent = true;
+
+    updateTranslationUnitsForEditor({{filePath,
+                                      Utf8String(),
+                                      Utf8String::fromByteArray(contents),
+                                      hasUnsavedContent,
+                                      documentRevision}});
 }
 
 void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision)
 {
-    const QString projectPartId = Utils::projectPartIdForFile(filePath);
     const bool hasUnsavedContent = true;
 
     // TODO: Send new only if changed
     registerUnsavedFilesForEditor({{filePath,
-                                    projectPartId,
+                                    Utf8String(),
                                     Utf8String::fromByteArray(contents),
                                     hasUnsavedContent,
                                     documentRevision}});
@@ -446,27 +475,35 @@ void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    if (documentHasChanged(fileContainer.filePath(), fileContainer.projectPartId())) {
-        registerTranslationUnitsForEditor({fileContainer});
+    if (documentHasChanged(fileContainer.filePath())) {
+        updateTranslationUnitsForEditor({fileContainer});
 
         const RequestDiagnosticsMessage message(fileContainer);
         qCDebug(log) << ">>>" << message;
         m_ipcSender->requestDiagnostics(message);
 
         setLastSentDocumentRevision(fileContainer.filePath(),
-                                    fileContainer.projectPartId(),
                                     fileContainer.documentRevision());
     }
+}
+
+void IpcCommunicator::requestDiagnostics(Core::IDocument *document)
+{
+    const auto textDocument = qobject_cast<TextDocument*>(document);
+    const auto filePath = textDocument->filePath().toString();
+    const QString projectPartId = Utils::projectPartIdForFile(filePath);
+
+    requestDiagnostics(FileContainer(filePath,
+                                     projectPartId,
+                                     textDocument->document()->revision()));
 }
 
 void IpcCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
 {
     auto *document = cppDocument(filePath);
 
-    if (document) {
-        const QString projectPartId = Utils::projectPartIdForFile(filePath);
-        document->sendTracker(projectPartId).applyContentChange(position);
-    }
+    if (document)
+        document->sendTracker().applyContentChange(position);
 }
 
 void IpcCommunicator::updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document)
@@ -538,6 +575,16 @@ void IpcCommunicator::registerTranslationUnitsForEditor(const FileContainers &fi
     const RegisterTranslationUnitForEditorMessage message(fileContainers);
     qCDebug(log) << ">>>" << message;
     m_ipcSender->registerTranslationUnitsForEditor(message);
+}
+
+void IpcCommunicator::updateTranslationUnitsForEditor(const IpcCommunicator::FileContainers &fileContainers)
+{
+    if (m_sendMode == IgnoreSendRequests)
+        return;
+
+    const UpdateTranslationUnitsForEditorMessage message(fileContainers);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->updateTranslationUnitsForEditor(message);
 }
 
 void IpcCommunicator::unregisterTranslationUnitsForEditor(const FileContainers &fileContainers)

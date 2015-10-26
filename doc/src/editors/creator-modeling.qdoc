@@ -1,0 +1,327 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-coding.html
+    \page creator-modeling.html
+    \nextpage creator-editor-functions.html
+
+    \title Modeling
+
+    You can use the experimental model editor to create Universal Modeling
+    Language (UML) style models with structured diagrams. However, the editor
+    uses a variant of UML and only a subset of properties are provided for
+    specifying the appearance of model elements.
+
+    You can create the following types of diagrams:
+
+    \list
+        \li Package
+        \li Class
+        \li Component
+        \li Use case
+        \li Activity
+    \endlist
+
+    You can add elements to the diagrams and specify properties for them. You
+    can either use standard model elements or add your own elements with custom
+    icons.
+
+    \image qtcreator-modeleditor.png
+
+    You can add model elements to diagrams in the following ways:
+
+    \list
+        \li Drag and drop model elements from the element tool bar (1) to the
+            editor (2).
+        \li Select tool bar buttons (3) to add elements to the element tree (4).
+        \li Drag elements from the element tree to the editor to add them and
+            all their relations to the diagram.
+        \li Drag and drop source files from \uicontrol Projects to the editor
+            to add C++ classes or components to a class or component diagram.
+    \endlist
+
+    You can group elements by surrounding them with a boundary. When you move
+    the boundary, all elements within it are moved together. Similarly, classes
+    that you lay on packages are moved with the packages. You can move
+    individual elements and modify their properties (5) by selecting them. You
+    can also use \e multiselection to group elements temporarily.
+
+    Drag the mouse over elements to select them and apply actions such as
+    changing their \e stereotype or color. A stereotype is a classifier for
+    elements, such as \e entity, \e control, \e interface, or \e boundary. An
+    entity is usually a class that is used to store data. For some stereotypes,
+    a custom icon is defined. You can assign several comma-separated stereotypes
+    to one element.
+
+    To print diagrams, press \key Ctrl+C when no elements are selected in
+    the editor to copy all elements to the clipboard by using 300 dpi. Then
+    paste the diagram to an application that can print images.
+
+    \section1 Creating Models
+
+    To create models:
+
+    \list 1
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol Modeling > \uicontrol ModelEditor and restart \QC to
+            enable the  plugin.
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Modeling > \uicontrol Model > \uicontrol Choose to
+            create a model.
+
+        \li Drag and drop model elements to the editor and select them to
+            specify properties for them:
+
+        \list 1
+
+            \li In the \uicontrol Stereotypes field, enter the stereotype to
+                apply to the model element or select a predefined stereotype
+                from the list.
+
+            \li In the \uicontrol Name field, give a name to the model element.
+
+            \li Select the \uicontrol {Auto sized} check box to reset the
+                element to its default size after you have changed the element
+                size by dragging its borders.
+
+            \li In the \uicontrol Color field, select the color of the model
+                element.
+
+            \li In the \uicontrol Role field, select a \e role to make the model
+                element color lighter, darker, or softer or to remove color and
+                draw the element outline.
+
+            \li Select the \uicontrol Emphasized check box to draw the model
+                element with a thicker line.
+
+            \li In the \uicontrol {Stereotype display} field, select:
+
+                \list
+
+                    \li \uicontrol Smart to display the stereotype as a
+                        \uicontrol Label, a \uicontrol Decoration, or an
+                        \uicontrol Icon, depending on the properties of the
+                        element. For example, if a class has the stereotype
+                        \uicontrol interface, it is displayed as an icon until
+                        it becomes displayed members, after which it is
+                        displayed as a decoration.
+
+                    \li \uicontrol None to suppress the displaying of the
+                        stereotype.
+
+                    \li \uicontrol Label to display the stereotype as a line of
+                        text using the standard form above the element name
+                        even if the stereotype defines a custom icon.
+
+                    \li \uicontrol Decoration to show the standard form of the
+                        element with the stereotype as a small icon placed top
+                        right if the stereotype defines a custom icon.
+
+                    \li \uicontrol Icon to display the element using the custom
+                        icon.
+
+                \endlist
+
+        \endlist
+
+        \li To create a relation between two elements, select the arrow icon
+            next to an element and drag it to the end point of the relation.
+
+        \li Select the relation to specify settings for it, according to its
+            type: inheritance, association, or dependency. You can specify the
+            following settings for dependency relations, which are available for
+            all element types:
+
+        \list 1
+
+            \li In the \uicontrol Stereotypes field, select the
+                \e stereotype to apply to the relation.
+
+            \li In the \uicontrol Name field, give a name to the relation.
+
+            \li In the \uicontrol Direction field, you can change the direction
+                of the connection or make it bidirectional.
+
+        \endlist
+
+        \li To create \e {sampling points} that divide a relation into two
+            connected lines, select a relation and press \key Shift+Click.
+            If possible, the end point of a relation is moved automatically to
+            draw the line to the next sampling point either vertically or
+            horizontally. To remove the selected sampling point, press
+            \key Ctrl+Click.
+
+        \li To group elements, drag and drop a \uicontrol Boundary element to
+            the editor and resize it to enclose the elements in the group.
+
+    \endlist
+
+    \section1 Creating Package Diagrams
+
+    You can add nested package elements to a package diagram. The depth of the
+    elements in the diagram corresponds to the depth of the structured model.
+    Elements stacked on other elements of the same type are automatically drawn
+    in a darker shade of the selected color.
+
+    \image qtcreator-modeleditor-packages.png
+
+    \section1 Creating Class Diagrams
+
+    \image qtcreator-modeleditor-classes.png
+
+    To create class diagrams:
+
+    \list 1
+
+        \li To add C++ classes to class diagrams, drag and drop files from
+            \uicontrol Projects to the editor, and select
+            \uicontrol {Add Class}.
+
+        \li In addition to the common element properties, you can specify the
+            following properties:
+
+            \list
+
+                \li In the \uicontrol Template field, specify the template to
+                    use.
+
+                \li In the \uicontrol {Template display} field, select the
+                    display format for the template:
+
+                    \list
+
+                        \li \uicontrol Smart displays the template as
+                            \uicontrol Box or \uicontrol {Angle brackets},
+                            depending on the class properties.
+
+                        \li \uicontrol Box displays the template in a small box
+                            with a dotted border in the top right corner of the
+                            class icon.
+
+                        \li \uicontrol {Angle brackets} writes the template
+                            in angle brackets behind the class name using the
+                            C++ syntax.
+
+                    \endlist
+
+                \li In the \uicontrol Members field, specify members for the
+                    class. Enter each member on a separate line using a C++
+                    like syntax. For example, the following lines define the
+                    method \c m that is private, virtual, and constant:
+
+                    \code
+                    private:
+                        virtual int m(string a) const;
+                    \endcode
+
+                \li Select \uicontrol {Clean Up} to format the contents of
+                    the \uicontrol Members field depending on their visibility
+                    (private, protected, public) and following the rules set for
+                    whitespace, line breaks, and so on.
+
+                \li Select the \uicontrol {Show members} check box to show
+                    the members in the diagram.
+
+            \endlist
+
+    \endlist
+
+    To navigate from a class in a diagram to the source code, double-click the
+    class in the editor or select \uicontrol {Show Definition} in the context
+    menu.
+
+    \section2 Adding Relations
+
+    Elements in class diagrams can have the following types of relations:
+    inheritance, association, and dependency. The end points of association
+    relations can have the following properties: role, cardinality, navigable,
+    and relationship.
+
+    To create self-relations, start creating a new association and press
+    \key Shift to create a new \e {intermediate point} while dragging the
+    association. Create another intermediate point and drop the association
+    at the same class.
+
+    To add more points, press \key Shift and click a relation. To delete a
+    point, press \key Ctrl and click a point.
+
+    \section1 Creating Component Diagrams
+
+    You can add source code components, such as libraries, databases, programs,
+    and architectural layers to a component diagram. To add components to
+    component diagrams, drag and drop source code from \uicontrol Projects to
+    the editor, and select \uicontrol {Add Component}.
+
+    To navigate from a component in a diagram to the source code, double-click
+    the component in the editor or select \uicontrol {Show Definition} in the
+    context menu.
+
+    \section1 Adding Custom Elements
+
+    The model editor provides the following built-in element types: package,
+    component, class, and item. For package, component, and class elements, you
+    can specify custom icons. The color, size, and form of the icon are
+    determined by a stereotype. If you attach the stereotype to an element, the
+    element icon is replaced by the custom icon. For example, you can attach the
+    entity and interface stereotypes to classes and the database stereotype to
+    components.
+
+    The use case and activity diagrams are examples of using the built-in
+    \e item element type to add custom elements. The item element has the form
+    of a simple rectangle. The use case illustrates how to use a custom icon for
+    an item. The attached stereotype is called \e usecase but it is hidden.
+    Therefore, if you drag the use case to the diagram, it is shown as a use
+    case but no stereotype appears to be defined and you can attach an
+    additional stereotype to the use case.
+
+    Color and icons are attached to elements in use case and activity diagrams
+    by using a simple definition file format. For example, the following code
+    adds the \c UseCase custom element:
+
+    \code
+    Icon UseCase
+        Title: "Use-Case"
+        Elements: item
+        Stereotype: 'usecase'
+        Display: icon
+        Width: 40
+        Height: 20
+        BaseColor: #5fb4f0
+    Begin
+        Ellipse 20, 10, 20, 10
+    End
+    \endcode
+
+    For more information about the available options, see \e standard.def
+    in the \e share/qtcreator/modeleditor directory in the \QC installation
+    directory.
+
+    You can add your own definition file and save it with the file extension
+    \e .def to add custom colors and icons for stereotypes, elements, or tool
+    bars.
+*/

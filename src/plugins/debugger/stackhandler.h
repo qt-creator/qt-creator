@@ -59,6 +59,8 @@ public:
     ~StackHandler();
 
     void setFrames(const StackFrames &frames, bool canExpand = false);
+    void setFramesAndCurrentIndex(const GdbMi &frames, bool isFull);
+    int updateTargetFrame(bool isFull);
     void prependFrames(const StackFrames &frames);
     const StackFrames &frames() const;
     void setCurrentIndex(int index);
@@ -68,7 +70,6 @@ public:
     const StackFrame &frameAt(int index) const { return m_stackFrames.at(index); }
     int stackSize() const { return m_stackFrames.size(); }
     quint64 topAddress() const { return m_stackFrames.at(0).address; }
-    void setAllFrames(const GdbMi &frames, bool canExpand);
 
     // Called from StackHandler after a new stack list has been received
     void removeAll();

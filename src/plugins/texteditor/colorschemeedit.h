@@ -78,6 +78,10 @@ private slots:
 
 private:
     void updateControls();
+    void updateForegroundControls();
+    void updateBackgroundControls();
+    void updateFontControls();
+    void updateUnderlineControls();
     void setItemListBackground(const QColor &color);
     void populateUnderlineStyleComboBox();
 

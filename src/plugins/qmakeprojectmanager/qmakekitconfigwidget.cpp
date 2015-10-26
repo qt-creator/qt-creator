@@ -45,7 +45,7 @@ QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, const Projec
 {
     refresh(); // set up everything according to kit
     m_lineEdit->setToolTip(toolTip());
-    connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(mkspecWasChanged(QString)));
+    connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitConfigWidget::mkspecWasChanged);
 }
 
 QmakeKitConfigWidget::~QmakeKitConfigWidget()

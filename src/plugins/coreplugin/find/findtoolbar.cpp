@@ -112,7 +112,12 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.findEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
     m_ui.findEdit->setFiltering(true);
     m_ui.findEdit->setPlaceholderText(QString());
+    m_ui.findEdit->setOkColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal));
+    m_ui.findEdit->setErrorColor(Utils::creatorTheme()->color(Utils::Theme::TextColorError));
     m_ui.findEdit->button(Utils::FancyLineEdit::Left)->setFocusPolicy(Qt::TabFocus);
+    m_ui.findEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
+                                             return m_lastResult != IFindSupport::NotFound;
+                                         });
     m_ui.replaceEdit->setPlaceholderText(QString());
 
     connect(m_ui.findEdit, &Utils::FancyLineEdit::textChanged,
@@ -792,9 +797,8 @@ void FindToolBar::acceptCandidateAndMoveToolBar()
 
 void FindToolBar::indicateSearchState(IFindSupport::Result searchState)
 {
-    const Utils::Theme::Color colorRole = searchState == IFindSupport::NotFound
-            ? Utils::Theme::TextColorError : Utils::Theme::TextColorNormal;
-    m_ui.findEdit->setTextColor(m_ui.findEdit, Utils::creatorTheme()->color(colorRole));
+    m_lastResult = searchState;
+    m_ui.findEdit->validate();
 }
 
 void FindToolBar::openFind(bool focus)

@@ -125,10 +125,13 @@ void QmlProfilerRunControl::stopEngine()
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppRunning : {
+    case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
         break;
-    }
+    case QmlProfilerStateManager::AppStopRequested:
+        // Pressed "stop" a second time. Kill the application without collecting data
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        break;
     case QmlProfilerStateManager::Idle:
     case QmlProfilerStateManager::AppDying:
         // valid, but no further action is needed
@@ -258,6 +261,14 @@ void QmlProfilerRunControl::profilerStateChanged()
     default:
         break;
     }
+}
+
+RunControl::StopResult QmlProfiler::QmlProfilerRunControl::stop()
+{
+    StopResult result = Analyzer::AnalyzerRunControl::stop();
+    if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle)
+        m_isRunning = true;
+    return result;
 }
 
 } // namespace QmlProfiler

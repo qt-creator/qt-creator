@@ -114,8 +114,9 @@ bool AndroidBuildApkStep::init()
         }
 
 
-        if (bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
-            emit addOutput(tr("Warning: Signing a debug package."), BuildStep::ErrorMessageOutput);
+        if (bc->buildType() != ProjectExplorer::BuildConfiguration::Release)
+            emit addOutput(tr("Warning: Signing a debug or profile package."),
+                           BuildStep::ErrorMessageOutput);
     }
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());

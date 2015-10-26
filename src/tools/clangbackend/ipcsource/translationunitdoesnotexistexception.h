@@ -39,7 +39,7 @@ class TranslationUnitDoesNotExistException : public std::exception
 {
 public:
     TranslationUnitDoesNotExistException(const FileContainer &fileContainer);
-    TranslationUnitDoesNotExistException(const Utf8String filePath, const Utf8String projectPartId);
+    TranslationUnitDoesNotExistException(const Utf8String &filePath, const Utf8String &projectPartId);
 
     const FileContainer &fileContainer() const;
 

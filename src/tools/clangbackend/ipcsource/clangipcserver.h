@@ -53,6 +53,7 @@ public:
 
     void end() override;
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
+    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override;
     void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override;
     void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override;
     void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override;
@@ -60,6 +61,11 @@ public:
     void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
+
+    const TranslationUnits &translationUnitsForTestOnly() const;
+
+private:
+    void startSendDiagnosticTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
 
 private:
     ProjectParts projects;

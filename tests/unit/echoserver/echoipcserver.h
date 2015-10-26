@@ -41,6 +41,7 @@ public:
     void dispatch(const QVariant &message) override;
     void end() override;
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
+    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override;
     void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override;
     void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override;
     void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override;

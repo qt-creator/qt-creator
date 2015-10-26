@@ -28,7 +28,7 @@ QtcLibrary {
         cpp.frameworks: ["Foundation"]
     }
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "script", "concurrent"] }
+    Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets"] }
     Depends { name: "app_version_header" }
 
     files: [
@@ -189,6 +189,8 @@ QtcLibrary {
         "synchronousprocess.h",
         "tcpportsgatherer.cpp",
         "tcpportsgatherer.h",
+        "templateengine.cpp",
+        "templateengine.h",
         "textfieldcheckbox.cpp",
         "textfieldcheckbox.h",
         "textfieldcombobox.cpp",

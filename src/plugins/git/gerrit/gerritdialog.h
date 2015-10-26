@@ -35,6 +35,7 @@
 
 #include <QDialog>
 #include <QSharedPointer>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
@@ -50,6 +51,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class FancyLineEdit;
+class ProgressIndicator;
 class TreeView;
 }
 
@@ -88,7 +90,10 @@ private slots:
     void slotFetchCheckout();
     void slotRefresh();
 
+    void manageProgressIndicator();
+
 private:
+    void setProgressIndicatorVisible(bool v);
     QModelIndex currentIndex() const;
     QPushButton *addActionButton(const QString &text, const std::function<void()> &buttonSlot);
     void updateCompletions(const QString &query);
@@ -100,7 +105,7 @@ private:
     QStringListModel *m_queryModel;
     Utils::TreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
-    QueryValidatingLineEdit *m_queryLineEdit;
+    Utils::FancyLineEdit *m_queryLineEdit;
     Utils::FancyLineEdit *m_filterLineEdit;
     Utils::PathChooser *m_repositoryChooser;
     QDialogButtonBox *m_buttonBox;
@@ -109,6 +114,8 @@ private:
     QPushButton *m_checkoutButton;
     QPushButton *m_refreshButton;
     QLabel *m_repositoryChooserLabel;
+    Utils::ProgressIndicator *m_progressIndicator;
+    QTimer m_progressIndicatorTimer;
     bool m_fetchRunning;
 };
 

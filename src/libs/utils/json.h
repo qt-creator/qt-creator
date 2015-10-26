@@ -355,28 +355,28 @@ private:
 
     static bool maybeSchemaName(const QString &s);
 
-    static const QString kType;
-    static const QString kProperties;
-    static const QString kPatternProperties;
-    static const QString kAdditionalProperties;
-    static const QString kItems;
-    static const QString kAdditionalItems;
-    static const QString kRequired;
-    static const QString kDependencies;
-    static const QString kMinimum;
-    static const QString kMaximum;
-    static const QString kExclusiveMinimum;
-    static const QString kExclusiveMaximum;
-    static const QString kMinItems;
-    static const QString kMaxItems;
-    static const QString kUniqueItems;
-    static const QString kPattern;
-    static const QString kMinLength;
-    static const QString kMaxLength;
-    static const QString kTitle;
-    static const QString kDescription;
-    static const QString kExtends;
-    static const QString kRef;
+    static QString kType();
+    static QString kProperties();
+    static QString kPatternProperties();
+    static QString kAdditionalProperties();
+    static QString kItems();
+    static QString kAdditionalItems();
+    static QString kRequired();
+    static QString kDependencies();
+    static QString kMinimum();
+    static QString kMaximum();
+    static QString kExclusiveMinimum();
+    static QString kExclusiveMaximum();
+    static QString kMinItems();
+    static QString kMaxItems();
+    static QString kUniqueItems();
+    static QString kPattern();
+    static QString kMinLength();
+    static QString kMaxLength();
+    static QString kTitle();
+    static QString kDescription();
+    static QString kExtends();
+    static QString kRef();
 
     struct Context
     {

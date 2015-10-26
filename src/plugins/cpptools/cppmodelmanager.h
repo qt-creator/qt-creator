@@ -58,6 +58,7 @@ class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
+class SymbolFinder;
 class WorkingCopy;
 
 namespace Internal {
@@ -160,6 +161,8 @@ public:
     QByteArray definedMacros();
 
     void enableGarbageCollector(bool enable);
+
+    SymbolFinder *symbolFinder();
 
     static QSet<QString> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 

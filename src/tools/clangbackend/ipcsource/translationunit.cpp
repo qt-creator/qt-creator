@@ -132,6 +132,7 @@ CXIndex TranslationUnit::index() const
 CXTranslationUnit TranslationUnit::cxTranslationUnit() const
 {
     checkIfNull();
+    checkIfFileExists();
     removeTranslationUnitIfProjectPartWasChanged();
     createTranslationUnitIfNeeded();
     reparseTranslationUnitIfFilesAreChanged();
@@ -212,7 +213,7 @@ const QSet<Utf8String> &TranslationUnit::dependedFilePaths() const
 
 void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
 {
-    if (d->dependedFilePaths.contains(filePath)) {
+    if (d->dependedFilePaths.contains(filePath) && isMainFileAndExistsOrIsOtherFile(filePath)) {
         d->needsToBeReparsed = true;
         d->hasNewDiagnostics = true;
     }
@@ -246,6 +247,14 @@ void TranslationUnit::removeTranslationUnitIfProjectPartWasChanged() const
 bool TranslationUnit::projectPartIsOutdated() const
 {
     return d->projectPart.lastChangeTimePoint() >= d->lastProjectPartChangeTimePoint;
+}
+
+bool TranslationUnit::isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const
+{
+    if (filePath == d->filePath)
+        return QFileInfo::exists(d->filePath);
+
+    return true;
 }
 
 void TranslationUnit::createTranslationUnitIfNeeded() const

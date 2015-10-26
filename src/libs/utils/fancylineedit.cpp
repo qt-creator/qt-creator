@@ -92,46 +92,42 @@ public:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
     FancyLineEdit *m_lineEdit;
+    IconButton *m_iconbutton[2];
+    HistoryCompleter *m_historyCompleter = 0;
+    FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
     QPixmap m_pixmap[2];
     QMenu *m_menu[2];
+    FancyLineEdit::State m_state = FancyLineEdit::Invalid;
     bool m_menuTabFocusTrigger[2];
-    IconButton *m_iconbutton[2];
     bool m_iconEnabled[2];
 
-    HistoryCompleter *m_historyCompleter;
-    FancyLineEdit::ValidationFunction m_validationFunction;
+    bool m_isFiltering = false;
+    bool m_firstChange = false;
 
-    bool m_isFiltering;
     QString m_lastFilterText;
 
-    const QColor m_okTextColor;
-    QColor m_errorTextColor;
-    FancyLineEdit::State m_state;
+    QColor m_okTextColor;
+    QColor m_errorTextColor = Qt::red;
     QString m_errorMessage;
     QString m_initialText;
-    bool m_firstChange;
 };
-
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
-    m_lineEdit(parent),
-    m_historyCompleter(0),
-    m_validationFunction(FancyLineEdit::defaultValidationFunction()),
-    m_isFiltering(false),
-    m_okTextColor(FancyLineEdit::textColor(parent)),
-    m_errorTextColor(Qt::red),
-    m_state(FancyLineEdit::Invalid),
-    m_firstChange(true)
+    m_lineEdit(parent)
 {
+    m_okTextColor = parent->palette().color(QPalette::Active, QPalette::Text);
+
     for (int i = 0; i < 2; ++i) {
-        m_menu[i] = 0;
-        m_menuTabFocusTrigger[i] = false;
         m_iconbutton[i] = new IconButton(parent);
         m_iconbutton[i]->installEventFilter(this);
         m_iconbutton[i]->hide();
         m_iconbutton[i]->setAutoHide(false);
+
+        m_menu[i] = 0;
+
+        m_menuTabFocusTrigger[i] = false;
         m_iconEnabled[i] = false;
     }
 }
@@ -171,7 +167,7 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
 
     connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
     connect(d->m_iconbutton[Right], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
-    connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::onTextChanged);
+    connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::validate);
 }
 
 FancyLineEdit::~FancyLineEdit()
@@ -405,19 +401,19 @@ QColor FancyLineEdit::errorColor() const
 
 void FancyLineEdit::setErrorColor(const  QColor &c)
 {
-     d->m_errorTextColor = c;
+    d->m_errorTextColor = c;
+    validate();
 }
 
-QColor FancyLineEdit::textColor(const QWidget *w)
+QColor FancyLineEdit::okColor() const
 {
-    return w->palette().color(QPalette::Active, QPalette::Text);
+    return d->m_okTextColor;
 }
 
-void FancyLineEdit::setTextColor(QWidget *w, const QColor &c)
+void FancyLineEdit::setOkColor(const QColor &c)
 {
-    QPalette palette = w->palette();
-    palette.setColor(QPalette::Active, QPalette::Text, c);
-    w->setPalette(palette);
+    d->m_okTextColor = c;
+    validate();
 }
 
 void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
@@ -456,8 +452,10 @@ QString FancyLineEdit::errorMessage() const
     return d->m_errorMessage;
 }
 
-void FancyLineEdit::onTextChanged(const QString &t)
+void FancyLineEdit::validate()
 {
+    const QString t = text();
+
     if (d->m_isFiltering){
         if (t != d->m_lastFilterText) {
             d->m_lastFilterText = t;
@@ -478,7 +476,11 @@ void FancyLineEdit::onTextChanged(const QString &t)
         const bool validHasChanged = (d->m_state == Valid) != (newState == Valid);
         d->m_state = newState;
         d->m_firstChange = false;
-        setTextColor(this, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+
+        QPalette p = palette();
+        p.setColor(QPalette::Active, QPalette::Text, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+        setPalette(p);
+
         if (validHasChanged)
             emit validChanged(newState == Valid);
     }
@@ -503,16 +505,10 @@ void FancyLineEdit::onTextChanged(const QString &t)
     handleChanged(t);
 }
 
-void FancyLineEdit::triggerChanged()
-{
-    onTextChanged(text());
-}
-
 QString FancyLineEdit::fixInputString(const QString &string)
 {
     return string;
 }
-
 
 //
 // IconButton - helper class to represent a clickable icon

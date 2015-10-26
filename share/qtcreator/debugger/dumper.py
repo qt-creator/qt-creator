@@ -414,8 +414,6 @@ class DumperBase:
             "personaltypes",
         ]
 
-        self.interpreterSeq = 0
-
 
     def resetCaches(self):
         # This is a cache mapping from 'type name' to 'display alternatives'.
@@ -600,9 +598,6 @@ class DumperBase:
     def readMemory(self, addr, size):
         data = self.extractBlob(addr, size).toBytes()
         return self.hexencode(data)
-
-    def readJsonFromMemory(self, addr, size):
-        return json.loads(self.hexdecode(self.readMemory(addr, size)))
 
     def encodeByteArray(self, value, limit = 0):
         elided, data = self.encodeByteArrayHelper(self.extractPointer(value), limit)
@@ -834,15 +829,98 @@ class DumperBase:
             self.putSpecialValue(SpecialItemCountValue, count)
         self.putNumChild(count)
 
-    def dictToMi(self, value):
+    def resultToMi(self, value):
         if type(value) is bool:
             return '"%d"' % int(value)
         if type(value) is dict:
-            return '{' + ','.join(['%s=%s' % (k, self.dictToMi(v))
+            return '{' + ','.join(['%s=%s' % (k, self.resultToMi(v))
                                 for (k, v) in list(value.items())]) + '}'
         if type(value) is list:
-            return '[' + ','.join([self.dictToMi(v) for v in value]) + ']'
+            return '[' + ','.join([self.resultToMi(k)
+                                for k in list(value.items())]) + ']'
         return '"%s"' % value
+
+    def variablesToMi(self, value, prefix):
+        if type(value) is bool:
+            return '"%d"' % int(value)
+        if type(value) is dict:
+            pairs = []
+            for (k, v) in list(value.items()):
+                if k == 'iname':
+                    if v.startswith('.'):
+                        v = '"%s%s"' % (prefix, v)
+                    else:
+                        v = '"%s"' % v
+                else:
+                    v = self.variablesToMi(v, prefix)
+                pairs.append('%s=%s' % (k, v))
+            return '{' + ','.join(pairs) + '}'
+        if type(value) is list:
+            index = 0
+            pairs = []
+            for item in value:
+                if item.get('type', '') == 'function':
+                    continue
+                name = item.get('name', '')
+                if len(name) == 0:
+                    name = str(index)
+                    index += 1
+                pairs.append((name, self.variablesToMi(item, prefix)))
+            pairs.sort(key = lambda pair: pair[0])
+            return '[' + ','.join([pair[1] for pair in pairs]) + ']'
+        return '"%s"' % value
+
+    def filterPrefix(self, prefix, items):
+        return [i[len(prefix):] for i in items if i.startswith(prefix)]
+
+    def tryFetchInterpreterVariables(self, args):
+        if not int(args.get('nativemixed', 0)):
+            return (False, '')
+        context = args.get('context', '')
+        if not len(context):
+            return (False, '')
+
+        expanded = args.get('expanded')
+        args['expanded'] = self.filterPrefix('local', expanded)
+
+        res = self.sendInterpreterRequest('variables', args)
+        if not res:
+            return (False, '')
+
+        reslist = []
+        for item in res.get('variables', {}):
+            if not 'iname' in item:
+                item['iname'] = '.' + item.get('name')
+            reslist.append(self.variablesToMi(item, 'local'))
+
+        watchers = args.get('watchers', None)
+        if watchers:
+            toevaluate = []
+            name2expr = {}
+            seq = 0
+            for watcher in watchers:
+                expr = self.hexdecode(watcher.get('exp'))
+                name = str(seq)
+                toevaluate.append({'name': name, 'expression': expr})
+                name2expr[name] = expr
+                seq += 1
+            args['expressions'] = toevaluate
+
+            args['expanded'] = self.filterPrefix('watch', expanded)
+            del args['watchers']
+            res = self.sendInterpreterRequest('expressions', args)
+
+            if res:
+                for item in res.get('expressions', {}):
+                    name = item.get('name')
+                    iname = 'watch.' + name
+                    expr = name2expr.get(name)
+                    item['iname'] = iname
+                    item['wname'] = self.hexencode(expr)
+                    item['exp'] = expr
+                    reslist.append(self.variablesToMi(item, 'watch'))
+
+        return (True, 'data=[%s]' % ','.join(reslist))
 
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
@@ -1753,18 +1831,18 @@ class DumperBase:
         value = struct.unpack_from("!I", buf, offset)[0]
         return (value, offset + 4)
 
-    def readInterpreterOutput(self):
-        buf = self.parseAndEvaluate("qt_qmlDebugOutputBuffer")
-        size = self.parseAndEvaluate("qt_qmlDebugOutputLength")
-        return self.readJsonFromMemory(buf, size)
-
-    def handleInterpreterEvent(self):
+    def handleInterpreterMessage(self):
         """ Return True if inferior stopped """
-        buf = self.parseAndEvaluate("qt_qmlDebugEventBuffer")
-        size = self.parseAndEvaluate("qt_qmlDebugEventLength")
-        resdict = self.readJsonFromMemory(buf, size)
-        warn("RES DICT : %s" % resdict)
+        resdict = self.fetchInterpreterResult()
         return resdict.get('event') == 'break'
+
+    def reportInterpreterResult(self, resdict, args):
+        print('interpreterresult=%s,token="%s"'
+            % (self.resultToMi(resdict), args.get('token', -1)))
+
+    def reportInterpreterAsync(self, resdict, asyncclass):
+        print('interpreterasync=%s,asyncclass="%s"'
+            % (self.resultToMi(resdict), asyncclass))
 
     def removeInterpreterBreakpoint(self, args):
         res = self.sendInterpreterRequest('removebreakpoint', { 'id' : args['id'] })
@@ -1772,15 +1850,67 @@ class DumperBase:
 
     def insertInterpreterBreakpoint(self, args):
         args['condition'] = self.hexdecode(args.get('condition', ''))
-        warn("Insert interpreter breakpoint %s:%s (%s)"
-            % (args['file'], args['line'], args['condition']))
-        bp = self.doInsertInterpreterBreakpoint(args, False)
-        return str(bp)
+        # Will fail if the service is not yet up and running.
+        response = self.sendInterpreterRequest('setbreakpoint', args)
+        resdict = args.copy()
+        bp = None if response is None else response.get("breakpoint", None)
+        if bp:
+            resdict['number'] = bp
+            resdict['pending'] = 0
+        else:
+            self.createResolvePendingBreakpointsHookBreakpoint(args)
+            resdict['number'] = -1
+            resdict['pending'] = 1
+            resdict['warning'] = 'Direct interpreter breakpoint insertion failed.'
+        self.reportInterpreterResult(resdict, args)
+
+    def resolvePendingInterpreterBreakpoint(self, args):
+        self.parseAndEvaluate('qt_qmlDebugEnableService("NativeQmlDebugger")')
+        response = self.sendInterpreterRequest('setbreakpoint', args)
+        bp = None if response is None else response.get("breakpoint", None)
+        resdict = args.copy()
+        if bp:
+            resdict['number'] = bp
+            resdict['pending'] = 0
+        else:
+            resdict['number'] = -1
+            resdict['pending'] = 0
+            resdict['error'] = 'Pending interpreter breakpoint insertion failed.'
+        self.reportInterpreterAsync(resdict, 'breakpointmodified')
+
+    def fetchInterpreterResult(self):
+        buf = self.parseAndEvaluate("qt_qmlDebugMessageBuffer")
+        size = self.parseAndEvaluate("qt_qmlDebugMessageLength")
+        msg = self.hexdecode(self.readMemory(buf, size))
+        # msg is a sequence of 'servicename<space>msglen<space>msg' items.
+        resdict = {}  # Native payload.
+        while len(msg):
+            pos0 = msg.index(' ') # End of service name
+            pos1 = msg.index(' ', pos0 + 1) # End of message length
+            service = msg[0:pos0]
+            msglen = int(msg[pos0+1:pos1])
+            msgend = pos1+1+msglen
+            payload = msg[pos1+1:msgend]
+            msg = msg[msgend:]
+            if service == 'NativeQmlDebugger':
+                try:
+                    resdict = json.loads(payload)
+                    continue
+                except:
+                    warn("Cannot parse native payload: %s" % payload)
+            else:
+                print('interpreteralien=%s'
+                    % {'service': service, 'payload': self.hexencode(payload)})
+        try:
+            expr = 'qt_qmlDebugClearBuffer()'
+            res = self.parseAndEvaluate(expr)
+        except RuntimeError as error:
+            warn("Cleaning buffer failed: %s: %s" % (expr, error))
+
+        return resdict
 
     def sendInterpreterRequest(self, command, args = {}):
-        self.interpreterSeq += 1
-        cmd = { 'seq': self.interpreterSeq, 'type': 'request', 'command': command, 'arguments': args }
-        encoded = json.dumps(cmd)
+        encoded = json.dumps({ 'command': command, 'arguments': args })
         hexdata = self.hexencode(encoded)
         expr = 'qt_qmlDebugSendDataToService("NativeQmlDebugger","%s")' % hexdata
         try:
@@ -1792,21 +1922,10 @@ class DumperBase:
             # Happens with LLDB and 'None' current thread.
             warn("Interpreter command failed: %s: %s" % (encoded, error))
             return {}
-
         if not res:
             warn("Interpreter command failed: %s " % encoded)
             return {}
-        resdict = self.readInterpreterOutput()
-        warn("Interpreter command output: '%s'" % resdict)
-        service = resdict.get("service")
-        if service == "NativeQmlDebugger":
-            messages = resdict.get("messages", [])
-            if len(messages) == 1:
-                return messages[0]
-            warn("Unexpected multiple interpreter messages: %s" % messages)
-        else:
-            warn("Interpreter result from alien service: %s" % service)
-        return {'messages': messages }
+        return self.fetchInterpreterResult()
 
     def executeStep(self, args):
         if self.nativeMixed:
@@ -1829,23 +1948,22 @@ class DumperBase:
         self.doContinue()
 
     def doInsertInterpreterBreakpoint(self, args, wasPending):
-        warn("DO INSERT INTERPRETER BREAKPOINT, WAS PENDING: %s" % wasPending)
+        #warn("DO INSERT INTERPRETER BREAKPOINT, WAS PENDING: %s" % wasPending)
         # Will fail if the service is not yet up and running.
         response = self.sendInterpreterRequest('setbreakpoint', args)
         bp = None if response is None else response.get("breakpoint", None)
         if wasPending:
             if not bp:
-                warn("ERROR: Pending interpreter breakpoint insertion failed.")
-                return -1
+                self.reportInterpreterResult({'bpnr': -1, 'pending': 1,
+                    'error': 'Pending interpreter breakpoint insertion failed.'}, args)
+                return
         else:
             if not bp:
-                warn("Direct interpreter breakpoint insertion failed.")
-                warn("Make pending.")
+                self.reportInterpreterResult({'bpnr': -1, 'pending': 1,
+                    'warning': 'Direct interpreter breakpoint insertion failed.'}, args)
                 self.createResolvePendingBreakpointsHookBreakpoint(args)
-                return -1
-
-        warn("Resolved interpreter breakpoint: BP: %s" % bp)
-        return int(bp)
+                return
+        self.reportInterpreterResult({'bpnr': bp, 'pending': 0}, args)
 
     def isInternalInterpreterFrame(self, functionName):
         if functionName is None:
@@ -1875,6 +1993,11 @@ class DumperBase:
     def extractInterpreterStack(self):
         return self.sendInterpreterRequest('backtrace', {'limit': 10 })
 
-    def extractInterpreterVariables(self, args):
-        return self.sendInterpreterRequest('variables', args)
+    def polishWatchers(self, watchers):
+        out = []
+        for watcher in watchers:
+            iname = watcher.get('iname')
+            exp = self.hexdecode(watcher.get('exp'))
+            out.append({'iname': iname, 'expression': exp, 'name': exp })
+        return out
 

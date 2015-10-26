@@ -31,6 +31,7 @@
 #ifndef QARK_SERIALIZE_BASIC_H
 #define QARK_SERIALIZE_BASIC_H
 
+#include "parameters.h"
 #include "qstringparser/qstringparser.h"
 
 #include <QString>
@@ -42,12 +43,12 @@
 
 #define QARK_BASIC_SAVELOAD(TYPE) \
     template<class Archive> \
-    inline void save(Archive &archive, TYPE v) \
+    inline void save(Archive &archive, TYPE v, const Parameters &) \
     { \
         archive.write(v); \
     } \
     template<class Archive> \
-    inline void load(Archive &archive, TYPE &v) \
+    inline void load(Archive &archive, TYPE &v, const Parameters &) \
     { \
         archive.read(&v); \
     }
@@ -79,13 +80,13 @@ QARK_BASIC_SAVELOAD(QString)
 // QPointF
 
 template<class Archive>
-inline void save(Archive &archive, const QPointF &point)
+inline void save(Archive &archive, const QPointF &point, const Parameters &)
 {
     archive.write(QString(QStringLiteral("x:%1;y:%2")).arg(point.x()).arg(point.y()));
 }
 
 template<class Archive>
-inline void load(Archive &archive, QPointF &point)
+inline void load(Archive &archive, QPointF &point, const Parameters &)
 {
     QString s;
     archive.read(&s);
@@ -98,13 +99,13 @@ inline void load(Archive &archive, QPointF &point)
 // QRectF
 
 template<class Archive>
-inline void save(Archive &archive, const QRectF &rect)
+inline void save(Archive &archive, const QRectF &rect, const Parameters &)
 {
     archive.write(QString(QStringLiteral("x:%1;y:%2;w:%3;h:%4")).arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
 }
 
 template<class Archive>
-inline void load(Archive &archive, QRectF &point)
+inline void load(Archive &archive, QRectF &point, const Parameters &)
 {
     QString s;
     archive.read(&s);
@@ -117,13 +118,13 @@ inline void load(Archive &archive, QRectF &point)
 // QDateTime
 
 template<class Archive>
-inline void save(Archive &archive, const QDateTime &date_time)
+inline void save(Archive &archive, const QDateTime &date_time, const Parameters &)
 {
     archive << date_time.toMSecsSinceEpoch();
 }
 
 template<class Archive>
-inline void load(Archive &archive, QDateTime &date_time)
+inline void load(Archive &archive, QDateTime &date_time, const Parameters &)
 {
     qint64 t;
     archive >> t;

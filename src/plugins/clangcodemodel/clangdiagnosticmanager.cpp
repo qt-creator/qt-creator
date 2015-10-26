@@ -94,15 +94,16 @@ bool isHelpfulChildDiagnostic(const ClangBackEnd::DiagnosticContainer &parentDia
 QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
     QString text = diagnostic.category().toString()
-            + QStringLiteral(" ")
+            + QStringLiteral("\n\n")
             + diagnostic.text().toString();
-    if (!diagnostic.enableOption().isEmpty()) {
-        text += QStringLiteral(" (clang option: ")
-                + diagnostic.enableOption().toString()
-                + QStringLiteral(" disable with: ")
+
+#ifdef QT_DEBUG
+    if (!diagnostic.disableOption().isEmpty()) {
+        text += QStringLiteral(" (disable with ")
                 + diagnostic.disableOption().toString()
                 + QStringLiteral(")");
     }
+#endif
 
     for (auto &&childDiagnostic : diagnostic.children()) {
         if (isHelpfulChildDiagnostic(diagnostic, childDiagnostic))

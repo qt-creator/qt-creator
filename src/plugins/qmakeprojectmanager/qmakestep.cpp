@@ -326,23 +326,15 @@ void QMakeStep::setUserArguments(const QString &arguments)
 
 bool QMakeStep::linkQmlDebuggingLibrary() const
 {
-    if (m_linkQmlDebuggingLibrary == DoLink)
-        return true;
-    if (m_linkQmlDebuggingLibrary == DoNotLink)
-        return false;
-
-    const Core::Context languages = project()->projectLanguages();
-    if (!languages.contains(ProjectExplorer::Constants::LANG_QMLJS))
-        return false;
-    return (qmakeBuildConfiguration()->buildType() & BuildConfiguration::Debug);
+    return m_linkQmlDebuggingLibrary;
 }
 
 void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 {
-    if ((enable && (m_linkQmlDebuggingLibrary == DoLink))
-            || (!enable && (m_linkQmlDebuggingLibrary == DoNotLink)))
+    if (enable == m_linkQmlDebuggingLibrary)
         return;
-    m_linkQmlDebuggingLibrary = enable ? DoLink : DoNotLink;
+
+    m_linkQmlDebuggingLibrary = enable;
 
     emit linkQmlDebuggingLibraryChanged();
 
@@ -416,8 +408,7 @@ QVariantMap QMakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
     map.insert(QLatin1String(QMAKE_ARGUMENTS_KEY), m_userArgs);
-    map.insert(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), m_linkQmlDebuggingLibrary == DebugLink);
-    map.insert(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), m_linkQmlDebuggingLibrary == DoLink);
+    map.insert(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), m_linkQmlDebuggingLibrary);
     map.insert(QLatin1String(QMAKE_FORCED_KEY), m_forced);
     map.insert(QLatin1String(QMAKE_USE_QTQUICKCOMPILER), m_useQtQuickCompiler);
     map.insert(QLatin1String(QMAKE_SEPARATEDEBUGINFO_KEY), m_separateDebugInfo);
@@ -429,13 +420,15 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toString();
     m_forced = map.value(QLatin1String(QMAKE_FORCED_KEY), false).toBool();
     m_useQtQuickCompiler = map.value(QLatin1String(QMAKE_USE_QTQUICKCOMPILER), false).toBool();
+
+    // QMAKE_QMLDEBUGLIBAUTO_KEY was used in versions 2.3 to 3.5 (both included) to automatically
+    // change the qml_debug CONFIG flag based no the qmake build configuration.
     if (map.value(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), false).toBool()) {
-        m_linkQmlDebuggingLibrary = DebugLink;
+        m_linkQmlDebuggingLibrary =
+                project()->projectLanguages().contains(ProjectExplorer::Constants::LANG_QMLJS) &&
+                (qmakeBuildConfiguration()->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild);
     } else {
-        if (map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool())
-            m_linkQmlDebuggingLibrary = DoLink;
-        else
-            m_linkQmlDebuggingLibrary = DoNotLink;
+        m_linkQmlDebuggingLibrary = map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool();
     }
     m_separateDebugInfo = map.value(QLatin1String(QMAKE_SEPARATEDEBUGINFO_KEY), false).toBool();
 

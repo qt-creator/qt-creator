@@ -243,8 +243,9 @@ void AndroidBuildApkWidget::verboseOutputCheckBoxToggled(bool checked)
 
 void AndroidBuildApkWidget::updateSigningWarning()
 {
-    bool debug = m_step->buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Debug;
-    if (m_step->signPackage() && debug) {
+    bool nonRelease = m_step->buildConfiguration()->buildType()
+            != ProjectExplorer::BuildConfiguration::Release;
+    if (m_step->signPackage() && nonRelease) {
         m_ui->signingDebugWarningIcon->setVisible(true);
         m_ui->signingDebugWarningLabel->setVisible(true);
     } else {

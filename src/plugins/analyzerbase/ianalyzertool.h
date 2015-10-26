@@ -53,15 +53,20 @@ class AnalyzerRunControl;
 /**
  * The mode in which this tool should preferably be run
  *
- * The memcheck tool, for example, requires debug symbols, hence DebugMode
- * is preferred. On the other hand, callgrind should look at optimized code,
- * hence ReleaseMode.
+ * Debugging tools which try to show stack traces as close as possible to what the source code
+ * looks like will prefer SymbolsMode. Profiling tools which need optimized code for realistic
+ * performance, but still want to show analytical output that depends on debug symbols, will prefer
+ * ProfileMode.
  */
 enum ToolMode {
-    DebugMode,
-    ReleaseMode,
-    AnyMode
+    DebugMode     = 0x1,
+    ProfileMode   = 0x2,
+    ReleaseMode   = 0x4,
+    SymbolsMode   = DebugMode   | ProfileMode,
+    OptimizedMode = ProfileMode | ReleaseMode,
+    AnyMode       = DebugMode   | ProfileMode | ReleaseMode
 };
+Q_DECLARE_FLAGS(ToolModes, ToolMode)
 
 /**
  * This class represents an analyzation action, i.e. a tool that runs in a specific mode.
@@ -84,7 +89,7 @@ public:
 
     Core::Id toolId() const { return m_toolId; }
     void setToolId(Core::Id id) { m_toolId = id; }
-    void setToolMode(ToolMode mode) { m_toolMode = mode; }
+    void setToolMode(QFlags<ToolMode> mode) { m_toolMode = mode; }
 
     Core::Id runMode() const { return m_runMode; }
     void setRunMode(Core::Id mode) { m_runMode = mode; }
@@ -118,7 +123,7 @@ protected:
     Core::Id m_menuGroup;
     Core::Id m_actionId;
     Core::Id m_toolId;
-    ToolMode m_toolMode;
+    QFlags<ToolMode> m_toolMode;
     Core::Id m_runMode;
     WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;

@@ -1313,14 +1313,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-        tr("The name of the currently active kit in a filesystem-friendly version."),
+        tr("The name of the currently active kit as a filesystem-friendly version."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->fileSystemFriendlyName() : QString();
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_ID,
-        tr("The id of the currently active kit."),
+        tr("The ID of the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->id().toString() : QString();
@@ -1371,14 +1371,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),
         [&]() -> QString {
-            if (BuildConfiguration *bc = activeBuildConfiguration()) {
-                BuildConfiguration::BuildType type = bc->buildType();
-                if (type == BuildConfiguration::Debug)
-                    return tr("debug");
-                if (type == BuildConfiguration::Release)
-                    return tr("release");
-            }
-            return tr("unknown");
+            BuildConfiguration *bc = activeBuildConfiguration();
+            const BuildConfiguration::BuildType type
+                                   = bc ? bc->buildType() : BuildConfiguration::Unknown;
+            return BuildConfiguration::buildTypeName(type);
         });
 
 
@@ -1735,10 +1731,8 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
     foreach (const QString &fileName, fileNames) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
-        QFileInfo fi = QFileInfo(fileName);
-        QString filePath = fileName;
-        if (fi.exists()) // canonicalFilePath will be empty otherwise!
-            filePath = fi.canonicalFilePath();
+        const QFileInfo fi(fileName);
+        const QString filePath = fi.absoluteFilePath();
         bool found = false;
         foreach (Project *pi, SessionManager::projects()) {
             if (filePath == pi->projectFilePath().toString()) {
@@ -3320,7 +3314,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
         QTimer::singleShot(0, [orgFilePath, newFilePath, projectFileName] {
             int res = QMessageBox::question(ICore::mainWindow(),
                                             tr("Project Editing Failed"),
-                                            tr("The project file %1 cannot be automatically changed\n\n"
+                                            tr("The project file %1 cannot be automatically changed.\n\n"
                                                "Rename %2 to %3 anyway?")
                                             .arg(projectFileName)
                                             .arg(orgFilePath)

@@ -111,6 +111,7 @@ private:
     void updateLastProjectPartChangeTimePoint() const;
     void removeTranslationUnitIfProjectPartWasChanged() const;
     bool projectPartIsOutdated() const;
+    bool isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const;
     void createTranslationUnitIfNeeded() const;
     void checkTranslationUnitErrorCode(CXErrorCode errorCode) const;
     void reparseTranslationUnit() const;

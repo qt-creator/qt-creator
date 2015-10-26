@@ -267,7 +267,7 @@ static QByteArray ind(int indent)
 
 void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
 {
-    for (size_t i = 0; i < m_children.size(); ++i) {
+    for (int i = 0; i < m_children.size(); ++i) {
         if (i != 0) {
             *str += ',';
             if (multiline)
@@ -877,6 +877,8 @@ DebuggerEncoding debuggerEncoding(const QByteArray &data)
         return SpecialNullValue;
     if (data == "itemcount")
         return SpecialItemCountValue;
+    if (data == "notaccessible")
+        return SpecialNotAccessibleValue;
     return DebuggerEncoding(data.toInt());
 }
 

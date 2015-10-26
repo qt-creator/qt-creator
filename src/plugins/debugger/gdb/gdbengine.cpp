@@ -437,204 +437,32 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     result.m_type = GdbMi::Tuple;
                 }
             }
-            if (asyncClass == "stopped") {
-                if (m_inUpdateLocals) {
-                    showMessage(_("UNEXPECTED *stopped NOTIFICATION IGNORED"), LogWarning);
-                } else {
-                    handleStopResponse(result);
-                    m_pendingLogStreamOutput.clear();
-                    m_pendingConsoleStreamOutput.clear();
-                }
-            } else if (asyncClass == "running") {
-                if (m_inUpdateLocals) {
-                    showMessage(_("UNEXPECTED *running NOTIFICATION IGNORED"), LogWarning);
-                } else {
-                    GdbMi threads = result["thread-id"];
-                    threadsHandler()->notifyRunning(threads.data());
-                    if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
-                        // We get multiple *running after thread creation and in Windows terminals.
-                        showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
-                            arg(QLatin1String(DebuggerEngine::stateName(state()))));
-                    } else if (HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
-                               || state() == InferiorShutdownRequested)) {
-                        // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
-                        // created threads so we have to filter out the running threads messages when
-                        // we request a stop.
-                    } else {
-                        notifyInferiorRunOk();
-                    }
-                }
-            } else if (asyncClass == "library-loaded") {
-                // Archer has 'id="/usr/lib/libdrm.so.2",
-                // target-name="/usr/lib/libdrm.so.2",
-                // host-name="/usr/lib/libdrm.so.2",
-                // symbols-loaded="0"
-
-                // id="/lib/i386-linux-gnu/libc.so.6"
-                // target-name="/lib/i386-linux-gnu/libc.so.6"
-                // host-name="/lib/i386-linux-gnu/libc.so.6"
-                // symbols-loaded="0",thread-group="i1"
-                QByteArray id = result["id"].data();
-                if (!id.isEmpty())
-                    showStatusMessage(tr("Library %1 loaded").arg(_(id)), 1000);
-                progressPing();
-                Module module;
-                module.startAddress = 0;
-                module.endAddress = 0;
-                module.hostPath = _(result["host-name"].data());
-                module.modulePath = _(result["target-name"].data());
-                module.moduleName = QFileInfo(module.hostPath).baseName();
-                modulesHandler()->updateModule(module);
-            } else if (asyncClass == "library-unloaded") {
-                // Archer has 'id="/usr/lib/libdrm.so.2",
-                // target-name="/usr/lib/libdrm.so.2",
-                // host-name="/usr/lib/libdrm.so.2"
-                QByteArray id = result["id"].data();
-                progressPing();
-                showStatusMessage(tr("Library %1 unloaded").arg(_(id)), 1000);
-            } else if (asyncClass == "thread-group-added") {
-                // 7.1-symbianelf has "{id="i1"}"
-            } else if (asyncClass == "thread-group-created"
-                    || asyncClass == "thread-group-started") {
-                // Archer had only "{id="28902"}" at some point of 6.8.x.
-                // *-started seems to be standard in 7.1, but in early
-                // 7.0.x, there was a *-created instead.
-                progressPing();
-                // 7.1.50 has thread-group-started,id="i1",pid="3529"
-                QByteArray id = result["id"].data();
-                showStatusMessage(tr("Thread group %1 created").arg(_(id)), 1000);
-                int pid = id.toInt();
-                if (!pid) {
-                    id = result["pid"].data();
-                    pid = id.toInt();
-                }
-                if (pid)
-                    notifyInferiorPid(pid);
-                handleThreadGroupCreated(result);
-            } else if (asyncClass == "thread-created") {
-                //"{id="1",group-id="28902"}"
-                QByteArray id = result["id"].data();
-                showStatusMessage(tr("Thread %1 created").arg(_(id)), 1000);
-                ThreadData thread;
-                thread.id = ThreadId(id.toLong());
-                thread.groupId = result["group-id"].data();
-                threadsHandler()->updateThread(thread);
-            } else if (asyncClass == "thread-group-exited") {
-                // Archer has "{id="28902"}"
-                QByteArray id = result["id"].data();
-                showStatusMessage(tr("Thread group %1 exited").arg(_(id)), 1000);
-                handleThreadGroupExited(result);
-            } else if (asyncClass == "thread-exited") {
-                //"{id="1",group-id="28902"}"
-                QByteArray id = result["id"].data();
-                QByteArray groupid = result["group-id"].data();
-                showStatusMessage(tr("Thread %1 in group %2 exited")
-                    .arg(_(id)).arg(_(groupid)), 1000);
-                threadsHandler()->removeThread(ThreadId(id.toLong()));
-            } else if (asyncClass == "thread-selected") {
-                QByteArray id = result["id"].data();
-                showStatusMessage(tr("Thread %1 selected").arg(_(id)), 1000);
-                //"{id="2"}"
-            } else if (asyncClass == "breakpoint-modified") {
-                // New in FSF gdb since 2011-04-27.
-                // "{bkpt={number="3",type="breakpoint",disp="keep",
-                // enabled="y",addr="<MULTIPLE>",times="1",
-                // original-location="\\",simple_gdbtest_app.cpp\\":135"},
-                // {number="3.1",enabled="y",addr="0x0805ff68",
-                // func="Vector<int>::Vector(int)",
-                // file="simple_gdbtest_app.cpp",
-                // fullname="/data/...line="135"},{number="3.2"...}}.."
-
-                // Note the leading comma in original-location. Filter it out.
-                // We don't need the field anyway.
-                QByteArray ba = result.toString();
-                ba = '[' + ba.mid(6, ba.size() - 7) + ']';
-                const int pos1 = ba.indexOf(",original-location");
-                const int pos2 = ba.indexOf("\":", pos1 + 2);
-                const int pos3 = ba.indexOf('"', pos2 + 2);
-                ba.remove(pos1, pos3 - pos1 + 1);
-                result = GdbMi();
-                result.fromString(ba);
-                BreakHandler *handler = breakHandler();
-                Breakpoint bp;
-                BreakpointResponse br;
-                foreach (const GdbMi &bkpt, result.children()) {
-                    const QByteArray nr = bkpt["number"].data();
-                    BreakpointResponseId rid(nr);
-                    if (!isHiddenBreakpoint(rid)) {
-                        if (nr.contains('.')) {
-                            // A sub-breakpoint.
-                            BreakpointResponse sub;
-                            updateResponse(sub, bkpt);
-                            sub.id = rid;
-                            sub.type = br.type;
-                            bp.insertSubBreakpoint(sub);
-                        } else {
-                            // A primary breakpoint.
-                            bp = handler->findBreakpointByResponseId(rid);
-                            //qDebug() << "NR: " << nr << "RID: " << rid
-                            //    << "ID: " << bp.id();
-                            br = bp.response();
-                            updateResponse(br, bkpt);
-                            bp.setResponse(br);
-                        }
-                    }
-                }
-            } else if (asyncClass == "breakpoint-created") {
-                // "{bkpt={number="1",type="breakpoint",disp="del",enabled="y",
-                //  addr="<PENDING>",pending="main",times="0",
-                //  original-location="main"}}" -- or --
-                // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
-                // what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
-                BreakHandler *handler = breakHandler();
-                foreach (const GdbMi &bkpt, result.children()) {
-                    BreakpointResponse br;
-                    br.type = BreakpointByFileAndLine;
-                    updateResponse(br, bkpt);
-                    handler->handleAlienBreakpoint(br, this);
-                }
-            } else if (asyncClass == "breakpoint-deleted") {
-                // "breakpoint-deleted" "{id="1"}"
-                // New in FSF gdb since 2011-04-27.
-                QByteArray nr = result["id"].data();
-                BreakpointResponseId rid(nr);
-                if (Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid)) {
-                    // This also triggers when a temporary breakpoint is hit.
-                    // We do not really want that, as this loses all information.
-                    // FIXME: Use a special marker for this case?
-                    // if (!bp.isOneShot()) ... is not sufficient.
-                    // It keeps temporary "Jump" breakpoints alive.
-                    bp.removeAlienBreakpoint();
-                }
-            } else if (asyncClass == "cmd-param-changed") {
-                // New since 2012-08-09
-                //  "{param="debug remote",value="1"}"
-            } else if (asyncClass == "memory-changed") {
-                // New since 2013
-                //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
-            } else if (asyncClass == "tsv-created") {
-                // New since 2013-02-06
-            } else if (asyncClass == "tsv-modified") {
-                // New since 2013-02-06
-            } else {
-                qDebug() << "IGNORED ASYNC OUTPUT"
-                    << asyncClass << result.toString();
-            }
+            handleAsyncOutput(asyncClass, result);
             break;
         }
 
         case '~': {
             QByteArray data = GdbMi::parseCString(from, to);
             if (data.startsWith("bridgemessage={")) {
-                //showMessage(_(data), LogDebug);
+                // It's already logged.
                 break;
             }
-            if (data.startsWith("bridgeresult={")) {
-                //showMessage(_(data), LogDebug);
+            if (data.startsWith("interpreterresult={")) {
+                GdbMi allData;
+                allData.fromStringMultiple(data);
                 DebuggerResponse response;
                 response.resultClass = ResultDone;
-                response.data.fromStringMultiple(data);
+                response.data = allData["interpreterresult"];
+                response.token = allData["token"].toInt();
                 handleResultRecord(&response);
+                break;
+            }
+            if (data.startsWith("interpreterasync={")) {
+                GdbMi allData;
+                allData.fromStringMultiple(data);
+                QByteArray asyncClass = allData["asyncclass"].data();
+                if (asyncClass == "breakpointmodified")
+                    handleInterpreterBreakpointModified(allData["interpreterasync"]);
                 break;
             }
             m_pendingConsoleStreamOutput += data;
@@ -781,6 +609,191 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     }
 }
 
+void GdbEngine::handleAsyncOutput(const QByteArray &asyncClass, const GdbMi &result)
+{
+    if (asyncClass == "stopped") {
+        if (m_inUpdateLocals) {
+            showMessage(_("UNEXPECTED *stopped NOTIFICATION IGNORED"), LogWarning);
+        } else {
+            handleStopResponse(result);
+            m_pendingLogStreamOutput.clear();
+            m_pendingConsoleStreamOutput.clear();
+        }
+    } else if (asyncClass == "running") {
+        if (m_inUpdateLocals) {
+            showMessage(_("UNEXPECTED *running NOTIFICATION IGNORED"), LogWarning);
+        } else {
+            GdbMi threads = result["thread-id"];
+            threadsHandler()->notifyRunning(threads.data());
+            if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
+                // We get multiple *running after thread creation and in Windows terminals.
+                showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
+                            arg(QLatin1String(DebuggerEngine::stateName(state()))));
+            } else if (HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
+                                                       || state() == InferiorShutdownRequested)) {
+                // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
+                // created threads so we have to filter out the running threads messages when
+                // we request a stop.
+            } else {
+                notifyInferiorRunOk();
+            }
+        }
+    } else if (asyncClass == "library-loaded") {
+        // Archer has 'id="/usr/lib/libdrm.so.2",
+        // target-name="/usr/lib/libdrm.so.2",
+        // host-name="/usr/lib/libdrm.so.2",
+        // symbols-loaded="0"
+
+        // id="/lib/i386-linux-gnu/libc.so.6"
+        // target-name="/lib/i386-linux-gnu/libc.so.6"
+        // host-name="/lib/i386-linux-gnu/libc.so.6"
+        // symbols-loaded="0",thread-group="i1"
+        QByteArray id = result["id"].data();
+        if (!id.isEmpty())
+            showStatusMessage(tr("Library %1 loaded").arg(_(id)), 1000);
+        progressPing();
+        Module module;
+        module.startAddress = 0;
+        module.endAddress = 0;
+        module.hostPath = _(result["host-name"].data());
+        module.modulePath = _(result["target-name"].data());
+        module.moduleName = QFileInfo(module.hostPath).baseName();
+        modulesHandler()->updateModule(module);
+    } else if (asyncClass == "library-unloaded") {
+        // Archer has 'id="/usr/lib/libdrm.so.2",
+        // target-name="/usr/lib/libdrm.so.2",
+        // host-name="/usr/lib/libdrm.so.2"
+        QByteArray id = result["id"].data();
+        progressPing();
+        showStatusMessage(tr("Library %1 unloaded").arg(_(id)), 1000);
+    } else if (asyncClass == "thread-group-added") {
+        // 7.1-symbianelf has "{id="i1"}"
+    } else if (asyncClass == "thread-group-created"
+               || asyncClass == "thread-group-started") {
+        // Archer had only "{id="28902"}" at some point of 6.8.x.
+        // *-started seems to be standard in 7.1, but in early
+        // 7.0.x, there was a *-created instead.
+        progressPing();
+        // 7.1.50 has thread-group-started,id="i1",pid="3529"
+        QByteArray id = result["id"].data();
+        showStatusMessage(tr("Thread group %1 created").arg(_(id)), 1000);
+        int pid = id.toInt();
+        if (!pid) {
+            id = result["pid"].data();
+            pid = id.toInt();
+        }
+        if (pid)
+            notifyInferiorPid(pid);
+        handleThreadGroupCreated(result);
+    } else if (asyncClass == "thread-created") {
+        //"{id="1",group-id="28902"}"
+        QByteArray id = result["id"].data();
+        showStatusMessage(tr("Thread %1 created").arg(_(id)), 1000);
+        ThreadData thread;
+        thread.id = ThreadId(id.toLong());
+        thread.groupId = result["group-id"].data();
+        threadsHandler()->updateThread(thread);
+    } else if (asyncClass == "thread-group-exited") {
+        // Archer has "{id="28902"}"
+        QByteArray id = result["id"].data();
+        showStatusMessage(tr("Thread group %1 exited").arg(_(id)), 1000);
+        handleThreadGroupExited(result);
+    } else if (asyncClass == "thread-exited") {
+        //"{id="1",group-id="28902"}"
+        QByteArray id = result["id"].data();
+        QByteArray groupid = result["group-id"].data();
+        showStatusMessage(tr("Thread %1 in group %2 exited")
+                          .arg(_(id)).arg(_(groupid)), 1000);
+        threadsHandler()->removeThread(ThreadId(id.toLong()));
+    } else if (asyncClass == "thread-selected") {
+        QByteArray id = result["id"].data();
+        showStatusMessage(tr("Thread %1 selected").arg(_(id)), 1000);
+        //"{id="2"}"
+    } else if (asyncClass == "breakpoint-modified") {
+        // New in FSF gdb since 2011-04-27.
+        // "{bkpt={number="3",type="breakpoint",disp="keep",
+        // enabled="y",addr="<MULTIPLE>",times="1",
+        // original-location="\\",simple_gdbtest_app.cpp\\":135"},
+        // {number="3.1",enabled="y",addr="0x0805ff68",
+        // func="Vector<int>::Vector(int)",
+        // file="simple_gdbtest_app.cpp",
+        // fullname="/data/...line="135"},{number="3.2"...}}.."
+
+        // Note the leading comma in original-location. Filter it out.
+        // We don't need the field anyway.
+        QByteArray ba = result.toString();
+        ba = '[' + ba.mid(6, ba.size() - 7) + ']';
+        const int pos1 = ba.indexOf(",original-location");
+        const int pos2 = ba.indexOf("\":", pos1 + 2);
+        const int pos3 = ba.indexOf('"', pos2 + 2);
+        ba.remove(pos1, pos3 - pos1 + 1);
+        GdbMi res;
+        res.fromString(ba);
+        BreakHandler *handler = breakHandler();
+        Breakpoint bp;
+        BreakpointResponse br;
+        foreach (const GdbMi &bkpt, res.children()) {
+            const QByteArray nr = bkpt["number"].data();
+            BreakpointResponseId rid(nr);
+            if (!isHiddenBreakpoint(rid)) {
+                if (nr.contains('.')) {
+                    // A sub-breakpoint.
+                    BreakpointResponse sub;
+                    updateResponse(sub, bkpt);
+                    sub.id = rid;
+                    sub.type = br.type;
+                    bp.insertSubBreakpoint(sub);
+                } else {
+                    // A primary breakpoint.
+                    bp = handler->findBreakpointByResponseId(rid);
+                    br = bp.response();
+                    updateResponse(br, bkpt);
+                    bp.setResponse(br);
+                }
+            }
+        }
+    } else if (asyncClass == "breakpoint-created") {
+        // "{bkpt={number="1",type="breakpoint",disp="del",enabled="y",
+        //  addr="<PENDING>",pending="main",times="0",
+        //  original-location="main"}}" -- or --
+        // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
+        // what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
+        BreakHandler *handler = breakHandler();
+        foreach (const GdbMi &bkpt, result.children()) {
+            BreakpointResponse br;
+            br.type = BreakpointByFileAndLine;
+            updateResponse(br, bkpt);
+            handler->handleAlienBreakpoint(br, this);
+        }
+    } else if (asyncClass == "breakpoint-deleted") {
+        // "breakpoint-deleted" "{id="1"}"
+        // New in FSF gdb since 2011-04-27.
+        QByteArray nr = result["id"].data();
+        BreakpointResponseId rid(nr);
+        if (Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid)) {
+            // This also triggers when a temporary breakpoint is hit.
+            // We do not really want that, as this loses all information.
+            // FIXME: Use a special marker for this case?
+            // if (!bp.isOneShot()) ... is not sufficient.
+            // It keeps temporary "Jump" breakpoints alive.
+            bp.removeAlienBreakpoint();
+        }
+    } else if (asyncClass == "cmd-param-changed") {
+        // New since 2012-08-09
+        //  "{param="debug remote",value="1"}"
+    } else if (asyncClass == "memory-changed") {
+        // New since 2013
+        //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
+    } else if (asyncClass == "tsv-created") {
+        // New since 2013-02-06
+    } else if (asyncClass == "tsv-modified") {
+        // New since 2013-02-06
+    } else {
+        qDebug() << "IGNORED ASYNC OUTPUT"
+                 << asyncClass << result.toString();
+    }
+}
+
 void GdbEngine::readGdbStandardError()
 {
     QByteArray err = m_gdbProc.readAllStandardError();
@@ -901,9 +914,13 @@ void GdbEngine::runCommand(const QByteArray &command, int flags)
 
 void GdbEngine::runCommand(const DebuggerCommand &command)
 {
+    const int token = ++currentToken();
+
     DebuggerCommand cmd = command;
-    if (command.flags & PythonCommand)
+    if (command.flags & PythonCommand) {
+        cmd.arg("token", token);
         cmd.function = "python theDumper." + cmd.function + "(" + cmd.argsToPython() + ")";
+    }
 
     if (!stateAcceptsGdbCommands(state())) {
         PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: " + cmd.function));
@@ -942,8 +959,6 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     }
 
     QTC_ASSERT(m_gdbProc.state() == QProcess::Running, return);
-
-    const int token = ++currentToken();
 
     cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
@@ -1417,7 +1432,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             && QFileInfo::exists(fullName)
             && !isQFatalBreakpoint(rid)
             && function != "qt_v4TriggeredBreakpointHook"
-            && function != "qt_qmlDebugEventFromService"
+            && function != "qt_qmlDebugMessageAvailable"
             && language != "js")
         gotoLocation(Location(fullName, lineNumber));
 
@@ -2356,6 +2371,8 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
                 else if (catchType == "syscall")
                     response.type = BreakpointAtSysCall;
             }
+        } else if (child.hasName("hitcount")) {
+            response.hitCount = child.toInt();
         } else if (child.hasName("original-location")) {
             originalLocation = child.data();
         }
@@ -2430,6 +2447,29 @@ QByteArray GdbEngine::breakpointLocation2(const BreakpointParameters &data)
         ? data.fileName : breakLocation(data.fileName);
     return  GdbMi::escapeCString(fileName.toLocal8Bit()) + ':'
         + QByteArray::number(data.lineNumber);
+}
+
+void GdbEngine::handleInsertInterpreterBreakpoint(const DebuggerResponse &response, Breakpoint bp)
+{
+    BreakpointResponse br = bp.response();
+    bool pending = response.data["pending"].toInt();
+    if (pending) {
+        bp.notifyBreakpointInsertOk();
+    } else {
+        br.id = BreakpointResponseId(response.data["number"].data());
+        updateResponse(br, response.data);
+        bp.setResponse(br);
+        bp.notifyBreakpointInsertOk();
+    }
+}
+
+void GdbEngine::handleInterpreterBreakpointModified(const GdbMi &data)
+{
+    BreakpointModelId id(data["modelid"].data());
+    Breakpoint bp = breakHandler()->breakpointById(id);
+    BreakpointResponse br = bp.response();
+    updateResponse(br, data);
+    bp.setResponse(br);
 }
 
 void GdbEngine::handleWatchInsert(const DebuggerResponse &response, Breakpoint bp)
@@ -2696,10 +2736,10 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     const BreakpointParameters &data = bp.parameters();
 
     if (!data.isCppBreakpoint()) {
-        DebuggerCommand cmd("insertInterpreterBreakpoint", PythonCommand);
+        DebuggerCommand cmd("insertInterpreterBreakpoint", PythonCommand | NeedsStop);
         bp.addToCommand(&cmd);
+        cmd.callback = [this, bp](const DebuggerResponse &r) { handleInsertInterpreterBreakpoint(r, bp); };
         runCommand(cmd);
-        bp.notifyBreakpointInsertOk();
         return;
     }
 
@@ -3272,54 +3312,15 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
         return;
     }
 
-    QList<StackFrame> stackFrames;
-
-    GdbMi stack = response.data["stack"]; // C++
-    if (!stack.isValid() || stack.childCount() == 0) { // Mixed.
-        stack.fromStringMultiple(response.consoleStreamOutput);
-        stack = stack["frames"];
+    GdbMi frames = response.data["stack"]; // C++
+    if (!frames.isValid() || frames.childCount() == 0) { // Mixed.
+        GdbMi mixed;
+        mixed.fromStringMultiple(response.consoleStreamOutput);
+        frames = mixed["frames"];
     }
 
-    if (!stack.isValid()) {
-        qDebug() << "FIXME: stack:" << stack.toString();
-        return;
-    }
-
-    int targetFrame = -1;
-
-    int n = stack.childCount();
-    for (int i = 0; i != n; ++i) {
-        stackFrames.append(StackFrame::parseFrame(stack.childAt(i), runParameters()));
-        const StackFrame &frame = stackFrames.back();
-
-        // Initialize top frame to the first valid frame.
-        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
-        if (isValid && targetFrame == -1)
-            targetFrame = i;
-    }
-
-    bool canExpand = !isFull && (n >= action(MaximalStackDepth)->value().toInt());
-    action(ExpandStack)->setEnabled(canExpand);
-    stackHandler()->setFrames(stackFrames, canExpand);
-
-    // We can't jump to any file if we don't have any frames.
-    if (stackFrames.isEmpty())
-        return;
-
-    // targetFrame contains the top most frame for which we have source
-    // information. That's typically the frame we'd like to jump to, with
-    // a few exceptions:
-
-    // Always jump to frame #0 when stepping by instruction.
-    if (boolSetting(OperateByInstruction))
-        targetFrame = 0;
-
-    // If there is no frame with source, jump to frame #0.
-    if (targetFrame == -1)
-        targetFrame = 0;
-
-    stackHandler()->setCurrentIndex(targetFrame);
-    activateFrame(targetFrame);
+    stackHandler()->setFramesAndCurrentIndex(frames, isFull);
+    activateFrame(stackHandler()->currentIndex());
 }
 
 void GdbEngine::activateFrame(int frameIndex)
@@ -3381,8 +3382,8 @@ void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     ThreadsHandler *handler = threadsHandler();
-    const std::vector<GdbMi> &items = response.data["thread-ids"].children();
-    for (size_t index = 0, n = items.size(); index != n; ++index) {
+    const QVector<GdbMi> &items = response.data["thread-ids"].children();
+    for (int index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
         thread.id = ThreadId(items.at(index).toInt());
         handler->updateThread(thread);

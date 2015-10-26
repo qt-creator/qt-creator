@@ -79,10 +79,12 @@ public:
     QString generateTip() const;
 
     static const QChar kVariableDelimiter;
+    static const QChar kEscapeChar;
 
     class ParsedSnippet {
     public:
         QString text;
+        QString errorMessage;
         bool success;
         struct Range {
             Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }

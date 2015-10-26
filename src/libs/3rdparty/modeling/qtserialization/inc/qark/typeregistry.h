@@ -31,6 +31,8 @@
 #ifndef QARK_TYPEREGISTRY_H
 #define QARK_TYPEREGISTRY_H
 
+#include "parameters.h"
+
 #include "qmt/infrastructure/qmtassert.h"
 
 #include <exception>
@@ -219,7 +221,7 @@ template<class Archive, class BASE, class DERIVED>
 Archive &save_pointer(Archive &ar, BASE * const &p)
 {
     DERIVED &t = dynamic_cast<DERIVED &>(*p);
-    ar << t;
+    save(ar, t, Parameters());
     return ar;
 }
 
@@ -227,7 +229,7 @@ template<class Archive, class BASE, class DERIVED>
 Archive &load_pointer(Archive &ar, BASE *&p)
 {
     DERIVED *t = new DERIVED();
-    ar >> *t;
+    load(ar, *t, Parameters());
     p = t;
     return ar;
 }
@@ -324,13 +326,13 @@ typename registry::TypeRegistry<Archive,T>::type_info get_type_info(const QStrin
 #define QARK_REGISTER_DERIVED_CLASS(INARCHIVE, OUTARCHIVE, DERIVED, BASE) \
     template<> \
     int qark::registry::DerivedTypeRegistry<INARCHIVE,BASE,DERIVED>::__static_init = \
-    qark::registry::DerivedTypeRegistry<INARCHIVE, BASE, DERIVED>::__init(0, qark::registry::load_pointer<INARCHIVE, BASE, DERIVED>); \
+            qark::registry::DerivedTypeRegistry<INARCHIVE, BASE, DERIVED>::__init(0, qark::registry::load_pointer<INARCHIVE, BASE, DERIVED>); \
     template<> \
     int qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__static_init = \
-    qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__init(qark::registry::save_pointer<OUTARCHIVE, BASE, DERIVED>, 0); \
+            qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__init(qark::registry::save_pointer<OUTARCHIVE, BASE, DERIVED>, 0); \
     template<> \
     int qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>::__static_init = \
-    qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>:: \
-    __init(qark::registry::save_pointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
+            qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>:: \
+                __init(qark::registry::save_pointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
 
 #endif // QARK_TYPEREGISTRY_H

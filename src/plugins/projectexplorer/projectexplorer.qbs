@@ -192,7 +192,6 @@ QtcPlugin {
             "customwizard.cpp", "customwizard.h",
             "customwizardpage.cpp", "customwizardpage.h",
             "customwizardparameters.cpp", "customwizardparameters.h",
-            "customwizardpreprocessor.cpp", "customwizardpreprocessor.h",
             "customwizardscriptgenerator.cpp", "customwizardscriptgenerator.h"
         ]
     }

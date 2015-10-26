@@ -257,7 +257,6 @@ QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
 void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)
 {
     using Utils::Theme;
-    QPalette p = m_outputWindow->palette();
     Theme *theme = Utils::creatorTheme();
     QTextCharFormat textFormat;
     switch (format) {

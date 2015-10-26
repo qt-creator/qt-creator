@@ -53,6 +53,7 @@ class DiagnosticsChangedMessage;
 
 namespace TextEditor {
 class TextEditorWidget;
+class TextDocument;
 }
 
 namespace ClangCodeModel {
@@ -96,6 +97,7 @@ public:
 
     virtual void end() = 0;
     virtual void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) = 0;
+    virtual void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message) = 0;
     virtual void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) = 0;
     virtual void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) = 0;
     virtual void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) = 0;
@@ -118,6 +120,7 @@ public:
     IpcCommunicator();
 
     void registerTranslationUnitsForEditor(const FileContainers &fileContainers);
+    void updateTranslationUnitsForEditor(const FileContainers &fileContainers);
     void unregisterTranslationUnitsForEditor(const FileContainers &fileContainers);
     void registerProjectPartsForEditor(const ProjectPartContainers &projectPartContainers);
     void unregisterProjectPartsForEditor(const QStringList &projectPartIds);
@@ -130,6 +133,8 @@ public:
 
     void registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts);
 
+    void registerTranslationUnit(TextEditor::TextDocument *document);
+    void registerTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document);
     void updateTranslationUnit(Core::IDocument *document);
     void updateUnsavedFile(Core::IDocument *document);
@@ -138,6 +143,7 @@ public:
     void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
+    void requestDiagnostics(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
 public: // for tests

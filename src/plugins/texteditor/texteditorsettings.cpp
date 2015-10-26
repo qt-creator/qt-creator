@@ -98,207 +98,219 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     // Add font preference page
     FormatDescriptions formatDescr;
-    formatDescr.append(FormatDescription(C_TEXT, tr("Text"), tr("Generic text.\nApplied to "
-                                                                "text, if no other "
-                                                                "rules matching.")));
+    formatDescr.reserve(C_LAST_STYLE_SENTINEL);
+    formatDescr.emplace_back(C_TEXT, tr("Text"), tr("Generic text.\nApplied to "
+                                                    "text, if no other "
+                                                    "rules matching."));
 
     // Special categories
     const QPalette p = QApplication::palette();
-    formatDescr.append(FormatDescription(C_LINK, tr("Link"),
-                                         tr("Links that follow symbol under cursor."), Qt::blue));
-    formatDescr.append(FormatDescription(C_SELECTION, tr("Selection"), tr("Selected text."),
-                                         p.color(QPalette::HighlightedText)));
-    formatDescr.append(FormatDescription(C_LINE_NUMBER, tr("Line Number"),
-                                         tr("Line numbers located on the "
-                                            "left side of the editor.")));
-    formatDescr.append(FormatDescription(C_SEARCH_RESULT, tr("Search Result"),
-                                         tr("Highlighted search results inside the editor.")));
-    formatDescr.append(FormatDescription(C_SEARCH_SCOPE, tr("Search Scope"),
-                                         tr("Section where the pattern is searched in.")));
-    formatDescr.append(FormatDescription(C_PARENTHESES, tr("Parentheses"),
-                                         tr("Displayed when matching parentheses, square brackets "
-                                            "or curly brackets are found.")));
-    formatDescr.append(FormatDescription(C_PARENTHESES_MISMATCH, tr("Mismatched Parentheses"),
-                                         tr("Displayed when mismatched parentheses, "
-                                            "square brackets, or curly brackets are found.")));
-    formatDescr.append(FormatDescription(C_CURRENT_LINE, tr("Current Line"),
-                                         tr("Line where the cursor is placed in.")));
+    formatDescr.emplace_back(C_LINK, tr("Link"),
+                             tr("Links that follow symbol under cursor."), Qt::blue);
+    formatDescr.emplace_back(C_SELECTION, tr("Selection"), tr("Selected text."),
+                             p.color(QPalette::HighlightedText));
+    formatDescr.emplace_back(C_LINE_NUMBER, tr("Line Number"),
+                             tr("Line numbers located on the left side of the editor."),
+                             FormatDescription::AllControlsExceptUnderline);
+    formatDescr.emplace_back(C_SEARCH_RESULT, tr("Search Result"),
+                             tr("Highlighted search results inside the editor."),
+                             FormatDescription::ShowBackgroundControl);
+    formatDescr.emplace_back(C_SEARCH_SCOPE, tr("Search Scope"),
+                             tr("Section where the pattern is searched in."),
+                             FormatDescription::ShowBackgroundControl);
+    formatDescr.emplace_back(C_PARENTHESES, tr("Parentheses"),
+                             tr("Displayed when matching parentheses, square brackets "
+                                "or curly brackets are found."));
+    formatDescr.emplace_back(C_PARENTHESES_MISMATCH, tr("Mismatched Parentheses"),
+                             tr("Displayed when mismatched parentheses, "
+                                "square brackets, or curly brackets are found."));
+    formatDescr.emplace_back(C_CURRENT_LINE, tr("Current Line"),
+                             tr("Line where the cursor is placed in."),
+                             FormatDescription::ShowBackgroundControl);
 
-    FormatDescription currentLineNumber =
-            FormatDescription(C_CURRENT_LINE_NUMBER, tr("Current Line Number"),
-                              tr("Line number located on the left side of the "
-                                 "editor where the cursor is placed in."), Qt::darkGray);
+    FormatDescription currentLineNumber(C_CURRENT_LINE_NUMBER,
+                                        tr("Current Line Number"),
+                                        tr("Line number located on the left side of the "
+                                           "editor where the cursor is placed in."),
+                                        Qt::darkGray,
+                                        FormatDescription::AllControlsExceptUnderline);
     currentLineNumber.format().setBold(true);
-    formatDescr.append(currentLineNumber);
+    formatDescr.push_back(std::move(currentLineNumber));
 
 
-    formatDescr.append(FormatDescription(C_OCCURRENCES, tr("Occurrences"),
-                                         tr("Occurrences of the symbol under the cursor.\n"
-                                            "(Only the background will be applied.)")));
-    formatDescr.append(FormatDescription(C_OCCURRENCES_UNUSED,
-                                         tr("Unused Occurrence"),
-                                         tr("Occurrences of unused variables."),
-                                         Qt::darkYellow,
-                                         QTextCharFormat::SingleUnderline));
-    formatDescr.append(FormatDescription(C_OCCURRENCES_RENAME, tr("Renaming Occurrence"),
-                                         tr("Occurrences of a symbol that will be renamed.")));
+    formatDescr.emplace_back(C_OCCURRENCES, tr("Occurrences"),
+                             tr("Occurrences of the symbol under the cursor.\n"
+                                "(Only the background will be applied.)"),
+                             FormatDescription::ShowBackgroundControl);
+    formatDescr.emplace_back(C_OCCURRENCES_UNUSED,
+                             tr("Unused Occurrence"),
+                             tr("Occurrences of unused variables."),
+                             Qt::darkYellow,
+                             QTextCharFormat::SingleUnderline);
+    formatDescr.emplace_back(C_OCCURRENCES_RENAME, tr("Renaming Occurrence"),
+                             tr("Occurrences of a symbol that will be renamed."),
+                             FormatDescription::ShowBackgroundControl);
 
     // Standard categories
-    formatDescr.append(FormatDescription(C_NUMBER, tr("Number"), tr("Number literal."),
-                                         Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_STRING, tr("String"),
-                                         tr("Character and string literals."), Qt::darkGreen));
-    formatDescr.append(FormatDescription(C_PRIMITIVE_TYPE, tr("Primitive Type"),
-                                         tr("Name of a primitive data type."), Qt::darkYellow));
-    formatDescr.append(FormatDescription(C_TYPE, tr("Type"), tr("Name of a type."),
-                                         Qt::darkMagenta));
-    formatDescr.append(FormatDescription(C_LOCAL, tr("Local"), tr("Local variables.")));
-    formatDescr.append(FormatDescription(C_FIELD, tr("Field"),
-                                         tr("Class' data members."), Qt::darkRed));
-    formatDescr.append(FormatDescription(C_ENUMERATION, tr("Enumeration"),
-                                         tr("Applied to enumeration items."), Qt::darkMagenta));
+    formatDescr.emplace_back(C_NUMBER, tr("Number"), tr("Number literal."),
+                             Qt::darkBlue);
+    formatDescr.emplace_back(C_STRING, tr("String"),
+                             tr("Character and string literals."), Qt::darkGreen);
+    formatDescr.emplace_back(C_PRIMITIVE_TYPE, tr("Primitive Type"),
+                             tr("Name of a primitive data type."), Qt::darkYellow);
+    formatDescr.emplace_back(C_TYPE, tr("Type"), tr("Name of a type."),
+                             Qt::darkMagenta);
+    formatDescr.emplace_back(C_LOCAL, tr("Local"), tr("Local variables."));
+    formatDescr.emplace_back(C_FIELD, tr("Field"),
+                             tr("Class' data members."), Qt::darkRed);
+    formatDescr.emplace_back(C_ENUMERATION, tr("Enumeration"),
+                             tr("Applied to enumeration items."), Qt::darkMagenta);
 
     Format functionFormat;
-    formatDescr.append(FormatDescription(C_FUNCTION, tr("Function"), tr("Name of a function."),
-                                         functionFormat));
+    formatDescr.emplace_back(C_FUNCTION, tr("Function"), tr("Name of a function."),
+                             functionFormat);
     functionFormat.setItalic(true);
-    formatDescr.append(FormatDescription(C_VIRTUAL_METHOD, tr("Virtual Function"),
-                                         tr("Name of function declared as virtual."),
-                                         functionFormat));
+    formatDescr.emplace_back(C_VIRTUAL_METHOD, tr("Virtual Function"),
+                             tr("Name of function declared as virtual."),
+                             functionFormat);
 
-    formatDescr.append(FormatDescription(C_BINDING, tr("QML Binding"),
-                                         tr("QML item property, that allows a "
-                                            "binding to another property."),
-                                         Qt::darkRed));
+    formatDescr.emplace_back(C_BINDING, tr("QML Binding"),
+                             tr("QML item property, that allows a "
+                                "binding to another property."),
+                             Qt::darkRed);
 
     Format qmlLocalNameFormat;
     qmlLocalNameFormat.setItalic(true);
-    formatDescr.append(FormatDescription(C_QML_LOCAL_ID, tr("QML Local Id"),
-                                         tr("QML item id within a QML file."), qmlLocalNameFormat));
-    formatDescr.append(FormatDescription(C_QML_ROOT_OBJECT_PROPERTY,
-                                         tr("QML Root Object Property"),
-                                         tr("QML property of a parent item."), qmlLocalNameFormat));
-    formatDescr.append(FormatDescription(C_QML_SCOPE_OBJECT_PROPERTY,
-                                         tr("QML Scope Object Property"),
-                                         tr("Property of the same QML item."), qmlLocalNameFormat));
-    formatDescr.append(FormatDescription(C_QML_STATE_NAME, tr("QML State Name"),
-                                         tr("Name of a QML state."), qmlLocalNameFormat));
+    formatDescr.emplace_back(C_QML_LOCAL_ID, tr("QML Local Id"),
+                             tr("QML item id within a QML file."), qmlLocalNameFormat);
+    formatDescr.emplace_back(C_QML_ROOT_OBJECT_PROPERTY,
+                             tr("QML Root Object Property"),
+                             tr("QML property of a parent item."), qmlLocalNameFormat);
+    formatDescr.emplace_back(C_QML_SCOPE_OBJECT_PROPERTY,
+                             tr("QML Scope Object Property"),
+                             tr("Property of the same QML item."), qmlLocalNameFormat);
+    formatDescr.emplace_back(C_QML_STATE_NAME, tr("QML State Name"),
+                             tr("Name of a QML state."), qmlLocalNameFormat);
 
-    formatDescr.append(FormatDescription(C_QML_TYPE_ID, tr("QML Type Name"),
-                                         tr("Name of a QML type."), Qt::darkMagenta));
+    formatDescr.emplace_back(C_QML_TYPE_ID, tr("QML Type Name"),
+                             tr("Name of a QML type."), Qt::darkMagenta);
 
     Format qmlExternalNameFormat = qmlLocalNameFormat;
     qmlExternalNameFormat.setForeground(Qt::darkBlue);
-    formatDescr.append(FormatDescription(C_QML_EXTERNAL_ID, tr("QML External Id"),
-                                         tr("QML id defined in another QML file."),
-                                         qmlExternalNameFormat));
-    formatDescr.append(FormatDescription(C_QML_EXTERNAL_OBJECT_PROPERTY,
-                                         tr("QML External Object Property"),
-                                         tr("QML property defined in another QML file."),
-                                         qmlExternalNameFormat));
+    formatDescr.emplace_back(C_QML_EXTERNAL_ID, tr("QML External Id"),
+                             tr("QML id defined in another QML file."),
+                             qmlExternalNameFormat);
+    formatDescr.emplace_back(C_QML_EXTERNAL_OBJECT_PROPERTY,
+                             tr("QML External Object Property"),
+                             tr("QML property defined in another QML file."),
+                             qmlExternalNameFormat);
 
     Format jsLocalFormat;
     jsLocalFormat.setForeground(QColor(41, 133, 199)); // very light blue
     jsLocalFormat.setItalic(true);
-    formatDescr.append(FormatDescription(C_JS_SCOPE_VAR, tr("JavaScript Scope Var"),
-                                         tr("Variables defined inside the JavaScript file."),
-                                         jsLocalFormat));
+    formatDescr.emplace_back(C_JS_SCOPE_VAR, tr("JavaScript Scope Var"),
+                             tr("Variables defined inside the JavaScript file."),
+                             jsLocalFormat);
 
     Format jsGlobalFormat;
     jsGlobalFormat.setForeground(QColor(0, 85, 175)); // light blue
     jsGlobalFormat.setItalic(true);
-    formatDescr.append(FormatDescription(C_JS_IMPORT_VAR, tr("JavaScript Import"),
-                                         tr("Name of a JavaScript import inside a QML file."),
-                                         jsGlobalFormat));
-    formatDescr.append(FormatDescription(C_JS_GLOBAL_VAR, tr("JavaScript Global Variable"),
-                                         tr("Variables defined outside the script."),
-                                         jsGlobalFormat));
+    formatDescr.emplace_back(C_JS_IMPORT_VAR, tr("JavaScript Import"),
+                             tr("Name of a JavaScript import inside a QML file."),
+                             jsGlobalFormat);
+    formatDescr.emplace_back(C_JS_GLOBAL_VAR, tr("JavaScript Global Variable"),
+                             tr("Variables defined outside the script."),
+                             jsGlobalFormat);
 
-    formatDescr.append(FormatDescription(C_KEYWORD, tr("Keyword"),
-                                         tr("Reserved keywords of the programming language except "
-                                            "keywords denoting primitive types."), Qt::darkYellow));
-    formatDescr.append(FormatDescription(C_OPERATOR, tr("Operator"),
-                                         tr("Operators (for example operator++ or operator-=).")));
-    formatDescr.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"),
-                                         tr("Preprocessor directives."), Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto statements."),
-                                         Qt::darkRed));
-    formatDescr.append(FormatDescription(C_COMMENT, tr("Comment"),
-                                         tr("All style of comments except Doxygen comments."),
-                                         Qt::darkGreen));
-    formatDescr.append(FormatDescription(C_DOXYGEN_COMMENT, tr("Doxygen Comment"),
-                                         tr("Doxygen comments."), Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags."),
-                                         Qt::blue));
-    formatDescr.append(FormatDescription(C_VISUAL_WHITESPACE, tr("Visual Whitespace"),
-                                         tr("Whitespace.\nWill not be applied to whitespace "
-                                            "in comments and strings."), Qt::lightGray));
-    formatDescr.append(FormatDescription(C_DISABLED_CODE, tr("Disabled Code"),
-                                         tr("Code disabled by preprocessor directives.")));
+    formatDescr.emplace_back(C_KEYWORD, tr("Keyword"),
+                             tr("Reserved keywords of the programming language except "
+                                "keywords denoting primitive types."), Qt::darkYellow);
+    formatDescr.emplace_back(C_OPERATOR, tr("Operator"),
+                             tr("Operators (for example operator++ or operator-=)."));
+    formatDescr.emplace_back(C_PREPROCESSOR, tr("Preprocessor"),
+                             tr("Preprocessor directives."), Qt::darkBlue);
+    formatDescr.emplace_back(C_LABEL, tr("Label"), tr("Labels for goto statements."),
+                             Qt::darkRed);
+    formatDescr.emplace_back(C_COMMENT, tr("Comment"),
+                             tr("All style of comments except Doxygen comments."),
+                             Qt::darkGreen);
+    formatDescr.emplace_back(C_DOXYGEN_COMMENT, tr("Doxygen Comment"),
+                             tr("Doxygen comments."), Qt::darkBlue);
+    formatDescr.emplace_back(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags."),
+                             Qt::blue);
+    formatDescr.emplace_back(C_VISUAL_WHITESPACE, tr("Visual Whitespace"),
+                             tr("Whitespace.\nWill not be applied to whitespace "
+                                "in comments and strings."), Qt::lightGray);
+    formatDescr.emplace_back(C_DISABLED_CODE, tr("Disabled Code"),
+                             tr("Code disabled by preprocessor directives."));
 
     // Diff categories
-    formatDescr.append(FormatDescription(C_ADDED_LINE, tr("Added Line"),
-                                         tr("Applied to added lines in differences "
-                                            "(in diff editor)."), QColor(0, 170, 0)));
-    formatDescr.append(FormatDescription(C_REMOVED_LINE, tr("Removed Line"),
-                                         tr("Applied to removed lines "
-                                            "in differences (in diff editor)."), Qt::red));
-    formatDescr.append(FormatDescription(C_DIFF_FILE, tr("Diff File"),
-                                         tr("Compared files (in diff editor)."), Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_DIFF_LOCATION, tr("Diff Location"),
-                                         tr("Location in the files where the difference is "
-                                            "(in diff editor)."), Qt::blue));
+    formatDescr.emplace_back(C_ADDED_LINE, tr("Added Line"),
+                             tr("Applied to added lines in differences (in diff editor)."),
+                             QColor(0, 170, 0));
+    formatDescr.emplace_back(C_REMOVED_LINE, tr("Removed Line"),
+                             tr("Applied to removed lines in differences (in diff editor)."),
+                             Qt::red);
+    formatDescr.emplace_back(C_DIFF_FILE, tr("Diff File"),
+                             tr("Compared files (in diff editor)."), Qt::darkBlue);
+    formatDescr.emplace_back(C_DIFF_LOCATION, tr("Diff Location"),
+                             tr("Location in the files where the difference is "
+                                "(in diff editor)."), Qt::blue);
 
     // New diff categories
-    formatDescr.append(FormatDescription(C_DIFF_FILE_LINE, tr("Diff File Line"),
-                                         tr("Applied to lines with file information "
-                                            "in differences (in side-by-side diff editor)."),
-                                         Format(QColor(), QColor(255, 255, 0))));
-    formatDescr.append(FormatDescription(C_DIFF_CONTEXT_LINE, tr("Diff Context Line"),
-                                         tr("Applied to lines describing hidden context "
-                                            "in differences (in side-by-side diff editor)."),
-                                         Format(QColor(), QColor(175, 215, 231))));
-    formatDescr.append(FormatDescription(C_DIFF_SOURCE_LINE, tr("Diff Source Line"),
-                                         tr("Applied to source lines with changes "
-                                            "in differences (in side-by-side diff editor)."),
-                                         Format(QColor(), QColor(255, 223, 223))));
-    formatDescr.append(FormatDescription(C_DIFF_SOURCE_CHAR, tr("Diff Source Character"),
-                                         tr("Applied to removed characters "
-                                            "in differences (in side-by-side diff editor)."),
-                                         Format(QColor(), QColor(255, 175, 175))));
-    formatDescr.append(FormatDescription(C_DIFF_DEST_LINE, tr("Diff Destination Line"),
-                                         tr("Applied to destination lines with changes "
-                                            "in differences (in side-by-side diff editor)."),
-                                         Format(QColor(), QColor(223, 255, 223))));
-    formatDescr.append(FormatDescription(C_DIFF_DEST_CHAR, tr("Diff Destination Character"),
-                                         tr("Applied to added characters "
-                                            "in differences (in side-by-side diff editor)."),
-                                         Format(QColor(), QColor(175, 255, 175))));
+    formatDescr.emplace_back(C_DIFF_FILE_LINE, tr("Diff File Line"),
+                             tr("Applied to lines with file information "
+                                "in differences (in side-by-side diff editor)."),
+                             Format(QColor(), QColor(255, 255, 0)));
+    formatDescr.emplace_back(C_DIFF_CONTEXT_LINE, tr("Diff Context Line"),
+                             tr("Applied to lines describing hidden context "
+                                "in differences (in side-by-side diff editor)."),
+                             Format(QColor(), QColor(175, 215, 231)));
+    formatDescr.emplace_back(C_DIFF_SOURCE_LINE, tr("Diff Source Line"),
+                             tr("Applied to source lines with changes "
+                                "in differences (in side-by-side diff editor)."),
+                             Format(QColor(), QColor(255, 223, 223)));
+    formatDescr.emplace_back(C_DIFF_SOURCE_CHAR, tr("Diff Source Character"),
+                             tr("Applied to removed characters "
+                                "in differences (in side-by-side diff editor)."),
+                             Format(QColor(), QColor(255, 175, 175)));
+    formatDescr.emplace_back(C_DIFF_DEST_LINE, tr("Diff Destination Line"),
+                             tr("Applied to destination lines with changes "
+                                "in differences (in side-by-side diff editor)."),
+                             Format(QColor(), QColor(223, 255, 223)));
+    formatDescr.emplace_back(C_DIFF_DEST_CHAR, tr("Diff Destination Character"),
+                             tr("Applied to added characters "
+                                "in differences (in side-by-side diff editor)."),
+                             Format(QColor(), QColor(175, 255, 175)));
 
-    formatDescr.append(FormatDescription(C_LOG_CHANGE_LINE, tr("Log Change Line"),
-                                         tr("Applied to lines describing changes in VCS log."),
-                                         Format(QColor(192, 0, 0), QColor())));
+    formatDescr.emplace_back(C_LOG_CHANGE_LINE, tr("Log Change Line"),
+                             tr("Applied to lines describing changes in VCS log."),
+                             Format(QColor(192, 0, 0), QColor()));
 
-    formatDescr.append(FormatDescription(C_ERROR,
-                                         tr("Error"),
-                                         tr("Underline color of error diagnostics."),
-                                         {255,0, 0},
-                                         QTextCharFormat::SingleUnderline));
-    formatDescr.append(FormatDescription(C_ERROR_CONTEXT,
-                                         tr("Error Context"),
-                                         tr("Underline color of the contexts of error diagnostics."),
-                                         {255,0, 0},
-                                         QTextCharFormat::DotLine));
-    formatDescr.append(FormatDescription(C_WARNING,
-                                         tr("Warning"),
-                                         tr("Underline color of warning diagnostics."),
-                                         {255, 190, 0},
-                                         QTextCharFormat::SingleUnderline));
-    formatDescr.append(FormatDescription(C_WARNING_CONTEXT,
-                                         tr("Warning Context"),
-                                         tr("Underline color of the contexts of warning diagnostics."),
-                                         {255, 190, 0},
-                                         QTextCharFormat::DotLine));
+    formatDescr.emplace_back(C_ERROR,
+                             tr("Error"),
+                             tr("Underline color of error diagnostics."),
+                             QColor(255,0, 0),
+                             QTextCharFormat::SingleUnderline,
+                             FormatDescription::ShowUnderlineControl);
+    formatDescr.emplace_back(C_ERROR_CONTEXT,
+                             tr("Error Context"),
+                             tr("Underline color of the contexts of error diagnostics."),
+                             QColor(255,0, 0),
+                             QTextCharFormat::DotLine,
+                             FormatDescription::ShowUnderlineControl);
+    formatDescr.emplace_back(C_WARNING,
+                             tr("Warning"),
+                             tr("Underline color of warning diagnostics."),
+                             QColor(255, 190, 0),
+                             QTextCharFormat::SingleUnderline,
+                             FormatDescription::ShowUnderlineControl);
+    formatDescr.emplace_back(C_WARNING_CONTEXT,
+                             tr("Warning Context"),
+                             tr("Underline color of the contexts of warning diagnostics."),
+                             QColor(255, 190, 0),
+                             QTextCharFormat::DotLine,
+                             FormatDescription::ShowUnderlineControl);
 
 
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,

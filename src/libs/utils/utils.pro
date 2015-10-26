@@ -1,5 +1,3 @@
-QT += gui network
-
 include(../../qtcreatorlibrary.pri)
 include(utils-lib.pri)
 

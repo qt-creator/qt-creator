@@ -31,6 +31,8 @@
 #ifndef QARK_SERIALIZE_ENUM_H
 #define QARK_SERIALIZE_ENUM_H
 
+#include "parameters.h"
+
 #include <type_traits>
 
 namespace qark {
@@ -38,13 +40,13 @@ namespace qark {
 #if 0 // ambigous with default implementation in access.h
 
 template<class Archive, typename T>
-inline typename std::enable_if<std::is_enum<T>::value, void>::type save(Archive &archive, const T &value)
+inline typename std::enable_if<std::is_enum<T>::value, void>::type save(Archive &archive, const T &value, const Parameters &)
 {
     archive.write((int) value);
 }
 
 template<class Archive, typename T>
-inline typename std::enable_if<std::is_enum<T>::value, void>::type load(Archive &archive, T &value)
+inline typename std::enable_if<std::is_enum<T>::value, void>::type load(Archive &archive, T &value, const Parameters &)
 {
     int i = 0;
     archive.read(&i);
@@ -55,12 +57,12 @@ inline typename std::enable_if<std::is_enum<T>::value, void>::type load(Archive 
 
 #define QARK_SERIALIZE_ENUM(ENUM) \
     template<class Archive> \
-    inline void save(Archive &archive, const ENUM &e) \
+    inline void save(Archive &archive, const ENUM &e, const Parameters &) \
     { \
         archive.write((int) e); \
     } \
     template<class Archive> \
-    inline void load(Archive &archive, ENUM &e) \
+    inline void load(Archive &archive, ENUM &e, const Parameters &) \
     { \
         int i = 0; \
         archive.read(&i); \
@@ -68,13 +70,13 @@ inline typename std::enable_if<std::is_enum<T>::value, void>::type load(Archive 
     }
 
 template<class Archive, typename T>
-inline void save(Archive &archive, const QFlags<T> &flags)
+inline void save(Archive &archive, const QFlags<T> &flags, const Parameters &)
 {
     archive.write((typename QFlags<T>::Int) flags);
 }
 
 template<class Archive, typename T>
-inline void load(Archive &archive, QFlags<T> &flags)
+inline void load(Archive &archive, QFlags<T> &flags, const Parameters &)
 {
     typename QFlags<T>::Int i = 0;
     archive.read(&i);

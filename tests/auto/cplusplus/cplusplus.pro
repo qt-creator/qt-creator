@@ -14,4 +14,5 @@ SUBDIRS = \
     cxx11 \
     checksymbols \
     lexer \
-    translationunit
+    translationunit \
+    fileiterationorder

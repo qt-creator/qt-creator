@@ -37,6 +37,7 @@ namespace ClangBackEnd {
 
 class IpcServerInterface;
 class RegisterTranslationUnitForEditorMessage;
+class UpdateTranslationUnitsForEditorMessage;
 class RegisterProjectPartsForEditorMessage;
 class UnregisterTranslationUnitsForEditorMessage;
 class UnregisterProjectPartsForEditorMessage;

@@ -91,8 +91,8 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
         QString diffWarning = tr("In order to use External diff, \"diff\" command needs to be accessible.");
         if (HostOsInfo::isWindowsHost()) {
             diffWarning += QLatin1Char(' ');
-            diffWarning.append(tr("DiffUtils is available for free download at"
-                                  "http://gnuwin32.sourceforge.net/packages/diffutils.htm."
+            diffWarning.append(tr("DiffUtils is available for free download at "
+                                  "http://gnuwin32.sourceforge.net/packages/diffutils.htm. "
                                   "Extract it to a directory in your PATH."));
         }
         m_ui.diffWarningLabel->setText(diffWarning);

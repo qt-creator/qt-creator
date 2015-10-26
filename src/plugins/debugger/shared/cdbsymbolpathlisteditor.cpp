@@ -135,7 +135,7 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
     });
     button->setToolTip(tr("Uses a directory to cache symbols used by the debugger."));
 
-    button = insertButton(lastInsertButtonIndex + 1, tr("Setup Symbol Paths..."), this, [this](){
+    button = insertButton(lastInsertButtonIndex + 1, tr("Set up Symbol Paths..."), this, [this](){
         setupSymbolPaths();
     });
     button->setToolTip(tr("Configure Symbol paths that are used to locate debug symbol files."));

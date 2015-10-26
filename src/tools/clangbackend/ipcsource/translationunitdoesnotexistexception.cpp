@@ -37,7 +37,7 @@ TranslationUnitDoesNotExistException::TranslationUnitDoesNotExistException(const
 {
 }
 
-TranslationUnitDoesNotExistException::TranslationUnitDoesNotExistException(const Utf8String filePath, const Utf8String projectPartId)
+TranslationUnitDoesNotExistException::TranslationUnitDoesNotExistException(const Utf8String &filePath, const Utf8String &projectPartId)
     : fileContainer_(filePath, projectPartId)
 {
 }
@@ -50,11 +50,11 @@ const FileContainer &TranslationUnitDoesNotExistException::fileContainer() const
 const char *TranslationUnitDoesNotExistException::what() const Q_DECL_NOEXCEPT
 {
     if (what_.isEmpty())
-        what_ += Utf8StringLiteral("Parse error for file ")
+        what_ += Utf8StringLiteral("Translation unit '")
                 + fileContainer_.filePath()
-                + Utf8StringLiteral(" in project ")
+                + Utf8StringLiteral("' with the project part id '")
                 + fileContainer_.projectPartId()
-                + Utf8StringLiteral("!");
+                + Utf8StringLiteral("' does not exits!");
 
     return what_.constData();
 }

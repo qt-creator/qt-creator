@@ -353,8 +353,9 @@ WinCEToolChainFactory::WinCEToolChainFactory()
 }
 
 
-QList<ToolChain *> WinCEToolChainFactory::autoDetect()
+QList<ToolChain *> WinCEToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
+    Q_UNUSED(alreadyKnown);
     QList<ToolChain *> results;
 
     // 1) Installed WinCEs

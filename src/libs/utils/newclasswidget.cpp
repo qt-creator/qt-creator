@@ -533,11 +533,6 @@ bool NewClassWidget::isValid(QString *error) const
     return true;
 }
 
-void NewClassWidget::triggerUpdateFileNames()
-{
-    d->m_ui.classLineEdit->triggerChanged();
-}
-
 void NewClassWidget::slotUpdateFileNames(const QString &baseName)
 {
     if (debugNewClassWidget)

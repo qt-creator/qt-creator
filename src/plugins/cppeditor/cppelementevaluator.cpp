@@ -32,6 +32,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/symbolfinder.h>
 #include <cpptools/typehierarchybuilder.h>
 
 #include <texteditor/textdocument.h>
@@ -180,9 +181,11 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                        && (declaration->asTemplate()->declaration()->isClass()
                            || declaration->asTemplate()->declaration()->isForwardClassDeclaration()))) {
             LookupContext contextToUse = context;
-            if (declaration->isForwardClassDeclaration())
-                if (Symbol *classDeclaration =
-                        m_symbolFinder.findMatchingClassDeclaration(declaration, snapshot)) {
+            if (declaration->isForwardClassDeclaration()) {
+                const auto symbolFinder = m_modelManager->symbolFinder();
+                Symbol *classDeclaration = symbolFinder->findMatchingClassDeclaration(declaration,
+                                                                                      snapshot);
+                if (classDeclaration) {
                     declaration = classDeclaration;
                     const QString fileName = QString::fromUtf8(declaration->fileName(),
                                                                declaration->fileNameLength());
@@ -190,6 +193,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                     if (declarationDocument != context.thisDocument())
                         contextToUse = LookupContext(declarationDocument, snapshot);
                 }
+            }
 
             CppClass *cppClass = new CppClass(declaration);
             if (m_lookupBaseClasses)

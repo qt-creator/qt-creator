@@ -76,6 +76,7 @@
         \row
             \li \b {\l{Coding}}
                 \list
+                    \li \l{Modeling}
                     \li \l{Writing Code}
                     \li \l{Finding}
                     \li \l{Refactoring}
@@ -195,6 +196,7 @@
         \endlist
         \li \l{Coding}
         \list
+        \li \l{Modeling}
         \li \l{Writing Code}
             \list
                 \li \l{Working in Edit Mode}

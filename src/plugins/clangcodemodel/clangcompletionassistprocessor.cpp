@@ -670,18 +670,17 @@ ClangCompletionAssistProcessor::unsavedFileContent(const QByteArray &customFileC
     return info;
 }
 
-void ClangCompletionAssistProcessor::sendFileContent(const QString &projectPartId,
-                                                     const QByteArray &customFileContent)
+void ClangCompletionAssistProcessor::sendFileContent(const QByteArray &customFileContent)
 {
     // TODO: Revert custom modification after the completions
     const UnsavedFileContentInfo info = unsavedFileContent(customFileContent);
 
     IpcCommunicator &ipcCommunicator = m_interface->ipcCommunicator();
-    ipcCommunicator.registerTranslationUnitsForEditor({{m_interface->fileName(),
-                                                        projectPartId,
-                                                        Utf8String::fromByteArray(info.unsavedContent),
-                                                        info.isDocumentModified,
-                                                        uint(m_interface->textDocument()->revision())}});
+    ipcCommunicator.updateTranslationUnitsForEditor({{m_interface->fileName(),
+                                                      Utf8String(),
+                                                      Utf8String::fromByteArray(info.unsavedContent),
+                                                      info.isDocumentModified,
+                                                      uint(m_interface->textDocument()->revision())}});
 }
 namespace {
 CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
@@ -690,14 +689,13 @@ CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
 }
 
 bool shouldSendDocumentForCompletion(const QString &filePath,
-                                     const QString &projectPartId,
                                      int completionPosition)
 {
     auto *document = cppDocument(filePath);
 
     if (document) {
-        auto &sendTracker = document->sendTracker(projectPartId);
-        return sendTracker.shouldSendRevisionWithCompletionPosition(document->revision(),
+        auto &sendTracker = document->sendTracker();
+        return sendTracker.shouldSendRevisionWithCompletionPosition(int(document->revision()),
                                                                     completionPosition);
     }
 
@@ -705,14 +703,13 @@ bool shouldSendDocumentForCompletion(const QString &filePath,
 }
 
 void setLastCompletionPositionAndDocumentRevision(const QString &filePath,
-                                                  const QString &projectPartId,
                                                   int completionPosition)
 {
     auto *document = cppDocument(filePath);
 
     if (document) {
-        document->sendTracker(projectPartId).setLastCompletionPosition(completionPosition);
-        document->sendTracker(projectPartId).setLastSentRevision(document->revision());
+        document->sendTracker().setLastCompletionPosition(completionPosition);
+        document->sendTracker().setLastSentRevision(document->revision());
     }
 }
 
@@ -737,13 +734,13 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     ++column;
 
     const QString filePath = m_interface->fileName();
-    const QString projectPartId = projectPartIdForEditorDocument(filePath);
 
-    if (shouldSendDocumentForCompletion(filePath, projectPartId, position)) {
-        sendFileContent(projectPartId, customFileContent);
-        setLastCompletionPositionAndDocumentRevision(filePath, projectPartId, position);
+    if (shouldSendDocumentForCompletion(filePath, position)) {
+        sendFileContent(customFileContent);
+        setLastCompletionPositionAndDocumentRevision(filePath, position);
     }
 
+    const QString projectPartId = projectPartIdForEditorDocument(filePath);
     m_interface->ipcCommunicator().completeCode(this,
                                                 filePath,
                                                 uint(line),

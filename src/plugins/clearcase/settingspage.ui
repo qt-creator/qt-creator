@@ -45,7 +45,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="graphicalDiffRadioButton">
         <property name="text">
-         <string>&amp;Graphical (Single file only)</string>
+         <string>&amp;Graphical (single file only)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -246,7 +246,7 @@
          <string>Check out or check in files with no comment (-nc/omment).</string>
         </property>
         <property name="text">
-         <string>Do &amp;not prompt for comment during check out or check in</string>
+         <string>Do &amp;not prompt for comment during checkout or check-in</string>
         </property>
        </widget>
       </item>

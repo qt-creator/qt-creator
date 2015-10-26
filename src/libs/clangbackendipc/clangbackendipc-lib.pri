@@ -45,7 +45,8 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/fixitcontainer.cpp \
     $$PWD/requestdiagnosticsmessage.cpp \
     $$PWD/registerunsavedfilesforeditormessage.cpp \
-    $$PWD/unregisterunsavedfilesforeditormessage.cpp
+    $$PWD/unregisterunsavedfilesforeditormessage.cpp \
+    $$PWD/updatetranslationunitsforeditormessage.cpp
 
 HEADERS += \
     $$PWD/ipcserverinterface.h \
@@ -85,6 +86,7 @@ HEADERS += \
     $$PWD/fixitcontainer.h \
     $$PWD/requestdiagnosticsmessage.h \
     $$PWD/registerunsavedfilesforeditormessage.h \
-    $$PWD/unregisterunsavedfilesforeditormessage.h
+    $$PWD/unregisterunsavedfilesforeditormessage.h \
+    $$PWD/updatetranslationunitsforeditormessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

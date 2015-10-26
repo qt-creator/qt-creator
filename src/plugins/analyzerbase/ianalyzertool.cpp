@@ -70,15 +70,15 @@ bool AnalyzerAction::isRunnable(QString *reason) const
     return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), m_runMode, reason);
 }
 
-static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType buildType)
+static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::BuildType buildType)
 {
-    if (toolMode == AnyMode)
-        return true;
     if (buildType == BuildConfiguration::Unknown)
         return true;
-    if (buildType == BuildConfiguration::Debug && toolMode == DebugMode)
+    if (buildType == BuildConfiguration::Debug && (toolMode & DebugMode))
         return true;
-    if (buildType == BuildConfiguration::Release && toolMode == ReleaseMode)
+    if (buildType == BuildConfiguration::Release && (toolMode & ReleaseMode))
+        return true;
+    if (buildType == BuildConfiguration::Profile && (toolMode & ProfileMode))
         return true;
     return false;
 }
@@ -114,30 +114,53 @@ void AnalyzerAction::startTool()
     // Check the project for whether the build config is in the correct mode
     // if not, notify the user and urge him to use the correct mode.
     if (!buildTypeAccepted(m_toolMode, buildType)) {
-        const QString currentMode = buildType == BuildConfiguration::Debug
-                ? AnalyzerManager::tr("Debug")
-                : AnalyzerManager::tr("Release");
-
-        QString toolModeString;
-        switch (m_toolMode) {
-            case DebugMode:
-                toolModeString = AnalyzerManager::tr("Debug");
+        QString currentMode;
+        switch (buildType) {
+            case BuildConfiguration::Debug:
+                currentMode = AnalyzerManager::tr("Debug");
                 break;
-            case ReleaseMode:
-                toolModeString = AnalyzerManager::tr("Release");
+            case BuildConfiguration::Profile:
+                currentMode = AnalyzerManager::tr("Profile");
+                break;
+            case BuildConfiguration::Release:
+                currentMode = AnalyzerManager::tr("Release");
                 break;
             default:
                 QTC_CHECK(false);
         }
-        //const QString toolName = displayName();
-        const QString toolName = AnalyzerManager::tr("Tool"); // FIXME
+
+        QString toolModeString;
+        switch (m_toolMode) {
+            case DebugMode:
+                toolModeString = AnalyzerManager::tr("in Debug mode");
+                break;
+            case ProfileMode:
+                toolModeString = AnalyzerManager::tr("in Profile mode");
+                break;
+            case ReleaseMode:
+                toolModeString = AnalyzerManager::tr("in Release mode");
+                break;
+            case SymbolsMode:
+                toolModeString = AnalyzerManager::tr("with debug symbols (Debug or Profile mode)");
+                break;
+            case OptimizedMode:
+                toolModeString = AnalyzerManager::tr("on optimized code (Profile or Release mode)");
+                break;
+            default:
+                QTC_CHECK(false);
+        }
+        const QString toolName = text(); // The action text is always the name of the tool
         const QString title = AnalyzerManager::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
         const QString message = AnalyzerManager::tr("<html><head/><body><p>You are trying "
             "to run the tool \"%1\" on an application in %2 mode. "
-            "The tool is designed to be used in %3 mode.</p><p>"
-            "Debug and Release mode run-time characteristics differ "
-            "significantly, analytical findings for one mode may or "
-            "may not be relevant for the other.</p><p>"
+            "The tool is designed to be used %3.</p><p>"
+            "Run-time characteristics differ significantly between "
+            "optimized and non-optimized binaries. Analytical "
+            "findings for one mode may or may not be relevant for "
+            "the other.</p><p>"
+            "Running tools that need debug symbols on binaries that "
+            "don't provide any may lead to missing function names "
+            "or otherwise insufficient output.</p><p>"
             "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                 .arg(toolName).arg(currentMode).arg(toolModeString);
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),

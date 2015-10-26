@@ -220,12 +220,11 @@ class Dumper(DumperBase):
 
         # These values will be kept between calls to 'fetchVariables'.
         self.isGdb = True
-        self.childEventAddress = None
         self.typeCache = {}
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
-        self.interpreterBreakpoints = []
+        self.interpreterBreakpointResolvers = []
 
     def prepare(self, args):
         self.output = []
@@ -359,13 +358,10 @@ class Dumper(DumperBase):
         partialVariable = args.get("partialVariable", "")
         isPartial = len(partialVariable) > 0
 
-        if self.nativeMixed:
-            context = args.get('context', '')
-            if len(context):
-                res = self.extractInterpreterVariables(args)
-                if res:
-                    safePrint('data=%s' % self.dictToMi(res.get('data', {})))
-                return
+        (ok, res) = self.tryFetchInterpreterVariables(args)
+        if ok:
+            safePrint(res)
+            return
 
         #
         # Locals
@@ -1607,7 +1603,7 @@ class Dumper(DumperBase):
                         objfile = fromNativePath(symtab.objfile.filename)
                         fileName = fromNativePath(symtab.fullname())
 
-                if self.nativeMixed and functionName == "qt_qmlDebugEventFromService":
+                if self.nativeMixed and functionName == "qt_qmlDebugMessageAvailable":
                     interpreterStack = self.extractInterpreterStack()
                     #print("EXTRACTED INTEPRETER STACK: %s" % interpreterStack)
                     for interpreterFrame in interpreterStack.get('frames', []):
@@ -1645,17 +1641,15 @@ class Dumper(DumperBase):
                 self.dumper = dumper
                 self.args = args
                 spec = "qt_qmlDebugConnectorOpen"
-                print("Preparing hook to resolve pending QML breakpoint at %s" % args)
                 super(Resolver, self).\
                     __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
 
             def stop(self):
-                bp = self.dumper.doInsertInterpreterBreakpoint(args, True)
-                print("Resolving QML breakpoint %s -> %s" % (args, bp))
+                self.dumper.resolvePendingInterpreterBreakpoint(args)
                 self.enabled = False
                 return False
 
-        self.interpreterBreakpoints.append(Resolver(self, args))
+        self.interpreterBreakpointResolvers.append(Resolver(self, args))
 
     def exitGdb(self, _):
         gdb.execute("quit")
@@ -1804,26 +1798,14 @@ registerCommand("threadnames", threadnames)
 #
 #######################################################################
 
-class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
+class InterpreterMessageBreakpoint(gdb.Breakpoint):
     def __init__(self):
-        spec = "qt_v4TriggeredBreakpointHook"
-        super(TriggeredBreakpointHookBreakpoint, self).\
+        spec = "qt_qmlDebugMessageAvailable"
+        super(InterpreterMessageBreakpoint, self).\
             __init__(spec, gdb.BP_BREAKPOINT, internal=True)
 
     def stop(self):
-        print("QML engine stopped.")
-        return True
+        print("Interpreter event received.")
+        return theDumper.handleInterpreterMessage()
 
-TriggeredBreakpointHookBreakpoint()
-
-class QmlEngineEventBreakpoint(gdb.Breakpoint):
-    def __init__(self):
-        spec = "qt_qmlDebugEventFromService"
-        super(QmlEngineEventBreakpoint, self).\
-            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
-
-    def stop(self):
-        print("QML engine event received.")
-        return theDumper.handleInterpreterEvent()
-
-QmlEngineEventBreakpoint()
+InterpreterMessageBreakpoint()

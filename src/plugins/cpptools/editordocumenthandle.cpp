@@ -58,9 +58,9 @@ void CppEditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
     m_needsRefresh = needsRefresh;
 }
 
-SendDocumentTracker &CppEditorDocumentHandle::sendTracker(const QString &projectPartId)
+SendDocumentTracker &CppEditorDocumentHandle::sendTracker()
 {
-    return m_documentRevisionManagements[projectPartId];
+    return m_sendTracker;
 }
 
 } // namespace CppTools

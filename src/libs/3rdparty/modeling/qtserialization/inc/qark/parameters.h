@@ -1,6 +1,6 @@
-/****************************************************************************
+/***************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Jochen Becher
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -28,20 +28,44 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIZARDPREPROCESSOR_H
-#define CUSTOMWIZARDPREPROCESSOR_H
+#ifndef QARK_PARAMETER_H
+#define QARK_PARAMETER_H
 
-#include <QString>
+#include "flag.h"
 
-QT_FORWARD_DECLARE_CLASS(QJSEngine)
+namespace qark {
 
-namespace ProjectExplorer {
-namespace Internal {
+class Parameters
+{
 
-bool customWizardPreprocess(const QString &in, QString *out, QString *errorMessage);
-/* Helper to evaluate an expression. */
-bool evaluateBooleanJavaScriptExpression(QJSEngine &engine, const QString &expression, bool *result, QString *errorMessage);
-} // namespace Internal
-} // namespace ProjectExplorer
+public:
 
-#endif // CUSTOMWIZARDPREPROCESSOR_H
+    Parameters()
+        : _flags(0)
+    {
+    }
+
+    Parameters(const Flag &flag)
+        : _flags(flag.getMask())
+    {
+    }
+
+public:
+
+    void setFlag(const Flag &flag) { _flags |= flag.getMask(); }
+
+    void clearFlag(const Flag &flag) { _flags &= ~flag.getMask(); }
+
+    bool hasFlag(const Flag &flag) const { return (_flags & flag.getMask()) != 0; }
+
+    bool takeFlag(const Flag &flag) { bool f = (_flags & flag.getMask()) != 0; _flags &= ~flag.getMask(); return f; }
+
+private:
+
+    Flag::mask_type _flags;
+};
+
+}
+
+#endif // QARK_PARAMETER_H
+

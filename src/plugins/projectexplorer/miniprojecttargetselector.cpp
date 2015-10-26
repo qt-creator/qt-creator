@@ -552,12 +552,6 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout->setMargin(3);
     setAutoFillBackground(true);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
-
-    QPalette p = palette();
-    p.setColor(QPalette::Window, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
-    p.setColor(QPalette::Button, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
-    p.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor).name());
-    setPalette(p);
 }
 
 KitAreaWidget::~KitAreaWidget()
@@ -586,11 +580,13 @@ void KitAreaWidget::setKit(Kit *k)
             QLabel *label = new QLabel(widget->displayName());
             m_labels << label;
 
+            widget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
+            widget->setPalette(palette());
+
             m_layout->addWidget(label, row, 0);
-            QWidget *mainWidget = widget->mainWidget();
-            // force fusion style as native style has rendering issues on windows:
-            mainWidget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
-            m_layout->addWidget(mainWidget, row, 1);
+            m_layout->addWidget(widget->mainWidget(), row, 1);
+            m_layout->addWidget(widget->buttonWidget(), row, 2);
+
             ++row;
         }
     }
@@ -604,22 +600,26 @@ void KitAreaWidget::updateKit(Kit *k)
     if (!m_kit || m_kit != k)
         return;
 
-    // Check whether our widgets changed
-    bool mustRegenerate = false;
-    QList<Core::Id> knownIdList;
-    foreach (KitConfigWidget *w, m_widgets)
-        knownIdList << w->kitInformationId();
+    bool addedMutables = false;
+    QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitConfigWidget::kitInformationId);
 
     foreach (KitInformation *ki, KitManager::kitInformation()) {
         Core::Id currentId = ki->id();
         if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
-            mustRegenerate = true;
+            addedMutables = true;
             break;
         }
     }
+    const bool removedMutables = !knownIdList.isEmpty();
 
-    if (mustRegenerate || !knownIdList.isEmpty())
+    if (addedMutables || removedMutables) {
+        // Redo whole setup if the number of mutable settings did change
         setKit(m_kit);
+    } else {
+        // Refresh all widgets if the number of mutable settings did not change
+        foreach (KitConfigWidget *w, m_widgets)
+            w->refresh();
+    }
 }
 
 /////////
@@ -656,8 +656,14 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_hideOnRelease(false)
 {
     QPalette p;
+    p.setColor(QPalette::Foreground, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
     p.setColor(QPalette::Text, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    p.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    p.setColor(QPalette::Background, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor));
+    p.setColor(QPalette::Base, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor));
+    p.setColor(QPalette::Button, creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name());
     setPalette(p);
+
     setProperty("panelwidget", true);
     setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);

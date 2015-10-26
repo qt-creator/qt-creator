@@ -46,6 +46,7 @@
 #include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
+#include <updatetranslationunitsforeditormessage.h>
 
 #include <QBuffer>
 #include <QFile>
@@ -59,6 +60,7 @@ using testing::Property;
 using testing::Contains;
 using testing::Not;
 using testing::Eq;
+using testing::PrintToString;
 
 namespace {
 
@@ -73,6 +75,41 @@ using ClangBackEnd::FileContainer;
 using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::TranslationUnitDoesNotExistMessage;
 using ClangBackEnd::ProjectPartsDoNotExistMessage;
+using ClangBackEnd::UpdateTranslationUnitsForEditorMessage;
+
+MATCHER_P3(HasDirtyTranslationUnit, filePath, projectPartId, documentRevision,
+           std::string(negation ? "isn't" : "is")
+           + " translation unit with file path "+ PrintToString(filePath)
+           + " and project " + PrintToString(projectPartId)
+           + " and document revision " + PrintToString(documentRevision)
+           )
+{
+    auto &&translationUnits = arg.translationUnitsForTestOnly();
+    try {
+        auto translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+
+        if (translationUnit.documentRevision() == documentRevision) {
+            if (translationUnit.hasNewDiagnostics()) {
+                if (translationUnit.isNeedingReparse())
+                    return true;
+
+                *result_listener << "isNeedingReparse is false";
+                return false;
+            }
+
+            *result_listener << "hasNewDiagnostics is false";
+            return false;
+        }
+
+        *result_listener << "revision number is " << PrintToString(translationUnit.documentRevision());
+        return false;
+
+    } catch (...) {
+        *result_listener << "has no translation unit";
+        return false;
+    }
+}
+
 
 class ClangIpcServer : public ::testing::Test
 {
@@ -107,7 +144,7 @@ void ClangIpcServer::SetUp()
 void ClangIpcServer::registerFiles()
 {
     RegisterTranslationUnitForEditorMessage message({FileContainer(functionTestFilePath, projectPartId, unsavedContent(unsavedTestFilePath), true),
-                                                   FileContainer(variableTestFilePath, projectPartId)});
+                                                     FileContainer(variableTestFilePath, projectPartId)});
 
     clangServer.registerTranslationUnitsForEditor(message);
 }
@@ -222,7 +259,7 @@ TEST_F(ClangIpcServer, GetCodeCompletionForUnsavedFile)
 
 TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
 {
-    clangServer.registerTranslationUnitsForEditor(RegisterTranslationUnitForEditorMessage({FileContainer(functionTestFilePath, projectPartId, 74)}));
+    clangServer.updateTranslationUnitsForEditor(UpdateTranslationUnitsForEditorMessage({FileContainer(functionTestFilePath, projectPartId, 74)}));
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
                                             1,
@@ -239,11 +276,11 @@ TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
 
 TEST_F(ClangIpcServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
 {
-    clangServer.registerTranslationUnitsForEditor(RegisterTranslationUnitForEditorMessage({FileContainer(functionTestFilePath,
-                                                                                                    projectPartId,
-                                                                                                    unsavedContent(updatedUnsavedTestFilePath),
-                                                                                                    true,
-                                                                                                    74)}));
+    clangServer.updateTranslationUnitsForEditor(UpdateTranslationUnitsForEditorMessage({{functionTestFilePath,
+                                                                                         projectPartId,
+                                                                                         unsavedContent(updatedUnsavedTestFilePath),
+                                                                                         true,
+                                                                                         74}}));
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
                                             1,
@@ -366,5 +403,10 @@ TEST_F(ClangIpcServer, TicketNumberIsForwarded)
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
+}
+
+TEST_F(ClangIpcServer, TranslationUnitIsDirtyAfterCreation)
+{
+    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0));
 }
 }

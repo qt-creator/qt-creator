@@ -29,13 +29,14 @@
 ****************************************************************************/
 
 #include "customwizardparameters.h"
-#include "customwizardpreprocessor.h"
 #include "customwizardscriptgenerator.h"
 
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/macroexpander.h>
+#include <utils/templateengine.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -194,7 +195,7 @@ bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString,
     CustomWizardContext::replaceFields(replacementMap, &cond);
     bool valid = false;
     QString errorMessage;
-    if (!evaluateBooleanJavaScriptExpression(engine, cond, &valid, &errorMessage)) {
+    if (!Utils::TemplateEngine::evaluateBooleanJavaScriptExpression(engine, cond, &valid, &errorMessage)) {
         qWarning("Error in custom wizard validation expression '%s': %s",
                  qPrintable(cond), qPrintable(errorMessage));
         return false;
@@ -954,7 +955,7 @@ QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString 
 
     QString out;
     QString errorMessage;
-    if (!customWizardPreprocess(in, &out, &errorMessage)) {
+    if (!Utils::TemplateEngine::preprocessText(in, &out, &errorMessage)) {
         qWarning("Error preprocessing custom widget file: %s\nFile:\n%s",
                  qPrintable(errorMessage), qPrintable(in));
         return QString();

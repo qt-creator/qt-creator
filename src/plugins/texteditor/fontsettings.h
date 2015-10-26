@@ -56,7 +56,7 @@ class FormatDescription;
 class TEXTEDITOR_EXPORT FontSettings
 {
 public:
-    typedef QList<FormatDescription> FormatDescriptions;
+    typedef std::vector<FormatDescription> FormatDescriptions;
 
     FontSettings();
     void clear();

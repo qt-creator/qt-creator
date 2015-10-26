@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_FRIEND_ACCESS_H
-#define QMT_FRIEND_ACCESS_H
+#ifndef QARK_FRIEND_ACCESS_H
+#define QARK_FRIEND_ACCESS_H
 
 #define QARK_FRIEND_ACCESS \
     template<class Archive, class T> \

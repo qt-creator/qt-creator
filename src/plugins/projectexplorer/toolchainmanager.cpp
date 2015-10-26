@@ -105,14 +105,11 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 
     d = new ToolChainManagerPrivate;
 
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveToolChains()));
-    connect(this, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(toolChainsChanged()));
-    connect(this, SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(toolChainsChanged()));
-    connect(this, SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(toolChainsChanged()));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &ToolChainManager::saveToolChains);
+    connect(this, &ToolChainManager::toolChainAdded, this, &ToolChainManager::toolChainsChanged);
+    connect(this, &ToolChainManager::toolChainRemoved, this, &ToolChainManager::toolChainsChanged);
+    connect(this, &ToolChainManager::toolChainUpdated, this, &ToolChainManager::toolChainsChanged);
 }
 
 ToolChainManager::~ToolChainManager()
@@ -216,10 +213,10 @@ void ToolChainManager::restoreToolChains()
     }
 
     // Then auto detect
-    QList<ToolChain *> detectedTcs;
+    QList<ToolChain *> detectedTcs = tcsToCheck;
     QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
     foreach (ToolChainFactory *f, factories)
-        detectedTcs.append(f->autoDetect());
+        detectedTcs.append(f->autoDetect(tcsToCheck));
 
     // Find/update autodetected tool chains:
     ToolChain *toStore = 0;
@@ -229,7 +226,10 @@ void ToolChainManager::restoreToolChains()
         // Check whether we had this TC stored and prefer the old one with the old id, marked
         // as auto-detection.
         for (int i = 0; i < tcsToCheck.count(); ++i) {
-            if (*(tcsToCheck.at(i)) == *currentDetected) {
+            if (tcsToCheck.at(i) == currentDetected) {
+                tcsToCheck.removeAt(i);
+                break;
+            } else if (*(tcsToCheck.at(i)) == *currentDetected) {
                 toStore = tcsToCheck.at(i);
                 toStore->setDetection(ToolChain::AutoDetection);
                 tcsToCheck.removeAt(i);

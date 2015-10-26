@@ -3,10 +3,16 @@ import qbs 1.0
 QtcPlugin {
     name: "ImageViewer"
 
-    Depends { name: "Qt"; submodules: ["widgets", "svg"] }
+    Depends { name: "Qt.svg"; required: false }
+    Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+
+    Properties {
+        condition: !Qt.svg.present
+        cpp.defines: base.concat("QT_NO_SVG")
+    }
 
     files: [
         "imageview.cpp",

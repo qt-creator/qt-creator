@@ -263,7 +263,6 @@ struct TransformImpl {
     static C call(const SC &container, F function)
     {
         C result;
-        result.reserve(container.size());
         std::transform(container.begin(), container.end(),
                        inserter(result),
                        function);
@@ -335,6 +334,29 @@ auto transform(const SC &container, R (S::*p)() const)
                 C<decay_t<R>>,
                 SC
             >::call(container, p);
+}
+
+//////////////////
+// filtered
+/////////////////
+template<typename C, typename F>
+Q_REQUIRED_RESULT
+C filtered(const C &container, F predicate)
+{
+  C out;
+  std::copy_if(container.begin(), container.end(),
+               inserter(out), predicate);
+  return out;
+}
+
+template<typename C, typename R, typename S>
+Q_REQUIRED_RESULT
+C filtered(const C &container, R (S::*predicate)() const)
+{
+  C out;
+  std::copy_if(container.begin(), container.end(),
+               inserter(out), std::mem_fn(predicate));
+  return out;
 }
 
 //////////////////

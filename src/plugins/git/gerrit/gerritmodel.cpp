@@ -409,7 +409,6 @@ void QueryContext::timeout()
 GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *parent)
     : QStandardItemModel(0, ColumnCount, parent)
     , m_parameters(p)
-    , m_query(0)
 {
     QStringList headers; // Keep in sync with GerritChange::toHtml()
     headers << QLatin1String("#") << tr("Subject") << tr("Owner")
@@ -546,12 +545,21 @@ void GerritModel::refresh(const QString &query)
     connect(m_query, &QueryContext::finished, this, &GerritModel::queriesFinished);
     emit refreshStateChanged(true);
     m_query->start();
+    setState(Running);
 }
 
 void GerritModel::clearData()
 {
     if (const int rows = rowCount())
         removeRows(0, rows);
+}
+
+void GerritModel::setState(GerritModel::QueryState s)
+{
+    if (s == m_state)
+        return;
+    m_state = s;
+    emit stateChanged();
 }
 
 /* Parse gerrit query Json output.
@@ -746,8 +754,8 @@ bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 void GerritModel::queryFinished(const QByteArray &output)
 {
     QList<GerritChangePtr> changes;
-    if (!parseOutput(m_parameters, output, changes))
-        emit queryError();
+    setState(parseOutput(m_parameters, output, changes) ? Ok : Error);
+
     // Populate a hash with indices for faster access.
     QHash<QString, int> idIndexHash;
     const int count = changes.size();
@@ -813,6 +821,7 @@ void GerritModel::queriesFinished()
 {
     m_query->deleteLater();
     m_query = 0;
+    setState(Idle);
     emit refreshStateChanged(false);
 }
 

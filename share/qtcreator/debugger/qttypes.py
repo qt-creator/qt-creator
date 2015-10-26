@@ -2308,7 +2308,7 @@ def qdump__QV4__String(d, value):
     d.putStringValue(d.addressOf(value) + 2 * d.ptrSize())
 
 def qdump__QV4__Value(d, value):
-    v = toInteger(str(value["val"]))
+    v = toInteger(str(value["_val"]))
     NaNEncodeMask          = 0xffff800000000000
     IsInt32Mask            = 0x0002000000000000
     IsDoubleMask           = 0xfffc000000000000
@@ -2319,7 +2319,10 @@ def qdump__QV4__Value(d, value):
     ns = d.qtNamespace()
     if v & IsInt32Mask:
         d.putBetterType("%sQV4::Value (int32)" % ns)
-        d.putValue(value["int_32"])
+        vv = v & 0xffffffff
+        vv = vv if vv < 0x80000000 else -(0x100000000 - vv)
+        d.putBetterType("%sQV4::Value (int32)" % ns)
+        d.putValue("%d" % vv)
     elif v & IsDoubleMask:
         d.putBetterType("%sQV4::Value (double)" % ns)
         d.putValue("%x" % (v ^ 0xffff800000000000), Hex2EncodedFloat8)
@@ -2332,6 +2335,7 @@ def qdump__QV4__Value(d, value):
     elif v & IsNullOrBooleanMask:
         d.putBetterType("%sQV4::Value (null/bool)" % ns)
         d.putValue("(null/bool)")
+        d.putValue(v & 1)
     else:
         vtable = value["m"]["vtable"]
         if toInteger(vtable["isString"]):

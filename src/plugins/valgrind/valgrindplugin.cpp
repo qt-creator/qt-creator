@@ -165,7 +165,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setToolId("Memcheck");
         action->setWidgetCreator(mcWidgetCreator);
         action->setRunControlCreator(mcRunControlCreator);
-        action->setToolMode(DebugMode);
+        action->setToolMode(SymbolsMode);
         action->setRunMode(MEMCHECK_RUN_MODE);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
@@ -181,7 +181,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setWidgetCreator([mcgTool] { return mcgTool->createWidgets(); });
         action->setRunControlCreator(std::bind(&MemcheckWithGdbTool::createRunControl,
                                                mcgTool, _1, _2));
-        action->setToolMode(DebugMode);
+        action->setToolMode(SymbolsMode);
         action->setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
@@ -196,7 +196,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setToolId(CallgrindToolId);
         action->setWidgetCreator(cgWidgetCreator);
         action->setRunControlCreator(cgRunControlCreator);
-        action->setToolMode(ReleaseMode);
+        action->setToolMode(OptimizedMode);
         action->setRunMode(CALLGRIND_RUN_MODE);
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);

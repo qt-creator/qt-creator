@@ -227,19 +227,29 @@ FontSettingsPagePrivate::~FontSettingsPagePrivate()
 
 
 // ------- FormatDescription
-FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText, const QColor &foreground) :
-    m_id(id),
-    m_displayName(displayName),
-    m_tooltipText(tooltipText)
+FormatDescription::FormatDescription(TextStyle id,
+                                     const QString &displayName,
+                                     const QString &tooltipText,
+                                     const QColor &foreground,
+                                     FormatDescription::ShowControls showControls)
+    : m_id(id),
+      m_displayName(displayName),
+      m_tooltipText(tooltipText),
+      m_showControls(showControls)
 {
     m_format.setForeground(foreground);
 }
 
-FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText, const Format &format) :
-    m_id(id),
-    m_format(format),
-    m_displayName(displayName),
-    m_tooltipText(tooltipText)
+FormatDescription::FormatDescription(TextStyle id,
+                                     const QString &displayName,
+                                     const QString &tooltipText,
+                                     const Format &format,
+                                     FormatDescription::ShowControls showControls)
+    : m_id(id),
+      m_format(format),
+      m_displayName(displayName),
+      m_tooltipText(tooltipText),
+      m_showControls(showControls)
 {
 }
 
@@ -247,15 +257,28 @@ FormatDescription::FormatDescription(TextStyle id,
                                      const QString &displayName,
                                      const QString &tooltipText,
                                      const QColor &underlineColor,
-                                     const QTextCharFormat::UnderlineStyle underlineStyle)
+                                     const QTextCharFormat::UnderlineStyle underlineStyle,
+                                     FormatDescription::ShowControls showControls)
     : m_id(id),
       m_displayName(displayName),
-      m_tooltipText(tooltipText)
+      m_tooltipText(tooltipText),
+      m_showControls(showControls)
 {
     m_format.setForeground(QColor());
     m_format.setBackground(QColor());
     m_format.setUnderlineColor(underlineColor);
     m_format.setUnderlineStyle(underlineStyle);
+}
+
+FormatDescription::FormatDescription(TextStyle id,
+                                     const QString &displayName,
+                                     const QString &tooltipText,
+                                     FormatDescription::ShowControls showControls)
+    : m_id(id),
+      m_displayName(displayName),
+      m_tooltipText(tooltipText),
+      m_showControls(showControls)
+{
 }
 
 QColor FormatDescription::foreground() const
@@ -329,6 +352,11 @@ QColor FormatDescription::background() const
         return m_format.background();
     }
     return QColor(); // invalid color
+}
+
+bool FormatDescription::showControl(FormatDescription::ShowControls showControl) const
+{
+    return m_showControls & showControl;
 }
 
 //  ------------ FontSettingsPage

@@ -87,7 +87,7 @@ JsExpander::JsExpander()
     d = new Internal::JsExpanderPrivate;
     Utils::globalMacroExpander()->registerPrefix("JS",
         QCoreApplication::translate("Core::JsExpander",
-                                    "Evaluate simple Javascript statements.<br>"
+                                    "Evaluate simple JavaScript statements.<br>"
                                     "The statements may not contain '{' nor '}' characters."),
         [this](QString in) -> QString {
             QString errorMessage;

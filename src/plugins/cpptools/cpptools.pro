@@ -27,6 +27,7 @@ HEADERS += \
     cppcurrentdocumentfilter.h \
     cppeditoroutline.h \
     cppdoxygen.h \
+    cppfileiterationorder.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
     cppfunctionsfilter.h \
@@ -92,6 +93,7 @@ SOURCES += \
     cppcurrentdocumentfilter.cpp \
     cppeditoroutline.cpp \
     cppdoxygen.cpp \
+    cppfileiterationorder.cpp \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \
     cppfunctionsfilter.cpp \

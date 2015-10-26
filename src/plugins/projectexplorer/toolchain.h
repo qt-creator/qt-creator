@@ -181,7 +181,7 @@ class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
 public:
     QString displayName() const { return m_displayName; }
 
-    virtual QList<ToolChain *> autoDetect();
+    virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     virtual bool canCreate();
     virtual ToolChain *create();

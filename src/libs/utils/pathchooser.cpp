@@ -336,6 +336,16 @@ void PathChooser::setFileName(const FileName &fn)
     d->m_lineEdit->setText(fn.toUserOutput());
 }
 
+void PathChooser::setErrorColor(const QColor &errorColor)
+{
+    d->m_lineEdit->setErrorColor(errorColor);
+}
+
+void PathChooser::setOkColor(const QColor &okColor)
+{
+    d->m_lineEdit->setOkColor(okColor);
+}
+
 bool PathChooser::isReadOnly() const
 {
     return d->m_lineEdit->isReadOnly();
@@ -453,12 +463,22 @@ QString PathChooser::errorMessage() const
 
 void PathChooser::triggerChanged()
 {
-    d->m_lineEdit->triggerChanged();
+    d->m_lineEdit->validate();
 }
 
 void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowContextMenuHandler handler)
 {
     s_aboutToShowContextMenuHandler = handler;
+}
+
+QColor PathChooser::errorColor() const
+{
+    return d->m_lineEdit->errorColor();
+}
+
+QColor PathChooser::okColor() const
+{
+    return d->m_lineEdit->okColor();
 }
 
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
@@ -616,7 +636,7 @@ void PathChooser::setExpectedKind(Kind expected)
     if (d->m_acceptingKind == expected)
         return;
     d->m_acceptingKind = expected;
-    d->m_lineEdit->triggerChanged();
+    d->m_lineEdit->validate();
 }
 
 PathChooser::Kind PathChooser::expectedKind() const

@@ -59,4 +59,20 @@ QString KitConfigWidget::msgManage()
     return tr("Manage...");
 }
 
+void KitConfigWidget::setPalette(const QPalette &p)
+{
+    if (mainWidget())
+        mainWidget()->setPalette(p);
+    if (buttonWidget())
+        buttonWidget()->setPalette(p);
+}
+
+void KitConfigWidget::setStyle(QStyle *s)
+{
+    if (mainWidget())
+        mainWidget()->setStyle(s);
+    if (buttonWidget())
+        buttonWidget()->setStyle(s);
+}
+
 } // namespace ProjectExplorer

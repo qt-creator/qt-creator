@@ -335,6 +335,7 @@ void LldbEngine::setupInferior()
     cmd2.arg("breakOnMain", rp.breakOnMain);
     cmd2.arg("useTerminal", rp.useTerminal);
     cmd2.arg("startMode", rp.startMode);
+    cmd2.arg("nativemixed", isNativeMixedActive());
 
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())
@@ -757,8 +758,9 @@ void LldbEngine::fetchStack(int limit)
     cmd.arg("context", stackHandler()->currentFrame().context);
     cmd.callback = [this](const DebuggerResponse &response) {
         const GdbMi &stack = response.data["stack"];
-        stackHandler()->setAllFrames(stack["frames"], stack["hasmore"].toInt());
-        updateLocals();
+        const bool isFull = !stack["hasmore"].toInt();
+        stackHandler()->setFramesAndCurrentIndex(stack["frames"], isFull);
+        activateFrame(stackHandler()->currentIndex());
     };
     runCommand(cmd);
 }
@@ -782,15 +784,9 @@ void LldbEngine::assignValueInDebugger(WatchItem *,
 
 void LldbEngine::doUpdateLocals(const UpdateParameters &params)
 {
-    if (stackHandler()->stackSize() == 0) {
-        showMessage(_("SKIPPING LOCALS DUE TO EMPTY STACK"));
-        return;
-    }
-
     watchHandler()->notifyUpdateStarted(params.partialVariables());
 
-    DebuggerCommand cmd("fetchLocals");
-    cmd.arg("nativemixed", isNativeMixedActive());
+    DebuggerCommand cmd("fetchVariables");
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
@@ -801,6 +797,10 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("partialVariable", params.partialVariable);
     cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
+
+    StackFrame frame = stackHandler()->currentFrame();
+    cmd.arg("context", frame.context);
+    cmd.arg("nativemixed", isNativeMixedActive());
 
     //cmd.arg("resultvarname", m_resultVarName);
 
@@ -908,7 +908,6 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         }
     } else if (newState == "inferiorstopok") {
         notifyInferiorStopOk();
-        updateAll();
     } else if (newState == "inferiorstopfailed")
         notifyInferiorStopFailed();
     else if (newState == "inferiorill")
@@ -941,16 +940,22 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
 
 void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
 {
-    qulonglong addr = reportedLocation["addr"].toAddress();
-    QString file = reportedLocation["file"].toUtf8();
-    int line = reportedLocation["line"].toInt();
-    Location loc = Location(file, line);
-    if (boolSetting(OperateByInstruction) || !QFileInfo::exists(file) || line <= 0) {
-        loc = Location(addr);
+    qulonglong address = reportedLocation["address"].toAddress();
+    QString fileName = reportedLocation["file"].toUtf8();
+    QByteArray function = reportedLocation["function"].data();
+    int lineNumber = reportedLocation["line"].toInt();
+    Location loc = Location(fileName, lineNumber);
+    if (boolSetting(OperateByInstruction) || !QFileInfo::exists(fileName) || lineNumber <= 0) {
+        loc = Location(address);
         loc.setNeedsMarker(true);
         loc.setUseAssembler(true);
     }
-    gotoLocation(loc);
+
+    // Quickly set the location marker.
+    if (lineNumber > 0
+            && QFileInfo::exists(fileName)
+            && function != "::qt_qmlDebugMessageAvailable()")
+        gotoLocation(Location(fileName, lineNumber));
 }
 
 void LldbEngine::reloadRegisters()

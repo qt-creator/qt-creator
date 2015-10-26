@@ -2464,6 +2464,14 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QS
 {
     Snippet::ParsedSnippet data = Snippet::parse(snippet);
 
+    if (!data.success) {
+        QString message = QString::fromLatin1("Cannot parse snippet \"%1\".").arg(snippet);
+        if (!data.errorMessage.isEmpty())
+            message += QLatin1String("\nParse error: ") + data.errorMessage;
+        QMessageBox::warning(this, QLatin1String("Snippet Parse Error"), message);
+        return;
+    }
+
     QTextCursor cursor = cursor_arg;
     cursor.beginEditBlock();
     cursor.removeSelectedText();

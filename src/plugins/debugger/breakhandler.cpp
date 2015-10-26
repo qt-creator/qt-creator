@@ -1470,6 +1470,8 @@ QString BreakpointItem::toToolTip() const
         << "</td><td>" << QDir::toNativeSeparators(markerFileName()) << "</td></tr>"
         << "<tr><td>" << tr("Marker Line:")
         << "</td><td>" << markerLineNumber() << "</td></tr>"
+        << "<tr><td>" << tr("Hit Count:")
+        << "</td><td>" << m_response.hitCount << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")

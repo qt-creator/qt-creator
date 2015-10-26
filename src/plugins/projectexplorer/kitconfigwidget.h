@@ -70,6 +70,11 @@ public:
 
     static QString msgManage();
 
+    Kit *kit() const { return m_kit; }
+
+    virtual void setPalette(const QPalette &p);
+    virtual void setStyle(QStyle *s);
+
 signals:
     void dirty();
 

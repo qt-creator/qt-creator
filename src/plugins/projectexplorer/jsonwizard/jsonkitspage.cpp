@@ -113,11 +113,8 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
     foreach (const JsonWizard::GeneratorFile &f, files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
             QString errorMessage;
-            QString path = f.file.path();
-            const QFileInfo fi(path);
-
-            if (fi.exists())
-                path = fi.canonicalFilePath();
+            const QFileInfo fi(f.file.path());
+            const QString path = fi.absoluteFilePath();
 
             Utils::MimeDatabase mdb;
             Utils::MimeType mt = mdb.mimeTypeForFile(fi);

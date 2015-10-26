@@ -116,25 +116,43 @@ void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
 void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)
 {
     // Handle externally changed documents
+    connect(textDocument, &Core::IDocument::aboutToReload,
+            this, &ModelManagerSupportClang::onCppDocumentAboutToReloadOnTranslationUnit,
+            Qt::UniqueConnection);
     connect(textDocument, &Core::IDocument::reloadFinished,
             this, &ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit,
             Qt::UniqueConnection);
 
     // Handle changes from e.g. refactoring actions
-    connect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
-            this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit,
-            Qt::UniqueConnection);
+    connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
 }
 
 void ModelManagerSupportClang::connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument)
 {
     // Handle externally changed documents
+    connect(textDocument, &Core::IDocument::aboutToReload,
+            this, &ModelManagerSupportClang::onCppDocumentAboutToReloadOnUnsavedFile,
+            Qt::UniqueConnection);
     connect(textDocument, &Core::IDocument::reloadFinished,
             this, &ModelManagerSupportClang::onCppDocumentReloadFinishedOnUnsavedFile,
             Qt::UniqueConnection);
 
     // Handle changes from e.g. refactoring actions
-    connect(textDocument, &TextEditor::TextDocument::contentsChanged,
+    connectToTextDocumentContentsChangedForUnsavedFile(textDocument);
+}
+
+void ModelManagerSupportClang::connectToTextDocumentContentsChangedForTranslationUnit(
+        TextEditor::TextDocument *textDocument)
+{
+    connect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
+            this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit,
+            Qt::UniqueConnection);
+}
+
+void ModelManagerSupportClang::connectToTextDocumentContentsChangedForUnsavedFile(
+        TextEditor::TextDocument *textDocument)
+{
+    connect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
             this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnUnsavedFile,
             Qt::UniqueConnection);
 }
@@ -168,11 +186,19 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
     }
 }
 
+void ModelManagerSupportClang::onCppDocumentAboutToReloadOnTranslationUnit()
+{
+    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+    disconnect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
+               this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit);
+}
+
 void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool success)
 {
     if (success) {
-        Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-        m_ipcCommunicator.updateTranslationUnit(document);
+        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+        connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
+        m_ipcCommunicator.requestDiagnostics(textDocument);
     }
 }
 
@@ -187,11 +213,19 @@ void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit(int
     m_ipcCommunicator.updateTranslationUnitIfNotCurrentDocument(document);
 }
 
+void ModelManagerSupportClang::onCppDocumentAboutToReloadOnUnsavedFile()
+{
+    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+    disconnect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
+               this, &ModelManagerSupportClang::onCppDocumentContentsChangedOnUnsavedFile);
+}
+
 void ModelManagerSupportClang::onCppDocumentReloadFinishedOnUnsavedFile(bool success)
 {
     if (success) {
-        Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-        m_ipcCommunicator.updateUnsavedFile(document);
+        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+        connectToTextDocumentContentsChangedForUnsavedFile(textDocument);
+        m_ipcCommunicator.updateUnsavedFile(textDocument);
     }
 }
 

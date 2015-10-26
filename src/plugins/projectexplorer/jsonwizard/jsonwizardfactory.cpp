@@ -626,9 +626,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
 
     // Options:
     const QVariant optionValue = data.value(QLatin1String(OPTIONS_KEY));
-    const QVariantList optionList = objectOrList(optionValue, errorMessage);
-    if (optionList.isEmpty())
-        return false;
+    const QVariantList optionList = optionValue.isNull() ? QVariantList() : objectOrList(optionValue, errorMessage);
 
     foreach (const QVariant &v, optionList) {
         if (v.type() != QVariant::Map) {

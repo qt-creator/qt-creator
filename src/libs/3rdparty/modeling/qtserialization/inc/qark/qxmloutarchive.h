@@ -49,8 +49,13 @@ class QXmlOutArchive :
 {
 public:
 
+    class UnsupportedForwardReference :
+            public std::exception
+    {
+    };
+
     class DanglingReferences :
-        public std::exception
+            public std::exception
     {
     };
 
@@ -58,6 +63,7 @@ public:
     static const bool out_archive = true;
 
 public:
+
     QXmlOutArchive(QXmlStreamWriter &stream)
         : _stream(stream),
           _next_pointer_is_reference(false)
@@ -76,6 +82,9 @@ public:
     template<typename T>
     void write(T *p)
     {
+        if (!_saving_ref_map.hasDefinedRef(p)) {
+            throw UnsupportedForwardReference();
+        }
         write(_saving_ref_map.getRef(p).get());
     }
 
@@ -132,7 +141,12 @@ public:
     void beginElement(const Object<T> &object)
     {
         _stream.writeStartElement(object.getQualifiedName());
-        _stream.writeAttribute(QLatin1String("id"), QString::number(_saving_ref_map.getRef(object.getObject(), true).get()));
+        // TODO implement key attribute
+        // Currently qmodel files do not use references at all
+        // so writing reference keys are not needed. If this
+        // changes keys should be implemented as a generic
+        // concept getting key from object (e.g. with a function
+        // registered per type in typeregistry)
     }
 
     void endElement(const End &)

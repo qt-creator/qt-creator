@@ -32,6 +32,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/templateengine.h>
+
 #include <QLatin1Char>
 #include <QLatin1String>
 #include <QTextDocument>
@@ -78,6 +80,7 @@ public:
 // --------------------------------------------------------------------
 
 const QChar Snippet::kVariableDelimiter(QLatin1Char('$'));
+const QChar Snippet::kEscapeChar(QLatin1Char('\\'));
 
 Snippet::Snippet(const QString &groupId, const QString &id) :
     m_isRemoved(false), m_isModified(false), m_groupId(groupId), m_id(id)
@@ -192,9 +195,20 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
     static TitlecaseMangler tcMangler;
 
     Snippet::ParsedSnippet result;
-    result.success = true;
 
-    const int count = snippet.count();
+    QString errorMessage;
+    QString preprocessedSnippet
+            = Utils::TemplateEngine::processText(Utils::globalMacroExpander(), snippet,
+                                                 &errorMessage);
+
+    result.success = errorMessage.isEmpty();
+    if (!result.success) {
+        result.text = snippet;
+        result.errorMessage = errorMessage;
+        return result;
+    }
+
+    const int count = preprocessedSnippet.count();
     bool success = true;
     int start = -1;
     NameMangler *mangler = 0;
@@ -202,8 +216,8 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
     result.text.reserve(count);
 
     for (int i = 0; i < count; ++i) {
-        QChar current = snippet.at(i);
-        QChar next = (i + 1) < count ? snippet.at(i + 1) : QChar();
+        QChar current = preprocessedSnippet.at(i);
+        QChar next = (i + 1) < count ? preprocessedSnippet.at(i + 1) : QChar();
 
         if (current == Snippet::kVariableDelimiter) {
             if (start < 0) {
@@ -242,11 +256,7 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
             continue;
         }
 
-        if (current == QLatin1Char('\\')) {
-            if (next.isNull()) {
-                success = false;
-                break;
-            }
+        if (current == kEscapeChar && (next == kEscapeChar || next == kVariableDelimiter)) {
             result.text.append(next);
             ++i;
             continue;
@@ -262,7 +272,7 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
 
     if (!success) {
         result.ranges.clear();
-        result.text = snippet;
+        result.text = preprocessedSnippet;
     }
 
     return result;
@@ -290,6 +300,9 @@ void Internal::TextEditorPlugin::testSnippetParsing_data()
     QTest::newRow("empty input")
             << QString::fromLatin1("") << QString::fromLatin1("") << true
             << (QList<int>()) << (QList<int>()) << (QList<Core::Id>());
+    QTest::newRow("newline only")
+            << QString::fromLatin1("\n") << QString::fromLatin1("\n") << true
+            << (QList<int>()) << (QList<int>()) << (QList<Core::Id>());
 
     QTest::newRow("simple identifier")
             << QString::fromLatin1("$tESt$") << QString::fromLatin1("tESt") << true
@@ -309,13 +322,17 @@ void Internal::TextEditorPlugin::testSnippetParsing_data()
             << (QList<Core::Id>() << TCMANGLER_ID);
 
     QTest::newRow("escaped string")
-            << QString::fromLatin1("\\$test\\$") << QString::fromLatin1("$test$") << true
+            << QString::fromLatin1("\\\\$test\\\\$") << QString::fromLatin1("$test$") << true
             << (QList<int>()) << (QList<int>())
             << (QList<Core::Id>());
     QTest::newRow("escaped escape")
-            << QString::fromLatin1("\\\\$test\\\\$") << QString::fromLatin1("\\test\\") << true
-            << (QList<int>() << 1) << (QList<int>() << 5)
+            << QString::fromLatin1("\\\\\\\\$test$\\\\\\\\") << QString::fromLatin1("\\test\\") << true
+            << (QList<int>() << 1) << (QList<int>() << 4)
             << (QList<Core::Id>() << NOMANGLER_ID);
+    QTest::newRow("broken escape")
+            << QString::fromLatin1("\\\\$test\\\\\\\\$\\\\") << QString::fromLatin1("\\$test\\\\$\\") << false
+            << (QList<int>()) << (QList<int>())
+            << (QList<Core::Id>());
 
     QTest::newRow("Q_PROPERTY")
             << QString::fromLatin1("Q_PROPERTY($type$ $name$ READ $name$ WRITE set$name:c$ NOTIFY $name$Changed)")
@@ -324,10 +341,6 @@ void Internal::TextEditorPlugin::testSnippetParsing_data()
             << (QList<int>() << 4 << 4 << 4 << 4 << 4)
             << (QList<Core::Id>() << NOMANGLER_ID << NOMANGLER_ID << NOMANGLER_ID << TCMANGLER_ID << NOMANGLER_ID);
 
-    QTest::newRow("broken escape")
-            << QString::fromLatin1("\\\\$test\\\\$\\") << QString::fromLatin1("\\\\$test\\\\$\\") << false
-            << (QList<int>()) << (QList<int>())
-            << (QList<Core::Id>());
     QTest::newRow("open identifier")
             << QString::fromLatin1("$test") << QString::fromLatin1("$test") << false
             << (QList<int>()) << (QList<int>())
@@ -352,6 +365,23 @@ void Internal::TextEditorPlugin::testSnippetParsing_data()
             << (QList<int>() << 6 << 25)
             << (QList<int>() << 4 << 4)
             << (QList<Core::Id>() << NOMANGLER_ID << NOMANGLER_ID);
+
+    QTest::newRow("escape sequences")
+            << QString::fromLatin1("class $name$\\n"
+                                   "{\\n"
+                                   "public\\\\:\\n"
+                                   "\\t$name$() {}\\n"
+                                   "};")
+            << QString::fromLatin1("class name\n"
+                                   "{\n"
+                                   "public\\:\n"
+                                   "\tname() {}\n"
+                                   "};")
+            << true
+            << (QList<int>() << 6 << 23)
+            << (QList<int>() << 4 << 4)
+            << (QList<Core::Id>() << NOMANGLER_ID << NOMANGLER_ID);
+
 }
 
 void Internal::TextEditorPlugin::testSnippetParsing()

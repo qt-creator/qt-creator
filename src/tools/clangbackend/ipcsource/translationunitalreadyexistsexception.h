@@ -1,6 +1,6 @@
-/***************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2015 Jochen Becher
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -28,59 +28,34 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMREFERENCESERIALIZER_H
-#define QMT_DIAGRAMREFERENCESERIALIZER_H
+#ifndef CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H
+#define CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H
 
-#include "qmt/infrastructure/uid.h"
+#include <filecontainer.h>
 
-#include <QString>
+namespace ClangBackEnd {
 
-QT_BEGIN_NAMESPACE
-class QXmlStreamReader;
-class QXmlStreamWriter;
-QT_END_NAMESPACE
-
-
-namespace qmt {
-
-class Project;
-class MDiagram;
-
-
-class QMT_EXPORT DiagramReferenceSerializer
+class TranslationUnitAlreadyExistsException : public std::exception
 {
 public:
+    TranslationUnitAlreadyExistsException(const FileContainer &fileContainer);
+    TranslationUnitAlreadyExistsException(const Utf8String &filePath, const Utf8String &projectPartId);
 
-    struct Reference {
-        Reference();
-        Reference(const Uid &model_uid, const Uid &diagram_uid);
+    const FileContainer &fileContainer() const;
 
-        Uid _model_uid;
-        Uid _diagram_uid;
-    };
+    const char *what() const Q_DECL_NOEXCEPT override;
 
-public:
-    DiagramReferenceSerializer();
-
-    ~DiagramReferenceSerializer();
-
-public:
-
-    void save(const QString &file_name, const Reference &reference);
-
-    QByteArray save(const Project *project, const MDiagram *diagram);
-
-    Reference load(const QString &file_name);
-
-    Reference load(const QByteArray &contents);
+#if defined(__GNUC__) && !defined(__clang__)
+#  if !__GNUC_PREREQ(4,8)
+    ~TranslationUnitAlreadyExistsException() noexcept {}
+#  endif
+#endif
 
 private:
-
-    void write(const Reference &reference, QXmlStreamWriter *writer);
-
-    Reference read(QXmlStreamReader *stream_reader);
+    FileContainer fileContainer_;
+    mutable Utf8String what_;
 };
 
-}
+} // namespace ClangBackEnd
 
-#endif // QMT_DIAGRAMREFERENCESERIALIZER_H
+#endif // CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H

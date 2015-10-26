@@ -513,7 +513,8 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
                 flavor = Abi::FreeBsdFlavor;
             format = Abi::ElfFormat;
         } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32")
-                   || p == QLatin1String("mingw32msvc") || p == QLatin1String("msys")) {
+                   || p == QLatin1String("mingw32msvc") || p == QLatin1String("msys")
+                   || p == QLatin1String("cygwin")) {
             arch = Abi::X86Architecture;
             os = Abi::WindowsOS;
             flavor = Abi::WindowsMSysFlavor;
@@ -1081,6 +1082,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("x86_64-pc-msys") << int(Abi::X86Architecture)
                                     << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
                                     << int(Abi::PEFormat) << 64;
+
+    QTest::newRow("x86_64-pc-cygwin") << int(Abi::X86Architecture)
+                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                      << int(Abi::PEFormat) << 64;
 
     QTest::newRow("mingw32") << int(Abi::X86Architecture)
                              << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)

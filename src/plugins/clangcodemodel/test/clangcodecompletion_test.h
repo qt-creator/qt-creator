@@ -59,13 +59,14 @@ private slots:
     void testCompleteFunctions();
     void testCompleteConstructorAndFallbackToGlobalCompletion();
 
-    void testProjectDependentCompletion();
-    void testChangingProjectDependentCompletion();
+    void testCompleteProjectDependingCode();
+    void testCompleteProjectDependingCodeAfterChangingProject();
+    void testCompleteProjectDependingCodeInGeneratedUiFile();
 
-    void testUnsavedFilesTrackingByModifyingIncludedFileInCurrentEditor();
-    void testUnsavedFilesTrackingByModifyingIncludedFileInNotCurrentEditor();
-    void testUnsavedFilesTrackingByModifyingIncludedFileExternally();
-    void testUnsavedFilesTrackingByCompletingUiObject();
+    void testCompleteAfterModifyingIncludedHeaderInOtherEditor();
+    void testCompleteAfterModifyingIncludedHeaderByRefactoringActions();
+    void testCompleteAfterChangingIncludedAndOpenHeaderExternally();
+    void testCompleteAfterChangingIncludedAndNotOpenHeaderExternally();
 
     void testUpdateBackendAfterRestart();
 

@@ -61,6 +61,7 @@
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
+#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -319,8 +320,16 @@ QString toString(const RegisterTranslationUnitForEditorMessage &message)
     ts << "RegisterTranslationUnitForEditorMessage\n"
        << toString(message.fileContainers());
     return out;
+}
 
-    return QLatin1String("RegisterTranslationUnitForEditorMessage\n");
+QString toString(const UpdateTranslationUnitsForEditorMessage &message)
+{
+    QString out;
+    QTextStream ts(&out);
+
+    ts << "UpdateTranslationUnitForEditorMessage\n"
+       << toString(message.fileContainers());
+    return out;
 }
 
 QString toString(const UnregisterTranslationUnitsForEditorMessage &)
@@ -356,8 +365,6 @@ QString toString(const RegisterUnsavedFilesForEditorMessage &message)
     ts << "RegisterUnsavedFilesForEditorMessage\n"
        << toString(message.fileContainers());
     return out;
-
-    return QLatin1String("RegisterUnsavedFilesForEditorMessage\n");
 }
 
 QString toString(const UnregisterUnsavedFilesForEditorMessage &)
@@ -382,6 +389,9 @@ public:
     { senderLog.append(toString(EndMessage())); }
 
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override
     { senderLog.append(toString(message)); }
 
     void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override
@@ -960,7 +970,7 @@ void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompleti
     QVERIFY(!hasSnippet(t.proposal, "class"));
 }
 
-void ClangCodeCompletionTest::testProjectDependentCompletion()
+void ClangCodeCompletionTest::testCompleteProjectDependingCode()
 {
     const TestDocument testDocument("completionWithProject.cpp");
     QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
@@ -976,7 +986,7 @@ void ClangCodeCompletionTest::testProjectDependentCompletion()
     QVERIFY(hasItem(proposal, "projectConfiguration1"));
 }
 
-void ClangCodeCompletionTest::testChangingProjectDependentCompletion()
+void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProject()
 {
     const TestDocument testDocument("completionWithProject.cpp");
     QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
@@ -1015,7 +1025,36 @@ void ClangCodeCompletionTest::testChangingProjectDependentCompletion()
     QVERIFY(hasItem(proposal, "noProjectConfigurationDetected"));
 }
 
-void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileInCurrentEditor()
+void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile()
+{
+    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));
+    QVERIFY(testDir.isValid());
+
+    MonitorGeneratedUiFile monitorGeneratedUiFile;
+
+    // Open project
+    const QString projectFilePath = testDir.absolutePath("qt-widgets-app.pro");
+    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
+    QVERIFY(projectInfo.isValid());
+
+    // Open file with ui object
+    const QString completionFile = testDir.absolutePath("mainwindow.cpp");
+    const TestDocument testDocument = TestDocument::fromExistingFile(completionFile);
+    QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
+    OpenEditorAtCursorPosition openSource(testDocument);
+    QVERIFY(openSource.succeeded());
+
+    // ...and check comletions
+    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
+    ProposalModel proposal = completionResults(openSource.editor());
+    QVERIFY(hasItem(proposal, "menuBar"));
+    QVERIFY(hasItem(proposal, "statusBar"));
+    QVERIFY(hasItem(proposal, "centralWidget"));
+    QVERIFY(hasItem(proposal, "setupUi"));
+}
+
+void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderInOtherEditor()
 {
     CppTools::Tests::TemporaryDir temporaryDir;
     const TestDocument sourceDocument("mysource.cpp", &temporaryDir);
@@ -1041,7 +1080,7 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileInC
     QVERIFY(hasItem(proposal, "globalFromHeaderUnsaved"));
 }
 
-void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileInNotCurrentEditor()
+void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderByRefactoringActions()
 {
     CppTools::Tests::TemporaryDir temporaryDir;
     const TestDocument sourceDocument("mysource.cpp", &temporaryDir);
@@ -1072,7 +1111,7 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileInN
     QVERIFY(hasItem(proposal, "globalFromHeaderUnsaved"));
 }
 
-void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExternally()
+void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndOpenHeaderExternally()
 {
     QSKIP("The file system watcher is doing it in backend process but we wait not long enough");
 
@@ -1106,33 +1145,28 @@ void ClangCodeCompletionTest::testUnsavedFilesTrackingByModifyingIncludedFileExt
     QVERIFY(hasItem(proposal, "globalFromHeaderReloaded"));
 }
 
-void ClangCodeCompletionTest::testUnsavedFilesTrackingByCompletingUiObject()
+void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndNotOpenHeaderExternally()
 {
-    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));
-    QVERIFY(testDir.isValid());
+    QSKIP("The file system watcher is doing it in backend process but we wait not long enough");
 
-    MonitorGeneratedUiFile monitorGeneratedUiFile;
+    CppTools::Tests::TemporaryDir temporaryDir;
+    const TestDocument sourceDocument("mysource.cpp", &temporaryDir);
+    QVERIFY(sourceDocument.isCreatedAndHasValidCursorPosition());
+    const TestDocument headerDocument("myheader.h", &temporaryDir);
+    QVERIFY(headerDocument.isCreated());
 
-    // Open project
-    const QString projectFilePath = testDir.absolutePath("qt-widgets-app.pro");
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
-    QVERIFY(projectInfo.isValid());
-
-    // Open file with ui object
-    const QString completionFile = testDir.absolutePath("mainwindow.cpp");
-    const TestDocument testDocument = TestDocument::fromExistingFile(completionFile);
-    QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
-    OpenEditorAtCursorPosition openSource(testDocument);
+    // Open source and test completions
+    OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-
-    // ...and check comletions
-    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
     ProposalModel proposal = completionResults(openSource.editor());
-    QVERIFY(hasItem(proposal, "menuBar"));
-    QVERIFY(hasItem(proposal, "statusBar"));
-    QVERIFY(hasItem(proposal, "centralWidget"));
-    QVERIFY(hasItem(proposal, "setupUi"));
+    QVERIFY(hasItem(proposal, "globalFromHeader"));
+
+    // Simulate external modification, e.g version control checkout
+    QVERIFY(writeFile(headerDocument.filePath, "int globalFromHeaderReloaded;\n"));
+
+    // Retrigger completion and check if its updated
+    proposal = completionResults(openSource.editor());
+    QVERIFY(hasItem(proposal, "globalFromHeaderReloaded"));
 }
 
 void ClangCodeCompletionTest::testUpdateBackendAfterRestart()

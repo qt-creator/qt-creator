@@ -1066,7 +1066,8 @@ public:
         layout->addWidget(m_buttons);
         setLayout(layout);
 
-        connect(m_buttons, SIGNAL(accepted()), m_lineEdit, SLOT(onEditingFinished()));
+        connect(m_buttons, &QDialogButtonBox::accepted,
+                m_lineEdit, &Utils::FancyLineEdit::onEditingFinished);
         connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         connect(m_hint, SIGNAL(linkActivated(QString)),

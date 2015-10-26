@@ -30,6 +30,8 @@
 
 #include "clangutils.h"
 
+#include "clangeditordocumentprocessor.h"
+
 #include <clang-c/Index.h>
 
 #include <coreplugin/icore.h>
@@ -264,7 +266,14 @@ ProjectPart::Ptr projectPartForFile(const QString &filePath)
     return ProjectPart::Ptr();
 }
 
-bool isProjectPartValid(const ProjectPart::Ptr projectPart)
+ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath)
+{
+    if (const auto processor = ClangEditorDocumentProcessor::get(filePath))
+        return processor->projectPart();
+    return ProjectPart::Ptr();
+}
+
+bool isProjectPartLoaded(const ProjectPart::Ptr projectPart)
 {
     if (projectPart)
         return CppModelManager::instance()->projectPartForId(projectPart->id());
@@ -275,7 +284,7 @@ QString projectPartIdForFile(const QString &filePath)
 {
     const ProjectPart::Ptr projectPart = projectPartForFile(filePath);
 
-    if (isProjectPartValid(projectPart))
+    if (isProjectPartLoaded(projectPart))
         return projectPart->id(); // OK, Project Part is still loaded
     return QString();
 }

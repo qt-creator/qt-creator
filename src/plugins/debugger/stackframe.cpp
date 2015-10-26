@@ -167,6 +167,21 @@ QString StackFrame::toToolTip() const
     return res;
 }
 
+static QString findFile(const QString &baseDir, const QString &relativeFile)
+{
+    QDir dir(baseDir);
+    while (true) {
+        const QString path = dir.absoluteFilePath(relativeFile);
+        const QFileInfo fi(path);
+        if (fi.isFile())
+            return path;
+        if (dir.isRoot())
+            break;
+        dir.cdUp();
+    }
+    return QString();
+}
+
 // Try to resolve files coming from resource files.
 void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
 {
@@ -179,21 +194,19 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
     }
     if (!file.startsWith(QLatin1String("qrc:/")))
         return;
-    const QString relativeFile = file.right(file.size() - 5);
-    if (rp.projectSourceDirectory.isEmpty())
+
+    QString relativeFile = file.right(file.size() - 5);
+    while (relativeFile.startsWith(QLatin1Char('/')))
+        relativeFile = relativeFile.mid(1);
+
+    QString absFile = findFile(rp.projectSourceDirectory, relativeFile);
+    if (absFile.isEmpty())
+        absFile = findFile(QDir::currentPath(), relativeFile);
+
+    if (absFile.isEmpty())
         return;
-    const QFileInfo pFi(rp.projectSourceDirectory + QLatin1Char('/') + relativeFile);
-    if (pFi.isFile()) {
-        file = pFi.absoluteFilePath();
-        usable = true;
-        return;
-    }
-    const QFileInfo cFi(QDir::currentPath() + QLatin1Char('/') + relativeFile);
-    if (cFi.isFile()) {
-        file = cFi.absoluteFilePath();
-        usable = true;
-        return;
-    }
+    file = absFile;
+    usable = true;
 }
 
 QDebug operator<<(QDebug d, const  StackFrame &f)

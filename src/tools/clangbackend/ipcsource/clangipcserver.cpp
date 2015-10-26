@@ -53,11 +53,16 @@
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
+#include <updatetranslationunitsforeditormessage.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 
 namespace ClangBackEnd {
+
+namespace {
+const int sendDiagnosticsTimerInterval = 300;
+}
 
 ClangIpcServer::ClangIpcServer()
     : translationUnits(projects, unsavedFiles)
@@ -67,14 +72,26 @@ ClangIpcServer::ClangIpcServer()
                                                           client()->diagnosticsChanged(message);
                                                       });
 
-    sendDiagnosticsTimer.setInterval(300);
     QObject::connect(&sendDiagnosticsTimer,
                      &QTimer::timeout,
-                     [this] () { translationUnits.sendChangedDiagnostics(); });
+                     [this] () {
+                         try {
+                             auto diagnostSendState = translationUnits.sendChangedDiagnostics();
+                             if (diagnostSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
+                                 sendDiagnosticsTimer.setInterval(0);
+                             else
+                                 sendDiagnosticsTimer.stop();
+                         } catch (const std::exception &exception) {
+                             qWarning() << "Error in ClangIpcServer::sendDiagnosticsTimer:" << exception.what();
+                         }
+                     });
 
     QObject::connect(translationUnits.clangFileSystemWatcher(),
                      &ClangFileSystemWatcher::fileChanged,
-                     [this] () { sendDiagnosticsTimer.start(); });
+                     [this] (const Utf8String &filePath)
+                     {
+                         startSendDiagnosticTimerIfFileIsNotATranslationUnit(filePath);
+                     });
 }
 
 void ClangIpcServer::end()
@@ -87,16 +104,33 @@ void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::Regis
     TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForEditor");
 
     try {
-        const auto newerFileContainers = translationUnits.newerFileContainers(message.fileContainers());
-        if (newerFileContainers.size() > 0) {
-            unsavedFiles.createOrUpdate(newerFileContainers);
-            translationUnits.createOrUpdate(newerFileContainers);
-            sendDiagnosticsTimer.start();
-        }
+        translationUnits.create(message.fileContainers());
+        unsavedFiles.createOrUpdate(message.fileContainers());
+        sendDiagnosticsTimer.start(0);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::registerTranslationUnitsForEditor:" << exception.what();
+    }
+}
+
+void ClangIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangIpcServer::updateTranslationUnitsForEditor");
+
+    try {
+        const auto newerFileContainers = translationUnits.newerFileContainers(message.fileContainers());
+        if (newerFileContainers.size() > 0) {
+            translationUnits.update(newerFileContainers);
+            unsavedFiles.createOrUpdate(newerFileContainers);
+            sendDiagnosticsTimer.start(sendDiagnosticsTimerInterval);
+        }
+    } catch (const ProjectPartDoNotExistException &exception) {
+        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
+    } catch (const TranslationUnitDoesNotExistException &exception) {
+        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
+    } catch (const std::exception &exception) {
+        qWarning() << "Error in ClangIpcServer::updateTranslationUnitsForEditor:" << exception.what();
     }
 }
 
@@ -105,8 +139,8 @@ void ClangIpcServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::Unr
     TIME_SCOPE_DURATION("ClangIpcServer::unregisterTranslationUnitsForEditor");
 
     try {
-        unsavedFiles.remove(message.fileContainers());
         translationUnits.remove(message.fileContainers());
+        unsavedFiles.remove(message.fileContainers());
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
@@ -147,7 +181,7 @@ void ClangIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesFor
     try {
         unsavedFiles.createOrUpdate(message.fileContainers());
         translationUnits.updateTranslationUnitsWithChangedDependencies(message.fileContainers());
-        sendDiagnosticsTimer.start();
+        sendDiagnosticsTimer.start(sendDiagnosticsTimerInterval);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -207,6 +241,17 @@ void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::requestDiagnostics:" << exception.what();
     }
+}
+
+const TranslationUnits &ClangIpcServer::translationUnitsForTestOnly() const
+{
+    return translationUnits;
+}
+
+void ClangIpcServer::startSendDiagnosticTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
+{
+    if (!translationUnits.hasTranslationUnit(filePath))
+        sendDiagnosticsTimer.start(0);
 }
 
 }

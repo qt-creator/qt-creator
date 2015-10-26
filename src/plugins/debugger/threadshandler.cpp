@@ -445,7 +445,7 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     // file="/.../app.cpp",fullname="/../app.cpp",line="1175"},
     // state="stopped",core="0"}],current-thread-id="1"
 
-    const std::vector<GdbMi> items = data["threads"].children();
+    const QVector<GdbMi> items = data["threads"].children();
     const int n = int(items.size());
     for (int index = 0; index != n; ++index) {
         const GdbMi item = items[index];

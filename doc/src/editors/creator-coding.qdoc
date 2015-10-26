@@ -26,13 +26,19 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-usability.html
     \page creator-coding.html
-    \nextpage creator-editor-functions.html
+    \nextpage creator-modeling.html
 
     \title Coding
 
     \image creator_coding.png
 
     \list
+
+        \li \l{Modeling}
+
+            You can use the experimental model editor to create Universal
+            Modeling Language (UML) style models with structured diagrams and
+            store them in XML format.
 
         \li \l{Writing Code}
 

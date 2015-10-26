@@ -572,6 +572,16 @@ void ICore::saveSettings()
     ICore::settings(QSettings::UserScope)->sync();
 }
 
+QStringList ICore::additionalAboutInformation()
+{
+    return m_mainwindow->additionalAboutInformation();
+}
+
+void ICore::appendAboutInformation(const QString &line)
+{
+    m_mainwindow->appendAboutInformation(line);
+}
+
 void ICore::validateNewItemDialogIsRunning()
 {
     static bool wasRunning = false;

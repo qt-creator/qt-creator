@@ -86,9 +86,12 @@ public:
     enum BuildType {
         Unknown,
         Debug,
+        Profile,
         Release
     };
     virtual BuildType buildType() const = 0;
+
+    static QString buildTypeName(BuildType type);
 
 signals:
     void environmentChanged();

@@ -47,6 +47,15 @@ Component.prototype.loaded = function()
     }
 }
 
+Component.prototype.createOperationsForArchive = function(archive)
+{
+    // if there are additional plugin 7zips, these must be extracted in .app/Contents on OS X
+    if (systemInfo.productType !== "osx" || archive.indexOf('qtcreator.7z') !== -1)
+        component.addOperation("Extract", archive, "@TargetDir@");
+    else
+        component.addOperation("Extract", archive, "@TargetDir@/Qt Creator.app/Contents");
+}
+
 Component.prototype.beginInstallation = function()
 {
     component.qtCreatorBinaryPath = installer.value("TargetDir");

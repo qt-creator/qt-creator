@@ -35,7 +35,6 @@
 #include "qmt/infrastructure/uid.h"
 
 #include "qmt/serializer/projectserializer.h"
-#include "qmt/serializer/diagramreferenceserializer.h"
 
 #include "qmt/project/project.h"
 #include "qmt/model_controller/mvoidvisitor.h"

@@ -50,11 +50,15 @@
 
     \section1 Setting Up Clang Static Analyzer
 
-    You must have Clang installed to use the Clang Static Analyzer. On Windows,
-    Clang version 3.6, or later, is required to use the MSVC tool chain.
+    As a tested version of Clang is shipped together with Qt Creator, no manual
+    setup is required.
 
-    To set up the Clang Static Analyzer, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Analyzer >
+    To profit from improved checkers in newer Clang versions, \QC can be set up
+    to use those. However, only the shipped version of Clang is tested and known
+    to work. Other versions might not work at all.
+
+    To set up a particular Clang version for the Clang Static Analyzer, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
     \uicontrol {Clang Static Analyzer} and check that the path to the Clang
     executable is set correctly in the \uicontrol {Clang executable} field.
 

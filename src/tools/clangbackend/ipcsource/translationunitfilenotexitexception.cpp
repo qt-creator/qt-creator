@@ -47,7 +47,7 @@ const char *TranslationUnitFileNotExitsException::what() const Q_DECL_NOEXCEPT
     if (what_.isEmpty())
         what_ += Utf8StringLiteral("File ")
                 + filePath()
-                + Utf8StringLiteral(" in project does not exist!");
+                + Utf8StringLiteral(" does not exist in file system!");
 
     return what_.constData();
 }

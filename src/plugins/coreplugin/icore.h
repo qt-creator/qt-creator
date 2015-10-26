@@ -146,6 +146,11 @@ signals:
     void contextChanged(const Core::Context &context);
     void themeChanged();
 
+public:
+    /* internal use */
+    static QStringList additionalAboutInformation();
+    static void appendAboutInformation(const QString &line);
+
 private:
     static void validateNewItemDialogIsRunning();
     static void newItemDialogOpened();

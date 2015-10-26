@@ -45,7 +45,6 @@
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
-#include "qmt/serializer/diagramreferenceserializer.h"
 #include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 

@@ -38,6 +38,7 @@
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
+#include "updatetranslationunitsforeditormessage.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -48,6 +49,7 @@ void IpcServerInterface::dispatch(const QVariant &message)
 {
     static const int endMessageType = QMetaType::type("ClangBackEnd::EndMessage");
     static const int registerTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterTranslationUnitForEditorMessage");
+    static const int updateTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::UpdateTranslationUnitsForEditorMessage");
     static const int unregisterTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForEditorMessage");
     static const int registerProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForEditorMessage");
     static const int unregisterProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForEditorMessage");
@@ -62,6 +64,8 @@ void IpcServerInterface::dispatch(const QVariant &message)
         end();
     else if (type == registerTranslationUnitsForEditorMessageType)
         registerTranslationUnitsForEditor(message.value<RegisterTranslationUnitForEditorMessage>());
+    else if (type == updateTranslationUnitsForEditorMessageType)
+        updateTranslationUnitsForEditor(message.value<UpdateTranslationUnitsForEditorMessage>());
     else if (type == unregisterTranslationUnitsForEditorMessageType)
         unregisterTranslationUnitsForEditor(message.value<UnregisterTranslationUnitsForEditorMessage>());
     else if (type == registerProjectPartsForEditorMessageType)

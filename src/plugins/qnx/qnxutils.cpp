@@ -155,13 +155,18 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
     return items;
 }
 
-bool QnxUtils::isValidNdkPath(const QString &ndkPath)
-{
-    return QFileInfo::exists(envFilePath(ndkPath));
-}
-
 QString QnxUtils::envFilePath(const QString &ndkPath, const QString &targetVersion)
 {
+    QDir ndk(ndkPath);
+    QStringList entries;
+    if (Utils::HostOsInfo::isWindowsHost())
+        entries = ndk.entryList(QStringList(QLatin1String("*-env.bat")));
+    else
+        entries = ndk.entryList(QStringList(QLatin1String("*-env.sh")));
+
+    if (!entries.isEmpty())
+        return ndk.absoluteFilePath(entries.first());
+
     QString envFile;
     if (Utils::HostOsInfo::isWindowsHost())
         envFile = ndkPath + QLatin1String("/bbndk-env.bat");
@@ -292,6 +297,10 @@ QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &targe
 
 QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
 {
+    QList<Utils::EnvironmentItem> env = qnxEnvironmentFromEnvFile(envFilePath(sdkPath));
+    if (!env.isEmpty())
+        return env;
+
     // Mimic what the SDP installer puts into the system environment
 
     QList<Utils::EnvironmentItem> environmentItems;

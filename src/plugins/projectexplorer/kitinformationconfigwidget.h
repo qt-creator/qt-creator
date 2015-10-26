@@ -72,12 +72,13 @@ public:
     QWidget *mainWidget() const;
     QString toolTip() const;
 
-private slots:
-    void pathWasChanged();
+    void setPalette(const QPalette &p);
 
 private:
+    void pathWasChanged();
+
     Utils::PathChooser *m_chooser;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
 };
 
 // --------------------------------------------------------------------------
@@ -99,17 +100,16 @@ public:
     QWidget *buttonWidget() const;
     QString toolTip() const;
 
-private slots:
+private:
     void manageToolChains();
     void currentToolChainChanged(int idx);
 
-private:
     int indexOf(const ToolChain *tc);
 
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
-    bool m_ignoreChanges;
-    bool m_isReadOnly;
+    bool m_ignoreChanges = false;
+    bool m_isReadOnly = false;
 };
 
 // --------------------------------------------------------------------------
@@ -130,10 +130,9 @@ public:
     void refresh();
     void makeReadOnly();
 
-private slots:
+private:
     void currentTypeChanged(int idx);
 
-private:
     QComboBox *m_comboBox;
 };
 
@@ -156,15 +155,14 @@ public:
     void refresh();
     void makeReadOnly();
 
-private slots:
+private:
     void manageDevices();
     void modelAboutToReset();
     void modelReset();
     void currentDeviceChanged();
 
-private:
-    bool m_isReadOnly;
-    bool m_ignoreChange;
+    bool m_isReadOnly = false;
+    bool m_ignoreChange = false;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
     DeviceManagerModel *m_model;
@@ -185,18 +183,17 @@ public:
     void refresh();
     void makeReadOnly();
 
-private slots:
+private:
     void editEnvironmentChanges();
 
     void applyChanges();
     void closeChangesDialog();
     void acceptChangesDialog();
 
-private:
     QLabel *m_summaryLabel;
     QPushButton *m_manageButton;
-    QDialog *m_dialog;
-    QPlainTextEdit *m_editor;
+    QDialog *m_dialog = 0;
+    QPlainTextEdit *m_editor = 0;
 };
 
 } // namespace Internal
