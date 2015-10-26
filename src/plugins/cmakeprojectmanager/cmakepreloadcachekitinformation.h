@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Canonical Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -27,45 +27,32 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
-#define CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
+#ifndef CMAKEPROJECTMANAGER_CMAKEPRELOADCACHEKITINFORMATION_H
+#define CMAKEPROJECTMANAGER_CMAKEPRELOADCACHEKITINFORMATION_H
 
-#include "cmakeprojectmanager.h"
+#include "cmake_global.h"
 
-#include <projectexplorer/kit.h>
-
-#include <QCoreApplication>
-#include <QMetaType>
+#include <projectexplorer/kitmanager.h>
 
 namespace CMakeProjectManager {
-namespace Internal {
 
-class GeneratorInfo
+class CMAKE_EXPORT CMakePreloadCacheKitInformation : public ProjectExplorer::KitInformation
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
+    Q_OBJECT
 public:
-    enum Ninja { NoNinja, OfferNinja, ForceNinja };
-    static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks);
+    CMakePreloadCacheKitInformation();
 
-    GeneratorInfo();
-    explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
+    static Core::Id id();
 
-    ProjectExplorer::Kit *kit() const;
-    bool isNinja() const;
-
-    QString displayName() const;
-    QByteArray generatorArgument() const;
-    QByteArray generator() const;
-    QByteArray preLoadScriptFileArgument() const;
-
-private:
-    ProjectExplorer::Kit *m_kit;
-    bool m_isNinja;
+    // KitInformation interface
+    QVariant defaultValue(ProjectExplorer::Kit *) const override;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
+    void setup(ProjectExplorer::Kit *k) override;
+    void fix(ProjectExplorer::Kit *k) override;
+    virtual ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+    virtual ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 };
 
-} // namespace Internal
 } // namespace CMakeProjectManager
 
-Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo)
-
-#endif // CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
+#endif // CMAKEPROJECTMANAGER_CMAKEPRELOADCACHEKITINFORMATION_H

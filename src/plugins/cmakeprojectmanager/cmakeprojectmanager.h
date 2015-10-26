@@ -64,7 +64,8 @@ public:
                        const QString &sourceDirectory,
                        const QDir &buildDirectory,
                        const Utils::Environment &env,
-                       const QString &generator);
+                       const QString &generator,
+                       const QString &preloadCache);
     bool preferNinja() const;
     static QString findCbpFile(const QDir &);
 

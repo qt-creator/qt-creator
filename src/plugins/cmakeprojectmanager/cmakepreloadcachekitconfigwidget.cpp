@@ -27,45 +27,65 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
-#define CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
 
-#include "cmakeprojectmanager.h"
+#include "cmakepreloadcachekitconfigwidget.h"
+#include "cmakepreloadcachekitinformation.h"
 
 #include <projectexplorer/kit.h>
 
-#include <QCoreApplication>
-#include <QMetaType>
+#include <QLineEdit>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class GeneratorInfo
+CMakePreloadCacheKitConfigWidget::CMakePreloadCacheKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki) :
+    ProjectExplorer::KitConfigWidget(k, ki),
+    m_lineEdit(new QLineEdit)
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
-public:
-    enum Ninja { NoNinja, OfferNinja, ForceNinja };
-    static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks);
+    refresh();
+    m_lineEdit->setToolTip(toolTip());
+    connect(m_lineEdit, &QLineEdit::textEdited,
+            this, &CMakePreloadCacheKitConfigWidget::preloadFileWasChanged);
+}
 
-    GeneratorInfo();
-    explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
+CMakePreloadCacheKitConfigWidget::~CMakePreloadCacheKitConfigWidget()
+{
+    delete m_lineEdit;
+}
 
-    ProjectExplorer::Kit *kit() const;
-    bool isNinja() const;
+QWidget *CMakePreloadCacheKitConfigWidget::mainWidget() const
+{
+    return m_lineEdit;
+}
 
-    QString displayName() const;
-    QByteArray generatorArgument() const;
-    QByteArray generator() const;
-    QByteArray preLoadScriptFileArgument() const;
+QString CMakePreloadCacheKitConfigWidget::displayName() const
+{
+    return tr("CMake preload file:");
+}
 
-private:
-    ProjectExplorer::Kit *m_kit;
-    bool m_isNinja;
-};
+QString CMakePreloadCacheKitConfigWidget::toolTip() const
+{
+    return tr("The preload cache file to use when running cmake on the project.<br>"
+              "This setting is ignored when using other build systems.");
+}
+
+void CMakePreloadCacheKitConfigWidget::makeReadOnly()
+{
+    m_lineEdit->setEnabled(false);
+}
+
+void CMakePreloadCacheKitConfigWidget::refresh()
+{
+    if (!m_ignoreChange)
+        m_lineEdit->setText(m_kit->value(CMakePreloadCacheKitInformation::id()).toString());
+}
+
+void CMakePreloadCacheKitConfigWidget::preloadFileWasChanged(const QString &text)
+{
+    m_ignoreChange = true;
+    m_kit->setValue(CMakePreloadCacheKitInformation::id(), text);
+    m_ignoreChange = false;
+}
 
 } // namespace Internal
 } // namespace CMakeProjectManager
-
-Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo)
-
-#endif // CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H

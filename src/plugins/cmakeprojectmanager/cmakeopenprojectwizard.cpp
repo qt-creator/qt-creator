@@ -587,12 +587,16 @@ void CMakeRunPage::runCMake()
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
     if (cmake && cmake->isValid()) {
         m_cmakeProcess = new Utils::QtcProcess();
-        connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
-        connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
-        connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
+        connect(m_cmakeProcess, &QProcess::readyReadStandardOutput,
+                this, &CMakeRunPage::cmakeReadyReadStandardOutput);
+        connect(m_cmakeProcess, &QProcess::readyReadStandardError,
+                this, &CMakeRunPage::cmakeReadyReadStandardError);
+        connect(m_cmakeProcess, &QProcess::finished,
+                this, &CMakeRunPage::cmakeFinished);
         cmakeManager->createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(), m_argumentsLineEdit->text(),
                                     m_cmakeWizard->sourceDirectory(), m_buildDirectory, env,
-                                    QString::fromLatin1(generatorInfo.generatorArgument()));
+                                    QString::fromLatin1(generatorInfo.generatorArgument()),
+                                    QString::fromLatin1(generatorInfo.preLoadScriptFileArgument()));
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);

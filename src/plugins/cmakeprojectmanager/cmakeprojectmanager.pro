@@ -26,7 +26,9 @@ HEADERS = cmakebuildinfo.h \
     cmakefile.h \
     cmakebuildsettingswidget.h \
     cmakeindenter.h \
-    cmakeautocompleter.h
+    cmakeautocompleter.h \
+    cmakepreloadcachekitinformation.h \
+    cmakepreloadcachekitconfigwidget.h
 
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
@@ -50,7 +52,8 @@ SOURCES = cmakeproject.cpp \
     cmakefile.cpp \
     cmakebuildsettingswidget.cpp \
     cmakeindenter.cpp \
-    cmakeautocompleter.cpp
-
+    cmakeautocompleter.cpp \
+    cmakepreloadcachekitinformation.cpp \
+    cmakepreloadcachekitconfigwidget.cpp
 
 RESOURCES += cmakeproject.qrc

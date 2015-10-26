@@ -38,6 +38,7 @@
 #include <baremetal/baremetalconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <qnx/qnxconstants.h>
+#include "cmakepreloadcachekitinformation.h"
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -91,6 +92,17 @@ QByteArray GeneratorInfo::generatorArgument() const
     if (tmp.isEmpty())
         return tmp;
     return QByteArray("-GCodeBlocks - ") + tmp;
+}
+
+QByteArray GeneratorInfo::preLoadScriptFileArgument() const
+{
+    if (!m_kit)
+        return QByteArray();
+
+    QByteArray tmp = m_kit->value(CMakePreloadCacheKitInformation::id()).toByteArray();
+    if (tmp.isEmpty())
+        return tmp;
+    return QByteArray("-C") + tmp;
 }
 
 QString GeneratorInfo::displayName() const

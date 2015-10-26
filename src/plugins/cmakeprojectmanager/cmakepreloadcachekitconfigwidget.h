@@ -27,45 +27,43 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
-#define CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
 
-#include "cmakeprojectmanager.h"
+#ifndef CMAKEPRELOADCACHEKITCONFIGWIDGET_H
+#define CMAKEPRELOADCACHEKITCONFIGWIDGET_H
 
-#include <projectexplorer/kit.h>
+#include <projectexplorer/kitconfigwidget.h>
 
-#include <QCoreApplication>
-#include <QMetaType>
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class GeneratorInfo
+class CMakePreloadCacheKitConfigWidget : public ProjectExplorer::KitConfigWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
+    Q_OBJECT
+
 public:
-    enum Ninja { NoNinja, OfferNinja, ForceNinja };
-    static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks);
+    CMakePreloadCacheKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
+    ~CMakePreloadCacheKitConfigWidget();
 
-    GeneratorInfo();
-    explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
-
-    ProjectExplorer::Kit *kit() const;
-    bool isNinja() const;
-
+    QWidget *mainWidget() const;
     QString displayName() const;
-    QByteArray generatorArgument() const;
-    QByteArray generator() const;
-    QByteArray preLoadScriptFileArgument() const;
+    QString toolTip() const;
+
+    void makeReadOnly();
+    void refresh();
+
+private slots:
+    void preloadFileWasChanged(const QString &text);
 
 private:
-    ProjectExplorer::Kit *m_kit;
-    bool m_isNinja;
+    QLineEdit *m_lineEdit = nullptr;
+    bool m_ignoreChange = false;
 };
 
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo)
-
-#endif // CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
+#endif // CMAKEPRELOADCACHEKITCONFIGWIDGET_H

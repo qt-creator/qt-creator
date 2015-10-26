@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Canonical Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -27,45 +27,64 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
-#define CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
+#include "cmakepreloadcachekitinformation.h"
+#include "cmakepreloadcachekitconfigwidget.h"
+#include "cmaketoolmanager.h"
+#include "cmaketool.h"
 
-#include "cmakeprojectmanager.h"
-
+#include <utils/qtcassert.h>
+#include <projectexplorer/task.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
-#include <QCoreApplication>
-#include <QMetaType>
+#include <QDebug>
+
+using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
-namespace Internal {
 
-class GeneratorInfo
+CMakePreloadCacheKitInformation::CMakePreloadCacheKitInformation()
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
-public:
-    enum Ninja { NoNinja, OfferNinja, ForceNinja };
-    static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks);
+    setObjectName(QLatin1String("CMakePreloadCacheKitInformation"));
+    setId(CMakePreloadCacheKitInformation::id());
+    setPriority(20000);
+}
 
-    GeneratorInfo();
-    explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
+Core::Id CMakePreloadCacheKitInformation::id()
+{
+    return "CMakeProjectManager.CMakePreloadCacheKitInformation";
+}
 
-    ProjectExplorer::Kit *kit() const;
-    bool isNinja() const;
+QVariant CMakePreloadCacheKitInformation::defaultValue(Kit *) const
+{
+    return QString();
+}
 
-    QString displayName() const;
-    QByteArray generatorArgument() const;
-    QByteArray generator() const;
-    QByteArray preLoadScriptFileArgument() const;
+QList<Task> CMakePreloadCacheKitInformation::validate(const Kit *k) const
+{
+    Q_UNUSED(k);
+    return QList<Task>();
+}
 
-private:
-    ProjectExplorer::Kit *m_kit;
-    bool m_isNinja;
-};
+void CMakePreloadCacheKitInformation::setup(Kit *k)
+{
+    Q_UNUSED(k);
+}
 
-} // namespace Internal
+void CMakePreloadCacheKitInformation::fix(Kit *k)
+{
+    Q_UNUSED(k);
+}
+
+KitInformation::ItemList CMakePreloadCacheKitInformation::toUserOutput(const Kit *k) const
+{
+    return ItemList()
+            << qMakePair(tr("CMake Preload"), k->value(id()).toString());
+}
+
+KitConfigWidget *CMakePreloadCacheKitInformation::createConfigWidget(Kit *k) const
+{
+    return new Internal::CMakePreloadCacheKitConfigWidget(k, this);
+}
+
 } // namespace CMakeProjectManager
-
-Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo)
-
-#endif // CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
