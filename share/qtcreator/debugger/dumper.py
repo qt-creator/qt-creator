@@ -1993,11 +1993,3 @@ class DumperBase:
     def extractInterpreterStack(self):
         return self.sendInterpreterRequest('backtrace', {'limit': 10 })
 
-    def polishWatchers(self, watchers):
-        out = []
-        for watcher in watchers:
-            iname = watcher.get('iname')
-            exp = self.hexdecode(watcher.get('exp'))
-            out.append({'iname': iname, 'expression': exp, 'name': exp })
-        return out
-
