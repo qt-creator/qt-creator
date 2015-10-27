@@ -311,13 +311,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
         "Debugger.Views.OpenMemoryEditor", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-
     cmd = ActionManager::registerAction(q->menuSeparator1(),
         "Debugger.Views.Separator1", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(q->autoHideTitleBarsAction(),
-        "Debugger.Views.AutoHideTitleBars", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = ActionManager::registerAction(q->menuSeparator2(),
