@@ -66,11 +66,11 @@ void setCreatorTheme(Theme *theme)
     m_creatorTheme = theme;
 }
 
-Theme::Theme(const QString &name, QObject *parent)
+Theme::Theme(const QString &id, QObject *parent)
   : QObject(parent)
   , d(new ThemePrivate)
 {
-    d->name = name;
+    d->id = id;
 }
 
 Theme::~Theme()
@@ -86,6 +86,11 @@ Theme::WidgetStyle Theme::widgetStyle() const
 QStringList Theme::preferredStyles() const
 {
     return d->preferredStyles;
+}
+
+QString Theme::id() const
+{
+    return d->id;
 }
 
 bool Theme::flag(Theme::Flag f) const
@@ -130,14 +135,14 @@ QString Theme::filePath() const
     return d->fileName;
 }
 
-QString Theme::name() const
+QString Theme::displayName() const
 {
-    return d->name;
+    return d->displayName;
 }
 
-void Theme::setName(const QString &name)
+void Theme::setDisplayName(const QString &name)
 {
-    d->name = name;
+    d->displayName = name;
 }
 
 QVariantHash Theme::values() const
@@ -185,7 +190,7 @@ void Theme::writeSettings(const QString &filename) const
 
     const QMetaObject &m = *metaObject();
     {
-        settings.setValue(QLatin1String("ThemeName"), d->name);
+        settings.setValue(QLatin1String("ThemeName"), d->displayName);
         settings.setValue(QLatin1String("PreferredStyles"), d->preferredStyles);
     }
     {
@@ -264,7 +269,7 @@ void Theme::readSettings(QSettings &settings)
     const QMetaObject &m = *metaObject();
 
     {
-        d->name = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed")).toString();
+        d->displayName = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed")).toString();
         d->preferredStyles = settings.value(QLatin1String("PreferredStyles")).toStringList();
         d->preferredStyles.removeAll(QLatin1String(""));
     }

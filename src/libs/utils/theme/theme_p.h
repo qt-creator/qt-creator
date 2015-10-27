@@ -44,8 +44,9 @@ class QTCREATOR_UTILS_EXPORT ThemePrivate
 public:
     ThemePrivate();
 
+    QString id;
     QString fileName;
-    QString name;
+    QString displayName;
     QStringList preferredStyles;
     QVector<QPair<QColor, QString> > colors;
     QVector<QString> imageFiles;
