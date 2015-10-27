@@ -2496,8 +2496,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act = m_frameUpAction = new QAction(tr("Move to Calling Frame"), this);
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleFrameUp);
 
-    connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
-        SLOT(handleOperateByInstructionTriggered(bool)));
+    connect(action(OperateByInstruction), &QAction::triggered,
+            this, &DebuggerPluginPrivate::handleOperateByInstructionTriggered);
 
     ActionContainer *debugMenu = ActionManager::actionContainer(PE::M_DEBUG);
 
