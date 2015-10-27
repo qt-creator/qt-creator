@@ -186,27 +186,13 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const FormatDescriptions &fd,
         settingsFound = m_value.fromSettings(m_settingsGroup, m_descriptions, settings);
 
     if (!settingsFound) { // Apply defaults
-        foreach (const FormatDescription &f, m_descriptions) {
-            Format &format = m_value.formatFor(f.id());
-            format.setForeground(f.foreground());
-            format.setBackground(f.background());
-            format.setBold(f.format().bold());
-            format.setItalic(f.format().italic());
-            format.setUnderlineColor(f.format().underlineColor());
-            format.setUnderlineStyle(f.format().underlineStyle());
-        }
+        foreach (const FormatDescription &f, m_descriptions)
+            m_value.setFormatFor(f.id(), f.format());
     } else if (m_value.colorSchemeFileName().isEmpty()) {
         // No color scheme was loaded, but one might be imported from the ini file
         ColorScheme defaultScheme;
-        foreach (const FormatDescription &f, m_descriptions) {
-            Format &format = defaultScheme.formatFor(f.id());
-            format.setForeground(f.foreground());
-            format.setBackground(f.background());
-            format.setBold(f.format().bold());
-            format.setItalic(f.format().italic());
-            format.setUnderlineColor(f.format().underlineColor());
-            format.setUnderlineStyle(f.format().underlineStyle());
-        }
+        foreach (const FormatDescription &f, m_descriptions)
+            defaultScheme.setFormatFor(f.id(), f.format());
         if (m_value.colorScheme() != defaultScheme) {
             // Save it as a color scheme file
             QString schemeFileName = createColorSchemeFileName(QLatin1String("customized%1.xml"));
