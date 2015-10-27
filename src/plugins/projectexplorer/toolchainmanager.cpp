@@ -46,6 +46,8 @@
 #include <QDir>
 #include <QSettings>
 
+#include <tuple>
+
 static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
 static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
 static const char TOOLCHAIN_FILE_VERSION_KEY[] = "Version";
@@ -196,11 +198,9 @@ static QList<ToolChain *> subtractById(const QList<ToolChain *> &a, const QList<
                               });
 }
 
-static QList<ToolChain *> intersectByEqual(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+static bool containsByEqual(const QList<ToolChain *> &a, const ToolChain *atc)
 {
-    return Utils::filtered(a, [&b](ToolChain *atc) {
-                                  return Utils::anyOf(b, [atc](ToolChain *btc) { return *atc == *btc; });
-                              });
+    return Utils::anyOf(a, [atc](ToolChain *btc) { return *atc == *btc; });
 }
 
 static QList<ToolChain *> makeUnique(const QList<ToolChain *> &a)
@@ -223,22 +223,20 @@ static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemF
                                                const QList<ToolChain *> &userFileTcs,
                                                const QList<ToolChain *> &autodetectedTcs)
 {
-    const QList<ToolChain *> manualUserTcs
-            = Utils::filtered(userFileTcs, [](ToolChain *t) { return !t->isAutoDetected(); });
-
-    // Remove systemFileTcs from autodetectedUserTcs based on id-matches:
-    const QList<ToolChain *> autodetectedUserFileTcs
-            = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
+    // Remove systemFileTcs from autodetectedUserFileTcs based on id-matches:
+    QList<ToolChain *> manualUserFileTcs;
+    QList<ToolChain *> autodetectedUserFileTcs;
+    std::tie(autodetectedUserFileTcs, manualUserFileTcs)
+            = Utils::partition(userFileTcs, &ToolChain::isAutoDetected);
     const QList<ToolChain *> autodetectedUserTcs = subtractById(autodetectedUserFileTcs, systemFileTcs);
 
     // Calculate a set of Tcs that were detected before (and saved to userFile) and that
     // got re-detected again. Take the userTcs (to keep Ids) over the same in autodetectedTcs.
-    const QList<ToolChain *> redetectedUserTcs
-            = intersectByEqual(autodetectedUserTcs, autodetectedTcs);
-
-    // Remove redetected tcs from autodetectedUserTcs:
-    const QList<ToolChain *> notRedetectedUserTcs
-            = subtractByPointerEqual(autodetectedUserTcs, redetectedUserTcs);
+    QList<ToolChain *> redetectedUserTcs;
+    QList<ToolChain *> notRedetectedUserTcs;
+    std::tie(redetectedUserTcs, notRedetectedUserTcs)
+            = Utils::partition(autodetectedUserTcs,
+                               [&autodetectedTcs](ToolChain *tc) { return containsByEqual(autodetectedTcs, tc); });
 
     // Remove redetected tcs from autodetectedTcs:
     const QList<ToolChain *> newlyAutodetectedTcs
@@ -248,12 +246,12 @@ static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemF
             = Utils::filtered(notRedetectedUserTcs, &ToolChain::isValid);
 
     const QList<ToolChain *> validManualUserTcs
-            = Utils::filtered(manualUserTcs, &ToolChain::isValid);
+            = Utils::filtered(manualUserFileTcs, &ToolChain::isValid);
 
     ToolChainOperations result;
     result.toDemote = notRedetectedButValidUserTcs;
-    result.toRegister = result.toDemote + systemFileTcs + redetectedUserTcs + newlyAutodetectedTcs
-            + validManualUserTcs;
+    result.toRegister = systemFileTcs + validManualUserTcs + result.toDemote // manual TCs
+            + redetectedUserTcs + newlyAutodetectedTcs; // auto TCs
 
     result.toDelete = makeUnique(subtractByPointerEqual(systemFileTcs + userFileTcs + autodetectedTcs,
                                                         result.toRegister));
