@@ -106,7 +106,7 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "../../qmake/qtquickcontrolsapplication/main.qml",
+                    "source": "../../qmake/qtquickcontrolsapplication/main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFileName}",
                     "openInEditor": true
                 },
