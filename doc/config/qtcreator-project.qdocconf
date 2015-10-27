@@ -23,6 +23,7 @@ indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
               $QDOC_INDEX_DIR/qtgui/qtgui.index \
               $QDOC_INDEX_DIR/qthelp/qthelp.index \
               $QDOC_INDEX_DIR/qtquickcontrols/qtquickcontrols.index \
+              $QDOC_INDEX_DIR/qtquickextras/qtquickextras.index \
               $QDOC_INDEX_DIR/qtquicklayouts/qtquicklayouts.index \
               $QDOC_INDEX_DIR/qtlinguist/qtlinguist.index \
               $QDOC_INDEX_DIR/qtscript/qtscript.index \
