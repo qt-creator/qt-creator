@@ -35,6 +35,8 @@
 
 #include <algorithm>
 #include <functional>
+#include <tuple>
+
 #include <QStringList>
 
 namespace Utils
@@ -357,6 +359,39 @@ C filtered(const C &container, R (S::*predicate)() const)
     std::copy_if(container.begin(), container.end(),
                  inserter(out), std::mem_fn(predicate));
     return out;
+}
+
+//////////////////
+// partition
+/////////////////
+
+// Recommended usage:
+// C hit;
+// C miss;
+// std::tie(hit, miss) = Utils::partition(container, predicate);
+
+template<typename C, typename F>
+Q_REQUIRED_RESULT
+std::tuple<C, C> partition(const C &container, F predicate)
+{
+    C hit;
+    C miss;
+    auto hitIns = inserter(hit);
+    auto missIns = inserter(miss);
+    foreach (auto i, container) {
+        if (predicate(i))
+            hitIns = i;
+        else
+            missIns = i;
+    }
+    return std::make_tuple(hit, miss);
+}
+
+template<typename C, typename R, typename S>
+Q_REQUIRED_RESULT
+std::tuple<C, C> partition(const C &container, R (S::*predicate)() const)
+{
+    return partition(container, std::mem_fn(predicate));
 }
 
 //////////////////
