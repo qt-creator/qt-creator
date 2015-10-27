@@ -320,12 +320,8 @@ bool FontSettings::loadColorScheme(const QString &fileName,
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
             Format format;
-            if (desc.format() == format && m_scheme.contains(C_TEXT)) {
-                format = m_scheme.formatFor(C_TEXT); // Default format -> Text
-            } else {
-                format.setForeground(desc.foreground());
-                format.setBackground(desc.background());
-            }
+            format.setForeground(desc.foreground());
+            format.setBackground(desc.background());
             format.setBold(desc.format().bold());
             format.setItalic(desc.format().italic());
             format.setUnderlineColor(desc.format().underlineColor());
