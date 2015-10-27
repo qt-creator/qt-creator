@@ -86,8 +86,8 @@ public:
     bool antialias() const;
     void setAntialias(bool antialias);
 
+    Format &formatFor(TextStyle category);
     Format formatFor(TextStyle category) const;
-    void setFormatFor(TextStyle category, const Format &format);
 
     QString colorSchemeFileName() const;
     void setColorSchemeFileName(const QString &fileName);
