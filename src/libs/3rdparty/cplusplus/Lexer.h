@@ -37,7 +37,6 @@ public:
     ~Lexer();
 
     Control *control() const { return _control; }
-    TranslationUnit *translationUnit() const;
 
     void scan(Token *tok);
 

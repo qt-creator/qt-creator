@@ -77,9 +77,6 @@ Lexer::Lexer(const char *firstChar, const char *lastChar)
 Lexer::~Lexer()
 { }
 
-TranslationUnit *Lexer::translationUnit() const
-{ return _translationUnit; }
-
 void Lexer::setSource(const char *firstChar, const char *lastChar)
 {
     _firstChar = firstChar;
