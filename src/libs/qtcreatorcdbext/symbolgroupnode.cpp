@@ -1119,7 +1119,7 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     std::wstring value = simpleDumpValue(ctx, &encoding);
 
     if (addr) {
-        str << std::hex << std::showbase << ",addr=\"" << addr << '"';
+        str << std::hex << std::showbase << ",address=\"" << addr << '"';
         if (SymbolGroupValue::isPointerType(t)) {
             std::string::size_type pointerPos = value.rfind(L"0x");
             if (pointerPos != std::string::npos) {
@@ -1602,7 +1602,7 @@ int MapNodeSymbolGroupNode::dump(std::ostream &str, const std::string &visitingF
 {
     SymbolGroupNode::dumpBasicData(str, name(), visitingFullIname);
     if (m_address)
-        str << ",addr=\"0x" << std::hex << m_address << '"';
+        str << ",address=\"0x" << std::hex << m_address << '"';
     str << ",type=\"" << m_type << "\",valueencoded=\"0\",value=\"\",valueenabled=\"false\""
            ",valueeditable=\"false\"";
     return 2;

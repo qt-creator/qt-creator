@@ -1269,7 +1269,7 @@ def _qdump__QObject(d, value):
                             d.putField("keyencoded", Hex2EncodedLatin1)
                             qq = q.cast(valuesType.pointer().pointer())
                             qq = qq.dereference();
-                            d.putField("addr", d.cleanAddress(qq))
+                            d.putField("address", d.cleanAddress(qq))
                             d.putField("exp", "*(%s*)%s"
                                  % (variant, d.cleanAddress(qq)))
                             t = qdump__QVariant(d, qq)
