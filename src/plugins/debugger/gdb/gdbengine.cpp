@@ -3286,7 +3286,7 @@ void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
 
 DebuggerCommand GdbEngine::stackCommand(int depth)
 {
-    DebuggerCommand cmd("stackListFrames");
+    DebuggerCommand cmd("fetchStack");
     cmd.arg("limit", depth);
     cmd.arg("nativemixed", isNativeMixedActive());
     return cmd;

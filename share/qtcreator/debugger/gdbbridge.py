@@ -1572,7 +1572,7 @@ class Dumper(DumperBase):
     def doContinue(self):
         gdb.execute('continue')
 
-    def stackListFrames(self, args):
+    def fetchStack(self, args):
         def fromNativePath(str):
             return str.replace('\\', '/')
 
