@@ -12,7 +12,6 @@ SUBDIRS += \
     generichighlighter \
     profilewriter \
     treeviewfind \
-    ioutils \
     qtcprocess \
     utils \
     filesearch \
