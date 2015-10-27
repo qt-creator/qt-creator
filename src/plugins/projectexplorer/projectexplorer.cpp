@@ -142,6 +142,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QDir>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -3340,6 +3341,16 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                                      renameFileError);
             });
         }
+    } else {
+        const QString renameFileError = tr("The file %1 could not be renamed %2.")
+                .arg(QDir::toNativeSeparators(orgFilePath))
+                .arg(QDir::toNativeSeparators(newFilePath));
+
+        QTimer::singleShot(0, [renameFileError]() {
+            QMessageBox::warning(ICore::mainWindow(),
+                                 tr("Cannot Rename File"),
+                                 renameFileError);
+        });
     }
 }
 
