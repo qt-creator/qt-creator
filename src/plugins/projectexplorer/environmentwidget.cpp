@@ -52,6 +52,7 @@ namespace ProjectExplorer {
 
 class EnvironmentValidator : public QValidator
 {
+    Q_OBJECT
 public:
     EnvironmentValidator(QWidget *parent, Utils::EnvironmentModel *model,
                          QTreeView *view,
@@ -409,3 +410,5 @@ void Internal::EnvironmentTreeView::keyPressEvent(QKeyEvent *event)
 
 
 } // namespace ProjectExplorer
+
+#include "environmentwidget.moc"
