@@ -33,13 +33,13 @@
 namespace QmlJSTools {
 namespace Internal {
 
-bool QmlJSInterpreter::canEvaluate()
+bool QmlJSInterpreter::canEvaluate(QString code)
 {
     int yyaction = 0;
     int yytoken = -1;
     int yytos = -1;
 
-    setCode(m_code, 1);
+    setCode(code, 1);
     m_tokens.append(T_FEED_JS_PROGRAM);
 
     do {

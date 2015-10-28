@@ -312,6 +312,18 @@ QWidget *QmlConsoleItemDelegate::createEditor(QWidget *parent,
 
 {
     QmlConsoleEdit *editor = new QmlConsoleEdit(index, parent);
+    // Fiddle the prompt into the margin so that we don't have to put it into the text.
+    // Apparently you can have both background-image and background-color, which conveniently
+    // prevents the painted text from shining through.
+    editor->setStyleSheet(QLatin1String("QTextEdit {"
+                                        "margin-left: 24px;"
+                                        "margin-top: 4px;"
+                                        "background-color: white;"
+                                        "background-image: url(:/qmljstools/images/prompt.png);"
+                                        "background-position: baseline left;"
+                                        "background-origin: margin;"
+                                        "background-repeat: none;"
+                                        "}"));
     connect(editor, &QmlConsoleEdit::editingFinished,
             this, &QmlConsoleItemDelegate::commitAndCloseEditor);
     return editor;

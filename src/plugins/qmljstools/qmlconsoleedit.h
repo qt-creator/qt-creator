@@ -49,7 +49,6 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *e);
-    void contextMenuEvent(QContextMenuEvent *event);
     void focusOutEvent(QFocusEvent *e);
 
 signals:
@@ -64,8 +63,6 @@ protected:
 private:
     QModelIndex m_historyIndex;
     QString m_cachedScript;
-    QImage m_prompt;
-    int m_startOfEditableArea;
     QmlJSInterpreter m_interpreter;
 };
 
