@@ -164,9 +164,6 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
         }
         if (!handled)
             Utils::TreeView::mousePressEvent(event);
-    } else {
-        selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
-                                          QItemSelectionModel::ClearAndSelect);
     }
 }
 
@@ -214,6 +211,13 @@ void QmlConsoleView::contextMenuEvent(QContextMenuEvent *event)
                     proxyModel->sourceModel());
         handler->clear();
     }
+}
+
+void QmlConsoleView::focusInEvent(QFocusEvent *event)
+{
+    Q_UNUSED(event);
+    selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
+                                      QItemSelectionModel::ClearAndSelect);
 }
 
 void QmlConsoleView::onRowActivated(const QModelIndex &index)

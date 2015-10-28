@@ -195,12 +195,17 @@ bool QmlConsolePane::canFocus() const
 
 bool QmlConsolePane::hasFocus() const
 {
-    return m_consoleWidget->window()->focusWidget() == m_consoleWidget;
+    for (QWidget *widget = m_consoleWidget->window()->focusWidget(); widget != 0;
+         widget = widget->parentWidget()) {
+        if (widget == m_consoleWidget)
+            return true;
+    }
+    return false;
 }
 
 void QmlConsolePane::setFocus()
 {
-    m_consoleWidget->setFocus();
+    m_consoleView->setFocus();
 }
 
 bool QmlConsolePane::canNext() const

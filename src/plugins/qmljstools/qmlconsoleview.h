@@ -51,6 +51,7 @@ protected:
     void drawBranches(QPainter *painter, const QRect &rect,
                       const QModelIndex &index) const;
     void contextMenuEvent(QContextMenuEvent *event);
+    void focusInEvent(QFocusEvent *event);
 
 private slots:
     void onRowActivated(const QModelIndex &index);
