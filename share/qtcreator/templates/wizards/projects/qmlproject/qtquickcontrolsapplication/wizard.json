@@ -111,7 +111,7 @@
                     "openInEditor": true
                 },
                 {
-                    "source": "../../qmake/qtquickcontrolsapplication/MainForm.ui.qml",
+                    "source": "../../qmake/qtquickcontrolsapplication/MainForm.ui.qml.tpl",
                     "target": "%{ProjectDirectory}/MainForm.ui.qml",
                     "condition": "%{IsUiFileInUse}"
                 },
