@@ -248,7 +248,6 @@ static void paintSelectedTabBackground(QPainter *painter, const QRect &spanRect)
             + QLatin1Char('@') + QString::number(dpr);
     QPixmap selection;
     if (!QPixmapCache::find(cacheKey, &selection)) {
-        qDebug() << Q_FUNC_INFO << dpr;
         selection = QPixmap(QSize(spanRect.width(), spanRect.height() + 2 * verticalOverlap) * dpr);
         selection.fill(Qt::transparent);
         selection.setDevicePixelRatio(dpr);
