@@ -440,16 +440,16 @@ GerritChangePtr GerritModel::change(const QModelIndex &index) const
     return GerritChangePtr(new GerritChange);
 }
 
-QString GerritModel::dependencyHtml(const QString &header, const QString &changeId,
+QString GerritModel::dependencyHtml(const QString &header, const int changeNumber,
                                     const QString &serverPrefix) const
 {
     QString res;
-    if (changeId.isEmpty())
+    if (!changeNumber)
         return res;
     QTextStream str(&res);
     str << "<tr><td>" << header << "</td><td><a href="
-        << serverPrefix << "r/" << changeId << '>' << changeId << "</a>";
-    if (const QStandardItem *item = itemForId(changeId))
+        << serverPrefix << "r/" << changeNumber << '>' << changeNumber << "</a>";
+    if (const QStandardItem *item = itemForNumber(changeNumber))
         str << " (" << changeFromItem(item)->title << ')';
     str << "</td></tr>";
     return res;
@@ -479,8 +479,8 @@ QString GerritModel::toHtml(const QModelIndex& index) const
         << "<tr><td>" << ownerHeader << "</td><td>" << c->owner << ' '
         << "<a href=\"mailto:" << c->email << "\">" << c->email << "</a></td></tr>"
         << "<tr><td>" << projectHeader << "</td><td>" << c->project << " (" << c->branch << ")</td></tr>"
-        << dependencyHtml(dependsOnHeader, c->dependsOnId, serverPrefix)
-        << dependencyHtml(neededByHeader, c->neededById, serverPrefix)
+        << dependencyHtml(dependsOnHeader, c->dependsOnNumber, serverPrefix)
+        << dependencyHtml(neededByHeader, c->neededByNumber, serverPrefix)
         << "<tr><td>" << statusHeader << "</td><td>" << c->status
         << ", " << c->lastUpdated.toString(Qt::DefaultLocaleShortDate) << "</td></tr>"
         << "<tr><td>" << patchSetHeader << "</td><td>" << "</td></tr>" << c->currentPatchSet.patchSetNumber << "</td></tr>"
@@ -490,25 +490,25 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     return result;
 }
 
-static QStandardItem *idSearchRecursion(QStandardItem *item, const QString &id)
+static QStandardItem *numberSearchRecursion(QStandardItem *item, int number)
 {
-    if (changeFromItem(item)->id == id)
+    if (changeFromItem(item)->number == number)
         return item;
     const int rowCount = item->rowCount();
     for (int r = 0; r < rowCount; ++r) {
-        if (QStandardItem *i = idSearchRecursion(item->child(r, 0), id))
+        if (QStandardItem *i = numberSearchRecursion(item->child(r, 0), number))
             return i;
     }
     return 0;
 }
 
-QStandardItem *GerritModel::itemForId(const QString &id) const
+QStandardItem *GerritModel::itemForNumber(int number) const
 {
-    if (id.isEmpty())
+    if (!number)
         return 0;
     const int numRows = rowCount();
     for (int r = 0; r < numRows; ++r) {
-        if (QStandardItem *i = idSearchRecursion(item(r, 0), id))
+        if (QStandardItem *i = numberSearchRecursion(item(r, 0), number))
             return i;
     }
     return 0;
@@ -586,7 +586,6 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
 {
     // The output consists of separate lines containing a document each
     const QString typeKey = QLatin1String("type");
-    const QString idKey = QLatin1String("id");
     const QString dependsOnKey = QLatin1String("dependsOn");
     const QString neededByKey = QLatin1String("neededBy");
     const QString branchKey = QLatin1String("branch");
@@ -656,7 +655,6 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         change->url = object.value(urlKey).toString();
         if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
             change->url = defaultUrl(parameters, change->number);
-        change->id = object.value(idKey).toString();
         change->title = object.value(titleKey).toString();
         const QJsonObject ownerJ = object.value(ownerKey).toObject();
         change->owner = ownerJ.value(ownerNameKey).toString();
@@ -681,7 +679,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             if (!dependsOnArray.isEmpty()) {
                 const QJsonValue first = dependsOnArray.at(0);
                 if (first.isObject())
-                    change->dependsOnId = first.toObject()[idKey].toString();
+                    change->dependsOnNumber = first.toObject()[numberKey].toString().toInt();
             }
         }
         // Read out needed by
@@ -691,7 +689,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             if (!neededByArray.isEmpty()) {
                 const QJsonValue first = neededByArray.at(0);
                 if (first.isObject())
-                    change->neededById = first.toObject()[idKey].toString();
+                    change->neededByNumber = first.toObject()[numberKey].toString().toInt();
             }
         }
     }
@@ -757,17 +755,17 @@ void GerritModel::queryFinished(const QByteArray &output)
     setState(parseOutput(m_parameters, output, changes) ? Ok : Error);
 
     // Populate a hash with indices for faster access.
-    QHash<QString, int> idIndexHash;
+    QHash<int, int> numberIndexHash;
     const int count = changes.size();
     for (int i = 0; i < count; ++i)
-        idIndexHash.insert(changes.at(i)->id, i);
+        numberIndexHash.insert(changes.at(i)->number, i);
     // Mark root nodes: Changes that do not have a dependency, depend on a change
     // not in the list or on a change that is not "NEW".
     for (int i = 0; i < count; ++i) {
-        if (changes.at(i)->dependsOnId.isEmpty()) {
+        if (!changes.at(i)->dependsOnNumber) {
             changes.at(i)->depth = 0;
         } else {
-            const int dependsOnIndex = idIndexHash.value(changes.at(i)->dependsOnId, -1);
+            const int dependsOnIndex = numberIndexHash.value(changes.at(i)->dependsOnNumber, -1);
             if (dependsOnIndex < 0 || changes.at(dependsOnIndex)->status != QLatin1String("NEW"))
                 changes.at(i)->depth = 0;
         }
@@ -778,7 +776,7 @@ void GerritModel::queryFinished(const QByteArray &output)
         changed = false;
         for (int i = 0; i < count; ++i) {
             if (changes.at(i)->depth < 0) {
-                const int dependsIndex = idIndexHash.value(changes.at(i)->dependsOnId);
+                const int dependsIndex = numberIndexHash.value(changes.at(i)->dependsOnNumber);
                 const int dependsOnDepth = changes.at(dependsIndex)->depth;
                 if (dependsOnDepth >= 0) {
                     changes.at(i)->depth = dependsOnDepth + 1;
@@ -789,19 +787,19 @@ void GerritModel::queryFinished(const QByteArray &output)
     }
     // Sort by depth (root nodes first) and by date.
     qStableSort(changes.begin(), changes.end(), gerritChangeLessThan);
-    idIndexHash.clear();
+    numberIndexHash.clear();
 
     foreach (const GerritChangePtr &c, changes) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
-        if (!itemForId(c->id)) {
+        if (!itemForNumber(c->number)) {
             // Determine the verbose user name from the owner of the first query.
             // It used for marking the changes pending for review in bold.
             if (m_userName.isEmpty() && !m_query->currentQuery())
                 m_userName = c->owner;
             const QList<QStandardItem *> newRow = changeToRow(c);
             if (c->depth) {
-                QStandardItem *parent = itemForId(c->dependsOnId);
+                QStandardItem *parent = itemForNumber(c->dependsOnNumber);
                 // Append changes with depth > 1 to the parent with depth=1 to avoid
                 // too-deeply nested items.
                 for (; changeFromItem(parent)->depth >= 1; parent = parent->parent()) {}
