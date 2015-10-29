@@ -72,7 +72,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
     m_projectName = fileInfo.completeBaseName();
 
     m_file = new Internal::QmlProjectFile(this, fileName);
-    m_rootNode = new Internal::QmlProjectNode(this, m_file);
+    m_rootNode = new Internal::QmlProjectNode(this);
 
     DocumentManager::addDocument(m_file, true);
 

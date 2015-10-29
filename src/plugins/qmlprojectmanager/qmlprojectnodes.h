@@ -47,11 +47,8 @@ namespace Internal {
 class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    QmlProjectNode(QmlProject *project, Core::IDocument *projectFile);
+    QmlProjectNode(QmlProject *project);
     ~QmlProjectNode() override;
-
-    Core::IDocument *projectFile() const;
-    QString projectFilePath() const;
 
     virtual bool showInSimpleTree() const override;
 
@@ -69,7 +66,6 @@ private:
 
 private:
     QmlProject *m_project;
-    Core::IDocument *m_projectFile;
     QHash<QString, FolderNode *> m_folderByName;
 };
 
