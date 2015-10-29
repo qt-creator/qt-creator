@@ -54,18 +54,10 @@ class AutotoolsProject;
 class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile);
+    AutotoolsProjectNode(const Utils::FileName &projectFilePath);
 
     bool showInSimpleTree() const override;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
-
-private:
-    AutotoolsProject *m_project;
-    Core::IDocument *m_projectFile;
-
-    // TODO: AutotoolsProject calls the protected function addFileNodes() from AutotoolsProjectNode.
-    // Instead of this friend declaration, a public interface might be preferable.
-    friend class AutotoolsProject;
 };
 
 } // namespace Internal

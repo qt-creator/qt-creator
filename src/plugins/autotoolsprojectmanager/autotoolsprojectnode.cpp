@@ -39,12 +39,9 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProjectNode::AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile) :
-    ProjectNode(projectFile->filePath()),
-    m_project(project),
-    m_projectFile(projectFile)
-{
-}
+AutotoolsProjectNode::AutotoolsProjectNode(const Utils::FileName &projectFilePath) :
+    ProjectNode(projectFilePath)
+{ }
 
 bool AutotoolsProjectNode::showInSimpleTree() const
 {

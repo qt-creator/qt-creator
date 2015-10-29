@@ -76,7 +76,7 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
     m_fileName(fileName),
     m_files(),
     m_file(new AutotoolsProjectFile(this, m_fileName)),
-    m_rootNode(new AutotoolsProjectNode(this, m_file)),
+    m_rootNode(new AutotoolsProjectNode(m_file->filePath())),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_watchedFiles(),
     m_makefileParserThread(0)
