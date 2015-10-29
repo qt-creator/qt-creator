@@ -631,14 +631,10 @@ void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem
 
         // handle data tags - just remove old and add them
         if (modifiedChild->childCount() || toBeModifiedChild->childCount()) {
-            beginRemoveRows(child, 0, toBeModifiedChild->childCount());
             toBeModifiedChild->removeChildren();
-            endRemoveRows();
             const int count = modifiedChild->childCount();
-            beginInsertRows(child, 0, count);
             for (int childRow = 0; childRow < count; ++childRow)
                 toBeModifiedChild->appendChild(new TestTreeItem(*modifiedChild->childItem(childRow)));
-            endInsertRows();
         }
 
         if (checkStates.contains(toBeModifiedChild->name())) {
