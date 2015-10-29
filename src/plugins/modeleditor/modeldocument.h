@@ -54,7 +54,7 @@ signals:
     void contentSet();
 
 public:
-    IDocument::OpenResult open(QString *errorString, const QString &fileName,
+    OpenResult open(QString *errorString, const QString &fileName,
                                const QString &realFileName) override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     QString defaultPath() const override;
@@ -65,7 +65,7 @@ public:
 
     ExtDocumentController *documentController() const;
 
-    bool load(QString *errorString, const QString &fileName);
+    OpenResult load(QString *errorString, const QString &fileName);
 
 private:
     ModelDocumentPrivate *d;
