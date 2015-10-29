@@ -55,10 +55,7 @@ class DetailsWidget;
 
 namespace QmakeProjectManager {
 
-class QmakeProject;
 class QmakeProFileNode;
-class QmakePriFileNode;
-class TargetInformation;
 
 namespace Internal {
 class DesktopQmakeRunConfigurationFactory;
