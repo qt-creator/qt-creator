@@ -78,13 +78,26 @@ void CMakePreloadCacheKitInformation::fix(Kit *k)
 
 KitInformation::ItemList CMakePreloadCacheKitInformation::toUserOutput(const Kit *k) const
 {
-    return ItemList()
-            << qMakePair(tr("CMake Preload"), k->value(id()).toString());
+    return ItemList() << qMakePair(tr("CMake Preload"), k->value(id()).toString());
 }
 
 KitConfigWidget *CMakePreloadCacheKitInformation::createConfigWidget(Kit *k) const
 {
     return new Internal::CMakePreloadCacheKitConfigWidget(k, this);
+}
+
+void CMakePreloadCacheKitInformation::setPreloadCacheFile(Kit *k, const QString &preload)
+{
+    if (!k)
+        return;
+    k->setValue(CMakePreloadCacheKitInformation::id(), preload);
+}
+
+QString CMakePreloadCacheKitInformation::preloadCacheFile(const Kit *k)
+{
+    if (!k)
+        return QString();
+    return k->value(CMakePreloadCacheKitInformation::id()).toString();
 }
 
 } // namespace CMakeProjectManager

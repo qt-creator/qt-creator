@@ -94,15 +94,10 @@ QByteArray GeneratorInfo::generatorArgument() const
     return QByteArray("-GCodeBlocks - ") + tmp;
 }
 
-QByteArray GeneratorInfo::preLoadScriptFileArgument() const
+QString GeneratorInfo::preLoadCacheFileArgument() const
 {
-    if (!m_kit)
-        return QByteArray();
-
-    QByteArray tmp = m_kit->value(CMakePreloadCacheKitInformation::id()).toByteArray();
-    if (tmp.isEmpty())
-        return tmp;
-    return QByteArray("-C") + tmp;
+    const QString tmp = CMakePreloadCacheKitInformation::preloadCacheFile(m_kit);
+    return tmp.isEmpty() ? QString() : QString::fromLatin1("-C") + tmp;
 }
 
 QString GeneratorInfo::displayName() const

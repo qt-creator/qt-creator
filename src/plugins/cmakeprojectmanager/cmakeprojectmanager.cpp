@@ -160,7 +160,8 @@ void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executa
     Utils::QtcProcess::addArg(&args, srcdir);
     Utils::QtcProcess::addArgs(&args, arguments);
     Utils::QtcProcess::addArg(&args, generator);
-    Utils::QtcProcess::addArg(&args, preloadCache);
+    if (!preloadCache.isEmpty())
+        Utils::QtcProcess::addArg(&args, preloadCache);
     proc->setCommand(executable, args);
     proc->start();
 }

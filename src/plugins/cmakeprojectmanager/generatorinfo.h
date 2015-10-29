@@ -56,7 +56,7 @@ public:
     QString displayName() const;
     QByteArray generatorArgument() const;
     QByteArray generator() const;
-    QByteArray preLoadScriptFileArgument() const;
+    QString preLoadCacheFileArgument() const;
 
 private:
     ProjectExplorer::Kit *m_kit;

@@ -49,8 +49,11 @@ public:
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void setup(ProjectExplorer::Kit *k) override;
     void fix(ProjectExplorer::Kit *k) override;
-    virtual ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-    virtual ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+
+    static void setPreloadCacheFile(ProjectExplorer::Kit *k, const QString &preload);
+    static QString preloadCacheFile(const ProjectExplorer::Kit *k);
 };
 
 } // namespace CMakeProjectManager

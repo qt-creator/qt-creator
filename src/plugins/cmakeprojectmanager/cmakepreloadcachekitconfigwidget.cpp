@@ -77,7 +77,7 @@ void CMakePreloadCacheKitConfigWidget::makeReadOnly()
 void CMakePreloadCacheKitConfigWidget::refresh()
 {
     if (!m_ignoreChange)
-        m_lineEdit->setText(m_kit->value(CMakePreloadCacheKitInformation::id()).toString());
+        m_lineEdit->setText(CMakePreloadCacheKitInformation::preloadCacheFile(m_kit));
 }
 
 void CMakePreloadCacheKitConfigWidget::preloadFileWasChanged(const QString &text)

@@ -597,7 +597,7 @@ void CMakeRunPage::runCMake()
                                     m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
                                     m_buildDirectory, env,
                                     QString::fromLatin1(generatorInfo.generatorArgument()),
-                                    QString::fromLatin1(generatorInfo.preLoadScriptFileArgument()));
+                                    generatorInfo.preLoadCacheFileArgument());
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
