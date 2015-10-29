@@ -80,8 +80,7 @@ def __checkBuildAndRun__():
     qmakePath = which("qmake")
     foundQt = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    __iterateTree__(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget",
-                    __qtFunc__, foundQt, qmakePath)
+    __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePath)
     test.verify(not qmakePath or len(foundQt) == 1,
                 "Was qmake from %s autodetected? Found %s" % (qmakePath, foundQt))
     if foundQt:
