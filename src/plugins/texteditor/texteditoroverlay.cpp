@@ -37,6 +37,8 @@
 #include <QPainter>
 #include <QTextBlock>
 
+#include <private/qtextcursor_p.h>
+
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
@@ -92,8 +94,13 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
     selection.m_fg = fg;
     selection.m_bg = bg;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    selection.m_cursor_begin = QTextCursorPrivate::fromPosition(document->docHandle(), begin);
+    selection.m_cursor_end = QTextCursorPrivate::fromPosition(document->docHandle(), end);
+#else
     selection.m_cursor_begin = QTextCursor(document->docHandle(), begin);
     selection.m_cursor_end = QTextCursor(document->docHandle(), end);
+#endif
 
     if (overlaySelectionFlags & ExpandBegin)
         selection.m_cursor_begin.setKeepPositionOnInsert(true);

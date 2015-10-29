@@ -1,5 +1,6 @@
 DEFINES += CORE_LIBRARY
-QT += help \
+QT += gui-private \
+    help \
     network \
     printsupport \
     qml \
