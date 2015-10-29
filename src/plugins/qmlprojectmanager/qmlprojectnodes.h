@@ -48,18 +48,18 @@ class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     QmlProjectNode(QmlProject *project, Core::IDocument *projectFile);
-    virtual ~QmlProjectNode();
+    ~QmlProjectNode() override;
 
     Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
-    virtual bool showInSimpleTree() const;
+    virtual bool showInSimpleTree() const override;
 
-    virtual QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    virtual QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
-    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    virtual bool deleteFiles(const QStringList &filePaths);
-    virtual bool renameFile(const QString &filePath, const QString &newFilePath);
+    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    virtual bool deleteFiles(const QStringList &filePaths) override;
+    virtual bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     void refresh();
 

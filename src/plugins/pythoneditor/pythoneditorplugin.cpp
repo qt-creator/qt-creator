@@ -778,7 +778,7 @@ public:
         , m_displayName(nodeDisplayName)
     {}
 
-    QString displayName() const { return m_displayName; }
+    QString displayName() const override { return m_displayName; }
 private:
     QString m_displayName;
 };

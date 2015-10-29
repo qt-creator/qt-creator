@@ -155,7 +155,7 @@ public:
     FileType fileType() const;
     bool isGenerated() const;
 
-    FileNode *asFileNode();
+    FileNode *asFileNode() override;
 
 private:
     // managed by ProjectNode
@@ -172,9 +172,9 @@ class PROJECTEXPLORER_EXPORT FolderNode : public Node
 public:
     explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = FolderNodeType,
                         const QString &displayName = QString());
-    virtual ~FolderNode();
+    ~FolderNode() override;
 
-    QString displayName() const;
+    QString displayName() const override;
     QIcon icon() const;
 
     QList<FileNode*> fileNodes() const;
@@ -213,7 +213,7 @@ public:
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
 
-    FolderNode *asFolderNode();
+    FolderNode *asFolderNode() override;
 
 protected:
     QList<FolderNode*> m_subFolderNodes;
@@ -230,7 +230,7 @@ class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
     explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
-    virtual ~VirtualFolderNode();
+    ~VirtualFolderNode() override;
 
     int priority() const;
 private:
@@ -291,18 +291,18 @@ class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode
 public:
     SessionNode();
 
-    QList<ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectAction> supportedActions(Node *node) const override;
 
     QList<ProjectNode*> projectNodes() const;
 
-    void accept(NodesVisitor *visitor);
+    void accept(NodesVisitor *visitor) override;
 
-    bool isEnabled() const { return true; }
+    bool isEnabled() const override { return true; }
 
-    bool showInSimpleTree() const;
+    bool showInSimpleTree() const override;
     void projectDisplayNameChanged(Node *node);
 
-    SessionNode *asSessionNode();
+    SessionNode *asSessionNode() override;
 protected:
     void addProjectNodes(const QList<ProjectNode*> &projectNodes);
     void removeProjectNodes(const QList<ProjectNode*> &projectNodes);

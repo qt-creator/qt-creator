@@ -52,13 +52,13 @@ public:
     Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
-    bool showInSimpleTree() const;
+    bool showInSimpleTree() const override;
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     void refresh(QSet<QString> oldFileList = QSet<QString>());
 

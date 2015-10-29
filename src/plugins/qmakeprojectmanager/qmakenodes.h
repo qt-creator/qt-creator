@@ -138,27 +138,27 @@ class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::Proj
 {
 public:
     QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const Utils::FileName &filePath);
-    ~QmakePriFileNode();
+    ~QmakePriFileNode() override;
 
     void update(const Internal::PriFileEvalResult &result);
 
 
-// ProjectNode interface
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    // ProjectNode interface
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
-    bool showInSimpleTree() const { return false; }
+    bool showInSimpleTree() const override { return false; }
 
-    bool canAddSubProject(const QString &proFilePath) const;
+    bool canAddSubProject(const QString &proFilePath) const override;
 
-    bool addSubProjects(const QStringList &proFilePaths);
-    bool removeSubProjects(const QStringList &proFilePaths);
+    bool addSubProjects(const QStringList &proFilePaths) override;
+    bool removeSubProjects(const QStringList &proFilePaths) override;
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool deleteFiles(const QStringList &filePaths);
-    bool canRenameFile(const QString &filePath, const QString &newFilePath);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool deleteFiles(const QStringList &filePaths) override;
+    bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     bool setProVariable(const QString &var, const QStringList &values,
                         const QString &scope = QString(),
@@ -166,8 +166,8 @@ public:
 
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
-    bool deploysFolder(const QString &folder) const;
-    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
+    bool deploysFolder(const QString &folder) const override;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
 
     QmakeProFileNode *proFileNode() const;
     QList<QmakePriFileNode*> subProjectNodesExact() const;
@@ -265,16 +265,14 @@ class ProVirtualFolderNode : public ProjectExplorer::VirtualFolderNode
 public:
     explicit ProVirtualFolderNode(const Utils::FileName &folderPath, int priority, const QString &typeName)
         : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
-    {
+    { }
 
-    }
-
-    QString displayName() const
+    QString displayName() const override
     {
         return m_typeName;
     }
 
-    QString tooltip() const
+    QString tooltip() const override
     {
         return QString();
     }
@@ -328,13 +326,13 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
 public:
     QmakeProFileNode(QmakeProject *project, const Utils::FileName &filePath);
-    ~QmakeProFileNode();
+    ~QmakeProFileNode() override;
 
     bool isParent(QmakeProFileNode *node);
 
-    bool showInSimpleTree() const;
+    bool showInSimpleTree() const override;
 
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     QmakeProjectType projectType() const;
 

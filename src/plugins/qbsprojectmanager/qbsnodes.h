@@ -54,7 +54,7 @@ public:
     QbsFileNode(const Utils::FileName &filePath, const ProjectExplorer::FileType fileType, bool generated,
                 int line);
 
-    QString displayName() const;
+    QString displayName() const override;
 };
 
 class QbsFolderNode : public ProjectExplorer::FolderNode
@@ -64,7 +64,7 @@ public:
                   const QString &displayName);
 
 private:
-    QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const override;
 };
 
 // ---------------------------------------------------------------------------
@@ -78,9 +78,9 @@ class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 public:
     explicit QbsBaseProjectNode(const Utils::FileName &path);
 
-    bool showInSimpleTree() const;
+    bool showInSimpleTree() const override;
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 private:
     friend class QbsGroupNode;
 };
@@ -94,11 +94,11 @@ class QbsGroupNode : public QbsBaseProjectNode
 public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
-    bool isEnabled() const;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool isEnabled() const override;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
     void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
                             bool productWasEnabled, bool productIsEnabled);
 
@@ -130,17 +130,17 @@ class QbsProductNode : public QbsBaseProjectNode
 public:
     explicit QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd);
 
-    bool isEnabled() const;
-    bool showInSimpleTree() const;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool isEnabled() const override;
+    bool showInSimpleTree() const override;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     void setQbsProductData(const qbs::Project &project, const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
 
 private:
     QbsGroupNode *findGroupNode(const QString &name);
@@ -157,13 +157,13 @@ class QbsProjectNode : public QbsBaseProjectNode
 {
 public:
     explicit QbsProjectNode(const Utils::FileName &path);
-    ~QbsProjectNode();
+    ~QbsProjectNode() override;
 
     virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const { return m_projectData; }
 
-    bool showInSimpleTree() const;
+    bool showInSimpleTree() const override;
 
 protected:
     void update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData);
@@ -190,12 +190,12 @@ public:
     using QbsProjectNode::update;
     void update();
 
-    QbsProject *project() const { return m_project; }
+    QbsProject *project() const  override { return m_project; }
 
 private:
     QStringList unreferencedBuildSystemFiles(const qbs::Project &p) const;
 
-    QbsProject * const m_project;
+    QbsProject *const m_project;
     ProjectExplorer::FolderNode *m_buildSystemFiles;
 };
 

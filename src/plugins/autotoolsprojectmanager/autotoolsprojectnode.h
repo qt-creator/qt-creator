@@ -56,8 +56,8 @@ class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
 public:
     AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile);
 
-    bool showInSimpleTree() const;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    bool showInSimpleTree() const override;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
 private:
     AutotoolsProject *m_project;

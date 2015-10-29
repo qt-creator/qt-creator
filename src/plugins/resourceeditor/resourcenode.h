@@ -46,18 +46,18 @@ class RESOURCE_EXPORT ResourceTopLevelNode : public ProjectExplorer::FolderNode
 {
 public:
     ResourceTopLevelNode(const Utils::FileName &filePath, FolderNode *parent);
-    ~ResourceTopLevelNode();
+    ~ResourceTopLevelNode() override;
     void update();
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved);
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;
 
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
 
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
-    bool showInSimpleTree() const;
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    bool showInSimpleTree() const override;
     bool removeNonExistingFiles();
 
 private:
@@ -70,19 +70,19 @@ class ResourceFolderNode : public ProjectExplorer::FolderNode
     friend class ResourceEditor::ResourceTopLevelNode; // for updateFiles
 public:
     ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent);
-    ~ResourceFolderNode();
+    ~ResourceFolderNode() override;
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
-    QString displayName() const;
+    QString displayName() const override;
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     bool renamePrefix(const QString &prefix, const QString &lang);
 
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     QString prefix() const;
     QString lang() const;
@@ -99,9 +99,9 @@ class ResourceFileNode : public ProjectExplorer::FileNode
 public:
     ResourceFileNode(const Utils::FileName &filePath, const QString &qrcPath, ResourceTopLevelNode *topLevel);
 
-    QString displayName() const;
+    QString displayName() const override;
     QString qrcPath() const;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
 private:
     QString m_displayName;
