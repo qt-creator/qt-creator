@@ -112,7 +112,7 @@ public:
     NodeType nodeType() const;
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
-    const Utils::FileName &path() const;  // file system path
+    const Utils::FileName &filePath() const;  // file system path
     int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
@@ -120,9 +120,8 @@ public:
 
     virtual QList<ProjectAction> supportedActions(Node *node) const;
 
-    void setPath(const Utils::FileName &path);
-    void setLine(int line);
-    void setPathAndLine(const Utils::FileName &path, int line);
+    void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
+
     void emitNodeUpdated();
 
     virtual FileNode *asFileNode();
@@ -131,7 +130,7 @@ public:
     virtual SessionNode *asSessionNode();
 
 protected:
-    Node(NodeType nodeType, const Utils::FileName &path, int line = -1);
+    Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
     void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
@@ -144,7 +143,7 @@ private:
     int m_line;
     ProjectNode *m_projectNode;
     FolderNode *m_folderNode;
-    Utils::FileName m_path;
+    Utils::FileName m_filePath;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node

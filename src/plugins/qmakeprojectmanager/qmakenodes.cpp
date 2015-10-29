@@ -112,11 +112,11 @@ class SortByPath
 {
 public:
     bool operator()(Node *a, Node *b)
-    { return operator()(a->path(), b->path()); }
+    { return operator()(a->filePath(), b->filePath()); }
     bool operator()(Node *a, const FileName &b)
-    { return operator()(a->path(), b); }
+    { return operator()(a->filePath(), b); }
     bool operator()(const FileName &a, Node *b)
-    { return operator()(a, b->path()); }
+    { return operator()(a, b->filePath()); }
     // Compare as strings to correctly detect case-only file rename
     bool operator()(const FileName &a, const FileName &b)
     { return a.toString() < b.toString(); }
@@ -254,7 +254,7 @@ QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
 {
     setId("Qmake.PriFile");
     setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(m_priFile->path());
+    setFilePath(m_priFile->filePath());
 }
 
 bool QmakePriFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -468,7 +468,7 @@ struct InternalNode
         QMultiMap<QString, FolderNode *> existingFolderNodes;
         foreach (FolderNode *node, folder->subFolderNodes())
             if (node->nodeType() != ProjectNodeType && !dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
-                existingFolderNodes.insert(node->path().toString(), node);
+                existingFolderNodes.insert(node->filePath().toString(), node);
 
         QList<FolderNode *> foldersToRemove;
         QList<FolderNode *> foldersToAdd;
@@ -929,7 +929,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
         // work on a subset of the file types according to project type.
 
         actions << AddNewFile;
-        if (m_recursiveEnumerateFiles.contains(node->path()))
+        if (m_recursiveEnumerateFiles.contains(node->filePath()))
             actions << EraseFile;
         else
             actions << RemoveFile;
@@ -941,13 +941,13 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
             if (folder) {
                 QStringList list;
                 foreach (FolderNode *f, folder->subFolderNodes())
-                    list << f->path().toString() + QLatin1Char('/');
+                    list << f->filePath().toString() + QLatin1Char('/');
                 if (deploysFolder(Utils::commonPath(list)))
                     addExistingFiles = false;
             }
         }
 
-        addExistingFiles = addExistingFiles && !deploysFolder(node->path().toString());
+        addExistingFiles = addExistingFiles && !deploysFolder(node->filePath().toString());
 
         if (addExistingFiles)
             actions << AddExistingFile << AddExistingDirectory;
@@ -1139,7 +1139,7 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
 FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return FolderNode::AddNewInformation(path().fileName(), context && context->projectNode() == this ? 120 : 90);
+    return FolderNode::AddNewInformation(filePath().fileName(), context && context->projectNode() == this ? 120 : 90);
 }
 
 bool QmakePriFileNode::priFileWritable(const QString &path)
@@ -1586,7 +1586,7 @@ namespace {
 
 QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) const
 {
-    if (fileName == path())
+    if (fileName == filePath())
         return const_cast<QmakeProFileNode *>(this);
     foreach (ProjectNode *pn, subProjectNodes())
         if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(pn))
@@ -1686,7 +1686,7 @@ bool QmakeProFileNode::showInSimpleTree() const
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return AddNewInformation(path().fileName(), context && context->projectNode() == this ? 120 : 100);
+    return AddNewInformation(filePath().fileName(), context && context->projectNode() == this ? 120 : 100);
 }
 
 bool QmakeProFileNode::showInSimpleTree(QmakeProjectType projectType) const
@@ -2087,7 +2087,7 @@ void QmakeProFileNode::applyAsyncEvaluate()
 
 bool sortByNodes(Node *a, Node *b)
 {
-    return a->path() < b->path();
+    return a->filePath() < b->filePath();
 }
 
 void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
@@ -2191,12 +2191,12 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                 break; // we are done, hurray!
 
             if (! existingAtEnd
-                    && (newAtEnd || (*existingIt)->path() < (*newIt)->name)) {
+                    && (newAtEnd || (*existingIt)->filePath() < (*newIt)->name)) {
                 // Remove case
                 toRemove << *existingIt;
                 ++existingIt;
             } else if (! newAtEnd
-                       && (existingAtEnd || (*newIt)->name < (*existingIt)->path())) {
+                       && (existingAtEnd || (*newIt)->name < (*existingIt)->filePath())) {
                 // Adding a node
                 IncludedPriFile *nodeToAdd = *newIt;
                 ++newIt;
@@ -2208,7 +2208,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                 bool loop = false;
                 Node *n = pn;
                 while ((n = n->parentFolderNode())) {
-                    if (dynamic_cast<QmakePriFileNode *>(n) && n->path() == nodeToAdd->name) {
+                    if (dynamic_cast<QmakePriFileNode *>(n) && n->filePath() == nodeToAdd->name) {
                         loop = true;
                         break;
                     }
@@ -2228,7 +2228,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                         QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd->name);
                         qmakeProFileNode->setParentFolderNode(pn); // Needed for loop detection
                         qmakeProFileNode->setIncludedInExactParse(
-                                    result->exactSubdirs.contains(qmakeProFileNode->path())
+                                    result->exactSubdirs.contains(qmakeProFileNode->filePath())
                                     && pn->includedInExactParse());
                         qmakeProFileNode->asyncUpdate();
                         toAdd << qmakeProFileNode;
@@ -2248,7 +2248,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                     // the .pro file is included in this .pro file
                     // So to compare that later parse with the sync one
                     QmakeProFileNode *proFileNode = static_cast<QmakeProFileNode *>(*existingIt);
-                    proFileNode->setIncludedInExactParse(result->exactSubdirs.contains(proFileNode->path())
+                    proFileNode->setIncludedInExactParse(result->exactSubdirs.contains(proFileNode->filePath())
                                                          && pn->includedInExactParse());
                     proFileNode->asyncUpdate();
                 }
@@ -2568,9 +2568,9 @@ void QmakeProFileNode::updateUiFiles(const QString &buildDir)
         const Utils::FileName uiDir = uiDirectory(Utils::FileName::fromString(buildDir));
         const QString uiExtensions = singleVariableValue(UiHeaderExtensionVar);
         foreach (const FileNode *uiFile, uiFiles) {
-            QString headerFile = uiHeaderFile(uiDir, uiFile->path(), uiExtensions);
+            QString headerFile = uiHeaderFile(uiDir, uiFile->filePath(), uiExtensions);
             if (!headerFile.isEmpty())
-                m_uiFiles.insert(uiFile->path().toString(), headerFile);
+                m_uiFiles.insert(uiFile->filePath().toString(), headerFile);
         }
     }
 }

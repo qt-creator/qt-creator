@@ -155,7 +155,7 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 
     foreach (const QString &path, list)
         m_entries +=  QLatin1String("$$PWD/")
-                + node->path().toFileInfo().absoluteDir().relativeFilePath(path);
+                + node->filePath().toFileInfo().absoluteDir().relativeFilePath(path);
 
     node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries, m_scope,
                          QmakeProjectManager::Internal::ProWriter::ReplaceValues

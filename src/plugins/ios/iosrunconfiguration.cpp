@@ -135,7 +135,7 @@ void IosRunConfiguration::deviceChanges() {
 void IosRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool success,
                                          bool parseInProgress)
 {
-    if (m_profilePath != pro->path())
+    if (m_profilePath != pro->filePath())
         return;
     m_parseSuccess = success;
     m_parseInProgress = parseInProgress;

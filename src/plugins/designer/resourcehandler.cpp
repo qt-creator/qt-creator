@@ -74,10 +74,10 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
     foreach (const FileNode *fileNode, folderNode->fileNodes()) {
         if (fileNode->fileType() == ResourceType)
-            m_qrcFiles.append(fileNode->path().toString());
+            m_qrcFiles.append(fileNode->filePath().toString());
     }
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_qrcFiles.append(folderNode->path().toString());
+        m_qrcFiles.append(folderNode->filePath().toString());
 }
 
 // ------------ ResourceHandler
@@ -155,7 +155,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         m_form->setResourceFileSaveMode(QDesignerFormWindowInterface::SaveOnlyUsedResourceFiles);
         if (Designer::Constants::Internal::debug)
             qDebug() << "ResourceHandler::updateResources()" << fileName
-                    << " associated with project" << project->rootProjectNode()->path()
+                    << " associated with project" << project->rootProjectNode()->filePath()
                     <<  " using project qrc files" << projectQrcFiles.size();
     } else {
         // Use resource file originally used in form

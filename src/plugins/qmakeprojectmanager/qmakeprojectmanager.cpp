@@ -135,7 +135,7 @@ void QmakeManager::addLibraryContextMenu()
 {
     Node *node = ProjectTree::currentNode();
     if (dynamic_cast<QmakeProFileNode *>(node))
-        addLibrary(node->path().toString());
+        addLibrary(node->filePath().toString());
 }
 
 void QmakeManager::addLibrary(const QString &fileName, BaseTextEditor *editor)

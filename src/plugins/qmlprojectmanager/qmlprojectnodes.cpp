@@ -125,7 +125,7 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
     if (! end)
         return 0;
 
-    Utils::FileName folderPath = path().parentDir();
+    Utils::FileName folderPath = filePath().parentDir();
 
     QString folderName;
     for (int i = 0; i < end; ++i) {

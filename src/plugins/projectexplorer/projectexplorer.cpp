@@ -2081,7 +2081,7 @@ void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
 
 static QString pathOrDirectoryFor(Node *node, bool dir)
 {
-    Utils::FileName path = node->path();
+    Utils::FileName path = node->filePath();
     QString location;
     FolderNode *folder = node->asFolderNode();
     if (node->nodeType() == VirtualFolderNodeType && folder) {
@@ -2093,7 +2093,7 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
             // Otherwise we figure out a commonPath from the subfolders
             QStringList list;
             foreach (FolderNode *f, folder->subFolderNodes())
-                list << f->path().toString() + QLatin1Char('/');
+                list << f->filePath().toString() + QLatin1Char('/');
             location = Utils::commonPath(list);
         }
 
@@ -3066,7 +3066,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_renameFileAction->setEnabled(actions.contains(Rename));
 
             EditorManager::populateOpenWithMenu(m_openWithMenu,
-                                                ProjectTree::currentNode()->path().toString());
+                                                ProjectTree::currentNode()->filePath().toString());
         }
 
         if (actions.contains(HidePathActions)) {
@@ -3191,17 +3191,17 @@ void ProjectExplorerPluginPrivate::removeProject()
         return;
     ProjectNode *projectNode = subProjectNode->parentFolderNode()->asProjectNode();
     if (projectNode) {
-        RemoveFileDialog removeFileDialog(subProjectNode->path().toString(), ICore::mainWindow());
+        RemoveFileDialog removeFileDialog(subProjectNode->filePath().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
-            projectNode->removeSubProjects(QStringList() << subProjectNode->path().toString());
+            projectNode->removeSubProjects(QStringList() << subProjectNode->filePath().toString());
     }
 }
 
 void ProjectExplorerPluginPrivate::openFile()
 {
     QTC_ASSERT(ProjectTree::currentNode(), return);
-    EditorManager::openEditor(ProjectTree::currentNode()->path().toString());
+    EditorManager::openEditor(ProjectTree::currentNode()->filePath().toString());
 }
 
 void ProjectExplorerPluginPrivate::searchOnFileSystem()
@@ -3229,7 +3229,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 
     FileNode *fileNode = currentNode->asFileNode();
 
-    QString filePath = currentNode->path().toString();
+    QString filePath = currentNode->filePath().toString();
     RemoveFileDialog removeFileDialog(filePath, ICore::mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
@@ -3260,7 +3260,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
 
     FileNode *fileNode = currentNode->asFileNode();
 
-    QString filePath = currentNode->path().toString();
+    QString filePath = currentNode->filePath().toString();
     QMessageBox::StandardButton button =
             QMessageBox::question(ICore::mainWindow(),
                                   tr("Delete File"),
@@ -3305,9 +3305,9 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
 
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
 {
-    QString orgFilePath = node->path().toFileInfo().absoluteFilePath();
+    QString orgFilePath = node->filePath().toFileInfo().absoluteFilePath();
     FolderNode *folderNode = node->parentFolderNode();
-    QString projectFileName = folderNode->projectNode()->path().fileName();
+    QString projectFileName = folderNode->projectNode()->filePath().fileName();
 
     if (!folderNode->canRenameFile(orgFilePath, newFilePath)) {
         QTimer::singleShot(0, [orgFilePath, newFilePath, projectFileName] {

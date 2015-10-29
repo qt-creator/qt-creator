@@ -135,7 +135,7 @@ QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(T
     QList<RunConfiguration *> result;
     foreach (RunConfiguration *rc, t->runConfigurations()) {
         if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc)) {
-            if (qt4c->profilePath() == n->path())
+            if (qt4c->profilePath() == n->filePath())
                 result << rc;
         }
     }

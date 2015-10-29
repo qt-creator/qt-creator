@@ -232,19 +232,19 @@ void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProj
 
 void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 {
-    m_files->proFiles.append(projectNode->path().toString());
+    m_files->proFiles.append(projectNode->filePath().toString());
     visitFolderNode(projectNode);
 }
 
 void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_files->files[ResourceType].push_back(folderNode->path().toString());
+        m_files->files[ResourceType].push_back(folderNode->filePath().toString());
 
     foreach (FileNode *fileNode, folderNode->fileNodes()) {
         const int type = fileNode->fileType();
         QStringList &targetList = fileNode->isGenerated() ? m_files->generatedFiles[type] : m_files->files[type];
-        targetList.push_back(fileNode->path().toString());
+        targetList.push_back(fileNode->filePath().toString());
     }
 }
 
@@ -463,7 +463,7 @@ void QmakeProject::updateCppCodeModel()
         ProjectPart::Ptr templatePart(new ProjectPart);
         templatePart->project = this;
         templatePart->displayName = pro->displayName();
-        templatePart->projectFile = pro->path().toString();
+        templatePart->projectFile = pro->filePath().toString();
         templatePart->selectedForBuilding = pro->includedInExactParse();
 
         if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
@@ -619,7 +619,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFileNode:
         return;
 
     if (debug)
-        qDebug()<<"schduleAsyncUpdate (node)"<<node->path();
+        qDebug()<<"schduleAsyncUpdate (node)"<<node->filePath();
 
     if (m_cancelEvaluate) {
         if (debug)
@@ -873,7 +873,7 @@ QStringList QmakeProject::files(FilesMode fileMode) const
 static FolderNode *folderOf(FolderNode *in, FileType fileType, const FileName &fileName)
 {
     foreach (FileNode *fn, in->fileNodes())
-        if (fn->fileType() == fileType && fn->path() == fileName)
+        if (fn->fileType() == fileType && fn->filePath() == fileName)
             return in;
     foreach (FolderNode *folder, in->subFolderNodes())
         if (FolderNode *pn = folderOf(folder, fileType, fileName))
@@ -1058,7 +1058,7 @@ bool QmakeProject::hasApplicationProFile(const FileName &path) const
 
     QList<QmakeProFileNode *> list = applicationProFiles();
     foreach (QmakeProFileNode * node, list)
-        if (node->path() == path)
+        if (node->filePath() == path)
             return true;
     return false;
 }
@@ -1077,7 +1077,7 @@ QList<QmakeProFileNode *> QmakeProject::nodesWithQtcRunnable(QList<QmakeProFileN
 QList<Core::Id> QmakeProject::idsForNodes(Core::Id base, const QList<QmakeProFileNode *> &nodes)
 {
     return Utils::transform(nodes, [&base](QmakeProFileNode *node) {
-        return base.withSuffix(node->path().toString());
+        return base.withSuffix(node->filePath().toString());
     });
 }
 
@@ -1101,7 +1101,7 @@ void QmakeProject::activeTargetWasChanged()
 
 bool QmakeProject::hasSubNode(QmakePriFileNode *root, const FileName &path)
 {
-    if (root->path() == path)
+    if (root->filePath() == path)
         return true;
     foreach (FolderNode *fn, root->subFolderNodes()) {
         if (dynamic_cast<QmakeProFileNode *>(fn)) {
@@ -1193,7 +1193,7 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
 void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, QmakePriFileNode *node)
 {
     if (debugCFW)
-        qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->path();
+        qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->filePath();
     m_watcher.addPaths(folders);
 
     const QChar slash = QLatin1Char('/');
@@ -1218,7 +1218,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
 void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakePriFileNode *node)
 {
     if (debugCFW)
-        qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->path();
+        qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->filePath();
     const QChar slash = QLatin1Char('/');
     foreach (const QString &f, folders) {
         QString folder = f;
@@ -1411,14 +1411,14 @@ void QmakeProject::updateBuildSystemData()
     foreach (const QmakeProFileNode * const node, applicationProFiles()) {
         appTargetList.list << BuildTargetInfo(node->targetInformation().target,
                                               FileName::fromString(executableFor(node)),
-                                              node->path());
+                                              node->filePath());
     }
     target->setApplicationTargets(appTargetList);
 }
 
 void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &deploymentData)
 {
-    if (!node->isSubProjectDeployable(node->path().toString()))
+    if (!node->isSubProjectDeployable(node->filePath().toString()))
         return;
 
     const InstallsList &installsList = node->installsList();

@@ -729,7 +729,7 @@ QStringList Parser::projectNodeFileList(const FolderNode *node) const
         if (file->isGenerated())
             continue;
 
-        list << file->path().toString();
+        list << file->filePath().toString();
     }
 
     foreach (const FolderNode *folder, subFolderNodes) {
@@ -754,7 +754,7 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
     if (!node)
         return projectList;
 
-    const QString nodePath = node->path().toString();
+    const QString nodePath = node->filePath().toString();
 
     // our own files
     QStringList fileList;
@@ -768,8 +768,8 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->path().toString());
-        projectList << node->path().toString();
+        addProject(item, fileList, node->filePath().toString());
+        projectList << node->filePath().toString();
     }
 
     // subnodes
@@ -777,7 +777,7 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
 
     foreach (const ProjectNode *project, projectNodes) {
         ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
-        SymbolInformation information(project->displayName(), project->path().toString());
+        SymbolInformation information(project->displayName(), project->filePath().toString());
 
         projectList += addProjectNode(itemPrj, project);
 
@@ -798,7 +798,7 @@ QStringList Parser::getAllFiles(const ProjectNode *node)
     if (!node)
         return fileList;
 
-    const QString nodePath = node->path().toString();
+    const QString nodePath = node->filePath().toString();
 
     CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
     // try to improve parsing speed by internal cache
@@ -825,7 +825,7 @@ void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const ProjectNode *nod
     fileList.removeDuplicates();
 
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->path().toString());
+        addProject(item, fileList, node->filePath().toString());
     }
 }
 

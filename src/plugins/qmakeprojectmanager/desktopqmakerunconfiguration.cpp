@@ -132,7 +132,7 @@ QString DesktopQmakeRunConfiguration::disabledReason() const
 
 void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool success, bool parseInProgress)
 {
-    if (m_proFilePath != pro->path())
+    if (m_proFilePath != pro->filePath())
         return;
     bool enabled = isEnabled();
     QString reason = disabledReason();
@@ -750,7 +750,7 @@ QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurations
     QList<RunConfiguration *> result;
     foreach (RunConfiguration *rc, t->runConfigurations())
         if (DesktopQmakeRunConfiguration *qt4c = qobject_cast<DesktopQmakeRunConfiguration *>(rc))
-            if (qt4c->proFilePath() == n->path())
+            if (qt4c->proFilePath() == n->filePath())
                 result << rc;
     return result;
 }

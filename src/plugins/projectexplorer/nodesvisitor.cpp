@@ -93,10 +93,10 @@ void FindNodesForFileVisitor::visitProjectNode(ProjectNode *node)
 
 void FindNodesForFileVisitor::visitFolderNode(FolderNode *node)
 {
-    if (node->path() == m_path)
+    if (node->filePath() == m_path)
         m_nodes << node;
     foreach (FileNode *fileNode, node->fileNodes()) {
-        if (fileNode->path() == m_path)
+        if (fileNode->filePath() == m_path)
             m_nodes << fileNode;
     }
 }
@@ -124,9 +124,9 @@ void FindAllFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 
 void FindAllFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
-    m_filePaths.append(folderNode->path());
+    m_filePaths.append(folderNode->filePath());
     foreach (const FileNode *fileNode, folderNode->fileNodes())
-        m_filePaths.append(fileNode->path());
+        m_filePaths.append(fileNode->filePath());
 }
 
 NodesVisitor::~NodesVisitor()

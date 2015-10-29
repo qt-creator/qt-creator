@@ -1013,7 +1013,7 @@ QString InternalLibraryDetailsController::suggestedIncludePath() const
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     if (currentIndex >= 0) {
         QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        return proFileNode->path().toFileInfo().absolutePath();
+        return proFileNode->filePath().toFileInfo().absolutePath();
     }
     return QString();
 }
@@ -1039,12 +1039,12 @@ void InternalLibraryDetailsController::updateProFile()
     setIgnoreGuiSignals(true);
 
     ProjectExplorer::ProjectNode *rootProject = project->rootProjectNode();
-    m_rootProjectPath = rootProject->path().toFileInfo().absolutePath();
+    m_rootProjectPath = rootProject->filePath().toFileInfo().absolutePath();
     QDir rootDir(m_rootProjectPath);
     FindQmakeProFiles findQt4ProFiles;
     QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProject);
     foreach (QmakeProFileNode *proFileNode, proFiles) {
-        const QString proFilePath = proFileNode->path().toString();
+        const QString proFilePath = proFileNode->filePath().toString();
         QmakeProjectManager::QmakeProjectType type = proFileNode->projectType();
         if (type == SharedLibraryTemplate || type == StaticLibraryTemplate) {
             const QStringList configVar = proFileNode->variableValue(ConfigVar);

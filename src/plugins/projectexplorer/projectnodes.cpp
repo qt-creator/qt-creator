@@ -69,7 +69,7 @@ Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line)
           m_line(line),
           m_projectNode(0),
           m_folderNode(0),
-          m_path(filePath)
+          m_filePath(filePath)
 {
 
 }
@@ -91,40 +91,13 @@ void Node::emitNodeSortKeyChanged()
         ProjectTree::instance()->emitNodeSortKeyChanged(this);
 }
 
-/*!
- * The path of the file representing this node.
- *
- * This function does not emit any signals. That has to be done by the calling
- * class.
- */
-void Node::setPath(const Utils::FileName &path)
+void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
 {
-    if (m_path == path)
+    if (m_filePath == path && m_line == line)
         return;
 
     emitNodeSortKeyAboutToChange();
-    m_path = path;
-    emitNodeSortKeyChanged();
-    emitNodeUpdated();
-}
-
-void Node::setLine(int line)
-{
-    if (m_line == line)
-        return;
-    emitNodeSortKeyAboutToChange();
-    m_line = line;
-    emitNodeSortKeyChanged();
-    emitNodeUpdated();
-}
-
-void Node::setPathAndLine(const Utils::FileName &path, int line)
-{
-    if (m_path == path
-            && m_line == line)
-        return;
-    emitNodeSortKeyAboutToChange();
-    m_path = path;
+    m_filePath = path;
     m_line = line;
     emitNodeSortKeyChanged();
     emitNodeUpdated();
@@ -155,9 +128,9 @@ FolderNode *Node::parentFolderNode() const
 /*!
   The path of the file or folder in the filesystem the node represents.
   */
-const Utils::FileName &Node::path() const
+const Utils::FileName &Node::filePath() const
 {
-    return m_path;
+    return m_filePath;
 }
 
 int Node::line() const
@@ -167,12 +140,12 @@ int Node::line() const
 
 QString Node::displayName() const
 {
-    return path().fileName();
+    return filePath().fileName();
 }
 
 QString Node::tooltip() const
 {
-    return path().toUserOutput();
+    return filePath().toUserOutput();
 }
 
 bool Node::isEnabled() const
@@ -584,7 +557,7 @@ ProjectNode::ProjectNode(const Utils::FileName &projectFilePath)
 
 QString ProjectNode::vcsTopic() const
 {
-    const QString dir = path().toFileInfo().absolutePath();
+    const QString dir = filePath().toFileInfo().absolutePath();
 
     if (Core::IVersionControl *const vc =
             Core::VcsManager::findVersionControlForDirectory(dir))

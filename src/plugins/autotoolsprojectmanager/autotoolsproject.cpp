@@ -275,7 +275,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     // nodes later.
     QHash<QString, Node *> nodeHash;
     foreach (Node * node, nodes(m_rootNode))
-        nodeHash.insert(node->path().toString(), node);
+        nodeHash.insert(node->filePath().toString(), node);
 
     // Add the sources to the filenode project tree. Sources
     // inside the same directory are grouped into a folder-node.
@@ -356,7 +356,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
 FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QString, Node *> &nodes)
 {
     const Utils::FileName nodePath = Utils::FileName::fromString(nodeDir.absolutePath());
-    QFileInfo rootInfo = m_rootNode->path().toFileInfo();
+    QFileInfo rootInfo = m_rootNode->filePath().toFileInfo();
     const Utils::FileName rootPath = Utils::FileName::fromString(rootInfo.absolutePath());
 
     // Do not create a folder for the root node
@@ -370,7 +370,7 @@ FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QStrin
     // Get parent-folder. If it does not exist, create it recursively.
     // Take care that the m_rootNode is considered as top folder.
     FolderNode *parentFolder = m_rootNode;
-    if ((rootPath != folder->path()) && dir.cdUp()) {
+    if ((rootPath != folder->filePath()) && dir.cdUp()) {
         const QString parentDir = dir.absolutePath();
         if (!nodes.contains(parentDir)) {
             FolderNode *insertedFolder = insertFolderNode(parentDir, nodes);

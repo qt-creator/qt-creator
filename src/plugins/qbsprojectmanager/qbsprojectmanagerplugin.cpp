@@ -288,7 +288,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
                 && !BuildManager::isBuilding(m_editorProject)
                 && !m_editorProject->isParsing();
 
-        fileName = m_editorNode->path().fileName();
+        fileName = m_editorNode->filePath().fileName();
         fileVisible = m_editorProject && m_editorNode && dynamic_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
 
         QbsProductNode *productNode
@@ -361,7 +361,7 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
     QTC_ASSERT(m_selectedNode, return);
     QTC_ASSERT(m_selectedProject, return);
 
-    buildSingleFile(m_selectedProject, m_selectedNode->path().toString());
+    buildSingleFile(m_selectedProject, m_selectedNode->filePath().toString());
 }
 
 void QbsProjectManagerPlugin::buildFile()
@@ -369,7 +369,7 @@ void QbsProjectManagerPlugin::buildFile()
     if (!m_editorProject || !m_editorNode)
         return;
 
-    buildSingleFile(m_editorProject, m_editorNode->path().toString());
+    buildSingleFile(m_editorProject, m_editorNode->filePath().toString());
 }
 
 void QbsProjectManagerPlugin::buildProductContextMenu()

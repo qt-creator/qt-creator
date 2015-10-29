@@ -185,7 +185,7 @@ void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
     const FileName fileName = document ? document->filePath() : FileName();
 
     Node *currentNode = 0;
-    if (!invalidCurrentNode && m_currentNode && m_currentNode->path() == fileName)
+    if (!invalidCurrentNode && m_currentNode && m_currentNode->filePath() == fileName)
         currentNode = m_currentNode;
     else
         currentNode = ProjectTreeWidget::nodeForFile(fileName);
@@ -393,7 +393,7 @@ void ProjectTree::emitFilesAdded(FolderNode *folder)
         const FileName fileName = document ? document->filePath() : FileName();
 
         int index = Utils::indexOf(m_filesAdded, [&fileName](FileNode *node) {
-                return node->path() == fileName;
+                return node->filePath() == fileName;
         });
 
         if (index == -1)

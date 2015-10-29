@@ -76,7 +76,7 @@ class QbsGroupNode;
 class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    explicit QbsBaseProjectNode(const Utils::FileName &path);
+    explicit QbsBaseProjectNode(const Utils::FileName &absoluteFilePath);
 
     bool showInSimpleTree() const override;
 
@@ -156,7 +156,7 @@ private:
 class QbsProjectNode : public QbsBaseProjectNode
 {
 public:
-    explicit QbsProjectNode(const Utils::FileName &path);
+    explicit QbsProjectNode(const Utils::FileName &absoluteFilePath);
     ~QbsProjectNode() override;
 
     virtual QbsProject *project() const;

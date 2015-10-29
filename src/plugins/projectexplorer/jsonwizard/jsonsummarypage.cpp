@@ -183,7 +183,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
             QMessageBox::critical(m_wizard, tr("Failed to Add to Project"),
                                   tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                                   .arg(QDir::toNativeSeparators(generatedProject))
-                                  .arg(folder->path().toUserOutput()));
+                                  .arg(folder->filePath().toUserOutput()));
             return;
         }
         m_wizard->removeAttributeFromAllFiles(GeneratedFile::OpenProjectAttribute);
@@ -195,7 +195,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
             QStringList nativeFilePaths = Utils::transform(filePaths, &QDir::toNativeSeparators);
             QMessageBox::critical(wizard(), tr("Failed to Add to Project"),
                                   tr("Failed to add one or more files to project\n\"%1\" (%2).")
-                                  .arg(folder->path().toUserOutput(),
+                                  .arg(folder->filePath().toUserOutput(),
                                        nativeFilePaths.join(QLatin1String(", "))));
             return;
         }

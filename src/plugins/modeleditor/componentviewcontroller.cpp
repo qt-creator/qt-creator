@@ -295,11 +295,11 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
                                                            QMultiHash<QString, Node> *filePathsMap)
 {
     foreach (const ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
-        QString elementName = qmt::NameController::convertFileNameToElementName(fileNode->path().toString());
-        QFileInfo fileInfo(fileNode->path().toString());
+        QString elementName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
+        QFileInfo fileInfo(fileNode->filePath().toString());
         QString nodePath = fileInfo.path();
         QStringList elementsPath = qmt::NameController::buildElementsPath(nodePath, false);
-        filePathsMap->insertMulti(elementName, Node(fileNode->path().toString(), elementsPath));
+        filePathsMap->insertMulti(elementName, Node(fileNode->filePath().toString(), elementsPath));
     }
     foreach (const ProjectExplorer::FolderNode *subNode, folderNode->subFolderNodes())
         collectElementPaths(subNode, filePathsMap);
@@ -385,10 +385,10 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
                                                    const QString anchorFolder)
 {
     foreach (const ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
-        QString componentName = qmt::NameController::convertFileNameToElementName(fileNode->path().toString());
+        QString componentName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
         qmt::MComponent *component = 0;
         bool isSource = false;
-        CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(fileNode->path().toString());
+        CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(fileNode->filePath().toString());
         switch (kind) {
         case CppTools::ProjectFile::CHeader:
         case CppTools::ProjectFile::CSource:

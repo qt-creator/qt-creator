@@ -141,7 +141,7 @@ QList<RunConfiguration *> QmakeAndroidRunConfigurationFactory::runConfigurations
     QList<RunConfiguration *> result;
     foreach (RunConfiguration *rc, t->runConfigurations())
         if (QmakeAndroidRunConfiguration *qt4c = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
-                if (qt4c->proFilePath() == n->path())
+                if (qt4c->proFilePath() == n->filePath())
                     result << rc;
     return result;
 }

@@ -66,7 +66,7 @@ void CMakeCbpParser::sortFiles()
 {
     QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
     QList<FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
-        return node->path();
+        return node->filePath();
     });
 
     Utils::sort(fileNames);

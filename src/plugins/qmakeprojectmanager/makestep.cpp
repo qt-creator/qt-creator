@@ -237,7 +237,7 @@ bool MakeStep::init()
         if (!relObjectsDir.isEmpty())
             relObjectsDir += QLatin1Char('/');
         QString objectFile = relObjectsDir +
-                bc->fileNodeBuild()->path().toFileInfo().baseName() +
+                bc->fileNodeBuild()->filePath().toFileInfo().baseName() +
                 subNode->objectExtension();
         Utils::QtcProcess::addArg(&args, objectFile);
     }

@@ -339,7 +339,7 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
     m_rebuildSubProjectAction->setParameter(subProjectName);
     m_cleanSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(subProjectName);
-    m_buildFileAction->setParameter(buildFilePossible ? fileNode->path().fileName() : QString());
+    m_buildFileAction->setParameter(buildFilePossible ? fileNode->filePath().fileName() : QString());
 
     QmakeBuildConfiguration *buildConfiguration = (qmakeProject && qmakeProject->activeTarget()) ?
                 static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration()) : 0;

@@ -100,7 +100,7 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
     if (m_proFilePath.isEmpty()) {
         if (!target()->project()->rootProjectNode())
             return QVariantMap();
-        m_proFilePath = target()->project()->rootProjectNode()->path();
+        m_proFilePath = target()->project()->rootProjectNode()->filePath();
     }
 
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
@@ -141,10 +141,10 @@ QString QmakeAndroidRunConfiguration::disabledReason() const
 void QmakeAndroidRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress)
 {
     if (m_proFilePath.isEmpty() && target()->project()->rootProjectNode()) {
-        m_proFilePath = target()->project()->rootProjectNode()->path();
+        m_proFilePath = target()->project()->rootProjectNode()->filePath();
     }
 
-    if (m_proFilePath != pro->path())
+    if (m_proFilePath != pro->filePath())
         return;
 
     bool enabled = isEnabled();

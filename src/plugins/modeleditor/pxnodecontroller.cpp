@@ -139,13 +139,13 @@ void PxNodeController::addExplorerNode(const ProjectExplorer::Node *node,
     QTC_ASSERT(diagram, return);
 
     QString elementName = qmt::NameController::convertFileNameToElementName(
-                node->path().toString());
+                node->filePath().toString());
 
     switch (node->nodeType()) {
     case ProjectExplorer::FileNodeType:
     {
         QStringList classNames = d->classViewController->findClassDeclarations(
-                    node->path().toString()).toList();
+                    node->filePath().toString()).toList();
         auto menu = new QMenu;
         menu->addAction(new MenuAction(tr("Add Component %1").arg(elementName), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT, menu));

@@ -76,14 +76,14 @@ QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
     switch (node->nodeType()) {
     case ProjectExplorer::FileNodeType:
     {
-        QFileInfo fileInfo(node->path().toString());
+        QFileInfo fileInfo(node->filePath().toString());
         nodePath = fileInfo.path();
         break;
     }
     case ProjectExplorer::FolderNodeType:
     case ProjectExplorer::VirtualFolderNodeType:
     case ProjectExplorer::ProjectNodeType:
-        nodePath = node->path().toString();
+        nodePath = node->filePath().toString();
         break;
     case ProjectExplorer::SessionNodeType:
         QTC_ASSERT(false, return QString());

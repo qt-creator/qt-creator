@@ -257,7 +257,7 @@ static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplore
     if (managesFiles)
         actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile;
     if (node->nodeType() == ProjectExplorer::FileNodeType
-            && !project->qbsProject().buildSystemFiles().contains(node->path().toString())) {
+            && !project->qbsProject().buildSystemFiles().contains(node->filePath().toString())) {
         actions << ProjectExplorer::RemoveFile << ProjectExplorer::Rename;
     }
     return actions;
@@ -419,7 +419,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &
     m_productPath = productPath;
     m_qbsGroupData = grp;
 
-    setPath(Utils::FileName::fromString(grp.location().filePath()));
+    setAbsoluteFilePathAndLine(Utils::FileName::fromString(grp.location().filePath()), line());
     setDisplayName(grp.name());
 
     QbsFileNode *idx = 0;
@@ -429,7 +429,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &
             break;
     }
     QTC_ASSERT(idx, return);
-    idx->setPathAndLine(Utils::FileName::fromString(grp.location().filePath()),
+    idx->setAbsoluteFilePathAndLine(Utils::FileName::fromString(grp.location().filePath()),
                         grp.location().line());
 
     setupFiles(this, grp, grp.allFilePaths(), productPath, updateExisting);
@@ -493,7 +493,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
             ProjectExplorer::FileNode *fn = 0;
             foreach (ProjectExplorer::FileNode *f, root->fileNodes()) {
                 // There can be one match only here!
-                if (f->path() != path || f->fileType() != newFileType)
+                if (f->filePath() != path || f->fileType() != newFileType)
                     continue;
                 fn = f;
                 break;
@@ -511,7 +511,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
             ProjectExplorer::FolderNode *fn = 0;
             foreach (ProjectExplorer::FolderNode *f, root->subFolderNodes()) {
                 // There can be one match only here!
-                if (f->path() != path)
+                if (f->filePath() != path)
                     continue;
                 fn = f;
                 break;
@@ -666,7 +666,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     bool updateExisting = productWasEnabled != productIsEnabled;
 
     setDisplayName(QbsProject::productDisplayName(project, prd));
-    setPath(Utils::FileName::fromString(prd.location().filePath()));
+    setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()), line());
     const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
 
     // Find the QbsFileNode we added earlier:
@@ -677,7 +677,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
             break;
     }
     QTC_ASSERT(idx, return);
-    idx->setPathAndLine(Utils::FileName::fromString(prd.location().filePath()),
+    idx->setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()),
                         prd.location().line());
 
     QList<ProjectExplorer::ProjectNode *> toAdd;
@@ -812,7 +812,7 @@ void QbsProjectNode::ctor()
 
     setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
-                 << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false));
+                 << new ProjectExplorer::FileNode(filePath(), ProjectExplorer::ProjectFileType, false));
 }
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)

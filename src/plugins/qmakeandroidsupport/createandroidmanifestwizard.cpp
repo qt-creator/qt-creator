@@ -156,7 +156,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 
 void ChooseDirectoryPage::checkPackageSourceDir()
 {
-    QString projectDir = m_wizard->node()->path().toFileInfo().absolutePath();
+    QString projectDir = m_wizard->node()->filePath().toFileInfo().absolutePath();
     QString newDir = m_androidPackageSourceDir->path();
     bool isComplete = QFileInfo(projectDir) != QFileInfo(newDir);
 
@@ -182,7 +182,7 @@ void ChooseDirectoryPage::initializePage()
                           "The files in the Android package source directory are copied to the build directory's "
                           "Android directory and the default files are overwritten."));
 
-        m_androidPackageSourceDir->setPath(m_wizard->node()->path().toFileInfo().absolutePath().append(QLatin1String("/android")));
+        m_androidPackageSourceDir->setPath(m_wizard->node()->filePath().toFileInfo().absolutePath().append(QLatin1String("/android")));
         connect(m_androidPackageSourceDir, SIGNAL(rawPathChanged(QString)),
                 this, SLOT(checkPackageSourceDir()));
     } else {
@@ -343,14 +343,14 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     if (m_node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir).isEmpty()) {
         // and now time for some magic
         QString value = QLatin1String("$$PWD/")
-                + m_node->path().toFileInfo().absoluteDir().relativeFilePath(m_directory);
+                + m_node->filePath().toFileInfo().absoluteDir().relativeFilePath(m_directory);
         bool result =
                 m_node->setProVariable(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"), QStringList(value));
 
         if (!result) {
             QMessageBox::warning(this, tr("Project File not Updated"),
                                  tr("Could not update the .pro file %1.")
-                                 .arg(m_node->path().toUserOutput()));
+                                 .arg(m_node->filePath().toUserOutput()));
         }
     }
     Core::EditorManager::openEditor(m_directory + QLatin1String("/AndroidManifest.xml"));

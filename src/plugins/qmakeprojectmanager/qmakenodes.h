@@ -210,7 +210,7 @@ private:
     static QPair<ProFile *, QStringList> readProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);
     void save(const QStringList &lines);
-    bool priFileWritable(const QString &path);
+    bool priFileWritable(const QString &absoluteFilePath);
     bool saveModifiedEditors();
     QStringList formResources(const QString &formFile) const;
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);

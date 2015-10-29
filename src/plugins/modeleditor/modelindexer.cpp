@@ -457,9 +457,9 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 {
     foreach (ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
         Utils::MimeType mimeType = Utils::MimeDatabase().mimeTypeForFile(
-                    fileNode->path().toFileInfo());
+                    fileNode->filePath().toFileInfo());
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL))
-            return fileNode->path().toString();
+            return fileNode->filePath().toString();
     }
     foreach (ProjectExplorer::FolderNode *subFolderNode, folderNode->subFolderNodes()) {
         QString modelFileName = findFirstModel(subFolderNode);

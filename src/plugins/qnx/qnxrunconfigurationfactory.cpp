@@ -104,7 +104,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectE
     QTC_ASSERT(qt4Project, return 0);
     foreach (const QmakeProjectManager::QmakeProFileNode * const node,
              qt4Project->applicationProFiles()) {
-        if (node->path() == projectFilePath)
+        if (node->filePath() == projectFilePath)
             return new QnxRunConfiguration(parent, id, node->targetInformation().target);
     }
     QTC_CHECK(false);
