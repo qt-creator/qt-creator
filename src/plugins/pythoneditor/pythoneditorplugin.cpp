@@ -331,10 +331,7 @@ private:
 class PythonProjectNode : public ProjectNode
 {
 public:
-    PythonProjectNode(PythonProject *project, Core::IDocument *projectFile);
-
-    Core::IDocument *projectFile() const;
-    QString projectFilePath() const;
+    PythonProjectNode(PythonProject *project);
 
     bool showInSimpleTree() const override;
 
@@ -351,7 +348,6 @@ private:
 
 private:
     PythonProject *m_project;
-    Core::IDocument *m_projectFile;
 };
 
 class PythonRunConfigurationWidget : public QWidget
@@ -637,7 +633,7 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
 
     DocumentManager::addDocument(m_document);
 
-    m_rootNode = new PythonProjectNode(this, m_document);
+    m_rootNode = new PythonProjectNode(this);
 
     m_manager->registerProject(this);
 }
@@ -893,22 +889,11 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
     return res;
 }
 
-PythonProjectNode::PythonProjectNode(PythonProject *project, Core::IDocument *projectFile)
-    : ProjectNode(projectFile->filePath())
+PythonProjectNode::PythonProjectNode(PythonProject *project)
+    : ProjectNode(project->projectFilePath())
     , m_project(project)
-    , m_projectFile(projectFile)
 {
-    setDisplayName(projectFile->filePath().toFileInfo().completeBaseName());
-}
-
-Core::IDocument *PythonProjectNode::projectFile() const
-{
-    return m_projectFile;
-}
-
-QString PythonProjectNode::projectFilePath() const
-{
-    return m_projectFile->filePath().toString();
+    setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
 }
 
 QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> &files)
