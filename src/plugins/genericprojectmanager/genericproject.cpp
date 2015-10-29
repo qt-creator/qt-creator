@@ -93,7 +93,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     DocumentManager::addDocument(m_includesIDocument);
     DocumentManager::addDocument(m_configIDocument);
 
-    m_rootNode = new GenericProjectNode(this, m_creatorIDocument);
+    m_rootNode = new GenericProjectNode(this);
 
     FileNode *projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
                                               ProjectFileType,

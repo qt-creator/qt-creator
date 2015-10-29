@@ -47,10 +47,7 @@ class GenericProject;
 class GenericProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    GenericProjectNode(GenericProject *project, Core::IDocument *projectFile);
-
-    Core::IDocument *projectFile() const;
-    QString projectFilePath() const;
+    GenericProjectNode(GenericProject *project);
 
     bool showInSimpleTree() const override;
 
@@ -70,7 +67,6 @@ private:
 
 private:
     GenericProject *m_project;
-    Core::IDocument *m_projectFile;
 };
 
 } // namespace Internal

@@ -42,22 +42,11 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IDocument *projectFile)
-    : ProjectNode(projectFile->filePath())
+GenericProjectNode::GenericProjectNode(GenericProject *project)
+    : ProjectNode(project->projectFilePath())
     , m_project(project)
-    , m_projectFile(projectFile)
 {
-    setDisplayName(projectFile->filePath().toFileInfo().completeBaseName());
-}
-
-Core::IDocument *GenericProjectNode::projectFile() const
-{
-    return m_projectFile;
-}
-
-QString GenericProjectNode::projectFilePath() const
-{
-    return m_projectFile->filePath().toString();
+    setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
 }
 
 QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> &files)
