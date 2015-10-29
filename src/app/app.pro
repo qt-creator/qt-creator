@@ -29,13 +29,13 @@ win32 {
     macx-xcode {
         QMAKE_BUNDLE_DATA += ASSETCATALOG
     } else {
-        ASSETCATALOG.output = $$IDE_BIN_PATH/../Resources/qtcreator.icns
+        ASSETCATALOG.output = $$IDE_DATA_PATH/qtcreator.icns
         ASSETCATALOG.commands = xcrun actool \
             --app-icon qtcreator \
             --output-partial-info-plist /dev/null \
             --platform macosx \
             --minimum-deployment-target 10.7 \
-            --compile $$shell_quote($$IDE_BIN_PATH/../Resources) \
+            --compile $$shell_quote($$IDE_DATA_PATH) \
             $$shell_quote($$PWD/qtcreator.xcassets)
         ASSETCATALOG.input = ASSETCATALOG.files
         ASSETCATALOG.CONFIG += no_link
