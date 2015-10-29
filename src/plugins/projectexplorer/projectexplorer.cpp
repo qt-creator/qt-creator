@@ -85,7 +85,7 @@
 #include "taskhub.h"
 #include "customtoolchain.h"
 #include "selectablefilesmodel.h"
-#include <projectexplorer/customwizard/customwizard.h>
+#include "customwizard/customwizard.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
@@ -106,7 +106,6 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/idocument.h>
@@ -117,7 +116,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/vcsmanager.h>
@@ -147,7 +145,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QTimer>
-#include <QWizard>
 
 /*!
     \namespace ProjectExplorer
