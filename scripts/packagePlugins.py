@@ -52,7 +52,7 @@ if __name__ == "__main__":
     if common.is_linux_platform():
         qt_install_info = common.get_qt_install_info(arguments.qmake_binary)
         common.fix_rpaths(arguments.source_directory,
-                          os.path.join(arguments.source_directory, 'lib', 'qtcreator'),
+                          os.path.join(arguments.source_directory, 'lib', 'Qt', 'lib'),
                           qt_install_info)
     subprocess.check_call([arguments.sevenzip, 'a', '-mx9', arguments.target_file,
         os.path.join(arguments.source_directory, '*')])
