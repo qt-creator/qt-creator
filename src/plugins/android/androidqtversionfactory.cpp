@@ -66,7 +66,7 @@ int AndroidQtVersionFactory::priority() const
 
 QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
-    QFileInfo fi(qmakePath.toString());
+    QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
     if (!evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android"))

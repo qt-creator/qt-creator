@@ -76,7 +76,7 @@ QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
     switch (node->nodeType()) {
     case ProjectExplorer::FileNodeType:
     {
-        QFileInfo fileInfo(node->filePath().toString());
+        QFileInfo fileInfo = node->filePath().toFileInfo();
         nodePath = fileInfo.path();
         break;
     }

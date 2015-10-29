@@ -730,7 +730,7 @@ void QtOptionsPageWidget::addQtDir()
     if (qtVersion.isNull())
         return;
 
-    QFileInfo fi(qtVersion.toString());
+    QFileInfo fi = qtVersion.toFileInfo();
     // should add all qt versions here ?
     if (BuildableHelperLibrary::isQtChooser(fi))
         qtVersion = FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));

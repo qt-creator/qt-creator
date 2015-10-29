@@ -381,7 +381,7 @@ QIcon Kit::icon(const FileName &path)
     if (path == FileName::fromLatin1(":///DESKTOP///"))
         return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
 
-    QFileInfo fi(path.toString());
+    QFileInfo fi = path.toFileInfo();
     if (fi.isFile() && fi.isReadable())
         return QIcon(path.toString());
     return QIcon();
