@@ -1,7 +1,7 @@
 QTC_LIB_DEPENDS += qmljs
 include(../../../qttest.pri)
 
-QT += script
+QT += qml
 
 PLUGIN_DIR=$$IDE_SOURCE_TREE/src/plugins/qmlprojectmanager
 
