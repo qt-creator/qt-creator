@@ -69,9 +69,10 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
     : QObject(parent), d(new QmlProfilerEventsModelProxyPrivate(this))
 {
     d->modelManager = modelManager;
-    connect(modelManager->qmlModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
-    connect(modelManager->notesModel(), SIGNAL(changed(int,int,int)),
-            this, SLOT(notesChanged(int)));
+    connect(modelManager->qmlModel(), &QmlProfilerDataModel::changed,
+            this, &QmlProfilerEventsModelProxy::dataChanged);
+    connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
+            this, &QmlProfilerEventsModelProxy::notesChanged);
     d->modelId = modelManager->registerModelProxy();
 
     // We're iterating twice in loadData.
@@ -303,7 +304,8 @@ QmlProfilerEventRelativesModelProxy::QmlProfilerEventRelativesModelProxy(QmlProf
 
     // Load the child models whenever the parent model is done to get the filtering for JS/QML
     // right.
-    connect(m_eventsModel, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));
+    connect(m_eventsModel, &QmlProfilerEventsModelProxy::dataAvailable,
+            this, &QmlProfilerEventRelativesModelProxy::dataChanged);
 }
 
 QmlProfilerEventRelativesModelProxy::~QmlProfilerEventRelativesModelProxy()

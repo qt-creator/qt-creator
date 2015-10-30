@@ -109,26 +109,26 @@ public:
     {
         Q_ASSERT(4 == sizeof(qint32));
 
-        QObject::connect(this, SIGNAL(readyRead()),
-                         parent, SIGNAL(readyRead()));
-        QObject::connect(this, SIGNAL(packetWritten()),
-                         parent, SIGNAL(packetWritten()));
-        QObject::connect(this, SIGNAL(invalidPacket()),
-                         parent, SIGNAL(invalidPacket()));
-        QObject::connect(dev, SIGNAL(readyRead()),
-                         this, SLOT(readyToRead()));
-        QObject::connect(dev, SIGNAL(aboutToClose()),
-                         this, SLOT(aboutToClose()));
-        QObject::connect(dev, SIGNAL(bytesWritten(qint64)),
-                         this, SLOT(bytesWritten(qint64)));
+        QObject::connect(this, &QPacketProtocolPrivate::readyRead,
+                         parent, &QPacketProtocol::readyRead);
+        QObject::connect(this, &QPacketProtocolPrivate::packetWritten,
+                         parent, &QPacketProtocol::packetWritten);
+        QObject::connect(this, &QPacketProtocolPrivate::invalidPacket,
+                         parent, &QPacketProtocol::invalidPacket);
+        QObject::connect(dev, &QIODevice::readyRead,
+                         this, &QPacketProtocolPrivate::readyToRead);
+        QObject::connect(dev, &QIODevice::aboutToClose,
+                         this, &QPacketProtocolPrivate::aboutToClose);
+        QObject::connect(dev, &QIODevice::bytesWritten,
+                         this, &QPacketProtocolPrivate::bytesWritten);
     }
 
-Q_SIGNALS:
+signals:
     void readyRead();
     void packetWritten();
     void invalidPacket();
 
-public Q_SLOTS:
+public slots:
     void aboutToClose()
     {
         inProgress.clear();
@@ -168,12 +168,12 @@ public Q_SLOTS:
 
                 // Check sizing constraints
                 if (inProgressSize > maxPacketSize) {
-                    QObject::disconnect(dev, SIGNAL(readyRead()),
-                                        this, SLOT(readyToRead()));
-                    QObject::disconnect(dev, SIGNAL(aboutToClose()),
-                                        this, SLOT(aboutToClose()));
-                    QObject::disconnect(dev, SIGNAL(bytesWritten(qint64)),
-                                        this, SLOT(bytesWritten(qint64)));
+                    QObject::disconnect(dev, &QIODevice::readyRead,
+                                        this, &QPacketProtocolPrivate::readyToRead);
+                    QObject::disconnect(dev, &QIODevice::aboutToClose,
+                                        this, &QPacketProtocolPrivate::aboutToClose);
+                    QObject::disconnect(dev, &QIODevice::bytesWritten,
+                                        this, &QPacketProtocolPrivate::bytesWritten);
                     dev = 0;
                     emit invalidPacket();
                     return;

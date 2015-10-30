@@ -142,19 +142,25 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_displayFeaturesMenu = 0;
 
     d->m_profilerState = new QmlProfilerStateManager(this);
-    connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
-    connect(d->m_profilerState, SIGNAL(clientRecordingChanged()), this, SLOT(clientRecordingChanged()));
-    connect(d->m_profilerState, SIGNAL(serverRecordingChanged()), this, SLOT(serverRecordingChanged()));
+    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+            this, &QmlProfilerTool::profilerStateChanged);
+    connect(d->m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
+            this, &QmlProfilerTool::clientRecordingChanged);
+    connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
+            this, &QmlProfilerTool::serverRecordingChanged);
     connect(d->m_profilerState, &QmlProfilerStateManager::recordedFeaturesChanged,
             this, &QmlProfilerTool::setRecordedFeatures);
 
     d->m_profilerConnections = new QmlProfilerClientManager(this);
     d->m_profilerConnections->registerProfilerStateManager(d->m_profilerState);
-    connect(d->m_profilerConnections, SIGNAL(connectionClosed()), this, SLOT(clientsDisconnected()));
+    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
+            this, &QmlProfilerTool::clientsDisconnected);
 
     d->m_profilerModelManager = new QmlProfilerModelManager(&d->m_projectFinder, this);
-    connect(d->m_profilerModelManager, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
-    connect(d->m_profilerModelManager, SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::stateChanged,
+            this, &QmlProfilerTool::profilerDataModelStateChanged);
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::error,
+            this, &QmlProfilerTool::showErrorDialog);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::availableFeaturesChanged,
             this, &QmlProfilerTool::setAvailableFeatures);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::saveFinished,
@@ -173,17 +179,17 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     QAction *act = d->m_loadQmlTrace = new QAction(tr("Load QML Trace"), options);
     command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace");
-    connect(act, SIGNAL(triggered()), this, SLOT(showLoadDialog()));
+    connect(act, &QAction::triggered, this, &QmlProfilerTool::showLoadDialog);
     options->addAction(command);
 
     act = d->m_saveQmlTrace = new QAction(tr("Save QML Trace"), options);
     d->m_saveQmlTrace->setEnabled(false);
     command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace");
-    connect(act, SIGNAL(triggered()), this, SLOT(showSaveDialog()));
+    connect(act, &QAction::triggered, this, &QmlProfilerTool::showSaveDialog);
     options->addAction(command);
 
     d->m_recordingTimer.setInterval(100);
-    connect(&d->m_recordingTimer, SIGNAL(timeout()), this, SLOT(updateTimeDisplay()));
+    connect(&d->m_recordingTimer, &QTimer::timeout, this, &QmlProfilerTool::updateTimeDisplay);
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -226,8 +232,10 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 
     populateFileFinder(projectDirectory, sp.sysroot);
 
-    connect(engine, SIGNAL(processRunning(quint16)), d->m_profilerConnections, SLOT(connectClient(quint16)));
-    connect(d->m_profilerConnections, SIGNAL(connectionFailed()), engine, SLOT(cancelProcess()));
+    connect(engine, &QmlProfilerRunControl::processRunning,
+            d->m_profilerConnections, &QmlProfilerClientManager::connectClient);
+    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
+            engine, &QmlProfilerRunControl::cancelProcess);
 
     return engine;
 }
@@ -250,8 +258,8 @@ QWidget *QmlProfilerTool::createWidgets()
                                                     this,
                                                     d->m_profilerModelManager,
                                                     d->m_profilerState);
-    connect(d->m_viewContainer, SIGNAL(gotoSourceLocation(QString,int,int)),
-            this, SLOT(gotoSourceLocation(QString,int,int)));
+    connect(d->m_viewContainer, &QmlProfilerViewManager::gotoSourceLocation,
+            this, &QmlProfilerTool::gotoSourceLocation);
 
     //
     // Toolbar
@@ -266,13 +274,14 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_recordButton = new QToolButton(toolbarWidget);
     d->m_recordButton->setCheckable(true);
 
-    connect(d->m_recordButton,SIGNAL(clicked(bool)), this, SLOT(recordingButtonChanged(bool)));
+    connect(d->m_recordButton,&QAbstractButton::clicked,
+            this, &QmlProfilerTool::recordingButtonChanged);
     d->m_recordButton->setChecked(true);
     d->m_recordFeaturesMenu = new QMenu(d->m_recordButton);
     d->m_recordButton->setMenu(d->m_recordFeaturesMenu);
     d->m_recordButton->setPopupMode(QToolButton::MenuButtonPopup);
-    connect(d->m_recordFeaturesMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(toggleRequestedFeature(QAction*)));
+    connect(d->m_recordFeaturesMenu, &QMenu::triggered,
+            this, &QmlProfilerTool::toggleRequestedFeature);
 
     setRecording(d->m_profilerState->clientRecording());
     layout->addWidget(d->m_recordButton);
@@ -768,7 +777,7 @@ void QmlProfilerTool::profilerStateChanged()
     case QmlProfilerStateManager::AppDying : {
         // If already disconnected when dying, check again that all data was read
         if (!d->m_profilerConnections->isConnected())
-            QTimer::singleShot(0, this, SLOT(clientsDisconnected()));
+            QTimer::singleShot(0, this, &QmlProfilerTool::clientsDisconnected);
         break;
     }
     case QmlProfilerStateManager::Idle :

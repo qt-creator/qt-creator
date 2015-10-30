@@ -77,8 +77,8 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(buttonBox);
 
-    connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 QmlProfilerAttachDialog::~QmlProfilerAttachDialog()

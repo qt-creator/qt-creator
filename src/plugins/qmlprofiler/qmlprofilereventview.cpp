@@ -191,8 +191,10 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
     d->modelProxy = new QmlProfilerEventsModelProxy(profilerModelManager, this);
 
     d->m_eventTree = new QmlProfilerEventsMainView(this, d->modelProxy);
-    connect(d->m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->m_eventTree, SIGNAL(typeSelected(int)), this, SIGNAL(typeSelected(int)));
+    connect(d->m_eventTree, &QmlProfilerEventsMainView::gotoSourceLocation,
+            this, &QmlProfilerEventsWidget::gotoSourceLocation);
+    connect(d->m_eventTree, &QmlProfilerEventsMainView::typeSelected,
+            this, &QmlProfilerEventsWidget::typeSelected);
 
     d->m_eventChildren = new QmlProfilerEventRelativesView(
                 new QmlProfilerEventChildrenModelProxy(profilerModelManager, d->modelProxy, this),
@@ -200,10 +202,14 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
     d->m_eventParents = new QmlProfilerEventRelativesView(
                 new QmlProfilerEventParentsModelProxy(profilerModelManager, d->modelProxy, this),
                 this);
-    connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventChildren, SLOT(displayType(int)));
-    connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventParents, SLOT(displayType(int)));
-    connect(d->m_eventChildren, SIGNAL(typeClicked(int)), d->m_eventTree, SLOT(selectType(int)));
-    connect(d->m_eventParents, SIGNAL(typeClicked(int)), d->m_eventTree, SLOT(selectType(int)));
+    connect(d->m_eventTree, &QmlProfilerEventsMainView::typeSelected,
+            d->m_eventChildren, &QmlProfilerEventRelativesView::displayType);
+    connect(d->m_eventTree, &QmlProfilerEventsMainView::typeSelected,
+            d->m_eventParents, &QmlProfilerEventRelativesView::displayType);
+    connect(d->m_eventChildren, &QmlProfilerEventRelativesView::typeClicked,
+            d->m_eventTree, &QmlProfilerEventsMainView::selectType);
+    connect(d->m_eventParents, &QmlProfilerEventRelativesView::typeClicked,
+            d->m_eventTree, &QmlProfilerEventsMainView::selectType);
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
@@ -403,11 +409,13 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
     d->m_model = new QStandardItemModel(this);
     d->m_model->setSortRole(SortRole);
     setModel(d->m_model);
-    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
+    connect(this, &QAbstractItemView::activated, this, &QmlProfilerEventsMainView::jumpToItem);
 
     d->modelProxy = modelProxy;
-    connect(d->modelProxy,SIGNAL(dataAvailable()), this, SLOT(buildModel()));
-    connect(d->modelProxy,SIGNAL(notesAvailable(int)), this, SLOT(updateNotes(int)));
+    connect(d->modelProxy, &QmlProfilerEventsModelProxy::dataAvailable,
+            this, &QmlProfilerEventsMainView::buildModel);
+    connect(d->modelProxy, &QmlProfilerEventsModelProxy::notesAvailable,
+            this, &QmlProfilerEventsMainView::updateNotes);
     d->m_firstNumericColumn = 0;
     d->m_preventSelectBounce = false;
     d->m_showExtendedStatistics = false;
@@ -884,10 +892,11 @@ QmlProfilerEventRelativesView::QmlProfilerEventRelativesView(
     setRootIsDecorated(false);
     updateHeader();
 
-    connect(this,SIGNAL(activated(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
+    connect(this, &QAbstractItemView::activated, this, &QmlProfilerEventRelativesView::jumpToItem);
 
     // Clear when new data available as the selection may be invalid now.
-    connect(d->modelProxy, SIGNAL(dataAvailable()), this, SLOT(clear()));
+    connect(d->modelProxy, &QmlProfilerEventRelativesModelProxy::dataAvailable,
+            this, &QmlProfilerEventRelativesView::clear);
 }
 
 QmlProfilerEventRelativesView::~QmlProfilerEventRelativesView()

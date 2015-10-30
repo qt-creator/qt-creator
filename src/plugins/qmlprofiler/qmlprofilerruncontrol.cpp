@@ -88,15 +88,16 @@ QmlProfilerRunControl::QmlProfilerRunControl(const AnalyzerStartParameters &sp,
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
     d->m_noDebugOutputTimer.setInterval(4000);
-    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(processIsRunning()));
+    connect(&d->m_noDebugOutputTimer, &QTimer::timeout,
+            this, [this](){processIsRunning(0);});
 
     d->m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
-    connect(&d->m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
-            this, SLOT(processIsRunning(quint16)));
-    connect(&d->m_outputParser, SIGNAL(noOutputMessage()),
-            this, SLOT(processIsRunning()));
-    connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),
-            this, SLOT(wrongSetupMessageBox(QString)));
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            this, &QmlProfilerRunControl::processIsRunning);
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::noOutputMessage,
+            this, [this](){processIsRunning(0);});
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::errorMessage,
+            this, &QmlProfilerRunControl::wrongSetupMessageBox);
 }
 
 QmlProfilerRunControl::~QmlProfilerRunControl()
@@ -203,8 +204,8 @@ void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
     infoBox->setDefaultButton(QMessageBox::Ok);
     infoBox->setModal(true);
 
-    connect(infoBox, SIGNAL(finished(int)),
-            this, SLOT(wrongSetupMessageBoxFinished(int)));
+    connect(infoBox, &QDialog::finished,
+            this, &QmlProfilerRunControl::wrongSetupMessageBoxFinished);
 
     infoBox->show();
 
@@ -242,13 +243,15 @@ void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManage
 {
     // disconnect old
     if (d->m_profilerState)
-        disconnect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
+        disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+                   this, &QmlProfilerRunControl::profilerStateChanged);
 
     d->m_profilerState = profilerState;
 
     // connect
     if (d->m_profilerState)
-        connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
+        connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+                this, &QmlProfilerRunControl::profilerStateChanged);
 }
 
 void QmlProfilerRunControl::profilerStateChanged()

@@ -93,16 +93,18 @@ void QmlProfilerViewManager::createViews()
                                             this,
                                             d->profilerModelManager);
     d->traceView->setWindowTitle(tr("Timeline"));
-    connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            this, SIGNAL(gotoSourceLocation(QString,int,int)));
+    connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
+            this, &QmlProfilerViewManager::gotoSourceLocation);
 
     d->eventsView = new QmlProfilerEventsWidget(mw, d->profilerTool, this,
                                                 d->profilerModelManager);
     d->eventsView->setWindowTitle(tr("Events"));
-    connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
-            SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->eventsView, SIGNAL(typeSelected(int)), d->traceView, SLOT(selectByTypeId(int)));
-    connect(d->traceView, SIGNAL(typeSelected(int)), d->eventsView, SLOT(selectByTypeId(int)));
+    connect(d->eventsView, &QmlProfilerEventsWidget::gotoSourceLocation,
+            this, &QmlProfilerViewManager::gotoSourceLocation);
+    connect(d->eventsView, &QmlProfilerEventsWidget::typeSelected,
+            d->traceView, &QmlProfilerTraceView::selectByTypeId);
+    connect(d->traceView, &QmlProfilerTraceView::typeSelected,
+            d->eventsView, &QmlProfilerEventsWidget::selectByTypeId);
     connect(d->profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
             d->eventsView, &QmlProfilerEventsWidget::onVisibleFeaturesChanged);
 

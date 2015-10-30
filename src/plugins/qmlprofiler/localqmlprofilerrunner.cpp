@@ -82,12 +82,13 @@ Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
 
     LocalQmlProfilerRunner *runner = new LocalQmlProfilerRunner(conf, engine);
 
-    QObject::connect(runner, SIGNAL(stopped()), engine, SLOT(notifyRemoteFinished()));
-    QObject::connect(runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-                     engine, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
-    QObject::connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)), runner,
-                     SLOT(start()));
-    QObject::connect(rc, SIGNAL(finished()), runner, SLOT(stop()));
+    QObject::connect(runner, &LocalQmlProfilerRunner::stopped,
+                     engine, &QmlProfilerRunControl::notifyRemoteFinished);
+    QObject::connect(runner, &LocalQmlProfilerRunner::appendMessage,
+                     engine, &QmlProfilerRunControl::logApplicationMessage);
+    QObject::connect(engine, &Analyzer::AnalyzerRunControl::starting,
+                     runner, &LocalQmlProfilerRunner::start);
+    QObject::connect(rc, &RunControl::finished, runner, &LocalQmlProfilerRunner::stop);
     return rc;
 }
 
@@ -109,8 +110,8 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
     m_configuration(configuration),
     m_engine(engine)
 {
-    connect(&m_launcher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            this, SIGNAL(appendMessage(QString,Utils::OutputFormat)));
+    connect(&m_launcher, &ApplicationLauncher::appendMessage,
+            this, &LocalQmlProfilerRunner::appendMessage);
 }
 
 LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
@@ -132,8 +133,8 @@ void LocalQmlProfilerRunner::start()
 
     m_launcher.setWorkingDirectory(m_configuration.workingDirectory);
     m_launcher.setEnvironment(m_configuration.environment);
-    connect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
-            this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
+    connect(&m_launcher, &ApplicationLauncher::processExited,
+            this, &LocalQmlProfilerRunner::spontaneousStop);
     m_launcher.start(ApplicationLauncher::Gui, m_configuration.executable, arguments);
 
     emit started();
@@ -148,8 +149,8 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus 
             qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
     }
 
-    disconnect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
-               this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
+    disconnect(&m_launcher, &ApplicationLauncher::processExited,
+               this, &LocalQmlProfilerRunner::spontaneousStop);
 
     emit stopped();
 }

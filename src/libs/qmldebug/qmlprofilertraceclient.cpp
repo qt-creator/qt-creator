@@ -87,8 +87,8 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint
     , d(new QmlProfilerTraceClientPrivate(this, client))
 {
     d->requestedFeatures = features;
-    connect(&d->engineControl, SIGNAL(engineAboutToBeAdded(int,QString)),
-            this, SLOT(sendRecordingStatus(int)));
+    connect(&d->engineControl, &QmlEngineControlClient::engineAboutToBeAdded,
+            this, &QmlProfilerTraceClient::sendRecordingStatus);
 }
 
 QmlProfilerTraceClient::~QmlProfilerTraceClient()
@@ -116,9 +116,9 @@ void QmlProfilerTraceClient::clearData()
     emit cleared();
 }
 
-void QmlProfilerTraceClient::sendRecordingStatus(int engineId)
+void QmlProfilerTraceClient::sendRecordingStatus()
 {
-    d->sendRecordingStatus(engineId);
+    d->sendRecordingStatus(-1);
 }
 
 bool QmlProfilerTraceClient::isEnabled() const

@@ -70,7 +70,7 @@ public:
     void advertisePlugins();
     void flush();
 
-public Q_SLOTS:
+public slots:
     void connected();
     void disconnected();
     void error(QAbstractSocket::SocketError error);
@@ -176,7 +176,8 @@ void QmlDebugConnectionPrivate::readyRead()
 
         if (!validHello) {
             qWarning("QML Debug Client: Invalid hello message");
-            QObject::disconnect(protocol, SIGNAL(readyRead()), this, SLOT(readyRead()));
+            QObject::disconnect(protocol, &QPacketProtocol::readyRead,
+                                this, &QmlDebugConnectionPrivate::readyRead);
             return;
         }
         gotHello = true;
@@ -324,13 +325,13 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     socket->setProxy(QNetworkProxy::NoProxy);
     d->device = socket;
     d->protocol = new QPacketProtocol(d->device, this);
-    connect(d->protocol, SIGNAL(readyRead()), d, SLOT(readyRead()));
-    connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            d, SLOT(stateChanged(QAbstractSocket::SocketState)));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            d, SLOT(error(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(connected()), d, SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()), d, SLOT(disconnected()));
+    connect(d->protocol, &QPacketProtocol::readyRead, d, &QmlDebugConnectionPrivate::readyRead);
+    connect(socket, &QAbstractSocket::stateChanged,
+            d, &QmlDebugConnectionPrivate::stateChanged);
+    connect(socket, static_cast<void (QTcpSocket::*)(QAbstractSocket::SocketError)>
+            (&QAbstractSocket::error), d, &QmlDebugConnectionPrivate::error);
+    connect(socket, &QAbstractSocket::connected, d, &QmlDebugConnectionPrivate::connected);
+    connect(socket, &QAbstractSocket::disconnected, d, &QmlDebugConnectionPrivate::disconnected);
     socket->connectToHost(hostName, port);
 }
 

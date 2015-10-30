@@ -143,9 +143,9 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
     if (!d->m_pendingDocs.contains(localFile)) {
         if (d->m_pendingDocs.isEmpty())
             connect(QmlJS::ModelManagerInterface::instance(),
-                    SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+                    &QmlJS::ModelManagerInterface::documentUpdated,
                     this,
-                    SLOT(documentReady(QmlJS::Document::Ptr)));
+                    &QmlProfilerDetailsRewriter::documentReady);
 
         d->m_pendingDocs << localFile;
     }
@@ -207,9 +207,9 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 
     if (d->m_pendingDocs.isEmpty()) {
         disconnect(QmlJS::ModelManagerInterface::instance(),
-                   SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+                   &QmlJS::ModelManagerInterface::documentUpdated,
                    this,
-                   SLOT(documentReady(QmlJS::Document::Ptr)));
+                   &QmlProfilerDetailsRewriter::documentReady);
         emit eventDetailsChanged();
         d->m_filesCache.clear();
     }

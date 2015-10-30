@@ -59,17 +59,14 @@ signals:
 public slots:
     bool startEngine();
     void stopEngine();
+    void cancelProcess();
+    void notifyRemoteFinished();
+    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
 
 private slots:
-    void notifyRemoteFinished();
-
-    void cancelProcess();
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
     void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int);
-    void processIsRunning(quint16 port = 0);
-
-private slots:
+    void processIsRunning(quint16 port);
     void profilerStateChanged();
 
 private:
