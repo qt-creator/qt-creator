@@ -34,6 +34,7 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/basetextfind.h>
+#include <coreplugin/outputwindow.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/theme/theme.h>
@@ -73,6 +74,8 @@
 namespace VcsBase {
 namespace Internal {
 
+const char C_VCS_OUTPUT_PANE[] = "Vcs.OutputPane";
+
 // Store repository along with text blocks
 class RepositoryUserData : public QTextBlockUserData
 {
@@ -86,7 +89,7 @@ private:
 
 // A plain text edit with a special context menu containing "Clear" and
 // and functions to append specially formatted entries.
-class OutputWindowPlainTextEdit : public QPlainTextEdit
+class OutputWindowPlainTextEdit : public Core::OutputWindow
 {
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = 0);
@@ -111,7 +114,7 @@ private:
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
-    QPlainTextEdit(parent),
+    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), parent),
     m_defaultFormat(currentCharFormat()),
     m_errorFormat(m_defaultFormat),
     m_warningFormat(m_defaultFormat),
@@ -278,9 +281,9 @@ void OutputWindowPlainTextEdit::setFormat(enum VcsOutputWindow::MessageStyle sty
 class VcsOutputWindowPrivate
 {
 public:
-    Internal::OutputWindowPlainTextEdit *plainTextEdit();
+    Internal::OutputWindowPlainTextEdit *widget();
 
-    QPointer<Internal::OutputWindowPlainTextEdit> m_plainTextEdit;
+    QPointer<Internal::OutputWindowPlainTextEdit> m_widget;
     QString repository;
     QRegExp passwordRegExp;
 };
@@ -288,15 +291,15 @@ public:
 // Create log editor on demand. Some errors might be logged
 // before CorePlugin::extensionsInitialized() pulls up the windows.
 
-Internal::OutputWindowPlainTextEdit *VcsOutputWindowPrivate::plainTextEdit()
+Internal::OutputWindowPlainTextEdit *VcsOutputWindowPrivate::widget()
 {
-    if (!m_plainTextEdit) {
-        m_plainTextEdit = new Internal::OutputWindowPlainTextEdit();
+    if (!m_widget) {
+        m_widget = new Internal::OutputWindowPlainTextEdit();
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
-        agg->add(m_plainTextEdit);
-        agg->add(new Core::BaseTextFind(m_plainTextEdit));
+        agg->add(m_widget);
+        agg->add(new Core::BaseTextFind(m_widget));
     }
-    return m_plainTextEdit;
+    return m_widget;
 }
 
 static VcsOutputWindow *m_instance = 0;
@@ -332,13 +335,13 @@ VcsOutputWindow::~VcsOutputWindow()
 
 QWidget *VcsOutputWindow::outputWidget(QWidget *parent)
 {
-    if (d->m_plainTextEdit) {
-        if (parent != d->m_plainTextEdit->parent())
-            d->m_plainTextEdit->setParent(parent);
+    if (d->m_widget) {
+        if (parent != d->m_widget->parent())
+            d->m_widget->setParent(parent);
     } else {
-        d->m_plainTextEdit = new Internal::OutputWindowPlainTextEdit(parent);
+        d->m_widget = new Internal::OutputWindowPlainTextEdit(parent);
     }
-    return d->m_plainTextEdit;
+    return d->m_widget;
 }
 
 QWidgetList VcsOutputWindow::toolBarWidgets() const
@@ -358,14 +361,14 @@ int VcsOutputWindow::priorityInStatusBar() const
 
 void VcsOutputWindow::clearContents()
 {
-    if (d->m_plainTextEdit)
-        d->m_plainTextEdit->clear();
+    if (d->m_widget)
+        d->m_widget->clear();
 }
 
 void VcsOutputWindow::visibilityChanged(bool visible)
 {
-    if (visible && d->m_plainTextEdit)
-        d->m_plainTextEdit->setFocus();
+    if (visible && d->m_widget)
+        d->m_widget->setFocus();
 }
 
 void VcsOutputWindow::setFocus()
@@ -407,7 +410,7 @@ void VcsOutputWindow::goToPrev()
 
 void VcsOutputWindow::setText(const QString &text)
 {
-    d->plainTextEdit()->setPlainText(text);
+    d->widget()->setPlainText(text);
 }
 
 void VcsOutputWindow::setData(const QByteArray &data)
@@ -422,9 +425,9 @@ void VcsOutputWindow::appendSilently(const QString &text)
 
 void VcsOutputWindow::append(const QString &text, enum MessageStyle style, bool silently)
 {
-    d->plainTextEdit()->appendLinesWithStyle(text, style, d->repository);
+    d->widget()->appendLinesWithStyle(text, style, d->repository);
 
-    if (!silently && !d->plainTextEdit()->isVisible())
+    if (!silently && !d->widget()->isVisible())
         m_instance->popup(Core::IOutputPane::NoModeSwitch);
 }
 
