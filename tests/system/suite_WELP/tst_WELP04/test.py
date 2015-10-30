@@ -81,7 +81,7 @@ def main():
     replaceEditorContent(searchTutWidget, "embedded device")
     test.verify(checkIfObjectExists(getQmlItem("Delegate", welcomePage,
                                                False, "id='delegate' radius='0' caption="
-                                               "'Device Creation with Qt'")),
+                                               "'Qt for Device Creation'")),
                 "Verifying: Link to the expected demonstration video exists.")
     # exit Qt Creator
     invokeMenuItem("File", "Exit")
