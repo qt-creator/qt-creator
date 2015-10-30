@@ -46,17 +46,13 @@ class QmakeBuildInfo : public ProjectExplorer::BuildInfo
 public:
     QmakeBuildInfo(const QmakeBuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f) { }
 
-    ProjectExplorer::BuildConfiguration::BuildType type = ProjectExplorer::BuildConfiguration::Unknown;
     QString additionalArguments;
     QString makefile;
     QMakeStepConfig config;
 
-    bool operator==(const QmakeBuildInfo &o) {
-        return displayName == o.displayName
-                && typeName == o.typeName
-                && buildDirectory == o.buildDirectory
-                && kitId == o.kitId
-                && type == o.type
+    bool operator==(const QmakeBuildInfo &o)
+    {
+        return ProjectExplorer::BuildInfo::operator==(o)
                 && additionalArguments == o.additionalArguments
                 && config == o.config;
     }

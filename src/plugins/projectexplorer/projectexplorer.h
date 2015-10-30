@@ -144,8 +144,7 @@ public:
     static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
                              const bool forceSkipDeploy = false);
 
-    static void addExistingFiles(FolderNode *projectNode, const QStringList &filePaths);
-    static void addExistingFiles(const QStringList &filePaths, FolderNode *folderNode);
+    static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
 
     static void buildProject(Project *p);
     /// Normally there's no need to call this function.
@@ -219,6 +218,9 @@ private slots:
     void testAbiFromTargetTriplet();
 
     void testDeviceManager();
+
+    void testToolChainManager_data();
+    void testToolChainManager();
 #endif
 };
 

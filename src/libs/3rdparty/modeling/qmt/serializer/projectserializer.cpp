@@ -137,12 +137,19 @@ void ProjectSerializer::load(const QString &file_name, Project *project)
 #endif
 
     QXmlStreamReader reader(xml_device);
-    qark::QXmlInArchive archive(reader);
-    archive.beginDocument();
-    archive >> qark::tag("qmt");
-    archive >> *project;
-    archive >> qark::end;
-    archive.endDocument();
+
+    try {
+        qark::QXmlInArchive archive(reader);
+        archive.beginDocument();
+        archive >> qark::tag("qmt");
+        archive >> *project;
+        archive >> qark::end;
+        archive.endDocument();
+    } catch (const qark::QXmlInArchive::FileFormatException &) {
+        throw FileIOException(QStringLiteral("illegal file format"), file_name);
+    } catch (...) {
+        throw FileIOException(QStringLiteral("serialization error"), file_name);
+    }
 
 #ifdef USE_COMPRESSED_FILES
     uncompressor.close();
@@ -155,12 +162,17 @@ void ProjectSerializer::write(QXmlStreamWriter *writer, const Project *project)
     writer->setAutoFormatting(true);
     writer->setAutoFormattingIndent(1);
 
-    qark::QXmlOutArchive archive(*writer);
-    archive.beginDocument();
-    archive << qark::tag("qmt");
-    archive << *project;
-    archive << qark::end;
-    archive.endDocument();
+    try {
+        qark::QXmlOutArchive archive(*writer);
+        archive.beginDocument();
+        archive << qark::tag("qmt");
+        archive << *project;
+        archive << qark::end;
+        archive.endDocument();
+    } catch (...) {
+        throw IOException(QStringLiteral("serialization error"));
+    }
+
 }
 
 }

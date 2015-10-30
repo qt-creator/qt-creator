@@ -1,0 +1,82 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage quick-screens.html
+    \page qtquick-iso-icon-browser.html
+    \nextpage quick-export-to-qml.html
+
+    \title Browsing ISO 7000 Icons
+
+    \commercial
+
+    You can add icons from an ISO 7000 icon library that is installed with \QC
+    to Qt Quick applications (commercial only). You can use the
+    \uicontrol {ISO Icon Browser} to add a \l {Picture} type and select the
+    icon to use for the type. You can change the default color of the icon.
+
+    \image qtcreator-iso-icon-browser.png
+
+    \section1 Using ISO Icons in Applications
+
+    \list 1
+
+        \li Create a new Qt Quick Application or open an application in \QC.
+
+        \li Open the Qt Quick UI form in the \uicontrol Design mode.
+
+        \li In the \uicontrol Library, select \uicontrol Imports >
+            \uicontrol {Add Import} > \uicontrol {QtQuick.Extras} to import the
+            \l {Qt Quick Extras} module.
+
+        \li Drag and drop a \uicontrol Picture element from the library to the
+            canvas.
+
+        \li Right-click the picture element and select \uicontrol {Choose Icon}
+            to open the \uicontrol {ISO Icon Browser}.
+
+        \li To find icons, select a criterion for filtering icons and enter a
+            search string.
+
+        \li Select an icon in the list, and then select \uicontrol OK to add
+            the icon.
+
+        \li To view the icon you added, press \key {Ctrl+R} (or \key {Cmd+R})
+            to run the application.
+
+        \li To adjust the icon color, select the icon on the canvas, and then
+            select \uicontrol {Edit Color} in the context menu.
+
+    \endlist
+
+    \QC generates a Qt resource file called \c iso-icons.qrc that adds the
+    icons as a part of your project for delivery with your application.
+
+    */

@@ -31,7 +31,6 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildconfigurationwidget.h"
-#include "qbsbuildinfo.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
@@ -41,6 +40,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -374,10 +374,10 @@ bool QbsBuildConfigurationFactory::canHandle(const Target *t) const
 BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                          BuildConfiguration::BuildType type) const
 {
-    QbsBuildInfo *info = new QbsBuildInfo(this);
+    auto info = new ProjectExplorer::BuildInfo(this);
     info->typeName = tr("Build");
     info->kitId = k->id();
-    info->type = type;
+    info->buildType = type;
     return info;
 }
 
@@ -405,10 +405,11 @@ int QbsBuildConfigurationFactory::priority(const Kit *k, const QString &projectP
 }
 
 static Utils::FileName defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
-                                             const QString &bcName)
+                                             const QString &bcName,
+                                             BuildConfiguration::BuildType buildType)
 {
     const QString projectName = QFileInfo(projectFilePath).completeBaseName();
-    ProjectMacroExpander expander(projectName, k, bcName);
+    ProjectMacroExpander expander(projectName, k, bcName, buildType);
     QString projectDir = Project::projectDirectory(Utils::FileName::fromString(projectFilePath)).toString();
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
@@ -422,14 +423,18 @@ QList<BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const Kit *k, c
     //: The name of the debug build configuration created by default for a qbs project.
     info->displayName = tr("Debug");
     //: Non-ASCII characters in directory suffix may cause build issues.
-    info->buildDirectory = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"));
+    info->buildDirectory
+            = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
+                                    info->buildType);
     result << info;
 
     info = createBuildInfo(k, BuildConfiguration::Release);
     //: The name of the release build configuration created by default for a qbs project.
     info->displayName = tr("Release");
     //: Non-ASCII characters in directory suffix may cause build issues.
-    info->buildDirectory = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"));
+    info->buildDirectory
+            = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
+                                    info->buildType);
     result << info;
 
     return result;
@@ -441,18 +446,16 @@ BuildConfiguration *QbsBuildConfigurationFactory::create(Target *parent, const B
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
-    const QbsBuildInfo *qbsInfo = static_cast<const QbsBuildInfo *>(info);
-
     QVariantMap configData;
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      (qbsInfo->type == BuildConfiguration::Debug)
-                      ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
-                      : QLatin1String(Constants::QBS_VARIANT_RELEASE));
+                      (info->buildType == BuildConfiguration::Debug)
+                          ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
+                          : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())
         buildDir = defaultBuildDirectory(parent->project()->projectDirectory().toString(),
-                                         parent->kit(), info->displayName);
+                                         parent->kit(), info->displayName, info->buildType);
 
     BuildConfiguration *bc
             = QbsBuildConfiguration::setup(parent, info->displayName, info->displayName,

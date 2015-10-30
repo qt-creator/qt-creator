@@ -562,7 +562,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     if (mi.isValid())
         data.origaddr = mi.toAddress();
 
-    mi = item["addr"];
+    mi = item["address"];
     if (mi.isValid())
         setWatchDataAddress(data, mi.toAddress());
 

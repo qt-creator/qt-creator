@@ -42,6 +42,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
@@ -260,8 +261,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
 
 QList<ToolChain *> AndroidToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    Q_UNUSED(alreadyKnown);
-    return createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
+    return autodetectToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation(), alreadyKnown);
 }
 
 bool AndroidToolChainFactory::canRestore(const QVariantMap &data)
@@ -352,11 +352,23 @@ bool AndroidToolChainFactory::versionCompareLess(AndroidToolChain *atc, AndroidT
     return versionCompareLess(a, b);
 }
 
-QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const FileName &ndkPath)
+static AndroidToolChain *findToolChain(Utils::FileName &compilerPath, const QList<ToolChain *> &alreadyKnown)
+{
+    return static_cast<AndroidToolChain *>(
+                Utils::findOrDefault(alreadyKnown, [compilerPath](ToolChain *tc) {
+                                                       return tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
+                                                           && tc->compilerCommand() == compilerPath;
+                                                   }));
+}
+
+QList<ToolChain *>
+AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
+                                                    const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> result;
     if (ndkPath.isEmpty())
         return result;
+
     QRegExp versionRegExp(NDKGccVersionRegExp);
     FileName path = ndkPath;
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
@@ -373,13 +385,16 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const FileNam
         Abi abi = AndroidConfig::abiForToolChainPrefix(platform);
         if (abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
-        AndroidToolChain *tc = new AndroidToolChain(abi, version, ToolChain::AutoDetection);
         FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(abi, version);
-        tc->resetToolChain(compilerPath);
+
+        AndroidToolChain *tc = findToolChain(compilerPath, alreadyKnown);
+        if (!tc) {
+            tc = new AndroidToolChain(abi, version, ToolChain::AutoDetection);
+            tc->resetToolChain(compilerPath);
+        }
         result.append(tc);
 
-        QHash<Abi, AndroidToolChain *>::const_iterator it
-                = newestToolChainForArch.constFind(abi);
+        auto it = newestToolChainForArch.constFind(abi);
         if (it == newestToolChainForArch.constEnd())
             newestToolChainForArch.insert(abi, tc);
         else if (versionCompareLess(it.value(), tc))
@@ -388,8 +403,7 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const FileNam
 
     foreach (ToolChain *tc, result) {
         AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
-        if (newestToolChainForArch.value(atc->targetAbi()) != atc)
-            atc->setSecondaryToolChain(true);
+        atc->setSecondaryToolChain(newestToolChainForArch.value(atc->targetAbi()) != atc);
     }
 
     return result;

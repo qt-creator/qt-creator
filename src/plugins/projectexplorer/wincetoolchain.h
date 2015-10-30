@@ -57,7 +57,12 @@ public:
 
     QString typeDisplayName() const override;
 
+    QString msvcVer() const { return m_msvcVer; }
     QString ceVer() const;
+
+    QString binPath() const { return m_binPath; }
+    QString includePath() const { return m_includePath; }
+    QString libPath() const { return m_libPath; }
 
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;

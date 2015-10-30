@@ -61,13 +61,14 @@ namespace Internal {
 const char USE_NINJA_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.UseNinja";
 const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument";
 
-static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit *k, const QString &bcName)
+static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit *k,
+                                     const QString &bcName, BuildConfiguration::BuildType buildType)
 {
     if (projectFilePath.isEmpty())
         return FileName();
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    ProjectMacroExpander expander(projectName, k, bcName);
+    ProjectMacroExpander expander(projectName, k, bcName, buildType);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
@@ -79,7 +80,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
                                            parent->kit(),
-                                           displayName()));
+                                           displayName(), BuildConfiguration::Unknown));
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
@@ -202,7 +203,8 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSet
         } else {
             info->displayName = info->typeName;
         }
-        info->buildDirectory = shadowBuildDirectory(projectPathName, k, info->displayName);
+        info->buildDirectory
+                = shadowBuildDirectory(projectPathName, k, info->displayName, info->buildType);
         result << info;
     }
     return result;
@@ -220,7 +222,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
 
     if (copy.buildDirectory.isEmpty()) {
         copy.buildDirectory = shadowBuildDirectory(project->projectFilePath(), parent->kit(),
-                                                   copy.displayName);
+                                                   copy.displayName, info->buildType);
     }
 
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(parent);
@@ -306,18 +308,22 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
     case BuildTypeDebug:
         info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=Debug");
         info->typeName = tr("Debug");
+        info->buildType = BuildConfiguration::Debug;
         break;
     case BuildTypeRelease:
         info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=Release");
         info->typeName = tr("Release");
+        info->buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
         info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=MinSizeRel");
         info->typeName = tr("Minimum Size Release");
+        info->buildType = BuildConfiguration::Release;
         break;
     case BuildTypeRelWithDebInfo:
         info->arguments = QLatin1String("-DCMAKE_BUILD_TYPE=RelWithDebInfo");
         info->typeName = tr("Release with Debug Information");
+        info->buildType = BuildConfiguration::Profile;
         break;
     default:
         QTC_CHECK(false);

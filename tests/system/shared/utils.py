@@ -363,8 +363,8 @@ def __checkParentAccess__(filePath):
 # and a list of information of its configured Qt
 def getConfiguredKits():
     def __retrieveQtVersionName__(target, version):
-        treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-        return treeWidget.currentItem().text(0)
+        treeView = waitForObject(":qtdirList_QTreeView")
+        return str(treeView.currentIndex().data().toString())
     # end of internal function for iterateQtVersions
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
         treeView = waitForObject(":BuildAndRun_QTreeView")
@@ -443,13 +443,13 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
-    treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-    root = treeWidget.invisibleRootItem()
-    for rootChild in dumpChildren(root):
-        rootChildText = str(rootChild.text(0)).replace(".", "\\.").replace("_", "\\_")
-        for subChild in dumpChildren(rootChild):
-            subChildText = str(subChild.text(0)).replace(".", "\\.").replace("_", "\\_")
-            clickItem(treeWidget, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
+    treeView = waitForObject(":qtdirList_QTreeView")
+    model = treeView.model()
+    for rootIndex in dumpIndices(model):
+        rootChildText = str(rootIndex.data()).replace(".", "\\.").replace("_", "\\_")
+        for subIndex in dumpIndices(model, rootIndex):
+            subChildText = str(subIndex.data()).replace(".", "\\.").replace("_", "\\_")
+            clickItem(treeView, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
             matches = pattern.match(currentText)
             if matches:

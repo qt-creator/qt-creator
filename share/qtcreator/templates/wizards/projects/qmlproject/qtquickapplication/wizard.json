@@ -98,12 +98,12 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "../../qmake/qtquickapplication/main.qml",
+                    "source": "../../qmake/qtquickapplication/main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFileName}",
                     "openInEditor": true
                 },
                 {
-                    "source": "../../qmake/qtquickapplication/MainForm.ui.qml",
+                    "source": "../../qmake/qtquickapplication/MainForm.ui.qml.tpl",
                     "target": "%{ProjectDirectory}/MainForm.ui.qml",
                     "condition": "%{IsUiFileInUse}"
                 },

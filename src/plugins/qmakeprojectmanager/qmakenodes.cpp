@@ -1267,10 +1267,16 @@ bool QmakePriFileNode::renameFile(const QString &oldName,
     QDir priFileDir = QDir(m_qmakeProFileNode->m_projectDir);
     QStringList notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir,
                                                     QStringList(oldName), varNamesForRemoving());
-    if (!notChanged.isEmpty()) {
-        includeFile->deref();
+
+    includeFile->deref();
+    if (!notChanged.isEmpty())
         return false;
-    }
+
+    // We need to re-parse here: The file has changed.
+    QMakeParser parser(0, 0, 0);
+    includeFile = parser.parsedProBlock(lines.join(QLatin1Char('\n')),
+                                        m_projectFilePath.toString(), 1, QMakeParser::FullGrammar);
+    QTC_ASSERT(includeFile, return false); // The file should still be valid after what we did.
 
     ProWriter::addFiles(includeFile, &lines,
                         QStringList(newName),

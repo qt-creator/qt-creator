@@ -1699,6 +1699,13 @@
     You can also press \key {Alt+Enter} to open a context menu that contains
     refactoring actions available in the current cursor position.
 
+    If you use the \l{Parsing C++ Files}{Clang code model} to parse the C++
+    files, the \l{http://clang.llvm.org/diagnostics.html}{Clang fix-it hints}
+    that have been integrated into \QC are also available to you. In addition to
+    the standard ways of activating refactoring actions, you can select the
+    actions that are applicable on a line in the context menu in the left margin
+    of the code editor.
+
    \section2 Refactoring C++ Code
 
    You can apply the following types of refactoring actions to C++ code:
@@ -2311,6 +2318,8 @@
             \li Converts a Qt 4 QObject::connect() to Qt 5 style.
             \li QObject::connect() (Qt 4 style)
     \endtable
+
+
 
     \section2 Refactoring QML Code
 

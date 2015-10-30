@@ -69,6 +69,11 @@
             Dialogs, and Layouts (available since Qt 5.1) to create screens. You
             can use states and transitions to navigate between screens.
 
+        \li \l {Browsing ISO 7000 Icons}
+
+            You can add ISO 7000 icons from a library delivered with \QC to Qt
+            Quick applications and change their color (commercial only).
+
         \li \l {Exporting Designs from Graphics Software}
 
             You can export designs from graphics software, such as Adobe

@@ -41,6 +41,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
+    Depends { name: "ResourceEditor" }
     Depends { name: "QtSupport" }
     Depends { name: "QmlJSTools" }
 
@@ -68,7 +69,6 @@ QtcPlugin {
         "qbsbuildconfiguration.h",
         "qbsbuildconfigurationwidget.cpp",
         "qbsbuildconfigurationwidget.h",
-        "qbsbuildinfo.h",
         "qbsbuildstep.cpp",
         "qbsbuildstep.h",
         "qbsbuildstepconfigwidget.ui",

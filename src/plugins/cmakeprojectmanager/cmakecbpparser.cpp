@@ -265,10 +265,28 @@ void CMakeCbpParser::parseBuildTargetOption()
             m_buildTarget.targetType = TargetType(value.toInt());
     } else if (attributes().hasAttribute(QLatin1String("working_dir"))) {
         m_buildTarget.workingDirectory = attributes().value(QLatin1String("working_dir")).toString();
-        QDir dir(m_buildDirectory);
-        const QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory);
-        m_buildTarget.sourceDirectory
-                = FileName::fromString(m_sourceDirectory).appendPath(relative).toString();
+
+        QFile cmakeSourceInfoFile(m_buildTarget.workingDirectory
+                                  + QStringLiteral("/CMakeFiles/CMakeDirectoryInformation.cmake"));
+        if (cmakeSourceInfoFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream stream(&cmakeSourceInfoFile);
+            const QLatin1String searchSource("SET(CMAKE_RELATIVE_PATH_TOP_SOURCE \"");
+            while (!stream.atEnd()) {
+                const QString lineTopSource = stream.readLine().trimmed();
+                if (lineTopSource.startsWith(searchSource)) {
+                    m_buildTarget.sourceDirectory = lineTopSource.mid(searchSource.size());
+                    m_buildTarget.sourceDirectory.chop(2); // cut off ")
+                    break;
+                }
+            }
+        }
+
+        if (m_buildTarget.sourceDirectory.isEmpty()) {
+            QDir dir(m_buildDirectory);
+            const QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory);
+            m_buildTarget.sourceDirectory
+                    = FileName::fromString(m_sourceDirectory).appendPath(relative).toString();
+        }
     }
     while (!atEnd()) {
         readNext();

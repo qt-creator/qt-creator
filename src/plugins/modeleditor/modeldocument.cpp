@@ -74,9 +74,8 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString, const QStr
 {
     Q_UNUSED(fileName);
 
-    if (!load(errorString, realFileName))
-        return Core::IDocument::OpenResult::ReadError;
-    return Core::IDocument::OpenResult::Success;
+    OpenResult result = load(errorString, realFileName);
+    return result;
 }
 
 bool ModelDocument::save(QString *errorString, const QString &name, bool autoSave)
@@ -143,7 +142,7 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-bool ModelDocument::load(QString *errorString, const QString &fileName)
+Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QString &fileName)
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
@@ -151,13 +150,16 @@ bool ModelDocument::load(QString *errorString, const QString &fileName)
     try {
         d->documentController->loadProject(fileName);
         setFilePath(Utils::FileName::fromString(d->documentController->getProjectController()->getProject()->getFileName()));
-    } catch (const qmt::Exception &ex) {
+    } catch (const qmt::FileNotFoundException &ex) {
         *errorString = ex.getErrorMsg();
-        return false;
+        return OpenResult::ReadError;
+    } catch (const qmt::Exception &ex) {
+        *errorString = tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.getErrorMsg());
+        return OpenResult::CannotHandle;
     }
 
     emit contentSet();
-    return true;
+    return OpenResult::Success;
 }
 
 } // namespace Internal

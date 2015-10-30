@@ -135,6 +135,7 @@ public:
     int toInt(bool *ok = 0, int base = 10) const { return toQString().toInt(ok, base); } // XXX optimize
     short toShort(bool *ok = 0, int base = 10) const { return toQString().toShort(ok, base); } // XXX optimize
 
+    uint hash() const { return m_hash; }
     static uint hash(const QChar *p, int n);
 
     ALWAYS_INLINE QStringRef toQStringRef() const { return QStringRef(&m_string, m_offset, m_length); }
@@ -236,9 +237,13 @@ public:
     QString join(const QString &sep) const;
     QString join(QChar sep) const;
 
+    void insertUnique(const ProStringList &value);
+
     void removeAll(const ProString &str);
     void removeAll(const char *str);
+    void removeEach(const ProStringList &value);
     void removeAt(int idx) { remove(idx); }
+    void removeEmpty();
     void removeDuplicates();
 
     bool contains(const ProString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
@@ -344,6 +349,9 @@ public:
 
     bool isHostBuild() const { return m_hostBuild; }
     void setHostBuild(bool host_build) { m_hostBuild = host_build; }
+
+    ProString getStr(const ushort *&tPtr);
+    ProKey getHashStr(const ushort *&tPtr);
 
 private:
     ProItemRefCount m_refCount;

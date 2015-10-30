@@ -278,6 +278,7 @@ int ProjectTreeWidget::expandedCount(Node *node)
 void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     Node *node = m_model->nodeForIndex(parent);
+    QTC_ASSERT(node, return);
     const QString path = node->path().toString();
     const QString displayName = node->displayName();
 

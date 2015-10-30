@@ -79,9 +79,8 @@ public:
 
     QString url;
     int number;
-    QString id;
-    QString dependsOnId;
-    QString neededById;
+    int dependsOnNumber;
+    int neededByNumber;
     QString title;
     QString owner;
     QString email;
@@ -123,7 +122,7 @@ public:
     GerritChangePtr change(const QModelIndex &index) const;
     QString toHtml(const QModelIndex &index) const;
 
-    QStandardItem *itemForId(const QString &id) const;
+    QStandardItem *itemForNumber(int number) const;
 
     enum QueryState { Idle, Running, Ok, Error };
     QueryState state() const { return m_state; }
@@ -141,7 +140,7 @@ private:
 
     void setState(QueryState s);
 
-    QString dependencyHtml(const QString &header, const QString &changeId,
+    QString dependencyHtml(const QString &header, const int changeNumber,
                            const QString &serverPrefix) const;
     QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 

@@ -120,8 +120,15 @@ void QmlProfilerClientManager::discardPendingData()
 
 void QmlProfilerClientManager::connectClient(quint16 port)
 {
-    if (d->connection)
-        delete d->connection;
+    if (d->connection) {
+        if (port == d->tcpPort) {
+            tryToConnect();
+            return;
+        } else {
+            delete d->connection;
+        }
+    }
+
     d->connection = new QmlDebugConnection;
     enableServices();
     connect(d->connection, SIGNAL(stateMessage(QString)), this, SLOT(logState(QString)));

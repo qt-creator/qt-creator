@@ -35,7 +35,8 @@
 namespace ProjectExplorer {
 
 ProjectMacroExpander::ProjectMacroExpander(const QString &projectName,
-                                           const Kit *kit, const QString &bcName)
+                                           const Kit *kit, const QString &bcName,
+                                           BuildConfiguration::BuildType buildType)
 {
     registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
                      QCoreApplication::translate("ProjectExplorer", "Name of current project"),
@@ -44,6 +45,10 @@ ProjectMacroExpander::ProjectMacroExpander(const QString &projectName,
     registerVariable(Constants::VAR_CURRENTBUILD_NAME,
                      QCoreApplication::translate("ProjectExplorer", "Name of current build"),
                      [bcName] { return bcName; });
+
+    registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
+                     QCoreApplication::translate("ProjectExplorer", "Type of current build"),
+                     [buildType] { return BuildConfiguration::buildTypeName(buildType); });
 
     registerSubProvider([kit] { return kit->macroExpander(); });
 }

@@ -77,6 +77,9 @@
     creating classic desktop-style user interfaces using Qt Quick 2.1. You can
     use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
+    Some ready-made controls, such as a gauge, dial, status indicator, and
+    tumbler, are provided by the \l {Qt Quick Extras} module.
+
     The \QC project wizards create Qt Quick applications that use Qt Quick
     Components or Controls.
 

@@ -375,10 +375,10 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
     foreach (const Platform &platform, platforms) {
         ClangToolChain *toolChain = findToolChainForPlatform(platform, existingClangToolChains);
         if (!toolChain) {
-            ClangToolChain *newToolChain = createToolChain(platform);
-            toolChains.append(newToolChain);
-            existingClangToolChains.append(newToolChain);
+            toolChain = createToolChain(platform);
+            existingClangToolChains.append(toolChain);
         }
+        toolChains.append(toolChain);
     }
     return Utils::transform(toolChains, [](ClangToolChain *tc) -> ToolChain * { return tc; });
 }

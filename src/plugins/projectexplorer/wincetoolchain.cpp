@@ -33,6 +33,7 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -352,10 +353,33 @@ WinCEToolChainFactory::WinCEToolChainFactory()
     setDisplayName(tr("WinCE"));
 }
 
+static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
+                                        const QString &name, const Abi &abi,
+                                        const QString &vcvarsBat, const QString &msvcVer,
+                                        const QString &ceVer, const QString &binPath,
+                                        const QString &includePath, const QString &libPath,
+                                        ToolChain::Detection d = ToolChain::ManualDetection)
+{
+    ToolChain *tc
+            = Utils::findOrDefault(alreadyKnown, [&](ToolChain *tc) -> bool {
+                                       if (tc->typeId() != Constants::WINCE_TOOLCHAIN_TYPEID)
+                                           return false;
+                                       auto cetc = static_cast<WinCEToolChain *>(tc);
+                                       return cetc->targetAbi() == abi
+                                                  && cetc->varsBat() == vcvarsBat
+                                                  && cetc->msvcVer() == msvcVer
+                                                  && cetc->ceVer() == ceVer
+                                                  && cetc->binPath() == binPath
+                                                  && cetc->includePath() == includePath
+                                                  && cetc->libPath() == libPath;
+                                         });
+    if (!tc)
+        tc = new WinCEToolChain(name, abi, vcvarsBat, msvcVer, ceVer, binPath, includePath, libPath, d);
+    return tc;
+}
 
 QList<ToolChain *> WinCEToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    Q_UNUSED(alreadyKnown);
     QList<ToolChain *> results;
 
     // 1) Installed WinCEs
@@ -398,16 +422,16 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect(const QList<ToolChain *> &a
                         QString ceVer;
 
                         if (parseSDK(platformReader, theArch, thePlat, ceVer, binPath, includePath, libPath)) {
-                            WinCEToolChain *pChain = new WinCEToolChain(thePlat,
-                                                                        Abi(theArch, Abi::WindowsOS, Abi::WindowsCEFlavor, Abi::PEFormat, 32),
-                                                                        vcvars32bat,
-                                                                        msvcVer,
-                                                                        ceVer,
-                                                                        binPath,
-                                                                        includePath,
-                                                                        libPath,
-                                                                        ToolChain::AutoDetection);
-                            results.append(pChain);
+                            results.append(findOrCreateToolChain(alreadyKnown,
+                                                                 thePlat,
+                                                                 Abi(theArch, Abi::WindowsOS, Abi::WindowsCEFlavor, Abi::PEFormat, 32),
+                                                                 vcvars32bat,
+                                                                 msvcVer,
+                                                                 ceVer,
+                                                                 binPath,
+                                                                 includePath,
+                                                                 libPath,
+                                                                 ToolChain::AutoDetection));
                         }
                     }
                 }

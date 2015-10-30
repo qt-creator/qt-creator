@@ -1233,21 +1233,15 @@ static bool equalKits(Kit *a, Kit *b)
 
 void AndroidConfigurations::registerNewToolChains()
 {
-    QList<ToolChain *> existingToolChains = ToolChainManager::toolChains();
-    QList<ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
-    foreach (ToolChain *tc, toolchains) {
-        bool found = false;
-        for (int i = 0; i < existingToolChains.count(); ++i) {
-            if (*(existingToolChains.at(i)) == *tc) {
-                found = true;
-                break;
-            }
-        }
-        if (found)
-            delete tc;
-        else
+    const QList<ToolChain *> existingAndroidToolChains
+            = Utils::filtered(ToolChainManager::toolChains(),
+                              Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_ID)));
+
+    const QList<ToolChain *> newToolchains
+            = AndroidToolChainFactory::autodetectToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation(),
+                                                                  existingAndroidToolChains);
+    foreach (ToolChain *tc, newToolchains)
             ToolChainManager::registerToolChain(tc);
-    }
 }
 
 void AndroidConfigurations::removeOldToolChains()

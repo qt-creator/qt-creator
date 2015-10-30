@@ -32,6 +32,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <aggregation/aggregate.h>
+#include <coreplugin/find/basetextfind.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/theme/theme.h>
@@ -288,8 +290,12 @@ public:
 
 Internal::OutputWindowPlainTextEdit *VcsOutputWindowPrivate::plainTextEdit()
 {
-    if (!m_plainTextEdit)
+    if (!m_plainTextEdit) {
         m_plainTextEdit = new Internal::OutputWindowPlainTextEdit();
+        Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+        agg->add(m_plainTextEdit);
+        agg->add(new Core::BaseTextFind(m_plainTextEdit));
+    }
     return m_plainTextEdit;
 }
 

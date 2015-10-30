@@ -115,13 +115,13 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
 
     buttons << new QToolButton();
     buttons.last()->setIcon(QIcon(QStringLiteral(":/connectionview/plus.png")));
-    buttons.last()->setToolTip(tr("Add binding or connection"));
+    buttons.last()->setToolTip(tr("Add binding or connection."));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(addButtonClicked()));
     connect(this, SIGNAL(setEnabledAddButtonChanged(bool)), buttons.last(), SLOT(setEnabled(bool)));
 
     buttons << new QToolButton();
     buttons.last()->setIcon(QIcon(QStringLiteral(":/connectionview/minus.png")));
-    buttons.last()->setToolTip(tr("Remove selected binding or connection"));
+    buttons.last()->setToolTip(tr("Remove selected binding or connection."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Delete));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(removeButtonClicked()));
     connect(this, SIGNAL(setEnabledRemoveButtonChanged(bool)), buttons.last(), SLOT(setEnabled(bool)));

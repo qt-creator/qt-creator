@@ -93,6 +93,10 @@ public:
 
     void discardFileFromCache(const QString &fileName);
 
+#ifdef PROPARSER_DEBUG
+    static QString formatProBlock(const QString &block);
+#endif
+
 private:
     enum ScopeNesting {
         NestNone = 0,
@@ -127,7 +131,7 @@ private:
     };
 
     bool read(ProFile *pro, ParseFlags flags);
-    bool read(ProFile *pro, const QString &content, int line, SubGrammar grammar);
+    void read(ProFile *pro, const QString &content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
     ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);
@@ -141,8 +145,12 @@ private:
                                        const ushort *cur, const QString &in);
     void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
+    void warnOperator(const char *msg);
+    bool failOperator(const char *msg);
+    bool acceptColon(const char *msg);
+    void putOperator(ushort *&tokPtr);
     void finalizeTest(ushort *&tokPtr);
-    void bogusTest(ushort *&tokPtr);
+    void bogusTest(ushort *&tokPtr, const QString &msg);
     void enterScope(ushort *&tokPtr, bool special, ScopeState state);
     void leaveScope(ushort *&tokPtr);
     void flushCond(ushort *&tokPtr);
@@ -150,7 +158,10 @@ private:
 
     void message(int type, const QString &msg) const;
     void parseError(const QString &msg) const
-            { message(QMakeParserHandler::ParserError, msg); }
+    {
+        message(QMakeParserHandler::ParserError, msg);
+        m_proFile->setOk(false);
+    }
     void languageWarning(const QString &msg) const
             { message(QMakeParserHandler::ParserWarnLanguage, msg); }
     void deprecationWarning(const QString &msg) const
@@ -165,7 +176,7 @@ private:
     int m_markLine; // Put marker for this line
     bool m_inError; // Current line had a parsing error; suppress followup error messages
     bool m_canElse; // Conditionals met on previous line, but no scope was opened
-    bool m_invert; // Pending conditional is negated
+    int m_invert; // Pending conditional is negated
     enum { NoOperator, AndOperator, OrOperator } m_operator; // Pending conditional is ORed/ANDed
 
     QString m_tmp; // Temporary for efficient toQString

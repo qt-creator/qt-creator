@@ -32,6 +32,9 @@
 #define PROJECTMACROEXPANDER_H
 
 #include "projectexplorer_export.h"
+
+#include "buildconfiguration.h"
+
 #include <utils/macroexpander.h>
 
 namespace ProjectExplorer {
@@ -40,7 +43,8 @@ class Kit;
 class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::MacroExpander
 {
 public:
-    ProjectMacroExpander(const QString &projectName, const Kit *kit, const QString &bcName);
+    ProjectMacroExpander(const QString &projectName, const Kit *kit, const QString &bcName,
+                         BuildConfiguration::BuildType buildType);
 };
 
 } // namespace ProjectExplorer

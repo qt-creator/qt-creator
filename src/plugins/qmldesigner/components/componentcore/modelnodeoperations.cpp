@@ -551,8 +551,8 @@ void gotoImplementation(const SelectionContext &/*selectionState*/)
     QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
 
     if (usages.isEmpty()) {
-        QString title = QCoreApplication::translate("ModelNodeOperations", "Goto implementation");
-        QString description = QCoreApplication::translate("ModelNodeOperations", "Cannot find any implementation.");
+        QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
+        QString description = QCoreApplication::translate("ModelNodeOperations", "Cannot find an implementation.");
         Core::AsynchronousMessageBox::warning(title, description);
         return;
     }

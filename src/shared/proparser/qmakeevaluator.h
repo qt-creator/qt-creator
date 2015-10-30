@@ -38,8 +38,10 @@
 #include "qmakeparser.h"
 #include "ioutils.h"
 
+#include <qiodevice.h>
 #include <qlist.h>
 #include <qlinkedlist.h>
+#include <qmap.h>
 #include <qset.h>
 #include <qstack.h>
 #include <qstring.h>
@@ -145,8 +147,6 @@ public:
         { return b ? ReturnTrue : ReturnFalse; }
 
     static ALWAYS_INLINE uint getBlockLen(const ushort *&tokPtr);
-    ProString getStr(const ushort *&tokPtr);
-    ProKey getHashStr(const ushort *&tokPtr);
     void evaluateExpression(const ushort *&tokPtr, ProStringList *ret, bool joined);
     static ALWAYS_INLINE void skipStr(const ushort *&tokPtr);
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
@@ -227,8 +227,9 @@ public:
 
     void populateDeps(
             const ProStringList &deps, const ProString &prefix, const ProStringList &suffixes,
-            QHash<ProKey, QSet<ProKey> > &dependencies,
-            ProValueMap &dependees, ProStringList &rootSet) const;
+            const ProString &priosfx,
+            QHash<ProKey, QSet<ProKey> > &dependencies, ProValueMap &dependees,
+            QMultiMap<int, ProString> &rootSet) const;
 
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           const QString &contents);
@@ -236,8 +237,6 @@ public:
     void runProcess(QProcess *proc, const QString &command) const;
 #endif
     QByteArray getCommandOutput(const QString &args) const;
-
-    static void removeEach(ProStringList *varlist, const ProStringList &value);
 
     QMakeEvaluator *m_caller;
 #ifdef PROEVALUATOR_CUMULATIVE
@@ -247,6 +246,8 @@ public:
     enum { m_cumulative = 0 };
     enum { m_skipLevel = 0 };
 #endif
+
+    static QString quoteValue(const ProString &val);
 
 #ifdef PROEVALUATOR_DEBUG
     void debugMsgInternal(int level, const char *fmt, ...) const;
@@ -306,6 +307,7 @@ public:
     QMakeHandler *m_handler;
     QMakeVfs *m_vfs;
 };
+Q_DECLARE_TYPEINFO(QMakeEvaluator::Location, Q_PRIMITIVE_TYPE);
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeEvaluator::LoadFlags)
 

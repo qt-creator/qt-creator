@@ -194,8 +194,8 @@ def getQtInformationForQmlProject():
     qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
     test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-    if not __selectTreeItemOnBuildAndRun__(treeWidget, qtVersionStr):
+    treeView = waitForObject(":qtdirList_QTreeView")
+    if not __selectTreeItemOnBuildAndRun__(treeView, qtVersionStr):
         test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
         return None, None, None, None

@@ -70,7 +70,7 @@ public:
 
     /// suffix should be unique
     static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Kit *k,
-                                 const QString &suffix);
+                                        const QString &suffix, BuildConfiguration::BuildType type);
 
     /// \internal for qmakestep
     // used by qmake step to notify that the qmake args have changed

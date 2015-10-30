@@ -14,7 +14,6 @@ Project {
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
         "generichighlighter/generichighlighter.qbs",
-        "ioutils/ioutils.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qtcprocess/qtcprocess.qbs",

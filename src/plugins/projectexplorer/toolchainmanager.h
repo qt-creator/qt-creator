@@ -87,6 +87,9 @@ private:
     // Make sure the this is only called after all
     // Tool chain Factories are registered!
     static void restoreToolChains();
+
+    static QList<ToolChain *> readSystemFileToolChains();
+
     static void notifyAboutUpdate(ToolChain *);
 
     friend class ProjectExplorerPlugin; // for constructor

@@ -8,4 +8,5 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     cpptools \
     qtsupport \
-    qmljstools
+    qmljstools \
+    resourceeditor

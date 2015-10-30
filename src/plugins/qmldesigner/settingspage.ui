@@ -177,7 +177,7 @@
            <bool>true</bool>
           </property>
           <property name="toolTip">
-           <string>Path where Qt Creator can find the qmlpuppet (QML emulation layer) executables.</string>
+           <string>Path where Qt Creator can find the QML emulation layer executable (qmlpuppet).</string>
           </property>
          </widget>
         </item>

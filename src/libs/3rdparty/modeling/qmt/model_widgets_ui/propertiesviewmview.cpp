@@ -696,8 +696,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         _end_a_cardinality->setEnabled(is_single_selection);
     }
     if (_end_a_navigable == 0) {
-        _end_a_navigable = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Navigable"), _end_a_navigable);
+        _end_a_navigable = new QCheckBox(tr("Navigable"), _top_widget);
+        _top_layout->addRow(QString(), _end_a_navigable);
         connect(_end_a_navigable, SIGNAL(clicked(bool)), this, SLOT(onAssociationEndANavigableChanged(bool)));
     }
     if (is_single_selection) {
@@ -763,8 +763,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         _end_b_cardinality->setEnabled(is_single_selection);
     }
     if (_end_b_navigable == 0) {
-        _end_b_navigable = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Navigable"), _end_b_navigable);
+        _end_b_navigable = new QCheckBox(tr("Navigable"), _top_widget);
+        _top_layout->addRow(QString(), _end_b_navigable);
         connect(_end_b_navigable, SIGNAL(clicked(bool)), this, SLOT(onAssociationEndBNavigableChanged(bool)));
     }
     if (is_single_selection) {
@@ -834,8 +834,8 @@ void PropertiesView::MView::visitDObject(const DObject *object)
                              .arg(object->getRect().bottom()));
 #endif
     if (_auto_sized_checkbox == 0) {
-        _auto_sized_checkbox = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Auto sized"), _auto_sized_checkbox);
+        _auto_sized_checkbox = new QCheckBox(tr("Auto sized"), _top_widget);
+        _top_layout->addRow(QString(), _auto_sized_checkbox);
         connect(_auto_sized_checkbox, SIGNAL(clicked(bool)), this, SLOT(onAutoSizedChanged(bool)));
     }
     if (!_auto_sized_checkbox->hasFocus()) {
@@ -892,8 +892,8 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         }
     }
     if (_visual_emphasized_checkbox == 0) {
-        _visual_emphasized_checkbox = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Emphasized"), _visual_emphasized_checkbox);
+        _visual_emphasized_checkbox = new QCheckBox(tr("Emphasized"), _top_widget);
+        _top_layout->addRow(QString(), _visual_emphasized_checkbox);
         connect(_visual_emphasized_checkbox, SIGNAL(clicked(bool)), this, SLOT(onVisualEmphasizedChanged(bool)));
     }
     if (!_visual_emphasized_checkbox->hasFocus()) {
@@ -957,8 +957,8 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
         }
     }
     if (_show_all_members_checkbox == 0) {
-        _show_all_members_checkbox = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Show members"), _show_all_members_checkbox);
+        _show_all_members_checkbox = new QCheckBox(tr("Show members"), _top_widget);
+        _top_layout->addRow(QString(), _show_all_members_checkbox);
         connect(_show_all_members_checkbox, SIGNAL(clicked(bool)), this, SLOT(onShowAllMembersChanged(bool)));
     }
     if (!_show_all_members_checkbox->hasFocus()) {
@@ -978,8 +978,8 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
     setStyleElementType(StyleEngine::TYPE_COMPONENT);
     visitDObject(component);
     if (_plain_shape_checkbox == 0) {
-        _plain_shape_checkbox = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Plain shape"), _plain_shape_checkbox);
+        _plain_shape_checkbox = new QCheckBox(tr("Plain shape"), _top_widget);
+        _top_layout->addRow(QString(), _plain_shape_checkbox);
         connect(_plain_shape_checkbox, SIGNAL(clicked(bool)), this, SLOT(onPlainShapeChanged(bool)));
     }
     if (!_plain_shape_checkbox->hasFocus()) {
@@ -1054,8 +1054,8 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     setTitle<DAnnotation>(_diagram_elements, tr("Annotation"), tr("Annotations"));
     visitDElement(annotation);
     if (_annotation_auto_width_checkbox == 0) {
-        _annotation_auto_width_checkbox = new QCheckBox(_top_widget);
-        _top_layout->addRow(tr("Auto width"), _annotation_auto_width_checkbox);
+        _annotation_auto_width_checkbox = new QCheckBox(tr("Auto width"), _top_widget);
+        _top_layout->addRow(QString(), _annotation_auto_width_checkbox);
         connect(_annotation_auto_width_checkbox, SIGNAL(clicked(bool)), this, SLOT(onAutoWidthChanged(bool)));
     }
     if (!_annotation_auto_width_checkbox->hasFocus()) {

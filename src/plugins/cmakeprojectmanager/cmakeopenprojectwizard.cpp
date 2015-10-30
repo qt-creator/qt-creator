@@ -61,6 +61,7 @@
 #include <QStringList>
 #include <QApplication>
 #include <QCheckBox>
+#include <QDir>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -495,7 +496,7 @@ void CMakeRunPage::initializePage()
                                        "You can add command line arguments below. Note that "
                                        "CMake remembers command line arguments from the "
                                        "previous runs.")
-                                    .arg(m_buildDirectory)
+                                    .arg(QDir::toNativeSeparators(m_buildDirectory))
                                     .arg(m_buildConfigurationName)
                                     .arg(m_kitName));
     } else if (m_mode == CMakeRunPage::Recreate) {
@@ -505,7 +506,7 @@ void CMakeRunPage::initializePage()
                                        "Some projects require command line arguments to "
                                        "the initial CMake call. Note that CMake remembers command "
                                        "line arguments from the previous runs.")
-                                    .arg(m_buildDirectory)
+                                    .arg(QDir::toNativeSeparators(m_buildDirectory))
                                     .arg(m_buildConfigurationName)
                                     .arg(m_kitName));
     } else if (m_mode == CMakeRunPage::ChangeDirectory) {
@@ -516,7 +517,7 @@ void CMakeRunPage::initializePage()
     } else if (m_mode == CMakeRunPage::WantToUpdate) {
         m_descriptionLabel->setText(tr("Refreshing the .cbp file in \"%1\" for build configuration \"%2\" "
                                        "for target \"%3\".")
-                                    .arg(m_buildDirectory)
+                                    .arg(QDir::toNativeSeparators(m_buildDirectory))
                                     .arg(m_buildConfigurationName)
                                     .arg(m_kitName));
     }

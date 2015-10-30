@@ -85,7 +85,7 @@
 #include "taskhub.h"
 #include "customtoolchain.h"
 #include "selectablefilesmodel.h"
-#include <projectexplorer/customwizard/customwizard.h>
+#include "customwizard/customwizard.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
@@ -106,7 +106,6 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/idocument.h>
@@ -117,7 +116,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/vcsmanager.h>
@@ -143,11 +141,11 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QDir>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTimer>
-#include <QWizard>
 
 /*!
     \namespace ProjectExplorer
@@ -3141,7 +3139,8 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
         tr("Add Existing Files"), directoryFor(ProjectTree::currentNode()));
     if (fileNames.isEmpty())
         return;
-    ProjectExplorerPlugin::addExistingFiles(fileNames, folderNode);
+
+    ProjectExplorerPlugin::addExistingFiles(folderNode, fileNames);
 }
 
 void ProjectExplorerPluginPrivate::addExistingDirectory()
@@ -3154,12 +3153,7 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
     SelectableFilesDialogAddDirectory dialog(directoryFor(ProjectTree::currentNode()), QStringList(), ICore::mainWindow());
 
     if (dialog.exec() == QDialog::Accepted)
-        ProjectExplorerPlugin::addExistingFiles(dialog.selectedFiles(), folderNode);
-}
-
-void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths, FolderNode *folderNode)
-{
-    addExistingFiles(folderNode, filePaths);
+        ProjectExplorerPlugin::addExistingFiles(folderNode, dialog.selectedFiles());
 }
 
 void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStringList &filePaths)
@@ -3173,13 +3167,15 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
     folderNode->addFiles(fileNames, &notAdded);
 
     if (!notAdded.isEmpty()) {
-        QString message = tr("Could not add following files to project %1:").arg(folderNode->projectNode()->displayName());
-        message += QLatin1Char('\n');
-        QString files = notAdded.join(QLatin1Char('\n'));
+        const QString message = tr("Could not add following files to project %1:")
+                .arg(folderNode->projectNode()->displayName()) + QLatin1Char('\n');
+        const QStringList nativeFiles
+                = Utils::transform(notAdded,
+                                   [](const QString &f) { return QDir::toNativeSeparators(f); });
         QMessageBox::warning(ICore::mainWindow(), tr("Adding Files to Project Failed"),
-                             message + files);
-        foreach (const QString &file, notAdded)
-            fileNames.removeOne(file);
+                             message + nativeFiles.join(QLatin1Char('\n')));
+        fileNames = Utils::filtered(fileNames,
+                                    [&notAdded](const QString &f) { return !notAdded.contains(f); });
     }
 
     VcsManager::promptToAdd(dir, fileNames);
@@ -3245,7 +3241,9 @@ void ProjectExplorerPluginPrivate::removeFile()
 
         if (!folderNode->removeFiles(QStringList(filePath))) {
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
-                                 tr("Could not remove file %1 from project %2.").arg(filePath).arg(folderNode->projectNode()->displayName()));
+                                 tr("Could not remove file %1 from project %2.")
+                                 .arg(QDir::toNativeSeparators(filePath))
+                                 .arg(folderNode->projectNode()->displayName()));
             return;
         }
 
@@ -3266,7 +3264,8 @@ void ProjectExplorerPluginPrivate::deleteFile()
     QMessageBox::StandardButton button =
             QMessageBox::question(ICore::mainWindow(),
                                   tr("Delete File"),
-                                  tr("Delete %1 from file system?").arg(filePath),
+                                  tr("Delete %1 from file system?")
+                                  .arg(QDir::toNativeSeparators(filePath)),
                                   QMessageBox::Yes | QMessageBox::No);
     if (button != QMessageBox::Yes)
         return;
@@ -3285,7 +3284,8 @@ void ProjectExplorerPluginPrivate::deleteFile()
     if (file.exists()) {
         if (!file.remove())
             QMessageBox::warning(ICore::mainWindow(), tr("Deleting File Failed"),
-                                 tr("Could not delete file %1.").arg(filePath));
+                                 tr("Could not delete file %1.")
+                                 .arg(QDir::toNativeSeparators(filePath)));
     }
     DocumentManager::unexpectFileChange(filePath);
 }
@@ -3309,7 +3309,6 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
     FolderNode *folderNode = node->parentFolderNode();
     QString projectFileName = folderNode->projectNode()->path().fileName();
 
-
     if (!folderNode->canRenameFile(orgFilePath, newFilePath)) {
         QTimer::singleShot(0, [orgFilePath, newFilePath, projectFileName] {
             int res = QMessageBox::question(ICore::mainWindow(),
@@ -3317,8 +3316,8 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                                             tr("The project file %1 cannot be automatically changed.\n\n"
                                                "Rename %2 to %3 anyway?")
                                             .arg(projectFileName)
-                                            .arg(orgFilePath)
-                                            .arg(newFilePath));
+                                            .arg(QDir::toNativeSeparators(orgFilePath))
+                                            .arg(QDir::toNativeSeparators(newFilePath)));
             if (res == QMessageBox::Yes)
                 FileUtils::renameFile(orgFilePath, newFilePath);
 
@@ -3329,9 +3328,10 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
     if (FileUtils::renameFile(orgFilePath, newFilePath)) {
         // Tell the project plugin about rename
         if (!folderNode->renameFile(orgFilePath, newFilePath)) {
-            QString renameFileError = tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
-                    .arg(orgFilePath)
-                    .arg(newFilePath)
+            const QString renameFileError
+                    = tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
+                    .arg(QDir::toNativeSeparators(orgFilePath))
+                    .arg(QDir::toNativeSeparators(newFilePath))
                     .arg(projectFileName);
 
             QTimer::singleShot(0, [renameFileError]() {
@@ -3340,6 +3340,16 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                                      renameFileError);
             });
         }
+    } else {
+        const QString renameFileError = tr("The file %1 could not be renamed %2.")
+                .arg(QDir::toNativeSeparators(orgFilePath))
+                .arg(QDir::toNativeSeparators(newFilePath));
+
+        QTimer::singleShot(0, [renameFileError]() {
+            QMessageBox::warning(ICore::mainWindow(),
+                                 tr("Cannot Rename File"),
+                                 renameFileError);
+        });
     }
 }
 

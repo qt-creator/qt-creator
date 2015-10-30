@@ -39,6 +39,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <resourceeditor/resourcenode.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -484,10 +485,11 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
 
     foreach (FileTreeNode *c, fileTree->children) {
         Utils::FileName path = Utils::FileName::fromString(c->path());
+        const ProjectExplorer::FileType newFileType = fileType(group, c->path());
+        const bool isQrcFile = newFileType == ProjectExplorer::ResourceType;
 
         // Handle files:
-        if (c->isFile()) {
-            const ProjectExplorer::FileType newFileType = fileType(group, c->path());
+        if (c->isFile() && !isQrcFile) {
             ProjectExplorer::FileNode *fn = 0;
             foreach (ProjectExplorer::FileNode *f, root->fileNodes()) {
                 // There can be one match only here!
@@ -514,10 +516,15 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
                 fn = f;
                 break;
             }
+            using ResourceEditor::ResourceTopLevelNode;
             if (!fn) {
-                fn = new QbsFolderNode(Utils::FileName::fromString(c->path()),
-                                       ProjectExplorer::FolderNodeType,
-                                       displayNameFromPath(c->path(), baseDir));
+                if (isQrcFile) {
+                    fn = new ResourceTopLevelNode(Utils::FileName::fromString(c->path()), root);
+                } else {
+                    fn = new QbsFolderNode(Utils::FileName::fromString(c->path()),
+                                           ProjectExplorer::FolderNodeType,
+                                           displayNameFromPath(c->path(), baseDir));
+                }
                 root->addFolderNodes(QList<FolderNode *>() << fn);
             } else {
                 foldersToRemove.removeOne(fn);
@@ -526,7 +533,11 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
                 fn->setDisplayName(displayNameFromPath(c->path(), baseDir));
             }
 
-            setupFolder(fn, group, c, c->path(), updateExisting);
+            if (isQrcFile)
+                static_cast<ResourceTopLevelNode *>(fn)->update();
+            else
+                setupFolder(fn, group, c, c->path(), updateExisting);
+
         }
     }
     root->removeFileNodes(filesToRemove);

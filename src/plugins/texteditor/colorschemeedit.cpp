@@ -309,7 +309,7 @@ void ColorSchemeEdit::updateUnderlineControls()
 
     QSignalBlocker comboBoxSignalBlocker(m_ui->underlineComboBox);
 
-    bool isVisble= formatDescription.showControl(FormatDescription::ShowFontControls);
+    bool isVisble= formatDescription.showControl(FormatDescription::ShowUnderlineControl);
 
     m_ui->underlineLabel->setVisible(isVisble);
     m_ui->underlineColorToolButton->setVisible(isVisble);

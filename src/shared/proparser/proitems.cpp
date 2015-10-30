@@ -156,6 +156,18 @@ QString &ProString::toQString(QString &tmp) const
     return tmp.setRawData(m_string.constData() + m_offset, m_length);
 }
 
+/*!
+ * \brief ProString::prepareExtend
+ * \param extraLen number of new characters to be added
+ * \param thisTarget offset to which current contents should be moved
+ * \param extraTarget offset at which new characters will be added
+ * \return pointer to storage location for new characters
+ *
+ * Prepares the string for adding new characters.
+ * If the string is detached and has enough space, it will be changed in place.
+ * Otherwise, it will be replaced with a new string object, thus detaching.
+ * In either case, the hash will be reset.
+ */
 QChar *ProString::prepareExtend(int extraLen, int thisTarget, int extraTarget)
 {
     if (m_string.isDetached() && m_length + extraLen <= m_string.capacity()) {
@@ -379,6 +391,20 @@ void ProStringList::removeAll(const char *str)
             remove(i);
 }
 
+void ProStringList::removeEach(const ProStringList &value)
+{
+    foreach (const ProString &str, value)
+        if (!str.isEmpty())
+            removeAll(str);
+}
+
+void ProStringList::removeEmpty()
+{
+    for (int i = size(); --i >= 0;)
+        if (at(i).isEmpty())
+            remove(i);
+}
+
 void ProStringList::removeDuplicates()
 {
     int n = size();
@@ -398,6 +424,13 @@ void ProStringList::removeDuplicates()
         erase(begin() + j, end());
 }
 
+void ProStringList::insertUnique(const ProStringList &value)
+{
+    foreach (const ProString &str, value)
+        if (!str.isEmpty() && !contains(str))
+            append(str);
+}
+
 ProStringList::ProStringList(const QStringList &list)
 {
     reserve(list.size());
@@ -409,8 +442,8 @@ QStringList ProStringList::toQStringList() const
 {
     QStringList ret;
     ret.reserve(size());
-    foreach (const ProString &str, *this)
-        ret << str.toQString();
+    for (int i = 0; i < size(); i++) // foreach causes MSVC2010 ICE
+        ret << at(i).toQString();
     return ret;
 }
 
@@ -443,6 +476,25 @@ ProFile::ProFile(const QString &fileName)
 
 ProFile::~ProFile()
 {
+}
+
+ProString ProFile::getStr(const ushort *&tPtr)
+{
+    uint len = *tPtr++;
+    ProString ret(items(), tPtr - tokPtr(), len);
+    ret.setSource(this);
+    tPtr += len;
+    return ret;
+}
+
+ProKey ProFile::getHashStr(const ushort *&tPtr)
+{
+    uint hash = *tPtr++;
+    hash |= (uint)*tPtr++ << 16;
+    uint len = *tPtr++;
+    ProKey ret(items(), tPtr - tokPtr(), len, hash);
+    tPtr += len;
+    return ret;
 }
 
 QT_END_NAMESPACE
