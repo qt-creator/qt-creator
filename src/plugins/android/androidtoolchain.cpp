@@ -356,8 +356,8 @@ static AndroidToolChain *findToolChain(Utils::FileName &compilerPath, const QLis
 {
     return static_cast<AndroidToolChain *>(
                 Utils::findOrDefault(alreadyKnown, [compilerPath](ToolChain *tc) {
-                                                       return tc->compilerCommand() == compilerPath
-                                                           && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID;
+                                                       return tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
+                                                           && tc->compilerCommand() == compilerPath;
                                                    }));
 }
 
