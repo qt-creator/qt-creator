@@ -548,12 +548,11 @@ protected:
                 out(ast->typeToken);
             }
             out(" ");
-            out(ast->identifierToken);
             if (ast->statement) {
+                out(ast->identifierToken);
                 out(": ", ast->colonToken);
                 accept(ast->statement);
             } else if (ast->binding) {
-                out(": ", ast->colonToken);
                 accept(ast->binding);
             }
         } else { // signal
