@@ -97,7 +97,6 @@ void QmlDebugConnectionPrivate::advertisePlugins()
 void QmlDebugConnectionPrivate::connected()
 {
     QPacket pack;
-    QDataStream str;
     pack << serverId << 0 << protocolVersion << plugins.keys() << QDataStream().version();
     protocol->send(pack);
     flush();
