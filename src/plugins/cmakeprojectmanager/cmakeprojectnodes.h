@@ -40,7 +40,6 @@ namespace Internal {
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
-    friend class CMakeProject;
 public:
     CMakeProjectNode(const Utils::FileName &fileName);
     bool showInSimpleTree() const override;
