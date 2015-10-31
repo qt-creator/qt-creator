@@ -66,7 +66,10 @@ public:
     Core::IDocument *document() override;
     QWidget *toolBar() override;
 
-private slots:
+private:
+    DiffEditor();
+    void setDocument(QSharedPointer<DiffEditorDocument> doc);
+
     void documentHasChanged();
     void toggleDescription();
     void updateDescription();
@@ -78,10 +81,6 @@ private slots:
     void documentStateChanged();
 
     void toggleSync();
-
-private:
-    DiffEditor();
-    void setDocument(QSharedPointer<DiffEditorDocument> doc);
 
     IDiffView *loadSettings();
     void saveSetting(const QString &key, const QVariant &value) const;
