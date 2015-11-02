@@ -87,28 +87,28 @@ void QmlProfilerRangeModel::loadData()
         // store starttime-based instance
         m_data.insert(insert(event.startTime, event.duration, event.typeIndex),
                       QmlRangeEventStartInstance());
-        updateProgress(count(), eventList.count() * 6);
+        updateProgress(count(), eventList.count() * 5);
     }
 
-    updateProgress(2, 6);
+    updateProgress(1, 5);
 
     // compute range nesting
     computeNesting();
 
+    updateProgress(2, 5);
+
     // compute nestingLevel - nonexpanded
     computeNestingContracted();
 
-    updateProgress(3, 6);
+    updateProgress(3, 5);
 
     // compute nestingLevel - expanded
     computeExpandedLevels();
 
-    updateProgress(4, 6);
+    updateProgress(4, 5);
 
     if (supportsBindingLoops())
         findBindingLoops();
-
-    updateProgress(5, 6);
 
     updateProgress(1, 1);
 }
