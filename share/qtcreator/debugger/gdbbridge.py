@@ -226,6 +226,11 @@ class Dumper(DumperBase):
         self.qtNamespaceToReport = None
         self.interpreterBreakpointResolvers = []
 
+        # The guess does not need to be updated during a fetchVariables()
+        # as the result is fixed during that time (ignoring "active"
+        # dumpers causing loading of shared objects etc).
+        self.currentQtNamespaceGuess = None
+
     def prepare(self, args):
         self.output = []
         self.currentIName = ""
@@ -237,11 +242,6 @@ class Dumper(DumperBase):
         self.currentValue = ReportItem()
         self.currentType = ReportItem()
         self.currentAddress = None
-
-        # The guess does not need to be updated during a fetchVariables()
-        # as the result is fixed during that time (ignoring "active"
-        # dumpers causing loading of shared objects etc).
-        self.currentQtNamespaceGuess = None
 
         self.resultVarName = args.get("resultvarname", "")
         self.expandedINames = set(args.get("expanded", []))
@@ -1158,6 +1158,38 @@ class Dumper(DumperBase):
         #if sys.version_info[0] >= 3:
         #    return mem.tobytes()
         return mem
+
+    def createSpecialBreakpoints(self, args):
+        self.specialBreakpoints = []
+        def newSpecial(spec):
+            class SpecialBreakpoint(gdb.Breakpoint):
+                def __init__(self, spec):
+                    super(SpecialBreakpoint, self).\
+                        __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+                    self.spec = spec
+
+                def stop(self):
+                    print("Breakpoint on '%s' hit." % self.spec)
+                    return True
+            return SpecialBreakpoint(spec)
+
+        # FIXME: ns is accessed too early. gdb.Breakpoint() has no
+        # 'rbreak' replacement, and breakpoints created with
+        # 'gdb.execute("rbreak...") cannot be made invisible.
+        # So let's ignore the existing of namespaced builds for this
+        # fringe feature here for now.
+        ns = self.qtNamespace()
+        if args.get('breakonabort', 0):
+            self.specialBreakpoints.append(newSpecial("abort"))
+
+        if args.get('breakonwarning', 0):
+            self.specialBreakpoints.append(newSpecial(ns + "qWarning"))
+            self.specialBreakpoints.append(newSpecial(ns + "QMessageLogger::warning"))
+
+        if args.get('breakonfatal', 0):
+            self.specialBreakpoints.append(newSpecial(ns + "qFatal"))
+            self.specialBreakpoints.append(newSpecial(ns + "QMessageLogger::fatal"))
+
 
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()

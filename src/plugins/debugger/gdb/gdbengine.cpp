@@ -735,21 +735,19 @@ void GdbEngine::handleAsyncOutput(const QByteArray &asyncClass, const GdbMi &res
         foreach (const GdbMi &bkpt, res.children()) {
             const QByteArray nr = bkpt["number"].data();
             BreakpointResponseId rid(nr);
-            if (!isHiddenBreakpoint(rid)) {
-                if (nr.contains('.')) {
-                    // A sub-breakpoint.
-                    BreakpointResponse sub;
-                    updateResponse(sub, bkpt);
-                    sub.id = rid;
-                    sub.type = br.type;
-                    bp.insertSubBreakpoint(sub);
-                } else {
-                    // A primary breakpoint.
-                    bp = handler->findBreakpointByResponseId(rid);
-                    br = bp.response();
-                    updateResponse(br, bkpt);
-                    bp.setResponse(br);
-                }
+            if (nr.contains('.')) {
+                // A sub-breakpoint.
+                BreakpointResponse sub;
+                updateResponse(sub, bkpt);
+                sub.id = rid;
+                sub.type = br.type;
+                bp.insertSubBreakpoint(sub);
+            } else {
+                // A primary breakpoint.
+                bp = handler->findBreakpointByResponseId(rid);
+                br = bp.response();
+                updateResponse(br, bkpt);
+                bp.setResponse(br);
             }
         }
     } else if (asyncClass == "breakpoint-created") {
@@ -1398,7 +1396,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         showMessage(_("INVALID STOPPED REASON"), LogWarning);
     }
 
-    if (rid.isValid() && frame.isValid() && !isQFatalBreakpoint(rid)) {
+    if (rid.isValid() && frame.isValid()) {
         // Use opportunity to update the breakpoint marker position.
         Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
         const BreakpointResponse &response = bp.response();
@@ -1415,7 +1413,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // Quickly set the location marker.
     if (lineNumber && !boolSetting(OperateByInstruction)
             && QFileInfo::exists(fullName)
-            && !isQFatalBreakpoint(rid)
             && function != "qt_v4TriggeredBreakpointHook"
             && function != "qt_qmlDebugMessageAvailable"
             && language != "js")
@@ -2552,18 +2549,13 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, Breakpoint 
         // the "main" entry. Use the "main" entry to retrieve the
         // already known data from the BreakpointManager, and then
         // iterate over all items to update main- and sub-data.
-        const GdbMi mainbkpt = response.data["bkpt"];
-        const QByteArray mainnr = mainbkpt["number"].data();
-        const BreakpointResponseId mainrid(mainnr);
-        if (!isHiddenBreakpoint(mainrid)) {
-            foreach (const GdbMi &bkpt, response.data.children())
-                handleBkpt(bkpt, bp);
-            if (bp.needsChange()) {
-                bp.notifyBreakpointChangeAfterInsertNeeded();
-                changeBreakpoint(bp);
-            } else {
-                bp.notifyBreakpointInsertOk();
-            }
+        foreach (const GdbMi &bkpt, response.data.children())
+            handleBkpt(bkpt, bp);
+        if (bp.needsChange()) {
+            bp.notifyBreakpointChangeAfterInsertNeeded();
+            changeBreakpoint(bp);
+        } else {
+            bp.notifyBreakpointInsertOk();
         }
     } else if (response.data["msg"].data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
@@ -4321,23 +4313,24 @@ void GdbEngine::finishInferiorSetup()
 {
     CHECK_STATE(InferiorSetupRequested);
 
-    if (runParameters().startMode == AttachCore) {
-        notifyInferiorSetupOk(); // No breakpoints in core files.
-    } else {
-        if (boolSetting(BreakOnAbort))
-            runCommand({"-break-insert -f abort"});
-        if (boolSetting(BreakOnWarning)) {
-            runCommand({"-break-insert -f '" + qtNamespace() + "qWarning'", NoFlags});
-            runCommand({"-break-insert -f '" + qtNamespace() + "QMessageLogger::warning'", NoFlags});
-        }
-        if (boolSetting(BreakOnFatal)) {
-            auto cb = [this](const DebuggerResponse &r) { handleBreakOnQFatal(r, false); };
-            runCommand({"-break-insert -f '" + qtNamespace() + "qFatal'", NoFlags, cb});
-            runCommand({"-break-insert -f '" + qtNamespace() + "QMessageLogger::fatal'", NoFlags, cb});
-        } else {
-            notifyInferiorSetupOk();
+    if (runParameters().startMode != AttachCore) { // No breakpoints in core files.
+        const bool onAbort = boolSetting(BreakOnAbort);
+        const bool onWarning = boolSetting(BreakOnWarning);
+        const bool onFatal = boolSetting(BreakOnFatal);
+        if (onAbort || onWarning || onFatal) {
+            DebuggerCommand cmd("createSpecialBreakpoints", PythonCommand);
+            cmd.arg("breakonabort", onAbort);
+            cmd.arg("breakonwarning", onWarning);
+            cmd.arg("breakonfatal", onFatal);
+            runCommand(cmd);
         }
     }
+
+    // It is ok to cut corners here and not wait for createSpecialBreakpoints()'s
+    // response, as the command is synchronous from Creator's point of view,
+    // and even if it fails (e.g. due to stripped binaries), continuing with
+    // the start up is the best we can do.
+    notifyInferiorSetupOk();
 }
 
 void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
@@ -4352,23 +4345,6 @@ void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
             runCommand({cmd, NoFlags});
         }
     }
-}
-
-void GdbEngine::handleBreakOnQFatal(const DebuggerResponse &response, bool continueSetup)
-{
-    if (response.resultClass == ResultDone) {
-        GdbMi bkpt = response.data["bkpt"];
-        GdbMi number = bkpt["number"];
-        BreakpointResponseId rid(number.data());
-        if (rid.isValid()) {
-            m_qFatalBreakpointResponseId = rid;
-            runCommand({"-break-commands " + number.data() + " return", NoFlags});
-        }
-    }
-
-    // Continue setup.
-    if (continueSetup)
-        notifyInferiorSetupOk();
 }
 
 void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
@@ -4429,16 +4405,6 @@ void GdbEngine::resetCommandQueue()
         m_flagsForToken.clear();
         showMessage(msg);
     }
-}
-
-bool GdbEngine::isQFatalBreakpoint(const BreakpointResponseId &id) const
-{
-    return id.isValid() && m_qFatalBreakpointResponseId == id;
-}
-
-bool GdbEngine::isHiddenBreakpoint(const BreakpointResponseId &id) const
-{
-    return isQFatalBreakpoint(id);
 }
 
 bool GdbEngine::usesExecInterrupt() const
