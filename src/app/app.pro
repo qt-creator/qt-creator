@@ -32,13 +32,13 @@ win32 {
         ASSETCATALOG.output = $$IDE_DATA_PATH/qtcreator.icns
         ASSETCATALOG.commands = xcrun actool \
             --app-icon qtcreator \
-            --output-partial-info-plist /dev/null \
+            --output-partial-info-plist $$shell_quote($(TMPDIR)/qtcreator.Info.plist) \
             --platform macosx \
             --minimum-deployment-target 10.7 \
             --compile $$shell_quote($$IDE_DATA_PATH) \
-            $$shell_quote($$PWD/qtcreator.xcassets)
+            $$shell_quote($$PWD/qtcreator.xcassets) > /dev/null
         ASSETCATALOG.input = ASSETCATALOG.files
-        ASSETCATALOG.CONFIG += no_link
+        ASSETCATALOG.CONFIG += no_link target_predeps
         QMAKE_EXTRA_COMPILERS += ASSETCATALOG
     }
     QMAKE_INFO_PLIST = Info.plist
