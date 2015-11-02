@@ -186,10 +186,14 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
     }
     if (m_deploys)
         return;
+
     const QString projectDirectory = ProjectExplorerPlugin::directoryFor(node);
     const int projectDirectorySize = projectDirectory.size();
-    if (!m_commonDirectory.startsWith(projectDirectory) && !isContextNode)
+    if (m_commonDirectory != projectDirectory
+            && !m_commonDirectory.startsWith(projectDirectory + QLatin1Char('/'))
+            && !isContextNode)
         return;
+
     bool betterMatch = tree->priority() > 0
             && (projectDirectorySize > m_bestMatchLength
                 || (projectDirectorySize == m_bestMatchLength && tree->priority() > m_bestMatchPriority));
@@ -268,7 +272,8 @@ static inline AddNewTree *buildAddProjectTree(SessionNode *root, const QString &
     return new AddNewTree(root, children, root->displayName());
 }
 
-static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList &files, Node *contextNode, BestNodeSelector *selector)
+static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList &files,
+                                            Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
     foreach (FolderNode *fn, root->subFolderNodes()) {
@@ -289,7 +294,8 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
     return new AddNewTree(root, children, root->displayName());
 }
 
-static inline AddNewTree *buildAddFilesTree(SessionNode *root, const QStringList &files, Node *contextNode, BestNodeSelector *selector)
+static inline AddNewTree *buildAddFilesTree(SessionNode *root, const QStringList &files,
+                                            Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
     foreach (ProjectNode *pn, root->projectNodes()) {
