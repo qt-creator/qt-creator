@@ -33,6 +33,7 @@
 
 #include "qmlprofilerstatemanager.h"
 #include <qmldebug/qmlprofilereventlocation.h>
+#include <qmldebug/qmldebugclient.h>
 
 #include <QObject>
 #include <QStringList>
@@ -71,6 +72,7 @@ private slots:
     void tryToConnect();
     void qmlDebugConnectionOpened();
     void qmlDebugConnectionClosed();
+    void qmlDebugConnectionError(QDebugSupport::Error error);
     void logState(const QString &);
 
     void retryMessageBoxFinished(int result);
