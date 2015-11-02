@@ -67,6 +67,7 @@ public:
     int autoTestsCount() const;
     int namedQuickTestsCount() const;
     int unnamedQuickTestsCount() const;
+    int dataTagsCount() const;
 #endif
 
 signals:
