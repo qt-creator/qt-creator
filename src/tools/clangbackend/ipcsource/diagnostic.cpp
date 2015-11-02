@@ -106,13 +106,15 @@ DiagnosticSeverity Diagnostic::severity() const
 std::vector<SourceRange> Diagnostic::ranges() const
 {
     std::vector<SourceRange> ranges;
-
     const uint rangesCount = clang_getDiagnosticNumRanges(cxDiagnostic);
-
     ranges.reserve(rangesCount);
 
-    for (uint index = 0; index < rangesCount; ++index)
-        ranges.push_back(SourceRange(clang_getDiagnosticRange(cxDiagnostic, index)));
+    for (uint index = 0; index < rangesCount; ++index) {
+        const SourceRange sourceRange(clang_getDiagnosticRange(cxDiagnostic, index));
+
+        if (sourceRange.isValid())
+            ranges.push_back(SourceRange(clang_getDiagnosticRange(cxDiagnostic, index)));
+    }
 
     return ranges;
 }

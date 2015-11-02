@@ -85,8 +85,23 @@ protected:
                                     translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     Diagnostic diagnostic{diagnosticSet.front()};
+    Diagnostic diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)};
     ::SourceRange sourceRange{diagnostic.ranges().front()};
 };
+
+TEST_F(SourceRange, IsNull)
+{
+    ::SourceRange sourceRange;
+
+    ASSERT_TRUE(sourceRange.isNull());
+}
+
+TEST_F(SourceRange, IsNotNull)
+{
+    ::SourceRange sourceRange = diagnostic.ranges()[0];
+
+    ASSERT_FALSE(sourceRange.isNull());
+}
 
 TEST_F(SourceRange, Size)
 {
@@ -108,4 +123,10 @@ TEST_F(SourceRange, End)
                                                       6u,
                                                       44u));
 }
+
+TEST_F(SourceRange, InvalidRangeIsFilteredOut)
+{
+    ASSERT_TRUE(diagnosticWithFilteredOutInvalidRange.ranges().empty());
+}
+
 }

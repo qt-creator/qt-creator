@@ -39,6 +39,16 @@ SourceRange::SourceRange()
 {
 }
 
+bool SourceRange::isNull() const
+{
+    return clang_Range_isNull(cxSourceRange);
+}
+
+bool SourceRange::isValid() const
+{
+    return !isNull() && start().offset() < end().offset();
+}
+
 SourceLocation SourceRange::start() const
 {
     return SourceLocation(clang_getRangeStart(cxSourceRange));
