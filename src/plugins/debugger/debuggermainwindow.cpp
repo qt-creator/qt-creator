@@ -688,5 +688,3 @@ bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
 }
 
 } // namespace Debugger
-
-#include "debuggermainwindow.moc"
