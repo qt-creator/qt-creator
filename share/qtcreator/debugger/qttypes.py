@@ -2620,9 +2620,8 @@ def qdumpHelper__QJsonArray(d, data, array):
         n = 0
 
     d.putItemCount(n)
-    d.putNumChild(1)
     if d.isExpanded():
-        with Children(d):
+        with Children(d, maxNumChild=1000):
             table = array + d.extractUInt(array + 8)
             for i in range(n):
                 with SubItem(d, i):
@@ -2645,9 +2644,8 @@ def qdumpHelper__QJsonObject(d, data, obj):
         n = 0
 
     d.putItemCount(n)
-    d.putNumChild(1)
     if d.isExpanded():
-        with Children(d):
+        with Children(d, maxNumChild=1000):
             table = obj + d.extractUInt(obj + 8)
             for i in range(n):
                 with SubItem(d, i):
