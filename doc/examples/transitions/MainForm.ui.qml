@@ -40,73 +40,78 @@
 
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import QtQuick.Dialogs 1.2
+import QtQuick.Layouts 1.2
 
-ApplicationWindow {
-    visible: true
-    title: qsTr("Transitions")
-    width: 330
-    height: 330
+Item {
+    width: 640
+    height: 480
+    property alias bottomLeftRect: bottomLeftRect
+    property alias middleRightRect: middleRightRect
+    property alias topLeftRect: topLeftRect
+    property alias icon: icon
+    property alias mouseArea1: mouseArea1
+    property alias mouseArea2: mouseArea2
+    property alias mouseArea3: mouseArea3
 
-    MainForm {
-        anchors.fill: parent
-        id: page
-        mouseArea1 {
-            onClicked: stateGroup.state = ' '
-        }
-        mouseArea2 {
-            onClicked: stateGroup.state = 'State1'
-        }
-        mouseArea3 {
-            onClicked: stateGroup.state = 'State2'
-        }
-    }
+    Rectangle {
+        id: topLeftRect
+        width: 46
+        height: 55
+        color: "#00000000"
+        radius: 6
+        anchors.left: parent.left
+        anchors.leftMargin: 10
+        anchors.top: parent.top
+        anchors.topMargin: 20
+        border.color: "#808080"
 
-    StateGroup {
-        id: stateGroup
-        states: [
-            State {
-                name: "State1"
-
-                PropertyChanges {
-                    target: page.icon
-                    x: page.middleRightRect.x
-                    y: page.middleRightRect.y
-                }
-            },
-            State {
-                name: "State2"
-
-                PropertyChanges {
-                    target: page.icon
-                    x: page.bottomLeftRect.x
-                    y: page.bottomLeftRect.y
-                }
-            }
-        ]
-        transitions: [
-                Transition {
-                        from: "*"; to: "State1"
-                        NumberAnimation {
-                            easing.type: Easing.OutBounce
-                            properties: "x,y";
-                            duration: 1000
-                        }
-                    },
-                Transition {
-                        from: "*"; to: "State2"
-                        NumberAnimation {
-                            properties: "x,y";
-                            easing.type: Easing.InOutQuad;
-                            duration: 2000
-                        }
-                    },
-                Transition {
-                         NumberAnimation {
-                             properties: "x,y";
-                             duration: 200
-                         }
-                     }
-                ]
+        MouseArea {
+            id: mouseArea1
+            anchors.fill: parent
         }
     }
+
+    Rectangle {
+        id: middleRightRect
+        x: 6
+        y: 6
+        width: 46
+        height: 55
+        color: "#00000000"
+        radius: 6
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: parent.right
+        anchors.rightMargin: 10
+        MouseArea {
+            id: mouseArea2
+            anchors.fill: parent
+        }
+        border.color: "#808080"
+    }
+
+    Rectangle {
+        id: bottomLeftRect
+        x: 0
+        y: 4
+        width: 46
+        height: 55
+        color: "#00000000"
+        radius: 6
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 20
+        MouseArea {
+            id: mouseArea3
+            anchors.fill: parent
+        }
+        anchors.left: parent.left
+        border.color: "#808080"
+        anchors.leftMargin: 10
+    }
+
+    Image {
+        id: icon
+        x: 10
+        y: 20
+        source: "qt-logo.png"
+    }
+}
