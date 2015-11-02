@@ -194,13 +194,14 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
             && !isContextNode)
         return;
 
-    bool betterMatch = tree->priority() > 0
-            && (projectDirectorySize > m_bestMatchLength
-                || (projectDirectorySize == m_bestMatchLength && tree->priority() > m_bestMatchPriority));
+    bool betterMatch = isContextNode
+            || (tree->priority() > 0
+                && (projectDirectorySize > m_bestMatchLength
+                    || (projectDirectorySize == m_bestMatchLength && tree->priority() > m_bestMatchPriority)));
 
     if (betterMatch) {
         m_bestMatchPriority = tree->priority();
-        m_bestMatchLength = projectDirectorySize;
+        m_bestMatchLength = isContextNode ? std::numeric_limits<int>::max() : projectDirectorySize;
         m_bestChoice = tree;
     }
 }
