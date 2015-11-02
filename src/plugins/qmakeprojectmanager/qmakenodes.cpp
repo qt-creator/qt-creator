@@ -88,24 +88,25 @@ using namespace Utils;
 
 struct FileTypeDataStorage {
     FileType type;
+    Theme::ImageFile themeImage;
     const char *typeName;
     const char *icon;
-    Theme::ImageFile themeImage;
+    const char *addFileFilter;
 };
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
-    { HeaderType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
-      ":/qmakeprojectmanager/images/headers.png", Theme::ProjectExplorerHeader },
-    { SourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
-      ":/qmakeprojectmanager/images/sources.png", Theme::ProjectExplorerSource },
-    { FormType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
-      ":/qtsupport/images/forms.png", Theme::ProjectExplorerForm },
-    { ResourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
-      ":/qtsupport/images/qt_qrc.png", Theme::ProjectExplorerResource },
-    { QMLType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
-      ":/qtsupport/images/qml.png", Theme::ProjectExplorerQML },
-    { UnknownFileType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
-      ":/qmakeprojectmanager/images/unknown.png", Theme::ProjectExplorerOtherFiles }
+    { HeaderType, Theme::ProjectExplorerHeader, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
+      ":/qmakeprojectmanager/images/headers.png", "*.h; *.hh; *.hpp; *.hxx;"},
+    { SourceType, Theme::ProjectExplorerSource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
+      ":/qmakeprojectmanager/images/sources.png", "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
+    { FormType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
+      ":/qtsupport/images/forms.png", "*.ui;" },
+    { ResourceType, Theme::ProjectExplorerResource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
+      ":/qtsupport/images/qt_qrc.png", "*.qrc;" },
+    { QMLType, Theme::ProjectExplorerQML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
+      ":/qtsupport/images/qml.png", "*.qml; *.qml.ui" },
+    { UnknownFileType, Theme::ProjectExplorerOtherFiles, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
+      ":/qmakeprojectmanager/images/unknown.png", "*;" }
 };
 
 class SortByPath
@@ -128,11 +129,13 @@ public:
     public:
         FileTypeData(FileType t = UnknownFileType,
                      const QString &tN = QString(),
+                     const QString &aff = QString(),
                      const QIcon &i = QIcon()) :
-        type(t), typeName(tN), icon(i) { }
+        type(t), typeName(tN), addFileFilter(aff), icon(i) { }
 
         FileType type;
         QString typeName;
+        QString addFileFilter;
         QIcon icon;
     };
 
@@ -164,8 +167,9 @@ QmakeNodeStaticData::QmakeNodeStaticData()
         QIcon folderIcon;
         folderIcon.addPixmap(folderPixmap);
         const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFileNode", fileTypeDataStorage[i].typeName);
+        const QString filter = QString::fromUtf8(fileTypeDataStorage[i].addFileFilter);
         fileTypeData.push_back(QmakeNodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
-                                                               desc, folderIcon));
+                                                                 desc, filter, folderIcon));
     }
     // Project icon
     const QString fileName = creatorTheme()->imageFile(Theme::ProjectFileIcon,
@@ -246,8 +250,19 @@ public:
     bool isDeployable;
     QStringList errors;
 };
+
+QString ProVirtualFolderNode::displayName() const
+{
+    return m_typeName;
 }
+
+QString ProVirtualFolderNode::addFileFilter() const
+{
+    return m_addFileFilter;
 }
+
+} // namespace Internal
+} // namespace QMakeProjectManager
 
 QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
     : IDocument(0), m_priFile(qmakePriFile)
@@ -347,6 +362,7 @@ struct InternalNode
     int priority = 0;
     QString displayName;
     QString typeName;
+    QString addFileFilter;
     QString fullPath;
     QIcon icon;
 
@@ -446,8 +462,10 @@ struct InternalNode
         if (node->typeName.isEmpty()) {
             newNode = new FolderNode(FileName::fromString(node->fullPath));
         } else {
-            newNode = new ProVirtualFolderNode(FileName::fromString(node->fullPath),
-                                               node->priority, node->typeName);
+            auto n = new ProVirtualFolderNode(FileName::fromString(node->fullPath),
+                                                 node->priority, node->typeName);
+            n->setAddFileFilter(node->addFileFilter);
+            newNode = n;
         }
 
         newNode->setDisplayName(node->displayName);
@@ -770,6 +788,7 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
             subfolder->icon = fileTypes.at(i).icon;
             subfolder->fullPath = m_projectDir;
             subfolder->typeName = fileTypes.at(i).typeName;
+            subfolder->addFileFilter = fileTypes.at(i).addFileFilter;
             subfolder->priority = -i;
             subfolder->displayName = fileTypes.at(i).typeName;
             contents.virtualfolders.append(subfolder);

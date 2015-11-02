@@ -309,6 +309,11 @@ void FolderNode::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
+QString FolderNode::addFileFilter() const
+{
+    return parentFolderNode()->addFileFilter();
+}
+
 bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     if (projectNode())
@@ -762,6 +767,11 @@ SessionNode *SessionNode::asSessionNode()
 QList<ProjectNode*> SessionNode::projectNodes() const
 {
     return m_projectNodes;
+}
+
+QString SessionNode::addFileFilter() const
+{
+    return QLatin1String("*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;");
 }
 
 void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)

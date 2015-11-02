@@ -49,6 +49,8 @@ public:
     ~ResourceTopLevelNode() override;
     void update();
 
+    QString addFileFilter() const override;
+
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;

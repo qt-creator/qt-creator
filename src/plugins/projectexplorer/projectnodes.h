@@ -184,6 +184,8 @@ public:
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
 
+    virtual QString addFileFilter() const;
+
     virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     virtual bool deleteFiles(const QStringList &filePaths);
@@ -293,6 +295,8 @@ public:
     QList<ProjectAction> supportedActions(Node *node) const override;
 
     QList<ProjectNode*> projectNodes() const;
+
+    QString addFileFilter() const override;
 
     void accept(NodesVisitor *visitor) override;
 

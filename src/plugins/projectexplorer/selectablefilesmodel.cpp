@@ -663,6 +663,11 @@ QStringList SelectableFilesDialogEditFiles::selectedFiles() const
     return m_selectableFilesModel->selectedFiles();
 }
 
+void SelectableFilesDialogEditFiles::setAddFileFilter(const QString &filter)
+{
+    m_showFilesfilterLineEdit->setText(filter);
+}
+
 void SelectableFilesDialogEditFiles::applyFilter()
 {
     const QString showFilesFilter = m_showFilesfilterLineEdit->text();

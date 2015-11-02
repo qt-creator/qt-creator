@@ -155,6 +155,8 @@ public:
     ~SelectableFilesDialogEditFiles();
     QStringList selectedFiles() const;
 
+    void setAddFileFilter(const QString &filter);
+
 private slots:
     void applyFilter();
     void parsingProgress(const QString &fileName);

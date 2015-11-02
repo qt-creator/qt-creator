@@ -3151,6 +3151,7 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
     QTC_ASSERT(folderNode, return);
 
     SelectableFilesDialogAddDirectory dialog(directoryFor(ProjectTree::currentNode()), QStringList(), ICore::mainWindow());
+    dialog.setAddFileFilter(folderNode->addFileFilter());
 
     if (dialog.exec() == QDialog::Accepted)
         ProjectExplorerPlugin::addExistingFiles(folderNode, dialog.selectedFiles());

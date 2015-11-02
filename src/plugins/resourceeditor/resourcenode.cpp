@@ -201,6 +201,11 @@ void ResourceTopLevelNode::update()
     }
 }
 
+QString ResourceTopLevelNode::addFileFilter() const
+{
+    return QLatin1String("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
+}
+
 QList<ProjectExplorer::ProjectAction> ResourceTopLevelNode::supportedActions(ProjectExplorer::Node *node) const
 {
     if (node != this)

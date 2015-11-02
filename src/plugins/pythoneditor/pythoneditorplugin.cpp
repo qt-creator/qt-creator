@@ -337,6 +337,8 @@ public:
 
     QList<ProjectAction> supportedActions(Node *node) const override;
 
+    QString addFileFilter() const override;
+
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
     void refresh(QSet<QString> oldFileList = QSet<QString>());
 
@@ -1055,6 +1057,11 @@ QList<ProjectAction> PythonProjectNode::supportedActions(Node *node) const
     Q_UNUSED(node);
     //return { AddNewFile, AddExistingFile, AddExistingDirectory, RemoveFile, Rename };
     return {};
+}
+
+QString PythonProjectNode::addFileFilter() const
+{
+    return QLatin1String("*.py");
 }
 
 bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFilePath)

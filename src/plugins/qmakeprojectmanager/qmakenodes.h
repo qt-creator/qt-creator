@@ -267,9 +267,13 @@ public:
         : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
     { }
 
-    QString displayName() const override
+    QString displayName() const override;
+
+    QString addFileFilter() const override;
+
+    void setAddFileFilter(const QString &filter)
     {
-        return m_typeName;
+        m_addFileFilter = filter;
     }
 
     QString tooltip() const override
@@ -279,6 +283,7 @@ public:
 
 private:
     QString m_typeName;
+    QString m_addFileFilter;
 };
 
 } // namespace Internal
