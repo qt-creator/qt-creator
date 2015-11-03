@@ -253,12 +253,12 @@ class Dumper(DumperBase):
         self.useDynamicType = int(args.get("dyntype", "0"))
         self.useFancy = int(args.get("fancy", "0"))
         self.forceQtNamespace = int(args.get("forcens", "0"))
-        self.passExceptions = int(args.get("passexeptions", "0"))
+        self.passExceptions = int(args.get("passexceptions", "0"))
         self.nativeMixed = int(args.get("nativemixed", "0"))
         self.autoDerefPointers = int(args.get("autoderef", "0"))
         self.partialUpdate = int(args.get("partial", "0"))
         self.fallbackQtVersion = 0x50200
-        self.sortStructMembers = bool(args.get("sortStructMembers", True))
+        self.sortStructMembers = bool(args.get("sortstructs", True))
 
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
@@ -355,7 +355,7 @@ class Dumper(DumperBase):
 
     def fetchVariables(self, args):
         self.prepare(args)
-        partialVariable = args.get("partialVariable", "")
+        partialVariable = args.get("partialvar", "")
         isPartial = len(partialVariable) > 0
 
         (ok, res) = self.tryFetchInterpreterVariables(args)
@@ -1572,7 +1572,7 @@ class Dumper(DumperBase):
     def doContinue(self):
         gdb.execute('continue')
 
-    def stackListFrames(self, args):
+    def fetchStack(self, args):
         def fromNativePath(str):
             return str.replace('\\', '/')
 
@@ -1763,7 +1763,7 @@ class CliDumper(Dumper):
 
     def fetchVariables(self, args):
         args['fancy'] = 1
-        args['passException'] = 1
+        args['passexception'] = 1
         args['autoderef'] = 1
         name = args['varlist']
         self.prepare(args)

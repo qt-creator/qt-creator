@@ -80,8 +80,6 @@ private:
 
 class DebuggerMainWindowPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit DebuggerMainWindowPrivate(DebuggerMainWindow *mainWindow);
 
@@ -97,7 +95,6 @@ public:
     QDockWidget *dockWidget(const QString &objectName) const
         { return q->findChild<QDockWidget *>(objectName); }
 
-public slots:
     void resetDebuggerLayout();
     void updateUiForProject(Project *project);
     void updateUiForTarget(Target *target);
@@ -105,7 +102,6 @@ public slots:
     void updateUiForCurrentRunConfiguration();
     void updateActiveLanguages();
     void updateDockWidgetSettings();
-    void openMemoryEditor() { Internal::openMemoryEditor(); }
 
 public:
     DebuggerMainWindow *q;
@@ -300,10 +296,10 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     m_viewsMenu = ActionManager::actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(m_viewsMenu, return);
 
-    QAction *openMemoryEditorAction = new QAction(this);
-    openMemoryEditorAction->setText(tr("Memory..."));
+    auto openMemoryEditorAction = new QAction(this);
+    openMemoryEditorAction->setText(DebuggerMainWindow::tr("Memory..."));
     connect(openMemoryEditorAction, &QAction::triggered,
-            this, &DebuggerMainWindowPrivate::openMemoryEditor);
+            this, &Internal::openMemoryEditor);
 
     // Add menu items
     Command *cmd = 0;
@@ -311,13 +307,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
         "Debugger.Views.OpenMemoryEditor", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-
     cmd = ActionManager::registerAction(q->menuSeparator1(),
         "Debugger.Views.Separator1", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(q->autoHideTitleBarsAction(),
-        "Debugger.Views.AutoHideTitleBars", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = ActionManager::registerAction(q->menuSeparator2(),
@@ -410,12 +401,12 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
 
     dockWidget->installEventFilter(&d->m_resizeEventFilter);
 
-    connect(dockWidget->toggleViewAction(), SIGNAL(triggered(bool)),
-        d, SLOT(updateDockWidgetSettings()));
-    connect(dockWidget, SIGNAL(topLevelChanged(bool)),
-        d, SLOT(updateDockWidgetSettings()));
-    connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
-        d, SLOT(updateDockWidgetSettings()));
+    connect(dockWidget->toggleViewAction(), &QAction::triggered,
+            d, &DebuggerMainWindowPrivate::updateDockWidgetSettings);
+    connect(dockWidget, &QDockWidget::topLevelChanged,
+            d, &DebuggerMainWindowPrivate::updateDockWidgetSettings);
+    connect(dockWidget, &QDockWidget::dockLocationChanged,
+            d, &DebuggerMainWindowPrivate::updateDockWidgetSettings);
 
     return dockWidget;
 }
@@ -436,10 +427,10 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     //d->m_mainWindow = new Internal::DebuggerMainWindow(this);
     setDocumentMode(true);
     setDockNestingEnabled(true);
-    connect(this, SIGNAL(resetLayout()),
-        d, SLOT(resetDebuggerLayout()));
-    connect(autoHideTitleBarsAction(), SIGNAL(triggered()),
-        d, SLOT(updateDockWidgetSettings()));
+    connect(this, &FancyMainWindow::resetLayout,
+            d, &DebuggerMainWindowPrivate::resetDebuggerLayout);
+    connect(autoHideTitleBarsAction(), &QAction::triggered,
+            d, &DebuggerMainWindowPrivate::updateDockWidgetSettings);
 
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
@@ -478,7 +469,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
         menu.exec(d->m_viewButton->mapToGlobal(QPoint()));
     });
 
-    auto dock = new QDockWidget(DebuggerMainWindowPrivate::tr("Debugger Toolbar"));
+    auto dock = new QDockWidget(DebuggerMainWindow::tr("Debugger Toolbar"));
     dock->setObjectName(QLatin1String("Debugger Toolbar"));
     dock->setWidget(debugToolBar);
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -697,5 +688,3 @@ bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
 }
 
 } // namespace Debugger
-
-#include "debuggermainwindow.moc"

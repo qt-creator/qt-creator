@@ -554,6 +554,8 @@ protected:
                 accept(ast->statement);
             } else if (ast->binding) {
                 accept(ast->binding);
+            } else {
+                out(ast->identifierToken);
             }
         } else { // signal
             out("signal ");

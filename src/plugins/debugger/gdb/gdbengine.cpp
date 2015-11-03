@@ -3286,7 +3286,7 @@ void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
 
 DebuggerCommand GdbEngine::stackCommand(int depth)
 {
-    DebuggerCommand cmd("stackListFrames");
+    DebuggerCommand cmd("fetchStack");
     cmd.arg("limit", depth);
     cmd.arg("nativemixed", isNativeMixedActive());
     return cmd;
@@ -4625,7 +4625,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
 
-    cmd.arg("passExceptions", alwaysVerbose);
+    cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
@@ -4635,12 +4635,12 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("context", frame.context);
 
     cmd.arg("resultvarname", m_resultVarName);
-    cmd.arg("partialVariable", params.partialVariable);
-    cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
+    cmd.arg("partialvar", params.partialVariable);
+    cmd.arg("sortstructs", boolSetting(SortStructMembers));
     cmd.callback = CB(handleFetchVariables);
     runCommand(cmd);
 
-    cmd.arg("passExceptions", true);
+    cmd.arg("passexceptions", true);
     m_lastDebuggableCommand = cmd;
 }
 

@@ -654,14 +654,14 @@ class Dumper(DumperBase):
         error = lldb.SBError()
 
         self.executable_ = args['executable']
-        self.startMode_ = args.get('startMode', 1)
-        self.breakOnMain_ = args.get('breakOnMain', 0)
-        self.useTerminal_ = args.get('useTerminal', 0)
-        self.processArgs_ = args.get('processArgs', [])
+        self.startMode_ = args.get('startmode', 1)
+        self.breakOnMain_ = args.get('breakonmain', 0)
+        self.useTerminal_ = args.get('useterminal', 0)
+        self.processArgs_ = args.get('processargs', [])
         self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
-        self.attachPid_ = args.get('attachPid', 0)
-        self.sysRoot_ = args.get('sysRoot', '')
-        self.remoteChannel_ = args.get('remoteChannel', '')
+        self.attachPid_ = args.get('attachpid', 0)
+        self.sysRoot_ = args.get('sysroot', '')
+        self.remoteChannel_ = args.get('remotechannel', '')
         self.platform_ = args.get('platform', '')
         self.nativeMixed = int(args.get('nativemixed', 0))
 
@@ -1152,13 +1152,13 @@ class Dumper(DumperBase):
 
         self.expandedINames = set(args.get('expanded', []))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
-        self.sortStructMembers = bool(args.get('sortStructMembers', True));
+        self.sortStructMembers = bool(args.get('sortstructs', True));
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))
         self.currentWatchers = args.get('watchers', {})
-        self.typeformats = args.get("typeformats", {})
-        self.formats = args.get("formats", {})
+        self.typeformats = args.get('typeformats', {})
+        self.formats = args.get('formats', {})
 
         frame = self.currentFrame()
         if frame is None:
@@ -1166,7 +1166,7 @@ class Dumper(DumperBase):
             return
 
         self.output = ''
-        partialVariable = args.get("partialVariable", "")
+        partialVariable = args.get('partialvar', "")
         isPartial = len(partialVariable) > 0
 
         self.currentIName = 'local'

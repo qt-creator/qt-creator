@@ -1,0 +1,44 @@
+    \section1 Creating the Project
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Quick Controls Application}
+            > \uicontrol Choose.
+
+        \li In the \uicontrol Name field, enter a name for the application.
+
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files, and then select \uicontrol Next (or \uicontrol Continue on
+            OS X).
+
+        \li In the \uicontrol {Minimal required Qt version} field, select
+            \uicontrol {Qt 5.4}, or later.
+
+        \li Deselect the \uicontrol {Enable native styling} check box to keep
+            the application size small. Enabling native styling would create
+            a dependency to the Qt Widgets module.
+
+        \li Select \uicontrol Next.
+
+        \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
+            you want to build the application for. To build applications for
+            mobile devices, select kits for Android ARM and iPhone OS, and
+            click \uicontrol{Next}.
+
+            \note Kits are listed if they have been specified in \uicontrol
+            Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Kits (on Windows and Linux) or in \uicontrol {Qt Creator}
+            > \uicontrol Preferences \uicontrol {Build & Run} > \uicontrol Kits
+            (on OS X).
+
+        \li Select \uicontrol Next.
+
+        \li Review the project settings, and click \uicontrol{Finish} (or
+            \uicontrol Done on OS X).
+
+    \endlist
+
+    \QC generates a UI file, \e MainForm.ui.qml, that you can modify in the
+    \uicontrol Design mode and a QML file, \e main.qml, that you can modify in
+    the \uicontrol Edit mode to add the application logic.

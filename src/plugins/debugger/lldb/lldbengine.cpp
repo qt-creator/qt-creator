@@ -332,15 +332,15 @@ void LldbEngine::setupInferior()
 
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable);
-    cmd2.arg("breakOnMain", rp.breakOnMain);
-    cmd2.arg("useTerminal", rp.useTerminal);
-    cmd2.arg("startMode", rp.startMode);
+    cmd2.arg("breakonmain", rp.breakOnMain);
+    cmd2.arg("useterminal", rp.useTerminal);
+    cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
 
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())
         processArgs.append(QLatin1String(arg.toUtf8().toHex()));
-    cmd2.arg("processArgs", processArgs);
+    cmd2.arg("processargs", processArgs);
 
     if (rp.useTerminal) {
         QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
@@ -350,18 +350,18 @@ void LldbEngine::setupInferior()
                 ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString::fromLatin1("Attaching to %1").arg(attachedPID);
         showMessage(msg, LogMisc);
-        cmd2.arg("attachPid", attachedPID);
+        cmd2.arg("attachpid", attachedPID);
 
     } else {
 
-        cmd2.arg("startMode", rp.startMode);
+        cmd2.arg("startmode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
         // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
         QTC_CHECK(rp.attachPID <= 0 || (rp.startMode == AttachCrashedExternal
                                     || rp.startMode == AttachExternal));
-        cmd2.arg("attachPid", rp.attachPID);
-        cmd2.arg("sysRoot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot : rp.deviceSymbolsRoot);
-        cmd2.arg("remoteChannel", ((rp.startMode == AttachToRemoteProcess
+        cmd2.arg("attachpid", rp.attachPID);
+        cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot : rp.deviceSymbolsRoot);
+        cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
                                    || rp.startMode == AttachToRemoteServer)
                                   ? rp.remoteChannel : QString()));
         cmd2.arg("platform", rp.platform);
@@ -795,8 +795,8 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
-    cmd.arg("partialVariable", params.partialVariable);
-    cmd.arg("sortStructMembers", boolSetting(SortStructMembers));
+    cmd.arg("partialvar", params.partialVariable);
+    cmd.arg("sortstructs", boolSetting(SortStructMembers));
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);

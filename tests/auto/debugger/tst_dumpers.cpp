@@ -1282,7 +1282,7 @@ void tst_Dumpers::dumper()
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
                 "python theDumper.fetchVariables({'fancy':1,'forcens':1,"
-                    "'autoderef':1,'dyntype':1,'passExceptions':1,"
+                    "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'expanded':[" + expandedq + "]})\n";
 
         cmds += "quit\n";

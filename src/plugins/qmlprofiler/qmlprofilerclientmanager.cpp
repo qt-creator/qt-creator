@@ -105,6 +105,7 @@ void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
 {
     d->tcpHost = host;
     d->tcpPort = port;
+    disconnectClient();
 }
 
 void QmlProfilerClientManager::clearBufferedData()
@@ -139,6 +140,8 @@ void QmlProfilerClientManager::connectClient(quint16 port)
             this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
     connect(d->connection, &QmlDebugConnection::closed,
             this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
+    connect(d->connection, &QmlDebugConnection::error,
+            this, &QmlProfilerClientManager::qmlDebugConnectionError);
     d->connectionTimer.start();
     d->tcpPort = port;
 }
@@ -268,6 +271,17 @@ void QmlProfilerClientManager::qmlDebugConnectionClosed()
     logState(tr("Debug connection closed"));
     disconnectClient();
     emit connectionClosed();
+}
+
+void QmlProfilerClientManager::qmlDebugConnectionError(QDebugSupport::Error error)
+{
+    logState(tr("Debug connection error %1").arg(error));
+    if (d->connection->isOpen()) {
+        disconnectClient();
+        emit connectionClosed();
+    } else {
+        disconnectClient();
+    }
 }
 
 void QmlProfilerClientManager::logState(const QString &msg)

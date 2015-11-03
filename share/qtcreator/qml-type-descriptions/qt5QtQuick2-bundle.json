@@ -7,6 +7,9 @@
     "implicitImports": [
         "__javascriptQt5__"],
     "supportedImports": [
+        "Qt.labs.calendar 1.0",
+        "Qt.labs.controls 1.0",
+        "Qt.labs.templates 1.0",
         "Qt.labs.folderlistmodel 2.0",
         "Qt.labs.folderlistmodel 2.1",
         "Qt.labs.settings 1.0",

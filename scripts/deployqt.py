@@ -32,7 +32,6 @@ import sys
 import getopt
 import subprocess
 import re
-import string
 import shutil
 from glob import glob
 
@@ -48,7 +47,7 @@ def which(program):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
-    fpath, fname = os.path.split(program)
+    fpath = os.path.dirname(program)
     if fpath:
         if is_exe(program):
             return program
@@ -88,24 +87,21 @@ def op_failed(details = None):
     else:
         print("Error: operation failed, but proceeding gracefully.")
 
-def windows_debug_files_filter(filename):
+def is_ignored_windows_file(use_debug, basepath, filename):
     ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
     for ip in ignore_patterns:
         if filename.endswith(ip):
             return True
+    if filename.endswith('.dll'):
+        filepath = os.path.join(basepath, filename)
+        if use_debug != is_debug(filepath):
+            return True
     return False
 
-def copy_ignore_patterns_helper(dir, filenames):
-    if not common.is_windows_platform:
-        return filenames
-
-    if debug_build:
-        wrong_dlls = filter(lambda filename: filename.endswith('.dll') and not is_debug(os.path.join(dir, filename)), filenames)
-    else:
-        wrong_dlls = filter(lambda filename: filename.endswith('.dll') and is_debug(os.path.join(dir, filename)), filenames)
-
-    filenames = wrong_dlls + filter(windows_debug_files_filter, filenames)
-    return filenames
+def ignored_qt_lib_files(path, filenames):
+    if not common.is_windows_platform():
+        return []
+    return [fn for fn in filenames if is_ignored_windows_file(debug_build, path, fn)]
 
 def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
     print "copying Qt libraries..."
@@ -121,10 +117,7 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
         dest = os.path.join(install_dir, 'lib', 'qtcreator')
 
     if common.is_windows_platform():
-        if debug_build:
-            libraries = filter(lambda library: is_debug(library), libraries)
-        else:
-            libraries = filter(lambda library: not is_debug(library), libraries)
+        libraries = [lib for lib in libraries if debug_build == is_debug(lib)]
 
     for library in libraries:
         print library, '->', dest
@@ -132,14 +125,10 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
             linkto = os.readlink(library)
             try:
                 os.symlink(linkto, os.path.join(dest, os.path.basename(library)))
-            except:
+            except OSError:
                 op_failed("Link already exists!")
         else:
             shutil.copy(library, dest)
-
-    copy_ignore_func = None
-    if common.is_windows_platform():
-        copy_ignore_func = copy_ignore_patterns_helper
 
     print "Copying plugins:", plugins
     for plugin in plugins:
@@ -148,7 +137,7 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
             shutil.rmtree(target)
         pluginPath = os.path.join(qt_plugin_dir, plugin)
         if (os.path.exists(pluginPath)):
-            common.copytree(pluginPath, target, ignore=copy_ignore_func, symlinks=True)
+            common.copytree(pluginPath, target, ignore=ignored_qt_lib_files, symlinks=True)
 
     print "Copying imports:", imports
     for qtimport in imports:
@@ -157,14 +146,14 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
             shutil.rmtree(target)
         import_path = os.path.join(qt_import_dir, qtimport)
         if os.path.exists(import_path):
-            common.copytree(import_path, target, ignore=copy_ignore_func, symlinks=True)
+            common.copytree(import_path, target, ignore=ignored_qt_lib_files, symlinks=True)
 
     if (os.path.exists(qt_qml_dir)):
         print "Copying qt quick 2 imports"
         target = os.path.join(install_dir, 'bin', 'qml')
         if (os.path.exists(target)):
             shutil.rmtree(target)
-        common.copytree(qt_qml_dir, target, ignore=copy_ignore_func, symlinks=True)
+        common.copytree(qt_qml_dir, target, ignore=ignored_qt_lib_files, symlinks=True)
 
 def add_qt_conf(target_dir, install_dir):
     qtconf_filepath = os.path.join(target_dir, 'qt.conf')
@@ -244,10 +233,10 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
 def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'hi', ['help', 'ignore-errors'])
-    except:
+    except getopt.GetoptError:
         usage()
         sys.exit(2)
-    for o, a in opts:
+    for o, _ in opts:
         if o in ('-h', '--help'):
             usage()
             sys.exit(0)
@@ -294,12 +283,12 @@ def main():
         debug_build = is_debug_build(install_dir)
 
     if common.is_windows_platform():
-      copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     else:
-      copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
     if "LLVM_INSTALL_DIR" in os.environ:
-      deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
+        deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
 
     if not common.is_windows_platform():
         print "fixing rpaths..."
