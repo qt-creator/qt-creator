@@ -43,6 +43,7 @@
 #include <QHBoxLayout>
 #include <QDesktopWidget>
 #include <QKeyEvent>
+#include <QPointer>
 
 namespace TextEditor {
 
@@ -56,7 +57,7 @@ struct FunctionHintProposalWidgetPrivate
     const QWidget *m_underlyingWidget;
     CodeAssistant *m_assistant;
     IFunctionHintProposalModel *m_model;
-    Utils::FakeToolTip *m_popupFrame;
+    QPointer<Utils::FakeToolTip> m_popupFrame;
     QLabel *m_numberLabel;
     QLabel *m_hintLabel;
     QWidget *m_pager;
@@ -180,9 +181,9 @@ void FunctionHintProposalWidget::closeProposal()
 
 void FunctionHintProposalWidget::abort()
 {
+    qApp->removeEventFilter(this);
     if (d->m_popupFrame->isVisible())
         d->m_popupFrame->close();
-    qApp->removeEventFilter(this);
     deleteLater();
 }
 
@@ -240,7 +241,7 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::Wheel:
         if (QWidget *widget = qobject_cast<QWidget *>(obj)) {
-            if (!d->m_popupFrame->isAncestorOf(widget)) {
+            if (d->m_popupFrame && !d->m_popupFrame->isAncestorOf(widget)) {
                 abort();
             } else if (e->type() == QEvent::Wheel) {
                 if (static_cast<QWheelEvent*>(e)->delta() > 0)
