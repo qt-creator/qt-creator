@@ -5,9 +5,12 @@ QtcProduct {
     Depends { name: "ib"; condition: qbs.targetOS.contains("osx") }
 
     bundle.isBundle: true
-    bundle.infoPlistFile: "Info.plist"
+    bundle.infoPlistFile: "Info.plist" // TODO: Remove for qbs 1.6
 
-    ib.appIconName: "qtcreator"
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        ib.appIconName: "qtcreator"
+    }
 
     type: ["application"]
     name: project.ide_app_target
@@ -29,7 +32,7 @@ QtcProduct {
     Depends { name: "ExtensionSystem" }
 
     files: [
-        "Info.plist",
+        // TODO: Uncomment for qbs 1.6 "Info.plist",
         "main.cpp",
         "qtcreator.xcassets",
         "qtcreator.rc",
@@ -67,6 +70,7 @@ QtcProduct {
     }
 
     Group {
+        condition: qbs.targetOS.contains("osx")
         fileTagsFilter: ["infoplist", "pkginfo", "compiled_assetcatalog"]
         qbs.install: true
         qbs.installSourceBase: installSourceBase
