@@ -34,14 +34,13 @@
 #include "projectexplorer_export.h"
 #include <coreplugin/id.h>
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
 
-namespace Utils {
-class Environment;
-class FileName;
-}
+namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 
@@ -79,7 +78,7 @@ public:
 
     QByteArray id() const;
 
-    virtual QList<Utils::FileName> suggestedMkspecList() const;
+    virtual Utils::FileNameList suggestedMkspecList() const;
     virtual Utils::FileName suggestedDebugger() const;
 
     Core::Id typeId() const;

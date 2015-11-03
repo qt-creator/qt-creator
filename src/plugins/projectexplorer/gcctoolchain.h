@@ -74,7 +74,7 @@ public:
                                         const Utils::FileName &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
     QString makeCommand(const Utils::Environment &environment) const override;
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
 
     QVariantMap toMap() const override;
@@ -172,7 +172,7 @@ public:
 
     ToolChain *clone() const override;
 
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
 protected:
@@ -195,7 +195,7 @@ public:
 
     ToolChain *clone() const override;
 
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
 
 private:
     explicit MingwToolChain(Detection d);
@@ -218,7 +218,7 @@ public:
 
     ToolChain *clone() const override;
 
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
 
 private:
     explicit LinuxIccToolChain(Detection d);

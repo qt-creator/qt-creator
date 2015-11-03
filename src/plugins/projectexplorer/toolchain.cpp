@@ -125,9 +125,9 @@ QByteArray ToolChain::id() const
     return d->m_id;
 }
 
-QList<Utils::FileName> ToolChain::suggestedMkspecList() const
+Utils::FileNameList ToolChain::suggestedMkspecList() const
 {
-    return QList<Utils::FileName>();
+    return Utils::FileNameList();
 }
 
 Utils::FileName ToolChain::suggestedDebugger() const

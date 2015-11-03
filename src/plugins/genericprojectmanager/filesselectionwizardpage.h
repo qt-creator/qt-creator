@@ -33,6 +33,8 @@
 
 #include <QWizardPage>
 
+#include <utils/fileutils.h>
+
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 class QLabel;
@@ -40,7 +42,6 @@ class QTreeView;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Utils { class FileName; }
 namespace ProjectExplorer { class SelectableFilesModel; }
 
 namespace GenericProjectManager {
@@ -57,8 +58,8 @@ public:
     bool isComplete() const;
     void initializePage();
     void cleanupPage();
-    QList<Utils::FileName> selectedFiles() const;
-    QList<Utils::FileName> selectedPaths() const;
+    Utils::FileNameList selectedFiles() const;
+    Utils::FileNameList selectedPaths() const;
 
 private slots:
     void applyFilter();

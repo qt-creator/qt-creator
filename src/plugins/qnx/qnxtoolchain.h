@@ -49,7 +49,7 @@ public:
     ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;
 
     void addToEnvironment(Utils::Environment &env) const override;
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
 
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;

@@ -61,7 +61,7 @@ public:
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, Detection d = ManualDetection);
     bool isValid() const override;
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
 

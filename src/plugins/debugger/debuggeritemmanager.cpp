@@ -139,7 +139,7 @@ QList<DebuggerItem> DebuggerItemManager::debuggers()
 
 void DebuggerItemManager::autoDetectCdbDebuggers()
 {
-    QList<FileName> cdbs;
+    FileNameList cdbs;
 
     QStringList programDirs;
     programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles")));
@@ -227,7 +227,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     }
     */
 
-    QList<FileName> suspects;
+    FileNameList suspects;
 
     if (HostOsInfo::isMacHost()) {
         QProcess lldbInfo;

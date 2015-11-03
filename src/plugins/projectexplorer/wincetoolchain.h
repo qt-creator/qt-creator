@@ -51,7 +51,7 @@ public:
                    const QString &libPath,
                    Detection d = ManualDetection);
 
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
 
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 

@@ -62,7 +62,7 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
     m_root->parent = 0;
 }
 
-void SelectableFilesModel::setInitialMarkedFiles(const QList<Utils::FileName> &files)
+void SelectableFilesModel::setInitialMarkedFiles(const Utils::FileNameList &files)
 {
     m_files = files.toSet();
     m_outOfBaseDirFiles
@@ -312,14 +312,14 @@ Qt::ItemFlags SelectableFilesModel::flags(const QModelIndex &index) const
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
-QList<Utils::FileName> SelectableFilesModel::selectedPaths() const
+Utils::FileNameList SelectableFilesModel::selectedPaths() const
 {
-    QList<Utils::FileName> result;
+    Utils::FileNameList result;
     collectPaths(m_root, &result);
     return result;
 }
 
-void SelectableFilesModel::collectPaths(Tree *root, QList<Utils::FileName> *result)  const
+void SelectableFilesModel::collectPaths(Tree *root, Utils::FileNameList *result)  const
 {
     if (root->checked == Qt::Unchecked)
         return;
@@ -328,19 +328,19 @@ void SelectableFilesModel::collectPaths(Tree *root, QList<Utils::FileName> *resu
         collectPaths(t, result);
 }
 
-QList<Utils::FileName> SelectableFilesModel::selectedFiles() const
+Utils::FileNameList SelectableFilesModel::selectedFiles() const
 {
-    QList<Utils::FileName> result = m_outOfBaseDirFiles.toList();
+    Utils::FileNameList result = m_outOfBaseDirFiles.toList();
     collectFiles(m_root, &result);
     return result;
 }
 
-QList<Utils::FileName> SelectableFilesModel::preservedFiles() const
+Utils::FileNameList SelectableFilesModel::preservedFiles() const
 {
     return m_outOfBaseDirFiles.toList();
 }
 
-void SelectableFilesModel::collectFiles(Tree *root, QList<Utils::FileName> *result) const
+void SelectableFilesModel::collectFiles(Tree *root, Utils::FileNameList *result) const
 {
     if (root->checked == Qt::Unchecked)
         return;
@@ -514,7 +514,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
 //////////
 
 SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const Utils::FileName &path,
-                                                               const QList<Utils::FileName> &files,
+                                                               const Utils::FileNameList &files,
                                                                QWidget *parent)
     : QDialog(parent)
 {
@@ -634,7 +634,7 @@ void SelectableFilesDialogEditFiles::parsingFinished()
     smartExpand(m_selectableFilesModel->index(0,0, QModelIndex()));
     applyFilter();
 
-    const QList<Utils::FileName> preservedFiles = m_selectableFilesModel->preservedFiles();
+    const Utils::FileNameList preservedFiles = m_selectableFilesModel->preservedFiles();
     m_preservedFiles->setText(tr("Not showing %n files that are outside of the base directory.\nThese files are preserved.", 0, preservedFiles.count()));
     m_preservedFiles->setVisible(!preservedFiles.isEmpty());
 }
@@ -649,7 +649,7 @@ void SelectableFilesDialogEditFiles::smartExpand(const QModelIndex &index)
     }
 }
 
-QList<Utils::FileName> SelectableFilesDialogEditFiles::selectedFiles() const
+Utils::FileNameList SelectableFilesDialogEditFiles::selectedFiles() const
 {
     return m_selectableFilesModel->selectedFiles();
 }
@@ -671,7 +671,7 @@ void SelectableFilesDialogEditFiles::applyFilter()
 }
 
 SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const Utils::FileName &path,
-                                                                     const QList<Utils::FileName> &files,
+                                                                     const Utils::FileNameList &files,
                                                                      QWidget *parent) :
     SelectableFilesDialogEditFiles(path, files, parent)
 {

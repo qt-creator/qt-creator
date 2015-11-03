@@ -120,7 +120,7 @@ protected:
     virtual IssueInfo findIssues(const QVariantMap &data, const Utils::FileName &path) const;
 
 private:
-    QList<Utils::FileName> settingsFiles(const QString &suffix) const;
+    Utils::FileNameList settingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
     QString defaultFileName(const QString &suffix) const;
     void backupUserFile() const;

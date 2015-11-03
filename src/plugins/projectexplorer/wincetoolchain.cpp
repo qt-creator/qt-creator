@@ -277,7 +277,7 @@ QString WinCEToolChain::typeDisplayName() const
     return WinCEToolChainFactory::tr("WinCE");
 }
 
-QList<Utils::FileName> WinCEToolChain::suggestedMkspecList() const
+Utils::FileNameList WinCEToolChain::suggestedMkspecList() const
 {
     const QChar specSeperator(QLatin1Char('-'));
 
@@ -289,7 +289,7 @@ QList<Utils::FileName> WinCEToolChain::suggestedMkspecList() const
     specString += specSeperator;
     specString += m_msvcVer;
 
-    return QList<Utils::FileName>() << Utils::FileName::fromString(specString);
+    return Utils::FileNameList() << Utils::FileName::fromString(specString);
 }
 
 

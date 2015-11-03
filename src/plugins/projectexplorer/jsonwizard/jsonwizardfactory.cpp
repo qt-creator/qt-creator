@@ -316,9 +316,9 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     return factory;
 }
 
-QList<Utils::FileName> &JsonWizardFactory::searchPaths()
+Utils::FileNameList &JsonWizardFactory::searchPaths()
 {
-    static QList<Utils::FileName> m_searchPaths = QList<Utils::FileName>()
+    static Utils::FileNameList m_searchPaths = Utils::FileNameList()
             << Utils::FileName::fromString(Core::ICore::userResourcePath() + QLatin1Char('/') +
                                            QLatin1String(WIZARD_PATH))
             << Utils::FileName::fromString(Core::ICore::resourcePath() + QLatin1Char('/') +

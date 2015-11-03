@@ -514,7 +514,7 @@ public:
             return m_upgraders.at(pos);
         return 0;
     }
-    Settings bestSettings(const SettingsAccessor *accessor, const QList<FileName> &pathList);
+    Settings bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList);
 
     QList<VersionUpgrader *> m_upgraders;
     PersistentSettingsWriter *m_writer;
@@ -979,9 +979,9 @@ bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
 }
 
 /* Will always return the default name first (if applicable) */
-QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
+FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
 {
-    QList<FileName> result;
+    FileNameList result;
 
     QFileInfoList list;
     const QFileInfo pfi = project()->projectFilePath().toFileInfo();
@@ -1062,7 +1062,7 @@ void SettingsAccessor::backupUserFile() const
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings result;
-    QList<FileName> fileList = settingsFiles(m_userSuffix);
+    FileNameList fileList = settingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result.map;
 
@@ -1112,7 +1112,7 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 }
 
 SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
-                                                                        const QList<FileName> &pathList)
+                                                                        const FileNameList &pathList)
 {
     Settings bestMatch;
     foreach (const FileName &path, pathList) {

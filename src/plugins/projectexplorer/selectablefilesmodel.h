@@ -97,7 +97,7 @@ public:
     SelectableFilesModel(QObject *parent);
     ~SelectableFilesModel();
 
-    void setInitialMarkedFiles(const QList<Utils::FileName> &files);
+    void setInitialMarkedFiles(const Utils::FileNameList &files);
 
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
@@ -108,9 +108,9 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    QList<Utils::FileName> selectedFiles() const;
-    QList<Utils::FileName> selectedPaths() const;
-    QList<Utils::FileName> preservedFiles() const;
+    Utils::FileNameList selectedFiles() const;
+    Utils::FileNameList selectedPaths() const;
+    Utils::FileNameList preservedFiles() const;
 
     void startParsing(const Utils::FileName &baseDir);
     void cancel();
@@ -130,8 +130,8 @@ private:
     Qt::CheckState applyFilter(const QModelIndex &index);
     bool filter(Tree *t);
     void run(QFutureInterface<void> &fi);
-    void collectFiles(Tree *root, QList<Utils::FileName> *result) const;
-    void collectPaths(Tree *root, QList<Utils::FileName> *result) const;
+    void collectFiles(Tree *root, Utils::FileNameList *result) const;
+    void collectPaths(Tree *root, Utils::FileNameList *result) const;
     void buildTree(const Utils::FileName &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
@@ -157,9 +157,10 @@ class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
     Q_OBJECT
 
 public:
-    SelectableFilesDialogEditFiles(const Utils::FileName &path, const QList<Utils::FileName> &files, QWidget *parent);
+    SelectableFilesDialogEditFiles(const Utils::FileName &path, const Utils::FileNameList &files,
+                                   QWidget *parent);
     ~SelectableFilesDialogEditFiles();
-    QList<Utils::FileName> selectedFiles() const;
+    Utils::FileNameList selectedFiles() const;
 
     void setAddFileFilter(const QString &filter);
 
@@ -194,7 +195,8 @@ class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
     Q_OBJECT
 
 public:
-    SelectableFilesDialogAddDirectory(const Utils::FileName &path, const QList<Utils::FileName> &files, QWidget *parent);
+    SelectableFilesDialogAddDirectory(const Utils::FileName &path, const Utils::FileNameList &files,
+                                      QWidget *parent);
 
 private slots:
     void validityOfDirectoryChanged(bool validState);

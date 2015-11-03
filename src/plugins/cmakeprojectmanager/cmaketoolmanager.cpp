@@ -163,7 +163,7 @@ static void readAndDeleteLegacyCMakeSettings ()
 
 static QList<CMakeTool *> autoDetectCMakeTools()
 {
-    QList<FileName> suspects;
+    FileNameList suspects;
 
     Utils::Environment env = Environment::systemEnvironment();
 

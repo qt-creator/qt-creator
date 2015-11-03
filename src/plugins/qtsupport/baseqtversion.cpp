@@ -1015,7 +1015,7 @@ FileName BaseQtVersion::mkspecFor(ToolChain *tc) const
     if (!tc)
         return versionSpec;
 
-    const QList<FileName> tcSpecList = tc->suggestedMkspecList();
+    const FileNameList tcSpecList = tc->suggestedMkspecList();
     if (tcSpecList.contains(versionSpec))
         return versionSpec;
     foreach (const FileName &tcSpec, tcSpecList) {
@@ -1650,14 +1650,14 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
     return true;
 }
 
-QList<FileName> BaseQtVersion::qtCorePaths(const QHash<QString,QString> &versionInfo, const QString &versionString)
+FileNameList BaseQtVersion::qtCorePaths(const QHash<QString,QString> &versionInfo, const QString &versionString)
 {
     QStringList dirs;
     dirs << qmakeProperty(versionInfo, "QT_INSTALL_LIBS")
          << qmakeProperty(versionInfo, "QT_INSTALL_BINS");
 
-    QList<FileName> staticLibs;
-    QList<FileName> dynamicLibs;
+    FileNameList staticLibs;
+    FileNameList dynamicLibs;
     foreach (const QString &dir, dirs) {
         if (dir.isEmpty())
             continue;
@@ -1693,7 +1693,7 @@ QList<FileName> BaseQtVersion::qtCorePaths(const QHash<QString,QString> &version
     return dynamicLibs;
 }
 
-QList<Abi> BaseQtVersion::qtAbisFromLibrary(const QList<FileName> &coreLibraries)
+QList<Abi> BaseQtVersion::qtAbisFromLibrary(const FileNameList &coreLibraries)
 {
     QList<Abi> res;
     foreach (const FileName &library, coreLibraries)

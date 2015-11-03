@@ -181,7 +181,7 @@ void CustomToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-QList<FileName> CustomToolChain::suggestedMkspecList() const
+FileNameList CustomToolChain::suggestedMkspecList() const
 {
     return m_mkspecs;
 }

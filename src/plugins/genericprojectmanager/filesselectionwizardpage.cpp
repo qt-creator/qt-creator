@@ -175,14 +175,14 @@ bool FilesSelectionWizardPage::isComplete() const
     return m_finished;
 }
 
-QList<Utils::FileName> FilesSelectionWizardPage::selectedPaths() const
+Utils::FileNameList FilesSelectionWizardPage::selectedPaths() const
 {
-    return m_model ? m_model->selectedPaths() : QList<Utils::FileName>();
+    return m_model ? m_model->selectedPaths() : Utils::FileNameList();
 }
 
-QList<Utils::FileName> FilesSelectionWizardPage::selectedFiles() const
+Utils::FileNameList FilesSelectionWizardPage::selectedFiles() const
 {
-    return m_model ? m_model->selectedFiles() : QList<Utils::FileName>();
+    return m_model ? m_model->selectedFiles() : Utils::FileNameList();
 }
 
 void FilesSelectionWizardPage::applyFilter()

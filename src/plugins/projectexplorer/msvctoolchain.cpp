@@ -379,21 +379,21 @@ QString MsvcToolChain::typeDisplayName() const
     return MsvcToolChainFactory::tr("MSVC");
 }
 
-QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
+Utils::FileNameList MsvcToolChain::suggestedMkspecList() const
 {
     switch (m_abi.osFlavor()) {
     case Abi::WindowsMsvc2005Flavor:
-        return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2005");
+        return Utils::FileNameList() << Utils::FileName::fromLatin1("win32-msvc2005");
     case Abi::WindowsMsvc2008Flavor:
-        return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2008");
+        return Utils::FileNameList() << Utils::FileName::fromLatin1("win32-msvc2008");
     case Abi::WindowsMsvc2010Flavor:
-        return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2010");
+        return Utils::FileNameList() << Utils::FileName::fromLatin1("win32-msvc2010");
     case Abi::WindowsMsvc2012Flavor:
-        return QList<Utils::FileName>()
+        return Utils::FileNameList()
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
     case Abi::WindowsMsvc2013Flavor:
-        return QList<Utils::FileName>()
+        return Utils::FileNameList()
             << Utils::FileName::fromLatin1("win32-msvc2013")
             << Utils::FileName::fromLatin1("winphone-arm-msvc2013")
             << Utils::FileName::fromLatin1("winphone-x86-msvc2013")
@@ -403,7 +403,7 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
     case Abi::WindowsMsvc2015Flavor:
-        return QList<Utils::FileName>()
+        return Utils::FileNameList()
             << Utils::FileName::fromLatin1("win32-msvc2015")
             << Utils::FileName::fromLatin1("winphone-arm-msvc2015")
             << Utils::FileName::fromLatin1("winphone-x86-msvc2015")
@@ -413,7 +413,7 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
     default:
         break;
     }
-    return QList<Utils::FileName>();
+    return Utils::FileNameList();
 }
 
 QVariantMap MsvcToolChain::toMap() const

@@ -56,7 +56,7 @@ public:
 
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    Utils::FileNameList suggestedMkspecList() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 
     QString ndkToolChainVersion() const;
