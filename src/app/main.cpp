@@ -159,6 +159,30 @@ static inline int askMsgSendFailed()
                                  QMessageBox::Retry);
 }
 
+static const char* setHighDpiEnvirnonmentVariable()
+{
+    const char* envVarName = 0;
+    static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
+#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
+    if (Utils::HostOsInfo().isWindowsHost()
+            && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO)) {
+        envVarName = ENV_VAR_QT_DEVICE_PIXEL_RATIO;
+        qputenv(envVarName, "auto");
+    }
+#else
+    static const char ENV_VAR_QT_AUTO_SCREEN_SCALE_FACTOR[] = "QT_AUTO_SCREEN_SCALE_FACTOR";
+    if (Utils::HostOsInfo().isWindowsHost()
+            && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO) // legacy in 5.6, but still functional
+            && !qEnvironmentVariableIsSet(ENV_VAR_QT_AUTO_SCREEN_SCALE_FACTOR)
+            && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
+            && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
+        envVarName = ENV_VAR_QT_AUTO_SCREEN_SCALE_FACTOR;
+        qputenv(envVarName, "true");
+    }
+#endif // < Qt 5.6
+    return envVarName;
+}
+
 // taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
 static bool copyRecursively(const QString &srcFilePath,
                             const QString &tgtFilePath)
@@ -280,12 +304,7 @@ static const char *SHARE_PATH =
 
 int main(int argc, char **argv)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
-    if (Utils::HostOsInfo().isWindowsHost()
-            && !qEnvironmentVariableIsSet("QT_DEVICE_PIXEL_RATIO")) {
-        qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
-    }
-#endif // < Qt 5.6
+    const char *highDpiEnvironmentVariable = setHighDpiEnvirnonmentVariable();
 
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
 #ifdef Q_OS_MAC
@@ -298,6 +317,9 @@ int main(int argc, char **argv)
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
+
+    if (highDpiEnvironmentVariable)
+        qunsetenv(highDpiEnvironmentVariable);
 
     if (Utils::HostOsInfo().isWindowsHost()
             && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
