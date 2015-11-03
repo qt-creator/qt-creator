@@ -60,10 +60,10 @@ void GdbPlainEngine::setupInferior()
     setEnvironmentVariables();
     if (!runParameters().processArgs.isEmpty()) {
         QString args = runParameters().processArgs;
-        runCommand("-exec-arguments " + toLocalEncoding(args));
+        runCommand({"-exec-arguments " + toLocalEncoding(args), NoFlags});
     }
-    runCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
-        CB(handleFileExecAndSymbols));
+    runCommand({"-file-exec-and-symbols \"" + execFilePath() + '"', NoFlags,
+        CB(handleFileExecAndSymbols)});
 }
 
 void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
@@ -84,9 +84,9 @@ void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 void GdbPlainEngine::runEngine()
 {
     if (runParameters().useContinueInsteadOfRun)
-        runCommand("-exec-continue", CB(handleExecuteContinue), RunRequest);
+        runCommand({"-exec-continue", RunRequest, CB(handleExecuteContinue)});
     else
-        runCommand("-exec-run", CB(handleExecRun), RunRequest);
+        runCommand({"-exec-run", RunRequest, CB(handleExecRun)});
 }
 void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
 {
@@ -98,7 +98,7 @@ void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
         if (boolSetting(EnableReverseDebugging))
-            runCommand("target record");
+            runCommand({"target record", NoFlags});
     } else {
         QString msg = fromLocalEncoding(response.data["msg"].data());
         //QTC_CHECK(status() == InferiorRunOk);

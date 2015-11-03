@@ -52,9 +52,10 @@ public:
     typedef std::function<void(const DebuggerResponse &)> Callback;
 
     DebuggerCommand() {}
-    DebuggerCommand(const char *f, int fl = 0) : function(f), flags(fl) {}
-    DebuggerCommand(const QByteArray &f, int fl = 0) : function(f), flags(fl) {}
-    DebuggerCommand(const char *f, const QJsonValue &a, int fl = 0) : function(f), args(a), flags(fl) {}
+    DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
+    DebuggerCommand(const QByteArray &f, const QJsonValue &a) : function(f), args(a), flags(0) {}
+    DebuggerCommand(const QByteArray &f, int fl) : function(f), flags(fl) {}
+    DebuggerCommand(const QByteArray &f, int fl, const Callback &cb) : function(f), callback(cb), flags(fl) {}
 
     void arg(const char *value);
     void arg(const char *name, int value);

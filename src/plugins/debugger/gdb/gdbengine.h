@@ -172,12 +172,7 @@ private: ////////// Gdb Command Management //////////
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
-protected:
-    void runCommand(const DebuggerCommand &command);
-    void runCommand(const QByteArray &command, int flags);
-    void runCommand(const QByteArray &command,
-                    const DebuggerCommand::Callback &callback,
-                    int flags = NoFlags);
+    void runCommand(const DebuggerCommand &command) override;
 
 private:
     Q_SLOT void commandTimeout();

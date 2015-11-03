@@ -33,6 +33,7 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerprotocol.h"
 #include "debuggerstartparameters.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -61,7 +62,6 @@ namespace Internal {
 class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
-class GdbMi;
 class MemoryAgent;
 class WatchData;
 class WatchItem;
@@ -217,6 +217,7 @@ public:
         MemoryView = 0x4           //!< Open a separate view (using the pos-parameter).
     };
 
+    virtual void runCommand(const DebuggerCommand &cmd);
     virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);

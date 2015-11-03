@@ -300,7 +300,7 @@ void PdbEngine::loadAllSymbols()
 
 void PdbEngine::reloadModules()
 {
-    runCommand("listModules");
+    runCommand({"listModules"});
 }
 
 void PdbEngine::refreshModules(const GdbMi &modules)
@@ -557,7 +557,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
 
 void PdbEngine::updateAll()
 {
-    runCommand("stackListFrames");
+    runCommand({"stackListFrames"});
     updateLocals();
 }
 
