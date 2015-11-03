@@ -39,6 +39,7 @@
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -290,11 +291,9 @@ bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB)
 
 Utils::FileNameList modifiedFiles()
 {
-    Utils::FileNameList files;
-    foreach (Core::IDocument *doc, Core::DocumentManager::modifiedDocuments())
-        files.append(doc->filePath());
-    files.removeDuplicates();
-    return files;
+    Utils::FileNameList files = Utils::transform(Core::DocumentManager::modifiedDocuments(),
+                                                 &Core::IDocument::filePath);
+    return Utils::filteredUnique(files);
 }
 
 } // CppTools

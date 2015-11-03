@@ -450,9 +450,8 @@ static void findSystemQt()
         systemQMakes << systemQMakePath;
 
     systemQMakes.append(gatherQmakePathsFromQtChooser());
-    systemQMakes.removeDuplicates();
 
-    foreach (const FileName &qmakePath, systemQMakes) {
+    foreach (const FileName &qmakePath, Utils::filteredUnique(systemQMakes)) {
         BaseQtVersion *version
                 = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, false, QLatin1String("PATH"));
         if (version) {

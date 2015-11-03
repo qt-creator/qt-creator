@@ -40,6 +40,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/basefilefind.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/textfileformat.h>
@@ -280,7 +281,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     const Utils::FileName sourceFile = Utils::FileName::fromUtf8(symbol->fileName(),
                                                                  symbol->fileNameLength());
-    Utils::FileNameList files(sourceFile);
+    Utils::FileNameList files {sourceFile};
 
     if (symbol->isClass()
         || symbol->isForwardClassDeclaration()
@@ -300,7 +301,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     } else {
         files += snapshot.filesDependingOn(sourceFile);
     }
-    files.removeDuplicates();
+    files = Utils::filteredUnique(files);
 
     future.setProgressRange(0, files.size());
 
@@ -617,9 +618,8 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
                                  const Macro macro)
 {
     const Utils::FileName sourceFile = Utils::FileName::fromString(macro.fileName());
-    Utils::FileNameList files(sourceFile);
-    files += snapshot.filesDependingOn(sourceFile);
-    files.removeDuplicates();
+    Utils::FileNameList files {sourceFile};
+    files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
 
     future.setProgressRange(0, files.size());
     FindMacroUsesInFile process(workingCopy, snapshot, macro, &future);

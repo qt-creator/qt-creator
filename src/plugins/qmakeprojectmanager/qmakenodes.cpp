@@ -2427,8 +2427,7 @@ FileNameList QmakeProFileNode::subDirsPaths(QtSupport::ProFileReader *reader,
         }
     }
 
-    subProjectPaths.removeDuplicates();
-    return subProjectPaths;
+    return Utils::filteredUnique(subProjectPaths);
 }
 
 TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir, const QString &projectFilePath)

@@ -763,25 +763,6 @@ QTextStream &operator<<(QTextStream &s, const FileName &fn)
     return s << fn.toString();
 }
 
-int FileNameList::removeDuplicates()
-{
-    QSet<FileName> seen;
-    int removed = 0;
-
-    for (int i = 0; i < size(); ) {
-        const FileName &fn = at(i);
-        if (seen.contains(fn)) {
-            removeAt(i);
-            ++removed;
-        } else {
-            seen.insert(fn);
-            ++i;
-        }
-    }
-
-    return removed;
-}
-
 } // namespace Utils
 
 QT_BEGIN_NAMESPACE

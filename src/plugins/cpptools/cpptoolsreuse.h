@@ -37,16 +37,14 @@
 
 #include <cplusplus/CppDocument.h>
 
+#include <utils/fileutils.h>
+
 QT_BEGIN_NAMESPACE
 class QChar;
 class QFileInfo;
 class QStringRef;
 class QTextCursor;
 QT_END_NAMESPACE
-
-namespace Utils {
-class FileNameList;
-} // namespace Utils
 
 namespace CPlusPlus {
 class Macro;
